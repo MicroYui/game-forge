@@ -1,0 +1,24 @@
+scenario_id: caravan_slice
+grid: { width: 12, height: 8, blocked: [[4, 3], [4, 4], [5, 3]] }
+start_pos: [0, 0]
+regions:
+  - { id: "region:newbie_zone", name: "新手村" }
+npcs:
+  - { id: "npc:lincheng", name: "林澈", region: "region:newbie_zone", pos: [2, 1] }
+items:
+  - { id: "item:broken_emblem", name: "破损徽记" }
+  - { id: "item:low_tier_blade", name: "低阶短刃" }
+spawn_points:
+  - { id: "spawn:emblem_pile", region: "region:newbie_zone", pos: [9, 6], spawns: "interact:emblem_pile" }
+interactables:
+  - { id: "interact:emblem_pile", kind: "gather", pos: [9, 6], yields_item: "item:broken_emblem", yields_count: 3 }
+quests:
+  - id: "quest:missing_caravan"
+    title: "失踪的商队"
+    giver: "npc:lincheng"
+    region: "region:newbie_zone"
+    reward: { gold: 60, item: "item:low_tier_blade" }
+    steps:
+      - { id: "step:talk_lincheng", kind: "talk", target: "npc:lincheng" }
+      - { id: "step:collect_emblem", kind: "collect", item: "item:broken_emblem", count: 3 }
+      - { id: "step:turn_in", kind: "turn_in", target: "npc:lincheng" }
