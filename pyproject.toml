@@ -31,6 +31,8 @@ target-version = "py312"
 # `gameforge/` namespace; `web/` (frontend) sits beside it and is not analyzed here.
 [tool.importlinter]
 root_packages = ["gameforge"]
+# Required so the external LLM-SDK forbidden modules (openai/anthropic/…) are analyzed.
+include_external_packages = true
 
 [[tool.importlinter.contracts]]
 name = "spine is LLM-free and trunk-pure"
