@@ -1,0 +1,1 @@
+"""GameForge platform package."""

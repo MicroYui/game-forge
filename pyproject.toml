@@ -1,0 +1,102 @@
+[project]
+name = "gameforge"
+version = "0.0.0"
+description = "GameForge — game-content correctness compiler + agent workbench"
+requires-python = ">=3.12"
+dependencies = [
+    "pydantic>=2.7",
+    "pyyaml>=6.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.2",
+    "hypothesis>=6.100",
+    "import-linter>=2.0",
+    "ruff>=0.5",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+# Dependency-direction gate (contract §1 硬约束). All packages live under the
+# `gameforge/` namespace; `web/` (frontend) sits beside it and is not analyzed here.
+[tool.importlinter]
+root_packages = ["gameforge"]
+
+[[tool.importlinter.contracts]]
+name = "spine is LLM-free and trunk-pure"
+type = "forbidden"
+source_modules = ["gameforge.spine"]
+forbidden_modules = [
+    "gameforge.agents",
+    "gameforge.platform",
+    "gameforge.runtime.model_router",
+    "openai",
+    "anthropic",
+    "langchain",
+    "langgraph",
+    "llama_index",
+]
+
+[[tool.importlinter.contracts]]
+name = "runtime never imports agents"
+type = "forbidden"
+source_modules = ["gameforge.runtime"]
+forbidden_modules = ["gameforge.agents"]
+
+[[tool.importlinter.contracts]]
+name = "contracts depends on no business package"
+type = "forbidden"
+source_modules = ["gameforge.contracts"]
+forbidden_modules = [
+    "gameforge.runtime",
+    "gameforge.spine",
+    "gameforge.env",
+    "gameforge.game",
+    "gameforge.agents",
+    "gameforge.platform",
+    "gameforge.apps",
+    "gameforge.bench",
+]
+
+[[tool.importlinter.contracts]]
+name = "env only depends on contracts"
+type = "forbidden"
+source_modules = ["gameforge.env"]
+forbidden_modules = [
+    "gameforge.runtime",
+    "gameforge.spine",
+    "gameforge.game",
+    "gameforge.agents",
+    "gameforge.platform",
+    "gameforge.apps",
+    "gameforge.bench",
+]
+
+[[tool.importlinter.contracts]]
+name = "game only depends on contracts and env"
+type = "forbidden"
+source_modules = ["gameforge.game"]
+forbidden_modules = [
+    "gameforge.runtime",
+    "gameforge.spine",
+    "gameforge.agents",
+    "gameforge.platform",
+    "gameforge.apps",
+    "gameforge.bench",
+]
+
+[[tool.importlinter.contracts]]
+name = "platform never imports agents or apps"
+type = "forbidden"
+source_modules = ["gameforge.platform"]
+forbidden_modules = ["gameforge.agents", "gameforge.apps"]

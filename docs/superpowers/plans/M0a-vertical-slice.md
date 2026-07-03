@@ -18,38 +18,41 @@ Copied verbatim from CLAUDE.md 硬规则 and the foundational contracts. Every t
 - **可复现只承诺回放**: env is seed-ized; identical `(scenario, seed, action-sequence)` → identical trajectory and per-tick `state_hash`.
 - **TDD 全程**: every task is test-first (write failing test → run → implement → run → commit). Checker/serialization use property + differential tests.
 - **Git**: commit messages carry NO AI co-author / "Generated with" attribution.
+- **Package namespace**: the contract §1 packages live under a single `gameforge/` package root (matching the §1 diagram: `gameforge/` indented root + `web/` sibling). All Python imports are `gameforge.<pkg>` (e.g. `gameforge.contracts.ir`, `gameforge.spine.ir.store`, `gameforge.game.aureus.kernel`). Code snippets below write the short form (`contracts.ir`, `spine.ir.store`, …); read every one with the `gameforge.` prefix. Nesting under `gameforge/` also avoids shadowing stdlib `platform`.
 - **schema_version constants (define once, reuse everywhere):** `IR_SCHEMA_VERSION = "ir-core@1"`, `META_SCHEMA_VERSION = "meta@1"`, `ENV_CONTRACT_VERSION = "env@1"`, `FINDING_SCHEMA_VERSION = "finding@1"`, `PATCH_SCHEMA_VERSION = "patch@1"`, `DSL_GRAMMAR_VERSION = "dsl@1"` (DSL grammar itself lands M1; constant reserved now).
 
 ## Repo layout produced by this plan (contract §1)
 
 ```
-gameforge/                      # repo root (this directory)
+game-forge/                     # repo root (checkout dir)
   pyproject.toml                # uv-managed; deps + pytest + ruff + importlinter config
   .python-version               # 3.12
-  contracts/                    # schema single-source-of-truth (impl@M0a: ir, env, findings, world)
-    __init__.py  ir.py  canonical.py  env_types.py  findings.py  world.py  versions.py
-  runtime/                      # low-level capabilities (skeleton in M0a)
-    __init__.py  model_router/__init__.py  cassette/__init__.py
-    observability/__init__.py  config/__init__.py  secrets/__init__.py
-  spine/                        # deterministic trusted trunk (no LLM)
+  gameforge/                    # Python package root (contract §1 packages nest here)
     __init__.py
-    ir/  __init__.py  store.py  snapshot.py  loader.py
-    checkers/  __init__.py  base.py  structural.py
-    dsl/__init__.py  sim/__init__.py  versioning/__init__.py     # skeletons (impl M1/M0b)
-  env/                          # Agent-Env interface (no impl)
-    __init__.py  base.py
-  game/
-    __init__.py
-    aureus/  __init__.py  grid.py  world.py  kernel.py
-  agents/__init__.py            # skeleton (impl M2)
-  platform/__init__.py          # skeleton (impl M0b/M4)
-  apps/
-    __init__.py  cli/__init__.py  cli/ir_to_world.py  cli/driver.py  cli/run_slice.py
-  bench/__init__.py             # skeleton (impl M3)
+    contracts/                  # schema single-source-of-truth (impl@M0a: ir, env, findings, world)
+      __init__.py  ir.py  canonical.py  env_types.py  findings.py  world.py  versions.py
+    runtime/                    # low-level capabilities (skeleton in M0a)
+      __init__.py  model_router/__init__.py  cassette/__init__.py
+      observability/__init__.py  config/__init__.py  secrets/__init__.py
+    spine/                      # deterministic trusted trunk (no LLM)
+      __init__.py
+      ir/  __init__.py  store.py  snapshot.py  loader.py
+      checkers/  __init__.py  base.py  structural.py
+      dsl/__init__.py  sim/__init__.py  versioning/__init__.py     # skeletons (impl M1/M0b)
+    env/                        # Agent-Env interface (no impl)
+      __init__.py  base.py
+    game/
+      __init__.py
+      aureus/  __init__.py  grid.py  world.py  kernel.py
+    agents/__init__.py          # skeleton (impl M2)
+    platform/__init__.py        # skeleton (impl M0b/M4)
+    apps/
+      __init__.py  cli/__init__.py  cli/ir_to_world.py  cli/driver.py  cli/run_slice.py
+    bench/__init__.py           # skeleton (impl M3)
   scenarios/                    # hand-written M0a scenario config
     caravan.yaml
-  tests/                        # mirrors package tree
-  web/                          # Vite React TS scaffold
+  tests/                        # mirrors package tree; imports gameforge.*
+  web/                          # Vite React TS scaffold (repo-root sibling of gameforge/)
 docs/superpowers/plans/…        # this file
 ```
 
