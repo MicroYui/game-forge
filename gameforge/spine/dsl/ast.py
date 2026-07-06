@@ -27,7 +27,7 @@ over a different (assert-expression, not integer-only) grammar:
   EXCEPT dunder attributes (`x.__class__`), which are always rejected
 - whitelisted function calls, parsed into a `Call` node but NOT evaluated
   here: `max, min, exists, forall, reachable_in, sum, prob_sum, monotonic,
-  in_range, count`, plus the llm-assisted placeholder
+  in_range, count, gacha_expectation`, plus the llm-assisted placeholder
   `semantically_reveals_identity` (M1 parses it; M2 evaluates it via the
   agent layer — 不简化只延后).
 
@@ -150,6 +150,7 @@ WHITELISTED_CALLS = frozenset(
         "monotonic",
         "in_range",
         "count",
+        "gacha_expectation",  # M1 Task 6: expected-pulls-to-rare vs pity, SMT-evaluated
         "semantically_reveals_identity",  # llm-assisted placeholder; not evaluated in M1
     }
 )
