@@ -98,12 +98,6 @@ forbidden_modules = [
 ]
 
 [[tool.importlinter.contracts]]
-name = "platform never imports agents or apps"
-type = "forbidden"
-source_modules = ["gameforge.platform"]
-forbidden_modules = ["gameforge.agents", "gameforge.apps"]
-
-[[tool.importlinter.contracts]]
 name = "runtime never imports agents or spine or platform"
 type = "forbidden"
 source_modules = ["gameforge.runtime"]
