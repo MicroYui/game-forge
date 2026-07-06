@@ -2,9 +2,9 @@
 
 Deterministic, stdlib-only round trip between on-disk CSV sheets and typed
 in-memory workbook dicts, one dict-of-rows per SheetSchema. Depends only on
-gameforge.contracts (canonical_json + the decimal-normalize float rule) and
-the stdlib csv/json modules — no DB, no LLM, no runtime imports (spine
-boundary, contract §1).
+gameforge.contracts (the decimal-normalize float rule) and the stdlib
+csv/json modules — no DB, no LLM, no runtime imports (spine boundary,
+contract §1).
 
 Round-trip determinism is the headline property this exists for:
 `read_workbook(dir, schema)` after `write_workbook(dir, schema, x)` must equal
@@ -17,11 +17,18 @@ Coercion rules (mirrored between encode/decode so they invert each other):
     `required`, since `[]` is a valid list value, not a missing one).
   - other types on a non-required column: the empty string decodes to `None`
     (a missing optional cell), and `None` encodes back to the empty string.
+    An empty cell on a REQUIRED column instead raises `ValueError` for every
+    scalar type (`int`/`float`/`bool`/`json`), rather than silently
+    coercing — validation of required-ness is SchemaRegistry's job, but a
+    missing required cell should never masquerade as a valid value.
   - `int` / `float` / `bool` / `json` / `str`: coerced via the obvious
     stdlib call; `float` goes through `Decimal(str(v)).normalize()` (same
     rule as `contracts.canonical`) so equal-value floats serialize
-    identically; `json` goes through `canonical_json` so key order is
-    stable across writes.
+    identically; `json` goes through plain `json.dumps(sort_keys=True,
+    separators=(",", ":"))` — deterministic like `contracts.canonical_json`,
+    but NOT that function, since `canonical_json` is a content-addressed-
+    hashing helper that tags floats as strings and drops `None`-valued dict
+    keys, both of which would break this format's lossless round-trip.
 """
 
 from __future__ import annotations
@@ -32,7 +39,6 @@ import os
 from decimal import Decimal
 from typing import Any
 
-from gameforge.contracts.canonical import canonical_json
 from gameforge.spine.ingestion.format_schema import ColumnSchema, FormatSchema
 
 _LIST_TYPES = {"int_list", "str_list"}
@@ -51,6 +57,8 @@ def _decode_cell(raw: str, column: ColumnSchema) -> Any:
     if column.type == "float":
         return float(raw)
     if column.type == "bool":
+        if raw == "":
+            raise ValueError(f"required bool column {column.name!r} has an empty cell")
         return raw.strip().lower() == "true"
     if column.type == "json":
         return json.loads(raw)
@@ -63,7 +71,13 @@ def _encode_cell(value: Any, column: ColumnSchema) -> str:
     if column.type in _LIST_TYPES:
         return ";".join(str(v) for v in value)
     if column.type == "json":
-        return canonical_json(value)
+        # Plain deterministic JSON, NOT canonical_json: canonical_json is a
+        # content-addressed-hashing helper (contracts/canonical.py) that tags
+        # floats as strings ("f:0.5") and drops None-valued dict keys — both
+        # lossy transforms that break this format's round-trip guarantee.
+        # Sorted keys + fixed separators still give us deterministic bytes
+        # across writes without touching real JSON types.
+        return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False)
     if column.type == "float":
         return format(Decimal(str(value)).normalize(), "f")
     if column.type == "bool":
