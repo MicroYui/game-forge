@@ -34,7 +34,7 @@ def test_quest_step_kinds_restricted():
     import pytest
     from pydantic import ValidationError
 
-    for kind in ["talk", "collect", "turn_in"]:
+    for kind in ["talk", "collect", "turn_in", "fight"]:  # fight added in M0b
         QuestStepSpec(step_id="s", kind=kind)
     with pytest.raises(ValidationError):
-        QuestStepSpec(step_id="s", kind="fight")  # combat step is M0b, not a valid M0a kind
+        QuestStepSpec(step_id="s", kind="bogus")  # kind remains a restricted literal set
