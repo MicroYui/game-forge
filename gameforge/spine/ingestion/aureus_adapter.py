@@ -13,9 +13,9 @@ Spec-IR graph —
      (no normalization, no dropped columns). This is the only pass `from_ir`
      reads back from.
   2. Derived relations: a second pass walks the same rows to add graph edges
-     (HAS_STEP/PRECEDES, DROPS_FROM, SELLS, TALKS_TO/REQUIRES, TRIGGERED_BY,
-     USES_SKILL, APPLIES_EFFECT) purely for graph queries/checkers (M1).
-     These edges are REDUNDANT with pass 1's attrs — e.g. a DROPS_FROM edge
+     (GRANTS, SPAWNS, HAS_STEP/PRECEDES, DROPS_FROM, SELLS, TALKS_TO/REQUIRES,
+     TRIGGERED_BY, USES_SKILL, APPLIES_EFFECT) purely for graph queries/checkers
+     (M1). These edges are REDUNDANT with pass 1's attrs — e.g. a DROPS_FROM edge
      just restates what `monsters.drop_table_id` + `drop_tables.entries`
      already say — so `from_ir` never looks at them.
 
@@ -117,6 +117,33 @@ class AureusCsvAdapter:
                                     source_ref=sref(sheet, i)))
 
         # --- pass 2: derived relations for graph queries/checkers (M1) ---
+
+        # GRANTS (interactable -> item) via interactables.yields_item — same
+        # direction as the M0a loader (src=interactable, dst=item): a gather
+        # source GRANTS the item it yields. This is a checker-gate input
+        # (`StructuralChecker._collect_needs_source` looks for GRANTS/DROPS_FROM
+        # edges whose dst_id is the collected item).
+        for i, it in enumerate(workbook.get("interactables", [])):
+            item = it.get("yields_item")
+            if not item:
+                continue
+            g.add_relation(Relation(
+                id=rid.next(EdgeType.GRANTS, it["interactable_id"], item),
+                type=EdgeType.GRANTS, src_id=it["interactable_id"], dst_id=item,
+                source_ref=sref("interactables", i),
+            ))
+
+        # SPAWNS (spawn_point -> item) via spawn_points.spawns — same direction
+        # as the M0a loader (src=spawn_point, dst=item).
+        for i, sp in enumerate(workbook.get("spawn_points", [])):
+            item = sp.get("spawns")
+            if not item:
+                continue
+            g.add_relation(Relation(
+                id=rid.next(EdgeType.SPAWNS, sp["spawn_point_id"], item),
+                type=EdgeType.SPAWNS, src_id=sp["spawn_point_id"], dst_id=item,
+                source_ref=sref("spawn_points", i),
+            ))
 
         # HAS_STEP (quest -> step) + PRECEDES (chain, ordered by `order`, not row order).
         steps_by_quest: dict[str, list[tuple[Any, str, int]]] = {}
