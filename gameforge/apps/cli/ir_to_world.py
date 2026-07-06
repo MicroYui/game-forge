@@ -9,12 +9,18 @@ from __future__ import annotations
 
 from gameforge.contracts.ir import EdgeType, NodeType
 from gameforge.contracts.world import (
-    GridSpec, Placement, QuestSpec, QuestStepSpec, ScenarioConfig, WorldConfig,
+    CurrencySpec, DropEntry, DropTableSpec, EffectSpec, EquipmentSpec, FormulaSpec,
+    GachaEntry, GachaPoolSpec, GridSpec, MonsterSpec, Placement, QuestSpec,
+    QuestStepSpec, ScenarioConfig, ShopEntry, ShopSpec, SkillSpec, StatusEffectSpec,
+    WorldConfig, BattleEncounterSpec,
 )
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.ir.store import IRGraph
 
-_PLACED_TYPES = {NodeType.NPC, NodeType.INTERACTABLE, NodeType.SPAWN_POINT}
+_PLACED_TYPES = {
+    NodeType.NPC, NodeType.INTERACTABLE, NodeType.SPAWN_POINT,
+    NodeType.BATTLE_ENCOUNTER, NodeType.SHOP, NodeType.GACHA_POOL,
+}
 
 
 def _ordered_step_ids(g: IRGraph, quest_id: str) -> list[str]:
@@ -87,6 +93,7 @@ def snapshot_to_world(snapshot: Snapshot) -> WorldConfig:
                     target=step.attrs.get("target"),
                     item=step.attrs.get("item"),
                     count=int(step.attrs.get("count", 1)),
+                    encounter=step.attrs.get("encounter"),
                 )
             )
         quests.append(
@@ -98,4 +105,87 @@ def snapshot_to_world(snapshot: Snapshot) -> WorldConfig:
             )
         )
 
-    return WorldConfig(scenario=scenario, grid=grid, placements=placements, quests=quests)
+    # --- combat-economy content (M0b): id-keyed specs read straight from attrs ---
+    currencies = [
+        CurrencySpec(currency_id=e.id, name=e.attrs.get("name"))
+        for e in sorted(g.nodes_of_type(NodeType.CURRENCY), key=lambda e: e.id)
+    ]
+    formulas = [
+        FormulaSpec(formula_id=e.id, expr=e.attrs["expr"], kind=e.attrs.get("kind", "damage"))
+        for e in sorted(g.nodes_of_type(NodeType.FORMULA), key=lambda e: e.id)
+    ]
+    effects = [
+        EffectSpec(
+            effect_id=e.id, kind=e.attrs["kind"], stat=e.attrs.get("stat"),
+            magnitude=int(e.attrs.get("magnitude", 0)), duration=int(e.attrs.get("duration", 0)),
+        )
+        for e in sorted(g.nodes_of_type(NodeType.EFFECT), key=lambda e: e.id)
+    ]
+    status_effects = [
+        StatusEffectSpec(
+            status_effect_id=e.id, effect_id=e.attrs["effect_id"],
+            duration=int(e.attrs.get("duration", 1)),
+        )
+        for e in sorted(g.nodes_of_type(NodeType.STATUS_EFFECT), key=lambda e: e.id)
+    ]
+    skills = [
+        SkillSpec(
+            skill_id=e.id, name=e.attrs.get("name"), cost=int(e.attrs.get("cost", 0)),
+            power=int(e.attrs.get("power", 100)), formula_id=e.attrs.get("formula_id"),
+            target=e.attrs.get("target", "enemy"), applies_status=e.attrs.get("applies_status"),
+        )
+        for e in sorted(g.nodes_of_type(NodeType.SKILL), key=lambda e: e.id)
+    ]
+    equipment = [
+        EquipmentSpec(
+            equipment_id=e.id, slot=e.attrs["slot"], stat_mods=dict(e.attrs.get("stat_mods", {})),
+        )
+        for e in sorted(g.nodes_of_type(NodeType.EQUIPMENT), key=lambda e: e.id)
+    ]
+    monsters = [
+        MonsterSpec(
+            monster_id=e.id, name=e.attrs.get("name"), stats=dict(e.attrs.get("stats", {})),
+            skills=list(e.attrs.get("skills") or []), drop_table_id=e.attrs.get("drop_table_id"),
+            ai=e.attrs.get("ai", "aggressive"),
+        )
+        for e in sorted(g.nodes_of_type(NodeType.MONSTER), key=lambda e: e.id)
+    ]
+    drop_tables = [
+        DropTableSpec(
+            drop_table_id=e.id,
+            entries=[DropEntry(**entry) for entry in e.attrs.get("entries", [])],
+        )
+        for e in sorted(g.nodes_of_type(NodeType.DROP_TABLE), key=lambda e: e.id)
+    ]
+    encounters = [
+        BattleEncounterSpec(
+            encounter_id=e.id, monsters=list(e.attrs.get("monsters") or []),
+            reward=dict(e.attrs.get("reward", {})),
+            pos=(int(e.attrs["pos"][0]), int(e.attrs["pos"][1])) if e.attrs.get("pos") else None,
+        )
+        for e in sorted(g.nodes_of_type(NodeType.BATTLE_ENCOUNTER), key=lambda e: e.id)
+    ]
+    shops = [
+        ShopSpec(
+            shop_id=e.id, entries=[ShopEntry(**entry) for entry in e.attrs.get("entries", [])],
+        )
+        for e in sorted(g.nodes_of_type(NodeType.SHOP), key=lambda e: e.id)
+    ]
+    gacha_pools = [
+        GachaPoolSpec(
+            gacha_pool_id=e.id, cost=int(e.attrs.get("cost", 100)),
+            currency=e.attrs.get("currency", "gold"),
+            entries=[GachaEntry(**entry) for entry in e.attrs.get("entries", [])],
+            pity_threshold=int(e.attrs.get("pity_threshold", 0)),
+            pity_item=e.attrs.get("pity_item"),
+        )
+        for e in sorted(g.nodes_of_type(NodeType.GACHA_POOL), key=lambda e: e.id)
+    ]
+
+    return WorldConfig(
+        scenario=scenario, grid=grid, placements=placements, quests=quests,
+        currencies=currencies, formulas=formulas, effects=effects,
+        status_effects=status_effects, skills=skills, equipment=equipment,
+        monsters=monsters, drop_tables=drop_tables, encounters=encounters,
+        shops=shops, gacha_pools=gacha_pools,
+    )
