@@ -1,0 +1,58 @@
+Flare sample data — provenance and license
+===========================================
+
+Source repository: https://github.com/flareteam/flare-game (org: flareteam),
+branch `master`. Flare is an open-source, data-driven action-RPG engine
+(flare-engine) with a companion reference game (flare-game) whose config data
+is plain-text, INI-like `key=value` records — the format this GameForge
+adapter (`gameforge/spine/ingestion/flare_adapter.py`) ingests.
+
+License: flare-game's game data (the `mods/` tree, including the files
+vendored here) is distributed under CC BY-SA 3.0; engine code is GPL-3.0.
+See the upstream repo's LICENSE.txt / CREDITS.txt for full terms:
+https://github.com/flareteam/flare-game/blob/master/LICENSE.txt
+
+Fetched: 2026-07-06, via `raw.githubusercontent.com` (network-fetched, not
+fabricated).
+
+Files vendored here
+--------------------
+
+- `items.txt` — assembled from complete, UNMODIFIED `[item]` record blocks
+  copied byte-for-byte from three upstream files:
+    - mods/alpha_demo/items/items.txt
+        -> id=10  "Gold"                    (has repeated `loot_animation=`
+                                              and a literal repeated `quality=`)
+        -> id=9100 "Scathelocke's Spellbook" (has a commented-out
+                                              `#quest_item=true` line and a
+                                              `bonus=` field)
+    - mods/alpha_demo/items/categories/weapons_melee.txt
+        -> id=31 "Broken Dagger", id=32 "Dagger"
+    - mods/alpha_demo/items/categories/shields.txt
+        -> id=56 "Wood Buckler"
+  Only whole record blocks (plus each block's immediately preceding
+  comment/banner lines, where present in the source) were selected and
+  concatenated with one blank line between groups for a compact,
+  self-contained fixture; nothing *inside* a kept block was edited,
+  reordered, reformatted, or renamed — each block's bytes are identical to
+  its upstream source. This is a curated excerpt of real files, not a
+  fabricated sample.
+
+- `enemies/goblin.txt`   — mods/alpha_demo/enemies/goblin.txt,   verbatim, unmodified.
+- `enemies/skeleton.txt` — mods/alpha_demo/enemies/skeleton.txt, verbatim, unmodified.
+  Both reference item id 32 ("Dagger") via a `loot=32,5` line, and
+  `skeleton.txt` additionally references item id 56 ("Wood Buckler") via
+  `loot=56,5` — real cross-file drop references, used by
+  `FlareTxtAdapter.to_ir` to derive `DROPS_FROM` edges. Both files also
+  contain repeated `stat=` lines and a non-item loot-table reference
+  (`loot=loot/leveled_low.txt`), which must NOT be misread as an item drop.
+
+Purpose
+-------
+
+Used solely as a small external-validity fixture for GameForge's Flare
+config-format ingestion adapter, to prove a lossless round trip
+(`from_ir(to_ir(x)) == x`, byte-for-byte re-serialization) against a real
+open-source game's data format (contract §12A.1 / M1 plan Task 10). This is
+not a redistribution of flare-game as a whole, nor a claim of completeness —
+only the excerpted content above, attributed per CC BY-SA 3.0.

@@ -1,0 +1,59 @@
+####################
+# Item Definitions #
+####################
+
+# Currency
+[item]
+id=10
+name=Gold
+quality=normal
+icon=88
+price=1
+price_sell=1
+max_quantity=5000
+soundfx=soundfx/inventory/inventory_coins.ogg
+loot_animation=animations/loot/coins5.txt,0,9
+loot_animation=animations/loot/coins25.txt,10,24
+loot_animation=animations/loot/coins100.txt,25,0
+quality=currency
+
+# Basic Melee Weapons #################
+
+[item]
+id=31
+name=Broken Dagger
+INCLUDE items/base/weapons/melee/dagger.txt
+quality=low
+dmg=melee,5,15
+price=10
+
+[item]
+id=32
+name=Dagger
+INCLUDE items/base/weapons/melee/dagger.txt
+dmg=melee,10,30
+requires_stat=physical,2
+price=20
+
+# Basic Shields #######################
+
+[item]
+id=56
+name=Wood Buckler
+INCLUDE items/base/shields/wood.txt
+abs=0,10
+requires_stat=defense,2
+price=30
+
+# Quest Items
+
+[item]
+id=9100
+name=Scathelocke's Spellbook
+INCLUDE items/base/misc/book.txt
+#quest_item=true
+quality=epic
+item_type=artifact
+bonus=mental,1
+pickup_status=lb_spellbook_found
+price=3000
