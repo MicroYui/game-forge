@@ -1,0 +1,724 @@
+{
+  "format_id": "aureus",
+  "version": "1",
+  "sheets": [
+    {
+      "name": "items",
+      "primary_key": "item_id",
+      "columns": [
+        {
+          "name": "item_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "name",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "npcs",
+      "primary_key": "npc_id",
+      "columns": [
+        {
+          "name": "npc_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "name",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "region",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": "regions.region_id"
+        },
+        {
+          "name": "pos",
+          "type": "json",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "monsters",
+      "primary_key": "monster_id",
+      "columns": [
+        {
+          "name": "monster_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "name",
+          "type": "str",
+          "required": false,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "stats",
+          "type": "json",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "skills",
+          "type": "str_list",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "drop_table_id",
+          "type": "str",
+          "required": false,
+          "enum": null,
+          "foreign_key": "drop_tables.drop_table_id"
+        },
+        {
+          "name": "ai",
+          "type": "str",
+          "required": true,
+          "enum": [
+            "aggressive",
+            "passive"
+          ],
+          "foreign_key": null
+        },
+        {
+          "name": "gold_min",
+          "type": "int",
+          "required": false,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "gold_max",
+          "type": "int",
+          "required": false,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "currency",
+          "type": "str",
+          "required": false,
+          "enum": null,
+          "foreign_key": "currencies.currency_id"
+        },
+        {
+          "name": "kills_per_tick",
+          "type": "int",
+          "required": false,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "skills",
+      "primary_key": "skill_id",
+      "columns": [
+        {
+          "name": "skill_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "name",
+          "type": "str",
+          "required": false,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "cost",
+          "type": "int",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "power",
+          "type": "int",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "formula_id",
+          "type": "str",
+          "required": false,
+          "enum": null,
+          "foreign_key": "formulas.formula_id"
+        },
+        {
+          "name": "target",
+          "type": "str",
+          "required": true,
+          "enum": [
+            "enemy",
+            "self",
+            "ally"
+          ],
+          "foreign_key": null
+        },
+        {
+          "name": "applies_status",
+          "type": "str",
+          "required": false,
+          "enum": null,
+          "foreign_key": "status_effects.status_effect_id"
+        }
+      ]
+    },
+    {
+      "name": "effects",
+      "primary_key": "effect_id",
+      "columns": [
+        {
+          "name": "effect_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "kind",
+          "type": "str",
+          "required": true,
+          "enum": [
+            "damage",
+            "heal",
+            "buff",
+            "debuff",
+            "dot"
+          ],
+          "foreign_key": null
+        },
+        {
+          "name": "stat",
+          "type": "str",
+          "required": false,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "magnitude",
+          "type": "int",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "duration",
+          "type": "int",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "status_effects",
+      "primary_key": "status_effect_id",
+      "columns": [
+        {
+          "name": "status_effect_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "effect_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": "effects.effect_id"
+        },
+        {
+          "name": "duration",
+          "type": "int",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "formulas",
+      "primary_key": "formula_id",
+      "columns": [
+        {
+          "name": "formula_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "expr",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "kind",
+          "type": "str",
+          "required": true,
+          "enum": [
+            "damage",
+            "curve",
+            "other"
+          ],
+          "foreign_key": null
+        },
+        {
+          "name": "curve",
+          "type": "json",
+          "required": false,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "equipment",
+      "primary_key": "equipment_id",
+      "columns": [
+        {
+          "name": "equipment_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "slot",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "stat_mods",
+          "type": "json",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "drop_tables",
+      "primary_key": "drop_table_id",
+      "columns": [
+        {
+          "name": "drop_table_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "entries",
+          "type": "json",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "encounters",
+      "primary_key": "encounter_id",
+      "columns": [
+        {
+          "name": "encounter_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "monsters",
+          "type": "str_list",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "reward",
+          "type": "json",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "pos",
+          "type": "json",
+          "required": false,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "shops",
+      "primary_key": "shop_id",
+      "columns": [
+        {
+          "name": "shop_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "entries",
+          "type": "json",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "gacha_pools",
+      "primary_key": "gacha_pool_id",
+      "columns": [
+        {
+          "name": "gacha_pool_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "cost",
+          "type": "int",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "currency",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": "currencies.currency_id"
+        },
+        {
+          "name": "entries",
+          "type": "json",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "pity_threshold",
+          "type": "int",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "pity_item",
+          "type": "str",
+          "required": false,
+          "enum": null,
+          "foreign_key": "items.item_id"
+        },
+        {
+          "name": "base_rate",
+          "type": "float",
+          "required": false,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "max_expected_pulls",
+          "type": "int",
+          "required": false,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "currencies",
+      "primary_key": "currency_id",
+      "columns": [
+        {
+          "name": "currency_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "name",
+          "type": "str",
+          "required": false,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "regions",
+      "primary_key": "region_id",
+      "columns": [
+        {
+          "name": "region_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "name",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "grid",
+          "type": "json",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "start_pos",
+          "type": "json",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "scenario_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "spawn_points",
+      "primary_key": "spawn_point_id",
+      "columns": [
+        {
+          "name": "spawn_point_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "region",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": "regions.region_id"
+        },
+        {
+          "name": "pos",
+          "type": "json",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "spawns",
+          "type": "str",
+          "required": false,
+          "enum": null,
+          "foreign_key": "items.item_id"
+        }
+      ]
+    },
+    {
+      "name": "interactables",
+      "primary_key": "interactable_id",
+      "columns": [
+        {
+          "name": "interactable_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "kind",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "pos",
+          "type": "json",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "region",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": "regions.region_id"
+        },
+        {
+          "name": "yields_item",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": "items.item_id"
+        },
+        {
+          "name": "yields_count",
+          "type": "int",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "quests",
+      "primary_key": "quest_id",
+      "columns": [
+        {
+          "name": "quest_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "title",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "region",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": "regions.region_id"
+        },
+        {
+          "name": "giver",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": "npcs.npc_id"
+        },
+        {
+          "name": "reward",
+          "type": "json",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        }
+      ]
+    },
+    {
+      "name": "quest_steps",
+      "primary_key": "step_id",
+      "columns": [
+        {
+          "name": "step_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "quest_id",
+          "type": "str",
+          "required": true,
+          "enum": null,
+          "foreign_key": "quests.quest_id"
+        },
+        {
+          "name": "order",
+          "type": "int",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "kind",
+          "type": "str",
+          "required": true,
+          "enum": [
+            "talk",
+            "collect",
+            "turn_in",
+            "fight"
+          ],
+          "foreign_key": null
+        },
+        {
+          "name": "target",
+          "type": "str",
+          "required": false,
+          "enum": null,
+          "foreign_key": "npcs.npc_id"
+        },
+        {
+          "name": "item",
+          "type": "str",
+          "required": false,
+          "enum": null,
+          "foreign_key": "items.item_id"
+        },
+        {
+          "name": "count",
+          "type": "int",
+          "required": true,
+          "enum": null,
+          "foreign_key": null
+        },
+        {
+          "name": "encounter",
+          "type": "str",
+          "required": false,
+          "enum": null,
+          "foreign_key": "encounters.encounter_id"
+        }
+      ]
+    }
+  ]
+}

@@ -29,3 +29,67 @@ def test_from_ir_reconstructs_workbook_field_level():
     wb = _wb()
     back = adapter.from_ir(adapter.to_ir(wb, file_ref="outpost"))
     assert back == wb  # contract §2 anchor: from_ir(to_ir(x)) == x, field level
+
+
+def test_to_ir_derives_starts_at_and_rewards_from_quest_row():
+    # quests.giver -> STARTS_AT(quest -> giver); quests.reward.item -> REWARDS
+    # (quest -> item), mirroring the M0a loader (`spine/ir/loader.py`). Without
+    # these, GraphChecker's dead_quest/isolated_node fire as false positives on
+    # any quest ingested purely from CSV (contract §12A.1 oracle-FP=0 anchor).
+    snap = AureusCsvAdapter().to_ir(_wb(), file_ref="outpost")
+    g = snap.to_graph()
+    starts = g.neighbors("q", EdgeType.STARTS_AT, direction="out")
+    assert len(starts) == 1 and starts[0].dst_id == "npc:a"
+    rewards = g.neighbors("q", EdgeType.REWARDS, direction="out")
+    assert rewards == []  # this fixture's reward has no "item" key
+
+
+def test_to_ir_derives_rewards_when_reward_has_item():
+    wb = _wb()
+    wb["quests"][0]["reward"] = {"gold": 10, "item": "item:x"}
+    snap = AureusCsvAdapter().to_ir(wb, file_ref="outpost")
+    g = snap.to_graph()
+    rewards = g.neighbors("q", EdgeType.REWARDS, direction="out")
+    assert len(rewards) == 1 and rewards[0].dst_id == "item:x"
+
+
+def test_to_ir_skips_starts_at_when_giver_blank():
+    wb = _wb()
+    wb["quests"][0]["giver"] = ""
+    snap = AureusCsvAdapter().to_ir(wb, file_ref="outpost")
+    g = snap.to_graph()
+    assert g.neighbors("q", EdgeType.STARTS_AT, direction="out") == []
+
+
+def test_to_ir_derives_monster_currency_drops_from_gold_attrs():
+    # Monster rows carrying economy-sim gold-drop attrs (`gold_min`/`gold_max`/
+    # `currency`, all optional beyond the base monsters schema) derive a
+    # DROPS_FROM(monster -> currency) edge — the direction EconomySimulator's
+    # `EconomyModel.from_snapshot` expects (src=producer, dst=currency). This
+    # is the OPPOSITE direction from the item-drop DROPS_FROM edges above
+    # (src=item, dst=monster) -- DROPS_FROM is contract-wide overloaded for two
+    # distinct "produces" relationships that never collide (item ids and
+    # currency ids are disjoint namespaces).
+    wb = _wb()
+    wb["monsters"] = [{
+        "monster_id": "m:wolf", "name": "Wolf",
+        "stats": {"atk": 1, "def": 1, "hp": 1}, "skills": None,
+        "drop_table_id": None, "ai": "aggressive",
+        "gold_min": 5, "gold_max": 10, "currency": "gold",
+    }]
+    snap = AureusCsvAdapter().to_ir(wb, file_ref="outpost")
+    g = snap.to_graph()
+    drops = g.neighbors("m:wolf", EdgeType.DROPS_FROM, direction="out")
+    assert len(drops) == 1 and drops[0].dst_id == "gold"
+
+
+def test_to_ir_skips_monster_currency_drops_from_without_gold_attrs():
+    wb = _wb()
+    wb["monsters"] = [{
+        "monster_id": "m:wolf", "name": "Wolf",
+        "stats": {"atk": 1, "def": 1, "hp": 1}, "skills": None,
+        "drop_table_id": None, "ai": "aggressive",
+    }]
+    snap = AureusCsvAdapter().to_ir(wb, file_ref="outpost")
+    g = snap.to_graph()
+    assert g.neighbors("m:wolf", EdgeType.DROPS_FROM, direction="out") == []

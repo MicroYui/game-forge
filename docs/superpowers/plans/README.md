@@ -10,3 +10,4 @@
 **当前计划文件**：
 - `M0a-vertical-slice.md` — M0a（已完成）
 - `2026-07-06-m0b-foundations.md` — M0b（已完成）
+- `2026-07-06-m1-deterministic-trunk.md` — M1（已完成）

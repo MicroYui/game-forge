@@ -1,0 +1,56 @@
+# Numeric constraints (contract §3): routed to SMTChecker (z3). `assert` here
+# IS parsed via spine.dsl.ast.parse_assert into a typed AST, then compiled to
+# a z3 boolean expression per entity selected by `scope` (contract §3 grammar
+# — comparisons/arithmetic/whitelisted calls only, never eval/exec).
+
+# reward_out_of_range: quest gold rewards must not exceed a balance cap.
+- id: C-numeric-reward-cap
+  kind: numeric
+  oracle: deterministic
+  scope:
+    var: q
+    node_type: QUEST
+  assert: reward.gold <= 150
+  severity: major
+  note: Quest gold rewards must not exceed 150 (economy-balance cap).
+
+# prob_sum_ne_1: every drop table's entry probabilities must sum to exactly 1
+# (EXACT float equality by design -- the oracle-FP=0 anchor for this class).
+- id: C-numeric-prob-sum
+  kind: numeric
+  oracle: deterministic
+  scope:
+    var: dt
+    node_type: DROP_TABLE
+  assert: prob_sum(entries) == 1
+  severity: critical
+  note: Drop table entry probabilities must sum to exactly 1.
+
+# non_monotonic_curve: a formula's declared curve (kind=="curve" formulas
+# only -- `where` excludes e.g. the melee-damage formula, which has no
+# `curve` attr at all) must be non-decreasing.
+- id: C-numeric-curve-monotonic
+  kind: numeric
+  oracle: deterministic
+  scope:
+    var: f
+    node_type: FORMULA
+    where:
+      kind: curve
+  assert: monotonic(curve)
+  severity: major
+  note: A declared power/damage curve must be non-decreasing by tier.
+
+# gacha_expectation_violation: expected pulls-to-rare (closed-form
+# geometric-with-pity) must stay within the pool's declared budget.
+- id: C-numeric-gacha-expectation
+  kind: numeric
+  oracle: deterministic
+  scope:
+    var: g
+    node_type: GACHA_POOL
+  assert: gacha_expectation(base_rate, pity_threshold) <= max_expected_pulls
+  severity: major
+  note: >
+    Expected draws to the pity-guaranteed item must not exceed the pool's
+    declared max_expected_pulls budget.

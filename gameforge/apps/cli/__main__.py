@@ -6,6 +6,11 @@ Accepts either:
 - a CSV scenario directory (M0b acceptance demo, e.g. `scenarios/outpost`) —
   runs `run_slice_workbook` (Schema Registry + Aureus adapter round trip,
   talk->collect->fight->turn_in across combat/economy/gacha/quest).
+- `review <scenario_dir> <constraints_dir> [seed]` (M1 acceptance demo) —
+  runs `run_review` (Graph/ASP/SMT checkers + economy sim -> ReviewReport)
+  and prints the deterministic/llm-assisted/simulation/unproven bucket
+  counts. Exits non-zero iff any deterministic (oracle-proven) defect was
+  found — the only bucket that gates soundly, per contract §6.
 
 Dispatch is by path kind: a directory is treated as a CSV workbook, anything
 else as a YAML scenario file.
@@ -17,11 +22,31 @@ import json
 import os
 import sys
 
+from gameforge.apps.cli.run_review import run_review
 from gameforge.apps.cli.run_slice import run_slice, run_slice_workbook
 
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+
+    if argv and argv[0] == "review":
+        scenario_dir, constraints_dir = argv[1], argv[2]
+        seed = int(argv[3]) if len(argv) > 3 else 0
+        report = run_review(scenario_dir, constraints_dir, seed=seed)
+        summary = {
+            "scenario": scenario_dir,
+            "constraints": constraints_dir,
+            "seed": seed,
+            "snapshot_id": report.snapshot_id,
+            "deterministic_findings": len(report.deterministic_findings),
+            "llm_assisted_findings": len(report.llm_assisted_findings),
+            "simulation_findings": len(report.simulation_findings),
+            "unproven_findings": len(report.unproven_findings),
+            "by_defect_class": [d.model_dump() for d in report.by_defect_class],
+        }
+        print(json.dumps(summary, ensure_ascii=False, indent=2))
+        return 0 if not report.deterministic_findings else 1
+
     path = argv[0] if argv else "scenarios/caravan.yaml"
     seed = int(argv[1]) if len(argv) > 1 else 0
 

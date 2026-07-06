@@ -13,11 +13,11 @@ Spec-IR graph —
      (no normalization, no dropped columns). This is the only pass `from_ir`
      reads back from.
   2. Derived relations: a second pass walks the same rows to add graph edges
-     (GRANTS, SPAWNS, HAS_STEP/PRECEDES, DROPS_FROM, SELLS, TALKS_TO/REQUIRES,
-     TRIGGERED_BY, USES_SKILL, APPLIES_EFFECT) purely for graph queries/checkers
-     (M1). These edges are REDUNDANT with pass 1's attrs — e.g. a DROPS_FROM edge
-     just restates what `monsters.drop_table_id` + `drop_tables.entries`
-     already say — so `from_ir` never looks at them.
+     (STARTS_AT, REWARDS, GRANTS, SPAWNS, HAS_STEP/PRECEDES, DROPS_FROM, SELLS,
+     TALKS_TO/REQUIRES, TRIGGERED_BY, USES_SKILL, APPLIES_EFFECT) purely for
+     graph queries/checkers (M1). These edges are REDUNDANT with pass 1's
+     attrs — e.g. a DROPS_FROM edge just restates what `monsters.drop_table_id`
+     + `drop_tables.entries` already say — so `from_ir` never looks at them.
 
 `from_ir` is therefore a pure projection: for each sheet, collect its
 entities, sort by `source_ref.row` (the only thing recording original row
@@ -145,6 +145,28 @@ class AureusCsvAdapter:
                 source_ref=sref("spawn_points", i),
             ))
 
+        # STARTS_AT (quest -> giver) + REWARDS (quest -> reward.item), same
+        # direction as the M0a loader (`spine/ir/loader.py`). Without these a
+        # CSV-only quest has neither edge, which makes GraphChecker's
+        # dead_quest (no giver) and isolated_node (reward item unreferenced)
+        # fire as false positives on an otherwise-clean quest.
+        for i, quest in enumerate(workbook.get("quests", [])):
+            giver = quest.get("giver")
+            if giver:
+                g.add_relation(Relation(
+                    id=rid.next(EdgeType.STARTS_AT, quest["quest_id"], giver),
+                    type=EdgeType.STARTS_AT, src_id=quest["quest_id"], dst_id=giver,
+                    source_ref=sref("quests", i),
+                ))
+            reward = quest.get("reward") or {}
+            reward_item = reward.get("item")
+            if reward_item:
+                g.add_relation(Relation(
+                    id=rid.next(EdgeType.REWARDS, quest["quest_id"], reward_item),
+                    type=EdgeType.REWARDS, src_id=quest["quest_id"], dst_id=reward_item,
+                    source_ref=sref("quests", i),
+                ))
+
         # HAS_STEP (quest -> step) + PRECEDES (chain, ordered by `order`, not row order).
         steps_by_quest: dict[str, list[tuple[Any, str, int]]] = {}
         for i, step in enumerate(workbook.get("quest_steps", [])):
@@ -205,6 +227,26 @@ class AureusCsvAdapter:
                     type=EdgeType.DROPS_FROM, src_id=entry["item"], dst_id=monster["monster_id"],
                     source_ref=sref("monsters", i),
                 ))
+
+        # DROPS_FROM (monster -> currency) via monsters.gold_min/gold_max/
+        # currency — all optional columns beyond the base monsters schema,
+        # present only on scenarios that exercise the economy simulator
+        # (Task 8 `EconomyModel.from_snapshot`). This is the OPPOSITE
+        # direction from the item-drop DROPS_FROM edges above (src=item,
+        # dst=monster there): DROPS_FROM is contract-wide overloaded for two
+        # distinct "produces" relationships — item sourcing (checker-facing,
+        # dst=item) and currency sourcing (economy-sim-facing, dst=currency)
+        # — that never collide in practice since item ids and currency ids
+        # are disjoint namespaces.
+        for i, monster in enumerate(workbook.get("monsters", [])):
+            currency = monster.get("currency")
+            if not currency or monster.get("gold_min") is None:
+                continue
+            g.add_relation(Relation(
+                id=rid.next(EdgeType.DROPS_FROM, monster["monster_id"], currency),
+                type=EdgeType.DROPS_FROM, src_id=monster["monster_id"], dst_id=currency,
+                source_ref=sref("monsters", i),
+            ))
 
         # SELLS (shop -> item) via shops.entries.
         for i, shop in enumerate(workbook.get("shops", [])):

@@ -15,7 +15,8 @@ See `docs/superpowers/specs/` for the PRD and foundational contracts (single sou
 |---|---|---|
 | **M0a** | Shortest vertical slice: contracts + IR core + canonical snapshot + Aureus minimal kernel (quest + grid nav) + minimal checker + a 3-step quest chain | ✅ acceptance passing |
 | **M0b** | Aureus combat/economy/gacha; Schema Registry + Aureus CSV adapter round-trip; version/lineage/audit skeleton; Alembic DB migrations | ✅ acceptance passing |
-| M1–M4 | see `docs/superpowers/specs/` and `CLAUDE.md` | ⬜ planned |
+| **M1** | Graph/ASP/SMT checker suite; DSL→checker compiler; economy simulation; open-source game adapter; Finding/Patch | ✅ acceptance passing |
+| M2–M4 | see `docs/superpowers/specs/` and `CLAUDE.md` | ⬜ planned |
 
 ## Layout (contract §1)
 
@@ -82,6 +83,32 @@ uv run alembic -c alembic.ini upgrade head && uv run alembic -c alembic.ini down
 `DATABASE_URL` defaults to a local sqlite file (`sqlite:///gameforge.db`, gitignored) when
 unset; the schema is Postgres-ready (SQLAlchemy Core + Alembic, no sqlite-only types).
 
+## M1 acceptance
+
+A constraint DSL (`scenarios/constraints/*.yaml`) compiles to three deterministic
+backends — GraphChecker (graph algorithms), ASPChecker (Clingo, differential-tested
+against GraphChecker on the two defect classes they share), SMTChecker (z3) — plus an
+economy Monte-Carlo/ABM simulator, fanned into one `ReviewReport` with a strict
+deterministic / llm-assisted / simulation / unproven partition:
+
+```bash
+uv run python -m gameforge.apps.cli review scenarios/defects/clean scenarios/constraints
+# -> {"deterministic_findings": 0, "llm_assisted_findings": 1, "simulation_findings": 1, ...}
+```
+
+9 injected-defect scenarios under `scenarios/defects/<class>/` (one CSV mutation each,
+otherwise identical to the pristine `clean/` baseline) are each soundly detected as
+*exactly* their own defect class — `dangling_reference`, `missing_drop_source`,
+`cyclic_dependency`, `dead_quest`, `unsatisfiable_completion` (structural, Graph/ASP);
+`reward_out_of_range`, `prob_sum_ne_1`, `non_monotonic_curve`,
+`gacha_expectation_violation` (numeric, SMT) — while the `clean` baseline yields
+**zero deterministic findings** (oracle-FP=0, the headline KPI). A tenth scenario,
+`economy_collapse`, reproduces a Monte-Carlo economy collapse with an early-warning
+tick strictly ahead of the collapse tick. The open-source Flare adapter
+(`gameforge/spine/ingestion/flare_adapter.py`) round-trips its vendored sample
+losslessly (`from_ir(to_ir(x)) == x`), the external-validity anchor. See
+`tests/apps/test_m1_acceptance.py` for the full acceptance suite.
+
 ## What M0a delivers vs. deferred (不简化，只延后)
 
 **Delivered:** monorepo + dependency lint; `contracts` (IR core types, canonical
@@ -120,3 +147,35 @@ validity (M1); bounded LLM agents + Agent-Env + Playtest Agent + cassette/model-
 (M2); GameForge-Bench (M3); RBAC/approval workflow + full web pages + observability
 panels (M4). `VersionTuple` fields for constraint/prompt/model/agent/cassette are
 schema-present and `None` until those milestones populate them.
+
+## What M1 delivers vs. deferred (不简化，只延后)
+
+**Delivered:** constraint DSL (`Predicate`/`Selector`/`Constraint`, deterministic and
+llm-assisted oracle kinds); `parse_assert` whitelist-only typed-AST expression
+evaluator (never `eval`/`exec`); `GraphChecker` (7 structural defect classes: dangling
+reference, missing drop source, unreachable target, cyclic dependency, dead quest,
+unsatisfiable completion, isolated node); `ASPChecker` (Clingo encoding of the two
+defect classes shared with GraphChecker, differential-tested against it, with a
+grounding-budget/wall-clock degrade-to-`unproven` — never a silent pass); `SMTChecker`
+(z3 encoding of 5 numeric defect classes: reward-out-of-range, prob-sum≠1,
+non-monotonic curve, gacha-expectation-vs-pity, interval violation); `compile(constraint)
+-> Checker` routing (llm-assisted predicate check first, then kind-based dispatch) with
+`LlmRoutedChecker` as M1's complete-but-unevaluated routing target for the agent layer;
+a deterministic typed-patch apply/reject engine (contract §6 `old_value` optimistic-
+concurrency anchor); the economy Monte-Carlo/ABM simulator (6 named invariants +
+collapse/early-warning detection) and its `to_findings` projection; `ReviewReport`'s
+strict deterministic/llm-assisted/simulation/unproven partition (`build_review_report`)
+and the `run_review` CLI orchestration; the open-source Flare adapter (`to_ir`/`from_ir`,
+lossless line-level round trip); 9 injected-defect scenarios + a pristine `clean`
+baseline (oracle-FP=0) + an economy-collapse scenario, all real CSV-derived via the
+Aureus adapter, not hand-built IR fixtures.
+
+**Interfaces defined now, implementation deferred:** `unreachable_target` (needs a
+`NavProvider`; `GraphChecker._unreachable_target` is a complete, silently-no-op-safe
+implementation, but `run_review`'s CLI path never builds an Aureus world/nav, so this
+class isn't exercised by the M1 scenario suite — it's implementation-complete, just
+untriggered here); llm-assisted predicate *evaluation* (the routing/Finding-shape
+contract is complete now; actually judging a narrative predicate is M2's bounded agent
+layer); bounded LLM agents + Agent-Env + Playtest Agent + cassette/model-router (M2);
+GameForge-Bench (M3); RBAC/approval workflow + full web pages + observability panels
+(M4).

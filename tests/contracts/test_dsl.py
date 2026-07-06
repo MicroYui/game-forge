@@ -1,4 +1,4 @@
-from gameforge.contracts.dsl import Constraint, Predicate, Selector
+from gameforge.contracts.dsl import Constraint
 
 _YAML = """
 - id: C_newbie_gold_cap

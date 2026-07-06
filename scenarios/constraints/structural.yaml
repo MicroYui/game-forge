@@ -1,0 +1,41 @@
+# Structural constraints (contract §3): routed by
+# spine.dsl.compile._compile_structural. `assert` here is free-form predicate
+# prose, never run through parse_assert (that grammar is numeric-only) — only
+# scanned for cycle/source keywords to pick an ASP-encodable defect class.
+
+# No cycle/source keyword in the assert text -> routes to GraphChecker,
+# UNFILTERED: this one constraint alone covers all 7 GraphChecker defect
+# classes (dangling_reference, missing_drop_source, unreachable_target [no-op
+# without a NavProvider], cyclic_dependency, dead_quest,
+# unsatisfiable_completion, isolated_node).
+- id: C-structural-graph-well-formed
+  kind: structural
+  oracle: deterministic
+  assert: quest_content_graph_is_well_formed
+  severity: critical
+  note: >
+    Unfiltered GraphChecker sweep over the whole snapshot -- the one
+    constraint that gives full IR-only structural coverage.
+
+# "acyclic" keyword -> routes to ASPChecker (Clingo), filtered to
+# cyclic_dependency -- differential-tested against GraphChecker's own
+# Tarjan-SCC decision on the same snapshot.
+- id: C-structural-acyclic
+  kind: structural
+  oracle: deterministic
+  assert: quest_step_dependency_graph_is_acyclic
+  severity: critical
+  note: >
+    ASP-routed (Clingo) cyclic_dependency check; agrees with GraphChecker by
+    construction (contract §3 / §12A.1 differential anchor).
+
+# "collect"/"source"/"reachable" keyword -> routes to ASPChecker (Clingo),
+# filtered to missing_drop_source.
+- id: C-structural-drop-source-reachable
+  kind: structural
+  oracle: deterministic
+  assert: every_collect_step_has_a_reachable_drop_source
+  severity: critical
+  note: >
+    ASP-routed (Clingo) missing_drop_source check; agrees with GraphChecker
+    by construction.

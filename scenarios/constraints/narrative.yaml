@@ -1,0 +1,15 @@
+# Narrative constraint (contract §3): `oracle: llm-assisted` makes
+# `Constraint.has_llm_predicate()` true, which routes it to LlmRoutedChecker
+# regardless of `kind` -- M1 defines the interface (exactly one
+# oracle_type="llm-assisted", status="unproven" placeholder Finding per run);
+# the agent layer evaluates it for real in M2 (不简化只延后). This is what
+# proves the strict deterministic/llm-assisted partition (contract §6) has a
+# real llm-assisted producer to partition against, end-to-end.
+- id: C-narrative-quest-lore-consistency
+  kind: narrative
+  oracle: llm-assisted
+  assert: quest_title_and_reward_are_lore_consistent
+  severity: minor
+  note: >
+    Placeholder routing constraint only -- M2's agent layer drafts the real
+    narrative-consistency judgment; M1 never evaluates it deterministically.

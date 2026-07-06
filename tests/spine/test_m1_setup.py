@@ -1,5 +1,6 @@
 def test_solvers_available():
-    import clingo, z3  # noqa: F401
+    import clingo
+    import z3  # noqa: F401
 
     assert clingo.__version__
     assert z3.get_version_string()
