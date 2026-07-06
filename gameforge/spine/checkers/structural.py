@@ -50,15 +50,15 @@ class StructuralChecker:
     # --- rule 1 ---
     def _reference_integrity(self, g: IRGraph, emit) -> None:
         for r in list(g.all_relations()):
-            for endpoint in (r.src_id, r.dst_id):
-                if g.get_node(endpoint) is None:
-                    emit(
-                        "dangling_reference", "critical", [r.src_id, r.dst_id],
-                        {"relation": r.id, "edge_type": r.type.value, "missing": endpoint},
-                        {"relation": r.id,
-                         "source_ref": r.source_ref.model_dump() if r.source_ref else None},
-                        f"Relation {r.id} ({r.type.value}) points at missing entity {endpoint!r}",
-                    )
+            missing = [ep for ep in (r.src_id, r.dst_id) if g.get_node(ep) is None]
+            if missing:
+                emit(
+                    "dangling_reference", "critical", [r.src_id, r.dst_id],
+                    {"relation": r.id, "edge_type": r.type.value, "missing": missing},
+                    {"relation": r.id,
+                     "source_ref": r.source_ref.model_dump() if r.source_ref else None},
+                    f"Relation {r.id} ({r.type.value}) points at missing entities {missing}",
+                )
 
     # --- rule 2 ---
     def _collect_needs_source(self, g: IRGraph, nav: NavProvider | None, emit) -> None:

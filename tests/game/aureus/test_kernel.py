@@ -97,3 +97,29 @@ def test_full_quest_chain_completes():
     r = e.step(parse_action({"kind": "interact", "target": "npc:a"}))
     assert "q" in r.observation.completed_quests
     assert r.done is True
+
+
+def test_quest_completion_grants_reward_item_and_gold():
+    wc = _wc()
+    wc.quests[0].reward["item"] = "item:reward"
+    e = AureusEnv(wc)
+    e.reset("s", seed=0)
+    _navigate_until_arrived(e, "npc:a")
+    e.step(parse_action({"kind": "interact", "target": "npc:a"}))
+    _navigate_until_arrived(e, "interact:pile")
+    e.step(parse_action({"kind": "interact", "target": "interact:pile"}))
+    _navigate_until_arrived(e, "npc:a")
+    r = e.step(parse_action({"kind": "interact", "target": "npc:a"}))
+    assert r.observation.completed_quests == ["q"]
+    assert r.observation.inventory.get("item:reward") == 1
+    assert r.observation.player_stats["gold"] == 60
+
+
+def test_gather_is_depletable_not_infinite():
+    e = AureusEnv(_wc())
+    e.reset("s", seed=0)
+    _navigate_until_arrived(e, "interact:pile")
+    e.step(parse_action({"kind": "interact", "target": "interact:pile"}))
+    first = e.observe().inventory.get("item:x", 0)
+    e.step(parse_action({"kind": "interact", "target": "interact:pile"}))  # re-interact
+    assert e.observe().inventory.get("item:x", 0) == first  # no over-collect

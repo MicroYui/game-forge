@@ -1,15 +1,31 @@
-"""CI dependency-direction gate (contract §1 硬约束)."""
-import subprocess
-import sys
+"""CI dependency-direction gate (contract §1 硬约束).
+
+NOTE: `python -m importlinter.cli lint` is a no-op that exits 0 without running
+(the module has no __main__ guard), so we drive the real `lint_imports()` API and
+back it with a NEGATIVE test that injects a forbidden import and asserts the gate
+trips — otherwise the gate could silently rot to a false-green.
+"""
+
+import os
+
+from importlinter.cli import EXIT_STATUS_SUCCESS, lint_imports
+
+_SPINE_DIR = os.path.join(os.path.dirname(__file__), os.pardir, "gameforge", "spine")
 
 
 def test_import_linter_contracts_pass():
-    result = subprocess.run(
-        [sys.executable, "-m", "importlinter.cli", "lint"],
-        capture_output=True,
-        text=True,
-    )
-    assert result.returncode == 0, result.stdout + result.stderr
+    assert lint_imports(no_cache=True) == EXIT_STATUS_SUCCESS
+
+
+def test_dependency_lint_catches_llm_sdk_in_spine():
+    """A forbidden import inside spine MUST break the gate (guards against silent rot)."""
+    probe = os.path.join(_SPINE_DIR, "_forbidden_import_probe.py")
+    with open(probe, "w", encoding="utf-8") as fh:
+        fh.write("import anthropic  # gate probe: spine must never import an LLM SDK\n")
+    try:
+        assert lint_imports(no_cache=True) != EXIT_STATUS_SUCCESS
+    finally:
+        os.remove(probe)
 
 
 def test_version_constants_present():

@@ -8,7 +8,6 @@ Findings can point at the originating row.
 
 from __future__ import annotations
 
-import os
 from typing import Any
 
 import yaml
@@ -142,7 +141,3 @@ def load_scenario(path_or_dict: str | dict) -> Snapshot:
                                         source_ref=sref(f"quests[{qi}].steps", si)))
 
     return Snapshot.from_graph(g)
-
-
-def basename(path: str) -> str:
-    return os.path.basename(path)

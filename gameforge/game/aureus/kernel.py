@@ -42,7 +42,7 @@ class AureusEnv(Environment):
         self.gathered: set[str] = set()
         self.quest_states: dict[str, dict] = {}
         for qid in self.world.quests:
-            self.quest_states[qid] = {"status": "known", "current_step": 0, "collected": {}}
+            self.quest_states[qid] = {"status": "known", "current_step": 0}
         self.rng = random.Random(self.seed)
         self.rng_draws = 0
         self.logs: list[str] = []
@@ -136,6 +136,9 @@ class AureusEnv(Environment):
         self._last_result = result
 
     def _gather(self, interactable_id: str) -> None:
+        if interactable_id in self.gathered:  # depletable: one-time gather node
+            self._last_result = "already_gathered"
+            return
         item, count = self.world.grants_item(interactable_id)
         if item is None:
             self._last_result = "nothing_here"
@@ -168,7 +171,13 @@ class AureusEnv(Environment):
             state["status"] = "completed"
             gold = int(quest.reward.get("gold", 0))
             self.player_stats["gold"] += gold
-            self.logs.append(f"quest {qid} completed (reward gold={gold})")
+            reward_item = quest.reward.get("item")
+            if reward_item:
+                self.inventory[reward_item] = self.inventory.get(reward_item, 0) + 1
+            self.logs.append(
+                f"quest {qid} completed (reward gold={gold}"
+                + (f", item={reward_item}" if reward_item else "") + ")"
+            )
 
     def _maybe_advance_collect(self, item: str) -> None:
         for qid, quest in self.world.quests.items():
