@@ -6,3 +6,6 @@ ENV_CONTRACT_VERSION = "env@1"
 FINDING_SCHEMA_VERSION = "finding@1"
 PATCH_SCHEMA_VERSION = "patch@1"
 DSL_GRAMMAR_VERSION = "dsl@1"
+LINEAGE_SCHEMA_VERSION = "lineage@1"
+AUDIT_SCHEMA_VERSION = "audit@1"
+TOOL_VERSION = "gameforge@0.0.0"  # checker/compiler tool version for the version tuple

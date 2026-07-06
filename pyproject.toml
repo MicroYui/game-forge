@@ -6,6 +6,8 @@ requires-python = ">=3.12"
 dependencies = [
     "pydantic>=2.7",
     "pyyaml>=6.0",
+    "sqlalchemy>=2.0",
+    "alembic>=1.13",
 ]
 
 [dependency-groups]
@@ -39,21 +41,19 @@ name = "spine is LLM-free and trunk-pure"
 type = "forbidden"
 source_modules = ["gameforge.spine"]
 forbidden_modules = [
+    "gameforge.runtime",
+    "gameforge.env",
+    "gameforge.game",
     "gameforge.agents",
     "gameforge.platform",
-    "gameforge.runtime.model_router",
+    "gameforge.apps",
+    "gameforge.bench",
     "openai",
     "anthropic",
     "langchain",
     "langgraph",
     "llama_index",
 ]
-
-[[tool.importlinter.contracts]]
-name = "runtime never imports agents"
-type = "forbidden"
-source_modules = ["gameforge.runtime"]
-forbidden_modules = ["gameforge.agents"]
 
 [[tool.importlinter.contracts]]
 name = "contracts depends on no business package"
@@ -102,3 +102,15 @@ name = "platform never imports agents or apps"
 type = "forbidden"
 source_modules = ["gameforge.platform"]
 forbidden_modules = ["gameforge.agents", "gameforge.apps"]
+
+[[tool.importlinter.contracts]]
+name = "runtime never imports agents or spine or platform"
+type = "forbidden"
+source_modules = ["gameforge.runtime"]
+forbidden_modules = ["gameforge.agents", "gameforge.spine", "gameforge.platform", "gameforge.apps"]
+
+[[tool.importlinter.contracts]]
+name = "platform depends only on contracts, spine, runtime"
+type = "forbidden"
+source_modules = ["gameforge.platform"]
+forbidden_modules = ["gameforge.agents", "gameforge.apps", "gameforge.bench", "gameforge.game", "gameforge.env"]

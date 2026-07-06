@@ -37,3 +37,27 @@ def test_version_constants_present():
     assert v.FINDING_SCHEMA_VERSION == "finding@1"
     assert v.PATCH_SCHEMA_VERSION == "patch@1"
     assert v.DSL_GRAMMAR_VERSION == "dsl@1"
+
+
+def test_m0b_version_constants_present():
+    from gameforge.contracts import versions as v
+
+    assert v.LINEAGE_SCHEMA_VERSION == "lineage@1"
+    assert v.AUDIT_SCHEMA_VERSION == "audit@1"
+    assert v.TOOL_VERSION.startswith("gameforge@")
+
+
+def test_spine_cannot_import_runtime():
+    # contract §1: spine → contracts ONLY. Injecting a runtime import must trip the gate.
+    import pathlib
+
+    from importlinter.cli import lint_imports
+
+    probe = pathlib.Path("gameforge/spine/ingestion/_probe.py")
+    probe.write_text("import gameforge.runtime.persistence  # noqa\n")
+    try:
+        # lint_imports returns non-zero exit code when a contract is broken
+        rc = lint_imports()
+        assert rc != 0
+    finally:
+        probe.unlink()
