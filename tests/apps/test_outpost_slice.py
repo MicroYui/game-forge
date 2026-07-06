@@ -11,4 +11,9 @@ def test_outpost_four_system_slice_completes_and_is_deterministic():
 
 def test_outpost_exercises_all_four_systems():
     out = run_slice_workbook("scenarios/outpost", seed=0)
+    # completed=True is load-bearing here: it means the quest chain — which
+    # includes the fight step — actually finished, so "combat" in
+    # systems_exercised can't be a false positive recorded before the attack
+    # loop resolved anything.
+    assert out["completed"] is True
     assert {"quest", "combat", "economy", "gacha"} <= set(out["systems_exercised"])

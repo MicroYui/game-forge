@@ -74,7 +74,6 @@ class ScriptedDriver:
         monsters = list(encounter.monsters) if encounter is not None else []
         if not monsters:
             return
-        self._systems.add("combat")
         idx = 0
         for _ in range(_COMBAT_BUDGET):
             if idx >= len(monsters):
@@ -84,8 +83,10 @@ class ScriptedDriver:
             trajectory.append(f"attack {target_id}")
             res = r.observation.last_action_result
             if res == "victory":
+                self._systems.add("combat")
                 break
             if res == "kill":
+                self._systems.add("combat")
                 idx += 1
                 continue
             if res in ("hit", "miss"):
