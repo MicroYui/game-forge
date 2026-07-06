@@ -48,12 +48,12 @@ def test_navigate_advances_toward_target():
     assert r.observation.last_action_result == "arrived"
 
 
-def test_unsupported_combat_action_is_declared_not_crashing():
+def test_attack_without_active_combat_returns_defined_result():
     e = AureusEnv(_wc())
     e.reset("s", seed=1)
-    r = e.step(parse_action({"kind": "attack", "target_id": "mob:1"}))
-    assert r.observation.last_action_result == "unsupported_in_m0a"
-    assert r.done is False
+    r = e.step(parse_action({"kind": "attack", "target_id": "mob:none"}))
+    # attack is now implemented; with no such target/combat it returns a defined result, never crashes
+    assert r.observation.last_action_result in ("no_target", "not_in_combat") and r.done is False
 
 
 def test_replay_same_seed_same_per_tick_hash():
