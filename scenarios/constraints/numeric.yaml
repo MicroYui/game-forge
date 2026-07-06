@@ -15,7 +15,10 @@
   note: Quest gold rewards must not exceed 150 (economy-balance cap).
 
 # prob_sum_ne_1: every drop table's entry probabilities must sum to exactly 1
-# (EXACT float equality by design -- the oracle-FP=0 anchor for this class).
+# (EXACT RATIONAL equality by design -- entries are summed as exact
+# fractions.Fraction, never accumulated as floats, because float
+# accumulation is exactly what would false-positive the oracle-FP=0 anchor
+# for this class, e.g. [0.7, 0.2, 0.1] float-sums to 0.9999999999999999).
 - id: C-numeric-prob-sum
   kind: numeric
   oracle: deterministic

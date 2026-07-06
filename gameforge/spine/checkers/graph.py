@@ -284,6 +284,8 @@ class GraphChecker:
 
     # --- 6. unsatisfiable_completion ---
     def _unsatisfiable_completion(self, g: IRGraph, emit: EmitFn) -> None:
+        # Assumes PRECEDES encodes prerequisite ordering: a turn_in that is
+        # itself a PRECEDES-entry among multiple steps is treated as unsatisfiable.
         for quest in g.nodes_of_type(NodeType.QUEST):
             step_ids = [
                 r.dst_id for r in g.neighbors(quest.id, EdgeType.HAS_STEP, direction="out")

@@ -86,6 +86,30 @@ def test_prob_sum_eq_1_is_silent():
     assert fs == []
 
 
+def test_prob_sum_valid_multi_entry_no_false_positive():
+    # Regression (M1 final review, CRITICAL): `_call_prob_sum` used to
+    # accumulate entry probabilities in a Python float, so a legitimately
+    # correct table like [0.7, 0.2, 0.1] float-sums to 0.9999999999999999 (!=
+    # 1) and spuriously tripped `Not(prob_sum(entries) == 1)` into SAT --
+    # emitting a FALSE-POSITIVE prob_sum_ne_1 Finding for a table that is
+    # actually correct. This directly violates oracle-FP=0: a satisfied
+    # constraint must yield ZERO findings. Fixed by summing as exact
+    # `fractions.Fraction`s (via `str(v)`, never `Fraction(float)`) and
+    # handing z3 an exact rational (`z3.Q`) instead of a lossy float literal.
+    non_power_of_two = Entity(
+        id="dt:3", type=NodeType.DROP_TABLE,
+        attrs={"entries": [
+            {"probability": 0.7}, {"probability": 0.2}, {"probability": 0.1},
+        ]},
+    )
+    ten_tenths = Entity(
+        id="dt:4", type=NodeType.DROP_TABLE,
+        attrs={"entries": [{"probability": 0.1} for _ in range(10)]},
+    )
+    fs = SMTChecker([_PROB_SUM_CONSTRAINT]).check(_snap(non_power_of_two, ten_tenths))
+    assert fs == []
+
+
 # --- 3. non_monotonic_curve --------------------------------------------------
 
 _MONOTONIC_CONSTRAINT = Constraint(

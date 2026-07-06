@@ -13,7 +13,11 @@ a dotted `Field("reward.gold")` walks nested dicts). `Not(assert_expr)` is
 asserted in a fresh `z3.Solver`; `sat` means a violation exists (the entity's
 own concrete values ARE the violating assignment); `unsat` means the
 constraint is satisfied — silently (oracle-FP=0: a satisfied constraint must
-yield ZERO findings).
+yield ZERO findings). `prob_sum` in particular accumulates entry
+probabilities as exact `fractions.Fraction`s and hands z3 an exact rational
+(`z3.Q`) — NOT a Python-float sum — because float accumulation is precisely
+what produces oracle-FP=0 violations (e.g. `[0.7, 0.2, 0.1]` float-sums to
+`0.9999999999999999`, not `1`).
 
 Defect-class derivation (deterministic, from the assert's shape — no LLM
 judgement anywhere in this module): the parsed `AssertNode` tree is walked for
@@ -60,6 +64,7 @@ Fermat-cubes-shaped constraint over three ranged int fields reliably returns
 from __future__ import annotations
 
 from dataclasses import dataclass, field as _dc_field
+from fractions import Fraction
 from typing import Any, Callable
 
 import z3
@@ -208,7 +213,14 @@ def _call_prob_sum(args: tuple[AssertNode, ...], ctx: _BindCtx):
     entries = _resolve_path(ctx.entity.attrs, path)
     if not isinstance(entries, list):
         raise SmtCompileError(f"prob_sum field {path!r} is not a list")
-    total = 0.0
+    # Exact-rational accumulation (oracle-FP=0 anchor): a Python-float `total
+    # += v` loses precision (e.g. [0.7, 0.2, 0.1] float-sums to
+    # 0.9999999999999999, not 1), which would make a legitimately-correct
+    # table spuriously SAT under `Not(prob_sum(entries) == 1)` -- a
+    # false-positive Finding. `Fraction(str(v))` reads the *decimal* literal
+    # exactly (0.7 -> 7/10), never `Fraction(v)` which would reproduce the
+    # binary-float value verbatim.
+    total = Fraction(0)
     for i, entry in enumerate(entries):
         if not isinstance(entry, dict):
             raise SmtCompileError(f"prob_sum entry {i} is not an object")
@@ -220,9 +232,9 @@ def _call_prob_sum(args: tuple[AssertNode, ...], ctx: _BindCtx):
             raise SmtCompileError(f"prob_sum entry {i} has no probability/weight key")
         if isinstance(v, bool) or not isinstance(v, (int, float)):
             raise SmtCompileError(f"prob_sum entry {i} value is not numeric: {v!r}")
-        total += v
+        total += Fraction(str(v))
     ctx.assignment[path] = entries
-    return _numeral(total)
+    return z3.Q(total.numerator, total.denominator)
 
 
 def _call_monotonic(args: tuple[AssertNode, ...], ctx: _BindCtx):
