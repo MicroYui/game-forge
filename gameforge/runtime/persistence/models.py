@@ -1,10 +1,11 @@
 """SQLAlchemy 2.0 declarative models for the version/lineage/audit store
 (contract §5, §12A.3).
 
-Mirrors `gameforge.contracts.lineage.Artifact` / `AuditRecord` and
-`gameforge.spine.versioning.store` (`InMemoryArtifactStore` / `RefStore`) at
-the persistence layer: artifacts are immutable + content-addressed, `refs`
-are named pointers (rollback = repoint, never delete), `ref_history` is the
+Matches the field set of `gameforge.contracts.lineage.Artifact` / `AuditRecord`
+(including their `lineage_schema_version`/`audit_schema_version` schema-version
+fields) and `gameforge.spine.versioning.store` (`InMemoryArtifactStore` /
+`RefStore`) at the persistence layer: artifacts are immutable + content-addressed,
+`refs` are named pointers (rollback = repoint, never delete), `ref_history` is the
 full pointer history per name, and `audit` is an append-only WORM log with a
 content-hash chain (`prev_hash`).
 
@@ -31,6 +32,7 @@ class ArtifactRow(Base):
     __tablename__ = "artifacts"
 
     artifact_id: Mapped[str] = mapped_column(String, primary_key=True)
+    lineage_schema_version: Mapped[str] = mapped_column(String, nullable=False)
     kind: Mapped[str] = mapped_column(String, nullable=False)
     version_tuple: Mapped[dict] = mapped_column(JSON, nullable=False)
     lineage: Mapped[list] = mapped_column(JSON, nullable=False)
@@ -69,6 +71,7 @@ class AuditRow(Base):
     __tablename__ = "audit"
 
     seq: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    audit_schema_version: Mapped[str] = mapped_column(String, nullable=False)
     actor: Mapped[str] = mapped_column(String, nullable=False)
     action: Mapped[str] = mapped_column(String, nullable=False)
     artifact_id: Mapped[str] = mapped_column(String, nullable=True)
