@@ -9,5 +9,6 @@ from gameforge.contracts.versions import (  # noqa: F401
     LINEAGE_SCHEMA_VERSION,
     META_SCHEMA_VERSION,
     PATCH_SCHEMA_VERSION,
+    REVIEW_SCHEMA_VERSION,
     TOOL_VERSION,
 )
