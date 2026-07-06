@@ -37,13 +37,26 @@ class SchemaRegistry:
 
     def validate(self, schema: FormatSchema, workbook: dict[str, list[dict]]) -> list[SchemaError]:
         errors: list[SchemaError] = []
-        # Precompute each sheet's column -> set-of-values, for foreign-key checks.
+        # Precompute a value-set only for (sheet, column) pairs actually referenced
+        # by some `foreign_key` — FK targets are always scalar id columns, but a
+        # schema may also carry unrelated json/str_list/int_list columns (e.g.
+        # `monsters.stats`, `monsters.skills`) whose values (dicts/lists) are
+        # unhashable and were never meant to be FK-checked, so building a set of
+        # every column's values unconditionally would crash on those.
+        needed: set[tuple[str, str]] = set()
+        for sheet in schema.sheets:
+            for col in sheet.columns:
+                if col.foreign_key is not None:
+                    ref_sheet, ref_column = col.foreign_key.split(".", 1)
+                    needed.add((ref_sheet, ref_column))
+
         value_sets: dict[str, dict[str, set]] = {}
         for sheet in schema.sheets:
             rows = workbook.get(sheet.name, [])
             cols: dict[str, set] = {}
             for col in sheet.columns:
-                cols[col.name] = {row.get(col.name) for row in rows if row.get(col.name) is not None}
+                if (sheet.name, col.name) in needed:
+                    cols[col.name] = {row.get(col.name) for row in rows if row.get(col.name) is not None}
             value_sets[sheet.name] = cols
 
         for sheet in schema.sheets:
