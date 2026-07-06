@@ -64,11 +64,17 @@ class EconomySystem:
         slot, looked up by the kernel) is given and differs from the new
         equipment, its stat_mods are reverted and the old item is returned to
         inventory first — a deterministic swap, not a leak of stacked mods.
+        If `previous` is the same equipment already occupying the slot, this
+        is a no-op (`"already_equipped"`): no inventory consumed, no mods
+        re-applied — re-equipping the same item must not double-stack stats
+        or silently destroy a copy of the item.
         """
+        if previous is not None and previous.equipment_id == equipment.equipment_id:
+            return "already_equipped"
         have = player["inventory"].get(equipment.equipment_id, 0)
         if have <= 0:
             return "no_item"
-        if previous is not None and previous.equipment_id != equipment.equipment_id:
+        if previous is not None:
             for stat, mod in previous.stat_mods.items():
                 player["stats"][stat] = player["stats"].get(stat, 0) - mod
             player["inventory"][previous.equipment_id] = (

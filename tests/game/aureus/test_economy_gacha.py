@@ -27,6 +27,38 @@ def test_equip_applies_stat_mods():
     assert player["equipped"]["weapon"] == "eq:blade" and player["stats"]["atk"] == 10
 
 
+def test_equip_same_item_again_is_noop():
+    econ = EconomySystem()
+    blade = EquipmentSpec(equipment_id="eq:blade", slot="weapon", stat_mods={"atk": 5})
+    player = {"stats": {"atk": 10}, "inventory": {"eq:blade": 2}, "equipped": {}}
+    first = econ.equip(player, blade)
+    assert first == "equipped"
+    assert player["stats"]["atk"] == 15
+    assert player["inventory"]["eq:blade"] == 1
+    second = econ.equip(player, blade, previous=blade)
+    assert second == "already_equipped"
+    assert player["stats"]["atk"] == 15  # not re-applied
+    assert player["inventory"]["eq:blade"] == 1  # not consumed again
+    assert player["equipped"]["weapon"] == "eq:blade"
+
+
+def test_equip_swap_reverts_old_and_applies_new():
+    econ = EconomySystem()
+    old = EquipmentSpec(equipment_id="eq:sword", slot="weapon", stat_mods={"atk": 3})
+    new = EquipmentSpec(equipment_id="eq:blade", slot="weapon", stat_mods={"atk": 5})
+    player = {
+        "stats": {"atk": 8},
+        "inventory": {"eq:sword": 0, "eq:blade": 1},
+        "equipped": {"weapon": "eq:sword"},
+    }
+    result = econ.equip(player, new, previous=old)
+    assert result == "equipped"
+    assert player["equipped"]["weapon"] == "eq:blade"
+    assert player["stats"]["atk"] == 10  # 8 - 3 (revert old) + 5 (apply new)
+    assert player["inventory"]["eq:sword"] == 1  # old item returned to inventory
+    assert player["inventory"].get("eq:blade", 0) == 0  # new item consumed
+
+
 def test_gacha_pity_guarantees_rare_and_is_seed_reproducible():
     pool = GachaPoolSpec(gacha_pool_id="gp", cost=10,
                          entries=[GachaEntry(item="item:common", weight=1)],
