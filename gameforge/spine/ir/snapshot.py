@@ -59,6 +59,26 @@ class Snapshot:
         return cls(entities, relations, parent_id=parent_id,
                    created_at=created_at, author=author)
 
+    @classmethod
+    def from_entities_relations(
+        cls,
+        entities: list[Entity],
+        relations: list[Relation],
+        parent_id: str | None = None,
+        created_at: str | None = None,
+        author: str | None = None,
+    ) -> "Snapshot":
+        """Ergonomic test/scenario constructor: build a Snapshot from explicit
+        entity/relation lists (M1 Task 4). Routes through `from_graph` so
+        canonical-serialization / content-addressing semantics are unchanged.
+        """
+        g = IRGraph()
+        for e in entities:
+            g.add_entity(e)
+        for r in relations:
+            g.add_relation(r)
+        return cls.from_graph(g, parent_id=parent_id, created_at=created_at, author=author)
+
     def to_graph(self) -> IRGraph:
         g = IRGraph()
         for e in self.entities.values():
