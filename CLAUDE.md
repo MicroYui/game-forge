@@ -27,6 +27,7 @@
 ## Git 约定
 
 - **所有 git 提交不带任何 AI 协作者署名**：commit message **不加** `Co-Authored-By: Claude ...`，也**不加** `Generated with Claude Code` 之类的 AI 归属尾注。PR 描述同理。提交信息就写正常的工程内容。
+- **主干分支是 `master`（本仓库无 `main`）**：M0a、M0b 已线性合入 `master`；PR/合并/新里程碑切分支都以 `master` 为基线（harness 可能默认显示 `main`，忽略之）。
 
 ## 里程碑路线图与工作流
 
@@ -46,6 +47,19 @@
 ## 技术栈（已锁定）
 
 Python 核心（Agent 编排、仿真、检查器、Clingo/z3）+ React/TS 前端；参考游戏 Aureus 内核也用 Python（确定性 headless + 薄渲染）；形式化全量（图 + ASP/Clingo + SMT/z3 + Monte-Carlo/ABM 经济仿真）。
+
+## LLM 网关（有 LLM 调用需求时用）
+
+本地反代网关，供 **M2+ 有边界 Agent 层**（抽取提议 / 缺陷分诊 / 修复起草）使用：
+
+- **Base URL**：`http://localhost:4141`（OpenAI 兼容反代）
+- **API Key**：从环境变量 `GAMEFORGE_LLM_KEY` 读取（**绝不入库**——密钥进版本库会永久留在 git 历史）。本地实际值见私密记忆 `llm-gateway-access`（在 `~/.claude/…/memory/`，不在仓库内）或本地 gitignored `.env`。
+- **模型**：用最好的即可（如 `opus4.8`）
+
+**硬约束（复述硬规则 3/4，不可违背）**：
+- **只有 `agents` 层能调 LLM**；确定性主干 `spine` **永不**触碰网关（`spine → contracts` 仅此一项，禁 import 任何 LLM SDK，CI lint 强制）。
+- 每个 LLM 输出**必有确定性预言机或人工兜底**；LLM 只做提议/起草/提示，对错判定仍由 图/ASP/SMT/仿真 给出。
+- 可复现只承诺回放：走 model_snapshot + cassette 回放（M2 落地）；不承诺在线模型 bit 级复现。
 
 ## 记忆文件（`~/.claude/projects/-Users-liyifan-Documents-code-self-game-forge/memory/`）
 
