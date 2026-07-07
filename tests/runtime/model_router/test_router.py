@@ -1,4 +1,5 @@
 import pytest
+from gameforge.contracts.cassette import CASSETTE_MISS
 from gameforge.contracts.model_router import Message, ModelRequest, ModelResponse, ModelSnapshot, request_hash
 from gameforge.runtime.cassette.store import CassetteStore
 from gameforge.runtime.model_router.router import (
@@ -54,3 +55,47 @@ def test_quota_enforced(tmp_path):
     router.call(req_a)
     with pytest.raises(QuotaExceeded):
         router.call(req_b)
+
+
+class _FlakyTransport:
+    """Raises on its first N calls, then succeeds — exercises the retry path."""
+
+    def __init__(self, fail_times: int, response: ModelResponse) -> None:
+        self._fail_times = fail_times
+        self._response = response
+        self.calls = 0
+
+    def complete(self, req: ModelRequest) -> ModelResponse:
+        self.calls += 1
+        if self.calls <= self._fail_times:
+            raise RuntimeError("transient gateway error")
+        return self._response
+
+
+def test_retry_recovers_from_transient_failure(tmp_path):
+    req = _req()
+    flaky = _FlakyTransport(fail_times=2, response=ModelResponse(response_normalized="ok-after-retry"))
+    router = ModelRouter(flaky, CassetteStore(tmp_path), mode=RouterMode.RECORD, max_retries=2)
+    resp = router.call(req)
+    assert resp.response_normalized == "ok-after-retry"
+    assert flaky.calls == 3  # 1 initial + 2 retries
+
+
+def test_retry_exhausted_raises(tmp_path):
+    req = _req()
+    flaky = _FlakyTransport(fail_times=99, response=ModelResponse(response_normalized="never"))
+    router = ModelRouter(flaky, CassetteStore(tmp_path), mode=RouterMode.RECORD, max_retries=2)
+    with pytest.raises(RuntimeError):
+        router.call(req)
+    assert flaky.calls == 3  # 1 initial + 2 retries, then gives up
+
+
+def test_passthrough_calls_transport_but_never_writes_cassette(tmp_path):
+    req = _req()
+    stub = StubTransport({request_hash(req): ModelResponse(response_normalized="live-only")})
+    store = CassetteStore(tmp_path)
+    router = ModelRouter(stub, store, mode=RouterMode.PASSTHROUGH)
+    resp = router.call(req)
+    assert resp.response_normalized == "live-only"
+    assert len(stub.calls) == 1
+    assert store.replay(request_hash(req)) is CASSETTE_MISS
