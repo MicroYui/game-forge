@@ -64,3 +64,35 @@ def test_stub_transport_returns_by_request_hash():
     stub = StubTransport({request_hash(r): ModelResponse(response_normalized="canned")})
     assert stub.complete(r).response_normalized == "canned"
     assert stub.calls == [r]
+
+
+def test_openai_transport_maps_tool_calls_and_raw_response():
+    class _FakeToolCall:
+        def model_dump(self):
+            return {"id": "call_1", "type": "function", "function": {"name": "patch"}}
+
+    class _FakeChatCompletionsTC:
+        def create(self, **kw):
+            class _Msg:
+                content = "with tools"
+                tool_calls = [_FakeToolCall()]
+            class _Choice:
+                message = _Msg()
+                finish_reason = "tool_calls"
+            class _Resp:
+                choices = [_Choice()]
+                usage = None
+                def model_dump(self):
+                    return {"id": "resp-1"}
+            return _Resp()
+
+    class _FakeClientTC:
+        def __init__(self):
+            self.chat = type("C", (), {"completions": _FakeChatCompletionsTC()})()
+
+    t = OpenAITransport(base_url="http://localhost:4141", api_key="sk-x", client=_FakeClientTC())
+    resp = t.complete(_req())
+    assert resp.tool_calls == [{"id": "call_1", "type": "function", "function": {"name": "patch"}}]
+    assert resp.raw_response == {"id": "resp-1"}
+    assert resp.finish_reason == "tool_calls"
+    assert resp.token_usage == {}  # usage=None → empty dict
