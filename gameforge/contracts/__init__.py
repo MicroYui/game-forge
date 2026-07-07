@@ -1,5 +1,9 @@
 """GameForge contracts — schema single source of truth."""
 
+from gameforge.contracts.agent_io import (  # noqa: F401
+    AgentNodeResult, AgentRole,
+)
+from gameforge.contracts.cassette import CASSETTE_MISS, CassetteRecord  # noqa: F401
 from gameforge.contracts.model_router import (  # noqa: F401
     Message, ModelRequest, ModelResponse, ModelSnapshot, ToolSchemaRef, request_hash,
 )
