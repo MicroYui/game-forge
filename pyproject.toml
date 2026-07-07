@@ -42,6 +42,11 @@ include_external_packages = true
 name = "spine is LLM-free and trunk-pure"
 type = "forbidden"
 source_modules = ["gameforge.spine"]
+# spine → contracts ONLY (hard rule 4). The airtight enforcement is the AST
+# allowlist in tests/test_dependency_lint.py (import-linter cannot express an
+# external-package allowlist); this forbidden list is defense-in-depth so the
+# `uv run lint-imports` gate ALSO trips on a spine LLM/business import directly.
+# Keep the LLM-SDK entries in sync with that allowlist test.
 forbidden_modules = [
     "gameforge.runtime",
     "gameforge.env",
@@ -50,11 +55,27 @@ forbidden_modules = [
     "gameforge.platform",
     "gameforge.apps",
     "gameforge.bench",
+    # LLM SDKs — hard rule 4 forbids ANY of them inside the deterministic trunk.
     "openai",
     "anthropic",
     "langchain",
     "langgraph",
     "llama_index",
+    "cohere",
+    "mistralai",
+    "groq",
+    "litellm",
+    "google",
+    "google_generativeai",
+    "ollama",
+    "vertexai",
+    "boto3",
+    "huggingface_hub",
+    "transformers",
+    "replicate",
+    "together",
+    "dashscope",
+    "zhipuai",
 ]
 
 [[tool.importlinter.contracts]]

@@ -77,6 +77,12 @@ def test_each_defect_class_detected_soundly(scenario_name, expected_class):
 def test_clean_baseline_has_zero_oracle_false_positives():
     report = run_review(_CLEAN, _CONSTRAINTS)
     assert report.deterministic_findings == []
+    # oracle-FP=0 must be a genuine "satisfied", not a vacuous pass: a numeric
+    # constraint whose field failed to resolve (or a solver timeout) degrades to
+    # status="unproven" and would leave deterministic_findings empty while
+    # proving nothing. Lock that door — the clean baseline proves every
+    # constraint actually evaluated.
+    assert report.unproven_findings == []
 
 
 def test_dsl_compiles_to_clingo_and_z3():
