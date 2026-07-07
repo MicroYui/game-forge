@@ -170,6 +170,22 @@ def test_llm_sdk_only_allowed_outside_model_router_is_rejected(sdk):
         os.remove(probe)
 
 
+def test_agents_importing_transport_module_directly_is_rejected():
+    # The scoped `ignore_imports` (router -> transport) must NOT let agents reach the
+    # SDK by importing the transport module directly, bypassing ModelRouter. The chain
+    # agents -> transport -> openai does not traverse the ignored edge, so it must trip.
+    probe = os.path.join(
+        os.path.dirname(__file__), os.pardir,
+        "gameforge", "agents", "_transport_probe.py",
+    )
+    with open(probe, "w", encoding="utf-8") as fh:
+        fh.write("import gameforge.runtime.model_router.transport  # must not be reachable from agents\n")
+    try:
+        assert lint_imports(no_cache=True) != EXIT_STATUS_SUCCESS
+    finally:
+        os.remove(probe)
+
+
 def test_model_router_may_import_openai():
     # The one allowed home for the SDK — a probe there must NOT trip the gate.
     probe = os.path.join(
