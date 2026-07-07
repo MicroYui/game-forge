@@ -121,3 +121,25 @@ def test_to_findings_never_gives_prescriptive_numbers():
         assert f.oracle_type == "simulation"
         # Descriptive-only: no "change X to Y" prescriptive phrasing.
         assert "change" not in f.message.lower() or "no prescriptive" in f.message.lower()
+
+
+def test_collapse_finding_carries_faucet_entities_when_model_given():
+    # A repair agent must be able to target the runaway faucet; the collapse
+    # finding therefore names its source (and sink) entities when the model is
+    # supplied. Without a model, entities stay empty (backward-compatible).
+    model = EconomyModel.from_snapshot(_collapse_snapshot())
+    res = EconomySimulator().run(model, seed=1, n_agents=50, n_ticks=200)
+
+    with_model = next(
+        f for f in to_findings(res, "sha256:collapse-snap", model=model)
+        if f.defect_class == "economy_collapse"
+    )
+    producers = {s["producer"] for s in model.sources}
+    assert producers  # the collapse snapshot has at least one faucet
+    assert producers.issubset(set(with_model.entities))
+
+    without_model = next(
+        f for f in to_findings(res, "sha256:collapse-snap")
+        if f.defect_class == "economy_collapse"
+    )
+    assert without_model.entities == []

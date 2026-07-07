@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:de8dd7fa1607ba44dcf0ae724ab8493001523495209ff2b0644037e8a8123da4",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6437,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuwDCmMIDxgCKkAt6KCeitNx4B9pH3kFiqXQkFVanF6CAOrTk1A/HammLQPjmXlqnrQGHy9h96a8o6pAr0QnOH+72sux+r6ZZfoOMg9jbGF1ZGUtb3B1cy00LTg4AEIIdGhpbmtpbmcSDBVlDSnisV4RcL19FBoMUAWCva3JQ2Cf47usIjAdBnme3bcPbla8yXVad+P2RCogeKBpT8ngPviZYvGkSmwq6kUsgH6chP1t4eiyHM4qtgIc77/XjNkZAUgkAy2W4Yfxca+AbS3PLnBEedJLipnrihUggDrBPCb5ofK5ZGLkJj350h83xOqP2TNKFZ1/RFmiy9Sdw8s/lxMM4lbgRYkYhtI0HWPdytXlevx7PveRiG3wDPG0sD/P7qOpsaXZdjWCkD456mrtt79kgHfwk5hwsQ8B5XW9XBiZQQejjyeyVQIZNtR6/X+3N5+/HclGM3upg6l7WSSfgtsL3VnALTzmHZi1byPfK+nZDddhRKnTs521gDZwcWxNLDWIRKuGT/6y6WIvSPktovxRGEZXaH4FnHqguO+JGbSvauc+jJ+qHH8xtNQwGmjD5VEA/YjChTzh7tqcX7+/VYoMESLPUEVNs2DVXU06Qo6evYrRoiT+G6U27praEobqzbY0o8Y4QwWRssD5HvVCGAE=",
+          "thinking": "The baseline balance is around 2296 with currency growing unbounded, so I need to dramatically reduce the gold faucet output by lowering the min and max values—something like 10-20 per tick instead of 500-1000—to create better balance between sources and sinks.",
+          "type": "thinking"
+        },
+        {
+          "text": "[\n  {\"op\": \"set_entity_attr\", \"target\": \"m:wolf.gold_min\", \"old_value\": 500, \"new_value\": 5},\n  {\"op\": \"set_entity_attr\", \"target\": \"m:wolf.gold_max\", \"old_value\": 1000, \"new_value\": 15}\n]",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2895,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 229,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2020000000
+      },
+      "id": "msg_011CcnY6vNbYwiRqYpcD8JqW",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2895,
+        "output_tokens": 229,
+        "output_tokens_details": {
+          "thinking_tokens": 131
+        }
+      }
+    },
+    "response_normalized": "[\n  {\"op\": \"set_entity_attr\", \"target\": \"m:wolf.gold_min\", \"old_value\": 500, \"new_value\": 5},\n  {\"op\": \"set_entity_attr\", \"target\": \"m:wolf.gold_max\", \"old_value\": 1000, \"new_value\": 15}\n]",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2895,
+      "output": 229
+    },
+    "tool_calls": []
+  }
+}

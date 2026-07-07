@@ -7,19 +7,14 @@
     "snapshot_tag": "m2a@1"
   },
   "recorded_at": null,
-  "request_hash": "sha256:3e2ad63c945c47b2fbd946c827c7173ced0b710e39c6e4fa15cd868225e56e78",
+  "request_hash": "sha256:94aedc92716d74956a0c194232f4cd7afe6cfc306f5ace4495da8a82a342accc",
   "response": {
     "finish_reason": "end_turn",
-    "latency_ms": 4124,
+    "latency_ms": 2065,
     "raw_response": {
       "content": [
         {
-          "signature": "EssCCmMIDxgCKkA1au7FqtAWCWsRMHpvl8dXXbnogwYkJl3nLqHUdbJWkNZxUOY3hYd14QEcFv3qk/vanesPDOmg+KblFHGiM0kGMg9jbGF1ZGUtb3B1cy00LTg4AEIIdGhpbmtpbmcSDDBqlLAjxyoUoY7noxoMk1iMipCyHVwDXPkmIjCTCeuWCSCeNea7TwHwpp1yj49Ds3wTLoUsRfvBuvqF/GspixlkU+wHqTwI4oF6e90qlQHWkmvp31O3g0J17gDqUz4ph8aPPIy58ly8nNzUNfAeijvWKOXrSV/3Nc/Z0qqJ+lTh67CDkR1qQdxz2evlYSkD1UmHWqBwvLR0tJTDhyMJvKebMVcd9GXhBN6Jqev6cgKGxvIp50ux132xE8yV0xzGg9Va9D+8EwcOWBeeTMnOSYmABBiy1emKa6UlmzxVxmHRI6PYARgB",
-          "thinking": "The drop table probabilities don't add up to 1, so I need to either adjust the probability value to 1.0 or introduce another entry to balance it out—the quickest fix is just setting it to 1.0.",
-          "type": "thinking"
-        },
-        {
-          "text": "[{\"op\":\"set_entity_attr\",\"target\":\"dt:wolf.entries\",\"old_value\":[{\"item\":\"item:herb\",\"probability\":0.5}],\"new_value\":[{\"item\":\"item:herb\",\"probability\":1.0}]}]",
+          "text": "```json\n[{\"op\": \"set_entity_attr\", \"target\": \"quest:outpost.reward.gold\", \"old_value\": 500, \"new_value\": 150}]\n```",
           "type": "text"
         }
       ],
@@ -28,7 +23,7 @@
           {
             "batch_size": 1000000,
             "cost_per_batch": 500000000000,
-            "token_count": 2038,
+            "token_count": 2904,
             "token_type": "input"
           },
           {
@@ -46,13 +41,13 @@
           {
             "batch_size": 1000000,
             "cost_per_batch": 2500000000000,
-            "token_count": 127,
+            "token_count": 55,
             "token_type": "output"
           }
         ],
-        "total_nano_aiu": 1336500000
+        "total_nano_aiu": 1589500000
       },
-      "id": "msg_011CcnUmUq4sLdnZYXKZmeLS",
+      "id": "msg_011CcnYAJHJuX8wECPewVXNu",
       "model": "claude-opus-4-8",
       "role": "assistant",
       "stop_details": null,
@@ -67,19 +62,19 @@
         "cache_creation_input_tokens": 0,
         "cache_read_input_tokens": 0,
         "inference_geo": "global",
-        "input_tokens": 2038,
-        "output_tokens": 127,
+        "input_tokens": 2904,
+        "output_tokens": 55,
         "output_tokens_details": {
-          "thinking_tokens": 49
+          "thinking_tokens": 0
         }
       }
     },
-    "response_normalized": "[{\"op\":\"set_entity_attr\",\"target\":\"dt:wolf.entries\",\"old_value\":[{\"item\":\"item:herb\",\"probability\":0.5}],\"new_value\":[{\"item\":\"item:herb\",\"probability\":1.0}]}]",
+    "response_normalized": "```json\n[{\"op\": \"set_entity_attr\", \"target\": \"quest:outpost.reward.gold\", \"old_value\": 500, \"new_value\": 150}]\n```",
     "token_usage": {
       "cache_read": 0,
       "cache_write": 0,
-      "input": 2038,
-      "output": 127
+      "input": 2904,
+      "output": 55
     },
     "tool_calls": []
   }

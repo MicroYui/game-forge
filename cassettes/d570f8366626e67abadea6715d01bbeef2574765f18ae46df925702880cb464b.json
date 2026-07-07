@@ -7,14 +7,19 @@
     "snapshot_tag": "m2a@1"
   },
   "recorded_at": null,
-  "request_hash": "sha256:0dec30341f118839b713abb4995cdb7b7ca94e62a680b954cf45404d3a50de50",
+  "request_hash": "sha256:d570f8366626e67abadea6715d01bbeef2574765f18ae46df925702880cb464b",
   "response": {
     "finish_reason": "end_turn",
-    "latency_ms": 2143,
+    "latency_ms": 6192,
     "raw_response": {
       "content": [
         {
-          "text": "[{\"op\":\"set_entity_attr\",\"target\":\"f:power_curve.curve\",\"old_value\":[10,40,20,30],\"new_value\":[10,20,30,40]}]",
+          "signature": "EokDCmMIDxgCKkAiY5IPOUao76qcvAjfgHu8ReI4cyRfTgR87qLJNe5CrQqeIZYYlgLK+fenRYHsDjiv8mZ0t1YSKoeR45q0dGcqMg9jbGF1ZGUtb3B1cy00LTg4AEIIdGhpbmtpbmcSDLRi6S0WtZT2hEl9dxoMOWSTJi0kcbCB6SYPIjCeV4KQNGhTzd/abVCsCNuyRdf8GeWhdanNKHRV5rqTQy4AYVHfehF6yckX/VN5WTUq0wGM/Cewo5Bk+WeFVzi49UC89w99dD7ilKZNV4mVqZ6KtbNzrFNKW9h2gzabxkv3KZgo0RaxVunjlfA0pz1FB+Rw4j1ymqHgCPB/8EEbiKR/9rqemojGmUSh8t+GlbOPH6UItkpcylrh66yddASXhRSGy4ASujT+jR68etjBSWeOCwJWEGsFXN5qtuIGzAw6Xoao6tVY/H+6RNRrh8ANgF4z7hcTgCytDGlHYZQii/em875691gOJPXA+7yOaxWMXqsPWwxLVDWR7yLmaSToSjwHWgizGAE=",
+          "thinking": "The drop table probabilities aren't summing correctly, so I need to fix this by setting the entity attribute entries to have a probability of 1.0.",
+          "type": "thinking"
+        },
+        {
+          "text": "[{\"op\": \"set_entity_attr\", \"target\": \"dt:wolf.entries\", \"old_value\": [{\"item\": \"item:herb\", \"probability\": 0.5}], \"new_value\": [{\"item\": \"item:herb\", \"probability\": 1.0}]}]",
           "type": "text"
         }
       ],
@@ -23,7 +28,7 @@
           {
             "batch_size": 1000000,
             "cost_per_batch": 500000000000,
-            "token_count": 2029,
+            "token_count": 2323,
             "token_type": "input"
           },
           {
@@ -41,13 +46,13 @@
           {
             "batch_size": 1000000,
             "cost_per_batch": 2500000000000,
-            "token_count": 58,
+            "token_count": 158,
             "token_type": "output"
           }
         ],
-        "total_nano_aiu": 1159500000
+        "total_nano_aiu": 1556500000
       },
-      "id": "msg_011CcnUmKq5sv52SnJZzPG67",
+      "id": "msg_011CcnY9rwoxduGvRyFz4Xqr",
       "model": "claude-opus-4-8",
       "role": "assistant",
       "stop_details": null,
@@ -62,19 +67,19 @@
         "cache_creation_input_tokens": 0,
         "cache_read_input_tokens": 0,
         "inference_geo": "global",
-        "input_tokens": 2029,
-        "output_tokens": 58,
+        "input_tokens": 2323,
+        "output_tokens": 158,
         "output_tokens_details": {
-          "thinking_tokens": 0
+          "thinking_tokens": 74
         }
       }
     },
-    "response_normalized": "[{\"op\":\"set_entity_attr\",\"target\":\"f:power_curve.curve\",\"old_value\":[10,40,20,30],\"new_value\":[10,20,30,40]}]",
+    "response_normalized": "[{\"op\": \"set_entity_attr\", \"target\": \"dt:wolf.entries\", \"old_value\": [{\"item\": \"item:herb\", \"probability\": 0.5}], \"new_value\": [{\"item\": \"item:herb\", \"probability\": 1.0}]}]",
     "token_usage": {
       "cache_read": 0,
       "cache_write": 0,
-      "input": 2029,
-      "output": 58
+      "input": 2323,
+      "output": 158
     },
     "tool_calls": []
   }

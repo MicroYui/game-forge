@@ -51,8 +51,8 @@ _REPAIR = (
     "Guidance by defect kind (using ONLY ids from the IR context): to break a cyclic dependency, "
     "delete ONE relation on the cycle (its id is in incident_relations). To fix a missing drop source, "
     "add_relation of a granting/dropping edge type from a valid source entity to the item. To fix a dead "
-    "For unsatisfiable completion, add the missing "
-    "prerequisite relation. Always use real ids from the provided context. "
+    "quest, add the missing giver relation from the quest to an NPC. To fix an unsatisfiable completion, "
+    "add the missing prerequisite relation. Always use real ids from the provided context. "
     "Edge semantics you MUST respect (direction matters — src_id and dst_id are not interchangeable): "
     "STARTS_AT goes FROM a quest TO its giver NPC (src_id = the quest, dst_id = an NPC) — a quest with no "
     "outgoing STARTS_AT edge is a dead quest, so fix it by adding a STARTS_AT edge from the quest to a real "
@@ -61,7 +61,14 @@ _REPAIR = (
     "one PRECEDES edge on the cycle. A collect step's required item needs an INCOMING source edge whose dst_id "
     "IS that item: GRANTS goes from a granting source TO the item (src_id = the source, dst_id = the item) and "
     "DROPS_FROM goes from a drop-table or monster source TO the item — never reverse these, the item must be "
-    "the dst_id, and the src_id must be a real source id from entity_catalog."
+    "the dst_id, and the src_id must be a real source id from entity_catalog. "
+    "To fix an economy_collapse: the currency inflates because faucets vastly out-produce sinks. A faucet is "
+    "a MONSTER or DROP_TABLE that DROPS_FROM a currency and carries gold_min/gold_max attributes (shown in "
+    "focus_nodes and in the finding evidence's 'faucets' list); a sink is a SHOP whose SELLS relation carries "
+    "a price. The runaway faucet is named in the finding's entities — REDUCE it by lowering gold_min and "
+    "gold_max on that source entity via set_entity_attr (for example set the offending monster's gold_max to "
+    "a small balanced value). Do NOT add a new sink or 'consumes' entity the simulator does not model — only "
+    "gold_min/gold_max on real faucets and price on real SELLS sinks affect the simulated economy."
 )
 
 _REPAIR_REFINE = (
@@ -90,8 +97,8 @@ _GENERATION = (
 _PROMPTS: list[tuple[str, str, str]] = [
     ("extraction.system", "extraction@1", _EXTRACTION),
     ("triage.system", "triage@1", _TRIAGE),
-    ("repair.system", "repair@2", _REPAIR),
-    ("repair.refine", "repair@2", _REPAIR_REFINE),
+    ("repair.system", "repair@3", _REPAIR),
+    ("repair.refine", "repair@3", _REPAIR_REFINE),
     ("consistency.system", "consistency@1", _CONSISTENCY),
     ("generation.system", "generation@1", _GENERATION),
 ]

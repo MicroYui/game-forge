@@ -11,7 +11,7 @@ from gameforge.agents.generation.gate import gate_proposal
 from gameforge.agents.generation.generator import ContentGenerator
 from gameforge.contracts.agent_io import DesignGoalInput
 from gameforge.contracts.dsl import Constraint
-from gameforge.contracts.ir import Entity, NodeType
+from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
 from gameforge.contracts.model_router import ModelResponse
 from gameforge.runtime.cassette.store import CassetteStore
 from gameforge.runtime.model_router.router import ModelRouter, RouterMode
@@ -156,3 +156,40 @@ def test_generator_fallback_on_unparseable_output(tmp_path):
     assert res.fallback_taken is True
     assert res.produced["proposal"]["passed_gate"] is False
     assert res.produced["proposal"]["proposed_ops"] == []
+
+
+def _balanced_economy_snapshot() -> Snapshot:
+    # A faucet (~5 gold/tick) matched by a sink (price 5 @ buy_prob 1.0) → the
+    # simulated economy stays flat, no collapse over the horizon.
+    ents = [
+        Entity(id="gold", type=NodeType.CURRENCY, attrs={}),
+        Entity(id="m:test", type=NodeType.MONSTER,
+               attrs={"gold_min": 5, "gold_max": 5, "kills_per_tick": 1}),
+        Entity(id="shop:s", type=NodeType.SHOP, attrs={}),
+        Entity(id="item:i", type=NodeType.ITEM, attrs={}),
+    ]
+    rels = [
+        Relation(id="r_drop", type=EdgeType.DROPS_FROM, src_id="m:test", dst_id="gold"),
+        Relation(id="r_sells", type=EdgeType.SELLS, src_id="shop:s", dst_id="item:i",
+                 attrs={"price": 5, "buy_prob": 1.0, "currency": "gold"}),
+    ]
+    return Snapshot.from_entities_relations(ents, rels)
+
+
+def test_gate_rejects_proposal_that_causes_economy_collapse():
+    # Spiking the faucet's gold_max turns a balanced economy into a runaway
+    # collapse; the sim gate must block it (the economy_collapse branch, distinct
+    # from the deterministic-checker branch).
+    base = _balanced_economy_snapshot()
+    spike = [{"op": "set_entity_attr", "target": "m:test.gold_max", "old_value": 5, "new_value": 5000}]
+    passed, blocking = gate_proposal(base, spike, [])
+    assert passed is False
+    assert any(f.defect_class == "economy_collapse" for f in blocking)
+
+
+def test_gate_passes_economy_neutral_proposal():
+    base = _balanced_economy_snapshot()
+    benign = [{"op": "set_entity_attr", "target": "item:i.tier", "old_value": None, "new_value": 1}]
+    passed, blocking = gate_proposal(base, benign, [])
+    assert passed is True
+    assert blocking == []

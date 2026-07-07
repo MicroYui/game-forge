@@ -105,7 +105,7 @@ def _economy_findings(snapshot: Snapshot) -> tuple[list[Finding], bool]:
         result = EconomySimulator().run(
             model, seed=_SIM_SEED, n_agents=_SIM_N_AGENTS, n_ticks=_SIM_N_TICKS
         )
-        return to_findings(result, snapshot.snapshot_id), True
+        return to_findings(result, snapshot.snapshot_id, model=model), True
     except Exception:  # noqa: BLE001 — an un-modelable economy is not a regression
         return [], False
 

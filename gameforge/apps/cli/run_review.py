@@ -55,6 +55,6 @@ def run_review(scenario_dir: str, constraints_path: str, seed: int = 0) -> Revie
     sim_result = EconomySimulator().run(
         economy_model, seed=seed, n_agents=_N_AGENTS, n_ticks=_N_TICKS
     )
-    sim_findings = to_findings(sim_result, snapshot.snapshot_id)
+    sim_findings = to_findings(sim_result, snapshot.snapshot_id, model=economy_model)
 
     return build_review_report(snapshot, checkers, sim_findings=sim_findings)

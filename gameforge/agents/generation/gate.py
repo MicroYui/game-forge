@@ -98,7 +98,7 @@ def _economy_findings(snapshot: Snapshot) -> list[Finding]:
         result = EconomySimulator().run(
             model, seed=_SIM_SEED, n_agents=_SIM_N_AGENTS, n_ticks=_SIM_N_TICKS
         )
-        return to_findings(result, snapshot.snapshot_id)
+        return to_findings(result, snapshot.snapshot_id, model=model)
     except Exception:  # noqa: BLE001 — an un-modelable economy is not a gate failure
         return []
 

@@ -391,11 +391,17 @@ def detect_collapse(result: SimResult) -> CollapseReport | None:
     )
 
 
-def to_findings(result: SimResult, snapshot_id: str) -> list[Finding]:
+def to_findings(
+    result: SimResult, snapshot_id: str, model: "EconomyModel | None" = None
+) -> list[Finding]:
     """Descriptive what-if Findings only — never a prescriptive "change X to
     Y" number. Violated invariants and a detected collapse each become one
     `oracle_type="simulation"`, `source="sim"`, `producer_id="economy_sim"`
     Finding.
+
+    When `model` is supplied, the collapse finding names its faucet/sink
+    entities (and the source relations) so a downstream repair agent can target
+    the runaway faucet — without it, `entities` stays empty (backward-compatible).
     """
     run_id = f"sim@{snapshot_id[:23]}"
     findings: list[Finding] = []
@@ -420,15 +426,32 @@ def to_findings(result: SimResult, snapshot_id: str) -> list[Finding]:
 
     collapse = detect_collapse(result)
     if collapse is not None:
+        faucet_entities: list[str] = []
+        source_relations: list[str] = []
+        collapse_evidence: dict[str, Any] = {
+            "collapse_tick": collapse.collapse_tick,
+            "early_warning_tick": collapse.early_warning_tick,
+            **collapse.evidence,
+        }
+        if model is not None:
+            faucet_entities = sorted(
+                {s["producer"] for s in model.sources} | {s["shop"] for s in model.sinks}
+            )
+            source_relations = sorted({s["relation_id"] for s in model.sources})
+            # descriptive summary of the imbalance drivers (no prescriptive numbers)
+            collapse_evidence["faucets"] = [
+                {"producer": s["producer"], "gold_min": s["gold_min"], "gold_max": s["gold_max"]}
+                for s in model.sources
+            ]
+            collapse_evidence["sinks"] = [
+                {"shop": s["shop"], "price": s["price"]} for s in model.sinks
+            ]
         findings.append(Finding(
             id=f"{run_id}#{counter}", source="sim", producer_id="economy_sim",
             producer_run_id=run_id, oracle_type="simulation",
             defect_class="economy_collapse", severity="critical", snapshot_id=snapshot_id,
-            evidence={
-                "collapse_tick": collapse.collapse_tick,
-                "early_warning_tick": collapse.early_warning_tick,
-                **collapse.evidence,
-            },
+            entities=faucet_entities, relations=source_relations,
+            evidence=collapse_evidence,
             status="confirmed",
             message=(
                 f"Simulated economy trajectory shows a collapse at tick "
