@@ -156,3 +156,28 @@ def test_import_linter_denylist_covers_broad_llm_sdks(sdk):
         assert lint_imports(no_cache=True) != EXIT_STATUS_SUCCESS
     finally:
         os.remove(probe)
+
+
+def test_llm_sdk_only_allowed_in_model_router():
+    # openai imported anywhere else in gameforge (here: agents) must trip the gate.
+    probe = os.path.join(os.path.dirname(__file__), os.pardir, "gameforge", "agents", "_sdk_probe.py")
+    with open(probe, "w", encoding="utf-8") as fh:
+        fh.write("import openai  # probe: LLM SDK only allowed in runtime.model_router\n")
+    try:
+        assert lint_imports(no_cache=True) != EXIT_STATUS_SUCCESS
+    finally:
+        os.remove(probe)
+
+
+def test_model_router_may_import_openai():
+    # The one allowed home for the SDK — a probe there must NOT trip the gate.
+    probe = os.path.join(
+        os.path.dirname(__file__), os.pardir,
+        "gameforge", "runtime", "model_router", "_sdk_ok_probe.py",
+    )
+    with open(probe, "w", encoding="utf-8") as fh:
+        fh.write("import openai  # allowed here\n")
+    try:
+        assert lint_imports(no_cache=True) == EXIT_STATUS_SUCCESS
+    finally:
+        os.remove(probe)

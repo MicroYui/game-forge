@@ -10,6 +10,7 @@ dependencies = [
     "alembic>=1.13",
     "clingo>=5.6",
     "z3-solver>=4.12",
+    "openai>=1.40",
 ]
 
 [dependency-groups]
@@ -131,3 +132,26 @@ name = "platform depends only on contracts, spine, runtime"
 type = "forbidden"
 source_modules = ["gameforge.platform"]
 forbidden_modules = ["gameforge.agents", "gameforge.apps", "gameforge.bench", "gameforge.game", "gameforge.env"]
+
+[[tool.importlinter.contracts]]
+name = "LLM SDK only in runtime.model_router"
+type = "forbidden"
+source_modules = [
+    "gameforge.agents",
+    "gameforge.spine",
+    "gameforge.env",
+    "gameforge.game",
+    "gameforge.contracts",
+    "gameforge.platform",
+    "gameforge.apps",
+    "gameforge.bench",
+    "gameforge.runtime.cassette",
+    "gameforge.runtime.config",
+    "gameforge.runtime.observability",
+    "gameforge.runtime.persistence",
+    "gameforge.runtime.secrets",
+]
+forbidden_modules = [
+    "openai", "anthropic", "litellm", "langchain", "langgraph", "llama_index",
+    "cohere", "mistralai", "groq", "google", "ollama",
+]
