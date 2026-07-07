@@ -60,10 +60,7 @@ class ModelRouter:
             return rec.response
 
         # RECORD / PASSTHROUGH → live transport
-        if self._max_calls is not None and self._live_calls >= self._max_calls:
-            raise QuotaExceeded(f"live-call quota {self._max_calls} exhausted")
         resp = self._complete_with_retry(req)
-        self._live_calls += 1
 
         if self._mode is RouterMode.RECORD:
             self._store.record(
@@ -80,8 +77,13 @@ class ModelRouter:
     def _complete_with_retry(self, req: ModelRequest) -> ModelResponse:
         last: Exception | None = None
         for _ in range(self._max_retries + 1):
+            if self._max_calls is not None and self._live_calls >= self._max_calls:
+                raise QuotaExceeded(f"live-call quota {self._max_calls} exhausted")
+            self._live_calls += 1  # count EVERY real transport attempt (retries included)
             try:
                 return self._transport.complete(req)
             except Exception as exc:  # transient gateway errors → retry then degrade
                 last = exc
-        raise RuntimeError(f"transport failed after {self._max_retries + 1} attempts: {last}")
+        raise RuntimeError(
+            f"transport failed after {self._max_retries + 1} attempts: {last}"
+        )

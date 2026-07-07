@@ -99,3 +99,22 @@ def test_passthrough_calls_transport_but_never_writes_cassette(tmp_path):
     assert resp.response_normalized == "live-only"
     assert len(stub.calls) == 1
     assert store.replay(request_hash(req)) is CASSETTE_MISS
+
+
+def test_quota_counts_every_transport_attempt(tmp_path):
+    # Under sustained failure the quota must trip on transport ATTEMPTS, not only
+    # successful calls — otherwise the circuit-breaker never fires during an outage.
+    class _AlwaysFails:
+        def __init__(self):
+            self.attempts = 0
+
+        def complete(self, r):
+            self.attempts += 1
+            raise RuntimeError("gateway down")
+
+    transport = _AlwaysFails()
+    router = ModelRouter(transport, CassetteStore(tmp_path),
+                         mode=RouterMode.RECORD, max_retries=5, max_calls=2)
+    with pytest.raises(QuotaExceeded):
+        router.call(_req())
+    assert transport.attempts == 2  # exactly max_calls attempts, then quota trips
