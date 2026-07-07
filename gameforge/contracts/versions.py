@@ -10,3 +10,6 @@ LINEAGE_SCHEMA_VERSION = "lineage@1"
 AUDIT_SCHEMA_VERSION = "audit@1"
 REVIEW_SCHEMA_VERSION = "review@1"
 TOOL_VERSION = "gameforge@0.0.0"  # checker/compiler tool version for the version tuple
+MODEL_ROUTER_SCHEMA_VERSION = "model-router@1"
+CASSETTE_SCHEMA_VERSION = "cassette@1"
+AGENT_IO_SCHEMA_VERSION = "agent-io@1"
