@@ -1,6 +1,6 @@
 # M2b — 长程 Playtest Agent + 回归框架 + 消融 设计文档（Design Spec）
 
-> 状态：**DRAFT，等待用户确认 §0 的 5 项决策 + 过审本设计后进 writing-plans**。用户离开期间按"推荐默认值"起草；受决策影响的段落已隔离标注 `[D1]..[D5]`，用户答复只需改这些段落。本文是**设计**，非实现——未经用户确认决策 + 过审，不进 writing-plans、不写代码、不调 LLM 网关。
+> 状态：**决策已确认（2026-07-07，用户："按 recommend 来，质量不够优先扩充/完整实现，实在无法实现才诚实反馈"）。** D1–D5 全部按推荐默认确认（见 §0 表）；**全 M2b 在范围内**（含 §3 场景生成器 D1 + 录制 pass D5）。执行按里程碑工作流（writing-plans → subagent TDD → 录制），里程碑碑间过审。
 
 关联单一真相源：PRD `…2026-07-03-gameforge-prd.md`（§7.7 Agent-Env / §7.8 Playtest+回归 / §13.4 agent 硬核指标 / §16 M2 验收）、M2 设计 `…2026-07-07-m2-agent-layer-design.md` §8（含 §8.4 mem-trace 从零结论）、地基契约 契约4（Agent-Env）。CLAUDE.md 硬规则。记忆 `gameforge-milestone-progress`（M2a 全部 ✅ 已并入 master `9e8c621`）。
 
