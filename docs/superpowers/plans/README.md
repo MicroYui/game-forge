@@ -11,3 +11,4 @@
 - `M0a-vertical-slice.md` — M0a（已完成）
 - `2026-07-06-m0b-foundations.md` — M0b（已完成）
 - `2026-07-06-m1-deterministic-trunk.md` — M1（已完成）
+- `2026-07-07-m2a-agent-foundations.md` — M2a-part1（地基：契约§7 Model Router/Cassette + 编排 harness + 录放复现验收，零实网 LLM；已完成）

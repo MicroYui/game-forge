@@ -16,7 +16,8 @@ See `docs/superpowers/specs/` for the PRD and foundational contracts (single sou
 | **M0a** | Shortest vertical slice: contracts + IR core + canonical snapshot + Aureus minimal kernel (quest + grid nav) + minimal checker + a 3-step quest chain | ✅ acceptance passing |
 | **M0b** | Aureus combat/economy/gacha; Schema Registry + Aureus CSV adapter round-trip; version/lineage/audit skeleton; Alembic DB migrations | ✅ acceptance passing |
 | **M1** | Graph/ASP/SMT checker suite; DSL→checker compiler; economy simulation; open-source game adapter; Finding/Patch | ✅ acceptance passing |
-| M2–M4 | see `docs/superpowers/specs/` and `CLAUDE.md` | ⬜ planned |
+| **M2a-part1** | Model Router (RECORD/REPLAY/PASSTHROUGH) + Cassette store + deterministic agent orchestration — foundations only | ✅ acceptance passing |
+| M2a-part2, M2b–M4 | see `docs/superpowers/specs/` and `CLAUDE.md` | ⬜ planned |
 
 ## Layout (contract §1)
 
@@ -109,6 +110,24 @@ tick strictly ahead of the collapse tick. The open-source Flare adapter
 losslessly (`from_ir(to_ir(x)) == x`), the external-validity anchor. See
 `tests/apps/test_m1_acceptance.py` for the full acceptance suite.
 
+## M2a-part1 acceptance
+
+A toy two-call agent node, run through the deterministic orchestration harness
+(`gameforge.agents.orchestrator.run_graph`) under `ModelRouter(mode=RECORD)` against a
+canned `StubTransport`, writes one cassette file per LLM call; re-running the identical
+graph under `ModelRouter(mode=REPLAY)` — with a transport stub that raises if it is ever
+invoked — reproduces the resulting `AgentNodeResult` byte-for-byte (`model_dump()`
+equality), with zero live network calls:
+
+```bash
+uv run pytest tests/agents/test_foundations_acceptance.py -v
+# -> test_foundations_record_then_replay_reproduces_byte_identical PASSED
+```
+
+This is the foundations slice of contract §7 (Model Router / Cassette / `request_hash`)
+plus the 6-role `agent_io` contract and the "LLM SDK only in `runtime.model_router`"
+import-linter contract (7th contract, `uv run lint-imports` → 7 kept, 0 broken).
+
 ## What M0a delivers vs. deferred (不简化，只延后)
 
 **Delivered:** monorepo + dependency lint; `contracts` (IR core types, canonical
@@ -179,3 +198,28 @@ contract is complete now; actually judging a narrative predicate is M2's bounded
 layer); bounded LLM agents + Agent-Env + Playtest Agent + cassette/model-router (M2);
 GameForge-Bench (M3); RBAC/approval workflow + full web pages + observability panels
 (M4).
+
+## What M2a-part1 delivers vs. deferred (不简化，只延后)
+
+**Delivered:** contract §7 (`ModelSnapshot`/`Message`/`ModelRequest`/`ModelResponse`,
+`request_hash` excluding `cache_key`/schema_version so it hashes exactly the fields that
+determine the model's output) and the 6-role `agent_io` contract (`AgentNodeResult` plus
+each role's typed input/output — extraction, triage, repair, consistency, generation,
+playtest — fields defined in full now, only extraction/triage/repair/consistency/
+generation implemented in part2, playtest in M2b); the "LLM SDK only in
+`runtime.model_router`" import-linter contract (`LlmTransport`/`OpenAITransport`/
+`StubTransport` are the sole `openai` import site); `ModelRouter` with
+RECORD/REPLAY/PASSTHROUGH modes, retry-with-quota (every live transport attempt counted,
+including retries) and in-session exact-match de-duplication (stable-prefix semantic
+caching deferred to part2); `CassetteStore` flat-file record/replay keyed by
+`request_hash`; a hand-rolled deterministic orchestration harness
+(`gameforge.agents.orchestrator.run_graph` — ordered nodes, no concurrency, no hidden
+state) plus a `prompt_version` registry; and the record→replay reproducibility
+acceptance test proving byte-identical `AgentNodeResult` reproduction with zero live
+network calls.
+
+**Interfaces defined now, implementation deferred to M2a-part2:** Extraction
+Proposer/Defect Triager/Repair Drafter/Consistency Assistant/Content Generator real LLM
+semantics + per-role fallback, verifier-guided repair search, generation gate, Fix Pass
+Rate ≥70% acceptance against real recorded gateway cassettes, stable-prefix semantic
+cache. **Deferred to M2b:** Playtest Agent, mem-trace, ablation studies.
