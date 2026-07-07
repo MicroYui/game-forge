@@ -38,7 +38,7 @@
 | M0a | contracts 包 + IR core 类型 + canonical 快照 + Aureus 最小内核（任务+网格导航）+ 最小 checker + 跑通一条 3+ 步任务链 | ✅ 完成（vertical slice 验收通过：config→IR→Aureus talk→collect→turn-in） |
 | M0b | Aureus 补齐（战斗/经济/抽卡）+ Schema Registry round-trip + 版本/血缘/审计骨架 + DB 迁移框架 | ✅ 完成（验收：outpost CSV round-trip diff=∅；combat/economy/gacha/quest 四系统配置驱动且确定性跑通；version/lineage/audit + Alembic upgrade/downgrade 全绿） |
 | M1 | Graph/ASP/SMT 检查器套件 + DSL→检查器编译 + 经济仿真 + 开源游戏适配器 + Finding/Patch | ✅ 完成（验收：9 类 IR 缺陷场景 + 1 类经济崩坏场景 sound 检出，`scenarios/defects/clean` 基线 oracle-FP=0；Clingo/z3 双后端 + Flare 开源适配器无损往返全绿） |
-| M2 | 有边界 Agent 层 + Agent-Env + Playtest Agent + 回归框架（cassette）+ Model Router/Cassette | ⬜ |
+| M2 | 有边界 Agent 层 + Agent-Env + Playtest Agent + 回归框架（cassette）+ Model Router/Cassette | 🔄 进行中 |
 | M3 | GameForge-Bench（≥500 seeded + 开源真实语料）+ 完整指标 + Eval 面板 | ⬜ |
 | M4 | 生产化硬化：可观测/成本治理 + 版本血缘/回滚/审计 + RBAC/审批 + 前端全页面 | ⬜ |
 
