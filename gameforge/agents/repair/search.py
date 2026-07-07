@@ -47,7 +47,13 @@ def _empty_patch(finding: Finding, snapshot: Snapshot) -> Patch:
 def _summarize_failure(result: VerifyResult, target_defect_class: str) -> str:
     parts: list[str] = []
     if not result.target_resolved:
-        parts.append(f"the target defect {target_defect_class!r} is still present")
+        # `result.detail` distinguishes "still present" from delete-to-silence,
+        # so the drafter re-drafts against the precise reason (e.g. don't delete
+        # the offending subject to make the defect vanish).
+        parts.append(
+            f"the target defect {target_defect_class!r} is not genuinely resolved "
+            f"({result.detail})"
+        )
     if result.new_deterministic:
         classes = sorted({f.defect_class for f in result.new_deterministic})
         parts.append(f"the patch introduced new deterministic defects: {classes}")
