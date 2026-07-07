@@ -1,0 +1,1 @@
+"""Prompt templates registry package."""

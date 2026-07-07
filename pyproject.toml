@@ -151,6 +151,18 @@ source_modules = [
     "gameforge.runtime.persistence",
     "gameforge.runtime.secrets",
 ]
+# router.py -> transport.py is model_router's OWN internal wiring (router needs
+# the LlmTransport Protocol type to type its constructor param) — the whole point
+# of "only in runtime.model_router" is that code OUTSIDE model_router must not
+# reach an SDK; agents legitimately depends on ModelRouter (hard rule: agents is
+# the only layer allowed to reach the LLM, via the router). Without this the
+# default indirect-chain check would flag agents -> router -> transport -> openai
+# even though agents never sees openai. Scoped to this one intra-package edge;
+# a direct `import openai` anywhere in agents/spine/etc. is still caught (see
+# tests/test_dependency_lint.py::test_llm_sdk_only_allowed_outside_model_router_is_rejected).
+ignore_imports = [
+    "gameforge.runtime.model_router.router -> gameforge.runtime.model_router.transport",
+]
 forbidden_modules = [
     "openai", "anthropic", "langchain", "langgraph", "llama_index",
     "cohere", "mistralai", "groq", "litellm", "google", "google_generativeai",
