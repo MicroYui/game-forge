@@ -158,11 +158,12 @@ def test_import_linter_denylist_covers_broad_llm_sdks(sdk):
         os.remove(probe)
 
 
-def test_llm_sdk_only_allowed_in_model_router():
-    # openai imported anywhere else in gameforge (here: agents) must trip the gate.
+@pytest.mark.parametrize("sdk", ["openai", "boto3", "vertexai", "cohere"])
+def test_llm_sdk_only_allowed_outside_model_router_is_rejected(sdk):
+    # Any LLM/cloud SDK imported outside runtime.model_router (here: agents) must trip the gate.
     probe = os.path.join(os.path.dirname(__file__), os.pardir, "gameforge", "agents", "_sdk_probe.py")
     with open(probe, "w", encoding="utf-8") as fh:
-        fh.write("import openai  # probe: LLM SDK only allowed in runtime.model_router\n")
+        fh.write(f"import {sdk}  # probe: LLM SDK only allowed in runtime.model_router\n")
     try:
         assert lint_imports(no_cache=True) != EXIT_STATUS_SUCCESS
     finally:
