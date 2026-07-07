@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b57474770bf1d517d54dd147bcee8cf8e4acbde13cc2cda0198ef9cdfbd73371",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7244,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErEECmMIDxgCKkCNaMhSVhYSiZVxyPMSr/OlU4WeZN15QOdShAhXLZdvZPDNjmoAs4lerqmYEVjkle12Cexg5eobkFMjJcXd+hibMg9jbGF1ZGUtb3B1cy00LTg4AEIIdGhpbmtpbmcSDJrCBNR4X/QRoauAahoMsg9WlIAyZa2tGgkqIjCwl0IfragMsROeVJboK3nRhNX2LWmCnwLx21/TDo6+JLb0gVzREDKvIMiV/l3JsN0q+wJyZigfop01OsrwUov1e8YhrcRmkL/okk/ZyfAOXcDCsP+Ia3ezsjximWjYIcJBXZ8/2YXXTxX0tnkgqzjVT7/OKuFCVckjBRQIFltrdn72TXos9yuCCdrfBmOJF8zgEe39AGcalIdWW+w9otS1IeOL9HdlpDw/yMdVKfJGb707i7ecwKLe2jI1rNc00cgbstCtvVrwNKASBl3ZbjWFdFMyvQ0XByhqgnA8EqAb5+VIuGTMjRbDeN9ZqiXFwhbJXFtoq5VxZKdb3qu3VXrK09Vam7l1c5vSTgumpTu5X8ZecOVcoeofzmY+bxGgCUGTACbbrByXkSYZlRBoQpc8xAlIL/Rb3CG4nwrbBCtX1brBX1E0mP0RbLZNyJhBrovpKDPDL/ftpXbGTgarzmLMSbohhf4D78wjLDHhNTmiC4U1/nbx8uDu0PyYshQbuyuN6nuoM3voYp7Dkhryo2OXRk6EgySa9KHiYfiLgLjpRA/p8d+8gF+4iw2ycCyDGAE=",
+          "thinking": "I'm identifying two constraint violations here. The guard's claim that the Warden died three nights ago directly contradicts the Elder's statement that the Warden is alive and well—that's a warden-status inconsistency. Additionally, the guard revealing this information before the elders make their official announcement constitutes a premature spoiler of what should be a key reveal.",
+          "type": "thinking"
+        },
+        {
+          "text": "[\n  {\n    \"span\": \"the Warden fell three nights ago. The elders simply haven't said so aloud yet.\",\n    \"issue\": \"Contradicts the Elder's later statement that the Warden lives and is in good health; possible violation of C-narrative-warden-status-consistency (dead vs. alive).\"\n  },\n  {\n    \"span\": \"the Warden fell three nights ago. The elders simply haven't said so aloud yet\",\n    \"issue\": \"May be a premature spoiler (C-narrative-no-premature-spoiler): the Guard reveals the Warden's death before the elders' intended dusk announcement, disclosing information not yet officially released.\"\n  },\n  {\n    \"span\": \"The Warden lives and is in good health; she will address the outpost herself at dusk.\",\n    \"issue\": \"Conflicts with the Guard's earlier claim that the Warden fell three nights ago; suspected C-narrative-warden-status-consistency inconsistency that needs reconciliation (which account is true?).\"\n  }\n]",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 420,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 465,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1372500000
+      },
+      "id": "msg_011CcnUqGcDwHDFVgixfDHxM",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 420,
+        "output_tokens": 465,
+        "output_tokens_details": {
+          "thinking_tokens": 132
+        }
+      }
+    },
+    "response_normalized": "[\n  {\n    \"span\": \"the Warden fell three nights ago. The elders simply haven't said so aloud yet.\",\n    \"issue\": \"Contradicts the Elder's later statement that the Warden lives and is in good health; possible violation of C-narrative-warden-status-consistency (dead vs. alive).\"\n  },\n  {\n    \"span\": \"the Warden fell three nights ago. The elders simply haven't said so aloud yet\",\n    \"issue\": \"May be a premature spoiler (C-narrative-no-premature-spoiler): the Guard reveals the Warden's death before the elders' intended dusk announcement, disclosing information not yet officially released.\"\n  },\n  {\n    \"span\": \"The Warden lives and is in good health; she will address the outpost herself at dusk.\",\n    \"issue\": \"Conflicts with the Guard's earlier claim that the Warden fell three nights ago; suspected C-narrative-warden-status-consistency inconsistency that needs reconciliation (which account is true?).\"\n  }\n]",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 420,
+      "output": 465
+    },
+    "tool_calls": []
+  }
+}

@@ -7,8 +7,8 @@ def test_all_agent_prompts_registered():
     for name, ver in [
         ("extraction.system", "extraction@1"),
         ("triage.system", "triage@1"),
-        ("repair.system", "repair@1"),
-        ("repair.refine", "repair@1"),
+        ("repair.system", "repair@2"),
+        ("repair.refine", "repair@2"),
         ("consistency.system", "consistency@1"),
         ("generation.system", "generation@1"),
     ]:
@@ -29,5 +29,5 @@ def test_refine_prompt_renders_counterexample_without_brace_crash():
     # render() uses str.format — any unescaped literal brace in ANY template would crash here.
     register_all_prompts()
     v, text = render("repair.refine", counterexample="reward_gold still 120")
-    assert v == "repair@1"
+    assert v == "repair@2"
     assert "reward_gold still 120" in text

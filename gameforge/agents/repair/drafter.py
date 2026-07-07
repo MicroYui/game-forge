@@ -22,6 +22,7 @@ from gameforge.agents.base import AgentParseError, call_model, parse_json_block
 from gameforge.agents.prompts.library import register_all_prompts
 from gameforge.agents.prompts.registry import get_prompt, render
 from gameforge.contracts.findings import Finding, Patch, TypedOp
+from gameforge.contracts.ir import EdgeType
 from gameforge.runtime.model_router.router import ModelRouter
 from gameforge.spine.ir.snapshot import Snapshot
 
@@ -31,6 +32,8 @@ _VALID_OP_KINDS = {
     "add_entity", "delete_entity", "set_entity_attr",
     "add_relation", "delete_relation", "set_relation_attr", "replace_subgraph",
 }
+
+_CATALOG_CAP = 50  # per-type cap on the available-entity catalog (bounds token size)
 
 
 class RepairDrafter:
@@ -86,26 +89,70 @@ class RepairDrafter:
                 f"- evidence: {json.dumps(finding.evidence, sort_keys=True, default=str)}"
             )
         parts.append("")
-        parts.append("Relevant IR nodes (id, type, attrs):")
+        parts.append(
+            "IR context (JSON): focus_nodes = the defect's own nodes with full attrs; "
+            "incident_relations = the real relations touching them (use these exact ids to "
+            "delete_relation / set_relation_attr, and their endpoints); neighbor_nodes = nodes "
+            "one edge away; entity_catalog = available entity ids grouped by node type (use these "
+            "as real src_id/dst_id when you add_relation); edge_types = the valid relation types."
+        )
         parts.append(self._ir_context(finding, snapshot))
         parts.append("")
         parts.append(f"base_snapshot_id: {snapshot.snapshot_id}")
         return "\n".join(parts)
 
     def _ir_context(self, finding: Finding, snapshot: Snapshot) -> str:
-        """Compact JSON of the nodes the finding implicates — the minimal graph
-        context the model needs to target its ops, no whole-snapshot dump."""
+        """Structural context the model needs to target real ops: the defect's own
+        nodes, the real relations incident to them (ids/types/endpoints), their
+        neighbors, a per-type catalog of available entity ids, and the edge-type
+        vocabulary. Bounded (catalog capped) — not a whole-snapshot dump."""
         graph = snapshot.to_graph()
-        nodes = []
-        for entity_id in finding.entities:
-            node = graph.get_node(entity_id)
+
+        focus_ids = [e for e in finding.entities if graph.get_node(e) is not None]
+        focus_set = set(focus_ids)
+        focus_nodes = []
+        for eid in focus_ids:
+            node = graph.get_node(eid)
             if node is not None:
-                nodes.append({
-                    "id": node.id,
-                    "type": node.type.value,
-                    "attrs": node.attrs,
+                focus_nodes.append({"id": node.id, "type": node.type.value, "attrs": node.attrs})
+
+        incident_relations = []
+        neighbor_ids: set[str] = set()
+        for rel in graph.all_relations():
+            if rel.src_id in focus_set or rel.dst_id in focus_set:
+                incident_relations.append({
+                    "id": rel.id, "type": rel.type.value,
+                    "src_id": rel.src_id, "dst_id": rel.dst_id,
                 })
-        return json.dumps(nodes, sort_keys=True, default=str)
+                neighbor_ids.add(rel.src_id)
+                neighbor_ids.add(rel.dst_id)
+        neighbor_ids -= focus_set
+
+        neighbor_nodes = []
+        for nid in sorted(neighbor_ids):
+            node = graph.get_node(nid)
+            if node is not None:
+                neighbor_nodes.append(
+                    {"id": node.id, "type": node.type.value, "name": node.attrs.get("name")}
+                )
+
+        entity_catalog: dict[str, list[str]] = {}
+        for entity in graph.all_entities():
+            bucket = entity_catalog.setdefault(entity.type.value, [])
+            if len(bucket) < _CATALOG_CAP:
+                bucket.append(entity.id)
+
+        return json.dumps(
+            {
+                "focus_nodes": focus_nodes,
+                "incident_relations": incident_relations,
+                "neighbor_nodes": neighbor_nodes,
+                "entity_catalog": entity_catalog,
+                "edge_types": [et.value for et in EdgeType],
+            },
+            sort_keys=True,
+            default=str,
+        )
 
     def _build_ops(self, raw: object) -> list[TypedOp]:
         ops: list[TypedOp] = []

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6093a47d518090b40efcf4bc4035f9c8687189cc0350f31453423640de66b434",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7448,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtgECmMIDxgCKkArGOjz2se2NYQ4TnFTB70al/L9PkHcK0mhbhRi46QqXEMk3zXb1il4pFZEt0V7DD6FAAZEqXdvEFHVcaDbej2+Mg9jbGF1ZGUtb3B1cy00LTg4AEIIdGhpbmtpbmcSDOIp1pAC5xYaPl5vTxoM1b6KjHWKfI4LaPJjIjDC2kHyGRtXThccM3YePpKAasvQgkiuXiFOxKJeyB7T7sceeWbHZM9bBpkDlPgG1XAqogP2h41wNL2mbXwes29CHInFhBB/04LR+CPdEpj+5vMUXNauYcFAFWw5a1bM7UybHhXH0zCPywe73GDIG3VX6/VMp9PKHUx0Mt56lN3BkGFuu7tviqfAvvrz5ZGFEzla9NzRiP5RoB3mE9+gIU5s314CewCF6MXCxktmKIQtycjv42L7T/HPUhBnAX6kiQpKY+siiZuwP08pmuGvM/3+dUo81VlQhAwA6zH/0UC5+NTkCyAXmpGqmvT0WAixihblp0EvZCQOvG3D0//9tUoYo/k4b6Er/xGlGljdVQLL0c4byhmPioWEAN5W7YVf9WuxL9YQGTgjZW/nAhcBypyi4YsN4MmSibJw9CJW8C5ZFnFTDeLi34Ldv4/I0gmuGSKWGL14mzQL66UgvEiXVwQN9/Ecxn7EwkAzuQR6AMdroR0rFEdN2K5/5RxZOsTa5C1WH7lpPklz3bzHVtmI4dKN0cXxI+8EQNMXZCjjdjMM4hVNmbygpRarca2OIa/FM5J8GA/hw1wa5Gy1WcfDS/x4TY5/zeWaeJaLNlB0D3sIMI9tGHq9GAE=",
+          "thinking": "I'm spotting a contradiction in the dialogue: the guard claims the Warden returned from the northern watch but then says he fell three nights ago and is dead, while the Elder states the Warden is alive and in good health. There's also a premature spoiler issue where the guard reveals the Warden's death before the elders make any official announcement. I need to generate JSON that flags both of these constraint violations.",
+          "type": "thinking"
+        },
+        {
+          "text": "[\n  {\n    \"span\": \"the Warden fell three nights ago. The elders simply haven't said so aloud yet.\",\n    \"issue\": \"Contradicts the guard's own prior statement that the Warden 'returns from the northern watch' and directly conflicts with the Elder's claim that 'The Warden lives and is in good health' — possible violation of C-narrative-warden-status-consistency.\"\n  },\n  {\n    \"span\": \"The Warden lives and is in good health; she will address the outpost herself at dusk.\",\n    \"issue\": \"Directly contradicts the guard's assertion that the Warden fell three nights ago; warden status is inconsistent across speakers (C-narrative-warden-status-consistency).\"\n  },\n  {\n    \"span\": \"between the two of us — the Warden fell three nights ago. The elders simply haven't said so aloud yet.\",\n    \"issue\": \"Reveals the Warden's death before the elders have publicly disclosed it, potentially a premature spoiler (C-narrative-no-premature-spoiler).\"\n  }\n]",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 420,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 486,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1425000000
+      },
+      "id": "msg_011CcnUpigbT4e1miApWuqGs",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 420,
+        "output_tokens": 486,
+        "output_tokens_details": {
+          "thinking_tokens": 143
+        }
+      }
+    },
+    "response_normalized": "[\n  {\n    \"span\": \"the Warden fell three nights ago. The elders simply haven't said so aloud yet.\",\n    \"issue\": \"Contradicts the guard's own prior statement that the Warden 'returns from the northern watch' and directly conflicts with the Elder's claim that 'The Warden lives and is in good health' — possible violation of C-narrative-warden-status-consistency.\"\n  },\n  {\n    \"span\": \"The Warden lives and is in good health; she will address the outpost herself at dusk.\",\n    \"issue\": \"Directly contradicts the guard's assertion that the Warden fell three nights ago; warden status is inconsistent across speakers (C-narrative-warden-status-consistency).\"\n  },\n  {\n    \"span\": \"between the two of us — the Warden fell three nights ago. The elders simply haven't said so aloud yet.\",\n    \"issue\": \"Reveals the Warden's death before the elders have publicly disclosed it, potentially a premature spoiler (C-narrative-no-premature-spoiler).\"\n  }\n]",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 420,
+      "output": 486
+    },
+    "tool_calls": []
+  }
+}
