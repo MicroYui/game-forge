@@ -39,6 +39,25 @@ def test_openai_transport_maps_response():
     assert resp.token_usage == {"prompt_tokens": 3, "completion_tokens": 4}
 
 
+def test_openai_transport_constructs_default_client_when_not_injected(monkeypatch):
+    # When no client is injected, OpenAITransport must build a real openai.OpenAI
+    # client from base_url/api_key. Monkeypatch the SDK constructor itself so this
+    # stays a pure unit test — no network call, no real key required.
+    created = {}
+
+    class _FakeOpenAI:
+        def __init__(self, base_url, api_key):
+            created["base_url"] = base_url
+            created["api_key"] = api_key
+
+    monkeypatch.setattr(
+        "gameforge.runtime.model_router.transport.openai.OpenAI", _FakeOpenAI
+    )
+    t = OpenAITransport(base_url="http://localhost:4141", api_key="sk-x")
+    assert created == {"base_url": "http://localhost:4141", "api_key": "sk-x"}
+    assert isinstance(t._client, _FakeOpenAI)
+
+
 def test_stub_transport_returns_by_request_hash():
     from gameforge.contracts.model_router import ModelResponse
     r = _req()
