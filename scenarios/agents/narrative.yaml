@@ -1,0 +1,21 @@
+# Narrative constraints (contract §3, `oracle: llm-assisted`) for the outpost
+# consistency dialogue sample (`dialogue.txt`). `oracle: llm-assisted` routes
+# these to the agent layer (M2) — they are NEVER judged deterministically; the
+# Consistency Assistant proposes suggestions (quorum-voted) and a human confirms.
+- id: C-narrative-warden-status-consistency
+  kind: narrative
+  oracle: llm-assisted
+  assert: character_life_status_is_consistent_across_dialogue
+  severity: major
+  note: >
+    No character may be described as both dead and alive within the same scene
+    without an explicit in-world explanation for the contradiction.
+
+- id: C-narrative-no-premature-spoiler
+  kind: narrative
+  oracle: llm-assisted
+  assert: plot_reveals_are_not_disclosed_before_their_intended_beat
+  severity: minor
+  note: >
+    Dialogue must not reveal a plot turn (e.g. a character's secret death)
+    ahead of the beat where the story intends the player to learn it.
