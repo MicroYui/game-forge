@@ -90,6 +90,53 @@ def test_retry_exhausted_raises(tmp_path):
     assert flaky.calls == 3  # 1 initial + 2 retries, then gives up
 
 
+def test_record_resume_reuses_on_disk_cassettes(tmp_path):
+    # A long RECORD pass that is interrupted must be resumable: re-running with
+    # resume=True reuses every cassette already on disk (zero live calls for
+    # those) and only records the still-missing requests. This is what makes a
+    # multi-thousand-call record survive being killed and restarted.
+    req_a, req_b = _req("a"), _req("b")
+    store = CassetteStore(tmp_path)
+    # First (interrupted) record: only req_a made it to disk.
+    ModelRouter(
+        StubTransport({request_hash(req_a): ModelResponse(response_normalized="a")}),
+        store, mode=RouterMode.RECORD,
+    ).call(req_a)
+
+    # Resume: fresh session cache; a transport that BLOWS UP if asked for req_a
+    # (proving req_a is served from disk) but supplies req_b live.
+    class _BoomOnA:
+        def __init__(self):
+            self.calls = []
+        def complete(self, r):
+            if request_hash(r) == request_hash(req_a):
+                raise AssertionError("resume must reuse the on-disk cassette for req_a")
+            self.calls.append(r)
+            return ModelResponse(response_normalized="b")
+
+    boom = _BoomOnA()
+    resume = ModelRouter(boom, store, mode=RouterMode.RECORD, resume=True)
+    assert resume.call(req_a).response_normalized == "a"  # reused from disk, no live call
+    assert resume.call(req_b).response_normalized == "b"  # missing → recorded live
+    assert len(boom.calls) == 1  # only req_b hit the transport
+    assert store.replay(request_hash(req_b)).response.response_normalized == "b"
+
+
+def test_record_default_recalls_even_if_cassette_exists(tmp_path):
+    # Default RECORD (resume=False) keeps its refresh semantics: it re-calls the
+    # transport even when a cassette already exists (a fresh process has an empty
+    # session cache). This locks that resume is strictly opt-in.
+    req = _req("x")
+    store = CassetteStore(tmp_path)
+    ModelRouter(
+        StubTransport({request_hash(req): ModelResponse(response_normalized="x1")}),
+        store, mode=RouterMode.RECORD,
+    ).call(req)
+    stub2 = StubTransport({request_hash(req): ModelResponse(response_normalized="x2")})
+    ModelRouter(stub2, store, mode=RouterMode.RECORD).call(req)  # fresh session → re-calls
+    assert len(stub2.calls) == 1  # re-called live despite the existing cassette
+
+
 def test_passthrough_calls_transport_but_never_writes_cassette(tmp_path):
     req = _req()
     stub = StubTransport({request_hash(req): ModelResponse(response_normalized="live-only")})

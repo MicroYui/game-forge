@@ -38,12 +38,17 @@ class ModelRouter:
         mode: RouterMode = RouterMode.REPLAY,
         max_retries: int = 2,
         max_calls: int | None = None,
+        resume: bool = False,
     ) -> None:
         self._transport = transport
         self._store = store
         self._mode = mode
         self._max_retries = max_retries
         self._max_calls = max_calls
+        # RECORD + resume: reuse any cassette already on disk instead of
+        # re-calling the transport, so an interrupted multi-thousand-call record
+        # pass can be restarted and only records the still-missing requests.
+        self._resume = resume
         self._live_calls = 0
         self._session_cache: dict[str, ModelResponse] = {}
 
@@ -60,6 +65,11 @@ class ModelRouter:
             return rec.response
 
         # RECORD / PASSTHROUGH → live transport
+        if self._mode is RouterMode.RECORD and self._resume:
+            rec = self._store.replay(h)
+            if rec is not CASSETTE_MISS:
+                self._session_cache[h] = rec.response
+                return rec.response
         resp = self._complete_with_retry(req)
 
         if self._mode is RouterMode.RECORD:

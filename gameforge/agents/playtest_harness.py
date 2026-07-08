@@ -290,6 +290,7 @@ def record_router(cassettes_root: str = _CASSETTES_ROOT) -> ModelRouter:
         AnthropicMessagesTransport(base_url="http://localhost:4141", api_key=get_llm_key()),
         CassetteStore(cassettes_root),
         mode=RouterMode.RECORD,
+        resume=True,
     )
 
 
