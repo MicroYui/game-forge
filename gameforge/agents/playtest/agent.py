@@ -148,7 +148,10 @@ class PlaytestAgent:
     def _current_quest(self, subgoal: dict, obs) -> str | None:
         """The quest the current action was working toward: the subgoal's quest
         if named, else the first active quest, else the first non-completed
-        known quest."""
+        known quest.
+        # TODO(M2b-2): multi-quest — attribute the abort to the quest whose
+        # current step references `target`, not active_quests[0].
+        """
         quest = subgoal.get("quest")
         if isinstance(quest, str) and quest:
             return quest

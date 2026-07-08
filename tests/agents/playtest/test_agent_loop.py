@@ -25,6 +25,7 @@ import json
 from gameforge.agents.playtest.agent import PlaytestAgent
 from gameforge.apps.cli.ir_to_world import snapshot_to_world
 from gameforge.contracts.agent_io import PlaytestInput
+from gameforge.contracts.env_types import NavigateTo
 from gameforge.contracts.model_router import ModelResponse
 from gameforge.game.aureus.kernel import AureusEnv
 from gameforge.runtime.cassette.store import CassetteStore
@@ -127,3 +128,57 @@ def test_playtest_agent_completes_caravan_flat_ablation(tmp_path):
     # Flat ablation drives the executor directly — the planner node is NEVER hit.
     assert "playtest.planner" not in transport.node_calls
     assert "playtest.executor" in transport.node_calls
+
+
+def _walled_caravan_env() -> tuple[AureusEnv, str]:
+    """Load `caravan`, then wall the quest giver off from the player start with
+    a full-height blocked column (Grid.blocked is a plain mutable set — see
+    `gameforge/game/aureus/grid.py`), so BFS genuinely finds no path. This is
+    NOT a scripted/mocked `unreachable`: the kernel's own `_navigate_to` (M0a
+    `kernel.py`) sets `last_action_result = "unreachable"` at its sole such
+    call site, whenever `Grid.shortest_path` returns `None`."""
+    snapshot = load_scenario("scenarios/caravan.yaml")
+    world = snapshot_to_world(snapshot)
+    env = AureusEnv(world)
+    giver = "npc:lincheng"  # pos (2, 1) per scenarios/caravan.yaml
+    start = env.world.start_pos  # (0, 0)
+    giver_pos = env.world.pos_of(giver)
+    assert giver_pos is not None and giver_pos[0] > start[0]
+    # Block the entire column one step east of start, for every row: no path
+    # can cross a full-height wall on a 4-neighbour grid with no wraparound.
+    wall_x = start[0] + 1
+    for y in range(env.world.grid.height):
+        env.world.grid.blocked.add((wall_x, y))
+    env.reset(world.scenario.scenario_id, 0)  # refresh obs against the walled grid
+    return env, giver
+
+
+def test_playtest_agent_aborts_on_oracle_confirmed_unreachable(tmp_path):
+    env, giver = _walled_caravan_env()
+
+    # The wall must genuinely defeat navigation BEFORE we ever hand the env to
+    # the agent — fail loudly here rather than let the agent loop paper over a
+    # wall that doesn't actually block anything.
+    nav = env.nav_provider()
+    assert nav.reachable(env.world.start_pos, nav.pos_of(giver)) is False
+    probe = env.step(NavigateTo(target=giver))
+    assert probe.observation.last_action_result == "unreachable"
+    env.reset(env.world.config.scenario.scenario_id, 0)  # undo the probe step
+
+    transport = _ScriptedTransport([giver])  # stub keeps retrying the walled giver
+    router = _router(transport, tmp_path)
+
+    report = PlaytestAgent().run(
+        PlaytestInput(scenario="walled", seed=0), env, router, use_planner=False
+    )
+
+    # Env genuinely never finished — the quest giver was never reached.
+    assert report.completed is False
+    assert env._all_quests_completed() is False
+    assert len(report.defect_findings) >= 1
+    f = report.defect_findings[0]
+    assert f.defect_class == "unreachable_target"
+    assert f.oracle_type == "deterministic" and f.status == "confirmed"
+    assert giver in f.entities
+    # Broke out of the loop via the abort branch, not by exhausting max_steps.
+    assert len(report.action_trace) < 200
