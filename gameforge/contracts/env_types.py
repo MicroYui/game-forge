@@ -122,6 +122,12 @@ class Observation(BaseModel):
     nearby_entities: list[str] = Field(default_factory=list)
     reachable_targets: list[str] = Field(default_factory=list)
     available_interactions: list[str] = Field(default_factory=list)
+    # Actionability (§4.3): monster ids the agent should navigate to + attack
+    # next — the undefeated monsters of every active quest's CURRENT `fight`
+    # step (once placed/reachable) plus, once combat is active, the alive
+    # monsters of the active encounter. Additive/backward-compatible (default
+    # empty); excluded from `state_hash` like the rest of `Observation`.
+    pending_fight_targets: list[str] = Field(default_factory=list)
     visible_map: dict[str, Any] = Field(default_factory=dict)
     dialogue_options: list[str] = Field(default_factory=list)
     last_action_result: str = ""

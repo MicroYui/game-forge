@@ -23,6 +23,7 @@ import os
 import pytest
 
 from gameforge.agents.playtest_harness import (
+    RECORD_MAX_STEPS,
     PlaytestCorpusResult,
     default_chain_snapshots,
     random_baseline,
@@ -37,7 +38,8 @@ PLAYTEST_CASSETTES = "cassettes/playtest"
 # Bounded depth mirroring `RECORD_MAX_STEPS` in `playtest_harness.py` — REPLAY
 # must reuse the same bound a `--record` pass used so the reproduced action
 # traces (and hence step counts / completion verdicts) match the recording.
-_MAX_STEPS = 60
+# Imported directly (not re-literaled) so the two can never drift out of sync.
+_MAX_STEPS = RECORD_MAX_STEPS
 
 needs_cassettes = pytest.mark.skipif(
     not os.path.isdir(PLAYTEST_CASSETTES) or not os.listdir(PLAYTEST_CASSETTES),

@@ -616,6 +616,7 @@ class AureusEnv(Environment):
         # reach, so an observation-only agent can navigate to + attack them to
         # START combat — before `active_encounter` is set. Only undefeated
         # monsters of a placed, still-reachable encounter are added.
+        pending_fight: set[str] = set()
         for enc in self._pending_fight_encounters():
             if enc.pos is None:
                 continue
@@ -625,6 +626,7 @@ class AureusEnv(Environment):
             enc_pos = (int(enc.pos[0]), int(enc.pos[1]))
             if self.world.grid.shortest_path(self.player_pos, enc_pos) is not None:
                 reachable = sorted(set(reachable) | set(undefeated))
+                pending_fight.update(undefeated)
             if abs(enc_pos[0] - self.player_pos[0]) + abs(enc_pos[1] - self.player_pos[1]) <= 1:
                 nearby = sorted(set(nearby) | set(undefeated))
         if self.combat["active_encounter"] is not None:
@@ -633,6 +635,7 @@ class AureusEnv(Environment):
             )
             nearby = sorted(set(nearby) | set(alive_monsters))
             reachable = sorted(set(reachable) | set(alive_monsters))
+            pending_fight.update(alive_monsters)
         return Observation(
             tick=self.tick,
             player_pos=self.player_pos,
@@ -648,6 +651,7 @@ class AureusEnv(Environment):
             nearby_entities=nearby,
             reachable_targets=reachable,
             available_interactions=available,
+            pending_fight_targets=sorted(pending_fight),
             visible_map={
                 "width": self.world.grid.width,
                 "height": self.world.grid.height,

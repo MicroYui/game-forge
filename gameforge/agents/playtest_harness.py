@@ -45,11 +45,15 @@ _CASSETTES_ROOT = "cassettes/playtest"
 # the random baseline) so a RECORD pass over 20 chains is finite: short/medium
 # chains complete well under the cap, long chains honestly hit it rather than
 # running unbounded — the §7.8 completion-cliff is a real recorded data point,
-# not an artifact of an open-ended loop. `--replay` MUST reuse the same bound
-# (recorded cassettes are keyed by request content, not by max_steps, but the
-# action trace/step count they reproduce only matches the record run when the
-# loop is bounded identically).
-RECORD_MAX_STEPS = 60
+# not an artifact of an open-ended loop. Raised 60→150 (corpus median
+# scripted-optimal length is 137 steps once fight steps are driven via the
+# navigate_to-then-attack protocol; 60 made 14/20 chains impossible to finish
+# regardless of agent quality) so the shorter chains keep plenty of headroom
+# while the longest chains still honestly hit the cap rather than running
+# unbounded. `--replay` MUST reuse the same bound (recorded cassettes are keyed
+# by request content, not by max_steps, but the action trace/step count they
+# reproduce only matches the record run when the loop is bounded identically).
+RECORD_MAX_STEPS = 150
 
 # Action-trace length buckets (short/medium/long) — completion rate is reported
 # per bucket so a corpus of mixed chain lengths surfaces where the agent stalls.
