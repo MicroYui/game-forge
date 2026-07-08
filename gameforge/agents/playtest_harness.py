@@ -11,16 +11,16 @@ when `GAMEFORGE_LLM_LIVE=1` AND `GAMEFORGE_LLM_KEY` are both present. The
 deterministic trunk (`spine`) is never touched — only `agents.*` reach the
 router (hard rule 4 / import-linter).
 
-Corpus source: `default_chain_snapshots()` loads the existing caravan + outpost
-scenarios so `--record`/`--replay` have something to run today. The ≥20-chain
-generator is a LATER task and will replace this default; nothing here blocks on
-it.
+Corpus source: `default_chain_snapshots()` returns the ≥20-chain generated
+corpus (`gameforge.agents.scenario_gen.generate_chains`, M2b-1b) — genuinely
+distinct, `ScriptedDriver`-completable quest chains spanning short/medium/long
+buckets, so `--record`/`--replay` exercise the real generated corpus rather
+than the couple of hand-authored scenarios.
 """
 
 from __future__ import annotations
 
 import argparse
-import json
 import math
 import os
 import random
@@ -28,16 +28,15 @@ import sys
 from dataclasses import dataclass
 
 from gameforge.agents.playtest.agent import PlaytestAgent
+from gameforge.agents.scenario_gen import generate_chains
 from gameforge.apps.cli.ir_to_world import snapshot_to_world
 from gameforge.contracts.agent_io import PlaytestInput
-from gameforge.contracts.env_types import Action, Interact, NavigateTo, Observe, Observation
+from gameforge.contracts.env_types import (
+    Action, Attack, Interact, NavigateTo, Observe, Observation,
+)
 from gameforge.game.aureus.kernel import AureusEnv
 from gameforge.runtime.cassette.store import CassetteStore
 from gameforge.runtime.model_router.router import ModelRouter, RouterMode
-from gameforge.spine.ingestion.aureus_adapter import AureusCsvAdapter
-from gameforge.spine.ingestion.csv_format import read_workbook
-from gameforge.spine.ingestion.format_schema import FormatSchema
-from gameforge.spine.ir.loader import load_scenario
 from gameforge.spine.ir.snapshot import Snapshot
 
 _CASSETTES_ROOT = "cassettes/playtest"
@@ -172,12 +171,26 @@ def run_playtest_corpus(
 
 # --- no-LLM random baseline (completion floor) ------------------------------
 def _random_action(obs: Observation, rng: random.Random) -> Action:
-    """Pick a uniformly-random LEGAL action: navigate to any reachable target or
-    interact with anything available at the current tile; `observe` when neither
-    exists. Both candidate lists come from the env already sorted, so the choice
-    is fully reproducible under a seeded RNG."""
+    """Pick a uniformly-random LEGAL action: navigate to any reachable target,
+    interact with anything available at the current tile, or attack any
+    reachable-but-not-interactable target; `observe` when nothing exists.
+
+    The attack candidates are exactly the entries in `reachable_targets` that
+    are NOT in `available_interactions` — during an active fight this is
+    precisely the alive monster ids `AureusEnv.observe()` unions into
+    `reachable_targets` (see `kernel.py`'s `observe()`/`_maybe_activate_encounter`),
+    since monsters are never NPCs/interactables. Before a fight is triggered
+    this candidate set is instead the not-yet-reached NPCs/interactables/battle
+    placements, so an `attack` there is a legal-but-harmless no-op (the kernel
+    answers `not_in_combat`/`no_target`, never raises) — without this the
+    random floor could only ever emit navigate/interact/observe and was
+    structurally barred from completing any fight-bearing chain, which
+    misrepresented the floor. All candidate lists come from the env already
+    sorted, so the choice is fully reproducible under a seeded RNG."""
     candidates: list[Action] = [NavigateTo(target=t) for t in obs.reachable_targets]
     candidates += [Interact(target=t) for t in obs.available_interactions]
+    attackable = [t for t in obs.reachable_targets if t not in obs.available_interactions]
+    candidates += [Attack(target_id=t) for t in attackable]
     if not candidates:
         return Observe()
     return rng.choice(candidates)
@@ -216,23 +229,15 @@ def random_baseline(
     return _aggregate(outcomes)
 
 
-# --- corpus source (placeholder until the ≥20-chain generator lands) ---------
-def _load_workbook_snapshot(dir_path: str) -> Snapshot:
-    """Load a CSV-workbook scenario dir into a Snapshot (same intermediates as
-    `apps.cli.run_slice.run_slice_workbook`)."""
-    with open(os.path.join(dir_path, "format_schema.json"), encoding="utf-8") as fh:
-        schema = FormatSchema.model_validate(json.load(fh))
-    workbook = read_workbook(dir_path, schema)
-    return AureusCsvAdapter().to_ir(workbook, file_ref=dir_path)
-
-
-def default_chain_snapshots() -> list[Snapshot]:
-    """Existing scenarios as a stand-in corpus so `--record`/`--replay` have
-    something to run. The generator (a LATER task) replaces this."""
-    return [
-        load_scenario("scenarios/caravan.yaml"),
-        _load_workbook_snapshot("scenarios/outpost"),
-    ]
+# --- corpus source: the ≥20-chain generated corpus (M2b-1b) ----------------
+def default_chain_snapshots(seed: int = 0, n: int = 20) -> list[Snapshot]:
+    """The default corpus `--record`/`--replay` run against: `n` genuinely
+    distinct, `ScriptedDriver`-completable generated quest chains spanning
+    short/medium/long buckets (`gameforge.agents.scenario_gen.generate_chains`).
+    `seed`/`n` are overridable for callers that want a different-sized or
+    differently-seeded corpus; the CLI entrypoints use the defaults (seed=0,
+    n=20)."""
+    return generate_chains(seed=seed, n=n)
 
 
 # --- router construction ----------------------------------------------------

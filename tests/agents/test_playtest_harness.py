@@ -9,15 +9,19 @@ cassette / gateway is touched. The random baseline uses NO router at all.
 from __future__ import annotations
 
 import json
+import random
 
 from gameforge.agents.playtest_harness import (
     PlaytestCorpusResult,
+    _random_action,
+    default_chain_snapshots,
     random_baseline,
     run_playtest_corpus,
     wilson_ci,
 )
 from gameforge.apps.cli.ir_to_world import snapshot_to_world
 from gameforge.contracts.model_router import ModelResponse
+from gameforge.contracts.env_types import Observation
 from gameforge.runtime.cassette.store import CassetteStore
 from gameforge.runtime.model_router.router import ModelRouter, RouterMode
 from gameforge.spine.ir.loader import load_scenario
@@ -193,3 +197,43 @@ def test_random_baseline_needs_no_router():
     assert result.by_length
     # snapshot_to_world is the same converter the harness uses per chain
     assert snapshot_to_world(corpus[0]).scenario.scenario_id
+
+
+# --- default corpus = 20 generated chains (M2b-1b) --------------------------
+def test_default_corpus_is_20_generated_chains():
+    chains = default_chain_snapshots()
+
+    assert len(chains) == 20
+    # genuinely distinct generated content, not 20 copies of one scenario
+    assert chains[0].snapshot_id != chains[1].snapshot_id
+    assert chains[5].snapshot_id != chains[15].snapshot_id
+
+
+# --- random_baseline is a FAIR floor: it can emit attack --------------------
+def test_random_baseline_can_emit_attack():
+    """`_random_action` must be able to produce an `attack` once the
+    observation shows a monster the kernel has surfaced as reachable (the
+    alive-monster-id union `AureusEnv.observe()` performs once combat is
+    active) — otherwise the random floor is structurally barred from ever
+    fighting, which misrepresents the floor on fight-bearing chains."""
+    obs = Observation(
+        tick=3,
+        player_pos=(1, 1),
+        reachable_targets=["mon:beast", "npc:giver"],
+        available_interactions=["npc:giver"],
+        last_action_result="hit",
+    )
+
+    kinds = set()
+    for seed in range(50):
+        action = _random_action(obs, random.Random(seed))
+        kinds.add(action.kind)
+
+    assert "attack" in kinds
+    # and never targets something the player could instead just interact with
+    attacks = {
+        _random_action(obs, random.Random(seed)).target_id
+        for seed in range(50)
+        if _random_action(obs, random.Random(seed)).kind == "attack"
+    }
+    assert attacks == {"mon:beast"}
