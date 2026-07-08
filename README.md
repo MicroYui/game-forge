@@ -17,7 +17,9 @@ See `docs/superpowers/specs/` for the PRD and foundational contracts (single sou
 | **M0b** | Aureus combat/economy/gacha; Schema Registry + Aureus CSV adapter round-trip; version/lineage/audit skeleton; Alembic DB migrations | ✅ acceptance passing |
 | **M1** | Graph/ASP/SMT checker suite; DSL→checker compiler; economy simulation; open-source game adapter; Finding/Patch | ✅ acceptance passing |
 | **M2a-part1** | Model Router (RECORD/REPLAY/PASSTHROUGH) + Cassette store + deterministic agent orchestration — foundations only | ✅ acceptance passing |
-| M2a-part2, M2b–M4 | see `docs/superpowers/specs/` and `CLAUDE.md` | ⬜ planned |
+| **M2a-part2** | 6 bounded LLM agent roles (extraction/triage/repair/consistency/generation) + verifier-guided repair search; Fix Pass Rate 90% | ✅ acceptance passing |
+| **M2b-1** | Playtest agent core (state abstraction + planner/executor + verifier-grounding + reflection + main loop) + regression harness (completion rate + Wilson CI + random baseline) + planner/executor ablation | ✅ acceptance passing (REPLAY/scripted smoke) |
+| M2b-1b, M2b-2, M3–M4 | see `docs/superpowers/specs/` and `CLAUDE.md` | ⬜ planned |
 
 ## Layout (contract §1)
 
@@ -128,6 +130,30 @@ This is the foundations slice of contract §7 (Model Router / Cassette / `reques
 plus the 6-role `agent_io` contract and the "LLM SDK only in `runtime.model_router`"
 import-linter contract (7th contract, `uv run lint-imports` → 7 kept, 0 broken).
 
+## M2b-1 acceptance
+
+A layered Playtest agent (a Planner PROPOSES a high-level subgoal, an Executor
+PROPOSES the next atomic action, and `AureusEnv` is the SOLE authority on `done`)
+closes a real 3-step quest chain (`caravan`: talk → collect → turn-in) end-to-end
+under a scripted, network-free REPLAY-mode router — and beats a no-LLM
+random-action floor on the same scenario (the floor never completes within the
+step budget), proving the agent is doing real work, not coasting on scenario
+triviality:
+
+```bash
+uv run pytest tests/agents/playtest/test_playtest_smoke.py -v
+# -> scripted agent completion_rate == 1.0  vs.  random floor completion_rate < 1.0
+```
+
+The planner/executor ablation (`use_planner=True`/`False`) and the regression
+harness (`run_playtest_corpus` completion rate + per-length-bucket Wilson CI,
+`random_baseline`) both run end-to-end through
+`gameforge/agents/playtest_harness.py`; verifier-grounding (a BFS reachability
+oracle cross-checking the engine's own `unreachable` verdict before a quest is
+aborted) is exercised by the walled-env test in
+`tests/agents/playtest/test_agent_loop.py`. See those plus
+`tests/agents/test_playtest_harness.py` for the full suite.
+
 ## What M0a delivers vs. deferred (不简化，只延后)
 
 **Delivered:** monorepo + dependency lint; `contracts` (IR core types, canonical
@@ -223,3 +249,33 @@ Proposer/Defect Triager/Repair Drafter/Consistency Assistant/Content Generator r
 semantics + per-role fallback, verifier-guided repair search, generation gate, Fix Pass
 Rate ≥70% acceptance against real recorded gateway cassettes, stable-prefix semantic
 cache. **Deferred to M2b:** Playtest Agent, mem-trace, ablation studies.
+
+## What M2b-1 delivers vs. deferred (不简化，只延后)
+
+**Delivered:** deterministic state abstraction (`abstract_state`) turning an Env
+observation into the shared input for both planner and executor; registered
+`playtest@1` planner/executor/reflect prompts; a Planner (high-level subgoal
+proposal, falls back to "advance") and an Executor (atomic-action proposal with an
+action-priority fallback to `observe`); verifier-grounding (`ground_target` /
+`make_unreachable_finding` — a static BFS reachability oracle cross-checks the
+engine's own `unreachable` verdict; only when BOTH agree is a quest aborted and a
+confirmed `unreachable_target` Finding recorded, so an LLM's mere suspicion can
+never abort a quest on its own); the main loop (`PlaytestAgent.run`) driving the
+REAL `AureusEnv` — `done`/`completed` is always read back from the env, never
+claimed by a model — with a stagnation-triggered Reflector hint, plus a flat
+(no-planner) ablation that skips the Planner call entirely; the regression harness
+(`gameforge/agents/playtest_harness.py`: `run_playtest_corpus` — completion rate +
+per-length-bucket 95% Wilson CI + `RECORD`/`REPLAY` entrypoints; `random_baseline`
+— a no-LLM uniform-random-action floor); and a REPLAY/scripted smoke test proving
+the planner/executor ablation switch runs both positions end-to-end through the
+harness, with the scripted agent (`completion_rate == 1.0`) genuinely beating the
+random floor on the same scenario (`completion_rate < 1.0`).
+
+**Interfaces defined now, implementation deferred:** the ≥20-chain deterministic
+scenario generator and the real live-opus RECORD pass that would produce actual
+corpus-wide completion-rate numbers (M2b-1b — today's numbers are scripted-smoke
+proof-of-life on one scenario, not a completion-rate claim over a real corpus);
+mem-trace + memory ablation (the `memory` slot is already wired into
+`PlaytestAgent.run` / `run_playtest_corpus`, guarded by a `None` check, and runs
+as `None` this milestone) and the adversarial-quorum narrative-defect advance
+(M2b-2).
