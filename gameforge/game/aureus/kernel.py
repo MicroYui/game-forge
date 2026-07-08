@@ -114,9 +114,50 @@ class AureusEnv(Environment):
         done = self._all_quests_completed()
         return StepResult(observation=obs, reward=0.0, done=done, info={})
 
+    # --- pending-fight targets (contract §4.3 actionability) ---
+    def _pending_fight_encounters(self) -> list[BattleEncounterSpec]:
+        """Encounters of the CURRENT `fight` step of every ACTIVE quest — the
+        fights the agent is expected to start next. Surfaced pre-combat so an
+        observation-only agent can SEE and REACH the encounter before combat is
+        active (without cheating with `WorldConfig` ground truth). Driven purely
+        by the quest state machine, so it never re-triggers the location-based
+        combat activation and never touches `state_hash`."""
+        result: list[BattleEncounterSpec] = []
+        for qid, quest in self.world.quests.items():
+            state = self.quest_states[qid]
+            if state["status"] != "active":
+                continue
+            cur = self._current_step(quest, state)
+            if cur is None or cur.kind != "fight" or not cur.encounter:
+                continue
+            enc = self.world.encounters.get(cur.encounter)
+            if enc is not None:
+                result.append(enc)
+        return result
+
+    def _undefeated_monsters(self, encounter: BattleEncounterSpec) -> list[str]:
+        """Monster ids of `encounter` not yet defeated (no combat state, or a
+        state still flagged alive)."""
+        return [
+            mid for mid in encounter.monsters
+            if not (mid in self.monster_states and not self.monster_states[mid].get("alive", False))
+        ]
+
+    def _pending_fight_pos(self, target: str) -> Pos | None:
+        """Encounter tile for `target` iff it is a monster of a current
+        pending-fight encounter that is placed on the grid — so
+        `navigate_to(<monster id>)` routes to the encounter before combat is
+        active. None for every other id (existing nav semantics untouched)."""
+        for enc in self._pending_fight_encounters():
+            if enc.pos is not None and target in enc.monsters:
+                return (int(enc.pos[0]), int(enc.pos[1]))
+        return None
+
     # --- movement ---
     def _navigate_to(self, target: str) -> None:
         dst = self.world.pos_of(target)
+        if dst is None:
+            dst = self._pending_fight_pos(target)
         if dst is None:
             self._last_result = "unknown_target"
             return
@@ -546,6 +587,22 @@ class AureusEnv(Environment):
             eid for eid, p in self.world.positions.items()
             if abs(p[0] - self.player_pos[0]) + abs(p[1] - self.player_pos[1]) <= 1
         )
+        # Pre-combat actionability (contract §4.3): surface the monsters of every
+        # ACTIVE quest's CURRENT fight step whose encounter tile the player can
+        # reach, so an observation-only agent can navigate to + attack them to
+        # START combat — before `active_encounter` is set. Only undefeated
+        # monsters of a placed, still-reachable encounter are added.
+        for enc in self._pending_fight_encounters():
+            if enc.pos is None:
+                continue
+            undefeated = self._undefeated_monsters(enc)
+            if not undefeated:
+                continue
+            enc_pos = (int(enc.pos[0]), int(enc.pos[1]))
+            if self.world.grid.shortest_path(self.player_pos, enc_pos) is not None:
+                reachable = sorted(set(reachable) | set(undefeated))
+            if abs(enc_pos[0] - self.player_pos[0]) + abs(enc_pos[1] - self.player_pos[1]) <= 1:
+                nearby = sorted(set(nearby) | set(undefeated))
         if self.combat["active_encounter"] is not None:
             alive_monsters = sorted(
                 mid for mid, st in self.monster_states.items() if st.get("alive")
