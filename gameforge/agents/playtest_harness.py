@@ -41,6 +41,16 @@ from gameforge.spine.ir.snapshot import Snapshot
 
 _CASSETTES_ROOT = "cassettes/playtest"
 
+# `--record` bounds every corpus run to this many steps (both ablation modes +
+# the random baseline) so a RECORD pass over 20 chains is finite: short/medium
+# chains complete well under the cap, long chains honestly hit it rather than
+# running unbounded — the §7.8 completion-cliff is a real recorded data point,
+# not an artifact of an open-ended loop. `--replay` MUST reuse the same bound
+# (recorded cassettes are keyed by request content, not by max_steps, but the
+# action trace/step count they reproduce only matches the record run when the
+# loop is bounded identically).
+RECORD_MAX_STEPS = 60
+
 # Action-trace length buckets (short/medium/long) — completion rate is reported
 # per bucket so a corpus of mixed chain lengths surfaces where the agent stalls.
 _SHORT_MAX = 20  # steps <20   → short
@@ -304,15 +314,52 @@ def format_result(result: PlaytestCorpusResult, *, title: str = "Playtest Corpus
     return "\n".join(lines)
 
 
+def format_ablation_report(
+    layered: PlaytestCorpusResult,
+    flat: PlaytestCorpusResult,
+    baseline: PlaytestCorpusResult,
+) -> str:
+    """Combined report for the planner/executor ablation: both full corpus
+    breakdowns, the ablation delta (layered − flat completion_rate), and the
+    no-LLM random baseline floor. Identical shape whether the corpora came from
+    RECORD or REPLAY — REPLAY reproduces this byte-for-byte."""
+    delta = layered.completion_rate - flat.completion_rate
+    lines = [
+        format_result(layered, title="Layered (planner+executor)"),
+        "",
+        format_result(flat, title="Flat (executor-only)"),
+        "",
+        "=== Planner/Executor Ablation ===",
+        f"layered completion_rate: {layered.completion_rate:.1%}",
+        f"flat completion_rate:    {flat.completion_rate:.1%}",
+        f"ablation delta (layered - flat): {delta:+.1%}",
+        "",
+        format_result(baseline, title="Random Baseline (no-LLM floor)"),
+    ]
+    return "\n".join(lines)
+
+
 # --- CLI --------------------------------------------------------------------
-def _run_corpus_and_report(router: ModelRouter) -> PlaytestCorpusResult:
+def _run_ablation_and_report(
+    router: ModelRouter,
+) -> tuple[PlaytestCorpusResult, PlaytestCorpusResult, PlaytestCorpusResult]:
+    """Run BOTH ablation modes — layered (planner+executor) and flat
+    (executor-only) — over the same corpus at `RECORD_MAX_STEPS`, plus the
+    no-LLM random baseline, and print the combined report. `router` is reused
+    for both LLM-backed runs (one shared `CassetteStore` — the two modes'
+    request_hashes differ by node/prompt so there is no collision); the random
+    baseline needs no router. Called identically by `--record` and `--replay`
+    so the printed report is reproducible under REPLAY."""
     corpus = default_chain_snapshots()
-    result = run_playtest_corpus(corpus, router)
-    print(format_result(result))
-    baseline = random_baseline(default_chain_snapshots())
-    print()
-    print(format_result(baseline, title="Random Baseline (no-LLM floor)"))
-    return result
+    layered = run_playtest_corpus(
+        corpus, router, use_planner=True, max_steps=RECORD_MAX_STEPS
+    )
+    flat = run_playtest_corpus(
+        corpus, router, use_planner=False, max_steps=RECORD_MAX_STEPS
+    )
+    baseline = random_baseline(corpus, max_steps=RECORD_MAX_STEPS)
+    print(format_ablation_report(layered, flat, baseline))
+    return layered, flat, baseline
 
 
 def _run_record() -> int:
@@ -331,13 +378,16 @@ def _run_record() -> int:
         print(f"RECORD refused: {exc}", file=sys.stderr)
         return 2
 
-    print("Recording playtest corpus (live gateway)…")
-    _run_corpus_and_report(record_router())
+    print(
+        "Recording playtest corpus (live gateway) — layered + flat ablation, "
+        f"max_steps={RECORD_MAX_STEPS}…"
+    )
+    _run_ablation_and_report(record_router())
     return 0
 
 
 def _run_replay() -> int:
-    _run_corpus_and_report(replay_router())
+    _run_ablation_and_report(replay_router())
     return 0
 
 
