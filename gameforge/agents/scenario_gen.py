@@ -17,6 +17,18 @@ Determinism: `generate_chain(seed, index)` seeds `random.Random(seed*1000+index)
 and emits entities/relations in a fixed order, so `(seed, n)` fully determines
 every snapshot (positions, ids, and thus `snapshot_id`). No LLM, stdlib RNG only.
 
+Genuine structural distinctness (not just distinct ids): `num_quests` is a
+DETERMINISTIC function of `index` (`_quest_count`, not an RNG draw from a tiny
+per-class pool), assigned from globally disjoint per-length-class ranges — so
+`num_quests` alone is unique across every chain in a `generate_chains(seed, n)`
+corpus (`n<=20`). Since a chain's structural signature (quest count, total step
+count, grid dims, fight count, step-kind multiset) starts with `num_quests`,
+a globally-unique quest count is sufficient to make every signature pairwise
+distinct by construction, regardless of which per-quest shape the RNG then
+picks. Every length class draws from the SAME shape pool (`_SHAPES`, including
+`fight`) so short chains get the same per-quest variety as long ones; only
+`_spacing`/grid layout and the quest-count range differ by class.
+
 This module lives under `agents` (not `game`) because it imports the spine
 `Snapshot`; the `game` layer is forbidden from importing `spine` (import-linter
 contract 4), whereas `agents → spine` is allowed. It reaches no LLM SDK.
@@ -35,17 +47,20 @@ _ADAPTER_HINT = "m2b-scenario-gen"
 # Per-quest step shapes. Every quest opens with `talk` (to the giver, which both
 # accepts and completes the accept-step, exactly as the kernel expects) and ends
 # with `turn_in` (to the same giver) — the completability invariant the
-# ScriptedDriver relies on. The middle is what varies.
-_SHORT_SHAPES = (
-    ("talk", "turn_in"),
-    ("talk", "collect", "turn_in"),
-)
-_FULL_SHAPES = (
+# ScriptedDriver relies on. The middle is what varies. Shared by every length
+# class (short chains get the full mix too — see module docstring).
+_SHAPES = (
     ("talk", "turn_in"),
     ("talk", "collect", "turn_in"),
     ("talk", "fight", "turn_in"),
     ("talk", "collect", "fight", "turn_in"),
 )
+
+# Globally-disjoint per-class quest-count ranges (see module docstring): with
+# `index // 3` (a chain's position within its own length-class bucket) added
+# to the class base, `n=20` maps to exactly one chain per count in 1..20 —
+# short 1..7, medium 8..14, long 15..20 — so `num_quests` is unique per chain.
+_QUEST_COUNT_BASE = {"short": 1, "medium": 8, "long": 15}
 
 
 class _Builder:
@@ -72,12 +87,12 @@ def _length_class(index: int) -> str:
     return ("short", "medium", "long")[index % 3]
 
 
-def _quest_count(rng: random.Random, klass: str) -> int:
-    if klass == "short":
-        return rng.choice((1, 2))
-    if klass == "medium":
-        return rng.choice((3, 4))
-    return rng.randint(6, 12)
+def _quest_count(index: int, klass: str) -> int:
+    """Deterministic (not RNG-drawn) quest count from a per-class range that
+    is globally disjoint across classes — see module docstring. `cycle` is
+    this chain's position within its own class's bucket (0-based)."""
+    cycle = index // 3
+    return _QUEST_COUNT_BASE[klass] + cycle
 
 
 def _spacing(klass: str) -> int:
@@ -93,16 +108,16 @@ def generate_chain(seed: int, index: int) -> Snapshot:
     """Build ONE valid, completable quest-chain snapshot deterministically.
 
     Every id embeds `(seed, index, quest)` so any two generated chains have
-    disjoint id sets (guaranteeing a non-empty graph diff), while the structure
-    itself is varied by the per-chain RNG so the distinctness is genuine content,
-    not id-renaming.
+    disjoint id sets (guaranteeing a non-empty graph diff), while `num_quests`
+    is a deterministic, globally-unique-per-index function (`_quest_count`) —
+    so the structure itself, not just the ids, differs chain to chain.
     """
     rng = random.Random(seed * 1000 + index)
     klass = _length_class(index)
-    k = _quest_count(rng, klass)
+    k = _quest_count(index, klass)
     gap = _spacing(klass)
     cols = max(1, math.ceil(math.sqrt(k)))
-    shapes = _SHORT_SHAPES if klass == "short" else _FULL_SHAPES
+    shapes = _SHAPES
 
     b = _Builder()
     region_id = f"region:{seed}_{index}"

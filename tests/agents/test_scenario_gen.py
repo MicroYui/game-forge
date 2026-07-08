@@ -15,7 +15,32 @@ from __future__ import annotations
 from gameforge.agents.scenario_gen import generate_chain, generate_chains
 from gameforge.apps.cli.driver import ScriptedDriver
 from gameforge.apps.cli.ir_to_world import snapshot_to_world
+from gameforge.contracts.ir import NodeType
 from gameforge.game.aureus.kernel import AureusEnv
+
+
+def _structural_signature(snapshot) -> tuple:
+    """A hashable structural fingerprint of a generated chain, deliberately
+    ignoring ids/positions/gold/stat VALUES (which vary per chain purely by
+    construction — disjoint id namespaces — even when the underlying shape is
+    identical). Two chains that are "distinct" only modulo ids collapse to the
+    SAME signature here, which is exactly the defect this test guards against.
+    """
+    g = snapshot.to_graph()
+    num_quests = len(g.nodes_of_type(NodeType.QUEST))
+    steps = g.nodes_of_type(NodeType.QUEST_STEP)
+    step_kinds = [s.attrs.get("kind") for s in steps]
+    num_fights = sum(1 for k in step_kinds if k == "fight")
+    region = g.nodes_of_type(NodeType.REGION)[0]
+    grid = region.attrs.get("grid", {})
+    return (
+        num_quests,
+        len(steps),
+        grid.get("width"),
+        grid.get("height"),
+        num_fights,
+        tuple(sorted(step_kinds)),
+    )
 
 
 def _drive(snapshot) -> tuple[bool, int]:
@@ -40,6 +65,22 @@ def test_generate_chains_pairwise_distinct() -> None:
         for j in range(i + 1, len(graphs)):
             diff = graphs[i].diff(graphs[j])
             assert diff.is_empty() is False, f"chains {i} and {j} are not distinct"
+
+
+def test_generate_chains_structurally_distinct() -> None:
+    """Stronger than `test_generate_chains_pairwise_distinct`: a non-empty
+    graph diff is satisfied trivially by disjoint ids alone, so it does not
+    catch chains that are structurally identical modulo ids (the defect a
+    review found among the original 20: chains 3/15, 9/12, 6/18 shared a
+    signature). Require all 20 structural signatures to be pairwise unique."""
+    chains = generate_chains(0, 20)
+    sigs = [_structural_signature(c) for c in chains]
+    dupes = {
+        sig: [i for i, s in enumerate(sigs) if s == sig]
+        for sig in set(sigs)
+        if sigs.count(sig) > 1
+    }
+    assert len(set(sigs)) == len(chains), f"duplicate structural signatures: {dupes}"
 
 
 def test_determinism_same_seed_same_snapshot_ids() -> None:
