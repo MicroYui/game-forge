@@ -216,6 +216,15 @@ class AureusEnv(Environment):
     def _gather(self, interactable_id: str) -> None:
         if interactable_id in self.gathered:  # depletable: one-time gather node
             self._last_result = "already_gathered"
+            # Re-checking here (not just on a fresh gather below) is what lets
+            # a quest that reaches a collect step *after* this node was
+            # already depleted still get unstuck via a plain re-interact —
+            # `_advance`'s own re-check (below) only fires on a step
+            # transition, which never happens for a quest whose current step
+            # is `collect` from the moment it becomes active.
+            item, _ = self.world.grants_item(interactable_id)
+            if item is not None:
+                self._maybe_advance_collect(item)
             return
         item, count = self.world.grants_item(interactable_id)
         if item is None:
@@ -244,18 +253,33 @@ class AureusEnv(Environment):
         return None
 
     def _advance(self, qid, quest, state) -> None:
-        state["current_step"] += 1
-        if state["current_step"] >= len(quest.steps):
-            state["status"] = "completed"
-            gold = int(quest.reward.get("gold", 0))
-            self.player_stats["gold"] = self.player_stats.get("gold", 0) + gold
-            reward_item = quest.reward.get("item")
-            if reward_item:
-                self.inventory[reward_item] = self.inventory.get(reward_item, 0) + 1
-            self.logs.append(
-                f"quest {qid} completed (reward gold={gold}"
-                + (f", item={reward_item}" if reward_item else "") + ")"
-            )
+        """Advance `state` by one step, then keep auto-advancing through any
+        immediately-following `collect` step(s) already satisfied by EXISTING
+        inventory — a `collect` step must complete whenever the required item
+        is already held once the quest's current step IS that collect step,
+        regardless of when the item was gathered (kernel semantic fix: a
+        pre-fetched item must not permanently stall the quest). Looping
+        handles a chain of several pre-satisfied collect steps in a row.
+        Only `collect` steps are auto-skipped this way; talk/turn_in/fight
+        steps still require their own explicit satisfying action."""
+        while True:
+            state["current_step"] += 1
+            if state["current_step"] >= len(quest.steps):
+                state["status"] = "completed"
+                gold = int(quest.reward.get("gold", 0))
+                self.player_stats["gold"] = self.player_stats.get("gold", 0) + gold
+                reward_item = quest.reward.get("item")
+                if reward_item:
+                    self.inventory[reward_item] = self.inventory.get(reward_item, 0) + 1
+                self.logs.append(
+                    f"quest {qid} completed (reward gold={gold}"
+                    + (f", item={reward_item}" if reward_item else "") + ")"
+                )
+                return
+            cur = self._current_step(quest, state)
+            if cur is None or cur.kind != "collect" or self.inventory.get(cur.item, 0) < cur.count:
+                return
+            self.logs.append(f"quest step {cur.step_id} completed (collected {cur.item})")
 
     def _maybe_advance_collect(self, item: str) -> None:
         for qid, quest in self.world.quests.items():
