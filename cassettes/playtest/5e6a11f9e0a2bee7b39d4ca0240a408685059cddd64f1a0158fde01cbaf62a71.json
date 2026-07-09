@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5e6a11f9e0a2bee7b39d4ca0240a408685059cddd64f1a0158fde01cbaf62a71",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3741,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoQDCokBCA8YAipA2P1doAdjuW1LcaICWdLYnRYnVUpWn9XYIBV2TN9lNfdDuCPEFupJaUSurncER9WMI5NEYKTAMiLejOrYPxljJjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOFC5wqLMBaX3qcwKxoMpKP4FsQr1mGIWD7JIjBIb27U9u3Enab5tvmmbcgAjXHH1pnHx3tUmpGYsQwVu553Ph0vDf5ZxVMcrYo/oIgqpwHgHWl5dIqiQO4udNtpnzKbYGPA03SUZ5DbVyanLmHXHTxgIU2R1cKb+riowWm2DgLz9XyrG41Aja72kA2icn/81FtTPDrIGWSv4GhxKanZoulqijYn0cb0SeN4gd03VaYEKGQ9AFwqFeC9Arfl6uApblLvK8NNnub58lvf5w0TMdfcJas+rqqFwsWu8/gdXbDyUPvQQyogYm/Pt7xfVbi48AyfVmFoiRgB",
+          "thinking": "The monster seems resistant to my current attacks—either it's too durable or regenerating faster than I'm dealing damage. I should consider switching tactics, maybe finding a stronger weapon or targeting a different enemy instead.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Attacks on mon:0_12_1 are landing but not defeating it — it may out-heal or out-tank your current damage. Try equipping a stronger weapon or buff item first, or switch to a different reachable, weaker monster to build up before returning.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 596,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 142,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 653000000
+      },
+      "id": "msg_011Ccr98iC1is9UPYbnvqXaW",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 596,
+        "output_tokens": 142,
+        "output_tokens_details": {
+          "thinking_tokens": 53
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Attacks on mon:0_12_1 are landing but not defeating it — it may out-heal or out-tank your current damage. Try equipping a stronger weapon or buff item first, or switch to a different reachable, weaker monster to build up before returning.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 596,
+      "output": 142
+    },
+    "tool_calls": []
+  }
+}

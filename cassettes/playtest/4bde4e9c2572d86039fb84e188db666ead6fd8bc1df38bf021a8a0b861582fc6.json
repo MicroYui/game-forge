@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4bde4e9c2572d86039fb84e188db666ead6fd8bc1df38bf021a8a0b861582fc6",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3317,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo0DCokBCA8YAipAbzkjDWXBSYYKx8CGiAZVYKk1ltEQPXzl+GTwM/0TgxtnkAziWXPAu7Gy3egidyoeF/wxgN0SGa8VLnIhlfx3wDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDN2C0oGmo1hQ1Qw6cxoMZ/Bo7y23LLmCczTKIjC6L7Cz0wTZxUAhlvMlLL/P9ogEDt9adkFzpcvNgWm7RszSjSAb7FvuZSfkxCI2vsEqsAEnZALgcfyPQWxXuw9vkmUU42SOov0nlfjy1hr0zoXpoPt9Lvj/kMdJmDWkTGdepwJoYAFIkcs5C8/K7la8MR4iRq6q/n7GZvoFYN+U3OdGe8S/qv2YpI/k1DrbqqGRMuVZYU7qobCxPl/3ND7gnDKZCTWBFbAkijLjNzU/mAREAgmWQcdDdipoRu2yKtDDgalBU7WoDTX3UqGvKSe1sPOyBFyDpNZENLFve/lZQdAgxxgB",
+          "thinking": "The navigation call finally went through, but I'm seeing repeated navigate_to attempts. Now that we've got there, I should try a different interaction approach with the NPC—maybe using talk_to instead to progress the conversation.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"You've now 'arrived' at npc:0_16_12 — stop issuing navigate_to and switch to an interaction step (e.g. talk_to / interact with npc:0_16_12) to actually advance the quest.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 600,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 136,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 640000000
+      },
+      "id": "msg_011CcrD857J4DrBP5oLzCsWA",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 600,
+        "output_tokens": 136,
+        "output_tokens_details": {
+          "thinking_tokens": 57
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"You've now 'arrived' at npc:0_16_12 — stop issuing navigate_to and switch to an interaction step (e.g. talk_to / interact with npc:0_16_12) to actually advance the quest.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 600,
+      "output": 136
+    },
+    "tool_calls": []
+  }
+}

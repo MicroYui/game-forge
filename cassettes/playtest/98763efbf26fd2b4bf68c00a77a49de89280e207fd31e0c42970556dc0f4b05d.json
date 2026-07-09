@@ -1,0 +1,81 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:98763efbf26fd2b4bf68c00a77a49de89280e207fd31e0c42970556dc0f4b05d",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7622,
+    "raw_response": {
+      "content": [
+        {
+          "text": "I can see you're sharing what appears to be a debug log or trace output from a game system called \"MemTrace\" that's doing some kind of compaction operation. Let me help you understand what I'm looking at.\n\n**What this trace shows:**\n\nThis appears to be a **deterministic replay/compaction log** of an agent (likely an NPC or bot) executing quests in a game world. Breaking it down:\n\n- **`105 step(s), 0 verified, 0 verdict(s)`** — The compaction processed 105 steps, but nothing was verified and no verdicts were issued (which might be worth investigating if verification was expected).\n\n- **Per-tick entries** show:\n  - `tick` — the simulation timestep\n  - `pos=(x, y)` — the agent's coordinates\n  - `hp` — health, holding steady at 88\n  - `active_quests` — current quest state\n\n**The quest flow looks healthy:**\n```\nnavigate_to:npc:0_19_9  → arrived\ninteract:npc:0_19_9     → quest_completed\nnavigate_to:npc:0_19_10 → moving → moving → arrived\ninteract:npc:0_19_10    → quest_accepted\nnavigate_to:gather:0_19_10 → arrived\ninteract:gather:0_19_10 → gathered\n```\n\nThis is a clean state machine progression: navigate → interact → complete, then pick up a new quest and gather.\n\n**One thing I'd flag:** the `0 verified, 0 verdict(s)` — if this system is supposed to be validating the deterministic replay, zero verifications might indicate the verifier",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 443,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1501500000
+      },
+      "id": "msg_011CcrspAYG1z1DXLJf5maQx",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 443,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        }
+      }
+    },
+    "response_normalized": "I can see you're sharing what appears to be a debug log or trace output from a game system called \"MemTrace\" that's doing some kind of compaction operation. Let me help you understand what I'm looking at.\n\n**What this trace shows:**\n\nThis appears to be a **deterministic replay/compaction log** of an agent (likely an NPC or bot) executing quests in a game world. Breaking it down:\n\n- **`105 step(s), 0 verified, 0 verdict(s)`** — The compaction processed 105 steps, but nothing was verified and no verdicts were issued (which might be worth investigating if verification was expected).\n\n- **Per-tick entries** show:\n  - `tick` — the simulation timestep\n  - `pos=(x, y)` — the agent's coordinates\n  - `hp` — health, holding steady at 88\n  - `active_quests` — current quest state\n\n**The quest flow looks healthy:**\n```\nnavigate_to:npc:0_19_9  → arrived\ninteract:npc:0_19_9     → quest_completed\nnavigate_to:npc:0_19_10 → moving → moving → arrived\ninteract:npc:0_19_10    → quest_accepted\nnavigate_to:gather:0_19_10 → arrived\ninteract:gather:0_19_10 → gathered\n```\n\nThis is a clean state machine progression: navigate → interact → complete, then pick up a new quest and gather.\n\n**One thing I'd flag:** the `0 verified, 0 verdict(s)` — if this system is supposed to be validating the deterministic replay, zero verifications might indicate the verifier",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 443,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

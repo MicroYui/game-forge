@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ee1edb7d8cd3851a21767bcaee097f3c490c41bebf00ecf1d1aea3e7df471900",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 10642,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErUKCokBCA8YAipAUnzgIA3E+UvGlwEbRwPGGjUwFjLcQcB22kfVqs580vMAgFYfrY1Yzg37ELs0HO2otLoiniIb4353Cr+6unnNODIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDE0ivC8/xFvtfFy2KhoMukgee6kSvKJNZTGsIjAjIQV1B2CNJK2s6jXXjP1EY6gIymcxe3Z88eh4dc9DU2GsJkEeD5OjDFfESGlCvDsq2AjCl/RL5as/xUf2jPuGKgZknFL3JFNLY2FwKe7T0b4M03Kds20leOUKuhnH3fADnjtIwS5MXWhGZAmZRlSrKRt/W8o82wOSPH97/aRwb/1MpoJuZEgS9nu3gQlZiqVqjdDcIzzkM5jmAzWFQjwQgUkP5zJh3JQjJ9SsVy4I+4JM23ijL/ITGB+TOmSKR1xg0w2EynzKO9/G2+VTZoSRFJnFhg0YtlpDMkE7ckEno23CpDznZqA6dtj7cqM6k74tOUvcigngLih8oa4ITkFyqLRHSAwrD9Guj9q6ty6tVq1qdN7KHZtX/+gf4qnXNWybkAnVgUKas9htt9r5hwi5Wp2nMXK9JvyzbNVKHVW1EZb8vAgApRBsH+DjwMj/8N0yqAAmb/zQniPz4DbBhGtzXsUO2fPvt916AoBYiZgTfzwNbnmq6EcTJvFGyAySOe63RiijD8VR8PDXR97q9bkBXQvKeXcYM0k2Dr3WBG+eIKqh6F/7/B7hlivgTdNCYLZeBwqq7HXb6TVMQGSKVwbS7Zgxg8tOjowYT8KwMO5S2rcZwDDj6O5CBgz0A3XY1OhfOF5BNS/pC2Gm2F2cTakc9R/KTJzPEPshek1imTdJfawxVdDFC4chlruhhaC6QEVl2XdXT6wp07adLUlLXbohE1T5knb9OEHWm1xMlugKFww6oWacWCBJYMBzjTRkiMox9TxB80aoHUUzEEuR8bAYoSUZiTuXC1t+qbyopT+4+CVEFqHFntt2xUh62jADRdr4Na+MjM3r5BHKsp7soBOt8RYxUEXkA6LsLkPhafdJZ9kleQTzrSPAZImkgdBok+HUFTr+iEBblwFdeNLDS32bk0ZgvmwGVtq8TXt5e3ZoyVCMMXWHImO6OMR7wMT4MnboO+GUKXDl4bO4SEVuon2ix8VlVbe1sy1JmVPfPDK/DeOGL9LnqWmSV9d6UVbuCX+Ip3TxGBx7WZavjwZRVjRFBtfNbnfiTyJg0zY7Y/WsI7CsbxQxPQRQ1Uyup4H/by45/o7PCWscA70hon/7xfw44jpZMVnpiB6kPevQbN6gJCEBt5DYDjd+84S2TJqgz0Ha/LZwDuZWgKVJdhRFrvQU5+4vD/hQ777LL8890EX/OCC6KFPPTaFXl95UMVI1UXK71lU9LGOCLEHv/KZDeW9Lp2It9C5AktTEZ4Smdo6a8vxGs+bdXKQSwAQ/OnXCddgOEfd9nvHslrYcFA5j3N//kLPAlOzrVuGFyWWDRl6aVXxZc1KiHSU5rnpX5fyaK5Aj2Giw/9ClkWwdJvumUTAEcacr5HJMV8MEOjFomMXw13GvvWZpFUAXtX67HG60zoVWJr4EkyeNbLRy0Qb0+sqdpZOIP3qMt5dWWR+BkjmHMc5L3jRtBPoSKMfKbdq+MAi7PE+yKDWAP3Mjfh0ThbkrGwAqDDD8EXw8s40ci3coEJ9PmRmfCNuZpoBVSTsHOxD70NeTrrr5oxnseBgB",
+          "thinking": "Looking at this MemTrace compaction log, I can see it's a deterministic trace with 116 steps but no verified results or verdicts. The tail end shows some formatting oddities around the active_quests field that I should investigate more closely.\n\nI'm also noticing a pattern in the navigation events—the trace shows \"arrived\" messages followed immediately by position changes and interactions, which seems inconsistent. For instance, at tick 108 the agent arrives at position (12,9) for an NPC navigation, but then at tick 109 it's at (13,9) performing an interact action. The same pattern repeats with the gather quest at ticks 110-111. This suggests either the arrival detection is off by one tick, or there's something unusual about how the position updates are being logged relative to the interaction events.\n\nSince there's no explicit question here, I should ask what you're trying to understand about this trace—are you debugging the navigation logic, investigating the formatting inconsistencies, or looking for something else entirely?",
+          "type": "thinking"
+        },
+        {
+          "text": "I see a MemTrace compaction log, but I'm not sure what you'd like me to do with it. There's no explicit question attached. Let me share a few observations, and you can tell me which direction is useful.\n\n**What the trace shows**\n- 116 steps compacted deterministically, but **",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 426,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1493000000
+      },
+      "id": "msg_011CcrLXZP6y1AZx2aPFBLbn",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 426,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 423
+        }
+      }
+    },
+    "response_normalized": "I see a MemTrace compaction log, but I'm not sure what you'd like me to do with it. There's no explicit question attached. Let me share a few observations, and you can tell me which direction is useful.\n\n**What the trace shows**\n- 116 steps compacted deterministically, but **",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 426,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

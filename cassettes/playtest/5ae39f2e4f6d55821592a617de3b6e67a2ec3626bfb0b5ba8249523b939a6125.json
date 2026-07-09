@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5ae39f2e4f6d55821592a617de3b6e67a2ec3626bfb0b5ba8249523b939a6125",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3705,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep8DCokBCA8YAipAop+DFOcmvZNPXNU6pzONFdrR5ilgxqnt0RvSE8OevJ2uIfL3miphmD869WLcwXRBc1cWEgyl2RDNQoRDAWE1YDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDmkTnkQg48S3cu+ERoMc2fwIZeQUWPMGZHVIjBgRFPtO0EBAiQZv9oAZIKVlbppvC0ewpWSQvsvk8GfnPkPfJozSWnOor8fhh/T8okqwgEU6gZOm7X/vn0O+xlkE74x7D0qNUmpwU0lM2DHmQ9Fv/6tAaGHflbk9axBOGq0pO+47nFv3QYFstetvO4YWrksbrzP1l5pS8uAAQsBYa4Fc2h9MQ2x7anW42ZXdldI07N3/VPXO5pJtqDjdta2OKyC8R07+6AgbCNxneqstK28NdT0gN9U1CwQClvtraG5dCkMh32heH96ZzNRcKEPlDW7/KbK3LZjz8SjMTVMx1AkKbSXsgGmqPJJFw2FVgTkrP8mJBgB",
+          "thinking": "The player's interaction with npc:0_16_0 keeps returning nothing, so they should try the newly arrived npc:0_16_1 instead, or check if they need a specific item to progress with the original NPC.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Interacting with npc:0_16_0 repeatedly returns 'nothing_here' — stop retrying it. You've now arrived at npc:0_16_1, so try an 'interact' step there instead, and if that also fails check whether a prerequisite item or dialogue flag is missing before re-approaching.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 601,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 181,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 753000000
+      },
+      "id": "msg_011CcrkewugHGfEEfGLiHo8q",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 601,
+        "output_tokens": 181,
+        "output_tokens_details": {
+          "thinking_tokens": 73
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Interacting with npc:0_16_0 repeatedly returns 'nothing_here' — stop retrying it. You've now arrived at npc:0_16_1, so try an 'interact' step there instead, and if that also fails check whether a prerequisite item or dialogue flag is missing before re-approaching.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 601,
+      "output": 181
+    },
+    "tool_calls": []
+  }
+}

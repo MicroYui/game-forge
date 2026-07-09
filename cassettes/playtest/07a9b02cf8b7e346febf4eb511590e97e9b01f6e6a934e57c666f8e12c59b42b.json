@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:07a9b02cf8b7e346febf4eb511590e97e9b01f6e6a934e57c666f8e12c59b42b",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9084,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqQLCokBCA8YAipAPTnYxaAE/jykbVKdUzI4ms/3cOumHh6/JPl7XzFhmsSHfQM1sNM2aSKO4TYUH6RtnKp9nVBZMtbaygaz5M5FcTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEaJwd0mg/E6AJdS6RoMJZZBFZjwpuff7lMHIjAk/24AWg9dpgLNEPUJXl6zylBt4KRKdiBukRQIqsy2S60YhvFBXlL20hQ2teIJEIEqxwkpU5xzsOtPqyW2YK7Cu7fQviOJs1DjwUUHl0HpCTYPGyOBcd9pmBpa/6ZPJSwIHPfckjhT6gW/B0d/R8qC0CJC75xiXWtifl7mXXhD+36WHrkgcjdgccm+75Ug+sqQGRrsq+8AHipZihg+y2GddljtoUj6kLeK1V8j2Ty3c9veNe0uYf3Z4SYeQDBBpA5kpTG24g71dxaSlXkWDZUw6xyHdVZPA9QYj8VgYY+y6RVEITpWgJ8AD6wVEu8TXvbRR+/gR9P0kydV4GZzKAEh8nPzvKwKKhFZfBBcu/ChVpcsSJVFYOkRyCanzTXEB8spr0k6JRPaepCLHNilqaw6XSYaLaz6HOq6pPidcHwKYmhfmQObZRcVU+zUsyGkJsD1OXMp0BjrlnXKG9nzKFpqI7Lx0ldtSANHFII5UmRXAbD6idXbIjgr1Xtie7qDIiiaL9Bn2yQ1vUSdf0y1Zc3Pmgmwb5QXeglCLv45Vu2+cTtYzWzVGRW6lwmnwK59vp0vR85fhOOVn/K1K+FFxzhfv/yV0wmzvyzqCUwPdQw5AMShNJ3Pg6ZV4fKjblOVH0d/J+vsl+LRVkMUwbyASb1/UEp/ISA+Mb4UC+Io+P71PrJEg99XpkIeo+vXjiD0TtfQvebEUkyCBNeHAG9y2mkvnGgyOGdfW1MkqtBjO8B79OcI4zAAbS8HzmP0Eku+HqRQBUfpwU03gLqbDO5/i6P8gM6AvaEqO+GXa7EIm0XafG12Pc7+ZRaEPjwzK1pI+EXgUolfv/jLND27Y5a3U1RIMTc1CR9LMNb9D0UjqwZakAnN9i7prQJSw5WUMI/7r+1c8Rlnv0qkyNSx1MBxpbAGcYSWuxiXC2Te6ax4JukO0N57k1CVbSP4V1py1SS8G+RX7XP4zpKohOEc8hlwNtOR0jxjfOlCiXPxvn9g3nFW3BFxv0PjYEnVU6+aFJz+3SSGL6lo+2+HbFhv725aC9RZEVQnEVWJEvu+YJwfVzOP7UrwktdEIOKE9mnR2pn6l7heNT6iIpDYKs3ScruWWKeDNX8F99a7hxBKNkEj0oKbzOSFpzQ43AzyCZwr11AJp/7iBDpFbb164m/E9lyWIVcQ9pjOjPPSOdBYy0LDwWK1kvmj4GcLGgsHVzfjgNCX0J+81rp12dYBuwCq7GpIEh7EImJlZ4OgoeZ+pz7HlTDAMeMpQNrxlUMIAeA3kDusEIqfa0uLU3XwAgWIM3vwfMeCg4XdvF0xFocUC5h/Cea49L/Q9BCRmafX/C7oC8+cT7tNGrpj6McBtMQXWzrJju424vgc8hkkuKB06unxOBFcUo9FusVeEYNl2+R3NM4GEyi3TGxMhOsXaBNoERG2RwkNm8RyVI3MzpVVO58qY8vPq68GBYD4mkDZJQEIuMo/QuTnZTpR3PaAhqjJfht5QDxj6nL5IpQo6TmWI7ifGazKkIYPRZd7596//TzT3uqmNsnzUfPog4n+yA5mLbCOyEjVXvcvOVXM2H43A/GnZC4IJDXyDWk49lYnRTAfYGSkjZ2x8lNh2CfoyRIqloZ4+B0+VfFmsCjYpQOBB27eFR+bSuhdOp8ioI/X9/A8VTjtyrRtWutZzOOf644dwJhWg4Af524ehpSrdfrYthgB",
+          "thinking": "The user has pasted a log from something called MemTrace compaction showing a trace with 112 steps and no verified results or verdicts, but there's no actual question attached. I should probably ask what they'd like me to help with regarding this log.\n\nLooking at the tail of the trace, I can see an agent navigating to an NPC, accepting a quest, fighting a monster, winning, and completing the quest. There are a few oddities worth flagging: the \"arrived\" status seems to fire slightly out of sync with the actual position updates, nothing was verified in this trace, and it's unusual that both the NPC and monster share the same ID suffix (0_14_5). I should ask what specific help they need with this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "I can see this is a **MemTrace compaction log**—looks like a deterministic agent/game simulation trace. There's no explicit question, so let me point out what",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 429,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1494500000
+      },
+      "id": "msg_011Ccrj2p8VKBMgoA15K4SgU",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 429,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 462
+        }
+      }
+    },
+    "response_normalized": "I can see this is a **MemTrace compaction log**—looks like a deterministic agent/game simulation trace. There's no explicit question, so let me point out what",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 429,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

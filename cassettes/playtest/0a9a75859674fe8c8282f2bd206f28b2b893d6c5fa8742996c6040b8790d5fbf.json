@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0a9a75859674fe8c8282f2bd206f28b2b893d6c5fa8742996c6040b8790d5fbf",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9321,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EooJCokBCA8YAipAea9YlZFB7vAFPathwzzYtl75D92vSG52mTNpPx/hbRvnk6vGBBc9yIN96vmZ6W1AncjdeKnivdk7N5a9qK8OhDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCpHJixe/EgkIhRo5BoMQS5/aRa9ZEWnOWh1IjB5DwjET2F1VFb1cAWFeb9PQ97IUxMPSOmHzULc+sSzVn18HsistgEGinNNGoKx+jsqrQe8jYtiLAUnz6dcrexFXe4ZthIxOISaZ1PyZwwZiNJuYLrJiXXtZqjOImUKdK5ZjEoRwgDa+Cb5eraApn2EL9UXkZTEDZv8XZfrZfYVh/9ZDb/pIEAC+n2eoMdjE2M4kN0T3OsX8fw8afmxRY1I618MK8VmIGPsQqJ+NM1L8caDlR+hICgerXFrqrU+UJa5GA6JSB+Ln62PPu23O7gHLH0faXrQD723O8TL+wV6+EippO9HXICCADfLbzg4E4rmedmkImi03Lz7YyTwK7bJP8QF97vYPCtzZIuDdkpKAzk7iCdFeQ9rpW2AEEU9565TvXnPGaKhvpVUeGeD5PO1Qwa5cMXEQxf4yxKQdf+kWwGbDqzYV6rZgwe7NDaPvSUUGS3aliDCqmVzR+Fv7nnkP+F56A9BjyHjHT987kmwfT7sn/t269VtN2Oer/aCcuFkTxUif35FiHzNPDnxUINL/W+IGRBLz8iyRE60JEQhqWIgzWoFRSJ9O9pZz3f/dqFoGHpWotbarMsyXLN1BH3qTLoCBPBCQHnV+AL+VNwPitpJk8XEfbO79wmd8h26u8x8/tKAjlu6XfHEq/M9g6VdQHnkt6snQ2Moybw+DXrGbOpvfQOEuxKX6ZdMnuSsoJrfX4OHuqOAfRzbhnKg4N25lxKuQyE65xdPRML9DB8cMo+6Xb6lKWdZYoYG5Cj3OUvH07VYiS9c52MZofzBfAWrIMDmD2YBi2xgjxONMh9gEX6qmeUXDq5xkv6QRFUaUAQp5y7OWlwhzwzHGUgBzCjfBXTUdJ+KN7jwtGEWT7XTfutWAyYsQUBzjYf5NpMpMdcMJ20O5jmNh5UK298ArmFvy7cKhNTCjCl1mIJaWmgtipDi3ThW51j28EMEtyijIp3zXiNkhXGUCwkzQmD8GzfWsM+VMgiL6+vZjz7U7Zpe8tgOaX38DIz6eKF0WJqs7R1yPa46YYua1q+1iph5+nQf4JcjctIJMAnnu9BWp9KB8NyMJQxt49u1rkF7eQXPc7KPxhYAD17aE9xjovNaWm0n4Ao7mUrJKhHRZ6j/oaI4dxGNAdcZPymOOV3nc/e6hNPUaPf4hnpzgexrqOV03kPPj3amIUuTKnZ3Q0OEBg6dDBk60+YLsYdHCBFLmMfC17awYqaiOKG3MevYJdj9tOHhzqd5I1VIo6aG/Rj1J8323MJeAQJpDEJL/02rXUZ35iuKtyXxMMhdNg2XcqN/0/RpvWNTRanvNDA+bdC3bXadJRgB",
+          "thinking": "Looking at this debug trace from a MemTrace compaction system, it seems like a game or agent simulation log showing 13 steps with player position and health data across ticks 5-12, but there's no specific question asked. I should probably clarify what they're looking for help with.\n\nI'm noticing some inconsistencies in the formatting though—the active_quests field switches from having an open bracket at earlier ticks to dropping it at tick 9 onward, which seems like a data formatting anomaly worth flagging.",
+          "type": "thinking"
+        },
+        {
+          "text": "I can see this is a **deterministic MemTrace compaction dump** — looks like an agent/game simulation trace. There's no explicit question attached, so let me give you a read on it and flag a couple of things that stand out. Tell me what you actually need and I'll go deeper.\n\n## What the trace shows\n\n**Header:** 13 steps compacted, `0 verified`, `0 verdict(s)` — nothing has been checked/asserted yet.\n\n**Behavior (ticks 5–12):** A single agent at `hp=100` (never takes damage) running a two-quest loop:\n\n| Quest |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 445,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1502500000
+      },
+      "id": "msg_011CcrGDLHqoFosFkVNSjdt1",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 445,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 320
+        }
+      }
+    },
+    "response_normalized": "I can see this is a **deterministic MemTrace compaction dump** — looks like an agent/game simulation trace. There's no explicit question attached, so let me give you a read on it and flag a couple of things that stand out. Tell me what you actually need and I'll go deeper.\n\n## What the trace shows\n\n**Header:** 13 steps compacted, `0 verified`, `0 verdict(s)` — nothing has been checked/asserted yet.\n\n**Behavior (ticks 5–12):** A single agent at `hp=100` (never takes damage) running a two-quest loop:\n\n| Quest |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 445,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

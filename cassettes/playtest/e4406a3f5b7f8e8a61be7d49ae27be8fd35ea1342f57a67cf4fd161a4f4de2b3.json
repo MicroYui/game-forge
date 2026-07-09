@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e4406a3f5b7f8e8a61be7d49ae27be8fd35ea1342f57a67cf4fd161a4f4de2b3",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9451,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EucKCokBCA8YAipA/bb7YeY42bweiWaMjvF8GGf1e6MrwosEntvBiw5BHHZ20FxR1Pnm4kiVzCfa36DzFeHmrlNlWTVXfAv+R7XnFDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPSGB4o0/3z+Ga9vxRoMXxymWGQramC/4osOIjBwnsjNJFJ1rK8fZdq/VSQku5SUi+C80iQ1AQsvwFL93YEVMaAVb00VeZFUBM3Z9osqignO6QDpFWmgEqR6Jt2yg1t+LI2OnvTb4gfbVAs1xOMF03DOAnUmMChHcsZip4RMvQov/idNi9rHc2dbYj6ZqMnUh/ND2R7Hta1Bh9EFeCbOuODRjV35wsZ3uguajVAPyuvUHUxW7GorbN81RjmBZ95yiGmUiE3oYMBR9zUlQFvtyQ6fv6ImB9pfBEUm0Ilk90reWlRInTevFTjcYKriOOJKUI6uXiBIiadKuJA9ZQoAdfCYwrpSWS7oQSCDi8EfLDjHcaQSRsXNlUL3/KHyq1Y4lR/PPwMqdMh2emqxXHExvtlZs97adRE7HAKBKGukmbfRXZFcHxvd1V+xJ/9fEU66qWHL5F/mGvbukaADPFdu44BhqUTUSjsdQu+AcFE62xFnRGZMFwzrdO0cZckfnadfEtUUaqFY//ugSwfPrwh8Al1GAEW4wZITFvFz33bHtl1eXskwvsZCTlqLGXFtnlucWor1aGh/fEqFUO/rEkMJF23cWCf9lKjvsbhFtdsWsfaJuwOZXqn6H9roZLQmZJnWHGtI1/7s34+HutitwyfOYXX1v7oIoHiVo8MgkNZsC/ZA+WOuH/rMosj2N69FXPxRjHReXhutZupyvBiXKMhf7485YJLqRFoAqNIAebt5Cdr9H8XRMDje0HCrSJbI0hUMeiRdqweMIMunnE+O9paWvjujzp3f7HciRt42IJFEwuXF2FpXSH2H1TO1kB9kyN/ouZpX5QLkv0xqfCWTqKsKc4Fcoa98bhTQBEU2f8E0Xx9FfZ2rxgLuYy0E3WnSMxVMm4KbuUSZ5OogVG3Cso1h879Z4f6CRk5XBg50L3JoA/soXEdrWpo8fRIY/5bUOhH3DTpSitpkQwyNH7MvMHj78bScPQd7ohIVlcqykvCetsZ4MIDXiJivysC3cFb/jdU0iVKGj2FmfIs5eY8T/3kpKoyOwEowShOGPfirWj2EpsogFSoVfIXLWbNlNKALEhonnrDvSpMuId7MJry9Omt+7d2IQ0Q4UHJPmwNBpHyanwYglNphrJUepiGBtUtKcMCInLiTZH1FRWOu0p3Vkpm6O6YyoBFn4qFbJzhhO6SWrRi3IUkSJ9kl4PAc28SJvDILnRMBGsjFq1xXX4UNwvtonYIS6F45srIeenZ+b0xMDwk5WXeEd/MWc0sC1lobrTybLvDG4PStyU6z8M3DEh3gTdu/u5+YT3YIrupDhGXjKBOTObKUdRYCOalaGlL90ZEQkQkrfiQV35c6i0T2oDmFSd0pbmza3XZ6e2mkilko6gHN4McxhZOCp6pU7pDT4ygPpO3MOj49P5jx6KwC53XNMzCkQ0AJPTS0mlyqt8pNLW5/rWUqEdQPKaanjHsU5IKnSXwJ8uGgHe5lYZWtsF+LgLu6yAVFQxAYyfhwxaMXz6DH+yEOWI86+bdJqKSmp6dzhPh/9v7EL/sKuFR0M8RXXAG+pgyOgvVnC4KBXQ55PC4/LjuqkDJlvzWbwY7d7J1WmN44JcTeQbFtIoGjQaILJGQXUuNWNAmxnKnDDZQGFVag004BVRK/+tosGAE=",
+          "thinking": "Looking at this MemTrace compaction log output, I'm seeing a trace with 125 steps but no verified results or verdicts, which suggests the simulation ran but didn't produce expected outcomes. I notice there's a combat event at tick 114 where an attack resulted in victory, but without a specific question, I'm trying to determine what aspect of this trace the user wants me to help interpret.\n\nExamining the sequence more closely, I'm spotting some inconsistencies in the movement and interaction data. The agent navigates to an NPC and arrives at position (7,8), but then interacts at (7,7)—the position shifted during an interaction that shouldn't cause movement. Later, the agent arrives at (9,7) but then shows position (10,7) on the next tick after arriving, which suggests movement occurred after the arrival state was reached. These position discrepancies could indicate a bug in the simulation's state tracking or coordinate system.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 429,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1494500000
+      },
+      "id": "msg_011Ccrn8fizPdZ7DxyTeYPZ1",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 429,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 429,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

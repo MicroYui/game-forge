@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c70891dfe06e91398b26aa96b534b9e9f7beec50115516d563a854946c24f579",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8179,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EugGCokBCA8YAipAyYmoMLM0N3ZYphcPcFSlCBP74S7jbZQna2ttIJINZjOrZf38zx4WURCOaXuHfG1iPSCCorXmPA9wL8sTTR7n6DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKPgaJ0TakSg5LNDABoM5IJxDEcQjy0HQpIGIjB5JiA7FHkUvLISGHrqOa83QYYCYF4d2opx/QED7zUO9rPuiFx57UZVHRzgBnR3onIqiwWHdtAnpYmncbjOnTnSrnWG5QvBbqDT0gV4qGx4XxD5CCluWtPONng+5ag1axADcT6xJLO0AypYjCRpUL8Nj+plo8N/1TTK4h4L9+BFg5uSsPHfteZwAt7a9s4e0lbiH8ppdBOanmLK9m7MNq8eCPJakmMWlsNkciyNy3sUfEtWmdxaTvznZWoPSSoeamkgyka+ed/STs7c9qrUyKUs5o4nQn2PbTswV9mqtFg63vHUt6pL1jFzUabaxsj4osX7xsnkLw6NdX4mkZroAV4MtDOkurjequnfsW5bVBvsXJiw/nI0osAfb5nJn0fnB1aTpSF1m144jgElKlynABswI3mMN3ysaTWtZ8MIIjKYT/3H/BWzQkz2gjUKbVrGO8tPOlFrdfPt/EoBSoNJAwi1cqMw2ruc0F7Qe6xkjz7yAZ2Hy+YCk7AstD2WAsPYRiSwHQzrkAgF0pCGq+yDY/t42nAIMs5aPjj8dcfKdCWFSmkODQEaX3OwchVTvocTKVJ1kKdsNzopZSwMsA1WOqZ4ZS/k//j8arFpTrvI8aLexIPiz4nPraP/dagt/QGMlb+qepmcaw9fhgGnOD6upZR1ngKv3aJSu2Oof/K0s3jf3cdDR32Zi+dB5idm0281tZNdlG1LISaKlws2+UhHEFOsvJULYAgUrfhtgoGg7SgvVB9M8UxSKA/NZDnLjI5Wv7sH1OsViyHLMUcDgLpNNH1ir+g1Ubdc7zeowRau8+0BpTzup4ju4hx1zgqaNJbmr3b+4hNYon4GLZK633UeNxH0I/Ts9p+uI0f7GLTzUidojmD54B0E+efKrAv//3B3lbWOmppPM8118tlRxAfEyPZc9/RtZsiew08hiuRpZ0MYAQ==",
+          "thinking": "Looking at this MemTrace compaction log the user shared, it appears to be a debug trace from some kind of game AI or agent system. There's no explicit question, so I should probably help interpret what's happening in the trace or ask what they're trying to understand about it.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction dump** — a deterministic trace of an agent's step-by-step activity. You didn't include a specific question, so let me summarize what this appears to show, and you can tell me what you'd like to do with it.\n\n## What the trace shows\n\n**Header:**\n- `10 steps` compacted, but **`0 verified`** and **`0 verdicts`** — meaning nothing in this trace has been checked/validated yet. That's often the first thing worth flagging.\n\n**Tail (behavioral sequence):** An agent at HP 100 completing a quest chain:\n\n| tick | pos | action → result |\n|------|-----|-----------------|\n| 2 | (1,1) | interact npc `0_10_0` → **quest_accepted** |\n| 3 | (1,1) | interact npc `0_10_0` → **quest_completed** |\n| 4 | (1,1) | navigate_to npc `",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 449,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504500000
+      },
+      "id": "msg_011CcrcToskFkWriF6dUFUNW",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 449,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 209
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction dump** — a deterministic trace of an agent's step-by-step activity. You didn't include a specific question, so let me summarize what this appears to show, and you can tell me what you'd like to do with it.\n\n## What the trace shows\n\n**Header:**\n- `10 steps` compacted, but **`0 verified`** and **`0 verdicts`** — meaning nothing in this trace has been checked/validated yet. That's often the first thing worth flagging.\n\n**Tail (behavioral sequence):** An agent at HP 100 completing a quest chain:\n\n| tick | pos | action → result |\n|------|-----|-----------------|\n| 2 | (1,1) | interact npc `0_10_0` → **quest_accepted** |\n| 3 | (1,1) | interact npc `0_10_0` → **quest_completed** |\n| 4 | (1,1) | navigate_to npc `",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 449,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:934dbeaf00b7ec9b3ea0f8e18a90a7dbe0563f3e76c59ba591b1b663457acee6",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9660,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpgFCokBCA8YAipA3QZuu1aHHxWIzExr9iE4e+rtjrC1DLlPvdl37uyPKb1pqKM7WoQ+PL0j7WQdwsK7hdWFb0pBG4QsTR1QhDznGzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOoxQA1E329cumYxnxoMXfYLXkd3GSUOG/aZIjDN1J/PqSUgkZxblxqST7M4hdpw9n6/VvSw9fYXF9sm1VN5ZhMJRYS5Iur4U3w5z/cquwPVeXpONVg/4Cuik2QeaAhETnq1a1wwxhTELwJ/QtDps0o8nFrtVlnsws9arGWXZIryxQH1zt3yzDW7/7Ab9P75DPnk/UNIIFp1f8BXdD/JCemxE6P68Co6ARq+DLAWEldk1GFwDpw6+XMT0jrdKTu0UT0zyIvMTn0grrJkhvBlMdskWQ5PEh7O8ICqi7el6T2s+U/SJqo7/p+6u8LcJxjG7JFufnPRdKm7ZDD4BOYxoGfUzwEdcOKxyfZJTYqzTh2SiBu3xO7vOGls4o7Th5tiAPNsev1lCVYoOGww7ow/9efjkMU6165t1heWAt5ghuZ+wV52ZVCvGGU2VylxXq8uHLkQAuZKV9tmaldX+9C9yKhdg/+CWD6HyJlm5tHEglYHeGMMfhh5MgiBekLu32ALNcfy3UfoR8/Psau44chREi0lX+p9koG8nwe4zK0eC2KrOWQKsqRin9q4yz0UQM0ieslpQFTx/HzlCvAx8c6GJQEWcNPYZrx3RfkDUermrn0/EYxBpLh4hf3N9pQ2ihXbAbTePbZeDKPu80TZpmrePOC+roshtvB3oscHtSG+LJzzj5Z2PpfDRt7btRgB",
+          "thinking": "I'm looking at what seems to be a system log from a MemTrace compaction process, possibly related to game AI or agent simulation. Since there's no specific question, I should ask what they're trying to understand about this log or what they'd like me to help with.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** — essentially a truncated trace of an agent (or game bot) executing a quest sequence. There's no explicit question attached, so let me summarize what the tail shows and offer some directions.\n\n## What the log is telling you\n\n**Header:**\n- `71 step(s)` — total trace length before/after compaction\n- `0 verified, 0 verdict(s)` — nothing has been validated or judged yet (this may be a red flag, see below)\n- `deterministic` — the run is reproducible from the same seed/inputs\n\n**Tail behavior (ticks 60–67):** a clean quest micro-loop:\n\n| Tick | Action | Result |\n|------|--------|--------|\n| 60 | `navigate_to:gather` | arrived |\n| 61 | `interact:gather` | gathered |\n| 62 | `navigate_to:mon` | moving |\n| 63 | `navigate_to:mon` | arrived |\n| 64 | `attack:mon` | miss |\n| 65–67 | `attack:mon` | hit → hit → **victory** |\n\nThe agent went to a resource node, gathered it, walked to a monster (",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 435,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497500000
+      },
+      "id": "msg_011CcrmJnGoHdy6zSKAtgWTP",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 435,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 131
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** — essentially a truncated trace of an agent (or game bot) executing a quest sequence. There's no explicit question attached, so let me summarize what the tail shows and offer some directions.\n\n## What the log is telling you\n\n**Header:**\n- `71 step(s)` — total trace length before/after compaction\n- `0 verified, 0 verdict(s)` — nothing has been validated or judged yet (this may be a red flag, see below)\n- `deterministic` — the run is reproducible from the same seed/inputs\n\n**Tail behavior (ticks 60–67):** a clean quest micro-loop:\n\n| Tick | Action | Result |\n|------|--------|--------|\n| 60 | `navigate_to:gather` | arrived |\n| 61 | `interact:gather` | gathered |\n| 62 | `navigate_to:mon` | moving |\n| 63 | `navigate_to:mon` | arrived |\n| 64 | `attack:mon` | miss |\n| 65–67 | `attack:mon` | hit → hit → **victory** |\n\nThe agent went to a resource node, gathered it, walked to a monster (",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 435,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

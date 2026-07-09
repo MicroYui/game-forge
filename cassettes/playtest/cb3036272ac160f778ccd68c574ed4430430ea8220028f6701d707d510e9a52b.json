@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cb3036272ac160f778ccd68c574ed4430430ea8220028f6701d707d510e9a52b",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8861,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErQKCokBCA8YAipA/es/Ct6V8ZAacTZXcsa7iOH/B/bxoWrv93RNyipPfvSQbWzBPmQ7oUfFntd77gDEKW3GomnzOs04KPK2xgPm3zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMZ0M3TSQwDqH3K8sBoMxCZ9+L1L0R/+/tE/IjCB3/a9uglGojdU3HjoqUXc/6WLafe1dy9bkWAWaGTM4YKw/oaDLTi/aMbcd9wsAcYq1wgiWY8yaibFF1UoTzDTW7uGRG3DkZLtWsqoyr+i6CTklLIN3E93Lh4ZOFW2puZAikifglH0pUoqI1NfxUSY2FV+7HcRlBzWTvMlELqTyAexmgXJF99mS7B6B5i1KwDHynuovgSEi8MO5CuXYKIfOx1rSPgDoeuk3GaO5JbuXDJ2d0l2WK/Syvn6w6JPOB7LoGADDfRqxCMDIfzNUSnnNMe8Qen/mCTBi0OHXmFCY1m02XC6sDYUkr9DieXpFDIEk3kM3lxkW/zKczQaoKcDWUAsqy7XIcBCdb/ECsT3bulL7JQX1k0eeEqR3WXYIpVN1uL9/lGEOLe2u39f6qVKitVEv91EytcEdujdiGi89kwaDQxGNqYx9D6PEtcigyxy3mPX3z5UKXrjTxpudCd6jgEKJW3Lq+KOrCAvWgvicRTVVwJCoC22v3r5yju80MNLctpWPTUgSXBSwQeR7D5LKwakzLGFqedn3n2dHhIYHExAUtBLSKj6sVJb383Ulszt+65T7hI9sFyDkxaZlEmZVAQgM+KxQfJsmTz+kxAlAuMW3K6EyNarYcgjNDLE7At2oMbkvPrgIWY9taJYziyr7MyzxM7qZhjQPjtE9L2ygkfWZ2NawFt4i5BiI3ioSF6Zkp5S9aSWoYKxk4lWsPH3+rhpevDNl/diuGeGlMOo6sdJUHfBoPcDTTrWGeVCwRm1Emtn2OdtNqeKIbSZ84q8uHdOoQfbXqqBjU/5Lw6rnJgKowxDyt3Nr5rhROfdEHfuBWz1eXlj9e40Pc9sW3yyBUjgqPX02lSQFuyT5kLSJOC0WuVzNM2y03jFqWEGjhuihVcUIMhesqGXcfZ1s+sCaPLieiWTW8wY1pxdG7fojFaNbD8Z/aCAvlhzSUChCdA/YWqpV+3nfkLn9IE5lRiwRVke/r6Lo9InEcqViL8+8ATUygS8Expexjxm4lWUaelWMZUl3nzIEtt15Iqw+x3Xq5Qw4Ip37crbMYzyritBpvdvSydIglI4jqlqOzhDLUIPBhTi2udZl3CQmbel1F/BJTEbpqbk2eVV4xoaXmL3zVvrvse2R4sbzgTAm6b6rEXNAYCy3OQWC+KqWvQ6IRFz5VFWF/BcxetNsFKQ2kDFRw/dKe6/DMpgHCwwkM9JQQnYWIkIKLNGq9fHuE+hEoFawZWj0XvTmbWa1fZ2xjjVgdpclPnDP2GhwZD9CkrMYhUjJNCd8DyPZHmuKqXMIJ0GH0Czd2VKNPXU+j8dYCyhhWiJbN48mX3HcZSk8ob5HmRyMdnRQTkN9d0N9jHaOdygUfI//7Zmz7dqLTImKF0/2mrTnFpkLDDWf0hOuFF1y5rmh0czAJ/1fG3pvalU/WsQ0qJ9JoLezkRFUKto5vCMh4sVP6SZ1FmV941HqiVA+w9+e1yDNdr3vxB14bBHsH/4Ya+8QDl93zfo+dBTAZgii15VeyttVN/28xR0L1QPeiKeEVmsiaD3BLHVGAE=",
+          "thinking": "Looking at this trace output from what seems to be a game AI system, I can see it's showing 118 steps with no verified results or verdicts yet, and the tail end displays ticks 106-113. Since there's no explicit question, I should probably ask what they're trying to understand about this trace or offer to analyze it.\n\nI'm noticing a couple of potential issues in the data: the agent reports arriving at position (12,9) at tick 108, but then continues moving to (13,9) the next tick, which suggests the arrival detection might be firing prematurely even though the position is still changing. Also, the zero verified and zero verdict counts indicate nothing was validated during this run. Let me ask what specific aspect they'd like me to focus on.",
+          "type": "thinking"
+        },
+        {
+          "text": "I see a MemTrace compaction dump, but no specific question attached. Let me share what I can read from it, and you can tell me what you're actually after.\n\n## What the trace shows\n\nA single quest lifecycle completing cleanly over ticks 106–113:\n\n| Tick | Pos | Event |\n|------|-----|",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 425,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1492500000
+      },
+      "id": "msg_011CcrLZEXbR5AToNt88QDqm",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 425,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 413
+        }
+      }
+    },
+    "response_normalized": "I see a MemTrace compaction dump, but no specific question attached. Let me share what I can read from it, and you can tell me what you're actually after.\n\n## What the trace shows\n\nA single quest lifecycle completing cleanly over ticks 106–113:\n\n| Tick | Pos | Event |\n|------|-----|",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 425,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

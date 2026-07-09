@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f8f9c04b0a78e0fd271507558bd1841f920ae6770bab1e919b10a7c05a4302cd",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8789,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqMLCokBCA8YAipA1NGlel4QfWSsDelozOx0m7tjQW+XhVHAukBeMzSo3dbmku6h02aupW5NFMPdBK4G0/GyKV6YYtuE2VGa+I6szjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMj2PoYPaVEI2NHJ2xoM9hTm368QLA4G5xk1IjAx+pbniyyioItVIgRrDUp51nSIUoGZpVmbv7G4P+g+n+UZ2a4KNsC6HuVODBxiKLkqxgmpBBnn+z+mWX1qIjVx64o1Z7AX/BuuRfYU9KP5DNqK8pjZAIe11t54wpgfZvs0RBxbx925bOUbJDiwnvB+oDYboEUAZ3mTg8GVaZX9Cj8XMiQZMc2GHnwWI4xNtbY8TBSS/f7+eojDFnmkvKT8s7kIsEhXKiENZrP2Hl/E4oR1n2MA48+EJGQJlQah+OxqfEqZja5/ANCX7vySRvlucTOJpT6dbDPpxKNJFRlwIxmrJKRkm/oaoVYXOI7sWKCJBcpOC4VsTk3P3MZgYx3Ej+ExFI5bNLT3oVVyjyzPa4ts5ew+/UHeu2KsT2wnfPMFAEWh1B+TGWUwLpjRhvMLJi2jvZWXpZyEDhvjUsaxXscluVuj35nOCmBsUMmlxDTnba7xktg2l4MVd+ltGqGqq+Hxa1h8A0HQnIzGWXi+NLv+f4F4lzmHEdAd0eOpLcz4SZV+YpgQZloCAofqZTcX9R8//P4U7sg6KCQL9FP0JuPMf9cuGjDukQAkrF3ZmqF2ol8fuTPh39tqCI1auoFMb+xZtrvuEaEuYU6o4U6mD1Kj8GQ6hrMfoVnlu/KSnh8/dDjYZj+LKtjjEdnZotmKs1TiqQeC3YYEUVOrvZpd6tcb2T2gXsjbh7rEuQ8GdV0VlBdSAJC6sqd11oajSbOdU63VNsT8OuSLeL31Yenk006D52fbuRkCtzJTDYMHs55J24bf5WeCf839siVOgFWIdMn36gqdb555a09LdxHicy8g1UyVPMD3TLszv4nEOqr7VDaro7Lr+wck9fUinmtzTSIfz2anGTwXbIU/C3Y7fb4sKxv+t5k6A53HX2+QCPi7+fkOj0KyXEKjW8RCY04eg6YTnmHzngxDCRfY4Rj3C2fDkZGp3lXEfF9Uf+oJfvMZuExxSSGe2Y70sMTNtw4fdpAoxJus1tdOfjl0hPvWyUYN5iday2NkoCFmjQ9uw6e0Cy60+sR+wd/RhoU/jsAK7heVN8536IrnemBTWEA5NjGabm0z+MhzuDFNXIvDEhFgI7t6+TW9mtK4uFU+p1Ppxtwgw/zmtHJ6RyXQUSFKgFQwPzPSiFbru1kF1ozS/QMUppq/YpcAOG1qeMpDyV/tbDmvf+UQ67qxk3yOmJRn+HVqyPRDSoTPH8nQkVGQUQPUfxI+LF6R3xMWCcvkff7p+PmJCHyQuChSsD6TCrFMgN8Fn7H8x+H2P6mOCg16K4WcbXscMIseMtneRDXO/L7d62Spi+dxp072VZF9DrdhKXCpPEjRKg/0D7Wa/VAacp0APPtlwmIJFUfZ2UoSSnTb38RpDCIm7/QjOTckboX5PJRp3JcEN9a7sIkAkVY0AZM1E1pHPZw42GPe/yskA5p83abK89toTSagZH+9MpS69yNvnxmVYEDXsVO1948uVjz9vXj+t1Zhle7MtNI+BKWZd+a7eZBvPvRpZeIcxorsSIusgkLE9k8lFpuKPQFMrgKX0j/+YLwNgbU7nQgHxk4QShdIC7iDeCtJhqAc4Olj8aOvrqffgenddChuSjkmTnn9XHGQmeE9X6vF1EJa8JET/+N1+iYApwqE8HHTzrmfzQC6QW0CBU0oy3XTUwR4BCJbJIMAHpUyyRjI4hUYRy/7XaDNOrjBlgRbGAE=",
+          "thinking": "Looking at this MemTrace output from a game simulation, I can see it's tracking 39 steps with a deterministic compaction, showing combat encounters where the player's health decreases as they take hits and miss attacks across multiple game ticks.\n\nThe trace continues through tick 35 where victory occurs, then shows the player attempting to interact with an NPC but being out of range, navigating to them successfully, and finally completing a quest interaction. I notice the monster and NPC share the same coordinate suffix (0_4_5), which suggests they might be related entities or occupy the same location in the game world.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 433,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496500000
+      },
+      "id": "msg_011CcrJqQXpGGqQTHpGADkjL",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 433,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 433,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

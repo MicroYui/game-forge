@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:16734243ecaeafab58033e09c2a697fb689dba826dfc804162f7bbecfb6913f5",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8678,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuUFCokBCA8YAipAfrBFkgfkttjoB2yb/xI1e2EaWVFQ9IruDbb3T9VTW+1BclfuLHLzMDHBWXUcY0mT75HByJ7WJQNqA1de4GCUfDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPoD4fQrUE3xIOY8ixoMKIGjtmD6QiLrsVArIjCqG3X+mHtgrNIBCeZGIetAS0JDcDHSaZ+ibto+TBMt2PBnHxMM1L/e8vvR7oIqBPoqiASuroVz9VOG72d7BYG4NZ19r2wZTXc7VM4MYcYpoP8FzihNEAGynKICbRCKKzVtHBqk420BJ4WtQIC8mHg5lwUAvy/sjKcpxb79gUR5lhVBzqAxyZ7Gzet1+HXev0AfsNzCpry8aTmJM/xGRXDIl0M4VLGoH/VIgSNcSA4kW7K2As0Eklj9wCPNpfMLntM4cUd//FBFPZ+V6RNjn3HwonnEfFO8wZzoMQDWI3+8Lm7pcLdmTU7JwOx5OBFXto6VH41bUW1YyxM8072OJvp7CGYeX6wTDazAd5KfA/xYaRLAk6whNHM3USZwvojUtiNH3QgKw7+flt8ZtNRzUvKB9bR4vI8A/JatHxEzEnyYl4SAErdD2eSgobFOOyCibzF3ovVFelcbtdAK1+COYiEpH7pY3UBPEbr6uNeijjT7p0UJbk/1QqLGPTL/90fgCauVbRryxkOZv+8TBqdbda6N0C/MO9DdiqZgw/y7U48jkEESd2KfuLZntTV/OxcHKR9WN2IfXq66YmzloNwzoXdUMnD6aD8E3ss1JQSoHmByEndiAt7+QL9RukNf/TZnof+eS/RqunwOovC0jmb5B8xFz53XnANrkzmPMYruQz99wPyQ1H7yhxHK3AeKfbnSkIy66P6ULPWnrKLthkb1UYcv4T9gur09HqsYkyXG0tH1rFwb6lt66smv29yAGAE=",
+          "thinking": "Looking at this log output, it appears to be a memory trace from a game AI system showing a compacted replay of an agent's actions over 10 steps. The trace captures the agent's movement and quest interactions across a grid-based environment, with the tail section displaying ticks 2-9 of the sequence.",
+          "type": "thinking"
+        },
+        {
+          "text": "Looks like you've pasted a **MemTrace compaction log** from a game-agent/simulation system. There's no explicit question, so let me walk through what it appears to be showing and flag a couple of things that stand out.\n\n## What the trace is showing\n\nAn agent completing a quest chain on a small grid, tick by tick:\n\n| Tick | Pos | HP | Quest step | Result |\n|------|-----|-----|-----------|--------|\n| 2 | (1,1) | 100 | `interact:npc:0_11_0` | quest_accepted |\n| 3 | (1,1) | 100 | `navigate_to:gather:0_11_0` | arrived |\n| 4 | (2,1) | 100 | `interact:gather:0_11_0` | gathered |\n| 5 | (2,1) | 100 | `navigate_to:mon:0_11_0` | moving |\n| 6 | (2,2) | 100 | `navigate_to:mon:0_11_0` | arrived |\n| 7 | (1,2) | 100 ",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 439,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499500000
+      },
+      "id": "msg_011CcrdmXYqzhjdWr3xFgdTX",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 439,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 178
+        }
+      }
+    },
+    "response_normalized": "Looks like you've pasted a **MemTrace compaction log** from a game-agent/simulation system. There's no explicit question, so let me walk through what it appears to be showing and flag a couple of things that stand out.\n\n## What the trace is showing\n\nAn agent completing a quest chain on a small grid, tick by tick:\n\n| Tick | Pos | HP | Quest step | Result |\n|------|-----|-----|-----------|--------|\n| 2 | (1,1) | 100 | `interact:npc:0_11_0` | quest_accepted |\n| 3 | (1,1) | 100 | `navigate_to:gather:0_11_0` | arrived |\n| 4 | (2,1) | 100 | `interact:gather:0_11_0` | gathered |\n| 5 | (2,1) | 100 | `navigate_to:mon:0_11_0` | moving |\n| 6 | (2,2) | 100 | `navigate_to:mon:0_11_0` | arrived |\n| 7 | (1,2) | 100 ",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 439,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d923dd67f3623e743b1aad20713dee0b9a151dc8a26277d5a02a4f32a9eafa69",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5754,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuwGCokBCA8YAipABvMw6+9Tv2BmmLnUmZxn7fXtvyc7VK22dkizuG3UP5Z5fK/a1uDKcEC5lEiOBVlou577xQmAjjSJzbXJonLuMDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDdTrbIIZRNB4Mot5RoMcUreVHAyNd6UaSvqIjARlkVqJE7zjXms48pjuYQT7HRbxFEitn9pLsy+N15pOJmcq9FQhFOUMY/QX3NjtNAqjwXGpyxBLYD1oPByAujDpSLXP3Ablw3Q++O9vpcM1ZQUKuLwjpEQzr9e9VmsrvnbMewrWT5+B/aWOTqvnzGVneAHMC+Lcq5l1DWIEMwNRVeJizZtCJikwU4NOqrdXR6cJR0cjxNWX61yUmYb6lAt/fTVY+yY5pIA3yZPGlmtVTcGvMb9ibhhU7WHE4a4TsN3I2wXA2fEvZaJfwP9yTSor+w+g9FMfn+sykAKmv0S2OhJLysmAzjTXlmmsvqh44HbYziRnGMdRlFj1UTAFHMRfT+PqTe6lJ3whYkU7ytYOFWmC6QeSoFqZGJLV606/YuYUMyTrp94tOcei2jUXKCQvPfNo7GjjnL8uEKa0tM2SB54PioFzNsMedWkE3RaQaBZjXuZFknyDutriymnXH5QLiQpHM27CCihXXJRH3JVAHjwFs+C+VH86+A56HmeJfajuvg2gbi3dqby+0GWyPe7zDi5tBV1TlvyyVwbq+OGTFj8P3vLMXd8r567W+HHnBPpHPXMF7pWlKJYXDKbMp0sME7rPdZe3o0yHGjX+HF33SfcCcqRxOaMgGHxgpnuApGf1cybDasMfWEd7Qqb1u/gFZwpPejNZBzm39+KPVtIuD/lYkg472gmAQH0/5W/A94gzWRJaU+ZKJ/St2CFHEx0wEQHIR0HdeSwZoMo1oqr7ozvvdor5tkND7GnI2TFjxKEp0eGp0FUA0y5zlPoGnxMSDc0vqgiEnsmGb4n8QCoDpcWfGqaXYb2Kh7ymMuvYgG4r4D1pT5OsCvruvpQbT4ZUFcOmx9sY01D0WHsDRMmDN00X3vp2l5Ote4k+McwTinC3beIuM2hY6HceNovmTg4mNkEsIOV4ue6jRbfsz4M548tGAE=",
+          "thinking": "The active quest is stuck on a combat encounter, but there's a hint suggesting I could bypass it. I notice there's an alternative quest available—a talk interaction with an NPC that's actually reachable—so I could pursue that instead of continuing to struggle with the fight.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_9_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_9_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1995,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 308,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1767500000
+      },
+      "id": "msg_011Ccr6hSjAFb7iu4DZDnCQw",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1995,
+        "output_tokens": 308,
+        "output_tokens_details": {
+          "thinking_tokens": 267
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_9_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_9_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1995,
+      "output": 308
+    },
+    "tool_calls": []
+  }
+}

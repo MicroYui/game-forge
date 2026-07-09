@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:845144abb63448334bb58b2294b0a54d1e716cb223a2e68d59f3e0ccbaeecdd5",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4421,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErkDCokBCA8YAipAa9bNN1u09OODYWqxWLCcwKdMnpurnAzD1tGQXHQfAayp60UOEqEIpFFgoJ7Fi/8gEiI/WBsKa5iwnlK2yL1stTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDsq+n0H3XAavmzcIBoMeAOpnw+VJ341zxUrIjCjC6z8ezB72KJwbDcgHu0Bm63xDFnD0SyL3eC79rCYfaOUVvWTknxoSe+a6yMz+ooq3AFVIemEizKjcbBAzTKVbSGyCuRPq6JTI/WikPl+ubcyjN052kfHDK7/4SnmwhMXUCRaRCISPjOEo8CwAGv3leEPP2BE9tyzSlxcqfxOQ+bPSxkySTdIqMe7tnyTU1wjvPyjzHUeSCXao60XWbAvbRdrZjxm5bzd0hJYLKC5K8JU+arVBkQEdURrVu1mKDHd2+YQC+t8d3zS0xKP1vsaSjmg+45Yzh/geFg5pL7NDqUyyFUPHFQYCLFFfyrDAPSGgi3NRmf0URPZBTsNb7JL1Wx+ATWC+RBaNy0cKcKKGAE=",
+          "thinking": "I've got two remaining quests to explore: 0_8_15 and 0_8_16. Since navigating to npc:0_8_16 hit a dead end, I'll try the other path and talk to npc:0_8_15 instead.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_8_15\", \"step_kind\": \"talk\", \"target\": \"npc:0_8_15\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3004,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 131,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1829500000
+      },
+      "id": "msg_011CcrbsDpRmVXivRT4Qa19V",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3004,
+        "output_tokens": 131,
+        "output_tokens_details": {
+          "thinking_tokens": 90
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_8_15\", \"step_kind\": \"talk\", \"target\": \"npc:0_8_15\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3004,
+      "output": 131
+    },
+    "tool_calls": []
+  }
+}

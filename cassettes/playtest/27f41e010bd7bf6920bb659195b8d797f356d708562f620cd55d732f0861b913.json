@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:27f41e010bd7bf6920bb659195b8d797f356d708562f620cd55d732f0861b913",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7960,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo0ICokBCA8YAipAprh2pT3bxPW8oOxZvPmaEwGAMuXw984HhzPTfp0/dhHyODC2uZPfDIwAbOM0KydVidzcvDZr5KtOndi1529qkjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDF5na3tpR6X4H08YthoMuEShA1jDmyAE3bnnIjCsThd0svUtpsDPrmBDGJaDRcF/R/mojMbQ2etGsurIeHlsekI89/M2xAzcJ8eUXG0qsAYtxNrsv0QC/yKuH/Sn32QRRp3U2RVkNMSYujlvDTUZ0E6R7FGFy3iko8IJpM1Hrz7AeND7T9GKWLK/Fpa2FMXjMNT+WGaj/p8OelUjv8GwXz1OaFReHY1Z8NeC5Mg8CovCF86EgczP1Ye5mYCWo5/EDPl6AzfDKMShC6B3lsZjC7qlnXN8EGx1JjbnU5n+0/DjjD9MBUetPZqj6nelp9k3RbqTcZinc/uw3na5n+cDyeDJ7O9iAPAe6i/b6Px3ib6/5gpLkVDKXGXtEGfw9BfvkC0VouxK6iev5W2WLJsh0S4+vIaT7yHh/d9tYXN1IDLnYsMfa/e6aUvWcTrihAp/CfSE7IumEA7kx4639K7m/em7Qws/zLXoWvyMMThV1kmrgOe1QJtyMEUxMePe4KKbKWj39glLIUoFUYYI5ZQdWMSF3EhUvbGyoK10kj8sulZpkqgm3dMS8C86BHrv7cWJUgBK9pforXOEsXu8KTQdQwdU9J7GfZsJCg+1cY/kRuJhmG9UlzdbLcx+68CIRTlW5QtRWpHZbvkHoWhk6GTknOrbeqy+wP3S/lwZQOU64wvlxcIpVDp8sI8LaMoqboGAekmBBUqQv9hjzfAyVNsfQQGyjy4uM6MdFYZsTB8S70iE4v/oXqdMyYQ5zniw9Ty5VGXUvmlSpRsTpm/E4EtzagFqoGX4TtmISWMhMH2loacyUycZ3sCSQvhu688IqOWSvN8RGgLC6MHOKkPr0kXmR/cTieOchPHlCSb58ohK29xMghi9TkueDLJwOgYr2hDC8WtbzhtLDDA2Anby/N6/VTvCcX7TsI/CmMty53AmFn2EcDBhDH67RmWJrROEC8f/3N/OGyo29x+IEovfltKkzlJvR7D7XO8ERLQuZB+NBlfnp+6sVrbzTDHU0fAuz9wUZkqmx4/RVbfPS3I+JM3ZnhXF0F1Z7c5R97k7tOXKOnrnLLg0SBFuZzIDpQ3na24BHn4cOHm8uaQjr133kXkFa49BdTge4utVzdiaj9f9pBxDryFIlufiIxW5koThzrYlVQtInR4qiqWB4UCoxqBUUowRbH3RikDlGEONaU3hpkwYAQ==",
+          "thinking": "Looking at this trace output from MemTrace compaction, it appears to be a debug log showing an AI agent executing a quest sequence—moving to an NPC, accepting a quest, collecting an item, returning, and completing it. I notice the \"0 verified, 0 verdict(s)\" notation and what seems to be some duplicate entries, which might be worth investigating.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction dump** — a deterministic replay/trace of an agent running a quest loop. Since you didn't attach a specific question, here's a read of what it shows, plus a few things that might be worth your attention.\n\n## What the trace shows\n\nA clean, successful \"fetch quest\" cycle:\n\n| Tick | Pos | Action | Result |\n|------|-----|--------|--------|\n| 13–14 | (3,1)→(4,1) | `navigate_to:npc:0_5_1` | moving → arrived |\n| 15 | (5,1) | `interact:npc:0_5_1` | **quest_accepted** |\n| 16 | (5,1) | `navigate_to:gather:0_5_1` | arrived |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 450,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1505000000
+      },
+      "id": "msg_011CcrKW484z31nhT5vm2iZZ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 450,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 264
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction dump** — a deterministic replay/trace of an agent running a quest loop. Since you didn't attach a specific question, here's a read of what it shows, plus a few things that might be worth your attention.\n\n## What the trace shows\n\nA clean, successful \"fetch quest\" cycle:\n\n| Tick | Pos | Action | Result |\n|------|-----|--------|--------|\n| 13–14 | (3,1)→(4,1) | `navigate_to:npc:0_5_1` | moving → arrived |\n| 15 | (5,1) | `interact:npc:0_5_1` | **quest_accepted** |\n| 16 | (5,1) | `navigate_to:gather:0_5_1` | arrived |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 450,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:eee9310b788daedfcd2559310030bfaf891c20667e94ee5db4d46444e4af1e6f",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8309,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Es0GCokBCA8YAipAJmFpb1thC1CtsOFjmBdLZ+7LppNZAV03yZsPnZLYAq6O5MjmlhBL97iDAdA9hgZOX8g7I3oCLlrFiSIsgCpq5DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAYbj8aU1LAtL79HNxoMvX8SoGeuV4h+BenlIjBIENA4i4oVLfTjcIFIeYXBeY/9w/UhBAfGV5GLzNp202AWdP9OOrHkHkyCLGZMBU4q8ATG3zF39b8DbeE7RLN102iBCzJLSVZKPq7s4uw5UErXsEb+wnC52nu8jB3UgcYFp+6GQmY4Ciq1td7xNCA6yKMPHi4SFkhh4qZ+myiawJfAHGAv8YbyWu3NFZWzolNsVfPceL3SCnaw/laHwlhOJ0222m32AvupueNUs1gBmbgnqBJIaNTid0Sbj0ZiR/iK5DAHSaz7dogy/4TGeqtdbjszMlcEyekykp9UeWTF71ZgK9xbjq4CpDB4caUNu9WXlKPtqL4kbUI27C1aAHSgglJYyv8aAR5UV0hZh1kKCOjh1iC2EaDqOfzACi+R5CiZuJo3liWEnO+eHvplIitnp1pJd05Ir1Q3CNewy9COLjrQtb6QJ0bUyjMD3c3EtST3a1DL9VCkNT9Bh30MlPnyROteauHqp0Dszegs10D1u1zaM+/lL6u8YZux7pRI2s/Iiqe2YsWVZ3Zq9IP3Z9F+BzE+aAm/Gv924HtmCdXiAAIXd1Vpk5Vo3xLLwChyLqrsHiDXLFuB/laC9jkgxJd7MFz5MGhPaq54DA4dCRfZZqwCSUZP+FHpfnNipfeewCbeKjkPW+c5a7wr2jtFBoHCyu5auE9PLS0hd01LapjGb34T9yHDgH0M8dgPYC4FEoxHeLPutvwIL7z8zcWUnUDEYIr6GnH9OMRgfN2HnHEzi1GA2JTYPuLr7B5mPuW4T/ckLSyCGhDvwzVpn5r1+abZZ8ifDZkguEVKlTbsWqqgMEfwuOTDar23IIO6F2Y/VXWWDkKZVgY+iTh0fDbBtv46yEn//b1uCpBdIo2D6C5y5HLBrDZaSz/kWUNbd7Y5bOr/8wIYAQ==",
+          "thinking": "I'm looking at a game simulation log showing a quest sequence—the player accepted a quest from an NPC, navigated to gather resources, completed the gathering, traveled to face a monster, attacked it, and achieved victory. Since there's no specific question, I should ask what they'd like me to help with regarding this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** but haven't asked a specific question. Let me offer a read of what this shows, then you can tell me what you actually need.\n\n## What the trace appears to show\n\nA single completed quest loop over ~8 ticks (24–31), all at ~full HP:\n\n| Tick | Position | Event | Quest phase |\n|------|----------|-------|-------------|\n| 24 | (9,1) | `interact:npc` → `quest_accepted` | Quest picked up |\n| 25 | (9,1) | `navigate_to:gather` → `arrived` | Pathing to resource |\n| 26 | (10,1) | `interact:gather` → `gathered` | Item collected |\n| 27 | (10,1) | `navigate_to:mon` → `moving` | Heading to target |\n| 28 | (10,2) | `navigate_to:mon` → `arrived` | Reached monster |\n| 29 | (9,2) |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 433,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496500000
+      },
+      "id": "msg_011Ccri15uLxKeHvHBcaZewF",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 433,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 198
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** but haven't asked a specific question. Let me offer a read of what this shows, then you can tell me what you actually need.\n\n## What the trace appears to show\n\nA single completed quest loop over ~8 ticks (24–31), all at ~full HP:\n\n| Tick | Position | Event | Quest phase |\n|------|----------|-------|-------------|\n| 24 | (9,1) | `interact:npc` → `quest_accepted` | Quest picked up |\n| 25 | (9,1) | `navigate_to:gather` → `arrived` | Pathing to resource |\n| 26 | (10,1) | `interact:gather` → `gathered` | Item collected |\n| 27 | (10,1) | `navigate_to:mon` → `moving` | Heading to target |\n| 28 | (10,2) | `navigate_to:mon` → `arrived` | Reached monster |\n| 29 | (9,2) |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 433,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

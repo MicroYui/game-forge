@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c4f7c7091a91359ce1939f6784c9181416c9bca53f5d12ed1a53f0e6cd46f2a7",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8789,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo0LCokBCA8YAipARGE+8hWX7bYF7UwEynNXc12ONZlqTNtQT8AkkVfTPU1YDgX+nWZSOAYbUGjJWy6BPqq5jyeB7MVKrrMbcUqnqDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDjHU2MOtdfTaDF90hoMKH+giWOLgSI+JajlIjDyNNXpm0LuiW4iWDXvydvn3k4/SaE/qP3viUXsJ0bITtd4WI7YZLezveQzY8UrZx0qsAl8D9CAnkQ7/oZD3LpVosKzjJqnuSdD6K6BLGoQlJ3wQR9jazT/x2HIaTwIrx+sGsrYgF8bKsZtkwXKhtEFQ+LdtjI2Xrjtreh4MqsLGgIKbSOD0xqWWsgp2J5OoSM8cVmrc+puCUgDuGHDkLThOLJvRkfQgTs5YZqK2zAhKPCMIUj7o25Y+dRsYN8LOqL2bKme/9GVAZlR5hvNTb0XY4NgvxERWRRq9fLGCdwyJGcnYJEZ8NAGuq3ikXGAx6/64Z7BDEUL2j1Q33dlRLbLUiua9NkBQbnVASOY3k0BI8HIXXv0qDfNUTvvp3fpKKIfq3RH4Is4lK0cNyZhk+A13tWH0EjjhCQJ2ei1E0nOPwJYhKdZ078oV6w0wqeA9iWZeDvAVAbgfRauLcZHw3sWFWYPxFf/VszSdvTqUFbJAD4mTg0lrSKhrlXzYFeLYLn9aM2kuE0Rqm8aAQnda8NhStSyegQq3fHooUdHjU1Zw17QTqJ1yvSMIUnwoCg0QWl23MR83xcit1rTisUdU7LG68q4qk6DOyvqd/xIsM2oLVa8sHIy9Vco5HZ7TVw3y5HAOvzxujlMyv4AJQt8aUmtD9/5O3nYeL5xL0lru3dksGyO2XyqUh7FFwMo/uRIDTnJYS3ZIygVyU/LlVApyoKnAe1WQbXDifQW88yLp4td1XNyqfErQSy6yV+8vRje2Rje3zdOxDghe5h6sSBvueEcWIbH93AWrsfAtZ5fmy/8QbxsY5/wWD2wlWyJOI13W3KYCMluBV4Hyw8AqE2b0lmTo8SoxS1HqI08az/CXhWxEEVTUmjXi1ryzKpqPf8dvsyfSphNu2uW6XDGrPHLNHlGO7KyP2IsT41AM0AfwklJJnBfbWPFihtK7Mm6lfel0OAvp818pJDBMaNB1+3GdU02qnn77ATPk1y+nlhtP21lEs8qrSEb0481ElopmkK46taM85/jLt8Mk299ICgHp+ToLH+MnmLEy+6NLwyFqFRwgj/mYBBZMGEAbCFDrAaSdOI6xFuGTBjtazh1VmFTsPQt3YgLRuLvtW27DiI1eFRn9lToAdrZm2Bvgd4vzp/zBhtRJM0Dl7Hnj4KEVzI6el3kbYnrfia0Eiqq/qXs0W1npTN4/ke4qwnyIpODbUkTXelSRal8cUoc/8q5qkE96uWve6Mbkxv6FXVPv3wGFVUfuisu4XpRdGKXwyko09G1oEux65+Gx6jSc85O7NjE7gfCMN0NQ4ieAcoCSdNB67hCxLw5knwWCmmMZEERoyQmeN0/LZjucZ1ZVQ9c8/N/QjyD08AIc+phTt5WCY+WQRx3GHRDirjRZ1ksmVdpSQx3s6aTImHtEn6k1Zz293gGjpexqGa+Gssez5yy2CM6dOUQYLVZcqvvXyJvqZDoYJ/Iih52izjT3aWRfvvOKGBaJpuawTU6nBuEWcZZH+gd6xlMQwTJp5CFkiWnBAhkCMu5LVOqJQ2mlfDKqFb9dp4iwYLVRZRchY0hXlQH8jX7U1lKWPapnblSVn0re72/bLHDeRb8pZmFSrdFtAzw9xqbhhkLwnbc8w0AIDX5keq/j9ph24xiMKf8Ia/5squ1wc9s3TZTtHoYAQ==",
+          "thinking": "Looking at this debug output from MemTrace compaction, it seems to be tracing game state across multiple ticks—showing the player's position, health, and active quest navigation. The trace shows the first few ticks with the player starting at (0,0) and moving toward an NPC, though the output cuts off mid-tick.\n\nI notice the active_quests field appears truncated with an unclosed bracket, which might indicate a formatting issue in the log. Since you haven't asked a specific question about this trace, what would you like me to help you with—are you debugging a navigation issue, analyzing the quest flow, or looking for something else in this output?",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 249,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1404500000
+      },
+      "id": "msg_011CcrGeV3e3KTcLgHMn9KL7",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 249,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 249,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

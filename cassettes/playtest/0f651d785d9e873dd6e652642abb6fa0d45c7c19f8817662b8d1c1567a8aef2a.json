@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0f651d785d9e873dd6e652642abb6fa0d45c7c19f8817662b8d1c1567a8aef2a",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8628,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EooICokBCA8YAipAI7M5kUx/TsAv5TnUf4WkrOQOZIgoKHsiS2eQYMy4iDc3NABFMis9G3wxkbAJxKevhdSKZSZ92DSYNR9JR+R+bDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFUx5pSN8mnaHoIMdxoMdDSFU0XS/+Eta7yUIjBbqX9qzG+R3zYyPxE/3bpPPtRVmJAL0kXiChfpdEi71lbCSHAmGWOw2Z55xnx96rYqrQZec9bepblVHRW5Fu0NzFmlIQk+fMI9pOP8UTOu9XiP9AgFWSMRHhuxXUBDeb7fDJifG2359rYLxNo9ruoE/NOz2FQk+3rqGWwN01GnwAWlgtr8F37jGMukWDfqTA52slDiw8Z/blzHlU+DvAO4r5NROK40yexP+Y6LSbwCc1OyUBSegUcgXX3IOdEVsA6MlfJKApG51b0lFsIfRVM1gadJAtj9C4u+cIxlBDggeKk2UESaP1FfTfDCuvWevVTFMB7Ki+jJT3W/t/GjZ/ulM2cd2W5HTltdAZ78nAcIN3agh72+pKRhctN8joMW7y07oBq41cI/T6kPqUOzjlficmdGfVNiXHXMz238Fg6w9TBZn0+nRN0IIdH4dkkIvOALtt44M+wqvht7lpnBtY6tUQZ8FVGCoLfZo/9qxRrOwek4hDunZ1GXmkkJmrxVYUPwIVC08oPK6XQ3g9LW59+KXmKSGTBdilbG+JyocEyxoT7jx4G7fXM60hXWGgvMgJujYWJyp01Y6nb7QXi4NDPhHkL3ltMXq95XiGsaGBrqE20x2pm1wptDh/f4tICD44ACNg6fKfaGgX8Qy6K1dH/iF1R+tPOxXwr64KZf+5TeTju0L0lOKmZL6ZO9uClqvdL4CBKljFAfuAQ8JBtO71bXNM7JOYe1NE8hwglrLPVi7m6iabrfUD0PtahltU+Va6KWOMVRxN0QACWA1jWfCkpj5MPrPTE3IRK2Yp8KCsWz0XvwOoLTCOVRoTID1n5R/DP6Nz0M+C1PuBoZTk7AC4QC7qB572qjmpA/XhCvIbG2RtKRZ4nrAvb6F6xa6PtSrdQ+bcIwJ1uxVeCqQTN5dll+nfs88H1wYDnzr4GUsg9w7xnARyKgGDyuAzMmDPIgAfLOthjpR/2BM282GkKrpkOP/dVCkoymhVtm3cBnAwT245NUprwrCZniJD3ivab3iDndaUuV0NhJGf2/AxGbR632+CuZ8aO6etnp9r728TlfrEWraam7rToAJg8VHHJpD3slpOqE2xaAh/V6Gc0PYO2rUpBx+vho02TOGHlptiRI4Cg7KJXT8FtFHf0WsVO5ltoYAQ==",
+          "thinking": "I'm looking at a trace log from some kind of game AI or agent system that's running a compaction process. The log shows 26 steps completed with no verified results or verdicts yet, and the tail end captures ticks 18 through 25 as the agent navigates through its environment. Since there's no specific question, I should probably ask what they're trying to understand about this trace or offer some analysis of what's happening.\n\nLooking at the tail section more closely, I can see the agent gathering resources and then engaging in combat with a monster, taking damage from 100 down to 97 HP before winning the encounter. There's something odd though—the `active_quests` field appears to have an unclosed bracket starting around tick 23, whereas it was empty before that point. This looks like it could be a serialization or parsing bug, possibly a truncated field that didn't get properly formatted.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's what your trace is showing, plus a couple things that stand out.\n\n## What the run did\n\nA single agent completed a gather-then-kill loop cleanly:\n\n| Tick | Action | Result |\n|------|--------|--------|\n| 18 | `navigate_to:gather` | arrived |\n| 19 | `interact:gather` | gathered |\n| 20–21 | `navigate_to:mon` | moving → arrived |\n| 22–25 | `attack:mon` | hit ×3 → **victory** |\n\nThe agent took 3 damage (hp 100 → 97) over the fight and won. Movement and quest progression look consistent (positions shift by one tile per tick, no teleports).\n\n## Two things worth chec",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 425,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1492500000
+      },
+      "id": "msg_011CcrkKw9G5xi4jsp4f9htQ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 425,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 282
+        }
+      }
+    },
+    "response_normalized": "Here's what your trace is showing, plus a couple things that stand out.\n\n## What the run did\n\nA single agent completed a gather-then-kill loop cleanly:\n\n| Tick | Action | Result |\n|------|--------|--------|\n| 18 | `navigate_to:gather` | arrived |\n| 19 | `interact:gather` | gathered |\n| 20–21 | `navigate_to:mon` | moving → arrived |\n| 22–25 | `attack:mon` | hit ×3 → **victory** |\n\nThe agent took 3 damage (hp 100 → 97) over the fight and won. Movement and quest progression look consistent (positions shift by one tile per tick, no teleports).\n\n## Two things worth chec",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 425,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

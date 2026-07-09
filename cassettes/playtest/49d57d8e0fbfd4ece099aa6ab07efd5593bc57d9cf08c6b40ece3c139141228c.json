@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:49d57d8e0fbfd4ece099aa6ab07efd5593bc57d9cf08c6b40ece3c139141228c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6849,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErEGCokBCA8YAipALu4NHM7G6GCaMcgLIRJGLWjjtMOlB+oIA1acijeA7CbLQG+J2I18vxkJERMtsSEyrMcATcl5z8MQosMZlb8LTjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHS+ry3ZkPIRdp2VUhoM5og20joU6V+vK6L9IjDt1KrVQloQEpm2hC8Z+s7zp/2CGWrfyi+6xIL0wn5uVBiuQ1N+2xzxVY4SglxK+XMq1AQ5wcY5q4njeYOixXhIkgEjnYDDDyW7QvwKzAZbzVnubc5QMlYEroOizwwz+ZCVoLyp+PKj7cAPP/N1ulORaZAIE7n1U2BavKKnfcaoqw0I6ecJCsem6FcOkR9Nez4bh0fm2DtuX3Wp7E8Hh1DeBfNY5KUzlWEmYuWFAuqI7Lh8EiOezy+j7fCb1bXApNDntB83+cfD2EdiQ/x5Yxk3PTJ501ZieHEZa09nkgNdi0qS7LCHEEiXL4cLGvV29csRqP18lrP+X6OxhNjM3zqhxvzGBIV3p2+TWubeXuQ6+q5K67mLicaWoWB2AmUHO547j0MbRgTnSdS5dbOFOp0dKRd+43v+SUIQ/fJqJKC2ec7IOA5M3TZNmdWkawu2bn7Qt3RefpvTufiYoyOajE2a/X2qPV7cb4h87F3mdVRdYYuDNx3scCIF8IaOpNEc42VOpCP988lobQ3FhHa5hoWc2b0/uAkagplKOhHwiGWgio0Mk2vvxQ78oYihRDZTNqA1M6CqAIhcrl8cUjMQtllTh9rAH1tvuX04jF0B+xMhX5sN9vLO3CS+gff99m2vr4Dv8VtuJlOM6sgDjpeQ79QJcJ5GAeBargWaxzMsLUDR0W2gqg8kfmp4wrG9FupSFh5Or2Ss5SlI1tWYWWfOQBryyD3yR+ot9qnNmVAgq9vDVdJL4NhWw0Vwu65mSP3z0OjvXJitx0RWShLLrW8WQdo2uBfPV81z5rP0kQQBvSFVamuMVFtutKWSZGbOB7thwllJWOzh36d5mlm2ge9bqXTxCDxTAh/LvhgB",
+          "thinking": "The fight is stalling despite landing attacks, and the hint suggests I should disengage and pursue a different objective. But quest:0_19_8 is my only active quest with a fight step, and I'm already on the monster's tile with attacks connecting. I'm torn between heeding the warning about stalling and continuing since I have no better weapon and the quest requires this fight—I'll push forward with the current engagement.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_19_8\", \"step_kind\": \"fight\", \"target\": \"mon:0_19_8\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2843,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 249,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2044000000
+      },
+      "id": "msg_011CcrFWPyxCddH2SYZAiUZd",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2843,
+        "output_tokens": 249,
+        "output_tokens_details": {
+          "thinking_tokens": 208
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_19_8\", \"step_kind\": \"fight\", \"target\": \"mon:0_19_8\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2843,
+      "output": 249
+    },
+    "tool_calls": []
+  }
+}

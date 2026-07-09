@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:36e9036fd6812fa99cbf0d643fff4b7e34ec8ec509fda64a6642ed8a66d3ba26",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9126,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Es8GCokBCA8YAipAB6WasLRT8/OVEHELS/KSjEFKZq60ZNvIm/+0ugsOrhxI9IhPjPVGOIaYjZH024jcI/xTt8EMTJiZpy8uCiSQmzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOMdNx56mYMBvZlSuhoM3a5staZoKkoYUesaIjBiBuZGiH1DCCM8tnfnDwW1IZNg+c9IjAdz7oIH5LrO5PI+em6t6CI1GZbE+6phevoq8gQ5HfmtTKBACGRQcMBeTOFdu0qIOaSuoJC1vq8pcUquZN+LwR+1Ae6xYoZPWFjFYSZw8hSElDQD8mtiamCXXUTX/7I8BRf1KNVafkGEObVjqTsPF8J2K4vPCSy+cqNMrEgjMceDDOzcmFSifSpx6leWhNhCz73hZWwp1qAfc8wiiJubw0CLa9R2vbCdrdbFab5Zm7Ma5wiUFE3oBgeRuvXw+FVOfjAPnpYldVkVeTpurq0LUt0ybuKsu1ZIDp0dmpHOEe2F0hyeRiob7qjqfdpfLbf3NySKvhfSU1y5491+lWvHXdu1qJ1cq+MScFIbaopPcYF+WLJ5Vg2Ra3RkM7xHjYgCYpsx53+ciAEQNDb64pHpgP0zSYHx4lGS5JsBtdpGJ2vCdtTyj0tFPMCcuC5a7gmqyeCfYm+F+7NdixoVljuCW/m/dOl1ltzscdesxuFF1uo6OHU++637pExIorRvlKSqhEavXgFC75mFe1B9vieUre3JfNCBymhWZHqdGMDrurD0I8n636wCTS9aKFC3XLOeWlFUY4r6JSDUhq3khQGsLg54YLcaEjsmqC5izpp/lgZBYdsIZA8Eq3SQXmSVvpB1TpN5K5Djg2W2pbJsFhnRDs+0KYUn04/gKEc1ae6iRxp/iy1DsN4JzX4acyo52/fUqkluR8kyVjQumvo1oWTR7EE7Gdi8998WgQxcKxEq/hFYtv1qyyrwo7XzEnRmiUay0YWFZXevZ3vQ6RkXnHSonMWzGHCjgIkzLd5Y+mt6mCya66EjolMBCczYTt6h4ZJ6L/zv1BwAY4gBxZBzJ1adZ7UPZrbksHJfSBeMFKZo+hgB",
+          "thinking": "Looking at this MemTrace compaction log output, I notice the user hasn't actually asked a question—they've just shared a debugging trace. I should analyze what's shown and identify some notable issues, like the mismatch between 127 steps executed but zero verifications and verdicts, and an incomplete navigation event that cuts off mid-tick.\n\nThe position shifts from (4,9) to (5,9) at the next tick, and quest interactions are occurring at the same location, which might indicate either expected behavior or a potential issue worth investigating.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace dump from a \"MemTrace compaction\" run, but there's no explicit question attached. I'll point out what stands out in case that's what you're after — and let me know what you actually want to do with this.\n\n## What the header tells us\n\n```\n127 step(s), 0 verified, 0 verdict(s)\n```\n\n- The trace ran **127 steps** but produced **0 verifications** and **0 verdicts**. If you expected assertions/checks to fire, that's a red flag — either no verification hooks are wired up, or the compaction dropped them.\n\n## Observations in the tail\n\n**1. Quest state machine looks coherent**\n\nThe two quests progress through a sensible lifecycle:\n- `interact → quest_accepted → quest_completed` (npc `0_11_10` at ticks 118–119)\n- `navigate_to → moving → arrived → interact → quest_accepted → quest_completed`",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 434,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497000000
+      },
+      "id": "msg_011CcrfG8CakYgKp1gghbQHN",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 434,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 218
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace dump from a \"MemTrace compaction\" run, but there's no explicit question attached. I'll point out what stands out in case that's what you're after — and let me know what you actually want to do with this.\n\n## What the header tells us\n\n```\n127 step(s), 0 verified, 0 verdict(s)\n```\n\n- The trace ran **127 steps** but produced **0 verifications** and **0 verdicts**. If you expected assertions/checks to fire, that's a red flag — either no verification hooks are wired up, or the compaction dropped them.\n\n## Observations in the tail\n\n**1. Quest state machine looks coherent**\n\nThe two quests progress through a sensible lifecycle:\n- `interact → quest_accepted → quest_completed` (npc `0_11_10` at ticks 118–119)\n- `navigate_to → moving → arrived → interact → quest_accepted → quest_completed`",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 434,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

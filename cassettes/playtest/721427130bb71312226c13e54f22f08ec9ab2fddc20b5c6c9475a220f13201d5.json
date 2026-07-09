@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:721427130bb71312226c13e54f22f08ec9ab2fddc20b5c6c9475a220f13201d5",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7766,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoYICokBCA8YAipAs1RIAommWZA5rhassyL9Jclwyx7ZDHjQoQ6baysUvXJJ3Oh50Vc+Gu3v8G9t4BPzibSLFsERvhw+MlC82STOyzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOKL8DzPaTUpgcVIVhoMQ8AA34tMKLrqf6oGIjCG6Y6yWiwl5tAE85HYSgBiXoVYe6SU7bukoA8EfI+NU1EAejDd/y2+d9TcqXVAdzUqqQaj88mTUa1Ksf069J0ByQhY9YQh6e2r3MRQpxjLJf26nho602b2QRfx1Ba3UHkjk8nMM4tMCy6U0uyx3lmEhGg1N0+X85lmctiqgfmrCn1kCc/9+fktwJZd6DlV+/ubLdYPFM9WB1MH4gv8mwKxjM28LaE+qR4GvJR7FVnATIx+fIyAAt6Q+9CcLfQ6mi4zzo67vcYK2LlOO3apxS6R1q8CgV/bvXj929Ng5PVTjGm9Q0hRzfY03nOPvpXSb8F0oDCKl22pT30TlDawy0ovgRviKyuvgqXVh3R4IqiktK6vmlStmA1IGN7/n1Dr5PGBM905ZiRjLVr+WfTTgDrwREzY3q+MtMeuV6cccMU/AifRJPUcTdagp8S1K6BRVaLiMgf4wgdP73TZZ3fhI1bO8KxUu2971xbI+RUURGd0OtNxuTR+vDj9bbT/OENMpdMTp76T35Yzm+qZMvzH/h8uDl2BSGZF7VCNRVjoXisU0ifjPKipIkij1qWQStcRaOz+DklimW6H4zXwJuYzuaAD0IzOBsXjrM8fexLeDWugzTgx4h8ug8pqoL1TRI1gBuAADd9KeM+8QZDkuPg1H+AOORiN23V7lojBVkdJxLBXjOOdRDiS5naNt1qmQCaciMQvc6wWEQplL6yFAvSeV7bkHqTMl16kH6hrsloD+FvxLydnLm/oecxWw41NAWdfe+ZO6s3XJhDAtq8cbd4EIrexc9fbOJ3FLC53fSh2J9XWhzWfhyLiPWqRT4Ww2tPHn5WIOkaFoz6yRm8cJGnurMvNnO1wldrwQn7F2BtKBBNMNivK936t0uQqDvCyF9bh1DbXm+S5usnN4mWol/vhIRvQLarIOHPYFLJiLKC/Ery085w873Ki022pHiQjiJjTViMRUaYW68ggm4iaS0WocU6rzeev5/YWdte3EDclJFj5NvoWDt8BDVIm0zokamDHyprGjfo/Tzu+HHT1rxgRyXCTqrQFt7Y19uXN8qSJiQXKUVQVcITSZY/8HdDd1iaWIamudb1smdqERPvhdvayS9dqOY62peMY70ZBT2fFH8MOTuI25bjQwI+gb396JxgB",
+          "thinking": "The user has shared a MemTrace compaction log without a specific question, so I should ask what they'd like help with or offer to analyze it. Looking at the output, it shows a deterministic compaction with 55 steps and no verified results, followed by game agent tick data with positions and HP values. Something seems potentially off about the data.\n\nI'm noticing a timing inconsistency: at tick 52, the agent reports \"arrived\" at position (17,1), but then at tick 53 the position shifts to (18,1), which suggests either the arrival status was premature or there's a discrepancy in how the positions are being tracked. Without knowing what they're trying to debug or understand, I should ask for clarification while pointing out this potential issue.",
+          "type": "thinking"
+        },
+        {
+          "text": "I see a MemTrace compaction log, but there's no specific question attached. Let me offer some observations, and please tell me what you'd like help with.\n\n**What the log shows:**\n- A deterministic compaction of **55 steps**, with **0 verified** and **0 verdicts** — meaning nothing in this trace has been validated/asserted against expected behavior yet.\n- The tail is an agent (game/sim?) executing a quest chain around ticks 46–53:\n  - Completes a quest with `npc:0_17_3`\n  - Navigates to `npc:0_17_4` (ticks 47–50, walking from (13,1) → (17,1))\n  - Accepts a new quest from that NPC (tick 51)\n  - Navigates",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 432,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496000000
+      },
+      "id": "msg_011CcrnrRWPunergcNvaUqrT",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 432,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 274
+        }
+      }
+    },
+    "response_normalized": "I see a MemTrace compaction log, but there's no specific question attached. Let me offer some observations, and please tell me what you'd like help with.\n\n**What the log shows:**\n- A deterministic compaction of **55 steps**, with **0 verified** and **0 verdicts** — meaning nothing in this trace has been validated/asserted against expected behavior yet.\n- The tail is an agent (game/sim?) executing a quest chain around ticks 46–53:\n  - Completes a quest with `npc:0_17_3`\n  - Navigates to `npc:0_17_4` (ticks 47–50, walking from (13,1) → (17,1))\n  - Accepts a new quest from that NPC (tick 51)\n  - Navigates",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 432,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2cd28acd476b11b6887044858431ad54932e23f4110ed12a8a53aed69715b202",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8952,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErUJCokBCA8YAipA+wGe7nccVfHM/N6Psdij39twiryFMb5LUnJu/Gp2VczJHPDrUZydrUIpG9BkgSaypQVCbD0UOxCX7ZeIao8hVjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLpqZqUTzDy3TR//UhoMfF9G4L2qQterK3SfIjCOUM+92fT6goxqpfdFqgXoyI1y3ifUtacctCEdXfFcNdmXyBwcUiu1ce6/pAStHLYq2Ad3IguSeuwxiCDtFw+zAedB87MU4sDov3OsbgNaV9jlQI8IvOFPAzKAf+AHRB+3cUm/b4+qe/q3VwnQBiS1C6ZX5uCOhd3mRB7hsC9sCCEr0eesG7ARjy92/UTsxlXX+n48wPqscwG/oA3qGzbX3AFjFbvS9QdacZaPTpYeoy8LjWqU+DkECFor8oXRhRZp4shTz9EQE7LLRH1MdVPooccMV7jH9/678zXmAfir4Cls04wqCuBWIVXcQPP9OAzUSilqsDzwna0i/aTJDYkDXPaFXyLWWLf9xSHA3OOw/lWxhkYZLIQrvBMgz9iwYgb7iA+PYRZM/nczRmeqs6006z2//3vgh89ICKTo/GQnT699vmjh3KWS5+M07toqMWpSGVasRMBjZTeCf/fBYvCK5Kkl17/4VXaxusq80xpMgSKJ9ZPpEMfcee0awf5UtnvhLOc76nfQZv0IGBAmM3yVyK+52fhXYKL4xbgBQe4+I0w9QAl0zgyIDVibfI+6IrZjeEoR/gDB/RyiEqMyx53oU/r8pBnRC9RAaFVTrIUklNAveDQgV7P7kDfRnC9c7PwULz4/05KgAACWa202NcOrRcEEwpW4fiF6oQw1aGqZazXfrJRXQW8goRoRbM1wdLV1pW/z1uG1Ms3W511r78348adRRFHolDtH/n61npeXuxHY1Q5zBEm+WPsRPkUazmJH+fydaXLQzwS1JXaQ2hxFSeAUJ1d8DdoenLpfLC2FXZTutIgUtgDbZ3lJJ2qaLFc7XP1YRfJy/PF3Aj3kND3kHG05A2wV8UGMXcWRGibX1rX6c9iNHzp6zLjGZnS8oBe+x6yqxEDukijk/ZhLCZh78gnM+tSz26NSRNG/Kq1Losi4ko6iR4JirEouh8YI7s4dYejTWj1940FhnwnwO+RU/GgMzmu+Fm+Foql+4tA5WcXnKbRd9b5mBXk5KSkbScPyPjUfSy6pMesnJvlh3q7WV+/OXW71u4ZqAbatg/NoiGfBT6yXVFA948vXaZEv25pa8COnTUy+6aBKePAlQTzAhWau0I0h+DOJYF7RgNOKzJa4NRixKG1Y5qpBzs8kO3oR1gPg81NLuK1GJ9mGzhflBIebZAZqSZIYJy3G1DmkcqORTABWAuFX222IQWbqpcDtHcOX/nrXExR7fiHDTC8E5N4kpVd/oi7dYZbED3Pf+zTnYy89k1eqcwWMJ+JkhBJ18sVWK2QScOKtzNKe/MJCKoj85DeJsXT5qVHJe4YHckGeBUiIiYX/pRC9GDWue/+yXoVBVB8lgGiNjzVa/xsVLcuEk80N8EJBmhYYAQ==",
+          "thinking": "Looking at this MemTrace compaction log, it appears to be a debugging trace from a game AI or agent system showing 44 steps with no verified outcomes or verdicts. The tail section displays ticks 36-43 where an agent is moving around completing quests, maintaining 98 HP while navigating from position (14,5) toward (9,5) with decreasing x-coordinates. I'm noticing some potential anomalies in the trace, particularly around tick 38 with a navigation event that might warrant closer inspection.\n\nThere's an inconsistency I'm catching: the agent navigates to NPC 0_2_4 but then suddenly shows as arrived at NPC 0_2_6 instead, which doesn't match the intended destination. Plus the active_quests field at the end appears truncated or malformed, cutting off mid-output. I should ask what specifically you're trying to debug or understand about this trace, since there's no explicit question, but these navigation mismatches and the incomplete data at the end seem like the most likely culprits if something went wrong.",
+          "type": "thinking"
+        },
+        {
+          "text": "I can read this trace, but I'm not sure what you'd like me to do with it — debug it, explain it, or something else? In the meantime, here's what stands out from the tail:\n\n**Summary of the run**\n- 44 steps executed, but **0 verified / 0 verdicts** — nothing has been checked/asserted yet, which may itself be the concern.\n- HP is flat at 98 the whole window (no combat/damage).\n-",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 434,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497000000
+      },
+      "id": "msg_011CcrH36GKSu5YxZGHKLdjJ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 434,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 375
+        }
+      }
+    },
+    "response_normalized": "I can read this trace, but I'm not sure what you'd like me to do with it — debug it, explain it, or something else? In the meantime, here's what stands out from the tail:\n\n**Summary of the run**\n- 44 steps executed, but **0 verified / 0 verdicts** — nothing has been checked/asserted yet, which may itself be the concern.\n- HP is flat at 98 the whole window (no combat/damage).\n-",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 434,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b4a0bc5a8c4b4f1ec17e5ab8143c43bd566046ffe38324582a8454461c1b7660",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8935,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoMKCokBCA8YAipA5mh6kUE9EyMNMuUGSQj6tHl4nMmItZ88FLFt3Lw2YHj9hHYydcPtjbPivyDv3HtB9Rbr9vsFHv9X7W9n4ttqVDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJSCtqQcpkG81si73xoMzWY1EzWva3GP04A/IjA0UL/hYWQpCnSZ5ZKbJOf0nluiuMZf1ulAlTB6dEGbQGZ1Mg9S7tzDDXysewy16Nwqpgjkv59UWCvvwCBPPS0TBFxU78POQYnzzfiyOCXtR9T7gdAQnVvCwKD292Usb/p8FCwkmsb/cb8rMNYvCDiOGJIo5GTfA7WVhoEzDhvy0WK6K8Q5VEtLLRIXoXJOJTDHiABBocHAPLFxzAJElI4woJwxBnqpGsoJldNJKBzfduRN2h8FEfE5QkeiVadXnFyqbiLaGi0flfS7jAZB+xxNMaFF1OFUMsdFJYomqQDAZOLgTIGEluy4F7rucCIA/GcDrhCrLSR6+PH3SCpFGcrY+xQA0g4ZBMTAMevoq2zZhfXb5y1D/wsrYpTqKeQLdKk9RbJwCe0gx/zpJVpvjGCw7YehGVoMi7DlcXgK/p2M7mMs9u7QDrhIRDxhqehxrmh7wLn0YvNat+4+qTE9deZ8nPDaYzAnqA/qwf//+KpSwtWCxKqPjkK0ri9IDs8yE0jMBrM9pgMoWHHYGMHOt+0AwTqs0GkmeRlJ2U1oMiz/u228OUmoVdT2VQ94DASxv+XKON+AUpwGT49zIM6YUfCxUniWiKZjvFxOyb+QoKhueIefxwbT9UEQKcccZ3dPgE19Yl6cBAbdm7KjLPGem8O8vkti4+lXs0hWRtFdefepJyLWO0099XWgqnGKauGdFzgTCrKNCA9S90RpX9P/csoVOkQV2xuN3+/qsAn71wLWoRWWw//wobO7dAXfpX7azST6YvX6elBZU+o0+9nJ4NePDG5YHWSluybByiWwgAWfEwyW/yBEu9Q/nzZEaS5YJAiWxKuCVo+p55MGvWHCDS1uq3mHRe/9Tor+QEOs9PBu+X/QBpkpK6hjzabD/Q67rc4IZSc42vsdFJPQqOdBE7hXtb4zW1xvRDfquMms1W32Owghm7G2b+mt8X7V04GZpwOESJcpD7iXpr5lLzCpqgrhIkUyOoH/5kzZVrRq7WC6h406rw+tTZuD4sHyC9ei1xaOKlxbkROpjq0N/CzeWi+aFqWK9DeVGOPq0E639q1sR7di+m938VQcGq/20CTRtRYRMys5qzPdGDZN1hr0zipzvdT8oCQAcIyQ22Y/PHCDcqr5EwzEBa+f641RCbwDv+17H0FzaDtnlXK7gIGkegBfL5ujVF4dptXXEFTQKDRIkkAuySrDqbLdiildRpSrbWJ/4+Oa5vE/xZReXs999phHjOJv2WJTKHvQSPeTy1jk9UXi60yYGUE8IIOuRdk384l0RYeHfoSwy01Z95M+4qQjYwhRK73Hxr4NpvuT45mTYt3KaLfIfDjbhWFiSQOM185eS6cWizv/3SurZrnZn6uufrCBDXYTvRC76o8ZbsvjZZ6pP/pkyyoDzND5PWaBsIRzhLHIlfnX0fsKjnV3NF2fsISaeA4lzd5K2Js23/sgW/ClvJnb7C8Y7cOlF+I6AGOc3tZH+Xj/JtsYAQ==",
+          "thinking": "Looking at this MemTrace compaction log, it seems to be a game or simulation trace with 111 steps but nothing verified or concluded yet. I'm scanning through the trace data to spot any anomalies, particularly around the navigation events and NPC interactions.\n\nI'm noticing something odd with the \"arrived\" verdicts—the player appears to be at position (1,7) or (1,8) early on, but the NPC IDs like 0_13_8 and 0_13_9 suggest they're at coordinates (13,8) and (13,9), which would be quite far away. Yet the trace marks these as \"arrived\" despite the distance, which seems inconsistent. The movement sequence shows the player stepping through positions 2,7 → 3,7 → 4,7 → 5,7, but the verdict claims arrival at a much farther location.\n\nSince there's no verification happening (0 verified), I should ask what specific help they're looking for with this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "I can see this is a compacted execution trace from a **MemTrace** run—a deterministic replay of 111 steps, with the tail (ticks 102–109) shown. A few things stand out, though I want to make sure I'm helping with what you actually need.\n\n**What the trace shows**\n\nThe",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 433,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496500000
+      },
+      "id": "msg_011CcrhPWjLZ8QMsKnntg3zP",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 433,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 421
+        }
+      }
+    },
+    "response_normalized": "I can see this is a compacted execution trace from a **MemTrace** run—a deterministic replay of 111 steps, with the tail (ticks 102–109) shown. A few things stand out, though I want to make sure I'm helping with what you actually need.\n\n**What the trace shows**\n\nThe",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 433,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

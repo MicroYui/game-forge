@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f43fe7cc402f4ff2302dcfabf1b95ddeec269d38cdab127b06bb993eb0ba89df",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7803,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtUFCokBCA8YAipAmH43ZYrmFFd9O3WvE1gWaiC23fJSdJr5wqtxiumad0r8K/ItkFtaVFuT2mmsoxd+Um9DfXj1OtKhdZhPxy8VZTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPeMtxOM0AQ3ewTfpxoMxOTI6AedmNY7q1dEIjAw582NCliwiRZ5ehIBdT0PyzK3AB6E5AUfc7wz6h82DLmuzrbXtKmcLHZEE7djJ0oq+AOtI3KBVkDDrKYXoRDmgPv7qJ2l+B2h55nYGGVENHB/tJFUEV8sMkkd8+6L0xPC1kAeRd9ddxOmajf9phAOQcG11DdxaEUpul0zWanMG4WkaTUOIkrgFp0b6apoWb30suZq9dPubLADNUCKfb51CSN9f265fjS7stBxHV8DeCUSTNYaqwb6EbHiWM0vDi1diT2hVAGw1hyuU8OSDx8lkPdcSUvGBso9vw3+vH5x3MWqm9CU8dCmJf7WNe0drBDlef6F/rCgCMjwU8CjD7dbdVyE3YY2IBa/P5FP57CXtiRJW3ubDbcDzoTvsiiTI6fvadj/avA7uBg9MSVAnPFHCJTw3vYnIaQ5G0rLtogcHSY5oODoRXspjB8zEST65Nckh+TtwDDagc3HIp4JpKPZ6q7c0ka/ux6/xJVzSbXU7MBIEuWL5s2p7wCveXv1Hn3na2e1qVIXIsxC819oELEmnoX32N+QMa3xAqu+Nv+WdWEf14Di7V64pm2ZQnaMbtVfH7MLSQakJ/lqRTEaCTZgssgHUT93yAOZYU7FVHwKXm2ZBLOmbkXh0/nXxkMtrRDuOrifP2AoIpIkQ0BwITLA6kyL+2iDCMgu9Fe6lAae0zdKNq+Kun0CcSRuSGWksTdVkW7gOIdtb6VCctMovmecaSxukb7K+a/5PrsYAQ==",
+          "thinking": "Looking at this MemTrace log output from what seems to be a game AI system, I can see it's a deterministic trace showing 110 steps with no verified outcomes or verdicts yet. Since there's no explicit question, I should ask what they're trying to understand about this trace—whether they want me to analyze the agent's behavior, debug an issue, or help interpret specific events.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction summary** — a deterministic replay log from some kind of game agent. There's no explicit question attached, so let me offer a reading of it and check what you need.\n\n## What the trace shows\n\n**Header:**\n- `110 step(s)` — the full trace covered 110 ticks\n- `0 verified, 0 verdict(s)` — nothing has been checked/validated yet (no assertions passed or failed)\n\n**Tail (last ~8 ticks):** a clean quest loop for entity `0_10_10`:\n\n| tick | action | result |\n|------|--------|--------|\n| 102 | `navigate_to:npc` | arrived |\n| 103 | `interact:npc` | quest_accepted |\n| 104 | `navigate_to:mon` | arrived |\n| 105–107 | `attack:mon` ×3 | hit, hit, **victory** |\n| 108 | `navigate_to:npc` | arrived |\n| 109 | `interact:npc` | **quest_completed** |\n\nSo the agent successfully: got a quest →",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 426,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1493000000
+      },
+      "id": "msg_011CcrdgmDEND1McEEyrATnC",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 426,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 163
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction summary** — a deterministic replay log from some kind of game agent. There's no explicit question attached, so let me offer a reading of it and check what you need.\n\n## What the trace shows\n\n**Header:**\n- `110 step(s)` — the full trace covered 110 ticks\n- `0 verified, 0 verdict(s)` — nothing has been checked/validated yet (no assertions passed or failed)\n\n**Tail (last ~8 ticks):** a clean quest loop for entity `0_10_10`:\n\n| tick | action | result |\n|------|--------|--------|\n| 102 | `navigate_to:npc` | arrived |\n| 103 | `interact:npc` | quest_accepted |\n| 104 | `navigate_to:mon` | arrived |\n| 105–107 | `attack:mon` ×3 | hit, hit, **victory** |\n| 108 | `navigate_to:npc` | arrived |\n| 109 | `interact:npc` | **quest_completed** |\n\nSo the agent successfully: got a quest →",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 426,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0cbc0c971f2fc619ec962b3bb3d749ef6c66c617143176895e0443f305789f30",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8543,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EucECokBCA8YAipAcuKCQ4RRAhL5mooqIvepxF0Tlj4DcH2ifeLr6rwtlhoggbqLCPWTEpnOt6Wr3D4F3GcXpBFnL6gAK9ITzSdJjDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLEGHbbjzS6d/2La5xoMHzszXlN8fLN1mhTFIjCh7R2+W03k/e52yyAkZ45wpKGA9wzWGsSNwzVzy+ydW7PMfUPB31j5wueeN4FVaIQqigOrmyHGqxHz8dNu9KsgfEhsvOlzYG5tj+oZg7YfvUHaad1viH8WLeVxSLVNo9mEDTCBru5/bfdy+H1HvoICSV5lcjIreq9t3LjeQhmIPUHZ/XR+LfL8GkXNC/g/BZow8CH8Trsop8Y0JlTOjOTgNdvLe5VQmoYDgjL/V5+/jeuK/++GD6+XPzgrEOL0v3cahpZ7NtlOVFhlvUHXZrrcRILkt0pF/Xp6oBGd+bFWutSWUJPqvdkXFcHF6i5Ar1VewpKt1ZjbmPQpCC1d+pfU/w6yWQDYMGmuMqh/MMjFx3C3kNLwx83CaW0vGRV0wLqRSxR3VGvFSaXI6i76EofWzDbFUCEPEQ5a3l1wBpUyLcSpzKU5g9bvXzfcQI9VctolOFJA4Dk8QJ4aC/QoDKJV8kHp89x/QW8IQL768pGJ/1BsFmheljoWCnqY0dKXJvd6Ugl+h/0C0KfsMUStPPvNlOfP0caFr/Rz43DPMPMjfzWj1/P88NojHpOEzCMjWiur/Pb/e16aIhChFjewGAE=",
+          "thinking": "The user has shared what looks like a game AI trace log showing movement, health, and quest progression across multiple ticks, but hasn't asked a specific question—I should analyze what's happening in this log and explain the game state.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's my read of this trace. It looks like a compacted memory log from an agent (game bot or RL/planning system) that records one event per tick.\n\n## What the header says\n\n```\nMemTrace compaction (deterministic): 21 step(s), 0 verified, 0 verdict(s).\n```\n\n- **21 steps** total in the trace (ticks 0–20, of which the tail shows 13–20).\n- **deterministic** — the compaction was reproducible (no randomness/sampling).\n- **0 verified, 0 verdict(s)** — nothing has been checked/asserted or judged yet. If your pipeline expects verifications or verdicts, this is likely the thing to flag.\n\n## What the tail shows\n\nThe agent progresses through a small quest chain cleanly:\n\n| tick | pos | hp | action → result |\n|------|-----|----|----|\n| 13 | (3,2) | 99 | attack mon:0_18_1 → **hit** |\n| 14 | (3,2) | 98 | attack mon:0_18_1 → **victory** |\n| 15 | (3,2) | 98 | navigate_to npc:0_18_1 → arrived |\n| 16 | (3,1) | 98 | inter",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 444,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1502000000
+      },
+      "id": "msg_011CcrrTsxgqrCZyy27zgA5u",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 444,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 123
+        }
+      }
+    },
+    "response_normalized": "Here's my read of this trace. It looks like a compacted memory log from an agent (game bot or RL/planning system) that records one event per tick.\n\n## What the header says\n\n```\nMemTrace compaction (deterministic): 21 step(s), 0 verified, 0 verdict(s).\n```\n\n- **21 steps** total in the trace (ticks 0–20, of which the tail shows 13–20).\n- **deterministic** — the compaction was reproducible (no randomness/sampling).\n- **0 verified, 0 verdict(s)** — nothing has been checked/asserted or judged yet. If your pipeline expects verifications or verdicts, this is likely the thing to flag.\n\n## What the tail shows\n\nThe agent progresses through a small quest chain cleanly:\n\n| tick | pos | hp | action → result |\n|------|-----|----|----|\n| 13 | (3,2) | 99 | attack mon:0_18_1 → **hit** |\n| 14 | (3,2) | 98 | attack mon:0_18_1 → **victory** |\n| 15 | (3,2) | 98 | navigate_to npc:0_18_1 → arrived |\n| 16 | (3,1) | 98 | inter",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 444,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

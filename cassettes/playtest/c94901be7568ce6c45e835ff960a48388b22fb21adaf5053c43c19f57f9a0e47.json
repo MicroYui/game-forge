@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c94901be7568ce6c45e835ff960a48388b22fb21adaf5053c43c19f57f9a0e47",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6921,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqAHCokBCA8YAipAavtrTu518jSzf7NO/PSkMgQbk54VyR7kn3we6XDBa6CS7mFW+5qmBcMuHmbOYsCXqncPzR0Lsz7i2Oj0vQhZJTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEfvYNU627+PewSpYxoMh3ymiLZQ2JOiJMbTIjBwjhkHrLnxHnXTdXYkFsd3ol3FLRtUNdGwXbxhf1YTVU/PC3sYA37CshNMTQsCtJgqwwVAMQ87VxqojWAHZvBC/7GubFXgnxuwVP1GgQj264lfItV1nO21Z5QM1DtYSZmkld6WA+RKlr9lc/R8cnlgzr6fx+XsqbY3Gnn26L2vCGn8RglfMihoOA/M4E6ZMIVvU70ENEePWcYelKWz2BrhaBcIvV2GI4PMaQvpGpv0RsovLm7pZDTbw3ecWes42PFVW63qnaSu3YlUsuDtWHs9nMOzOh0Th6eigtt52rLb/ElXFONfO/iUl55soOyRACrwlilxPHrdfzezp5ysBztq2oUjm68r4SiMW2uPTBQKt8A9jQi8gWgNF6287VRNfGvX0ZCLvojEFDFecrbwtAFXRKo03mhNtEV+mIS6FMPHDLe+pVZetwpm34EGeRYd41FwGmLAEJCrgYeLbUz6Z/OJHqPiJehqjbbzFyRc8afLWrOpio5xeBUzaYKEkaZcFAp7PTkO4pOe/F49b8bO3JQHaWVzSJA/RJ4AN6qiMS34PEIb5uS48OBK2SFdi13+1zY0nRKnVwUMtBEQis8tDPSa1IHDvcBUpfB8RAPXCDY/lsG8pExSIbrenjioNHKfJOowQYw7whHDBWKnX6scUmZRULFavX7Y4Z/PFG0ZDaoWtKixiMbNqSWUqzBtb5bFyA9AlMNJWur8ePiQvO3YBq68eQeTlb0JVl73QfzLj3IXBuaTri1Dbi3KD0RnLl6Apz34V5BXMZy9x579ussQOE1MgRtRwKtDeGO5zLYZeucLP3T6gxS8eWYayquGTwDr9SGCIg/lw8epwDOM29ekUO3fSYc32HTgWghMFPbU0ea6QzCTBeImdh8exDiqP1s/s0A7Wxle/RwCiFd1EgeWW9fmsC77FLghQtOd2CZI5Q7FPvgmz8DXlc1TVU22zpLh2T1UYspEj4TtPtw/Fbx7+GrlKjcnNpW8qjqQd/P4i1yyJmvnfdB8JRgB",
+          "thinking": "I need to figure out which quest to start with the available NPC. Looking at the known quests—8, 9, 10, and 11—they all require talking to an NPC to begin. Since only npc:0_13_4 is available right now, I'll propose starting quest 8, which has a talk step, and target it toward that NPC.\n\nWait, I'm realizing the NPC should match the quest number more closely. Since npc:0_13_8 is reachable, I should pair quest 8 with its corresponding NPC instead—that makes more sense structurally.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_13_8\", \"step_kind\": \"talk\", \"target\": \"npc:0_13_8\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2610,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 333,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2137500000
+      },
+      "id": "msg_011CcrA8vKsuhsPuFoNnmasD",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2610,
+        "output_tokens": 333,
+        "output_tokens_details": {
+          "thinking_tokens": 292
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_13_8\", \"step_kind\": \"talk\", \"target\": \"npc:0_13_8\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2610,
+      "output": 333
+    },
+    "tool_calls": []
+  }
+}

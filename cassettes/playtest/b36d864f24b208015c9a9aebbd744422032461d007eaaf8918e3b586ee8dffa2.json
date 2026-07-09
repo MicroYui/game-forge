@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b36d864f24b208015c9a9aebbd744422032461d007eaaf8918e3b586ee8dffa2",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3049,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpICCokBCA8YAipA9hW7QKIpLlwkjVMZukvrl3NowlVyaUYQhB87LTV0fDqp+K92v7z8Pb5b3238bkN9QKSt7NwekcRaurnxkHbOVTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIfVr5rTm874NhE8TRoMWgwxAFL6vy67xd1dIjDl0rGl8acoQ9VbTdjShKI/RZQIR9iT3NobBko01iv9gczLFhS38+i+AZu8XzCX2MwqNuoRPQHaymptFROC1sV0VDhw/SOxclWLzG0T0/xmFU/SE5sH/XOlzJflXZXKUH3g64FKP/jsPBgB",
+          "thinking": "I should check if the gather function is available and start using it.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"gather:0_16_0\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2521,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 38,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1355500000
+      },
+      "id": "msg_011CcrkVq4vGv2ie3jAeBvpz",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2521,
+        "output_tokens": 38,
+        "output_tokens_details": {
+          "thinking_tokens": 13
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"gather:0_16_0\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2521,
+      "output": 38
+    },
+    "tool_calls": []
+  }
+}

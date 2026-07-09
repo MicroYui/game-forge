@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:24e6335a241f7e6d34cbc25579f4323ef2eca6c29bd9b84b1d3db2dabbcf9658",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7851,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsYECokBCA8YAipA7TAwRAU+12DV483YnyKHJiVRpbTKjtH5z3RcnMkxbPI1H+2+aMz6gNiBNDHkjVUmfBJKOooljRPFN5Q4xpmDUjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIoRf6wLzX4/Ef6arhoMy9rq0yKd/XENqS2zIjB3tqIjwLnotqLv7qr4oTA2Dhq/5JlPWRT0KrhJHYduWK+wOg8ATAE3yCGc48JlgWIq6QKzNVzYqT18rEYDYBR4R0uVSM2+QWr1wC+N365r/PNKiRcj7jjb7RkDgKPmXAH+b0nZySHZppaUaDSQg6JyUvuAcusCHFhfXDOd6F2Ah1frjeK3kHUO/ISiCC+D2ZIZlLM35JtRURW+UHu4QJK96LucgdJe2WpJq2W3jFSdEL2zpciE2VqWkybg3DT4ueDFd0K5bfA1AFCBX8gmSqXjmQvrjQ119OkFmubSQ6oxGCSEMnCyuiFcmn0M4GFQFg3YWr/e2+HqXhVki3NGkyytw1XHVeg+uL5BqAZDxI3CpigoA2aAxInxOU85Ra0O/ha09TZShSQ+1wFTddoVq0LuUKYygZ+SgJ0/vFpx40MkaplSk9xACO8KyIdcd2rWjntmyADm4RLh42PkDfo7mx+Zh9bdO/FRKqfb2/IXyH+wNFugCV3z41PzZd2fwHri7SCCX2hgoU8tFECk/Q6PdWWLHuRR8UtKq49EY+VbGAE=",
+          "thinking": "The user has shared what looks like a system trace or log output, but there's no clear question attached. I should analyze what they've provided and ask what specific help they're looking for.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation. Let me break down what I can read from it, and then you can tell me what you'd like help with.\n\n## What the trace shows\n\n**Header**\n- `3 step(s)` — the compacted trace covers 3 ticks\n- `0 verified, 0 verdict(s)` — nothing has been checked/asserted yet\n- `deterministic` — reproducible run (no RNG divergence)\n\n**Tail (last 3 events)**\n\n| tick | pos | hp | active quest | status |\n|------|--------|-----|--------------------------|------------------|\n| 0 | (0, 0) | 100 | `navigate_to:npc:0_17_0` | `moving` |\n| 1 | (1, 0) | 100 | `navigate_to:npc:0_17_0` | `arrived` |\n| 2 | (1, 1) | 100 | `interact:npc:0_17_0` | `quest_accepted` |\n\n**Storyline:** an agent starts at origin, moves toward NPC `0_17_0`, arrives, interacts, and accepts a quest. HP stays full (100), so no combat/damage. The quest transitions look clean: `navigate → arrived",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 199,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1379500000
+      },
+      "id": "msg_011CcrnHYMV3SqpN2dLAajoL",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 199,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 107
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation. Let me break down what I can read from it, and then you can tell me what you'd like help with.\n\n## What the trace shows\n\n**Header**\n- `3 step(s)` — the compacted trace covers 3 ticks\n- `0 verified, 0 verdict(s)` — nothing has been checked/asserted yet\n- `deterministic` — reproducible run (no RNG divergence)\n\n**Tail (last 3 events)**\n\n| tick | pos | hp | active quest | status |\n|------|--------|-----|--------------------------|------------------|\n| 0 | (0, 0) | 100 | `navigate_to:npc:0_17_0` | `moving` |\n| 1 | (1, 0) | 100 | `navigate_to:npc:0_17_0` | `arrived` |\n| 2 | (1, 1) | 100 | `interact:npc:0_17_0` | `quest_accepted` |\n\n**Storyline:** an agent starts at origin, moves toward NPC `0_17_0`, arrives, interacts, and accepts a quest. HP stays full (100), so no combat/damage. The quest transitions look clean: `navigate → arrived",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 199,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

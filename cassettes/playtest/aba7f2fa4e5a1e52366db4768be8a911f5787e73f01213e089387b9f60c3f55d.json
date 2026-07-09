@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:aba7f2fa4e5a1e52366db4768be8a911f5787e73f01213e089387b9f60c3f55d",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9440,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvkGCokBCA8YAipA8Cu7JOC/PGSYaHydKcws6FVBA47hEv49DlPGRgdR/IAkTJw1/7KXWlvz5lmVvL9MSBhqOg6VVC9HH3/4CauY0DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPlDedMjtlf8y8znfBoMBRKhNyNL8IprDE+EIjD6YfiPRgXtH1XTHWwaDF6U5gNlpT3rcXyj35WA30bKNU1bsFbvly4WsuL/rvsXLfEqnAWHUdb4ILUBH0TR5/z1xI3ZRc17EBQjsBGhrL7YrgRn1DEjk2ItiBJW1lE36zVAsxBVRgaR09nYFtAlcI6C35DQF71TOxLyswBjCnnSoqqeYtzx6M4rQY/8fQp5qNsYASERSxfElL9yEgK7CoQS7pxfoiblOR2hSMjsPvJnQMRRBZBHHcSONNcJQ/nHmRVQh+kH1XwRdyTnkXMy0fN/8WOUhpjja4srYOcbG6UFamK+7/OJqP5BbRoAY3ZE5OGpltKg5uh2LBSam5XWmojUCjC1d3aOFWBGcaAPJDN+OKy7fOYISF+usnPFkepKriXeDtKIQw3wY7+kfbzGuHRVvn0Qsn9P6D7uFp0uhueVtcMvUjJhp31X5HYQlBx/4Gz91SpedOxqdSQDTiy3vMnVnuwapV5qx8U0ZrYYn7HkvJZwh1ePsssE/+H5GZYmnpEa9WMdhjvUgb4xGnqpGKAFre4YsOVwarwWrbIsaKHoYVxoxIqC94cEECP84DXBuaY8fdMkmVXezeoEEZBN2+DvgtbxZkHVXIwdjze6TD4N8qSyhSU66y5nC4c0/O2l57Nz7fgpS7NTjqigFA+ns8Af7J7uw8t4bqQcaHC2d0nSVH6LQU2p1KMA2Wt4b5+av5V7+GYqezdxKakjHA0eKkIHElPawMxNDhzwUEOnHNco1TlC1Cuol9WxEOE5MkxJ6v9NPGGzvhpbpRBiEts/PHZdjyj4MaFKhXnjoFfo9LjYs7arTeG4o8XdIFcjBP2Y/krPx+1553FVdKuuGaa1rGMsLJRaDfw5piv1Tdd9QwEYhuKmVU/ARE2s6y1U7/PHxpgC+WKadAgDQEfiy8bmJ0jQY0jO9IcgbdjUfL1Xx7KrWGs6uFpjbjlRuP7CcGDbvxgB",
+          "thinking": "Looking at this MemTrace compaction log, I notice there's a formatting inconsistency at tick=28 where `active_quests` suddenly has a trailing equals sign, which could indicate a parsing issue or bug. The trace shows a deterministic 32-step compaction with zero verified entries and no verdicts, so I should ask what specific aspect they want me to help analyze or debug.",
+          "type": "thinking"
+        },
+        {
+          "text": "I see a MemTrace compaction log, but no specific question attached. Let me share what stands out, and you can tell me what you're actually after.\n\n## Observations from the tail\n\n**1. A suspicious field-name change at tick 28**\nThe label shifts mid-trace:\n- ticks 24–27: `active_quests ::`\n- ticks 28–31: `active_quests= ::` (note the trailing `=`)\n\nThat `=` appearing on the key name is the kind of thing that's usually either:\n- a serialization/formatting bug in the compactor, or\n- a genuine state marker (e.g., a \"dirty\"/\"modified\" flag on the quest map)\n\nIf this is your own tool, that's worth checking — it's an odd place for the character to appear.\n\n**2. Zero verification despite 32 steps**\n`0 verified, 0 verdict(s)` means the compaction ran deterministically but nothing was actually checked/asserted. If",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 430,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1495000000
+      },
+      "id": "msg_011CcrMY7UXRDhHwjTTgG6mJ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 430,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 216
+        }
+      }
+    },
+    "response_normalized": "I see a MemTrace compaction log, but no specific question attached. Let me share what stands out, and you can tell me what you're actually after.\n\n## Observations from the tail\n\n**1. A suspicious field-name change at tick 28**\nThe label shifts mid-trace:\n- ticks 24–27: `active_quests ::`\n- ticks 28–31: `active_quests= ::` (note the trailing `=`)\n\nThat `=` appearing on the key name is the kind of thing that's usually either:\n- a serialization/formatting bug in the compactor, or\n- a genuine state marker (e.g., a \"dirty\"/\"modified\" flag on the quest map)\n\nIf this is your own tool, that's worth checking — it's an odd place for the character to appear.\n\n**2. Zero verification despite 32 steps**\n`0 verified, 0 verdict(s)` means the compaction ran deterministically but nothing was actually checked/asserted. If",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 430,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

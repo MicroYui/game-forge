@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6efe7bfe5dfe74092fbe6d68b476fcdae9190d98bbe10f7860a0e39c413eb5ab",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2964,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq4CCokBCA8YAipAJ1ccVT4dc8AhhqODHAvDtEjyQlrK0qU6BXPTi+9tNPkQyQgvy5lQgDBlZTkQAMH2JogmtrG0/wfaRVvjPDalrzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAfipT1qMpk3WSIsKhoMml/x0zUY7eglS4q6IjAXjxA/6nf1WR2EoebVscK18LBoU1YBFaPhgGogJrxKP04Z3WazqdEtc5EDlVgKk1YqUtyC2DByXDbLJTC0fVz4gNb8dqndp0ASlBzmXedGeY/xBVdb665Ytf3EpD7h8PqCxq8mwwzACbEzvYN/E3EYkwudLXgl82RaNkiCpSNvJyQBchgYAQ==",
+          "thinking": "The opponent is already engaged and attacking, so I need to keep pressing forward with my assault.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_2_10\", \"step_kind\": \"fight\", \"target\": \"mon:0_2_10\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2807,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 71,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1581000000
+      },
+      "id": "msg_011CcrHbRmUXK5sm5eKNRBH2",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2807,
+        "output_tokens": 71,
+        "output_tokens_details": {
+          "thinking_tokens": 30
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_2_10\", \"step_kind\": \"fight\", \"target\": \"mon:0_2_10\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2807,
+      "output": 71
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5242bfa5cafee2196e10cbb7482a8757cb93aef7ec0d7f484acd55a1018ac7a2",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3493,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqgDCokBCA8YAipANYjg6ZPLB3uPzIxTiiECHwMU8w6SyEIQRx24KViMkiRXLb/izUgIdZ4RrZKoS3ccmu17v9QCh6UYpCcUctGEkjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDD/Hx2Op4wI0roEtDBoMeZZ3zOvMK2Mggc81IjCHMZ9sNZHP32PJymrmCemAl4616M476tDDCG8Ph22/M1TXGcJXsM4O3TIvMUFtHuYqywHJGsYh0R1REIlgER5uYtXu1rXQJ+nmB4mhRss79tiYMeLva7zKipfr5/dWnl1CspqD3oEKFou34Qo8I+vidII83CKc1+qxIVHeI+bfGE1bfTvB6f+mpw5CIFNCMQI3gEyEVBqA3prh+6xqH+RNUA28OnwHY3d8K2L9qFL8YAl5j0HvBIMFxXXUyan8zs/4ZfWVb4vBmfpvB6f/Oef+EVvq7I3HUaAyt3MSpkybEzMoFz7Ybn9uepnNO3ihrhh9KLPoZ1PokdeT+xzGZBgB",
+          "thinking": "I'm in the fight phase now with my target locked at position (5,4). I've already moved to that tile, so it's time to execute the attack.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_15_5\", \"step_kind\": \"fight\", \"target\": \"mon:0_15_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1663,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 116,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1121500000
+      },
+      "id": "msg_011CcrkJN7showRCd9T21hE8",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1663,
+        "output_tokens": 116,
+        "output_tokens_details": {
+          "thinking_tokens": 75
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_15_5\", \"step_kind\": \"fight\", \"target\": \"mon:0_15_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1663,
+      "output": 116
+    },
+    "tool_calls": []
+  }
+}

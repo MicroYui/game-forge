@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:589967c95dde9fd489bb4085dbdba107eaca09936bcef6559286daa3ede00606",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7855,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EucJCokBCA8YAipAxBzYJrZbAYxc0SIa/C1sGn5fclQFQ4ikbU+1XZFgqYrbUOMmv/nJg1buZrdVAbzV7qIpPd8nrHm9AmvzTkWVBDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDI6yN8GLEDchxkR7WBoMMeF7Rke175t4NP/3IjAhXqFqqQEpCY9h+HjY9Pllg/d3I76kKpk2disXIdNPHnQPwYlOul5NreXRLarlh9Uqigjf4++xy+qa46RX77aNOx5ok0y+j1sWqz0zAPd3j9DKpaWyW8OBb0lqqiR9hoMiKlIOtkfYTxq/EOhD2xHCLVnhdlazjklqkbWO3Fclp6yasWryOSavYWEuFvXuQMytf5jG3Ud9BHpNcuGDj7WZ0g37MuZkqCl5L5R69nn3WHbC+hi6AHtUQOCKzP+Ap/wkaF2xGHvKWFYEAVjzKDbhVHBejFj4UKFB42iCYz73hwwxiycSwF7Wl9OaX0mJQYuQ04OeDcc8IPZiPLAZB5yB+MeEVzkuvvZ39q9o6sb9t4V/ilp9zxh5NZsbmfeQao1OG2zvzaFHt51rU7XiwRqPVgQvStGD5cAoRlciVa6yoHLyy0+n6NGBr4uYigKm1hbt1FEpkO0Ps3Jk7tSzklNErj6OLNYfnQMGC4b8HZvy/a8RGQPE/Zf18Hlq1qy0Sn5ZOi+s2OXlqdlggFnF8OTMYDYbYlezDr841Oj4dzC6EwH/X5OX9s9BqJ3l/s6bpXvRbIOg4H9lZlq2Ok0S5dW6+iU7Uj1b933nZdV3vmdeSiv2fnkShkq+/nEmp0ro0fv3qKKJ6gTVn6kuzqOnrOxZizVf0789ScWDCaVa+4ds9ct+0PgxzMreLqVy0MfS2txA+vt8UeGJo35XfMAg65up9fG8u2o0IXVWo8A+Bm8/X+hlPCsVHUp+dyFpWq+tqXUhFbK45cAq+P8v8lnxY0yIDI7HW5eDFXLpZ2iUxLpCqd2V6NUcvzx90t8wIS114IIKq2sr4Ib3YaB0EJW9vtpJIS/VNstFGCrwPDWW9ZHIPr317TwNcN+MXCLeWrMIte7GyPsLLElQsw7E8qXnBPo/vqwFcKvdrGnABKyUEmE/FUL/BP8DlOoKFbx/6zKqEWZ0axdy7H3zSx88u/J5w3QS/3DcZkjiL1+uZsG7KnmaZu+i/gbjCE9lD5enUPRNj3hx2Nk1WfxHGhkj25II6N0H8hdUCaVBM7oF46w7mt9/quYRn5M3SHe0agOMt2sAwm+9iOlL0TS3V/i2RdyImseUZU25ISDpxYfnRKkUMPkTqIzduA5qGgAIraFYwWGuFpHJyET9uBgYRNfb6P7zNyvLxKlMM8bKIjHeok5A1NGvopox56iLh3D0C9A74EmA4Y9mKVfMpzJrkxFtimEIebtlAPOkvw/alXTbIHELUZLV/Zhj3IEhaznqxwVPfHrJUCxsyp2Ry5puq4y7ABrmwxaauuWxlD1AZBz4ZQU2kcV2qHNfIqxQyc/Gf4aGMBWo/7PKwLcIa50HQZFuJVBgbp//D8W9n/L+trt0vNo6kiNmG1Nfed3XFGItQSuV5ftJSHa7AecO3/9liCicTgXnEYNAh+alpM87w8oiRIlSgxgB",
+          "thinking": "Looking at this MemTrace compaction log, I'm examining a game trace with sequential steps showing position, health, and quest progression—specifically tracking an attack on a monster followed by navigation to an NPC.\n\nContinuing through the trace, the player completes the quest with that NPC, then navigates across several positions toward another NPC, arriving and accepting a new quest. I'm noticing something odd though—the header indicates \"0 verified, 0 verdict(s)\" despite what appears to be 87 steps logged, which suggests there might be a mismatch between the reported verification status and the actual trace data present.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 433,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496500000
+      },
+      "id": "msg_011CcremVkpB6hxCZ3gY87aE",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 433,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 433,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

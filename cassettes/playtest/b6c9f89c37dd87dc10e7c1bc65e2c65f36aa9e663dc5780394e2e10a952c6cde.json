@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b6c9f89c37dd87dc10e7c1bc65e2c65f36aa9e663dc5780394e2e10a952c6cde",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7394,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtIECokBCA8YAipAuMpaFflElX3/GJvYDrRTbF/uxmPnJSYOHsF/KezY9NnUfG5T9gAmrCIxBgiKN3U1R0gsGwIqMgB7Mb3elfCbrDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDG92BfKBAiPRQZqBxBoMxnS4bbOGOBTx7tElIjDDgTV4LGYRGMYxrsYDLFoTIu09xCwp4pio5NXegwnAT2y3vIC0X6hb45nVpjQV0wEq9QIhYgWMvvbpEV3y1U+GBzMWSTTrhS8a5yTDCqIIDCL6ofuv7796owDLOackY/99yHrl2ild/vNu0Zn9W4z6/sWXBs8N4auiFIIoWcUW4TOsnlvuM7bsVGTnS9/zHfqdNEDBpUT+nl9zSniABJkRFzhgF3vMtS4GT+q2uzCf4qTVGkQcYYWGP0QgoYMneOz2nuQ98i1E4BEEV4MzGk6pYGG0WbqbNeq+O6fKhYN3LHma748DkyeGyQIG2cGq1szasgAlPDWSBj/uxEVlUcU6QK7Bhk073vRObHvnBEJQnOv7+jOMrbMwsKNPLdy6oFwNxOAB2Ln6iAXa4ZeFQsPlAyM9gJRT2bHU6SQeAJXF3EhfGgNH3IxeadjjBJLNsotjtzSLbgFOof3x/RSohR4dU6zeA1tKprI0bGupEt/74JWQ8igdaHka1D5itF56ymR940o8FKCqHGDyWoSWWadITLQSOQhQZmSFGt1oOrP9azXW/6qwU5dBGAE=",
+          "thinking": "I'm looking at a trace from some kind of memory or agent system, possibly from a game or AI framework. There's no specific question, so I should either analyze what's happening in the trace or ask what they're trying to understand about it.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** — a deterministic step trace from some kind of agent/game simulation. There's no explicit question attached, so let me summarize what I can read from it, and you can tell me what you actually need.\n\n## What the trace shows\n\n**Header**\n- `84 step(s)` total, `0 verified`, `0 verdict(s)` — the compaction ran but nothing was validated or resolved yet.\n\n**Tail (last 8 ticks, 75–82)** — an agent navigating a grid and running quests:\n\n| tick | pos | hp | quest event |\n|------|--------|----|-------------|\n| 75 | (4,5) | 89 | `navigate_to:npc:0_13_5 -> arrived` |\n| 76 | (4,4) | 89 | `interact:npc:0_13_5 -> quest_completed` |\n| 77 | (4,4) | 89 | `navigate_to:npc:0_13_8 -> moving` |\n| 78 | (4,5) | 89 | `navigate_to:npc:0_13_4 -> moving` |\n| 79 | (4,4) | 89 | `navigate_to:npc:0_13_4 -> moving` |\n| 80 |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 450,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1505000000
+      },
+      "id": "msg_011Ccrh3oy7MootbZyhXc8XL",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 450,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 111
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** — a deterministic step trace from some kind of agent/game simulation. There's no explicit question attached, so let me summarize what I can read from it, and you can tell me what you actually need.\n\n## What the trace shows\n\n**Header**\n- `84 step(s)` total, `0 verified`, `0 verdict(s)` — the compaction ran but nothing was validated or resolved yet.\n\n**Tail (last 8 ticks, 75–82)** — an agent navigating a grid and running quests:\n\n| tick | pos | hp | quest event |\n|------|--------|----|-------------|\n| 75 | (4,5) | 89 | `navigate_to:npc:0_13_5 -> arrived` |\n| 76 | (4,4) | 89 | `interact:npc:0_13_5 -> quest_completed` |\n| 77 | (4,4) | 89 | `navigate_to:npc:0_13_8 -> moving` |\n| 78 | (4,5) | 89 | `navigate_to:npc:0_13_4 -> moving` |\n| 79 | (4,4) | 89 | `navigate_to:npc:0_13_4 -> moving` |\n| 80 |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 450,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

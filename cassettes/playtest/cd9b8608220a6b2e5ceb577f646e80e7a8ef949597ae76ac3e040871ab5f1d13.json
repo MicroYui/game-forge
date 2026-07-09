@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cd9b8608220a6b2e5ceb577f646e80e7a8ef949597ae76ac3e040871ab5f1d13",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9109,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoMKCokBCA8YAipAzd8/d2/OObp1z1L+u4dzggJ3CTnP3hvw5xu9vfe0yuZCWzYsVOgMZID4kTzgQQlCgYh5DCEqCRZsDI7GGgyvIjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBoKqjIYDp/oPFfO5xoM+QZ2j6tihJKXG/gfIjBrIVOk63fhjymy1D8XpKonaLwloho8cgRh1QOkv+952uh66ltlfWXm6uDqNa8MxHQqpgiRAl+FWFHcOQE9mL1t3sqvvlL0PWQOtwhb962N3vauzhIR0daiBHqLbAzZgX+0wSA9Aj9okST5BVLjpgYS5+B699zQ7cNRrsc9t0qFWlMhYo5dCr256FVU37gLtdsiGHm+/4BuZwpL+UA5C/++uMq8WlFN/+BSeT03V4qIuDXiL/V2ZjtNZQnHjAr4NndPcsnkWYMIicoibF9FkU2q82z0TrCAiPV5rChPBV/0sLfJfSiJNgjMxfxqIEmbkRXVKeGVEZpjUwsQIsXWUl6D52UwqSJEJ3G9hjDA6q70HZPlwG3oJoWPg9W9dyXzy5N0NOpeAKy+RfLQ/9mt5vSYpT6k2a3v9VR5NqAmz6pfWnrJAkGhJVzyBy7MT55yQXSB1Un8LzzauBk5AZ4xvAHUktmhqiUSK9t8rXCI827m9EONNtVrhft1gZWzsb/gfxk7UsifAf38vz6DV06pJOcezwmVfPV7Pw9ervUP+ecNaVwpdf2ZkuwAMJQtL0xB10orKwA15J9A/1/RcQ7RiY8X7l5T1NlIDc7ZNcyZEOK5pYF4zkTPGHPByF15AfJt0fkyaRlxB+Y/eYCAe3XzokzZDDZG3ln+ndw1HLEw82YCPDUT0K7WQqw+6NxIr3sN3wr3Kl71CogGqXMkzH8POVxuDKxd1AHb2IXnWvnXaXiqW9LRw/UQfmxdm0wTD1yJ2pCGGa0lGCdLL9OlnJb3THXtyA6ppkz0VOLzfEp7XenQ5RXFJ04EkSAI1HTJOmTgfoNo0Betxn7WFA15McPsDF1RUnyAh7WA8PUelluIBMdKaMXumNtQvkn+RhltybgeSipvfFX1mF52xM+MoX1iRX8blEMSa5jjoK4D5W5dcE91LJTHZ/AbTTJyocoEJVu1ZTgMqcE5U/qSzZPv3fkmX82B/A4wBAeMoj3kpuD2Ou9GeHoz2WagiQi9+YXQ213Zd5ywMk1RqwnJoDWNmHCawzM6KB1GiJvl1bac7D9P4V7kCwzkuo87EW/PpNcXGULN4kIKe8yy0JwEsjgjznqRytsU+6CNtMra/9U90kMggdxTJsvewvwqFZoadlr+UH0XDbvvQ+B/oCHpSAr/vFA1LL8Kxp1OmgwsjFsg/2oPTHy3uyapHrOin9bo7aOo2P5jzKKB5zJT2Gi47mxhPLlw90OlcbCZ176xLaj6fo4SveAOl0tlqcbzUJZr95jTyfc8372/qVjP4Haa/4qufVXwFgUBv2QWFmZ4pDGRxGYKZLldFouhjL3ZLjYiTusvHOeFTX/gfbfLZ4WkL+cjocMyjRWnfXpO3H/2BHWySarj29gnqusyjFNuqbn+evx3s0jFELPR+jISJsCogSS7Hq7ssLEof6yVl4G9vLgay799O2a8rS5nwXcyOuDMUbrvH0ctI0H+fCZTFyT6U0QYAQ==",
+          "thinking": "Looking at this trace from a MemTrace compaction log, I'm examining a game or agent simulation where the player is moving through positions while managing health and navigating toward NPCs. The trace shows the player at different coordinates across ticks 46-48, maintaining 95 HP while moving toward a specific NPC target, though the final navigation command appears to be cut off.\n\nContinuing through the sequence, the player arrives at the NPC, accepts a quest, then navigates to a gather point to collect resources before returning to complete the quest. The header indicates zero verified entries and zero verdicts, suggesting this might be a puzzle where I need to identify inconsistencies or anomalies in the trace. I'm wondering if the NPC and gather identifiers like \"0_19_5\" encode positional information—possibly region, x-coordinate, and y-coordinate—which could help me validate whether the navigation paths and final positions are consistent with the stated targets.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 449,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504500000
+      },
+      "id": "msg_011CcrsToJWcL4QncNFFCfjz",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 449,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 449,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

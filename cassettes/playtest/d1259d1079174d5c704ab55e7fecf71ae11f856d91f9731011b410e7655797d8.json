@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d1259d1079174d5c704ab55e7fecf71ae11f856d91f9731011b410e7655797d8",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9324,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EugKCokBCA8YAipAAff8YsSJhpV7TVs/cuFOieUxZJ1AXWdlBCVXOE2QOUyEj+Kww1dvQBoI7oykGlSE1kZHESLklv5dwePARdo8xDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIkiMU+R/xhlPDU0AxoMcs+Tg7xSeJK27GqaIjBzRIutTvebNlxDLzSH1J7eLriiGyQbbfTTljGdxlP6r7SbeZn5uzl28hLTphXVW74qiwmv3NET0+ojK2KmsK/sUl+IqEzbzWZzfYAnmEigUaP7xN2ArjdPfVNjYcThXHVfddPgkFmeul+JVICyfPg3e0bERV5N0yT+XsAHEoyXyxWpgTf5yxu8qhr95/+JSY0oE/zfYjcAwriruB6wYg8gtd7URN87gZfrqzA0KazrxZhTbhIRhLWUvneR98XQY+8V2Uup7YC6MDXJl8tTI9VjsDbgpggLak8PkwJmnnlZ0UvboUMXdzSR0G56AaVFTm/XVPvROLvWJ5Tm6cE3aPjEkgwYwCVpOTO3FQGvMjMTlUzpefr4pfObHLJcK1NvWwv7mMigYnDG1oguNECSQmzJjCnnx5BvhEYj3pvVbZTblez22oVTRwxaAcm3R9645/MEVn7AAhzbSEaZg8yvQuF5Hfjlzu7TANDjCyOlkcZkqF8iOMInF0H5MAMiAPj6Ty+kWv8s/Ytn8Lk8a+Qx4L9FynWEOnn6wqhX+nOVeeW0jsesNZ9Y/YUcPIGeDnlYUQaSWA/uV8IauIuAt3F1zxB1tCZC1C4SAOl1IjNREZD5durdAZQ29gn/+N6EQ3EtSU3dydf4kyOP6ESKAMvwj5kLm0czzJkYzdjRRJI2qswucmNGJt8W+OyDTYnyviOwBdP+geyFHw3DVfn19YsVGXkfaSQ+AU8ZhN/LsWRBYWf18/tfvIGfjZOUFhQnynpiYnPKrmcF40BLbukSeXvtHQg+BiA8vVEqqaQxYHJd1LRzc3u8IUh5rfqu8uwiNP/FjEYiFXBZEwfvQZ/HhghGy6vaR70kSuf+YxGyin678pVanDmV+dOmgHn5J25ZxGFjm0GNNIJw6ubPkDr6DMzoyszg0/iopO3D8juYsBoWyH0LqVNEAU5IRIl8v2K05hW3B9DwhUe3JYlXbNXbAvB4hkg0PzltAQJHJ6GLqmPtO0q+qp7NG7azWSaCyUIeJwUKQA1cXCN3SsqlvhlYcqB6iOS8314MB0JOxNfJveh+f5TCP62TLtgcz0svyNUGLsll8qx/6S1/cIM3wzNScHHpqVSmNtUuUTPcW7TmlHbJkepUFFgkPNEBVMJwB8qZkNZH0dcO3fgJLV4jtkxRXySapOM3fXphCDhi9KTkUqXsZisp0IBK8LcjIDi8k2owSk0O8+n5p/kuQ9d5oLZXHzhHaKi2d9dO7YQjkJPwoE0F9/CXjxcRy0fH9DGogzMO3GhkZJV+98W6JpkozM0H3byg4cmhj1+o8IWh0EVqTUdPyf53qckym3XaB+uXCgJek2uW8untVFDPFW6rjWMtig64txFSB0++UcAYb6XsF47Fq5j9RsEUOR9u2ltDhV4sOq6EJy57Zr/AoAcqcyqpt3sWyX7uw3h07TANiAFsvsMe97mzvg0uRis75JJ5EF/2+lMiIrpnCXqHFnPzxEkvEKslG1kQStj+Zey76moC577rHC114C3tdwjt/lYHoNa5HkU2Ust/En0VAT8wI3OCAPMUkzCZNuq5O17rrLUL7x7VL8siZnRbDTYMfe3Z7s7hnxEkepJzDeqdu8I4Mkdb0mpaaxgB",
+          "thinking": "I'm looking at a MemTrace compaction trace that shows 12 steps from a game agent quest system with no verified entries or verdicts yet. Since there's no explicit question, I should probably ask what they're trying to understand about this trace or offer some analysis of what it reveals.\n\nLooking more closely at the trace, I'm noticing some potential inconsistencies in the agent's position tracking during navigation and interaction events. The agent appears to move between positions during quest completion steps, which seems odd — for instance, it arrives at one position but then interacts at a different position on the next tick. This could indicate a bug in how positions are being recorded or updated during state transitions.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 444,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1502000000
+      },
+      "id": "msg_011CcrMHX6R8n6vHNDr6gcxG",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 444,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 444,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

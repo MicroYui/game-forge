@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:aeeac7bcb15b2f47699452a16e85bd6fb65bce1dd8d1221d7b2a90bee13a93fa",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9702,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErEJCokBCA8YAipADSAE/1R+I4bCBIpWm2iS/jltNe6CUMbwh4wjEx8yAJk6tUAGTwCeUN1Zx8lYBIO1MWQJqlE2kf3GXWp4n7ievzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDA6p2X+idt94jGFC3xoMLccxnm4pW+bbu+ZOIjDBsyi89UcVVS2SCi08brdSBSH3poszbkiPHC6/VsUxNPSLxAKbmTExGu0Uvt4/+70q1AfGUoxJSf8PRRF86mJAgu+420H8vnZJTU4yC079jryvlBD/DRItnqA+Q1Nz+y6pxn5686n5HUTpCjLLV9OaDdNCmNgVRQAtkdQa5jRXltidYDPygEqNrK96nYuVkoiRdLSVpE5Yxn8nOqm90wk/HqlWVmxlBZHIbnWiGP+CxSvQ3CbPofjyQvFiLOzfE7ICUxsH9UeLQu9RCO3xJzRxGu7jw8WiDzlqBKFFIQpsA7m2KpaCZkFTD4O5J+bAp4XXJHm2gW8E0lOWZ77dVwg/FDLorwII1pajTOYGBwaA9aX0DXnfxgp3B4NyGlUDyX+dUFG2E7Lfey0JJoNuYAobqyUPrFexDuFkc0sFQxPCHZWJRX/yP1HT2YWh7K4atYTtdnCKJY7rcZ6CDYoZI4p8m46BbeYVuHBFweXnaTX5WFIgfQ7RGr41eO0NgQCGDGaOhpfHPWkgmrS/IpyguXidfzguejIw1V5eZaUZYY4uK71JHXE4IRjy+1pLNOd5iQJr+ukf8gHSEblYDAOGwb9YtDNpdiRrNdrmpnTGHX0o2W4jFs+Fns+PuOVa0ydL3E0YecXLY7jkwSPorL0/STdx1M48oQDmVKsMWhDbuJ/PnbdMUoPCSeeB8gcQ5yLbQmOXMgVqpHdNdJYO5Wa3pkT9OkTEApCTGOxEW7iFttpvzi4lXYvOE/cLHf2oz1+MtxQasusUX+9vhAejnbskB9Gzip+yTQjRyWDWsp41ARlkM0Bxqi4K4+d/Z4OaamKPp/BZtrcDF5Y4d2mCGbc/uoZZ1/BtySFdK4CNTwZ3k9n7UCZz6FPvpzM56izbf76TS2J7r3cLIr8xDMxy1kx0pG2YeEjDZtrp9BvHeRjd0SbilXNHdH5sl0eibbKjPCmS6uC6ouIr0XBp/VPseOi2bKybNaFi1VUg1krdov14EBvBZ/Z5+TKdjvBU7afBrArsimX4MJ/D+PqIA/oBg2nB4JZooSKVKbnzkGQaYiow7XvL9bmxsMkzhM6ZyraTLZLUV3E1d85pMY4/7YyTHHUXAP6k84WosWdTeiUd7HaKdeCZelgDwtS/211TE+aSX54Tt6XVDbW0rlXfYm9NvVhLAavA3F7zhtgJayH9nxp3B7KDu98/tiqnFGpTxbcMOyeAs9idYWN1hK5q+Q3FKMH4EXLUJX90b/WKDqw59JUFs/8vebj0ESpSXvaArX7NPXuN0kkB2RelOWvZ1TmnGscBprA4qbtcvP5bHxG1Tlu3e3eXhgXlwda3fLlEkaVAAEUtPTrgDHlc0zyUbGPr2u3AvU1wwpFWam1YuRgB",
+          "thinking": "Looking at this trace output from a MemTrace compaction system, it seems to be showing a game agent execution with 37 steps completed but no verified results or verdicts yet. The trace appears to be deterministic, and I'm trying to understand what the user needs—whether they want me to explain what this output means, help debug it, or analyze the compaction behavior.\n\nI'm noticing some inconsistencies in the trace data that stand out. The active_quests field remains empty throughout even though the agent is accepting and completing quests at various ticks—like at tick 30 when it completes a quest with npc:0_2_3, and again at tick 34 when it accepts a quest from npc:0_2_7. There's also a positional anomaly where the agent reports arriving at a location at tick 35 but the coordinates don't actually change until tick 36, which then shows both arrival and gathering actions. These inconsistencies suggest either a logging issue or a state tracking problem in the compaction system.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's what this trace appears to show, plus a few things worth flagging.\n\n## What it is\nA deterministic **MemTrace compaction** dump of an agent/NPC simulation: 37 steps retained, but **0 verified** and **0 verdicts**, meaning nothing in this run was checked against expected outcomes or given a pass/fail. The \"Tail\" is just the last 8 ticks (29–36).\n\n## Timeline (tic",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 431,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1495500000
+      },
+      "id": "msg_011CcrGx4YW3J3kaQhBJhCtf",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 431,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 371
+        }
+      }
+    },
+    "response_normalized": "Here's what this trace appears to show, plus a few things worth flagging.\n\n## What it is\nA deterministic **MemTrace compaction** dump of an agent/NPC simulation: 37 steps retained, but **0 verified** and **0 verdicts**, meaning nothing in this run was checked against expected outcomes or given a pass/fail. The \"Tail\" is just the last 8 ticks (29–36).\n\n## Timeline (tic",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 431,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

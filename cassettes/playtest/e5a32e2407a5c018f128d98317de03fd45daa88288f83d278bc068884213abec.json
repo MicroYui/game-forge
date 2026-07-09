@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e5a32e2407a5c018f128d98317de03fd45daa88288f83d278bc068884213abec",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3851,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuoCCokBCA8YAipAQfnjWY5RlgBpQ4clZo1pkL/o6Br8FUNeVjiLO9BF72PGrbDRsIvfkU9f3y2z7+LT+2rGJxFL1JW4Wf91zoV4MDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAUHYdMdVl2xCWgnIRoMAAIxlcHL+Pj5+N4zIjCzSPjgblh3ozX/Vcn/NECG6czY/31+/LneRizyHWbL1TYvGruX9RuvixZzGeRB5ZMqjQGiqCz7z1Zbi4uZZ2P4YT0gIatrJeKAQmYOx6S0WkQu7C1XHsMUNczLcg4lIfHLgYLPAfCrgNJ1oS7Rad/nCcU9G6dHH7yeqDZsQgaujIkeJ5Sy2yePJ8XVea5aWqMYQp90oxRo9avbaEz7MCa2HIQQ92DCEYtQYT1WIFlJaOfFQtJA/9RWroqZ4P7h0VQYAQ==",
+          "thinking": "The monster might be regenerating health or I need to switch to a more powerful weapon or try attacking a different target instead.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Attacks on mon:0_17_7 are landing but not dropping it — it may out-heal your damage. Suggest equipping a stronger weapon or buff before re-engaging, or switch to a different reachable objective/target while you gear up.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 596,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 127,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 615500000
+      },
+      "id": "msg_011CcrDtNY1sXwGQFwJTB7xK",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 596,
+        "output_tokens": 127,
+        "output_tokens_details": {
+          "thinking_tokens": 41
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Attacks on mon:0_17_7 are landing but not dropping it — it may out-heal your damage. Suggest equipping a stronger weapon or buff before re-engaging, or switch to a different reachable objective/target while you gear up.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 596,
+      "output": 127
+    },
+    "tool_calls": []
+  }
+}

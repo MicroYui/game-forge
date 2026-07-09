@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6b97633cfb38fdccf4640e82ea1927f451d14fd7e22eff2b3b5f65c55c96def2",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 12913,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvoKCokBCA8YAipAKO3cc58u3zkd5ExeFJ7FoDXHhEFZhWoJ17rNx9NcPv7NzNYPYBtrPoQXIApiLIjRL9JOM6BmFjLdLS8+q/Gl2jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJGSsl550QtNLzyd8hoMYDX5AGDtOMTlzJ8LIjCxWzNhRXYCPIzydVJRireEhDXRaV140Q3HJMjtbPlkUvauaPkFXuZerum+a66RkgEqnQnmjR0nxoabtO6hzxPPonM1h2iLuiYYT0Oms4Nhtn4eBBv9f4f4O1y5+7YXZW3f9eoGtFs8dRyLx1E37oJvB17zgX7lPoSECiFPrVaDSYA5uA0CZu88d5F1MsWseFrXKrObNMeS3VL8rw6n8aJJTCDB29fDX5k+l9gIX3bP0WcqSSS16eEziedrbwsOH1W8IIj4U5UYlbnbNpuMVj+3kYBpX051Pn3f1oD4/DtL96D6UFPCF4RCJurUhGKFt87kfQGtIFt0CX3Vu9RviLMbGvOc4xgWXHt7aUf5UhjT6SghnDXDWGkTM7DsK7HNr424D8B4rAHkYOWAZw6SUThbakAlWm/N3BjdHFzVY+PCCwzVAUALm9lI6YNVE5er9cEXHV2M9u0IzkZPuinAu41IPcYmEWBwBx9Pd+WGx7AcBDvNpaeMXIXAlbJqK8P+OxGMHPh6V0SMZSl8HXnegZt18NMzT+m/p/ixBuCMcYOuvY4BolBzbwSjU3jnpoKnZXiDoIR4dniU2Ls7JFamGDZndZ9nRSPtfdTW3mTY+GNNIdxvvHq4JY8kYydNU1tozpQi7DWciOCoM3NHflUTxMRw4C2j/oCVI7zWzQds8DU3A/fI531AuwJWaBZ2B3pxyKClXFrr3JJgiNsn2kGFdnaPqzXqd71EK5Q46L/WyQr0JQZMfyvf9E8ThX/7QAgMMRPe5FJcPcBdzmKXLAm0MQBVk9gn0GyMLE0G2kdnRg3HcniPasDzopaNCZrHI5yuZiwFLsgAXU63kC5jxIfeYxRJasNz8mPCk6FuouV6gvf5Wh5pLvUxDMNsVQRXBg/WQ/wKb2oStjP9cwgE48nOJ24gwpF0ZXV2D8jNNUf19LB6Db2Ca6v1p06xh9X1SBx9kh+nApr2f4XUspKMLTr96ae4IDtPjqvHnYs+XBDjwxYuCx9q3PSvva+d2dG66QL6mrOUHR6iQY5mAGenZjSY+1qtp8V+RXo/0lC1mZwMVQEfwPI+zbr/oTXhNSB+b2aJtrWsd+20oTrwnjehNanRYTxqgihz3yo6XGb4sUvKmXNWryZFIU/4tiUWLoXbTcvaVt+DesFIyMphems1/X5UkCVVyJkmHlBfyU07QTvVdepBEGGI/JW6L3f9kZsmSR2DCtHkd6rN5wSNc5q95nt6g+v5M1DT8R/0wl4USTzN1FwK0Qrs7QIP1PFHeTkQDqeicsbha0wJQ5MhdnKFC2GEDw4bhEL4e4J5S33tnyRdP/05qkiBRMv2Xndne1zPsl+a0QRr6U/woIzXXF0kYNvz5miy/lwcCDo8zB7C9ocKjv0e4Cq8jUDtHWCyyt0pxr5TZEmkvDWXDtGj8lLQvypKmi/2oUFiXU8qwJmLmTIjSwg7C16jWglVWWSJRUWNZw78aIGVx9NX95Li9jVz68ovy2okixBMmuIyUmu0rZ94ouBjjXs88Ff73RTQHkDRwarzDTyDr8UM45HbXHlAzOAe9KJPseOXOMxKaOrZh6xZdVykTYdVyslGi9gQ5eQBQoFWdDrcVEAz+B3v9VjYCu9INL2LickSo+eI3388+8RgN5ig4RgB",
+          "thinking": "Looking at this log output from what seems to be a game AI or simulation trace, I'm trying to understand what the user needs—they haven't asked a specific question, just pasted the data. I should analyze the trace and offer some observations about what's happening, then ask what they're looking for.\n\nI'm noticing a few things that stand out: the verification metrics show zero verified and zero verdicts despite 63 steps being traced, which suggests the verification system might not be running. The active_quests field appears truncated or malformed with that \"[ ::\" rendering. But the actual quest flow looks coherent—the AI completes an interaction with one NPC, navigates to another, accepts a quest, then engages in combat where it takes 1 damage (HP drops from 94 to 93). I should flag these observations and ask what specific analysis they're looking for.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace tail without a specific question, so I'll share what I can read from it and flag a couple of things that stand out. Let me know what you actually want (debugging, explanation, a fix, etc.).\n\n## What the trace shows\n\n**Header**\n- `63 step(s)` comp",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 444,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1502000000
+      },
+      "id": "msg_011CcrK8GfWsuhD3Mi63aeWZ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 444,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 418
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace tail without a specific question, so I'll share what I can read from it and flag a couple of things that stand out. Let me know what you actually want (debugging, explanation, a fix, etc.).\n\n## What the trace shows\n\n**Header**\n- `63 step(s)` comp",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 444,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

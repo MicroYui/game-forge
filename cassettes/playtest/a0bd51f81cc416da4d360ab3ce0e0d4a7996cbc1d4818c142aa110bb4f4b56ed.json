@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a0bd51f81cc416da4d360ab3ce0e0d4a7996cbc1d4818c142aa110bb4f4b56ed",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 10468,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpgLCokBCA8YAipAsHgO/mYnvupX93uRDWxV7Q9dnnTRashhV2tfh7kOWEFqJus9revWxExRMFhWOKYPL1Q0uUoOZ0qztO91xIqBWDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDExFCCvIIH9ztsuqkRoMQTWyCRb18UzF/lE4IjDnK7IAWZgz/ZBzIl9tXHJ51JzLO5WaXZosVh74YcD9mCsgYU474/uV2lnQST9QCgkquwmAd5h0TkGZcuv992Gg5E1h2xA54w/go7NnKIFqYv3/+nCEkxFm0/S2aajjgrzPptvFRTmDgCj9L1wFhm7zXN/Xn3q2FSw4mCn1s73Qhne6x89/7LjEAL2XnadGOuQtuxsYjKi6J7Rlzh1XLGMa6wS3gAJoUWZcP0P8x1NOrnkdFWnlYcMBP1k2zluqo90ZCba3CMWlgI3bG0vspHP4yQ4jXD010YKfGzJeM561wNX+alxVvfIBKwTqsGoT5X3HZxTnRHTz7eilgYjab3hB1KOzb1j9jjdyuohytkdyR8K+vHsWZ9p97tmH2wTjtb/rdP9LUWiFuSXcQ58vim2so94HC2YQFnBTNSHq3ChOVc+lys+egiP0180gcp6JRaYPU+WEkZIIHyqOqm25I7dQCp2WR9dIsndRcKe5u+g+0LrqTTaBjHuGAso/QMYtbIw7KiXPBJ+dpEtl3qKbj/k6iAoMVE4ghiOkZTvYHJYx0B6xzPlgaMHyJuK9zj8sX/t18mB8vicVeCvkF7HR/Yxvh1NbI6U4w1vit8uCGGFvlG/vaFxtnZGhZGpZDcg0ni28pKcM70YEIxeLFENwWtJrC8W4sycNvFCwzlWsFETa73E6dTHQ5L67zxUnKioE3xzwvEKw/kf7XlJZcksZGxi3/enGp7gAahbbIdZaXIUhji1ac7tF3sfxtL7S0ZKgBOYZeZtQlvcz6zYl5IDh+tNbfRFfiLTHveuHnSli8H01ewQkRDyVLpyWApbp4YrF5GTWj6azc0BQs2WcDmSrAwEe+2DTGYgHr5yX8fJbRxpAfgCrwI8y1So7/s86+2ABB+AWGZk10wMwaDNloxlKxT58yMq2SJ/Mki3i98hrLTm7ZJo7XE/bMwV/G88+/ASuuTADjl203693reJnUtmfH1vo6hyK5i0HrNl7mMW2yxJFkUxXD240y9vK0Gd2tkgZjBBfEYFQBYZf3nHWbc1VMK0fVj+2kUihNDw5eNga6JVLDyAPLbWBbPEPwNQ9S7rrsLSmxF5sdxQ4ISwUAdGD+VB6YrqY8osMn3y+4G3Y4bB4kupwndGSRxszUpj2iaQcyWRRoEabEKMf5hyik03/+XABWd0bKmghkKtGseI8MzlFL0kcPaSi7fSx+Yn8qtZAlfhY7SEloG8gqWK9Mn1uYTwcqifPghb96LJ9IT/a08E0cIwuqBCSFxBqChPVmI3cOmqpsdONcfO6dN3BbR/WB6nnamPtvT6HPcQ8qORLDllJsXpE7bKl3r+L5cGq4c9FVojA1k3oXYWAE3GIKdHHaSVdnPGqzxd2DBRrMfn4K5aI2rVFGwibzfjKY7locG2RjdiNcLC1whRX4MaAEXgnbU7YM9qgTIv3G575rpMDFBdayzj935j9WcF3afSlYttAr6VGZ+9TYp/h5585t/nzNvqlgFvu3DAWicp9GIqD9cG/eU5wgUTCi63c5Rq1/x+dSo++HkDTKqHdjp0ZOBcKHznjB5oERM065jYieUklYgK/lJ2ZjRk3xy2jf9iQrmnFcL5RinIJGs180C0cD8A5m6EJoX+wqXN24yFJsmAaSxUeV1FZ8GTPkmwA6kNfxLtGzlnbd3kqmy4Nv+I1cmGsWBgB",
+          "thinking": "Looking at this trace output from what appears to be an agent simulation, I can see it's showing a quest completion sequence—the agent interacted with an NPC, navigated to a monster, engaged in combat with mixed results, and returned to complete the quest. The trace indicates 82 total steps with no verified outcomes or verdicts recorded yet.\n\nI'm noticing a few potential issues here: the NPC and monster share the same identifier \"0_11_8\" which seems unusual, the active_quests field remains empty throughout despite quest_accepted and quest_completed events firing, and the verification system shows zero verdicts even though the quest appears to have completed. These could indicate bugs in the quest tracking or verification logic.",
+          "type": "thinking"
+        },
+        {
+          "text": "Looking at this trace, here are the things that stand out to me. Since you didn't include a specific question, I'll flag what seems noteworthy — let me know what you're actually trying to diagnose.\n\n## What the trace shows\n\nA clean quest loop over ticks 73–80:\n1. **73** —",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 422,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1491000000
+      },
+      "id": "msg_011CcrehAGg9sYDvsikkxLWc",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 422,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 419
+        }
+      }
+    },
+    "response_normalized": "Looking at this trace, here are the things that stand out to me. Since you didn't include a specific question, I'll flag what seems noteworthy — let me know what you're actually trying to diagnose.\n\n## What the trace shows\n\nA clean quest loop over ticks 73–80:\n1. **73** —",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 422,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

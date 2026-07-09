@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fc0606afe3ff064dc13a344e5a7528dd12047d8da3e00620771f2a9e63e99c1b",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9902,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "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",
+          "thinking": "Looking at this trace output from MemTrace compaction, I'm noticing some inconsistencies in the formatting around ticks 139-141 where the active_quests field changes from using an equals sign to dropping it, and the \"0 verified, 0 verdict(s)\" suggests nothing was actually validated during this run. I should ask what specific issue or analysis they're looking for with this data.",
+          "type": "thinking"
+        },
+        {
+          "text": "I'm looking at this trace, but I want to make sure I help with the right thing—you pasted the log without a spec",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 426,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1493000000
+      },
+      "id": "msg_011Ccrk4udop7gSsWZWPnvSt",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 426,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 478
+        }
+      }
+    },
+    "response_normalized": "I'm looking at this trace, but I want to make sure I help with the right thing—you pasted the log without a spec",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 426,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

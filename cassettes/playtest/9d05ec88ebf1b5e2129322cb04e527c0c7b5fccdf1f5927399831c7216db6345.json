@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9d05ec88ebf1b5e2129322cb04e527c0c7b5fccdf1f5927399831c7216db6345",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6623,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo8HCokBCA8YAipA+WQgkn5Fa1UGhdCjaqPngE+GnpyYd6OXrtOhGlc0DY0p2hvOELXWjxCHIPqGS4pwN/vahFvaMF2IPobju1ozATIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDB3VRleWgm9gzzZw8hoMLOR636Lh+bz936nqIjBS+sA20XGx8nslAXeqGlaT2lc66EpTz3xPvFLoi8NwRdZVHA2RRoFEgPNMnMF2GCcqsgXJafnqh46ZXx8/DXMMaulULvONglAog4Gvl9O7lSt2d7GS+DrdjTRfASpEm0kONy5oKQ+LWJigi/PD7dz3B6ZIoLIVRswnVw88fqPVRTYFR5NsKPQesqVRnkXm/6A1VHsRGYZl2VEjqh37hd56lm2GOGexKzQu9u4QTAbNjnrI7cXR2rZdSBdWCPtm5yJ6gxZmS8nrmCW0S70kIYG58nPge8lr1VzzK+TnnALqboBoZv/VWxS9ao522JVQybhCroWknx117v4emLuyHGnx/FVVbZ5mEuQsFic6Og3OyzYLL7stv1Me4IBgaBklUvrfcL5SMTvuKM8mGlMMioldNEOxHk5tEUDYJKZKgUAHiOEO0O6BUTJY8eKzsjLjOtxHllA7G8bVaKu3EY1jlcpgXaNTHVN8ZDnZCxVWKQtEVrcqMK7F2OHcI4jD2YhzftXGzDhMGCpFt6NIODnPJfZtGUw6aqzxIV3Qt0tvAsgINCmgevtUZkN6vU77loymkXrKnbIUPOqkU3YZHEebeBrQIpwI5VJ64WxY+hFheNVKhDkhxX2YJPhY/cSkl/6fd7nQ1Wgvh5wrclcYg6FBta+YU/qk8spO7Tu8yBcXkJPznRdBPewdbsRUoh/gI0aOZT3g+x2/zLNXLo9TW+dCnrwGeGQLc0nSdcXWUFlwtVB/ovnmkuajHFkqf9I6M9CWlT4qDfg4uSpaXk/r3NhelQ2ng3OcOjYQQOYP6YowtB/k/3vKuESTm/X7naLdxvwHxBEdqAfLKv9QG+ENXZYd/wHPHCTz3AX08/38eQ0v1q14Fv1bhH9Baw/WebhjJFj7wt+RM0J8hW2aiyyrd+Kqz4N+F3SbtHyFmXr/sHQs34HsFpFLgR6pwQh2Uu5DuVQ+3a9tMAtv7ytjZXeuNOEWrXuF272ulq0YAQ==",
+          "thinking": "I'm in the middle of combat with mon:0_2_5 and need to finish this fight first, even though the subgoal mentions talking to npc:0_2_4—the active quest's current step takes priority, and my last attack connected, so I should keep attacking to complete the encounter.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_2_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3120,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 291,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2287500000
+      },
+      "id": "msg_011Ccr1XGKUbrUqPCwbgLDGi",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3120,
+        "output_tokens": 291,
+        "output_tokens_details": {
+          "thinking_tokens": 264
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_2_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3120,
+      "output": 291
+    },
+    "tool_calls": []
+  }
+}

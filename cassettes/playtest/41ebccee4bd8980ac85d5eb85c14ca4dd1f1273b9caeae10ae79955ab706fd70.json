@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:41ebccee4bd8980ac85d5eb85c14ca4dd1f1273b9caeae10ae79955ab706fd70",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3602,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er8CCokBCA8YAipAPj+8fGsL5r8coz1nIGnpoAlVaRpkxYKBnGJ4ZKIO7vSHfPG0eYMJbf/bcmravmPxkGkwNOEvrJSjLkNejMClZzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDL4Ki6fIr8WhfMttOBoMpsPYiWW2xFtDYXXwIjBGfghCmaAcjFGpU0Gus4Wm2LYJg/g2Ti9FeOFBosQjQwOC1Rs4dHoIV5NVdmlyoXMqYzL70Os38nFlXkSRa4L1qbnCU62Vx+tgOW395sCqKIVNdTLEQcAk73TppliwugICKx44VhS8U9ZXBzIbq/TjRP0IiNqaRSU24piA74tyXArDKSmON1/UtwKqp2ZRhYuFO4w2DhgB",
+          "thinking": "I've reached the target monster on quest 0_17_9 and I'm ready to attack.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_17_9\", \"step_kind\": \"fight\", \"target\": \"mon:0_17_9\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2753,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 83,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1584000000
+      },
+      "id": "msg_011Ccrnuw6TiFYryLjfLW85K",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2753,
+        "output_tokens": 83,
+        "output_tokens_details": {
+          "thinking_tokens": 42
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_17_9\", \"step_kind\": \"fight\", \"target\": \"mon:0_17_9\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2753,
+      "output": 83
+    },
+    "tool_calls": []
+  }
+}

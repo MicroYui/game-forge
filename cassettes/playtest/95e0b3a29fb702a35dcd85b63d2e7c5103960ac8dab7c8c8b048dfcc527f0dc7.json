@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:95e0b3a29fb702a35dcd85b63d2e7c5103960ac8dab7c8c8b048dfcc527f0dc7",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7181,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq0HCokBCA8YAipAlkaPwMSnN0m8n7/eC7LUSJj7H8DMQiQyLLJBbLYYr2TUHN2kqlthWa8ddV1Dl9F5VYuXi5sVTWNVJCqoJZuN2zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDC1vL3xLiYvonOXFjBoM/0WBA/P3zPNkz92pIjDDtk97dK/seDo34Iqwq06hgVruq4N7mfJp3+7b+qJ72l6bmW92rIudjlHyzUzcYQ8q0AUs9pkh3/gW24BEAYgYdBk5A0pzyR5CduvwnpJ9R9s94HfXwte6MmpDTsteggsUqX0Bn43cj6NAPmz8V5KupeDC3mYG+14/cR+G2QXBs/FyIWZioDWuU/Ypj8BY7oOa1toT/TThC8zroN9HBK/CdKaz9NPd5fle/Mhu8C312p+i4hDus/yoLqzvBc2K102LSf3qW2g0cE7ry4+tWMX91ZyoEGAeUKnfVWEqa9s1YVmO/8vj73TTyps8CgjcnoCKDH+wuji2uIQtPs+Mdbjb0pVZV556c8nXv4EI9uFyXFQgN41aOrOPZINUHXOVtbHoY7+exY8zTds2VtRGRcAWeBSZQm92PjcQdiViO0hdFAla+QK+qQFd1HvyRsWqD0Ed7p70bAxeVAAsaW3ebLGaB4ebGK5hMyA+TuY+BMgNO5Zcn5hZ2BFaX9PRE8AEw6cTwztoIs4wxd/y/N+IF2DAyGWTd00s5znzvxaY/YkGra0zh7FAAXz6mJ6T4WQr+PvhtHeY4RI66e2sMDR5kZwtUyphmAaJ07PAtxR/Bpn7P3LN1WIOkphO7F9YrYBZnY13EiuhF9Y5FnYapWtoPrCV6/0ZuEK0e1b2zNmbEXrzAUhTtZRvVVlF0ImELUv28pFL/azrt/E/xnOp4aiWf1T68oBRGI6yzxnHi5MDwxqGg0zbysyB/P0txKbWPZn51gEwCSuW2SLbfzCHSfWjF9GFCLU1yIytCxiN1mRIBB90a33oFcARO21Qrscv8qcUYoqBTLXgK+wPaZpeiCaL5Pcu18j87sb2o3C8z4xtNL+IMRZSfBKQOFcMEWdDKFC0m+RFt8cg36qZIyie4e7SLc7a6fyIEyc8KsWqpzAM02PXULgdZudxscGKYV+XJ+XCg8a1GP/MupVjtNpiTq3DiQa8M9KLusrc9h/pULJHPXl2Piq0CxEze/Q596UVB2GayikuNEcYAQ==",
+          "thinking": "I've completed the first quest and now npc:0_14_0 is available to interact with. Looking at the next quest, it has a talk step, but I'm uncertain which NPC it targets. Since npc:0_14_0 is the only available interaction right now, I'll propose talking to them for this quest, even though the target NPC might be different.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_14_1\", \"step_kind\": \"talk\", \"target\": \"npc:0_14_1\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2731,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 331,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2193000000
+      },
+      "id": "msg_011CcrAUVj6SndFCkBsiezAu",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2731,
+        "output_tokens": 331,
+        "output_tokens_details": {
+          "thinking_tokens": 290
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_14_1\", \"step_kind\": \"talk\", \"target\": \"npc:0_14_1\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2731,
+      "output": 331
+    },
+    "tool_calls": []
+  }
+}

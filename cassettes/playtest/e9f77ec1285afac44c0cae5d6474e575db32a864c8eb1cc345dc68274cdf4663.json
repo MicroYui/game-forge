@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e9f77ec1285afac44c0cae5d6474e575db32a864c8eb1cc345dc68274cdf4663",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4496,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqgDCokBCA8YAipAwAiYk+lA8sGl9WDY51oVTj94Qjnq+rTuJ8J46HiOCWRqpfImmQMUNLGgPk/vu9oTPiCZcfo6cE0uX3BGyfRhNDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKFw4puAFcI5AVq+WhoMDQX5RFRcPXGjk9X7IjDmp0XRSKXc+RrNOEgxr6L6ivt17HvlzBjB1nTGQXolHGMugpBzpPL7xaf1wJ8VAloqywE7MPeTfGgypFfkvHu/llsaoSIECRn8VpDn1ZEv29OoHxvGjTX3VEFT+1RB6noLIyiggZoweeG7ir0cO4wqeSaFjfuyrDSOEFtpjUGM5wcMZxQ0WA97X9QMzrx6uicvr0KXcNwbu5x6QVov7EkBU4Bt75bnWuIiJUwaNXsc0Yem5JI62OI3VffSa1AS9To7WX+sDyyUsXiKd+A+HSP7PP/ZvztC+xDZ6OXqNKzT9ptXa/ALihcEYQIsR43PDSUCG23CNcZ3McfXWUsEhRgB",
+          "thinking": "I'm working through a quest where I need to complete a turn-in with an NPC, but my last attempt to interact failed because I was out of range. I should move closer to the NPC and then attempt the turn-in action.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_8_2\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_8_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2355,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 133,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1510000000
+      },
+      "id": "msg_011CcrZL3ViqhFiazfVdE48H",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2355,
+        "output_tokens": 133,
+        "output_tokens_details": {
+          "thinking_tokens": 90
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_8_2\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_8_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2355,
+      "output": 133
+    },
+    "tool_calls": []
+  }
+}

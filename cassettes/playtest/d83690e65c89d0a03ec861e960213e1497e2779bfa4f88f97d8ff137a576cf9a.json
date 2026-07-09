@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d83690e65c89d0a03ec861e960213e1497e2779bfa4f88f97d8ff137a576cf9a",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3618,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er4CCokBCA8YAipA8mhFT1fw2xlGBFNrFjW2dTkQdEo8d1V7aUDlJQURJIZlY9DtPgUTOITJm877pal3/+4+DtGy6LI7fUE4W2T65TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKcUu2k6cNmhl5cWyRoM9czhKbulVnXcmcYjIjBSrrXImyU702EIQ6rAhyBMBB8vUrJOMbovOV4tJq4Udm2Ik+X2PKOLzPbcGFPVgfAqYjPnHCfziHlxntfh0fjiQfIIDIrnSBSaFdAC9vwydrAKsPd+hIdcst444xWdR8wQ/5t5sXDs5CxdDHWMaOMwjmjwGhq7NRNylncH0R5mezIh/7JZU5AAEY2GsrlRzOdFuW0sGAE=",
+          "thinking": "I need to navigate to the active quest location where the fight is happening.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_14_2\", \"step_kind\": \"fight\", \"target\": \"mon:0_14_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2941,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 80,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1670500000
+      },
+      "id": "msg_011CcrAfZFit8z9Bm79gqtej",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2941,
+        "output_tokens": 80,
+        "output_tokens_details": {
+          "thinking_tokens": 39
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_14_2\", \"step_kind\": \"fight\", \"target\": \"mon:0_14_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2941,
+      "output": 80
+    },
+    "tool_calls": []
+  }
+}

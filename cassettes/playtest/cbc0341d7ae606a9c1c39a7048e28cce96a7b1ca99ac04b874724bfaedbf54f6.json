@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cbc0341d7ae606a9c1c39a7048e28cce96a7b1ca99ac04b874724bfaedbf54f6",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7766,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqgGCokBCA8YAipADBR9YGzoXBfUd9WwQICtimYmTRusrHd9ym5i0xBRscTEVzuNN6gaVRVT6AyYTh+cNLBP7a/KzJt8cvMyW8cIyDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLFghQuyF6wnXT0d0hoMstawNQEtiZPVMBJtIjCY5AIsuK5cufjYPM9YP8VaPRZgv62GkCNjFkMMTHJxe3hXhS4m4Vv8rFBvwRyKqksqywT3GUyqf24g3UNUmXFVbuSOmhZqP/JAh22o3bKvGu9NSitiaUAdhStnsMjcOcpbG7kiVVuGdLVOM1CgrSfVK0YtArGzu/2EvuerVgb3Fbo2R83lTrR1A2V+Ft+ZaBXqfWYtnVabZ04Ttouv4GZMjNiIzA+6saIC1sEk0NvVou3+SVE74xGyzq6knEFXmZMDmRA8EL0qio/sChUiSrYZsxjWrswscDclb6UrAXQzOvt04CA9HCya/QEAmw8VyX8X1HEplXDNH61uOSfaBQLjxowJz5JGTjZWRKXeB7JkMtIntenEWYT8DTG5KAiSeGQen96ta8s4Cttnp5nt5DjmMakC2HGM7qtTdCP9Kyz6m2Y+dQg5IVhoilHb8LQ9AG9jz8qkXOERBOuy/ZrOnkmj8alKA91kxX/KC6mUU8Y1v9RaOTX94QMgq/T24+JspQi/FknLyGE2MBQrcqtsSaWDl25TUkijv1jXRm/9WAPTP05jRtmQQfprHsqwLhak6HfzaoLj7x99g1BEqiGwf0yttTL8Qm/jontmJIE0Gh3EiH0Pl+RCVa0FGcgv62FZMbluIh6LpxoZFS5+4NHf88RtpeXf7Dy2QFGAKw9jdC3gsH4M8hz5a2crFcmRos+21otmxDRN3QTZbIidYO2MK5yWmIMCgzhixjxy3T+107E/0ncBHEXIFnpzOAfJnPaJp4LAW45SrhLUz4qiokeCt2mta4CD3fZFyX5JzPnpFB9FK2scYL3dlUAGCyS8UN7X/l30oEzLY/4VGWKdMPQ60BgB",
+          "thinking": "Looking at this debug trace from what seems to be a game AI system, I notice there's no explicit question, so I should ask what they're trying to understand while also flagging some oddities I'm seeing—like the zero verified verdicts and what looks like a malformed active_quests field with unclosed brackets.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** but didn't include a specific question. Let me share what I can read from it, and you can tell me what you actually need.\n\n## What the trace shows\n\nAn agent moving through a simple quest chain over ticks 19–26:\n\n| Tick | Pos | HP | Action → Result |\n|------|-----|-----|-----------------|\n| 19 | (5,1) | 97 | `interact:npc:0_14_1` → **nothing_here** |\n| 20 | (5,1) | 97 | `navigate_to:npc:0_14_2` → moving |\n| 21–22 | (6,1)→(7,1) | 97 | navigating |\n| 23 | (8,1) | 97 | → **arrived** |\n| 24 | (9,1) | 97 | `interact:npc:0_14_2` → **quest_accepted** |\n| 25 | (9,1) | 97 | `navigate_to:gather:0_14_2` → arrived |\n| 26 | (10,1) | 97",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 446,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1503000000
+      },
+      "id": "msg_011Ccrhx2JiddaS3C1uYU4LT",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 446,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 178
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** but didn't include a specific question. Let me share what I can read from it, and you can tell me what you actually need.\n\n## What the trace shows\n\nAn agent moving through a simple quest chain over ticks 19–26:\n\n| Tick | Pos | HP | Action → Result |\n|------|-----|-----|-----------------|\n| 19 | (5,1) | 97 | `interact:npc:0_14_1` → **nothing_here** |\n| 20 | (5,1) | 97 | `navigate_to:npc:0_14_2` → moving |\n| 21–22 | (6,1)→(7,1) | 97 | navigating |\n| 23 | (8,1) | 97 | → **arrived** |\n| 24 | (9,1) | 97 | `interact:npc:0_14_2` → **quest_accepted** |\n| 25 | (9,1) | 97 | `navigate_to:gather:0_14_2` → arrived |\n| 26 | (10,1) | 97",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 446,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

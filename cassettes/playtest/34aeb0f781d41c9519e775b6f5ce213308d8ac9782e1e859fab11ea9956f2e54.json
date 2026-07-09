@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:34aeb0f781d41c9519e775b6f5ce213308d8ac9782e1e859fab11ea9956f2e54",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3836,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqkDCokBCA8YAipA0Mtx380kX0R4Oz6c/Ljyv4fYyAZDfO41Gcan0GFxRzgJ1nt9y51IonZ3v2xAobqpbXvrtPiNiGGULlUB8QTNDDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBs3nFYBWMVTadkHlxoMmuQGPbjNV0bPCyuqIjBwyhxLWVmgiHg1KSdci+gJmCiYOU0XkwyAhv18YmmQhcBP9o9JkdU2vOpIfuEE2t8qzAHrUoQ3kiSuU3u9k73iRE7wRQ2wMRe37JlalQm3Gddv1ZIYj9oEs0JXv79WOSXqfW1HQGxzYYCTU+WCho9GI8rOXoPRt7Uhti2Ye1GwxLR62gQsgZcWzt60V/RR8toCCwWeJHME3x0IjuHCT2Mrk5/V4ufLmqeva6bATwjygt1k9+xH3YcGcBKkL6a1uz5rk2WrP6GCgNxhP+sALr71TaJj19r8ZcX+6EP9bYgpph8XSVgFRBqJvemcefVXtF634WkMg7Wy47ojoq8CIT4YAQ==",
+          "thinking": "The next quest to progress is quest:0_4_3, which requires talking to npc:0_4_3. The player is at position (2,4) and the NPC is nearby, but the last action showed I'm out of range, so I need to move closer before attempting to talk.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_4_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2199,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 121,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1402000000
+      },
+      "id": "msg_011Ccr2tq8PVGjqztoeJ2DYG",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2199,
+        "output_tokens": 121,
+        "output_tokens_details": {
+          "thinking_tokens": 80
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_4_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2199,
+      "output": 121
+    },
+    "tool_calls": []
+  }
+}

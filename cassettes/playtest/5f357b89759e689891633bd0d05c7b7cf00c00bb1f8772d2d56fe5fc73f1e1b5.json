@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5f357b89759e689891633bd0d05c7b7cf00c00bb1f8772d2d56fe5fc73f1e1b5",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9816,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "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",
+          "thinking": "Looking at this MemTrace log, I'm noticing a few irregularities—there's a duplicate tick value at 123, the quest target shifts between two different NPCs, and the character's position is moving inward from (9,10) to (4,10).\n\nThe navigation shows the player arriving at (5,10) for the second target, then continuing to (4,10) to interact. What's concerning is that despite 132 steps logged, there are zero verified outcomes and zero verdicts, which seems odd for a supposedly deterministic trace. The quest target change mid-navigation and the duplicate tick entry both suggest potential logging issues or nondeterminism that shouldn't be there.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 425,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1492500000
+      },
+      "id": "msg_011Ccrt47633q4gcnAo4g7G1",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 425,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 425,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

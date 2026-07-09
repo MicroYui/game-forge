@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9fca9102f5ef53895817dbb895515f96bf1042d8d2ed51b7c9ae6f60380970b0",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8558,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EusICokBCA8YAipAaXVHQ9QSHHIs/Eli7qttwEZj9zjS1ddPameKhZzXdh43saDahzuAif3I7X3f1e1HRNmtJwL5WdHptFporyUqizIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKU9X4IN8K4a8V08shoMbtnEUcv1wFGa+U3/IjBVRCbAbNXzhmh2fdT0C2+07G36jhCMWsEhn/3L+JkhVezM5rn/UjOsfFiZSMkdATUqjgc+eRJphNyjOP9lF7/TgZFwyOr983aqQSFJy65iHnmmgXxvewUvHs4ehKIOnQkvGxwKeMYyk4FIHbvTJi3aI1i20zxI2pdyCNw17A7qANfYU5qdg8b77oe5UYk22PzS/SssGmuD6MseFtXfxAg6SrPpPkRxDOSmpnZpF/xcQIQudhPSYqAXXsFxVYPOwMi+9mXmWmmtfnq4mQ4HdyzJnv46Y+kh/rAaAbHDpehBL6g9ACgggM08A9GlrYF55er/A2G2CwkQrBy1iaTmilECiTgVg+JMcJRbvOnMX3PBPNLZpLH1CgFlrTBSdoTlGgDMmlE04teyDNkpekE4iuxPlDEqiRC37DuZppd/V3XF/s9m0gR+d6v+jzCU/JMfjLPu8tik4AiWDsG7E2IKQ0t+qBKoxPzXSopNSew7VQ8CJzslPxjDX7eAjQ8Rf8ykrLMooxqKIxiZ9zQfjde8fEXgirf7RxEJXG6i7Ss4FrgIpcjMbLab/YIBpqBvM1wQZ2S7gWPpblLaR1i1U9IauYq2nnIjmnQ1jBpkxvNfM1Bhue/ghloi+VN3abOc777Y4EPqHkUQQ6s5TN7mX7UWIgTrJO9jCqhhY0RBiYZ6tOxpqxsRMOq4Jce1WK7eb+kUR2rgTxZLRGRB3Tv0+WMJofQXn3QmZpXswOiCKo1QDrWolFatfzqAHWzNDdohZSMj3CbpmKgo/2+0WwnZww8rJu2O8QOJp97lla6PbZ1tCznuNdnMqiunuWBw318+iYGrxrOB8CWtlwH/s9ST2hfESeoCaoAl3jd8cgV8+cR7nQPOVNpLcZ/i2Ej6gvW+V1rVBF2gnoBUFU6FGZxPa/pqCFFJaaE9F4qO6iV62TD3lpHiqra/9r+hNWELamjQwVSRNt/C17RsbYCdAlHiLZhHJNpT+RaSCBCl6JKWQTK6txwmuksTOPv2chK489zgPUGuB7EicOX+8y1y9kt0kcTpYRrQSh6xeyr53JVRjBP/giz9Hz8/yUY3YbyKdMnH3/rBuVf0ZROVYiWjJ3beVyidUmuk9rmr2k+Rsj2ztCbJfIzta74aj3xTyJYFqFr+eoGURcSZu+sUhaeNP0WKPlhdx+aKBFhGeEtR8dat46rOpxdpsY89VlaF3adnxg2ltjWKctcW0z4ys/hRgPZ9q88wC5oKXxZEYnr98pxKeASEILn0SwfQhVeWkBaQkHykXzlpajEkGAE=",
+          "thinking": "Looking at this MemTrace compaction log, I notice the user hasn't asked a specific question, but the trace shows something interesting—there's a key name shift from `active_quest` to `active_quests` between tick 137 and 138, which looks like a potential bug or inconsistency in the system state.",
+          "type": "thinking"
+        },
+        {
+          "text": "Looking at this trace, a few things stand out that are worth flagging:\n\n## Key inconsistency (likely the bug)\n\nThe event channel name changes mid-stream:\n\n| ticks | key name |\n|-------|----------|\n| 135–136 | `active_quest` (singular) |\n| 137–142 | `active_quests` (plural) |\n\nThat switch happens right at the `quest_completed` → `navigate_to` boundary. If your compaction or verification pass groups/dedupes by that key string, a rename like this will split what should be one logical stream into two, which is a very common cause of **\"0 verified, 0 verdict(",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 423,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1491500000
+      },
+      "id": "msg_011Ccrr966uiXighzvGFTBWQ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 423,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 315
+        }
+      }
+    },
+    "response_normalized": "Looking at this trace, a few things stand out that are worth flagging:\n\n## Key inconsistency (likely the bug)\n\nThe event channel name changes mid-stream:\n\n| ticks | key name |\n|-------|----------|\n| 135–136 | `active_quest` (singular) |\n| 137–142 | `active_quests` (plural) |\n\nThat switch happens right at the `quest_completed` → `navigate_to` boundary. If your compaction or verification pass groups/dedupes by that key string, a rename like this will split what should be one logical stream into two, which is a very common cause of **\"0 verified, 0 verdict(",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 423,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

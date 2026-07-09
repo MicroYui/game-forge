@@ -1,0 +1,81 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7f1a0454573f06cd03a96ebb237c03317971f2a088685db6dc954462c84bf025",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8359,
+    "raw_response": {
+      "content": [
+        {
+          "text": "I can see you're sharing a MemTrace compaction log from what appears to be a game AI or agent simulation system. Let me help you interpret what's happening here.\n\n## What This Log Shows\n\nThis is a **deterministic trace** of an agent (likely an NPC or bot) executing a quest sequence over 35 steps. Here's the breakdown:\n\n### Header\n- **35 steps** total, **0 verified**, **0 verdicts** — suggests validation/assertion checks haven't run or aren't configured\n\n### The Quest Flow (ticks 26–33)\nThe agent completes a classic **fetch quest pattern**:\n\n| Tick | Action | Result |\n|------|--------|--------|\n| 26–27 | Navigate to NPC `0_12_2` | moving → arrived |\n| 28 | Interact with NPC | **quest_accepted** |\n| 29 | Navigate to gather node `0_12_1` | arrived |\n| 30 | Interact with gather node | **already_gathered** ⚠️ |\n| 31–32 | Navigate to gather node `0_12_2` | moving → arrived |\n| 33 | Interact with gather node | **gathered** ✅ |\n\n## Things Worth Noting\n\n1. **`already_gathered` at tick 30** — the agent pathed to a resource that was already depleted. This could be:\n   - Expected (idempotency check working)\n   - A minor inefficiency (wasted navigation)\n\n2. **HP stable at 93** — no combat/damage during this sequence, consistent behavior.\n\n3. **Position wobble** — pos go",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 449,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504500000
+      },
+      "id": "msg_011CcrfwTwZeXZqfHQ9d2afj",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 449,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        }
+      }
+    },
+    "response_normalized": "I can see you're sharing a MemTrace compaction log from what appears to be a game AI or agent simulation system. Let me help you interpret what's happening here.\n\n## What This Log Shows\n\nThis is a **deterministic trace** of an agent (likely an NPC or bot) executing a quest sequence over 35 steps. Here's the breakdown:\n\n### Header\n- **35 steps** total, **0 verified**, **0 verdicts** — suggests validation/assertion checks haven't run or aren't configured\n\n### The Quest Flow (ticks 26–33)\nThe agent completes a classic **fetch quest pattern**:\n\n| Tick | Action | Result |\n|------|--------|--------|\n| 26–27 | Navigate to NPC `0_12_2` | moving → arrived |\n| 28 | Interact with NPC | **quest_accepted** |\n| 29 | Navigate to gather node `0_12_1` | arrived |\n| 30 | Interact with gather node | **already_gathered** ⚠️ |\n| 31–32 | Navigate to gather node `0_12_2` | moving → arrived |\n| 33 | Interact with gather node | **gathered** ✅ |\n\n## Things Worth Noting\n\n1. **`already_gathered` at tick 30** — the agent pathed to a resource that was already depleted. This could be:\n   - Expected (idempotency check working)\n   - A minor inefficiency (wasted navigation)\n\n2. **HP stable at 93** — no combat/damage during this sequence, consistent behavior.\n\n3. **Position wobble** — pos go",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 449,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

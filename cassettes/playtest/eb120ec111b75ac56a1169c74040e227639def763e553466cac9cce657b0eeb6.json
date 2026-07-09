@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:eb120ec111b75ac56a1169c74040e227639def763e553466cac9cce657b0eeb6",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 8278,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoYICokBCA8YAipAYzqz8uSy9TmVip3b7dF50Q2cp0HUc0AQAsK/TAUIBs0HxfNmCP4HVWwWAF9A2MM6e3fFLe2wWzTf6ggrnqLSpDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMOpCImeKRgg1MMVfRoMxRwDRvjIUx/v7uilIjDovMijrB1M3rDXXkXk1OENExT2a3QDZr7yZ4ReUTyO/+kUKxZqAA56pZNjvAAgfLEqqQYF30oLeV4IxPZAK6i7eVxsiypUTGvzg2tdi6TwFeFNFO8XDAcu5f/x063NtPPZV1RYyzObhKCfi0WQ/J8NcaQ8kKX31TqEfDxzgfSHT63cn0E4YgC80O1sA6HPu0y6htkaPXDLDM6ZA+SP7CtfkrV2ogzMkTa76HA05PMvOMlCXVHaeJf9NL+h1dTAwjI5ODb/shqNdf4UY8le7IVDUG33JDqHGeUeTiMLTAud06Oe5v/3MdShnFtxLgj3qX61vEMEdMXtkywgkR2njLJ2wpqaO4AdlR46s0y8IZr1SnFeLeerfmlaDiqzEu46J0Kx9XN4Rlfyn9sbdvsjCjgK/i2uzssCX59mT7cXqbKl+aLHSvB2j8tAJocW2UkCQRadr3APWiDCQE8lZ89V8NP8KcMOylWyc1NUSOcojrCDojfcD74vFchCPQRYYvNrjKjX7vBzgMcON6QFILl86AfPyjh+NP30HqkUIR1p/fTU+1MqAICGxyEZ4Gw0Pxz0wzOLqvB9Je4ngfX3Flg6C7qBpiAYE/H4rxPk7W38LI8nbsJL1AokaFCeKzsQ4XbgUIiDnrnarFBscQUUFuaJpRFfvQrwv8OsVeNV3/nwYEr9C2yQ7OYSIJcUS3Ed4XsXnnzcGNxqOnhu0Af8QkRzWiBKBlYXdW0JIOOmXLCNzPQ3Hc5YRrTMlcwgksdCtGJQzJ5i5Iy8lqBw9CiEaLm3mxHae8+rxQjMGdEx0ULhsIQI43RjC4t25mDfGLo3FwOQObXL3Z5R/NRsSbPt5xh8mxbTGkTweNT87LmjTu/j1+l7nusBUqJNxQDFbTykqz8se0lQxhkOKC6a+ahI8lzY6rLRmjlvCSVE+WjhzBMvwCpbo97Z01wOPNkodXVRT8C0leJG6M2wpQsZ3qByzsf+JcKVF0suP9fxsdvrvVnmkGmWfOyoxOfO6Mtt8f4kC8q7J0bc6cbL04/PRu/kB1OjSkwHNPGFrdVAFr0Kwj2Qq5717YLaBSwo7D3f6Job3V6NegqutSMgtARFWJCH7IDB16+imgGoVS+2eH8Nx5fDahZrYZ6sbPtBt9IgfbTzdBgB",
+          "thinking": "I'm looking at the available interactions and known quests to figure out which NPC to talk to. There's npc:0_5_4 available, but I need to match it with the right quest step. Since quests 8-15 all have talk steps, I'll propose talking to npc:0_5_4 to advance one of them.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_5_8\", \"step_kind\": \"talk\", \"target\": \"npc:0_5_8\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2691,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 370,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2270500000
+      },
+      "id": "msg_011CcrL4xZsdqT39CYi4LuQj",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2691,
+        "output_tokens": 370,
+        "output_tokens_details": {
+          "thinking_tokens": 329
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_5_8\", \"step_kind\": \"talk\", \"target\": \"npc:0_5_8\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2691,
+      "output": 370
+    },
+    "tool_calls": []
+  }
+}

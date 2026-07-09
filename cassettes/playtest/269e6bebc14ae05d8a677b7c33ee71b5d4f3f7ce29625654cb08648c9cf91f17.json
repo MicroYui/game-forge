@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:269e6bebc14ae05d8a677b7c33ee71b5d4f3f7ce29625654cb08648c9cf91f17",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 10193,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ev0KCokBCA8YAipAGkHLaKG4Mi5iWz4Xn+jB92WbyMxR0bUM8AjXc5KAdJur+5lf6F+MgD+H54Vs3i6xFgQkqQR17AC6twIwPxr5xzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNYJZNk7A8zgrd4QvRoMYb7sKomjJ+Z+y2WmIjCbeGHPgLDPrfW2L6GNoOJP3RgQ3vpaPvkB+/JZG6bT+BUE1NDo07VBT3L+8iYXo1EqoAkkcVVwp3UoDsy9d/G/8w50PzcAPlyGWHlrAfT5gGsAeDZF4vRmKPgRVHXWkliV/gs4/XaNtSPsM9idnx95c0T5UB154B3wlqr9pUePuLCUtZQq8770aKXzwhrfXeClfAcUO1HgmRxwRYuc5GsbBdDwjeBzDc26vr2JraSSIcf+CLwnWKt2K2uRyQUqhvSY86s/Q7zjSIj4nyiVl7Uo08zfjb7Guf4LmDBxr/0YBCWvSoCYnkTWdEuVHWTrryUpglrYNpZMHXyncayLsi0dOr9MxXkn6rZoCwKqfLV2oxUVvn4ksteolD0H2q14DOMYpTTnQhxdGYkJoA0bRUKKym0HtfqYSXkfpN/aXDlzxtOnzXONOV25oQqadVDIERz97jxom4aFFpxYAEVUbhjbY5EIZA0Hkuy5Faq1pEUoc/SDwPuFi0SqjkYdBmJOalXBKBhU3qeh6GL+hAc3P2LErho2+SLKdOwBQIWsugXgk6QRUA4anc5xatFmkrEv9D/a+7DLK2fzD47q5nCDjSPaMdTmp0/g9FSbaK8NvaRtXRvHUgmPuGvbEjM7zS6sueKX24QygThiAA4RupVmEcXEgP3gqWmJOl5Rqcq7SO2sP5N50yWA255CrEUBCz2GhzdLVBeIJB+VNEposYYDrabX1cNqwVQUHie1htYVfIOf8kL8RlJ75xY5mBUQW6cgg3LDYaOa4SpxorQhJO0cMPFN6Vxx8tVL81rJHIIIMmqpHT1JQs04lnBEjyAd6xvG8HK0mzTF73n7Yj8GtZ9qPPqMbMj0IAp3dy25qIofgVxe54Y8uHSfUIHpyF5SBvEWpPaV6fUhl7nRHgKiLyf0atIzoNrOlkONJnBz3tfAICK8xzErElJ9rIe21KyQkFmifd8Ob6ruojMO+IXaBODh4wPdmAWRnjf4Lk2PPpKjfOn+lhBzuGyCvKUOFbLZjlGSqgO5Py74p3koBPsOJtcJeUS1jXOg0J2aDSj/Fp68HwiS2Oa22tpo0RNndqDqLggI5OyYm27rGfFLjunON4qzffFDiY8PPmwb4ukQv24/4aMdBCwxyFJ8i8qJCJYvO2dy6RT3+HtWrg+UUWby2Uba0NF8rpMGQK6/lqTgr5EBJpuKBWJXUur6pRA7ZlxOMDDaBRsT09IF5seDz2Vg2wBf9uUFiot4cmNvxM7FoZ7NT9uuutzNjt7reW2lvcopI1oLAj4tkok7jImsRnratXjT5Hyq629xc2deXmHQdwRN4+igKNtFY4ppuXRM9NJ6oxGZSTPYOOCLdtu6PofrsyPlYo08CGlQU2m+2gV78/moJxT7dy/DFsrxGB5YkDnZpBwdIG42gMJ3G9XaClPcTF3NrNm5T7nz4RoD44xfQAys/yq66AxnskFufFvLDMhuuoJTEpWcg8lGr2MCUbTijDtcBdL9YTjVOU/AwqOWvzktf7uTThqSf3Qr9/lW88iBcaz5FDfSH9jB+VWIlPokJ+/OsA3XDgMIxPEiLZxlxc2+nH0Ncp8ZEVRxTtRYh1gFeccO39OFaRM/jzX8/7uTvHJULkifLTk3Yr3GF9IPY+lWX9nhuo4VLxgB",
+          "thinking": "Looking at this debug output from what seems to be a game AI or simulation system, I'm seeing a trace log with 15 steps recorded but no verified steps or verdicts yet, and the tail section shows ticks 7 through 14. I'm starting to identify some potential anomalies in the data that might be worth investigating for debugging purposes.\n\nThere's a malformed `active_quests` field at tick 9 with an unclosed bracket, and then it shows as empty from tick 10 onward. The quest progression is interesting—the NPC accepts a quest at tick 7 and completes it immediately at tick 8, which seems unusually fast. The agent stays at position (4,1) through ticks 7-9 before moving, and the fact that nothing's being verified or validated (0 verdicts) suggests there might be an issue with the validation system itself.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's my read of this trace—let me know what you're actually trying to figure out, but a few things jump out:\n\n## What the log shows\nAn agent wal",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 439,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499500000
+      },
+      "id": "msg_011CcrGEz8hDSEZNmPbukUib",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 439,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 467
+        }
+      }
+    },
+    "response_normalized": "Here's my read of this trace—let me know what you're actually trying to figure out, but a few things jump out:\n\n## What the log shows\nAn agent wal",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 439,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fc60473b179d2b64f32e05ebec31425a5aebedb04f16800f11f74e02f433f415",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2718,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep4CCokBCA8YAipA0FG8DDXgHIbUcZeVMe2YQo/BFUQnZvV8Xq8ZoGxPgXyIz3+uDR+GtuKgvu7l61cPwZCZMD/i2OEasFLS2Zaf8TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGlQ6qsmmaKqt624zBoMEf8A0yUw9J/SGFhAIjABmiE+aCMftWXJ5QK173eFZn6cnGtTit/D+CMPHrurC3BY7FBjxDL4h1ITQn8TWM0qQslhtmrEgn+iW2kInQZoBUNw8Wesf50FG7tQMKLW8meo2A26fA9SI4Fx97+yoD2jq/J5mpVj0h+Bz6dFv2UcsSDw/BgB",
+          "thinking": "There's an NPC available that I can interact with.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_10_9\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2544,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 47,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1389500000
+      },
+      "id": "msg_011CcrdYiqtQwE6aCxzbewct",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2544,
+        "output_tokens": 47,
+        "output_tokens_details": {
+          "thinking_tokens": 22
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_10_9\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2544,
+      "output": 47
+    },
+    "tool_calls": []
+  }
+}

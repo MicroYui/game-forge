@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2b6dc413ce5d14ee239faf754cee36ac64b991f550aa2f45a856a786b53984e8",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7156,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ev4HCokBCA8YAipAJHfG4GgBa4BOO60P74Q1auIZ0W38J3Ba5KrYSn+k7mr3S7WTKsO0m9ve+8aN0KljAG/CZ2X05dHIJk0hFrK/sTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAWXK/IxlrtSC7airhoMAKCeke6cgHAhflNFIjDBrl4t2gkui2v473kN7bJfJm32A1KLDWVdokhFw+m04TdkA+0XB63Y16k3OMk+3rUqoQZqdezhu8+JkXfHKPAnuJd+dFl2/kWQU67w8JVKilUGWynQMnQK+r1xLFLqgdcdCz1hOrY7GipQ0Sj1hwK0Ar1u8g3Z5evVzU0QF+i71lD7yJqIuyGjCIeZXOB2aqGevc8xvrEOdYm72MxCeoGhnX0+wWOflgB/vZOaiiQ4vNR2pabnJqve2zDsT3Omm0J81v5YnOfH2UIAqEzoR4W2f6tXOgjaVzZFBxfffXpJiblyRXcE9vFy5gsW6zSdp0DVev2BeoWdgESTx6B8zOeZyU9zhCOa9Fs+QmKUpeOzEyye7msXsxtiFf/nBt1sjH6CyNnu5v7m4/BCkS7LY08Z8JGXZVPQcUbXce7LvpBSxN73w2CS+qp5y88mlQdafU6uJ5drpn8oDjrui+vb3VqggRcz1N7efRRqqgd6F6GqUddFbbo34iHd2DiefYWkJLMiZtsVsWc4aHVteOLIsONLDvYA0C79tWIXBknqbginmAPh7lwyEXEqgyfLna2/jSueAjEd9jiUFOa0ybIhzP/9Az0NXLWbZK5z4yKlxphRav5xfUaUAtjvnQ5rrEPQY5P9BTBfqXlKTXx2GJSVStrFWhtvjoorhBMLnMAmRh0BsHU7T/QnUO0sLi4s25qfo7kvrfRE/PtWx8vxjGHSbZhThypvuQeJWCzKvGn1E/6bMjDOjF8MQ5I8cBeI0ZaFcpj+OLC00onZO3JBAnn951WqsGnvuabrZLbdyKkrr59gCP5SP3Is72ticRSSby5w4BwkoMl40NxhlYv56tVisJvLf8EqdKmpJQZ6KDOo1CAactR1Lvli0Gqja4qjQSgNjhlEzdPXDXbdToJ4bRXrrmQH22elk+AevG0eEoC5MqF9ubusfFG7DxAIE/1vq5ugL7vKEFmZi1hB36Z20jruq3wO3Pp0zUk4UUlAspb38DUZdey2GX+3Gl/zPeiuxhS4xdhGdzTvXpNP1hI+HHy3BqQyAi+ljsB0EyNHPHOOGKgg9IcKc1RzSyU/ZjCiIclbLfOZFibyleRiI7QKwD1IxZfLH6Leh4Co24iMtVnfkgtXRtN/HjgYAQ==",
+          "thinking": "I'm trying to figure out which quest involves talking to npc:0_11_10, since that's the only NPC currently available for interaction. Quest:0_11_11 seems like the likely candidate with a talk step, but the available interaction points to npc:0_11_10 rather than npc:0_11_11, so maybe npc:0_11_10 is the one who gives out that quest.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_11_11\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_11\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2983,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 370,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2416500000
+      },
+      "id": "msg_011CcrfC7oQVUnhYSpxYtpek",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2983,
+        "output_tokens": 370,
+        "output_tokens_details": {
+          "thinking_tokens": 329
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_11_11\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_11\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2983,
+      "output": 370
+    },
+    "tool_calls": []
+  }
+}

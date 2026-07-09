@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1e5998d16583079a81dea4edb2a3444649de8a97ad2aa77baf7c340f183d6179",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9136,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvIJCokBCA8YAipAdw64oEI7pFHnrOokybcmTlC1HLM+RFLiC5GYBLRlRkhvl0uIidx3y2+IjrO5kdt0kgCs+WOdqyd5ZYB/En25KTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGO3RFS1leP1k1RIjBoMBB96egzC/hJD40D/IjDqT1z2DJlpdtaM+KwXRxv2SKAZDhl+hY0neIMLyloWR8anKszbWeJXFSoDUdOrmioqlQgmeUwYLLMniCUa6I66afLRRj8PXAMINVF37i8ZAMzF/lgyaogjog2D7ojOAofqTzqFF9m4lMCGtTf+Ly7RmSlKABDsxdKsUE2cNGWZyUZIB86B7fFMGJ/nMNclcL3TJO9ApPuuNB3nbfwilTnKzzgkRLkqpFohkKqNiHM2AfZpRcde0PVDkmL6Holtv910CbNBFmn70u8+M52MzyuPvB5XlNGLRbWJayL+PV77A9hk/t1o4lBFHJFC5OYyrQnp/q3lSr0sAlIrvlrxKGzWD365IYZtQptNiJwIzyh7at/yabk9ETgeaU80h7swcK3dqA7GjDpoSKrLNt+u958HMSM6S7YXXa8RTTtHkzVSDqaxLGfEyaLMYigTpFUvEfUzDlhGG0nLiPmZjsiO4svIRsLpLzwar+QUbA/2ld+bZkIb5iZdvxd0NWrSDmGVLQJjrCCPd1IZwisr0ThrSxo6v9002L7YogJ77pEQkMyPPv1IVV1riY5/278rQvQf9ZSVsXiAM4T+9UmOUBiMo/UHzrGOJGap60uJpqYXwC0PmPWajeahIgs/MgiMPOA9seuzDUL/N9fgpIdtLZsQivPEEqxkgOKvel/YoSji92OqiWobHrRvhvyumWQPsoMzJMOyihvvTwGrAaVEVIRlS+ti37IWNZ3KsbcanE84yT4Syq5sfx3zocsGpTtr86htBarN2fbk6UvU1KN4mMayJJbU0qh0m1pYB74a1/8WuLImiPD/jKpuLdHmMGwP1h88qo1PkE0MXDOdzpSZXBgJgPoNvylsv7lG8rm00pW3d6bMa19JxFjjo2HiplfWzNxAHAYfmb0L5CL3d8ek//wglCgeqZo8xoa6FmwKJ4HgN9jSw43g85pEKM1h09thLU99S0PMmY6/bLVRvxzMKCznfKI2N7CHWyHdp90NLcdpFi/S8z8/+ju13P1X9qnFAXC+HmyW080RtY8Ji8qSz9T62/Gd9MiQLHva7WBK/uJx3s6V/XVbIh8ZpoQFwuiGfFuJXqSRH+jcff2sAwJ1NNl7veEkE3FDCMWZKMVhQSRKVjj1mbWh3v/uGAO9HqtKmqDkTTq/gz+3kwDLJR5xP92QVXi9xyzpwUL2VF1h61gUD8wsOfIN+5Q2QwizfEJOuqhbmugvnpzM/AD3A29dd4t2zCFvgn94SKYXVx1pip1IvaS9qO+Bi06F+Mw/wk/E59+fcX7coVCobJHGz0mp2wOtIN/3ENIQj8/pOqRmY8GnU54jmtlZD3P+wow6TY8OcL4UjE+yuBsQtMoBSNxfgmrRbI1cDCLyvXP6+vdRsNKHb8ACs/6mtaig0gI2q54S/nCDFOCTrAKiBvlHceX6GoF/dsspycVnbCnRmJb2g4AxmHx2NTOU10P/2dreGAE=",
+          "thinking": "Looking at this MemTrace compaction log, it appears to show a deterministic simulation with 37 steps where an agent navigates a grid toward a monster at position mon:0_17_2, and I'm seeing movement events around ticks 29-30 where the agent arrives at its destination. Since there's no specific question, I should probably ask what analysis they're looking for or what aspect of this trace they want me to examine.\n\nI'm noticing some data quality issues in the log—there's a duplicate tick 34 entry, the active_quests field appears truncated with malformed brackets, and nothing has been verified or verdicted yet. The combat sequence shows the agent attacking the monster with mixed results (miss/hit/hit/miss/miss leading to victory) while taking damage that drops HP from 97 to 94.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's my read of this trace, though let me know what you're actually trying to do with it (debug, verify behavior, etc.)—there's no explicit question here.\n\n## What the log shows\n\nAn agent navigating a grid and fighting a monster:\n\n| tick | pos | hp | quest | result |\n|------|-----|----|----|--------|\n| 29 | (10,1) | 97 | navigate | moving |\n|",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 426,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1493000000
+      },
+      "id": "msg_011CcrnfCiQDPEUEZXMw9J6K",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 426,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 383
+        }
+      }
+    },
+    "response_normalized": "Here's my read of this trace, though let me know what you're actually trying to do with it (debug, verify behavior, etc.)—there's no explicit question here.\n\n## What the log shows\n\nAn agent navigating a grid and fighting a monster:\n\n| tick | pos | hp | quest | result |\n|------|-----|----|----|--------|\n| 29 | (10,1) | 97 | navigate | moving |\n|",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 426,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

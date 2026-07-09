@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2523619dbce0e8fe24ef02e9664574214dae60dcb5ad8f03d9598b566c50fe01",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8711,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoIHCokBCA8YAipADFIQC1k7s0d6MVQg0zNNW7r0R5wJIvlda+cEVSEwnWTyy6vgA21oGm2nxUz6RF1l9RLmK76O3hfooYkFbS1pEjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDF34rxvnwn8fL07WvhoMqeGwrfR+3FDLnvwwIjBTLTZ4v+g7KYxJiJWxbxRbj52CJz+EZ9/sMh9GETWjcV7QwZABJ3beoGHyrmIVFH0qpQWObp/ksOk7kGsAmT0ts5IDcZ7QFvd4UDTC4nBhfsrJkACvEM+vpO0a5ws5FMM2q0OYn69yZKMDh3fuppOQ+8siXPpejwhaK/whi037T5u8hJb+ZGHi5eKCJ9/nsfVCs9y9DOBTXtNkdYCCL+8zMvt8N/+Wk8BkDWEgiiIQ05X4y9p9aKmW/8lI4XUVbR2vhJOBUTklzqQnx06W9S6+F/yjc4TbfkJQQyeeUZZCO1ZN9sUl8TdaJVBAnY8XdPh/35iKJYTXwkdi1whRjzse+CnP9pEVTLw6Q3DTYqQmflfic45zuRBIs92RYO4AUSQ5gCzxC7+BgMyX71pOwUFYfaD9L2vtEJdLJkHpZi5T/Rf3qs9SXfBf7sDIkiwF7FWTBR2ocTku42YO8/3WAyW0i2Jw1ITZvfKjEvvNnq7WzV6mE8lfOKSyNwXhyr0YR0uE0snvHpzsNwJblaJIEuwqtxwRKW7spT4tqPWct+sTdRp8xRgQYU47/lT4PzxlRJVIvDf0RVqKVSisBOLe+pWwUWZH66Ja0wD8vVl1bOQH+KlZUqphDhVa9ihr2tio12lgYcpy30MyxSMob/zUm79i2+4MNjDDDqa4/vvDFx+T0kbgATDeHNOIC/gkua8fB/BDP7RjDrAeg5MvLsG1fT9fj3/dHpuYO7SQCKsGRxkxC2M+21ZZuGVW6m4smiDWKWp9gWWLmSqWSChoWl/UzfJ3OEWikqCMd4Tu0B0d3zQHpJTp3p/llBYngpIt91Ve/2ylA/PFf4INQnGqdDdzzMhvwuhC7ckWxpPENCB7oGlg9gKGukj80VSJDnmu+j90Xmtm5guC0420vt1GsFX85F8kdeeosPGpI+LPojcIxu+KvfiuoIFRJBInVB2B5K0wHJyp0IkkFrb3SxgB",
+          "thinking": "I'm looking at a game AI trace log labeled \"MemTrace compaction (deterministic)\" that shows 39 steps with no verified results or verdicts, followed by a tail of events. Since there's no explicit question, I should ask what they're trying to understand about this trace or offer to analyze it.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction summary** but haven't included a specific question. Let me offer an interpretation of what this trace shows, and you can tell me what you actually need.\n\n## What the trace appears to show\n\nAn agent ran a **39-step deterministic episode** and the tail (last 8 ticks) captures a complete quest loop for target `0_19_7`:\n\n| Tick | Position | HP | Phase | Result |\n|------|----------|----|----|--------|\n| 31 | (10, 4) | 98 | `navigate_to:gather` | arrived |\n| 32 | (11, 4) | 98 | `interact:gather` | gathered |\n| 33 | (11, 4) | 98 | `navigate_to:mon` | moving |\n| 34 | (11, 5) | 98 | `navigate_to:mon` | arrived |\n| ",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 419,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1489500000
+      },
+      "id": "msg_011CcrsKuvQC23o2FT6Szaas",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 419,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 230
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction summary** but haven't included a specific question. Let me offer an interpretation of what this trace shows, and you can tell me what you actually need.\n\n## What the trace appears to show\n\nAn agent ran a **39-step deterministic episode** and the tail (last 8 ticks) captures a complete quest loop for target `0_19_7`:\n\n| Tick | Position | HP | Phase | Result |\n|------|----------|----|----|--------|\n| 31 | (10, 4) | 98 | `navigate_to:gather` | arrived |\n| 32 | (11, 4) | 98 | `interact:gather` | gathered |\n| 33 | (11, 4) | 98 | `navigate_to:mon` | moving |\n| 34 | (11, 5) | 98 | `navigate_to:mon` | arrived |\n| ",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 419,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

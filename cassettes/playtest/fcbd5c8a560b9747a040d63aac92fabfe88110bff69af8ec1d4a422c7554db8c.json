@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fcbd5c8a560b9747a040d63aac92fabfe88110bff69af8ec1d4a422c7554db8c",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8636,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqILCokBCA8YAipAASOE9ynMmwIr7I27WMTIUI3W/mG5mwWUrwL6ftl3Xs6QQrfOlZFRutGo+B58x6rXcmKMfsv+efQE30g7MovU+zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDk/UAWZm3G7FYSg7RoMnUqmvtHud57GkjncIjDwUqPBUMktficAxYsdajPCZor0Rxka3+zlFkMFQR11LBHuGseF52H6wY7Ris3ekPsqxQmcwHo2lGdvkyWzdQ3StkEyyOc9UcMByG/t3eLhtvy//l6MHIkVy56qKN8LD8UDdYAgKSxUVeWIgpg4P3PXjnjcR0D6WMVFqcbi/ylEnSYtCHjOQIVSFyeRSgk2RztiLjF3e1BNnYW/rSwdPmcNbNMm9tB//Avnv0cE3jMU0kijYmQgN3eed0AXxLD7l8EAW24Jpp0Tz/EboiYYgvJMkRfDZsK4OK3rgsbbsVcUN5lqk7NLmEfr5HqLREiUQKj58a8zUK9Y1FLOq2U3C2Ef0/VbHWF+QlKyvR9s7qtup1AYOEYhlnxvFdtsJW/3kXhVJZpxknjudXYJkBOPeN3tfUAqlu8fPWu4S7C37110IsL2E7dSt1j53E02PrtkEs4IRYuiioHIg54QumDc8eOkl7gvnySzu/9ZZObo19gwkzDBnG2/1lqhj+ZzOcbNAzoi6+YktlHhsbBxv5Qxn//jaHShwZ7+qcC7VO4iDtyt6jb/Y4hNzLL9BxvD8h5ATI2F4EnANTXqnPswM0P3HGRCWA0f4KyTaPXMKABfw4jA+xon/EzXVnu+OpK70a0JWrfCSV15ruOUfASlny2MLAb2bGUoYfVapis61e+eBs3NO14E6pbQ1HwmdSI+Eai9xmUtjHkhGe6cQgEjDEN+1JGWlxAQG06Ibz5Q48TBeTn08LcDBCwi8XOCGR72pyctPu6CtGwdQRn00uXtltWSO4JwFc1Y0cvnWxMLZaEQjOmamjh5cYTyZsjjBRY9foVSuHkVX4EKbuQ1Ox0XOx6PJ9/G8c5W6/k6kBs3kAFBuXRheGqPW1PuDNGAuQdmPUpY88qB+to2eklcL2sRTkGK6b2XTy7Hj6i0s7cHafl3dv4tfTBVD/2iYTXQfgDBrby3J/pYwjPruWFOIf+PFM+ddwWhg5mMrBG2vzCm2LDVnTuT3rqKp6eHnMHKb2145cBbs+/Yj3aEnjtL9hTnti1E5ivbrAJiVuChNPvVY0n5bfAc/ssN+84Gr0JD5yAI6fR9qYA6ueIACHfVF3KKEJmG/6riegAfWX5H8G6v8EP4ETrj1bYnyyKsUyc3bArwazKS41xxFu69HXYiPfJtLR+Q2RVncW3AkRZutJVGeiLft0yVY54RAVwwZSlpPFiA7KsJgDlqyI0diKA8ajdoLRkIL23z7Cd2lHXIuvxjRGf04QZSkLlQ16b/iXVkzGHgEap7ZGKBzFZvlwvpPzRUDRunmrtdUYRAmQryzzrTNohrK0M1Ed4KDW6z6jW48Ds3Acto/0fW5ucdh5O3nMhI1MruUkQoIj28GhW0K7RtCrKfSKzSR3XiKcobSAB8VrGHh83MgBismQ2AJFVtSmexzHBcHtfRzGuN2D8vVsQBOsMwh9UvdNLXBMAvNytPvTDnPWgoTJftzXKGDc9k3+OvUMpHdEOxHLaLp7sKzReiciOeac80dwBBnb3LjKhEeYIZC6CELhECl35wEDRn9nB4gyTV+ckVZ56jYwyumcIx+xwPwKXDhTCj8rS8n2ThoNNn+DxugoQVzbVw7N34acNLB/HKXcvkO73/xNgtn+RWbEJmRSHSpByrNwiqnpwf9S3ALCUaobteJA6q7Gk+EJ7LMETGtVCnzaj5MDh7BnUYAQ==",
+          "thinking": "I'm looking at a MemTrace compaction log to identify anomalies. The trace shows progression through ticks with position, health points, active quests, and events. I notice something odd around tick 19 where the active_quests field has unusual formatting with a trailing space, and there's a navigation event that completes.\n\nLooking further, there's a navigation command to npc:0_7_4 starting at tick 22, but it never shows an \"arrived\" event, yet at tick 25 the character suddenly interacts with npc:0_7_7 instead. That's a mismatch—the navigation target and actual interaction target don't align, and the navigation completion is missing entirely.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 427,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1493500000
+      },
+      "id": "msg_011CcrMUer44xPpGYpsSG7ss",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 427,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 427,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ea58cc78aac60173f355bdfae81c50c80dd117303a6927c0b8f07e83777af1ac",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8230,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqgGCokBCA8YAipABDN8qGm637M3mfJeZc2tJrRil/xjy4y1rtZDJO/uHY+UHLniQuer6ZxoWXTrr7/MvJPKuW2ICooHGtHgSL6DnzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOJZ/xNQ+/y1WFgnFBoMBr4hUj1Lkj2tZg3vIjCPDyI68dnJDt2TdJdTkiapsJ9w3B0DGnJ3A0CfL/a3LDegyZmmc9SJbrXTs4L1xy0qywRspP7aHO4NAUcBNWv544ANgYkpud5wicA8rO6AN0IGQ0t7OidCdUw9a7TLIjYTeCb2Cq6NBwzaD+OajnQJ5U75XG0UQnw8tgx9Nfdj2UdYspDfq2i+mv8hj4xTV7YHQtSqp1hZsm4xZoRZAx/fgOQRY4V7ATj/MOMW6CiWUGT0NbFJ9DRVfcd0zS6mgv5uRb6GBu6GKkgd7vlAAkOpaHvpNn8tIUTTo/ABZGwWzmbBOwrIdRAwrsOnEatj5laq3gTC7kBsohjl7hcuRfso2iMjDcyBNpBTN2IjADgKAVCQAA+XbIImdfzvQfg2/uNc9gCSzmImiSl5ZsAp5goAUH7/nA1oVWo/FywZuRqSAvvSHA+yAFjXK5ABCqNoMayVeUPSeTQaAh2jDksLkRWyvs0a8KBhofd5cbSEQWxwK5IDqQuXUuSbQ2pkYjpmkw+DPQ6PFYFq3ldysOoZqO5zn+6Pxi1HPcVyCjNOrRThUHnxeG8WFWrsHz/judcrzSIjxTSAePT43NKPMhl53PqZ5SI++ysq6cgOAw7eApQF9tBRWoQxXb0UUeiCUaofJ3YT38jDDFZGkEM0uYKVC7fk6dKk6Wn9ABmSdFw6+KnS5ndK6r0qsqlOyuGeU6/bSzL1iaNpIhtF/YM04pqairqw5cKa1GwBQeWLJ116AbNa7hlxTJ4PrHul8lG+fd8V/ZibFPdYF3cqS4ZTM6Sx14hYx7XnS0xXDlF6CLv6bpORyiAclR+zW9doOrzjL+I5dH0RNfqOmoBSdbPEwZd2yRgB",
+          "thinking": "I'm looking at what appears to be a memory trace log from a compaction system, though there's no specific question attached. The trace shows a deterministic process with multiple steps, but I notice some formatting issues with unclosed brackets in the active_quests sections. I should probably ask what they're looking for, or offer to analyze the trace structure and identify any problems.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace log from a **MemTrace compaction** system, but I don't see a specific question attached. Let me share what I can read from it, and you can tell me what you actually need.\n\n## What the trace shows\n\n**Header:**\n- `3 step(s)` — three timesteps were compacted/retained\n- `0 verified, 0 verdict(s)` — nothing has been checked or resolved yet\n\n**Tail (the 3 retained steps):**\n\n| tick | pos | hp | active quest | status |\n|------|--------|-----|-------------------------|------------------|\n| 0 | (0, 0) | 100 | navigate_to npc:0_9_0 | moving |\n| 1 | (1, 0) | 100 | navigate_to npc:0_9_0 | arrived |\n| 2 | (1, 1) | 100 | interact npc:0_9_0 | quest_accepted |\n\nSo the agent walked from (0,0) → (1,0), \"arrived\" at the target NPC, then moved to (1",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 199,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1379500000
+      },
+      "id": "msg_011Ccrbsh9V68Dhb9UGsBpuH",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 199,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 184
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace log from a **MemTrace compaction** system, but I don't see a specific question attached. Let me share what I can read from it, and you can tell me what you actually need.\n\n## What the trace shows\n\n**Header:**\n- `3 step(s)` — three timesteps were compacted/retained\n- `0 verified, 0 verdict(s)` — nothing has been checked or resolved yet\n\n**Tail (the 3 retained steps):**\n\n| tick | pos | hp | active quest | status |\n|------|--------|-----|-------------------------|------------------|\n| 0 | (0, 0) | 100 | navigate_to npc:0_9_0 | moving |\n| 1 | (1, 0) | 100 | navigate_to npc:0_9_0 | arrived |\n| 2 | (1, 1) | 100 | interact npc:0_9_0 | quest_accepted |\n\nSo the agent walked from (0,0) → (1,0), \"arrived\" at the target NPC, then moved to (1",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 199,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a8eb0f8247b0556c849e2a658e9bdc89fb51d32d362f45887935fd410e5f0ab6",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6800,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtsFCokBCA8YAipAWD9H16bFXYttb0BUjl29myzS5IbIFSi+ISMNeDsTy3SbkLM0FbqsYq+WBsxR7SXvmON+0+SM6nmSPGTrNfrz2jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEpc6FXxA91eKid6BhoMZ/r0AFrbWVaJn3vOIjBCsr3Z3Uipu+0nPrqlZJA9JDdmNa42fehNLsrjVED1saQ1jtJPEMksZ3MJONsDD84q/gPytx5uLmpJ504hDsRJJyVl478zwGaHBG4CeK1LJ/v2XD+APdxo2fwpzemRITjc07ZZyi0UDx5CKqxiPBh17vDhd8NR1qwkBLUpZ9nlSECA4QdllrrNcGOT/QHIn3S/bRULmcNwRO85e2VTX7aR4pep/ScEZ/xxu0Ke74I0fenj1OMbE8pT+xx7388XZXhOsS2nvC/UvYJ13mR5+RkmhLdZJnmRnki4WqA2HAmeB0+lYSaRLFkGoi7ZZJ96DvvHJOyVrdDZdc3JhCsHcNy+07xIjvhi8zh9DetnlwUzodJRd9ZZ8mSXpt78cJ1AcO+lYXxyX9tlWMKX29cmqgWqs8iUNUyViaHPOPsDZ5q0BNJjkwaP3LAo0BIaVFHC2vlu4oTeTBk9Hc8XowU+FQElcFTGv79wOQZVJND9D7SvbWQGiVPGOAp66Qv8lWZ48rjh5IpCfcRGJQB+bJiaA6we/QBn2DTOTSHqwDSwJ3NRuRx0BJ/3fulIlPopFRHpgZzrUcH+qvKtbt6cpb4qQJ62G6T53IX1A0mifrA19t2VnFLZ/u8MseEOprE9qtE5UxEOD/PPetYGLJ1PM6PYi3ey615uD+a6P+5b/Djq5kW64cQuTK1W6LqTyj9wrhghzJQSzZ1RV7ytpuTQ74GgbtpLbgM5JUz1R6UnvrHvWn0ZDhcYAQ==",
+          "thinking": "I see there are no active quests, so I need to start one by talking to an NPC. The only immediately available interaction is with npc:0_2_5, but that quest is already completed. Looking at my known quests, quest 0_2_4 is at the talk step and npc:0_2_4 is reachable, so I'll propose talking to that NPC to advance it.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_2_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_2_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2647,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 231,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1901000000
+      },
+      "id": "msg_011Ccr1ffuHJHyB41edpME8P",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2647,
+        "output_tokens": 231,
+        "output_tokens_details": {
+          "thinking_tokens": 190
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_2_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_2_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2647,
+      "output": 231
+    },
+    "tool_calls": []
+  }
+}

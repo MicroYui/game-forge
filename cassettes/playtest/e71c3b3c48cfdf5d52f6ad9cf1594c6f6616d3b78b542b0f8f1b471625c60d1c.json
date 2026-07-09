@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e71c3b3c48cfdf5d52f6ad9cf1594c6f6616d3b78b542b0f8f1b471625c60d1c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2867,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoMCCokBCA8YAipAvcChZETd+kwfwjUlY3pKpiqPPSqQiRtuJX8F/wA+5Axupmfox5FyXgN+hv5rM0Ho2M4HLKzU+gAypOcKddWA8TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBvBeIr2TpHTos97RRoMFe5y4TRFu2QHz6UQIjD/Qw0KZJO9w6CBZLAD8ImhWD0W7WkHLSR5t7b1IhviXJyLrr+98CoOa6+pkqzmz+oqJ192tW2B+X0XhtTPV+uyOF0KLuJBIJmYwoovvJiiqpbuPV7RG7m/7RgB",
+          "thinking": "I've just arrived and there's an attack happening.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_19_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2950,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 41,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1577500000
+      },
+      "id": "msg_011CcrF3xxq1GmBGkV85HpRF",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2950,
+        "output_tokens": 41,
+        "output_tokens_details": {
+          "thinking_tokens": 14
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_19_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2950,
+      "output": 41
+    },
+    "tool_calls": []
+  }
+}

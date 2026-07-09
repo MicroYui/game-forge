@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4344e2553274e0fef3024b4482523982246b30a5a34d1c27e1642210d70a2675",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 8061,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvsICokBCA8YAipAbXg0DQbvsrjka+1THpDLni68/q5mCPA3CD6gFxqB3SyvQkDN8v74PZ9BcHk4iWjD3U8FI+nmcxaJwQ63dq0FMDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHHQSKY3pTLZreYkrRoMXYF2N4OyN65ysDrSIjCmtuqXTpybHqmuce/Vv6mXC9ma935c+qHwb8i+zMHDUD7lBrcLC2nBjCp1CWNKJWEqngdcfhVoq9aeazUwsIvl7b7FoKZxTivbo8wXKSm50g9H80Ity3DmfHwGnnL6+gaapK9HaEKeUadhUj1yTOpj2g4l4TeQ/ea46THDlDlJjbUqSYj59z3TOkAtc+ThiAwxHR8IUXRTuIvA0VTlypPAN0A9fRkSB+ib/28QHWTn/ydR+DhQ9hVJHlGPvEJ7b1Spn0k2JkXqYYLXeRZDSflU7UZsF0quthXlfgkHVFAEKaHcgdBhCu3iHti8qO9FdVkeeqd+/Te8cWndizZj+E/SM2UoUMH7MLooQ9YGYrl+uvGQ81+dyeyc6ZJ9fFG/JA9kd0wS6q4Bd7z8TDY6xw2X57yoySwqoBds5Zq3rSj8n6/CSzBSXbFG/NoDGZ+Watb7kVRPC7kSc3OVSU992r+T/lyO4rdEFQ+TQxZ3VRFgtUcMBg7j2pIsEYtFx9UrnuM8CwjR2yPUr9cjQVmyb3PQdqz7R5cDtad+7TqOyPTYfi/g7I/ZNyGifMFvkRXxPzM7RPBrt/QHcfM1PsNaRQrLXavJrKSCtoAkXnQBcwcOYSprhe623btrkj9a83v3HTDRydzjDx2SziEdPxf4n2tjwdAXwKBAZhPSKmSOO5vBI6VnLcT3mHEXCkA5q1DnqDBfBnycnk1IwvSeIfuLLdP3meMdaqXLRfaID2Pol9pxQfkPi5BSu9Tka8XhqRmV8wlOXEuxugpQGbBkQarXo+z2Y4Gyvvv9U92Wu3J/mOTzBDiXfrG6lzqToo3eeq9nSpT2OtjFaDfnsQ/9CHkreFS+lQv/FfjXNEYe0q3PQYp5qeC6AYnoNDTaxHltBz1ZrKJj1RCi68k8Y7snqX+sfaBFsLV/w3WxubzGy/wT+cBZ48CbSplyRdFreqZKrOfvgRMnn4Fhu/2Z9BbMNYmPGxDKeYF0/YAe6i6nP47FiymnP0wpIqpaKnmnheMIj9tp7zcJ9EWTK4PcJNxJ8Q4k5PdpWSJNQk/ttSwb5+U98V/t/aq8yfZ1FnNMqtRCX7l8miDDh/CCpTXs0hli4pb7bGbhRiKLZO88kDd8DEs6IBt0p6R6dHnQfyzCr9uycgEZWFi7e2HopnHxxmfJHAerMUpY2CK+o6+WmMpxLQaGwXikdO6GGjIMn/0OzRCzhk8k6FRNmPyQIZZvujaDwpPg3z+M4B5nC34fV5EcQxPvUbXaMAChXRuhWB7f5mIOXiZzykIXJDNtuTcZly9pC9xxHwEPDxgB",
+          "thinking": "I need to figure out which quest to advance with the available NPC interaction. The NPC 0_10_7 is available, but quest 0_10_7 is already complete. I'm looking at known quests that have talk steps—quests 4, 5, 6, 8, 9, and 10—and trying to determine which one I should target for the next talk action with this NPC.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2312,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 413,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2188500000
+      },
+      "id": "msg_011Ccrcyi36UiERzPaUnAW7L",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2312,
+        "output_tokens": 413,
+        "output_tokens_details": {
+          "thinking_tokens": 372
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2312,
+      "output": 413
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ce22d3f8680c789dcc217a06960382ec4d5711f2686f89b4d22a80ec66af627e",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7005,
+    "raw_response": {
+      "content": [
+        {
+          "text": "It looks like you've shared a **MemTrace compaction log** from what appears to be a game AI or agent simulation. Let me help you interpret it.\n\n## Summary of the Trace\n\n**Header:**\n- **46 steps** processed in a deterministic compaction\n- **0 verified**, **0 verdicts** — nothing has been validated/confirmed yet\n\n**Timeline (ticks 37–44):** An agent navigating a grid and completing quests.\n\n| Tick | Position | HP | Action | State |\n|------|----------|-----|--------|-------|\n| 37 | (5, 2) | 93 | navigate_to npc:0_12_3 | moving |\n| 38 | (5, 3) | 93 | navigate_to npc:0_12_3 | moving |\n| 39 | (4, 3) | 93 | navigate_to npc:0_12_4 | arrived |\n| 40 | (3, 3) | 93 | interact npc:0_12_4 | quest_accepted |\n| 41 | (3, 3) | 93 | interact npc:0_12_4 | quest_completed |\n| 42 | (3, 3) | 93 | navigate_to npc:0_12_3 | moving |\n| 43 | (2, 3) | 93 | navigate_to npc:0_12_3 | arrived |\n| 44 | (1, 3) | 93 | interact npc:0_12_3 | quest_accepted |\n\n## Observations\n\n1. **Stable HP (93):** No damage taken — a peaceful navigation/quest sequence.\n2. **Quest flow looks",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 451,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1505500000
+      },
+      "id": "msg_011Ccrg1ei5RSPxFKKsKHYsf",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 451,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        }
+      }
+    },
+    "response_normalized": "It looks like you've shared a **MemTrace compaction log** from what appears to be a game AI or agent simulation. Let me help you interpret it.\n\n## Summary of the Trace\n\n**Header:**\n- **46 steps** processed in a deterministic compaction\n- **0 verified**, **0 verdicts** — nothing has been validated/confirmed yet\n\n**Timeline (ticks 37–44):** An agent navigating a grid and completing quests.\n\n| Tick | Position | HP | Action | State |\n|------|----------|-----|--------|-------|\n| 37 | (5, 2) | 93 | navigate_to npc:0_12_3 | moving |\n| 38 | (5, 3) | 93 | navigate_to npc:0_12_3 | moving |\n| 39 | (4, 3) | 93 | navigate_to npc:0_12_4 | arrived |\n| 40 | (3, 3) | 93 | interact npc:0_12_4 | quest_accepted |\n| 41 | (3, 3) | 93 | interact npc:0_12_4 | quest_completed |\n| 42 | (3, 3) | 93 | navigate_to npc:0_12_3 | moving |\n| 43 | (2, 3) | 93 | navigate_to npc:0_12_3 | arrived |\n| 44 | (1, 3) | 93 | interact npc:0_12_3 | quest_accepted |\n\n## Observations\n\n1. **Stable HP (93):** No damage taken — a peaceful navigation/quest sequence.\n2. **Quest flow looks",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 451,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

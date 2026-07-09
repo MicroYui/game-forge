@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3fd4b8ae93e27380758f3350b621c98e6d48eb3cff932543717333ad58531a59",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 10486,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpAKCokBCA8YAipABYeCpiaA13s5NFrjwhWCqL5+ARI9Z9/oD5CBJWc9lyfpNizIa2gew7NvQQU4WOpspRfgmYAY0ywwJdIMvkrb/jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGAnasQ7ng77QQJ+9hoMVUQYTNck+juJrJg2IjA7hiQYApg10pDnEhMUi7fUpzIQYCIt4NHMmG35JRQ1LyOimmGCIQB90s4EKBgpOu0qswhd0a8TehLZ5T2xKxXmpCyEvsJ+ah6S5PBDHc65M/LaRqkiAGlDfPWQ2HpzKKAtLbVKrCIbZFkAyUllzNtpLATFm9bZ2rY+4v+vx+7byD2vUgwIV96Wi3tWInZxi1hzt4I54FgTOd30puXy8CoWsv/X3yA8/98scDI6qbaYDdow+3qbP6GBh0cL5xgIFusk3mwBFC9WWANwCoaCnEHR/Z/RSfxxaz2n7UbsI6ZdSxZJLmHgqJEYtjtORfOkrL88IV6h10JUg1eFY7q14iK2G5emE8+wFYV+IjEEf8BG9X8EJIe+XDsGP8ShTplRdH+GoHZSn0dotkEH5w+b/tS9f7UhonEc9JNf48cZqBuWQ8e0ODs0/ET+Bsn44saL3moxPBWWM6E6SCd3HMs2P9Qo0ovAZAP7MwodAavpvxit2rdZUqpbImkymUGSFhvABUyC3FmNlOzN0NH/qo8O66f5weWVpLM5cKnkayqpKv43qeimPKf7LouK9cAQFXhL+qMo+AOHaEbdwhilvuFzFk15pyJeIUYv7E5SAyptFmVuAv4VBk7I2FMN/l4luBFK2QIjRHWYqRDIwRDs6R1vkvmFvYVPUnYgk4qw7MkjEZFaA0xqJ57R0Ecra6jrC6RuxcorEIdbePRrBi8LYhlls264aLhyuP9iOtVATDU2qk/b3RGbeluDaKPP0iQ6VFDAmJIKgeHyutrYS+Fw3I0J6YWYFPI8LyzucEg0NtfE/qlEm0lqeQqcmKTWvYvv1ctPEC76vs7i/S0wwIBEXGGlIqw1o9o7wZB8KEZGwYYEgdLs9GzXPikvdH+q26fg9oOptj/nv2CEb4WmFzugjQC/LGgB4HdLQOUlqIThxXVfoW53CD8fCLu+1n1ulHDtx/6rdVykNmEzy86u3idgjQSymHvDdYmRPzlL50N0DVhOv8krL3XnPY78EYvZZKNqDHxQidVMg4QxdI8Fdf/WYZ+tyKB3X5t3BumJljQCc7e/pMFdY4xohbnMWMres9Di2FjSc0/ij5w48QVZ0ePmJkzpRryIknX4lY5Ln1sBkLR9604lqrx+YZk8FMYeUxKwvsXvGr2/ybWAty6GFq8E4LuH37b0ddj5BWeeL6KDQvw876Hd0zVFV2z/VOuLT0YMgk2wXdoJlZeRj9LNKVZVvbK0GmUUoQhzw+qHsGSsCVZbk0JVh52Kw7PDHTUARu461GnR7VQCZtDI/58J17v2TrSiymDv0kmYAndok5kELvLBf3IZ5MPHIFnBmliDLwAXdrDj1gTcpRKnt9R8Aen55S4IETeWhLPFZfoNP3d8ci1H+GKYbPv50UoOaRh2Bm0ryhhtf8DRT1Ja8f+zm8Cqvf8qFeilxWmudN6+F5mpLbiTKGM+otm9bv7rayBT7sl/OcdatUE0JMLyH7+BDiwtYflL3cxsxulLJq5RGAE=",
+          "thinking": "Looking at this MemTrace compaction log, I'm trying to understand what the user needs since there's no explicit question. The log shows position tracking and navigation events across different ticks, so I should either ask for clarification or start analyzing it for patterns or issues.\n\nExamining the sequence more closely, I'm noticing some inconsistencies in the coordinate tracking and interaction logic that seem worth flagging—like the agent arriving at one position but then interacting from a different one, which suggests either a logging issue or a bug in the navigation or interaction system.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 449,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504500000
+      },
+      "id": "msg_011CcrK1LWkWZH3ND987n1W1",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 449,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 449,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

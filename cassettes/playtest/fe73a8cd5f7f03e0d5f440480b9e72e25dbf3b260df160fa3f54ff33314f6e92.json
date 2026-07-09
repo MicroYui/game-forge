@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fe73a8cd5f7f03e0d5f440480b9e72e25dbf3b260df160fa3f54ff33314f6e92",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3266,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqACCokBCA8YAipACUxkemEZgT3awzqa2NAkZBqohWd0Rsbahlux9gcYyRYg/C5IzHaeVsS/I2KXLgEe7uOcAzSzim+1fKKEyxpNTzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBE+aduk5fZBx1n9/xoMpQ9E07YNkdqJsz7aIjCRUamwC3rDnLG2x/Tz8pgzIIR9+uALprn07+BBK5UFNr515w3jWGfCjNAyzOVV+JQqRJjeCdq38KQNHFcPJIISz4LJ/75cyA4bVhbiNSaB0dUoqms3GBgtn+JOjlgpwJHy1eYoZskOl0VzYXFkWqnW0oAyMqdcGAE=",
+          "thinking": "I see that gather:0_8_5 is ready to use.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"gather:0_8_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3145,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 47,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1690000000
+      },
+      "id": "msg_011Ccra98m3DmCDCHcmVLRad",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3145,
+        "output_tokens": 47,
+        "output_tokens_details": {
+          "thinking_tokens": 22
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"gather:0_8_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3145,
+      "output": 47
+    },
+    "tool_calls": []
+  }
+}

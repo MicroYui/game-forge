@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:368e57ace7eae0741d6be1a27988724258860084fbafcd38e4f2b8d9934d67af",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7670,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtIFCokBCA8YAipA1RrVkrPjp6cOeWDwEv6Red3qxagY5RpE1T1NqMYISxBQV0y6lzht72Roidbte9tT6QsldrZXgSphOfs01SOhFDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDL5HVzyNbCGaFTYjURoMcsmE2btKMyorZ5hnIjBAidj9kD3yuPiZinBpGbLjLg6z4ydC932HH+HEfCczYg6T7FP0iKuIuyS39bdqPXkq9QPnUY5fpbjCj/Q94nXEFyQMDbGYVK1PQaRGN4BAHkOw7V1L23/zJ+adnBKnIxLYNOBjGL6ezqAEu7Xb4MymSiZy6coJI7sAnm+xV9J6LPwrFLSqPQuFiJnW00qXJzmdoBM6qhj+zkbyMMLRImzBIZ0H2NoMxNFvzxBxEiXGz00jAVhU35oShgIm15Pk7vp+BsH2whPBew0LOhbXYddV6hCr8Jy5MRqJaFrx4uniYGrQSGk37fx4GunH7CWPFxRMBBgnU2kmOB/sf0wJJlgJNtCGH9rRjyzr8rhG7Bxm8WcWrNlWvko01LC/ueR6gsXiVYLdYG4+kp8nLk1j8vnMJ14HnexYZHfpnkJnB5h5NvLOQewxHtTERFuiMKvXHsu/BPsoYSrxXJ4wGjJ1tYQm3nmZHd0QAEAK6IOjqCC9BDXWZzEOPMurslNX0apnU6sc9xs9jgclYkLkQ/ixjWtJE7LCiNQKmP2WJ88vvv74NwQiTCLbejSXM4JyqWXPLmH7mdLeoDQzG1rYdM4mGRuf/psKJRsiIySw1U9Npvkg8092hrde0ZS5fuT+CoRCHJzne5flpT5fcSWDJ+LgFOd368RWvkk9958gX30Y12EfGdovlV7hEW43GlXyg/2hgGG3dlo+P2sX1NSSeHOraLlvwgUff717E9EYAQ==",
+          "thinking": "Looking at this log output, it appears to be a trace from a game AI system showing an agent progressing through quest steps—gathering resources, navigating to combat, defeating an enemy, then completing the quest with an NPC. Since there's no specific question, I should probably ask what they'd like to know about this trace or offer to help interpret it further.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like a **deterministic replay/compaction trace** from an agent (likely a game-playing or RL/planning agent) working through a quest chain. Since you didn't include a specific question, here's a read of what the tail is showing, plus a few things that stand out.\n\n## What the trace is doing\n\nThe agent completes a classic quest loop for target `0_5_8`:\n\n| Tick | Position | HP | Event |\n|------|----------|----|----|\n| 77 | (2, 9) | 95 | `interact:gather` → **gathered** |\n| 78 | (2, 9) | 95 | `navigate_to:mon` → moving |\n| 79 | (2, 10) | 95 | `navigate_to:mon` → arrived |\n| 80 | (1, 10) | 95 | `attack:mon` → **hit** |\n| 81 | (1, 10) | 94 | `attack:mon` → miss (took 1 dmg) |\n| 82 | (1, 10) | 94 | `attack:mon` → **victory** |\n| 83 | (1, 10) | 94 | `navigate_to",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 428,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1494000000
+      },
+      "id": "msg_011CcrLD1PWYvXsKcf3W9nKQ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 428,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 157
+        }
+      }
+    },
+    "response_normalized": "This looks like a **deterministic replay/compaction trace** from an agent (likely a game-playing or RL/planning agent) working through a quest chain. Since you didn't include a specific question, here's a read of what the tail is showing, plus a few things that stand out.\n\n## What the trace is doing\n\nThe agent completes a classic quest loop for target `0_5_8`:\n\n| Tick | Position | HP | Event |\n|------|----------|----|----|\n| 77 | (2, 9) | 95 | `interact:gather` → **gathered** |\n| 78 | (2, 9) | 95 | `navigate_to:mon` → moving |\n| 79 | (2, 10) | 95 | `navigate_to:mon` → arrived |\n| 80 | (1, 10) | 95 | `attack:mon` → **hit** |\n| 81 | (1, 10) | 94 | `attack:mon` → miss (took 1 dmg) |\n| 82 | (1, 10) | 94 | `attack:mon` → **victory** |\n| 83 | (1, 10) | 94 | `navigate_to",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 428,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

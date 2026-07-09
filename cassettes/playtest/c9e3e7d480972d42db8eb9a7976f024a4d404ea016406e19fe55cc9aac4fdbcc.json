@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c9e3e7d480972d42db8eb9a7976f024a4d404ea016406e19fe55cc9aac4fdbcc",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5500,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuEECokBCA8YAipAUsKaKniXtSNbVfQqefbbEN4GTCckZrGOmdDExMnHJdKvqmVf8YRoM3i4t1CVhuiCaM1ijOFFFNGt+RSJ3TeRGTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDC7PtMEQwh6nMPVgmRoMk5Mxc4h3rY9C+ZELIjBQthwoimP93ALC9Xxv/Fgk622R5ydKCo4RAILBh6tvhYjeFJ6l3+N4U+WNclt8NgwqhAPNL7fRWmWOuh1PdqBI/AMEH3Vh/Mr0n9rIdPB5jGudpHjJ1z/ppkXjtiHByE00riOjtBAQ28zbuAMjMzdBn5Nb8Yf176teh9NcOFna3NBJHi3YOqyIwrXjUIQHzorTzkBUSdQBxxSU8mszm+lQXcTe0Omrc1PJJoo3PCqaliYELva8h/sz7nr4MnUePn5qjl4Mj4Ed1hU1I6l2eRUa4saAnl0cIQsR/S5nb33JyRa4NXzGPr5igU/P70uAidymDnK0M2DKdx0mcjpsQq5sfPE/PeZHTPtUmNsUlvLRnWktucdYsKSTq6BOb6AkEVP1Gb1flB3qhMShkHCyA9URKoegr4dk9L4q7outKGjhLMK6ZrHLRMnSFgxA0S77Ve/3LE4dFRjyVDuzOzlI1bqdQDoY6eRh6b0+3mI6GZV16CedSAMDEgOhUxHCTEgWunPtVAUGY6ak/wbVT5zvZNmzvAhcvp3HAlEdOZ+v4R32lbc7TZIrh18zVVXo3ja32HtOomif5AHkGAE=",
+          "thinking": "The active quest has me fighting mon:0_12_1, and I'm tracking my position as it shifts between (3,2) and (4,2) across ticks. I have the target locked in as pending_fight_target, so my next move is to navigate to it and initiate the attack.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_12_1\", \"step_kind\": \"fight\", \"target\": \"mon:0_12_1\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1822,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 209,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1433500000
+      },
+      "id": "msg_011CcrfjzEsyzFW9KcSM6PfC",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1822,
+        "output_tokens": 209,
+        "output_tokens_details": {
+          "thinking_tokens": 168
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_12_1\", \"step_kind\": \"fight\", \"target\": \"mon:0_12_1\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1822,
+      "output": 209
+    },
+    "tool_calls": []
+  }
+}

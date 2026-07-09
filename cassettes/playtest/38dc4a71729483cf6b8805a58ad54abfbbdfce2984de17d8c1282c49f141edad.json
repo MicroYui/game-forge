@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:38dc4a71729483cf6b8805a58ad54abfbbdfce2984de17d8c1282c49f141edad",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8244,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqEFCokBCA8YAipA9YoyQ2obi3yj2Wrkk98OHYzlF7t23p0cBgpjNbl40qa5+gbKrM8R/ze2xRXNlNW4gg+JNr1k6VxD8q0YIItDmDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDClgf6oGO9r/Bo6saBoMv2QbabEtuFThNx67IjA47KEkLVz3EPCJpf869v2alKHS0GmnODm7wws6Z+LnY94Hq/KmqtxdTSvcSKAGB8AqxAPcVVPEduXreQOBT+hO3NTVF54LK1CU0LIB13J88KuUwSJ0fBBkh2K1SXgFgwC32IQHSm/KzBZ4jTaE9O7Fu2oxX6nrqzr91aGa+bcQ6EL5LBECBeLPaIJ3kENNzg7Vri0co04DgG9eTPeWQi9LzUE9AQ8hlI2OKfEBpSuycgSHGxP6TXJt74CbZJZ//Jm9sfi+s7YFGXJx4uQKxWthUys32M2rcYz8WDq4ydL/qMD6PpVw5/OepaTBNqRde9FS1fe9y6l9AcBaR++PfWHS7YebTQuVOdMfN7XH3jVRD2mbi4eSsXIr8F33CUFq1FsK4JiWtM2coLzrIB6hMYPrVYN6TIaz1XQEL0ThlfJJKoHPtqWKPgwtABw9qT+gliaiD9G2RJKuWpONqvdtqVAw2uldTiBx7qYJE1UYfyN4I91Hqb9DcfMsy5efDcw4xFY5zdxlxQNamW4gHcqWZoNnowpBOZFUhFBaunQ/BmYiCxWpl4JWwYD+mCOLkhWn8BNNDPM4cSMuAVquBuNtE32Ags2SpIo44k3HkOxvdw0m5uedlxn+6z3d2VEkPgEgJV4B8x4nvGBblrB8W5bcsBBI9wBFybKmTxgB",
+          "thinking": "The user has shared what looks like a debug log from a game AI or simulation system, but hasn't asked a specific question yet. I should analyze what's in the trace and ask what they're trying to understand or debug.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a MemTrace compaction log, but I don't see a specific question. Let me share some observations, and you can tell me what you'd like to focus on.\n\n## What the trace shows\n\n**Header summary**\n- `32 step(s)` compacted, but `0 verified, 0 verdict(s)` — nothing in this trace has been checked/confirmed. That's worth noting if you expected verification to be happening.\n\n**Tail behavior (ticks 24–31)**\n| tick | pos | hp | quest activity |\n|------|--------|----|----------------|\n| 24 | (7,3) | 98 | navigate_to npc:0_1_3 → moving |\n| 25 | (7,4) | 98 | interact npc:0_1_5 → quest_accepted |\n| 26 | (7,4) | 98 | interact npc:0_1_5 → quest_completed |\n| 27 | (7,4) | 98 | navigate_to npc:0_1_3 → moving |\n| 28 | (6,4) | 98 | navigate_to npc:0_1_3 → moving |\n| 29 | (5,4) | 98 | navigate_to npc:0_1_4",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 450,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1505000000
+      },
+      "id": "msg_011CcrGPrhxgWwH9i2RbT9vT",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 450,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 130
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a MemTrace compaction log, but I don't see a specific question. Let me share some observations, and you can tell me what you'd like to focus on.\n\n## What the trace shows\n\n**Header summary**\n- `32 step(s)` compacted, but `0 verified, 0 verdict(s)` — nothing in this trace has been checked/confirmed. That's worth noting if you expected verification to be happening.\n\n**Tail behavior (ticks 24–31)**\n| tick | pos | hp | quest activity |\n|------|--------|----|----------------|\n| 24 | (7,3) | 98 | navigate_to npc:0_1_3 → moving |\n| 25 | (7,4) | 98 | interact npc:0_1_5 → quest_accepted |\n| 26 | (7,4) | 98 | interact npc:0_1_5 → quest_completed |\n| 27 | (7,4) | 98 | navigate_to npc:0_1_3 → moving |\n| 28 | (6,4) | 98 | navigate_to npc:0_1_3 → moving |\n| 29 | (5,4) | 98 | navigate_to npc:0_1_4",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 450,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c50c6ef63ad5fd6095d158047e5e50e97d6cbec64063f4aafe3ca225149fac5c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7580,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErwGCokBCA8YAipA2jg3zx/yaudFhU9+NO+7UIz/i/6gshArjQwakHk/a0YbV9TG14fIJemS9oOpIUUI1kTwdgjdc4TUsJPxmxkk3DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOR4x1DYtrzO3W8IHBoMQ6XtyPfLhuL3K5cwIjDthQtepSwG4Rkr+cEGDKeQdWd0R/HfT/lLCc8f1x+8NaTfISNm0ZemJpX1Uyb85Isq3wTuVOlBRmaxw7iz+PxyLPlkyUmns7dqxw0TTOevQMWvhFFPLQU/Ocs3tDACyCmfp9SaTVKPgzrpHwI4hTgiSI/d+cv/oHoItwVKoJyvoMa+kAm/q3nqdsdg51gy/zRXqww2NnLQMtteIi30SGPcuYqTpKvTPlMGtQxbvOMBZnSlIT1foBb+s1xInMm3Cc0qnO5CLw0tohR0g4jfBJAX6ZElPqAfExilJ1NvnAtNt8z2HYLBc7DAtRhcGHkqi9qnUwtnn8mHsfdWg3/u57e04dYEV8cAcTxH2hjuKwBHSqGptuXxd9s3aaCCNLYha558Ulz2bH2kJlAeVk7EI8ElDvPT1oG2sqLSs7/Su8y+wf9/xGZdf5mEsV3AAUCF+ut5B8q/vHSYTEeg76W32hB/yKownebj23QO+paA5WutTTNiPPMF2heLxrIloajw/GoFlfOyAhcKiqJdxR/LIG8L21qE3lPAHw3qSTGNvUv3BkZniVeQajok6f1HPXRLXlfqZfZj+SGQl08ig8dOMkRln75mWzV/dJAjDLlTeH1aLir8GWd77Nlx5jnjcCRwETKmiDSnbuoEIM5vqyb0kmikimM6UqnpL8Y1kxvGXBtcf3ryi5if80KNI9EU2TJRXDf5Jav1IZhA5SDjYT0v/R61ekuPegRC2NfoCNl2p+RXTbPZ2mSLE6hFkHxfEi+5BNQYv8XMTDMZfY/NGdRXPyLI9EaHt/QxuUEoxuKgJOk9byqB4xEnCc1l/MGClCkcDFtd/pvHE0aQjOVWdofamRilNaDQ8NyV0nyeldboZyehPQa0GAE=",
+          "thinking": "The fight seems to be going nowhere, but the active quest requires me to keep fighting mon:0_12_1, and it's the only reachable target anyway. I'll stick with continuing the fight and let the reachability oracle determine what happens next.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_12_1\", \"step_kind\": \"fight\", \"target\": \"mon:0_12_1\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1909,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 252,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1584500000
+      },
+      "id": "msg_011Ccrfn8z3cp4jQ9Jq4zbS4",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1909,
+        "output_tokens": 252,
+        "output_tokens_details": {
+          "thinking_tokens": 211
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_12_1\", \"step_kind\": \"fight\", \"target\": \"mon:0_12_1\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1909,
+      "output": 252
+    },
+    "tool_calls": []
+  }
+}

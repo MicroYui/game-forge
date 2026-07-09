@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ddc66603ae5bdd8a925bdc7d93d31abe69994bddd3d050617f7405e85bc00429",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9230,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "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",
+          "thinking": "Looking at this MemTrace compaction log, I can see it's a 38-step deterministic trace with no verified steps or verdicts yet. The tail end shows ticks 30-37, and I'm noticing something interesting around tick 33 where a navigation command moved to position (11,2), but the trace cuts off at tick 34 before showing the complete state.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction summary** — a deter",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 426,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1493000000
+      },
+      "id": "msg_011CcrcosPt5RFdcVyyHjy17",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 426,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 486
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction summary** — a deter",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 426,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

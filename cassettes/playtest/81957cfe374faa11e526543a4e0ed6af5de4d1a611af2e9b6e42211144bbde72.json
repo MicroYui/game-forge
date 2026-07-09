@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:81957cfe374faa11e526543a4e0ed6af5de4d1a611af2e9b6e42211144bbde72",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6260,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EokHCokBCA8YAipACUi4TZlULY22r93ks2wIHyBdEVmnjD4BJsU4lFDEdYhcIGPCPgA5Q/eucIO2T3wFCJyQ/Gt5Tv4jm7aV+gHEPTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIRDStmJ/39Bh7bd6RoMbVal8ImqJbkEP8mvIjCIMnEkHe2pAsaY1Au/eLZtdGEJNHwJD2odezB96UKrhHKheHLFQxvjz3Hu3d58cO4qrAX3c6PdxeZgcQjy5Hz8v0VK9pI398alq8vmzZ2JGIeBhajz7PEz0lMqoXyxVqnAE4CMq+Zun0ub8pCGxMiNEwDGiVPOpH8f0R6nnVAn3KxJiExJDXy1B4IzVHXsprZkO4S748NhLkJBPZKM0yp4KVktz8zAz8ZhPCiiISBUI06GRpvu6SLB5LWziWDenHcOlo6M2SP886djs5dE3ksBvY8iHoYFvX/WxDW9GC1kN3fPbisuvK4Nfb83SMxpQJlfd6/8jdTy/XB6VDX1DnhS9qlAH4FUEI43Py6kavmsKSd1/6EGeolYUpkcgoa1D6pLXoQJ0CBuL5JpelI/34Ru3XN5XBEzJlhQ9JG1XSTDpsLHznVQRUWgCP5j9lz4Iy3JNhqrgK9X7WfiwgRenjxuCUfyFbiCpSjPuTkH6j2iQIUi8MLwyB7xlBj7Mxat6VklWN4bx8/bJXyIlRa3qTtesIcoCzgEssDpiyAkCt8hZimoHh57wgv/7Xxeu4BENW7VUsz3Ms558NQUR6Vit0QldD+puMkwzacLg2S4RQ1zeQcPqfdJViPvlJY1IpIiSM/1zBATn89OC2+q/FtNteItvj00xr3fEU18aCKatnRx9LIayTY8lfvMSpEY1sW0vAq8koVHn7hjdK/7GzgOeYAfkK2NASVQuLBCJEOepboKqFOJcGeDIA6iz8DTSScckz0feSIoVVjVPDdD9GTevqxA9L+J2QmmJEg5w7iYVo2HKXeV2dekHM/sit/WTf3WjMFU1uZ0DCEdSLaXEkSPYJuxZqBeSu59IKcaDp0lMY9/k0vkmcE+3sD/67x9LMpR04QvxuomrfOLHV2N+q8nUvIJSh+3DInCoItDoJAWIQb2TldwTqZ7fId6isJJ2U8MFsxyALcRv56/htcIKEWEvWIYAQ==",
+          "thinking": "The player is at npc:0_16_0 with available interactions there, but repeatedly interacting with that NPC yields nothing, suggesting that quest might already be completed. I need to figure out which NPC corresponds to which quest—quest:0_16_1 likely has its talk step at npc:0_16_1, so let me try initiating that quest instead.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_16_1\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_1\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2367,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 324,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1993500000
+      },
+      "id": "msg_011Ccrkcs3vEq6SqwSsCZXC4",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2367,
+        "output_tokens": 324,
+        "output_tokens_details": {
+          "thinking_tokens": 283
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_16_1\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_1\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2367,
+      "output": 324
+    },
+    "tool_calls": []
+  }
+}

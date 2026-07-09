@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:af4821721a237b5c0b16fd6992170835b733f20acdc7f784741cf701c39a71ad",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8482,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpgJCokBCA8YAipAnwxUfhbG+TIbKfqRTdBnkdj7Xtb/yISntBnYYBpf5ZHu6Uq+DByTUivRvp51aMSo8J9TOvd6XrRUQ3tR0YLSJTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKfigFNvbJ3YCwBY/hoMe5cHMb4crXYhsL4dIjBjB62g7/SzTum13gmgBemQDh7ojdetwAVb4DL2L0QoGboCq7kE3xs8cOeLyPFR4iMquwewX16TY/4bYper/eIjA8Svbj0Vk42Vy3dLicpphWXKTJdSvILX8CB4/c533G4UFfrgYzt3kOI/xuZWSKLIhuUlYQEwk61N2XB0lUqWcZ1YlAmh2PnuKHMh5eiI8YguDDD7LD4JEkToC5XDHcdM8i+FSub7lyLLXAqdY0KCBG4n03Tr0iAOAbDb4hFqOkZ6Kluga4SRSWRPKO1WsXATJIgo2FcfN3TPKVPKCe28at9WHWfJNxzyPwi+SL/AccFoaLSCSS+LvroXaDPUxYwod4w7lkv+eZ5ZS8W4CC4lUFdfT4muNPqEEpHNORz+G6XnteHY9oRgdjz2msqfE+lnt830YUSBUMch9YwjVtlhUdkDgOLkMN4dnD75fNZvavW4Gei2rcFa6htuC8T8z/2Tula6YY9mQN28KRpKaG/0vMLhu7kt39zm4mhmEdkMlPNxhknZ0kve85eJXba7VOWkngukdkJeiZy+jVba518qDjvmN0IFLHaf2azEp3l/PNpdHh7vUxtQkNT0jWji6jd9qSuKcEJFTp8OlpKCbsXgm9O+ujm3J4K01k5vnEQjextWXZkODH5SWKeuILvzdplyl430JfJhrvTjYqoed88tM1Y0t+MGmeqiCQKAGVRgQEC5pNND6J3tGVh0kDiyV6AVnDzKGayCbWUFWdoijFiqpd6RYdqF1MkGbic98Pkezs2/iaAM03uw0Bc+UL0bIoQZoLBnxHQ/uPnJPTeyfEw4ZzQFboTV7lV6sXXQm0jUbDvuCk4NNoQpcsKzvJ23helhw1nebKpBsCTa2CElJFdbrLSkSED1WVTccZWnSATHopzIOiPur636W90X9oqyAwoFI/06XZfnvP/Epj992Mw1AV81dAKclHggEgKQgP7Wq3JgeDERw849ldhV14AOojcI24cJhffOIx/z4AlmRVDKOWCVIM47PRUBJaJkk7R+hd4nKhQEdzqHemFtoIuD6HNSFqla7qK504XKWY40oopRhF2rXOgvSu/wwGv/lIqCzLB+FTNAZYviEwvFr7A55wJKVm/mAWLOeDPZjVR2lzTh0LPIBetPhvJy3B6fc+xHRVVKgVMQ8glnx0o22ZWLcUGHlMxdtB+bXdbY7rLBikk/Z5WOtU9X9Lr9wtpeJOKjO5foflFF7CP+49k2K6cvxpjLnuLjdT1JZS7nsRNzoRr5OTzHI68HW6tu+WclU4wSIYcEdBLqllL0PR+KJqBGpl9UT4RbrNFtbDcdfIQ18s3rjHUcYSCao5YFsJiTpT9dGAE=",
+          "thinking": "Looking at this MemTrace compaction log, I'm noticing a couple of inconsistencies that stand out. There's a singular \"active_quest\" at tick 128 while everything else uses the plural \"active_quests\" — that's likely a bug. Also, the navigation target shifts from npc:0_5_12 to npc:0_5_13 between ticks 133 and 134, which seems odd since the arrival happens right after the target changes.",
+          "type": "thinking"
+        },
+        {
+          "text": "Since you've dropped a trace without a specific question, here's what stands out from the tail. Let me know what you're actually trying to diagnose.\n\n**Observations**\n\n1. **Key inconsistency (likely the bug):**\n   - `tick=128` uses `active_quest` (singular)\n   - `tick=129`–`135` all use `active_quests` (plural)\n   \n   If these are supposed to be the same event/namespace, that singular/plural split will fragment your grouping",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 427,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1493500000
+      },
+      "id": "msg_011CcrLpMkqeuaQNscvnYsSz",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 427,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 362
+        }
+      }
+    },
+    "response_normalized": "Since you've dropped a trace without a specific question, here's what stands out from the tail. Let me know what you're actually trying to diagnose.\n\n**Observations**\n\n1. **Key inconsistency (likely the bug):**\n   - `tick=128` uses `active_quest` (singular)\n   - `tick=129`–`135` all use `active_quests` (plural)\n   \n   If these are supposed to be the same event/namespace, that singular/plural split will fragment your grouping",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 427,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

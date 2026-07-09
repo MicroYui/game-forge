@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:40e3627bcbbf83151b7f794cbed471bcdd621b61d398d2236d4dde114dda1d4a",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8854,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpwLCokBCA8YAipAigcDRpiY5TpasB2aHV49BU0KyltbbV6HQbB/VqPobr42Msds79mmEb2FEnkiXxlCtSIIiB55BcplSk4oCPNo7DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCAFuqff1SnOb5EXFxoMlhAmCprBYNJa0FRpIjBqhfC1s3UijKbu0HgipoIfNWBPiXB1VWtOTif5BKoRzRT13z7AttgIEQav/nEHK4wqvwl9IiuBXIYDrS0lGwlL+TJO/ibezWonlU7mXc4Ge47FOZqJBBYisHDXUMGfHyJMgYp1EGyUiJHGAJRpaNoeBA1vrvCaL2ANUlVh1ydHUf8I2UIZG5ZekaoQ9Ag4Th4UXDJCpdWYtjj63hW3DWMX7oXMLludJXOL3aETMVpMqKZsJoF9PsMhf9i+HJ5P5SN6Hx+JS6rnamQcG5c5lnBRlV2INFPYPywjNlHHhX80KEToP5AWJEJjWz9j8Ay8runkjSd31GzoMqebIHFQz/2qjaIqt3fXOlOEI3X/8tEHspAw5rVbl5VSvPZZaef3Qao7Xq9mPnbiY9sPKaihlcNRcjZyzhnGHUQ8V8G3zoAj/tmSxqX+obLrraPw2wVvi9jR/vdssDouQib+hC7UQa+P7SmKR2aGIFQ64N+AAT0xy+HL2sfS2Oh5nkASOzomBVJ1Mb4Hycb976ZTJ3Tp639zGn/snH6a5WMBw1EcHgXLwbb33sUc5mhD2YMcL+q16PRBCMdNwnscmQ36h48Tg6uY22kfgD3RVOfR3keAdAGN9qIyNv2bW8Ev6k3UwYQAXn095g8b/S2QJFCBbcgh5d2b4gW7U5VfmPEvV4oq3Ics2Tpz6J1m9H/X6F3KWdAbu+WxvmBqp8p5OoC5+wIEk3rVEZJ341a0NZcirOyP2t9aXhoXUu/7puHBWUgY1SAy/ApZ40aL8m871BQ1l0FWC33tOmv7DaJAnIf/OHWEjmYcadYrezrD+qibRU13txA6P3PAdu4qtNIsUbCE+RMyvOjdAvCfMRbdlEzo8KrEVkxR3T0pB9hD3VavCVfjhlYJUC4Zh572F0CwiD+QH76GJ1mvaDaj45+KyVoV9OA0uz4UUBmodF1mZfha6zydYueuJDZS/UnJl3OF5i195oRcDSetsVf/rWxhizexXaRophW2XQdV0RilQ299cjSNA5RAt80TBphmaEckknIZFwktEGl8GQgGnzRYpXfN8UPHn9lH0jqlsoTwaVHXSCYU2H17aIirYmfGfDRmzdkbD2Z2mENx7TLVKXIblIqjLyN6ymiEU0C6ehHRqYhR9fqh6v4EQ5MoSZaMAjOSKkEwUvVycR1DeOb9wQFsf3e9uHOkoxR9df7m6QSVmSPKptCAOfRB73rimEkUn3IbNmoJzDT66aYhe/mCwIHGmBumacGWO4LBi6phrbevAB/s2I1iVhiBeHzbvmmDlE0XOjfFWGEu4auNOpAfVaia06I0K2uOWTzB3Ye92kMLMcqp13mtAVzDCalbt/WpdKkmvykd6WCJvIHVlIm8NLLgdFkKcMMe0ML8sRWtVgJftxqiwBehtl9OhdAx5Nb2dRkalXdfKklD8cdpCAfSQzc+jwvfzqJnal+1pDgNmRmIcCufi4MPmnxu1cW7+s7yJ7gryJABEp/dQOEAYm9C2UBl3DIVM7o1Q/D1rqRv5c12zS2HhJD2Du7Y9Tku7HUJXhFYyrUBLUYCyRvPYIjd3ToEmPxsRc8VgDyPppMeomg90mxCbSQq6deOl8J9T8c0Oylaw+VhP93t2dCLLuaoRrleEvzxL1M0PGUcvv0Nd+oGQb/0mVLdrUsVrIsHW7xOgoshjHZtn2c/1oAolswYAQ==",
+          "thinking": "Looking at this debug trace from a game simulation system, I can see it's showing a deterministic compaction run with 43 steps and no verified outcomes or verdicts yet. The tail end displays tick states tracking position, health points, and active quests across several frames.\n\nI'm noticing a potential bug in the quest progression: the agent navigates to npc:0_12_3 across ticks 36-38 (all showing \"moving\" status), but then at tick 39 it suddenly jumps to npc:0_12_4 as \"arrived\" without ever completing the interaction with npc_12_3. The sequence shows it never transitioned npc_12_3 to \"arrived\" status and skipped the interact step entirely before moving on to the next NPC.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 450,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1505000000
+      },
+      "id": "msg_011CcrfzzHH7pJ6VGH9VrYXt",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 450,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 450,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1f80154fd6c43b2fc6c655d6ee5931910c44f558896d4e8b3e10a8af0950d9a0",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2646,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep4CCokBCA8YAipAz3rtl0APgs69KcWGeRjhPGad7ULqbNsa+GQ2CZRgGnR5wpWDQahAYM0tGeQPzxz/WmaKEdrJiGeAzPW1V/3RozIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEJyKaT3R2yuyRYv6xoMR1uuUW1TeIn9XRtDIjAL4N+S3a57v6dMFYCPSuWVSYxnljeo1748P/SX1Ager2PDLwomdDgxTRBJzAS9kgQqQmnuC2GzbEnYL2VwRIwpmfPaX0Ss88oLvUXJbTuU3T1QH9pFAjv2xmoi1PvQ5Q0H9RdpuYcrzA9O5Fi0ur+eoUL9WBgB",
+          "thinking": "I need to navigate to the collect step at target gather:0_2_4.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_2_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3060,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 52,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1660000000
+      },
+      "id": "msg_011Ccr1ibyiw3fEdvYHP6CqK",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3060,
+        "output_tokens": 52,
+        "output_tokens_details": {
+          "thinking_tokens": 24
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_2_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3060,
+      "output": 52
+    },
+    "tool_calls": []
+  }
+}

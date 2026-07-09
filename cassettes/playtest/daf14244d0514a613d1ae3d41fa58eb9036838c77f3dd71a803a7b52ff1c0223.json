@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:daf14244d0514a613d1ae3d41fa58eb9036838c77f3dd71a803a7b52ff1c0223",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 10790,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtQGCokBCA8YAipAb7deWkxeMw3fc3Iaa0Wsl+NhhNjp9uUZfRtLSWVCa9FGXNLo3rn5FqFgUjqSHmtqFaVHxDFtDmpuVx/g5SLRejIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLsAvuOZPM8fG8AMFRoMWpU31bL5uAT4eoyIIjAOpROO8DQWsZoLN/613W0opV+2QA5wJnon0217Baw8yrk0Tnkm2btOnzFje5+og5Iq9wT2UJfq99s9m/txbhg55zMHxb5Rk+y+SH64750N3DjErNSeFTUQWTCbTndy3dSqJdlffrlkq/IckdifVSDQzcAaRA48PUJ6tcLcHApHuEyA9KZ8YZsCj9yagG0JTTz5BR8ScO+5z6gIYmLx03dnDgu5/I/jGM5iXc2kIoh9UDDnqdybndeNAdyuSEIm4sZ3F3FTZLQUcNQbiW1sxWQq9GUNUOwGMCGRCjx67Nv4hVIR4zp8tPTaa1ylZMZ1N6OFBChF8tKvIyUpGETUWLCvrZ6vhOo9lv89MrOQXjkeekhKvmt+piYxzOd4VHC46C84sqsEBtHT7bO5XpOJDj7kKwaD5OiL9k0u/pO5ycYDggYMIMQIBJU4sXOwEZaL1UOuSluLZ6tz+QadFnHVnCe/G+HVyvAiwV2At4P5CZZFiO3J7ZGHRvJwoOd3hHlDJH/CrdJ1nXq9kQP1YZ+gZi1UK+rOC1iExVBPo4uwYnrg1/TycpgzN9dUV0mw3xw5b/f63/C4XrRML+qHfuaz47/7AEkshuyeFfc/XN8jfHiZOtMgDcaDgs3N47b3PX6k6a/E5EsHWWH7psHD8ORmlyrymGPIHOsj3chH5EPhp/IdEmmdu69VNoETXr2wd74xDjkYWR7Jc7GJYtI5Xi1OQl3+M9oM9CMcKGIcBHqo2c67hYgdFkRnRguL/Vp9SksSo8Z4yGScd59uqbJ8xzzifbQUoikTOOi0SuJxUzoMaYrodlnq/3heBiyx3EdLlbQMFDOI6SS27NQE4Ap0GpH5vd6JgJN5PGEI53r4tT40iqqcoYAEev9IFXNc/y5fESYqHx8COhkdtZhvzMtcGAE=",
+          "thinking": "Looking at this MemTrace compaction log the user shared, it appears to be a deterministic trace from some kind of game AI or simulation system with 124 steps recorded but zero verifications or verdicts generated. I'm noticing an inconsistency in the formatting—there's a missing equals sign in one of the final lines that doesn't match the pattern used elsewhere in the log.",
+          "type": "thinking"
+        },
+        {
+          "text": "Looks like a deterministic replay/trace dump from something like an agent or game‑bot \"MemTrace\" compactor. A few observations, in case they're useful:\n\n**What the tail shows**\n- Ticks 113–114: combat resolves — `attack:mon:0_16_10` goes `hit → victory`.\n- Tick 115–116: agent navigates to and interacts with `npc:0_16_10`, ending in `quest_completed`.\n- Tick 117–120: picks up the next objective, navigates from (7,7)→(10,7), reaches `npc:0_16_11`, and gets `quest_accepted`.\n\nSo the behavior chain itself looks healthy and consistent (HP stable at 85, positions advance one tile per tick, quest state machine transitions cleanly).\n\n**Two things worth flagging**\n\n1. **`0 verified, 0 verdict(s)` across ",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 427,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1493500000
+      },
+      "id": "msg_011Ccrn7Jt5nf4SiYgGMqC13",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 427,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 225
+        }
+      }
+    },
+    "response_normalized": "Looks like a deterministic replay/trace dump from something like an agent or game‑bot \"MemTrace\" compactor. A few observations, in case they're useful:\n\n**What the tail shows**\n- Ticks 113–114: combat resolves — `attack:mon:0_16_10` goes `hit → victory`.\n- Tick 115–116: agent navigates to and interacts with `npc:0_16_10`, ending in `quest_completed`.\n- Tick 117–120: picks up the next objective, navigates from (7,7)→(10,7), reaches `npc:0_16_11`, and gets `quest_accepted`.\n\nSo the behavior chain itself looks healthy and consistent (HP stable at 85, positions advance one tile per tick, quest state machine transitions cleanly).\n\n**Two things worth flagging**\n\n1. **`0 verified, 0 verdict(s)` across ",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 427,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

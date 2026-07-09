@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d32a3640bff3bdc473cca51bc75f4eb0fce36504ec6f4bebc91e6677a9142d33",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8570,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtQECokBCA8YAipAi4zTpG3KEef5lNAnY4K4rgrcwv68KpuU2MJBC8mtmXDpsWnUQpZTdSHqhIg04Xz/3aUTilqAClceDbpu3l5uojIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFbHsC/cNafiS4gN7RoM9K0FKRnHFvUikVxUIjAVhnTPY0k9PZoa7ZzKaKTix9CosePT6mwju7df69tgnD5j2jkjYgOjpKWEtE2Sfisq9wLyLoDaud5JkUnbDcMYKm7R8ey8KTrsRuXDX4tbXxNlNMWIx6Mern/H/kAaEqGZJrf4XdHYFzOEsR2asbx3u+cI4RdxcObFeeVAspNb/5ig3XWDPBa07B1dQNzyzeKPnmeCm64MKBHl6WkVfJxPquAYltdTr2FRVVacIAeNYMeGhUz3nd1DKplQTqRgrDwWvmOMqafQPoxlFasi7wY1EQptPT4u7Q+UAUkW/DksIsR//tXItlIRsmBRBk0HnVxwdyk7Yiw0vJ6XLuxWEGPj8fufZx5yVEkEAzHK8cAlYjsLk4Z9oU2yFdZds1mFnKJ+0zPn0WyahraAaf1G5ONzPL2sm9jbSlz3GKkdaLGU3ndLkGZeY2lXQceYq4CR9WwpK281/BekZJPmdDyaFfcfK07cVCnAjAoKh6VZbmE/8oHtxsPHXLrwq6Pxs0bCdPbLhQTY/c/0ERBCnT+/Kt/FJnXM1LkAZZ7JL7jM1ZhQEFiaqydccBS8j20YAQ==",
+          "thinking": "The user has shared a trace log from a MemTrace compaction system without asking a specific question, so I should interpret what they're looking for and offer to help clarify what they need from this output.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a MemTrace compaction log from some kind of game agent/bot, but I'm not sure what you'd like me to do with it. Let me share what I can read from it, then you can tell me where to go next.\n\n## What the trace shows\n\n**Header:** A deterministic compaction ran over **47 steps**, with **0 verified** and **0 verdicts** — suggesting no verification/assertion checks passed or fired during this run.\n\n**Tail (last 8 ticks, 37–44):** The agent completes a quest chain against NPC/monster set `0_16_*`:\n\n| Tick | Pos | HP | Action → Result |\n|------|-----|----|----|\n| 37 | (7,1) | 94 | `interact:npc:0_16_2` → **quest_completed** |\n| 38 | (7,1) | 94 | `navigate_to:npc:0_16_3` → moving |\n| 39 | (8,1) | 94 | navigate → moving |\n| 40 | (9,1) | 94 | navigate → **arrived** |\n| 41 | (10,1) | 94 | `interact:npc:0_16_3` → **quest_accepted** |\n| 42 | (10,1) | 94 |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 436,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1498000000
+      },
+      "id": "msg_011CcrkzPTMfsqU3fjqfrZSJ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 436,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 116
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a MemTrace compaction log from some kind of game agent/bot, but I'm not sure what you'd like me to do with it. Let me share what I can read from it, then you can tell me where to go next.\n\n## What the trace shows\n\n**Header:** A deterministic compaction ran over **47 steps**, with **0 verified** and **0 verdicts** — suggesting no verification/assertion checks passed or fired during this run.\n\n**Tail (last 8 ticks, 37–44):** The agent completes a quest chain against NPC/monster set `0_16_*`:\n\n| Tick | Pos | HP | Action → Result |\n|------|-----|----|----|\n| 37 | (7,1) | 94 | `interact:npc:0_16_2` → **quest_completed** |\n| 38 | (7,1) | 94 | `navigate_to:npc:0_16_3` → moving |\n| 39 | (8,1) | 94 | navigate → moving |\n| 40 | (9,1) | 94 | navigate → **arrived** |\n| 41 | (10,1) | 94 | `interact:npc:0_16_3` → **quest_accepted** |\n| 42 | (10,1) | 94 |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 436,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

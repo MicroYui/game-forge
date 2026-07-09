@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3782f704e9fdc691f20850520233ebd6a97c32a847da562e42838dd274bb89c0",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2876,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErUCCokBCA8YAipAm/xVkfnTNVyg3o4LtoFo3kd3fQxiC3w3LGqQwtswQA3DmdRhUpDT7HbnBqsGIMMQfcx/SlLz6FzJwwpl6j6UdjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKu2+9zbpGVcDCm2nxoM5JbWgOvc60bWvhTmIjDBpHUCPQGDhWZIrsyIFoinwiOXcXF5qccqAc7RFfgMTPAMEE8/bOhheGni1Yt9YIQqWfbYwlmZqbmCHU1dI1fpKTVH7gXdKfLByjB/GeharbF6+ofngtTxlGeCQcKAJrNVQTjaxJCVpTLZj1X7vhcJT36nYqTol8Asz9krskLrmtV5lUH6nwDeKMu1GAE=",
+          "thinking": "I'm looking at the active quest progression—it's quest 0_2_5 at the fight step, targeting monster 0_2_5, and I need to propose the fight action.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_2_5\", \"step_kind\": \"fight\", \"target\": \"mon:0_2_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2862,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 77,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1623500000
+      },
+      "id": "msg_011Ccr1dBxDLHrMiHdkueFHb",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2862,
+        "output_tokens": 77,
+        "output_tokens_details": {
+          "thinking_tokens": 36
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_2_5\", \"step_kind\": \"fight\", \"target\": \"mon:0_2_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2862,
+      "output": 77
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:207cd3e97519559e065d7e885df73055e90082bd8a40a64760baa2bc83743395",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6015,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtEGCokBCA8YAipAItAbzhGzMvHkqcXThxh2DxTc1iz3xukCmXuJekhNR2AImKdjtRSkQ7tYIuGJWlEFjbAoYGL637goigtitSzOLjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGdafEpv4tuK4Ia/5xoMjf7cbstyMkWitmRNIjCSLy67sKgxJ/TpT06i6rgYsgH/9O182ud/g9NHNaVyynzO9jTukia+5+84nGyTbYwq9AQlKEtmvfn8px4ItyX/L+u+deTNsNgiWcT/GS3qhd7ymPEnVIsyOAhSAON+Nxyd/kXJQdOXnaErsYPUM7ChSYpRAMzdO2e0Z4Tn2lUuJwujIrDPGQNnDH1Cuw6BEx9VFZtmZNCMBlDVQVtmeOYxRCg/J8U7LwB7G+hQaWPO5OW5UAraQn1dTEgbweQ2Rg4gbR+XHOHLZCl8o5HCwy7XVinbFyAvIsaevykVmd9NVeT3KabTPb4NQuZacQDbV2+ZP/09RpUvHDh8stPT9QbO3BYFBpyfqVXRi4JBaV/E1LKYQQAzsTxE2bVSSZ+NTk3WXESsS5pq0j70chyaylz+wqMza2BkAGfKxXtlcwnQpnsXupVm+WlBipWQ196pQpZsQB1pAxSyWJKi8M14Og2MMJSRvO3IAwsPQ6LRcvu3UwrIgRhm+xwR1to/to2dicyIOAVMAntyGhi3sZ9Kb66V5XBMztjdoTb1AmsNdcNnN9pdsD6vvlItPxPDWVh1mwDLGe6ctypOKZ20UjVeNC78mZLOEQgNkBayKJ29VkQegr5zFGZodh0A+rn6Lx4Z8OjAwOT+a//Yqdur0Oq7W+oaeyh/se8X6HQXqGpZ9rvm7fdBQ/oSW5kj2K6I2liF+vsqEBu9vB/RtZLfmcckpivHOLfDwIET0hvIzWEUukNHK4XfI3eViJDED9pygfegW4MsWa9qFISAEC4d+s98Lgjq1H2uAh6noCQi8zFg0VXwmBvDE8hESA0yaDlcBeSR+bSI4IFjyNibht4nWuRvXTwMJMFnfwgfJLXSv9Im+vavd5nrkisyrOydZZYfjqqOqpMf6CC0WQc0GAE=",
+          "thinking": "The active quest requires fighting a monster, but combat is stalling. There's an alternative quest nearby that involves talking to an NPC instead, which seems more feasible right now. I'll suggest pursuing that alternative objective to make progress.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_9_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_9_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1968,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 273,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1666500000
+      },
+      "id": "msg_011Ccr6i78iec3EDBrbKQBYJ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1968,
+        "output_tokens": 273,
+        "output_tokens_details": {
+          "thinking_tokens": 232
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_9_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_9_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1968,
+      "output": 273
+    },
+    "tool_calls": []
+  }
+}

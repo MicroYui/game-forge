@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a87d0082e5daa3895e2d743bc174dc1f0d547f79560869e2465cf36be700b276",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 8047,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtEGCokBCA8YAipAlmAtDOtfEniTZQ/r+Vhw5+qIjK1ROlxrXK70L6/SOZ3LHEZtmdLFjIxdb81nDDukWrKi7FzCIyiy4DHcqP11oDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGpd2JrOtDbCyDaRYBoM9ByJN+HwWEIRCuQ6IjBOaqRf/8epp6EW1Xns2rHh5etsZHVOixPQUMTTtDncIqG0gmIF5TBes1ojwzzhyYkq9ATvqknZXk+q98tC2/Y0/ehJV0UheBRt2494k3+CUQi11oImh80N94U0ES/ZgB5yK0+Qv9TOypziZGjzBwwjFuMfoYrFnU/2Rz8xpToSBmXRt7E56HobbhHIzs9lW5kHPVJBtLsOXJ5iUW8o5lmMZkb+b6TB1gih5EOAnfiAhGkgLxQE6yCSbF0Ku/ih5HnPlQyjqOqdoLAJ54Tu0t2yrYoK0j2f4J74a3UHcKeBjr7bg0NAfRbAPoyuj23aJbatDt7MqeMyQYIdb6w8lywQlrrZprExzlkZd5kUqGRBss0GkaiH+kz0YgAPrM8rYLKpTvy0gfSjigGFRih+UXFVB5tBXsohQOqBg937gU7bQRWFWJNTwK835WHoBh6VyHrEJc0e+fGWxbM9JTgsSCL9BlZn6bbno+m+iJ5GKkV74orWG+fUcSk19+GmZfm/k22fcimUB7dDxv2Dbh0fVCyIl+qmTXO/tT3vMZVWYc1Je/T3ZNFXLH1Jt8eWDu7Z3QUiuKeSLRosricZzLTfHI8vmKppAzbqucBoBLXYE0diLaYcSfglLGCjvTUtjA/TpbDr0zaoZ7skUc92Qren9PUoeUlVPczkZ7t0/adTRzEg76GVCIZXp4KBzL294yvmcyMFEQ06Z3kM4Kr23o93YMH1eL6pMsbOiOBJh16poeKCF5w73YAENQJolsO74azLFbDBh3PrhyE368gnHSdgxGV4GuNFjKst1Ygub9qjLcoK7xzxGy6FaVgooO7xZlWGK8iS6Dmw6aigJpTzU1ViDpZQLGVWM3QmRWQzgmtldJ727jKHdZC86QXFx/3/MAkZNhRkP/fBEc/DGAE=",
+          "thinking": "The player just finished quest 0_4_4, and I'm looking at which quest to pursue next from the available options. I see npc:0_4_4 is available to interact with, and there are several quests with talk steps remaining. I'm trying to figure out which quest starts with this NPC, but the mapping isn't clear, so I'm considering proposing a conversation to initiate one of the pending quests.\n\nSince npc:0_4_3 is reachable, I'll suggest starting quest:0_4_3 by talking to that NPC.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_4_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2063,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 307,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1799000000
+      },
+      "id": "msg_011CcrJy421a6U6Qkf1ZWigR",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2063,
+        "output_tokens": 307,
+        "output_tokens_details": {
+          "thinking_tokens": 266
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_4_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2063,
+      "output": 307
+    },
+    "tool_calls": []
+  }
+}

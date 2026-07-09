@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fe0c0d519ad1add701fc9bf7ef9a9bbb5af855c3c9fb7a3e501dacbd684b384a",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3253,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er0CCokBCA8YAipAiKzj4iawOmCg4Ekbky4Xc0zpyufvIgHDSD2QU0LeNmFoRbrApnpO7RZDbcR8wA6s70wpYwki94I/LwuqMG9lcTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDck8IagMiX1CViIRBoMD2vQ2yw3n/VXjK1eIjAArtZPryXea8R8BsYLXG0CBoF0vdFFzzZeNKgViTTRE6K7rRPKOkU6HS9iUxrzrkwqYZNqNbjhJSoRh9AxBeUA88ZCizdn7f1Bln256Ir2s/gN89RSAyOtJYSTD20pLWq9OJFe5cvMLARqV9JQ+coYkAWlnFLpeP7ogjPC9FrklynOYrpwQ4jYJuwONXeMpU6ay/gYAQ==",
+          "thinking": "I'm heading toward npc:0_10_4 to interact with them.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_10_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2767,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 67,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1551000000
+      },
+      "id": "msg_011CcrdJB2ZjMZMqtr24Bmh5",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2767,
+        "output_tokens": 67,
+        "output_tokens_details": {
+          "thinking_tokens": 39
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_10_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2767,
+      "output": 67
+    },
+    "tool_calls": []
+  }
+}

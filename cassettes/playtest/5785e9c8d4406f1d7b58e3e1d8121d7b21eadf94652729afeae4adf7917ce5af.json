@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5785e9c8d4406f1d7b58e3e1d8121d7b21eadf94652729afeae4adf7917ce5af",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4334,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EooDCokBCA8YAipAA5eZQTJ+v2DWVm9X170Dy+75xdciI+hCn+vKTE8B0YGbDGy/x7bXSaGN2E7J7iRuUMp5lpbIE9OEzzHjcN+SnTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDApZRm7cWJlj8bGApRoMPBspyjkOZIzQUOcQIjCkG7vboacMoSSRyRlPHqy0WzqZECI5u7TKf9VauifTpO/W/pHmONVN+bQR4odqJckqrQGjnnEK/7eUH7McZd/95RGtebtMlReCq8K4Lkf3ZXUH+VhWrxBJw7WSRm1dNwxBDoyfo/zexPf6zD/EZv6Ce7GFnwXeayIIMBGUcF+qVkQinnB1vaXcQH7gC1o1/PqqgCvd3b64oEjnqBrtrtzOp1CLWDrC9T7L+UEvoU7VuuHuPzkd/05UmeYhYkh2OgobeV9hHR2ILKsikL6Uyo1dr8ADNl2PV/PfyssZi+PFvhgB",
+          "thinking": "I'm currently on quest 0_16_7 at the turn-in step, and I need to navigate to NPC 0_16_7 to complete it since my last action put me out of range.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_16_7\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_16_7\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2367,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 116,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1473500000
+      },
+      "id": "msg_011Ccrm8HNi5rofgVmKPAiEK",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2367,
+        "output_tokens": 116,
+        "output_tokens_details": {
+          "thinking_tokens": 73
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_16_7\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_16_7\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2367,
+      "output": 116
+    },
+    "tool_calls": []
+  }
+}

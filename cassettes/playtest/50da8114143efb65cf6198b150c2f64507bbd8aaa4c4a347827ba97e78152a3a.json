@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:50da8114143efb65cf6198b150c2f64507bbd8aaa4c4a347827ba97e78152a3a",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8670,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eu0ICokBCA8YAipAgAS4+IjUYBR+mmVeC4cVHNteHXcqLDBtslt1As9CW4RyXaGldpLUtJF1umwaBqjPVIos5R8X26nhoO7ENh3ZLzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMi4rh5P1x8rEyynJhoMHIfYXBPT9xnu5tTrIjBltqX1uQXzRbEejeiHMiA+4zh7rv/EAOBe2NY5rFQQVNkuW0L/Y4MY1ZSKpe4qTuQqkAfnXJMwuXPAbQwf/N7/3eiMu60akfIaWk5Q5Q6hLcOF1dTCSI7Cy3teYWcTEhVdrqSdYqdqOzGRYCJKrH06IkSnA/dgP+mhcR/JYDb3o7vxnKdhidO0wb4L16w/Q9GSN2hDLiDwBxaeigzZLK9lBt+MCEHDHJVNJ4DDtdRQjkkMhfYbWEX0ofLJXjpGW47phMl+8iIpQYlR4irHPY41QiAg+PZUBYD+vA9lytJ/N6IPIz9gjXjnB2Wb3PHDR6nj+JwmZsq2Bhwl0mJ8AxYw3CKMGGwyDI/I/w6Z+NMbQW2jito43ieBREA1AVCfc3z4fYZ652CsojOYlmGcGN5NwI2Z2awPVYmxjxGUcTXGeExksLw17Q35IaYG1tqi44TzK9myaPuvsRO9U5GyORb0wVj7VJS2hCsjS7oglCzDV+kd606l+IMPTdXWR7Qik9/SilhLntEgOgL6G+avSnfQbc80iu8jRWthtOAPRJb5VZVRgKZy74YPEY/hgDFksANYE+FZ3syW9mJqF8IyTmNQ2H1jlGoM3PvLQdtwiHwtBS5FPRE7JRJ2jZvdgbkXmlHbOPkUYRWJjI3R0opYlBxtOx+/I+2DeHbbdyu9TNmIvtKdHwRmN0uaLQsSBuWkrP/2bderdc5Y/QORUSSQiqreN4WzvPIHaxYmga4ZqyMvyL5CNe5i0nV4eNw7YY7fI6EsKw8Gr1YTCin1N9MIln4bTTRfNyyQeeU6gLHMFSoV876cyapW7zZr6s1Efxj4DpjYPDrafcL8yZWKTWz0FeF86FB97/1woW2T8XhaCHU8Ox/nW2anYQV1drlMNMUbHNSoQRICP0G+u25vfSYNUPFVNao90C2YineOEYp56cplq1SzHw/h0b6/gAQXiHhJG2AG4sipywpGCld4kCMiSsuxfFeM8HX3SpVOfUPs5Ylwu0KfCYvdIBmsLrJHze+KY4jJKFrDS2ZewVhMtsKXX8GnngCmEOJ6AAjC0pFIrul/t1/1+rom0oGje/yR/h+4opz0CUdZVkziudbEfz+oTZIo6XCaJXaVb/xETDwhIRVQQrQgklxcBY+3mvxcYivq+GwCFLMuAHUNqh8JakAoS6Xt4Jm/0Cn9Z7PY9lunTmHj9zVvwEcYva/0qXNUrXMlcc6oQvqWLLH+JwZPHsuZ1xhs7HaE/cM4QFdPFWTvCnKxngMF//OxtGqGPdVRykIxafy+tN8YAQ==",
+          "thinking": "The user shared a game AI trace log without asking a specific question, so I'm not sure what they're looking for—maybe they want me to analyze it or help debug something. Looking at the output, I see it ran 147 steps with 0 verified results and 0 verdicts, which seems like an incomplete or failed execution that might warrant investigation.\n\nScanning through the tail end of the log, I'm noticing some odd behavior: at tick 142 there's a navigate_to command that shows \"arrived\" but the position is (12,9), then immediately at tick 143 the position shifts to (13,9) with an interact action and quest_accepted—so it looks like the arrival was flagged before actually reaching an adjacent tile. There's also an inconsistency in how active_quests is formatted, showing with a trailing equals sign on earlier ticks but without it later, which could indicate a logging or state tracking issue.",
+          "type": "thinking"
+        },
+        {
+          "text": "I don't see a specific question attached to this trace—did you mean to ask something specific? In the meantime, here are a few observations from the tail that might be worth checking:\n\n**Formatting inconsistency in the log line**\n- Ticks 138–139 print `active_quests=` (with `=`)\n- Ticks 140–145 print `active_quests` (no `=`)\n\nThat suggests the serializer is emitting the field differently depending on state (e.g., empty vs. non-empty list, or a value being appended after the `=`). Worth confirming whether that's intentional or a formatting bug.\n\n",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 426,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1493000000
+      },
+      "id": "msg_011CcrfWkcUA5LN9CdypTXEf",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 426,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 326
+        }
+      }
+    },
+    "response_normalized": "I don't see a specific question attached to this trace—did you mean to ask something specific? In the meantime, here are a few observations from the tail that might be worth checking:\n\n**Formatting inconsistency in the log line**\n- Ticks 138–139 print `active_quests=` (with `=`)\n- Ticks 140–145 print `active_quests` (no `=`)\n\nThat suggests the serializer is emitting the field differently depending on state (e.g., empty vs. non-empty list, or a value being appended after the `=`). Worth confirming whether that's intentional or a formatting bug.\n\n",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 426,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

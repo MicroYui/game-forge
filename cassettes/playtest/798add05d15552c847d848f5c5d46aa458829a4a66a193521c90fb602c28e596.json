@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:798add05d15552c847d848f5c5d46aa458829a4a66a193521c90fb602c28e596",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6178,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo4FCokBCA8YAipAIbcMQti4ur9RLqRnKuN7JIx3jE7fyyCLULyVL5c1p1j5ZbwWYYSF2kI2934ljdFZOyOmwiCtH36Vi/uQcy37bDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKVG0xQxjf9IEKE3xhoMCd0vc3KsX7Y2yjEzIjBa1WI6WEEi+fhbWX904v3MKLGDkTcR80X9ylJKq72Ni4A/0foKj2mKIA8fmHkSNckqsQMFXt0Srqw/tyr1kq2MOK/P3u1rty2+Pz8tSP3P8n9iixPVCGm4afWo0XpX/1v929YG4F1+ciiegbUh0HeW75PriNtx50ZZxFwx4wwwNIfmTcRVYPGl/hIVD8WvT1oZEMpeZe1MSIy9SOc0SIh8YbEbAxu7praZPvQqVu7NowNleNChPFwuygnlWacpsASVvqeT81M/8/w40AWr9KRdbsAId2MH79pwg+6LjBJxJ9ImQB0QKPPiLsBJzfyHRqVZoh9yrTHZWxR31Z+LzAfaZCfXUXXUV922AayOawwxUxqQASA6gxGq7jo6F4tyvMFMNmGUzQI9eP3+yHOYHHqR0EfAWTSial/8kBVTZDch5b9tNjl7FUiPmDkpps3ZbG3Al56IjjgQ6QhtA7/JFDmhPgNHPu3QpAEDNpvpHFbXh0ksM7uLj7S6wHPLcqrQlT3bAX/0tbMBa+KLtfQOENzsH2KFX1mdSlK/rrZF9u6hQuYUnALfNoot/QH3r8yFgD0Ka/S89THmR0iKl9rBfz5ynf/J3VSFuNuUteuuCRjmpGFH1r/EwSRkjO3LODeaMqz6EJozGAE=",
+          "thinking": "Looking at the available NPCs and completed quests, I need to find the next quest to advance. Since only npc:0_17_6 is currently available and quest 6 is already done, I'll target quest 5, which requires a talk step with npc:0_17_5—and that NPC is reachable, so I can propose advancing quest:0_17_5 by talking to npc:0_17_5.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_17_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_17_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2783,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 212,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1921500000
+      },
+      "id": "msg_011CcroCjYuFboBmQ1UNBz4J",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2783,
+        "output_tokens": 212,
+        "output_tokens_details": {
+          "thinking_tokens": 171
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_17_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_17_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2783,
+      "output": 212
+    },
+    "tool_calls": []
+  }
+}

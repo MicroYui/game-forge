@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e9416752713a535f0899bce3f9448d75f82a066b86b40e04d75d0efae02977a8",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8033,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuEECokBCA8YAipAbgugJxD/FC43DVemhzolJ66A1Gx2Yyojvc2xm0vbSXDQ/ZqfexPlwpFMU4jqQMpbuZ1uaYvweC69mHphrqBIwjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDi9cFOjLVWZb0iBVxoMly76QyjQU9I7CPx7IjAG6wfjyR5fEv8qohaRa4c+Usj51S0u6W2CZejQQYqXtU/Qyl1zCJmh5WlDtXsQVhMqhAMWqrTM8E9Pbm8yqPQ3Y9kil6m1nNDvjBNwlIBiB7mmYMuE95WKpbKmgWxCzzl7+nmXICUrkMGfG5aPw4PdfJyKEH0VvlLHouoUdLJqqi5sPSVv5EiAkw8k0JzR3N65e20IEhdcg8NO5gkhnrAIn7s/gXPLnW6cn54ioQfsYeIyVR64veYAYmdblkI+s4p4bxoVHbQ+wz0OVlrmibVxPBW3Y7VUIOgNrG1xN0pWvKdGDMzLCz1WEwqWr0anTfv2Xuj423VdiNY3oEIQPo8agpMwYMhK1RQPLQTCWaRKTglmSfdfs9k1dUPxHsSwY4t1wPa8PvSTofvferNnw03ux80tq19nKPefVox92s3frUfIj29nM7VkHO2U2nH0nEZJaEiifaDLmnGY8y3/K7rlrppT5d5YgtMe2TOu8+G0vOS1awUExpPdhdEnPQJ+/zKVm2uJ0BW4PjQ1BVH3gHg/1m7HpYVUTHR+0IF7fIRwkiKJTz9UDxSWLwclYecWq7/diI/UDXfjGAE=",
+          "thinking": "I'm looking at what seems to be a system trace log, possibly from a game AI or agent, but there's no clear question attached. I should either analyze what's shown or ask what they're looking for help with.",
+          "type": "thinking"
+        },
+        {
+          "text": "Looks like you've pasted a **MemTrace compaction** log from some kind of game-agent or RL/behavior-trace system. There's no explicit question attached, so let me summarize what the tail shows and flag a couple of things you might care about — tell me what you actually need and I'll dig in.\n\n## What the trace shows\n\nA single quest lifecycle plays out cleanly over ticks 55–62:\n\n| tick | pos | hp | event |\n|------|-----|----|-------|\n| 55 | (7,4) | 94 | `interact:npc:0_13_6 -> quest_accepted` |\n| 56 | (7,4) | 94 | `navigate_to:mon:0_13_6 -> arrived` |\n| 57 | (7,5) | 94 | `attack:mon:0_13_6 -> hit` |\n| 58 | (7,5) | 93 | `attack -> hit` |\n| 59 | (7,5) | 92 | `attack -> hit` |\n| 60 | (7,5) | 91 | `attack -> hit` |\n| 61 | (7,5) | 91 | `navigate_to:npc:0_13_6 -> victory→arrived` |\n| 62 | (7,4) | 91",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 438,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499000000
+      },
+      "id": "msg_011CcrgoVVikk8ktJh6V1vnb",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 438,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 116
+        }
+      }
+    },
+    "response_normalized": "Looks like you've pasted a **MemTrace compaction** log from some kind of game-agent or RL/behavior-trace system. There's no explicit question attached, so let me summarize what the tail shows and flag a couple of things you might care about — tell me what you actually need and I'll dig in.\n\n## What the trace shows\n\nA single quest lifecycle plays out cleanly over ticks 55–62:\n\n| tick | pos | hp | event |\n|------|-----|----|-------|\n| 55 | (7,4) | 94 | `interact:npc:0_13_6 -> quest_accepted` |\n| 56 | (7,4) | 94 | `navigate_to:mon:0_13_6 -> arrived` |\n| 57 | (7,5) | 94 | `attack:mon:0_13_6 -> hit` |\n| 58 | (7,5) | 93 | `attack -> hit` |\n| 59 | (7,5) | 92 | `attack -> hit` |\n| 60 | (7,5) | 91 | `attack -> hit` |\n| 61 | (7,5) | 91 | `navigate_to:npc:0_13_6 -> victory→arrived` |\n| 62 | (7,4) | 91",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 438,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

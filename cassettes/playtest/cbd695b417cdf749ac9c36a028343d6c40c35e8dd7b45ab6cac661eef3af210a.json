@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cbd695b417cdf749ac9c36a028343d6c40c35e8dd7b45ab6cac661eef3af210a",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7849,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErMKCokBCA8YAipATASZon84hPR+hnyJ9l+Nl8OODnaaM/JJaeN115DP/yB/EghLKlkIvG1F0ngZFtIRGIX91KVloGwhy/rHRpqa+TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNOor9eI8b/7E4NFmRoMKgJTlaJZQwoPCjkFIjBrLcOQL7DLsD60gxx74W8jgN6zrnM32s1E539FJdYyD03WJPmaSFR/RdVV802rtLMq1ghgyZGQkOj97KJpjASA0N7YchHHhPxwYg9DEoVRbUCRRhATnV4RRtZVftBzEK/FBdarl4lYA+M/XEgx7QOyhSlHkwmIUr1Rzle2F/6fG9ms0WXwyZauiy+JRfEerwQfhME7t/1Y0lg2f4uLlK08maV/mr3QBdriftWBLMdN9zeIbny8c9Zp7rJPygYrEks/fNU45nPvbHkfWY90urJEF/Ohkr0DXSoI2hRIlt/SPhVsthuGKBdBLtMAGgjJrpQZT/+VPYLKMLd5FV0Jyt/3YT4R9N9ZwFDH4qeZ5BMswsRH8bzDJ5NxCVP3tIbsai0OOCBBpZ6vUcwYhra7PVbhjtv9YMgTk9aI6zoGfPR2v5IEPHHhMy4o0dKQosQ4cxBHbCXVC79qxMylz6op/88vUnwqJCnk4XiYyZGC1/hIOgf3Nk2gPvZM3yta+/jccW4+zS7ovjP7zVYM/tc5kuIzBGiMfRhAzFlRexN9VosY6EZ5U8gcYkFsTx7OMnXcfMNYM/Kcl4Y2GVJgtnZopqmFIr12lOA7LQhEEkgJa1A4TDKHLA7yEzHasfX1A3G9pUaJ/ztTkIvZ2Zt12DcyqC98RPllWUHLGoFC+yjInpqXbrud4zZpKcRk6q/m/vUJ7EXe7Bcr1v0YhFBnov8ynmR2oxrTs6Ns64kaMMo3MNphAqPazfKd/qgVbj/CmzA5fSt+1r+sLHPPd3XMP7askPUnM5ZXM/J2Bo9Qfm/a0ZSBY+vndlQliq1c2FV2+ozA8mtrnWGDEskvZcl8PhRq6DP69/aQfB0mYMeViWJhUntGvPzA5W6cfp0d9pf90OmncRffpMk2Fyy2EtxjGiWNs5M9bnJ3NRNi5FDHmARhf4W/Dxvz2WR6Dex6qQbTK7p6zOhgYaT/K/ZnyXXSsvJw6Q/r8Js8nI25jOE8BOmjF4aBYVFuHYYhJu5nCJdQh2Tfh6uHHSS6wXXmHkW+AeYRdzQV6sKdhr1buWnEcuZc+T/R1tHAfUnAXFiZHYgAH8ydRNX9rvuLkNj16+m2oBNj1kNiNi6xbjMtsVgFQ4Q8cose5PhA1OQvGJt0RglGqEM7atnuaO5+FWtdmqBc+KCOU90zS8+N/4EZrCdtzYdiszo5GJf+fHy1rslzePPoD6wOjPpiJangSis13RbtaQa61fuNi6Lej8tT10krWz3M5fX+TpkNzWZ597xsu+oISGlqJLwDwSAiWEM4s0CIXDSK2CXXKENL38GJzC5rKSm7WX/Y26dCATv+4ho5VrU7WdNParDMlqEqp1hi56NejnUYwwy9IYN8HZcHz7D+mQwgCOPFdTUDfNm3h7eKJ8NkfohWzdKZTMScD0MSHVq+w0OQ1Xr0vL3pNjzDWwhIL+UC8Uz4HNS/3UZnWovS4S8MFzFkk26IznAxjnS4Dn7tVC0PUgJ0Jl5sV5K9Fm6Me1jxaTj8xke/FyhrqMGLHwb3CF4l5rm0OPJc7psqJBIYAQ==",
+          "thinking": "Looking at this MemTrace log showing a game trace with quest completion steps, it seems like a debugging output that the user wants me to analyze or interpret. Since there's no explicit question, I'm inferring they want me to explain what this trace represents or help debug it.\n\nThe trace shows a complete quest sequence: the agent accepts a quest from an NPC, navigates to gather an item, collects it, then travels to fight a monster and defeats it through three consecutive attacks while taking damage. This looks like a standard quest chain execution with position tracking and health management across 15 game ticks.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 433,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496500000
+      },
+      "id": "msg_011CcrcWZRg4sXrZ16uJaHar",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 433,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 433,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

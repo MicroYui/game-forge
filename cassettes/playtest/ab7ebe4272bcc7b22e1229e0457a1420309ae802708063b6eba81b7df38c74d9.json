@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ab7ebe4272bcc7b22e1229e0457a1420309ae802708063b6eba81b7df38c74d9",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8824,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErgKCokBCA8YAipAMZOUCU/lqbgu8c9PfHJS0J1t7WuIs+E0Fp5BKIWMGH6H6iVa3iB4wNXofoY2QC9ik/9UiYeR0/2yotyZM9dytjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDH7y2VAoJ2LPg7+mqBoMErNd9b2h/dZaxLbEIjDGhiN04CEi+vU3SH79tBbX+WGiuxzT4HeiNDGvvmDx5X0vRkAuoCqP/eUyGflA+Q0q2whg50k/9aS88ICqItSYg0sF15CyS/0b3mwJTfW0bv3mP+KKBmh7oUPclA87SvrF6C4tqn5IrWpd9jwETLUyTfl0b/1oU6bu8QZnsckQwY7RNUrpIk0F4GuVLOeEzXPgCsXtB9YoeWd2JuJNdmQjR9d1Bp2IFYDDExgTBmJiznDDJ+GzmlTBeB/K1xuzf6DT01syTY2Sl4BYNRXRHCW49dBwS76b7BWoWVBZUs/t3tflCBBPebnC/tMrGn1wEGuCdGNC1rrUdPrwnwcvTwt4yCleMiTdtKe0X86qRbQi012rlBHYY0wgEl4mmBklpwhX/s0yWeySq0T5Vk34oI8t12MajYeR2R+mxZBMiXHFppj0Lv3SkxheZBbovw77udJC0Bx0Gsr7XT+4GX6GS8VTnkvCTTDDsDl+pAMLtfMqXFj68v/yd0wYny79CJRubd/IxZ4XwHBo3d4CdZSDvonxhikGAAU1Ov+xoot9FU6SWdE8nRAWdWi/QmMRk1lsoa1eu1fq2JG5dh5DT+JeJVdTI1v5Gs4BhZLT6lSJR/JyhTSijffYxlVUq5HlpbVleY/EsjJjOUew8qshn13GbxXKx8hVSSd0PWnZCbf2GMYw66wy6L6clJXGVJc67HBloXePlvsMGZLcT9zeZifwFC6R3UJO4189TAaPiRLQOS/F4fx/qe1dumTTMdTUO2Iw6Gcdr++QSuLM+JOAb8MUwCycHl0Q1vS0OU2/AEtHZnZOjnAlVTbGyKK7iKeJgQte0u/JxDiEmjtt+nMJ4QvB7GtkeyviGgMO07mN/9leWZPEeKcS+ZZtSSs3uQkGYLCtSQXzsDP9qpNmgdBDRXwqMVOLV4dMqxTdAdn60JvICKfoUUhMCYLRWbyQG6DcYkSN5dT/NfaNcCjqvv3CplSJ5veAr9CVQ/BO/To0rosnK6zNED8NmZ9YjOWnlM/0I6+k1LAH3Tj8uEdPExUXu6MJBS0md1Yqc34SVYoRUr5G2k/C7ujskxhDkYRyiHfh8qyZmdLmSpYJnoRY4kAwm5sJ2R8qcmVcftr0uh1u9Q/VsqxF5KFA0g64AIgBav28fFmEqZ1EUQc9EPQovA5sg+jznfhd6bClnb4OL3BLnrXGxrI0evz6w39Ig48h4fTDhGlxDdzabxLyhVePRdAu5uf5K1hf0OlWHjkNoV0zP7mt8Vl4Odd2g9x5XbDXhXG9O4K8UYK4TULX3YSSgbY2npnBKIovPDn7e4gLXiWZBQ1XdLuUg5D2YXqn5WEXu6eqoJPVHfJGDyNlTUCFfRPUSfj1UdQfu2VHyTOSA3PMhCzPvI10iNR4oJlJedhMMEl+5/yzJ7DADiQP2kidumUAE2y7R/b9vkziGAsskol0fxmoQlRuXQg9D87/Lt9efZZgvJSwwWwWjnoRh1hfre+x/ImnvZjKIpUhbK6553eQMxIuWJ8OzxjzAlzK4WW6Vvr2bn7zvPb+3VWRIlNtcU1w75mgThgB",
+          "thinking": "I'm looking at a MemTrace log that appears to track a game or simulation with ticks, positions, health, and quest data. The compaction summary shows 27 steps with no verified entries or verdicts, and I'm trying to figure out what the user wants me to examine—whether they're looking for anomalies, verification of the trace, or something specific about the car trace that's mentioned at the end.\n\nNow examining the tail events more carefully: the character navigates to a monster, arrives at position (2,4), but then immediately attacks from position (1,4)—there's a position discrepancy between arrival and the start of combat. I also notice a duplicate tick 24 with two identical \"attack -> miss\" entries, which is suspicious. The sequence ends with a victory after five attack attempts, but that position jump from (2,4) to (1,4) between ticks 20 and 21 is the key anomaly I'm spotting.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 430,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1495000000
+      },
+      "id": "msg_011CcrM8yEHosNQPAEQZE7Tm",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 430,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 430,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

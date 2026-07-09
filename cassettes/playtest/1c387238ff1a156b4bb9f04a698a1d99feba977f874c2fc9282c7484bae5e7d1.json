@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1c387238ff1a156b4bb9f04a698a1d99feba977f874c2fc9282c7484bae5e7d1",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3754,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpsDCokBCA8YAipAVT38yuENDpUGsrJvjQHqFpPnL4iWdCFCIobrSK6COS9C3HMysz9nE15DgGSQhmpL8VKwtgIPGHgm2l7Q9UMOBTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMEwnEiACNKUAE5fiRoMtOu6MD6FY7hx31iMIjCs96aUAo2S1MHgtpOFCXoIPw1CGMy9c6tenRI1rwIfA2rsxKAqZTgafDsX9XRLhL0qvgEBSEkx5SdSGm7dGlHmDFYIZ0u0HBFRZlPKhklwOdYHyIvPLFABTuuJHvapvGv44g3IhcF0nD6Rws01I4i3VhLOhcJAYjEudC6pRIT5SJ4A1NlsACQhcWYoYVVfbkB99yQg+ndC0c+V/QxLTiPSvCFNkAP27W1B7HlUu+mTNsMaayEwro5NIVYsNfBNvyklhgrmOWYsT82coXNaQJ1Yv6Bi2mrXKktdBYTJSsuqudMKlx1t/ohsMul02rduEZ39GAE=",
+          "thinking": "I need to pick the lowest available quest to advance, which is quest:0_11_5, and talk to the corresponding NPC at npc:0_11_5 to progress.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_11_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2711,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 122,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1660500000
+      },
+      "id": "msg_011Ccrf33LmNmjNnNzCEB56W",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2711,
+        "output_tokens": 122,
+        "output_tokens_details": {
+          "thinking_tokens": 81
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_11_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2711,
+      "output": 122
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:891d8a1086b44118638a946a5fa4cb9e4be9b803885c150aa6c49ac0ff6cfb34",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6776,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuQFCokBCA8YAipA9VrzhY5JP8suaXc1GIiiFD0SrzF5fRpv7IWyo51dhKwGE80MGK/VziVuTkdZ81d8l2ObiRtI+UzSn655uc6WvjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIWQyJBEZt9ndwQBcBoMCpo7Jeldc/qjjqjjIjBisP2Dlp/GqPEQdT2z5R2EqvKdyJ9zw81ov1LYc3o1YL9i1W3O0QGH5U1Z+wjsp84qhwSPgtpUQKPpaQn/59KhjytS6Jd2b3/+EfP99d/gtSKIzx6tzTeEXR7CSqG/FtHmYzX1PdkyirXoMtT4wHbB595mcxItJ+KV413VNLmRWBlpUrHBoE5PezybVCf2ofBp2k7ss+c+WfbBnvz4OJZExaDaMMgEEU87EsB0HKUhI5mbVu6Eczh4DH9iyE3ww2aaW/M1E2ML5PplL8E71yzFWJhWDaY6SGrZpSTOdAcEnBMz1IidGNgokhqNZBq507fCtT1rl1NZi3+ITbbOvQP/O+tfzdI5eBt125+qf3W+Z9pTuEh2MstYbDf5fihb4qcMbDveOZRmmvJC9dgmlIpw9mZDtyUMoVNj4I/XKsJu8XHv7oFDrGiu5lj6GhcAvdhY5wKiMWSyH2uyzn3Tqjm9alPO4UdGTxqpgGIXLZ2w8/ZYoo+MfAl85zLszw/s99Y54DC8mukQkq7L4ewpso3CHN1n4LZArFcv2NKhIvAS40OQwxnAx7FbOdYJ0/m3kemtPz2FIMYEIpRDeV97dqJq5+R4XhmPcBmdKCVlei2KQAxig96yiUijSIO+Fg4J8mB6ILwYZaU4aa+wxIRw6GxYMk6+ihZaiddnCZXBnabdiDO081/vwfuAB8z0EOJnD+hsckb8pmPLcVvrcyOmRy3yzfWIx+p3Q/UnRfrjvEdG3iS4mnr6J34a3xkYAQ==",
+          "thinking": "The combat is actually progressing with successful hits landing, but it's flagged as stuck because the same action keeps repeating. I should suggest the player consider checking the monster's HP or trying consumables or a stronger weapon rather than just continuing to attack blindly.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Combat with mon:0_8_5 is landing hits but stalling — check whether your equipped weapon is strong enough; consider using a consumable/buff or equipping a better weapon before continuing to attack, and verify the monster's HP is actually dropping rather than regenerating.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 581,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 262,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 945500000
+      },
+      "id": "msg_011CcraCa1fM5NEHt5SVtG5Z",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 581,
+        "output_tokens": 262,
+        "output_tokens_details": {
+          "thinking_tokens": 164
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Combat with mon:0_8_5 is landing hits but stalling — check whether your equipped weapon is strong enough; consider using a consumable/buff or equipping a better weapon before continuing to attack, and verify the monster's HP is actually dropping rather than regenerating.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 581,
+      "output": 262
+    },
+    "tool_calls": []
+  }
+}

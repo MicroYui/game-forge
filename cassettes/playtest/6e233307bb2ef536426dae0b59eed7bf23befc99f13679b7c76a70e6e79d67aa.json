@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6e233307bb2ef536426dae0b59eed7bf23befc99f13679b7c76a70e6e79d67aa",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 11450,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvwICokBCA8YAipA05bvwqyt4nZ97fVbmwvulSqfPwSzRkGRdVHw4eA1Dx0YVMJLJIbh7BeQ9ysBCdLMaRZIaUhf7JlH0wQCDDhrVjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJqFKU/8dZuvRg6LjBoMsteKZaw4avJJC2ZpIjBQCu4oPGjhMsXZRkqUiDOtiwqwTmeAqdhFpVomQGUNs3dLK5v4W6IHfRKsatSpwowqnwdXK5DJs8iGd054JV5kkaAMb6Zfz7tea62jY2JodIXRTSM2BtuZBDJWHgI4h662Kd6j3qMjlmx9MIg1E/j01LXcU+YKaxaFPO1pG5T2hHL1v7riQcVmYNLGHh2IKpQ0f0Tb7kiUyIGGQiarueRbh+j7wF4BAGIP+4iyQ+fPnfuL6RCXCub8KwNnRJ1uWvpbnTL+xIdIzJhCubIyeWMi4npAPcE4XYNitkfmXIVFWKrFMHX8gekfccaTlTmXcwbjYZmSkau4aFx7RAGrNRqUILUPZuBVmcvTx2XiXqyrqRCrVFxG+WTKGycnAEpT04yu0ARnkbD5fl2hRTHSm7lvJ4lJj2dwT4WCnUpczKGugI3ELdxreItrRAhrgiax54ffINVlHXecsz2VRezGy8SEDWhOgeUCsiMELGvF3Yj0nx3POcDYjndEyC0TYqzrV2tLUCDsC7Baed3T3O2zfFz3bADqGdrsQygn/RvC5ikMEGatpHT5Jh6ABW4js5vg1gLmRna+RpLYWyr5r3Gt8VLoTigpxwPPGKDViZjsxvtWKHRkBFaskm7FNEWLhnm6zkH9bl37rgc+LLqtvzmIVRXUZJe4pDqC+0W2HJrUqbWn1CW1NmwMmFuBkL9YwXWdgBOEbFkKEGiy9sN1C2kyltshGJauxiwllGZUEmp3bE8lK1xirGyxqy9oXnzPO0mmO4lVQbIRc3uZ6jPaINeQ4rLWO6ZfFuhRSNBFzZVgeGNWwTE0M18Ezu6P9cQBDjzn2/uKJgTFdYbJSox7kEcRHQrfns14loyjupD5s4hGvbaF0B1bImXqJECtFRP9/LN4D3bEP9wV64/92ri2kYKlBcEr6zRjup4oYkwZHiNp2kF5hZ8aSpmIMS/w3Inljc937TzvBQe8QW9ChU6i3ARRDnVVX5WdK0q0Rl5IBdRGT7hSnyZSIvIdXv4GnxOv7s/a5JQw8U9aMBbK9gpioskl9U77FcTpnQYIxbfEkuSH2Epq9r5BvrdrQVzTH5m1YpzGy4vYHgzcBRc217OnYeftuazDKj4WbSzGHQiOeGglxNezZjWtntiHp64R7duT7v5HlXlNEwp4CRU6Pdes/S3N0wUloUunb8UQxh4mmXHuAE8DQVuKf5JPtOKy66mdsnLd+TEVjZikdd5pqWAqXKE54cV5GhRSRNjl+SqdbxT6gUxIpmYB2X5r/0w7ZtdnT5dbTSrubQ2ykD3WTPOF4s0fWTdkjfMYAQ==",
+          "thinking": "Looking at this log output from a MemTrace compaction system, it appears to be a deterministic memory trace with 100 steps but no verified entries or verdicts yet. The tail end shows game state snapshots across ticks 90-97 with player position, health points, and active quest information, though there's no specific question being asked about what to do with this data.\n\nI'm noticing some potential inconsistencies in the trace—at tick 92 there's a navigation command targeting npc:0_17_5, but by ticks 96-97 the player is interacting with npc:0_17_6 instead, and the position (5,5) suggests the interaction is happening at a different location than the navigation target. The NPC ID naming scheme (0_17_7, 0_17_5, 0_17_6) suggests these are indexed entities in the simulation. I should ask what specific analysis or debugging help you're looking for with this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction dump** (a deterministic replay/trace summary) but haven't included a specific question. I'll give you a read of what the tail shows and flag a couple of things worth checking — let me know what you actually need.\n\n## What the trace says\n\n**Header**\n- `100 step(s)` recorded, but `0 verified, 0 verdict(s)` → nothing was asserted/checked. The run completed but produced **no pass/fail signal**, which usually means either no assertions were configured or the",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 449,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504500000
+      },
+      "id": "msg_011CcroBt2rocSrxRT8djVq9",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 449,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 343
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction dump** (a deterministic replay/trace summary) but haven't included a specific question. I'll give you a read of what the tail shows and flag a couple of things worth checking — let me know what you actually need.\n\n## What the trace says\n\n**Header**\n- `100 step(s)` recorded, but `0 verified, 0 verdict(s)` → nothing was asserted/checked. The run completed but produced **no pass/fail signal**, which usually means either no assertions were configured or the",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 449,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

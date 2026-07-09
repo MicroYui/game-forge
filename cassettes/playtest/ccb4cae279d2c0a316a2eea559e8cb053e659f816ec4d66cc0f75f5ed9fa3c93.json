@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ccb4cae279d2c0a316a2eea559e8cb053e659f816ec4d66cc0f75f5ed9fa3c93",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3008,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpUCCokBCA8YAipAFPQWD9TOLB4qqEgDf0opVgODlD4rlgkgkCgCpwREdt8r1uVKkkmMpuyKxgj0+xz3vQw9pe+5aZZYMmp0VJtfnzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIvn9LANMUtaAxugqBoMXsRFp1bGE/fpC7qcIjD/RxLjdJR/daf2otUzfUpDRtcoPZCBEx4NYEr9exGh32N936Ul7zukBceWBe9NM80qOdM3tThZ9yy4PATNrlwuEFFeBWskfYrDNmA/GM2cQTRTnqSmYMnRx4j0IWAlgiWG5qSTOd8mHHea7xgB",
+          "thinking": "I'm navigating to a specific NPC location and tracking the movement in progress.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_14_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3422,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 49,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1833500000
+      },
+      "id": "msg_011CcrimVEXQyWiHR8F5AfwX",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3422,
+        "output_tokens": 49,
+        "output_tokens_details": {
+          "thinking_tokens": 21
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_14_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3422,
+      "output": 49
+    },
+    "tool_calls": []
+  }
+}

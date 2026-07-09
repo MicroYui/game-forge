@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:23082e92b41da4e28d0ddee5b399aa8c4d61dd8a3e0e4918d240aef0da43da06",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2763,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErUCCokBCA8YAipARiPMIH14z5bet9pSNjF6oxxo4YsBBgcCLPEfRtlsGtUgEsTQ7L0LJHrf5fkLkBTi+E1tXj2zfrBbbqsKcrMQ8jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCGe6taaqXrGm2GvnRoMMMFGOgZmCF2V3UeMIjDxca3PWLndbfpKmwCRgG9QQ6Lwb2J4F0ALWUNx376cT2wBNJ+XyyF4qrhZPwcbMNsqWQTlHuRURzT8casu9iF6Iwu94xUdWJT2f5yr8L8qHq8sI1m06deRn5HJw8ybHlpM+xWcGMx72fHTG9+/JV4P1i6vYRtbiK04RhticiYzMRT8Jdvx1nLzBnuPGAE=",
+          "thinking": "I landed a hit in combat, so I should keep pressing the attack.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_11_8\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3359,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 57,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1822000000
+      },
+      "id": "msg_011Ccr8N5xhLMHDc8LeRtagt",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3359,
+        "output_tokens": 57,
+        "output_tokens_details": {
+          "thinking_tokens": 30
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_11_8\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3359,
+      "output": 57
+    },
+    "tool_calls": []
+  }
+}

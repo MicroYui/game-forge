@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:40b6d6d4706037856b373ef9b9aa6b6cb792cbaabc35755e35f40e2b1ade953c",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7571,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpIGCokBCA8YAipA1r3/dOPHzH1lKvpri0/NQ//hTricc9iGz3XBiR+TS64yEgmAR9kr1axJV1YWfc0b2TPJ6/K7yFWGZPVm5SmJGDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBjP5uCB8PAvR70Q0RoM31Q7K4fFRx3+cw8nIjDbZQE7E5ZM9uqH2Cutf1o7sT7JHsv5LgOUDP/YIBszz/eQHmv0ucKTwuYTtZpDIZUqtQTxtWr805WeIWtYIiUDvVTvmSJjcFByAcbT4RnLN22qHnuTProsYR46T45ZRHwM7M70uHB64Pxwbt/tf/XJXYQgFygQ7/9T3EaAC32tmzzPH8ZQFYWsHeVLbfZG5Dp0539KtT+pRnyflzjEX4U91/2HgqJTmFjYb3OMmWDlMV0FTsaUKO1pdA16Ce8VeF+LXZ4VHq33YWTUpAIX1dqgoODgjMmTOJHHPkKKkqaQSBWYoa+XigFGRasfXfl/ridaABesCTXdS66PSnR0MaOsdIz38f+Z2d7L+/fABHUkl7hIAEhJkrT0hiiBocRN6PIrKZrACqSOMG5wehq7LrqIPFA8oLJrhiFH610ZWVEHo2aQQqHCq8o9E9A6bS2gS4uoBuKViFeHqnu5nhm94YR4nuVhGqLw88zeUsIsBZKJjZNpkHyjrO8Fk+qQscsk1Cjm5/4xjF8dlaoILF/3xQFis73HcxO7Y+qYMZHYalUBFUwkT1uyoNB7H7klNjZqkuWNKMdVEs4Wd75JqAyg7n3E4RvMzJG6/PVEcQP3bKLonqL2UGXm3ECgEu+OX0yMr3uQG1z8CMe6BPlc+stwg7UV4qSNqO3zcZKYLGIs0REfrgK1HaNX1h/VMIRjiQG9rRZhQX6KpSeaz/3NTzPKipwLwXWvlo3Mw9g20jovW48B6PIUS2GjFwS8QS8cFGyZOw9L+JYuOI8h5k/Db3efrWWSpWKjy+eMbRPi8wTMH1TbDmOoiXl28QUFGAE=",
+          "thinking": "I'm looking at a MemTrace compaction log from what appears to be a game simulation or agent system, showing 19 steps with an NPC quest sequence in the tail—the agent accepts a quest, navigates to a monster, fights, wins, returns to the NPC, and completes the quest. The user hasn't specified what they want me to do with this.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a compacted execution trace from a game/agent simulation. Here's what I can read from it, and a couple of things that stand out:\n\n## What the trace shows\n\nA clean \"kill quest\" loop completing successfully over ticks 11–18:\n\n| Tick | Pos | HP | Event |\n|------|-----|-----|-------|\n| 11 | (5,1) | 100 | Accept quest from `npc:0_14_1` → `quest_accepted` |\n| 12 | (5,1) | 100 | Navigate to `mon:0_14_1` → `arrived` |\n| 13 | (5,2) | 100 | Attack monster → `hit` |\n| 14 | (5,2) | 99 | Attack → `hit` (took 1 dmg) |\n| 15 | (5,2) | 98 | Attack → `hit` |\n| 16 | (5,2) | 97 | Attack → `victory` |\n| 17 | (5,2) | 97 |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 432,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496000000
+      },
+      "id": "msg_011Ccrhq2HnCUuERmmn9VR5o",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 432,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 193
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a compacted execution trace from a game/agent simulation. Here's what I can read from it, and a couple of things that stand out:\n\n## What the trace shows\n\nA clean \"kill quest\" loop completing successfully over ticks 11–18:\n\n| Tick | Pos | HP | Event |\n|------|-----|-----|-------|\n| 11 | (5,1) | 100 | Accept quest from `npc:0_14_1` → `quest_accepted` |\n| 12 | (5,1) | 100 | Navigate to `mon:0_14_1` → `arrived` |\n| 13 | (5,2) | 100 | Attack monster → `hit` |\n| 14 | (5,2) | 99 | Attack → `hit` (took 1 dmg) |\n| 15 | (5,2) | 98 | Attack → `hit` |\n| 16 | (5,2) | 97 | Attack → `victory` |\n| 17 | (5,2) | 97 |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 432,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

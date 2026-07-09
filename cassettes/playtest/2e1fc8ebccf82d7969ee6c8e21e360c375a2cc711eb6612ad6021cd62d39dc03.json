@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2e1fc8ebccf82d7969ee6c8e21e360c375a2cc711eb6612ad6021cd62d39dc03",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9163,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsMFCokBCA8YAipAbtoK9Py1kvISjKF8mVMDF3rCvqfgZnLrEgCQXZsj2Fv7VlxHA8VltDEx0pec/VhEfuXuc/B4fGRlqDfUwHhVWDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDj1UxxcOIbQ4ng5JRoMjMWi5U2gnPTy7+BxIjAuc2yrIOVc5jrx9uOarSWIVxbIeW2JFQ2lFTUYiIS/PleQE53Dn6AGx5O7j6Pqqbsq5gPy3vL0TDGcoD0+Zm2WjK0mTLIuQH8tpMLtBNMPPDn8w1k1bSZSVJH1RAWxG3+5T7dbVsPzLwKFdDJdlr7jgXdoRjaJoeQTVDRs/KxsxSxEnq5lqs/q8myr5v9mQw/wjjw+Byb3IyiRTE5e4Tsca+OC8V/dK5VVIgwj8/zro25YxzoNN9zy/vtuORpU1tdkFXEcJOp17ME7C/kfjVsK1ZK83FmNWza02ab3MkZTe2B6ppkERDy8Sqlq4RTL6UCdtd6pVzWs0dl0ktH2mmIa2Mdce9joS8NcTr1NJqtXRVKyCpi/ECa+Op6EFsTPuRESPQM/swiPvbCehGuilwYSlkSbRVVhfMxP/fZ2VqRu/qSGmVuKu+1KBYgbeR5HS8r1NV94ZgQEAjzkTc7u0UyiY5aY0rqF4vg0i0fU3KPv1GP6yuScrK1BzL8SNuIxSkIezwVTB5y28yBvhKm6TX4rFAAUeEzUBsiyIIDkNXpnOXUp6BnVZ3T5vXmDEnYTUOqFk+dt+zd6W0wDOGhJfGy5hCannbj3XPaAOcGw6GAZn2uU4OsA+9dWBuQM0FtA0PxbpEihGIUj+rhNfTWJ74Cb4RAYQXjo4rVwyqRlUZ+2bUGLCA0NpvsMkntkJ64X9OHUhMyDpAcNCbkYAQ==",
+          "thinking": "I'm looking at a MemTrace compaction log that shows a deterministic trace with 51 steps but no verified results or verdicts, along with a tail of events. Since there's no explicit question, I should ask what they're trying to understand about this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like a trace/replay log from an agent simulation (a game-world quest runner). Since you didn't ask anything specific, here's my read of it — let me know what you actually need.\n\n## What the log shows\n\n**Header**\n- `MemTrace compaction (deterministic)` — a memory/event trace was compacted using a deterministic (reproducible) strategy.\n- `51 step(s)` — 51 events retained.\n- `0 verified, 0 verdict(s)` — nothing has been checked/asserted yet. No pass/fail judgments were produced.\n\n**Tail (ticks 43–50): a complete quest sequence**\n\n| Tick | Position | HP | Action → Result |\n|------|----------|----|-----------------|\n| 43 | (11,4) | 97 | `interact:gather` → **gathered** |\n| 44 | (11,4) | 97 | `navigate_to:mon` → moving |\n| 45 | (11,5) | 97 | `navigate_to:mon` → **arrived** |\n| 46 | (10,5) | 97 | `attack:mon` → miss |\n| ",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 422,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1491000000
+      },
+      "id": "msg_011Ccrcxz2zR4zf2VYNVFXvu",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 422,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 155
+        }
+      }
+    },
+    "response_normalized": "This looks like a trace/replay log from an agent simulation (a game-world quest runner). Since you didn't ask anything specific, here's my read of it — let me know what you actually need.\n\n## What the log shows\n\n**Header**\n- `MemTrace compaction (deterministic)` — a memory/event trace was compacted using a deterministic (reproducible) strategy.\n- `51 step(s)` — 51 events retained.\n- `0 verified, 0 verdict(s)` — nothing has been checked/asserted yet. No pass/fail judgments were produced.\n\n**Tail (ticks 43–50): a complete quest sequence**\n\n| Tick | Position | HP | Action → Result |\n|------|----------|----|-----------------|\n| 43 | (11,4) | 97 | `interact:gather` → **gathered** |\n| 44 | (11,4) | 97 | `navigate_to:mon` → moving |\n| 45 | (11,5) | 97 | `navigate_to:mon` → **arrived** |\n| 46 | (10,5) | 97 | `attack:mon` → miss |\n| ",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 422,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

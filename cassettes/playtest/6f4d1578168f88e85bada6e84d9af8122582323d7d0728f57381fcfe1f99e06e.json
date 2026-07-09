@@ -1,0 +1,81 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6f4d1578168f88e85bada6e84d9af8122582323d7d0728f57381fcfe1f99e06e",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 6988,
+    "raw_response": {
+      "content": [
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from what appears to be a game AI, agent simulation, or automated testing system. Let me break down what this shows:\n\n## Summary of the Trace\n\n**Header:**\n- 44 steps total, compacted deterministically\n- 0 verified, 0 verdicts (no assertions checked/passed yet)\n\n**Tail (last 8 ticks shown):**\n\n| Tick | Position | HP | Quest Activity |\n|------|----------|-----|----------------|\n| 35 | (9, 2) | 94 | `attack:mon:0_17_2` → **victory** |\n| 36 | (9, 2) | 94 | `navigate_to:npc:0_17_2` → arrived |\n| 37 | (9, 1) | 94 | `interact:npc:0_17_2` → **quest_completed** |\n| 38 | (9, 1) | 94 | `navigate_to:npc:0_17_3` → moving |\n| 39 | (10, 1) | 94 | `navigate_to:npc:0_17_3` → moving |\n| 40 | (11, 1) | 94 | `navigate_to:npc:0_17_3` → moving |\n| 41 | (12, 1) | 94 | `navigate_to:npc:0_17_3` → arrived |\n| 42 | (13, 1) | 94 | `interact:npc:0_17_3` → **quest_accepted** |\n\n## What's happening\n\nThe agent appears to be **behaving correctly**:\n1. ✅ Won a combat (`victory`)\n2. ",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 439,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499500000
+      },
+      "id": "msg_011CcrnkKz6UhRUSngbnXDDK",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 439,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from what appears to be a game AI, agent simulation, or automated testing system. Let me break down what this shows:\n\n## Summary of the Trace\n\n**Header:**\n- 44 steps total, compacted deterministically\n- 0 verified, 0 verdicts (no assertions checked/passed yet)\n\n**Tail (last 8 ticks shown):**\n\n| Tick | Position | HP | Quest Activity |\n|------|----------|-----|----------------|\n| 35 | (9, 2) | 94 | `attack:mon:0_17_2` → **victory** |\n| 36 | (9, 2) | 94 | `navigate_to:npc:0_17_2` → arrived |\n| 37 | (9, 1) | 94 | `interact:npc:0_17_2` → **quest_completed** |\n| 38 | (9, 1) | 94 | `navigate_to:npc:0_17_3` → moving |\n| 39 | (10, 1) | 94 | `navigate_to:npc:0_17_3` → moving |\n| 40 | (11, 1) | 94 | `navigate_to:npc:0_17_3` → moving |\n| 41 | (12, 1) | 94 | `navigate_to:npc:0_17_3` → arrived |\n| 42 | (13, 1) | 94 | `interact:npc:0_17_3` → **quest_accepted** |\n\n## What's happening\n\nThe agent appears to be **behaving correctly**:\n1. ✅ Won a combat (`victory`)\n2. ",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 439,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

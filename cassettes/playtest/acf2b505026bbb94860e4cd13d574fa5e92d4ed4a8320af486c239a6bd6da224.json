@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:acf2b505026bbb94860e4cd13d574fa5e92d4ed4a8320af486c239a6bd6da224",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8194,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtMGCokBCA8YAipA7GuFRCZhA8vhs+mIiSbU6rY3y2XoJ3U/dKcBvG9J/ZLgW1D6XNt94VOwRMMSAtIOO0AJ1ABMuEzHnpYI3hvT1jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDN/MpUQg7U00Jt1v5hoMK3/ASZmly0V49y9oIjAA3lDKVRYKz6Ewj6rYskOiKZkle3AQwubzw5ROQon9J5SsDh+dTtj7LY+cS7RtwMwq9gQQZkrj4206+oVZ4jgOFfxv/NJ68RnD7jaZl7QcuuHxR8zFU/CCN3Yp4IxsXG76lDEgjEXIApmFGdVqFjUSQjegvU7ncTBbvEjwoQUBmJ3fTm4Tyv+3GBsOP3QVtXZ3JKDQ5lW1GE7HQU7ki23yYkJmWNScc2+F09o9V3EhBQOTJQd/0QZKtLoxyHXlkVHfosV8rLB4PgKSJTI+zyoidtNyPJUTkCFNuaneocG1tZSGigNxp721KvURnoNd6oyrhnL4Tx31WqAiRaIuZFlPnDJnabqkSvrKdI6V7cPg+UlZhMkw/7jxct5AgHRbd0HerEj645iLLxjxARs2OJEBguWYf7uSshe4scUupdi4Yvy2owT41lQTxm8EQcp7FDDUamMwQ2SbSTG9q4+hMv85/6D5ZEFQ3/4nriQQ4PcS7u3cppYQ6YCRhY1N5PIaEDN2A6IVwINP5et6BP9CBf8Gt3NfWb95ax5WBTZdXqrivG3F/itE4dbhDQnpK/LpRvZ5r05ZSFUOxxI0a/itFYWzQm2iv5lNF4rufCxSB/ysZOuKF+5U3Jqi0ohPuTdk7NKquzpCTglhOgaM8tkPH+h9Tng3K3gBvbwD0f71GXobnMDqSnVCsnkaJCSvLH/Cxfz/1sU6SK/BUX2SengtEA0rLu5HKWX5nNqB/vHcJtFZaPnw+WFjv5XsOui6+bNHgNN6W9dk4mjgRBbQkm7KRFjFT7QadASo12DBJsEkqe5oOrEXIaCb4L019w5qN8lG/E27iw4bcFPHZEKiZ36b8ruf13ErQhedLPC1cUz8NWtIF5ELLtTe7h1vCpbXPgX9Qujl3k5DyBkSVwkYAQ==",
+          "thinking": "Looking at this trace output, it seems like a debugging log from a game simulation or memory tracing system called MemTrace. The user hasn't asked a specific question, so I should clarify what they need—whether they want me to help debug this trace, explain what's happening, or identify an issue in the simulation.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace/log dump from something called **MemTrace**, but I don't see a specific question attached. Let me offer an interpretation, and you can tell me what you actually need.\n\n## What this trace seems to show\n\n**Header line:**\n- `80 step(s)` — the trace covers 80 ticks total\n- `0 verified, 0 verdict(s)` — no assertions/checks were evaluated or passed. This is often a red flag: if you expected verification to happen, your harness may not be registering verdicts.\n\n**Tail (last visible ticks):** an agent moving through a grid world and progressing a quest chain:\n\n| tick | pos | hp | quest state |\n|------|--------|----|-------------|\n| 70 | (5,6) | 93 | attack:mon:0_2_5 → **victory** |\n| 71 | (5,6) | 93 | navigate_to:npc:0_2_5 → arrived |\n| 72 | (5,5)",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 447,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1503500000
+      },
+      "id": "msg_011CcrH9zF7vGREjFXZVDCsU",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 447,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 201
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace/log dump from something called **MemTrace**, but I don't see a specific question attached. Let me offer an interpretation, and you can tell me what you actually need.\n\n## What this trace seems to show\n\n**Header line:**\n- `80 step(s)` — the trace covers 80 ticks total\n- `0 verified, 0 verdict(s)` — no assertions/checks were evaluated or passed. This is often a red flag: if you expected verification to happen, your harness may not be registering verdicts.\n\n**Tail (last visible ticks):** an agent moving through a grid world and progressing a quest chain:\n\n| tick | pos | hp | quest state |\n|------|--------|----|-------------|\n| 70 | (5,6) | 93 | attack:mon:0_2_5 → **victory** |\n| 71 | (5,6) | 93 | navigate_to:npc:0_2_5 → arrived |\n| 72 | (5,5)",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 447,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b73964e88132e9ffe13f3eefa25c25109f25cb346b92a5c10918bcdbf0ef418e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7801,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsoFCokBCA8YAipAI1tNHSt6mwzKPh5lxLB0NPtBKG5s36kp97LYdy+GdfHkd1yuGJ7A/rhZXIZu+bB9jZEcivi7JDjcHHX5Jm0RKjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEfgHtUYh2/I1HCBRhoMtvATAfAllEq1YqwAIjBypF9uzYzG9TlXWOf1cZ6MS51XzKPESxqRuC3yrq/9l9YpSQrDmIPboju7IWyaO1kq7QPATB9wgN62FWFrfmp1ZQicebO7AE1/0TA9EqoWW8Ixh8RDrwKue5azyaGOM2scrmDztibzFlZaVKptf9D5ErrhWgOjJsFb9SPDAuJj4ykBYnmk+fVArv1uduo/5eOu4hUFZM0TqDl55a4rbmvfnv/Kpa7sy39g+0oCkKfKeWzrWVaRI04H/JBY813XMAhpYIZmVfsSeGUNk+5mB1CZ41fbqKeZcX3xXZmzz4G68cPdFGeGGHAjXNCIX1XytfXjlrsk0GLHMW42lc7i/hDkP4BMrcQZXpCcG3Uo8lnKLaN5b5HADezq30DpD/9YIp2NBZaHRNogIOl0a5wcOCxJB/XE/hOp/B4q/bpnKu6h5HDfEWhY5fvI/HDo7FNhdDPUYH56b+fv7KGoOKMTLu7BGvhun9Z8QM4cUucyH714h7v8qjeRzd/Dg0WHHWT2+77GnI/w7sSgLWAGpLnKAtT5+nqRL3YK7mguxBcyCBdb54hg/AnKIDAfqvYyEYaCiYrxcAW7iRkn4523uYiJ2zfj6U5YHEkzaTMVyZQVlRvDxuFgdsa68QSQIqHwAxeF9GdXXw5fJvb0cwiHmM+fYLS/flG+fhVn3mcX27KUxsKJpv2lA7u0DoPItviCr0CxJekEtpQVNT8hkEgiu6m/tqlDGAE=",
+          "thinking": "The navigation to the first NPC is stuck, so I'm trying an alternative quest target instead. Both NPCs appear reachable, but the first one isn't responding to navigation attempts, so I'm switching to the second quest option to make progress.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_8_16\", \"step_kind\": \"talk\", \"target\": \"npc:0_8_16\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2995,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 268,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2167500000
+      },
+      "id": "msg_011Ccr6PYtEuhxz82RSaW1FE",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2995,
+        "output_tokens": 268,
+        "output_tokens_details": {
+          "thinking_tokens": 227
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_8_16\", \"step_kind\": \"talk\", \"target\": \"npc:0_8_16\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2995,
+      "output": 268
+    },
+    "tool_calls": []
+  }
+}

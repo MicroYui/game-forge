@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:09d05224cd7aa389da1eaaf390db419ac4546ae53183b8d47f75a9075234f165",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 12278,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqEICokBCA8YAipAuaXoDlofSvWCITQ8jQYtzc5KVid6LHQoAl4Tj84FCPLn8VNxVfJtp0qnDsanMStkMwRHUVBfPQdUM0NfR7+ztjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOh9ZGeDLsRT8tUdnBoMzD4C1Vg1qPUiofShIjDeKvuYpAwWNNANu+MlCXW/l37XaHFDK0VcVKMouJ0zYKWJfx6I4I7khWHWLCN/ICMqxAbmaeQLaS5QAOqeGNd2/5aTd7Jx2XIpeVEq6s+YKavrN0k2j4o0yhgNJE96MTdsLVmaMhg1hyv5Jc1NIHFVNoaIVw50dvOT7aH4c9VfkdP6Y6THYjRJYjnX5BW5BQk+GcK6gRrh4+NDd+c1EdORIZRM2qVmheKtuRSpEp0+3muKdCclMf9TFnp6Cn4bQE8fi5OTSLq6SfFrdXlsoK/lT9gxSeVNj18q8ztzzCPqgoNLDrzrhJz/ScK/0sXqYzN9wnB/8jW0RrMzDvHCoprutlpms6FoxXTSwE/SFaS64CVW9lUcCS4g2ZQl8xqbvfxsCnZ+78W0Bg7zEcvFIqTxVYqvxKpsgZ54J9/KRK46UFiS6P5575VvkhVSlbc6bRox0G9aLnnbQ5x3oDEYd9mz4sqTLqCE+BibHkX9otuwVIgfc9/7hZc1SoxpiQ4q4R8DgV/G7GqzH+lZFmjOewzr/XGg5fneV+o+B7Onmn/z0Do4w/vYJwVZwOo5PQKQm8snWL33cAIixusQx+ZBJ6NWTGq9XiFKSrQoyDZTbYWuzwDyJnZEzYK+HgPYGgsuQ6onGvsTt+rzrA480Q0xBohTtb/I4WbTrwZjFM5UMe8l1uYoMHtHobzn72j7/pD+IRtMzYKkEGxanC5x/ZHVUZDp4VGI3fLTBH0GLrjU9PrnRol7t/ync2dCfs5ap7BaYRTrgjvaa1ksYU6awY6aCDh3ClM12UbLVFMUYNnMYnGmrW7VDujIjTfzXEbqYDAKoINa/n4ySUz8TK0T+UuY0m1KreVrJYTfISB0EgjDykBfV9P3lhGbWYwoAkrJ+KtWkOhuYfRN6ooLOUpMsjTEQqqcB/LZiF75sBLd6/4iQhU6SkmRH3ZMjO5JCXeg6Hqsu1mgGbyLsn97iH/GfAC1Vb1yaFASU2XHBvFkC5qCIP0+AjGRGP37YbhQbgRnbQR75Ot4anCs0tYLsKXgBxw0b75E/Q3QdLbMfa+dSbNOxeg2BHpjQOEf8LLNbQPQL9QVeWYan2VsuaJKxnT51G0KsZQXc2lINczGBFaYdR83ggONM5Glh4R6/zI7i/FhNA5XAJW02d5myOC7jgTgboZMUNHei7XjwaA/hxgB",
+          "thinking": "I'm looking at a debug log from MemTrace compaction showing a game agent's execution trace with 95 steps recorded, though nothing's been verified yet. The user hasn't asked a specific question, so I should clarify what they're looking for.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace log from a \"MemTrace compaction\" run, but I don't see a specific question. Let me share what I can read from it, and you can tell me what you actually need help with.\n\n## What the log shows\n\n**Header:** `95 step(s), 0 verified, 0 verdict(s)` — the compaction processed 95 steps deterministically, but **nothing was verified and no verdicts were produced**. That's often the first thing worth investigating.\n\n**Tail behavior (ticks 84–91)** — the agent runs a clean quest loop:\n\n| tick | pos | action → result |\n|------|-----|-----------------|\n| 84 | (1,9) | interact npc:0_5_8 → quest_completed |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 448,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504000000
+      },
+      "id": "msg_011CcrLHkGZPo3teYMNBvzya",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 448,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 279
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace log from a \"MemTrace compaction\" run, but I don't see a specific question. Let me share what I can read from it, and you can tell me what you actually need help with.\n\n## What the log shows\n\n**Header:** `95 step(s), 0 verified, 0 verdict(s)` — the compaction processed 95 steps deterministically, but **nothing was verified and no verdicts were produced**. That's often the first thing worth investigating.\n\n**Tail behavior (ticks 84–91)** — the agent runs a clean quest loop:\n\n| tick | pos | action → result |\n|------|-----|-----------------|\n| 84 | (1,9) | interact npc:0_5_8 → quest_completed |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 448,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

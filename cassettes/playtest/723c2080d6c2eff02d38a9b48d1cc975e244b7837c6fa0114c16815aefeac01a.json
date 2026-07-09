@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:723c2080d6c2eff02d38a9b48d1cc975e244b7837c6fa0114c16815aefeac01a",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9404,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsYKCokBCA8YAipAQLXJmb68d5+nLOjgXkOFEWECAeaW+cy48tddbAwK2fJ/+8llV1CrC3q8y+VNRc1JGSCEsJmm128DraCJfQLAUjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGIgg76HuYJwKS84XxoMaZs/eJmQKS3FIZEhIjCuek5Ua5+x6GbZea0+lFW/J/+2xuLhTEa4I1JoxqDC+aTqFM2Sze3IAkkg74W/weQq6QijG/wIdNmS7WjAA+pgL4DOsTWnlP7fUa42lP99gmqXuoOqmij1f2WeMfmQWIOAZHgwM+VsRAqfrv7k/sgFCYo5SEII9IqqJnbg/Wco3odZHK8mBG9TZkCPOOIIrLVd0/negoVoHAnKom+2+r57AvQU2MprlRJTA0fjCHf0BtnVTgdgIP5L9/U6uYrgm8rEZUtednNqUCfwyWD0jPItN6U/jjFZ/+8WO4NTgPIi2ZR3yyWsasVG8PwbZt1Gnt7eRaMrnL4rHPTtEL3b7jrO4hTXFUQMfBj4sn2e0/2HXzv1yntbHmKN7dyL+uc7LO1P9RhQFHyB/7Btv8qSG7sABsjrLKKbb0vw5vLdL6cNGZVb/NonGeDw6Sd9pkn/U8YvJr6Ji3ZK92b97HSEn3gv71nfsxv80lw9Io3NmKkC/wDlnffkPs+TPp8oBRJklEVadwk+C4n0jDWJRwYB2MZgMLOoYoyay0B/8A90bAW9Em2KjEcrUFHYQTIbqxOgYwsvgi3xCgMMkswXnCKdvbY2QhokEAzdRGdl/MoEOUhJY4R0W/frHjCmJgjf46TdhRO//P2a9ZEl3pBwS6P0SXH96E6qlB4mTgOrIqXwA8mDkcPO5COP/9dKw5vDkqZBHqYekFDFnr7q3793sbwGJgmIl/LfpdZjO6Sy4RCYWOnFvh64qTJ7OhjPxYRNayr8SDN6FA5YJdxOedAR4JpTif7KXrOpERdu/YSp5naceKK8MT6iYhz+ct+5z/Y1UFOcYIjAnc6Do1SXQPMO8IzVMEBwOYzRBxseDrYaGEebT5bGoZyZVjqsvtBEAqeCI2SRFPDhHVrRIw+r29kL5rAgA/yyNN5qbVbmod8os060HnByM4JcyCOUi/YLVxltrQMpuPA/XKNfj7JNdW9mUaGsMqbyPBmBYK97jWLhO84kcmytD49ms6D+GUWK+UpCRMROlLyBVOQcLe2fyLYHUyx5hEvEAUpe73mqRw2fhgseINbCqXdrXRsoIEmF9zaM6KtStjm6Ed+aW+7j28U0v0HVRRhFZaeW0lLW/7sumraGWqAkMn8yF+FkX85By2WHu14MPgwUepi8jQNoWpvwpReU5KlAXUENt3/9MVwCVR4GsPD3BGeJZwTGi8Co0D1y0scVyK8P/EWfR7nFzxbgfuWfbznnO+mH5lIHyRLzWQMj4H7ft901liapN1TPYIyQ2n3UsZ7/gcHJ/XSrypLuhrI13AQhAryUHhBtwTzuEOAVFryIt7+w5XYxyTQHYg/LgNej3u4Zmm3hQfsYd9Iz1tsrlqezuLZw39AMvD/F5EWGq6rd1YQWd7Dac218v3eh6PPvJt+ntKLVwdbumV6nuX71lkC17c1MVPctgBmNfNYU5VKypKvHrdAabIu1QdiFdoghfiCxtpOfWqwAOPKmxZbjm/j9eekQFvgti13P41ego+B1NsMSCqOp1oHfxvJTc+5AmdwYl6EffCaq43kcLNdYsdw9niodoPvLQgUK+E8xGAE=",
+          "thinking": "I'm looking at a trace output from MemTrace compaction that shows 132 steps with no verified entries or verdicts, and the tail data spans ticks 123-130. Since there's no explicit question, I should probably ask what they're looking for while offering some initial observations about what this trace represents.\n\nI'm noticing some potential inconsistencies in the navigation data. The NPC IDs seem to encode coordinates (like 0_11_11 suggesting position 11,11), but the actual arrival positions don't match those encoded values. For instance, navigating to npc:0_11_11 shows arrival at (4,9) rather than (11,11), and similarly npc:0_11_12 arrives at (9,9) instead of (11,12). The fact that nothing was verified and there are zero verdicts also stands out as potentially significant.",
+          "type": "thinking"
+        },
+        {
+          "text": "I can read the trace, but I'm not sure what you'd like me to do with it. Here's what I'm seeing, plus a few things that look worth flagging — let me know which direction you",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 435,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497500000
+      },
+      "id": "msg_011CcrfKPygvHVhYMi8xk11j",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 435,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 456
+        }
+      }
+    },
+    "response_normalized": "I can read the trace, but I'm not sure what you'd like me to do with it. Here's what I'm seeing, plus a few things that look worth flagging — let me know which direction you",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 435,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

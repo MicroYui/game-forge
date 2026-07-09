@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b010a964caa2c85a8be4ec02bd10ad03508b331e1e5d032bbcaf2b907dcff18e",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8560,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EucICokBCA8YAipAwLoQW6vDPvj1v3oI5j69Feq3Ft6wLy3LPvpmk1NHDwxB91fA42S1VBEUJMy9e2QujIecb/EGcr+pJ0oay7RsATIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDB7O8f1VRAvgMPzkPhoM6blycfW8EC5ZQyAuIjBH3R+ytBMpPxa41RG5z/pEjCqSF9rVWCBSsHu8WaYY2Sj3KcOblWkVhtx2MS6RJU8qigcs6pVGe3GHIkm0JFHosE44an68z1+PaH+Plfk1FKL9FgOIHnqKdfIXZXqlQVpFCiaZPwfO8bHx+wxupWLYMVMo42u7H8CCHKFsu56xsUud+MKVzaOzW3XfpvacnKXN2ZcEGkTG3lFXGSsS7cE7zs4n5E+kILuiRsIH1Wzv8YGm53y9K6QZwIv/uEff+Anu6QEtQ5AyHaTnDN8XUZTDDGQqBn0QWglEGen+is6bqGZ7HedyUAqVbJ1xElob28JYaKw2xy5N7BjmqEYRZLkC65VE15TF0E0ddvMQVOw8zQtO7kxBid139Dh+ykaAr8ao4pqQyGfUG9RPD3IvToGbZ7IzCFSXNA8eOuW2By63ATxgWYa57e5izeSvUTZXJ727XU6AUpeI2rjDH+kz72OtBBsQvVnQGDaaxFR4y193ppMmgedzSlb3MTGYtwlxQWw7fZOUEX0qVSB6SDPKoziK7axvayu97LibzLhk63bj21T6k33D8cw2Ds1cr8n1PtcZeyPCL+Mi4hBfqsAVNwWORhqiAoEXj8VUk9oMIjgOccCvBrT3W9YW7KI+ghkJrA3uJnYm1XvoB6EFCbv6rZoPzX4U4pScPj3VZP/yaSF+LJaclYhiiV79M1x87zOLWQOX/nL5+q2vUmcaaI/7VzZgJkNyMr33+uT6cJla4B9mFdss5a8k4Qwjt58FHbad4WfTduEoIWP26W58u12c1cLPKNWzn2KsiAEjZHg+jmnhaocD8C7U69SWj8CcOnWAPrKaiX/b/dIXL9YTw82BWnKCpHO8o4Ai8flSJrev8l/Qjct4E8kZCxouK/lJQ6QX7LdR9R8EWVWipZyJaDCSlDAgeBSaxbtXtGgmm2yrDX/kSLQNyxHj3VxdQON4BsGgDgQQmkc19uWShOikqLB7ChcCGxyMOaebeYfP4KeDuuc2GC3XET1EJLxtMcp66wwne9ZKetBJY6BFj1d9NTXvmc31kVWuEzmeJxVaWrdxfktkkIZl1PuLb1s1bdaOxlYKo9yrfFdV77uV/Ua5UkGfcvidz+KBuZWx7opgMm/x+QtEkCVYSXQL6tS7Dp2M8LGViUuwZX8pvoZQS80a3Ep+TKhtQM+RDKMeN8lfSOHiU9VQ/+TAHggA1Vj7EApyyCdzRR4VPdl1p9SIJcgNMNAHUR+d5My7h9dBwaFO3a8trAQBn48igaH1GheTJ1aHCiUYAQ==",
+          "thinking": "Looking at this MemTrace compaction log, it appears to be a debug trace from some kind of game AI or agent system showing 114 steps of navigation with position, health, and quest data. Since there's no explicit question, I should probably ask what they're looking for or offer to analyze the trace.\n\nI'm noticing a few things that stand out: the tail only shows ticks through 112 even though there are 114 steps total, nothing was verified or given verdicts, and there might be a positional inconsistency around tick 110-111 where the agent arrives at one location but then interacts from a different position. Let me respond by asking for clarification while pointing out these observations.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace dump from a \"MemTrace compaction\" run, but I'm not sure what you'd like me to do with it. A few things I can help with if you tell me your goal:\n\n- **Debug it** — figure out why something isn't working\n- **Explain it** — walk through what the trace is showing\n- **Review logic** — spot anomalies in the agent's behavior\n\nIn the meantime, here are a couple of observations that might be worth a look:\n\n1. **`0 verified, 0 verdict(s)`** — despite 114 steps and several `quest_completed`/`quest_accepted` events, nothing got verified. If verification",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 434,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497000000
+      },
+      "id": "msg_011Ccrf64GfE1LoCEh8bPZ8m",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 434,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 308
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace dump from a \"MemTrace compaction\" run, but I'm not sure what you'd like me to do with it. A few things I can help with if you tell me your goal:\n\n- **Debug it** — figure out why something isn't working\n- **Explain it** — walk through what the trace is showing\n- **Review logic** — spot anomalies in the agent's behavior\n\nIn the meantime, here are a couple of observations that might be worth a look:\n\n1. **`0 verified, 0 verdict(s)`** — despite 114 steps and several `quest_completed`/`quest_accepted` events, nothing got verified. If verification",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 434,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

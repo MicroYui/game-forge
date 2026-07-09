@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:28447ec35bebe24a1f45bc8a480661d6ead6df7515c0205d5af5522ec8d57138",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4468,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtcDCokBCA8YAipAX5goQSORYLHLvcAMmuHuDMAEe8G5PItR5ktCd8Mmy0aKsaLMXPC93xw8cbXZUXZXbuyFONYboqGY3E65YJYvyDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIT5xjdenD6BdjN9XhoMozHN/LlLj8eplkIcIjD7dF1nnHy3Byfu3Zj9FveoEOIFFWd13BPXb+km1hQq64v8SN/VwegtlmFui2ACEcIq+gFVYANzvtUXNaZ5OZgm16u/3+ZRENYufkA4bKIdyTsEkTjXi5t08hOY5FprdrMdXS7bDuoRXdVXxWrH99j16lwEe8yBFOxlA5X+TXyKgzpO9q9GdPHZtl5KyA5+VvlXaUXOAZLNaAyAusRh9TA26LYf+FCNQrvN6DSoQrgBkMWsdZ8nCTWSfCtsmclGzTdV6I1RFqNGI5Y+zEppCEGebNXQmkoPgoLqHXsV92c2yGdiKY0T35VR3GqemLFe1jyDj4fnRhdAg78vFboHFbxxr60j+35AmKbhIex7I3kZ6G2NrUsn/CH3ZOwFuJ4Z3UbJoaVQBi2ms5F5KbR8GAE=",
+          "thinking": "I'm at position (9,10) and need to move onto the target monster's tile to initiate the fight. Let me reposition and then propose the attack.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_11_12\", \"step_kind\": \"fight\", \"target\": \"mon:0_11_12\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2857,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 135,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1766000000
+      },
+      "id": "msg_011CcrfPKZPtbdVCynrUQCrW",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2857,
+        "output_tokens": 135,
+        "output_tokens_details": {
+          "thinking_tokens": 94
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_11_12\", \"step_kind\": \"fight\", \"target\": \"mon:0_11_12\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2857,
+      "output": 135
+    },
+    "tool_calls": []
+  }
+}

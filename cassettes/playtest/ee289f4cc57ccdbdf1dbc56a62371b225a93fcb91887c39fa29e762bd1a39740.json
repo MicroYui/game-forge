@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ee289f4cc57ccdbdf1dbc56a62371b225a93fcb91887c39fa29e762bd1a39740",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7267,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvMFCokBCA8YAipAntKOOx8lRMkuCKstpWWlqXphgXYFdsxO42sd9utdKomSej0Q/wGn4zYvW7V8yzp16nOCeDAb9BkaZnBGOZsh7jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOl0f+2C+jk8uLuqCxoM92GtOsdSVl1+9pxAIjDfGAlofEOR3nTfwBxlP36kPGk/rtltsTY/WHKv4tnAU3tolbqYJoARR8I33l2g78sqlgTK4OTBMh8flQTkDC2cem+wLfhxQynqZZ2ovHt16MGDrRme973aEG9cBUznto8/hQdAemQ1UKhAey4ppQPkffcdAiXG/SgTXhnp4wBzdF1Frq9RRq3nV7ORsOuNeJFsMBGFvrxMLnSWRtP3hx5YYiRnyKGcG5jV7cbtXCNvH3N959zw5M+d61v0nFQBVVRAtz+HflVlNGGfFSjB2DvrfmOEhubSBf37Ah6grj5fR9BfezyoBy3AHd8eY1hciX5+c+CXUHg65waSNFlM7C65xCmvjJC1vRA6yRE1SjPwPGoda96bxCBv7BmgFj9AIKOBWYRwTFGsqI5Hbx442chE1cUZaGzcfWxmxyqZKaQu+9tgy3xtE+5gD8cG+W/GjTnZS6xajC8aKEDtlMxrnlCpSzwXHbNcgQ6L9362OWqOUXGQwNUrnm1tGPFKcZgkFNhEtW0tYZJB3NwBz91bsDUDKOaYV56qhEd9o7bmQPWXZTeIdNsvm51lr8rlEzv31RfT3uTe2xXmJEC/gkynd0dX7H8NV75f+mQ3SAKFep/wZRU4Pz4ZqJgfJ/7X4rScKR4jg5jM7uFJyVqdeVxqBPVtgaJUBsmsX9NUaY8Q/Hf0LB+B/sKxulK4wyzD0WsZQVMiRHK7/lSYkkr9eh7CPA2PaFJl+CqZF9RFGR/rwdWRzHuzcZ2W7ZGUW/TwzdG2u//3kMLKPlDGXR4YAQ==",
+          "thinking": "I'm working through which quest and NPC interaction to pursue. Quests 2, 3, and 4 are available, and while npc:0_12_1 is currently reachable, I'm considering whether quest:0_12_2 might target a different NPC like npc:0_12_2 instead. The thought trails off as I'm weighing whether to go with the available interaction or explore other options.\n\nSince npc:0_12_1 just completed quest 1, I should probably just initiate the talk action to start quest:0_12_2.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_12_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_12_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1832,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 253,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1548500000
+      },
+      "id": "msg_011CcrfrkbHYdj4D99pD7raZ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1832,
+        "output_tokens": 253,
+        "output_tokens_details": {
+          "thinking_tokens": 212
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_12_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_12_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1832,
+      "output": 253
+    },
+    "tool_calls": []
+  }
+}

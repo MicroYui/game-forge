@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fc1f7206c52b810613a117076bbddb1ee2fdc6646a7b14c7bd3c6b4a7090ac23",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8102,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq4HCokBCA8YAipAUINnBbFL79gPleO6uwoOd8Uh2zzQ65UZ3EiIFyWns01VfNdPTfQfj37ADIKcX2oQzi2g48dt+hOSOWlC5XfQkDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOU1jRMa0FMyONVOrRoMv0zh/RyC/A4pAwY9IjACixz8NaARyteQM2lc/Z0Ai9LKPTVtpAVTD0d5ArryO+vrL/GyKLYQzsKxxXgTX2Uq0QXdhqrGznY5CCDh8IKZwauArYmHBwEtERy+edDkcO/MS/DXVS0KqIOOB0qgQEyw7O8o3yQDGMT5Xtqdz83BJR8GVMpdqd5pJCFNED4EtyjHDyqdvyMCryc6h3oAxTrPczlur0DXGe+q5cYVb/n9OPogbSUJDNxUZHvhN50JnvI8qDfUs+gLWsS7fjIfKD8ZWBjvPKvFNL8k6T4AHKpavHTMW7d9kqNyK3Wehm7wmTlOwM98S7djO9oueCnnM+R+Ea5Iu5zi7bLw+meakabBX3g+f6qqcDf0hGUnoHfhZ+c6WwRwUe/mD3NlTwuq486o/IOBuHLpFH6clc9RYjMs0JsINgO9A0LsCRGrMBx0d5QzlGAHeng5Xu+dLiQB+DW1lV7amNlSfoafmsYilLt0pPZX/51nRs+kCNfevlfas+Crq5ta8zxWVs19nXURvzP7xcYgJKUSE7cuGJu4nyI1U+4uKs/lrkghdO3s3ZMbhoVt1hh9j6viaz7ZQ0v4qLoi8Jb6rxSZX1CfQ7UL6+7N3FWszU76UJvabsj52IoovuEBN0oCtqpAeKmnw118az0b2/JCjqgwEc+VfzHB9/f141ZFb7e98zRGMIPZVZM3/e64Y1fIpsqgk2Y0xoqIcRUuuZpZ487ZFBJO6ij7UDaSv4EXi42NP1JLTZiA6D/g3OlTJSU49WA2NieiOqU89mZ2urSV6GA60nPtfVbFCW/2kpL9FT0DeCY6j95M70P9WqAMvO7F536SXDR3kZs+HtNfwoMgExYSjbbrHcdfX5/KjlmfxxYiSmxX8W2lBAVQ4NtFZfvPWDbozHCSxOK9VIibFxZ7NzIqtUqho9BVqgvZe0xiR8RUSXVVMC3l/lQ37konTpuTv1S80t2XEF3BH2Drihuq1onw8mbZ7FQgExFP4DeOHg3fZsOmZ4zb4LdSeyk4r823vTj6eAvyfQ+L48Zmswr/GAE=",
+          "thinking": "Looking at this debug trace from a MemTrace compaction system, I can see it's showing a 84-step memory trace with zero verified entries and verdicts, ending with a sequence of agent actions around ticks 75-81 where the agent navigates and attacks a monster. I'm noticing a potential anomaly where tick 80 appears twice with the same position and health but different action results, which could indicate a duplicate or logging issue.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction dump** — a debug/telemetry trace from some agent-driven simulation (looks like a roguelike or NetHack-style bot). There's no explicit question, so let me summarize what the trace shows and flag a couple of things worth checking. Tell me what you actually need and I'll dig in.\n\n## What the trace says\n\n**Header:**\n- `84 step(s)` were compacted deterministically.\n- `0 verified, 0 verdict(s)` — nothing in this run was asserted/validated. That's often the thing to investigate: your compaction ran, but no verification checks fired.\n\n**Tail (last 7 events) — a combat sequence:**\n\n| tick | pos | hp | quest state |\n|------|--------|-----|-------------|\n| 75 | (2,7)",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 430,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1495000000
+      },
+      "id": "msg_011CcrsbXUV5iL4VA5E4TAny",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 430,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 247
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction dump** — a debug/telemetry trace from some agent-driven simulation (looks like a roguelike or NetHack-style bot). There's no explicit question, so let me summarize what the trace shows and flag a couple of things worth checking. Tell me what you actually need and I'll dig in.\n\n## What the trace says\n\n**Header:**\n- `84 step(s)` were compacted deterministically.\n- `0 verified, 0 verdict(s)` — nothing in this run was asserted/validated. That's often the thing to investigate: your compaction ran, but no verification checks fired.\n\n**Tail (last 7 events) — a combat sequence:**\n\n| tick | pos | hp | quest state |\n|------|--------|-----|-------------|\n| 75 | (2,7)",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 430,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

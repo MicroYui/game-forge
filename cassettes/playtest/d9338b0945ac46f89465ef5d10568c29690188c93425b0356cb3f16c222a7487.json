@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d9338b0945ac46f89465ef5d10568c29690188c93425b0356cb3f16c222a7487",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5880,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EswHCokBCA8YAipACK21IxNXhPl0xFnhaPF9IiouMdLUQdg/3FWjyYvwV7oexizpPeLFS2U0zEjfp+81V2g8XK+4fjwAY72nziRzozIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLDukYxOZXT6n4C9mhoMjtrJPkoiXKckdnYbIjD3gHmsgpuajkOWA2cwW6kcEICmTY8OqUQDNMWIF8Lsp+FvOp1MAR6v+9JoWA6Ah4cq7wV3ueBijes2l+W3OQwR0w4PMAVF13ZP6wZOsb9On/9YF2vwd+NoxjqutxmRLhAE3VW/euDWKe5MkNmKa7vZCK7FT9r5J+e8kFmQajdwTFBKltCVZ89rr1KRF0kFmRF6k9EjaBIvOn0Cq0LTHJObw/aqwocWG56uhw36PPwdragKD0a7aFNSIgLldAhH6fH/kRwLyQHeMfoCY7HQUAyrfIdhXICNQM1cXjrUlNUSjhCxVL1bb/fPYCUG6R/P1dJ1Mq/7257MHmlTlmQgd6ZGhgiN2awXFOOaRc1MYTPqC0lPIkrQBimk/K4juE6AmeN2lqNW8fN3kGNup2AAYphZeve5tH1k78Ia43mvm/LZccSJ5QatNF4iihcGnE7mFQ9a6amBeoeUpSUsBklDqITKpc01VaVa9dALzILKYsXe2P9DCq5EIOka3pFGAdPcrHpnsEsbVSbRKFTD6N2XTqiaRrK3AV9czV9lQVuqhueKOfNowcr1qJmyl5vdOuNJMoWcl8PYlo0KO/f3xvbGVelvqvxvO6u1CXj7Ef/RcpXhODhaBggNEdaGiYgNLEk+GZa4elZSZrthIti4DQGWZotM1/d9K9yCDu2zTGjc6kpaj73o38q/rOHCO+tFAikuU8wWC5iFSUJIQ8Jl0SaUNTfA3o0Z1IDN73d91KJDQp7CoJGZXb8NM1cOIkBdSH7jJbrary6PHwjZUGJS2iM5++Gh2olSYIUkFSLt5+VVT3AXXCRp/vdxc6jUmp/CguoKKZm2afRGWhMpXpIfwdwSqy1q/vmoe5eF9qiA7Q3FjwLSS9f567EO/jRLTxyfELw6HUqyne9+U1CPQ8CWPunC+KGGkVmyO7OZnXwFfAboOBBwErCJYIPXOIz7KxY1Q/LFHs6q7CS6CSixvA+qjDzZM5FS8G/V6xLo4YKG0OffhNovHTRFbeG7RaHMXoFqVO9P0UsPUOe+UZtWft6LfjCiZ0KgH+FSMGVHIpxeTE0C6PRPrwpoGAE=",
+          "thinking": "I see that npc:0_18_1 is the only available interaction, but quest:0_18_2 requires talking to start it. I need to figure out which NPC initiates this quest, and since only npc:0_18_1 is available, I should propose talking to them to begin the quest.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_18_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_18_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1964,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 342,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1837000000
+      },
+      "id": "msg_011CcrEWk746kryWMWcxishg",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1964,
+        "output_tokens": 342,
+        "output_tokens_details": {
+          "thinking_tokens": 301
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_18_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_18_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1964,
+      "output": 342
+    },
+    "tool_calls": []
+  }
+}

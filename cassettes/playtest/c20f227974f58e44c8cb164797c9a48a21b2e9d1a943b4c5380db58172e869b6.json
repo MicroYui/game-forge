@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c20f227974f58e44c8cb164797c9a48a21b2e9d1a943b4c5380db58172e869b6",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 10227,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtAJCokBCA8YAipABL5xrpvRuLybvgkiSzgerlTB4n8AbMc2pLaur28XM8UAVU4LkmHiGQKgRWwOdUffw0V0XZHamtn1SEebfPjXWjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAi3fTBDPcouWTeGfhoMm9c/j7SN76nhrHMHIjDXtdx2kzwJrIHLB4gejcxn9GGJD28QlXG2FQabnKzgX0QESTjM6rZB+9uqCgZtvHkq8weXA/xvqD0heM82TDMavKKVYQCzROlQ5YtXqg7PAMxZ93gvV85ndeR5z19i1sN39e6YkNI8BtcFhlejA3+5NLYyK6kH/DfEH6dkFfOU8qWas5+1HvnUFV7bWvg/mkV5Q79qF8qQgUZuMC/UGzdqUhAl3ELkbnYMQCDgzTJbjS6oQKA8YTI6Iaqgui64Ou1sQOvwB5QKgfVYWON+7oE3Vxgnq6co3v/WGXqGttpf/YNIuf435NJcOmrt7x5ALF+FmMPZPiY/fgqwYARCUjzOjiWIrOeFfEvW1ev23KIBH+k0Y6gCZf/KVRNLMUPH2+K+w235tRK4BW0Al59CE7hJzBrJyDu1Ahpr8bsNytPPGa5E+lLcnjoOrNh+r2i94cLLlxaB6ZheJ3C6rBQmXOQ6XyR6kDOpXc27YH5YRe0X8XC5VXFB4rcbe447QfHcyfgWNVtR9zSlzRjGzpPfiMmlK5N+m3GtMyGdVDWMkyPjWAxdi2ijwQ4D5CD4Ykv9QkzpBtUmKaEPy2IyAoumeA2ac37WHQF8dqORtruDAqTaWnmjbVxeHjLdLK7+YD0IQwbzBjBjwtkGUOT0mcy1cnQtm+XoIv7UBYPIV88f1Yqhb35vYP8c8ZnD88XEubtBQO9djscJVyQ1KvdWv4P+N2psjyy/qboCoaBZk3Wi5m2qlIoNbVTRPXKntN1CUmkBsabns4PFkUzltnS0pUXkfaf13Vg7XMKqiKZaVnD7dSMNEIarfuOqDI8H5D4zTIOmqae00bbUaFnRn+ir+ZJWPD54QQGTivTiWEdQq5R54oYowGVDEbumv3LK8n7VILx3R4IZWfoagfVdlX27JZj0JKpGfxjawQJ0Qt3xyXft8vhuTK3R+KdMNemwAA8KF/VszDGfPB7EnPMY8k5h4BOSBMU0tgXLn01agv1mp/5CmC4u2Fm5aYvUyu60NYT6slYADtqIRDYN18C2p/qSBTUF35TeNhyIcQv1zxu2LFBhH3D0Jd+heDvon44598zWMIjRuCdHcu6qi/51edAEiFg1CT4J9BEU62FfofRu2epJEOai1Pe6od7piip1k/mjVYcMg7MTdBVejaRzAdzIOXuaRTo9J961+dvTclCnmR1ngEOHoqrnTV9s3Tq9ron/ncwHSbAoM2Y4IaLnTgB9WQ6UBeKo0gxHJLIoZKGU37qnsGTyN5EmnxEy8R4EZKapvX8wfVAs8ynWv2S1OX849+jdmhRxIyxMQy25UIsGCTAr0p0GdqYQT61zIt+attbVP/0WQjwy5lYV0VZCLZE2xg9lN9nPpfAkxg2ZwDO3kkTE0NxTC09Lz1v23vOp9FN89tL/dZCMZt3qCUEYAQ==",
+          "thinking": "Looking at this debug output from what seems to be a game or simulation system, I'm noticing the user hasn't actually asked a question—they've just pasted log data. The output shows movement tracking with position coordinates and navigation commands, but there appear to be some truncated or incomplete entries that cut off mid-line.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like a deterministic replay/compaction trace from a \"MemTrace\" system — an agent moving through a world, accepting/completing a quest and fighting a monster. Since you didn't ask anything specific, here's what stands out, plus a few things worth checking.\n\n## What the tail shows (ticks 68–75)\nA clean quest loop:\n1. **Navigate** toward",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 429,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1494500000
+      },
+      "id": "msg_011CcrnznPE5ZFkTsMP7Nvnh",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 429,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 391
+        }
+      }
+    },
+    "response_normalized": "This looks like a deterministic replay/compaction trace from a \"MemTrace\" system — an agent moving through a world, accepting/completing a quest and fighting a monster. Since you didn't ask anything specific, here's what stands out, plus a few things worth checking.\n\n## What the tail shows (ticks 68–75)\nA clean quest loop:\n1. **Navigate** toward",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 429,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

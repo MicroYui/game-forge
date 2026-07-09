@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:60ca5812cc9090a4df88b48ce020510d0d3c5556fd06f9df784837cae39d4d2e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2597,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqACCokBCA8YAipAnf9gV0T2HmD/kuP1HywJ5N+xglMu+TTkr6fWgsjQLDwtSHFjo0AURf3qVVNcv6MA9jlchSuQKsdylu7J3XbtozIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFolHKnIGRX7wIOfrxoMJ1alcUm5jkhJSw2pIjBiDJxKYmAQKint27050qCRs2qA/O2cdWYv/deqCLqdJQRygXHPQ6gwwWar/1WtjakqRMAfZS0cq8u1oU5PYlE62mGknRKq5X5lSVxOdwVTphHrwBeP3rXxh7xgunhxmBTic1UzNidF6A6/krrlxk50vE2JyM+wGAE=",
+          "thinking": "I need to complete the quest by interacting with that specific NPC.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_2_11\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2889,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 50,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1569500000
+      },
+      "id": "msg_011CcrHmRLDJTk75W1pd6vgZ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2889,
+        "output_tokens": 50,
+        "output_tokens_details": {
+          "thinking_tokens": 25
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_2_11\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2889,
+      "output": 50
+    },
+    "tool_calls": []
+  }
+}

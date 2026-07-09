@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a1bf17663b88836edcf978dfc93dce8d3782298acf38863b59fbba5ed0670a32",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5767,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvgFCokBCA8YAipA6InKbAc55iJYQwaqHwqJFi5o73qx/pSSMcnnVCV6691YI2w19+0dBfXRabmubeVL3MFx3xGLwD5k23/d/YE6BjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGzW6SuqmM1SBpRgnxoMhWoxpUoxTOKDKrbJIjDSapAy11AyYUQHduWeFSAWtm+KDrsJsHCAVlmVHVJJFzeRG72OBPonCP38GlEGXDAqmwQl8oWkViqCaxKd8QWCzx6m4vdTB0XSPui8QqjtQ3hq24ziHICQGeOs9W6skhwWKRslknfk0ABe52+LAICTFGD27vuPRhOUIQRXNFyb2gO8TxL6dQBA6Cuxx8sxZ2cimu8SkSmr02LBYi2BnKcnXRVI+NAWo/oqokZsqQPJnoDOOW6T7ZtrbdDR7hBqr6C9kor0wJrGjHLtADf6IQF9dcZCyX2qzAv5l7Ipx7pc7yg/mVzey4NbcGCmD7aSAGw6l9FvBoX7BjNEPXIjmE+jRA2hmDd9uNgze85VRbsLopkyVFL3UO24hiPm6J/E7SuejB9ZdrUA2yqDlRp9YYpLQ85VB2okgyPqWXN7o5y1fwkJr6xAWPu9uPiypqfoJDtojQnVvT9LUIr+E7eOWJI6tLd/fibnVfPNlZwymo1gxLaQGa2pPHt+jB4+pqL4dO9tkXBS3LuEfJrs5k7CHiQlGvHM4TLFZC1vn/qbrExbudmYEUmXLhRuB3UKB7RfPOrntpjPH7RQRUpr5fr8z1WjbFKffFCRk/2cWxKI9WNcyABndn5m6cRYgZchctOddPYwVUZvvJpTgTXH1XeSnaiH5EbvrDvneTb4PO/THvBy+dwDbb5dWr/ynwabKtqaj6Dt4pxpY1sTnqGeDJuNB7wQesiQSBJf5A10xtptSMB6eaJMYJkGhY9BWvpztqM5sa0t02KDunPMsWtUDB9EthgB",
+          "thinking": "I see that quest 5 just completed, but the only available interaction is with npc:0_19_5 who's already been handled. I need to progress to the next known quest, which is quest 4 with a talk step targeting npc:0_19_4.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_19_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_19_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2584,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 234,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1877000000
+      },
+      "id": "msg_011CcrFJDjxsFgde972Bdxmx",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2584,
+        "output_tokens": 234,
+        "output_tokens_details": {
+          "thinking_tokens": 193
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_19_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_19_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2584,
+      "output": 234
+    },
+    "tool_calls": []
+  }
+}

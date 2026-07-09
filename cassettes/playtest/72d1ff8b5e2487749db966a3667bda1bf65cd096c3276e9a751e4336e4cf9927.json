@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:72d1ff8b5e2487749db966a3667bda1bf65cd096c3276e9a751e4336e4cf9927",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6620,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvkGCokBCA8YAipAnn+DhWemSVdR+Arp+rPFxaa+fQkZz/sYI/yBS5Ms59jyRFq/OuPLbWQjYBhNLlcfyPbAS36wd1QBb5wadXSZ+zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBjbzLKscc8EdyYjmBoM+AlQKWjN4NJ+h2nDIjCfbAq3Jl9O7dvzWoQfUI2SG7Mm9ku83YccRLWd5OHOsgYyArFfCZSE85rLEaioMCwqnAVbOTJZ7yNlQtGLy+r65lfDAgugq29qvCT4HlT++83Z6SMc4eq8H83y1Uy/uS5XLXF3gHjEQW/AYQjp3qZQnWb0ftxAHaTzERUrNcVIT11qzyO4hSVnOk3fViG/rjBYYkS2NCgArYZtKxet/aeDN/TR5B0c0yqBhhBnIHh2G7YgCGSYbsrD/UGlGeG3gedQ3Vv0YqNjdc177uH+GqJBFSQuL+m94MjeZNF9cufJ5+o80vhv6qPGGRfZgok9mlGObY6SHIxh41/cbgHSNNpUX5DBaCQQ22gyJr9ywnVzhtpuFkkM+11PUUFFxU7vjMuG9dfpYZcZgfpVirDngB0uSLKSP1JbeB1hGFSsMpJP44G/UtJTIXWjbvMEcNgv0b2DYfUC+awG/p8ZItqHNln29ATdOH1+exvLDMe6dvIh3wP7U6MPjo2yaGGA7Y0gt1iFTy5oiTI9wae3cIOvWGVeB2n47N+cwLWCuo/K78HyH0Eu1J0gBJ6nY5dFOKSllmmJgQ+emFcXOJHfId3v7MIQChb6Je9DZ10kEqbULziPO1w6tAYz3u/IMpL3REXLEb2RLAkNerQiwlAnYANiuihilyeNQaBCmIO0781/AZ5xWUk0NTc0HMaQlO4kdGMQb8l9DkfgAwOqXlVQ4PXevaVTGLHqcWHkktPuJg6iCfXpMGPmKOS8cX2iuCLirn6kagkp9v07xxPxwEmEvKZyGCXj7v4XZMZuvK/Hbd/NhoWnaPkKwWBQPSrHHDf3eHSClyJTQuhb/HwiCWJgrMbjUECzIZZmZSjwkQUiXvByTfIdi6jAq3KZdeUQkQyoizPraZkWEnVwzwk295ehLnptlkItXiQ+Cm0xS3XR6tetv/aZNXBkFamt2RhppPaJaJE/IxgB",
+          "thinking": "I'm looking at the available NPC interaction (npc:0_14_5) and trying to match it with the known quests (10-18), which all start with a talk step. Since the NPC is available, I should propose talking to npc:0_14_5 to accept a new quest, likely quest:0_14_10, though I need to verify which quest corresponds to this interaction.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_14_10\", \"step_kind\": \"talk\", \"target\": \"npc:0_14_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3106,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 300,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2303000000
+      },
+      "id": "msg_011CcrBP4JMq2C47VPZhnVM8",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3106,
+        "output_tokens": 300,
+        "output_tokens_details": {
+          "thinking_tokens": 259
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_14_10\", \"step_kind\": \"talk\", \"target\": \"npc:0_14_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3106,
+      "output": 300
+    },
+    "tool_calls": []
+  }
+}

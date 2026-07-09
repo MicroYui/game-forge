@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:35477e7b9a15109b8bcd3fae76fcd0c44e2a545c9048c93dff6bd47aee552af0",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7989,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpMKCokBCA8YAipAl7ILxQ6fSQq9F0lmADWas+d2ymUxAFp0yBA49oN3K+g+SirVP0epAS+5CgtqC6w5pm08ufriNWQ/PviGnmctXzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHYOd7S9wE5GQVB/RxoMYp8fpUYS5+Gv2kV6IjBTlYKJQukP2b4g9KL0OAuieFfe6QsVL14UYS37A7NpTgMI6D75eUfsc4cJMZjDspkqtgimaw4qMRMHkwwnjhVrlO9GlXLDnYDfiZHx6ld1865ommXy9gyJZcVw8NXu/qTAAWcEzSj9ptgn3CgO87GosUq13mWN3vT1Dx0fQc8YM6A6o67bf+66MR8Y/3ppg+3gGOT3UwSCScHLmF57Ao+ZBmr6apZnzudrCIEC2fmvnu52oXoBRbU4Xn+ydf/Q3EHxMsEIEYec3CozER6IbtUocynbAakrCMqrAekQeyTQHZXbOVuFcpPmhi84dJvey0r0WeZFszfOMQdVo7OmeRY2nNW0XNL5AGFKKsith42A0BBakBd3Mr6Q46z0/s2RhkBkiX2DwUNxxPRfei5QrWgcuI1v2xAU0RuL3j/6uJkrD8+0bgTQWPjNuNXEemBOFdFKIrz0I4bGF0/B7AkYRDP2pADOwVnAtnz0qwa4qvu5q8vUuBV5Sw1Qteg1YBAqYimXhQexWHPzZ2Ff4b16hGvwAV0mkDV5RcAPLpRKP0z6KXL0+zzUkFfgYnphN5LtPk+X5HjZS4Ry5M/mTLRIwmNXtF5djaNvoNvvLMLbPcEEvxeu6IQ6i+jxiY1HxdQhuxohDQaV/+r0kywMm5NKIjETRpdRS0FjFKYV9kCvXC/OG1P8O7CMyZXZiH8wBFToAA/rx3ruUhipaFZHZPpFcH4B25Yrtt/71oR8Ez55jamQxdaUzzEDU1yPWWqjEvWMvFkupl5EAeHkdg4h+F6xeMe52pFXB4Okpbu4sXFG9uuqYIODaulAxgO4KchUqeRA4tp5d4VZPRpHiu7ePhATU9PZ0g2kiSv6+AwAGtB5l/S4EJcj61AVW5htpU9EWitl7ZGRN7aGJQSZVErIZfdSevKCuaTmib6UpILNkJK8NAxXVg+ivja7/idH5efgq4Eq6/11WccJjiMj+qktUOLu0MmYi7V/4PUzHN+5EN4l6B3yfRDZRWtIOktNQeZU1bsJNoX8B1j69TDu5PZ59rfCEGNp5JHKTp526437yUg9ZVjumsN0EQNGJzcjSCyDYiq5+Fs62G8uKgzuW2koYlVaAqXqI7UN9eUK0G9rdHoq8eZyAHHo1c/pLUD6UF2JmMMX/De1ZV48tEx4urKigYBTCDk2OT4uMbCW7+/d3tnjTaE9f/cOMyKvVhcwZ4UcOcdv3fldb5J16hK3KfWITDAdfSSW3UysQQrppiiHbSqkRqyv/xtLoiZBX8XRnMNuxDcNnZ7MrcPTqeUwz04AhMVRL/S+UvAprqjBuWR80pLDh4Yrpp2pHOXAx0hQuCzk99Fx6bnOzcBw+d5Qtns2aBLyTeFq3H4y8p89VWkTpePnUi4T5EXxdOInc1oqG7a74AgzI7Q/CXVzepdqfD2V9AboRjozCNhexs/xXkPuMcxmwaU+/UCVnil1fWRhYbgDp0iAgdvMjZSOxSZNkDvi3SV0VqS6AikYqHBbHE1uGAE=",
+          "thinking": "Looking at this MemTrace compaction log, I'm seeing a deterministic sequence with 49 steps but no verified entries or verdicts, which suggests the compaction process ran but didn't produce any validation results. The tail end shows the system tracking position and health points, with an NPC navigation event occurring around tick 40 before the log cuts off mid-entry.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 433,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496500000
+      },
+      "id": "msg_011Ccrm2JkPkKXoFbAjeUkjj",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 433,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 433,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

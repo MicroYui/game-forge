@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3f75d0929ec956b31b05db2a5b4278654ca9673f447316c1977f5e617d139c23",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9654,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpYLCokBCA8YAipAesyM5hK03+3Uy/uEPDnrXOxmKVwoDFg56syI/+zlC4F9rnVq0w0jMTdOaGIA0MzFaR6uv4izjPoxFrYBKH0qnDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAoaLpWmZ8i6B4r0zRoM3RtwTxSwMi+Xypo9IjDTrIPPYtVqdxPe3Qnt6n6VVVZ3EWLfLxsF5PMLvdxc+TpPWY+c4bRYqVBMR3VD7OoquQlrB4aCBgWF/4WwX2ZcORNR0M7Nzlarf+VqRXmRAXrKsnjXqFU9TKdWbRTLS/0ybPK8uHTntvxH/WUJOcBT/t2yt/H9GlByNH5Jry6q6yvaUWC+AOBYJSAjnTz099qdlsKVPVoWjagiFHUCfZ5oE8vrl9H9jrLsoVkvpHWjMbLNToApl9ihFifL4Uoy/pUKbNIZL0SMeTSX9d6+4E8rHHgwquVbb07x7AlPn8GrWOfWxeHCwWEJGqq5avmauStJ80/F9CL5P7A0/IYJ93BttvH8TNxSc/gD+ySORWaXyYQElFXc6ueApdX6eqlPCBAQ+tM4jWG3mVyeWscwptE/AKVGtLUm2ZPS4U87osVjLJc7b7JL58aZAnwepPqH6IKcbX0UOYm1OTO630gLfOKk49zrQuoDEN8Z1DspNT2W8B92YGQ8k6D3nMTtB8f0abFZVLXlV2UoeGQcDXBBwRnIU6Dq0fgetM6P8LyqWidORKVV26G+sWnGuG7qUh02oOrV+ouMTmyOXUMTSG2UAk/9sbqfj0rt3KEUJR2zf6aLys1f2SDNXhEgtGyAKiwZ2faEexRbMf/gOY5jeqioxQuYvAXvcV7BVDE9DOaixHw0Y+nAmlVQbWIlDshEdLCmGcxC6TdprvwQplTQwESDyMhZQuQGpXpdXg/Xup6bUC87agnUQEV1J//NZY8ShUnJvrT4Nx40XOcm6VPImNJfbxGNaYenV/5MxPuRq/hby/Lx/YkbG+Vq1Wi8NbJqpnenco9y6MpL1Sy0po8myIId1gKq5EOa1OzvnGeDOfrphGFUaztz4MDKjTpkZYoIrEIe/MpSXEo0RyipbEcmKYQrnRUU6lDa7Wf3UE7WpLpU/x+jVlI9wGuz3SqBAgdtZTDZNaVSnPX6gsHZIMQzcQBT27u/zxTOVuAkyyKZ6K02/D2y825cuHiZzwtblcp4lK0M7H+58YDByopy/8BugvOn/u6+tcLdnziDE6nsqHeCwcySerl0e7IZKdaBrYTi6WU3ASwaGNwzkRE5g9V+pZymOnZdWgmgI7Jb3ceApxa3Ewo673pIzcUZ0fT8+9iUwu3U33CKLVzA/JPHwKjkI1+redocNWJEFZFwrfI+J7Uhudj2g+4Ps9caTX4CwYvg6Mbbv9Zf82vCdrblbS8MpLA8347ziJrZxk/ZzUQsg8kKb8tMkHV8IrWcBDqdY0PwrwKeRK1pzqvXYSoyBOqGaVwPkABAa+Wh9KioUjaX6/2sggMVOLsiKtS0W8MGvGGjJoH1k7NYestIqf7w1b3BkX9ltOovYtwCLgjjVfjzpSCsBSqxj3zHzEz6SotczolY5Lwccm283SzQ5lACNdXJINuxY8OiESLhiptUqSfgFoT3lWSdbvqMGzf/E692ekfaFIYsnvZGjyxl4VDRsf99uP3Ys9LQ2ssFv6tsgHmLmaeeW36l+ksoAAXYifOFbQZ3YzO1dxys2T2pobx997uWWcDHne9Qo+76uRa5RfJqcNip5gq9dsABJnmj6MalVrE/q0lQlQ7IaijSAygYRO+CqclpZRAXqSQLbilKAV804NEmd/9NPDga9KTsOXl272qX7Pcx2K02K5132CDtDmXPlLEYAQ==",
+          "thinking": "I'm looking at a game AI trace log from MemTrace compaction showing 20 steps with no verified outcomes or verdicts. The tail section captures ticks 12-17 where the agent is navigating between NPCs and performing interactions, with tick 12-13 showing engagement with a specific NPC entity.\n\nI notice some interesting patterns in the trace: the agent attempts to interact with npc:0_16_0 but gets a \"nothing_here\" response despite successfully arriving at that location, then switches targets to npc:0_16_1 where the interaction succeeds with a \"quest_accepted\" result. There are also duplicate tick entries (tick 13 and 16 appear twice), which suggests multiple events are firing within the same tick. Since there's no specific question here, I should ask what aspect of this trace you'd like me to help debug or analyze.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's what I can read from this trace, along with a few things that stand out. Let me know what you're actually trying to figure out, though—there's no explicit question here.\n\n## What the tr",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 451,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1505500000
+      },
+      "id": "msg_011Ccrkfd9b7woP8oV77ppLe",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 451,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 458
+        }
+      }
+    },
+    "response_normalized": "Here's what I can read from this trace, along with a few things that stand out. Let me know what you're actually trying to figure out, though—there's no explicit question here.\n\n## What the tr",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 451,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

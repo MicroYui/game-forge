@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:83f54dedb7705b3ddaf3d56c48c77583cdfedbb078c21945104cfbf31e391582",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3324,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqcCCokBCA8YAipAaT7vKo0kT2gcU1FdY6zSf/ZP30HzBCa9gb6Dn76Au8puWXCX5W01OK4saYmQCQoTbKSg6c//mmd1dnlvtvGXOzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDE7x5cKquOG4GRla0RoMm8b17G6/FWLYz9GzIjDA5+1vTz8yL7HQiCEMYjnbXoC4fVxR5st9Yi2jjRNEna/Fwrn4Tp+/firpWmkkSqMqS3BvF5gvP8q/cenCcmUrF8VkdHWoD1vULB1Ie+gHoByOO+E+1YuXD6n6sZ8x5HtgEV0o6sQWmhfNIcBB8OphApz4NtGVeh+3cA+8JxgB",
+          "thinking": "I need to collect a quest item and navigate to the location where it's found.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_15_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2248,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 55,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1261500000
+      },
+      "id": "msg_011CcrBtW1z7J7TkCwVnjbgw",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2248,
+        "output_tokens": 55,
+        "output_tokens_details": {
+          "thinking_tokens": 27
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_15_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2248,
+      "output": 55
+    },
+    "tool_calls": []
+  }
+}

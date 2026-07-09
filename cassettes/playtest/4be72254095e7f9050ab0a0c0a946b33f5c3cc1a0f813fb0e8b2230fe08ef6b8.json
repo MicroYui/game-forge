@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4be72254095e7f9050ab0a0c0a946b33f5c3cc1a0f813fb0e8b2230fe08ef6b8",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8049,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsAGCokBCA8YAipAdiNxZYQcC8X/z6Uod6OgabFkbKEuh2nOHj2CMv8TGTuqV3qUOdxq5s+mlAmKlX0h34mwa/J6Z/F+lh4WWfyLOTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDI++tplMZW5mgPPN1hoMriowpjGd1A2x7vZ7IjADMEDsKSG0RplWwCZokIUfhyj7TcXQ1yG/3J+fDje8AEdtzfcq95DQbJjnkKh4X4wq4wQqwvaqNhd/Ub2uDPcKoE80JiSzj1hV7+z4a+YO/QOxqmrBG942Dy6LmUEmr2o1MDKbyBJ6HOoyqSgyJ/fIyLce9iMlQGHwHZKjuXikLApbnUlesskRs7O8rqS0GpYkoE/YTY8CA8G+v4sNAc4QqtY/+nZ7nwTXGFm/HNfsqrpRYG9OXqJMEdetMvqAH/7XnhBKBaijOBbaEXoqctIuQwkAQ0xPvXM6CI7ArMs+Yh4vC2nYxUiW5VNP3Yrz47CNkx4lQV8V8fDTxgSc0LGLG7Ov1Z6MqY7CdsfDtMBK3FU2K0N140gBQE4xR26nIhjrNziLWqmSaDzcx/5QZAbCK1TC9DNZTTTv/pDn/jJ/1/XOJd9E4JtOIsLvHHqDSiDeNSOkHUFAinJfaA6HL9AVt64I79Ek+v1r/HDuAbtmXhNoNhsNd5iY6xxFjjUD3GGoUSsBANBXgovfXW4QOJaMFPLXlQ9WOEQQXdyGzjntWmdooZkFfHKjoKnmNjFLvA6I+nXviQ4qzaHDh551kHYMjXWm4D3tHDYi8PqejMD0drRNKUScw9aZCnEgjVHkLJM/qH9f3nwjhhwcl31oZMhDx4oFGRnp5YV0FkCruGOjGPwuCHXOxAqYWPnQdt9S1wDmr90MBfQV0LOqivARK2jfp8pNh37ZH4a15CNXIyI265WF+8ihS9KZF1ywqMrP2J+5keDpYJEQhVBlj5yZtz9K2AJYVKlSwJrh6jgGGZjOGPbRrnHDN6S0J9O3s8ix84yLXd2WB8njsloTu5JHZeQyjQqyQycS60h8GcYeBN0yRcD+2fFYbhgB",
+          "thinking": "Looking at this trace output from what seems to be a game simulation or agent replay system, I'm seeing 46 steps completed with zero verified checks and zero verdicts recorded, which suggests the trace might not have been validated yet or the verification system hasn't run. Let me analyze what's happening in this deterministic replay to understand the agent's quest progression.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's what this trace appears to be telling you:\n\n## Summary line\n- **46 steps** recorded in the compacted trace\n- **0 verified** — none of the steps were checked/validated\n- **0 verdicts** — no pass/fail judgments were emitted\n\nThe \"deterministic\" tag means this run is reproducible (same seed/inputs → same trace), which is good for debugging.\n\n## The tail (a complete quest lifecycle)\nThe last 8 ticks show one full quest loop executing cleanly:\n\n| tick | action | result |\n|------|--------|--------|\n| 38 | `interact:npc:0_14_3` | quest_accepted |\n| 39 | `navigate_to:mon:0_14_3` | arrived |\n| 40 | `attack:mon:0_14_3` | hit |\n| 41 | `attack:mon:0_14_3` | miss |\n| 42 | `attack:mon:0_14",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 422,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1491000000
+      },
+      "id": "msg_011CcriBQCiDPTej8tgLQ9Vd",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 422,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 215
+        }
+      }
+    },
+    "response_normalized": "Here's what this trace appears to be telling you:\n\n## Summary line\n- **46 steps** recorded in the compacted trace\n- **0 verified** — none of the steps were checked/validated\n- **0 verdicts** — no pass/fail judgments were emitted\n\nThe \"deterministic\" tag means this run is reproducible (same seed/inputs → same trace), which is good for debugging.\n\n## The tail (a complete quest lifecycle)\nThe last 8 ticks show one full quest loop executing cleanly:\n\n| tick | action | result |\n|------|--------|--------|\n| 38 | `interact:npc:0_14_3` | quest_accepted |\n| 39 | `navigate_to:mon:0_14_3` | arrived |\n| 40 | `attack:mon:0_14_3` | hit |\n| 41 | `attack:mon:0_14_3` | miss |\n| 42 | `attack:mon:0_14",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 422,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

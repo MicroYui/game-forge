@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:00e07ab8a3de2c413bdb3945b95e03d535e443643e397a21027662fa6c09aaa8",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8492,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoYHCokBCA8YAipACyjEIFaub58QJ44hYDpAxG5euGmsLGa2O9ya9i4mGYNRqZbZWMEe6aLNI0O12U/Rg2Ryfv0IBZuZ1gD35LvcVTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDB1ldcQXN1V/CRwJURoMLojqseOUk86TJxi5IjDAWjO2F/uTpT6C8YpO8K/eMjYSjyuooidysj5Q4ZNXMF22K2e9IjTMDDn+clvRVFsqqQXieGWNPusPNT30Kz7GdGk7I5LMqOcnzrPks11MbQojH6ZZVDjVGHLhIf/VVEfHw2GLSihqHiiIv10ZNoZPmTdVb5npRz+q9yAg4NoNrN7Gilf1ZR9ChBjyBD4XOVWy5jyYpRwRBn245fFv6fOT7xfPnHV64SYzPpNbyFKxJhbTGYTiRGjI3XW1nb7gatLwQs/lDoHeZY/VnMVvsD1tjrA6GNy6VGyiE2VV1JC29KYs/gtc6Guw+8vERXYBieXOhrZro+LQ1R+sgsc/SY7lRyqmGcG/yQgRUNtTpk/0lhdbSlXm4CjrijhbT1dRlsoaSYZzAXQqYibpiD6j+Kh5d6zWWGMzo5e/t2wK/SR45s85uXxUkUGON0lmUrNfSdKamAjKEC0HTE6xLpfPk+BTesTQ7F77i4G9O34illgbJndJh1WEo2DGwoRi5YERZccWZn9YcywtbTqsweQ166kHlG3D6tpSgPdQhQe1yjuTegOxaLuaVaLs4l7rjzzOVBVp/VhceeqV4UGa+JCiJndaL4tubs/PqGbMaYLS25JOpeuLl7Thq/2yvaaRDS/Al0sYM4jeX1zVgBvbKVIddrxPEkNMICL2lTckgghNZDNurAivcWojN79LxInxq97EdXHOtwPl2YdNf/yrt+ipmWN3v2P+h/ur6m9w67XonA1M44ABnyc8jVLgnYXQtfGqGIUN8EVNlR+kFKmqxXsUUHqdg83+a24ZitjvcUTkFDBAGPPrQOjv7owcTyyxeLe3er/1GTJ+Xpc8O2bV2pcBTqJVhWsD91TlN7mxzLicxFec3vnCZtZ3GCOkpqh3Mh+Nv+r3VKHJjSMzxTmc93H+a6Zb9eu4VyqRdWWggnrI1Z2lOZVIMoCfx843h1KTOxrU0tCyJxJIP4qiFEz7k7EYAQ==",
+          "thinking": "Looking at this trace output, I'm seeing a MemTrace compaction result with 49 steps but no verified entries or verdicts. There's a suspicious duplicate where tick=43 appears three times with two identical entries at position (17,2) with hp=94 — that looks like a compaction bug or anomaly worth investigating.",
+          "type": "thinking"
+        },
+        {
+          "text": "A few things stand out in this trace, though I'm not sure exactly what you'd like me to do with it—so here's what I notice, and let me know where to focus.\n\n## Observations\n\n**1. Duplicate tick=43 entry**\n```\ntick=43 pos=(17, 2) hp=94  attack:mon:0_8_4 -> hit\ntick=43 pos=(17, 2) hp=94  attack:mon:0_8_4 -> hit\n```\nTwo consecutive records share the *same* tick, position, **and** hp. That's suspicious. Possible causes:\n- A double-emit / replayed event in the trace pipeline\n- A compaction step that failed to dedupe\n- A genuine game tick where two attack events resolved but hp only decremented once\n\nIf the compaction is meant to be **deterministic**,",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 411,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1485500000
+      },
+      "id": "msg_011CcrZdMvDR1t6tn6YvurpW",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 411,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 250
+        }
+      }
+    },
+    "response_normalized": "A few things stand out in this trace, though I'm not sure exactly what you'd like me to do with it—so here's what I notice, and let me know where to focus.\n\n## Observations\n\n**1. Duplicate tick=43 entry**\n```\ntick=43 pos=(17, 2) hp=94  attack:mon:0_8_4 -> hit\ntick=43 pos=(17, 2) hp=94  attack:mon:0_8_4 -> hit\n```\nTwo consecutive records share the *same* tick, position, **and** hp. That's suspicious. Possible causes:\n- A double-emit / replayed event in the trace pipeline\n- A compaction step that failed to dedupe\n- A genuine game tick where two attack events resolved but hp only decremented once\n\nIf the compaction is meant to be **deterministic**,",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 411,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

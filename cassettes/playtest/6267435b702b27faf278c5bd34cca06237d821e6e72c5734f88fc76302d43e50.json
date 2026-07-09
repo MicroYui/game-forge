@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6267435b702b27faf278c5bd34cca06237d821e6e72c5734f88fc76302d43e50",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5636,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ev4FCokBCA8YAipA76VyhUZpP/2TQrWU0ep7DTy52Qaa9Mox5eic2QMBqSagQkZNjcZxtPU48p5W07arCNPB7HHivOf9+02amjka6jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDmCr6qu6LcQsfvgcBoMxqFOtJvtnspzjsS9IjAu1N2LR3jMRh2c8kt0lS5j4bfCp/9BT+UzmumHhWkl5UhPoazHnslqi+OofZW+2GoqoQTgrKqbBqo+U+MLyaQ9tJk8aC1HgZKPjoYcRMDO1ZIo7Ug/cDnHoaIvKlYku4B8BJF7Nc3NBkM49qxZdcKlr9vzJ/PRWGCL9gwpmGXvbqpmrCC4ftpVCzVLSq25koOEBlNw2egRCu76ybZmajYcjX25UVSeuBmgo6oWVBJn7KUjAGeEhya/a8wwAHRjQ81r6aepYdn1qvlR7VbSfE+mtlz7wKe3UykktPyCbhuP8umm0d9e72fjFHfKwJQ48aVKXwHFIdhqM5FLJlkq9+03zN4cQaUXveZ6aqzwN7EMJdr9QK2TG287WcFnfIIh3bAEAq2PiKKqtvR2nw+8qxBIjmj9EiatdWFtwvoAMdW7QM4DX5LvwnKWSshr8L2jv9sMIGXy7x8CIwqkwCIbh5ROiLmFIdwwJpvVSv4VHLb715PLkgoiIKQ12yhre0sGAMYDr0uF/osGiuDJqQqfy/twRFbFKYtmdt7tZebKiQF4jcQWyMJfBk1xKjGaFfaUR1RETc0U3RCiiaj4ePQzgCKFMCUyUfsFLOKa9yD/BnfTYRyj4PwTlm1dChJUzGj0hQXIiKzIMbN8IaLSlSMjeHLepqVh7LYoU9waS4a3XVlNM+pPKhvxPLzcCILme/Jmjib+6vmwpvskEOFl0EX1A8xRmgH4IeBD9DsXSuxBlPdV6ZgNwXPboXLRDGgadaNIgy0Qls6YaPoKJ+ruQQFW3gtcca11+xgB",
+          "thinking": "There's only one quest left to complete, and I need to talk to a specific NPC to progress, but navigation keeps getting stuck. The hint suggests trying a different target or interacting with a closer NPC, but the quest specifically requires this one. I'll propose talking to the target NPC anyway, though I'm still dealing with movement issues—maybe I should try advancing instead. The instructions say not to stall, so I'll go ahead and propose the conversation with the target NPC.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_16_12\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_12\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2774,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 242,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1992000000
+      },
+      "id": "msg_011CcrD6S3Kq1MCesaaFrbsD",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2774,
+        "output_tokens": 242,
+        "output_tokens_details": {
+          "thinking_tokens": 201
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_16_12\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_12\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2774,
+      "output": 242
+    },
+    "tool_calls": []
+  }
+}

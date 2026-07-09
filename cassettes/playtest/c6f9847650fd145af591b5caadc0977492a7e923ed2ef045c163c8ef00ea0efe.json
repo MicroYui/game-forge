@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c6f9847650fd145af591b5caadc0977492a7e923ed2ef045c163c8ef00ea0efe",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7374,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Es0FCokBCA8YAipAGW9W2ZiAp/G0NJ3sLsaBzF4p7AwdlLuBtYl3nJNOPeGcKBSjCFum2857iy4K/VsWWFgMn6SU9btApZDxP2zfxzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDL+72S3z+tTlDIIohBoMvyXDjfMKyFEvbmsoIjDygenS5iDzHDw5wFdfv5If/MnRovdO+FClExr48w5SYr8md+pNlqDnmnJq+ghK4yEq8ANs7kzqJoKklk4sGSCgskuX7WSI4ZocuBZvfLErn+OdvmkQHHBrDzRoQUCtFwP9dMbw4B6r26n4HiUreJ7/1WY957O8ljFNhcusJdT9iSf/iUqZUferrHfgCgwrr5VUnW0m+XL4Ao2ZsbWDOEuQBrE6FR/y34jP33Cd+WNbkHplGnrhGp4LaIw/twZqGfZ/tvV37Oh9cgdNo+P+0Q6+0dV1fdbLorCNVge2MYOiTQF+kMa2haQ5F7II+zpEDxKIVsebXPQOQv4PHza7+ikTJ/5H4uXyjCPt4fANZpf2ILLfDPfjkRJUBBuU0XF+Cvsh1AWGc7sbKwwIKfpJI2SEqxRc8hv6XU0IqMPOR0fCTcL0cEqxfKpKbuFOZGQZy804ikXjlmmtkUuuGM+Nrymzyu7Y9rZN/JaVs60Zeq5dPCPQmiJc6D048TBSddV2/FugItJrG3+4iaGoYGUillxyFu3wPgzyixBP3fGP4MY9HFVx4E6DEzFrb5xGieVO3SJ2VlD4nEUkqLa/q3Zkmj3vdBqbQqA2tXi4hs61zgdiJZyPtim6WqdxP6k0fD3JWIjS7gXRlK500CajyefiLP2xLc3kavHbAUUm4Nn9gRr81h2irKVbSahoEH9PLPOEqcDQU9G/XASjmZQCOYkavQBV3g1bGAE=",
+          "thinking": "Looking at the combat situation, it seems like the player is landing hits but the monster isn't going down quickly—this could mean either the weapon needs upgrading or the monster has substantial health remaining. I should suggest trying a stronger weapon, using a buff or consumable ability, or just confirming that the monster's HP is actually decreasing with each attack.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Combat on mon:0_13_7 is landing hits but stalling on misses \\u2014 before spamming more attacks, check whether a stronger weapon or attack buff is equipped, or consider a consumable/ability to raise hit chance; if the monster isn't a quest prerequisite, try disengaging and navigating to a different reachable objective.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 596,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 281,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1000500000
+      },
+      "id": "msg_011Ccr9nZGYYhuZWYGYDrGFP",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 596,
+        "output_tokens": 281,
+        "output_tokens_details": {
+          "thinking_tokens": 161
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Combat on mon:0_13_7 is landing hits but stalling on misses \\u2014 before spamming more attacks, check whether a stronger weapon or attack buff is equipped, or consider a consumable/ability to raise hit chance; if the monster isn't a quest prerequisite, try disengaging and navigating to a different reachable objective.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 596,
+      "output": 281
+    },
+    "tool_calls": []
+  }
+}

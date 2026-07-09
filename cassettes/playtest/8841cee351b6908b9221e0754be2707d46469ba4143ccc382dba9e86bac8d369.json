@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8841cee351b6908b9221e0754be2707d46469ba4143ccc382dba9e86bac8d369",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8695,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvQHCokBCA8YAipA+HyG1tCm2CErSVc9yZNT0ppMre4AaLbloItZjH4y2qUfTh+ylb+YjIwK2rO4dgVlIdmCN1HgLXTapM10wtpR1zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIrtB93jX4/Zx4HRnhoM3NUqpRb+t4DCk90QIjC8P8imdWJtUn68MAkL6AnWg3BYODdHJTnE3Sv/3lxk0K0cWWR/5A3kttSMM/+FbeYqlwYrIt6guk8rOa4zllVy5azEgi9txdqB4GKIHhC7MVgkB5HPyzdDiLkFlUMZUbmvp5SBp5tBxv2HVOH2p5SpCmtlp5mPvJcxlEVvBhWuBIsBrMHyiE3xUE1d++QnMYTkJnr0micHBmVtrdfFCdsHVpfWamm05s4WCXSd91DLpKqJzdArc+iCsSizT8FE1p1ejLVvs2K5/nSJu+xxFWXlPlYsRvLLPjnf368JdLIj85jP5pkDZhRlwC5i57c43IwQuAs4Kq6Yj4ZW98jGVq1a8PsD6vkVLjYHIWQffQTAdu8GclWIZfqCA+8NQjUUij8odpoA6LoMi8PMD9HQ8KD/CgGAedn8saW9MVaygn6ydRCn7aaySO2VNlAw5lRnFaXVm32SI8o62a+s4HiQZq/A4rvO2ZxO4P4jGAHAoZzRRxZkFjGgRi6gKQcwg9rr3PQNYDaUNHw6qw2xOzWWO/PidLETqMcPa/bRML4TSDlGGfvoasZJueRC5VSCYoBb2blbAlcgo1yQQMeVvzBcDG/RhnSH8EHRTFAgRsVHVtTJODv0obdYLRZpTQ7ckzLdRRTYzZSQb0x47Rdl6wQ17R6hJw5PDfhnIYd7SADiEqRsIv3yM6fNFlRWRZrKyRpUZSgLbm5RrEKXehD3Bbm7g7xqDk0ORw3GaSwnUcqxWcN1Bl4afgDHVaKEZEvj2ZrPPbEYGDT2xjcNnTmOUKtCzW+MWWodkgWxkV4U4zp/4vXNVeyGV09YgHd7+Zr6TMum5em16Mm/fkwpvbiDUfg/NXGdZ9rvtiNqBvC1DDYXSr2BN2LOF1PNLDcnHl1gK+77qsgZtt49Kuzf6SPCM/iPdOFi932ZGr5GRstRFPhF12cIcjUHqVyNJHEOheYf8rgmNzNYYo9Vhjr40amHRwUMA+1/vHQzTnfh9tJNvJ6OKyV7pD9nuUkKNZ86+wzQgtZO6zWgKffR9fVLxSsmHqY5OCG4U9X+00aiNYCMR9Qey5sQSrFZp2snz01yMao+WXtlUQ3txk+nWMY9baIUW3/pkxNM3vcAwJKcub3W2xgB",
+          "thinking": "Looking at this MemTrace compaction log, it appears to be a game AI trace showing 30 steps of deterministic behavior with no verified states or verdicts. The final ticks show the player positioned at coordinates (7,4) and interacting with an NPC at the end of the sequence.\n\nThere's a notable inconsistency here—the active quest was to navigate to a specific NPC (0_4_3), but the player ended up interacting with a different NPC (0_4_5) instead. This suggests either a navigation error or an unintended interaction that triggered a quest acceptance.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a tail dump from a **MemTrace compaction** run, but there's no explicit question attached. Let me summarize what I can read from it, and flag a couple of things that stand out — tell me what you actually want to do with this.\n\n## What the trace shows\n\n- **Header:** 30 steps compacted deterministically, but `0 verified` and `0 verdict(s)` — i.e., nothing was checked/asserted against expectations yet.\n- **Combat sequence (t22–24):** attacking `mon:0_4_2` → `hit` → `victory`. HP drops 98 → 97 during the fight, then stabilizes.\n- **NPC interaction (t24–26):",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 443,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1501500000
+      },
+      "id": "msg_011CcrJPJiMF3KnCYYScXp78",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 443,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 288
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a tail dump from a **MemTrace compaction** run, but there's no explicit question attached. Let me summarize what I can read from it, and flag a couple of things that stand out — tell me what you actually want to do with this.\n\n## What the trace shows\n\n- **Header:** 30 steps compacted deterministically, but `0 verified` and `0 verdict(s)` — i.e., nothing was checked/asserted against expectations yet.\n- **Combat sequence (t22–24):** attacking `mon:0_4_2` → `hit` → `victory`. HP drops 98 → 97 during the fight, then stabilizes.\n- **NPC interaction (t24–26):",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 443,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

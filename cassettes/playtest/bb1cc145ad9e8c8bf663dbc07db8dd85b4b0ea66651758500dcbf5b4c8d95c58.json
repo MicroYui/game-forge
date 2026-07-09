@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bb1cc145ad9e8c8bf663dbc07db8dd85b4b0ea66651758500dcbf5b4c8d95c58",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8443,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er8FCokBCA8YAipAKNXtNhFfGhtwprU12rJ6cYj3cFsNsu1fQtgDD9FWAbv+v5xM/Rtfxnb8wcHW0ch33Gn8O8XsMw+Ixa2FPWw07DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJxBO9Gal58TJ51GgRoMSbBzMocB0crZzPv9IjBZY0vWGWwzRkF23Rw5ki5AyIBgFSPbDjrC/AmcD5UYgcfkt7ssamdcOtTFFITW52kq4gOt1Ihv7M6LDhA+XtKgbsSLxJLK6urEqncDhki17JIrTKtTlI4mEomJegBUnGWD+x7yGdh23wq9nafUKR1Hi7SnRTGbTFJ6eKE/PS75xFcPQ3DqyrZUI8GWcaSyPN2+2tBnccOmuibfw9j9Sjfr8H7w6P4vyUs4ElnhLGd9xVip/d/AJ9SdsOSNOeuZT3IanyjxVrsPyusqNkR790XW1Fq3ghaEYEgYOem4moWc+xThCaeQOLKC0ZPV8y7eSRSpY5b1J6XTJjX/GXO/uN1xSQAv2wxfDPm4ITGy5XeFDk7c87lFU0jpolLATjj0UfLRpx6zjXg9tun6vCWHb5f8fxJe/5BXPNrgLXBJKZHqUQzxSl7Ck/KLosvzthU9NDJt/n05memdIohHfSBr0WCfcqG1alM438k5y6trADC8Zu5kezfarDOONV9hgDAxc2FqILYLzefmG7KMIg/Qi9Asd57noycK6stiWUhGW6O0tbNfTGIDoT6iGVBDP/5FUAFl8UnSr6xvNf1eYMdpBukpoqTN/njcty7wO1Q2k4SKK1SPb00pnTzH66fSd1MQ9zxAYl8kMhSRZI+KnVTWqOhBC/2w4uPLjksK+ACC8aAYr0GcyAixYs3RtlJAhCe8fz3m3LXaRRgB",
+          "thinking": "I'm looking at a trace log from what appears to be a game or agent system showing a memory compaction with 4 steps and no verified verdicts. The tail data displays ticks 0-3 with position, health, and active quest information. Since there's no explicit question, I should offer to help interpret what this trace means.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction dump** — but there's no explicit question attached, so let me read it back to you and offer some next steps.\n\n## What the trace shows\n\n**Header**\n- `4 step(s)` — 4 recorded ticks\n- `0 verified, 0 verdict(s)` — no assertions/checks have been run against this trace yet (nothing validated, nothing failed)\n\n**Tick-by-tick (an agent completing a fetch/talk quest)**\n\n| tick | pos | hp | event |\n|------|--------|-----|--------------------------------|\n| 0 | (0, 0) | 100 | `navigate_to npc:0_18_0` → **moving** |\n| 1 | (1, 0) | 100 | `navigate_to npc:0_18_0` → **arrived** |\n| 2 | (1, 1) | 100 | `interact npc:0_18_0` → **quest_accepted** |\n| 3 | (1, 1) | 100 | `interact npc:0_18_0` → **quest_completed** |\n\n**Reading:** The",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 249,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1404500000
+      },
+      "id": "msg_011CcrrFzmdGF4GzrwZPK5og",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 249,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 162
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction dump** — but there's no explicit question attached, so let me read it back to you and offer some next steps.\n\n## What the trace shows\n\n**Header**\n- `4 step(s)` — 4 recorded ticks\n- `0 verified, 0 verdict(s)` — no assertions/checks have been run against this trace yet (nothing validated, nothing failed)\n\n**Tick-by-tick (an agent completing a fetch/talk quest)**\n\n| tick | pos | hp | event |\n|------|--------|-----|--------------------------------|\n| 0 | (0, 0) | 100 | `navigate_to npc:0_18_0` → **moving** |\n| 1 | (1, 0) | 100 | `navigate_to npc:0_18_0` → **arrived** |\n| 2 | (1, 1) | 100 | `interact npc:0_18_0` → **quest_accepted** |\n| 3 | (1, 1) | 100 | `interact npc:0_18_0` → **quest_completed** |\n\n**Reading:** The",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 249,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

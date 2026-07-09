@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a4698c4ee1085cadfa0790f84764f80bb722fa2a17de8b6105dd3e2e000f0d9c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2725,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo8CCokBCA8YAipA/0ifqSstqEuguElrckJdGcqsboYTn5X6nSIj1feaeCuSHEXdK/tARCnbYyXFiP7LbCl/Ki+98RbpvWrK5SYqhDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDN4c5otVbyD2eckPaRoMjsk2AuEgpLQPrJDAIjBjEsVOTAKNKaV7frrG/w9oYRzpTZWFHbytMbvUFdYr7wSBq7DWdn8dpQmhMe60TtgqM8p25Q+HACo+5HqZf9jgJYMM7dssxSAQopfejB4fmBM2DLkDNWg0BmctDRlNpEIKHz33ABgB",
+          "thinking": "I've reached the NPC and can interact with them.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_17_13\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3548,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 39,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1871500000
+      },
+      "id": "msg_011Ccrr2bwqCWEKWHVVKJbco",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3548,
+        "output_tokens": 39,
+        "output_tokens_details": {
+          "thinking_tokens": 14
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_17_13\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3548,
+      "output": 39
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9ca047f813635d44c4b48be54b6842a947e03620c12ba1e72cb95d4f0a930c80",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9512,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EucFCokBCA8YAipAFLgZMIBhk1PCiRZ7/HJIeMaPvmqFbsxemYqpC4WH7WB2inpt6SH51qt2Siv4HqHMKYou1XEyaznbwNcc++CeMDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOcRKOSGBK0MPtRxuRoM1oYhxQhHbasRibexIjC/TRB+qwQPI+g2b7xs8yaOk0DEvP55AcRE/T+BqBWPlt5HYZmXPDR9KW4WrMZuw1cqigTnDy+HjSSJt1IXXgqFE1FoCuv/oXdE6b3zE6hpNHJixDdVzmdHQFVb63GUnsRus04Xmc7c2RWe3lwfT0aJN3JwkuyIDyMytgnzffz0CvGb44ZiBsXsoj3S55q1rVsuT9HgHqVeTL44T/US0/QUqa3G9Ge3m+8Y7oitOHryhY24Duow7T8QFRxsc449PNDaWE1jeZPl//ALYSOOQG5eYVFsikDN7aapO/aZaOrPOA0VuyeGJsJN6r15FYDgWRrYC/76orh2F+GMGAne9G0E0IRcfMpam8hSNksAaWUR44eAKeRM+/m+AeDd+oo2dFLKtqQYcMfkBkLIuFARuIQSSVUfWKVN//GtE+lpBDWeQ85wGNW3yg29CxqLoHm5NTD5R8KqNm9mrAy3/wOCujPj0jZa1BOG7aglwzX2ME9l+UMmIyy4JuppKqPgajixOrGq1Apxf1SNUIh8NlS2wPhCIJHDj+3T+q8p1+0sW1HZhh4mg3zvRPAhRI75laNxbeE3XAbiARaWenj+zNt3HvE7bUnHdzL4KmgvkYeFjW149KyxMic5WiX+BSJYeVtvAgZLA9Nti8QUvTNG9TqIcEdanjvnAcJJLsUNsIFivY79fxUvdWIMk7RJSpnVUVOch09yDuueHGEDoj9tgdCPL8VHl0Ue64ObKRddP/7UR0RB9w0oq07lllwr537ctFMYAQ==",
+          "thinking": "I'm looking at a trace log from a MemTrace compaction system that appears to be tracking an AI agent's behavior across 56 steps, with the visible portion showing ticks 46-53 of the agent navigating and completing quests. Since there's no explicit question, I should ask what they're trying to understand about this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace dump from a \"MemTrace\" compaction system—likely an agent/game-loop replay—but you haven't included a question. Let me summarize what I can read from it, then you can tell me what you actually need.\n\n## What the trace shows\n\n**Header**\n- `56 step(s)` — the compacted trace contains 56 steps total.\n- `0 verified, 0 verdict(s)` — nothing has been checked/asserted yet. This is often the thing worth flagging: a deterministic trace with **zero verifications** means no correctness gates ran.\n\n**Tail (ticks 46–53)** — a coherent quest sequence:\n\n| tick | pos | hp | event |\n|------|-----|----|----|\n| 46 | (10,1) | 93 | `interact:npc:0_16_3` → **quest_completed** |\n| 47 | (10,1) | 93 | `navigate_to:npc:0_16_4` → moving |\n| 48 | (10,2) | 93 | moving |\n| ",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 427,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1493500000
+      },
+      "id": "msg_011Ccrm6vvNKSxDJbeCCveXW",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 427,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 182
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace dump from a \"MemTrace\" compaction system—likely an agent/game-loop replay—but you haven't included a question. Let me summarize what I can read from it, then you can tell me what you actually need.\n\n## What the trace shows\n\n**Header**\n- `56 step(s)` — the compacted trace contains 56 steps total.\n- `0 verified, 0 verdict(s)` — nothing has been checked/asserted yet. This is often the thing worth flagging: a deterministic trace with **zero verifications** means no correctness gates ran.\n\n**Tail (ticks 46–53)** — a coherent quest sequence:\n\n| tick | pos | hp | event |\n|------|-----|----|----|\n| 46 | (10,1) | 93 | `interact:npc:0_16_3` → **quest_completed** |\n| 47 | (10,1) | 93 | `navigate_to:npc:0_16_4` → moving |\n| 48 | (10,2) | 93 | moving |\n| ",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 427,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

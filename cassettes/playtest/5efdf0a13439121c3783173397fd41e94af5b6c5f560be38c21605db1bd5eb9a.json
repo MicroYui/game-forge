@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5efdf0a13439121c3783173397fd41e94af5b6c5f560be38c21605db1bd5eb9a",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8595,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtwHCokBCA8YAipArtTV2+Q8em1Nt5Fzviwvl4q5414optJacSpHjcJigwPiEQjwbuAZCDqj7wzhAP6qFzaJJxJ2ewmp+f2iaxyBJDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGmRA/xgFCGT6sN3aBoMl5uL9CD8+lR2eaQyIjDPyPBJh7Fjzw/KOZgFRBv5vitYdCLmg7kIsqmz3FXOti4pBlb6SkVvcgd70CZFY6Yq/wU7WBgaJX7NWP3w58ODcqOoLQaCcikfe0xg7kkk0fV3Wy9/K77ndeMOY8b9B6gupmpkXFTgv9UskliaUbqAKVnyC+0FHoseLWwnRom2jGUzLRAXCyTwMwrpatJSjgn2Ju/S/oSSB23Sn72muLcUYSh8HUnaynRNKQiD4pSgcnKs9p8L/yt8/f5CGkvhERT1Z7R6D2JGLegsGGs6DSNzYb3p3+ZT3EAj8duLfpKzS+xbApRj+V0nZVL+ZG+PjDEDdL2s0JdyTa6WhhXXSi7G/hYju+z1hSqJqanaPl+cqE9eMXvzTjbwh+UYYut5/rqqHXMcGdzB4gLwax3Xj/6dO9qFxYXyra4xRdqxA/xliZ90Ee6N74n7oB2SVKGxU3Y7v/YTawGH67cSmWQaP4eiLjHgBCpGvrWaGjThaeorCREWShtNzb9yeKnxP4fAqi3O43HF3rWGMupcdJzAvL+ye9s7148BX01YbfHW0kOzh3zswOUyWx0kgyqb8U2ef9AiEQpj1qD2KNlH+QcK7IDxtbOFvClYDEizzEtt23kqz5O2n8oUDnqCMFPY9YKIiLgSlKoyK0cegB/7Q6zqYBIIZzz04HQDibwdeZxFDLfVM7Djs9IC4n2XCx2bYDEXblV2wp2ZvTY2XwOVkYiNJrgTkdNEYiI5DVo/feBwPgU1hXv6LEi4McjG4VOdIxJLHgAByvSzG9N7NepoOAHikMRw4+JH2HBI4ynY+9Sfs/2DEMqkwb43M339XHXKuimOGnA/wtlAr4NL5m6/Jkf1j1fh+R9UfGiVcd/0zuSY3Bs6BOsaJNiTOp3p0Hnzrdq2PkmY1q6YftVdB5bgb2BmPA4vhxAHYmIlgy3+QIuYxc/Wc23fkp/7ZhoxJ+IRswxb4ZN3UE2V7jW5fJoVfW1x62R8rXBP3oaxj3BoWWVmXxxQ+Z6R2cYaiVAyJZwPhKkexm+nm+niHP5COQ/Oz6WAA7AE+wgQLasRHFQYYK50NE66UlevZCHXFOQN8Wj7uVOJXF+cGxgB",
+          "thinking": "Looking at this MemTrace compaction log output, I'm noticing the trace shows 127 steps but has 0 verified entries and 0 verdicts, which seems unusual. The user hasn't asked a specific question yet, so I should clarify what they're trying to understand about this trace data.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a MemTrace compaction dump but didn't include a specific question. Let me share what I can read from it, and you can tell me what you're actually after.\n\n## What the trace shows\n\n- **Header:** `127 step(s), 0 verified, 0 verdict(s)` — the compaction ran over 127 steps but **nothing was verified and no verdicts were emitted**. If you expected assertions/checks to fire, that \"0 verified\" is likely the thing to investigate.\n- **Tail (ticks 114–121):** an agent walking a path and running a quest state machine:\n  - Reaches `npc:0_8_12`, accepts and completes a quest (ticks 114–116).\n  - Navigates toward `npc:0_8_13` (tic",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 431,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1495500000
+      },
+      "id": "msg_011CcracqAQ7hDn7rGyZKZNu",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 431,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 265
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a MemTrace compaction dump but didn't include a specific question. Let me share what I can read from it, and you can tell me what you're actually after.\n\n## What the trace shows\n\n- **Header:** `127 step(s), 0 verified, 0 verdict(s)` — the compaction ran over 127 steps but **nothing was verified and no verdicts were emitted**. If you expected assertions/checks to fire, that \"0 verified\" is likely the thing to investigate.\n- **Tail (ticks 114–121):** an agent walking a path and running a quest state machine:\n  - Reaches `npc:0_8_12`, accepts and completes a quest (ticks 114–116).\n  - Navigates toward `npc:0_8_13` (tic",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 431,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

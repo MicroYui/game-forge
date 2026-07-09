@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0b5efe1e7d8012733cca79e107311a6cc222974b3361c917f6a7eba8f218ec63",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4414,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep4CCokBCA8YAipA3uPlNbCRuKZFKC9+mGk5wzCOsEtLAVPIVCIQRLZoPXe/KuYYT/OySY5WLSBR261++pOa3ipz2XlMfRdpZJK0WDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNvsja7r61hlxBYRCRoMJU13hiNzWT3J0b+lIjBLhXdD9iT6zHSJDRYo93KVVq8I8ZiVnksJsaYBnVNKfVH03jnAoilhKU88dcZL5EcqQuvktfbuCrHqJqvQ0YzeQ41bUIIqHHE1CFxdJQtu0rcD4XcSG3FobzHWGZeeEpv0q3eovnPnj9ezDkPXI4HuHOL0ThgB",
+          "thinking": "The last attack connected, so I should keep pressing the offensive.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_2_14\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3343,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 47,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1789000000
+      },
+      "id": "msg_011Ccr2J91wb1x4ZQfFokELC",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3343,
+        "output_tokens": 47,
+        "output_tokens_details": {
+          "thinking_tokens": 20
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_2_14\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3343,
+      "output": 47
+    },
+    "tool_calls": []
+  }
+}

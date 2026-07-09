@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:de492b79fedd51ca862155c770b555aa032a43345bc9a1a7edd05da24e20991c",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8166,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpoFCokBCA8YAipAEiYidQINwhcEJyCd4XHz4VBJ6Y7/RW3bcNsrNP0/6UBCL/GYvo4alTlvRy6s7d8yp22Y6aa4RGmWtOHXcgMAqjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGvvGTpAuAMX55RkrBoMKuthdBzt4UlpCEmtIjC4LS/p6lqYKdLmyaW4gS5M9dt2MxZ6aojwlnLFF+MxBRJaQc7hx+DYVo+JainBuQsqvQNh9Jhqj4Xa1RtBiyLQa47wWh5GBiwMcjuD2hUC4aWhFyx41WDORpo8vygLvtykSODVsE0OfMfvOU07xNljkREWTnfxY0BwWKl5fKWsrvtP44gXSUBh0tZxiSA1L9ZSE5WdF1GWHX/872bNNLswij7IpFZPWg+CVxwqheEv8o5I9c+ik4f1YYqtdvHD5e1xmwC96Ao0rS7yPSNF+UbDxYhCD8n8KnZxr/2Vbo4H6nioGMBtVpjE1Zm3YCkPqP0522G1ko9kbHmklWX7Tdf490+SONIoRZQjmyvUyjdoUm39yOLsHaaGoADkUzyAWOARwnT3hsTXXerkXuXA8KDZJoKV3r6TTU3J8046qgf1orODXE/Rtuzv6AbPWDPdqC4Y/Jf2eQNZz1JM1U31rqzZ+LCl4a/7c+ExT/Ml3eXOQKXFX6ylG989PJwtq/uH/hnNheUs6fbjMkSES4O71bPr99LPhFNkExH7lIdUftFK0C5zq6VwP0oG3F7gG1kGtfsP43ZUzUB7awkF+jFDRongaJp1qGq4G3ebwbffvAhTStX2+disY/fA2zx2xTWuZPBAeXsRy5WLfYPP5c+2iOfBGAE=",
+          "thinking": "Looking at this trace output from what seems to be a game AI system, I can see it's logging agent state across ticks with position, health, and quest information, but there's no specific question attached. I should ask what they're trying to understand about this data—whether they want me to analyze the agent's behavior, debug an issue, or explain what the trace shows.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation, but there's no specific question attached. Let me offer a quick read of what the trace shows, then you can tell me what you actually need.\n\n## What the trace appears to show\n\n- **36 steps compacted**, `0 verified`, `0 verdict(s)` — the compaction ran but no assertions/checks were validated (which may or may not be expected).\n- The **tail** shows an agent moving across a grid and progressing through quests:\n\n| tick | pos | hp | quest event |\n|------|--------|----|-------------|\n| 28 | (6,4) | 98 | navigate → moving |\n| 29 | (5,4) | 98 | navigate npc:0_1_4 → arrived |\n| 30 | (4,4) | 98 | interact npc:0_1_4 → quest_accepted |\n| 31 | (4,4) | 98 | interact npc:0_1_4 → quest_completed |\n| 32 | (4,4) | 98 | navigate npc:0_1_3 → moving |\n| 33 | (3,4) | 98 | navigate → moving |\n|",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 451,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1505500000
+      },
+      "id": "msg_011CcrGSn9TcwszAF1D81dnr",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 451,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 136
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation, but there's no specific question attached. Let me offer a quick read of what the trace shows, then you can tell me what you actually need.\n\n## What the trace appears to show\n\n- **36 steps compacted**, `0 verified`, `0 verdict(s)` — the compaction ran but no assertions/checks were validated (which may or may not be expected).\n- The **tail** shows an agent moving across a grid and progressing through quests:\n\n| tick | pos | hp | quest event |\n|------|--------|----|-------------|\n| 28 | (6,4) | 98 | navigate → moving |\n| 29 | (5,4) | 98 | navigate npc:0_1_4 → arrived |\n| 30 | (4,4) | 98 | interact npc:0_1_4 → quest_accepted |\n| 31 | (4,4) | 98 | interact npc:0_1_4 → quest_completed |\n| 32 | (4,4) | 98 | navigate npc:0_1_3 → moving |\n| 33 | (3,4) | 98 | navigate → moving |\n|",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 451,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

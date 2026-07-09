@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6a5d15f37de2da1d0e51ccf066120d1616fe64ca07c7595d5d5ecf5d9e2409b2",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 12951,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvoJCokBCA8YAipAlfZuWYosBFYzLuB6sgGB+L9h2WNJKajhqJfKmYXo9GxC06dsvASDP0kwyJDh9z3A4AF3BUbN8MbMaNfdGvF7GjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMBOW9EcIAqOqmiXTRoMy8YuV111fUaPxZnnIjCgp6ZcdDYSQNUnVdmoZJo0gPxDvGEl4z2Z4i596J/8+x6E12+8Ao1txKAjaVn3W3QqnQixcYvgpM88tXHuUqDHTxoHMIAELfAkT1C4VQwj8FTpfzfbzssokwKEaVy1bdmLvB5k59F4lEqS2scachYt/QMMbbl3ukQGx/cPOc6Z1VeVjYnP4YWf480g6felAaGyBAIkRR0ss4CPnrmE4v0gYqAsEgpGHm4cByuhVbp7wXBW2ETmR88qTy/BAK4LDyJgsmqsaV2UbjMwkup10i6dVJDCirPmdnRZv9hy1z5uKePLwz0j/X20KjuHJBn7gGBn3B/Unc32TSoYhEvVlVlxrJyEHszjywG6x/WyKdQHYLM8t/6ZW8jwcN0KIKZfN/ZVA6VQpHTTfJJ7fyVWYDq1njr/mm8355ikiU0rw485Mj52bM9x4igOC/lMROeML2YAsIDebXlggThq12NYX76YJ3/hLUeN4oiq2b4CbMvtw4gwCJj44XcviRbWFKlEG2Ifds9GbMg9YWc1rS7rJyoHzG87JEBHILboskh9/7GsLkC3Fp8deALESbWXpnbSPrnKboDV5O9D5cRwJdMiO13gGadlUp5pPUaU4OG3PYdJAKc7EbXOIoW3Lx2FtxrmBavCuO16P28N1xAuoBV0A8GXKdkhi/WLwPnmvOF9fbrbA60uEp41YWey5crSgtbDvSJ0zYsjVxSzrQxxfohzINCgFZu32GUyyEuuMxRAYdOQetxRhyEtJd38k3m8tU+ZbRuVCqWBW7ng9sdeWMYdaYxraITFOGq69p8SHsxTxLqhlzpA19pmsoGC5A50gOtXVNgpxM3C3T9C5baGjYyjK5tkIo33wQzJorZi6rWcJ5xLmckHks3hd7V4N8G+NZd3Sxaf7Z4gHhIz1tPHT5IReNqlKt7eQfTHzDwZ01qSjuDYcGUO6mHHsKe1nY+HDxK84GgPD5hv4xo3EPfutHP84R9oBwji9x6dB1CZhkrhw7V+LqopqSmRTxPix5lDzeOS0l40xYtfTQeiCST49BlCYbLkXL6KIyRONaHGEQVjIAyhUpqiaHCLfWNpIKG34wrn6Sxs6PIF+5B6au0YdV15Jkhv4evW4dcv6wtO3IJQt6sjeer+8LBAZ7lPJGFLh2QcG3yjwO0Jmd8nF29D8NHReuZ54xFSwE/Rl3Ooy5W/90ij3RJHcMeGuJy5Ae839N2jzp6WrGiksBztll5LVCeBHEq0QbXfaGhvbgEoj6Sb8ZZ8xfj9k9nbaQS016ZvnsOLE9Xp8InUalrTt+Dk3U6s5JHWOmm89C95xdIduGnPPNXcqEYL+uKFHR6nXQqz62aRH98eQEkmUCljzdkjvwE8C7w6rspWz0bbMb/0YW6S/dvCJW6o+oqtFW4qSer+MNoGqsyKkcKDoPNiIqL/WnZySXhQdxLsnvRmYKChoW/e9K+rhc8mduGct9LimQUeeLcFhGUYAQ==",
+          "thinking": "I'm looking at a MemTrace compaction log that shows zero verified entries and no verdicts, but there's no explicit question posed yet. Let me examine the trace data to identify any consistency issues.\n\nLooking at the sequence of events from tick 100 to 107, I can see player actions progressing through combat, navigation, and NPC interactions. There's an anomaly flagged at tick 102 where a navigate_to action for an NPC appears, but the note cuts off before explaining what the inconsistency is.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 428,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1494000000
+      },
+      "id": "msg_011CcrhMYWvz5WvRfWeBYmwW",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 428,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 428,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

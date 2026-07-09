@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4a536b240e7449e69861047cf315c1daae0850b0a7063ed7ceb2831062a8b9d9",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7728,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er4FCokBCA8YAipAfM/ml4QaXNlaZV6J4hSku95zN9KCja2IYoVikTrZTEnaHYiPwlxd6ekwEf8j2uc4BEChLayYR6B6UFs49fuewTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGkEzH8dOvZkbx9YUhoM1biVETNvsI4A8BZOIjBhBcqEHfPzuJQ7MuI/lN7l7t7QQx//eAMJ5eAXDfX9HhAJyHMHhL3b4mhsaS1B/j0q4QOag0oK8NRQC0NGFOELn417jbETn2pqNEFTvR+pyB/6nQ9ul3ffIJOTOEDiJj2HNqEEbu5Fyul1DZEN/ae3rDiutrTqM/vCanNC/9reYnuFxrcPo8kc3TVMK3OdZizBVEz43dCma/Xs3qyVwJQ3XbL4GQMpynvxRXQvVJ7CbVogVKGTKon/H5X/svgfsX3Jqibb08/D4hG/0VG7Vmk+oEYnwzwrkEexl03TncusvB6KRYSzr7nCPWJqspK+EhUQ7RPeCf62Eb2b10g3SsfRzODGt837UgdmjSNfkvthPuPZVxbBOQ3yBGPeFmXz4kXbbYBLjWElV9eaUJ+RW9bMQv+diKM8bav94CaCv3s2Nv7mRDtx8MUAagmhWcDI3L78PPz6PA2Joml5YvdjAZFykawMQJth5USrixvF1vM8slVBgdWNQ6LhGxSKqCo2fkiCgCNPpWTgWaFpz7jH2Gd+wmE1m5vvH1KknB7yo364QBLYb8UueYtrndTWHZsUEJJ8O0JVRJJdT80j1ugJv5OBi9TVEPer2sSnEknOEDKUY9/axNG0zflmw90emvY6ykHFbqeIB86y5/EImdPPdC5ymAyyOfWegH070DWgRceSjyly3FhgHam1MhQfyMCzF91LG3rPGAE=",
+          "thinking": "I'm looking at what appears to be a game AI trace log showing a 7-step execution with position, health, and quest data across ticks 0-6, but there's no explicit question about what they need, so I should ask what they're trying to understand about this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from some agent/game simulation, but there's no specific question attached. Let me summarize what the trace shows and flag a couple of things you might care about — then tell me what you actually need.\n\n## What the trace shows\n\nA 7-step run of an agent completing a two-NPC quest loop:\n\n| tick | pos | hp | action → state |\n|------|--------|-----|----------------|\n| 0 | (0, 0) | 100 | navigate_to npc:0_6_0 → moving |\n| 1 | (1, 0) | 100 | navigate_to npc:0_6_0 → arrived |\n| 2 | (1, 1) | 100 | interact npc:0_6_0 → quest_accepted |\n| 3 | (1, 1) | 100 | interact npc:0_6_0 → quest_completed |\n| 4 | (1, 1) | 100 | navigate_to npc:0_6_1 → moving |\n| 5 | (2, 1) | 100 | navigate_to npc:0_6_1 → arr",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 401,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1480500000
+      },
+      "id": "msg_011CcrLzfcf2ShGqb9i4rtd6",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 401,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 164
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from some agent/game simulation, but there's no specific question attached. Let me summarize what the trace shows and flag a couple of things you might care about — then tell me what you actually need.\n\n## What the trace shows\n\nA 7-step run of an agent completing a two-NPC quest loop:\n\n| tick | pos | hp | action → state |\n|------|--------|-----|----------------|\n| 0 | (0, 0) | 100 | navigate_to npc:0_6_0 → moving |\n| 1 | (1, 0) | 100 | navigate_to npc:0_6_0 → arrived |\n| 2 | (1, 1) | 100 | interact npc:0_6_0 → quest_accepted |\n| 3 | (1, 1) | 100 | interact npc:0_6_0 → quest_completed |\n| 4 | (1, 1) | 100 | navigate_to npc:0_6_1 → moving |\n| 5 | (2, 1) | 100 | navigate_to npc:0_6_1 → arr",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 401,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

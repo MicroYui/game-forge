@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:970b170a99353ec3d429b43a3783e4fd1a89c63af5e49fb827767b058cd666c2",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8047,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqsHCokBCA8YAipA6mdlTWzJcwU2js0cke0BUK7e+76yQN0WcdrFyIV2+Hfd7xuldLWsNBnen7myy8jJbGXqsK6SF37ZiJCxjjs2IjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDO+MMthV2TLXbw0tShoM1bVSljrPKLJD/eRKIjDHzJmLYzFwcM9VM0XyvS4rTvO5y6bWw20cpeXwFoQiF/bx86c5d8sY43xutPbwrGQqzgUyIlWS5ZDk3jyAcJNLsdPJtVa9oDD7epRuNcVzu4z2cRU7UjZdgmEAH/MuDEctDJBGWsL2DkF+YCUHGV++KWs1MNsQzCnIExw7KEvhzL0uHfZAHnuburyNeiFxNNWHL6MEWAYk7mpfUvNXg5A9F7Z3oJ0+JVS+BajcY/ElB9JAtPYSRam+sOnzFDmmrpKf7jSi2r5DtMk5/YBLZREtWjeaV/CO2fdrWaLpVXGHdt0bIs1O9/KWNqCNYIwUzd1Oh9Uf4Mv6f83D7Y+PrCEGcDvhYBWD/FozlaJ61fu2/vA6D3UtkKJ/qfTyiawAHaDEIB3IzFk0HWc1WyKD7DW5vXVCr1dH3mhkrLv89eRUFUNpwuKrdQZ9Ktv/ZsJfRhEQjAui5bGiifHLbMR/hBCFfPcaAtvIpGaarE4hWGrkGJofmoAkCdKpF6czF6aRVjv4U9mphtrd4ngXawTspfwwbVNqBl6ENcwVKNeTEMLXLuFn628PXX6RUvGMZ5qYPQ4x1XA6pKCSYpVRwrX+QxVPN3hVWjw/i3haj9wnHVWcRn06z0t6SHra4cG809tdVd2326CJEUSW+4rELFfbBmxSMpKFi94Dy/xxALOwQdaZgl/hlDw8i895YiprStnkp9AMhm+QV12Utw5pXoozyi8P1T8mLE2hKAE+NjTwK06KMwi07R1Waq5a5CoVhvVBJOfrjjIiC3+Ak6c5X7rFLF8DXPtaVeM94GhYZbBTShdK0qmduplHHgFZNXZweItnE5zgGxOuStL4cw5cJV8SrBjx0YA6O0OIE5Gk+ms8VkcDA/SGVRAyNWKX/CgwbFb1Nmrv0fRktrXH7niKtu6zx8YD79/jGoa//zEWbz15jy5kJqNtMwDp5z44tyTzMEKSSrYouOlHvL+5KFedv+xip61JcpDXZackPaxXPI5CE5sv/kMUOMv3uxj9jpTmnKdBI+BTGAE=",
+          "thinking": "Looking at this log output from what appears to be a game or agent simulation, I can see a trace of actions across five ticks—the agent starts at position (0,0), navigates to an NPC, arrives and interacts with them to accept a quest, then begins moving toward a goal location. The system is tracking positions, health points, and active quest states as the agent progresses through these steps.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation, but you didn't include a question. Let me summarize what the trace shows, and you can tell me what you need.\n\n## What the trace says\n\n**Header**\n- `5 step(s)` — 5 ticks were recorded\n- `0 verified` — none of the steps have passed a verification check\n- `0 verdict(s)` — no pass/fail judgments were emitted\n\n**Tail (step-by-step)**\n\n| tick | pos | hp | action | result |\n|------|-------|-----|--------------------------|-----------------|\n| 0 | (0,0) | 100 | navigate_to npc:0_17_",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 298,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1429000000
+      },
+      "id": "msg_011CcrnK75WhNMKrnUXCzEgf",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 298,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 289
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation, but you didn't include a question. Let me summarize what the trace shows, and you can tell me what you need.\n\n## What the trace says\n\n**Header**\n- `5 step(s)` — 5 ticks were recorded\n- `0 verified` — none of the steps have passed a verification check\n- `0 verdict(s)` — no pass/fail judgments were emitted\n\n**Tail (step-by-step)**\n\n| tick | pos | hp | action | result |\n|------|-------|-----|--------------------------|-----------------|\n| 0 | (0,0) | 100 | navigate_to npc:0_17_",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 298,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

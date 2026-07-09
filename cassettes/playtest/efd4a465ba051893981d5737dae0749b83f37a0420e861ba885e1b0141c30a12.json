@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:efd4a465ba051893981d5737dae0749b83f37a0420e861ba885e1b0141c30a12",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2906,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpACCokBCA8YAipA0Nqs3Vub3YEfI+D+738t9l7/VBOrMkmZmw2eBJyIkq+H1yFALZY9WyBLyD3+24rL1dFWzCrx3J8z5eWaqF9GrDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDlLdGn9Idrf4iHq8BoMxShH1ssC7rD5Z/bTIjA7zzESqXWb0fI04dKH7/8khgqIfNHao3DI/CqkAbNB2c0e/2ctYa5TMJlvEyJG7NgqNCwh9eBk06OYHrsI4EcvKslYcEXRFTnfiYuA03CSy3WJo7xWPaALnRMjDZCoKlhU4hVYY90YAQ==",
+          "thinking": "I've just arrived at the mon tile and combat is starting now.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_7\", \"step_kind\": \"fight\", \"target\": \"mon:0_10_7\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2438,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 61,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1371500000
+      },
+      "id": "msg_011Ccr79ZMzHzgcVqWbV8G8r",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2438,
+        "output_tokens": 61,
+        "output_tokens_details": {
+          "thinking_tokens": 20
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_7\", \"step_kind\": \"fight\", \"target\": \"mon:0_10_7\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2438,
+      "output": 61
+    },
+    "tool_calls": []
+  }
+}

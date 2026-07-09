@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6e4fa6b7fcc57d1758f97fca2ccf8bd999169d008e829db50259d8ee1310793f",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4861,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EscDCokBCA8YAipAnnMHFdkdgm4KkCt4jPIG2lE8DjeDMIwWGcP3mO72sRokMPY7Ipxr7pqUBAVwYznRecl8sfEvBLo2KJHTexHqkTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFwcfzxdNMPtReXLKRoMGX0nbrdWdz6NneWYIjBV3PwA0s9bbZI5mTgbtOMLUt9igjIYbAuEcE1xxW2oiOrvuxHhfYe7/WJcA48XVjoq6gER6zYPDFChrQuqcKhX6mqNAn0InH0ACLaFpTuK50A6RLZ+pwHcNrSSAFS7/ZWTcWn+DSMjGZGL6R7mPaoQA4pXFc7+rhDomcsiVOcyK137qcWK7sE03XWfsIS+WDB9iHHrfskiwdf02LF6Qq9M63lXuAaJBsB7p0Wqg7Y/WrZzQNcG4L7HjhIs/+Tg9//t9mVsOUbn5dkD/Rr/Ni7LP8sqXL0hRNcKIpdKvhB1mlXJ4J2bfA+R4dC/tHgMXAV7TZJg6pV0NlnqB43TNPpM6gEoJ+bDh37pLQVnhfWqgKGnMG5wMelxaJ0T+vwYAQ==",
+          "thinking": "Looking at the trace, it seems the player successfully navigated to the NPC after the initial attack miss, but now they're stuck on the interaction step. I should suggest they try talking to or interacting with the NPC, or consider if a different action type might work better.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"You've now arrived at npc:0_2_4 — stop re-issuing navigate_to and instead try the interaction step (talk_to/interact) with that NPC. If you actually need to defeat mon:0_2_5, note the single attack merely missed; re-engage it with repeated attacks rather than walking away.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 182,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 754500000
+      },
+      "id": "msg_011Ccr1cEdv4Fi5FYCbs5JkR",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 182,
+        "output_tokens_details": {
+          "thinking_tokens": 73
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"You've now arrived at npc:0_2_4 — stop re-issuing navigate_to and instead try the interaction step (talk_to/interact) with that NPC. If you actually need to defeat mon:0_2_5, note the single attack merely missed; re-engage it with repeated attacks rather than walking away.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 182
+    },
+    "tool_calls": []
+  }
+}

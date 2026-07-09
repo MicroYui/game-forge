@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7700c7fae3243fb0744e0fbc49f26c4d5f2d04b8cd2f2c3ceafd9bd70f467ba1",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7045,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtcHCokBCA8YAipAs0ePHobkPJs/RGQsoHLH/4xA4WWS4nhcZp3nEWxrwwgmO8LI7rSyWmcHF1bl2v/zd5a5Ti2yDIirNWUNY3xkzTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBFCVvIFw+H5sn1BMBoMisiSS1R7lN/Vyp9KIjBy75vDNTj1P1UxUQ2rIi9srOZ6D71NobY7/nBgeq8945SfQv1Vjlxgo3VhThSyRRUq+gXtoDjgc3KL9CeXBpuPrTRekrgCO2AzRgbkSfdaTiMYujYW+o1j4W2emLoTALHusc3TkF9UafRoRWtLEVlJ606cPmXxRYwvCw2J+D23dSIPefAwa9qdIxXkxHZp6JDxfNW3l3UtjqrQNS6GSDDkZBn3cZjD8+2C2AN/rhN8IHyWYY4Vz3jGZAcdLPKSxK+JCb/p+csl+qbVwf+Xy23gjq6ZQv3sDBn2yju1ptRNE+tl8vwtQrfBGZDc4aYpkg2RIzrsIq0mtVCaQEHAXAilNkOAPjnueG01hiJUEpSWK5uFttjdIEiUGEaxLCHhjTaj+PYjN6KpkMmK1b3Zx+IbV/D8GPy0z9CYK939xE8V4tCGRjCmDuNONE01W8Q10U/3dk2QiWRWR0ulPAvOf4WuALEzCh/XRfkqhuqI2Bs5UEJiKgbDVnrbyXE4IBt9MKL97jT//oQxyYBVQbYhcKmtgoQMwKSyQwldVDSS0dQ1JvzKAnLA6W271lO9nE7i3d4a/grcnvhtxZdx6XYvFq+xPSs7naQsJja1PzUL1ykE2GZC4T1/yEfmMaUC0W0RVfFpgJFkZvr2oJN/qMVRWvK5bE71VUmMArlaOlPpmtizV5/J4q/WeX1aHEJcQUeXT/ORxa6r2y7BHMxjp1qedzP7XcHKuNLoatPCB3vEbd1RGgR/swSEP4EdKknBvDyodmYo74Uujdqq1+Y+ZyrHXbWxE8rVZC39BqFxAro5HEhgMTkZ+bUafl5NYwU/p6fMSkv6gknlSeGLdJEG0JTilVwXHPmJ1vnFt/29OZXixtrfIbkNCNxBc2lm1Am+OPk51b3ULTmP2ytQZBP1oUiJCikzoVjCeQSI39ouNKRmGNezy4FKnCych4nvD911red4+oDclWJ5i57BiE7I6WeCio/78Vh2T9oclKTP0AoKVDYfLYigNsX9rGw/Fny+PF8Dc6EZ+E9WdtGn2WdNEcV/utJo6UM5H+pYn0RVsdjzCt+jekdatNGj+gumhXrR8joYAQ==",
+          "thinking": "I'm noticing there are no active quests, but quests 3 through 6 all need a talk step to progress. The NPC at 0_18_2 is available, though I'm uncertain which NPC handles quest 3's dialogue. Based on the pattern where quest 0_18_N likely corresponds to NPC 0_18_N, I should try proposing a talk interaction with NPC 0_18_3 for quest 3, but I'm realizing the available NPC doesn't match what I need.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_18_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_18_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2003,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 364,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1911500000
+      },
+      "id": "msg_011CcrraDZpUUJZiawBD62Va",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2003,
+        "output_tokens": 364,
+        "output_tokens_details": {
+          "thinking_tokens": 323
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_18_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_18_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2003,
+      "output": 364
+    },
+    "tool_calls": []
+  }
+}

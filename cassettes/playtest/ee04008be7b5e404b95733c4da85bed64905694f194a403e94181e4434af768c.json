@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ee04008be7b5e404b95733c4da85bed64905694f194a403e94181e4434af768c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7002,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErgGCokBCA8YAipAYfqgNL/69nbuCSAcPeEHDSgTdvmxBl5q3La1grgOhyObUC4gT3vX8dY6GBwBirc35x61AhueMj0jbR93gIlhyzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGo4KdU187yDivyIGRoMm6Uq7fhA3hHzsLGOIjBsIBh2xuLbDlHw8P7jG/W4om1gvt4vfsxrOkh8g8Vuv3tBoJf21NmF0knFIuZIQ14q2wQgGoTILi/3Q0o1GWCrBvwRW7UlRZkPbApxp6iB5cPySu2JJIaPOntoKaFaqSQixXkeZ2b/Grjnp63wp/TyzuRb31B0DyBEKsqF9dg74SY6FxXJVk/AyzLZN5AsptxuyFvQUCNSp361gkttLfOrk7iesvIL/EgBzZA/Q8DGjs57fz7U0vMmTiMkJD2rZscVtSJ2dQBz+6/fb0+sMy8NGFWRsJJpnXA3bVtZXQlZAhqabxDh/wqWy70YKXUvzEb21bUg8RjVc9B9wYLnZSXiMi2bcDjB7MUMGsctQVZlCSA90VhahmwNtrfl8ScIyfhRa9HIAd19u0GrH9rtcklMoHYmMvyOal1Qx46uY2CvhDjCXUjWf1dk4M+0apINiUKOiqF3P+EWyyw8S7VhuWVoHy/AAmRIU7+j2tZU4bWx1nAe4PISLNwsCab1OpXiLPlCpJgyT4xi4kDmZTOUWgO/LwrIXrz6NZXWPtpswVVqOHA/ZDr5lmNOZdnBuE1jGFLmzagmLtdZn0HEeCWl4QQZbU+MjGL3Xt6rGnRguMHyxKMc/b5GdzHSfY81uiw/mrADiPNlpaDt9QyYm6QV0UH5HPj1zrThbUhfFT918oxbRNlpbXWUz9RvCLIOSc3OJ4+JqugeHCFrOXDgKFeVgpmJUFI94CwkOq//7gDAsw32dbbEOdiRhiNY9Ou+uOQc9MFqW4IuM9DQtSAqhex1y44ekPiP+ikHUy0l5rLNafV3K7yG/eTc+r6L4y84HUOd1+W+fpFC7Zm8SQSWZAamFkJfaiFNkSJ49iUL0RUE03MYAQ==",
+          "thinking": "I'm checking which quest to pursue since npc:0_4_5 is available for interaction, but I need to match it with one of the known quests that require a talk step. The quest identifiers should correspond to NPC IDs, but quest 0_4_5 is already completed, so I need to pick from the other available options like 0_4_3, 0_4_4, 0_4_6, 0_4_7, or 0_4_8 instead.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_4_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2148,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 294,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1809000000
+      },
+      "id": "msg_011CcrJrrX2vSWXth9Z57jNU",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2148,
+        "output_tokens": 294,
+        "output_tokens_details": {
+          "thinking_tokens": 253
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_4_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2148,
+      "output": 294
+    },
+    "tool_calls": []
+  }
+}

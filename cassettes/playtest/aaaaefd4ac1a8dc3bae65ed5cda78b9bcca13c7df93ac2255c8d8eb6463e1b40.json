@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:aaaaefd4ac1a8dc3bae65ed5cda78b9bcca13c7df93ac2255c8d8eb6463e1b40",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2811,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo4CCokBCA8YAipA87e3YAAxvgOLsuB6sxpSMf69EwGLERGh/Fao0cWF0uHIF5k7mUDDvWlpwdm48a7Qzr6EsUNL+/tRiVmR14ZpTjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAq7eGZ/gf1dMYg7axoMqz8OWurlZk3XvZP7IjB21S2GOu/IsnZclDKAuUi7b7E3fkCHjVhfIFrS29dU1hzenonWc4h/4YjGwRXRyjcqMuGTDX3WupxJz59YSAsTDCF22JamZSOZj4EM/mP0FOhXu7GePm/mG3tctDFGeOuvrAjFGAE=",
+          "thinking": "I've reached a checkpoint and I'm ready to proceed with the attack.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_11_9\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3330,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 48,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1785000000
+      },
+      "id": "msg_011Ccr8EcaUZEzk6aMswjpsQ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3330,
+        "output_tokens": 48,
+        "output_tokens_details": {
+          "thinking_tokens": 21
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_11_9\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3330,
+      "output": 48
+    },
+    "tool_calls": []
+  }
+}

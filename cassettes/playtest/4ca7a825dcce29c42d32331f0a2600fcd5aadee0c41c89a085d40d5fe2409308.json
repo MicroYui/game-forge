@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4ca7a825dcce29c42d32331f0a2600fcd5aadee0c41c89a085d40d5fe2409308",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3068,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqoCCokBCA8YAipAfB5J9s5d+eNmYDAV5INprd5LvTNOUiR9Hk9hgVVlPOVLqZF5w5Jkyi7jy0lTPH347H4mndgbO7Bg+9Q4rIoeFTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJmj6GA1I6Xym2WK4RoMtYegztWFkdFiIUnBIjBh6C54LUxMVHdgeqG47kVIWbFQ2UvNRLgo+CJmFITm3qc1MPScE55Cm1dWGF4YYXIqTuhQrq5Dakbm8kmvAQI/mnyXlxh0G3E7cwYudGuJRT/plHTiM7jCpPC5hkCd11gZpbIhC+zvKmpbwUpkA5npQkv9Yv7J0kykYOGnsUCKVxgB",
+          "thinking": "I need to navigate to NPC at coordinates 0_5_15 to complete this objective.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_5_15\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3197,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 61,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1751000000
+      },
+      "id": "msg_011Ccr4Ccpq6eYcq9PzHc6QC",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3197,
+        "output_tokens": 61,
+        "output_tokens_details": {
+          "thinking_tokens": 33
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_5_15\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3197,
+      "output": 61
+    },
+    "tool_calls": []
+  }
+}

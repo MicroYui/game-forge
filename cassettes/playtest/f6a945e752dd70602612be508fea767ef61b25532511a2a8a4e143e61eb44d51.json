@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f6a945e752dd70602612be508fea767ef61b25532511a2a8a4e143e61eb44d51",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8539,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvcICokBCA8YAipA4weD7EGqiN6CPGY0C01FIHcdjfgoQRIJupbPL29kdhWwab6VvxM32/fcU1S6g8GT9eP2KcgdNQhAfmT2dmgWfDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKOeToyOd5qIRCfGtxoMQSRYTmPQjJYbw9xhIjBoIUDTrxFqcK4l977H/+bRdek/ah7W/gGw6vQpNNETfVKV0xYcabL25hKoMIn6WnAqmgegB+OGG4DOXlPZo0p4RHQbbwTa0nAfz31I1wFsVvvC+cl8S+EhwkCIqGzXJEQ6C66yZZ3QC7H1SLjiy5DJnS8WNjpqPRdWA54T1AUA+QtO9D0W8W72KJvspTbgg2J6T/+qqBo+h64EvwNxw7I+Vgp0TG2eslvxP6yKdr5KFVEXbGf/uKHn0Ew9cAYDzJAJr1f8dHFpr90vW9m9peqYL6dAfJFLMTScPL7nz/exgf9qd8v/4R8Xv48SZdv26rSjOvfcD91w2jJcEL20Lwcn759PHJeVbY4Dltm8Wpxw/w8pVACsgsCrRkV67OJNoSopE/Svr/pi6J1nYhy3Rn7eZBiWDtTftVixOt/OvTzNAvXvU8OfGlwQzq8v9/QA/lS4nKLFLoCC8G2HSEbMf9uuca6QmKPJ/flV6mV4gNgFwGeK3WHGmm1K/TE2oljPvgPec3xKGBvR95lVgxZUUYWUJeWD7g25d4eGDEt41bynDQtdX/gPDFr3Fmr6shwFFNKtQU3Kp/qah2C9pJPAcnK6cRCmYXjKLn9enWI9sfPHuMWGscpvDwyEcDRWbrsKGOYoMM3+NHNUx1uwUAPAX8cx2KYOdP4jtumCqIRA1VJJevssLeqqE7YFMSgn/f/+UoQRnop9Z5aRjxGoYUH3C5iZ/FUgAUOtODo2Eg+/Y80aJk+nBUkoUvGKxzLV6E0Ws1QCQj2T9endTUbBuZCSiUOegMs8mR0hFpakFRBgaQFxb649eqQglF+wIu50xaBb+25KVyNY1UL03jKo+2cbgxEU5qrVgJHxTFxdUzQ2VGHYeKMsKU3uvnKyOUOMbMJQw55IntOdCqUAp5arP/CxebVwKn04fY8n4xbZhtXr+L2wo/zuHsuG994/Vr/IFcJBlTt4ahQYOibdO9RbY5aNHN7JuNLMBFb1xulQCgeVUfCa55knw0gtzM+ClxkgcoGU6fpu8q317eb6TpaACCNtNeInJnThWSm8krKCzkMrp7Xk2/rbA6wrZm4uv1dKA5l1FsIaKSFu0zg4wX0fAr4cxlGJQRQLBgHeuIMnUX7ccqSZoTs7RglQaDRY8PdP7rso7+/mh74WS2F1UsVWb2xgE5FObloiqepMoA8CmE5a0gOez2lnFKKF3mshm0YsOQgUEXvHhhDcCILJwtS4wPpqDC0Nzx0e9X+LabAWnmNBFv9MJR393M0wbp3rNqre9CWcihNDllesWiBcRklozMr6GAE=",
+          "thinking": "Looking at this memory trace log from what seems to be a game AI system, I can see it's showing a deterministic compaction with 29 steps but no verified entries or verdicts. The tail end displays ticks 21-28 with position, health, and active quest data, though I'm noticing a formatting issue where the active_quests field has an unclosed bracket that suggests there might be a parsing or serialization problem.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace dump but didn't include a specific question. Let me share what I can read from it, then you can tell me what you actually need.\n\n## What the trace shows\n\n**Header:** A deterministic memory‑trace compaction ran over **29 steps**, but produced **0 verified** and **0 verdicts** — i.e., nothing was checked/asserted, only recorded.\n\n**Tail (ticks 21–28):** An agent walking a quest chain with NPC `0_17`:\n\n| tick | pos | hp | event |\n|------|-----|----|",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 446,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1503000000
+      },
+      "id": "msg_011CcrnbQePRMr7PwY8smQFn",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 446,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 331
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace dump but didn't include a specific question. Let me share what I can read from it, then you can tell me what you actually need.\n\n## What the trace shows\n\n**Header:** A deterministic memory‑trace compaction ran over **29 steps**, but produced **0 verified** and **0 verdicts** — i.e., nothing was checked/asserted, only recorded.\n\n**Tail (ticks 21–28):** An agent walking a quest chain with NPC `0_17`:\n\n| tick | pos | hp | event |\n|------|-----|----|",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 446,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

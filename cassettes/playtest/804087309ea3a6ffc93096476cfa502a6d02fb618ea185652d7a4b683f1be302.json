@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:804087309ea3a6ffc93096476cfa502a6d02fb618ea185652d7a4b683f1be302",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9612,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpoKCokBCA8YAipAGqqBPlLcAdO3jfRkzydopc5/xbxch5/x34VtntYdX29EqiwqyaoB8ffEMkUiK0cKoSpkwO/uMt6RGkukTdDIhzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOUpCrVt374IEEnHbRoMzr0cAB1VtdifA4mSIjB2HZt9ADzYn2LJKg7KdQ/+xazJ+PtUnBeZ0lajE6W9zbMlzUv2oc5akUo8pTDKlMgqvQiuvYgSFVHay/xY2O5AfynJhSggWowhB15ocQRoenW9QbntQejnGzfZu7cRLqW7LKmSUwzRUd6KK/ED3GUhVCRZ4gigjArwG3UgeGszh6wehb1AfMNOT1X8qSfubRl3InhECKBRO3k91CCYju8x2xmITUQPOTq3kMDYaJudh/3s70CtI9sz2/AHUHUqxR3ndCgQ0QkICZMN5b5/Hzc+bxEu12VXCDm0wwxSteN74DJMoJxC9GRtLfzA75PxBDJD7kHAWgLuuVUBd5qT9LY4PZYGZEdtZZRXOB+7AEawIk2GNtCOjhsCs+HpW4LfXNrJXxDZo2ntbjxd6rUDm624Rz7JAqJMr3+aLkXrwBOgjXGx9ovAs5owWE+dnwKarBgirwo40nrzGZUKnRZ5nzunTvCQ9sf5eSUMyDBoNpUGyYI93IGMyY6sga31wpQN46+wtNupXUScfX5I7C2XUx5dljqydPO2e1CmZRmM4TC4mtsw4mMCMxOI3I5G4usa4yeNq19riFB36FgXgHXnUYiVFngRALdW4UNwpHYkwt1HQCADV0N0Wv/f+OTKf7ZK8fAVZSpX+JSS5ceWKWeQaSrmhQ1v1pCfraanEiY1/85riW7mIW/NTDMMS8Jw7mCdvnSneFmbGlNukuevn4M+IguM6dZeFoWT21OKAd/Vwp+aeScNStrGx6p8rmW7cWMq8e2rArgt5CNyOh3qdtZfl4UOGHIzCGlDGxoDGxBc7N744ubiusIPL9qMA4QQssjDVjuS3TSRAX6oUrFpjLnJmFcbBF6oIvZkeQNTxkUQNzOBSa1Dn6EoKvNx8GoEjNfx8cwQRd1mxKsrxzqavUPuLVdCrILDZDkPajir8ng4uH4Q6x++MFQmhDSZ4G8Agw9oVrYco55FUR15/hYDbg5meNI71P2KfT/R4O67M9QaWSdJzb4CpBICISKwfvriCY8DdBkis7nmafA5xOKFTUNWppDJZxhHj0NZZ/givNB9PRKULGeUDANknsHQbouqK3DDq0h94gC/Q6VpnS8SzkLQBY9jBzpZYcjltW3Q6p96gBOkHd0/Jc/NC572cE+XfB5GVfbzqyfglWleWIewFTr+FTAC8lnbnVcqaxA+nY5MvNEH8J1jvTfQgvuvI2VjZzmFZ3MLZd31m2LwKyLTg9cBeVcuYCWTU0XT7s6xkyXfLDWfLSWiy+xz1FptuHOEAb45IP43IMU+Ruq8GFfZnFtYATF5ks7HdBUNvNAyzNENFGUW4CcTDPPp5vduQSgqnRCCJnb2l8odeSeL4IP9VQz+qXoi5CLigzxDs4QwxLn2aFwfHpsmsf5nlTq3N7EGNZj/SwwokV5NeWTh3W7W2ME3JI0NgoLEa/u/HGjMkEKZqc5jF2RdshSnBdX/CsiIdjXbSPM4bhH7yCUk0dAAE8D7V76TbrcaavRY8D/8MgyfbwJtuhgB",
+          "thinking": "Looking at this trace log from what seems to be a game or simulation system, I can see it's showing a deterministic compaction with 7 steps, no verified entries or verdicts, and a sequence starting with an entity at position (0,0) with 100 HP attempting to navigate to an NPC.\n\nThe trace continues through the entity moving to the NPC, accepting a quest, navigating to a monster, and then engaging in combat over three ticks—taking damage down to 98 HP before achieving victory. I'm noticing some potential parsing issues in the active_quests field that shows malformed syntax, and since nothing was verified, I should ask what specific analysis or help they're looking for with this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from what appears to be an agent/game simulation",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 391,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1475500000
+      },
+      "id": "msg_011CcrKRfuEWL6FjxyUcQhwb",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 391,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 477
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from what appears to be an agent/game simulation",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 391,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

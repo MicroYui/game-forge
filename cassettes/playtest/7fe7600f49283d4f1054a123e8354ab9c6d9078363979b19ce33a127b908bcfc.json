@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7fe7600f49283d4f1054a123e8354ab9c6d9078363979b19ce33a127b908bcfc",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3141,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpMCCokBCA8YAipAGSHamgW3BHagQv6k2mP1yF+Vhnv0bADF08s7Sb1X87FqnY1/ECr3qlAo4n21Rj0hlLALvCyjM7jAY4mwCJIsEzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCC8XUg7VouIhEiqchoMKyaI2y7O1GD/DByXIjCJXHUZCJM4aBa7FAgRtrzCa8zKKhe1WNsU5oLIBwtRnzrxpRDTInzUtnd16jH4c30qN2z/wwzysBXCAHxcdiiCXNhNBtL66sNHglW8l+iMskwlAweLnjGrdcRLp52MCX1c1MBlRdJcLlgYAQ==",
+          "thinking": "I need to turn in the quest and then navigate to that NPC location.",
+          "type": "thinking"
+        },
+        {
+          "text": "Fight is done. Now turn in at npc:0_16_10. Navigate there first.\n\n{\"kind\": \"navigate_to\", \"target\": \"npc:0_16_10\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3052,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 80,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1726000000
+      },
+      "id": "msg_011CcrCxzDrVrBcZmptL2Lqm",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3052,
+        "output_tokens": 80,
+        "output_tokens_details": {
+          "thinking_tokens": 22
+        }
+      }
+    },
+    "response_normalized": "Fight is done. Now turn in at npc:0_16_10. Navigate there first.\n\n{\"kind\": \"navigate_to\", \"target\": \"npc:0_16_10\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3052,
+      "output": 80
+    },
+    "tool_calls": []
+  }
+}

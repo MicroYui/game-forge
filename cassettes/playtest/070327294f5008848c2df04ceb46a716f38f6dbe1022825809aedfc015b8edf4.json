@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:070327294f5008848c2df04ceb46a716f38f6dbe1022825809aedfc015b8edf4",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8084,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoMHCokBCA8YAipAovW4OlGqXa/9m3Lvb5m4/PIw7pfqU6hXzQ8jphfT+Nk7BPw5GvERngmmv8VYG+eD9+HoZ817JYrBL/ckcw+b8zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEQDWEnM5MlieSjjvBoMk7Cu/pYt+oObeaGQIjCd5bo2P6HLauLcG/iGUaY8o42xa/zPdat1MIimahN1UStuCL+w7XsdECTuVknADdYqpgWkBUerJ4d8ekWLiiTT/prACerXRLZ1b9L/nL54gvpdbz8dL/SXGZn/SbqJGEhXIIxCQ2MifNHg3krPX7NZCNuLKU+nTr4Tki4F4stBvE5jZ3M3DTj49JNbYoBjEqVt7EnpwTGpaBIHFzD8l6JL8tqxuyJUkxkmXKcokI8wepzwB0I03yntG8VkffRj4XyLKEdRqqc3RS4i9cQjt5y+ixIAUenVwZcvxeIRG7UrxpN+Yx9S7ZLyZiGqb4vB/pR0APLxhWh1kgmbRPdHyMPqvj6wyoRJ5ws/TjbXmkDAp2oVMT2jEBmOSdAYGFgSbJCsAum8sP5f9Q32y0+hCBfh//Vc3NHXc/mG3/1pyPNvI7XT8qcSZHfx1npb9kE9Irzj9KrW0S3YpLBKjbezH2+PX/JQAnyXTFN4rxYxbW9xkzcY3o/rbJGBOkb6qvsVLfe1pHWlAbAiLKJuMxWvC9/WSJMlVPGT4PXJ4dJ1UTt0KfDBDd12V12cmsobJ8+aq3SaRHfWPbzB2JG416dmT2mn65V4e/tacDBcBN0WsfsjuQxow9C9TY7tds7661f+nQoJa6PtdiOCfRib1lq0zm195U2YgjHC7JDRmMFDgAHtiYOq/Ur4sRa4fmrGwZaOOQWHUf0Yvm65ZZlROK8bnX5ZKeoXfNjwyJ7OMWQlLWFyDb6VNgpKKReHY79KUiI9HNfkNa4M32y2gs0IJ78UJqTh6pIaQsBICPYLfWun/04RrTp3srrvn/TpVqOlKcWvCmPD9xrZIYDnOeMi/FtniMUu0uYRO0021vNNlA32P+R/k+e3dWc1zrrVG0OX6mxIPBy78xKzRFUBm8OL/gTQQuCvcsdt7n40sdZUis79Cu5o601cx21MRZY0yWdfXpqiNh2KaDAniE4eKq8YAQ==",
+          "thinking": "I'm looking at a debug trace from MemTrace showing a compaction process with 35 steps and no verified results, followed by game-agent simulation data with position and health information. Since there's no explicit question, I should ask what they'd like me to help with—whether that's analyzing the trace, explaining what's happening, or debugging a specific issue.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction dump** but didn't include a specific question. Let me share what I can read from it, and you can tell me what you actually need.\n\n## What the trace appears to show\n\n**Header line:**\n- `35 step(s)` — the trace holds 35 recorded ticks\n- `0 verified` — none of the steps have been validated/checked\n- `0 verdict(s)` — no assertions or pass/fail judgments were emitted\n\n**Tail (ticks 27–34)** — an agent moving through a grid and running quests:\n\n| tick | pos | hp | quest event |\n|------|-----|-----|-------------|\n| 27 | (5,3) | 97 | interact npc `0_15_5` → **quest_completed** |\n| 28 | (5,3) | 97 | navigate_to npc `0_15_3` → moving |\n| ",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 450,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1505000000
+      },
+      "id": "msg_011CcrkR25K9XB4c5LapB1xK",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 450,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 232
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction dump** but didn't include a specific question. Let me share what I can read from it, and you can tell me what you actually need.\n\n## What the trace appears to show\n\n**Header line:**\n- `35 step(s)` — the trace holds 35 recorded ticks\n- `0 verified` — none of the steps have been validated/checked\n- `0 verdict(s)` — no assertions or pass/fail judgments were emitted\n\n**Tail (ticks 27–34)** — an agent moving through a grid and running quests:\n\n| tick | pos | hp | quest event |\n|------|-----|-----|-------------|\n| 27 | (5,3) | 97 | interact npc `0_15_5` → **quest_completed** |\n| 28 | (5,3) | 97 | navigate_to npc `0_15_3` → moving |\n| ",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 450,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

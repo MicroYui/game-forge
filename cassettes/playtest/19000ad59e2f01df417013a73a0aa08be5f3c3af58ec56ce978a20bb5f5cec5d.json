@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:19000ad59e2f01df417013a73a0aa08be5f3c3af58ec56ce978a20bb5f5cec5d",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 10733,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq8KCokBCA8YAipAVMOTaQmOAybMjz4JQf+BCJ06a98SlbPznILic5bSVFPf7+X8abQVM0pTVNOiQlexcxN7G9742E/om99gLzyD3jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHNGuka5Z0ZxRCFBqRoM99Ldao0Ga26QFSmFIjCPuwPRjWd788D94vlHpxDLpidrf3j4Sln16eDm8MJJCJLE/haRDBi9AYbf6Gxj88kq0gjhzEyczHCA7FGImuGF/FJ0pMFgLBjV8NZoezcsiSeQBzXT3JMaUJY28om6IIDAuzvkR8BeIwAjJFD/yQ1Q96yXPlICNgXevDxSC61Pv/9hixvDSmgUmThiGYN5M7tNlYAR9zlEmEZyzJ5H9zRiCPTq0xjMP9fggfKSkZiQZ8rtB6a+R6FuPFMjJL41iyPcxJ7T73L4Ejs+L3cEnXhGlKs1NK0EoyP3FnwwWtxW1t/MilhEfv6IGGIH7qFQJPh+fUJOwKGqJtniBq2KhB3zSvPiwSEjtSfzeGFyGQ7mYU5szPvUnf2ohlPVnkjFzYItO5ZhDHmsr+l2IyeMrPtz/Ze9j7Zc8YAtrLO922v+oj24vTeR75L3rOgfs5vBKTxbvYBzK4MZA3sgQLwls5GyNKv4a+4K4D4C8A47uC8/KFQLO1H0Rmg6acsPALFBZgy0wQSqvo7ODIK/G9HK20WKuhNjKnxbSawsx7nOyTceoibAdQP1W8hcwWjvfCVWygTvIFICntdVlqGZUL1ST9BoGdhp6yF4CUmvDTln7PMjToFdrydpAFBHNLre0m3zqcNhrSsN6dejFQCIQHxmAnDR5C8Hbdu4GGMovCXfe+JsQqMGY0e9nx3uxkG+0chKYEGX0MlvBxwV23yXHikVhYtaUaF9B/jhQhGzxa+W+TFdFbr2EYXuUOfUv6r9usYNE0XUrfktGeYxrqsBQ8FbZPk1t+IRmeTx0E079UWUoR4fq2VRD0Tkg1HB2d/NwZmJmDFB9SJ4c7K14oA7o8TxVI2LljVzmDzwTUS/ikRS0PeaAv8kep1hf14cpUoKVgd5f6WJndFruO+t+h/gtTUkhN69HOLLPISnHDagCwt4i2C9Sr4vpN+ToHnhgyPqCZoxEko8Mzx7fv1WrUlHdudGDsfIsv2aED9D10hQkqOepBiO3XhdywhTwIQXr9rpjQBDV4IFzFifKZMfXnf3R2Ivk3gu9wAhmpFXKZAG5Rx5mbwFBkqhwryvdy9Wv0urldYomUEkb/3mRyDIrPe7iM1VUN8rh7WMXTH0oszF4lRK33bRdnHmAoT92HCkPanlpwCQajWxiiui4pvPkDOyDFfiuTr/e2xIEjOyRu+wgErNHyzrfJ2oqTlND3kYoERozkv0qGht+qNLY7QXKjrngEkTsAPZs9X2UBaK/bOc+iVhR2EMpgheYUXQfjBgFoD1qcyxeUlu5JqdDYOExHqJyQSEws0qdDA1Ya7nTRbH/rsW03wlPGgKfGSxw28xpwLXrGi4UbILFKEHD99y+ndZWsik/IKpg4w8Iwkhf7LJR7/aZJDPtonLhdbAxluPGioXWl2vO1NEhZhszXSxXwZSVoUSiX3cW432+WdaChzU0PaZN+090Bp1PiweZYqdc3CkRf7b3L7oaWkDpkWIPZYzLyEpvhT0boD0x4Qgo2HlDyEzDsj4Znr473H3sWNHUisFJ5Y0bEKplS6RGBgB",
+          "thinking": "Looking at this MemTrace log output, I'm seeing a game AI agent's memory trace with a compaction summary showing 5 steps processed, followed by a detailed tail of 5 ticks tracking the agent's position, health, and quest interactions. The trace shows the agent navigating to an NPC, arriving at their location, then interacting to accept a quest.\n\nThe agent then navigates to a gather point and successfully completes the gathering action. The fact that there are 0 verified steps and 0 verdicts suggests this trace hasn't been validated yet, which might warrant some attention depending on what the user is trying to debug or analyze.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like a MemTrace compaction dump from an agent/game AI system. Here's how I read it:\n\n## What the trace shows\n\nAn agent execut",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 298,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1429000000
+      },
+      "id": "msg_011CcrkW3ehjTj7TtdzebN16",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 298,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 466
+        }
+      }
+    },
+    "response_normalized": "This looks like a MemTrace compaction dump from an agent/game AI system. Here's how I read it:\n\n## What the trace shows\n\nAn agent execut",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 298,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

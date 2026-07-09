@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c840ea498f314b306a7cb2f2bea53d00042788e59a842a469ae3b5f41e5d2ef9",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8806,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvQKCokBCA8YAipA4DP7tghfmhn3id4n9lItosJkgz/sap1adw6BpJSjf+GaiC01bNkJhEwfaCzKxGczMhS2lbwuIiIyvv7p/CHdYjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDD5qALjWz1yiqT4NshoMWZz7cvpQEo79jqdvIjDxkxcts9Yfr+GooxX3kKQU2l6+3yTUG5d/Z95jrB7tHNDoirxE6UgRYbHLyU2TKBsqlwmsGJCcm4Nq2owxL7+5/tdCCem3wyH+yNmp9gI+OTOxMmTW/ABlkGcvgNJM0rwL9q6Q/GonT2SilzQdMu7tBz+oSLZrFP/DUCsbUZHcgnpugouYxUKJJZhUQY+/1rbBQip1FwMf86dgY0s+1+t136mk2Hv2kXbB/MrcEAa19rd+YZiHxR+H8EQjwK2PguLZ2F7FNWhIw/dwl70ObiQjYXqnc5xWcMjyesfBeMIh+iuq2JW26W0cKywc76cJ+DvJElcAakSCDbTR7Jh0EiHEEF5ulUR6o2IdqV/sTETZSrQ1t8czW6BL3wxHNz7XJ1mJTVwWByjbaSC3s/VSne7sR2lXxPZ+1Sov1AJ+C0PQnAVjL/a3h0Vot3b6yiI0DS35z7Xy8Pj5u+qgch8xCaiavOGOh7ty43euTdwOlkOAv9vEs3M/O7Eted5+VC220kqN0XTl7E3QS/V/OLlTV0SIvws5N7hWexL7Qh/RFZLSZkHF9f11IH6MAL1nEpgKxqXlUoVt1G/E9XZF8gaBz/XLQn96a+xh4FyVmqG5BNOcq0O/FdvgDPpK1sHBvQZvcnGfJA8f9wRL9E8xVH3RqNLJCXBs6+u2wdHzmTBla6UlImYdX5O60TK+8K0dw269o2d7VB5yeNgY8PK+RnxyQIRpUSH2zRPN5BPBRRnPtQwTW5HITPTDpLe19utTno5fJkkqNI4pNsMB0JoBAvUGAPX7lxNo0dUUzZAi6f1I1IGXiPseYwocsTQIvlpiK9rOXdCKEfJqSl+cP0e843NOMYxIb3KoeeqsORuu2U/zFmnBKZ49Og4lXBLsmoUWA47u8XJtlsTLkqUoAdJG399ehxcN7NiXhfYhZD76d2MCgJS6qt32ykJQFJ5nC2pE6VOy8vI6tA10WqEErStKwJOy5BUM6RVkfliGzEPmRhksk+9auyQoPgTcRSvSdLxfNnlX70WycSi+lLCJC0gg1KpeDTh38FghHpOhmDtYiGT5JDXrYo4YL+o9Yeda5pOSNpqdQx7Hr0264v+8ZR/boIhekhV38Ip9SPfzWer2WlOZy7J0GIO3VHM8KUfGxcMoLIKrmiGBzHR4ZPNWzjOR2vf1bTFC2YpnuD3T4WvrghdftyQbMpp5CuFMT4o16JjNdgTjFkalAKDtWR0T9xP61wJ3/2G8An5a1/AIX5qobGfzJnXn5spCa0c9ewZIxXYT0Ax6EwKA+yRGBbTXo8f7x3BCqwtxUKAHV8hwPpg3+92ezsU0NqRMZb4nbw53Rd+mvuQ1ojCASqZVpYrHzwFT139bOO4P88aE28aR4XVX0jMJ+HsTaCb6Oz235fS3iXzXr4eWtBJzrLyOXrc3UTNPK0BLdWpOLI7yvFNbl1fzUTEvkOje6Z/81qys2aCe+GM5xaF0IIto4pNDYcD0G3R7SCXK3s/RswQ92kuUmfl7VUcyf7Py2pTiHgCTzyYx+OQVQoSSHWCCVzrGPa2Rbqwf7R+YH0cthBz/LO2sLxnr2oHpSXw8TII3cP63WnZG+HPJDbPI4ZAJc6eZdSYoTVFCroOX0+CdtW4MZGYt5JoFwRgB",
+          "thinking": "Looking at this trace output from what seems to be a game or simulation system, I can see position and navigation events across several ticks. The user hasn't asked a specific question, so I should analyze what's happening here and flag any anomalies I notice as I work through the sequence.\n\nI'm noticing some inconsistencies in the positioning data. The NPC identifier \"0_1_6\" suggests it should be at coordinates (1,6), and the agent does arrive there at tick 46. But then at tick 47, the interaction happens at position (1,7) instead—the agent has moved one step past the NPC before interacting. This same pattern seems to repeat with the next NPC as well, suggesting there might be an off-by-one error in how positions are being tracked or reported during interactions.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 451,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1505500000
+      },
+      "id": "msg_011CcrGcBFWmBb4GFuNKBmcD",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 451,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 451,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

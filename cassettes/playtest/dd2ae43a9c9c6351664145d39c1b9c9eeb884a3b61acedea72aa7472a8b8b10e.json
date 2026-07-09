@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:dd2ae43a9c9c6351664145d39c1b9c9eeb884a3b61acedea72aa7472a8b8b10e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7702,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqAFCokBCA8YAipAdOlWPDcRHDJsmE+WLptShJrOBi4CjZdLcJnbfbwfKaWpES747RNwh6Y3xoJ+qZGamoD+qOnpNVPisMpWzp+DNjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHVGDzHSGhKci4cYSxoMOMqfu9nzbtwe7b7CIjBCkpQySPL5P/oxn0rAmSMaC6Li+duJn69cBKvHuXlxm0/mAM+Urebh2begqWwAwFcqwwPnWna/tU/WNnW1TFoAtU+Vsl2B6q6RhqTZ23sQyspN1U/QSDEKABnGJMGm+AeHCJbBC+/4uSWsGlu54KldoKuDMvudpcdSTwiVJL5qhc1StLOqJxQeZm5Ftql/q6yp84IR328eKw4jVjqbmdTGzHVDnTzRuQGjkSYcZiVHJG5yB4+4nRwCnnNexR1GYpTlMlO7J2aO07/fyqExkagEbBlRsUeHGmkiX5qe7afSh4bDhq3w7ZWYElY9Lrrwxsszz2WGE1NcCmbefHBA+b8hYSZs1CedDHcJQt9V0F60I8qqpDhQdJH8HbacgSudIR1N4SuBV7BT5Siv+RwllC07omDKSHBLz9NVXUgj7xnfUCMjz+LNj/b80NN4h3M4OmMYwL/HMObG5Ru6TvxlQZZ21uddZG3NX//ZMPEMUm47qm8lCOzYyxh82He8K8XOKXk6bzxOWT67q62ZA5834oVOb4SSW0lIGbFQGAib7Okd6VfYJnE3FFXkVzjJ3kAzeW90jycd5lmn0gBdthlOmlZdCtTuFq60r9JUs4k9wSmdIzp7dIHAEu+OwlczouAq/mipyO8XrIr3KI207OUOxKg2Y1rju9vpGAE=",
+          "thinking": "I see that Quest 0_12_1 needs to be turned in, but the target NPC isn't explicitly specified. Since there are no available interactions and I don't have a clear turn-in target, I'll propose the turn_in step without inventing an NPC ID—it's better to leave that ambiguous than to guess incorrectly.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_12_1\", \"step_kind\": \"turn_in\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1645,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 208,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1342500000
+      },
+      "id": "msg_011CcrfpD4v3H1wA93xRaQLz",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1645,
+        "output_tokens": 208,
+        "output_tokens_details": {
+          "thinking_tokens": 178
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_12_1\", \"step_kind\": \"turn_in\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1645,
+      "output": 208
+    },
+    "tool_calls": []
+  }
+}

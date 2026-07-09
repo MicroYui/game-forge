@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7f6e0f5b1f22f91f8753a9676beb29269e68b7a5375145c78947c835a9a68303",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9405,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Es8ICokBCA8YAipAjg+ze1VdeXY+qe9GCtvd5qAzMyVUDl0HjAaE27lfKf/qm+B2nAYRsgfaUT3YUEwpF1ZOHRKtQsFTgrKNBp0eCDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDD9AitobEThC09ejnBoM9MSa3kWDgTDX5HbHIjBhzXcAeq5MzQdMuq9P5Tj3ZhOyUs518MI8gpdhWPXjS5wsr+7JiGguFwgX3e6hotgq8gZNueRqQImVGZ6Q4DffFcx4DqWLh9jgcwSoiQm/TsKw74mLTejszrnd7AQ9nsNtkbZepemMHwXk4d2+3YoPhIiOwDI9bvwaYDyzts1bPY1PZA6EwnJ8PNhCAiBK+8tLGn03mgnpDQ0Pnw3CPROaH1Qyrn8ko3vaZLq43ZrkHyHiLnBb6Ko2ciJDHmQpbYD865D2kJmAmlajnC3XdwJSN9BTHOmFBwJ97M0PQiRIV+Jwbs7CBj7/heQzUjjaddAOmZvHbVmHNijjEfesNufKU5w9qlO+GkjXcRVlRFsBWvDSZw/z7ZUn3mg1sX8EtwpD0ptoixfBv8J1wx+tKIbXkaV7vompwhL/mwZ6jV0mKdbKiURFIqLnXQDZ4+qpBau9vNpSSR3JED4V784jw4skKedba0NijXHqWfBbRLuXjg2n2SdjAowYrVL0a6psmUuRtPu25vzzvk//uHIxfdK/4zqL8XvImvuzmS7gKu1WH1V4K5rL8Su4HKdyRz2lPNkKQDIySHvjvz/kZ9+8cYCBfBio0clxtXy4+KZEgemlhP5Y3PQ17d6ahO+0EfwKtsBEvEqCO7929ZxpTd8nsTAeVlDNWkyh7R+Itz5WXoBn3PYss1ba6omywLBlMTMQw8DMci2pNjZKFg2vWpXwsAlt9qlR/HzC9Z2VtTMKgiGT5GXszmQ3KBrpin0nXW+9lrkIAonVqRsJ/fD4l7oN+uETx31a9uvIIFw2dyEykOkbItDalZBHfBqqoMVU+jOjOhoGNaAm+J4wf8UokzbLsXMCixiroOaEHgOzTkhjWJeL0Cpgsd+ZhUPwQwm/mqibDELRJCJUSq7VkKt+bGmuyTWC/w/WSEOQQcdIyFU/cn1b+bXj9H3exdrN0VlBTC4+iabDTvGTu1gQWCO/SBdxgdeSKqwkOfzkJ5XzanzO9YDZrYf/ECKVzUBVXFVdiiHrMR5bUru5fqCxbg600Z8KL900SSblBqB74Xa698DYJT6V2Cs+pNdJjYL4CVW4AnvORLTkOsWCplP424TcrgDgyBDX/ptFyzFeJrZQkGSK2AHtw0PUt0PtvCdPs5/j/yp1fKNdPXD4/1nM7DwHHzxKLsxhohOoDipaLtstfh0D67/2HVc3JYns9TYXQRoFTSBB4CKCAkuAAT0WIezkLoJ4hi8OgJBvruYYAQ==",
+          "thinking": "Looking at this log output from what seems to be a game AI trace system, I'm noticing something odd — there are 123 steps recorded but zero verified results and zero verdicts, which suggests the trace might not have completed properly or validation failed. I'm also spotting a potential issue where the same entity ID (0_13_9) appears to be used for both a quest action and an NPC navigation in consecutive ticks, which could indicate a data collision or entity tracking problem.",
+          "type": "thinking"
+        },
+        {
+          "text": "I see a MemTrace replay tail, but I'm not sure what you'd like me to do with it—debug it, explain it, or verify the run? In the meantime, here are a few things that jump out:\n\n## Observations\n\n**1. \"0 verified, 0 verdict(s)\" despite 123 steps**\nThe compaction ran to completion but produced no verdicts. If this trace is supposed to feed an assertion/verification pass, that counter staying at zero usually means either:\n- No verification hooks were registered, or\n- The verifier is being skipped during compaction (deterministic replays sometimes strip the verdict stage).\n\n**",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 428,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1494000000
+      },
+      "id": "msg_011CcrhXt7vgcnYvtFqAg4m9",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 428,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 315
+        }
+      }
+    },
+    "response_normalized": "I see a MemTrace replay tail, but I'm not sure what you'd like me to do with it—debug it, explain it, or verify the run? In the meantime, here are a few things that jump out:\n\n## Observations\n\n**1. \"0 verified, 0 verdict(s)\" despite 123 steps**\nThe compaction ran to completion but produced no verdicts. If this trace is supposed to feed an assertion/verification pass, that counter staying at zero usually means either:\n- No verification hooks were registered, or\n- The verifier is being skipped during compaction (deterministic replays sometimes strip the verdict stage).\n\n**",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 428,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,81 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3525458a37f8ffbd4b43e4b8e77c740f261e281aa9503bafcea07550c9b220d1",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7129,
+    "raw_response": {
+      "content": [
+        {
+          "text": "It looks like you're sharing a **MemTrace compaction log** — a deterministic trace of some agent (likely a game AI or bot) executing a quest chain. Let me break down what's happening here.\n\n## Summary\n\nThe trace shows **148 steps**, with **0 verified** and **0 verdicts** — meaning the compaction ran but no verification checks or judgments were applied.\n\n## The Quest Sequence (Tail)\n\nReading the last ~8 ticks, an agent completes a full quest loop:\n\n| Tick | Position | HP | Action | Result |\n|------|----------|-----|--------|--------|\n| 136 | (5,13) | 91 | `navigate_to:gather` | arrived |\n| 137 | (6,13) | 91 | `interact:gather` | **gathered** |\n| 138 | (6,13) | 91 | `navigate_to:mon` | moving |\n| 139 | (6,14) | 91 | `navigate_to:mon` | arrived |\n| 140 | (5,14) | 91 | `attack:mon` | hit |\n| 141 | (5,14) | 90 | `attack:mon` | **victory** |\n| 142 | (5,14) | 90 | `navigate_to:npc` | arrived |\n| 143 | (5,13) | 90 | `interact:npc` | **quest_completed** |\n\n## What It Tells Us\n\n- **Clean quest flow:** gather → fight → return to NPC → complete. Classic RPG loop.\n- **Minimal damage:** HP only dropped 91 → 90 (1 point) during",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 418,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1489000000
+      },
+      "id": "msg_011CcrLui75veJYtQ8GRyfuw",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 418,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        }
+      }
+    },
+    "response_normalized": "It looks like you're sharing a **MemTrace compaction log** — a deterministic trace of some agent (likely a game AI or bot) executing a quest chain. Let me break down what's happening here.\n\n## Summary\n\nThe trace shows **148 steps**, with **0 verified** and **0 verdicts** — meaning the compaction ran but no verification checks or judgments were applied.\n\n## The Quest Sequence (Tail)\n\nReading the last ~8 ticks, an agent completes a full quest loop:\n\n| Tick | Position | HP | Action | Result |\n|------|----------|-----|--------|--------|\n| 136 | (5,13) | 91 | `navigate_to:gather` | arrived |\n| 137 | (6,13) | 91 | `interact:gather` | **gathered** |\n| 138 | (6,13) | 91 | `navigate_to:mon` | moving |\n| 139 | (6,14) | 91 | `navigate_to:mon` | arrived |\n| 140 | (5,14) | 91 | `attack:mon` | hit |\n| 141 | (5,14) | 90 | `attack:mon` | **victory** |\n| 142 | (5,14) | 90 | `navigate_to:npc` | arrived |\n| 143 | (5,13) | 90 | `interact:npc` | **quest_completed** |\n\n## What It Tells Us\n\n- **Clean quest flow:** gather → fight → return to NPC → complete. Classic RPG loop.\n- **Minimal damage:** HP only dropped 91 → 90 (1 point) during",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 418,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

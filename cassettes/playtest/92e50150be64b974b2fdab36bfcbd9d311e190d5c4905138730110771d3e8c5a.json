@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:92e50150be64b974b2fdab36bfcbd9d311e190d5c4905138730110771d3e8c5a",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9941,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EogGCokBCA8YAipAghIDBd6InS7zanEW2WzpjjT9YxyaiwiWmIabAQNQVeq9MM8h9bk7TdTqoFY+r2INCBxMNE/N6DqpTnUS1xg3lDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDH8cNRLvN5/+OpvtshoMWxFKCPtYpLiobfA5IjDw+hmSf5yTDWly4nr8/aCO7aKYwWKp0F1KOAWwGhVPOTZxa83u2PhUSMzRq7To6doqqwRHqtd/2ALy8nzpLCiCn/pncFDgub8vob3ClW6A33q/qk4Z1+ya1Ae0eeIEcpzzngP4pvCIyxJNjpmy8bqV7Zo79XPq66MgmppOUOjopbtCASynJT4YwSd0n3QHPO69GujKVy71kHX0ddEEt+/EhRcVMQz4oye2x8Ba8KqMqu46GQxh6OvfLZ3ohd9jCdv5Q8sKoAQqLXBeiS5AB/hJea8djJ75QqS23msVmRjDWnIcygk2iFNzVO98aKSWaTIWQbirB1fhDf294gil8li1wWxFiZDeCxqirTCeiCmds07X+pL3swC3BjbsSQ8PqaEWksjpZR/U11ldltwmgrZHqFhkgXpQ3SWWttnGooZFSp6JigIhw5HFhEzvsW3gL9/eWqcV6AN8vGaXwL0NVyUDtoghv+VD96vScPbxoG1EZFFSZ6ZOS9lGB+fxYwYkQeELjK8ZECxQwCn7t9YgjoJFq5EAsT1z8BKSC+5AndxPBYHmnSjTzPvXB/X7oXTxUmGF6HepU8qBPlgxZ7XjF6Tdunz24y2NAhx9TkQ37kAiWL9homkQHOce425vUglJp7VYJ3X42xk3d3obNSA2F3WhkPVaGX6cYHKyZAXvKK2RvLrGJY1G1BX1zFkCvXcy9PMyrzWGvN6AuYlLeP6yNRWKVEDkeY+IYTgxFGsRFuKVi6C4DfRBBnWRfiWDObqeRMeNsspZK7XdxHLSnU24JcnyECe2cDq4DZzfQojlOHQYAQ==",
+          "thinking": "I'm looking at a memory trace compaction log from what seems to be a game or simulation system. It shows 43 steps with no verified entries or verdicts, and the visible portion covers ticks 34-40. Since there's no specific question, I should either ask what they're trying to understand about this trace or provide some analysis of what's happening.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace dump but didn't include a specific question. Let me summarize what I can read from it, and you can tell me what you actually need.\n\n## What this trace shows\n\n**Header**\n- `43 step(s)` — the compacted trace retained 43 steps.\n- `0 verified, 0 verdict(s)` — nothing has been checked/asserted yet. No pass/fail judgments were produced.\n\n**Tail (last events)** — an agent completing a quest chain:\n\n| tick | pos | hp | quest action → result |\n|------|-----|-----|----------------------|\n| 34 | (14,2) | 98 | `navigate_to:mon:0_5_3` → **arrived** |\n| 35 | (13,2) | 98 | `attack:mon:0_5_3` → hit |\n| 36 | (13,2) | 97 | `attack` → hit |\n| 37 | (13,2) | 96 | `attack` → miss |\n| 38 | (13,2) | 95 | `attack` → **vict",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 421,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1490500000
+      },
+      "id": "msg_011CcrKezLcW78CR5FLerpUe",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 421,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 182
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace dump but didn't include a specific question. Let me summarize what I can read from it, and you can tell me what you actually need.\n\n## What this trace shows\n\n**Header**\n- `43 step(s)` — the compacted trace retained 43 steps.\n- `0 verified, 0 verdict(s)` — nothing has been checked/asserted yet. No pass/fail judgments were produced.\n\n**Tail (last events)** — an agent completing a quest chain:\n\n| tick | pos | hp | quest action → result |\n|------|-----|-----|----------------------|\n| 34 | (14,2) | 98 | `navigate_to:mon:0_5_3` → **arrived** |\n| 35 | (13,2) | 98 | `attack:mon:0_5_3` → hit |\n| 36 | (13,2) | 97 | `attack` → hit |\n| 37 | (13,2) | 96 | `attack` → miss |\n| 38 | (13,2) | 95 | `attack` → **vict",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 421,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

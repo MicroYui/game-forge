@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:54e90d64d90c3e02381aff5988f9e8cbdcc55f3e292a6ec76099c5367628c4fc",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2780,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpQCCokBCA8YAipAD1Y5Ss6O5GGxatqoczWGZaB5A8c7YkDbJPkHJ2521haJT0JKPWK8aOeNo4v2FG9pVbfcZovK+i8DErXhIqUFzjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIZScGbJ9cTdtjyDERoMG/L7vg0VHcjZp9bqIjDvhpe0LadkmQKxP+BRnMqqES83LvDGLzIkftE66+CukPaGzdPLtsIQ8qDnXwjnvJ8qOMEW6toeGL3j+czCE3ZtAcQSoKOCjnGgv8IANLIZNBWD2Ul0zW60dgFvO5baHYgmog8OQmaArPrRGAE=",
+          "thinking": "The action succeeded, so I'm proceeding with the attack.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_11_13\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3343,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 44,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1781500000
+      },
+      "id": "msg_011CcrfYRhjRrd9DfGcg1RHb",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3343,
+        "output_tokens": 44,
+        "output_tokens_details": {
+          "thinking_tokens": 17
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_11_13\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3343,
+      "output": 44
+    },
+    "tool_calls": []
+  }
+}

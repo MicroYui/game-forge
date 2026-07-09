@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9c891de264081008a45aa17a14a1c60049d1b16ec6deff6ae3ab705e96ed425a",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8666,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep4JCokBCA8YAipAqzpf6FVNnihTNNXnJv41Dc7aJSTwQXIScMDPCOaYGY5IJMah1cTCBSZPZJXt+A9nL41nWFCxWrEzxoHSbrAPSjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFr2v+FsASLAijMdZxoMWnTQDpUwi5bHoE/jIjDKfd/7BIVHJx+RlObzpFDz5mJ9jMz/L0nGKpzy5kTMtKo89KfmEmOs4wFs44ctjf4qwQdQpN9pj9mOCpQZQdnW6MEUza0jBDGLMuERs7jLsStHFDaORP/KkekO2D6965KWlvHfX8+jktWFABvxqmCSYUgXzrJS1Iad/2+eG4xpKTzdK0Q6BU6C6f0ZQO36amrm4esNf2ls9kq3CqAUSwTiIqa0clzU+j8ZwHtaq2bJtwojuMGBM0LmO+TTIQMhgmailk5SyY9JsFNnNKKR1q/Ua71+5RJyitSnzPFmayZpFDgqImeVdZ7UmghF5Ys87B6sDwkI5/1Hyl9HtpKexxedE94W/54adDE9NdLqO+aCtZ2e0GX7IKIxZ4eDW6rbcA57A/UO4d3rIyNgWuUWwCe1v+1/aU+nLwPcJ4Znqjo9lkiFKHSlr9IeHgjIT6ywZk+k7uqlmICSpH26bzLoiZjkYEmSNxVfLwtG4zMN+O5D/37Jx4neEb2UULs4WTlR/3GHhu9Fwn5Wi8FY3+vz0AG1fRxRLMzf8BtlGKVoixwXHcA1nq+TcXUCB6jgFgFjn9lXycLBN6DQh0w5HBd/Yuff6AUaAJR+Tb5G1GltOIztqxzYeLRmQTpT6dh2x+GUxZ6f005uKeRbeccXZ01972GX2SspXvnqu+Q2ApE/h5rVES6c3sIw16ipXsDj2DtbAwiUixFOJ93HuEegJfCVAvnJuoUW7SozYl6tDIpWnZh8CIYVvUPs6TFoDtO+SR0QIEUsDNDj0Kub7Hniw55yvOAm7h9pKyPiEle2v+GDpYSdWralcN4csjsOtbSS1gxjtXNWPvAxnw3/jhVsaP3XtWZHynVdkH+ZUB4ABpaFt8ahV50H43nQcZUHg6ql7jpcxGBhb9qF8jKKBe8b+7A/Y/7HoWnk+kw80wOYslM24FXMgjQDAlsr5MQdCuTVKJ72sDWHoF6QvfuhNA7EaCpWYtLVPduh+b2+NfCyeGysCuMrH9+iGXumROitRKxUM7KucQytAPDigTNw8NicTsYriGQNc5Vwtb/agitPZF3iCDjUkbV+USylxnQz2gww/9QMYL+1Y7QcbCBTF4Y0DD0LyjutHrl6JpMQJe4XAjJu2+tXIhr7CxCoshWTYQuagOgPGSw9jvQFJZmbbVWdmsR6G8rrNyaXSgDH8zE5sTiQuPNy/LhwxJYMsRW+xIunXVIBlofXARXg0GUjfp8+hR5IRsrV5HykmJAkGZu9jUMI6kmutaqZ05SdEqRKcw0p/l4q71R2IcyeyTAVsQl5mMHnP3XljZNBhaJJ/KiXNKxKowGTdA+Sv8jZ5akiheVr0FUxMo8XDlOSGAE=",
+          "thinking": "Looking at this game AI log, I can see it's tracking an agent's progress through what seems to be a quest-based game—93 steps total with navigation, NPC interaction, and combat sequences. The agent moved from position (1,4) to (1,8), took some damage during fights (HP dropped from 92 to 90), and appears to be following a quest flow of navigating to an NPC, arriving, and then interacting with them.\n\nI'm noticing something potentially off in the sequence though—the agent shows as arriving at the NPC location but then seems to navigate to a monster at the same coordinates, which is a bit unusual. I should ask what specific aspect of this trace you'd like me to analyze or what problem you're trying to debug.",
+          "type": "thinking"
+        },
+        {
+          "text": "I can see this is a **MemTrace compaction** log from what looks like an agent/game simulation, but you haven't included a question. Let me share what I can read from it, and you can tell me what you need.\n\n## What the trace shows\n\n**Header:**\n- `93 steps` executed\n- `0 verified, 0 verdict(s)` — nothing has been checked/validated yet\n\n**Tail sequence (ticks 85–92):** a clean quest completion flow:\n\n| Tick | Pos | HP | Action |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 441,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1500500000
+      },
+      "id": "msg_011CcrdUbUGFhQD3GAB5EWmD",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 441,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 352
+        }
+      }
+    },
+    "response_normalized": "I can see this is a **MemTrace compaction** log from what looks like an agent/game simulation, but you haven't included a question. Let me share what I can read from it, and you can tell me what you need.\n\n## What the trace shows\n\n**Header:**\n- `93 steps` executed\n- `0 verified, 0 verdict(s)` — nothing has been checked/validated yet\n\n**Tail sequence (ticks 85–92):** a clean quest completion flow:\n\n| Tick | Pos | HP | Action |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 441,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

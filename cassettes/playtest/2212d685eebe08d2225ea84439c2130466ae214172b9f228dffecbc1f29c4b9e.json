@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2212d685eebe08d2225ea84439c2130466ae214172b9f228dffecbc1f29c4b9e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3066,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpcCCokBCA8YAipAE1N3170oeUSUOsQhWrd/KED9c9whQHfl5rlp66i/lyEUMT3MTGA3ASttoNRZGLGCDSiNpzZ3lZwlBvvO2nFvfjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNYO9EPnp7LUm1r8BxoMXLnuX9vHJJEAmyjBIjAueWW6p/6giYIgBkszPYty0EUiFlTybOgY2J8JG3M1Kq1VRcjVNIT9PSwCfVI4qFQqO8knlDbz+7toGRZxsgYwWsrJo5NnfC3cbrUdii4gCXj78hATZQVg43UV89sfZz4iFUSuLPrahsNmiZERGAE=",
+          "thinking": "I'm navigating to a specific coordinate location and tracking that the last movement action is in progress.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_8_14\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3246,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 50,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1748000000
+      },
+      "id": "msg_011CcrafvVxdHbyyYWdJN3zA",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3246,
+        "output_tokens": 50,
+        "output_tokens_details": {
+          "thinking_tokens": 22
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_8_14\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3246,
+      "output": 50
+    },
+    "tool_calls": []
+  }
+}

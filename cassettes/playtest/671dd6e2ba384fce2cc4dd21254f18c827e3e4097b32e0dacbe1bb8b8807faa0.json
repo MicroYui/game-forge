@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:671dd6e2ba384fce2cc4dd21254f18c827e3e4097b32e0dacbe1bb8b8807faa0",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2674,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep8CCokBCA8YAipAPaMKAYC/tFto9q8t2gTI+3CpRgTmVP93deLS/XlE8PEtgsj9FfLDRq+p3O+ZWNwxnXIWfnr0YsFUeKSMK3SbYDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLX7JPGTeABV5PNrDxoMlig0/4VU1JIBtY1vIjAKrh2u9w/puk6TmuU+T0VS4Zo5XUVbiqBQyfOn5kGfPiObonETcdEzYOx+KNyIZ8YqQyXVv2XoopULAmZ42Dryly0XFn2z5eN995fGVo6btIatAcpEDTAqgR1NDbjBxGNA2pT/ymTtFx3dCJ6t35M8MGE9F0IYAQ==",
+          "thinking": "I'm still in combat and need to keep attacking.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_17_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3329,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 49,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1787000000
+      },
+      "id": "msg_011CcrDQhPZ8yfUaBVaQ8rnM",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3329,
+        "output_tokens": 49,
+        "output_tokens_details": {
+          "thinking_tokens": 22
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_17_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3329,
+      "output": 49
+    },
+    "tool_calls": []
+  }
+}

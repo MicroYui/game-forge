@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8c04a389c6ca97e6e1a45c2684bfe39a27dc98b4c44b573bad89616fbce9ab4b",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3608,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo0DCokBCA8YAipAR55oa3uoBmZLBdmBMJFKPLcuhOlDKdH+ZdAfoVtdvjpugWu23pxGKImWM3rS+chD42uhivtxICYkPA71TGgqujIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAP9HRBzQJ8pKySZohoMa55GN9dwY4vgIAj2IjBCei3I5KmP7KQLQnosZ3NOe7HTgAVIx09PCb5tBNh+PW3pdVzxQ5Qa/BuebZPfjmQqsAGyDIzukfoBGDyBdS1rafhELFbC2LOTQfY0PHQr2VoSmMQGfuz7Ywt+jnToGiOYvfH+rDwjMu1Z9Ik+YVU16bBnnzzrvuabGXeZWsoJ1zU+OahVBql+5vkQ+qWF9w7MetRTbhqAiNQX7TXQ9cw6ztfOcusO3+hVSaOm6G/XleZm26aftrtFiNQBKVfZxtczqvPocNYkQfoMwMlM/rlBCtUR5JRj8+JJgtO5fWAd3PyWVBgB",
+          "thinking": "We're in an active fight with the target monster at position (13,10) and we've reached its tile, so it's time to attack.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_14_13\", \"step_kind\": \"fight\", \"target\": \"mon:0_14_13\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3333,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 111,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1944000000
+      },
+      "id": "msg_011CcrBkEpxaa9hSeZqor8Ht",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3333,
+        "output_tokens": 111,
+        "output_tokens_details": {
+          "thinking_tokens": 70
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_14_13\", \"step_kind\": \"fight\", \"target\": \"mon:0_14_13\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3333,
+      "output": 111
+    },
+    "tool_calls": []
+  }
+}

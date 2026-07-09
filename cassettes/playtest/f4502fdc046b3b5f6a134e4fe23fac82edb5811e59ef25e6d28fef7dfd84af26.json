@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f4502fdc046b3b5f6a134e4fe23fac82edb5811e59ef25e6d28fef7dfd84af26",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5621,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq4HCokBCA8YAipA4A8qoDLK4X4iOjJbHYDIKTwoE0GEu6q83yO95Yc9KKka1IHCbJ2J/74NvAzz5eSxEZrs7qkHjlRXPUG1zbkQojIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDxKF55tMWuUvIknfRoMLFYYIoNsOZPnGkSdIjDpE9u1xsS0wtCLR2y4d9zeWUvGrKE5WyHreYNgnVCqzzjdndEFJljToZ8F1hU4jbkq0QWNw/o2IB6KDiZb9+PTiFVcFFL2kwQfI6i6OEFtKtvgUx3ssENkpPlTtaLeP/1iX5mCaJKHpGxYpQsFhZv9jxvJgVRf1Zw7ZgnHjJBSlXZZUZ7KOnsIivgN5e1To3ntu+XltWk/iqJNFuXw3g4lJgthO/HY3/o2Nbo8o7MUZ8H+wAzsZwkY1+SCkxh36mCteu11SGTAGqkOPVY2XG/lJg+cdUc93J+jho+l++IxAu28uOxmf7klUomW4ThocfWxplhmHupGZPT/jwoXgngg+P6vqDqBe6dDMA6JxNXScs4sqYhDSYGSN8szqoK2ooowRs8/Njx7oHcVPCpS2NIIRZqJawD7NRKoRqDHSbnm1jacc3HnHw1uPlnfHWRgtsTEEOL6pFGqsVsC84fM9T1x5TkU72ArlsznwipO9SUQBDGXp90crokY7kD5Hifbd9GiTGCcMA0dnyo1mIhchn29iM/k+yZ0Yu5uxfFSzgKpced4iDhTebs7V4EMaBVk06jnAbmVMM4C0kmqBfCI6w9nWZVNZxop7GVgrCpJWJ3u0QMshF6UMrCdCKnKdKodpQksXeoREu4MqUWb3KI3aPEp6X/1JunP9hcQG7rHEom+NgsvybOAm0eK5sy1k2d9KF0VWE4qSuvJGIQP4hpWFnjyhyEHarzGSW5avQCQFHlt8I7k6ee6i5GQyzJDbDqeE3Zs0RQc90qBefWZtQrnwRl1gvDQ7jVskxZAHjgHwmnYS5xE6abao7qkxwmFBXqxbouo8Y8HkwEIPcOB/oFY66cnnyFD6b5ULf/sSbGHD6vfSBx7GY1zvHwJm49cLgMD0PE0sq1xc0PD4Q+s+HBb6IC88YgRbx6sIYPgAnUU/Xsb3a7YNaUdQF6mskMhCnozXhLiKWO/foUYoD3L8HjbmcDkrifVWBHpEb+XcxpkdcOQggEl+nsBJb7R2ZmHWQZ9+TQe0JPZGAE=",
+          "thinking": "The current fight against mon:0_12_1 isn't progressing, and the hint suggests I should either target a weaker monster first or get a better weapon, but mon:0_12_1 is my only pending fight target for the active quest step. I'm already positioned on its tile and have two other encounters available to reach, so I need to decide whether to pursue one of those first or continue with the current fight.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_12_1\", \"step_kind\": \"fight\", \"target\": \"mon:0_12_1\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1909,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 310,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1729500000
+      },
+      "id": "msg_011Ccrfnokvh9FQh3w3jCuNg",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1909,
+        "output_tokens": 310,
+        "output_tokens_details": {
+          "thinking_tokens": 269
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_12_1\", \"step_kind\": \"fight\", \"target\": \"mon:0_12_1\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1909,
+      "output": 310
+    },
+    "tool_calls": []
+  }
+}

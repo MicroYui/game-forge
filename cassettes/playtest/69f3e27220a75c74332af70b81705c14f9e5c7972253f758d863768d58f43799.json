@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:69f3e27220a75c74332af70b81705c14f9e5c7972253f758d863768d58f43799",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8986,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EocFCokBCA8YAipALnHtH/NrHUGjagti/9QSQUsC6Vk5SpCIb8w9WmOcnuxQR05Q/36a7u8H7i1OgiAdLH3N83V+HU3U2JKs1e2T+TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHskItdSqakQa+psfRoM0xOFfoeLFL/9jb3SIjBerD4KyghOPBtGVOUZs+/4WPj+7sOuQmzKgZsIMFY4aOKlMmOHapPeHrwWJftlAfgqqgPrI5a3Pf7LMgEnLprsJM+7U6paAQT1VVwNRj6i4W4NSRueWRgDbtIemDCSmfKsRIF2nkGSXtsVeL5mlYvkWCQBrzVi0thKzbitgzWK4fIkK40MJXuZ2kndbNSQu2QHzauU9ACts+2TuKnS+pjmMScHNKIZDRnRrT7kjR6CwB6Ln7hjZ5+Vsp1IsSPeVKss7vjJfGURhKT6MajoGJg58mVfUjdTFzzMSuYfkxs0E2BPBm58G5CSK/UoI5B/2bLTlMotKgUTli/Gn1Np+hTKe+iGnxwhb1rMQAozLfqZdXGo5fb6hAcu4+z6FAgvuAJtLzb7FUoQfsO+TEDQgd4WDQPu2FXEop9+ldJ0sE5QYRpoBTz5ovsbez34w5DjextrgwgIF3Z8OE7WEdcM7+LO+arF4s6NLDqp4ufxMAGo6Ocv9525f+RNpKsrKsYytued4uIhupIq66bXth4Q/eIVnNcDkkfpgUoBWfEHrkPoa3cM15w6r7nSD9t09Up/K6S6eSOqRL4y6SS6dA3FmbaHg7swBTj7KKr7gZQuEoLmnRuf5E0pKHmWzz95qvEYAQ==",
+          "thinking": "The user has shared what looks like a MemTrace compaction log showing zero verified entries and no verdicts, but hasn't asked a specific question. I should analyze what this log indicates and ask what they're trying to understand or debug.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace/log dump from something called **MemTrace compaction**, but there's no explicit question attached. Let me tell you what I can read from it, and you can point me toward what you actually need.\n\n## What the log appears to show\n\n**Header line:**\n- `135 step(s)` — the compacted trace covers 135 steps\n- `0 verified, 0 verdict(s)` — nothing has been verified and no verdicts were produced, which may itself be the thing you're investigating (an agent/test that never asserted or confirmed anything)\n- `deterministic` — the run is reproducible\n\n**Tail entries** (ticks 122–129) look like a game/simulation agent progressing through a quest state machine:\n\n| tick | pos | hp | quest event |\n|------|-----|----|-----|\n| 122 | (13,9) | 89 | `interact:npc:0_8_13 -> quest_completed` |\n| 123 | (13,9) | 89 | `navigate_to:npc:0_8_14 -> moving` |\n| 124–125 | (14–15,9) | 89 | still moving |\n| 126 | (16,9) | 89 | `nav",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 424,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1492000000
+      },
+      "id": "msg_011Ccrain7WiZZNbmM683Xdv",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 424,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 138
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace/log dump from something called **MemTrace compaction**, but there's no explicit question attached. Let me tell you what I can read from it, and you can point me toward what you actually need.\n\n## What the log appears to show\n\n**Header line:**\n- `135 step(s)` — the compacted trace covers 135 steps\n- `0 verified, 0 verdict(s)` — nothing has been verified and no verdicts were produced, which may itself be the thing you're investigating (an agent/test that never asserted or confirmed anything)\n- `deterministic` — the run is reproducible\n\n**Tail entries** (ticks 122–129) look like a game/simulation agent progressing through a quest state machine:\n\n| tick | pos | hp | quest event |\n|------|-----|----|-----|\n| 122 | (13,9) | 89 | `interact:npc:0_8_13 -> quest_completed` |\n| 123 | (13,9) | 89 | `navigate_to:npc:0_8_14 -> moving` |\n| 124–125 | (14–15,9) | 89 | still moving |\n| 126 | (16,9) | 89 | `nav",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 424,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8b2a8d2ab007c4a44a5dea4e2a2e1663c48ffd6fb5a298e71f4e3f5123c01b4a",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8230,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErwGCokBCA8YAipA93hHAwV+mjRqPnPyH3e6JJplANUsEoDQYw1MUc1OJrG0UDs+YGIJwyhQAzeZddY6GMAAyTzocJJ6ysJNSULkjTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDet5YeZECF409ODUhoMgq4R0WAYvBjQy2RfIjC3nJi7Dd65yIFrMlPx515096i9W5Z0727b4EuGAh/gtI9T1cg3op688lrnGWyAdB8q3wSZ+c32nYlL7sa1vSwgRPH/5K2OtxNG/BHm0tmKUVlL/A35BAD15PNH0UBca8wDsGtNk9Ggmgs7hgYZx6YOgOqyFDsynOgUXoBbQIHqbBOMczC96Im4eGQ1wCMY/UU58wK94iJrD67WAuhQf00OmjleH55s/HECINmF+t1hQvpp577rtvPiUyOKa5Yt62WSSaSJT4b2/fbyecnvir5IhzAChyCQgOep5dARB2TinKDTYyADxfGkIXiwN+OLeArxAQktsFATadHB0UCBszOCsLPAzJhbP/1XimL9xHvzs8kkuQIvJL9IreFCZm2hdqp8qVlGKnsy+ghSOAv8DR5hU9r0d0TUoQK9+kpqVSHTQIO89PUAmDBskTwSPPYfiYoWSQegSotpMi4UjRlXnjsf9wygLNmPiSAYldjpLwn7fhoQKZZ3XikqLAVYkh9+JHrM3mkcz67jm308SmwGm+tbuHH+ioR+j7UNDzb5vcBTdyhfC3qKBBQQlb3/kKoLFhYpftaEHH8eSZl+tOvsGEptyC58hi0lSLipQGgo4cILDG6SQ+I74ZbuxVvi/toMsGzg2D6xKcQ+tcEOm7elddc+XNFM5W9NEJDV3p476RwyYp7TcJdB181wE1EdjJrOD8FaKoFm3kPAfyCXBZJJMoMiPV7DyW9zR9O1tvqOFuCvbfgrVGbltHqDxopzQC01zRn935VMSiTnkvK69M50ExoAkUsbJGEKO3qNZuIoSx0GGCL2iUShxIqKs59EltYYnxEqe5UWrPd3KoK08FanPNCf5Jq4t9v+gJSCLFdP5xoPO2NKGAE=",
+          "thinking": "I'm looking at what appears to be a trace log from a game AI system showing a sequence of actions—navigation, combat with a monster, and NPC interaction—across 91 steps. Since there's no specific question, I should ask what they'd like to know about this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** — a deterministic execution trace from what appears to be a game agent/AI. Since you didn't include a specific question, let me summarize what this shows and flag a couple of things you might care about.\n\n## What the trace shows\n\nThe tail captures a clean **quest-completion sequence** over ticks 81–87:\n\n| Tick | Pos | HP | Quest action | Result |\n|------|-----|----|--------------|--------|\n| 81 | (2,6) | 93 | `navigate_to:mon:0_2_4` | arrived |\n| 82 | (1,6) | 93 | `attack:mon:0_2_4` | hit |\n| 83 | (1,6) | 92 | `attack:mon:0_2_4` | hit |\n| 84 | (1,6) | 91 | `attack:mon:0_2_4` | hit |\n| 85 | (1,6) | 90 | `attack:mon:0_2_4` | **vict",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 437,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1498500000
+      },
+      "id": "msg_011CcrHH6YpmzbzBMqsA4rhq",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 437,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 192
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** — a deterministic execution trace from what appears to be a game agent/AI. Since you didn't include a specific question, let me summarize what this shows and flag a couple of things you might care about.\n\n## What the trace shows\n\nThe tail captures a clean **quest-completion sequence** over ticks 81–87:\n\n| Tick | Pos | HP | Quest action | Result |\n|------|-----|----|--------------|--------|\n| 81 | (2,6) | 93 | `navigate_to:mon:0_2_4` | arrived |\n| 82 | (1,6) | 93 | `attack:mon:0_2_4` | hit |\n| 83 | (1,6) | 92 | `attack:mon:0_2_4` | hit |\n| 84 | (1,6) | 91 | `attack:mon:0_2_4` | hit |\n| 85 | (1,6) | 90 | `attack:mon:0_2_4` | **vict",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 437,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

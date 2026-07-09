@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f3b510c3fa1d0d1688e0181caa22716b861b33b4874bbcfa7f4320733b2c24d8",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6100,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ev4FCokBCA8YAipASm2VaMUaqQ6bkwYRP7XhA+HuactI6sLpNzGXMMBxCsY6Yqkj7Lv9lb+oIdMRW1yLAn29ySSZNEqAfi/tL2xq5TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDA3QnsxFLKLydR/lNxoMiC5Ikcy5AOCDw9TVIjB7qzFKim9sBT9TKdstzcFuTTNZ7tc1XbrYNlqXRob/MiCiBnbtZZ32X/qu4/41WdIqoQS4PUCiHkOsvq7moEw8QDS8bF9fAR5UsWLvYAip6itXe8wD9ABwfvYIBraVC6QQd0FA/+Wml96Oh/XSxzm0T7wsEa2jnwHX1w4/gTpsOJzOWjoWhe8HRUQ4U2zWULmNQz82U+zkTVF4VDL5aQSPxh/uATQ5XR9uLJeMCGhN9141v5WBBuS4ZVUzeL5U+fK/DYMis4ONlxmzIbeeTRCI3G9F3dd6ACRAmKcbaV5Z4JnjTpmtNKoS2QuIGx9g35x5wVpIT7TU8fYjoVYGR++CC2nJwsbt9pmXMJsvwLZN8Nqk6Qf4j4AWhLLfJUZjx3u2sEdwoEmzJjz86unQWqE6Ph4D3OrVnh0AsD/AnNM2rtjWDDKpyGxnh94eAHSYrqwkrDgc2FTftz4vxlaqn3BNPKzPJgvaVzoUGB4heKHH5Iw3jsMc8V2dqlyzbk7s6VOd6tqHEwXdONCOytRoEfn3SJX9+oSoueDTLoBS7KrKgGzmrm7Bten3uAOcqOSTLgBsYCRcD7TNmUt+A1DoMQqFprXC3CWKNesWcrdrOOqDWfQ/vr9uhRLE5271ZZQIq/a0YPjNoF6vbbg7LAIHHm+PetoXI15HrO0GeERujipvIy678woA07AAxk7hYsEenk+XjIh2f1Bh/chhuN6PzSqdB71BqENY2BURYeVSoeaHFx/Xt+dz13aTVJ0nPJpE+NjzSwyO33q8rrNrNXKQ4Idfz+jswhgB",
+          "thinking": "I see there are no active quests right now, but I know about several available ones. The only interaction I can currently make is with npc:0_14_1, though the next quest I should pursue is quest:0_14_2, which is a talk-based quest. I'm trying to figure out how to initiate it since it targets npc:0_14_2, but my available interactions only show npc:0_14_1.\n\nLooking at the reachable NPCs, they should all be accessible, so I'll propose starting the next quest talk with npc:0_14_2.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_14_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_14_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2797,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 250,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2023500000
+      },
+      "id": "msg_011CcrAb4heDRFdwzgszFCPT",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2797,
+        "output_tokens": 250,
+        "output_tokens_details": {
+          "thinking_tokens": 209
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_14_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_14_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2797,
+      "output": 250
+    },
+    "tool_calls": []
+  }
+}

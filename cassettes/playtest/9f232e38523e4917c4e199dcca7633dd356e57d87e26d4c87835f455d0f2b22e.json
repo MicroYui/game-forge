@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9f232e38523e4917c4e199dcca7633dd356e57d87e26d4c87835f455d0f2b22e",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9543,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq0LCokBCA8YAipAla3MaGcy077c8XXYgWLxnTDVIVkQqXPOSddYDe5lfGre7sW81jFOOE2e8CZVDd5jit/8/djEfCjjZ+hbmIKbmTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFVs1NRXWCefT67JkxoMy3xc5wZxvQ97jjjlIjB0onSGurtnRnzlNBVSDohiONkIoMO3+VQkCOCAIXPwLlCX5lptFVpVShZWR+q2Me4q0AlF6TQFdi4FdfqYBK1i0YSs5VfCTHXXvyGPOliC8I6MFUrgRPHjlJjellORJqXYRzcSRb6MfUSnbI1l0CBeXcHLnnj6f7sJeThedsxYZEU5m5uic8P+musKDKWcazgfaNb41tOW4dpfNb6xhFI009FiLjrNOhbwVexJiMiXFZFXO+KVf3A5DSYJ5XuXD4n0iS6lMbr0KhWQgILvcx9Cv/SrK+AgHsnf7yKkzWQ48VrFKw1kYCWrwlssvqbCkIa8/nctXLOVfeviaIrmiolE8nZWXeF6tkggY1QI8u8iXPXxjILxvP9iohek3YNSU9ZFsEPs/XdFD6yZBzKY/QMsvwEeESbjKOdyo6gkW+/Yg9xgAgPe4/LFQ1md3AK38dYPO7BqxW1SrN7YfflmAuh/LgWnAoYEOh33c2ov9xDU+zoRPh9oOtCO5WCkUd3/o7ZLWMF1TjOZEYOW/F/rr56G7WJQNbKG7qercEK9W4o4NibfzZw2zpZ6rG1AeqRe+LumPFpUdEct/HXwTHPfnCV8wxCGfAWxzfKfHo5MBic7F9uwNCqk6Bq8r0J132X0drEn/2KttIoTf7MRQ3JMNxb4QTuJ6otn3s0mTG334Wdf98l5wd1aF1ozRq1OFwT2i8j6iLRwVg3Gy/YnMh9xZKVyG1u6JDJf/LLBS/MrBoR+YnGLjgjYFX34FKW1RXwSRS3iQA3nr5TDzGK7WYFFIup8aXt6kY1IcH0KniWPdBLqEiCe/3Xsd1t55MCEnGe3RHSmQdFJHZ21x46E5IJeGFnHbuEVxL1d/1YgtRpEYYZths82SwpoAJE3UDD52HV1STPwZ3rHLHKuIBnvqDHHW3c4fxi6ITJfxIvXwgNB7vVYnsMA2JSRT7WEAnpy6yWWPAjTIvbKVhIwIGhYkWFQik0ZK4F2nvIJLJaKAP14NWKENhinnYy3NvkH0XiguHsUmZHRf6KMUbvI1iTnYOMMQmikd2ODMZ39kccszxXT4xxtT32azWSXZqOO28IwCaP2P12gN5kRGIxjU0E7TMuVG+nwUG1+d1gXM4/XSxIczV08rdFYj4/arjRvi52rJRInRrlqhZvsT7d3ITwcjx23sUz8pbBoeHMYyFmD1CpZBKJFUO3uWDkJ0+aEG4v8ypy8WlPNtyrJQmOl87C7vMJbCgBS4E1r2r8naN/Qy3qo2i8Unvp2xWLys8Ri/FoMV38hP0522CxfH5Jz1gh0FUO5YLLx7EKm5WRHdH8syQzLxDOmGOZCwkZDRrCAMNa5pnKuFm0jtffZW59BPRcRAaTMt6ULSTomWsB0daqQ9OmyqamM3O+TmQMNbppAoBCNpMEtuYjKJ9UkvmeZR+qn7m6+zr1uzG5wCmbviCD3NWEqa6+hElCp73KSoMJ94qGXlzz79xWgvatbHb0pH1Ejo07f4MpNGocWW6r6ZmGGDr3POmvnzJ5J2YhzHkT6Jt1sp3iGJIgW0hgrPFn0ZaWBBcIwe1ndKxMagDSNfHmedY1yIKQnxaaMxfmWBXmC/0he2wpiNYHZWd9COEyT3J2urvgjygSZRoy1eveia/BhEWHQiRRSHLlviFuGG7nphrr6m5NiBjaCuDQHSBunwr8A6czDdKrv1D2tUiPpZ4nnJJauTr3Co8zYwRgB",
+          "thinking": "I'm looking at a MemTrace compaction log from a game trace with 142 steps, and I'm noticing an inconsistency in the field naming—some entries reference `active_quests` while others use `active_quest` in singular form. The anomaly appears across the tail entries, starting around tick 132 where the plural form is used, then switching to singular from tick 134 onward.\n\nThere's also a navigation logic issue: at tick 133, the entity reports \"arrived\" at a destination but the position hasn't actually changed from the previous tick, yet by tick 134 the position shifts again. More concerning, the same target ID `0_17_13` is being used for both a monster and an NPC navigation command, which seems like a data corruption or ID collision problem.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 421,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1490500000
+      },
+      "id": "msg_011Ccrr5wBYtPhJqfkGMDFzH",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 421,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 421,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

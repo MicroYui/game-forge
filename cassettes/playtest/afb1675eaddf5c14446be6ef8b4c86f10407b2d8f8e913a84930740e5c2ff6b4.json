@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:afb1675eaddf5c14446be6ef8b4c86f10407b2d8f8e913a84930740e5c2ff6b4",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 12255,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eu0GCokBCA8YAipAxXrIWiM+DIL8Ptas/0y2E+8fJk1agK/ePGeXJANzHsyQHEcVMDSHQTDLGJCnlHQXicoK5EgzE7g7jbniotc/5jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHJ0u2oJHeKOAo3UnhoMnKX7uERt/vbrG9HuIjBELHjP0NT4GMj7lk+QR/cmji6jEanV6xok/XrUx/JtB7VfY/EvewmOREKslcTLsLcqkAUd9lg/Ld/Hrqqz5c3mAxerEScsiS2IkLxkuvzlgPM9m4UlD/U1IUllKCTcdxN2/54GVbstyQrSwwGDHe1ad6gsF3VvUtdknH+yQhwA073pMGnLYUv9ereZCz3L3Z5AfNtMsPsN2+EdO8xgfgtoQDDJtKfpNu8bJBMGUp/aVWkA/FHUt/PFV3qoShipSWXMfVJAT6S7tE95o+S4nBzrzuT/mzhHdyY8WWG2W4S9ndNGiEUy1kXBcF75FBwaRn7oANj/FQ9SrtVjlzY7NzF3cK5I9BLxB4qIY8g4zcLmzBLHiRCF0wXVXUQ51NnW99HxtIayItnM5dkdwfZizwjTa37bRxroL86Be+WIEF1YgNB+bkPcI9wsQvf5KookVN3PVTGqdZBO4LGFnkJdNk7sch3SGi6QP8XXlKT71fvDelGKNPK4iUBqwQXG9HVvHRBV9bnS6RA/4ybbB/+kw10XlRqNcpgz9PmfiiN2x0k0OhLx7rsZCpe4jyrnYsfei4d2NSawe9lb6uOzClUwXA7zCi+NBRFSIE9o56NkFE0ZXy3oDJLc1h895y+GcfH3SSlRndbEVU465se66Ntlt3zuZqYPDaCfQFEr0cIXrqqkFsS5+21CUwAkRfMfNvODyAa9Wgyp93+vAHIUi+eiAjRa7XW3WE4CzXIAIqbqJxVJt3VZtxBauqxz9+2zMZWW3uTHuils0x9a7IdntKuDxaYAt3ZJ0ZgJ3t+jNnG4cQfd4RZ4jTURu/588Oodfo7y9X9+h4vsMbCKYLU+cv58x+d557JaHYWRXCG+KEfmVhjghGEvEpw+pUYtyFo5m/aoNZZ/1kMoX66Urot+IzAaXwzZX5rTwcf6GmSSvzPItbPHlxAbghgB",
+          "thinking": "Looking at this log output from what appears to be a game AI or reinforcement learning trace, I'm noticing some inconsistencies—particularly that the verification shows zero verdicts while the final state indicates a quest was completed, and there's a malformed bracket in the active_quests field that suggests the data might be truncated. Since there's no explicit question, I should clarify what analysis would be most helpful.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** — a deterministic replay showing the tail (last 8 ticks) of a 34-step trace. Since you didn't ask a specific question, here's a read of what it shows, plus a couple of things worth flagging.\n\n## What the trace tells us\n\nA single agent runs a quest chain to completion:\n\n| Tick | Pos | HP | Event |\n|------|-----|-----|-------|\n| 26 | (10,1) | 97 | `interact:gather` → **gathered** |\n| 27 | (10,1) | 97 | `navigate_to:mon` → moving |\n| 28 | (10,2) | 97 | `navigate_to:mon` → **arrived** |\n| 29 | (9,2) | 97 | `attack:mon` → **hit** |\n| 30 | (9,2) | 96 | `attack:mon` → **miss** |\n| 31 |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 432,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496000000
+      },
+      "id": "msg_011Ccri2hpNDQRUG841sdLzG",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 432,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 213
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** — a deterministic replay showing the tail (last 8 ticks) of a 34-step trace. Since you didn't ask a specific question, here's a read of what it shows, plus a couple of things worth flagging.\n\n## What the trace tells us\n\nA single agent runs a quest chain to completion:\n\n| Tick | Pos | HP | Event |\n|------|-----|-----|-------|\n| 26 | (10,1) | 97 | `interact:gather` → **gathered** |\n| 27 | (10,1) | 97 | `navigate_to:mon` → moving |\n| 28 | (10,2) | 97 | `navigate_to:mon` → **arrived** |\n| 29 | (9,2) | 97 | `attack:mon` → **hit** |\n| 30 | (9,2) | 96 | `attack:mon` → **miss** |\n| 31 |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 432,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

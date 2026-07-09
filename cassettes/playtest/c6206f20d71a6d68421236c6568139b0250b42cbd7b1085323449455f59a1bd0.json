@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c6206f20d71a6d68421236c6568139b0250b42cbd7b1085323449455f59a1bd0",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5254,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtAFCokBCA8YAipAnazySagDf6D9rpMgIXLxlsddOR7CmB8Z/eYwq5JXns0UfPSCm5TRFUHhYkXxLvG0SwFGzlJMQui48H1AHQ6nwjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGoBup6ETReAwmX3+BoMIE32BGu9fj2Ott2KIjBtFUYSSKDIpyzkGyt/Z62XKGHBy7xUJHmu5KkvgcNtjlgpBYs58hPT0s1kjMViD8Yq8wMEloV1oqZgQQJm/zbxGGUbaXTQSb0VObqFKuB4qkm4FAu8i/0u04c5dmb9UoRt6ulZfEuKgHKhpHvKVCjqf1hHTMyQs9A9FF0MCZaBXedTfAproI60Tk94D6wx2E7uqtRKjOGi3oLKhjKjc2y6NFMOGkq2wf3S/hvufOa8bw339U/XhWG9x8k8DfOIQPlZ0rF4M+S1pfYisoa20HWe8BLxRskNxUnF1VEUSCdtqZ3zWQzQ07DDfUpXwa+l+EdzwoIOPpsjFQRkHDd11t4qvfvF/jpKEBqGTZEQWuJVVb/TcDIkzIU7xF9U3ziaTA6NUZHXcFVj/SSFtL3He60wwrKHPg+5MhBy06XtAnfP1rlYxZZFChuJz9tKtKufVkx24HT/L4p6sNID/MMP+t1+V65D9gqoUA8Hcmth/bvxBpISWq3XCaeaTc0IosUcQAaiZQbT1Xd8+j00YIaEmCFGECZcM+IZy58J/TyD2EI3ThJ/IbZcjqtUd4GbjhutmbUputW9109qZCo0oppND+5zBUZF3SPMVlIOjL1zF/T3tWPmNY5KYOnDKI6AUD5YFhK+rktJqA63eL4AujIsnut6u/N+fMXZninVmGQGq2pA/zdXtRTKQyGuvktcVVXFHZu81lupGXhlqIbxuqPvXIJJQb+F13g3GAE=",
+          "thinking": "I'm working through a quest that requires collecting an item, and I need to figure out which gather target to use. There are a few reachable gathers available—gather:0_18_3 and gather:0_18_4—and I'm leaning toward gather:0_18_4 since it matches the quest index pattern.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_18_4\", \"step_kind\": \"collect\", \"target\": \"gather:0_18_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2016,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 232,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1588000000
+      },
+      "id": "msg_011CcrriwAavv6xY8JjWE9Zn",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2016,
+        "output_tokens": 232,
+        "output_tokens_details": {
+          "thinking_tokens": 191
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_18_4\", \"step_kind\": \"collect\", \"target\": \"gather:0_18_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2016,
+      "output": 232
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c4dbedec34393c883e87fdb70c93f34c6b630fc46769b7e4351cfb5d3f21ea8d",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 9100,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvQHCokBCA8YAipA1FfnVtssCDfxgsNCYt3bQV6dKJ2pEylRxBpsPzvXs7kXvfZdTfxcd6WhiEMMA4pYYxCNs+rdJpowysY95ZmF3DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIz0ewDfiZtEX3iU1hoMYC4zagSjSuRVVSTTIjDIaRG4Cv+PrEiRoFXYIH31Dlqt2vEts9Wr85a9fp6BxZ0F7U082oMA7Em211FLFsUqlwZgwFtz0YivL7J56g3PTT4rOptZdxWWFzPSOnc3hxnMXuqoJEWVzWAEZ1M5cNrxOlK6LaFFFOytValedfAQIBsBN+2WgoZ8jfmVvN5u+Z3G8OL12WLbY/wZCbOJBZE7l6wXhoSskBV8Hoe58b5cM6IQ7Dy8XgC7p7hGuW1a/gQSOQxWIQ46sLIHu4LKTXbJxjtVT0N9RoOb9Jp2BAMTZSfj83ooEsGGONPDDs0vLTcb1GolWBP4qPO1z99t4X1mhzNoqJh8/VQKB9zcapT1n3t7wg2jUR3y3myluAMZYrMFtsFSPq3/jztpTWU2VmlKNLYADDO0pUcmvCQiK1VvQWgBE8LTqiuBUGKMB4YyqcxJX6Kgp2yg9qUQQOLhWhjXYaHQAk83zyv6HhlNt5wUbI9OFlGsdWUAUT3hlReKbCNRh5nqI7gIumDCxhyzCNNQqpxOcAaYuInLwV6gAbes9JmJIHEjhBKS/xCO/I0DXD2rtF3kFxP0qNlxRJ7236K5ywKPgsEmr6ZYwmlWwVna+nFmXOjJqVQl0JkLItoNhm74piyGtOsUhAAAshgnMmvR/08rclCi6oNZqEuRHoW0o7NdAqmbmq1g7wtsOTu9+NLrsgqswqhEhM34B8UXfyi2zUhB6yYLufNYZgtp9n3UUlbb5z3jyrKMzR+zt5VdhysCDMYFQaqAJ58QDICxQ6NzLFVJuo7+5TU2tCjLy5DgRiERYuUsJ9AkwR9MYVPelZyXQYEXje+5zUTGEfVPylvAs/cZtYZvd3SjkOE/2Rgw5RmdKycjkNSj8vkQYmJRLqMD9R92cRXHQaHUcLhInop6N3UpZHz8cQE2rUAcSPpWrkySds5OdP0Uo1XjS6Xv+YStKfY2S5lLVp830aBb7YQEy9L79sEGr3AmVU9J/NR6hsJdAwbDrpET6I9inIJd6GqmMp86FvgCazGevKjLxOvEQcCvEiTjUlyurLHuHFFdtwQtT8VIwlEf5G+nMu8PZ3624XEB6g/MqKw0XP+SnrIO1a8psVp/aVWjrQuRE9Y+bKv5fGB8Hxf7HRgB",
+          "thinking": "I'm trying to figure out which quest to start given that only npc:0_4_5 is currently available to interact with. The naming convention suggests quests correspond to NPCs by their ID, but quest 0_4_5 is already completed, so I need to find an alternative quest whose talk target matches the available NPC.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_4_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2145,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 370,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1997500000
+      },
+      "id": "msg_011Ccr2mbokUNouek8jV88Tg",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2145,
+        "output_tokens": 370,
+        "output_tokens_details": {
+          "thinking_tokens": 329
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_4_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2145,
+      "output": 370
+    },
+    "tool_calls": []
+  }
+}

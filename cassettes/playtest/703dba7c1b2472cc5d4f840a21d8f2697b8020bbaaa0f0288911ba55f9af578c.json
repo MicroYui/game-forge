@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:703dba7c1b2472cc5d4f840a21d8f2697b8020bbaaa0f0288911ba55f9af578c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4006,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EowECokBCA8YAipAvCEF0LiNzbZB+344LQYdbvGmZRkbE8CK63ycxHy3jlejTqn1JQ/LGPIPHg2NUn5hRxGk+sMLhbo9eRLhyzlutDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEvBO0CEZmpgRezDuBoMJBNhpAoG39/HDE1BIjB7NCVJOad2iFMDD1EDJPL/zD/qTjZJYG7TMmL7Kg3Z9T4EChQfwViqHlu7nHKR8O4qrwIKGr1qCTNKEA2byQmvfR5uovTTjnO/Ce84yYb9qaX6eV1pWgHH14JXsQhV1X3nclCCwp/bli++OkvpcC6ZDJVeM7XOulCnEqWKhCUnQpCv0WjnyBdsuQiNwKmnU1178EXIJjyXYJwBe8Tqwsb6lvfOQP3RtRw4Sk8fyvkEniRfEMICNSjYNthRQKUeoSxyLGauFwjYOvnd4U4PizJDV5EcNh7LjrAK7d+FSqfXrYR8CKHwRtZsyi7EXdl/+Wxleo3qVS8bJa7haEaSjUcY98XpgKGT8HNdNN+YahVcQ0ZTrBEjKehFJXeyRjwiE6jlkGnHf2VRjecOMjfBQ5EjsQ6T5mG5k5Fepjfl6FH9afV86lG9S/5zCjJep8LDBBv23rA/UMjEyqJIANFHzk1o7KoYAQ==",
+          "thinking": "I see that the current quest has already gathered one item, but there are other gather targets available. Since the only interaction currently accessible is the one I've already collected, I need to move to a different location—specifically gather:0_18_2—to continue making progress on this quest.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_18_2\", \"step_kind\": \"collect\", \"target\": \"gather:0_18_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1968,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 144,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1344000000
+      },
+      "id": "msg_011CcrEZNNBeD6RwhbLXZUak",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1968,
+        "output_tokens": 144,
+        "output_tokens_details": {
+          "thinking_tokens": 103
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_18_2\", \"step_kind\": \"collect\", \"target\": \"gather:0_18_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1968,
+      "output": 144
+    },
+    "tool_calls": []
+  }
+}

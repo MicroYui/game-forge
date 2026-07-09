@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:54a2cea46470d172084aae98329a92365b0253e8ceab3c7a784e584d8f8a9869",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2490,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpsCCokBCA8YAipAB7UYxf2z5M9mrUnjLvn7gTYGn+QE5iT/cd7OZqmifIj042NQkn1/Aa9sPkCorPxVskFOmBLV3rnL2AiCfpf2/jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNjMmizTVNsFFesuHBoMQcBll8gaFJGcisgpIjAVPxhpKQj1/j5bALMv5aAD2ciht1QNmXmz928TRxChH7+Cee96JOUDsym/PbnWrvsqP/K4FBkY/8JAH7Ex7J8RuzzDwTTrHiZO4sAZRJxq09y2y2jM3yo91YBL7XikP6afta5iyeStAM0WIKryPNaNsxgB",
+          "thinking": "I'm navigating to a specific coordinate and continuing movement.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_17_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3173,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 52,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1716500000
+      },
+      "id": "msg_011CcrDLVHg6Qg37V3GcQJbY",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3173,
+        "output_tokens": 52,
+        "output_tokens_details": {
+          "thinking_tokens": 24
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_17_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3173,
+      "output": 52
+    },
+    "tool_calls": []
+  }
+}

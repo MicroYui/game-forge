@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a5d736f64862957409f94300a6a88085a78feae5fe010bf1c6e0520abde6a51f",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 10674,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EskICokBCA8YAipA3a83YAQfg2+4T1ravPArjfogjYaO4YZfPGRCXmx/se88TF9o3eLvuFUw+4exRxqBWVUJ4m1tSPYpyL9j8XUOzzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDE8kKMdF2uhGHVzGtRoM9OcLJ3c6+llUKkkrIjC/a03/I/bl5Gs6yz90st7G02uZBAjVl2BZGarA/CM9nkVOStoGhmVHCQKZlxbKvcoq7AY6P67fUapsvFZN5CvKl4XXuxzH8HeF/ruY9YRU9lsJ1rzxCelujgJC16kFnaAjqB4pgSLruDUwtmwIvpRy65QbG31oATsBeCYlEfY2q7LomRbNQkxWE3OOLdxESCuz8iLGs5hIfE++yYNLEWq+LJ6BIM6Y7XQq8ZKk1QSCwq7kci5AglZsKNGjiDu18tMfiT1frdfuV7jJjlHQ+B0zai4SXZ9X6SASE3U4EZin5PkPRhvKANtBK9o0nDBorFjrw2ydgAt4FflVzsi+ps6J+iv9JQtpuFo9+TzHF5lrEdftDNsJ43UdKniDTq3wsv0SQwRgVSiQNuNRfGXBQdmHaUESSzHEaRE+YUGGkgrfDgajJiBJBuK0fmTtwoXjU+1On4eDxDek3YhGZPFnFjTsiU/FuwiyWosXE4lESC5dIvdxwDwqmV3vkt4ad+Pvcf/y4OuRuRG8LnE0zG0FjR+DztYUc2z68vT7ybjr19+eQ6SxoqpfH/9mwvuer/Ka+W9jMn3OutIRDpFWmOZD0aOtqOn7OFd8g3Km/3dvNHSnPZ7+bU1tqDl/p1UVuNVClebAaZe9Cdt32bizWNshPhGJu2Fc2vhDkL2sid9Q52k+aSZDkH9IYP7S4idGTK6s0JJCGFfjB8Zrf5aiIg+vcIrFqRaUG0lJF8sAGiRN35vYoYXXOl1M0KZtBAuQWr4Jfhov4yRuUxH2UJKfAU8nvMauvB//QgRK0eFl+fb/32AaW/dBhy2z3efzXXnFwcBRGX4J39khNNJbvZYb3GUm945Xie6cKzP2clu4vop4YrAqBBT5PVFQ2CQ/jS9cMOjdXwITXEMJ6pTlnDmBS2s8MLq9MYFBYofW5ciTTNqPRhEO2AdnvOACvEZ/TjWCh2ZDj7glSQUjjsRhXTaf9Kvv4EHY2U6pyhCNH+JbfXBQBXmgHdKmatSkXZ4IzMW5I19C39XZruHyWYuGPCZScThT+Jo8QPAj9r0E7SsKVmnZaliGldx1b4mDPFNVeJruZHxYh4mkQ78Wjb4QeWdyas/xB/P2HSZxlZlPOI58p/U50MJd8IH52isDHZGUjKJ6og/LLZIjGpUqWthcY0Jb5hJ8Q/0vMOMQtQ8yhFM+c20DHtzODox4AQmweqbqrZHU5dbTIADX3M1XU5k/uvoiWs4cquAYAQ==",
+          "thinking": "I'm looking at what appears to be a game AI trace log from a MemTrace compaction system. There's no explicit question, so I should ask what they're looking for, though I can already spot some interesting details like the fact that it ran 13 steps with zero verifications and no verdicts recorded.\n\nLooking at the tail end of the trace around ticks 5-12, I notice something odd: at tick 11 the agent shows \"arrived\" at position (3,1), but then at tick 12 it's at (4,1) with both \"arrived\" and \"interact quest_accepted\" states. That transition seems a bit unusual—if it already arrived at tick 11, why is it still moving? I should ask what they're trying to debug or understand about this trace so I can give more targeted help.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction dump** — a deterministic replay/trace log — but I don't see a specific question attached. Let me share what I can read from it, and you can tell me what you actually need.\n\n## What the trace shows\n\n**Header:** `13 steps, 0 verified, 0 verdicts` — the trace ran 13 ticks but nothing was formally verified or asserted against. That \"0 verified\" is worth noting if you *expected* validation to happen.\n\n**Event walkthrough (ticks 5–12):**\n\n| tick | pos | hp | quest event | result |\n|------|-",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 444,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1502000000
+      },
+      "id": "msg_011CcrgAqEbBwWtLWS7cPTyn",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 444,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 316
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction dump** — a deterministic replay/trace log — but I don't see a specific question attached. Let me share what I can read from it, and you can tell me what you actually need.\n\n## What the trace shows\n\n**Header:** `13 steps, 0 verified, 0 verdicts` — the trace ran 13 ticks but nothing was formally verified or asserted against. That \"0 verified\" is worth noting if you *expected* validation to happen.\n\n**Event walkthrough (ticks 5–12):**\n\n| tick | pos | hp | quest event | result |\n|------|-",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 444,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

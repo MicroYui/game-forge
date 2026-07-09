@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2fb8cbf7a1370dc0975aa09fc8de7f4a73f6761f96bbafa772f945b8d3a2d6ee",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4221,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EroDCokBCA8YAipA5oFFNmBwziuoApV4EBWKrq1CUNX1yLn8/mEMD1+ISLakwjj37o1wO+8AlXOuXtLJGHmJsdhislL9sm8iBk5fqjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAbtcZ8nby6SlEIOKBoMP8okqlmw7U2RxkeaIjATfe0BVxADIPct2Z+XT//GEsDRsoAWE1igPMyLnSD+jIfD6oh3CopC5/TGfK8+pyYq3QGSL0ehqGLr1pCSwFwP//hIw7Wl+4Dd3pxXVX7Bnu1Lh9s9oazA8wmSlH0FiOlHZDpcq+oX3VOrL2HHmOa6sbtb1DlFw6+0XNvtHTlOiWSvFb23vt1ADYvE0ogv60R9Ble5s/wpaD8E2Tm5yrWjQxP2G/we7wJzmAclaGJWtauIbN3XnwX9TWE6hNBPIoe1NQW5kL93XTkNxj1S8HIVPZmfkNz+JHc7ymPxKbvdnNwCoc6FTi0fbf5Sp+hNvlv3bm7Yq1TqQ05G6Tu9yoxJ7jy9hlwTiKImw+6QhfcIhBgB",
+          "thinking": "The combat logs show hits landing, but there's no meaningful damage being dealt to the monster—it's either too tanky or the current weapon isn't strong enough. I should recommend checking equipment upgrades or switching to a different enemy that's more appropriate for the current gear level.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Combat against mon:0_9_3 is stalling despite hits — check whether your weapon is dealing enough damage or if the monster out-heals you; consider equipping a stronger weapon/consumable buff first, or bypass this monster and pursue a different reachable objective if it isn't a required kill.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 596,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 176,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 738000000
+      },
+      "id": "msg_011Ccr6gDc6GtXtgLs7w89rb",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 596,
+        "output_tokens": 176,
+        "output_tokens_details": {
+          "thinking_tokens": 71
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Combat against mon:0_9_3 is stalling despite hits — check whether your weapon is dealing enough damage or if the monster out-heals you; consider equipping a stronger weapon/consumable buff first, or bypass this monster and pursue a different reachable objective if it isn't a required kill.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 596,
+      "output": 176
+    },
+    "tool_calls": []
+  }
+}

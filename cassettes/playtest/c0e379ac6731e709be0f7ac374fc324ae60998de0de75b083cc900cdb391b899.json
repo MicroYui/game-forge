@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c0e379ac6731e709be0f7ac374fc324ae60998de0de75b083cc900cdb391b899",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8694,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EukKCokBCA8YAipAnLgQDJBVAqgJTn6cxbAIJd7I5l+z/hDnkPKhkjKNUpugFpTX2yCxtCWrcibi5JFSvChGMywTuVvLNRBQgS/E1zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDE21ZqoETk67te+OORoMY7KF+o+06CD4KWJtIjA9p9NqVGWru6jo5uoOpo+5zGcxYfj9iAudZbnfk+IDgNyITj9wLtHIZLLAVfMA0p0qjAncKrdFlwINLk1GO2JSoK2wLqVMVOBU8b72llz6mkaIXkp9zHDkLQy7DueibOlJDUFsZGfPZLQ3SSvYGnlW5tMfuVLMJA80xjrh1H/dS+fbfkQTa5/DRi1eOPcw8MIi92+kVqdRpV8P6aedOV/LxYOJDnpW9NMB49YFlTrWY6RJSUZH48bEMjT3uJ/ekrGNhrC0d0F+WJGMK+lVWwyqR63GBB+KIEgREGzNGefGShEXldsWVwBs7PPszf+Bx9SDLEtlFX9QyCp/WnjjZqHLbbf4BXC9uYGWEvujhljoL1qH3I/B1lEOwJB4ltqx5nTM07Ef5pVK6g6mfwhpG2w4omMvgeEia60C1H9rszW42bUN915BEDyFFCvEemUvbiV1wLsJfO/NO7+DbawE7LVN0+VYTDx/8mji2rKCNtzccHrYJrhtpBUq/FVfh/pziZ9Y8qdSVQUS+1PH0ykTYvsdIHexEHh50gD6l7b97AAFLF3zD27d3hIUdv/I8/CL9U0Vuk6PH8ISYsySb6cep6RiCwJhT7pzgH4tVv6PIdLU/meh0JwnqIPAsxc7w8Wvf/hcLOpMCnH0DlpnQ+y2Rmk26annNlIwacNXQgGv5x/PWHPpVWT1qx24iOi04nWkAMcc4lxYX0PA4Ik0u8RGrVnsw6o7LyNeGWxKZrBdLr51ekQ8yXNL9w6icha6srFH5zc+yec3VBuc7uW5ri0hoAGn2bk3ZPEZ7IQhs2VQgFPyPSe0FTqgdII778gNSwU+La4DCbpnaj5e0CK5XGmh7qlLUKu+IVhxh1R2Yqmg4qN/hHhXllFPUKk64Q1Vh7nBoPB6M4bqADWlSnWrdlBCrT9Cb6dMuQW+HNaREq8GVwF4qUJp8Jy55h3GyDqZT9TV+q3fHyedtIkJDCSnSK9vxJhBO0a6s9NqPkvqd+IGRguasfCx83SXnSdN05YVqp1fOjrXKMnxIzPCWDwlq/4Pk0ahaZ8mNxPWB3Isb1D44f01BhP3iAYFrqB35sALkUdwxIm68i36jvnflQR6+oefLIiKcEvVVbxhXSp7QVmjiJOiO7x6Y2aoPzn+ptflPzcbCah8/EZCz5BKzAC7zmvliI4k/NIvaPbND/hjV/c2Dqh78vDQ8xanbopRGqpBgK4h/Fq1IWhud++M75cl8y7s1NVmd/Zq8O3s2P1klD8bzpzWHsNsPx5kuBGrGDlWI0N//o0vVxuYIv6k3+xyjRR5UAFrLUbkKV3e+X9Id/kYthALEPATQuK9EdPE53UWxfarAclmCL9cbaBa2pvM8Fe+xvibi4gHz/NKKr9LwcwQ8N89H4xYstoJBpdF9eKtzDk2hA8CJxDvdT2ulV9ri9fvithT1ugVPUgxWG1LVBAQWdGQa/gHp7gYQ5Z0qxJaHPsRQzvXVIK2vpZSYCXxVGTxBILKV3SlhnbZ+99pQ/JaUERwT+vj9UvwzrWuPylqjlQtnnvNMIBf1MvA82rZA/4CeFKdpSM8l/h9SPLsa0/Dtg798XjzzocbuZM1qlncZJ6mxp969OPMilycUPs2VukJN3kYAQ==",
+          "thinking": "Looking at this trace output from what appears to be a game or simulation system, I can see it's logging a sequence of steps with position data, health values, and navigation commands, though there's no specific question being asked about it. Let me analyze what's being shown here to help interpret the trace data.\n\nThe sequence shows a character moving from (0,0) to (2,1) over five ticks, navigating to an NPC, accepting a quest, then moving to a gather point and collecting something. I notice a couple of issues with the trace itself: there's an unclosed bracket in the active_quests field, and at tick 3 the position doesn't change from (1,1) even though the navigate_to command shows \"arrived\" at the gather location, which seems inconsistent with the movement pattern where each other step advances by one tile.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 298,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1429000000
+      },
+      "id": "msg_011CcrHxTpqJ2EZzcqqJ7Ckt",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 298,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 298,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

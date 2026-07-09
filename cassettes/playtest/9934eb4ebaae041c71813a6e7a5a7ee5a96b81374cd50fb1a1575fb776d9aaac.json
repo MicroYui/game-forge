@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9934eb4ebaae041c71813a6e7a5a7ee5a96b81374cd50fb1a1575fb776d9aaac",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8535,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuEJCokBCA8YAipA/gD5i+6gYi+kxGhra1HU+V0f1orvMUNeQylpnUWxyfn2wMzJugn1zrEInkRmihANLv8VOI+ONZk5aGk6Ygc8VzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEY4IQCe4xqU1kMN6xoMn8i7x5utAP3w0bmxIjCegkMdgs2qLIaXqNx2wI5lKtiXcMyFMlzThOFlkl54osNGInBNlAQqtP8WtzFELCQqhAhtRX5t/8hZuUWC4zX1Xb0WLMTjnQIzqY52QQmNzec9tVk3uet6uGajfTe+QUOJ+VL/y2IGxh36HnM1C+E4TSfVbNB851UFEt69a50vY0QybwZhv9VFuLrQgpy20W6p9mcHve/jhfRVhsjeTDNtXVSBk6Mb9HdOusCU/hQ3cQ69zcFQouO2gos72WZqPp79J5/W+yuOOe6WwSlLj1mQPL5SK4Q5IjSW8z7yBseNYobKKNGf/YLyuQMEc1eP5CsqHpNkaoEJFUKI+mTAy8JY3qs6ge++oBO10eplMlIp7c7lnAUhYg/mO/+Nz95rj5LBN2z562YsMOpbuoWXz9ratDuruVse8CUmQbxWHB1Y+IzVoHaVGP+Tr4N+KBGGEe5AePZiAoIn7GJummCe1xnHJQHJb+uiNq7rpFAoVU986opFrYfUGxXXgt4WhIm36GDU4jvX7j7vKReE2xmbMUVBliZaTNfxnSm7YlBgHvy61DfR/FmNbHTju3LvOQ+7rnu/9+o5f74aeSSdKrDF5eY2JMZ92P1TVlOZEG20JnJr/qdJcVFPw/r7cV0zdq7Mj2elkhj9eFl+qCxkWtHOCRSSyxtMVSaijGhFObEj/hhIaSPylSWojlnY5/oUusTDKRgDPdCnRS1p7ZFYu2x5M52R++Jg6FFfQPl/XZJdUDx/s8XZGP7KXk26wriOmWphBYeKW3UvmoAHeKCYIARngcxSm7XAlvN/j+A8XVGRnAKOwmMmKvnXQJ6E09SRGInK9N49K7m/e3jHS2M19J2XABYS7dPUZr1+k/uIvdNArxmw/AmbSgIlpmgG2uUwAD+naQ5iAbXHSOShXOcjHSwpp+02HNAgEScBmVdRw5evr4r0WbyKKOEw2YZso/Wt1JDwbzv3N3Ba4jZ98Uqcx6WcixnLbpp663JWwqOdLBt5zbEZEdVY2Dnr6jKeoR4YzsIGnfvIDQ+nMNyPenRhRugw3NfZ4n4jNmP1h6P0SlXYiVMGCzE+FZU/rljmBcgNeuW15skdLKsp0kKO0BQ7QgAK2DfTKuEMufUfP9MW1RCVzN3jOmN03/nMlyMDgRhloSPT+ypYo7tUAVOElMj4WiUnmI9JsQbo0hCUqEpajPxBqWqds2gnDlgB8M9lKpvu4qL3+pfDh5k7TQJmIKsYbad5grfpIASHjiP0XsRxGRSZi9ci/AvnU/TrWYkl29/zfmkcALTw81Y3wyGBqMNF+2MMsvfTHIlq+FmCmnVR35E9JaI9TN8fYH5/eI2oWmdreDNcCyk7o1jIIMNhb9/inf22df+WVbMZ16/Sl8IaCP43Z9QpePhibh8TM4EOaFMn0lMtT7qou8Lv3rWyQ70cnSTBqKzY5HGGGuKpmxgB",
+          "thinking": "Looking at this trace log from what seems to be a game or simulation system, I can see movement and interaction events across several ticks. The user hasn't asked a specific question, so I should probably ask what they'd like me to help with—whether that's analyzing the trace, explaining what's happening, or debugging something specific. I'm noticing the sequence shows navigation to position (1,8) at tick 96, then an interaction at (1,9) at tick 97 with a quest acceptance involving an NPC target.",
+          "type": "thinking"
+        },
+        {
+          "text": "I see a MemTrace compaction dump, but there's no explicit question attached—so let me give a quick read of what stands out, and you can tell me what you actually want to do with it.\n\n## What the trace shows\n\n- **103 steps compacted, 0 verified, 0 verdicts** — the run produced a history but nothing has been checked/validated yet. If you expected verdicts, that's likely the real issue.\n",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 447,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1503500000
+      },
+      "id": "msg_011CcraJoJmxrdzXc8WWKjA3",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 447,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 384
+        }
+      }
+    },
+    "response_normalized": "I see a MemTrace compaction dump, but there's no explicit question attached—so let me give a quick read of what stands out, and you can tell me what you actually want to do with it.\n\n## What the trace shows\n\n- **103 steps compacted, 0 verified, 0 verdicts** — the run produced a history but nothing has been checked/validated yet. If you expected verdicts, that's likely the real issue.\n",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 447,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:417d6b60bf70e963400d442da4637854640e276e344fb78c164a0fc498434a52",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9927,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuAHCokBCA8YAipAkihT3La8roP16alzleGElWCbewt0IqVizqeEnDtRdjwSyI9RHw/SbtgsjBEZaN5jHAG/tNg7i7fDwGzNbhPv5zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDd/XLWusTsUZABCERoMWNNruyUSeN6hFnkTIjAUhGdEX5TF/I95jTqWQbEuuQmxDQTRlAKrDLEmriIf43k3xSPxJmtKMiwnPmTw+Z8qgwYQ1xFU5r88dU5TnGdcNTb2paQwiHyaK121mR1Dek7cN1Giq0zKa8zHTbKjgRQdk6ggxoBOsEPX1Mtq/UPMPmzmMj6+rzljms7r/Wuck+8Hdu8nlR5Jh2UbX9H3IFEj86VArYkFCbqQbSahBfrX8E39+BVWI0ni9VTcFQ6a0ktGApldjmh2Bi8ADcj92okBK5A/NRN2+uotU0KtT2kzJ3/nyFeb9zml/wORiE/IOfJQTvf2GEZjpA85SDxWmzAs9mub8+NTVQ9SF5s3IzIxdNQuWt2+eu6x/lNPeksqGf1eOmeKghtHZZIh4J/UOTGc+T7xDvOaCUz4eNZmE4ZibIBtDwH5/1a9htH/gOYsvb9IaDkpLjIU0m5BBSSUYw5BI9fn8YugDeHBKZy6ZyqjExDs41IXGmuZMr5CSMhqs+PnqACntxLYIKLMjPRQQXqIV8KtXfmb+miP5rii7n1ZLT0dIM8CrPdR4u3S7CKocBy95nFY5zpZ9HctuLuj8Lvsv6DAg9b3PY7hDZSJQJcsQw9BNR2Ou3t1CL1zmwlRoG/qjBMruvayjaEFWdXYdvQZZEWXnI4uqlrAckpiuP5wTlHIDRmZvZONt5E7JBetmNFQOATmDaoG+7X81CdR4K/E50iVo2w1xc23BeNEZtU8dFHl3KuC8libFgNFIdRaMABlq7f7HZM35ymOrJeggYuQ7W+lVVmC/kDZDXDStu7WfEcjSlI2M1jiY9hrIE82R1D9Z6R2NnQsqtJgETbns4u2v0jT775zrsJRnt8ngyZkAS0eotWgY1ZczNd1HRuCIyRDmR7uKqmsGt4uDuYPh3hFMuwlfkxE3dIBuxp9XkGYJQSGA9Xhe7Zn3aDmNyErKiPuP75JjiB0wT0TSCEsX4ChpQJNukgXtvvF5HjXr1plgDsFx/qW+xLIz9aejB+w00T67528/Nezd+qL0swlFcRG1i4vgb9+I0tiCfK2kvfx3O17K3H06JrhZw7FVNRCrv9psgO39iP2TEEht4xz3Hh8mW5tb8EYAQ==",
+          "thinking": "Looking at this log output from what appears to be a game or simulation trace, I'm noticing there's no explicit question, so I should analyze it for anomalies and offer some interpretation. There's an interesting discrepancy at tick=61 where the player accepted a quest from npc 0_11_9 while they were supposedly navigating to npc 0_11_5, which suggests either a navigation interruption or an unexpected interaction.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's what I can read from this trace, plus a couple of things that stand out. Let me know what you're actually trying to do (debug, verify, summarize, etc.) so I can focus.\n\n## What the header says\n- **63 steps, 0 verified, 0 verdict(s)** — the compaction ran and kept 63 ticks, but nothing was checked/asserted. If you expected validation, that \"0 verified / 0 verdict(s)\" is a red flag on its own: the harness collected trace but never evaluated any conditions.\n\n## Timeline (ticks 54–61)\n| tick | pos | hp | quest action | result |\n|------|-----|----|--------------| ------|\n| 54 | (18,1) | 95 | interact",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 431,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1495500000
+      },
+      "id": "msg_011CcreUGaaKWeqoCVNZi1go",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 431,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 278
+        }
+      }
+    },
+    "response_normalized": "Here's what I can read from this trace, plus a couple of things that stand out. Let me know what you're actually trying to do (debug, verify, summarize, etc.) so I can focus.\n\n## What the header says\n- **63 steps, 0 verified, 0 verdict(s)** — the compaction ran and kept 63 ticks, but nothing was checked/asserted. If you expected validation, that \"0 verified / 0 verdict(s)\" is a red flag on its own: the harness collected trace but never evaluated any conditions.\n\n## Timeline (ticks 54–61)\n| tick | pos | hp | quest action | result |\n|------|-----|----|--------------| ------|\n| 54 | (18,1) | 95 | interact",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 431,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

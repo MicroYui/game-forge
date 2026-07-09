@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:45cd4a690f387bc8b91115e3f35b51e2f3c1113c42ccc2441f21e18413c447e2",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9727,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eu8KCokBCA8YAipAbEqQeupo289OV3vD5MoEMhLXaHABlpGT71csWy8qGzdlYG5oVjkWzNurzaYYzi5ifo0mEwsdjFpXw9A1QvToWzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMLAymQl2v30pegHthoMsmSJBVhSBU7dg01fIjCoY0G3iFrIQPj/WbjmmFnpnmTai4Ht/uj04RVsDqfdv5eqr1kHtMhgcl7+2HeBX1UqkgmmXtS7T8zLHfAipRKrxo0cjKcUGD6iR0o7z4yJ2xuiEoL3K6FSkm4yzPTg7b765XvHEIV6sBaiGTMhTdPqKeQh5JW53uzsdxcTCYAjHg/O4XmqHbh+UFQsJ5UPGULTVt0bWqUKIvoKYSgAhNFS8ePbGkWh6A873wHkh5eC1xD75oZKTLcSFwM5Y19g2Gzvb1hjJ8DDGl+sKOHxguMsy6cwWeqkE1sojeQ56O0sB+Yqok9APE/3sLuWvDItb3+/GXtYWx7DJy01zzAqlxaA9UWDQnGbFxksQw2g6g+EH1GJbQ0NcvHQbsL36NCJlDT3fGXrgXfJTJbWjytN1nCur7JMJMGdGnc46OIL61IrDdLSvmJIfmtvRkqhXnnfyiYuD+2gQbKfYWx6GYX8UVJIBSTIUDChKyd97XdXtHZiVsCR+CDIt4UgIMvZ9HKZUpPD3K9YQFPIa86FKJRb8Zp7nfMlec+amcDONNfz/HdTX7ASGLREWW797dExdDf5BfE1f/+llzkaLdnJZZH5QLaFYNJT/WJAoRj2R8pMJoECcA5LrX3keFNd4J4zUN3LhXe4oDOPilhu1dLcqMpRM7UG87X8AKi60feTTZ57MSd96b0Nra0O9pSOxS8AdEr9RCyueuBsBodYSVXSMeY52YnbFcP2iT24UX8KAQ/8n7b99EXZ3TwVZcbWn6fn/Gz6zVFafVoBxVBVJE1PmDSiFw9ONFz/TI4+Z7EI1xhWaxsCXbTEkOwWeTxFq+hmdyOYeQrnmGzlPxCDUFyADq+vLhonURxXIwD3eSY69OXjmepqeBQG8Zv6xm7AlCNjkXoc4UhgjT+zJ9iDMfwPhDVj4kDAwSPyQh4cWYnzAbTcmpvDB65yxPRfz9+cQAf7H+z1C+DOpho6H0SmkAETiySJUi+YssdZvt6m70rhsfXEIfwI8UdHUh5QutNUaGB4BdNFF/DXQz7vAC4Lw8WScYAvkgHShJ6yAIHVneE/7/Es7Ttca/y3WMPAAv2Ip3ICfxwJoZSnqUPhAiIsxxqGRz50Gi6FXOoj81nx1xegSeTS5EKFpuO+la6uuNkW6IjrshLGi9qGDiQ+DEeoMZ3vLbx1l8UyBuAWaH7SsKkPSSRK4KoQIus8OLsTgfAE+k0ses03kBherjzdyfas5q4eHxqud5uKZalOUPRF1dznZJVH7wfq5vcC1ohJqZKN40Dpr2oOWKL9f3T1HrqKvMOAyeMlLam1HkJEjoF2db3G1znw5M5VH+fteSFc65QGLQCgfkoxYi9ZficMQzhWjjnT0xhM39lKvrmvomM1BBlMUTnCD9juuR8cxhrjgEPVHJ5wteBscdu/AoKj5mGRSVIFTqh5MF9xKIbs3xW+6UuiJ2KJpCfAJooxQh9ECgNy9QWqhCKjvGDq2T0H7lXrXZjncD0Yv1TTBHnhwzkw1svs3phNHfQyL/f8co3znm2RMyqIID+nsTedAMvDAifTD0hA9Zu2+ZL9S4MPWPuZ3YvABG23BfPQNduQC/JOWHFgsaBuoQtlgHRQgpXuQKwFhY2xVzIq5Vfo0+US5GkYAQ==",
+          "thinking": "I'm looking at a MemTrace compaction log that tracks an agent completing a quest sequence across several ticks, starting from navigation to an NPC, then accepting a quest, and moving toward a gather location.\n\nI notice there's a timing mismatch in the trace—the position field seems to lag behind the actual events. For instance, when the agent \"arrives\" at tick 1, it's still at position (1,0), but the interaction happens at (1,1) the next tick. Similarly, the gather event at tick 4 shows position (2,1), but the \"arrived\" state at tick 3 still shows (1,1). This suggests the position updates might be offset from when the state transitions occur.",
+          "type": "thinking"
+        },
+        {
+          "text": "## Trace Analysis\n\nThis looks like a compacted memory",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 399,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1479500000
+      },
+      "id": "msg_011CcrHy7LKhZZJQwdbZrZAD",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 399,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 493
+        }
+      }
+    },
+    "response_normalized": "## Trace Analysis\n\nThis looks like a compacted memory",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 399,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

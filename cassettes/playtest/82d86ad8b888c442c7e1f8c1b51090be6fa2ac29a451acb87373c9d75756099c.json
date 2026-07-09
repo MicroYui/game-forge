@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:82d86ad8b888c442c7e1f8c1b51090be6fa2ac29a451acb87373c9d75756099c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5705,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtkFCokBCA8YAipArVz3WdVrb5h37UcbG+rauQX40oOeygOEG1Dw6JJpkrDm81VsIlg7w/iytJaNSl1J6DC2EhnY/mP5Cx+HT3dsejIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBFByK/YZn/j3qNiKRoMImSZnpBGPIRI+EQXIjAQ41Vyvl6i5ekw7G/VHCDdAcRT8gzpmIduUbstizZye8QEMwzCwyP1PrIfrWPEoqgq/AN0JM/F5konvBsvJKlRttlsgeyke6MPM4CvOduFJcRI1q9rV8YtD2w+dywieoQPV54yKDv8Z9JZ+Cs4oYhmUeXwSF0DExk9FoRWwuMZcjUMMlTzNUUfbiZ0pDPluwrcENbRUrsPI8qOOIfR6ZGhjVxJYHBCbq+dmfU7iF3feqhYzzJiabPHjCD1bO7H+FMJSD+6Kd90XMi8QY2v+e9J2gRTycB0gYLR423liprMbVbRJngygrvcYvaYm/1i1Ic9d38EJbWkIDYS7Gxs8KSYKleKlLJN97Ud67zgmhlsSvERX70waf17SdBIVZ2W1kS/TrWuuMK+1Y5ypsiKLXy1vGorBcB3Dn+hYjL1uEaDWLKv9d/i1Jvit8dT8NBMzFViS0w0HT6SW+5IQwClzu5gM8SMzEt42bh8vr29lfBbJ2cuWuyBC8xskkFTEG0HyUxTpedbHuNg2Jg1ndfBER+W8y3nuqp1hdU+O8uW+zUIIj5S6xzVEVH9aoPAu88lf7Z50ygyOZAF5MXjvsG28ywIRUheHMyusMWVlC1Hx5JCAwbxz8QMMFFPRsKdg/zR5d1cuJZRl6RIKDx0XBKC72cipwWLVWZD9iiVH7u4BHH68S91LWIymYIKEqNySsDhd5HtiK55ZLky9OCXpjeFs4C1R6cFkumhEE3N/yJAiKvWGAE=",
+          "thinking": "I need to figure out which NPC starts the remaining quests since the only available interaction is with npc:0_12_1, which I've already completed. The reachable NPCs are npc:0_12_2, 3, and 4, so I'll try talking to npc:0_12_2 to initiate quest 2, though the interaction list only shows npc:0_12_1 available.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_12_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_12_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1829,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 250,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1539500000
+      },
+      "id": "msg_011Ccr9CMvDwMxBU93pW7HCP",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1829,
+        "output_tokens": 250,
+        "output_tokens_details": {
+          "thinking_tokens": 209
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_12_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_12_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1829,
+      "output": 250
+    },
+    "tool_calls": []
+  }
+}

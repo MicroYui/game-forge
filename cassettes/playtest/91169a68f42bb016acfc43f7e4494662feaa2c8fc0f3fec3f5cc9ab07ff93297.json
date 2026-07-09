@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:91169a68f42bb016acfc43f7e4494662feaa2c8fc0f3fec3f5cc9ab07ff93297",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7577,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo4HCokBCA8YAipA3rG3QpkjQl7UFx85jINPvNQdyhY9NLuwWgxoMAhYi9nLrZ6Chgsf0wf+dE0eYpOfIy1/Xs3yS6AMLJt5EvmXJzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLDl6GAQfAEwWk3VgBoMkX7E+4F8hCyH7X0SIjCqfCYj3vWofFedTEKrgXBrrPcr2zvxFWu4Q6lxqmK3qf6+XHUPDzWTvR+jI/K3enoqsQViaQ9G0wUn+T2ZyITwSf/rBZGFtNxuF3oBILJs2WYr7MVYLjpgbbHnUZpZBVrWUZTztlvoIOHZp/YWnMoHCouuZMA1ps54BCVvzJSBPMBrKEpgUK2eW+nJTttukyyXLdCZRXjbYtH4Y30aJL8TrwQnBv3e4ACowV7w6L5bxzbDqmolKpXfp5GCkil2VECbE3uBBpEHPstXPSYlgjOaXXczf+Zs24IxpYjKahjbh0l1Um4u8jrsm6AWD34TX6XLF6XWsAIZ8zA/SW2bgyOnSi1ZBKbSfxrctgXmsgus8pN3Ib+wVpYhf19IjdX+P+cskX/2WEc30TeqKwZE02h16fX0A0AWB/yNEvb2Kl6xk66Zi5reTCFurpIgTCQ7Rq+efShKBWouvxO06ZvcqdGm9moz8xhsZQMvSOv11akDu/wyOO7RYRPe0bLWz9lcwEbnkVLIgZrDJNZfxvGRPGuFSsDs53ZO3L8zwceE4phhxMbERgCDsLxrzBgHTUUyGyif9Xl03MUsDlWZC8HWztEyS0226i2v+aBxFAq8pEZ3mGuxPKj4CDbGn2qoeSDdQtyRW/1IKWhe8Eztcrc0DYH5wCan///gj+w5C/SRJSFA1zBqp0+hbi5JCl6Tr39Xs1WGEioHtJKEOHElNpPqkToo7ansk4G/ZUwQje8KVnabZN8W8NiS2DPKmZJFxCVgQeMaCXoChBJXaYFT0nKEH9K6bAY9MN+hFutR54UE/q95upOG8uzseRiSvDLoBrl+oWLyaNKuOyCOS1RO+IDGKFKnGih01FkSx40Je1MwQNkS+esWGTLyCCsr5GWKReOf1PmFmjQe0HNfIc3wUpS2paeyKwKzBbRCXrhpn7SIHCuxrEEH1LSZ94X+QV/qBk0NXGgGBr4x5/u/BGbwAU16bH6BeNsCmRgB",
+          "thinking": "Looking at this MemTrace compaction log, it seems to be a deterministic memory trace showing game state across 32 steps with position, health, quests, and events. Since there's no explicit question, I should ask what they're looking to understand about this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace tail from a **MemTrace compaction** run, but there's no explicit question attached. Let me summarize what I can read from it, then you can tell me what you'd like to do.\n\n## What the trace shows\n\n- **Header:** 32 steps recorded, `0 verified`, `0 verdict(s)` — i.e., nothing has been validated/asserted yet.\n- **Tail (ticks 22–29):** a single agent moving around a small grid, taking minor damage, and progressing through a quest chain.\n\n### Sequence walkthrough\n\n| tick | pos | hp | quest event |\n|------|--------|----|-------------|\n| 22 | (4,2) | 98 | `attack:mon:0_16_1 -> hit` |\n| 23 | (4,2) | 97 | `attack:mon:0_16_1 -> victory` |\n| 24 | (4,2) | 97 | `navigate_to:npc",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 444,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1502000000
+      },
+      "id": "msg_011CcrkpeArZ5ud8c4EXf4qm",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 444,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 206
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace tail from a **MemTrace compaction** run, but there's no explicit question attached. Let me summarize what I can read from it, then you can tell me what you'd like to do.\n\n## What the trace shows\n\n- **Header:** 32 steps recorded, `0 verified`, `0 verdict(s)` — i.e., nothing has been validated/asserted yet.\n- **Tail (ticks 22–29):** a single agent moving around a small grid, taking minor damage, and progressing through a quest chain.\n\n### Sequence walkthrough\n\n| tick | pos | hp | quest event |\n|------|--------|----|-------------|\n| 22 | (4,2) | 98 | `attack:mon:0_16_1 -> hit` |\n| 23 | (4,2) | 97 | `attack:mon:0_16_1 -> victory` |\n| 24 | (4,2) | 97 | `navigate_to:npc",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 444,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

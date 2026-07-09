@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:60596239e3ad8130ed82353740fe47c96f29daa5446423edcdf3529cbda64517",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7868,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq4KCokBCA8YAipAbwMVLVFdycDje8XRZY0emxPReMQWRdPAZWiFqqo6ykx7ZT3YK8CNZkEIwiDVsJcmCzlSQAyg5lozGNjMp4owZjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBuj/x4fIF9cNc3x8BoMLnZ1Aku93JaCgY+TIjBlzC2FZ5j4iF5VStCzDJjrwlBTno6NdEoteIIkJJat0OCp5Zhl/DGCbKfWqUCt8xAq0QjBlIAgRZvrd7LBziqW27u/3DysgDF4FDJSkCZyannLfCm4QAUl0E/TTJ1IMkmy0ZSD5qkVDqEEqJfrLbhqogndDuAehfBgPZQgu7YboJguxuI31lfAns28nv0H7eHMjhrj2yfZ49Vdg6M4eBtrM6RPo232W6DolbhGvTnXKQk/TqRbgtRkQIEBj2MaI9tF5GrDFkmMd6tTN/C7t4hFyY2cCXirzrUAjF+ZjQUftj+XjF2DiM4ZVoFu9hoKhtXoT7WsgXXaJmTsoprHXUxivwbsYh6IawiJH0fEZpG4MgC4mu7RZavdDAaJjnQJVt/5Z9G8BhZ02X/rH1DGslm8uS3/R2JVu5rr+FX7jGl3dUwB7fPB2OxuT1YSuE4LZ/GV6OzspgBTw/OfAqYdfpMpAMModUCE2iWWmDU2wnEaClzyY8L26j5i0hzDgjDvGHzShR5VzW0+Sdntri2hVnwXOKUzHJnMBG21sYbUyq9RV15fcR249ZqeCPoaetctAG198pbof3Li69LacoSlcf6R/fwiavHxV0aDyMQsud4ujT6nhsnZS3RclbmikGz+67zlNR6jAhGQZc8j/7C3NG44zihNXCIyELV4KLfv8LY28ZrfRYi72exlKD74/7pyHvHWTFyK2uSs0XUGA003RSrtYQjsQAB2CIHBV8KIyYCE2a3ATPb+BjNi8M2WDIPjZo1658IoBOECIFxanU8RpAQEVBzzH2aPxHZW/24RCjzBx4DUlMLAwP/04pZgH/7Ams8Tf35kSuVE57IlVa01JfSxt5zD/cfy72lqZISdrqD1J75gg6iMKqTQr2z7Turx4dysye5vgM4A7QYPHk+KU+Qjk2g/7hjosufu8z/YsmB31wARGwKU1rNzynViKLgJ1cuOFPgAvnKTGh4Ziqa1bSuRzEfbASav/7KYqqAus+XYIoc/CoQjAmfMs/A1fI7Qstqdq67invMMWIpczlZvScFYMi4mOAh1u7mNMk8+4hXlZEbKmCpO+5yUhxf+9mFQr7pen7YpAruODiFr4ztoFgloJPSDUMBB/SRBgOMmbZbfWdQHwi2oHtAk4oTNcXMrW8YO8+3mNGYhNXjhk2hJZPjiXrFlNzZUjgHTzaslgv2WbC3CK+YGnTvAESm2rbsugnnxc08S8dN7vXiwSGcw7N2jjcmZYMK7g573o3PZyjUQcTjuiwHj4iF91v4tXeOE0LCyPoZfRmFy53SLS/MVN/ljgXko/GE+bk2MeWepqOeebjbx8ufbctfissk850o+Zt9XJ27WxESrzUzs5Ddyihre9215/9DpwXhMs63LqKyfrjBgpUAMlXEXMMWyvlHNWl3/F1XpAZYuOrxnkiUISWBQAQ9pXFvS8kWZc/sdVY4ojlWAOYv3qa3F7xqljWrsHMnpTJ+21a/zlQ1kFgU0dHSYIuTTw2f7kNZRuy4phSFG8SrBhyyQ5VSYf/60xqYrjSXZmc77GAE=",
+          "thinking": "Looking at this MemTrace output from what appears to be a game AI simulation, I'm seeing a 28-step trace with no verified steps or verdicts, and the visible portion shows ticks 20-27 with some interesting behavior patterns—an NPC interaction leading to quest acceptance, navigation to a gather point, and then an attempt to gather from an already-depleted resource.\n\nI'm noticing a potential timing issue: at tick 21, the position shows (5,1) with an \"arrived\" status at the gather location, but by tick 22 the position has shifted to (4,1), suggesting the arrival confirmation might be registering before the actual position update completes.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 449,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504500000
+      },
+      "id": "msg_011CcrrYzt483uEB8V22gmTG",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 449,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 449,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

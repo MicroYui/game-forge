@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e6e448a22fb418529eb93e92a1aee948ba54dfd2f384c033e5798b11745f3c42",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7597,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EusFCokBCA8YAipAwO8lUqf2lPDLxFQPXEf7FyGXat9qGCOjUL3EsYjzfHjJdiqgY2Qtb0DfMU5VbHPiu0QMAAmIWbpnrtUa1W2kMjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDC58eyc7Vx4J+rmVHxoM71MVscJToXWSjsmuIjCUjaupbP+wWRzd9BJBXRoDQQgaI9toybaG7d6Wk7eLgmXRNGM+WCPY5tRaxOsPzKkqjgSCEK7Qm2ZlefGpZkwrwkuJ932RxIOuL5H9sdD4GmxPETqKqdYMjEgKNtOXAiiTMmyIIxoJdlSz/01+GHNwqDISwuXNGPFGeZBGz2Xv++NJ9CPvy5wkNBfzTyKsU5XZ3s8NNvupE8y1/SDSdgUQjg6dnyeMQ1WrgGuJo2IewNxW90IxCUoWoaQbgkkB+ft6X0lMbsjbmcTHARpXgXbdYnIk3yXra2wl4pC+nBUavIQ+DVPq2yny7y+8+IzF3nTHj7H29aLB4810/SLx7LAlqgwqYWq6YzaoC/DM2RwxY1N4xgN3dQpOZuxbQUe3W1LF4FeK7tbAbvgQm9W6i8zS2JTQjf2xyfcGSdhcA1ozc2ZF0OzIsV4H0K5chiGqwLLM8Nym9RabJkFz4rM4Lh6Wzbl//n0mUGlPLDXxJL0/m0xG1k0Xgg0yIywxOZ2UrOO5e9HVgpCOckbyAxPUgIc3XtJJs8xWWThR1L6Q0pPAGbq8ESTd82PRA5XXc9eum57Dh6PtGQ9sdDU7wY5ufDzab4Fkns/5WuM0B5mrDeHyIZGb/YhIXOB7FXGRbEnEnmDj6VxGq5mW51UVz3/yyNh+2+3CIEJoOmCzsepX3QddayKw7vHzuBs8d5mFs6u3oqOCXhXRJKfss+3b3iTrsiJJEcq6WcInnvyMs9S6VOR6Puf3/RyJ0pvA3D//CFXOp5lLGAE=",
+          "thinking": "Looking at this log output from a MemTrace compaction system, it appears to be a game agent trace showing 40 steps with no verified outcomes or verdicts yet. I should analyze what's happening in this deterministic replay to help explain the trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's what this trace appears to be showing—a deterministic replay/compaction of an agent's memory over 40 steps, with the last 8 ticks shown in the tail. Let me break it down:\n\n## Summary of the tail (tick 31–38)\n\nThe agent completes one full **quest chain** against target `0_5_3`:\n\n| Tick | Position | HP | Action | Result |\n|------|----------|-----|--------|--------|\n| 31 | (13, 1) | 98 | `navigate_to:gather` | arrived |\n| 32 | (14, 1) | 98 | `interact:gather` | gathered |\n| 33 | (14, 1) | 98 | `navigate_to:mon` | moving |\n| 34 | (14, 2) | 98 | `navigate_to:mon` | arrived |\n| 35 | (13, 2) | 98 | `attack:mon` | hit |\n| 36 | (13, 2) | 97 | `attack:mon` | hit |\n| 37 | (13, 2) | 96 | `attack:mon`",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 419,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1489500000
+      },
+      "id": "msg_011CcrKdA6gawEXJ9WpGGcn9",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 419,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 171
+        }
+      }
+    },
+    "response_normalized": "Here's what this trace appears to be showing—a deterministic replay/compaction of an agent's memory over 40 steps, with the last 8 ticks shown in the tail. Let me break it down:\n\n## Summary of the tail (tick 31–38)\n\nThe agent completes one full **quest chain** against target `0_5_3`:\n\n| Tick | Position | HP | Action | Result |\n|------|----------|-----|--------|--------|\n| 31 | (13, 1) | 98 | `navigate_to:gather` | arrived |\n| 32 | (14, 1) | 98 | `interact:gather` | gathered |\n| 33 | (14, 1) | 98 | `navigate_to:mon` | moving |\n| 34 | (14, 2) | 98 | `navigate_to:mon` | arrived |\n| 35 | (13, 2) | 98 | `attack:mon` | hit |\n| 36 | (13, 2) | 97 | `attack:mon` | hit |\n| 37 | (13, 2) | 96 | `attack:mon`",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 419,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fdc72afaeeb3d2e2f318755c18dbd6c675fa5841f8e1093a06186e51967ef579",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6345,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtcGCokBCA8YAipA2np5CN2qe2j79IbJRg3t+x5f1O8z6cfI53nqP/j56101MVGy0qnvT/kxuFJJkgPLWV9v5dowG5ek49pgVMbKtzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFCn5Udg6iESLrUVlhoMLS9sM1giuIpBjbY5IjA4OfFohJzvP8DeS9/g7RHA9FyIVHze8/0eEADVkYXQTk1Kxp3bYJ7VasUgjdwZCioq+gQHMlxqB6F2Qp9T5fOw+6nWT+dwlpQWohEuCsxSp996rhs8pxorcUOACmapB40ekNdvCV3fJWnSwHc40OOBc7Us7hWB4gPun89Z/rp0xrmldg40R6QlE1odBrluRdceyc5iMTgRf+7KcDipGtXMqbN6goV4mRlLF3JXONhxcp6Nkj1JAVqPydjCGIp+wQTBy5oYtqxE4M9I4bbMNcrp1Zr7V2BaDQKmXX2VLA5sLDUoN5WGd0KRgVvie5Ald7djf+JPMs260Tnp4IATst/PJotsxOtWsHzZOFujkCJbIfP0Sf70ojBxb6q9749wxl9F1EbXkajA0tGv0HmElC9qnhjF3ztBb4merb01QMDu2GufRhhtVNYr87C2EFzh3bAQ5RHUHTl9d0Poq8Saws3sN5eg/A6ONxeUgq7iCAKqxj0kDsclBwc1E/bDlu4NES13Gu90qY/7iWKWSdeoin93jMfst8Sjw2dTnR5tWDL82vnaO0H4cnW6K7sZ0UlfgM9dsHttNJFsufl4T9tLkSL4+WQTRGKHgACQbZkU6X3RG8KsM9Ynip0BRbJxPJhjSEBAvhAS4wkXslkll6oWk0MQdhGGD/53OTDnznXesSmkH7bxi6s8MjuO9Tk2YbPgDgo0Hf2inZh6iq8C1ukMiaPAGmza6TBeY+afEciebOjnLqlkHvtqOngs3Z7iPJywBl3RTZEu1DMNhvyUaTDyNezdAw/KI63+QhaBta8oBlOqKZj68jV+N3FKMGm+ODH+4FI9kqvOs6maDBgUykjrH42NVbDaYJOpek6XXINqXrq3i/DhttTajfl5CTqL6QFryeEg4s5KfTKfEq4fgHPEGAE=",
+          "thinking": "I'm looking at the available quests and trying to figure out which NPC corresponds to each one. The talk steps require targeting a specific NPC, but only npc:0_4_3 is currently available for interaction, which creates a mismatch with the quest options I'm considering.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_4_6\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_6\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2230,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 312,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1895000000
+      },
+      "id": "msg_011Ccr2xATpCbhgsVenJg2dr",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2230,
+        "output_tokens": 312,
+        "output_tokens_details": {
+          "thinking_tokens": 271
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_4_6\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_6\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2230,
+      "output": 312
+    },
+    "tool_calls": []
+  }
+}

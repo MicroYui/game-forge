@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e37c49be800aedab839050ed0caff45aea546978b22b789bfc54953f1fc9cbd9",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2651,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep0CCokBCA8YAipA3C4grCm/KgUmP3zXwQEMIL//xdGEphgoB6l779un4S6f31N3dmyKsqAoTmxG1dRdlqufIgSsbqI57U/nNHMRVDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOulyuEPEerArkS+5hoM0uvQNKDHWldwNJ3JIjBToV7idCMmP0b88eStp7rIqXgkQNXXhzzKjsLCM/tID0R1KX+kunhX92Ax008troMqQdYVG1AIoBu6LG6JJqcBixDKEAMPmf3QYrqbtn3vXJIU3HtiwILnvEYhsTMXAbkp8H3GGPm2nIoHBWJAN1WL1gEDGAE=",
+          "thinking": "I need to head to NPC 0_4_5 and turn in the quest there.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_4_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2505,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 53,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1385000000
+      },
+      "id": "msg_011Ccr2m1kPVppqSNdKJoskk",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2505,
+        "output_tokens": 53,
+        "output_tokens_details": {
+          "thinking_tokens": 25
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_4_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2505,
+      "output": 53
+    },
+    "tool_calls": []
+  }
+}

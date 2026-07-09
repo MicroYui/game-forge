@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:480cba6f17e2965d82d80b4012c3a3922b9e93dccabff8fa8b65397d3fcd4a51",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9403,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er0JCokBCA8YAipA7WnxRvh7Nrkyild/gUbUj33u9O4//DNgbb3UVPbBLmZ7347wSijY7yYpGMwp2X8lpUz/dF/xrYpPG+K8ZjyGzjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMB9cmAQrtCtQrS7sRoMTpqtobNYrETt2JT4IjD+TZaOb9zB+kXLfIiCiRJ8CjfgO9e4Tuwmo1Ghz9b7a+Mbc/eAGnozVwJpESIrjcAq4AecAHM8IGVM38tVtSWAHsUGkC/EnFN4tmc+WkLj1LGUTneLWDZkRJAWa7og4W7U9o5AoAgnRDUqqBFLmz0S87xbjFR9gYAJRkaDPUSsmM9n40ShBlELxQeCcGaCrabHgLuYD1P9DMfadK7gvf7YpSANhqJkQdjeYU+iDjFfVHJN6RP6aGrBI2DaaVEBSgmkfJAVZceqBHwNvh+0IXIiRdFo0B2TXj5utXrrMjvOhsc8MnclFMWOSe8tOeYZPu/MXDFPLf8cY+QRop6TD1t3TqCr7irWuNUTKT4aMGGSIg6fsVaIKY5ipOCT+Dj7a8c8dtRROIhYXJmAOcZaQJZ1/P9NBhrBStJcA09cAJVpCpvmLf+Uu+2r9WQ3L1uAfDbvVNh8wmfmrt2SuoClViOrmjVN8zQBvWF89xYd5yUyqTAT2uo+H7hcjSVEJNMW0jMgfffiiTpaB42PoRVX55UPmXnX4yN8hgOIGNX3KRbv795e2av/pQYWrrR+uHf94nDMyHjmwioYML/Qnkw3D9lSjHZNfKkCUt+l/xs0vITrVQ9nz2jkoCfQS7vZ855SfVYVe2R/UtY4UTyTZs0maF71ercR/R0qEOlP3oAgXHG8/+tymbb27iND1j+YcYrERmOg3xue+Pg83VSoxG/hjGMo1wOwc9qld7nU3pzBrKI2Gq0P5iWAJB6TF5Z6Fe39MH7GLQGLsMiFAAC4kyHBjGlPLmhP/ki+5BJ3db74uKjmGTS56ErvPhxAkGp2yj+rFQd1xRaf4ueIe109TcRp6s0wM7cNyGGugs5e17DF1CAvjirZJfRMDJYmdlYcxsM0TJdaLIpsLr3K46sgEgvIE3JaB8OgqVMZD5cwiSei5e0qzHezGG1TLYBL2MFzIc0Gd5/UGfXQqbdQ8OVsL9VJa0XDI0LUWmw88ALu+g7gdIYfbUY5fH1E3gz/m1PASrDwbbbkYTb0bN0C3FOldPqkKfsB2BKGw+lVCp9gmjsmam5QHFFpk0n7khSYiGEvzkQolnk9lkY6VKbwFojcKWBaOYKTdEPWpqoC0j2xHvWfnqfPITIFdYSe98SeQ7kkefZFo6kwaKdeWlcmk3Lusnq+lgZC8sJFScE/UqmWRia14nkKGBrK+Cob6UfQ2bq8FjB64Z626TpYs4UE1+5n7CJRMil15yJ3hA+og20v4SgrILZwXhK8tRYgN7bBUX1QJfUuVDPWy59EOK2pCo51xKDQbK10ZV71q+6Ea3rCgAlb6/ZujevNUCE8S88LOHGFM+XVRZtLd+DLfMZ4pCcCXg3+RhLwp0sUEwKYJZwnjupXDOZHOky3uhgB",
+          "thinking": "Looking at this MemTrace compaction log, I can see it ran 126 steps with no verification or verdicts generated, and the tail shows some agent behavior traces. Since there's no explicit question, I should probably ask what they're trying to debug or understand about this trace output.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from what appears to be an agent/game simulation, but I don't see a specific question attached. Let me share what I can read from it, then point at what might be worth your attention.\n\n## What the trace shows\n\n**Header:**\n- `126 step(s)` compacted deterministically\n- `0 verified, 0 verdict(s)` ← this is the notable part (see below)\n\n**Tail behavior (ticks 116–123):** the agent runs a coherent quest loop:\n\n| tick | pos | event |\n|------|-----|-------|",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 432,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496000000
+      },
+      "id": "msg_011CcrjDn149L5yiLjZvubRe",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 432,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 328
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from what appears to be an agent/game simulation, but I don't see a specific question attached. Let me share what I can read from it, then point at what might be worth your attention.\n\n## What the trace shows\n\n**Header:**\n- `126 step(s)` compacted deterministically\n- `0 verified, 0 verdict(s)` ← this is the notable part (see below)\n\n**Tail behavior (ticks 116–123):** the agent runs a coherent quest loop:\n\n| tick | pos | event |\n|------|-----|-------|",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 432,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

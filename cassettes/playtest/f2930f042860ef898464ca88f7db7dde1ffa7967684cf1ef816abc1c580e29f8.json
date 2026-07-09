@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f2930f042860ef898464ca88f7db7dde1ffa7967684cf1ef816abc1c580e29f8",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4453,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EooDCokBCA8YAipA1JNBIIQnPkn0CGym80tlsK7Z3dTz/kMbgIUBi/MjUeRg+MVHeL3EpxXgjn1F+hVNi/LLpRVTSfPLbHNyamt2GDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJt1QAQXxY31CZ+BnxoMgS8sIITNYHIjlWZKIjAn1HpFyDm+OkUNcaPLW7YM24mOs86OYBPU21Mkn/2Ax1u3+TarKMb5zk/q56jIEhEqrQFF324qCHzlJHJtiRpFV3FJY8MXe82jou0545I3lNmKsNdu4epzWOakIyMJy6iGzEaYfJePcSrHaUkUPSbp2wf6wQ06nbrT3Avflrhy6CJDa+SbQ8H4aCTjWirrER2A+aLrkWBCxEUmjjoZr1C4t15NjXxJgU32a6IvFoZl8zJiHENlx9eiTrGydLJkM4wdcOXgLIZPf3V1H8MU9QnH3ShJEJsnbFXRPx0hNAnNIRgB",
+          "thinking": "I've got an active quest with a turn-in step, and I'm holding two copies of the required item. The NPC I need to deliver to should be nearby.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_17_14\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_17_14\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2886,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 121,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1745500000
+      },
+      "id": "msg_011CcrrBL7afF2pvuX7xZd6P",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2886,
+        "output_tokens": 121,
+        "output_tokens_details": {
+          "thinking_tokens": 78
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_17_14\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_17_14\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2886,
+      "output": 121
+    },
+    "tool_calls": []
+  }
+}

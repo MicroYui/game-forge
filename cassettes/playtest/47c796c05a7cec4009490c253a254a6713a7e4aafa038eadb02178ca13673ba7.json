@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:47c796c05a7cec4009490c253a254a6713a7e4aafa038eadb02178ca13673ba7",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3047,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErkCCokBCA8YAipA3USm8qvy1GBRdPUj1mzUvfoSh9sxU8w8GShb/8nO6/suSFVwaSuOphrUqgPhTtXAYqAST8PKPNSu3WQoiw+8BjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPjkFos7ej8vor/YBBoM2X0riLK2s2ntELhLIjDpDexPk2cihxl0vCdqmx8NkK5WdIjo9UW8IGUNSzpW3atrnuN5ZPUDPFOR6HZJlDcqXaxk6mNj1CP6EGnjDIQmZMG7zHUdQc8XwTv5DdDojVrlHmK3tIOwlQOfbBczYUiB/IIL2o1Upv7NvFDMVNwjHKpO/I0rNglvDkUIa4Xn3FUIiPBltPGAFgncHiOPxhgB",
+          "thinking": "The last attack connected, so I need to keep pressing the offensive while I have momentum.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_19_12\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2905,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 58,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1597500000
+      },
+      "id": "msg_011Ccrt91stkEDcw2weQXYYg",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2905,
+        "output_tokens": 58,
+        "output_tokens_details": {
+          "thinking_tokens": 31
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_19_12\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2905,
+      "output": 58
+    },
+    "tool_calls": []
+  }
+}

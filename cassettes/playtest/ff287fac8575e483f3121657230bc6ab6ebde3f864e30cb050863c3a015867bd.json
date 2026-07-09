@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ff287fac8575e483f3121657230bc6ab6ebde3f864e30cb050863c3a015867bd",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8523,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtAECokBCA8YAipARYnUIt12XkC+dKah4OmR34UwzpH3m4Y07vj9DIcgL7jijFhwdMgWpRXz3in5WhMKbel3h62SR9gM6beEE3AF5TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPPrTcqs2+TuHZk85BoMveidGDhwp/mTIqa2IjD9eSzuPSGLLUmBaZfXCu7LxX133Q1PZg7Ckru1PoyXk0yrQgn7VpeEuBhcvC3HzdMq8wI9rm6jsvQlwZFm5ZvkFVmURXI2e386GH4VqUbRtANSXPPUcVcFp8rmkQIZ9mXwuKqyCc3B7SjatIA3ZeZsgCJH9Zc3rZsKRl4NrxNMx9L+rc2VvSCENgp/4/+lmdVx+we+hQAk3oENrsj7SRlHhWVdEH3KzklK8AaEJzaE3ZN/TqVC5Z7/smoMwdn8ypWbPA8xzvDmapEGPuMrnyYtkpnoMiq0zw5vxdpGwbq8T/c9Kq2eIoFQA8aA/pw2O/SgqppJ2p2yEaSEfS7U8HAHQcEPzA8U8FCk1RvJpyqI+x/EXtnMToYWdW4Df5oUme4HgitevsScWjpNwpiTJkzfcaHTr0oEOzU+zxBTf5jXQFReroJnbJpXLphL6cbrzgHUU6cUQgXrsI8FvHmfvSg6BKC+lWATD5av8zZKk6USdFB+VN/AtXeJ0+nGRhbmXK/7hm1KtZ8mTz4HVE7Jk4KQQ9QUgdbIPpr2J7q3mDmHYbe9PDWf3BgB",
+          "thinking": "Looking at this log output from a MemTrace compaction system, it appears to be a game agent trace, though there's no specific question asked. I should analyze what's happening here and offer some interpretation of the key observations.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's what this trace shows — a deterministic replay of an agent completing a simple quest loop over 8 ticks. Let me walk through it:\n\n## Timeline\n\n| Tick | Position | HP | Action → Result |\n|------|----------|-----|-----------------|\n| 0 | (0, 0) | 100 | `navigate_to:npc:0_12_0` → **moving** |\n| 1 | (1, 0) | 100 | `navigate_to:npc:0_12_0` → **arrived** |\n| 2 | (1, 1) | 100 | `interact:npc:0_12_0` → **quest_accepted** |\n| 3 | (1, 1) | 100 | `navigate_to:mon:0_12_0` → **arrived** |\n| 4 | (1, 2) | 100 | `attack:mon:0_12_0` → **hit** |\n| 5 | (1, 2) | 99 | `attack:mon:0_12_0` → **hit** |\n| 6 | (1, 2) | 98 | `attack:mon:0_12_0` → **hit** |\n| 7 | (1, 2) | 97 | `attack:mon:0_12_0` → **victory** |\n\n## Observations\n\n- **Clean quest ar",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 438,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499000000
+      },
+      "id": "msg_011CcrfcFtFTLuYyKVJF3piH",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 438,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 110
+        }
+      }
+    },
+    "response_normalized": "Here's what this trace shows — a deterministic replay of an agent completing a simple quest loop over 8 ticks. Let me walk through it:\n\n## Timeline\n\n| Tick | Position | HP | Action → Result |\n|------|----------|-----|-----------------|\n| 0 | (0, 0) | 100 | `navigate_to:npc:0_12_0` → **moving** |\n| 1 | (1, 0) | 100 | `navigate_to:npc:0_12_0` → **arrived** |\n| 2 | (1, 1) | 100 | `interact:npc:0_12_0` → **quest_accepted** |\n| 3 | (1, 1) | 100 | `navigate_to:mon:0_12_0` → **arrived** |\n| 4 | (1, 2) | 100 | `attack:mon:0_12_0` → **hit** |\n| 5 | (1, 2) | 99 | `attack:mon:0_12_0` → **hit** |\n| 6 | (1, 2) | 98 | `attack:mon:0_12_0` → **hit** |\n| 7 | (1, 2) | 97 | `attack:mon:0_12_0` → **victory** |\n\n## Observations\n\n- **Clean quest ar",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 438,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

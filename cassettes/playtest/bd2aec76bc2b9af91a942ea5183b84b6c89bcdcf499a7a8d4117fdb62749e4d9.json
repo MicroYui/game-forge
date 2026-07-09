@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bd2aec76bc2b9af91a942ea5183b84b6c89bcdcf499a7a8d4117fdb62749e4d9",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7582,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EswGCokBCA8YAipAflLoVuC2s2BZf0f2dD8+d2cl48upN81vZzGDpcdDvRj7s5KilaQs7h+kj9Nmvyod8wrJo33BRTojsq3Jr+hPLzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGwQvgS9StqTAKSjqBoMohXEnaZyKTcXJ0uGIjCzfO6ysY2pdG8ZuiREKOIosXbzNXlbn81HMlOwC7Jtv4hEus9UD7aGSu/FPIHcsAUq7wQZK7Ao+sV8JDnanFB0UdhxtkSnIVns7KPKvDt3NHHWsM+wfC9b2Fx54TrOS/BqdH27KxC5hbiqs9+ubP4+d9HZfLHu3WMhkE9DZPBTC/AJ2wu+XMgzvNSWAQ42K6BZqhgw91OjZsCCYLDBfLNo65Eliaq6JzeZ552AYMnGZIFu7AlUrYnfHpHAN+JSZ9jeetYaWnadnLM3VVYZ17DDrT25a0S2QQ4cBYZ5GhIJQRtNgZJfuSidkeS/0cQUloYtxQgFwRFNZJ/HqMs+2qgIKOnYBlU8lWv7WJGzlsIxJz9rKwQLsfHHK6XOa9TG5ZEOV3UD4CawGPvP1y075KFf7veAxHIYEIhwgnv75cpgdi+0sl63wBrP8WZco9jI8zoSrU4U7qZ44iprjZOP89nboNm1KHpC94s0HEsMTvnzwZyMMhadYSN/CKwx4Gb1rDq5B6zS2FtGOm4fBfQdfsYExMQLgpKWeM3YPNu0/HZZUkKwXCdpxeAc1XvGp0U2XYjMjFbB8AJDRdHzusSHxutSd3bTyyE9VSbbyqcqEWItP61WoDugE3AR2DXeGrSlPwnRxhj95F/N0+ytokseVAZGFPBJdhWie8e1HyymqZ4WR5yZ+KEsE82L6KVqIEB+ntIumuk8Uj4wdfqWLelCupVlbfxfw9iFe214wqTn/2XkAi8lj51FMMleRHD7XL07i1vJyHJwzpstLsOYEffTI80be6Jh4FUBAmP5QOa1MFHgGb7valm0ru8bkP09mewUWI+lmH+4kW6p+CC8o+etMchQkC5g82QQEvbXrRZiS8yg+illbm236RSUONk1riqA6qh4zRgB",
+          "thinking": "Looking at this log output from a MemTrace compaction system, I can see it's tracking an agent's quest completion across 48 steps with no verified entries or verdicts. The tail end shows ticks 39-46 where the agent is navigating and finishing up a quest objective. Since there's no specific question, I should clarify what they're looking for—whether they want me to debug an issue, explain what's happening in the trace, or analyze the agent's behavior.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace/log dump from a \"MemTrace compaction\" system, but there's no explicit question attached. Let me share what I can read from it, and you can tell me what you actually need.\n\n## What the log appears to show\n\n**Header:**\n- `48 step(s)` — the compacted trace covers 48 steps\n- `0 verified, 0 verdict(s)` — nothing has been verified yet, and no pass/fail verdicts were emitted\n\n**Tail (ticks 39–46)** — an agent completing a fetch-style quest:\n\n| tick | pos | event |\n|------|-----|-------|\n| 39 | (7,4) | navigating to NPC → moving |\n| 40 | (6,4) | navigating → moving |\n| 41 | (5,4) | navigate_to npc `0_4_4` → arrived |\n| 42 | (4,4) | interact npc → **quest_accepted** |\n| 43 | (4,4) | navig",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 449,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504500000
+      },
+      "id": "msg_011CcrJxVZdibsMX6j2qPyYg",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 449,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 202
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace/log dump from a \"MemTrace compaction\" system, but there's no explicit question attached. Let me share what I can read from it, and you can tell me what you actually need.\n\n## What the log appears to show\n\n**Header:**\n- `48 step(s)` — the compacted trace covers 48 steps\n- `0 verified, 0 verdict(s)` — nothing has been verified yet, and no pass/fail verdicts were emitted\n\n**Tail (ticks 39–46)** — an agent completing a fetch-style quest:\n\n| tick | pos | event |\n|------|-----|-------|\n| 39 | (7,4) | navigating to NPC → moving |\n| 40 | (6,4) | navigating → moving |\n| 41 | (5,4) | navigate_to npc `0_4_4` → arrived |\n| 42 | (4,4) | interact npc → **quest_accepted** |\n| 43 | (4,4) | navig",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 449,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

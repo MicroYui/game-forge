@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5f16f8ef937d5261f97088369bc2dcf718231aaf4faf79841fb97363c10b6353",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 10736,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EogLCokBCA8YAipAlOsvTfKni8At/U5udZQ9H32zu/lUcoriToxqdqOP5QqVBEzYoVOqQ3n0ZVWmzXM6ZN8qcIkCdREIehE9prdJXDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDML4iWI1TygzvxZzeBoM1P5/BB9KAz4RUkIqIjD0UCDFZhVfvCOhNdjRjGC6qz0EmqT0BxcOewsKYelZu10uCYRHkwxkwSOolU7vNqUqqwntXI4tQzdbl+vJ3Jbgd2Neg3yW1sDXm1dXJ1nemHJbO2+d7A+wFuWhAwt10Ktjnt2LH62fiWlOn1n9s5Yq58jvhDiTG++FBrR2Gr1n/2IBsXPnJnL1Lwc8KYZq/mvVwTWeAhG6JMU7zZhqG4UfuDtUYALN0i5CDAjKk31uJPh1AF0pSaV6A80+vv6E1W2r+hwIYJJihRiANmK0OUNK9BsvuxmcgJaxCCr35AruY7BcoROvDwr560d+nbODwlB80hzabH2WBsn18/nrCUiC49IFzjCvBf24ghilU4abwz9jACUmpLKL1Cv50TaPvrYBx+qZ+oO++fviI/LyvJwRQ+2/nBH6L4y2S08QX5x0PJFrtb21UqHU3xykYneOx7qrq2/vzleYIaYIkpLyUz+tXHYIVY1IP6zO6AmInPoQmfTlX81vApv1rsyqyXyucOb1P7U9C4Rsqi+KZidsAPyFjUyODnUd9Xr9elPX61raWF0hLS/kSuIN9eI+LlUp/+RgaBh1CbJmPA2f3dPPG0/vbMsqrrSH1onnc7sAPHhK/Etl/r4zgEf0mGdgPQebQb54DiGNTtHbZ4fsYH/XRlFaLkeAccShUqITivKU8+r4Vrc11awG6TuGYGFBAQY4vr1iKRgkN29rPvXDkD0mg6HifiVeBx1UZt7M1P0NO1/sb5H8o2AiVHXW/8ejC1oN5yIVMZHGApS6RxIGccqXBCEinD8y5r5rD+jrCgzTEyo6zx7h0A58x/Zr6d9J16JSb7ff5I09CSMZPCPN5WclzsfuEpinGrzO5EDWnfkxwqDRTHDSzWQbOw/G1hWgp5fbSKuDAjWQL6kMT7LryKWlJXiwPoe+Fv57ZMwj6igZ5HR9Rc+fRyQ1fyRrwu7j6dBVQZAOYi4fs0y+KFYK6DDZlWpf7q3HKHjOKB85r1Wmd3x2xUAUen5zd9f2eoHYqyvmrsbtz8Gv//uP85eKVFUEklVEmMz/KZ2KJH9XShjlAnGa0/ioJRqB7NfQ0nVkuQeu26+0VtbBEOvXgOYCn0OgsziQWX+i0y0gy7ApbYS3MuzSmPuD3H1y+Ri676RZBF5fPnxhVmyRhS9p5gHwBgYTcKSPnhpS6hrUmcqWn9LF61IsNCiiO8zdtVpyaxVIutuqBLIbOEtO5R7BucA421Y0XSclHzvbpdf/6QyQ2XipDtZiqK+EqP0NLlcSFOsSQOpHWNVgeYL9OjgquHKCZCfZyM4EI+L6YvRvdZKDqSPwFCIwMRMiWIiY0bnLWCCQYVkgLhwxRfveQq37PE5R0UdwA6R7u/addXBEGNAlbByzv9kVerDW64CQalOKCJ7Dw0S9KiUaVbUpkKcWz6D2/KLvcZFlZtBGvbj53aHSMdpLlx5PEesx1zk4yicrU+Aw4fbJnOWw5iilJKrHizTJd5YlcOEf2dSRG0L2Axe848uOMT9cBQAEkQrB26FCcxS11tKg99TfIQLtRBXeYbSNEKlcM3ao5z2XIq5F4GfTWRE+dqBw+YRTtV1CHbk1P9WHWYN6bMs/XgYgV9bDLfYQL2sWMAPg/Nrn9DHEdm3eHrHInnnj8HyzL51sCTorITXBdgRoGAE=",
+          "thinking": "Looking at this log output from what seems to be a game AI system, I'm noticing some inconsistencies in the navigation behavior—specifically, an agent appears to have arrived at position (3,7) when trying to navigate to an NPC at coordinates (16,9), which doesn't match up.\n\nI'm also struck by the fact that both the NPC and monster share the same ID suffix (0_16_9), and the verification count shows zero, suggesting nothing was actually validated in this trace. Let me ask what specific issue or analysis you're looking for with this log.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like a truncated trace from a deterministic MemTrace compaction run — a per‑tick agent log with position, HP, and active‑quest state transitions. You didn't include",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 437,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1498500000
+      },
+      "id": "msg_011CcrmpqCVu6euu3Z57Z6KJ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 437,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 455
+        }
+      }
+    },
+    "response_normalized": "This looks like a truncated trace from a deterministic MemTrace compaction run — a per‑tick agent log with position, HP, and active‑quest state transitions. You didn't include",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 437,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d8bd0024ebf84ca965db15efac3aa6bb3b5eca98f86853a0b68714fca861659c",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 10351,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EogFCokBCA8YAipAJvu498BhLApr24c/bR7rYCB2dOP+MoLfHiCxeRJWRpHYkhEECrb/hTqUqRvesKRIbeCndKzmNTZDmBfM9MXTcjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMX2Ol2dtJaNGntRxhoM2qjuQyaQ1MUryZWyIjCGVF4h/AfhzfdWHR1JMWsCcbMfxokn/fTmtsMzQZ6gs612ktbpDrD0XIUFtrg/B+gqqwNYflfOrfcLUsu681fSZV52BnS1rN7pCfQKtouew6A/ZnIt0wSh/42vbl9n4c+x1/z16rHUU0Nu/TVZg6PdWtnkRBhWVUr0Xzc09Jg6wMat/G7G3gWInCCSHjc54sAYNAAMzuwzev3gfeixibdlSV962ELD6KgT9P+0XxPLckLD5VG0Is4UYN8DhOPCfzOLvIowjkijuUxY8/RnTrc7W08kRUgKtHMGzZgm8ZQW44bfgBqMjyfSgr3Hjw/cmh+sR21bZ+EtZlcl0itX3PwBANEP8wizd+r1URQvFGkO0T47kqBzzHfjjgtLFndKWQXZY9NvpdcvTwYnZSoGG3k6pvhvZ5yvnM7e/78neZMvkpHJJi5HpuCfVAmRn86EVCVhl3PzGIiM7ZNnwUfPAabmFTXqlBnztT/BZoyqRwRTx2JwooGC2aVhMu+OkqB4MHRaty4O2p7NCcGddqIkSSBylCWsSu3M7O9epOAyiXEoPWwOPGS9eniwYMQP9IvAEO5UmLoD+MVAVvF+fW7XKhh/igwBi1mtG22DnNQGIopEe/gIJb0NktBe7Gu76g3LGAE=",
+          "thinking": "The user has shared what looks like a debug log from a game or reinforcement learning simulation, but there's no specific question attached. I should ask what they'd like me to help with—whether they want me to analyze the log, debug an issue, explain what's happening, or something else entirely.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** — a deterministic trace of an agent moving through a game/simulation world — but you haven't included a question yet. Let me know what you'd like help with!\n\nIn the meantime, here's what I can read from the trace:\n\n## Summary of the tail\n\n| Tick | Position | HP | Quest event |\n|------|----------|-----|-------------|\n| 33 | (6, 1) | 93 | `interact:gather:0_12_2` → **gathered** |\n| 34 | (6, 1) | 93 | `navigate_to:npc:0_12_2` → **arrived** |\n| 35 | (5, 1) | 93 | `interact:npc:0_12_2` → **quest_completed** |\n| 36 | (5, 1) | 93 | `navigate_to:npc:0_12_3` → **moving** |\n| 37 | (5, 2) | 93 | `navigate_to:npc:0_12_3` → **moving** |\n| 38 | (5, 3) | 93 | `navigate_to:npc:0_12_3` → **moving** |\n| 39 | (4, 3) | 93 | `navigate_to:npc:0_",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 448,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504000000
+      },
+      "id": "msg_011Ccrfyo834srNKziBJrWJF",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 448,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 125
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** — a deterministic trace of an agent moving through a game/simulation world — but you haven't included a question yet. Let me know what you'd like help with!\n\nIn the meantime, here's what I can read from the trace:\n\n## Summary of the tail\n\n| Tick | Position | HP | Quest event |\n|------|----------|-----|-------------|\n| 33 | (6, 1) | 93 | `interact:gather:0_12_2` → **gathered** |\n| 34 | (6, 1) | 93 | `navigate_to:npc:0_12_2` → **arrived** |\n| 35 | (5, 1) | 93 | `interact:npc:0_12_2` → **quest_completed** |\n| 36 | (5, 1) | 93 | `navigate_to:npc:0_12_3` → **moving** |\n| 37 | (5, 2) | 93 | `navigate_to:npc:0_12_3` → **moving** |\n| 38 | (5, 3) | 93 | `navigate_to:npc:0_12_3` → **moving** |\n| 39 | (4, 3) | 93 | `navigate_to:npc:0_",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 448,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

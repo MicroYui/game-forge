@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b8478d4bbf97f14e85c15f39d2fbc9e9160fc823434dfa6361a48b46701f2af9",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5901,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtgDCokBCA8YAipA3foY4UjNgxaRZH/r6HWtZUrS6ke32PdT9Wmq8VfiEg7r0nAY7gRXKijikj9RDMbISStPBYOE9OzC5iym+95jUjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJn70HWQBlHtOCuoixoMBPYXi2ukxSoj5vWYIjDrX4UIL4yURquffpfDBY1ArdTeIgIJpWFCcELazluva/KP8seuPjYD9LQo/FQtFAwq+wEDUOuRdjaekpUhmzmzJAbFZrpGYzQvMSus/jY9MyGpjF0YcpVUOu1tXtWScKUwVtleqMfIjRLkrTzVW5d2gpmZk3zxm/AT/x+UrmECy5ot0K3Zdibn1CKy9T4oOy1HVC+n14oN/Du7YkqygTQgD83BiHtjz44EzJWH/TNfdL1yZmWvX81sxO+3hywENkrd4JnyNwjgYHJREzNsEO/+HXugeh1nT141M0O7JAQcpTxULXQL+4hXVTDR2tnDmYoTYSQJDEMSl6D9N+rry2YTKJyT73aPa/jmm1x2pKpsvHOd0fo2KpnVBnfhfDQnkNG/prtlzY5V2uBc1qqM6hgB",
+          "thinking": "The agent seems stuck trying to reach npc:0_2_12 with repeated \"moving\" results but no actual progress, which suggests the NPC might be unreachable or there's a path obstruction. I should recommend trying a different target, checking if there's a locked door or missing prerequisite, or attempting interaction once the agent gets closer.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Navigation to npc:0_2_12 has stalled at 'moving' for many ticks without arriving — the path may be blocked or the NPC unreachable. Try a different reachable target (another NPC or a nearby waypoint), verify a door/prerequisite item is needed to open the route, or if already adjacent switch to an interact/talk step_kind instead of repeating navigate_to.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 218,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 844500000
+      },
+      "id": "msg_011Ccr2CyzKqBhXno4vsisWe",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 218,
+        "output_tokens_details": {
+          "thinking_tokens": 84
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Navigation to npc:0_2_12 has stalled at 'moving' for many ticks without arriving — the path may be blocked or the NPC unreachable. Try a different reachable target (another NPC or a nearby waypoint), verify a door/prerequisite item is needed to open the route, or if already adjacent switch to an interact/talk step_kind instead of repeating navigate_to.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 218
+    },
+    "tool_calls": []
+  }
+}

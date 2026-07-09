@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4b6194126ac2d98b1fa9185b2d9d66c767b570981f8d04a28111c564a955b310",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9172,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqIFCokBCA8YAipAxxz82Nxn9p8/RdaJuNwqJUksKhzoe1CLj0fuQWsNFnewX3P9vZTFhBz2IYtV8fkedIcZBzPXTu3+ZUjUHgZCpzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAvHYac03wGmetlhTRoMKkbLffb/9p8DlPLBIjADAd+svLWfC1JDhfKuMAPb0fN3IfkLwV03JR1HE/KdGwGhCF711UEmpXHOUQE0KQMqxQOH1ZkMORjS0/3XR9M++sOrll3sWfiw8go1L+H8gvlnJBuoplr799Fc+SF4ABJyZh8dNi7M7683qzZdmap5RmVJTvhfV3BGBl00vHLIZjqV1urIYxNgUwOcQh5Z4+q4kZa2FbtHA7vEg+Z+SMCVZW1UWcILn7qGYHz7bLx9M8nY8Rh8Ocskcub/NiSeaSVoZ7elyiB/eHXuKu6MJ/GgcmkjPmODJ4VEjRFpC/auvqMs4gt+i3SawdhRbwvh+QZJU3EJMh5V7hhIg4DLtV7om/2zAj1jGdsYbYOTEVazdEHyAeOHJZLE4t3Tx7NCFaAvbOKydy8s7GyAFlo4ZiTw9xfMgkgGLLLsK7JN3JmTyERhJtC4GCdRV2QW5UkZWahXPxiSB/FZdc6bQnC4P2iRkanGoxvxWy9J0bgPqMTDZE8pqubMYEScMEiKWK0fYk/42VBLmvN3LIRd1wu/qMK8cJISy/7Pj+yn+cyAqK4hDPbgbJhYjgxKl984w87c5yPD60yMyQsWl1ntKxwgi0LUKHMzQ513Ay1A2DllPJjtFjejst6Iw/FCNWVaoM2mXK09yUqqprRnIaeD39sL3g/IKW3IoKKyHYIYAQ==",
+          "thinking": "I'm looking at what seems to be a game AI trace log showing agent states across different ticks, with position data, health values, and quest information. Since there's no explicit question, I should probably ask what they're looking for or offer to analyze what the log reveals about the agent's behavior.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** — a deterministic replay/summary of an agent's recent activity. There's no explicit question attached, so let me break down what this trace is telling you, and you can point me at whatever you actually need.\n\n## What the header says\n\n```\n60 step(s), 0 verified, 0 verdict(s).\n```\n- **60 steps** were recorded in this trace.\n- **0 verified** — nothing in the trace has passed a verification/assertion check yet.\n- **0 verdicts** — no pass/fail conclusions have been emitted.\n\nThat combination (`0 verified, 0 verdict(s)`) usually means the run either **hasn't reached a checkpoint** or the verification layer isn't wired up / didn't fire.\n\n## What the tail shows\n\nThe agent completed a clean **quest-chain sequence** over ticks 52–59:\n\n| tick | pos | hp | event |\n|------|-----|----|-------|\n| 52 | (9,4) | 95 | navigating toward npc |\n| 53 | (8,4) | 95 | `arrived` at npc:0_10_6 |\n| 54 | (7",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 438,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499000000
+      },
+      "id": "msg_011Ccrd5At21woiNxANRQfQZ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 438,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 140
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** — a deterministic replay/summary of an agent's recent activity. There's no explicit question attached, so let me break down what this trace is telling you, and you can point me at whatever you actually need.\n\n## What the header says\n\n```\n60 step(s), 0 verified, 0 verdict(s).\n```\n- **60 steps** were recorded in this trace.\n- **0 verified** — nothing in the trace has passed a verification/assertion check yet.\n- **0 verdicts** — no pass/fail conclusions have been emitted.\n\nThat combination (`0 verified, 0 verdict(s)`) usually means the run either **hasn't reached a checkpoint** or the verification layer isn't wired up / didn't fire.\n\n## What the tail shows\n\nThe agent completed a clean **quest-chain sequence** over ticks 52–59:\n\n| tick | pos | hp | event |\n|------|-----|----|-------|\n| 52 | (9,4) | 95 | navigating toward npc |\n| 53 | (8,4) | 95 | `arrived` at npc:0_10_6 |\n| 54 | (7",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 438,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

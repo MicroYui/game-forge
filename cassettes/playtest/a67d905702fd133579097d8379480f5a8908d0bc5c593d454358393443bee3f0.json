@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a67d905702fd133579097d8379480f5a8908d0bc5c593d454358393443bee3f0",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 10045,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuAFCokBCA8YAipA1wEEpisBje/GLiwOZgK5ch5vsI9kjmJInHf968FqgKsSxl1oaqncecbM2c4gH+9PL5d9fsRMbRckTAv2Uie+xjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDB+HXlZxmM9HDYukTRoMWBs3HPoUe9qobCsDIjAFE3+DOb8R1bUuLw03z/22Pq0IWp77gh6ytjipVipAjefydmth9v8r4xxgNqlNP+kqgwQ/yAO5nAfSFTXh1uZWuyjTDENTYjPPLtHW0WY9XRbteqAMt21tkFg8Poe1GqtxmHFOrLVds7l6xVLgcxQA2L+ol+hmcIb0ow7WoE9wnUSMMHr+Bq2QixV6fNkFCC5+DjDHLfleW4UMn3M2DsmG7dO+gBokiDeGef7N47wXYAh8rF8deoXv3OELbdo6mh449MNRIfBDwj0gL2W5rrt0Uv3iTrpc2Nt6sCfF2ItLyVYkxH0Lb8fMer7y6TmioWjXVRo2V6LfhRdYufgWDThkyhk0M8IQsWsqrgBSGsBdtllW+epxBo3Ma/ymJv9wnHWHhBnctg5EIOiBX9zUnLNJZ1MiYpn8aIufgHBCvRjzYk2fW95/dMlx5o28dVj8jEXmdhCcCLxq1nfd0GsUixkA3f6G/maVBgz39jBmwNdCE1sXloP6LFxt/81BSf2cCPin0Eq2UlDVwNJVCrd6X7MUQosjRj/prU/z3VynxO+4VAKmFw84taKaPBwYE2OMmr7N1KgRSbb0w4JgqbFF3GKTfFbemXpuGD9WsVewnOH1UL0mT3ystQUXR+muOmQ3TmCtAhzwjPp0b9zuA2waISOgCjAd1J4baCeOmZki+Dd3cLCBtWe0SVHEkdO8Lb2M6whZSRkiIFK2+rEsGuf1tWNuUE++2AP7sHLMv8GniLLRHrYpPdpMXBgB",
+          "thinking": "I don't have any active quests right now, so I need to accept one through dialogue. I see npc:0_11_7 is nearby and quest:0_11_7 requires talking to them, so I'll go with that one instead of quest:0_11_5. Though I was heading toward npc:0_11_5 earlier, npc:0_11_7 is closer, so it makes more sense to switch targets.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_11_7\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_7\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2848,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 278,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2119000000
+      },
+      "id": "msg_011Ccr8RTnSfvutmrbqurcYp",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2848,
+        "output_tokens": 278,
+        "output_tokens_details": {
+          "thinking_tokens": 237
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_11_7\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_7\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2848,
+      "output": 278
+    },
+    "tool_calls": []
+  }
+}

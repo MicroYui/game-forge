@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6d034219c9e0f8bf9a2c33a793716950998b742df74c63417007f42cadfc7bab",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8799,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtoJCokBCA8YAipA6V4u/YTdpz8fXqipuQdVeUrplp4U8qFeM5s5yboNMZ2JtGFqlq6quo1kNZJDsu86y3f1YPAp8FLXtbCFw0Qs1TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDUgVuway6ysGEoMVhoMB3sRm3IUmxNjiXQfIjBScYlpdyS44khzN94b7mP264UYPZhXCHArekdxW2v7SviWhLo8YygEnRc7f6bvwVgq/QfNyR9D46hyq1bBc+V+NAYkD2hi+WfeYkBPfLHB3GXUaKXiJ7bQBGlRKBhMAM+Z2z0HmwsVr5RK8vwD4IkHIfFG2flXCnE7IA5Kn7AZX0WRz6r17U+U2oiqOyB4/JFgxG92qnN2aWvYPs2vTNDD21+xIAxndok4QpDj1UA3DT2eoXi3cd6WGr1EjN7guTFIyx9uxdkuVNKxh5q0XvnEp1TyPWrhrB/AoYmSCQVddsm/n8CwGaekq2SU+dskIzb0qHN8XlbbfysUVKcLS2aRgz3LC5ffYqGq0pJcR8rX2okNbDAcJ5MLjFlOSTQ5idElmguarkiWrwhbVts7IpD9zxk+4jtlQ2nWM3R/dMZflOpf5V7KGc33nPJY4mJ+9ab0IdJKIQnTaY7iy2xUVXQt+s0O/e7hLOKnddDaq40fi8++Zhz8fQdrO7k+ktu93VKozz1Y5AbD/RFL2J6qcUPJgi14FauIa360iLovBzABhO7mWHvk1By+yri60vS/2P5OcaeoycfMYqW15iM76676WWJTQSKH6L94swrcZOqCq1hJlDE01KNs56IhdhxolIOg3B7GXioL0Wu1/WvORYKwB+UUKo4FRo4RE64H1bqXWyQbFPodr/7maEHbrvGUtGOZgzDVR7j8yMh6nSYPBj4EhJZw2IDN8ah2w74vArXwKeoXHoZwCCDIhYGNZGtJuC6wRjk3y+bJZwIuXhcKVkF2i/xo0VNNEkGB0yhum12aMHFOqYttstkaHmgseR7BZ8iQn388Z/4vz8LAL+JF3HmuC1CPowd4LIHKtyVRdhQdKoLjIkaoU1bUU0zNHf8dBk+xEgw1/aVcmdVtpOkVFXuF2m1U37fPdCouWagvgzzCkH6ZvRta32qy4mM/lndbuaQDRi4jt/95riDLcRi8Q2R4e9bZoCs5ysWKhlq0w3qzqhP7WVmPuDJHjP+NY23Y/woB8J81eciGTmDcnRzLz8LQmQDGmtZaVTz4225mx/1b1xXxfjb+HzMX+dWz7xnE6W/IZz8ZsMFzneeL9wJOyo8UmfH/eP8lLZBLKx1/+Bc3gfbI+oRPWW3yeR48HzTJ93hkH0O6g+PoDL9VV0nDbkUDm6ZdAQxsczcgdCZgzytDTSbHNvxJXvTQnWwbjKlloNTQikiNtDyUDFvCpYmMYXHR0govy03+7N4zAl+XLgrFH7x80JIOPskoTgeKnDQRO8n54tcDwa3jvA6Om6Zdh6pQWkeLxiQBYjOixcPIexGjz79OXGuWUq0AEM4dxR+QGRJxTHebhWT9M4oucj2FYpd7VUx6CHXRs6ZubBd14/9gzrvCGjD9nTemA2uPsBU8ksMV+LoJmqACs9Abq6oR4pMjGAE=",
+          "thinking": "Looking at this MemTrace compaction log, I'm seeing a game simulation trace with 62 steps across ticks 53-60, tracking position, health, and active quests. The final entry at tick 60 seems cut off mid-navigation command, which might indicate where the trace ended or where something unexpected happened.\n\nThere's a discrepancy I'm noticing: the character was navigating to npc:0_17_5 and reached position (17,5), but then the interaction shows npc:0_17_9 instead of the expected npc:0_17_5. That's a mismatch between the navigation target and the actual NPC interacted with, which could indicate either a pathfinding issue or an unexpected state change in the simulation.",
+          "type": "thinking"
+        },
+        {
+          "text": "Looking at this trace, there's no explicit question, so I'll flag what stands out. A few observations:\n\n## Summary\n- **62 steps, 0 verified, 0 verdicts** — the run produced actions but nothing was ever *checked*. If this is a verification/validation harness, the compaction \"succeeded\" only in the trivial sense; no correctness assertions fired",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 431,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1495500000
+      },
+      "id": "msg_011Ccrntv89PCiu9e6Pxesfp",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 431,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 394
+        }
+      }
+    },
+    "response_normalized": "Looking at this trace, there's no explicit question, so I'll flag what stands out. A few observations:\n\n## Summary\n- **62 steps, 0 verified, 0 verdicts** — the run produced actions but nothing was ever *checked*. If this is a verification/validation harness, the compaction \"succeeded\" only in the trivial sense; no correctness assertions fired",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 431,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

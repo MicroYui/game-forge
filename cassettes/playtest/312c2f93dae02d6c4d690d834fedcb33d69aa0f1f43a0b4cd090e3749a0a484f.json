@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:312c2f93dae02d6c4d690d834fedcb33d69aa0f1f43a0b4cd090e3749a0a484f",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3790,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EocDCokBCA8YAipAqMOWFyfRAUZWQxhM69AScdzNu5kbKkbgXRACSbNjVkTwO176hpqNmrn5f0NW173l/nugce/lhKa5k7tzvpGrNTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDI2IC4cXrcqWmlNrpxoMbIPJjkV99/ClqUTgIjBH5aymwE3ohP9j3UrYDki9+O6A7LUmIqpeSofjjdNkCAC4ttsgPMaeYpQCqIPpMN0qqgHR14hWN1uignNzE/6xRxvTm8Yfgm9qno+n7RVQfEU6jngDW4DK+yKxaghQTW2gtwS8gFdx4DTIftacnaSAUhO081ezCUfiNMovfudTGcPxEklyz7ViAC8iG4LsVdQDXZOrSXQVSn8ggLfb3prXh74tUnpTxi4iU9+ImwG5DBeJjsJwC21PG8/rhhgiQYc2RWyJJpFJMobVnAdBw75X29xiTqtxtWAz0Rv/NRgB",
+          "thinking": "I'm in the middle of combat with a monster at position 0_11_3, standing on its tile after my last attack missed. I should keep attacking.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_11_3\", \"step_kind\": \"fight\", \"target\": \"mon:0_11_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2753,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 105,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1639000000
+      },
+      "id": "msg_011CcreET1kBbFoV4d8RhLSi",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2753,
+        "output_tokens": 105,
+        "output_tokens_details": {
+          "thinking_tokens": 64
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_11_3\", \"step_kind\": \"fight\", \"target\": \"mon:0_11_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2753,
+      "output": 105
+    },
+    "tool_calls": []
+  }
+}

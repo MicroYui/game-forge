@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b8aa08879b37d85edd395feabaf6fae2fd6a77d4b37397e9e09e603b74bfc806",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8095,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvwECokBCA8YAipAnySh7tB4KfaqeYL9J+0MQOee+mZp0KG/BX+5mQQCY8blpN0aoAyUxzZBMcPWSpLWRCptsNlGcPHc/q720kjCRjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNrprJ/Bxo0KAqEI2hoMj9AWXwcwMykyO3XvIjCxz28QOpd2ZJ+pw5XFca/nF2H8gqsv7YKbz3eLo9VKp2MkOfWEiqDa0xzjPd2yv+IqnwMcGDZQ333rcapko8d6G72s2qkdCuZi00twFWt2Xkrm9APwVET3wh/Odt+qBCJK2pDPCGmNJlShhc/q9FPzJnSN9q9mg1Jp+YByU9q6etbCqM+IjufrJ6PTyqefkPNf9Cg5PCN63cB/vw8D3rfPycfBmFxyzEnUXR2tvf4SIG4jrztPFH0UgaVv4Ws2eHHIehWLMB+omHdm+r+E5ZX5kkGP4mftA8ZaDQXnhUGH4Rn2wirV3gKshFZBz3PdZnOPPKJgmqCyih4zbGK5ni0KVAjnuqpMH/ESbdpkOk+eWJEdCRiQqn0VzdsKiWU7CAcf9L3P//WsRs6InmGQhzRcAFO5YUYt+trM8hYGo3R324tD+X+Co0nl80GuT3a6IhcDhpvYvqvQxuuhYC4PIBVMdxc9eHTNw850jiREfXsZfWAo2JGGO8MYnr4Er/Bl2fFnrH03GxFS7qIPnUDcCrgI871Ldi5ssMoXhdfUuYQrwwljgNdKuEcO8nlgvqiU20amzS4MIVrQ1yBoS4MftkkMcQE8YDwLJWgfiaFM6dSm8P6MGAE=",
+          "thinking": "I'm looking at what seems to be a log from a MemTrace compaction system showing 121 steps with no verified results or verdicts, but there's no actual question posed. I should ask what they're trying to understand about this log or what analysis would be helpful.",
+          "type": "thinking"
+        },
+        {
+          "text": "I see a deterministic MemTrace compaction log, but no specific question attached. Let me share what I can read from it, and you can tell me what you actually need.\n\n## What the trace shows\n\n**Summary line**\n- `121 step(s)` — total steps in the compacted trace\n- `0 verified, 0 verdict(s)` — nothing has been checked/asserted yet (this is often a red flag if you expected verification to run)\n\n**Tail (last 8 ticks)** — an agent moving through a small grid, HP steady at 89:\n\n| tick | pos | quest event |\n|------|-----|-------------|\n| 108 | (6,9) | interact:gather → **gathered** |\n| 109 | (6,9) | navigate_to:npc:0_8_11 → arrived |\n| 110 | (5,9) | interact:npc → **quest_completed** |\n| 111 | (5,9) | navigate_to:npc:0_8_12 → moving |\n| 112–114 | (6,9)→(8,9) | moving |\n| 114 | (8,9) | arrived |\n| 115 | (9,9) | interact:npc → **quest_accepted** |\n\n**Things that stand",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 432,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496000000
+      },
+      "id": "msg_011CcraYjCNK5kJBBDtxY9wN",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 432,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 135
+        }
+      }
+    },
+    "response_normalized": "I see a deterministic MemTrace compaction log, but no specific question attached. Let me share what I can read from it, and you can tell me what you actually need.\n\n## What the trace shows\n\n**Summary line**\n- `121 step(s)` — total steps in the compacted trace\n- `0 verified, 0 verdict(s)` — nothing has been checked/asserted yet (this is often a red flag if you expected verification to run)\n\n**Tail (last 8 ticks)** — an agent moving through a small grid, HP steady at 89:\n\n| tick | pos | quest event |\n|------|-----|-------------|\n| 108 | (6,9) | interact:gather → **gathered** |\n| 109 | (6,9) | navigate_to:npc:0_8_11 → arrived |\n| 110 | (5,9) | interact:npc → **quest_completed** |\n| 111 | (5,9) | navigate_to:npc:0_8_12 → moving |\n| 112–114 | (6,9)→(8,9) | moving |\n| 114 | (8,9) | arrived |\n| 115 | (9,9) | interact:npc → **quest_accepted** |\n\n**Things that stand",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 432,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

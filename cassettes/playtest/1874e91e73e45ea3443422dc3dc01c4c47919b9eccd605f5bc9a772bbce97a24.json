@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1874e91e73e45ea3443422dc3dc01c4c47919b9eccd605f5bc9a772bbce97a24",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3322,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErQCCokBCA8YAipAHsTp1hx0Hlh0VOEFg/2ecUFWThn2tb+09cCUrvwQgGs+WSvB8s3GHd4YEMYMYeExw4aQcDoRUNbskNBeE6mqjDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJ9iPnhx0VNAewMS0BoMq91+L23tq6RrNdgMIjC1hfo4QIkN2KSqvwXJHYosEgujhQtP2CL3mPfyehyX7RI97/v5I8BNHwAigNSngoAqWOjYlHeNgxxXVsIowSvS/UGDEf0D85VpWk8E3ImZ/PuydIQn/yw82KK5xLTHx9/i3ZFWUT7qioZ+VDJ22N8m4g9QqCmdpA7lBB8cMSIepmP+zddhoOWnK4YYAQ==",
+          "thinking": "There's a battle happening right now—I'm already positioned on a tile and landed a hit, so I need to keep attacking the same monster.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_13_7\", \"step_kind\": \"fight\", \"target\": \"mon:0_13_7\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2523,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 73,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1444000000
+      },
+      "id": "msg_011CcrgdG7HQAohAbfcPKsJ8",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2523,
+        "output_tokens": 73,
+        "output_tokens_details": {
+          "thinking_tokens": 32
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_13_7\", \"step_kind\": \"fight\", \"target\": \"mon:0_13_7\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2523,
+      "output": 73
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:31edbe8356f509e0daa485e029b3a83790237961d954b105d03f81da6f85cc67",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9772,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq0KCokBCA8YAipAabpNcXxbNzsBKiYsyIDlthZ6gjdXWSBT3lgtF025pRzp0zmfqPOROTpnFZ6yNijKWTNN+9r8GWDQoN4WrLKksTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJWZaBkw1b8AVbYKhBoM1XMPGrKBP9MgH4mOIjBS6YBRGdQxTkwlmPTDV7meMmIAAgcQ/yHxUdR6p8Fo6H4pnLDc2Oza929QB4iDy4Mq0AjIE8C6TPO/J8MfHzp5PFUbiUhws7NVwDisMYh0YBB/tGK+okbPSt89yAoZvVT8A6qpsl5Ga/OyDivdKy32sbAt6CpcQrxi2gRiwIGLO/HSfMl6kXV1JWezpqZgisx7EZQVF6QwCMqjXcoqozXCHFGw8fspuyz7m1GMv2drePmrbrGeBS+TuioC3rg6HiF/RWNZGYEFArKrTgUizj9kDAqosxChHT/9LDUyC7nZ4gmsyhw15ExbDn8RTkai/eNGt6xZutg5UkzmSx1WrNmGYSgelbcQuA1B2jtN9giQOEH+sl2ck9SGnQMt+rICuaMyY8U/+vE8gOxVY1T+arxBwNLWkXfLx70P2UiCMqFIyhZpY37ieWXICaNI/S/fHpWV4beHOTWcaE/Dn9s2JEdav0BRnm7uc/7SxaQnnMECp+AOaApLxKkP90iVRgc8jK3U97deBk+kBpvgRer/QyK3frjtn5qW7TPJMC/80VhoIpRusKljl+1a1Jts+8GX5FrqkX3fZfXC5Iw2h9C13RyAp2IIUG374J+SmU+3L5Dc1qxFh3XZe0dr1WTST091yxoVJvOX1QCPCgUrmV+/HBaQ95RbBpj3NQiqKWd2fLJmit+CyfMZJ9JlDIEkeueGeyXv9QSLDjCTCVoStmsGixpecc8s+jmhl2ZLXLN2M4XXQzq54x0WpmIHIk9PNt3CGDgAl7Ifzv2/wDknzdDoa+akGSH30X0ycYKks5ixBW9DNpbz1zfYjd/XGzQRIbhqbGDeb2r6CMVzkHwVVHqoBsrFwXhTKmw72GWaHHbbHOtSybMk9IaYvBAGZwxFtsE9x3rldyWjBSHGsidjLP2KI0+MmYLvYxCbwW9y8R3MKDgRKifnI4EdSDb2Rzv0g42yGcIYEheBrCMv3DIH8lSzOmfCoUFWmXh1rCGZYy2RLatyHYyMk3xiG6sp7bGO/1LGWISudH6Vjul8SdXcULSQu4R9WeFdOb9GlKjx2JkRFebsLJIfHqUE4rRKtPINRbikTs7wIX1j7bAeFnTQtB2GW7p9m2orGl+pjXAAaH3RTPiy1lxCp1xSfO7jVcaTFgIDoHB0kiGNGZ3Z2HRHnLakqSzDsbAc9mvkIKu6Ssr/3A/wlvdM7JIj/B2EkRIcDtA8DV0eS56GTI+69Y67Kx/ZoaLTduNQD/zzN5Yn/Dr1Drk+svYQhu//UhmOuFdBlN7U9P5dd5qu3xXwpzXLKjOw75K58PuOugIXa6AmaHRRTRbkuPZaE3w1g0b0XXBnyPOWvpPHoXNl7MqzfnrANkULy4U3SCXK2ejS37p47FAwlRV5MTkJxIYQYNj8FMPCARDWaKX0kQLUtowC6M+cjNHtswLRCNKtKExRJtz59WWkeJPLOD7Hn/7btFMao4Z+3NuqhkiZ36+9uZ5fcV8StJPfaNr0GU9BEk08HprxeraqhoBwfqL4vuH9SQ8sA1hHl9YoeMqLlgIYAQ==",
+          "thinking": "Looking at this game agent trace log, I'm seeing a deterministic compaction record with position data, health, quests, and actions tracked across ticks 124-131, but there's no clear question about what analysis they need. I notice some odd details like nothing being verified and a position change at tick 128 that might warrant investigation, so I should ask what specific insight they're looking for.",
+          "type": "thinking"
+        },
+        {
+          "text": "I see a MemTrace compaction dump, but I'm not sure what you'd like me to do with it. A few things I can help with if you tell me your goal:\n\n- **Debug it** (find anomalies)\n- **Explain** what the trace represents\n- **Summarize** the agent's behavior\n\nIn the meantime, here are some observations that might be useful:\n\n**Potential issues I",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 431,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1495500000
+      },
+      "id": "msg_011CcrjLAdW7jr26PBtnQaE2",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 431,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 395
+        }
+      }
+    },
+    "response_normalized": "I see a MemTrace compaction dump, but I'm not sure what you'd like me to do with it. A few things I can help with if you tell me your goal:\n\n- **Debug it** (find anomalies)\n- **Explain** what the trace represents\n- **Summarize** the agent's behavior\n\nIn the meantime, here are some observations that might be useful:\n\n**Potential issues I",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 431,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

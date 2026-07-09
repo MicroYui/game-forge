@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1048993da35bbef80a8ab59492e012a65b3be4bae7d59cfb4485d679dfbf0b43",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6016,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtMECokBCA8YAipAEzc/DWuWC1XyUtccSSrFrl96T11fR3Yxap4w7iJNFJZq0EKsZca7/YwQnOusTYKBoEvIkBvdwbFEvjc2ANDq3jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDL6/n9rmqtJMZEJPlBoM1Is/HOXYgfj5skGKIjArtN5t1TSMSqXfEuwb7IZONDO+jaEKAD5Tw+85PWCBYjy8vGRoGSqzxV8vTfDZacQq9gKOUjSEoTjUIf9gPBmy7AMHW4ygUG1KGNaCMgmG5TsiIY5BKU8FripYmGd6fZAwyyvPF1fcDpqgnUa6HLWxaxQCbkwhgmMEJVyy9Gc/wcEFWRW9ZAPUerbeJfndlXsWsNGvrjb6QLVrOlAsP9nGGU1Bp0bfXlqP8zu3dGOukwB+S8yCwalyurtB2/OGzHvbcHuAUak97Zr0fPoa7PpfU+5GKBA3wo4v4zpzA5tjnwCXp+SbTeDJCoVaeGh+sQtBDMBayWVBHEhfFkN9CkQAlLdSaYIhSyonduIFyK0SFZYbRv3R+O0s/Ig98PvUiqs4iIcbnpGBXzXLM8WESokgy6scN5hAHfmp6WImyDXsMgrDlDzM5jJQTTOK/3jsuLEvJQ436UP/LzN0zLmivoWCcAwARv4gN6Ww68UDqa1e4gMSkOqxHxp4FY/ZSQppvZjp78jM6RnG2F00HckPH6IU/F799buej5GGIY4t/DZBm7xSJwdRhDfMBRgB",
+          "thinking": "I'm on the monster's tile and ready to engage it in combat. I have three consumable items that might help turn the tide, though the monster seems to have significant durability. I'll propose the fight action targeting this monster and let the engine resolve the outcome.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_6_2\", \"step_kind\": \"fight\", \"target\": \"mon:0_6_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1877,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 181,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1391000000
+      },
+      "id": "msg_011Ccr4cZzM5uEc4fHm24mW7",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1877,
+        "output_tokens": 181,
+        "output_tokens_details": {
+          "thinking_tokens": 140
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_6_2\", \"step_kind\": \"fight\", \"target\": \"mon:0_6_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1877,
+      "output": 181
+    },
+    "tool_calls": []
+  }
+}

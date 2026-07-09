@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bfea8545a4ad3b3b3e1e36b58cb45ab83e4af5cd8f8669253792e6ad4f6a490e",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7732,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtAFCokBCA8YAipAAafWFXCdIraqYRhtI8nLtg1/rt01/N0P8nCw/boPCJr0XbOnaBp5N6LTjfViNlSjWzw/tCaI9j+TLoRPhDpUzzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFCumzIroOdhSGB6pRoMDEB5OFghAY3MU5uvIjBzRSrukCfSC5uh45lvy/EQrODBo0Zm4XSF+QzK62GDBGSiNor8NwcAjJaJD2ShmL0q8wN5X1TTRCik5qE/jkuDrisewzGf2L/xf4rm7PcxuGMTlDZoma8vu5nR6zUB7EWyTPVUB1o95s2yma5vr1mQ3giHaegW1hEifievVreNaYc+pqkPSc0nKjq1QNhmVfb0KWmmzjpYw5F3uenyUsLU8J5nIY37qxR8qOaPk+Z+dogrCzTNrYvJzdNwLjU6DmW5aJihXbNZ2VpTTqyyyHAuqiq1FBnde/MeBM6I3ITJfdPUd8E7W5PLxUYEvfq0IuIcFsEzJb3vfcmFbL0w+TR6GX89na+bqVm3wMgMjWx039xOnh+Lfu5/jYWs0nK4ViE5vtBleLRRQsza5as8rW5t6tVX4iXDj6ytG3Eb6bXd/fYAZDvrcrmEZt8RM4gDU6KFsezMyHg5ug76anzc8I9RdhlXUdT+5rpjWVCseFoGAkg+uc2au5fEINXqpemRVWS+8SMxCshcsXdPm+NzErU4VqBpy43WvvyAidwyHJ4DBH7hwzqmHWPovMCvdprh9wRddtqbxhuRG3Ef31t8D70itx0cxiqeVoL52y+EKylN83Roql69zSuXb8KQXUScRxxsOOlWslBrrPNRR4T+xGR7TgxmuD1TgeHP8g2ZHYUCR/5CNekk2xogeRM8BIIWqdROf/GZGJ0CJ2+8MLMjOpwF/y/1vK4KGAE=",
+          "thinking": "The user has shared a game AI trace log showing an agent completing a quest sequence, but hasn't asked a specific question yet. I should offer to help them understand or analyze what's happening in the trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction dump** — a deterministic step-log from some kind of game agent. You didn't include a specific question, so let me walk through what this trace appears to show, and you can tell me what you actually need.\n\n## What the trace shows\n\nThis is a compacted memory trace of an agent completing a fetch/kill quest loop. Reading the tail chronologically:\n\n| tick | pos | hp | action → result |\n|------|-----|----|----|\n| 2 | (1,1) | 100 | `interact:npc:0_12_0` → **quest_accepted** |\n| 3 | (1,1) | 100 | `navigate_to:mon:0_12_0` → **arrived** |\n| 4 | (1,2) | 100 | `attack:mon:0_12_0` → **hit** |\n| 5 | (1,2) | 99 | `attack:mon:0_12_0` → **hit** |\n| 6 | (1,2) | 98 | `attack:mon:0_12_0` → **hit** |\n| 7 | (1,2) | 97 | `attack:",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 438,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499000000
+      },
+      "id": "msg_011Ccrfdp4HSoFfuPc6fUy9A",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 438,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 158
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction dump** — a deterministic step-log from some kind of game agent. You didn't include a specific question, so let me walk through what this trace appears to show, and you can tell me what you actually need.\n\n## What the trace shows\n\nThis is a compacted memory trace of an agent completing a fetch/kill quest loop. Reading the tail chronologically:\n\n| tick | pos | hp | action → result |\n|------|-----|----|----|\n| 2 | (1,1) | 100 | `interact:npc:0_12_0` → **quest_accepted** |\n| 3 | (1,1) | 100 | `navigate_to:mon:0_12_0` → **arrived** |\n| 4 | (1,2) | 100 | `attack:mon:0_12_0` → **hit** |\n| 5 | (1,2) | 99 | `attack:mon:0_12_0` → **hit** |\n| 6 | (1,2) | 98 | `attack:mon:0_12_0` → **hit** |\n| 7 | (1,2) | 97 | `attack:",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 438,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

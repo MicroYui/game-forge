@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cbba06736625b87993668883e2448dafeca71b04a884dc2da04eca79d5007698",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8085,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuIJCokBCA8YAipAyXGYcrA/vpOqQO0/ujhpJMM0JJbS6QZqNVHI8p+OF/bQqjN0P4y+5k/OO2M8JtH54AYIeJ67Tz0Y+oenC4p+fjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAtm+7+UsgG+z15ClhoMN7hfy9/TYU2eE7BDIjC8sZJWwekckKiH5j2YJMFgVOo2lUz8/OEjOnZLYli8RJJTyConhIWRMn5vXr53hX8qhQgAbsvc4fvgbeh/5PPvvd6m+6WgvaLCYJStQOXzPfhv496qieQcD7Frx7rsi0TaR5x80MOpeXGQ0F8J0jF5Qawmu4JXSCL1xtt9psIvmYm/g2Q9Bq58YBe3KD+A/o/bRwqOFioxNCtiojacn4AE+fmjiy2JV2TS6pMWl9rb5/RucOBSTk8QRmMxkwjGSSXkOgdSu+OlHPvbYl+92s+IqLax+rq2KJoG/DMNKnjgftxPpofuyX/KomjQ1C14iMqO4HKDFXGGxCy+EEdQC0wTu4tX+5wa9IQ4r2rjw0AmpbrhSUIt6VqbW5utTHwDDLoFZ664NJoWgz1KsTwqnCacxqQD0LJuuJ6RF4tkvnCmhGfQPc0QRkKnadI0GIYFatIychXEmbiFXO0jA4pAEpdQEBxHWyllK8rww9yDxyKFtiEiLeo/4SKAgrCl5fNK00eVwsK0h03ZnrvcU8eBHd0WyZul4W6Nmuy6TQgkFtawgjDV+kTahb0Cj/G6x6s3qTmAVSs93YDPup8D1/weoI+gtYF78JaNdXRJrbXASYYfFozNmd7Yhxl1ByuGC3O26nO8tVGlq1kVnO4QiulmDRX6cLObdfuy/JjnDg31W0ejTL1W1OPbvmSXIApRn+c11cuej2FQ4bMho0XuuZiaZOeSiDMaLcZiBL9f5CyCbLZM0E9kibNCTBDVK+BtLSk2++5WNnNYzldB4P3YTZ1z9Q4X79pRZLyhABmYR7fidZhOKZci0G1IM6tVija6tg4R8UA4DSMvHqsYZNLQb1Vrw37g+4x7JHJqjgVte1SO8mntY62sLpBXIwRdGSS9v371z90IvaURvRgI24ORTnZNS2kPxGjDTe53iKruNtGFpwO8vHIjK+q0yk8FSd+Uq9hEhdWcr0WzbdLa4wveh5pOq1s2W9SwkUaTGi+wZvLUeYP8IEpMIVh7XHbI3AQ15ftz9McRRVVImJbEFwP9kmi8yVFhUDQEDGfBhVrAao7tUxUISqX1+vzPsW5iim2Z5X+U8eaSwygLZlUuAVQ924+l8hh5mSmFgM1Z9PCUK8FXHBoh2i4ni2MQd0A33JWYINgBpajoWSQ3+YK8r0DIZdIPFUMD704SeLbURWBp6UydtNVTYiqm47lNvIGMpi8OkQuEQKXAM4b7AQfH50KRY3DB4JmvtVIhQTjT5c1/TiqrzBW/dTWCSPKMTNazUcOhc+HPqAC4+vX1xPGiCFNp533uIsHE6XXInc331KcA5ZwiB7A/aXcYMo6X1isyPegtrv8qzPTqTSLFeB+5P3yH0nFUIjdezU9FzMV5zLwSi5+RfN3lwv1eLqJvtHoY5MVoZSV7/fr6o0yRRgkQgipint77hcIQCH3k68S+ookYAQ==",
+          "thinking": "I'm looking at a log dump from what seems to be a game or simulation trace system, but there's no clear question about what the user wants me to do with it. I should ask for clarification on whether they want me to analyze the trace, explain what's happening, or something else entirely.\n\nLooking more closely at the data, I notice some inconsistencies in the formatting—some lines show `active_quests ::` while others have `active_quests= ::` with an equals sign—and there are a few oddities like the character appearing to move from position (12,9) to (13,9) between consecutive ticks, plus a note about zero verified verdicts despite 147 steps being recorded.",
+          "type": "thinking"
+        },
+        {
+          "text": "I don't see a specific question attached to this trace, so let me flag what stands out and you can tell me where you want to dig in.\n\n**Observations from the tail:**\n\n1. **\"0 verified, 0 verdict(s)\" across 147 steps** — this is the headline anomaly. If MemTrace is supposed to emit verdicts as quests resolve, then having *zero* despite two terminal quest states (`victory` at 137, `quest_completed` at 139) suggests the verification/ver",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 425,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1492500000
+      },
+      "id": "msg_011Ccrk3KeNhGqM2USXxpXKY",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 425,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 358
+        }
+      }
+    },
+    "response_normalized": "I don't see a specific question attached to this trace, so let me flag what stands out and you can tell me where you want to dig in.\n\n**Observations from the tail:**\n\n1. **\"0 verified, 0 verdict(s)\" across 147 steps** — this is the headline anomaly. If MemTrace is supposed to emit verdicts as quests resolve, then having *zero* despite two terminal quest states (`victory` at 137, `quest_completed` at 139) suggests the verification/ver",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 425,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

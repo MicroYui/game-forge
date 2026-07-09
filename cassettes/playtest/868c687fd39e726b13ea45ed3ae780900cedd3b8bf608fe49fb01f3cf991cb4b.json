@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:868c687fd39e726b13ea45ed3ae780900cedd3b8bf608fe49fb01f3cf991cb4b",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 10387,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoQKCokBCA8YAipAUh9fmKtjDufEkB2ZGYsEHq5tKL261igua0VIsr0nNeGzR9Iu2uyWrWG6W0NkYJ0Lc0lAyOJx7w80IIyrXq6f4jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFk9ciCnqTyNlXEvERoMJwXtJbw7JTNZEApjIjDnMQnisaR5kjnODB5KQZHpgc5kbOtZKRG9EGErXkb60P/weBZIEKWGzQo9rMimfSUqpwh2TSpLf+xGEnJTINkeomGTOKlTl6xBfO3F8Ynypt074qFtY6DiVvPOKPPXxRxwUUJhUNJanTMo72N6u3OY754O2UmAUchsartVbpkqnZHc+Yo0OrxNmPh5TD8ZlicbAWSxyRbTzj8Cq3XULVZR1hpVCU5xIUyWvidTcKryfk01tNGx4HdGRs4YnDWaunBXR+i7GMQ/XsPeoIk+0p7zzI3Pf/v3J1j+5hW7Hde0yIwj2jO1kQZHieRDDw5MpOpq+gvEj9rvswJgPJwwWh5XfugG5QLh3zIdh8SB/deHEfMtLhhV9wTv6+QgXWqWykC+xu/MmqK0TEAaxQbe3h5xwK12XSOmfzDWVJifZQrDz5GroZOpIRFZE+SUVTp1BVbt5a6AHm6hHwoCybJoMh1e2l5czAGjjArrKiN/0cH3HI8WdIbrhludTjCF2ev9hNowdEPxJB8+2OAtl7MwCnSVhxdfAMA4UrEmxrp9HKajshbEtTXCHxLXQcsmcGyRycU3AcFktHEV9GJgCFfadwAYiVihyZlOBkO6OnhwJywjTUrPaT3d93qG/P2fSSn3X4d9m9tiqP0npwr1rNnfW8gOvokTC2Y7jdZoZnU//ZUxGc6L6GmlLvQJ7mr09NgaAXrMX98nvXOm3+tGq6lMtWy3z50YYzQjWWGSuUL5dAZQdbTrcRQyD5It4xVfLBHD328qQ6t+zmrDsi7nIZgxt7HcjBYiflaxx14wMOCHNDJllenCFT9A04BOHsdRJhIfQ54bt68iRXvPslTUnaP9svBvRq8MGJMgao/9VhqZJipdODM/wWoPUkCnxd3YctsOFd5tmXycQ/LkcQnRgtyk+zqpw2FNgRA6o50MLq6ZSE8bO+STNeUPsKFs1appSoy8eFj4qpagFYFE2cIsGQnviV1DykSq2oql0rwZMkouYV0iKJAhuclGS5dhbPZHfIHgu2PleLw2rGYwITaxpAIQyngF+I4Hff1uHEbJfOEDjvB5uZlcK95ehSKS6Fo3ee0Gwl85uBX5aDgUMieLR2T0KD4Ed133V6oH1a85b3mCezDRILokGV92+bEYY0uEO2XUN/22WHgtbgoV1DPawJr9fa/dVJ8MYvhEZ7YUqA0mcBFGr6c5A+bjiT2oh/Igufyoyix5Li7oBEUyDlINsBudaZ1fsxxVMdPiTjqoLHPpCe9pC1QJ6dFkspUfvOZvL6QTYxMbY4VgqJWGy5rxpfc6ZclLC4Fb0cgPXBK/9tEZrKTrtdI5RgUTegrdGC6vQ26nz/rFQ5E7k2X9U+xdg1OCIrVFC4TPTdQi0JRluODdUe8c7uFGD7ZAu2+Hyx87Bv26/D/Q+OKSYvUooVp8xjXeqA5DcHvk2jdwL3Dv645YEXvB8uym0sBkp40/e9+z0IcFfWYagCOlxxG854VYGAE=",
+          "thinking": "I'm looking at a memory trace log from what seems to be a game AI system showing a compaction process. The trace shows 132 steps with no verified steps or verdicts, and I'm noticing the tail end captures ticks 122-129 where an agent arrives at position (8,9) targeting npc:0_14_12 and then interacts at the next tick. There's no explicit question here, so I should either ask what they're looking for or offer some analysis of what I'm seeing in the trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a MemTrace compaction summary, but I don't see a specific question attached. Let me share a few observations, and you can tell me what you're actually after.\n\n**What the trace shows:**\n- 132 total steps compacted, ending on tick 129.\n- The agent completed a quest loop with `npc:0_14_11` (arrived → accepted → completed), then navigated to `npc:",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 435,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497500000
+      },
+      "id": "msg_011CcrjJYWaj12tuWf4pXsh7",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 435,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 383
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a MemTrace compaction summary, but I don't see a specific question attached. Let me share a few observations, and you can tell me what you're actually after.\n\n**What the trace shows:**\n- 132 total steps compacted, ending on tick 129.\n- The agent completed a quest loop with `npc:0_14_11` (arrived → accepted → completed), then navigated to `npc:",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 435,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

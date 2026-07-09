@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4b97f901162be3a2d95d12ddd584845dcc4040aa86f3a492a226f8b22d64e6bb",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 8119,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqECCokBCA8YAipArYpuZBtkp/trU56sF2rzgMHHx+Xiphwu4hQRomaFVxgeDJSTTHk9I8z3ZpxuYL8UoPzdG015H/LRxy77azbNDTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMXqUh4a674OzkPwwxoMsT84a+r44Hm2294yIjCTAU17o+gaYIodXAMmx8wYxSVePArLjZDvCBv1vZsMWH9cKH6RggJglHkImQ9i7d4qRaAzPbSmynQWkkyQmoQKyQE1kTsVCVD4ans72dYH0ypJv28s7gYSu1rQhNcRD2Aq40hdSwJi6ufrA0jFUlhsQT+aYZa8jRgB",
+          "thinking": "We're engaged in combat now, so I need to keep attacking.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_13_9\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3131,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 48,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1685500000
+      },
+      "id": "msg_011CcrAJ1AqRrm6g4Nz7AocP",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3131,
+        "output_tokens": 48,
+        "output_tokens_details": {
+          "thinking_tokens": 21
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_13_9\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3131,
+      "output": 48
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d2d7a68c03b872d65d235788f805fc4dded3326e606f0f4799693f2aa58cb2cf",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8987,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpgFCokBCA8YAipADwG26Y8ZwUYUNm4dT9sUd7FpdE278SUUnNNWUUHYTjs/MDzlvLACbfdoxpQw2KhMUDb/aPTMWqTaShLeAjWevDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJ8VCSkkg2NsnD9VtBoMilQFlHN3kjGPtq2JIjAI2dDVTQfBZYY6RmP3yZ8o2OL3XuWbkogsMYiqwpQM/w7m/MEOZ09KYlfvvE5YjEAquwPvlHExMK1VTE8x3dCq42ftUZeIAhWPFckatsth110TWmyBAnwH+++PJhsq6vKGPwdSOJHKUvgaQxRLWKYiYes4RVROIZVanJduvzGZlftIJ96+g/5DRaRdXEixAzuoaMziQu+D8NajMQgVX73ErUInawWCYqwUGiecgrvrGGL+swuSYItuZVZFbEX2+TMg8QAUUyx+CLULKV0iHTvvGBQp3j0w0/KGFUQ1kKlLZ6dJRIm1KAJklq5XWWI73SSO1ktZGx9X/pjuyaZ0XXQINgJsqITTs41Z3ELQ2vJV809ppeMU3XGlUTvRxHn5GZqxXh/yVubH1o65h15Wx/Qxr87mOgYlQ5PMMeIW8f9yjCkc2EJuiUshjBMrynB9DeCCjtrpImUhDRmqb8dJnyKzCM+yWPs8y8NqfKBnNYdrTtV55rG//VnDNVl+3aTs+Uc1ztvJdLMtk25Qn6nB1wfqLHIWMubyo5tE4Om1/Gm2FCzOOtbimaaChXFzck77b6vHF3Wjw1sJVi5X/a0ijs5Mnc76lB39X6KOMC5iCTyYLVwZiyWJnY4TPq8/xJ2m1g14w5awj7Kz5IrzEEO0xhgB",
+          "thinking": "Looking at this memory trace log from what seems to be a game or simulation system, I can see it's tracking 70 steps with no verified entries or verdicts yet, and the tail end shows ticks 62-69 of an agent's gameplay. I should analyze what this compaction log reveals about the system's state and behavior.",
+          "type": "thinking"
+        },
+        {
+          "text": "Looking at this trace, here's what I can read from it:\n\n## Summary\n- **MemTrace compaction**: A deterministic run of **70 steps**, with **0 verified** and **0 verdicts** — meaning nothing was checked/asserted against expected values yet.\n- The **tail** shows the last 8 ticks (62–69) of an agent completing a quest chain.\n\n## The quest sequence (a clean, successful run)\nThe agent moves through a classic RPG task pipeline against target `0_7_9`:\n\n| Tick | Pos | HP | Phase | Status |\n|------|-----|----|----|--------|\n| 62 | (5,7) | 99 | `interact:gather` | gathered |\n| 63 | (5,7) | 99 | `navigate_to:mon` | moving |\n| 64 | (5,8) | 99 | `navigate_to:mon` | arrived |\n| 65 | (4,8) | 99 | `attack:mon` | hit |\n| 66 | (4,8) | 98 | `attack:mon` | hit |\n| 67 | (4,8) | 97 | `attack:",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 438,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499000000
+      },
+      "id": "msg_011CcrMyvmKVZKk4Vow9uPxS",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 438,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 150
+        }
+      }
+    },
+    "response_normalized": "Looking at this trace, here's what I can read from it:\n\n## Summary\n- **MemTrace compaction**: A deterministic run of **70 steps**, with **0 verified** and **0 verdicts** — meaning nothing was checked/asserted against expected values yet.\n- The **tail** shows the last 8 ticks (62–69) of an agent completing a quest chain.\n\n## The quest sequence (a clean, successful run)\nThe agent moves through a classic RPG task pipeline against target `0_7_9`:\n\n| Tick | Pos | HP | Phase | Status |\n|------|-----|----|----|--------|\n| 62 | (5,7) | 99 | `interact:gather` | gathered |\n| 63 | (5,7) | 99 | `navigate_to:mon` | moving |\n| 64 | (5,8) | 99 | `navigate_to:mon` | arrived |\n| 65 | (4,8) | 99 | `attack:mon` | hit |\n| 66 | (4,8) | 98 | `attack:mon` | hit |\n| 67 | (4,8) | 97 | `attack:",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 438,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

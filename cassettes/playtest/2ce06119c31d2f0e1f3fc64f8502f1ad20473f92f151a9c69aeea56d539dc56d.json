@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2ce06119c31d2f0e1f3fc64f8502f1ad20473f92f151a9c69aeea56d539dc56d",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3050,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpcCCokBCA8YAipAkO3H/H3mZmI2rL1FUg+6XkssU1yT4TwmrYqHPXirgOn6RzZRATA7j14aokY3300ADqQhQTmRt9F1ZkRDQFLe1zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHqOfvGjA7ZtPw85vhoMPL+8GIt0OGzrgJqFIjC9ZdMHQmcWTr0IdfLNcm63DvIVE9n7Sg8ENGzOpixLMltOetWv7r9hh2p6oCkM5r4qO3WJomAFZZ2tcBRUl4o+Akm/D1ELjUmPS4+OOzyklsXH271pNtfNQa2l/ahS8NLM75AsWMj9dBtaxUmKGAE=",
+          "thinking": "I've reached an NPC at location 0_19_11 and can interact with them.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_19_11\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3153,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 45,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1689000000
+      },
+      "id": "msg_011CcrFjgMoqEWWcFZonKRDs",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3153,
+        "output_tokens": 45,
+        "output_tokens_details": {
+          "thinking_tokens": 20
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_19_11\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3153,
+      "output": 45
+    },
+    "tool_calls": []
+  }
+}

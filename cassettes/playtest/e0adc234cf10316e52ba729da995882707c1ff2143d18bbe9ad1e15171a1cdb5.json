@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e0adc234cf10316e52ba729da995882707c1ff2143d18bbe9ad1e15171a1cdb5",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6059,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep8HCokBCA8YAipAFvQ4hbjBjWKayRJCODxgwOW9eCicQoSSGP5EWHVCtUEfzjUe+96wv3F6fk+qhScE6sw1YQom2jvHIR3p3Sw8lTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDK/J1UbNcKafYDDdtBoMNi8jLvg6mveRZ1vRIjDggRtnxQn9+czVa6PqhTBovNT93Z39AVJ/IkDd+9yiEUqDTpWb/emUZ7yfTex/BdAqwgW/rS/bl8GJ4EFjyBIHyRe4roafTwPFl6U9tFqNMJslf2iZnf45v5dMbt1PyXcOyIGsBTrHZrH6s29dJYuFQrWiyefZuPr5If3muf71AknXDJSSiwFps9w6SqJjfIYfOg65ac5ZbgECRedpl6TiiQUBwfvZYkxKuIjOcj5QsW/3HLj+YI5698qKVq3+xqy8LY6oafZJ5vROpy2Ic5S0S6ZZFv5NCZSCHH8TiX2+aSsrZVaI6ph8DVhdgfvxjlBW0AFFgsVr8I7Z+b8Tx5d4M80aGZvQVkvynWaBST7uWJzqqcyzEkVIcSgT8Unz+0q0qgTBFWjOvaHOVNiQ4gpoQJsWwaVktEANaSyq/pWX3VWukH7+jM1eB64L8l3AK7LHk9zyiK5UK5EiE3KnpBG7LlhcNSebM9TdH0theSGXQrgwzh1lTZMFB260MM+ZyKTON7n23Z3BrOqcr4ER7z8P7N2rfYz3mJDLkOj4Ow0rnfWIqhwhk9cDBA/so4MfE1mdqNgKgHhqfIyCyPiz538sFxm4IuNwLW/GhEbPJBEXHAkXZ7brIseQQNDOAHIgQXetiGZOuFh7wtSnpCBbHE/4BbOYOCwzUwqx76y8givzQZuw9off0UHteWbEfpmieqQSHII+yo1JHOTsFaY+x03WsqgGRCA5p1iHikdGaen9Lsr0P4V57jJNNQXAkGj5jhS9Ldb4BxuwCGlMc4rDa9Yq1pytn6lpNrQ7Ma2KRPgOXAsJgwIw/wS+hkyaf1Mc5l7tkMsTHVkeXM5QZNY8n6xO01KTfyPlMlOVzqzXZyuAfGRVvP1ibQSOvBd8Dy4f4WxK+F14Ohdfc6Gn9FJ6UmDM+n2Q9NK9bgD3OU50oTtosvJ7nF9WADPfIfYruzwBQ2ragAn2DKmRoEWmWEKiFmaUbidnBRyEDXRJt5n0RquVqKc1QB1iGAE=",
+          "thinking": "I'm looking at which quest needs the available NPC interaction. Quest 0_10_5 is already completed, so I need to find another quest that requires talking to this NPC—checking the known quests that have talk steps like 0_10_4, 0_10_8, 0_10_9, and 0_10_10 to see if any of them match.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2402,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 330,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2026000000
+      },
+      "id": "msg_011CcrdH5Wu2dkBFy8kXwBDv",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2402,
+        "output_tokens": 330,
+        "output_tokens_details": {
+          "thinking_tokens": 289
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2402,
+      "output": 330
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c1e45e5ca83f3f4e101abdc0418900a047a3293999c6c744bd3a9e6130281b6c",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 10499,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuEICokBCA8YAipA0/n60phjOpwNxsD3ye95/aMbW8JWEgiBpFOL3QO1KRuVfPvAP4KD4T05kRwr/K/pwq3ryN8KnzEDDThc8g+ncjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCk3JXBLsrpS6Dr9SxoMgcTi1jtsAcQ9Y/C6IjDN4bpW2w4A7EZCCi3EZeaQ0Agb5kggXb7AoabRR2dMa4i6rZYg6nQDYgua8UUiHtsqhAcvJ7hzaY80FG3LYJT8I4uQHLBuodx/AuGdOHImbjpF7GoEk9lenWEGfNvSN3l2C9JBXUYABSGr7GOpgNxP/ash0WRy0mMTtn8xGUZcbLP9FG73IJN8/WxxE1lbHse1Zg5QwAEJgIBwUJG4+ptrtkEODyT4UlvGenSyQW54u28kp7KpWJmp6YcePbz43ep79pPS00Kfb2LMiE2V30sMlXy9ECiKZlSAddXaWVZvyahKbOyx/IjKJVCnJ1aK63j5+fr8ROe/IUIDqlhbfJ8RNL74r7+2q8v9kEf6OhhQVUkQcZOrjCki9wdD9CnSzuujG+cm4FiOrFEtUrFNZ11y57GeXGxjcK5X78aA1exazB3DBddaoEJjmFovasAppoT4DK1tBWed1gBljaI7ycPmiTuePAkGw4InGlpl2JF8ayIyDSjqkiKVBgwj7Gvo1z0Ulyw3ml8xC8Ipt3lIp/6bo5QlfuDx6PGQDu1DB7wJhlzX58KZqJc4MiQkQi+Rrj/+AVM8IYjABO3q8OS6qlVGXHAyE9v1voCSzqrj0y80bQfHh4yhL8OQsKrW2sbNMkYCN3dKQ5tyXQL1DlPm+e0rYhKXjI59Y6kjzLoNbgCOmZ1SSW5zpQtIJjh4KpiK04zx8jmPVNZiL7wBKjUI+aqGUCbJbDQU4MkBolnGSXMQE9rloFuBJUVhKMhAj+JxvwRC/wkxlrS20ov84Dkvpg+hu948GBS/MXpBnWk+hKQ1iUcYIuIIxQ2Ctw38dgj6QQij+2w1SHupa1EeW4JScd8wT3yMsOJTvewXqBtcLOKzFuHCQUbhtf5kb7IzIUwiXExIedt9WMikIDGi5la3uJuKiLU4hqzECBLz1v/eC+5Za5QEusRmTv/X0Z7rAZ6IE47Fuzwim77l0bSxCSyRVS6WXjylfwOe1OAsWMEJkL9qBsvZ+dZWa/MpCI9kMXWHbktDdTxGYZJWbrPeqqYDGh1T9pfXRSzZ+DEBKhsP4WHfIuucCK/RFo6EoV4AWoX9KpYPskHqIIaqM+VNsRYBeOwfncvy4EKMoCoBinw8YHDVD0zQxlJ8JUEWTe+uYUp4KqPPgYqNUgGXm8bViVoO4EW7+/3imP7UL3cBhG3FikY6Idc5nBJaW+9X843SEgCjQymhZk2sM6ecFxFSNTxdopD2n7Aj4rasUDNZbg4FPaJQhhMB8yDBsWgYAQ==",
+          "thinking": "I'm looking at a game AI trace log from a MemTrace compaction process showing 59 steps with no verified entries or verdicts, and I notice the tail end references game ticks around tick 54. Since there's no explicit question, I should probably ask what analysis they're looking for or highlight any notable patterns in the trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "I see a compacted MemTrace log, but no specific question attached. Let me share what I can read from it, and you can tell me what you actually need.\n\n## What the trace shows\n\nA deterministic agent replay: **59 steps**, but **0 verified** and **0 verdicts** — meaning nothing in this run was checked against assertions/expectations. That's often the thing worth flagging first.\n\nThe tail is a coherent quest loop that succeeds:\n\n| tick | pos | hp | action → result |\n|------|-----|----|----|\n| 49 | (10,3) | 93 | navigate_to npc:0_16_4 → moving |\n| 50 | (",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 428,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1494000000
+      },
+      "id": "msg_011Ccrm9TeNUoEHC9HuqfjcC",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 428,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 305
+        }
+      }
+    },
+    "response_normalized": "I see a compacted MemTrace log, but no specific question attached. Let me share what I can read from it, and you can tell me what you actually need.\n\n## What the trace shows\n\nA deterministic agent replay: **59 steps**, but **0 verified** and **0 verdicts** — meaning nothing in this run was checked against assertions/expectations. That's often the thing worth flagging first.\n\nThe tail is a coherent quest loop that succeeds:\n\n| tick | pos | hp | action → result |\n|------|-----|----|----|\n| 49 | (10,3) | 93 | navigate_to npc:0_16_4 → moving |\n| 50 | (",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 428,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

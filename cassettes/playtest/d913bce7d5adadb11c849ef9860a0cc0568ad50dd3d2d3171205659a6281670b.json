@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d913bce7d5adadb11c849ef9860a0cc0568ad50dd3d2d3171205659a6281670b",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8482,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eu4GCokBCA8YAipAgLBx7p5twl0eO0w4QlKKzBRcpvMTTnKHgd/ZGaOyR+OgyiOG8/uqoJ64g26aMM8gzpYMHRaOvbDqgQq8LD2URDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDICQivQZUdCQPS2GAxoMbIh5F7ajHkvQRcukIjCkE01j81oWezXO+hp4RJLNf6O3z+tjNmFsIqW0RltqZZc7Rwt4SFcr6QRRnzHakXMqkQV+3KgiLMA8RWtR+tTj9rwd1fjM1ICcaRhkgy35A9ON+oUks99U/cyh4KQzplC8MywU+mmRFPysC/AZZ9x+G6iz1X7qz2ttEddYz/LfRmZ6rbLo7mQoLKAoQh8/XpD/DgnhwPJNNCzi01VuEJJP3XBrR5UXBq8vK5GTJ16AJ5n6VVWgpl22uXmcrL4WqSve68cf2jLogF0FF2/vtl9y4x5uO76FVkaQfd4SWXU6IWY/AuZT6evlAdb2J94AvH+vcL0o+tWGctzFLofA3/aUqIsO+g4v63InrmWgDoirTyZ04CkdgafnZoBPCYqauzry++DJROeSdbgO5/6VwUYVIaN2meTQmOj1FnloiOQ3ANw2ucBPtjv3tFnpyz1lBBpZmGMqZtNNgBv0GaLbeBmgisyWqpLbHQPVWxK1Ai3Ofb2WGkMVD0TomfdhObtJlLrmrE4+LkyLq1vCvrk1Qwsoo5q7tz/ARDY+fhzJ7tdSLSGYXzWAhMG27QirABvlO+TlYmzlnJGFawBljQjQLmP211HxzTbPqhhxNgWWrz19CKS5OnJjsrJ9sZxcN8WgPN4B03Ghyp7hwO4zZt7qVkfiL6BgJNqSjkERGlt6FtgAygWoy0m+Dp/FhBwN/QhBJZA4r/140Iym0BpIzg0o/hisnrwihU0BDbBDHgqVQqa3Z/JcD841LlXij5f6P9e3/senrYwIphRhEl29UV44WaiWgPQM9Wb4SSTHPoyyL+y9LwE92mIsKeTVn2jxzK2yo6qQRyjYiG2Btm/nUAvfZb73RAe4ZPruNNFHHtKqDLw+wQjFXymLSidoj+sra0tP6PNm765fSAOnXfQ2lbAagrTzQ117/U9hgkNLQx8DVeOzWKSl8NEYAQ==",
+          "thinking": "The user has shared a game simulation log but hasn't asked a specific question, so I'm analyzing what the trace shows—a 40-step deterministic compaction run with position and health changes across combat and NPC interaction sequences—and I should respond by clarifying what they need help with.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction dump** — a deterministic replay/log tail — but haven't included a specific question. Let me summarize what the trace shows, and you can tell me what you need.\n\n## What the trace shows\n\n**Header**\n- `40 step(s)` — the compacted trace covers 40 ticks.\n- `0 verified, 0 verdict(s)` — nothing has been checked/asserted yet. No verification passes ran, so there are no pass/fail verdicts recorded.\n- `deterministic` — replay should be reproducible.\n\n**Tail (ticks 30–37)** — a single quest arc playing out:\n\n| tick | pos | hp | action → result |\n|------|--------|----|-----------------|\n| 30 | (7,1) | 97 | `navigate_to:mon:0_16_2` → **arrived** |\n| 31 | (7,2)",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 434,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497000000
+      },
+      "id": "msg_011CcrkuhGXhXk57uW4jciMW",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 434,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 224
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction dump** — a deterministic replay/log tail — but haven't included a specific question. Let me summarize what the trace shows, and you can tell me what you need.\n\n## What the trace shows\n\n**Header**\n- `40 step(s)` — the compacted trace covers 40 ticks.\n- `0 verified, 0 verdict(s)` — nothing has been checked/asserted yet. No verification passes ran, so there are no pass/fail verdicts recorded.\n- `deterministic` — replay should be reproducible.\n\n**Tail (ticks 30–37)** — a single quest arc playing out:\n\n| tick | pos | hp | action → result |\n|------|--------|----|-----------------|\n| 30 | (7,1) | 97 | `navigate_to:mon:0_16_2` → **arrived** |\n| 31 | (7,2)",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 434,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

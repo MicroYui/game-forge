@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0e27415e19bd00d09498f51a68c3ef4d237f0996621acf1564cef497ddfb92b3",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9393,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqAKCokBCA8YAipAZ3vaJvZzm7ouEBUimUNb5HYq6zyofkxCxKC2O4Bgsgd/QIr9ZMVer8gjs6sNHfLTFBoCAI3ld62CQJbfvjABUTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNwrlyFB53A38XM3jhoMFC1iTevlKlMvxSi5IjCz1RoFPKzW67ODnZdRDCm3ej58lmUvUP4+C1DWA2IkLV091EhGrNeiLl2RS/yRJesqwwhcUCTUnVRQhbsJ7mTMFNrZsEqEwaCx3ZgeDCy+GTBzXcKw0A/EhWl9CiGV0fW8EjuVlI5ufajk/KJ/q1N0EOhFh1MGI5tcTsoIaOpM5NHaIExhF36WEEjBuDQr68FG1dMKxKJrNfFZNnD/DT6648AJWvwtiDQyryLD4JOz3RgGuVcKa3MVa3dhF35zysq+lHAIQEk95eZnnodWy1mdUK4nDFR7nSjU5+NanevIgBiMfHeuCwECJRZJ88H6iAUgqWH2wKe//SJKy7AUhLRtRSR4adbClc3PNqa7npQAE0/jpacu4EpSZwnnJME7ImGJ3bt2nSRAD1gjBY9Fwf2OEvDClE59d6odY1gyd5mYuuHiVmXrHP8m8STpq4ErM56B25J39gXb/A/pPufKiooZp8yunEWzXin1OLZGv+PDT1jDtCNIn5CwBJazCXcMdDdOXxV+K6GS5K6SjYJyzNZqxwRdtNTJAIGgL6ewXehmplKFjMBNtmFUWDkbqWB4qFl3XTo9dPer/vDh4qyql7BnrYXBzh/39glEP8W+pS402VGFdiFr6tusWi8GAsiRwey107hGLDtGlVx6hiYr2mex4Jy7QcXraqnSy6a00rzPmAudfCU8FtaZOfuO5AgyD36sn2hgPqMQYVq/imet/VPwA5dGKj5SxyV0aZzQtJOe+aB+hq2zRNZ/axB4/UqypORB6/neFv56rvk906IVxGMbi7u5TD5MPdaelRWFRlJ5CC8B/LjXxcg5CxMuG2VFt9/9YBlOshqH3CA1Z/xD6hf/D/mNuZhHVxsNOeJkXIyaL6rp+adq0y7ejaMBsoSjbI79IdNEWTaIkJWHHk1pjbdN5HKsiXpyW1qYK0lm6haKpSH70QpMx14pD9un1KizIcpCUI+YTnw23Opy39ERaSyIKAzELmYjjeq/5PAYHwGd1TE8TEIur2i6nafomGmMmVJklmE19MnPRNxdMBOfICPTVccV4ZlfgXw0K+VKpS3wXVjQuZ9bY2S9BFhfQb61UHeWBmrbONmWr5ihlP6xGQQrUXMQLzh5NgZr/nFr2OTa+9WtccuZ7P9PZ5GdaSqCseuWBrrA9ppNgAf1/zWVBud6Z8IbwlQJhbGmb/OZCp49Kg0w2bScoAO+W3EgEM0aibvpPEappzyF2gyobSgMYJILWwfXEtgn1wuINxqAUNU9pajUJYE+vBnRSuHdK8Hw6XC/eP0lXsJ6RBGWQmo50TMKZR2E+hbhiBEdQPKqVIpcxY+vd1nx6wO0VFujA2wVj1tETMob4GpZ+z7sN2KkygTlTdQoRlFt2xzyGkx9Z+scyepUJcEGvLopy02pbu6SbWP2PG3k/Ugd/e9UQY2W6UPuyU+gZ07P3n4WHQ55Xn/xANwQiSs3ORa5XB5Up8nXTFjhPSZXeNSfMYoq0brdsU0tdxN2nEh3pszYlhmPRICtTNcjaMZwvxgB",
+          "thinking": "Looking at this memory trace compaction log with 54 steps, I'm noticing some interesting movement patterns. There's a navigation event where the NPC arrives at position (16,1) at tick 49, but then at tick 50 the position shifts to (17,1) with an interact event—I should examine whether this represents a valid state transition or if there's something anomalous happening in the trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "I can read the trace, but I'm not sure what you'd like me to do with it — debug it, summarize it, or verify correctness? In the meantime, here are the things that jump out from the tail:\n\n## Summary of the tail (ticks 46–53)\nThe agent walked east along row `y=1`, reached an NPC, accepted a quest, then",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 428,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1494000000
+      },
+      "id": "msg_011CcriGxBhdkxYRETujF3AK",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 428,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 404
+        }
+      }
+    },
+    "response_normalized": "I can read the trace, but I'm not sure what you'd like me to do with it — debug it, summarize it, or verify correctness? In the meantime, here are the things that jump out from the tail:\n\n## Summary of the tail (ticks 46–53)\nThe agent walked east along row `y=1`, reached an NPC, accepted a quest, then",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 428,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

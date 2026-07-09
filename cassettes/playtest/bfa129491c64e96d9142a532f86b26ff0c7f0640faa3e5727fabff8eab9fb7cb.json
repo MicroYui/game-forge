@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bfa129491c64e96d9142a532f86b26ff0c7f0640faa3e5727fabff8eab9fb7cb",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3484,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErkCCokBCA8YAipAVSP689rn078avXCrA7IxH6WWAvPxtbK5foc07U5tVkKFPXCAx0tSekLfq0ilsfL2EFvZoSapp/lk4JiqgjbMuTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPIzToZCs4R2+QQIUxoMQi7rBRduUXzs+RIvIjBra8Ovdef1bp1tr8xUr2yrU17dJA+d6DEnXRv35gHwS9D3iPTWK79PsS7sNl9nAnoqXT96NUbO+ryxH6keUmrNZZD/cqjpcjckly0Ig8Thk9lmmNMIj7uJEBpYgpVCn4TEoH1ZwR2tk3i1GnjyekweZZGjcZR7ohzzyqUZbGFxpvJqyvUTelTFmmdO6lR+YhgB",
+          "thinking": "The NPC is ready to interact and the last action has completed, so I can proceed with turning in the quest.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_16_9\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2661,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 52,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1460500000
+      },
+      "id": "msg_011CcrmrtAeUGVHhZeszrUMK",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2661,
+        "output_tokens": 52,
+        "output_tokens_details": {
+          "thinking_tokens": 27
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_16_9\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2661,
+      "output": 52
+    },
+    "tool_calls": []
+  }
+}

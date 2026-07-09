@@ -1,0 +1,81 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:eca3c0191d89f8a56b01c53eb87e173a24f1cafe16cef7586d02f33b3b55761c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3188,
+    "raw_response": {
+      "content": [
+        {
+          "text": "{\"hint\": \"Navigation to npc:0_8_15 has been stuck 'moving' for many ticks without arriving — the path may be blocked. Suggest checking for a locked door, gate, or missing key prerequisite along the route, or try navigating to a different reachable intermediate target or NPC to make forward progress.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 106,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 564500000
+      },
+      "id": "msg_011CcrbnH9xWDFSeu1FNxSYo",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 106,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Navigation to npc:0_8_15 has been stuck 'moving' for many ticks without arriving — the path may be blocked. Suggest checking for a locked door, gate, or missing key prerequisite along the route, or try navigating to a different reachable intermediate target or NPC to make forward progress.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 106
+    },
+    "tool_calls": []
+  }
+}

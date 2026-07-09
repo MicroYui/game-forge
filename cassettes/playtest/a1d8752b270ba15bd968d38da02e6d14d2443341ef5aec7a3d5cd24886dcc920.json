@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a1d8752b270ba15bd968d38da02e6d14d2443341ef5aec7a3d5cd24886dcc920",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4822,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsADCokBCA8YAipA2Iig/uqTvjQsbVlKYbc1aiNirGwO6TNDii8gldSUTA5dDGxrks4JowcIv1HvTJaox5avD9UZWsJQPqtSDAgmrDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDA6GFSKkwjvv5WhEiBoMn96CpEL6iE1FL8ifIjDJuYMnHw081mj6joSTsrBjiWn36L5mnteiHTSUiA9VwsA0oWYx8KX45Z5Lpos608wq4wFq7UNSIHJSSsV6/x66J4UoriF7BDLETwwFag8fmZjW5kQcyORyo7diwGk06qoZFVAt9OS2E0wJuFo4K3XDrwuHdTLJNe/N8WCD+cly/e3zKA0pu5VJw11w/PvUTRFAPAHgZpPGoMm6j30TP7RXuZanOXFTokmwoJCs6V2AVemxgV6IluGScDHbPwr9rYq9v0FfMD7KeOA0d/DRix/xIdiR2Aq74nZZ7Oh3ycy3vFcA8befaOuj7G5H+xyFCQgajIWqMP71F4OQZ4zwDOACfj08aCg0HIcuvjXvvSv6eu2vOY1SHxgB",
+          "thinking": "Three quests are still available—12, 13, and 14—all requiring dialogue interactions. The only option I have right now is npc:0_5_15, so I'll propose talking to them to accept a quest. Quest 12 likely corresponds with npc:0_5_12, so that's my target.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_5_12\", \"step_kind\": \"talk\", \"target\": \"npc:0_5_12\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2865,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 133,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1765000000
+      },
+      "id": "msg_011Ccr4FnBjfms9HctoRmMof",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2865,
+        "output_tokens": 133,
+        "output_tokens_details": {
+          "thinking_tokens": 92
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_5_12\", \"step_kind\": \"talk\", \"target\": \"npc:0_5_12\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2865,
+      "output": 133
+    },
+    "tool_calls": []
+  }
+}

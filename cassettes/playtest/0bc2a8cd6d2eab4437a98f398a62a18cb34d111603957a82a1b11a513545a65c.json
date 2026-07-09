@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0bc2a8cd6d2eab4437a98f398a62a18cb34d111603957a82a1b11a513545a65c",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9078,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep4KCokBCA8YAipAOqH307S/0K0vSiKYSkvELQb7D+ojrFwrRYndDZojGMZSdaTmIPFZpQz+RtEF4LFtQqu1wqA/jPSf2E0zjSoaIjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCFe55r8+GFH+J1RzBoMBCBJB4nrxvFtf34gIjAsKByCSSMCaIApKLc26WcojvZOQ9ctcXai7SLjq9csRU45Cp/E0QOb+ML5Y2o41WkqwQh0VlN7M2eXUct/Rz+C7sNfvvjgzywLTgcqXjb0tc5ZgmWoQT9Atcd1qqW5gCXBzmr6i0pvxx6EzEJgoDmMJ4XS/wTOEhHWOAarHOZtTAO3XhUFf8IyRVSnzcKS/mIuaE9Vgm4+5Yw2iPCOI7OUKtIm3CrKY9fLLrPc4W4kvxDHdC0HbaGRW61f+KGljowDsNU+uIipXeLzqR3VD3lL2FjLBLvynKkSviArZta3bKOzBaJsTJyAKksx3BWpJdgGVVW/ubSZLon+UKlwvMdjbUYDmjuhh4oaZ9m2RqHlR9faRtEdPgPIm6gs6oCixSSdGT4m5LsMfQwVaeYX8mCoOwZdmw983D5t/HMqnocZ1TVWVPWU2tlgl0/0ov56o0z6/BMqTdP7YD2+rURasRoRLaoGwjPBZ43liHPbvPKkLQ+cPcwXy+gplGpOvK94emUDzgpkfM2uS62R1AGD9OEJi3Yi0e2E09Q0d+YP4ykt5GU1a9Z5XSaV4jMKS4LnGmyqJy0pa66Gxwsb4UnUynElrEIf1fxwQ5wxymtEAXq+j0MSsCYoPUgOCccqgrEmXB3RcL45BaDAOBR+WeQoTIZdRy2NczOjPSk0dUf1mR350cUHdMW4PFJ3O5kWd2Z9YCpBQ/KVgcULPtO4cG/TsXsyIktM/CfQ93IWxh3asSj+Ca3l5I8YajtmNtNugZywxiRUET9TQM1pyEI9QgtoM6wnoYkSd180VdbqhMAkLRjsGBDqXiSyuECuNNAHsjkFeWq6tgZlexThHPVUcJW86NXlX0Ywh8QANcP7mzUIekGabx6RtCxpNxvJPqZilgs/NP0V8yqU906lQIdOzO5IGH7C+fQYhYlO3zZOd7wqZt4to0pLnkQKnDKZxEy29g6x9P/WGUZJkek3phHFfG7tN8Yfb+MvNcDpZcRoIfjqcbtZRA9IZO4O+W8UfqzX/hJfpa7RFTr3dP0uD5ptGJxQJq2RZ6r3kjIHnUi+F6qdzbyP9ieDc5Pon5/duUmWQI5gLXJVF1kaCG+Vs04ZopsCUpUPT5S2XcRVz5BVSba+ivfl6n4msGtM5QFECDr799WRvw9AnCTXN6hGzbCUZEWpsvQTIfur6DyZU/z/QKVcNHI1YGsVTkKRT3C9V9ocdnmNLzcuA2mXciHj8O6iiMMEbw9TI6fZMSAoHVQRxMZOXzRXnR9MXMvRb2PUxxY9ZWOVAHlPY2UOCyzeXNQrtQ3LO9RL+xaJwgk+KjE+iX2Np4+bt6xhbo5KH1gibBZwRYKw8lWc65YzKwt7zgH9MFenJpV0bv6F9dyPBn3LF6Rv9Vo/KCdIr9jYE33k06ZfdyulHuBWurSWIX43VUzgu2exmip73nEdEt54GnE99YHwp9wvJFSbZtAWWQCwPjxuJ46KJCoofcuqFd/LmOzthwLkEtVnlKVM7A3VBCXkkgDeDIX0qciZ0z8YAQ==",
+          "thinking": "Looking at this MemTrace compaction log the user shared without a specific question, I'm trying to understand what they're asking about. The trace shows a deterministic compaction process with 28 steps but zero verified results and zero verdicts, and I'm starting to examine the data for inconsistencies, particularly in the tick sequence shown at the tail end.\n\nI'm noticing some odd patterns in the trace data. The active_quests field appears to have an unbalanced bracket that starts appearing around tick 23, and there's something strange happening with the player's HP values during the combat sequence—the damage progression doesn't seem quite right, with HP dropping from 100 but then showing inconsistent values in the later ticks.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 431,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1495500000
+      },
+      "id": "msg_011CcrkMV4fwo5tSgJe5awZd",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 431,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 431,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1d56538a0b7a438304a09e60a3dfc675773f33449ceb688372fdcf5485d3bbfe",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8729,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpkICokBCA8YAipA7++ygJNZzAuGW9EZEzvYCewbwqsWCLVqswk9FnW6xeMw6lYb2CaqCEUAeDgqxl2VmoEmLh7ztPepd4C2wiJRJDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDELvUDN8u7xakYfiRxoM0FI/8pbIZsLsZwzuIjCNLctkKW1ucWZiCbQcuKdfvzT7sJGOFtP/gC5llz+I+QljAl62HXeQCXoFq+MgkfYqvAbLc7FdwvFGfC23TcCp4JCEfhwp/+pvVwsYUHoQCUQX2DEqxphb/p8+rIMrpHylfWO33v5vLfbfG6vRi/8i5O6084brnNX8Kjdni9/7e4Jmxrf4hKyDf/q2i3o5FQEzyI02f0RAd+lduYfiY1sV/tHXjVflfDhZJz+85VUyhpV1/NidhKJyPzdtD4gpCYwn4VSDXupRY4X0rOL9hn2R0HntUZyPCWr/JlLlVxSkOMr7W4lpwpNsZ+v7ZBeJ4BChyaFIfhlouGlZcKksbJoDmkxG5VyOEAWhBBcgEFxdNhejwMslFA42jHMDqZzY1gL1PKq1yh8if/7esrqTQW9LB+LSK2MH5E8EUHUABKtd23Pnm3WLOoRRqbmL9qS/lkNEg4kDaIhqnSoxe1yHV2UJhs0fsnL5LG1uFdoRfp2hO94ZDz+fYNyYIFZJxgQ6bWqx2dRfyb7fIfE6iwSxqfxAwl+CHnUxISSRlqgApOvaNis5QBpyCtK05syjUknnm+yKv23q9rYupfX+A8WkxdEq4Paml319/tBMJsr/7iP9JFVSMLJEckpyj9De3k1HNEr83sLn3imMRp8VmH80utBnZKiwY0L+FjxtUyGbwSCNEaWXGD61SQBm08nxvQUg9t3lWwcXPUSHrvGFoYVQ0ryOFira+VsPB+ctnWm2mNNH/z+X3zn+F2jOi9iTtL9V0zCLzq6ILMDn12qdaplQZTB0c1CCKUpncvJ3WIVVXz5D1pWkVQWTmzc0v6YZQy+S58jzgPEWxVTPYKjNDiqrtfRZE9PHjVrAwIbsWCsUichd/WpCqvuhEkl+PqYrERsKN/Go5ETYGz2QpwsJKamojUDHgqB1OAfxtnQRGkDjPdKWbQtZXs94WxvG1EcUo5MO5TQ9NMa8H5XWyvZgLnLIdk6Tkjo0hguTH7SRqUNqKdoqyVMMrQEKT9J930XDodm8N2C87Wb8nLWAWt7p0SouOtxmoVqsnDO6JHkWMETz5+OKCdEgbKwC+nXQGYj+4mSIuFQA0p8ISbu2pQVzDuusXQsto1PGQ5Zduv4RVk2WvO8peoelqtXB6RCLGwOT8NEgMH3A0lBpNNbCLxy8tOsRyxIYAQ==",
+          "thinking": "Looking at this debug trace from what seems to be a game AI system, I'm noticing the user hasn't asked a specific question, so I should probably analyze what's happening and offer some insights. The trace shows 112 steps with no verified outcomes or verdicts, and I'm spotting what might be an inconsistency in the movement sequence around tick 105-106 where the agent appears to arrive at a position but then continues navigating and interacting.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation, but you didn't include a specific question. Let me point out what I can read from it, and you can tell me what you'd like to do next.\n\n## What the trace shows\n\n- **Header:** `112 steps, 0 verified, 0 verdicts` — the run executed 112 steps but nothing was verified and no verdicts were produced. That \"0 verified / 0 verdict\" is often a red flag that a validation/assertion stage never ran or never fired.\n- **Tail (ticks 99–106):** the agent is at ~`hp=89` (stable, no damage) and is working through a quest chain:\n\n| Tick | Pos",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 434,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497000000
+      },
+      "id": "msg_011CcraSY6CxAC8FrdWGVW7A",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 434,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 284
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation, but you didn't include a specific question. Let me point out what I can read from it, and you can tell me what you'd like to do next.\n\n## What the trace shows\n\n- **Header:** `112 steps, 0 verified, 0 verdicts` — the run executed 112 steps but nothing was verified and no verdicts were produced. That \"0 verified / 0 verdict\" is often a red flag that a validation/assertion stage never ran or never fired.\n- **Tail (ticks 99–106):** the agent is at ~`hp=89` (stable, no damage) and is working through a quest chain:\n\n| Tick | Pos",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 434,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

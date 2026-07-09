@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:77f5781892d2cf2b4dd8c43ea3651d8c9d199523d4858d9e36a0bd8a49c76208",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8637,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eu4GCokBCA8YAipAtVz9nPj/6rn59Oe1SKCGsuRwxtm7lQ4rr0K6mq+b+W4R6rlvKp0heihIo28Ivn3q3ezo49f8AXZ3cmHzNI3hDzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDaylKR1Uo2oPlq68xoM+zLuGJgQKW6v9KU9IjCyuN8eev61ieaBpTy89P3gOvbI/Hoj+A9Be4fncAYav0I71uxi6D/x1SyvJCQHRakqkQXagWQ5gZJsnm2N2Z3MiBpNem8j6YpI2yZDooXAV5N+h//d2FGdvKy1n9aJ23nUHwUhghLOLG2K6bhB568aFgi51LnA1m0u7WPeBlCrZQLl3axBBmaMJNKXcki33KS5geY9VVxvlSzpkkiZVwd7Q78AxNS4EyMFInYCPju2gpnTmPWoEnymp2yvVbwuaM/N4QTETb63NAo0dlkge0L9lsnUTw8vMQ9chl0TuBGHTqzoL+QsHSAPjgJcVV1IqMUmsvg0g4iI/DNPYp/p8DVxGEbSqvHX2/Mk089uLbdBMVenY0xuvh30jh1zgW4dFhelZJ+Gv6UVvsux7uQwuL6GmyXdeLxmOT0ZOll95fcC289g4qq9LDslbj4y3sg92W46eYvHEXvpJwPX5vg6OJR9Ttw64hmhTgtHG/6zZp79SKx9UVgBiezRURpLlCw2k3FdOi9pRD6TT0g/dVNtjJ8/mgCfciAuuaMVIFo6MgaaVF1KlFTR5Ilgxy2k10YSMDIOxZ6Xc+a8qQbzqyG+a4b8R7V+J5FkdizqcThzUGckQLfs3n53l5EQA7Hm/iAoIkSFzyO91vQigaCamLLMhA8R8cwzq+aXRSTPvUmzzVkUFoXA5Mk0LOq+iIpcqTxY54PyDTVz/o3FmSK9HjPLWr7VS8cl25qmsQJR02UH75kxrmwIU6iR9Aren8r/RWso0yxD+a9BsyON5CJJM73g3j4AAwYAZqPE78MZ5i2hsA/wRDRFlEpHWqXNzlLDz5PT6DKwXAkzCgk+A4W42OMcuueuogRO+t580nQCzKBvvCiXF+ftnZ4VZiMSAVtSceL2LAJKS7A6cGFQVtJDqO1RBwtUf1vGYWGPTUu28XDEHUYULCseaewYAQ==",
+          "thinking": "Looking at this trace log, it seems to be a simulation or agent execution record showing 14 steps with deterministic compaction, and the tail end shows an agent navigating a grid-based world—moving around, encountering a monster, interacting with NPCs, and progressing through quests. Since there's no specific question, I should ask what they'd like to know about this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation, but you didn't include a specific question. Let me offer an interpretation, and you can tell me what you actually need.\n\n## What the trace appears to show\n\n**Header:**\n- `14 step(s)` — the trace was compacted down to 14 recorded steps\n- `0 verified, 0 verdict(s)` — no verification/assertion checks passed or were emitted (potentially a red flag, see below)\n\n**Tail (ticks 6–13)** — an agent on a grid completing a quest chain:\n\n| tick | pos | hp | activity | result |\n|------|-----|-----|----------|--------|\n| 6 | (1,2) | 98 | attack mon `0_4_0` | **victory** |\n| 7 | (1,2) | 98 | navigate_to npc `0_4_0` |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 447,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1503500000
+      },
+      "id": "msg_011CcrJCMJZgwF3shZnbxKvS",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 447,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 226
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation, but you didn't include a specific question. Let me offer an interpretation, and you can tell me what you actually need.\n\n## What the trace appears to show\n\n**Header:**\n- `14 step(s)` — the trace was compacted down to 14 recorded steps\n- `0 verified, 0 verdict(s)` — no verification/assertion checks passed or were emitted (potentially a red flag, see below)\n\n**Tail (ticks 6–13)** — an agent on a grid completing a quest chain:\n\n| tick | pos | hp | activity | result |\n|------|-----|-----|----------|--------|\n| 6 | (1,2) | 98 | attack mon `0_4_0` | **victory** |\n| 7 | (1,2) | 98 | navigate_to npc `0_4_0` |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 447,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

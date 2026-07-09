@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4850407eaff6dc5d198c28aef745a46024e49b0a661e81156730a781ed023ac2",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8624,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq8HCokBCA8YAipAq7JBtxl82eaIhNEMh43M3KsdLrQxsFTmNMU81pU97uuYnUGL+LKjT300oZ/hC4DKpFzd0VTPKoBRA1g2MJNKqTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDL4OX8slMhHkLRDJ5RoM8UutqHN9eRV7uy4wIjBrY5ds2MG+J7AobsF9L64s+r/0qsxMPGPP7Hk2eF8W/yCtVblqmC2zntp7CUBBVhoq0gWTvWVKPnw07RebxSPbT1o5ClxQy3ytrLJKsC9j4eiAX9SmElVhsFJgHcwTk4HzWMp6Ihmdxlgs646rOP4rE6fo2xovRU7S64qYOjrCc88QWaAGO9vZAzasuDHeHj6F2R7TsuZi3ZUXFrO64Y9iC9Tv1DEsP6elH851JQ0yBfQ7QZWG/w4cEXGr6sYSLBlJBNypncV1j7AcyYiGN3sDv97nBx7BEnHwHnqXzYQe/idzdSGjyyK7MQFxH6ccXfIX2O3lkies2UBgPbamG6DojH6DHpkvgCpA30gaaDHtqaJ+ycR2/cKd/VS8Iy6qu41AcQWS2uXxlmVbk7mGm614EchG66MouNaEGa2kuk3QW5XM6zq2sB6xsAAJHHirfw+gbFlnXBdvowEg8rXi/LC3UMtU411+R2fFoJuhMu5oVqU5fIY478cIPI6xJ+Gw1p6zDILGiiYgulKyMfxJFz9CjzNbsDxt9j8pNqbECnSuiYfqC8cd01OvDEsWMTW36XXBTEHJTPACEaNaVglBNA9bI9Eb2mPZy69vRfl7tZH3Nqp9W4syilkOJFUmsM0ezTqNVxV0qQNshuQTnAec1Q7LjWdtk2J2DnM0TaHaGavmsY3jNyp+xEX6ywwhoPZL5Vqv8lEdXQll9wDZzDkvO5uldsaG+tAlaEvsgNKSnjWqJYhIoBbfC6pA9gCRgS13ZiWPp6aTZG4BDpqRmOu1OwuGftjWt9PKyKqf3mIVpYf0tPKbffV3WTsPI681mEWzEpmWHfNvbihiOwKrokF30v4YsReEe2oFwbnURqDdL7+FpeVJJkMQ1pz7oxBwYf742W8IU8DBptHS/g9iIlsqNO7Ax9cwTK0JWhIkUkfXTpwVy6ZhSvleUBQpzKHnvvs6jsToSdLfor+LkjIf6F08d4LDs/tU26HKJONfGbhJspUSPqYkaSjNYf7rPZ19xB4Y6/ieFrbYohgB",
+          "thinking": "I'm looking at what appears to be a system log from MemTrace compaction, but there's no actual question attached to it. I should ask what they'd like me to help with—whether they want me to analyze the trace, explain what's happening, or investigate something specific about it.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace/log dump from a \"MemTrace compaction\" run, but I don't see a specific question attached. Let me offer a quick read of what this shows, and you can tell me what you actually need.\n\n**What the trace appears to say:**\n\n- **Header:** 146 steps were compacted deterministically, but `0 verified, 0 verdict(s)` — meaning nothing was asserted/checked against expectations. That's often a red flag if you expected verification to happen.\n- **Tail (ticks 135–142):** A single agent completes one quest cycle:\n  1. `navigate_to → moving → arrived` (ticks 135–137): pathing over to `mon:0_19_12`.\n  2. `attack → hit ×3 → victory` (ticks 137–140): combat resolves, monster killed.\n  3. `navigate_to:npc → arrived` (141",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 413,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1486500000
+      },
+      "id": "msg_011CcrtAkRXFkRuxB1uq6xHD",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 413,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 227
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace/log dump from a \"MemTrace compaction\" run, but I don't see a specific question attached. Let me offer a quick read of what this shows, and you can tell me what you actually need.\n\n**What the trace appears to say:**\n\n- **Header:** 146 steps were compacted deterministically, but `0 verified, 0 verdict(s)` — meaning nothing was asserted/checked against expectations. That's often a red flag if you expected verification to happen.\n- **Tail (ticks 135–142):** A single agent completes one quest cycle:\n  1. `navigate_to → moving → arrived` (ticks 135–137): pathing over to `mon:0_19_12`.\n  2. `attack → hit ×3 → victory` (ticks 137–140): combat resolves, monster killed.\n  3. `navigate_to:npc → arrived` (141",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 413,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

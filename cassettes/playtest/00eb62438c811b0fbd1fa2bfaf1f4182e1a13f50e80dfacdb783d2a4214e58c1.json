@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:00eb62438c811b0fbd1fa2bfaf1f4182e1a13f50e80dfacdb783d2a4214e58c1",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7429,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Es0DCokBCA8YAipAdurmE6L6/MCjnICvjSDBujxE+oTnVIZwjkOd2UU/psSUR/x3RQ5nyNLSwgYkqK/0bo/LG2asU+9zA4w7I7GiZjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDA3PIk4sY75pAOnooxoMkdNFeUsclwsANyDeIjDduttKE0WwZvyk/9kj64VyI9cTxCEgyurG/SmSAldMyrX5jY9QSW++bWTXinZdyuUq8AEC19mjOBxDxp3wgsTeA9Goj7n4J8/DM9pIuVNIGmnFiCtBYuY+WMJCMBYiGjOwEkXobtFHX3RVLUO1JEIYKUNTVcljdVbtPOnCcS+SjNDNGQo4LUaEE/gunliGI6CEWvNTpgiJ4HtaddyqSP5PwlWNw8/GnWb1HVZePrxWfIAQ7RfQLjRwKryEwXi3jauKDDxCWfHhYOGmb2EbeskXU7WdvDOd2t4JqTLzpTye7M0dfSEkg7P4jrnucf3RZfqpdCqv/7vL27Gin5+z1IWk+9ALSGU3J+IdFeeNv9d3CtYLsGL8PjdkAeykVadTV3lXRxIYAQ==",
+          "thinking": "Looking at this MemTrace compaction log, it appears to be a trace from a game AI or agent system. Let me work through what's happening in this execution trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like a **deterministic replay trace** from an agent (likely a game-playing or simulation agent) that's been compacted for memory efficiency. Here's a breakdown of what it's showing:\n\n## Header\n```\nMemTrace compaction (deterministic): 12 step(s), 0 verified, 0 verdict(s).\n```\n- **12 steps** were recorded/compacted\n- **0 verified** — no steps have passed a verification/validation check yet\n- **0 verdicts** — no pass/fail judgments have been issued\n\n## The Tail (last recorded steps)\n\nEach entry captures the agent's state at a tick, plus the active quest and its outcome:\n\n| Tick | Pos | HP | Quest Action | Result |\n|------|-----|----|--------------|--------|\n| 4 | (2,1) | 100 | interact:gather | **gathered** |\n| 5 | (2,1) | 100 | navigate_to:mon | moving |\n| 6 | (2,2) | 100 | navigate_to:mon | arrived |\n| 7 | (1,2) | 100 | attack:mon | hit |\n| 8 | (1,2) | 99 | attack:mon | hit (took dmg) |\n| 9 | (1,2) | 98 | attack:mon | **victory** |\n| 10 | (1,2) | 98 | nav",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 438,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499000000
+      },
+      "id": "msg_011CcrkaM4a34WZjkfJP1uLW",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 438,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 74
+        }
+      }
+    },
+    "response_normalized": "This looks like a **deterministic replay trace** from an agent (likely a game-playing or simulation agent) that's been compacted for memory efficiency. Here's a breakdown of what it's showing:\n\n## Header\n```\nMemTrace compaction (deterministic): 12 step(s), 0 verified, 0 verdict(s).\n```\n- **12 steps** were recorded/compacted\n- **0 verified** — no steps have passed a verification/validation check yet\n- **0 verdicts** — no pass/fail judgments have been issued\n\n## The Tail (last recorded steps)\n\nEach entry captures the agent's state at a tick, plus the active quest and its outcome:\n\n| Tick | Pos | HP | Quest Action | Result |\n|------|-----|----|--------------|--------|\n| 4 | (2,1) | 100 | interact:gather | **gathered** |\n| 5 | (2,1) | 100 | navigate_to:mon | moving |\n| 6 | (2,2) | 100 | navigate_to:mon | arrived |\n| 7 | (1,2) | 100 | attack:mon | hit |\n| 8 | (1,2) | 99 | attack:mon | hit (took dmg) |\n| 9 | (1,2) | 98 | attack:mon | **victory** |\n| 10 | (1,2) | 98 | nav",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 438,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

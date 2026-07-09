@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:14fa8ca1e06ada6f8f5089411a00655ba226fa2c3c224897da9667708ca2af08",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8804,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqIJCokBCA8YAipAXMZlxzzBL03jBBzDuxC/+a0ZCcNP91MXzBIINdLmpuu1fq+AxN/0BWLV6xXej/hUsV7CNmfFWRv4Z6LlkvCERTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFizALfMtAh1XP1MJhoMpyc8dSDtb0zTfVsHIjDzBmRh8AI7lzGEDYVoNjifbkCc1a5eP2mbBhJ1hvvcsTQd6Ou3IbW603FAT1xIw8AqxQdOjHik1I3oMNgOIeHJUDsIkDTiDUHGfIDlqTqIpRDegAzXh+0DTQOj6lboRSK0mDjINOQ5/fU6j6uEl5W4w/b7xf4djCsI7mSJU7F2RC3Dsv59CSl8EuRjJYB2zb6bJCBRP6ckGAo7wkatCpzvTvZrk1kOPTbd2y6Yb28mWISrX0sDR8VIintMevabO9yxEDgo5qIYgHDmOaigW3BkHA9A4SpMITrywzRXDzBafwJLmoNfbJAigziFBODVp7nNyCZI0FQreXx7pwCdpuLhzD/GBn8RgMmNZ7DFRrXPrwVXKaawlcveGb/9K46En4gWLFsHj27MQD/6Eir/bnq/UWAxva+yEB/SORrApzLzdVBH2RmYmhAr/UNmkSwB9VxmeOgFPvvtVuPV1WJasYH1okhWJue3W+siyhqll2A8FfHsEZaDI+ebpIGOCPY3kv/NyrIUDf91YPZFLh6yDzGk56XkYY0/ciHHlkHhKhondTw341hRpNkxSfaMgwcT81V0nNfOpJqkgShUul0tIIKNZQyX6U0ShK2gnKByxTbjs6650jWqVEIH7PThKG872Clhhg8SxcCFjp5Z+4Dq/4P41LUyQNj4QnIujanbGVKWbugTCFEPPyLIB6BLYB+YOLWds/C9TCLnY3QFfVjyeuWRzV/YU6hVAb+O6v5hAKN6VyJ2HOR30sEAvPPq+8c1YmIs1xgBhBTQr55QFc7+Li9bMghCO31V5AOkh9/kLw8c0nKa3dsgVyvsVFFNBff+vMAQhLVeUgiFi0gkm5kG9wKllQK61I81VFYTe4ZhPBQ8UpmHhByJUKU6t8RFd783OJF+vphRt9pDqBqhVMHTY1tuFID1zInk8x1YaIu8FO6GECkqWYWMwF7WQ5wG7fTTptGzXyUnxwZBA1eelzvCp2LavbsnwA8g50BhPt5Txk+K4+5XfJEaviucSep9kuU8MZWhEP8+1VX/xwzMcDMSUFUsC+1mXnw7PPcEa9J0RDNFHWdXxiTpm4SIUUk+ZYHqDrjKlEIefV/k0E5g4FsnrH2IlnFUFuGGTANoRj8+NHegg7hCcW10cSaiFSmzmP2zvBG8TPijqnGdUlXuXhubrw5mfVCEE9WNZw5q/QvZHCPrliM8AZmw0TrrbzTZRPWImql52fu96AB8doQhmLfvHIjqlcCKMyeWOiO1d4KKLY08/03JPjtcLmJHOv/wjKhJXyNa0IdQTeoSBz3kHmwtYEU0YklMSoQ0JsflnXbdVuE1f2DM7lu0W6jm8opC8XgZjUiFDwKpZxL4SxgB",
+          "thinking": "Looking at this MemTrace compaction log, I can see it's a deterministic trace with 149 steps showing game state progression through ticks with position, health, and quest information. I'm noticing an anomaly where tick 140 appears twice with identical state data—same position and health values—which suggests a potential duplicate entry in the trace.\n\nI'm also observing that the quest field naming is inconsistent, switching between \"active_quest\" (singular) and \"active_quests\" (plural) toward the end of the trace. Additionally, the NPC navigation target increments sequentially from 0_2_12 through 0_2_14 over several ticks, which appears to be tracking movement through different NPC locations.\n\nSince there's no explicit question here, I'm not sure what specific issue or analysis you're looking for—are you trying to debug the duplicate tick, investigate the quest field inconsistency, or understand the NPC navigation pattern?",
+          "type": "thinking"
+        },
+        {
+          "text": "I see a MemTrace compaction dump, but no explicit question attached. Let me flag what stands out in case you're debugging it — and tell me what you actually want.\n\n**Observations / potential anomalies in the tail:**\n\n1. **Duplicate tick 140.** `tick=140 pos=(12, 13) hp=83` appears twice, back-to-back and identical. Either a double-emitted event, a retry/replay, or a non-monotonic clock that stalled for one step. Worth checking",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 425,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1492500000
+      },
+      "id": "msg_011CcrHt7rgR1E5XtC5Necm5",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 425,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 354
+        }
+      }
+    },
+    "response_normalized": "I see a MemTrace compaction dump, but no explicit question attached. Let me flag what stands out in case you're debugging it — and tell me what you actually want.\n\n**Observations / potential anomalies in the tail:**\n\n1. **Duplicate tick 140.** `tick=140 pos=(12, 13) hp=83` appears twice, back-to-back and identical. Either a double-emitted event, a retry/replay, or a non-monotonic clock that stalled for one step. Worth checking",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 425,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

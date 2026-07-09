@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:504fcee9eb38c52aa5c092cff7f343eae934881f09a72ea021160214622323cb",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 8407,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtsGCokBCA8YAipAhYWWnz3VenK9EX6+JNSkeHqTmXcwKQICkJTCS6Xc/oDClQloRHuiWrJ/jq1h9UNoP8SJ7pqy9Alo7JrhcAUn0TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDzqLS9xC8UcpayhIRoMI2o00d8Ljja8eZkrIjBf6HBxiokDVF6du7aqXyf8o84kmtkP0Ux+PSraak0YtNsgy1bcjVl7DTl/NhagQm4q/gS9uoYTXYYnIxY8aOm/ow+mI8sXXHeI9IRgv+H64ra3N5yR72VawVP1lgrnw+PMnfaaj4HsKnOZNzNTk68aRZxU8m4tgEe9cOCXIdn71yarYEdsa6h5KjQ9IQBmhu96Th4xu2Dpx9y4AoQxEYo6rsQetqEZYlk5bbiutUeX97vTkvfgHQNXTjwyrSKAzKj3I7dJm8g179IIbpNm/5lUL2vlPjmeP7tAAS5bvhufLdhajmBLBQhanBTzEB60OZaxDkSFPHw8OTuv6pnbaxsMBqU+kaXbO8gFOdEhcQDJemGwis22VktKaUdX3etnZGBT6YZ1VLUfxMMBkavICpgdqgFEt2luvidp8gs77MPSYn1RMUKgS3Hra2OHbs9iHLUA7xzX1V4f1Y/WJNWcN8YujDP6Wc6L5WRBDU3hA+qzYUbuzbYHLphikPgRENxE4Nx3TToY/ZNQJZ9QNJUaonwHjFa+b0s8NVeVbJM7JKnYTtIVTnDBiHWQeqbR/RM9+2YPvJr9NOm6Svbrtn8BkPI888hxgS9n0YNUcoy9ZPRrdPsDJ7ux3fSdp77NHr2RnZeDtDJLC1FoEi8ERmDC5cj6CTymVtgCQoXsMtBZi0S/ExInXLvR37/h4TJV9w135xTOniA35LslTBkVVE1ybTjekL629oZoALGnM6tYvtZQS3utpVrwFXG4XKO7CHk7B5JK6wkXXrf4tlX0MSbVXO9ZkSk0+EiEw+lXFNmPN3ubbpV//dTBjCAlK8vAHyPjqqejAtmS7nKv5IKpo0/w/iHiMU6IxGRccY3tUutdP8evGso78XBZkVvAMfCXoQgsJh0gSqaynaMRaYsvCYjvt+0MmBgB",
+          "thinking": "I'm looking at the available quests and NPCs to determine what action to take next. There are no active quests right now, but quest:0_11_2 is available and requires talking to an NPC. The challenge is that only npc:0_11_1 is currently available for interaction, but the quest step targets npc:0_11_2, which is reachable through other means. I'm proposing to initiate quest:0_11_2 by talking to npc:0_11_2 as the target, even though it requires reaching beyond the immediately available interactions.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_11_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2708,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 307,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2121500000
+      },
+      "id": "msg_011CcrdzEkfUTacAFit3Hdzq",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2708,
+        "output_tokens": 307,
+        "output_tokens_details": {
+          "thinking_tokens": 266
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_11_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2708,
+      "output": 307
+    },
+    "tool_calls": []
+  }
+}

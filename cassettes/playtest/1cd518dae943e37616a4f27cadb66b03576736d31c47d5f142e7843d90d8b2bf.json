@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1cd518dae943e37616a4f27cadb66b03576736d31c47d5f142e7843d90d8b2bf",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6524,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErUHCokBCA8YAipA329yd1+KGtHPHI1ghM+ISN65MEexeAOrD+UlWJHF7Py8+rXTxMuduG1tWto81lx50OU5CH0T99pn9bhLVPlD8DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDD78AdV4w6HPMzJLKhoMnr88jsC8tC/w4VXTIjAVU7Pmi/O+BwrVvWdmW+vDx0RpoHDDiV9cqiENshL2/K7mYVkwRBoLpMIEC3yutJYq2AXwfHdUy4Rvvnzzm0uNhfeST/q8G789VnrNqlmI2s2KSGL3+M+mtrjt1D4l+v5gg6QypB2epy2Q7YiRBAkLLhRYV/Pho2US+XV9/QtOrpd2Gf8my8/SooM8Kq/jFYNTlNChf/GY0Nc9juKEMmgUUUXZJvZN2p+QLSarCEUy36JiSLeaya2w1YDh9yCaCrODfiB+Vr6NPiPx/4yvdlcqWfrQRmaC/SzcklBiQWrJr8zNC/NYpxit27Y2Mwo5TEW2HIDq0h3raB06pi6Xa0lvGCja6XslVTpE9KClkfPiCnvMER8eeofKke9cbiyr78oHnEcoE9TjdtaEaLBG2PrizLtOfMPZBKq1JrCv2ewZXEySKytZk3gid8jTFN7c42sfRCgRkIicgA9jxZGRqUpyTS8WMYQZ4OqCkLstsCkOyYZidLtRaaDE4ZM8lEFaB1pjzixDU57gBKNRMXYNxwpxC0BohCcQRbf183FPiAkeDHuIBzljGVXpD+VkyIjbKHnj2fnLys8rmaxftDfmaHBw6hbgDvIV46zuwLQ37sv80eanfNGEv/KwUpYNTedRguMBa1YYmezIBTGrcf2vQ3KFBd105rtNKYa/CE3qBF89XfVGTfEFE3ZDcvPKDavTfqGPbXmW3Ote6xVF4DQ7JGguXzHW9nycU2qBn2ZrK5BqD9gOnA70Dw22N4OF/jh71E0P4r1wHQB6awGMaJP9AFEWwCYXAYrhLe3StZEQrWrzh7t1RF6WtClb9PXszrpR09DMLk1jpXWrfdyQSE4eui2P4/+R4ksAMUxJsH7WZ606I0qAu6xqhwExeaw/dOVf9mFssS1hW2kYwiYFQr5MUyrnFrrCRT5gxAYKqz+e7RyvnrgGUwBMtqsq7Y08Xgdq8F7vqIMbh91WL3zf8GYYCc00KUS6LWVr52krSmGVlfHVszCqkH98G7zGiNYNZKlU5N1J0dY3GWzIuecArBgB",
+          "thinking": "I see that npc:0_11_6 is available to interact with, but quest:0_11_6 is already completed. I'm looking through the known quests that have talk steps to find which one starts at this NPC—likely quest:0_11_5 or an earlier one. Let me propose having the character talk to npc:0_11_5 for quest:0_11_5, since that NPC should be reachable.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_11_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2742,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 338,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2216000000
+      },
+      "id": "msg_011Ccrf2JckiRn62KGrDwkE3",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2742,
+        "output_tokens": 338,
+        "output_tokens_details": {
+          "thinking_tokens": 297
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_11_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2742,
+      "output": 338
+    },
+    "tool_calls": []
+  }
+}

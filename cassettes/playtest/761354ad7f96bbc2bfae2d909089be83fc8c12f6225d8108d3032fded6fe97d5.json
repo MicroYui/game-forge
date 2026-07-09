@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:761354ad7f96bbc2bfae2d909089be83fc8c12f6225d8108d3032fded6fe97d5",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8517,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvAKCokBCA8YAipAknj8UY80aPGVKiLwyLAV+FgJcGcU4o+C75IJMDXM/CB5BBnNi11+qyqW8SBZwSS8CLb5YhOJu+/s4aNSRZpvLTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDChOaliPcnECdtpQ4hoMErziIV3ho57JazvzIjDH6qCJ4D2nWkl8OhbMJkyg+jAnVTvl0xQsySpJl4PrhbVraOQEPsDliLDCLudCKqcqkwnrTcanWOHA0PO+/gtaXNbvlO/0SlcSImsOlteK2/SkhyTHCD2GjQ6MxsmQtv+ZV6cyLsYd9/UIIBjuly8whtEEGvJFDm7UGP/W1aZW6AJxX8LwYw6p2BRls6U9J9ZxzYrOpeuZ8cfEgRYVNWrJ3QRUBjUXcWpdN4HnEhenVBVxMjk0pABeo9QWEPLp7OASfggxGCbThggmf4jIZmvCHEGXi0ctYSigb7K00+uJrHN7+wBYtphAl556FPFoe0AGGspQ0YTjYLkSRZXwoTlW3JovWS6tzMzTmQq0BDjhipw4AeRgu0SyDdaGBjzZkiOfMhIpRilMpuiRKSdczR1mLnVkz/QxfwVrdk4oncg7JTt6kelnE96lcP+GRld+eZoBpPcowYldomjFgSoyB8JFYhbYs2412yB7XVAKeSaK5fMUlZKLgksXcfsdOmq+6wr1MCPhqVokRkHkW9YR39abcEW9KXhxRar9JF+FyLkX/+YwIlqGzyypLBiJPcIoVU5TPVcVmKElxoTRzK0WmLHTIuvUNTsO9guiaueiXRmhnZcVIJKNByZUiGPp+fT4h/VFjPf9Ei72ERYQ2RNdzXODFAweyWC+tk67CdQ6PogtnCP0JsBjLUxDA5ymBOkDbNpd/nOl9K2+ikv2VRtC7ogEYqrvTfqASZbtSlew4rb1vtEzW+p8KskGrEIcw2QxrjndX8tAPx635Uxl0/+BFXICRECViOR94ammk3d3z6wlBPsK6ex93apXA6YF2kpRBuoZva1PEzsD4KpDlNtpIhvqL039GvLNxk8qdbVwk5gbApB0STXltaYvhVPhCj2HW03bgcJqeRS0Y3I9jr9Tl/IHY5Xfm9JB2YN4V8Om9fWkcf6VIramxsNZKkThpWJHzNddEf0gPJ99kDRw/jcXYMSZKVJcQpZvm23gCVbsxk6yUIsfzTlY4I/YRD2xBO/v2IJce9+pgkgcO3GdKTq4feEzfl0/Wfd6xLMJ8Z+u12RoG0msxx1AsIee0dUrxRQ4S6UMHXZacz1/26JqdyQ6PErjLfypjf5SfU0kVj3xRpqpiPP39c6F39+1w2Sv8jQbl87C4tWKuKJoosli0TcDnmGcfAHfO/gXzepeGApVNU6b/NR5SZyrjDXdYIQIUbNiJomIh5NkDgiDXpJKIZNgS2iRKPj7ZqyHZOf8lfh9tN1EywpDX2SnGoVdJSAmkd3D4BpEIBHm7xFDsEgRT3UDe3xr4spQE/3OfbDrwxY9ukyYkoK9msd6zh0+44DngRqggerEXASTltMtbZMHYVWzm0qHUxJmyhBj+zz292L+JzjGYts1HllzxT7jff0ZdOv2R7GozQTRLDtlwytlMEj3i40u8yIZMzoBmjeus6za7O4t7BtzKrkv3YGdsjzFZ23XkzkV1EDmhmFbSNE6aS7aXSoMjvbwkpmHAMO1JLpVM1scFZMVRJwMSTvM7Wvyww/ZTl+Fg4zlkm4BUIl64loTrfkstfAKpdZIncEAMIBr9NGz2lP6lwkwo1TvK7lzPT+BFTbJkngOxTYlTyVA0Ozu+Zx7E6QFjMnwGAE=",
+          "thinking": "Looking at this MemTrace compaction log, I can see it's tracking an agent's movement and quest progression through discrete time steps. The trace shows position coordinates and navigation states, but there's a truncation in the data that cuts off mid-entry at tick=, so I need to see the rest to identify what inconsistencies might be present.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 449,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504500000
+      },
+      "id": "msg_011CcrK4CxuqUidKzAisjoFK",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 449,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 449,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

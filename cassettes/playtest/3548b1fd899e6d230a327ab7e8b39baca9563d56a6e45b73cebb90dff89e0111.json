@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3548b1fd899e6d230a327ab7e8b39baca9563d56a6e45b73cebb90dff89e0111",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8500,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpUJCokBCA8YAipAg+mz4iYPW95W4bpjGa3ADFYVQvhDKXKV0CPJOM+5Gvb39afAg0IJusx1Q7v2AJDDswQNM6yz5HUgkhFIGRllCzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDM6zSKSS6bur9YxckhoMVzEvMhVX65yO7iQEIjBem488oIOpFWNKhiV7OGjbOakX53GxdX+bMTZnyaAdscTqu3pYaqv6bjVGtBURndcquAefU1fvlXa/XK9zvDkaS3uKJ5uyP8haMsYLZUXgwI6rQKy51VuDlsoMEh1+gVNXosPWvHrqCXtXD3YpOfKPnPtRYda9gze3dL881SLV8jGYuzCJ48WPhs7NBy5Rv45FNkD/6EJ/zXM02Cw26PUEyO00YH6q/SmVxy9ziqV9iPtj/FG2Uwcxu6xR/bNKb7/3ExRACa1IFnK35EDmz0XZ7u5WrlUY6jY4ep1lf4cOY/Wl4FUwIoFouSqT2tfur7oP+QxFkIXAyuZqPICf59LoNLyGx/kSeVWTbC9tcMvXy73QwO4uAT2Nn1jNnXOkqprkbIkJ94QeQcvyA8kX/O4vcWpv/2m+kR5LSO9jGCcD20SCTS1zjYN5mUMIuH2soD4JSLw2k1MwTXrJgi2/ncewrrrRzTjX/MF50DDXoWW+WaR0WzeFaA6ygthFA9DtRLcixMJOgxx1ddEjLCYLTkgCZ1gV46XXc3Jj53JjhVHYUHACr1YWB1lVkcGl2JZDkKWszgWabjA7lxULGJxpZurxcTSepPQYaB8rnpCymXcZ91Ci8qRXQQVFfkyJQWM/Cbk22+Yq1HVzoeXrJTVUYrW3SpsPHpNR12es86YksDNDDWcLrHZh/9lh+ir5q9NfAH4q8mA1Gxr6eiZIyYfCPM/Y9Qq0ouhWtGLTiLrifhcCEbAktSYrIkA/EkcXZKuF3I68nB9/kG+6iFc6ffGgNMINCR9YP451dfQU3IflULvHQwsaFtjhZKLW7/HBvKgS7H/LMAsDB9/HzjW3B/lwb2iBj7vmuftTcZ4mY0SdnuxaPNxFaasyxripphnEd6EcQVhAwPegyGps3IRdWZ1fzIeMLyGEtHlD3AyGPjst9RkrtUFltdsyIJs+fYJxQ7/gHQduwApXzCwSJ0M+8xJ9h5bv6Vdeub6qfGhZGtpJwPZp/HmgHcVitK/e7n+NWa7nMaLkEB1BFFLtu3M0nV1d7YDbq6DabJ7WfJzip+txeILfsVOeGg06xNwu8XRjpzZhmcrWpmlWFt7QQKcahObZbYOWBcD2moUc7ZuhvU2H1BJw9P43shn7GIRQVWDpc48eyrLus9TvtBiSV+69FKzvyqQRx20RMIw+wfwiXORGS6kdyBfpCCtIGu9mXg1pdonXgXjVnVv3LZ5pkKjRrFlRcYNLgvrHqWohwu2bc9E5ytGBjXSFClNlwA6JJ1agsf/zDM6GE3K3VrN/CMw4O2SjcpX72oFDCymOBScPgZhm4DtOu0Pybj/QccPH9ZZxGAE=",
+          "thinking": "I'm looking at a MemTrace compaction log from what seems to be a game or agent simulation—70 steps total with no verified outcomes yet. The log shows ticks 62-68, but I'm noticing some data inconsistencies: tick 65 appears twice, and there's a mismatch where the monster target is listed as \"0_19_4\" but then navigation and interaction commands reference \"npc:0_19\" instead.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's what stands out in this trace tail:\n\n## Summary\nThe agent completed a combat → travel → interaction sequence over ticks 62–68, ending in `quest_completed`. Combat against `mon:0_19_4` resolved in `victory` at tick 66, followed by navigation and NPC interaction.\n\n## Notable observations\n\n**1. Duplicate tick 65",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 430,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1495000000
+      },
+      "id": "msg_011CcrsXQszZ5WV47BgPyPZq",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 430,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 392
+        }
+      }
+    },
+    "response_normalized": "Here's what stands out in this trace tail:\n\n## Summary\nThe agent completed a combat → travel → interaction sequence over ticks 62–68, ending in `quest_completed`. Combat against `mon:0_19_4` resolved in `victory` at tick 66, followed by navigation and NPC interaction.\n\n## Notable observations\n\n**1. Duplicate tick 65",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 430,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

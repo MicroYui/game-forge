@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c47800500174ac9ad44255882798f23e9e1a284e75673a0e26f4f792c656d926",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8543,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqEFCokBCA8YAipA2w7s2Q2dCsgxRuSooRX8YdZ3lUwVqRVFkcSarODKdNan/ZWxgF6gTiBb+8I995H/zTobPSbLbkFJEawIZKIrbzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCX5k7MjGpMZJHUniBoMIZ0f+c8tPNF6pm58IjAPAOD5mYS6om/Q7kTE+mHw4or2h+sC7OU9jg8QzZFnrxATTKdMAV+fGkg8lW1yAU4qxANRu3zSyh2KauyM9MZs0n92B01/GCj1S4GwVbIiidXR2iBt+6UAc3HxVTuwoKX0CFkLttBa9OBgyJoYKh5rnUV0kf8z9KDs8DO5LnGGQ0co7Zq604SNVwe+5QZGThTXwdOOcoaRxFvFC75iDxEeqMbjNBOPGtT6qp0f9vRKc326fbxQEe5dFBZvexZvvlxbItjfd393EFx3yb289fHPICOo2i/FBgK3rxJ/6zlNIor9eKS47zLU5bRhc8ZS6oi+vxz01fi4zV9+ttAabtpNmgjyHvV566/8rrIsVf66636rxWSNADMQ952IzjLivgz6InBfr1h9cKah4ORhPFOlKtgIWVmQcbhEpll8TNiiFgF2vtrYmHx+XEU71yGSka/W7jqRLI1aClL4CqW+KLpXw8ZsxOb9FpaiEbHMkbqBZlkTmjaPVXMHLwosWCoKWu456Q6y9ud+wRDsgQ62yqHinDqSVBwyGiuI2NmoqWZWixNYV+TFRmQAhno/pIohaItS0RKFxHHQ/l7rb4MtaATBJ/+9iTet7L2wuErKn6tKVW1u/usgb7hogp0FmV9JwlmhX/eVApDixZxv8+GVG3nVvtwNQMBV4xgB",
+          "thinking": "I'm looking at what appears to be a trace output from a game simulation or agent system showing 88 steps with no verified results or verdicts yet. Since there's no specific question, I should ask what they'd like me to help with—whether that's analyzing the trace, explaining the output format, or debugging something specific.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace dump from a **MemTrace compaction** system — but you didn't include a question. Let me offer a reading of what this shows, and you can tell me where you'd like to go from here.\n\n## What the trace appears to show\n\n**Header**\n- `88 step(s)` — the compacted trace covers 88 ticks.\n- `0 verified, 0 verdict(s)` — nothing in this run has been checked/asserted yet. No verification passes have run and no pass/fail verdicts were emitted.\n\n**Tail (last events, ticks 78–85)** — a single agent completing one quest loop:\n\n| Tick | Pos | HP | Quest phase | State |\n|------|-----|----|-----|-------|\n| 78 | (1,5) | 93 | navigate_to:gather | arrived |\n| 79 | (2,5) | 93 | interact:gather | gathered |\n| 80 | (2,5) | 93 | navigate_to:mon | moving |\n| 81 | (2,6) | 93 | navigate_to:mon | arrived |\n| 82 | (1,6) | 92 | attack:m",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 435,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497500000
+      },
+      "id": "msg_011CcrHEu2EByndWbzVCkMu5",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 435,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 146
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace dump from a **MemTrace compaction** system — but you didn't include a question. Let me offer a reading of what this shows, and you can tell me where you'd like to go from here.\n\n## What the trace appears to show\n\n**Header**\n- `88 step(s)` — the compacted trace covers 88 ticks.\n- `0 verified, 0 verdict(s)` — nothing in this run has been checked/asserted yet. No verification passes have run and no pass/fail verdicts were emitted.\n\n**Tail (last events, ticks 78–85)** — a single agent completing one quest loop:\n\n| Tick | Pos | HP | Quest phase | State |\n|------|-----|----|-----|-------|\n| 78 | (1,5) | 93 | navigate_to:gather | arrived |\n| 79 | (2,5) | 93 | interact:gather | gathered |\n| 80 | (2,5) | 93 | navigate_to:mon | moving |\n| 81 | (2,6) | 93 | navigate_to:mon | arrived |\n| 82 | (1,6) | 92 | attack:m",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 435,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

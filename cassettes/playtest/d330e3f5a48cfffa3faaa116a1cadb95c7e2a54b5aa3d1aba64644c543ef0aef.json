@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d330e3f5a48cfffa3faaa116a1cadb95c7e2a54b5aa3d1aba64644c543ef0aef",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8911,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErwJCokBCA8YAipAgS5nprdFPpyg4Dm8CQ0GiwrGa7dSF6rgg2uRALGPFrSjW0UhVJh6OwKEf+KMK2a+aLe0540WM45tYSUcl5yS4TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEgTwnkgdJM1nwu3khoMrhT3+ZXS1G4UWzyyIjAn7erGapsNFkXNEbOhLTdVdh2p9sP12Klu3v/LAnUUXblyKgFbOt4h4GbiUEnBQV4q3wfpAMLURQ8VhuePVX01hO8SAutd64+HirZ7fbSJS1RhCn6lyB7J8vtkD2jeaXHtIZmZ5g/HbwY4dF0pSuRAaEhejQKxdPVj4949KG7iWlJI7MpqoV6DdQzALtvpB1xouQE98lbUeQk8efKYEAZqYdR5cvEWsocxbybtRHNuux969ONIAWZeoUrCoVbXMWACUkDhaQ4rWirWaCFLv1XdnT9rDQCsvB/fgIhX28sw0VaG2ctSrBqnG9krVc6V6P1pJvg5GAtUkswsLpRLTwDpYErHzW50HBxCOEjbsNf1hMt00URLUI3BmzWc/1+r2VqFgThU2dljzN9GpcCiVBCVd1ODlF+NXhryI5q1rks2ThX7rjykBBYzKhN0wbxVRG4P+6CGit1uQcZO4hrnw4Jw5vrcS6ZB3I8Q6I0MbC9KwLIy1pYOJtzcu31gY/GQAdqXTpXjkUC0nP8MOO6yY7SpYId09ubsJ2usWOFEvhtzkEc9eJIkHu23aC71HAuhMKYWuegO3/BO/ogy/bG+MCRZfBINW0kyfhDSK5Q0U/SXhtcXE1HIzIylxfE6d1za9rC3wfg6wl7D4i/agmA+rArmgJzvopkh5FZN1RAA56U113c8aZIn4ofYmWNI1fiCLdp2H1GWOcR6EgQwF+G2Cv4owHt4w2SfwuJYPrjDLuJC4xdX25Diloqqxar85UIEnOEZOaZc9tml/azLcEFXgSP2uyOoKGMPynP6H9b2Pe201pZO+UoVmOz5dOnaMx/+r9l6ANo/yJ9civfSa/o4CICddr4h/tyBa7mxUCuhXL4d7re+xZsOZa6+D7JtMj+RDmGnTcjhUgVLNAht+mAe+eWJ9D3CTRvY5R1LhBAK0bwbHt0s3u+5G/irZqd2KH62+gJspm8UpwozI+zpTo6FBx5rf/91C9ZmykoapskpDlgIO7bmQ1RjgdBFDCKheoz1z1e51wUtK2LJveaXniddmgEQLzmdP84A8A8uhxPxCrCwwxkqvDJpvOnCMmnQrjp4dgT+64FwIAsdUhQqUwzq/p+ezX/u1kkMJ7ritSPkEKxBvtiRZl3albKTgnrjLCK0nbBaSyIchhzcXG0Ol4tlUn6+aj5jg1lorJx0euL3bkyWUEcbR+UIeYvtheu9WCzZA6DTN7cULF9acBKE+/4pebkzVz0fZqbGVoNlaWV6bNLnL7TjkMPPHPd5jd+s9zyTFAZnj0YlcAcomr2wutpP7EDvIFuLcBatfH0/k5CRLNtaQFwKsQwUY/s8YlIfokwHVt1kVhiYEMDSxV+nvuK5odGHCW0Uhg3jnYvSDW61SLJnEBpZGAE=",
+          "thinking": "Looking at this MemTrace compaction log, I can see it's a debugging trace with 57 steps but no explicit question from the user. I'm noticing something odd at tick 52 where the active quest shows \"interact:npc:0_8_9 -> quest_accepted\" but the previous navigation state seems inconsistent with this transition.",
+          "type": "thinking"
+        },
+        {
+          "text": "I'm happy to help dig into this, but I want to make sure I answer the right question—you've pasted a trace tail without a specific ask. In the meantime, here are the things that jump out at me:\n\n**1. A navigation goal that never resolves**\n- Ticks 48–51 show `navigate_to:npc:0_8_5 -> moving` (position walking 17,1 → 17,5).\n- But there's **no `navigate_to:npc:0_8",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 433,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496500000
+      },
+      "id": "msg_011CcrZkJeDVJAvdVWnx7Kxv",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 433,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 368
+        }
+      }
+    },
+    "response_normalized": "I'm happy to help dig into this, but I want to make sure I answer the right question—you've pasted a trace tail without a specific ask. In the meantime, here are the things that jump out at me:\n\n**1. A navigation goal that never resolves**\n- Ticks 48–51 show `navigate_to:npc:0_8_5 -> moving` (position walking 17,1 → 17,5).\n- But there's **no `navigate_to:npc:0_8",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 433,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

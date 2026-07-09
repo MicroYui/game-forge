@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9ce96fcc8ed628a13c2dc9d7c6c2b4f2af550a01186a3a938128ee5105be1568",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 6663,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er8ECokBCA8YAipAHC09lLh5Fgz0rrGSLGvFkzsEDOLLRu7KqAvlIsKyRb3zQKorTMsVw8OZytslfnwPNkOTYu/Uie3itTV7iDzwYTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNoSQIDIl2U+6VKSGBoMLv7noiechAsIxmozIjAQ5DSYu7N/gIp7+uHGw7gszjyJM86Ez7BZCn9E0zdw8lKeQsYAJ2XRHUYs5BQ/wtMq4gKh8veqDKyQ9yTqIUXRBm3PPbr5q5gA36ytalNLkcE31BNDeMRwTF5BiYBPBzlAY9KPi2kvc40VA3jlYO7mI9psMQhiZWSWzLl2qkN+xiwKm0w/HfpO0UPvdFEj545x9Pfcfk1q3LnNU9wIw+aopMeNYc4bT8I6s0yWexGK4MXHH71nDp5UWXT8R80F8dCFYRf5Kr0lisSWn8syhbX3YqTtgr2ZqAeu7dIYICoE4NXYZN9dRUEiLTR+9QYRzkAMH93tTX18oBe/82bArpVTc5dCmat4xPUZoAQwLVRB7MQsPEYDUhSycGRZKL1uoGSThFKmSPoohUZFOE8FNJyoWM4xK7XFMt5C7HXWDMjdEzyQGtJ0mMQE+rlq8rJgejXAO2gkNMk8qR+zbYrhq8dj8OA/AM7IUpYf9yYGSTk2KrTGu1hSBq9wI0XxhoChYILsvVpfydX8/KbTDXJE2CBY5DokW18YAQ==",
+          "thinking": "Looking at this memory trace output from a game simulation, it appears to be logging the deterministic execution of a game agent completing a quest, so I'm trying to understand what the trace is showing and how to explain it.",
+          "type": "thinking"
+        },
+        {
+          "text": "# MemTrace Analysis\n\nThis looks like a **deterministic replay log** from an agent (game/RL environment) completing a full quest loop. Here's what the 9 steps show:\n\n## Trace Walkthrough\n\n| Tick | Position | HP | Action → Result |\n|------|----------|-----|-----------------|\n| 1 | (1, 0) | 100 | `navigate_to:npc:0_4_0` → **arrived** |\n| 2 | (1, 1) | 100 | `interact:npc:0_4_0` → **quest_accepted** |\n| 3 | (1, 1) | 100 | `navigate_to:mon:0_4_0` → **arrived** |\n| 4 | (1, 2) | 100 | `attack:mon:0_4_0` → **hit** |\n| 5 | (1, 2) | 99 | `attack:mon:0_4_0` → **hit** |\n| 6 | (1, 2) | 98 | `attack:mon:0_4_0` → **victory** |\n| 7 | (1, 2) | 98 | `navigate_to:npc:0_4_0` → **arrived** |\n| 8 | (1, 1) | 98 | `interact:npc:0_4_0` → **quest_complet",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 442,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1501000000
+      },
+      "id": "msg_011CcrJ8dneMSrscLueW8Mwy",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 442,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 106
+        }
+      }
+    },
+    "response_normalized": "# MemTrace Analysis\n\nThis looks like a **deterministic replay log** from an agent (game/RL environment) completing a full quest loop. Here's what the 9 steps show:\n\n## Trace Walkthrough\n\n| Tick | Position | HP | Action → Result |\n|------|----------|-----|-----------------|\n| 1 | (1, 0) | 100 | `navigate_to:npc:0_4_0` → **arrived** |\n| 2 | (1, 1) | 100 | `interact:npc:0_4_0` → **quest_accepted** |\n| 3 | (1, 1) | 100 | `navigate_to:mon:0_4_0` → **arrived** |\n| 4 | (1, 2) | 100 | `attack:mon:0_4_0` → **hit** |\n| 5 | (1, 2) | 99 | `attack:mon:0_4_0` → **hit** |\n| 6 | (1, 2) | 98 | `attack:mon:0_4_0` → **victory** |\n| 7 | (1, 2) | 98 | `navigate_to:npc:0_4_0` → **arrived** |\n| 8 | (1, 1) | 98 | `interact:npc:0_4_0` → **quest_complet",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 442,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9f7ef75d08b302ebb63f254cfa6d9a6c8f92178cf29209ba6f81e9ba7469e27c",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8398,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuoICokBCA8YAipAHhrb9AGBEsdW4jSb/7eK2WCxTVrY5tt3pDiqEb/ZhwHyEFnzBDarHyJfHhtlu1c4DuMVCOE8Uk2c6sssqDI23TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBCVSK1Jq5YTjcENVRoMV+aMOHeFsw08aiRwIjDlxoEL24kudwsDKAyD0PwU+6/xfESUR+55pE/Mxg63cHEXfV80LIGbRX+YmAx4M1MqjQdRBNrGyhoWZ1wXbVk12gU+pgGBv9Q2gFrcYv2GrTlGgFCzZtLB3Do/R5InwANGOJWYXwyt2e+W3RhIpVnvAv/CjTR7m2oL9czNF8mRdb2IqdjMYDBtOJYeAM7XY9FRYBniPMf6RQQ2zlUWZeDrfqdpGEpKHR4yCpIWI0YmiemZA2+yjlOQGaA5qWNY0UhGerwqLzyBaL2D+yhRzfstpWMIP4a3bZRmqegNN3fo7yNnejG1hOXgNeuPV95EkiF2pQHDEtsfWSMVAOGYwqsQUOEq9zJqHNEVdWIWBgp14+FsvYeCb4hfMQiahLjKvfjp+VSy2OSH9ZMiwYG1o5gOJIAotXhJ3hRUp3un2APuYF6LXWt0AHuXLb5wSW35KjIPA4cwxCD4mCqnpVpjEmuK3aFAmvGmfz0c58Yt98AFsIIHwzpKQwcZL8TC/CbHhov/OXwB7kcu3pni0wfRWOrEpA0Xr11NHIiNcxS7qQ7q1nH7tSwXMHNPTjyHDmWiajEEmkL5/JoxoYvA0uTeTxrN7FdqjUo6cPRnYjdZtAMi7v0oDuzzHci2KRK9bPge7++aE6zZHJm13SziBLtvoIdDwAaIp0nkfWzGvt3/hJ3J11MBWARG9C49mYVs7CBit3sKHiIcM7Q4LolhCQCiLRH0sb925lt5R99ahC1RKo1aVod0hG5YTCgceesqj3EkGb3QtEUSYSZiHyeOsBuMFBNA4CXCtIatnfB8kDMQ0NbVBRwBt/RwuVOTj1tRltrqpQ2E9ofuXO2Ec1lWUki0QMnvHI/S+lVxfvVoaXvXzZqUS0QAZgtn5CCGb7+k6NeISOW3dvHwQ0i7A1gMVY49JvrXPgh8c+cdKTf3OH+W1DymIYo26TA5AHBVAz4Ky7ysoRSrCqufuGSDwiBrxtyYnPaSYw4O3jhhmcfYGZ/cn+kb1VxJmGqOQcMg1jbd3v9cKE/uiTKCHJSu+ZxZB+WkL9L/dnbgwCgReY+shqJTxL1BCfzc8p/XHSJrLYDxYgr0TtbWejO0JJiJbOnRybeTVxA4jJAEUu8nDDULPa40YhyrcA0GNwBLMjPWwlVnszgE6FoLs7u5S3xlaClVaqcqM78sD8ah15EhqrKjYA6RLOYQ628xkM1/OvJsO7iIelZy2C0BIpBThthCMyPihZRDVVzd5iOuT58TokCD2uH/tVZNHUHr8vMJDOCUwgE/CBKq1YEYAQ==",
+          "thinking": "Looking at this game AI log output, I can see it's a deterministic trace of 105 steps with quest state transitions showing movement and interaction patterns, though the verification shows 0 verified and 0 verdicts. I should ask what specific aspect they'd like me to analyze—whether it's debugging the trace, understanding the quest state machine, or investigating why verification failed.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a compaction trace from a MemTrace system (looks like a game‑agent memory/replay log). There's no explicit question attached, so let me summarize what I see and flag a few things that might be worth your attention. Tell me what you're actually trying to do and I can dig deeper.\n\n## What the trace shows\n\n- **105 steps total, 0 verified, 0 verdicts** — the compaction ran but nothing was validated. If you expected verification to occur, that \"0 verified\" is probably the thing to investigate.\n- **Ticks 95–102**, agent at stable `hp=",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 444,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1502000000
+      },
+      "id": "msg_011Ccrqi4D7GCT3cjLnuvVTo",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 444,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 320
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a compaction trace from a MemTrace system (looks like a game‑agent memory/replay log). There's no explicit question attached, so let me summarize what I see and flag a few things that might be worth your attention. Tell me what you're actually trying to do and I can dig deeper.\n\n## What the trace shows\n\n- **105 steps total, 0 verified, 0 verdicts** — the compaction ran but nothing was validated. If you expected verification to occur, that \"0 verified\" is probably the thing to investigate.\n- **Ticks 95–102**, agent at stable `hp=",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 444,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

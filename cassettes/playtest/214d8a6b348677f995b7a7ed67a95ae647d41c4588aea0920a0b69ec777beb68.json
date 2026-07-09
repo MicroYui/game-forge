@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:214d8a6b348677f995b7a7ed67a95ae647d41c4588aea0920a0b69ec777beb68",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8850,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsAECokBCA8YAipAx9AKUHCLyJbrL6yQl3Jf6Wg3AXWcKz+DseOQ/nSojqpJBnI1KozQRSs0TH+3dmAgd8eLCbBAYLdg/R3bBwDUtDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOVV6uB50AFMf9ZUDxoMkuDza6sODfbdmEZJIjARvBNnebkJ0u7qCaA0OiFt4NYDJyM0pbcUgz/fiOvCMSNzhBCrDiFqSL9Oic+VEmcq4wJbRRxbOVATbBYnUUMqyhpxQwGar0flheEaNcab/EwePRfqLaoU+RHgX9PTsBo7O8Ipv5C8Oy1zEmv3PSatqmik+4LOhFr7t2vt8oarmIHjdrpVjPhJezKJRwkVv0Tp21SzmuTOftFa6Q/c7lvAs9kLyVoGw+I008/tvAKKjLnCMW9WrgHOLtWuSzatsmgC316pRPvKXAQ2s8YtwEzQ2kUwQ042cd4RB2bfsh/oKMzQnSvkq+AqXtJPGEY6J29xzT2mr4He+iQIzjEE8jb132uUfvIhK1UKpR+CZOEGjP2GUv743jxqQe2DaOJhy+mlzvcosfhU1BTAUFKyFOXrKy4TRXyGFAPvICRSjaD1X+H0/px6emHzYWuOYcI/uQ3j78DY16YwhAuORXBS0WFmvMNMMSXx7/hwMnYFWtZCHOcFvO3569Ca/2DPw/ZFms9a+YlJAlAf5ytgDVZskvYMVeN+uM/hGAE=",
+          "thinking": "Looking at this trace log, it seems like a game or agent simulation with some kind of compaction system. Since there's no specific question, I should analyze what's happening in the log and offer some useful observations about what I'm seeing.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like a deterministic trace log from an agent/game simulation. Since there's no explicit question, here's a breakdown of what the tail is showing, plus a couple of things worth flagging.\n\n## What the trace shows\n\nA sequence of ticks (19–26) recording the agent's `pos`, `hp`, and the active quest event fired each tick:\n\n| tick | pos | hp | quest event → result |\n|------|-----|----|--------|\n| 19 | (5,2) | 97 | attack:mon:0_17_1 → **victory** |\n| 20 | (5,2) | 97 | navigate_to:npc:0_17_1 → arrived |\n| 21 | (5,1) | 97 | interact:npc:0_17_1 → **quest_completed** |\n| 22 | (5,1) | 97 | navigate_to:npc:0_17_2 → moving |\n| 23 | (6,1) | 97 | navigate_to:npc:0_17_2 → moving |\n| 24 | (7,1) | 97 | navigate_to:npc:0_17_2 → moving |\n| 25 | (8,1) | 97 | navigate_to:npc:0_17_2 → arrived |\n| 26 | (9,1) | 97 | interact:",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 447,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1503500000
+      },
+      "id": "msg_011CcrnZnUEkoHqkUjLYAZmU",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 447,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 105
+        }
+      }
+    },
+    "response_normalized": "This looks like a deterministic trace log from an agent/game simulation. Since there's no explicit question, here's a breakdown of what the tail is showing, plus a couple of things worth flagging.\n\n## What the trace shows\n\nA sequence of ticks (19–26) recording the agent's `pos`, `hp`, and the active quest event fired each tick:\n\n| tick | pos | hp | quest event → result |\n|------|-----|----|--------|\n| 19 | (5,2) | 97 | attack:mon:0_17_1 → **victory** |\n| 20 | (5,2) | 97 | navigate_to:npc:0_17_1 → arrived |\n| 21 | (5,1) | 97 | interact:npc:0_17_1 → **quest_completed** |\n| 22 | (5,1) | 97 | navigate_to:npc:0_17_2 → moving |\n| 23 | (6,1) | 97 | navigate_to:npc:0_17_2 → moving |\n| 24 | (7,1) | 97 | navigate_to:npc:0_17_2 → moving |\n| 25 | (8,1) | 97 | navigate_to:npc:0_17_2 → arrived |\n| 26 | (9,1) | 97 | interact:",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 447,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bdd666b54bb527c4f51f93718e5b1ac29c23761ca439b85fda7e46b2d488681d",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8862,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqIICokBCA8YAipAqMXwBU6rqcFdzOaVP5W3O7jNoeUQ5aOWSQLSpUNv46VGjLEMBoQ+CPg7ebBtZ2owM1Mwsw0rB8FIVrSKB3niVTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOcwECoC7KPj7iDWzhoMu9QKKRx1wh7mCa6IIjB9AdGAIeIK2iRN2qBHPQ1de+6yyizsTd08NyPQsR6ck+KjlA7ewL4clh4HbwbBolMqxQafyo5pVcHPOgZiUeJfv/9CjgsiA0784FL/A78qL55l0buK/DpixJx2Alo4pYZAAclSJWn1ujA1f8MfwPktQ3A143aKmadOdF3EBVWJjfamymLc6cBsIrmv88qMgYwASCyAvRFDO9+K8ghjr2gsPGv6YYpCLw3+KIxr9iX9piJe6lvvNwjfTqQUrOLvQinwrshET1u7nhjuYsboozol18cJVKhjbNZAQ8R9eoKej9OlPU5xKfqBnsiOOCPVbhtp24qEzKSKQxgN/c9scNMpdda4tsy1w5G11Gxs05hUZU8oeh9eQZ3wGCyxRI90S9w5ntKCzcWoMRJJkRLDwqANkep7MC5x9tMBtJw74uAWwMTHtDlffUT4J8vNHuXYA1I5uO7ZoloAYYPJqNKNCW0csJBp5/E+BhvTCFolQBGniEsWbDFTiNPZUOwOFc7WB6/cEeF8z9S01+4t5gzb6o6apP7IIyTQbV77GhfIQUxn07fp1fE32S+BykgeG73JDQ/3BwUIE3avRZtHkzQ8/jVRfTmtD7C05uTUGZ86UCuvMSSc8sdtgdRNhzLEXO7S1i95kBGzvjFn3ex3XxU/6bInOIVitH299vkV74uis/TRZhnfg+wIFt2B48F3UroeILmKeXJwRk7PHbFJfX9cKTWnZuxsmSCJ8zTSSnsgbDJ/5wojXsZznDi4XkaSZMh/F+4UPMMdMSx5X97MI76BHoLDyMgDtZjfvsJF/sQSLYCDk6rkmg0UUTV/++4+N55yqX/8wnBHTqCHp2n4PDTyZjxOF31JtNhaV8w98d3KHxgwcXAsTFx/MdcH88/DgR03mZMaAlaXLfRsQrVAay7qViH3lCkNwRGglDpqkcbuc5vg03Ke6IF2GsUUD/EACmzDKFOeZUmB4gX52CFtiiZt/iumOOI8dSTyZeAcnk4MaToWpSuFGKm1/Xk2NrkiFgehUAIlG1aswMYP1goFGPF8ZSmMQRm7Lk9IdSKWIFB6Lt1o2V6Ms3eFSWKpHmxfuD72d9t0viE4zvzHqUrYahOXh+0YahJ59R0DKR/4QmZ7J1z1whIXUHLSUEl3QVO9uk4y4fzNMP/9QeWI4CbXbkHoKR+7GBAA46foEWwYAQ==",
+          "thinking": "Looking at this trace output from a MemTrace compaction system, it appears to be a deterministic simulation or game log showing three steps with position, health, and quest data tracked across ticks. The user hasn't asked a specific question, so they likely want me to analyze or explain what this trace represents.\n\nI'm noticing something inconsistent though—at tick 1, the agent is at position (1,0) but the quest shows \"navigate_to:npc:0_10_0 -> arrived,\" which suggests the NPC should be at coordinates (0,10,0). That doesn't match where the agent actually is, so either the naming convention means something different or there's a mismatch in the trace data.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction dump** — a deterministic replay of an agent's short history. Since there's no explicit question, let me break down what this trace is telling us and flag a couple of things worth checking.\n\n## What the trace shows\n\n**Header**\n- `3 step(s)` — three ticks are retained in the compacted tail.\n- `0 verified` — none of these steps have passed a verification check yet.\n- `0 verdict(s)` — no judgments/outcomes have been emitted.\n\n**Tail (chronological)**\n\n| tick | pos | hp | active quest → state |\n|------|--------",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 199,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1379500000
+      },
+      "id": "msg_011CcrcMjuTTsofWkqGpY2K8",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 199,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 314
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction dump** — a deterministic replay of an agent's short history. Since there's no explicit question, let me break down what this trace is telling us and flag a couple of things worth checking.\n\n## What the trace shows\n\n**Header**\n- `3 step(s)` — three ticks are retained in the compacted tail.\n- `0 verified` — none of these steps have passed a verification check yet.\n- `0 verdict(s)` — no judgments/outcomes have been emitted.\n\n**Tail (chronological)**\n\n| tick | pos | hp | active quest → state |\n|------|--------",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 199,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

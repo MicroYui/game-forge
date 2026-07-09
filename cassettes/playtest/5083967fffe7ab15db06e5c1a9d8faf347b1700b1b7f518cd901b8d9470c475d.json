@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5083967fffe7ab15db06e5c1a9d8faf347b1700b1b7f518cd901b8d9470c475d",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4932,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpcCCokBCA8YAipACyPURXJPP7BIYd9nkE+bToVcsGrEpvLQLNMH/YOsQ6SCBeFjh79ofZV1WM/vy0crdxkjBR2sxeuyY0iiPShc8zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDN8O5+87xwq1kj07iBoM7g4rw6pbuX2c1/guIjA1Aq94XfYk5qwfIPEL3o7NvvCeU3fXY3wK3/glQr1t9fU2a95uJaIivzoPm9L+aSUqO05Bx+Ru7KxyAXr98UPGcKmhBXmti4teYd4Z/nKSk24yQXbz76yPOdfQnbgwtB0Evq5+XSmdmHU8oe6YGAE=",
+          "thinking": "I need to navigate to the collect step at version 0_7_4.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_7_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2607,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 51,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1431000000
+      },
+      "id": "msg_011Ccr51uDNv7YkZnN5xrTZj",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2607,
+        "output_tokens": 51,
+        "output_tokens_details": {
+          "thinking_tokens": 23
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_7_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2607,
+      "output": 51
+    },
+    "tool_calls": []
+  }
+}

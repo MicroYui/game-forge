@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6d06983b82ceeacbcd0b86ceb936348beaa50113673459686256fbcdf9e1f70d",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 11932,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErgFCokBCA8YAipAHKp8DG9gAc9LAGq6SCm6S77rCySqrrZh+5i/p0qArDlEMEh7CvjlTn5yXcVeLzYH9w0Ya7a+x8BB50k+Ssy/3jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNRya1HUKIIUZV5LxRoMXjhapvU4MGoOIF4fIjBt9TFA7uD/xPXqZvWFtU4NuOWJAVzetpouEtGsWVrNx6GFsiUOXk7Tta3CPzWfV9kq2wOZFqiWHeJzOpjgfCcy2I1cIA+Ed729ngwZVPlyDkHtKjYjKeYtvDabFJpaEmlPD83B5psgCFYmgD7+f18EoQIYYLbez+nKWDbiz43seUDJ7OoUBG4HJKyacEtNCk+lFHX2AqRxlyif2PaDmIukunF+kshNGHk9DKQJ4gXWvQ+0bAMALT9f1IVVUquOHcOX44uJWDJVtGSjQ18r3skR3bwwg9IZronFgFfPnObPVM0I9g5ZljSIEzgIVHQ21yeXdHJvwP48nADej3rESOVL+i44xk1Em3TALWPsyYLn3EeIdiWmUCSXH13wrbuJ/BNB9SxT48/wA90NpP065F7BwY+Y2WQ5dugAhdvXU2NLm8dDNeQ3m/XFtHQAOeZ9hUqpItzWYRr2AGVSPv7bY9oGakhpHrXr7/ZC16cVTLL74qAuqFwReV5kd/MAYnihNlA56PTmK8SCueTZGp3xKdP1betri+p7qb8Shddon5+w7VeiMTkoJVGWG+E0F2qSPcwwJppmzIvKylIP50uNmaS+gfvN5Ry94W/Ib2jaJPJqdTJlspeZqdXLH2n/0NRQ1nQOXz0e+FNhzV4WZrNObV6ojePjr70bVyN4htb/1q0L/CDKR37/TrlYgvpiLcodGAE=",
+          "thinking": "I'm looking at what seems to be a debug log from a MemTrace compaction system showing game simulation data with tick counts, entity positions, health values, and quest information. Since there's no specific question attached, I should ask what they'd like me to do with this data—whether they want me to analyze it, debug an issue, or extract specific information.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace log from something called **MemTrace** — but there's no question attached. Let me share what I can read from it, then you can tell me what you need.\n\n## What the log seems to show\n\n**Header**\n- `MemTrace compaction (deterministic): 3 step(s), 0 verified, 0 verdict(s)` — a compaction pass over 3 recorded steps; nothing has been verified yet and no verdicts were produced.\n\n**Tail (the 3 steps)** — an agent/character moving through a grid while pursuing a quest:\n\n| tick | pos | hp | quest state |\n|------|--------|-----|-------------------------------|\n| 0 | (0, 0) | 100 | `navigate_to:npc:0_5_0` → moving |\n| 1 | (1, 0) | 100 | `navigate_to:npc:0_5_0` → arrived |\n| 2 | (1, 1) | 100 | `interact:npc:0_5_0` → quest_accepted |\n\n**Reading:** the agent walks from (0,0), reaches a waypoint, then interacts with `npc:0_5_0` and gets a quest acc",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 199,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1379500000
+      },
+      "id": "msg_011CcrKP8hTk2xigjqMSgtAZ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 199,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 140
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace log from something called **MemTrace** — but there's no question attached. Let me share what I can read from it, then you can tell me what you need.\n\n## What the log seems to show\n\n**Header**\n- `MemTrace compaction (deterministic): 3 step(s), 0 verified, 0 verdict(s)` — a compaction pass over 3 recorded steps; nothing has been verified yet and no verdicts were produced.\n\n**Tail (the 3 steps)** — an agent/character moving through a grid while pursuing a quest:\n\n| tick | pos | hp | quest state |\n|------|--------|-----|-------------------------------|\n| 0 | (0, 0) | 100 | `navigate_to:npc:0_5_0` → moving |\n| 1 | (1, 0) | 100 | `navigate_to:npc:0_5_0` → arrived |\n| 2 | (1, 1) | 100 | `interact:npc:0_5_0` → quest_accepted |\n\n**Reading:** the agent walks from (0,0), reaches a waypoint, then interacts with `npc:0_5_0` and gets a quest acc",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 199,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0331d0c525a934558395d93a43c8efda846bd60022c3eedcb705323dff9b0e3c",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8288,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErIFCokBCA8YAipA/aPHySglzwrkJHKqCtFgVY9VF711pLuDAYp0GiVtLakR4HtgFnGGptyUqURcQCv/CB/NaG/o8HmBSe2BSWUDozIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHaXNeopxtlRmU0P8xoMno3R1IEQqNRGf0g5IjBmmZSus2HKlIUQdrOV63MRwZdnX5jxcqxpXT77+xApzwjsqOJyowY5OLAogn2ghd8q1QMfm192kuzfOGXRTscTQ+MyYGxBc0sjZr9+TnpWZIzoQI5xTdkUZh7WpchKJ/QnqMBKMAt473CUDTTZcdspkNUORJvwoyD0Rn54Qc3CiHDpMAuvjYYJXVplGMrFm/U+Q6ZQPt+yjIawsAVT/rY+cEXChldQWi3wimzQazV7aD5gqWCPVazW0R/++YL6PZ4G2dRa5QZuda+PkFiMqk+RoGIYuQajnNseyVtO+43e4l/XqTw/Ej6DjMCDjTFeFvw+fvnsX/MX7LMrlLBDs5Zd9TXtnwHDGXLuW6DqQ+ev0NyvtfT8/Yem5GNjsod4PMkpzY1CVscy7mghLybzPGd8MM5g0CWk4ECl5QqA37tmOgNWjHMnAP3htXxiVGIBrUEZt2ZtSxEzkNFjBYI4xTg6TFMuBh8PtF4pSRJokf2SSow2cJ3e3fUsv0mdisc/VMHNLXTshW/bmF2tCFt4H7E0GzoKv8EIjkRL5pEUG/H49S+ouZ5sKutGWmXicT2CWSk+lHQtsEoRbkYQ/zJTrmAB5OP2Y/BtiiKA2YUdxHC7PKflw/+4XzZgrEmhgGmDt1v60AWoLz07yMAkPbusezq7NpjNrkxw/8xvAfUm75Fpyx9nRJInRyV6GAE=",
+          "thinking": "The user has shared a log trace without asking a specific question, so I should analyze what's happening and figure out what kind of help they need.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a MemTrace compaction log, but I'm not sure what you'd like me to help with. Let me share what I can read from it, and you can tell me where to focus.\n\n## What the trace shows\n\n**Header summary:**\n- `133 step(s)` were processed by a deterministic compaction pass\n- `0 verified, 0 verdict(s)` — nothing has been verified or produced a verdict yet\n\n**The tail (last events):** an agent/NPC-interaction sequence progressing normally:\n\n| tick | pos | hp | event |\n|------|-----|-----|-------|\n| 120 | (12,9) | 89 | navigate_to `npc:0_8_13` → **arrived** |\n| 121 | (13,9) | 89 | interact `npc:0_8_13` → **quest_accepted** |\n| 122 | (13,9) | 89 | interact `npc:0_8_13` → **quest_completed** |\n| 123 | (13,9) | 89 | navigate_to `npc:0_8_14` → **moving** |\n| 124–126 | (14–16,9) | 89 | navigate_to `npc:0_8_14` → **",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 427,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1493500000
+      },
+      "id": "msg_011CcrahJb2VVPrZFWuTdGeV",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 427,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 135
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a MemTrace compaction log, but I'm not sure what you'd like me to help with. Let me share what I can read from it, and you can tell me where to focus.\n\n## What the trace shows\n\n**Header summary:**\n- `133 step(s)` were processed by a deterministic compaction pass\n- `0 verified, 0 verdict(s)` — nothing has been verified or produced a verdict yet\n\n**The tail (last events):** an agent/NPC-interaction sequence progressing normally:\n\n| tick | pos | hp | event |\n|------|-----|-----|-------|\n| 120 | (12,9) | 89 | navigate_to `npc:0_8_13` → **arrived** |\n| 121 | (13,9) | 89 | interact `npc:0_8_13` → **quest_accepted** |\n| 122 | (13,9) | 89 | interact `npc:0_8_13` → **quest_completed** |\n| 123 | (13,9) | 89 | navigate_to `npc:0_8_14` → **moving** |\n| 124–126 | (14–16,9) | 89 | navigate_to `npc:0_8_14` → **",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 427,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

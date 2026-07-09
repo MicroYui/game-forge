@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:762a75cd20968af8cadd535860d124f150b15c83697194b26cb10dd592c7a383",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2785,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErECCokBCA8YAipADCIC3CST4AskNYbR5ekfMT3ieZKb5U6s4wSMNVVUAEeqXYqoyub6ixLq8VbCobmuBt9ohsnUqQ3nklGg1lk60zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAYZEEQBqMqvZXMboxoMd4HUqxjuGuepUC09IjB4C4uJRUdYtXuQaE6vAb7vpdcJ5iy+zTD4w2sV4TsSuM4NMYwllqQ1q7PrUUDY1iEqVbu4aMxoZcQGAEg8Btz7BvfAZDutd6pY62+NKAhaSAxTN7mwBeHs32b787hpLoLQJFz+p+8+xvgRmbD4WRfXz3L2c3XuSsyHD8P7FDHmt8i0+44RFYQYAQ==",
+          "thinking": "I need to turn in a quest and interact with an NPC that's become available.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_5_1\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2493,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 57,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1389000000
+      },
+      "id": "msg_011CcrKVsKSaKkiE4F4W6gVu",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2493,
+        "output_tokens": 57,
+        "output_tokens_details": {
+          "thinking_tokens": 32
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_5_1\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2493,
+      "output": 57
+    },
+    "tool_calls": []
+  }
+}

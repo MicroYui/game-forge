@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b823dd494ae2ba14747c4d398be4a6091256b4fc5581e1bab41fdc33bbc9a984",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9185,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EukGCokBCA8YAipAd1f1Yd9Fhy6/l45snU+TMLfLj5W/fSFcbluXrf5CVfACP7j/kftqyv2QHKEQfkdjUwXQOiJPIwJZ/FGnM4y0fzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJebWy9Za76jwSAVdBoMCoF4Lp1C10lgwxJpIjCCgFyVWqPiI39KIMvNjOc3p7z0Axf28WDwmY4bnY3cUsXlci/yX1JvvvnaFqF/nBoqjAVdJV2xtzg1Wlwm6le4o/EcrZZ/91MKUha3J3aFsmq4wYpalT4+6FSCjRiIY27eyGluSP85sgleh5tkufJ7I3NmEfiD7uR/lIR6jkgzBwOS0o8uXHE6UZ0ClF1Jy3Gxx82oOAYwPseNvmEvYYWqce63nZ8CSXYa0pc2euj2yKKc5+BfW2ATDMtXJFu49sbFbq3a9/TbD7iqw7SpMtQ/cyBUP5fn/VYMyyJeh5IEBQO9TnduqXbElxfx7q/ONRShPaxfcrCMn3X9mIFkLWpjH2zesuaTjf29w6xBifxWoW3eeVg/1sFDvfklKUSaJTKsqc6DUOkaj1UC6D+l6tMGvZABGKbI7IvvSI0t0niff3+JeeOY0fnOmamk+PcvwOP5VcXHfHDMODZf+5eOzHVxj+TEXpty0571IJFK3Jg65Y7dva1YvoNwT+4Y018WVD3FckQFxb/r35AwofRO8enaiaNxuehd99MGYhFZhVOYhFEdF3YPycIIZeGNuWW2bX6ZNAUu5sa18o4sixAyJMZMDFICUVoQ4p83hvq4Qwe0RDoGK4Mab7m+MAaZ9q2w+v/dy/rBWvmw/+Wob1PR2izatdfMTsHzQxesomZIpiHTSHHS9JapS55fPJLpBSJP0CK6Xid1FdDOqWaVVA3BGw2AiwLsR5EeM0gP4roS1wWbx+iahMK0hsn8PXi1nIgfLfmelTrgcme1iW0ctl8R6A2pkp3l+LVixLtFt0rNRal1uSNNzO+umCgRXdVN9ytHhzzHNF6o9lVuCwOiPQGQwFU9jMe0HpHp9qgRzKotSLX7jyGLpaj3jrcofgVHGiQkqRqY3Mjs1IDZT1tJRs/oRsmick/jkxw1X4TYfD0dr79vGAE=",
+          "thinking": "I'm looking at what appears to be a game simulation trace with no explicit question attached. The log shows 98 steps with some navigation and interaction events, but since there's no clear ask, I should find out what they're trying to understand about this data.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace log from a \"MemTrace compaction\" run, but I don't see a specific question attached. Could you let me know what you'd like help with? For example:\n\n- **Debugging** — figuring out why something behaved unexpectedly\n- **Interpreting** the log format/fields\n- **Verifying** correctness (the `0 verified, 0 verdict(s)` line suggests nothing was checked)\n\nIn the meantime, a few things I notice that might be worth flagging:\n\n1. **`0 verified, 0 verdict(s)` over 98 steps** — if this run was supposed to produce verdicts, the verification stage may not be firing at all.\n\n2. **Target vs. movement mismatch (ticks 92–95)** — the active quest is `navigate_to:npc:0_11_5`, but the position is moving *left* along x (`9→8→7→6→5`) while y stays at `5`. If `0_11",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 446,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1503000000
+      },
+      "id": "msg_011CcreuHiVB4fhg7xJkaXDA",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 446,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 213
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace log from a \"MemTrace compaction\" run, but I don't see a specific question attached. Could you let me know what you'd like help with? For example:\n\n- **Debugging** — figuring out why something behaved unexpectedly\n- **Interpreting** the log format/fields\n- **Verifying** correctness (the `0 verified, 0 verdict(s)` line suggests nothing was checked)\n\nIn the meantime, a few things I notice that might be worth flagging:\n\n1. **`0 verified, 0 verdict(s)` over 98 steps** — if this run was supposed to produce verdicts, the verification stage may not be firing at all.\n\n2. **Target vs. movement mismatch (ticks 92–95)** — the active quest is `navigate_to:npc:0_11_5`, but the position is moving *left* along x (`9→8→7→6→5`) while y stays at `5`. If `0_11",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 446,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

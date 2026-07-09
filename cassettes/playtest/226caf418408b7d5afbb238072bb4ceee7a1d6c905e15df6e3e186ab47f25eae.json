@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:226caf418408b7d5afbb238072bb4ceee7a1d6c905e15df6e3e186ab47f25eae",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8110,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpMJCokBCA8YAipANqoRqxZVIOiPvrAr1Hj2OpKUuExg3/hoyWGHSkGOCiVbUbAv6GmUOg5NRSDosvQvPiyfo+MOq7iJkO5b+QdWSzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOYGKTrK7Tu0Nyk5fhoM3496wnlH4BLJFV9nIjBFKVsvoEy3YS9XFfcrNqBehEbyOORrFp2j31r7FHKFzFlBy/E9rfZOL6noL7xv0tgqtgfmGtImfiFPuvGcpzIdY9ukJJ+Ja1E5dt5oEc//QrcePpmpfLFa2z2s11frKmfjBb6vhql/epCmsP8ZX1AoIG4J4fOTJikgQnKxnnnjbHfXO4pL+VACYBGlFW+vmlc0JhUnA5+7+OKWCLvdxwLteZeNX7Pd+74Fo0FODQOzSXmJsOal4A6cZ2c6ykv2LKJrmA8f2Fcfa2IrjGsFH2VqeikiWXpEOA1ilydOjXst/j45YNUZEEjUjSkDj01B1tqTlWu1WuvPruQDx90ndbruFvNcmP/LfA3YNaf/tWDLG30j9qAzduxkoDh6NJh9MiLvRjKw2DbbRizMsbmCu/Mh5Z3u0jEiwiXOrD8QgU/JBWZwCRyEMOovbNOg1AQuUmHaP3sfj5X0YaZtFp+4IhJlnZqzhNnn549q7hLaG6/fI+o10Dpgf1ohNJHAl54bman/6NuDUe6p8MMHNalSoj+nTXg4pPkHgdrtf4Ng6VzXBeAWFQ8OXOqD77Zpsq8XQxk8E1OiHOBFVWdHdqI4uC4s1xKsDa/jilXU0hpg5A4SxsXJR+5zyTf9UeeKVYk8Dbcs0tpWzqrNBI/9SOC5OBwoYQHYoJsUGcRnYelxsOkFmxaELVbKaEQo2zqodaFZYGM6xc44lNi0kZ194+br947YUMomYAVIj8+vzLBrDtlyAvS2H1U6maoIRCYGd7rpxpffCafYoKtZ1RGwFk4bdl742CeJSzZBvgoR3q0C32ECxlYC0ur3xbvE7tMXV5+HHn+rA5yXe+rZolGY+LsTFCchILxdabCt4vIcNH7EmJcIV0Us6vSyYmGsLoMWrIHHmJW8tikoO7QKWZMXkiQFXUDN2F6+NNOYiW99v/gSRzpAYm/zD3Rt9ffCfCFJz43yV8SI4deS0/IGwm9y4CpTURkaAYAT7SinPLzwqX4ta0uILYMBVRFkCGdu33Lbi2Ne9ch47lJu8MJIU+IqXyxnwmAO54eubD4Azpw5rfvHx5tpYnXr4QJFk3/W5R4YnpfnXyM0YCHG4OajSD7ODyC5yXITB+Akwq75xFcIDPkshm504cSYM42ABzxIsPb+rUrs1Z6zl6bk11EblsXpptn1Hsjw0sBoyq2f5lznvYT69t3fQh4EN9LVFMGZGy4Kb95zccevUZmFC6DBxLS5Jf15nDpxEKWtLCDgfkehOxnJBswQ+R5Eb39/SYr4y5bUbWSmtyYdkH0eafIJYO2KwFqzMc2De2UlBx2cD6lKbdmstL0XrON5z7nlO4r3HhgB",
+          "thinking": "Looking at this MemTrace compaction log from what seems to be a game or agent simulation, I'm noticing something odd about the movement and interaction sequence—the agent appears to arrive at a location but then moves again before interacting, which might indicate a timing or state inconsistency worth investigating.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a MemTrace compaction log tail, but I don't see a specific question attached. Let me share what I can read from it, and you can tell me what you actually need.\n\n**What the trace shows**\n\nThis is a deterministic agent/NPC behavior trace over ticks 11–18. The agent seems to be running a quest state machine:\n\n| tick | pos | activity → status |\n|------|-----|-------------------|\n| 11 | (3,1) | interact:npc:0_6_1 → quest_completed |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 448,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504000000
+      },
+      "id": "msg_011CcrM5aj7cyEzMuqVzgMGc",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 448,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 347
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a MemTrace compaction log tail, but I don't see a specific question attached. Let me share what I can read from it, and you can tell me what you actually need.\n\n**What the trace shows**\n\nThis is a deterministic agent/NPC behavior trace over ticks 11–18. The agent seems to be running a quest state machine:\n\n| tick | pos | activity → status |\n|------|-----|-------------------|\n| 11 | (3,1) | interact:npc:0_6_1 → quest_completed |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 448,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

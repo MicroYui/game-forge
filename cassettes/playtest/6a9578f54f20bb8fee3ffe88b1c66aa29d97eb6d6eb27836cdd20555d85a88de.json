@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6a9578f54f20bb8fee3ffe88b1c66aa29d97eb6d6eb27836cdd20555d85a88de",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8853,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtwICokBCA8YAipA9SitcqKbR6tbR3+0CfGFWpac7BiBBXfv8/+tHFfIzkVUKY94c3N9gL0mmAXhz+ypvhEj4Sc+1ktgsq3yqDTRIzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEk+wfFkV7JBwS7BMBoMsktFQP8l1VW3dwt+IjASI0S6bsAvSCxEF9xBgyhrHvb7dbM7v8J7lsF8RKl3NWoQKMOEho3cczeBqFma6csq/wabo8vxf2kVeuYNhKpiJeUFtdPMt0oGRoQIu3RTjyrw/Si2CDHZwF3eqdqqJZLANyf2bf2qJ0LoA3RDDZLDer3Iw84eE2LcwKG6aM2UOUzNynKNQe/JF0WoY3qojM0Iv6Uw+nSB2v1ffMaQsYpEUmiY0UYEZf3ji7Na+7QQ0LQXO3djIOUzS0ff3sZCtKfkYvkkNPUEYWarFcSn/0d8st+DqnhfXBeqxKNybcFxDqa5fuIkpbBszK1d7/dIDkHg1OLhA1suZOCni6f1tPD01NE8Uto/xU734Ckl6SsZ46gM4Q+4nKObDOXFHtlIhBwr+hRsiRhDGz4bHnBjnQlRolzv1LnDokNDzP5VX3JiOlVC6O8iUtwUucwrkV+eh55MZbiWJZdpuNzHoyjvfJmxO310MV38n6a4s3VBwjK/rZFQyyJymlP3rPMHi3iq9cxcVE9zojnH2RhnprK2OEGtnUpq7+NfLsVhcmEW2W9ZimwYreym69GrYbAtr7mJTra09iHnU+2BrYne2GcC9JbvvSD4xFMoyVI//xGQ0yGBENAVbli0r4/NPMa1Nl01HolwFOjZYu101D6/IOZLhjOpunB4EI0Hd4t9oqBWngzGMIyG05YRJrJGUjt/tnx+pI8kzneyi6v1BJK8V2UNKfqKas/1x4OS/59A1sWd5MIOklfCTYep229zbyVWZ4tEdCZqKMCaIId+rKtxEDpUVb4CFr4nq8bCtYcKaHYMBFBbtKG7Gqcr3wPgzLRzjioMTjPHVdEDRDgiftTL9leeLNfEW9Cubz6jedmAA+2lC9OtJMBI5M4nsVK/Wnnr9s8dPpdY9Mcd6rq7AIske6sNhUrMCD+qc5UEBotezYk8k2qG08i+x//dNoSPSsDLnS3knj0F0CEszTS4alrwxaXOKuUvFPBefrR1MUfqxXuFp9LqM4jZOQTWmaep54IyKoqRDhK2h0fcZkQuG49FARdnIDLwyyFqFg7H6xi0vm3vANqtxpPQlXas0EfMmVRD2dLCmqfGLa8o+EINzDiFWZ5icNlp3WOWx3+aydBS//YyBJ3pj8jqoqWdzEs5BB/omzs0LstEuntcuUixJWVDq23KC4wID+4UgA8RjmRzpI12K75UMbhh0JtvPaY7hpmeQredgk1DQs09vo7VqYoV16VwaccdzB4kGFZ3SoP+EQDySUpDkak8GAE=",
+          "thinking": "Looking at this log output from a MemTrace compaction simulation, I can see it's tracking an agent system with 24 steps total, though none have been verified yet. The trace shows ticks 16-23, and I'm noticing something odd at tick 17 where there's an interaction with an NPC that seems to cut off mid-line.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction dump** — a deterministic replay/trace of an agent moving through a world and running quests. There's no explicit question attached, so let me summarize what the tail shows and flag a couple of things that might be worth your attention. Let me know what you're actually trying to do with it.\n\n## What the tail is telling you\n\nThe agent completes a quest at NPC #1, then walks over to NPC #2, accepts a new quest, and gathers an item — all cleanly:\n\n| tick | pos | action → result |\n|------|-----|-----------------|\n| 16 | (4,1)",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 448,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504000000
+      },
+      "id": "msg_011CcrcdL8uyzXJjg4aAphNo",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 448,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 317
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction dump** — a deterministic replay/trace of an agent moving through a world and running quests. There's no explicit question attached, so let me summarize what the tail shows and flag a couple of things that might be worth your attention. Let me know what you're actually trying to do with it.\n\n## What the tail is telling you\n\nThe agent completes a quest at NPC #1, then walks over to NPC #2, accepts a new quest, and gathers an item — all cleanly:\n\n| tick | pos | action → result |\n|------|-----|-----------------|\n| 16 | (4,1)",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 448,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

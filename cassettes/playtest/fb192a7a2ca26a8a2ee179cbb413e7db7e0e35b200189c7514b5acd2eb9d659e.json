@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fb192a7a2ca26a8a2ee179cbb413e7db7e0e35b200189c7514b5acd2eb9d659e",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8780,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EogLCokBCA8YAipAbDRuijQRpYRdVmAw+aOJb/xyzhQ3fqvlFn5hD9sPsCsloo+hLuCWsuis4VE7qdWdLB833SSwimOCxmCHMxi7CzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCPFe3kRj3Iw3rc1hhoMouXAjrxyBIZPwRj4IjDo3Ja17dAOozNRIbnaiOz7p6cFnCpHvWwzuw5NYGYk6xJ9/TGL1vXppVbsQjEM0cUqqwnFg9JGudVw+oca1garfYNroz1+SRmbaVt1OGb6JAVhXIj2YZ+O7zGzUge8UFxae+LDyXvbBjfNYPhptHRDVAyKCThVTHmai/WZ3I1Ypy1yoKwZS/I/sW+ixsanqKzUuJrd97znnhv9Io+cxQM2TulAaMs2ECgnc7uzjNZEeJprCARljqjU9rVRTnfTRKG2gS7IWktQP4tvjN5GFH/R5IyruQGyCo9BOZsdgxbYeRwOcWFMt5S2hGtf9UAt5len5sKk9Rc9LuGgeMXtKXB0WWSSh3gQRMryFB5NSQWrRTTjoPaIIlXiu4hmgzkAtXJqfs+2O04ceLAG+BqkmhbAKl0IUfQI4AwNAub56HVE3LIoUeUqfNE771M3EOF8ZRxstCtiWz/d6jieiAYWvABqkovZsmYkH6LLDp+JNuN1Z1q0Vs7QZk7xR45Jtg2d7jidr6fYqnMyrUGOzPdyGMTussrHncBwOVq61og6nMKQb9hHChL08TtBMI4qKK0OSS5PByaLx+pGn1pqZRZy2JdpkMWbqR3A5NKw0m1ro6lat8XkASSIejtq4OPgTYckvN2f2K1ErckqsI3Dx7dr9jp3JqzfbkIuhpuUMOED4aJfeX1Ckdjs3RC8+OR2REjdfbKoiCqSm5omnftGMvqNkKJvqQwFGSku6LQr/fpH5fdq0E7iD3ohlokAcupZueIupW9TUYKfHpgtX+M6nrrZIpSCRHs+z4zeCk5ZhHloDfgh4/sF5vfOuu+mRLEQ3pgh1UrPKozqFeVTYd80N3RpKo+kmdUto3qfQKwSSe9qcnJEu1vZIU2rYCIHQvO+JtHzE2BIvOHC/lhdzi8LRFOOi6dx/3XRVUPNUw/BCEHoOio8TjpHOSxtAGfx9H0SKeQKRhp3zqf6Z1X+qaYGxeiI5aEtpj88VHj8i+eWcKBrEeJxkrK1Px842YqFolp8Mt6nLYYZT0pcScVGykWm5Kq7aqHU5QXYR9N7dgNSVOhObD/mNbtYg5frph+8ZChGHb/XUrUn0jKk+miYv5JxP9WYG3EE7RFksdEl9jaSF8VHeK4Kem0JXeHQYqG/8rCeyfCOasHzjZiFOa0Jjs0tWESJlEgRJaFhWtSnm/qTN6hmK6bj3974wNtRheDePMkGJEzWy0YXp8XEootsCNUEmZN8gbpTyCtxf4mlBWt7v+yuHmBkcligfDt0ZjFHDya4U1fLoHRY1R2L7zE/vlv6k1xXF1LmJNll+8DIlBJTR7wQFesT05GWfkaj2J+HNHu/08+KVK8T0fQn5d8orbTSR8RO597cDYP3DISHUDI1h6x52QmkegGKqpF98X5u90dFqwSfAvLlCHMQgQxkXHcMFiUy3BiETvrfrSsuAIwZr1WhvwP6pDWi+qDxW2x5gwxh+DuKm7Dz1QHHFpjpmJeyTwlC2mwSWlYas/wWc6O6lP07SMljVFp/HnRTBl03jwwqMd8xCVv/Jo2xDTS+hRCXeBWtkNV4XrP7sVg1MGMvMECm4gcQhSMGLkft5qg5Zc5/16DVaszsY1le3vUHLKeUBSRZbTHZH+s0yvudbtY3dioTvVq1O3XHCc8gXbqUS4QkzlR3GAE=",
+          "thinking": "Looking at this MemTrace compaction log, I'm noticing a potential inconsistency: the agent receives a quest_accepted event from npc:0_15_5, but it was navigating toward npc:0_15_3, and the active_quests list remains empty throughout despite these acceptance events being recorded.",
+          "type": "thinking"
+        },
+        {
+          "text": "A few things stand out in this trace that are worth flagging, though it's not clear what you'd like me to do with it. Here's what I notice:\n\n**1. `active_quests` is always empty**\nEvery line shows `active_quests=` (nothing after the `=`), even immediately",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 433,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496500000
+      },
+      "id": "msg_011CcrkFWcWx8SrY6VMLCaPu",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 433,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 427
+        }
+      }
+    },
+    "response_normalized": "A few things stand out in this trace that are worth flagging, though it's not clear what you'd like me to do with it. Here's what I notice:\n\n**1. `active_quests` is always empty**\nEvery line shows `active_quests=` (nothing after the `=`), even immediately",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 433,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

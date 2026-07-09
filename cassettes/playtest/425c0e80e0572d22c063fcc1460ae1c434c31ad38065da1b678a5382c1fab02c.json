@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:425c0e80e0572d22c063fcc1460ae1c434c31ad38065da1b678a5382c1fab02c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3253,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EukCCokBCA8YAipAuPdAMYGr3kzpWH470yqcjwUvEFpsJgnWZAAcBPtsUJZCX8nEFim7BSla1EDZlMeZ83VPZgTVQ+A7s4fKSHhffzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBGLHut1yIY4cuTjaBoMgZ/+e1gdLYSunzk/IjCmpubTEXiTKTL5GmWZ/QNwLHGxfYKvtZoVwtAV6Cq7uVsiM+HBBjtXgfRFrv4VqBcqjAGfXqK3WrpuhjR5o+L5taTzV64Wc64DSHMATe2v4W0OFsNyQVPlRfIFLj3jvhHXSuXD57SiIB/9h1ahlNx38NTXLUxYsmm5wdoGQFLMjoRIoUqJ4OB/M9i3xYbqcqNuU5r+6AD4D/HiGxsXCCpg1n/BTtfjaeh++w/1fSWLZjfJKvHkZDs7GvI5Q5jLPRgB",
+          "thinking": "Now that we've arrived and the previous NPC didn't have anything useful, I should try interacting with npc:0_5_1 instead.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"You've now arrived at npc:0_5_1 — try an 'interact' step there instead of repeating navigation, since the old target npc:0_5_0 returned 'nothing_here' (likely gone or already handled). If the interact still fails, move on to a different reachable NPC or quest objective.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 600,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 147,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 667500000
+      },
+      "id": "msg_011Ccr3J56AikPASKHF6HK4r",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 600,
+        "output_tokens": 147,
+        "output_tokens_details": {
+          "thinking_tokens": 44
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"You've now arrived at npc:0_5_1 — try an 'interact' step there instead of repeating navigation, since the old target npc:0_5_0 returned 'nothing_here' (likely gone or already handled). If the interact still fails, move on to a different reachable NPC or quest objective.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 600,
+      "output": 147
+    },
+    "tool_calls": []
+  }
+}

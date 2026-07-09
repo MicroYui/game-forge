@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:42d75dd853cdd91c8031a438a03a8f35d820f8c29262196ed8f1c41e0a9cac7c",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8487,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtgHCokBCA8YAipAVpR5ZN0GM435PXle8ajcHRq+KecH5eJoRmfNSsrAhsKMg9jF19GbXbO2DfzuVZXfcTKYW1Q21Vp/cazk0QMn9TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLZnJeINR8wp7goSzBoM8sT6fw2ted7J0DQFIjDPafietsG/iWjoLwJkgxIFiWQwPl0WumhMmGNsbfYmAi2U5ZRCK9LaYrNY5Adezcgq+wU/cuiE04yDMERN+Q4IMPotppkJ92SmWs6+pRU4Or/JdRXARgYwjtiJSqBTZXKX/JJZDyHLvv8EzTjkGlPLM1mjzHBZPiQ6ZwXmgvufJrJu3PTlWsL03O/qiY9fQhSnVKSU9C5ZyXUlS1DiTZ7e7FQTjh6OtegXMbfaFWiwZdLOjjPDi6zMTp+Ve3Zg/hoyFEMutqvOJuFJ0FYd0mvy1EiSL1e317Wilu+vX3ZbBMIW6p2k3xVxdzf+OlgSnI8gKCyZ2p4lUVU6dda50z09JBy582bqXzY4EEDHWNVwGWV4G3MTwnkqaEogEVbXEmWeQVYJTqu3hFvvVX1LENcRZt+JeXIcEfKxgxeOsDvrudq98qqDJMCYatOpAA7noGmS3dSHBp5YYhJmdHv08CtkbfCUja3DCZEfxDRzcalCr33/wYwCAW3w714AoDqCdtSVGUznfJ+iEizeJ2W4RlASXkneclgOEIgKwya9gz4XGMhiCtWtPAGvRHjM6NfSt/HX/kNtBTguACfiVbnvX6DlcCuc+6mG2P+eqm45TbPTtGxDXgORnxujDIVUGreVlkuXcUavB4iG1HS8QPSEIN61YF90Gqeze3EGJOsAXDdOQFrQSJTy2i+nidmMh38L8c/i/ZoGZcWbjsj1JLTWkrEFLSjr9I1oM+/2dSOOLKoW6Lryt1RF0/Mj8VhiALj75wq/1Efqb5yHBedfmXq+qx6m2lhs0vWj46UCl9eRZzzZdhLoqbHMx9YkWjEFLXw7kunl0b6QKENRsVSd3k26rpMqAtnSo9vvtolsKi/T8hBDVzXGpR1bSW85+6WKyOcNoQ+LIBbMhHBJb2W/ls9XYosAlLfYN6mWy+4+BAm2+TthsmwqBXAyLBiFxweAe72Rm25V9Qa9+Psdg9g+dnqR5Y36roo8/h/pQtDu+qVpq7argykTP5tsii9HTlT3M+4X8G/vQGs0IkNUR+nOUWHN9GfvvbDo0PThSEKfokz4IbD2Spi69b+261wbCzm6lvzhGAE=",
+          "thinking": "I'm looking at what appears to be a game AI trace log with compaction data showing ticks, positions, health values, and quest states. The header indicates 31 steps were recorded with no verified entries or verdicts, but there's no explicit question about what the user wants me to do with this information.\n\nI notice some inconsistencies in the trace data—the field naming shifts between \"active_quests\" and \"active_quests=\" starting around tick 28, and the navigate_to targets vary between different NPC coordinates while an interact command targets yet another NPC. I should highlight these anomalies and ask what specific analysis or help they're looking for.",
+          "type": "thinking"
+        },
+        {
+          "text": "I don't see a specific question attached, so let me tell you what I'm reading here and you can point me at what you actually need.\n\n## What this trace shows\n\nIt's a **deterministic MemTrace compaction** dump — a replay/summary of an agent's memory, showing the last several ticks (\"Tail\"). Each tick logs:\n\n- `tick` — simulation step\n- `pos` — grid coordinates\n- `hp` — health (steady at 100, no combat)\n- `active_quests` — the current quest goal and its status\n\nThe agent walks from `(10,2)` up to `(10,4)`, then left to `(7,4)`, cycling through a quest state machine:\n`moving → arrived → quest_accepted → quest_completed`.\n\n## Things wor",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 429,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1494500000
+      },
+      "id": "msg_011CcrMX7FMLSh4TTtCgiXtQ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 429,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 276
+        }
+      }
+    },
+    "response_normalized": "I don't see a specific question attached, so let me tell you what I'm reading here and you can point me at what you actually need.\n\n## What this trace shows\n\nIt's a **deterministic MemTrace compaction** dump — a replay/summary of an agent's memory, showing the last several ticks (\"Tail\"). Each tick logs:\n\n- `tick` — simulation step\n- `pos` — grid coordinates\n- `hp` — health (steady at 100, no combat)\n- `active_quests` — the current quest goal and its status\n\nThe agent walks from `(10,2)` up to `(10,4)`, then left to `(7,4)`, cycling through a quest state machine:\n`moving → arrived → quest_accepted → quest_completed`.\n\n## Things wor",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 429,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cd6ce2e21d6028dddea499335a81edb77fe9764e5e15ff3fbf76eb30542ef4c9",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8823,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvkICokBCA8YAipAQtDzKyRdnnoWQLWHNfYynXqtn0LSr7iGMHz1T+nmsLbNCS7VnWXE3tLR1/+ju2kgA/aDdEoNyZVzpvMF/u0q8DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMn4pa9UnjYPB2N3wxoMQraU+0DqYXpZ0NpnIjDqDe/m6TqAzJ3QLYoWBS/3V6a+1V9pb08glwj1aBhHDpUQyeneoQJBnlWcM5LXGg4qnAfR1rDB0QlCT8XiV6KXF9vMhp53xX3Ic3LnSYK0zQbfSVpZ0822X5hnnCFtriKPT5yxz8W1aWIf6QDpy6/cGUBBFTN+U8RLKB/scrM7JocRA/enO0JjeYCnGlJp+0e0zoUo4Qp//lBk4mtu2RORqYR3k6ygZeWZy9Y2Bm65i+GUiw62zPhBmvUniYQiCsq4G5/SlPe6uonrIM2OVbeq1/QdM0aaOglWlbLXzAIoIVzGyEToIDW8E1NnGyY/6CZILRpWHghrzH8RFl8vXzmAwYk4/70ONx/cm/CFVqGUoC8FuluqM/KKqHIpiPhc1UezLz+h3eXeK8QDZclheaLlhaUPq+w1hNyjoKmoz+4TUu1RS4VvJLw+9lD3tvw91+FI4VSQnjQ2szj83IKtDVX8QF3ux6LS/jsSepIrEeA8lDBX6cJBy4lOOjr6cgtFPZAS5bil19XbtymE9/UwjqZm+iutTEj1eQ+UpOGMx8sOv2E6eZ154MaRNdFQ2FtSlGDp8FqGsUTNe77vMUNnLtsezJnqo/RjEahnNRRnK4GPuvcJDuMBxexbgbka8P8YLK7mQx/qGX8Z9nzaULAwQuRIRylpsjznnysCLnih+6nvXUjvUv+bzoSVg9w3lmKfiqqCiZQvG/79lLmm+8M13x8tEGHyzfXD/dF19cWSBTM04GsOHesuBQt1zr72s+8XmqNYBDopA0duVKF5fXVvuRTUQZC2lFS9sX5YdDo+tNg6Mhvm/POifyR37nvS589xcTND0ILsE88tIlEQIodRVakyDEPbmYi1XsTWZXyMVQCPhG99clvHGPNl9voMYPbBeQpYKj395KYUtr6YdzR88LNlV5EDH+lnDMZPNoLV7zZC1SqXO/sOjdN6LvjbhZ4MXnRPgeJRt8JRH5vpNfsFUkd+oO3lH3nFp8KPW24lD5YaHMbakOqJvjHEHY8H8iER9z+BUEABTjF6JZHDi1YmjLA+H50VKayDwzIyscVAsGiy/EcO6dRJU9eTjJ7HQHl2ufLWYSYC/GOmKJ7uhWLtbv5lReCYvHXzMd7eEBIZudcNuzfA8fWhg/bNc/9jN5UU3fBAjIQM5QYkaok2F1gK3aPXNtWAiFV2lFrbfpTn0tcdwEMbF1f9jnrF621u5xXXFVkpv6BoXNyLXZ5vR8YCvzVjOowSM7UXt0zC8w0hqo6oyNP81GfKoT5XJWPmIE1+YZXCer8hxyTu8/MhX9xMLXgYAQ==",
+          "thinking": "I'm looking at a memory trace log from what seems to be a game simulation system, showing 36 steps of agent behavior with position, health, and quest data. Since there's no explicit question, I should probably ask what they're trying to understand about this trace or offer to analyze it.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like a **deterministic replay/compaction log** from an agent (game-bot or simulation harness). Since you didn't attach a specific question, here's a read of what it's telling you—and a couple of things worth flagging.\n\n## What the trace shows\n\nA clean quest loop over ticks 28–35:\n\n| Tick | Pos | HP | Action → Result |\n|------|-----|----|----|\n| 28 | (7,3) | 97 | `navigate_to:npc:0_4_3` → moving |\n| 29 | (7,4) | 97 | `interact:npc:0_4_5` → quest_",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 434,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497000000
+      },
+      "id": "msg_011CcrJoJj1ZcSSb8iKHMvA9",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 434,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 317
+        }
+      }
+    },
+    "response_normalized": "This looks like a **deterministic replay/compaction log** from an agent (game-bot or simulation harness). Since you didn't attach a specific question, here's a read of what it's telling you—and a couple of things worth flagging.\n\n## What the trace shows\n\nA clean quest loop over ticks 28–35:\n\n| Tick | Pos | HP | Action → Result |\n|------|-----|----|----|\n| 28 | (7,3) | 97 | `navigate_to:npc:0_4_3` → moving |\n| 29 | (7,4) | 97 | `interact:npc:0_4_5` → quest_",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 434,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

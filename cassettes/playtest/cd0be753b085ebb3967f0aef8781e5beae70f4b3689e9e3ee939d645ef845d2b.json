@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cd0be753b085ebb3967f0aef8781e5beae70f4b3689e9e3ee939d645ef845d2b",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7181,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuEHCokBCA8YAipA8kEDSnIcDgBxbt5qLnPbcPq7Uk9yk0NhYXOk8FZW5UcyxivubIjm7xKBDVp/6y5pq8SihUPSYURpUfGCm8MiRTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBemehqRrUnnWa/BhxoM4IhGJ7hnjV5DZTHrIjDWXyeey+GI4jy2tJTSXv1zO88QiHAmI+mQW5RShuMOmlCqXlfclUz0MFd1WiRy9/gqhAZFVH9lC0qyM2Q3UXNgbyX3vVfSS7cbTr56ptk9p3J/BaS2Cb9iGFlv9tQ9fXXZOGPCZTclI3WUobKEG1tsC2MwJ6DCH9R6to8T3LxS5ndlKAu/7h7yTykA+Az9+RNPAWP7FkPdGMa5o4+Bv8KA7NBDzf57QpIgfKr8a8ZDR1QIC4aknrJ0lGIIFcA7gXgoDteZKHwstzcs2VdINv8ul1lf0yTIa6d0gLIeR7LhdjWQnEhltsWJjTi3AvV3VtbMqMlRAnabAU9+NCUQGBBXU8CdbH4/y2as9DbgeZTCudcSPws3os7RT5UnZGGZ8JEGEN+0JKaOeZSL8cdWJXzc+MGw0GcGqg9MPt+7CtKccCnkfsiyAmw1l7Mp++V7hBaVE7uKmUCaQinTWTGhEi705Bq6ZQO2OMNP2qyRfGkBgQhvsIOnz5HcTwSKefAegPvizzaaADXIa18Vt00/Qr8wYAXqd94KQ5XV6grpbYhrw2a6OsOtB0o4BJK+bWh1939hzFh3cDVSOFHL95xqLzbadMMMNFOItIRqOJv4vrO0Bpdu/x/E7WfBNH7Kd3LGQf0Ulz6n6es1glvu8dVf0D/mmIxrMRlL9tOgn2wPFT0s8O19wsIKCLfqNSUO+DvqxSUbi581w9o4xRmLp4YsWgKLOo1bGxArwSmYhpzuMzY2fYxpAc6r+uLvWwlXcgfDLwjht+vocBnvkOtWuQcNnd0vG5STRm3zNmvlytb6pfJxfpD4xYYB7egThHpIzrOKIpddl79hvZ7PrWflM9XA9eW+FiEZMQnl0vsGVZaFAD3K8L0tZOG9/nrdsKad2wxfdntdBAeyxnIXOpscd/c4QcrbM/U3NgFdFMmW3QfRMU1UavLg2tGT9TR6kht/Y9htL4Nw89g9gHTa33kC0NLh45Mhp4iB/ahu0ZuNdks1vI1KSnuyMxCaU4JoU3N9pzo2H3o0AoGnPb3PhEt24RP1dQvyPR+hsebbcg3DDXndbGLlTeF57T5KIwDYlRGyzDoolpZcQjYNhREaGAE=",
+          "thinking": "The active quest has me fighting a target, but the hint indicates I'm under-equipped—my attacks land but the enemy won't go down. I could switch to a different reachable target or pursue another quest instead. There's a known talk quest available that I could advance, though I should weigh whether continuing this fight or pivoting to something else makes more sense.\n\nGiven the hint, switching seems better. I'll propose talking to npc:0_2_4 for quest:0_2_4, which is nearby and would let me make progress on a different front.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_2_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_2_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2837,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 319,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2216000000
+      },
+      "id": "msg_011Ccr1bUESz1Er9DkY7jpqb",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2837,
+        "output_tokens": 319,
+        "output_tokens_details": {
+          "thinking_tokens": 278
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_2_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_2_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2837,
+      "output": 319
+    },
+    "tool_calls": []
+  }
+}

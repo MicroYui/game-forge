@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1fedf805509fc5832d17bcc879d76c1f21aa69b671ca4b281992c4f91cbb4da3",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8238,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpkFCokBCA8YAipAd8mkZ3RdKQdiETuDhzvORMxhj34w3yE/RPNLhXCB48UNsvX3yY0IjWDLxITZo/Y2TQqaxON6nzXgKeWTq9m8BzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGFFfbAMmQsudSNAPRoM7itxHUiRJwVn/etZIjDLQmhBUvkR0oIE0XmVd6w0Uf5EU5mIT8BHUfBkrhFnNoAVkjyc7fVzVJngZeMU3EYqvAP517BoN+V50YoOsGSmHf7M4lh5O9vwVo7HWJLhr87r/9xtrQiodqKwLFZnhoiEA1GIb75+lfoIsb+MBtBht5miFxWuEk+4qGruW+hrZ2GPB/6qVqLgxh0GIpTVakL8mRQ9ltaIQ5t5sNQqaP2zwSM/3RYUK6+vCAjnKAxdFnx8v4SWJt5jgZYbB0+DwnDf77+kQm2bvRg3Svpsk4PwNX2rxcvbg/gN6BBDfpPiDYXXQZfZ66goOTbPfFm7uYo/G7BPVl9x1OqwXtzJpnwHOY++1zAHlvTC5mKBi7yOaTXQVr+i6ot0Y5j+ksIF/L9iV3H+Z3bVmdth60MxXpJtfD88bW+PjvFfJprnYLQlxgvXFA8Nnf/PAFBZE0nQJIPTeOFRwraHyFdEQByaq3tMGlgzik5WloG3m3JBfFwd/vdM7gK53H7m24FB8DrzgTTojlHpiUz13EUYcNautHW6CQhOlFwkO+TiFLb5FtTphjxRyOe3pp854MJhEpFtRrcHVamlHo6POQNEcwbcdB1uSmND0WANAxtFtEsql3cZ9Hf7liuRrB2cv/kjqRQ+jS6KCAXfK+aP0VUKr/SwwDAYAQ==",
+          "thinking": "Looking at this log output, it seems to be a memory trace from a game AI system showing how an agent completes quests through various steps. Since there's no specific question, I should probably ask what they'd like to know about it—whether they want me to explain how the system works, analyze the agent's performance, or help debug something specific.",
+          "type": "thinking"
+        },
+        {
+          "text": "Looking at this trace, it appears to be a deterministic memory‑compaction dump from an agent (game‑bot or RL/planning system) working through a quest chain. Here's how I'd read it:\n\n## What the log is telling you\n\n**Header**\n- `102 step(s)` — total ticks recorded\n- `0 verified, 0 verdict(s)` — no verification/assertion checks were run or passed. This is worth flagging: if you *expect* verdicts, the pipeline may not be evaluating them.\n\n**Tail (last 8 events)** — a clean quest completion sequence:\n\n| tick | pos | hp | quest action → result |\n|------|-----|----|----|\n| 93 | (6,5) | 90 | `gather` → **gathered** |\n| 94 | (6,5) | 90 | `navigate_to:mon` → moving |\n| 95 | (6,6) | 90 | `navigate_to:mon` → arrived |\n| 96 | (5,6) | 90 | `attack:mon` → **hit** |\n| 97 | (5,6) | 89 | `attack:mon` → **victory** |\n| 98 | (5,6) | 89 | `interact",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 441,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1500500000
+      },
+      "id": "msg_011CcriuGJd3od6nna97qtdP",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 441,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 132
+        }
+      }
+    },
+    "response_normalized": "Looking at this trace, it appears to be a deterministic memory‑compaction dump from an agent (game‑bot or RL/planning system) working through a quest chain. Here's how I'd read it:\n\n## What the log is telling you\n\n**Header**\n- `102 step(s)` — total ticks recorded\n- `0 verified, 0 verdict(s)` — no verification/assertion checks were run or passed. This is worth flagging: if you *expect* verdicts, the pipeline may not be evaluating them.\n\n**Tail (last 8 events)** — a clean quest completion sequence:\n\n| tick | pos | hp | quest action → result |\n|------|-----|----|----|\n| 93 | (6,5) | 90 | `gather` → **gathered** |\n| 94 | (6,5) | 90 | `navigate_to:mon` → moving |\n| 95 | (6,6) | 90 | `navigate_to:mon` → arrived |\n| 96 | (5,6) | 90 | `attack:mon` → **hit** |\n| 97 | (5,6) | 89 | `attack:mon` → **victory** |\n| 98 | (5,6) | 89 | `interact",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 441,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

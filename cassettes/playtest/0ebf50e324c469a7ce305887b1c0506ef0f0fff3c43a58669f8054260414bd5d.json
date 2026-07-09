@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0ebf50e324c469a7ce305887b1c0506ef0f0fff3c43a58669f8054260414bd5d",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8780,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ev8JCokBCA8YAipAHj5pHDULf9xSg0q52TdvKK4d88zM8wSp16+dBiZiOEl4aR7WbJo/dJiL55rQ8v7FRt67yEX2CIrVCXmhmos1ZDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPV5heHGbmPbuUxWmhoMMHKT3DRtze5wFr6aIjD+SQOGGD8krCY4l8VZ/kaPT9FZQzjwoDQ4JY7a4cHhJRFmOZZsMzxwc+mbze2DhxMqogjLIRqPMnallK7GU/Pdc46ht9o0J17duhYxZiJ+XJxw9alKwDf0LcoY3++3TBS7x2uLrh+qTeUTn4uf0APQMMIY0zbhIzQwdK368v4q/3z/u9MLbdYPdNqWdF1Ifz/7y9S6wOxUAfCA8JN64zMslyDJn5C21Tr+hCFquVPh8O15L4PIG5Y0SR2PjNcuRNGDJY16pR6R+MAtnVaDSB9OrsVXZ5MXn9A8St8kOdLmWzOO83VQsItSLG03BdEUGVxuF/wqqwrpTMLGG7d+6ieJWr98kLkLKYu6DS5z0K8Zu1eCjKmBHsDOEanrplDtMHZAo7E5TQMHvJFOlRvd/j4GI+W1EptNND6tnEbW0lYOxixlDTdGuzefbC9dWzaIWxR89f++4iHVefy7Ys8+LSTVgcdXGLQESPwPMMxruUWNQNkvokGgc7LhJq12kyR5cHHv/fCHBkKf1LE9kYClLoajrduyxkdYy/6JPVVmvBSge2SikFDYZvSgT1X7Delo7aZkSY8BkWvRV7ySlrnlLewvk6LqFAbom+RCHycboYWNoc8Z4zo+ObSm4ZA74CwDP9Az3xy7F7w1lfzttyM7Lov3/+IGBX3TtjFWptgOw2e8OkhX7+hwVMnZxezH7hp27XtFQT/S1PmqjEu27qVNCcMKWJLXS200HnW4yYmxfDVB2sbDx//HeKjHbBWTrSVkQnpYxTaplHtf0xcYsSzj0RGsA+gEis2aNk8SvqvQMydsXWfn8YslPFOmvl4O5pb4J24SLwxDkEbyTDIkh3e8clW1y1UPqQhT0MYEVa2Vl6bZ7ZmNFex54PoTYoXI6lBEdRtUIdeXuOGUGIzrt3LxCTxaoYnI4ru5uhdt3Q/N7wJLnoNlg1rLKdpiFsISO1wKmloAG3ZswqbLpq3kuTfs20S//1W2CRbL8aJqrSe2Deo2pQIT4yZHZ38Dhpg41cIRGndgx1zCxsyQ+DHkcv9omCLsQRwd3khb2/onPI3WJlg9QJhMuiQDsZPGHjnCyb8+Horu6Ku3kzRShvpY42tdkVxdmqdImRcuAR+1Ilob1a0EzxQXySJJcE//wghmAaNcQAXuhSViFRAbTmTMOp1CT/M7KmQXd8t5pf2hiuz0aSZygSnQr136EPLvQhC/GPLxPaYqTssQ5xlzaC/ZU7Qg79oUrbLU/l6HRHPDaUs0/CY0x6woHQiBnssvBeIgN11+hMN2ANbzrOvVC327dIJ/t3FvYyGuicuwKbPZ2y6411CcmfifiD9av1RbQkIH85lSXyIOE35O+e+KOJTVhrfyeNLhWWdy94C3R3hESI/jFUWnifCg0Yfy/GSKS73H5hyF2tnvt7dAi+pc+wlYgJJrc8Bx7FItiLPuysogsjMEkDpC3rwkqw0o+1arEUzYMJhDxJ4NFOCM3BgB",
+          "thinking": "I'm looking at a MemTrace compaction log from what appears to be a game or simulation, showing a deterministic sequence of 29 steps. The trace shows ticks progressing and position data, though the user hasn't asked a specific question, so I should help interpret what's happening in this trace and flag any potential issues.\n\nLooking at the sequence, I see the player moving through attack, navigation, and interaction quests with an NPC, with HP decreasing from 99 to 95 during combat. There are some anomalies worth noting: duplicate tick entries (tick 24 appears twice, and tick 25 shows victory but then tick 26 repeats the same HP), nothing was verified or given a verdict, and there's a malformed bracket in the active_quests field that looks like an empty or corrupted entry.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's what I can read from this trace, plus a few things that look off.\n\n## What the trace shows\n\nA deterministic replay of 29 steps (of which the **tail**/last 8 are printed). A single agent is:\n\n1. **Fighting** monster `0_6_2` while standing still at `pos=(1,4)` — ticks ",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 430,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1495000000
+      },
+      "id": "msg_011CcrM9cm1iwGKEPQsD6BkZ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 430,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 408
+        }
+      }
+    },
+    "response_normalized": "Here's what I can read from this trace, plus a few things that look off.\n\n## What the trace shows\n\nA deterministic replay of 29 steps (of which the **tail**/last 8 are printed). A single agent is:\n\n1. **Fighting** monster `0_6_2` while standing still at `pos=(1,4)` — ticks ",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 430,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

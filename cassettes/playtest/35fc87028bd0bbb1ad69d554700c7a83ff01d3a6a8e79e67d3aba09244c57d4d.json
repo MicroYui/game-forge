@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:35fc87028bd0bbb1ad69d554700c7a83ff01d3a6a8e79e67d3aba09244c57d4d",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3255,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqACCokBCA8YAipAhCsY0jbYdlaq03P7mDenL/KlrPdtsHjyq373uN2wYVR/+hiwdZtM+7aCkVXmf3zuDGTJLBcdkpcTcXuZTI4z3TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDD1TO3A6EBvAPIS4GRoMVymTkiKBKH91GWJrIjA0jlWJDuWh68kExuvmPN6NJGe9k1U5rdpAUICQOf3pD+cL2/W+ruFJ4WzO/HVSRMoqRB8nTW7eOtSiFKPf3q6Hr+5BPB2msybn2M/0u0kSOCB3rKgfGxxCiVUFa9vHd3T78ZYwX7bb4rDZvIL1msDlIJIHkkC1GAE=",
+          "thinking": "I need to collect a quest and navigate to the specified location.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_4_7\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2659,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 54,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1464500000
+      },
+      "id": "msg_011Ccr34WJqFvtrJK12xc7qr",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2659,
+        "output_tokens": 54,
+        "output_tokens_details": {
+          "thinking_tokens": 26
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_4_7\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2659,
+      "output": 54
+    },
+    "tool_calls": []
+  }
+}

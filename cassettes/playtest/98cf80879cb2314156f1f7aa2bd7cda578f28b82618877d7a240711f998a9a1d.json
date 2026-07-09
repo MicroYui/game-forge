@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:98cf80879cb2314156f1f7aa2bd7cda578f28b82618877d7a240711f998a9a1d",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7916,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoEFCokBCA8YAipAOZZz1a9awJgv1a7QosCUHJ7Ii9mIxA/NVQEXJpyk0a4HTUlsb/pdzA4gk4K2ngG91bG9t3qJe3DV2CpBz7pRrzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHYwF2a6onF7SxA/qBoM94UKI/F4V0GQ2LR3IjAuUIUz+EK/0WupxXdF+LVgKMnlIjBPNwMzeRFQg1588lMW+m/oK8oEMT5QHqt3wyEqpAMw3pWHGYMWihE3H/Bk3OgtnhyI1z6iFBUfRGvDlJaeS4kCL81jMOmwufggRVwWh215Z9OohPN+sy5qIDNUsvQug8VVGi/cTR84zLg4JNlYPpIiHjfKX4rHT6DydmpG1HryJ65bqYYE4NZNXHyoBlmUaCrR0tThfXKSZ/j5mgsIqTWBxlJDT8yz+0d/y4ISHtBQ+Z4Yyu5MjN6wPEnwOksI5J0sp5RXIFmW/Re6aGgibhQDGETZsNUCA6aoyq/MxH4lHtgcXADH1e8Q31XFFz+C2qZCK6ZXKxvYP7queEhlNKBuQaP/u+kHmUEv6dIbc0qPOUDwDF/3Nky6Evo7cGgQVjXFbasl3pTXFB9hg28vq/lt/TAEudTYbmI3G1Ty7Qt5gShaDYRevlc1l2qZIDv9L1m6pvrfVDFBLt6su9rJQ2Tuua2P8CcklGxAZT+bQluSDWhDY+Rc3Hv/RVz/Bun8ExUcz+F5pz6WMFnnCq2hoLQFS3E6NGU+J/etQbir35WosrlhrfmMvqkkim2pyptOrJV53ICtblCO2dnZmEYzGnT+pmQYAQ==",
+          "thinking": "I'm looking at what appears to be a debug trace from a MemTrace compaction system, though it cuts off mid-output. Since there's no explicit question, I should probably ask what they're trying to understand or debug about this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log**, but your message cuts off without a specific question. Let me summarize what the trace shows, and you can tell me what you'd like to do with it.\n\n## What the trace shows\n\n- **98 steps total**, but **0 verified** and **0 verdicts** — the compaction ran deterministically, yet nothing was validated or resolved. That's likely the thing worth investigating.\n- **Tail events (ticks 89–96):** a coherent quest sequence:\n\n| tick | pos | event |\n|------|--------|-------|\n| 89 | (1,5) | `attack:mon:0_13_4 -> victory` |\n| 90 | (1,5) | `navigate_to:npc:0_13_4 -> arrived` |\n| 91 | (1,4) | `interact:npc:0_13_4 -> quest_completed` |\n| 92 | (1,4) | `interact:npc:0_13_4 -> nothing_here` |\n| 93 | (1,4) | `navigate_to:npc:0_13_8 -> moving` |\n| 94 | (1,5) | `navigate_to:npc:0_13_8 -> moving` |\n|",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 447,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1503500000
+      },
+      "id": "msg_011CcrhDMfrNXmVKQavdes57",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 447,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 125
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log**, but your message cuts off without a specific question. Let me summarize what the trace shows, and you can tell me what you'd like to do with it.\n\n## What the trace shows\n\n- **98 steps total**, but **0 verified** and **0 verdicts** — the compaction ran deterministically, yet nothing was validated or resolved. That's likely the thing worth investigating.\n- **Tail events (ticks 89–96):** a coherent quest sequence:\n\n| tick | pos | event |\n|------|--------|-------|\n| 89 | (1,5) | `attack:mon:0_13_4 -> victory` |\n| 90 | (1,5) | `navigate_to:npc:0_13_4 -> arrived` |\n| 91 | (1,4) | `interact:npc:0_13_4 -> quest_completed` |\n| 92 | (1,4) | `interact:npc:0_13_4 -> nothing_here` |\n| 93 | (1,4) | `navigate_to:npc:0_13_8 -> moving` |\n| 94 | (1,5) | `navigate_to:npc:0_13_8 -> moving` |\n|",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 447,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

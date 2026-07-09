@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4d10817c128d331fcf86e646e786a252667c45d02860f911bf423625470619aa",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3389,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EusCCokBCA8YAipA/OG6ViKfmxxzvAfIgNanF0EwuYAYvdluQ6gYgyJDz4E2cLFlxM1YfGQB8Ilgo5h+BtJZo/jGE8VoebXVYXG6DTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDL/DBhENmnhJrm2pFRoMpA6cUEZ+sb66aASyIjD9fX8U8ULkl0/O+I1bj+g7RNdrpBj21hY2kqrvSBnvS07WuD8P3TgOZ6WfqiiguT0qjgEGaoa6wGGW5/y9IVrb/21D72W2L6+oyOazEznFGE1r+pqswJblND8rFg5XAxNXVq/t0Llmmz/1/SfCgOoF819yQuK4bCAU3IdC+ywlPXszQUTgq6r4tN2+tIqD7DLEuTwMfTkZPEtho/1sRoowVUSesy48pPUKCZIGWvkxA8xdyz2pNEurEqKfuAqvHDyXGAE=",
+          "thinking": "I need to interact with the gather:0_15_3 element to complete the collect step for the active quest quest:0_15_3.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_15_3\", \"step_kind\": \"collect\", \"target\": \"gather:0_15_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1771,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 94,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1120500000
+      },
+      "id": "msg_011CcrkS2AoKpYhVUaZjzpsv",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1771,
+        "output_tokens": 94,
+        "output_tokens_details": {
+          "thinking_tokens": 53
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_15_3\", \"step_kind\": \"collect\", \"target\": \"gather:0_15_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1771,
+      "output": 94
+    },
+    "tool_calls": []
+  }
+}

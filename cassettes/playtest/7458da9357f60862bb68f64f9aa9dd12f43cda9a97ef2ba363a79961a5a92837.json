@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7458da9357f60862bb68f64f9aa9dd12f43cda9a97ef2ba363a79961a5a92837",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9522,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EocGCokBCA8YAipAcVRai9OI8JFRIhPtTRVXP4frYbqv6lrVBrxGCD/styDXuxnFq7J8TfLp0Aq3reBD0V4Fu9454WKMZCQ51zHZ1zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFNO7SdLMnhbVDM4kRoMXrHWKj+cvS4Jf9UiIjCrIMwgjJxpRTOX57Sw5THE/c/qysMaeOeYTmyvzsiCBayBtJooC+l+O5mLI3ED4R0qqgS4F3YnffhkkfmerhQ4dnyD+D3nInJi84LS9YYQMJYVaN2PfgdSuAwmG2sYZ1wFycSvPKzofXzg63G1Hy8wanIjLfEmktn4/PLAmJneEHbStUzXGfUKVPNRcb3IiKLzvwydMEP+I9ppBH8cOC8w2haVFX2qnx3nLEpmkbdn6Gn6YpPpDgpMwWZW1LcpjlPVClO4fiYoqTTt4EJB6sJC1TN5n/3c2Ehx/pqQn7AjhPD4XzTmxkgsEX8l+BOgMvlVMvZ2GNjBoVIR9dPihIh4pB9aGqS1sQ5WvytGX/jTna8qej5RtsvRS5MteJMX2F+Uoj90p9TRL0LYhRIQL/lMbKr/JQ3OhYe55WDgleXK04z813zQcXDUmQRYP7m91E5ZBZROo8c2RzCneiDTRZv0wI5LBqCJ8dUEEN9Spy/QjiEbM+XBuy1viQALguJ7XGBEwmkHVo3MrAaU3ewGLwcupwFOQcF3qqLuzv5Vln9BGq0HVCv4ltxk9duYf3Xfduwl4gA+jeasteVzd2acbsOnDlvF5ztpzvr/rUih23b09DL6WdpDnF0xi3mZ8hXMJ2MrIhnbJJ6Fycxfuf9GuuYuzUXXTleNcbgwNqeSC1HDmdRYBFY5S263LLGlW64JfNdC47Bxirys2wVhFFruVJElk4P+KUWe2l0oHGQx66HfybNy/7OLBJMvTW8hZjd+pkEwVYd1eKHdtZbgSBhUyo7lyLrtYa6pE3PnjovRdBgB",
+          "thinking": "The user shared a MemTrace compaction log without asking a specific question, so I'm looking at what might be wrong. I notice some red flags in the trace—zero verified entries and zero verdicts, plus quests that seem to have coordinate mismatches, like a navigation quest that was supposed to reach one location but ended up somewhere else entirely. I should probably ask what they're trying to debug or offer to dig into these anomalies.",
+          "type": "thinking"
+        },
+        {
+          "text": "I see a trace dump but no specific question attached. Let me share what stands out, and you can tell me what you're actually trying to do.\n\n**Header oddities**\n- `79 step(s), 0 verified, 0 verdict(s)` — a lot of steps were compacted, but nothing was ever *verified* and no *verdict* was reached. If verification/verdicts are supposed to happen during compaction, that \"0 / 0\" is the first thing I'd investigate.\n- `active_quests=[` appears repeatedly but seems truncated/unclosed on every line — possibly a formatting or serialization bug in how the quest list is dumped.\n\n**Coordinate vs. quest-target mismatches**\nSeveral `navigate_to`/`interact` events reference target IDs whose embedded coords don't match the actor position, and some report `arrived` while still moving toward a different tile:\n\n| tick | pos | quest | status | note |\n|------|-----|-------|--------|------|\n| 69 | (9,6) | navigate",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 447,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1503500000
+      },
+      "id": "msg_011Ccra2dAPXP8ouEbGs9r7u",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 447,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 189
+        }
+      }
+    },
+    "response_normalized": "I see a trace dump but no specific question attached. Let me share what stands out, and you can tell me what you're actually trying to do.\n\n**Header oddities**\n- `79 step(s), 0 verified, 0 verdict(s)` — a lot of steps were compacted, but nothing was ever *verified* and no *verdict* was reached. If verification/verdicts are supposed to happen during compaction, that \"0 / 0\" is the first thing I'd investigate.\n- `active_quests=[` appears repeatedly but seems truncated/unclosed on every line — possibly a formatting or serialization bug in how the quest list is dumped.\n\n**Coordinate vs. quest-target mismatches**\nSeveral `navigate_to`/`interact` events reference target IDs whose embedded coords don't match the actor position, and some report `arrived` while still moving toward a different tile:\n\n| tick | pos | quest | status | note |\n|------|-----|-------|--------|------|\n| 69 | (9,6) | navigate",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 447,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9b38b0f2a5dc0dc63395de06da28ef8e13142a7df5cb76b3f526d49d365f8fb4",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7713,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqgKCokBCA8YAipAhWqfTewzDDfV6hRy/oycidnXlLHOZIkBjRkJb/RSQxhOBeHdYYxELI5qgxVLtdRpJGHPR85PtQi97Z8xPXTzozIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLhtFEIcUZRB51skpBoMh01+DNTiXtMw/qXgIjC3EuvTyi7SwbMwxEDMyEHSeU1YRQHby3S/Razho9PnpX7a5dgNFYpX16W8eJFZyH0qywjgAJbft2mwVrBeLVbefkn8fiHZPtgmp1YMl939L/X0Tv2RiFdVD4pp2TzqVUsWtueo8vlqoPKBDfePjaCX2kiOIQLeRCJL0+HsK+d9G90nj28zUJ8KFQPGJKdvE9F9mywuEiM16Kg6aZeYd5bL/bbKa9IjnzsndKImN7tIM1AJv6Wk/IgebYc5ALZWkdaeHNk9QsFt66etEvAk9I6OmXjelQPnMF1OU0d/bv2de9OZzuA5mZB7lrrWOwuHKe2EO12nCwcOHdT5H/jRrnZflwunlfabROp4CBjDLN6iO3pZ5Ry/lBKQ8vVe4wgd31n3fWQisppKnIfTnBZStLlGa6ozGVN1Fp469nMfV7NVmBwI7cN+Mxmai9QrAFkUrNZzkh2+IPBlUuFidcJwLELjIcaYiJBYoxo9UZlFcKr0VWbFNxj+w5hQYFp8E7voqTD1urp6KWdJCcNom5LHC8dgZlrvQ4fZjZRABT4HwcOWQws4grcOYsZEW/O2QfmzPypQxyrnqwyr/zGifNP2oh4Y51mZ4rcCIK0Pv6KG8k0aFjUVpAXw3dGz7Ba/bJNTAnu5Bt5T0ApaR1v8fhDguN2XiL4Z0bNp9NZyuurmyuZpaYKFWBBbibw6Z/2qzFRZJmbiBG/2MYP37WTO1GPUoYoQUwCQqJOmLHGom7SOjXQ4mVXqu+pR/JRidcxfbtfw/d8pKohMytkJV6w5+JF/5VigS/FcF57gACavmvH68xi2am9fIG0sMSFk9G5dQ/IzaLvkJJzag5A3cUd7oFM6Cj42rknlP8R7BXnaLbR093oUHU7G1K9NU6y4hK1VULrhPOWLO/SY++bbexPGWcMN877ig+626rmDONkg5nLQBXVFPynk8PE0z2T8MlvdRY385Wh6/nNZVAdl817vmw1iSvSe7+GK6QFahtVWuBrCoNv0cTbwiT8x0j2kIz/Ybj83UQuCxSLN8ngtjBd0j9adMbXD/SpEEQ5vndQAiyBB4hKFmshzCAksDEDitVXTyhc+yGsFW508jj95ZFMZk+7dC49lZ8gHnEXXx7BmmaxjWgQhD10ufVEEo1frfenX99PMzRkP9tQSwwvgg13wb1cAJ9vzWwCCGBau3pv0lrKgf/caI8xdAS+OQnlV+yPng8oozLkmq9c+eRNFHm/taGAB7eZvp+M0UmHJdtyUrmhhIUx/+zy7ECbq4iMh+cUmJq9c9G21aLqNf0KiYTtVQJsFa1PiQv/+mxZRhUJPovFmcLgpASXIFyu4yrlkpVDCJCZcKzpRbKWOKDDfQN0aVWiI8Xpn34J59EObo3UAMnH82uZTAGcmzmIhA1xtAJcWnmndS4Op5er33DLNx7poS22P+Bw7xKYrb+LdcuJN6Vd2G6KQYb7ua6F9EgtxRZC5PvgzKNnwK4FPDuErXpsKMch2hvfLZBe4Nv4791Uy6n5n3JM6UCy+0QywUTL7kyNwjZxwGAE=",
+          "thinking": "I see that npc:0_4_5 is available for interaction, though quest:0_4_5 is already completed. I'm trying to figure out which of the known quests that start with talking to an NPC might correspond to this interaction—quests 3, 4, 6, 7, and 8 all have talk steps, so I need to determine if npc:0_4_5 might lead to quest:0_4_6 or another quest in that sequence.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_4_6\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2147,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 494,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2308500000
+      },
+      "id": "msg_011CcrJr4em2KtUDTw4Jvdeq",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2147,
+        "output_tokens": 494,
+        "output_tokens_details": {
+          "thinking_tokens": 453
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_4_6\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2147,
+      "output": 494
+    },
+    "tool_calls": []
+  }
+}

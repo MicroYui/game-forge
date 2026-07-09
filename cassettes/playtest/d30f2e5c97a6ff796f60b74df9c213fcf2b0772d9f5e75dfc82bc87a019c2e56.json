@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d30f2e5c97a6ff796f60b74df9c213fcf2b0772d9f5e75dfc82bc87a019c2e56",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7902,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuUDCokBCA8YAipArKIWR4OzxOUa88nrWvEC68u83wQcluzqRZzSPvvHM4hYfvW9MXPGZifFqvl4VpdS/5QZYaKe/56y3jOEiBVWGDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHUt3U4LCqjojkecWhoMnYYYg2m8CRvBTdLQIjB0QUYqFG97Z1m71nJEq6OHJ3cThUg1vYLOiLGHfagxfKd98WrcaYMn9Y0sidFXexgqiAJjvGLWfGB7zsGqZNvFfhWy0SICYr8Bjkjqb+eOCHt0lzDVkmTuGvm3heaNOQ+QuyqyuKcZ881VNQZWJlrBh4Dx7qzMRpSxkDi4/PcI0yDWKRxM6cJ4+6VtBA7u0rIm/ne6giGrzDU0TkhVHix6I3H8zqNCC6M1ork5w1fw3zP33vEmJeOa4Hp/W6JE1aLjce6cSbTlPpYUqhOOL46tsm8cst0Jg3MPe+zGlY/wSglyMtzdFYst4I803IjZXRKzoTiXJcVfKjbw1ECRdk06gt398T1EL5j42FlI3z7ffD5+bNb4C4UTrvGdfdBXlu1+lfY00GFWcq/rZTa7k4OGjzeJMTp3RZfnEpkYAQ==",
+          "thinking": "The user has shared what looks like a system trace or log output, possibly from a game agent or memory compaction process. I should analyze what they've provided and see how I can help them with it.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like a **MemTrace compaction log** from a game-agent simulation — it's summarizing an event trace down to its tail. Let me walk through what it's showing:\n\n## Header\n```\n49 step(s), 0 verified, 0 verdict(s)\n```\n- **49 steps**: total events in the (pre-compaction) trace\n- **0 verified / 0 verdicts**: no assertions or checks were evaluated during this run\n\n## Tail (last 8 ticks) — a completed quest cycle\n\nThe agent appears to be running a classic **fetch-and-kill quest** loop. Reading the `action:target -> outcome` structure:\n\n| Tick | Pos | HP | Action | Outcome |\n|------|-----|----|--------|---------|\n| 41 | (10,4) | 97 | `interact:npc` | **quest_accepted** |\n| 42 | (10,4) | 97 | `navigate_to:gather` | arrived |\n| 43 | (11,4) | 97 | `interact:gather` | **gathered** |\n| 44 | (11,4) | 97 | `navigate_to:mon` | moving |\n| 45 | (11,5) | 97 | `navigate_to:mon` | arrived |\n| 46 | (10,5) | 97 | `attack:mon` | miss |\n| 47 | (10",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 423,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1491500000
+      },
+      "id": "msg_011CcrcwGdpUHxAK1TBVdtWM",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 423,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 80
+        }
+      }
+    },
+    "response_normalized": "This looks like a **MemTrace compaction log** from a game-agent simulation — it's summarizing an event trace down to its tail. Let me walk through what it's showing:\n\n## Header\n```\n49 step(s), 0 verified, 0 verdict(s)\n```\n- **49 steps**: total events in the (pre-compaction) trace\n- **0 verified / 0 verdicts**: no assertions or checks were evaluated during this run\n\n## Tail (last 8 ticks) — a completed quest cycle\n\nThe agent appears to be running a classic **fetch-and-kill quest** loop. Reading the `action:target -> outcome` structure:\n\n| Tick | Pos | HP | Action | Outcome |\n|------|-----|----|--------|---------|\n| 41 | (10,4) | 97 | `interact:npc` | **quest_accepted** |\n| 42 | (10,4) | 97 | `navigate_to:gather` | arrived |\n| 43 | (11,4) | 97 | `interact:gather` | **gathered** |\n| 44 | (11,4) | 97 | `navigate_to:mon` | moving |\n| 45 | (11,5) | 97 | `navigate_to:mon` | arrived |\n| 46 | (10,5) | 97 | `attack:mon` | miss |\n| 47 | (10",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 423,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7bc837b7d572fdd60d905757f18bd621068305423aed30f86c575945bc4b0a98",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6855,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErwFCokBCA8YAipAb1cUnjBhyBLobTUkGYKu+mOsB7tNbZdUqL1Zi0E9ckoXtd+YM+u8Sqf1+lsn78mEA4A6TjwZ4CUYSnGMal/UEjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDILeXCgjctAtpKkKVxoMmSdyvDmSNtwHoBhHIjBnRaZ1oPLuKs5yWVkmOaAFzJ+Ptzu5xO3in7zh3QFKnwetwvEhDHC9Q3gCdgwcum4q3wPNXQ8hxc3x5vSqzHmtEHmtt6D1D2+UN2ZyWt22Bpwlp2WSLEHL7J7u0NfM/WXfEoWw6gP+PQi/MQOGQuISZrxhSLqPPOT4l35iuVk2XXzCvshgWbG6tDWDj3xHNJKLcPq1A26WO/Zm4aDbxueAfv3b44WlXe4VDjR0pfKHNP7TlbV4TgW/X5GU+dQemU5llAfUfw2J1AOHSfxSJ4QjP/y9dtm1DYMVG4PSU464g2LRGHYOGKMbXdVwSF9x0/t5AKJqP6qkdh+0QC5C5xN5s29UwDY85PXkAqVnVoI1mJwwY5aouxthx3Z+Idk9jxx1uAvdrkyvv18HIQqw5rgRPftaHv4VjzRtsA1PO90+qN4LZx7c2EUwjWiY3C4feO/3xanRf14hNwQfIKqVQGer8Y8pn5tFReNqN+Fi4aMAUVNvHp7QssWFj5kvWhqX7UYoBYtROT4vb12g+0+fk2D1VcD0EizkwALg1Ek7ItOn2x4NAYQxPtGtpJFOR1tJCm8SojoGRFFZOSlNEAfnZ4mbnv1d0olmHnKJIjgWo/McAuBQnz6VLDplu2KGHEZuLvjSvalHokMLI6ksIAIR/KmhjwaUBDC8XH/sbl2haiCdtxELKGZXdzQ2j0Gecd0Yj1X3mRgB",
+          "thinking": "I'm deciding between accepting quest 12 or quest 15 based on which NPC is closer. Quest 12 requires talking to NPC 0_5_12, but NPC 0_5_15 is nearby and corresponds to quest 15, so I'm weighing efficiency against my initial preference for quest 12.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_5_15\", \"step_kind\": \"talk\", \"target\": \"npc:0_5_15\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2813,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 266,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2071500000
+      },
+      "id": "msg_011Ccr4C7vXWSnNqEHp38sCS",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2813,
+        "output_tokens": 266,
+        "output_tokens_details": {
+          "thinking_tokens": 225
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_5_15\", \"step_kind\": \"talk\", \"target\": \"npc:0_5_15\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2813,
+      "output": 266
+    },
+    "tool_calls": []
+  }
+}

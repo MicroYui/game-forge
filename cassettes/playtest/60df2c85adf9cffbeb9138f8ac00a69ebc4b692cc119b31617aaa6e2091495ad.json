@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:60df2c85adf9cffbeb9138f8ac00a69ebc4b692cc119b31617aaa6e2091495ad",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5873,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoIHCokBCA8YAipA+Z2a2Nw/Jur36OoftYBf93rf+d1WnmdG/EV7Mfsz6KFNSx/+6noIedgYM6Z5c1KDZVZkuBH3eaoTUXjr3YsaBjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHfPJzF8CFO45YFLexoMMb2f32FIH6azuDdmIjBFKtiuK9UK52wOeRZ/FkGwIJ6sgnN+ZoadqOjuWa6HvW3OIDz9Qi/ZtAV1AF88aqgqpQUREqJg6Fp+W0ABUj5HLbbxY7s7DGRuDfzvs/iJfeNFG4K+ra0fKkHW+sIleW6DbmLEX2TtqrWzJ40l2uOS+HSFe9zz6fnVbgxWv9JWPUhCiPWH5jh+p8Y8zdq5gDZMlUyjZD13Co8mRhok78b5Kh4euhcRO/0E915U+QpRK5PVhKtVX6mI6xtBrB4moVY8lffIpyfmW8i6S2dwk6vdNBpYB6F38Ym37dPAD0QYOM+/CiS9FGZKj80hdSgZ0kJOohQGgGEB0lKTL2WqROlyuuMTfSIlPUwmFShBazZ91sN9l5jOlMJA/4+9orsnHzlQFFE7y1l9doHJ3u3mnklNMnBmNxo5owyden7xYGht2iqMDn10eBU2FviJJOxxypXUHQWn6ibC95fWhF77rebD3X7FC0Adrz8fAYo+7Di9eqi9oBAwtTbSgKeMY+USwD8Ou1JMOEStf5v7b7JxHE/6+rwUgWagkKWLTK0yIHB2exVravTZl4TwbjPuNKdYJgp8HmWenB583aPwNA81ic4S3oLCzChIxxrOknMwmdTPjJbvuX5UHPhh+MgITUe7gmkd6Hn2gqIbNDh+VeOIn5TcrvgXTp904l93rUPitXmixpERKH0IoJIT7bpomslk2CReGW4c9KiPmJfs7ZJwF+Y1KIQtwMEN1jHrmxf+t8muzV5hAm8VjlvXk6FY1hINO/sBQAPSUyWfAQxglO12+MAsnKzxRTyLsjp0cRb4UxRQRBmfSjyCnGsykcFP3cVENuKi7DEQ0btmaJ5O67uV+SJvaIvMr+4MOtMdBAl/dCWiBq3pT/YeAg8Ez+ikM68ZTmuy4UEuj99EqsFK2ks1ollW+dnEhvbNjAi2PuEVA/TvqinKcCk99lLUhmilBpCXwVsOaUzGzkvIghgB",
+          "thinking": "I'm looking at the available quests and NPCs. There's only one NPC available right now (npc:0_16_1), but the quest I want to start targets a different NPC (npc:0_16_2). I need to figure out which quest I can actually initiate with the available interaction.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_16_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2414,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 301,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1959500000
+      },
+      "id": "msg_011CcrCEdFNYNi5MhxWhRnyP",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2414,
+        "output_tokens": 301,
+        "output_tokens_details": {
+          "thinking_tokens": 260
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_16_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2414,
+      "output": 301
+    },
+    "tool_calls": []
+  }
+}

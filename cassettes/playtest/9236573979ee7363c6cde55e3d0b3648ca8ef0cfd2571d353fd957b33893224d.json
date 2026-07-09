@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9236573979ee7363c6cde55e3d0b3648ca8ef0cfd2571d353fd957b33893224d",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6932,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpkHCokBCA8YAipAzeOKSFnGW5oIGG/3t29yAWbDAy7FoVGiG/6KpRkGDoF8qXqdItqhVajwFZke1rZGLcKgEW1kwBcy1lYO9UvnszIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJosavwKwbJuUEKLeRoM0kbQ8q4V34ia4/VSIjBRzqkNplQLkTE5QDVD6BjRvS4k9gQz7bu4RxVg3MS4BOO/0amXvvEoHPkn7v37blYqvAUlawrwFAWQ2yXx3XFENyBwfDR0/KOk+Qzbjfs7H7bwPOhCK/sRSdTjUVQrPETUD4oFi5gyScm9NUmSNW46761LOFiMWG+Bzht3sjeuuCpV6Rq3E/ssR5UL3z5sBtsp6TBFPzJnGoAhGq1uqUz9l7KR2muxB2xFMepIVb0A4SByGgusDEXucMzU6BHy1vTjm4kGlGgDra3G4Ffo0HeVJQVSMKANZ1UeCn4qhvxRZMovo/QN5S/N/YneHzcVqTzMD/YZLDqkcSbXhpYHmd2Fd6IoOS8a23Hgvx57ri3+CgD7OlzhP5RtiuFu5VPrQqvoAC7/kNckawg2y7Ke+VWXEVUhmYWVGooTkFI/sxfQH3OxvEfXAMDsRDe/ElRDGl4cQ2XaX+TMIIvjSij84m4wcHRDQP+eCXi2xiHYFpHg8yA1SsPVJTtI3irG66SsQ2eMAnQt3AfM3tmn0B+B0kdbGFeBd6hTr/fXKOVA3mrVZfSN/ZpXGxZvD0D9S88VLJYgg+fkD2V6eU4qvEqgB3N6XqGrXhfC1LNgz2875vEA9dAIxJ3/AIOvtHfbhMl+ghYK9nazb603t7VZy2z1SdlWUGMPIMqq6hoUpxxX0woaDGu6up0Mcn/Hu/IUTYw2uWUx7OZl1KTrSHJFAncov2s+yMR9H3o+zkrZwkTWYVzVYoVC2ja33Y+Gdg7OG97OoujbumzvE9J0krVF8KPlh4/OBFw9mAGVsoGhT2+nwA+EeWIHBg7jn15N2L52tlq/apObP2OfSh9Tb32iUikNC2U/yvOEaYLvCuTWn+BAyBT7lnZG/86yRkBCA82dgO5CMWJTpZyfn1wcdfLNGHJ78y0P2SxVTAo4XIzmPfaNxID9gr7T5lDQFtutzb2a3mGXikagAnw3ClZICT3cTn/PDjWJT5FSj3mSeEn4ZSlP9u0rGAE=",
+          "thinking": "I'm looking at the available NPC interactions and trying to match them with quest requirements. There's only npc:0_19_6 available right now, but quest 6 is already completed, so I need to find a different quest that has a talk step. I'm noticing the pattern where quest numbers correspond to NPC numbers—quest:0_19_4 needs npc:0_19_4, quest:0_19_8 needs npc:0_19_8, and so on. The problem is that none of the other NPCs I need are currently nearby or available.\n\nSince I can't interact with npc:0_19_6 for a new quest, I'll pick quest:0_19_4 as my next target and navigate to find npc:0_19_4 to complete the talk step.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_19_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_19_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2518,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 331,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2086500000
+      },
+      "id": "msg_011CcrFEPfuLaTd3EBkBG8EU",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2518,
+        "output_tokens": 331,
+        "output_tokens_details": {
+          "thinking_tokens": 290
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_19_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_19_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2518,
+      "output": 331
+    },
+    "tool_calls": []
+  }
+}

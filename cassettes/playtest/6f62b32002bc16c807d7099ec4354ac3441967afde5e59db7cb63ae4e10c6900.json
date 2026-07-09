@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6f62b32002bc16c807d7099ec4354ac3441967afde5e59db7cb63ae4e10c6900",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3274,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqACCokBCA8YAipA5B2whCf5x+/7JtspFZBU+APY020x9mrMvlmU17hUqValOXpa3YY3vDoKZZ17095tpB8Ntc02Uu6BDjii2c0K3zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKaS6VFoFKhktAQ4TxoMcpcZonvvauMU01a9IjCuoIIfAQRVLa72tl/yvdGsDmOPFW/kaF03gOAaxA8RVSMO2kZvWqFWD119INLE0IgqRE9+fZEiVU6T+63wFriZmIPwPWjhJFOEAX7FkJ+4e2EUjwyqSSfu4I1eULNpJ+Il5r/RkhQhNZbincab758bmfTkV10ZGAE=",
+          "thinking": "I need to navigate to npc:0_11_6 and turn something in there.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_11_6\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3315,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 53,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1790000000
+      },
+      "id": "msg_011Ccr8cZBwQQhXe2SFVp2p9",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3315,
+        "output_tokens": 53,
+        "output_tokens_details": {
+          "thinking_tokens": 25
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_11_6\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3315,
+      "output": 53
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:966622563cb1894536348687836e8db7561ba08be39e40fff0ee62244745ac8b",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9376,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErEKCokBCA8YAipAp+9VHsKwbWiClgaEBK2Iaxw1k9Dkff2JkjwAT6rLy5XWJwYWp6kVgQJhb6WBVcq9r++ACbvdkxbBSnE7JACJVjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJwvZ4xxks3RNEPnxhoMmZfWIf/Lq8ZMK0FzIjDItOt0Wpg7i9H0aQdq26xfjRKh041uJw6wLt4yAh0eF/osCr5hW5Z/1AdPTEm6UZoq1AjW+GzdkOCFTr0knWmwunQAGc2C/Kq5MwC7pgVhQBX2ia5H5RsvaRyRqOGFbo5l/AQwXv7hnrpnMm5FrwENP2Kl+XGuNWwop90NTl+21vkccedvekPp6FJ1yqMVVFsDF2PQ8QPPRJqF5DI0vV1qMGCX25mELeCXg4xUc0S5WJ44uC+Ft8EzJpPPWZx0/Hq3XytIXXhXuxHtSLuFssdTWS4eI7LGC9RWDWkyoEjGvIlkE55vtC8I0fbu0/czHcFft7wgVSDRz0/+h0uLPcctFdBvHJsNOoH5njyFXrbIgsXg/6z60IXwx+KUUK+/jKK+4VCi2YDSDv3PRhNUlb8sBr/lr/I4SQkIJ3PSB4jH+cnGdjzOHQjZNvvYO1qV0/VFprEqriYE1B7CSY0NaZLHi9EEwkwFgmXGacMIISI/opnSlZtoPU3ShaZ90PlFPCEwmeUYBOqf+wPHGHFwnrBxL7cFQX3WiC1PIaFY3Vnt/HeelmBAGgGaHFouLju6Tv579v9iWObOeSZPwnNMIg+FzKEJhq6I0bDJcR55LysauHb/rXa4NJ/8Y5MjirOCEMlXplZXIwsT8Fcp5foyPYdk5GnsD0D2zraB+xdZ5eydjDg1sw/MrJ5QVr+pYh8h1hYOzDhiQ1agu74igHmeQKsD8S86pHIotbBNWN/2QM1bTEXXYsalLISzliPrOuLI51NrlPxtH3OcRl/K73Q5nEkFDidz1InPK3o/aXFApvfheI1JA0+O9T36lML2F7CPYqG1TFAVt2bbbxrk3oLNujFJuRskg/doGOqF+iUWrrUszxQXssLCviwzJtNLtVM5ilEDCTNXiWeNSlgzkL3JAmZ1kguKs2zqQEl509YfGRCv/bHInYua9VR8xQTndGbH3W99lsYZVoauIhYMuT2vm8vPBFQ4cI2U1po99tqCzfyl2+StY5/a4Oj/HQxDJWXuH0wiSr4WOH6p78B9ZXpU3ye3vYlaE9ImIxUqBBd6XKd4kezfNKzlwo8IqM1372XniJlgdSVNyk2gjIBpTnQzussWSa3He5RNYDJsl6lvmEx+tWaXhIQlc1jpOT1XF/lopwDpZvVjGq4G3w4L2Tv6vVEa652ncUd4zILG27Q+aUL8/HxkXh5zxWuQqDLJ0hdPoAf9TUEhVGB/0KI+5/VnGcn70u7JSsVf91/HtB1kICKk0xtKy8aGWG0ZjHMEzEKsTY2mSTsMl/B6DU6pxUqpXusgUwHQ++6ohyNtV2B0XQOj4disiwoztOKq6mZ5Od17RGSPDRiaH8qeOp6fQoJ2XC7f6+GDtvjmOJ3D7ieigEmo1BJ6s4/1TiDu8NH9XMyQJ0W3i+9SMc72V5gYahheBdTmRxwNo2NO6NVOdSwTOUZXEIrRIg7Ri42LOTOmXXSaiZfhGoZOAPfiCAxA64dUoYz1BGQ0kiR0NVrKFDaKtqMExr/lyJ35AhZI88ldDXA7KdBwCg4qiH8TGAE=",
+          "thinking": "Looking at this trace output, it seems like a MemTrace compaction log from some kind of game or simulation system. The user hasn't asked a specific question, so they probably want me to analyze what's happening here — I'm seeing 82 steps with no verified entries or verdicts, which suggests either an incomplete trace or a system that hasn't produced results yet.\n\nDigging into the tail end of the trace, I'm noticing some inconsistencies in the movement and interaction data. There are cases where the agent claims to have \"arrived\" at a location but then moves to a different position in the next tick, or interacts at a position different from where it supposedly arrived. The active_quests field also looks malformed with an empty bracket structure. Plus, despite quest_completed events appearing in the trace, the verification count stays at zero, which suggests the verification system isn't running or isn't detecting these events properly.",
+          "type": "thinking"
+        },
+        {
+          "text": "I see a deterministic MemTrace dump, but no explicit question attached. Let me share what stands out, then you can tell me what you're actually after.\n\n## Observations from the tail\n\n**1. `arrived` fires before the agent is actually",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 448,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504000000
+      },
+      "id": "msg_011CcrHBwunLWZdnpQit1vq2",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 448,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 439
+        }
+      }
+    },
+    "response_normalized": "I see a deterministic MemTrace dump, but no explicit question attached. Let me share what stands out, then you can tell me what you're actually after.\n\n## Observations from the tail\n\n**1. `arrived` fires before the agent is actually",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 448,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

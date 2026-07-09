@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:071b1c2650a6e8d13c3621ddbe9a236eb4288bcad488e44084bf3be2eb94c88d",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9183,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqwKCokBCA8YAipA7oqT6MF4S40OgH1s0j80gSWcDIFRK06Jk0g8GQPEAPBPyBouD9GjowocyjNddHN2j17NgvAu1C7GtU5T+oX1sDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDjRYOWLq2xtNyrN4BoM1A9N5c6vJzrNMilXIjBMEe1BFmFcZZ9CQStqXR8V5cbUqiym2T6YX68sBLb83BDMYh+uahdHP3c0zfnOVrcqzwgxNQ8x7UVSeRXB3RNueszQ3ODx1XzDywy9D5yJTGdWdKDEg2SpBI+pd8tNJhelkKGdKJEkJblQ4BB7eJ09ojwDrCTRDMQs3OG1uu+92tQsUkjt5ILz06vGNj/tu983GagPtqJ9i+Z9veIq9VPYJ9jMKT5SXyqsHqRs8GF+k+G9d8TYhkUvb5IUORudJKijEfOI22jAUCUC5c2z/z5w3km9MptLJlcFRigsqhC2+TiYvEs0xMTGmIwPYl0dXuBVTYNLnLXVyBrWU37gq8tToDAS5+P1TFcSmdSdoDFVwNyjU842wrN2bhcbTDSzfD6JtZbuA+yIJ/Wdqf98wTfQnmH8psLB2aSSpdZI68pc3d4XHp3bG4ZKrFBCkQSJmolZfIkzcYdUmXrmuFRH8Y3hVqJKZYyEqsfyjZZ/k7PIWFS3T30nq3CMqxqhC0plWBo0HbHFSGb8XTOP2GwZycBrEcYRbU+NHlAlqBz/eDsacqGlCpErQdkbz6bQmDbHAL0Z6pWq/Bhcavg11DvPGiBWXVFLCZBP/sodNwslYIDk5jUcSTmvrDNZburCQE4g2wevhhBruCoAqjkoY/zt0sWYft340BDHpKK7XrI+kNqHGC3TDIQWdXAFsvTJh9J8aWoOuauXX6hXe08Dt2ILH3UmVGErbfpIlru3a0ps8IugfoLi1P0HiWe/2JaijEN9MMlTXTXigT6wt26zB2OixO55ifOA0PwyafyN5TiTLmXi2bu5sXokukxn2LihfNYKyjlSN4+4aNDwsZK+/Dx+ggIhjql6Cz/9tUU3zf/GS0G+2R0A4bU0b+di9wQCjYlTG4JiuoPR8+C1wOKW6DIOWOA6YKMfRj5s/2/vTBB3MIb/ueMbjqlfjciNUCXDQlxizY4JS8+3f91CoWTYAtOjT5FZJz1gWdrNr7YLUDwcDZ2B2YCiGbbfE402l6/KtHZCp7XeWCFCGIwtgqcDqwQmmKxMLTLFeA8g5B5KuQlHsTo73JrBphgQwOhSGWreFsRFbn4MNhCLvKg/ERO0dpCYxNDG3HySqLgSb8KF0CZGz79kUZmh+d/yWS4W4udXzxRbXctBZhClKzKiy2+x2+IXIQdBxEs/tyrMAK+TvFnv7VtQ8xdb2sDN8UQv6XdvnvVbv/1svch4eYnoZZbbmrifbga0mhc1PAta+UuNyL5oBZNeZBCV5OtArKwc4D8/3LQWjLe7qF52e7witRS0Waie6nQXIwj98H0vUzbarMredmYkD7fsCNPoguwXYyAIXuM3lSd7OHsqjh5c5Nl6UEFdUsIomWfHSLZQEOwLpfvq9wxIR/wTtITVH9YvtxMCU0PI7tm5IT672yG6q3Py421VjcroI+fSav7AZjoOtDp8WoCTPqCEIwpfTeFBmYItsZ1U7UqX0FfvnqfhKaoZ4A9zndA2ZE18FuXYlRYfA5+mCcY8I6wpLgZlimY7KlJ6bLTLoJo5YBgB",
+          "thinking": "Looking at this trace log, I'm noticing a potential inconsistency—the key name shifts from `active_quests` to `active_quest` at tick 129, which could indicate a bug in the state tracking. Since there's no explicit question, I'm guessing the user wants me to spot anomalies in this debug output, and that naming change seems like the most significant issue to flag.",
+          "type": "thinking"
+        },
+        {
+          "text": "A few things stand out in this trace, though I'm not sure exactly what you want done with it — let me flag what I notice and you can tell me where to dig in.\n\n**Header vs. body mismatch**\n- The summary says `136 step(s), 0 verified, 0 verdict(s)`, but the tail only shows through tick=132. So either the tail is truncated (likely) or the run terminated at",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 415,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1487500000
+      },
+      "id": "msg_011CcrHkX4U5AdnrH6NQxEyy",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 415,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 388
+        }
+      }
+    },
+    "response_normalized": "A few things stand out in this trace, though I'm not sure exactly what you want done with it — let me flag what I notice and you can tell me where to dig in.\n\n**Header vs. body mismatch**\n- The summary says `136 step(s), 0 verified, 0 verdict(s)`, but the tail only shows through tick=132. So either the tail is truncated (likely) or the run terminated at",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 415,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

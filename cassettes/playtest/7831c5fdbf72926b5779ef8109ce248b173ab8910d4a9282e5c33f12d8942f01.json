@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7831c5fdbf72926b5779ef8109ce248b173ab8910d4a9282e5c33f12d8942f01",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7575,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er0GCokBCA8YAipAs5b+2sGRTPEuHcLoa6BUebZY/60wh2uPwAt8KBOvWpJgckb74EDYraaP2bkv7sTxC7LvQpCwWfvvws952fwkazIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBFct7jrpbmrcLU64hoM9sk16O0IxR2bjFmyIjALOOMs97TN75cFWoQtK2v01qFuDgeJamOqW8K4GaEt2z5qbmChacW3F7rHx4nUbvUq4ARL6PdyqOelNXCsVhZa3hyK6Km63GJe2swer+VdSWyNj0dvt6Fr+j0wMeu934j/kRx5tAAfgqQbN+T9zrN23Z5f3TsewWQq78eFl1X5WvJwrVl5M0769LFqXa8sdAE4EzA8HKL7WS1tNQ553xSTRm6kUBNt9I0oU5KtZhipkLvFf6hai6eH0F48n94kSQAj+BOxv/Z1e9bfiYZ87v0Hb0shUTzIUVxA0339E0uxz7x8bN1cmfLriXzBMm0RbItCqQRzCBi5xnEfRFqV1pvP+fMgp+vtXgr3y6G7e0gUxpV7FXWkQwmMtCQXieao2Oj4jquS+FiXbsUQ6WOkHpNlc3WXkAYYATE68cQ8VLeoMZ+L9ub9tEacEv6qQfdYUqJurlspQaibh7JmGOwM4pU53s+Jsyx/fZW0ELAT4e2Ck4cA8QBJoSEyR0QO2WtjBLGcQGzkEsca95kAE/D5L7AmBl99pU2gYTiWJGqIO0ylSUCp8HU19qWbF7U/IdHBrp21PdCqhIYy7dOjTKepUZYtACf+Ti/zZrNukGKLVTGpEb16w1VE9nLmhL4LwEvs3fTy5B1EWDTp/XCFtv1+dyra3uqZ5evg+U6rOKRVrISFaa8ds5d95QeGdgKhZvSrnSCYnrX7E4a0p4Q5IYKerhqMzcSzlLE72hIa9qOtz43GJlw3dBd0EsBTfBDQqpUZtmpKDReHwQ/6uYsmEZL6GeVsegzf/b9ZJVblinKh+PZajhrpSsebqzWdPk1Dt4AMO7BPm7tQmD/LXg8oNhFu+YBGec8b7+T7mfCIHzO9wqzzM/hwwhgB",
+          "thinking": "Looking at this debug trace from what seems to be a game AI system, I notice there's no explicit question, so I should figure out what analysis would be most helpful. The trace shows some key details like zero verified items and zero verdicts, which suggests the system might not have completed its processing or validation cycle.\n\nI'm also noticing there's a duplicate entry (=16 appears twice with identical content) and the compaction process ran for 22 deterministic steps, which could indicate either normal operation or a potential issue worth investigating.",
+          "type": "thinking"
+        },
+        {
+          "text": "I see a MemTrace compaction dump, but there's no explicit question attached. Let me share what I can read from it, and you can tell me what you're actually trying to figure out.\n\n## What the trace shows\n\nAn agent moving through a simple NPC quest chain:\n\n| tick | pos | action | result |\n|------|-----|--------|--------|\n| 13 | (1,1) | interact npc:0_16_0 | `nothing_here` |\n| 14 | (1,1) | navigate_to npc:0_16_1 | `moving` |\n| 15 | (2,1) | navigate_to npc:0_16_1 | `moving` |\n| 16 | (3,1) | navigate_to npc:0_16_1 | `arrived` |\n| 16 | (3,1) | navigate_to npc:0_16_1 | `arrived` ← **duplicate tick** |\n| 17 | (4,1) | interact npc:0_16_1 | `quest_accepted` |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 449,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504500000
+      },
+      "id": "msg_011CcrkhS4Q82ijKgaTC8i9f",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 449,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 202
+        }
+      }
+    },
+    "response_normalized": "I see a MemTrace compaction dump, but there's no explicit question attached. Let me share what I can read from it, and you can tell me what you're actually trying to figure out.\n\n## What the trace shows\n\nAn agent moving through a simple NPC quest chain:\n\n| tick | pos | action | result |\n|------|-----|--------|--------|\n| 13 | (1,1) | interact npc:0_16_0 | `nothing_here` |\n| 14 | (1,1) | navigate_to npc:0_16_1 | `moving` |\n| 15 | (2,1) | navigate_to npc:0_16_1 | `moving` |\n| 16 | (3,1) | navigate_to npc:0_16_1 | `arrived` |\n| 16 | (3,1) | navigate_to npc:0_16_1 | `arrived` ← **duplicate tick** |\n| 17 | (4,1) | interact npc:0_16_1 | `quest_accepted` |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 449,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

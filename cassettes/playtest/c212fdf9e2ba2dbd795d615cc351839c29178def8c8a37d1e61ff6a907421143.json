@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c212fdf9e2ba2dbd795d615cc351839c29178def8c8a37d1e61ff6a907421143",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3773,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpoDCokBCA8YAipAg6IYUOYdub1s/oLSflm2f+WdyFgG6ZZTXDD2PXA3mJCUWNqmHzzq0fasiNj3aSSYa6AouErbiKV9C67v3Qg22zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDO1doj3WLhpA5oL2/xoMWRAjV+ndHF/Ln5boIjA6T0EUoNRLrGI2UkA+UXA8abnOqX2mZyQ8rmyqFSkTGaHqj8ScH8kGwLKVSTPM//YqvQGzt1uE5R1wpKDdal/nPcJgvjIZG7N7VDVrBq2khV3sa/GkuuH2+l7VgWuWvqNIdhXWIQxc2eBker/bDge8RsbSK+MYR81cROxAatf5//zxC9mxPytT3ttKA/1YQULhzLkJ6O4c20hGOytx9PNB7eK4Q2xsiU7YjhM9T9Vz4v90+5ow7Hi9acuAMgx4MeKhpP0WaQjpS6uH8T21r1YsKyJQCgUEbWJ8PxBgz/jeE9uyuV2+yMR8B4rxPzYqxBEYAQ==",
+          "thinking": "I need to navigate to npc:0_11_11 to complete the current quest objective, since only npc:0_11_10 is currently available for interaction.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_11_11\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3367,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 110,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1958500000
+      },
+      "id": "msg_011CcrfCfKUh8ZNWknjRJEyt",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3367,
+        "output_tokens": 110,
+        "output_tokens_details": {
+          "thinking_tokens": 82
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_11_11\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3367,
+      "output": 110
+    },
+    "tool_calls": []
+  }
+}

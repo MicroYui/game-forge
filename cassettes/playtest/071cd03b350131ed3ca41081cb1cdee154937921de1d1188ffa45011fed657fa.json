@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:071cd03b350131ed3ca41081cb1cdee154937921de1d1188ffa45011fed657fa",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5315,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EucFCokBCA8YAipAmfPpZfgoaFKjiqZSyj4NiA9A+FS4yVzf2iDQhTTPGtFWGVDRegTIDpIpwAtENBtOclnbC3UGAvwTd1NAibgMbDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKWYgh3AvjNFYMHa9BoMi7iiwmWdxmsAIbxBIjBUSRHZRpHSKrjrKBF7msmimVxIFepjOJ/hF3NL/e6nyzpkcwOso+i9PflvTRuHo/8qigSSqoolYPjL7wny5MLCfaAAeSn+WfHEcvZBxWkygkzyBlyrYzajtvKZzxCkDcmdOhhqsXwe0kxygemdeWDV3iVBy+5Cz1sDULJtCw4H5pT3s+QX/EhvvB4sG7+3mQILHnNkJ/z4CGHtoSqUEjCikBlIZwRh2YrJww9V7MfiabAKZdCIqLxNtAcyMhTYs0ufRQZ7wrrJh9Bxl1w9Ihq2vHNRC2qciBSt+6vBTCnhFQy7fEWUrWzdOofHiFXZEFTJIwGnyWKIsKQShAtLOtZoDmyJDJAfhCCHXWNNNqO6umL4WNLPKnkmTt+dG1RNT42DyKEsxOoIgnyfAcdB9FW2dQwMFPk2O11f7+Xx55MKpRGkHxZuCSBmvIcu3LhgFzaX+a55y4EksfNXtJobBkYGOPkfPlIL1GHh4OMwUFW7MTxVoHFiKplnnSnkGvAp5hFSDQLnM+ligey7LMjG6nUEXFtbQSTq/pLpsblkPj2f88U+i1kfnWLkZQuLdOCesx8N0BMBdEw1HwlCPdgEWMeIUrn71rkbRRYIY6ZanicH53eE4NR2RY+U0rMVdGW7xf99SBvuhEi1HnZKEQIGt7NxiECAFgG7nLvXR8CIgpuk5LeUdzNYff4mjMIRH1vZot7pHRL6jW2IRg+T85kxofPlcZXPTnrRFQwPdbn5g/cIcKKbuY2IN1gcw3mu+jIYAQ==",
+          "thinking": "There's only one quest left to complete—talking to npc:0_16_12—but navigation seems blocked. The hint suggests trying a different reachable target or checking prerequisites, though the quest specifically requires this NPC. I'll propose attempting to talk to them anyway and let the reachability oracle determine if it's actually possible.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_16_12\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_12\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2774,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 224,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1947000000
+      },
+      "id": "msg_011CcrD5vRbzNRp1fuvkSHbb",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2774,
+        "output_tokens": 224,
+        "output_tokens_details": {
+          "thinking_tokens": 183
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_16_12\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_12\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2774,
+      "output": 224
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:678d4febf28bb2ca0863a356c3d8ca5f2fe5a81d5cc7070f73a7ae2611f4430e",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 10455,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo4LCokBCA8YAipAUNskqqPcEgGYXPxKs2AfCe1bu+kdXk/N4nl3F5qHN/QWgl8BHP/Pmvyz46VB358t0zsFlS+kL+5IzFpzk6NvIjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEZAmXRmPsPNZaxsNBoMUtZ3gy1+RFqRNwO2IjCKeGTSyuvW2t8oJ6Y9q72wyj5xfy9Q84piZTcFkPoLgcr+qtPTgkKp9TcVEuuJTSUqsQnbahGlx3xjZ97CM9CXKUy2MzrhLMgIJJOMXCKZ8s4ZRG49RuLVECRi1GqvNsKsMzOsPmrmt9oye1AJMACPHo+zHxQGUK8/G+al08gwcUKkKGokuAk5mTUaTXOxbSfF0lftqKYN4ySmE1jrw5rOTCYxrgz14G6cHXipskJEie1hCmccOmmR1kQ+AQ/xYsUdlbc8tMbp8iLDhgNyMI07Rz2eK6o1l5NvoIs1vIFli63iJSfznGR0OM6Hbi9oSN8ldHIi8KoNx5gBe5TWbVVPDZWAn5cobQuLaJKwPVVfLhx2UnBil2HuIMJsgHl6ytU+B0xWB8svbbGyFJCdwhCiMiWFHVKXY5xD50ARaUIdQ/fja6KL+J83qHWNh8vOXyOuZm3JIqoQ3E+Uk2FN+/G69nkM0wpB6QYQPfttGJqAvhmZy52FgM+WS07hwiD5RXZSMceaZy4+FC9fvqP6H58waCATpUcnxzPzsik6t35cccuUxNkbZvf2FgxaCSmxFowBm+sOaor97B4pDQMXGMnoX+nuS5OMICsZPvCEhajcXozQzIXBdHGopPwJD6Uo0og2fJ5I9cK9dIgk50UKoX0BU2f7veKo7QGnCvGtNqMhsTP0RDvkK6ph67vwOvKbIQYaQ/UnNq6FoFtvMP7qdoPnmnT3X0qqfhtCjDkH80e+NhlQuse52Q2Pw6/5ypvwG6SeQlB4f2wq5w3ZJR/6WC1kzkg0P+BWWr+0rqmy8ggnHrerCJPscfeOH4xo3gqcDH9njE4zLf+cSVfGmEj6cA4WAdXrH/+rJVyAkzTYT8PJRyhCb/QopJjHQFqY2PGS5YhiV7jldUKR7vkvdY6WtsCIDi8RFcXFzfEMXBvhmq8sBH23KSAyThv0AKryug8qVdRCaTLGTHxgrOZHYKVs51N97w/7NCrHDtfDhqm/luaDM+Yw4M6RMdJ0D6pt91efq/vsnP7lTnC0PBQ2qEPnL+Y2uoPcTTSOQhcZHCZ0J7CirFgjrZeb+13keinM3XAYl2K5bGlM6c9v8zj+Si4jhbCRZxRkMBJUs1J1LJnUq5OR+SJmo4H7dtMpykBzuzfwu4vZWDLrKOBnvuMgw4MnPpmRwUDa2VTPsG79rMNBLAUayeyaCmNgJ/iFM88G+CTox+u3eZ+lmoWHXqydcKGPQP/5V844ltU9sCHPFacvf0p3NyoeZ+X0y30QEoyFkHPDM2i9c/xfxySQ+ZI6i9aYFzHwxeqXytwcTRglx88gnq9TxsARVZk7EqUYkoNZjx+5rWNn79GK2VlYhVsXoiBPYFa+y8NNwrSDstzyjM0mVpbp35jbwYsf76mN3LyPrvN2BNYwTE/gLzRWYGqjldwbjpQP+whESyUKOcXW1ZljbMonCDQy6opzNBf/9AuqoekdKW3XAa+yryMUXlr4KuHLsxQhyUSAz01NedNllG+mWH7KGaASYmNYzTGQSXZ35TG/xKEP7mZmBCAARISpVOb43Nwnjlg4etvl6z37RZgBY5uYD96Ll4Q1iFxee9I5jAGgUIYfN20RtXjEJCMlVVMH/TJA2NWjMLyWTWZGFuOo9maATo9XVnVvYv/8wkoNmOD+/6Hi3F2lGAE=",
+          "thinking": "I'm looking at a memory trace compaction output showing 127 steps with no verified results or verdicts, and the tail section displays ticks 118-125. Since there's no explicit question, I should analyze what this trace reveals and identify any potential issues.\n\nLooking at the position data across these ticks, I notice the character moves from (4,7) to (7,7) while interacting with an NPC and gathering resources. There's a timing anomaly where \"arrived\" events seem to fire one tick before the position actually reaches the target location — at tick 120, the navigate_to event reports arrival but the position is still (6,7), then at tick 121 the position updates to (7,7) where the interaction occurs. The NPC identifier \"0_13_10\" suggests coordinates 13,10 based on the naming convention, but the actual interaction happens at position (7,7), which could indicate an off-by-one error or a mismatch between the NPC's logical coordinates and its actual position in the trace.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 433,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496500000
+      },
+      "id": "msg_011CcrhbGjJNk7z6yb9CNGrg",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 433,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 433,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

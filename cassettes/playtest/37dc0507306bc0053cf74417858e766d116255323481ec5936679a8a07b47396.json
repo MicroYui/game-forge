@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:37dc0507306bc0053cf74417858e766d116255323481ec5936679a8a07b47396",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 11857,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqUKCokBCA8YAipAHaV4tNJ7n3vBuKkeZka+ojHBiPIXD1CA7JLYe4OZOoyDiyVcPT8ZppUKn9gXOv6r5KOgY7jbnIKF0sPOU03GxjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDO8HG94ZQyODTt+FKRoMemLCb4t933OeahW7IjCRoxMcfbLnUJ33bJ/01d+iqUpYBGNMQAd2qOFtnlVete3c1DGJBFO/IDRoNb8yXfQqyAjdBWl2gaEDyNVeesqHxtP99C1BT5qumU697HXOVo9KEeCUzGCBpJyrG3GBbj7FBF2C0sHZ0+GsZdf2zMV4J0IqjvQx2FeMtuOtsDY7WwS1jnfStCGTQk0Zbq7lujJHPWArlnEQYdL8YCGiODUUs0NhRfA03Z4ULwo3fmJQ0z5mxxZAKwRmw7xft67kWqIRqQa9BcoFXun4USRme5fMsU1Dcr68rLwUxngzvbzTqrrivCBjpddV/vrS26e40EbOa3IgA2wh4ynX0QF3+isqUInoc26yFd9fZ5PSaaktgmSkMW8Nz0w95+poIPfaUp7rJN2AVwo4sqWjDJFTUKt55ymRuwap3rp7SOnnMKLbI8fLGREzeix9Tff8bSgg+skj01RZEEMmzVL/UaLn0xUFnPAEkjIfl+rp85pz8C/vAzont5RCtKu2OlovgXrFNaYXFQdEKQMLNak0YHX84dp7zq15wcY8Gq6O1HYRIU8EVQQzF9iF+UCaKkv1Kby+BE64p3zOMTBAC3upC99PYFtMkXE9udwJ1Qc3QSUenXTQZuhKmAeh7RyAgmaAChBzfnEO6GAyz20+uE/XDGAlP8+uiuXTzXRTWOkrIicQYlFph+4Jnkft/Kw1eHCP3YZyXm591NdyMygo6WxoNxRII0u2NJgHVUhyzbh7qIipxH2pqnedMTxs2OKygIOWw5C+wCKHQWetw35fuhl+AEariLM2w8noL7XnzvtO1OqCthgxCcg1oIG6DZNLY/J1338g8MQ5Jhn16E1AcARf04lzmw1LwtjN++8Yrcfk+gkLdS/gEKfGNimJfRy108hu2bmbrWE0W3pfSNKhF1udiEp2nju0RFTmPdeV2QpJhK6HA6rR5m+zaGQQ0AHCHgg8LY3yY3vs85BIEZRpGnTzVyX4LHXNjIZaAszDJS/k5qGEkrEErhIckRRaXf+R4lCJyd6BYtOW82xncZ1e+0ojLc0J+NWL/lAjzQWITmooF2iS5GrtREFV5oGlrRkYncebbm5Gbfq7U/tNrUCwyJnJubFWaCUYTnOB3qO+NgmdzsSVv/mIP5tFyYmhBc8yOgLoO9bXVzx3P88nPygRYDM4qJYuWhUVNIUMfwvNrax/LADFacT1ccD9IFfT30Tkft7/HWqLQ9WZcgEk01Y1ui84hp3RgxrBQEckNa8xjZhrzIysU8f78P/cZdsIiPJe6IXeDbK0Go80G02RlhRwMYd3iUFaJtIevaATsjkav2B3I2wX0UaxfvCUrTHLxZECKyIF6IXhAwKzcgEp+QazREQhYacvp95BxsoOlxIN49fDwHMXN6vMCIxVYH/7Ys+hTvgjiO1+kdRpRawnTWzNOOxA5VOHyf9skDmfsSdPtp1giKirrUDTlziQcUauzJo8wmSdcW5UG6di5rjIszgvgP5Y6CzZ7Kj8cdRVCyGKMXacJkius9hBhZ5ljIrJRVkuuosMGAE=",
+          "thinking": "The user has shared what looks like a log from a game or simulation system tracking an agent's movement and interactions, but hasn't asked a specific question yet. I should acknowledge this and offer to help interpret the data—it appears to show a MemTrace compaction log with 33 steps where an agent navigates from position (5,1) to (9,1) and reaches an NPC.\n\nLooking at the tail end of the log, I can see the sequence continues with the agent interacting with an NPC at tick 27, accepting a quest at tick 28, navigating to a monster at tick 29, and then engaging in combat at ticks 30-31 with a victory. I notice a couple of potential issues: the verification count shows zero, suggesting nothing was validated, and there's a malformed active_quests list with what looks like an empty quest ID (\"[ ::\"), plus an unclosed bracket somewhere in the log. I should ask what specifically they'd like help with regarding this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "I can read this trace, but I'm not sure what you'd like me to do with it. Here's my interpretation, plus a few things that stand out:\n\n## What the trace shows\n\nA deterministic agent run compacted to **33 steps**, with the tail (ticks 24–31) capturing a full quest loop:\n\n| tick |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 444,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1502000000
+      },
+      "id": "msg_011Ccre5Fg7hjwWUKL8Fz5Cu",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 444,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 412
+        }
+      }
+    },
+    "response_normalized": "I can read this trace, but I'm not sure what you'd like me to do with it. Here's my interpretation, plus a few things that stand out:\n\n## What the trace shows\n\nA deterministic agent run compacted to **33 steps**, with the tail (ticks 24–31) capturing a full quest loop:\n\n| tick |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 444,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

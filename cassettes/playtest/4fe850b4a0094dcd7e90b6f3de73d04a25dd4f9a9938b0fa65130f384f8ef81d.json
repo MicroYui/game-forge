@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4fe850b4a0094dcd7e90b6f3de73d04a25dd4f9a9938b0fa65130f384f8ef81d",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7043,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Et0GCokBCA8YAipAmk1OU8wjhR6YTtC65p0VJbw470vg1JAihQRS1ggqXGcAqksbfeW7pZGL3T5ZP7Iw6WNellPj7Dm8nHqv4gSJAjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDn46Wr51xIBDxn5BBoMEEKTd9oo7W+RPPOYIjBXBLkfENyWZIN8s/GkN/2AO+OSpHMZ8LGq1HB+xV1AcptrY2hxq7neV39IFYbWbkkqgAX/Gii8vKEHBCkefuay2h1G/8OwIErddkDWtBsSrADl1HZVNJIk/zeJgtts4bFn91QIzXbXXtPuw/7n8CV/ysm2c1Aer7hLB+nGilUW3NBSL1i/Rsw2t4A+SCCqtA7/tAtRguWmtNnCMYXu8Uy7xb24vWX2ZwYjv88nDbfx3cL+4cKcO5kJaoS6nGEETcJLqGsOaFJ11hUDMudyWw/11jXA0DFn7uDh3HbaTuy/lziK5DzOpIfaz0bn8l4Q6grCHRak4Q28OdV/HhY69Bv0fVhbkRnwMqN+C405HLgSBDYLQbQEqcdFbDqCvPUK+S0eQtmePOku8Kg/cWtU6fZwj6nSIRJmY+/4tTFGgsNu6ToumjHnpJT6++v6+OX4IZwjZj+o1ys8P0EwyFWep9L1pxu3uv/p7JD2cvnrPECP8Jb2R6X7ih3Npi9jO5LIH+mfQZwztf8BLmS9fBLjNZqcZTKlePORBghM23ogQx4lP2gptrxkPPv+gFBPLqTObgTRxOqdP4ywst2xKtRFOjfQbDN/oHHzezNnmMcAXniR3AsX2G/VRZyyb5Jg6PUbh4OSq5OhcajBNAtBJsRhNvqUVzrA1Tb+/nZp3tv/PNzEB5BJUSF9s+rWBUKJ0EN3tLxDhUdTAgPR5JbDcmrq+i3UZVUcVjGA6cxSA3wkxrRQ22j63BoazSzDpvov8dP/EWLX1ldt9Z/TSP2UNLsqriFF6yE4ztuoP/u15xse/wiKNsvAV6EwZGkBOx0JUYSg6RbuuSilfRywR7qhhXJt9t40xtb4bNEqDa3+Mfx/XK2IGRzAY1P80dzSrX5Ju3+KX1d5HIMCEDSTZd3Oc7K/3Btfz6gQGAE=",
+          "thinking": "The player just finished quest 3, and now npc:0_13_3 is available to interact with. I need to figure out which quest this NPC offers—likely quest 4 based on the sequence. The challenge is that quests 4 through 11 all require talking to NPCs, but I'm not sure which NPC starts quest 4. It might be npc:0_13_4, but that's not currently interactable. Let me check what npc:0_13_3 actually offers before committing to the next quest.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_13_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_13_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2172,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 300,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1836000000
+      },
+      "id": "msg_011CcrgWmBa8azWBkWGNE7NU",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2172,
+        "output_tokens": 300,
+        "output_tokens_details": {
+          "thinking_tokens": 259
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_13_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_13_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2172,
+      "output": 300
+    },
+    "tool_calls": []
+  }
+}

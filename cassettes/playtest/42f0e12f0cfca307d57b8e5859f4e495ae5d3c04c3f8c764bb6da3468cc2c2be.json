@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:42f0e12f0cfca307d57b8e5859f4e495ae5d3c04c3f8c764bb6da3468cc2c2be",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8571,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuUECokBCA8YAipAAl8iJa1z11lnqLaKKGZ5PU1fS4XAkoQsIBNVWQVcZkJbcbFQBFeQfEaOZp7lK/tsJPle5XEYbI3os5dfG9AlmDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNRBXh3VnFyR3IDBchoMkftIDkTJqb63FW9fIjCaWOXr4egOpL9xqR2QJdFJuKI/aWUmJbhW6wXyfrNZwX2/9lbny2tuwfClriHpmfAqiANHDXI9BV40MlQAoEK5PgkoN/2bwxb6hOTpUmfXH/ZveA2Vpfy4urRRUjaoLLQOBfj2TV8I5+S/xuUldbTKfS7MGhMX6CVjuFsfXzQrrvy0r18N2jCStbCjPInjJCp4ZnVGCZq1GPf0LtvAcoaEHtIYh3u7CZGGeb44xs1k75xzm8Aopud9kxp1hXrd+n0eGWUiui/kUBoI4Os7TRszsSP0LcO64NxkedsLXE218RouO1OqULeKXX+c9ltJxdeifzLo6Lf0dU2rw8Ta1Dv/a2/Akc17OBJhrFyKt9aZBFvbE82r8I5tSK5cdFJi87mJCxGPQzgcbY82iOElX02GvP597e+hn98s7K5y65rpkW7SJStypbSmU7psdy+Mxz0iMDYosF1GPEOk3VDMlLuSQGmG3Frjcz1oCgPjlFs9/Mr33H9emRfuG2++FFauO+VyJMW/tv0J1jYNdW0+U+B/+VJFGsozKrYBGCC3yY/YaN/JpDcdTqbE+Y0e+BX8ZdtJ4LW0Yu2dT/HPBxgB",
+          "thinking": "I'm looking at what appears to be a game simulation trace or debug log from a MemTrace compaction system, but there's no specific question attached. I should ask what they're trying to understand about this trace or offer to help interpret it.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation, but I don't see a specific question attached. Let me offer an interpretation and then you can tell me what you actually need.\n\n## What the trace appears to show\n\nA deterministic compaction that kept **3 steps** (the \"Tail\"), a ticking simulation of an entity moving through a grid and interacting with an NPC:\n\n| tick | pos | hp | active quest | outcome |\n|------|-------|-----|--------------------------|------------------|\n| 0 | (0, 0) | 100 | `navigate_to:npc:0_12_0` | `moving` |\n| 1 | (1, 0) | 100 | `navigate_to:npc:0_12_0` | `arrived` |\n| 2 | (1, 1) | 100 | `interact:npc:0_12_0` | `quest_accepted` |\n\n**Reading it:**\n- The agent moves from `(0,0)` → `(1,0)`, reaching the navigation target at tick 1.\n- At tick 2 it moves to `(1,1)`, switches from a `navigate_to` quest to an `interact` quest, and successfully accepts a quest from the NPC.\n- H",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 199,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1379500000
+      },
+      "id": "msg_011CcrfZ9Pz3hDKFguX3XpQe",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 199,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 115
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation, but I don't see a specific question attached. Let me offer an interpretation and then you can tell me what you actually need.\n\n## What the trace appears to show\n\nA deterministic compaction that kept **3 steps** (the \"Tail\"), a ticking simulation of an entity moving through a grid and interacting with an NPC:\n\n| tick | pos | hp | active quest | outcome |\n|------|-------|-----|--------------------------|------------------|\n| 0 | (0, 0) | 100 | `navigate_to:npc:0_12_0` | `moving` |\n| 1 | (1, 0) | 100 | `navigate_to:npc:0_12_0` | `arrived` |\n| 2 | (1, 1) | 100 | `interact:npc:0_12_0` | `quest_accepted` |\n\n**Reading it:**\n- The agent moves from `(0,0)` → `(1,0)`, reaching the navigation target at tick 1.\n- At tick 2 it moves to `(1,1)`, switches from a `navigate_to` quest to an `interact` quest, and successfully accepts a quest from the NPC.\n- H",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 199,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

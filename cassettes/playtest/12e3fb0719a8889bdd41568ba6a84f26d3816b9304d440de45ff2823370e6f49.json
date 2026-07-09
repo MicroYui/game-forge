@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:12e3fb0719a8889bdd41568ba6a84f26d3816b9304d440de45ff2823370e6f49",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3165,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EswCCokBCA8YAipA6lU3Ov3LRjkwuDyzpvXXEX83EyRFVOfc6VshYL7RY20PPfHRcKeQIf0K3AqLVGg82RjQGvXwxjGkO4kzQfxoBjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLFX1BSH4LkcWtaJUBoMFTtpoLO7WhiafEppIjAX4vxT0cB7QHlhJKDJKhtQJDN24r07QfQk8VpPfhmM0XTcoyfYA6ai0sCFRyevpz8qcJXC4g0vKZdn8hkuXgL/d8yrc+iAP/X3K/UW62plecYEYYGFVagk/5RE+nGEXE2avuUZJ3Rj/PMG14lzymcui1xjhcyPblFTB6tnXo8GsnLTDimznAMWP/+kFpbGR109RpN48Otw0c+7K/LMmW1BwcEYAQ==",
+          "thinking": "I need to engage with the active quest and attack the target monster that's nearby.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_12_1\", \"step_kind\": \"fight\", \"target\": \"mon:0_12_1\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1915,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 79,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1155000000
+      },
+      "id": "msg_011Ccr973S6F7JrvT9r96sKZ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1915,
+        "output_tokens": 79,
+        "output_tokens_details": {
+          "thinking_tokens": 38
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_12_1\", \"step_kind\": \"fight\", \"target\": \"mon:0_12_1\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1915,
+      "output": 79
+    },
+    "tool_calls": []
+  }
+}

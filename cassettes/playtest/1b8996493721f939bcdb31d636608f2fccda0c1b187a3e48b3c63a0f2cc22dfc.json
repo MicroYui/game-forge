@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1b8996493721f939bcdb31d636608f2fccda0c1b187a3e48b3c63a0f2cc22dfc",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7671,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EugDCokBCA8YAipAZnVQHhNukqh/OQo2PLFduRJNj+e7Q/drHkU5pu8WNGTDB8qqe20M2fKtvhMS9sVPXe5yLJuTrMGgtyBBaFounjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNEKY7c4mp1jBngyGBoME50Q+8nKVbIMNQXTIjAog9GSLvwREmo4Fxsi4iH01ly7BYMPcmeGOh7fFUBj3f2Osv5jIvr4Xgr4MfhpC3QqiwL+gb1Y5voL2EXrGLz3xfWxSrMY55XelqTWpyZ2gv7qyiPMbHwMpAot9ZKQPtlke/r1P9QuS5iRsU0xiaikrcyfVw7b0SW6HKAoDz8oLT7VPBcfb38zSZw0hxPfwpC/upSfrJTxHPJ34zOiL/KbmD8yJR90K5R51MDJNh0MIx+jmS83kgigXyppQ5vFpVQppw41ESPkpzQfWqrrTMNtn7IjzEGH0po9SnRbQDpwKpXt3EGJlRq41X8pTPczsFQ9Rmi1Im5KeBAnlvHOPe1AlOx1PZdFgsH8Zpc/MKGa0jUoToUuD0R46daL4Ly33fLORCeji4NleKieHJ9Qt1JUzRxa++Vy/FfyeDo7yiIYAQ==",
+          "thinking": "I'm looking at a game agent trace from a MemTrace compaction system and trying to understand what it's showing without an explicit question from the user.",
+          "type": "thinking"
+        },
+        {
+          "text": "## MemTrace Compaction — Analysis\n\nThis is a **deterministic replay log** of an agent completing a quest chain. Here's what the trace shows:\n\n### Quest progression (a classic \"kill quest\" loop)\n\n| Tick | Position | HP | Action | Result |\n|------|----------|-----|--------|--------|\n| 2 | (1,1) | 100 | `interact:npc:0_16_0` | **quest_accepted** |\n| 3 | (1,1) | 100 | `navigate_to:gather:0_16_0` | arrived |\n| 4 | (2,1) | 100 | `interact:gather:0_16_0` | **gathered** |\n| 5 | (2,1) | 100 | `navigate_to:mon:0_16_0` | moving |\n| 6 | (2,2) | 100 | `navigate_to:mon:0_16_0` | arrived |\n| 7 | (1,2) | 100 | `attack:mon:0_16_0` | hit |\n| 8 | (1,2) | 99 | `attack:mon:0_16_0` | hit |\n| 9 | (1,2) | 98 | `attack:mon:0_16_0` | **victory** |\n\n### Interpretation\n\nThe agent successfully ran a full **NPC → gather → combat** loop:\n1. **Accepted**",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 439,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499500000
+      },
+      "id": "msg_011CcrkYgEBkURjdAdXQSJm7",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 439,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 81
+        }
+      }
+    },
+    "response_normalized": "## MemTrace Compaction — Analysis\n\nThis is a **deterministic replay log** of an agent completing a quest chain. Here's what the trace shows:\n\n### Quest progression (a classic \"kill quest\" loop)\n\n| Tick | Position | HP | Action | Result |\n|------|----------|-----|--------|--------|\n| 2 | (1,1) | 100 | `interact:npc:0_16_0` | **quest_accepted** |\n| 3 | (1,1) | 100 | `navigate_to:gather:0_16_0` | arrived |\n| 4 | (2,1) | 100 | `interact:gather:0_16_0` | **gathered** |\n| 5 | (2,1) | 100 | `navigate_to:mon:0_16_0` | moving |\n| 6 | (2,2) | 100 | `navigate_to:mon:0_16_0` | arrived |\n| 7 | (1,2) | 100 | `attack:mon:0_16_0` | hit |\n| 8 | (1,2) | 99 | `attack:mon:0_16_0` | hit |\n| 9 | (1,2) | 98 | `attack:mon:0_16_0` | **victory** |\n\n### Interpretation\n\nThe agent successfully ran a full **NPC → gather → combat** loop:\n1. **Accepted**",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 439,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

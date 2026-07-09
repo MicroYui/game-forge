@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:955bfa6791d7a5672bd453b352632e0e5107e890070ac7509a9adc3826794314",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 11248,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpMLCokBCA8YAipAQwme0qNt6uo8WeNbn3Y6B5eprxnbvUC0iD5VN4VB65Hp/Ll/3GLV6XpUU3Q3cFpIyk9SNg+fsGdm+IKGZODrQDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIwz2oTjHRsccM5M4RoMekPBOPGrVs7p1HpBIjC2eJfGet6R0JVlG2SvvvUD2YPsfoWl6zYaSZqbpQD55XagtTRC3HLBpWI6wy4SfJUqtglSK71opHMVVu+7KWmohFHIbNlTMPCI3OpybIMNgAsKfq/RFsKS+JpaTc7uREQsYYkAEQ3E4wd5pLuCpzNlsFxBj9ntgalR/PtDbOKk5BWxZHBOpWD7nrLDqxSKpwwc6vIf9uL35nDYg3SOLFAcSpvET1mynYUZvFdprrn3SueHqb8Ig8bYqLDeJHeibZyZhBz0GpSpHGk067kJxjAf/jgx1yTKoxQxLQMCQddDSMaHjKr4ootILaMJOFjsxqDvUv2rnK9x8uZnX6W2KEs2ziXZBVuCrkmq7wbUv1nxubQvRUsngekfVpewqt541ombhhMp71TkUFJNE4tR1m1V0aUj9KGIaQchO9xgWVGREu4VXDL84tNmV5wyeXarTkE6+2lnayCpaVSPf7CG+CIciXnbpD7Q3xoTW/EF1ddkluvjPe0QwzRhfyUW5N4b2rqavdiMeWTlZ30tfZvWvml78/3i3CgckCOjmXlG7t/IuwB7d0Lgudbpl93qo2saHMbs0zkoK38Pkwf6Hvf6KQdweQw4KK4xRwoFhe2dy9RtYbJdsTggiAeTp7h4l9EIEE75JNO3Pz5ZRUu+FVBXPw8XUc7DfsG9SlexEo7MJp1cKAg2ZVfWJwHPielaUD5dTOOm6Njz0SH3hc+gDCLDfyv/A3T3nEUcNuYDC8PByTu3Yozx7uXtTnmc9/Cui2kLU3I8yXiMxiGmUsGYR4LuDm7sCm3mBA9494oAiDBRjvYA8Zr8HBB4R0138mIDaGxxQhefMccC7iqs9IFczp6Xeqpyw6NYgnPl8rCSibf2QQ6gfF+CsJO2BD+D5CHiksyjCfajaPJJjvcg9AzuaAFR1GBLMQQEjHQ43z7DEKYUelM+NgXrYJpzi0GX8hLuZt15kksNMByxeVjoE97kbiabfQAm2MiUgk1jLjm/0+sIj+UIrDUjFs5vG0TBdBwE8Jb5TGB4aSAMrQsNXDXd7C3xrkr/a4Nuw9ufKtxLO1HSexT6rYYOlogvnhGIpfGTyd5flc80aUusEAwID+kZz5N2gVH/C17ugf6w3+AqsO1R0iF1cqn15GM3ZXoQ8x+WklwntuYh9gY1q+3ymzO9s4ia3RKLhSNIT6/Bt4JU2cTnupZO7Hp7K5jp/89XJmfv0tM4JLSeokeggwMew34rPvGrpqvlnSxHzf6ktRnYzjWOpAkEibXa9s7pjiRfNLMAK7v6ItVxVWPtxW5qrYMk5It27nlYdImcdGgpoKvIaDe39/6vRBFv9NMxB62SS+8IoagTf2ISJmS/uo1LHPNyNcnA2h0eBoDWCd+fFzSRbPSzsiCAIh7Wcl/CTz6lwM6QRd0E6S2JMdF8RYkEV9QrfO17IhkOoqj92M4K7U3YR3bqzL5njbVLpR8OkE8Bp4+HIaSJshvREZis/7huJw3/hGXKdAtcyJvHnKO/f9mtAFuARwgl8h36tV2R1m2DA+foxxNk+R7DHX3/EzJL/88nwhFok8KRC+8TJ2svw3P33ya70Awv2XSzplj740eC3XPQdY2YaTj8zpl1fsEQ8jfcnM13TujdRlQzWv421OjWPpy2FFx5RY74AcJlrvpAPYNNibLUIXwNuA9wKZ+gzkoYAQ==",
+          "thinking": "Looking at this log output, it seems to be a trace from some kind of agent or game system. I notice there's a potential inconsistency where the agent reports \"arrived\" at one position but then continues moving in the next tick, and there's also a formatting difference in how the active_quests field is displayed across different log entries.",
+          "type": "thinking"
+        },
+        {
+          "text": "Looks like a trace dump from a compaction/verification pass, but there's no question attached. Here's what stands out if you're debugging it:\n\n## Key signals\n\n**1. Nothing was verified**\n```\n22 step(s), 0 verified,",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 433,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496500000
+      },
+      "id": "msg_011CcrMRB7rHyNcaqfPMeCz1",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 433,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 436
+        }
+      }
+    },
+    "response_normalized": "Looks like a trace dump from a compaction/verification pass, but there's no question attached. Here's what stands out if you're debugging it:\n\n## Key signals\n\n**1. Nothing was verified**\n```\n22 step(s), 0 verified,",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 433,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

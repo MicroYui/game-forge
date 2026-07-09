@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:80268d11e0007966b16393a8b264b1b0071aee474ab8a1d1b9767a416afb9eb3",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5073,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuoCCokBCA8YAipAwugUhlcFXRczWRAaZCS5oBWPGyb4H/8ckt+agaLEnUwYaYOnI/7X0UCtdqaneTZyS61OvMzg3C55Na2pquZ7RjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDI0DBMvrnRb6fMc9XxoMdl0nr4KkaZC8oByAIjCi6sMGPHlzr7bsih2DWC/aQCuJuM1oJ82vE4WttNEEWH1tm9Er4cQXEQmIvvbYIfIqjQGd0NeB5Nrk5JKWc8z36TCIWpqVWI7ng+NZUkw/Uce6Uy+lFVvEbX/utz8T09+OEJgVpmHzMghyFSPKcr+8ir0dQpB7OICMlp5d21esqn1zdFmLZfI/Hr3Z9AvwzpteZZJ0oolm8WhvhfxSJ4Pz0UA1RyrG+g5HkZeXn/20+SNtEjHhqQTsLYMOIVcV55wYAQ==",
+          "thinking": "We're in the middle of combat with quest:0_19_4, having just landed a hit on the target monster. I should keep attacking to continue the fight.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_19_4\", \"step_kind\": \"fight\", \"target\": \"mon:0_19_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2711,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 92,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1585500000
+      },
+      "id": "msg_011CcrFNGJrrbFEjeefRu1Jm",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2711,
+        "output_tokens": 92,
+        "output_tokens_details": {
+          "thinking_tokens": 51
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_19_4\", \"step_kind\": \"fight\", \"target\": \"mon:0_19_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2711,
+      "output": 92
+    },
+    "tool_calls": []
+  }
+}

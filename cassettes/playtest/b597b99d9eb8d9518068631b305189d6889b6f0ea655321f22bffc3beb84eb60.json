@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b597b99d9eb8d9518068631b305189d6889b6f0ea655321f22bffc3beb84eb60",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2614,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo0CCokBCA8YAipAvNKWIqpm2u15HRWpCXRHjr5FrZfKCFT5jE8D7NHMboFAM/KWZrVpnbJhybIpLBM9nnPGN5CDJDs2mzbtRN/2zDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDH3OHttwkrJwIurn6xoMnfprdwhTQBCYCM6CIjAbsZRpwaSk42ptC5zBfgvRVNkY9gCgfiv8SnGSu2LL6osT303jnZEm19foi2oIZV0qMVay8/32g3SI4SLPLA7Q3D9/tmHLkuKtSKI254kIQx3b3Eym5QlyZyA09xi1qX67wL0YAQ==",
+          "thinking": "I'm checking if there's a turn-in option available and whether I can interact with an NPC.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_14_7\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3400,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 39,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1797500000
+      },
+      "id": "msg_011CcrBAxASJjzjA3uspgA23",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3400,
+        "output_tokens": 39,
+        "output_tokens_details": {
+          "thinking_tokens": 14
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_14_7\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3400,
+      "output": 39
+    },
+    "tool_calls": []
+  }
+}

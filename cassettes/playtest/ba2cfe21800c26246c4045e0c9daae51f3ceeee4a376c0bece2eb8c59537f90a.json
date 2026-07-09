@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ba2cfe21800c26246c4045e0c9daae51f3ceeee4a376c0bece2eb8c59537f90a",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8149,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eu0KCokBCA8YAipAU4fTiCswkUQRf+PvooUAjrELjUqubLdnhW/CHprGauHKG0XmZkMkqj2M3cMyRJoi09WKzY57TTAAOxhjP9nVgTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEQKH7U2Lfr1if2DMxoM94qrn7NlLnoVxFVDIjBPjaK4hu8KbJbRkuogb9+7D7Zk3RcmLRonKFRCnfPz1QfrTgjwaWhtDj3M4sGqnyIqkAkBgo/ZTAXEVB0aKYeH1M+ZZh9qWLK1D3KBrK+rKCgi9E9oYOxmF291Z4rpfcgnHFr5mgByecT1LlZ6vCTwVTnP3mpG7qzov+7EOYJUXPTKtwoqHXxtEu0GdQHW4Qd70xM0Ri1BzYw24JQVyV1KooRAfm8/lARJXas8tgYc29Qbw2H24yuJDgUi0Ki4xCdRnlsSe/rCusxP46HQ0TKxI2ofZBeeMP3HBhh2ewrWR+9ZScKPYVFoC841n4H9IwMLA7V7S1cG9flHRZdWX95OjN+biE/WSUMx5Tbu4B8t0dFkwjZ472xBmBL3rw/EpSOcbPy3hYJgPGNmB6oB2Ti2BFFPhU8fCFfR5Am06tPHLWLHeBuLZZwkf5dzClw8t4Ebnd2uqQ9PGeQs4XJBsjBDk6bPjeaH3YgjwYBWa36R4GfeFu1oYDQfh993gIClkRquo1jIQZgUxS/1r8NnsAPTDOLUxsHl37ukcoidDQNO0Q/WhAmRLetgvsKEFyFhjl4tzdPnCPdLIwYEmit08fJ5yFBm01Ll9Tnt8Esb1k0Eg/SHm6fpVrzeLLe4wdYILHRjnQ7eXn2lNdfwdUh2Xg51RdbQ2Gf24x6fYicqWf00fpC053GXeQSlbU5OsuaJkPOSqKWsxwnAkiL98uAuZ4ZGQ9XMNiWmiY/R5z9W6yXTlQReU73sQXahkZJH4ISNS4LZweCFfhM5fIOKPmmxju94GMFGDzLMVqlxBBKI4OuifWHkGFgu+Q7UgJ6NbaSpUq/1Cgkj3c7pAg5KvszrZX9foUItgzexnzzwOhy0D1I9KXvHArGrUtr8M8AweCJ3iQAlPSOqOS9RIuXnnCCejYEsfyQY64c1A9UoXWG+owOHl2tXPEE4SYq7cVUAgCdI0h2gqsaORbFYfc0wn8t7b9BOipZIgEpwZYkyVWHdv8wwbNE1TRNkvbupiqYfG9hgQDDtUB3SwEK2x/aoylkf6bI97dSGPRF2wd/TwN88y0Rb7QC23ezbcqXJo6W+sFln0K/Icup4VIneQcY170w/7ADpxQ5emXtScoc6dLl2Crt0jlhPrN1PjPrcPcPAeg5uXIrjsqrV+9SlPFHCOCmsupGYkfjESbKD+QVeoEbMIdP65tFEnPF1rouL5k8arlN70pBmpdf38tndWjmTnR2TdMrEAhLyP+1NZdX2V3L3Vboeci1p72aGKaOti+q/UCYYr0sAvxvZAvUAUBv+ygNI8JMPK1hkvyai+eusujvTCSLMJf1HtuzzhLYQQMLpYLTlMyJRYekQMiAihwbyAwtY1bgSH7yTJfSQU02nP/Bwn1uG2wf2s/74r3aXBRoxbvKTfAiNgTdtVJP6/myivmGMklfdycD5Hm400c3HM+iArAjnZABdGw1vnDbx68XaeBTvm1BZ4FnRcpnjLRwojX4VrZDgpu2PbTCu1o1+CNXgfB8Iu2S/s9QZgEAyeYnNmyHZoY/jvZTrF1eUOCwa1Uk93P5r+VZzHCN/XIXqI1i9/p5KOaOjY2MRcTuzAFuXvl9UGQA1rV3yZRhg7UaTh8EWhosWV0qXGAE=",
+          "thinking": "Looking at this game simulation log, I'm seeing a trace of an AI agent moving through a world with quest states tracked across ticks. I notice there's a potential inconsistency where the agent reports arriving at a destination but the position coordinates seem to already match the target, so I'm wondering if the quest completion logic is triggering correctly or if there's a timing issue with how arrivals are being detected.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 449,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504500000
+      },
+      "id": "msg_011CcrKHsN5f8NHaY6wL5oah",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 449,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 449,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6694aabe284f7996e569cf14743eb5d1ca375f0db4d406d12fc0b586b8f680e7",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5032,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Es4DCokBCA8YAipATozaSQ8oUtZ6XPNHDAHvpiPhnvlrvxiD8Jn35OWWUVBC7QXjyt3HGn5JwnLpRAMtyTfTBziV7WUo1SzvXKbdfDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDA+MzafOirpU4SeC6hoMkcjm9tJhWv6KzcVxIjDXxD9ZEEFh/pymmkNvs3kUI7WU/FisBIM3xApqrcbOq0ljlE7ESnIlFrjuSXMBlbcq8QH2HdmH7kdtAX6XO1baN/VGwNeT9ImlPLG6zjL6V4B1yPwAZ+4WRIkKgmcrAbw9QM30mIDlqC8XXKl/FI61elOxrq23UE0EwHwxW1xcZYBDUGAPsGPGYRyQmHg7MTKoVsjMPBF+D73QW9trrAMGImb0tFnhztkpho2Z2xwipqzzkvibbhkEaS3jl8JtVsvArE8akkYJUN1iCbHzkkTmFGUaDsdmjZfm2N/EUA+cQWfLaTxODEPOIAwSEo2uSIVpEMSkuh6AYp/c0GT3+gfKz4XehEHfERmgqpCYq9hcmdw0Jqj9OgG8EpA7O6cXCCfoQgynGAE=",
+          "thinking": "The agent seems to be stuck in a loop trying to reach npc:0_8_16, repeatedly reporting \"moving\" without actually arriving—this could mean the path is blocked or the NPC is unreachable from the current position. I should try interacting if we're adjacent, switching to a different target, or investigating whether something is blocking the path.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Navigation to npc:0_8_16 has stalled at 'moving' for many ticks without arriving — the path may be blocked or the NPC out of reach. Try a different reachable target or an intermediate waypoint, and once adjacent switch to a direct interact/talk step_kind instead of repeating navigate_to.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 197,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 792000000
+      },
+      "id": "msg_011Ccrbr6PRUK9VUVZQnkk62",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 197,
+        "output_tokens_details": {
+          "thinking_tokens": 85
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Navigation to npc:0_8_16 has stalled at 'moving' for many ticks without arriving — the path may be blocked or the NPC out of reach. Try a different reachable target or an intermediate waypoint, and once adjacent switch to a direct interact/talk step_kind instead of repeating navigate_to.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 197
+    },
+    "tool_calls": []
+  }
+}

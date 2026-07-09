@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3f423c042b16f38c3df6d2758c3ecbd7c3a8a285172fdddbc013b09c5dbac121",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7966,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpcFCokBCA8YAipAAonmGzCSUg3QPc+5owT7LXTTFiPsJaKdFv4UKY9xfOvXaX5gOs8CwAgZt7sYHo5bRkVK1uikUEatioQ6yAwf1jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPe2gDX2cDzVParGCBoMeizu+uXRdeUYnPkBIjBxCafc7GlW3YwQg8a8cyb1Db9yPV25rwUxSNCxne1Lb7Eaw1Q0bQnJW4qpq8UYr50qugPCibh6YQ/6e/O6XkbexqmeaNRSk6RqT2kQ2Dn2eAFU0G0zljbboZCZ1L9YwGdbH/NYHf83+Zwm2b0ALwmzeBykXo7M+OQvU31RxagOAcN9WmjZhoSXx9MNT+Z4PCVyJJRAQU1tZPjLc2IJpm9ioNxAN6oDH72z4/cz38HgbSutjaYE5Zvfd/nkL1mDyzfscb/WZK4Y0UJvBbLIigTfCe/To+o1+9p32/ULq5/5rvXd9PwLioQDv9XI1mXg41iXGDIfH/4U50niezRt7zGEmIhdM9ZdSQU0wXDZA5+YjujaD1nBKibPoQ9riHMMba5JCnaWdSL/goYiu/H6akoI1JoREJeKiFMjmLCM4xDWFNJ8R2ZydP66lfOscrwf4WYJf6Npq7U6NcpR09M8ncZV66Hwveq9HM8tmTTGCj83RNE8p8L70ONAY1/E1lataxlwQIrNa3/eCm1ouJLX9G3kPz9pe8W/Bom+gre1qDvP4ZT0ecv+mzweOhDQ+GvgmGCq5B5uDSNPCWwwjE3gNl22eD7AJ4xOAWk9wI2lh0s6IdwnkDIXDm0pYIGxRDCDRXy3vHZk+jaz270ryD15GAE=",
+          "thinking": "I'm looking at what seems to be a MemTrace compaction log, but there's no specific question attached. I should ask what they're trying to understand about this trace output or offer to analyze it for them.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log**, but you didn't include a specific question. Let me summarize what this trace shows, and you can tell me what you'd like to do with it.\n\n## What the trace shows\n\n**Header**\n- `49 step(s)` were recorded in this compaction.\n- `0 verified, 0 verdict(s)` — nothing has been validated/asserted against this run yet.\n- Deterministic mode (reproducible replay).\n\n**Tail (last 8 ticks 40–47)** — a clean quest-completion sequence:\n\n| tick | pos | hp | action → result |\n|------|-----|----|--------------------|\n| 40 | (14,1) | 97 | `interact:gather` → **gathered** |\n| 41 | (14,1) | 97 | `navigate_to:mon` → moving |\n| 42 | (14,2) | 97 | `navigate_to:mon` → **arrived** |\n| 43 | (13,2) | 97 | `attack:mon` → miss |\n| 44 | (13,2) | 96 | `attack:mon` → hit *(−1 hp)* |\n| 45 | (13,2)",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 422,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1491000000
+      },
+      "id": "msg_011CcreJ5qPfapz7rpKxzg19",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 422,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 136
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log**, but you didn't include a specific question. Let me summarize what this trace shows, and you can tell me what you'd like to do with it.\n\n## What the trace shows\n\n**Header**\n- `49 step(s)` were recorded in this compaction.\n- `0 verified, 0 verdict(s)` — nothing has been validated/asserted against this run yet.\n- Deterministic mode (reproducible replay).\n\n**Tail (last 8 ticks 40–47)** — a clean quest-completion sequence:\n\n| tick | pos | hp | action → result |\n|------|-----|----|--------------------|\n| 40 | (14,1) | 97 | `interact:gather` → **gathered** |\n| 41 | (14,1) | 97 | `navigate_to:mon` → moving |\n| 42 | (14,2) | 97 | `navigate_to:mon` → **arrived** |\n| 43 | (13,2) | 97 | `attack:mon` → miss |\n| 44 | (13,2) | 96 | `attack:mon` → hit *(−1 hp)* |\n| 45 | (13,2)",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 422,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

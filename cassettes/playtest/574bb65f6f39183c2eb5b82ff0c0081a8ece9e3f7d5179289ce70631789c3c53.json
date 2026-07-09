@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:574bb65f6f39183c2eb5b82ff0c0081a8ece9e3f7d5179289ce70631789c3c53",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8082,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvEECokBCA8YAipAq5RKH48osDY70il9W60SibFP6yt3/PT2j2vh81TL3RvJIortLlBPZU1kjBd6OFLGs5xPPn8W2L5MgnF3PwXVHTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDO3hv/fgwaPnzvPusBoM/3M/kAnz4y/nnHGPIjDq7JDby4xh5WY7+pSUSv9ONEJ7E5C/JKlzcnHin4f+k/g0SIkFBdJC/avKBIE9pQAqlANEtvknWnLoR44DG5AJ/XQ652qXAM89mp4t1zJxuD61atL5ge/2R78MCFokFsfY8YVPDcnJrtZFCaYVaP6h2S2KShRArUFSj+5ZGqqRM/HzqHeAsz+pHaIMg/Px/o8CzhN345Rh5QyyMAGo5XyYU/3CvnwGrVWDICbpVOkqYDiqIbaVidQ/4DMM+Ry1l8D9GCLAEEXwee3yhY2RGcQ322Gu/Aq2w2D6EPiymzffxXjL+PgMWG2X5qMvSehwFpAm/duNck+7sqby0UEwwIoyyZWJ4YWV4CzOHH2JAvfsaGc9AsZBtpZ+776sTCDzYkT0xDtFNB9sMjFgUrl+mQ+Q08OpFPC4gUwThbZEMOklhykCHjxSq0qXFixfBC2y/M6DMjrY7N+R8rZP0hbrHm9UecmkG0GvHpjgPXqRnuftsWtY9fBJApVBws3HOc2UHATzw74FhSySsqQHW8Y2KNdmA3D41Tc2/pUt0+xH9d/zj6DbmdAJYYHN8/TS7KSApepTExyy/KoVpm3Bhld0W0VEvftUzJRYghgB",
+          "thinking": "I'm looking at what seems to be a memory trace from a system, possibly related to game or agent behavior tracking. It shows a deterministic sequence with three steps, though there's no specific question attached. I should ask what kind of analysis or help they're looking for with this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** — a deterministic trace of an agent (or game entity) moving through a world and interacting with an NPC. There's no explicit question attached, so let me break down what this appears to show, and you can tell me what you'd like to do with it.\n\n## Reading the trace\n\n**Header line:**\n- `3 step(s)` — three ticks were captured/retained\n- `0 verified` — none of the steps have been verified yet\n- `0 verdict(s)` — no pass/fail conclusions recorded\n\n**Tail (the retained recent steps):**\n\n| tick | pos | hp | active_quest → state |\n|------|--------|-----|----------------------|\n| 0 | (0, 0) | 100 | `navigate_to:npc:0_0_0` → **moving** |\n| 1 | (1, 0) | 100 | `navigate_to:npc:0_0_0` → **arrived** |\n| 2 | (1, 1) | 100 | `interact:npc:0_0_0` → **quest_accepted** |\n\n## What it tells you\n\n- The agent starts at origin, walks toward NPC `0_0_0`.\n- By tick 1 it re",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 199,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1379500000
+      },
+      "id": "msg_011CcrG1RSZyac4M9Ybbfggh",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 199,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 128
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** — a deterministic trace of an agent (or game entity) moving through a world and interacting with an NPC. There's no explicit question attached, so let me break down what this appears to show, and you can tell me what you'd like to do with it.\n\n## Reading the trace\n\n**Header line:**\n- `3 step(s)` — three ticks were captured/retained\n- `0 verified` — none of the steps have been verified yet\n- `0 verdict(s)` — no pass/fail conclusions recorded\n\n**Tail (the retained recent steps):**\n\n| tick | pos | hp | active_quest → state |\n|------|--------|-----|----------------------|\n| 0 | (0, 0) | 100 | `navigate_to:npc:0_0_0` → **moving** |\n| 1 | (1, 0) | 100 | `navigate_to:npc:0_0_0` → **arrived** |\n| 2 | (1, 1) | 100 | `interact:npc:0_0_0` → **quest_accepted** |\n\n## What it tells you\n\n- The agent starts at origin, walks toward NPC `0_0_0`.\n- By tick 1 it re",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 199,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

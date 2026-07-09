@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0ebef4e9d67254468f6e0532d6711d20a0bad119e78a0e2daf9a2f23fcc5f0ef",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8118,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EusHCokBCA8YAipA4dsFDWBGxRJozSv6wxhjwSdh+Zca4RHwR6ghSHGXzfacenvrMGSmk7xADQ5NqrdLkeXWmvKk2WR8xbNx6STXnTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDE+JNLdkyGTFxgyAsBoMGATEzXh8hl2GgcS3IjCJN61YvC+ZxxtXlfzV7DEHjhI9pQOJp0Cdt1mrZ+rS8qA8Nmd4wRCMGXU3pr38rO0qjgZp147cpvPPUP7Gcziq5dVWaQ36EoAnlOUo4fxfjqbvjhh5ONGPeSdK65COYofCQgIUas6vByAxG1j2p6k8rny6eCl91kGAJJwKhzflfNBqGvrSaG9nTNn6gO7BBX45AnksbCbzYqiUWLF69SRTmldbdqbZs3MhOq6s3dB9J2P2zqVKZQPKtFFQm7nglO98SoS1TcmSEhvcLZJ8RWYRGlAMZPGXMq0MciPRudxqroS/bL/vGMWBZ5Mwc3aWve8VPfwHMLUt9wR5YW+lP9nGCwlEZxZynZR31ueyfeXMJII/RP4VSwVXMsMQhuoBdVEkXdtv8kM6bTYuGgfOE4PbBi0jc8GCtJpdm3RQdtrmMduVRMBYUH0Bw9uVYtP1jptTgC3RFeyr6Wp/xCwAgxTSr1sZu7+FMiW//jqa4WDYVRLYyCeA/E0hsDhrR7tGVf7bijF2wv1xRDhMVYmBIwlL9h28pWBvM/bCinCQrDVVWuSRsaN4dU3x2ygXYTKEPT2aJFmXguW/DYWpjFE0gpB+qG6rS9evP0uuAj791E9VFGqgdlwt/tEDz+07C1sODvfHNXmG1r/dnohb9hALH5EdOYiOPuAhKUSVvceC/oYafL4zRDW9JYOuhtMGe5col/56zL7HtDrSNaFjJW/UpWiqbvrJSvfWm8HdqhnynzAAZdGUKUn2X7Jy9eaFz+eSRDJzVRfQOhRL59qDaqx6EIqvD4bf4TxawTK1lylrVd0wnc7dTRJt0GQOORp4Yr2GCKGGYf6IMbHj1bposJ8V/TQyU9Ws8ttnoGXl3TesSHXMhjvkUG/oGN0nj2EHfKm993OUT6Hk7tB6YHk7x75G2kfAr+2gBv1jba8kBN3l7x/kgFqbVIJg/WtOf8nIVDG2d5DSiET9YxCzLlptLEs3yPyg1r9xnzFSfrnrrfoPOn84Ln/5JfOf7SpieVFNCf0/4B4nRRGp0b2hvR68jUjTX6US+nlxbpc6Uqf2BvN73a99Zr9+wv9BfsEmjJXYpN8LusfYfEZrrjdsag58UtXKA05ILhgB",
+          "thinking": "Looking at this log output from a MemTrace compaction system, I can see it's tracking a game AI trace with 73 steps but no verified steps or verdicts yet, and the tail section shows ticks 65-72 with what appears to be a quest navigation sequence. Since there's no explicit question, I should ask what specific insight they're looking for from this data.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like the tail of a deterministic replay/compaction trace from an agent (game-AI style) doing a fetch-and-kill quest loop. A quick read of what it shows:\n\n**The quest cycle (ticks 65–72) completed cleanly:**\n1. `navigate_to:npc:0_14_8 -> arrived` — reached the quest-giver\n2. `interact:npc:0_14_8 -> quest_accepted` — took the quest\n3. `navigate_to:mon:0_14_8 -> arrived` — walked to the target monster\n4. `attack -> hit`, `attack -> miss`, `attack -> victory` — killed it over 3 swings (took 1 hp of damage: 93→92)\n5",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 426,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1493000000
+      },
+      "id": "msg_011CcriXjsCjacF7D12Y7ukZ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 426,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 275
+        }
+      }
+    },
+    "response_normalized": "This looks like the tail of a deterministic replay/compaction trace from an agent (game-AI style) doing a fetch-and-kill quest loop. A quick read of what it shows:\n\n**The quest cycle (ticks 65–72) completed cleanly:**\n1. `navigate_to:npc:0_14_8 -> arrived` — reached the quest-giver\n2. `interact:npc:0_14_8 -> quest_accepted` — took the quest\n3. `navigate_to:mon:0_14_8 -> arrived` — walked to the target monster\n4. `attack -> hit`, `attack -> miss`, `attack -> victory` — killed it over 3 swings (took 1 hp of damage: 93→92)\n5",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 426,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

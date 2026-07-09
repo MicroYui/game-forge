@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0030e3b7bc336d717f6d9e89298384312012e3f5d29cecf13ec1b27d4e61106e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5467,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErEGCokBCA8YAipAbdcbYDnVKh/4SSxZa0XUzNh7Qt4UQFzAKEh++hhTEv5SmS426L11uU27a4q0uqkU5MrEEMP9veOUYIdV71pCYjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDC8zArU28ntoMKCONhoM+xuFrAF/L/3DKIQQIjDlxuuRDNYvfq1o9r3/nymtAolcf1xsjC+4mELKQ2u4O924sTZ/6KpZeIyO4+5euhUq1ARzkaDQclSB7BBbIJi2OKnzBViGS9eGDlWrT0joNsRGYTZ1Y1g6qt5GfwBftK9furiyL91anfee42EQt7nl46LigPl42Hqp3rX/C2TixW6pBMIUgUVX3O8lbWsenCYUq/rN9iEPIB3mf4/DArNINnoRgqfb0TB6I9BfiEYcgT55tmgbqrjwXglJuIQH5JpGAZF79jkE2PrkjQA1vbK3s3QEk1lZhno5OPb8A/P3uYP8KR2zSDWuRmeQFF4J08ht2DrhcqobLACIvyXpQg7WetcnrMxL6CQo60mXInZkh6ThPL0atsLTtWLRsb/1P1sG+yeqccjNES3pSw2A7XByzKltifFP4mx82xVDJuILvI4udCu0Mxl9BbX/gmibTVdqBBE+NrsLdhSlmE6XBkcbrWvJQu8sDSl6Ji3hYXmFW2bqGWGxpnOImnitnHF/OgosqVRtLRD9INbhwYxOGUe+HnuHtlllvZMMWXA1MyfkeVTBrxy3mdD50KlM4lqmqPKeY2+S8pIFGpvDvlSa5mEmnT5Rew0tSAYPQ8i+3XPT+i9f75qQ2001SXN+H/setxAx+3t1VS4hMWikVL7iZiLJjFRlCR2GnHlNiAN07M3THotUJfSEHzTvOI7Akwrem5YSIc+ATGkLXYEQAt1MuTInbhf4DpwTWV1Wwphria7XSIrOJum7ocDbEvsrgN5F/SS7kigzrCi2ufkj9zFw56Puts9TUtad7PjmVpbo9PuhL1uDgsrefHINeSxPXSrSXLy4ztPTh2EZQ7YNdk/U6sqXPQUjeraZgBgB",
+          "thinking": "I need to navigate to npc:0_9_2 to complete the talk subgoal, but we're currently in combat with mon:0_9_3 from an active fight quest. The subgoal is clear—I should drive toward talking to that NPC despite the ongoing combat situation.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_9_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2242,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 292,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1851000000
+      },
+      "id": "msg_011Ccr6h2UtWa7RDDq6Sp5Jf",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2242,
+        "output_tokens": 292,
+        "output_tokens_details": {
+          "thinking_tokens": 264
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_9_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2242,
+      "output": 292
+    },
+    "tool_calls": []
+  }
+}

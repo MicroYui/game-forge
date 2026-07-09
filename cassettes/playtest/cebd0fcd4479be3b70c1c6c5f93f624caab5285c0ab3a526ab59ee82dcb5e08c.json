@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cebd0fcd4479be3b70c1c6c5f93f624caab5285c0ab3a526ab59ee82dcb5e08c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4192,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er4CCokBCA8YAipAhVfeVyw03fJdsP2g6NlUrWZG95TkdZmkT0MXrlF6KXUIoS8lYSB+nKZ8jCZq5rngZvjPYNK6ok2gjdTU6kJcFzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDL8D64JxoIQJVxN2GRoMRei9LdMqkYLRImPJIjDcMPl12ZDTQTtSYexxadKGblOC5nP86ClOIjgxc2KWpZoVctkw4P6P5fJZ+DrenWcqYqthatDJR5h1c87faxacY5txYQhqkV7XnAoQi+DTHvWbAKkSFsVuo8MFRUTD5u18XqziP9wrewSCVASLJ7HKr/rwUepHihllISHPjLAbPXIjGA2z9ZDWM0ZHMQp0lQLMZbz2GAE=",
+          "thinking": "I need to interact with the NPC at position 0_17_6 to complete the turn_in subgoal, and I can see that option is available in the interactions list.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_17_6\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3184,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 60,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1742000000
+      },
+      "id": "msg_011CcroBdBeRDED1tpfG2Zf7",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3184,
+        "output_tokens": 60,
+        "output_tokens_details": {
+          "thinking_tokens": 35
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_17_6\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3184,
+      "output": 60
+    },
+    "tool_calls": []
+  }
+}

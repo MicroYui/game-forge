@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ddde60d793d6fa4ef76d5a3b52d1fff973a3285b83580f7c1fe6824c7da0ae81",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7848,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuMECokBCA8YAipAtK0uWSwv4eZ6m+dYa8An7mGAG6Zm3hY2EfmosiGv6iyF0+PhzQ8BKR86Q678GYpcntW0TCuIszFmM2y1RGWWITIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPi65oq5cnBCWoAuQhoMiUWOOGWZP2hpPG4nIjCezdnOwnSjgEPpX3owUcs9P4G+YwEybo3QyIm6NrpdibeqTRPNgWkclwTdcdYF0hIqhgMAyMrWPSGqHh7WRAA7pGdxmF4s8k8U0HQ2remFlhG1ov2nGiMhZMcJnR8KYRRlEMYHrvPz+6Jy8GA+1oYed9WFN9cXTQOzGUuvVN+wKd3zCaivkOUaPkE+EKPsi7FrszUkR56qZP5AVvBppUbqT7TOvHXQMoZtgL2tINcH+8q+l4rDA+2RKgz0gDAbXCk44sln2mQ3aQ+F4T36P7ZphcNfJlg5DSVjPEM1I9GbdRGrJSu58CJn80mc6jrca3dBiqrscUe4DH7yjKDvi6jRfJDFQy05Ng5wgaL9UGOPakbM5ewPiYq7RUy9z7/f3aRqR0vnwDCviLHW/ZGY+bI9ArZF62TPGQhC2d4vGIFNR5Mf8KijL2RPXjy7xKITeAGrlqGx3WF8zqpvoJ11X+4AgAMHQapTgUYZFAc44YOP9QK3Dlqf358/HrFfA56h0wwZ5p2NRuHq342jsAXUxEXu0X8p6OLbZRuzqdA0z6ESyZnVRUy8hw9v/VJGQQcLRPRGjpZGMkVXW9wYAQ==",
+          "thinking": "Looking at this trace output from a game AI system, it seems like the user is sharing a MemTrace compaction log but hasn't asked a specific question yet. I should analyze what the trace shows and offer to help interpret or explain the compaction process.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like a **compacted memory/replay trace** from an agent (likely a game-playing or RL/LLM agent) that logs its state over discrete ticks. Since you didn't ask a specific question, here's a read-out of what the trace is telling you, plus a few things worth checking.\n\n## What the trace shows\n\n**Header**\n- `16 step(s)` — 16 ticks were compacted into this summary.\n- `0 verified, 0 verdict(s)` — nothing in this trace was checked/validated (no assertions passed or judgments recorded). This may be intentional, or a sign your verification step isn't firing.\n\n**The \"Tail\" (ticks 8–15)** is a clean quest-completion sequence for target `0_3_1`:\n\n| tick | pos | hp | action → result |\n|------|-----|----|----|\n| 8  | (2,1) | 100 | `navigate_to:npc` → **arrived** |\n| 9  | (3,1) | 100 | `interact:npc` → **quest_accepted** |\n| 10 | (3,1) | 100 | `navigate_to:gather` → **arrived** |\n| 11 | (4,1) | 100 | `interact:gather` → **gathered** |\n| ",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 433,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496500000
+      },
+      "id": "msg_011CcrJ2iDssWE9XaToBbiTr",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 433,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 116
+        }
+      }
+    },
+    "response_normalized": "This looks like a **compacted memory/replay trace** from an agent (likely a game-playing or RL/LLM agent) that logs its state over discrete ticks. Since you didn't ask a specific question, here's a read-out of what the trace is telling you, plus a few things worth checking.\n\n## What the trace shows\n\n**Header**\n- `16 step(s)` — 16 ticks were compacted into this summary.\n- `0 verified, 0 verdict(s)` — nothing in this trace was checked/validated (no assertions passed or judgments recorded). This may be intentional, or a sign your verification step isn't firing.\n\n**The \"Tail\" (ticks 8–15)** is a clean quest-completion sequence for target `0_3_1`:\n\n| tick | pos | hp | action → result |\n|------|-----|----|----|\n| 8  | (2,1) | 100 | `navigate_to:npc` → **arrived** |\n| 9  | (3,1) | 100 | `interact:npc` → **quest_accepted** |\n| 10 | (3,1) | 100 | `navigate_to:gather` → **arrived** |\n| 11 | (4,1) | 100 | `interact:gather` → **gathered** |\n| ",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 433,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

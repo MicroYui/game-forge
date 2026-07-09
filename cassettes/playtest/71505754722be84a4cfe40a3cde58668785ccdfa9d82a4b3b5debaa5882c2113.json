@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:71505754722be84a4cfe40a3cde58668785ccdfa9d82a4b3b5debaa5882c2113",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3146,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpkCCokBCA8YAipASCcmYoKYd+amLVsAUd6hgAAj+au9gJNe7j+IAMoeLHRMyZyJ+scGixOzpCmZUU1mN8wK33hhQ5QF8K0qMS/kODIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAYCwT8f7UF27qyeMxoM5HX6eBJ4JuB7dnPzIjCGfHIcG3iNi4085xzIvLbOWxCeUohIXIugDrPeeLMAX5gv3k1U/g5726JYNBfsrEQqPSozPMPXUFbGjsR/JbLl2uJZROy37JS4TR6cWVhLwr7KIZT2FuKTCVc74fo+q9FkfAotvU/kVvgoo7m1+D0YAQ==",
+          "thinking": "I need to navigate to subgoal 0_8_5 to gather the information I'm collecting.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_8_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3159,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 53,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1712000000
+      },
+      "id": "msg_011Ccr5vjQWJWrzz1vf2ximw",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3159,
+        "output_tokens": 53,
+        "output_tokens_details": {
+          "thinking_tokens": 25
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_8_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3159,
+      "output": 53
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6f26f7a4cc317cfe92415db21ea47dff61cb73c4f41db79b05a3aefe940eac9f",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2661,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep8CCokBCA8YAipAn9v2LDpd+BgLHqi4iiB+xHTDHUfa/VaEYVnvAHqnUmJk802KbQh5lBxn9TIF3ak/JvjMZtrR7bjvKDHLywZ+dTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIkEaP0n7OdMfCTEGRoMxs7O2ftxAIxeBvJhIjAeai5IcYzkOsQQAT0NOnJnMCyhVSuF0v1n3oXaBkfKyiJGFdN02oTWm1nK8Vt+U30qQypT0zGKdnz7uPTmNBG6djngv7sI3PuKONF4P4CMHcWB0V9JCDH+lUBUdvuiy5uuCKxaMuhquF4qstfC9m8dHVE1R3gYAQ==",
+          "thinking": "I've arrived at the gather point and I'm ready to interact.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"gather:0_19_12\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3194,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 44,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1707000000
+      },
+      "id": "msg_011CcrFx171PxgY8YachmMho",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3194,
+        "output_tokens": 44,
+        "output_tokens_details": {
+          "thinking_tokens": 19
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"gather:0_19_12\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3194,
+      "output": 44
+    },
+    "tool_calls": []
+  }
+}

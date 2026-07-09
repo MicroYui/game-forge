@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e7fa8a4cec899c4573f7fc31dd5e234e3c6f03872b261f7544c2ca3aeb8c9fd4",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 12351,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpIGCokBCA8YAipA+ufhGXGLsCMKRBk8iIkvzkqmXCvxlnp6fM0rPS/1aua1LwdnpZ+NJASMJVhTJjSLOWoFryV5RHTgALF8clodRTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNVp3dKqZa4mlxDkURoM8oTZ+sQoOVbTopKvIjBbEhu5B4VBXiOKZ+w7LtXkvfcm4rNjV7FlgdutS58a2sr/4kKlsCYenP+vstzUI4IqtQT4k18HNDGDzgnbiU+88gJN3HDnQ+as/ExApS00G9elCnds7pmCHdnVkWANDIpm336kJZzrDpe08Ttp8jjEHVM/S8dlk6wlrWwfEYmwo/GDQKBTdB+aStCCEK8cbMDdxQsqGPE0TWe3+KM+gRAc/B4IgZ2FiDh1yfRFHntAPFqjj32+44FcdWUWuaC7cUxOAymTJhAUm0AJEkBRaUCHb5kGD4zo0jGB6HnzQvMJkkMlTJZxKgSkC4FINeFWc9evGy2jQE1pJ/nZBuZclFCzBYXcsCubfII6sAZpG8A4lO9BbkM+s4+auQCjklCR8nhOabl3HM8ch7c0cOlbN1Ls5T6GIiAVHux7e3Qmm7JpACo4H4XKjgXiGJy2kKjzoSI2TpubQWtu0J38s2mPOm3AJJejeUsNZKfANIZ8HR7K1oIZeeKjVSBQplIa8L+UHLtxPPt4uExfVr8dqvuKx8Rzf7euTJZoL8Y34d7I26nl7jrFnMckQvD14x2qPr+EDEXScefBCtrpYQ0gBdAHik8c6BAoljeZj9BWN8Etp4Zxc43VFzHoM0doKv1Lx9oVyfIccyULcYRHuANg5M0J4ygm/VThypEIKoB+YqCsKDowDEb3Gd1IAtiDSDc+eA9L+C0qJUQxsrXhqsT9Zl3RQEGq4eteartb7al4C5ec/AgIuV4WIgEbrhyKRnZfh4YDuScPNFEXlEd7AulhVbX1j1jjtx7Z3QqJSy+Kod/sZcO8Y8cODlGiBO61GAE=",
+          "thinking": "I'm working through a quest interaction problem where I need to determine which NPC to target for a talk step. The quest 0_18_6 requires talking to someone, but only NPC 0_18_3 is currently available for interaction, while the quest giver NPC 0_18_6 isn't accessible yet. I'm considering whether to target the available NPC or wait for the quest giver to become reachable.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_18_6\", \"step_kind\": \"talk\", \"target\": \"npc:0_18_6\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1840,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 253,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1552500000
+      },
+      "id": "msg_011Ccrrw88yai6TpFN37wEfX",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1840,
+        "output_tokens": 253,
+        "output_tokens_details": {
+          "thinking_tokens": 212
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_18_6\", \"step_kind\": \"talk\", \"target\": \"npc:0_18_6\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1840,
+      "output": 253
+    },
+    "tool_calls": []
+  }
+}

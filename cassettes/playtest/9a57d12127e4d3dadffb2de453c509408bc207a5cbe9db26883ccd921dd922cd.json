@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9a57d12127e4d3dadffb2de453c509408bc207a5cbe9db26883ccd921dd922cd",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3197,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er4CCokBCA8YAipAgZGpV8Q0RLibCLlHj84Gv7qVAR4MvKb0Y4NJsiI+3y52qWY1qPY4p1R5eTvy3A9wxdtmMfEiFgyICDl2tT2TCDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDmR/YMVUpy1lXyN8hoMqnPCrtIMMP+fGc0aIjCxSny1Fhh9jxdQmpdkW6ealk0EQnXhV+SJAZFI+ZI7uX/VdCWhJ6KJ+aPDaeelImMqYtT+Kk3i5A6gIa3y67X60G3zaSiNpH+QSjuoTK8re7s9+hzWDxVQrBk5QhvrspNdTyLJQ7mKLdgZNjgB+vTh3rQ7O/crNyAD6OI5CP4rRrL5vtCTfw2Hn/cxNZlgPIolDi1gGAE=",
+          "thinking": "The active quest is in its attack phase targeting the fourth monster. The last action has been received, so I'm proceeding with the attack now.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_4_8\", \"step_kind\": \"fight\", \"target\": \"mon:0_4_8\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2428,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 74,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1399000000
+      },
+      "id": "msg_011Ccr38kp55C3EAcqzGw3Ya",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2428,
+        "output_tokens": 74,
+        "output_tokens_details": {
+          "thinking_tokens": 33
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_4_8\", \"step_kind\": \"fight\", \"target\": \"mon:0_4_8\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2428,
+      "output": 74
+    },
+    "tool_calls": []
+  }
+}

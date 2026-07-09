@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ebbdf7bfcc6cfa35c8ad79be73425bda3ef70feb9556dbe7b3a36f17bd43cc18",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5539,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoAFCokBCA8YAipAhzJn1aSwxhLxluaJnfUF5ulTfzu/j1i3xWgIxeoycjr98/xIcW2Hpu8V0tiKAMfcE26U+KXlWbg5AATn264U+DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBHdOq+RL5CnEAYKLhoMduS+AhmXKrQmLioKIjCIGMXfqcQz29pHxQ+/5rZmxf7QO21IEUirWTii/gYY8DXG0yD5UlfVWI3jLL2Whj4qowNqVxtUgrtM0WBZGax/RAJ0+jHoioyyThv4cnMB6yklkOBGbbXcSauAjpmiRIme1EFgMq/X8N0+3qdE0CCkFq+b9Dbg0yE2jJFXdamxMMUJwJlzr0g5nMtRpzWuM0FwAdoRW6cM95hEDd7GCLzh2h7mNYmcJBN9uNsHui7Yx7wzgkNroGcsl71xQGfoiNSIxSbWzlJR+bTT6wrnS2Vw0gwT5G+oz5HGR64nFVAuOLbadOlyu2zR4jGP0ulQaVYoF3eOHRwO9NamRCUqf4NokqnxySzNb5YCaP0FnTi9zroBZW2oZh5Cc0j7XbyUnDuImmraaf29dFlWbfwWi+7TOFEzJFvvKcQKc7W9c7clXhT91uBdGq8epThFsAasX2sbhzEIBucKvyQtbdAbwoPcnFIsJUoEw7uqaDIWjAJv//v224hl+2T/qNIcqCjcorv9akw0xEfJSb1M3HkkkPH9cYnoy4dzay8Ow9jv5/550NsLZZ2SChD/W75o6fubb/gJe7KDuaEnijYCHSXsFzlT5s1HoQvT4VzRGmu32Yge51DhyWjaBBgB",
+          "thinking": "I'm in the middle of combat with mon:0_8_4 and getting hit/miss feedback, so I need to keep attacking to finish this fight before moving on to the subgoal of talking to npc:0_8_5.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_8_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3106,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 186,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2018000000
+      },
+      "id": "msg_011Ccr5aCrRDJ2E1ST2P4SJj",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3106,
+        "output_tokens": 186,
+        "output_tokens_details": {
+          "thinking_tokens": 159
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_8_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3106,
+      "output": 186
+    },
+    "tool_calls": []
+  }
+}

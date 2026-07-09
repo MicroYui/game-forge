@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c512f1b2e6c0fa2548840d2934811e32d092c857e94827b9f34609a4ff05562d",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4615,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqMECokBCA8YAipAMVutogjZkDIgScK/mELvrhGgjSB90MFQaqYu1o5FnRDwilprfYEZRk4eXR7uTcBbPrGbvUzBkBwbYNe0fvKsXTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKxl0UkmQqXPguvKYBoMHkFq+mcO5dqL+s3RIjBnYu6e98NkoGChIBu7asn+0XIQ8OJt5aNe259y3/q4m6e4Zd1C1QA3whPkj8KwTpcqxgLL8qqhUA0O4ul9Jly62Tt1DKwkK6CHJByurYT4cgVqliwutFbBgLgqn4d6P+EzeejKz0ejf36SbsiXYRSvlBHx1WnUtMGZhX0fMb02Tn4nKFmrgjIeUrYI2hXgrwguTds7SS8yP4ziItG+gN9Wo9be0ocMrmHmPWKwJAhJJsDlU5CoQoYok1wefc2hV2wPhUyuxbW2786usWmX1Ci8rQlZZL8LENFbWfqQPYV7mLK+x0PNGlHYK3EhuHMaQdKBBtIAku20fDA7ZPnzK3JU1wHdw3HC2r7tTrYt5Llo72jERqTzGHzs8afLtmuijec7SaGL8iSuwAeYZZmXDaUI1R62zA5x4+hiJFLjPN6BxCjR+2Su40UICyJhuBwGkBmwPKlRpANjBGpAgIdUxuNnJaJyWDP7u44zrJ3xjs4bP5INymw91V06ChgB",
+          "thinking": "I'm at position (4,8) and the active quest target mon:0_16_9 is nearby and reachable, so I should initiate a fight with it now.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_16_9\", \"step_kind\": \"fight\", \"target\": \"mon:0_16_9\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2728,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1794000000
+      },
+      "id": "msg_011CcrmoLCxGJHnBaBfSiPrK",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2728,
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "thinking_tokens": 131
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_16_9\", \"step_kind\": \"fight\", \"target\": \"mon:0_16_9\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2728,
+      "output": 172
+    },
+    "tool_calls": []
+  }
+}

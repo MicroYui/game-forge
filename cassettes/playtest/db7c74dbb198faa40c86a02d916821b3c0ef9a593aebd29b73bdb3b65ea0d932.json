@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:db7c74dbb198faa40c86a02d916821b3c0ef9a593aebd29b73bdb3b65ea0d932",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5821,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqQECokBCA8YAipAcLD9PX3G5aZuduuxCuo4CRfXFcY3UL2zl+AQyD7jbJHOc97r0vaQf6YxPd3oj/l5+T7M9qVjpEC7MHiC3FO2YjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNtcI7WjTYQRzgs9/hoMZPi0Wd8CXTM7ZT8NIjBUWq4UOMEwHUpUtARfExVMOnendnTV74ejlqhZbg1Exb90JJguQq2jLZs1BFU1XhgqxwL1maHWv48KCj8TKBoLI+q8aJG49Q7k3RYZqHV7MGwdPDrppmor8vRgHRdWIMC0dfr3XK8JKgDAS3j5XJlxyH2caNGps2vQzDRkRbJcHz55uTkbTWvmVWlWHqPohy/K3+/XRStMWddnMoT9Yruh/ctNuV3tKny89OhonmuLXaq6FgHiAZelggJf/GyUP3GYJeJoWGXJD1iJ5aylxpzO/Q4ShJA1WenE2ukUBjPqbrjMNfjFObPFzwRiSmXzDC2cJDNH3zGR5HD0EPIwi4/cXxiNpUGm5lITM4sPs+WN22a3s/1VytDY13s5uTKunaaGfxgmrX35u+tM04qD6ZDG4Np4cCBQjJGAuUwSc/J7UC+L1/WRHJk/ik8SFNhXbh1jDcA0j/i+Swpc1xZdjz+zpCAMfrGV9yBgEyfOqpvfa8PoMuhmYIPqr3AYAQ==",
+          "thinking": "Looking at the trace, the NPC interaction at npc:0_11_0 returned nothing_here, which suggests the hint should guide toward navigating to the location first before attempting to interact with the NPC.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"The NPC at npc:0_11_0 returns 'nothing_here' — you're likely not adjacent yet, so navigate_to and confirm arrival before interacting. If it stays empty, this NPC may be the wrong target; try interacting with npc:0_11_1 once you finish moving there, or check for a prerequisite item needed to trigger dialogue.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 238,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 894500000
+      },
+      "id": "msg_011CcrdtZgHEEU3EVzsgYP96",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 238,
+        "output_tokens_details": {
+          "thinking_tokens": 112
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"The NPC at npc:0_11_0 returns 'nothing_here' — you're likely not adjacent yet, so navigate_to and confirm arrival before interacting. If it stays empty, this NPC may be the wrong target; try interacting with npc:0_11_1 once you finish moving there, or check for a prerequisite item needed to trigger dialogue.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 238
+    },
+    "tool_calls": []
+  }
+}

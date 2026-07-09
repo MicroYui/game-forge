@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f1ac4bfa2c98f6c65e1c7c57940178a7ff7014f004c3f1d58fb9dd8415e406cc",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7804,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsAECokBCA8YAipA2NwHf8ZYfuDDGHV9MZhy8lWlH5BoC5PXMXoMDxxcd56UhA9LenPUQm7k3Vn7rZVLHnpYO+YKjQgWoOwYSli2zDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGC3Mvpqr+N4Vy8Q5RoMWvR4025ERMcbVnvHIjC8DLv2VYHDiqXQRCvkYjKMMmy+ModOks8tJPO6dDbJn/Uvf0jhSd/PcGq8PJTQMTYq4wJM7ejB8l7Cz0Pljtg9SwtzCxw2YY11EOdScf/z5w2HxKhAs6GF/Gbm3tkKPxy4tio12L+ry8N/+m7A5/xBkjNuzpbjOKqHC131Duv1JWP2qDsuxhlKXoCy4vQSQ1qWm4Io2Tyc26mzHsM6nlyENaeDtEILn/J7v4NFPA2vQ/kg5yCwA61P5CXeCOpwx7S0MNb7uM5McBLxpmD75ApHvZK/VhJajcmWsGnbSmYnOzS6oz6qWazYlXWYWrA04b62NEwg1RqP00ErSHzB8oSQhZO4y4Ob+2JcLibVWl/Iml9TCg1MT+Sjeptm3R40h/95pQ+vlPuPAdkb+FzQtD9bEP2XRfrw+tncdLuII0aBpXBX6hPM7g7N7Ozf26OcY/lNSpGh4U1PADfNreP+L8u/qzemUvmtXHXVZT8hK9hVDib0nEjpJGc4JB8dEJ83t6Gu4uV15e0YwTegTLElThu3mgrqUfEYGAE=",
+          "thinking": "Looking at this log output, it seems like a trace from a game agent or simulation system. Since there's no specific question, I should analyze what's shown and offer to help clarify what they're looking for.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from what appears to be a game-playing agent (possibly an RL or scripted bot navigating an NPC/monster quest system). You didn't include a specific question, so let me summarize what the tail shows and offer a few directions.\n\n## What the trace shows\n\nThe agent completed a classic **quest loop** over ticks 63–70:\n\n| Tick | Pos | HP | Action → Result |\n|------|-----|-----|-----------------|\n| 63 | (10,5) | 93 | `navigate_to:npc:0_8_7` → **arrived** |\n| 64 | (9,5) | 93 | `interact:npc:0_8_7` → **quest_accepted** |\n| 65 | (9,5) | 93 | `navigate_to:mon:0_8_7` → **arrived** |\n| 66 | (9,6) | 92 | `attack:mon` → **hit** |\n| 67 | (9,6) | 92→91 | `attack:mon` → **hit** |\n| 68 | (9,6) | 91 | `attack:mon` → **victory** |\n| 69 | (9,6) | 91 | `navigate_to:npc` → **arrived** |\n| 70 | (9,",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 440,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1500000000
+      },
+      "id": "msg_011CcrZxk1nJwipLdx8sxGPg",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 440,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 107
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from what appears to be a game-playing agent (possibly an RL or scripted bot navigating an NPC/monster quest system). You didn't include a specific question, so let me summarize what the tail shows and offer a few directions.\n\n## What the trace shows\n\nThe agent completed a classic **quest loop** over ticks 63–70:\n\n| Tick | Pos | HP | Action → Result |\n|------|-----|-----|-----------------|\n| 63 | (10,5) | 93 | `navigate_to:npc:0_8_7` → **arrived** |\n| 64 | (9,5) | 93 | `interact:npc:0_8_7` → **quest_accepted** |\n| 65 | (9,5) | 93 | `navigate_to:mon:0_8_7` → **arrived** |\n| 66 | (9,6) | 92 | `attack:mon` → **hit** |\n| 67 | (9,6) | 92→91 | `attack:mon` → **hit** |\n| 68 | (9,6) | 91 | `attack:mon` → **victory** |\n| 69 | (9,6) | 91 | `navigate_to:npc` → **arrived** |\n| 70 | (9,",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 440,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

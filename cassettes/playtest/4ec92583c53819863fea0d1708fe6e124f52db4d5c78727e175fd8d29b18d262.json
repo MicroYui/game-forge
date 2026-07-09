@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4ec92583c53819863fea0d1708fe6e124f52db4d5c78727e175fd8d29b18d262",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6433,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ev4FCokBCA8YAipA2wWJvgjCEcjWHCkTJxSMol4dpNxK1TEEyylJ5gIK8o7gVfFAtg5NgKD/YM2dhY4aAx2Yi4YLyXqZs7VBAyV02jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMKmwtgJuK7fYdjUiBoMq8BqkQP6i0w0CY9+IjA+Jj/R6JOTV5mI5jsHGAUjUw8AY1mxYqCRGqG8wGhLolk96QPcR4dFgUFAP7Hn4hcqoQQmY4nh6qZHhyrPBgBrTuAZOWhsTgort+mQL2m3bQXM9fIcw5DdL/o0V7fzEjZcYKU0Hf9yehDoAsdb6TnedlbiUgipwFo2qxSaG3JOb5mANT9cCEUBQwHCmVVA+DCSXk7cXC18sjynx6G7QZVtr13OgkXNLnC8gcotRzqsgUdgypTSUeTwwpBRDtUpY92AbTnrvKT4t5pOQRqaHeHjZeaiTxTIk7xLhiQlIKplq9htRMXWRcOnFnjhIV3fFmbxvp/YV5Ex1GBygKSMrBZdhHS3u+7TjH1+TzI57PlXjVXobAvCEnNSY/SJYmQSQOj8rZMaXLLSX3/BavTN85j7Jy2RZkti9haF7RYHk7f5NAGh03rmt+YvMnBPvtHCmJrBllJK74mgj9/insE9G3h84C0ONFaGLHlj65TvivoX1SJb4J7YDARcXrZYuKrfSXBMD0ezBgMBh+3/cBqbyhblm0GqvfC4WvhfmRHU9vGSCayQQOOzLTuEEvnJAIuUJZxr/c+5eQx+UWAveTWiF+i23o8C+4Bd9D9O0BIge5uXYR+68z3+CqeqoPvFOT0cEXVRS8qW91ilo3QNhtwIUahyRiRGCMsTNcKBoExA/5nv6jEz4cvOtAYejkPdSJDbqxxdptCAUxQ8AaCdYvGHCMp1N1RJKdkVUUT8qK90s+XnxEpXS6Ho4lJmdVwJ8MoIFaUhVPEwp4smXk2AbZooVm84PCQNbxgB",
+          "thinking": "The active quest requires fighting mon:0_9_3, even though combat seems to be stalling—it's still the mandatory objective. I could theoretically advance a different quest with a talk step, but since 0_9_3 is the current priority, I'll stick with proposing the fight against mon:0_9_3.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_9_3\", \"step_kind\": \"fight\", \"target\": \"mon:0_9_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1760,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 255,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1517500000
+      },
+      "id": "msg_011CcrcE7J742rS8cGiwWbdV",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1760,
+        "output_tokens": 255,
+        "output_tokens_details": {
+          "thinking_tokens": 214
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_9_3\", \"step_kind\": \"fight\", \"target\": \"mon:0_9_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1760,
+      "output": 255
+    },
+    "tool_calls": []
+  }
+}

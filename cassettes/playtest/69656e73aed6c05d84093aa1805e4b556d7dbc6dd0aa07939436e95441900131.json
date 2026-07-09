@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:69656e73aed6c05d84093aa1805e4b556d7dbc6dd0aa07939436e95441900131",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8378,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsYFCokBCA8YAipARDHNAxC/GrMHL+krF83OYpmJRVJmsRSulloWTxDqJ91GXLfCsPjwsRvp/CjTjdo50t2OsJ5WBCUv+OTblXqy4jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKJ9TLQpdaIcndcbXBoMCiWEO+h2+4caf3SyIjDe7X2QC5eROX6BXuMsZx7TrSVTgzdPsV3GHWPee8sU5ZE5FKUuGwIb4F2Zj6wvaTUq6QMess2JCZIt/Ul0NoTmuNEGWSlEOxCwLOliRWqP4VCBg4Sj6ahNwb3mwFnxI2uL7fYSc+kTGJviPjQViR9BNOCEK4ZjUkSe0CFcRBnKBUvxywg1Jq0K8VO15G1+hCnm9aDiev3l5Z8jGyMliK3C9LuoTKYVWB0zwamLBkbvPuyzqJZUq+Lqef2tNQmtAU2uvLYRT0h+XSQNZ5+nNPzOLRElakUNncVDCZTV/7cMAv6OMDUTxly7wAyBsDYw1yzKGi7k/jd3//6MU9JwJXjKUUo9u3fij1aQ1a3Z/+xBtEfotrCpTMNCYb7X8/RTfZdkAFDRMvRw4lilsD+SG2mhCkGVxaFGtwiaIxZ+MU0Hv2VI78P8YjguF+Bzm+nJcXGNmPthOkGH5dSTV1wTfBhfxML7km3DY+I07pD8Dg3VwzlNf4OQZlwUctZKIB5q2HXAGWNpfQmwhKpA83UiB/Hhqp1Ab3ojraI+N39aLbezwpOg/LtK66sTr1HhJlWT+rgUJ4Tk0aefYIMVetWMU3x6a7SKj4+AlrhCfPTTVn3VC1aL433lGasPY0ju77m7a/aTF3Zr4XcW11orWP2JHVIpBS7NTa6R4EQ/ifIPJsDuX+6qc50sxCiZbe67iaq0+shmdE7Ilge7VRZZNSsYAQ==",
+          "thinking": "Looking at this MemTrace compaction log output, I notice the verification didn't run (0 verified, 0 verdict entries) and there are duplicate entries appearing at tick=64, which could indicate a logging or state management issue worth investigating.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's what this trace appears to be telling you, and a few things worth flagging.\n\n## Summary of the run\n- **73 steps compacted**, but **0 verified / 0 verdicts** — the compaction ran deterministically, yet nothing was actually *validated*. That's usually a red flag that the verification pass either didn't fire or had no assertions to check.\n- The **tail** shows an agent moving on a grid and completing a small quest chain.\n\n## Reconstructing the behavior\nFollowing the ticks:\n\n| tick | pos | event |\n|------|--------|-------|\n| 64 | (2, 5) | `navigate_to:npc:0_2_4` → **arrived** |\n| 65 | (1, 5) | `navigate_to:mon:0_2_5` → moving |\n| 66 | (2, 5) | moving |\n| 67 | (3, 5) | moving |\n| 68 | (4, 5) | moving |\n| 69 | (5, 5) | **arrived** |\n| 70 | (5, 6) | `attack:mon:0_2_5` → **victory",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 447,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1503500000
+      },
+      "id": "msg_011CcrH7fD5mgg2jRd34U8jw",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 447,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 164
+        }
+      }
+    },
+    "response_normalized": "Here's what this trace appears to be telling you, and a few things worth flagging.\n\n## Summary of the run\n- **73 steps compacted**, but **0 verified / 0 verdicts** — the compaction ran deterministically, yet nothing was actually *validated*. That's usually a red flag that the verification pass either didn't fire or had no assertions to check.\n- The **tail** shows an agent moving on a grid and completing a small quest chain.\n\n## Reconstructing the behavior\nFollowing the ticks:\n\n| tick | pos | event |\n|------|--------|-------|\n| 64 | (2, 5) | `navigate_to:npc:0_2_4` → **arrived** |\n| 65 | (1, 5) | `navigate_to:mon:0_2_5` → moving |\n| 66 | (2, 5) | moving |\n| 67 | (3, 5) | moving |\n| 68 | (4, 5) | moving |\n| 69 | (5, 5) | **arrived** |\n| 70 | (5, 6) | `attack:mon:0_2_5` → **victory",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 447,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

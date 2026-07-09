@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a0c768bc6c0432be80db505518f560b8c1ca2018728b656fc9b4d2aa44023dc4",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8679,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpMKCokBCA8YAipACsI8HuAPtu7oseWMzRARuImzs5aBXQSNFoHHvVn+lf6lZOUs7EEyRiPkpauLuN8tT80ko954GrMN9IuQyM28azIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJezN3m/lbugqdHzGxoMNgnXOqOgtbLLmnzuIjDwcaLvE3krkR1eFFCN2mMEAFjZriCNoTb70I8H2hFl9aahpvDrzGDN26DY0lSQ52gqtghgXi52NmuZsu0840PUrGORa5rF/WrXkKPxn1f1EgzVDOqom1sYN3iO3kZE/y5X92feuFrjS6mrb//Iaaqw+qeOc7HoRsHgUGI717suqO+W3QkVHhMGhXMmWZygZvgJGbd9SATlrL/H0t5Px0gQdOWz24iylLijqy5ne3H1M5eoEkfaC4ML+bhvhJqtU/TclIweSFA19K9TEd64GuY4IFHykzLspFYqu+WFjCwYt7hInaJlmkmWopGCZ6roleYJR2QVoKgO3xZ2dzURo+HpWYdutrGhHFZahRhJNbhSpU5Tf0XFmvAuL+BUwmQ7rnVlw7IvNO8Xbgs+ci+tJ6UyCRtkX1sRRsMk7LpkVh0TGleGcpF80d96g4cE6ckfEjTy/YXmRD4DAJCv7dvAjT30fblMlmoFItDeVjaygbJP7B7SRL9PG7euoxk0fl4nilEwPdL03gu1+MVRC+rVHvgbDE8LSAIkztYWlYWfrAINceAV0kEepAM/TBRqj7pHZseQ5bqkCwynxVXPbL8qiF2hWTGphdJhTAZGMVaeRfNARCyYT3VyaaLFwwxL8TOMhbZ6A7tyt32aJzTOV2jO7jdW4i+wAz9T3wU4eaariattQGjDHvnv0WBON4yyIb5D9YMxbJCB7e4B+hBi1bGMcpFe5yFhWBVZLgDzxJoSxr81mnV+ej/ncxwDrHSCjUU/Uulm7dmldzYOYZLBwjLlJa4+RAjhnvvYNuOFPWhwwjLQTjB6Y5CEWHKXHtyz+jFvoSGeV8NqOFZZNT77t6JKX7bvBt/jzuhfYhhs0neMGnliqesqCYwru8lzUdl00MzDFoCBFLgGxywrWyIdkeA4lnsJJX0TeUnJ+TnucrbwnCIFyRWrbyagGowFdyh05be9I/J0f7r4sHutk6Zh0QtnQkulA1LIcGigzLpO4XHcjRvTuHOU4/0Q6ET0bhRXQPukldZt7nvnwsAsuPj/H6Grt+zi1RbLyJhdSPOFhVSLCRCuQ931NEQAMnTNW5OsMViT6iVNvoDQQfjrh1r25mEXrtyGpVms9GMFskG//gZdW+y1Fi7G/KP/boZVC+lf7j+3TgbeXUtG49aWifT9O3NfWz8fUgK83Jv8TweXVm+hPSCARv7Xp77OpNDSG0xXkpy4NHCRZpFkitbGbBCjKxkgV6aFX4/tWGjM0RnDSln8VAYhtbDwt3xEoGpzkNC4WjiC5JBX0k/NKqMEkvCStlmzrn249w+Snpjetz/MdZTUZL+FA6JMeCts2CYnIukPb3hR0GQtxvHJtLDG0h8YJERwZhQbewcBmrjmcFvrg5Oi80yWrVl7sKKzVMXbNxeI9X93zbgDTu9WFo+ehpjctntqpGVm6bnbrbBCyaEZasoKS98+QsVi9q7Mywkfzbv5FX1w1sQgufn0jVXK3km/AH1uTfjqyEvJMK7dGVPaGAE=",
+          "thinking": "Looking at this MemTrace compaction log, I'm seeing a deterministic sequence of 36 steps that tracks movement and interactions. I'm examining the tick progression and position data to spot any inconsistencies—so far I'm seeing the character move from position (9, 4) to (8, 4) to (7, 4) across ticks 28-30, with navigation and interaction events tied to an NPC.\n\nI notice something odd at tick=29: the log says \"navigate_to:npc:0_7_6 -> arrived\" but the player is at position (8, 4), which doesn't seem adjacent to where an NPC at coordinates (7, 6) would be. The \"arrived\" status seems premature or the position data might be misaligned with the NPC location.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 435,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497500000
+      },
+      "id": "msg_011CcrMb8KD5Akygs5R5HYHK",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 435,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 435,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

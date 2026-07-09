@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0586f52ddec55be84092e8e88e013e6b3a94dbcdd42548c842194087fd02193c",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8567,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpoKCokBCA8YAipAzO2NqYnOlfg3QbxzElyrBVA5D+fkw1IAJwqlapNFiaO2d9yblsWGxoOVCKIvlFQAShb2eCP+0gUGbecyszVKbTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMZ6DoYfmQW42EwoqhoMdcJ8YlxPtrgh/VgAIjBrY87w14tefEWRF5FlxRivV05jP7yDjTZSKJpW2p43109Ngns599qfDtQJ4xikY0gqvQiY9gTr6WicrziLGi/HyRQuBf5r9+g/4yW1O0fnkjQM7WjeDI8rZOVX8AQoE3IPoAj40FT8vYfDnUFPZD6VoSHQm0C/9/mZ6U6FvNm5YMysVkN6wTCGNRXt19ksad2kgatsjdugnjm/Iv9nGF9tHnQLJvz+ok0MHze9D/GN1NvcQBmMg7mePMUgrvJuZHqdsxtkqceiOCZV16U+HI5HQBMlRtJqakXR6Sn6ny0EgtMYYtAJhbbPccqFaDOqHMnygEEON4lAZnWwW7gtRjuoaM1/wJU5QN7joQnQPPc2OZiGEMDJc/WGaFUen8Ziv3n2EdtFHWMb0cMRmErhO2id1PP36Kc3NCAFBRWCROp+CqoQgNPm94wno5ni39g8OGUBw/9ESMlUpti2lOCb8vNCwuuYJs86gJlScfm2SezXLlCNjCzEjKhZAI8ucNLLGCaLdiHyrluHS1EkyC76ZXzgCRRdfrT0KeHobWiJG989enNgWdrbInYoZpB2uxGgmQhChaxhBqDKjOSfifJ72o5vzPlnMUADM4HhQF87iJ8nDistnM5sleKoB3fsj/W14S/lWooRwu9mO+wx768U3zHCN7PiIBKDroG3R2Uyow2XRnBqIBn7qrNTKhY581Reshwm0Ha/yAhqP+6gjw5/otXyKN2TGGyTTxnPondVSHuUwv35mGyKMKoC7h+zLsfrS0hRbEyHkbSVIaLPdC2BheVmefvYhBAHZcMdPaeL/Gbw3YkCadvZJkvPDxGaSMMLiURSIZf+wjNB6ooj56lP9BIJfgN/NvpbymDMbcatshUr/QH+lZAZMXDf8PTsMakmY1FsJAsyMYXhNzHDL7wpd+StwxyZJX0bkz4xRMPdQ1sSF2Jyrbs+s3V+31aXUFR6jsJHRZGCFCmI38ccQW5x1FZ/Ik1xiVPkVHrDXS1QBSC6Efw10zsKG0nHzf2gUAZ0XiBHLEbe5qVb/ShrYPiahy2XElOSjB+RyH3vEijaIPYxsonfRIZsmVC/kDNcT0OtdhQHS1y0hlJNSQJQeaq4RlSfccN7dTojpWYtDybHW1riSTdvYIPpVeB1m3LdmlfPHZRsG+xifqVL6UWRw/dLlu2Pz/MY5aFO8Fyp9ZMbejqyv6Zz/OkXg5vgSDpnyZt1perNNu4P5HPvMWZ/686y1ObFCmI9MpsWg6O3wjAc4p8tDVgVPVvKXdHBUECwLE+OEN1f0gEcjmoYzf6ny5d/2a1Ra9q7XK1RQSoNLbi5Qm1bRWyVZiu/g9thy8/9eX2rtlBeAjntn3YBip44blCUyY/u8gaDFC1J6wDKye6w/QqywuiQQVv8s8p2CIwWnxHHeFV+Af796VVus0XCFt+MKVT91nqIV51VnSRxeKD1pxyN9Etve6eO0pmZHOsDSh7ZVlH8fuIk842cFqFM3T9EIHMWmXNNckZvw/GgVXuZolmQYxgB",
+          "thinking": "I'm looking at a MemTrace log from a game agent running quests, but there's no specific question attached. Let me scan through the trace for any anomalies or issues—I'm seeing coordinate positions and NPC interaction attempts, though the log appears to cut off mid-entry.\n\nLooking at the sequence more carefully, I notice some inconsistencies in the navigation and positioning. At tick 63, the agent reports arriving at an NPC location but the coordinates don't quite match up with where it should be. The NPC naming convention seems to use coordinate notation, but the agent's actual path doesn't align perfectly with the stated destinations—it's moving along one axis in a way that suggests the coordinate system or the \"arrived\" condition might be off.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 450,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1505000000
+      },
+      "id": "msg_011CcrL2zDYEFj1WPd1YrBY5",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 450,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 450,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

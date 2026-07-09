@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:052ddfe2b671bc4870472b947120ce0f3a86dfc0b23069526cbf02e69096b792",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3235,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpoCCokBCA8YAipAAk+HCtr/xqqzzb43CTq+MWX+0WTZv/hkgk0o0t3rr92ZfmXEKNRWGS/3+8LZWTXn+nNgdN1g85jrvJhg9seTFTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCU2X/5iPMJ8HurDARoMYuZQMIZfor75IwLDIjBfwI4xgYJnTkFMIvgkV3lQuDutDAS5sisPfCaoFzVWwRgsBmGqplRhQuRUCUaN3hkqPpm0kqUUsKtX2I9210WD5H7J5cDLyHyYdlH2DBcr4b+Au8orrNkQ49h0u8u9UeIu1B4JU6+PDQfXP1G6q5ITGAE=",
+          "thinking": "The last action reached a specific checkpoint, so I'm ready to proceed with the attack.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_14_6\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3551,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 50,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1900500000
+      },
+      "id": "msg_011CcrBGUfNnnWtwZz3hxpQf",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3551,
+        "output_tokens": 50,
+        "output_tokens_details": {
+          "thinking_tokens": 23
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_14_6\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3551,
+      "output": 50
+    },
+    "tool_calls": []
+  }
+}

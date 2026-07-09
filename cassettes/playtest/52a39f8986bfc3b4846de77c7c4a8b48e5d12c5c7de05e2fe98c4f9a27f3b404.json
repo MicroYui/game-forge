@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:52a39f8986bfc3b4846de77c7c4a8b48e5d12c5c7de05e2fe98c4f9a27f3b404",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2810,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo8CCokBCA8YAipA2omwwkwuBEtW9UKYk/I/UHwMncASX0EyL33MWiAUricGPIQ8bnoeQA/IYPysEOXzuFaPmzHeHXfgMEKJOS7MKjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPnLnfAd8/pP9OxILhoMk1XV11L+9qQU8SIjIjAm4ReFAM1MwcDMN2YuvJgIRfHUexTEO2XNRaS5t8MrCs/NXrR0bXhvWGiEIOdB600qM0d10d4maPK4AIUIHShMaM5AzNE3uWp8n3//+b8dKNt/VsGbw1SatTGyjybht9A58NDhDRgB",
+          "thinking": "Moving to the next step in the fight sequence at mon:0_17_2.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"mon:0_17_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3332,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 49,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1788500000
+      },
+      "id": "msg_011CcrDNsVTdiY6dsZQvKqd8",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3332,
+        "output_tokens": 49,
+        "output_tokens_details": {
+          "thinking_tokens": 21
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"mon:0_17_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3332,
+      "output": 49
+    },
+    "tool_calls": []
+  }
+}

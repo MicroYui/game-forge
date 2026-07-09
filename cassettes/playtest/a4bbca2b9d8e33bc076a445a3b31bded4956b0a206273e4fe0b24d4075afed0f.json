@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a4bbca2b9d8e33bc076a445a3b31bded4956b0a206273e4fe0b24d4075afed0f",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6902,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqEGCokBCA8YAipAK9uAIyCsrhkLsqj7a4uf5vZsR0mseOxM9lhqQKSABcDH3LRRBsD2HO1t3I4e2ojTarqUmHhJq6AAKXB6vszkIDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBqPGbW0KhZtYVedzBoMj5KMok4VnVmoWeQKIjATOzOUMtreQFypc8xoLGn7EIavkaNFE/evk//GUKudQ8TaH8wxSaxyPjSo7vdLMbwqxARPTsfp3e6iUOZ0bHEOnfqS4MzNhWB71ZslSGY7itr3M3OIJ3C8G4fe5MpQV6rADQEQuWLsDcWvC/XCm4k3qkfNHvwzNn7wwQ+6UKKdpy3wL9uNDv8l67SSdNnAt007DHngMQFx+krsWsLFeAsj/kDj5ibHN6vtmb9SYr4HEHm5ak3GNzO1byK6J1D2hV9RJb9Hzg6XxrpaqIT6Se9MpdiKgDkrMcsNI1p7nKfNvhD0eRMul9Aox5YLprnhepKQFi8NJd/DqUI4UCuFzABoHG1OlKimAkMGv4GDtt9Zt+4utkMDdyjyXVXNz2QYrQg+6lqsgZq+tTKL3qnZdF/+J1sLtsn5R3rfbJUS5yHf9yOrmzTicwecw0Juh/fY22OCSaRqZGhYSio58Jo/dqZQrGBzdHuhc9RikbyLlHM6bx5JFgsOSMWDSKA5X8NSGMQXpTII6IK1b0uNRyPYK2v69bSycdvW+LP9C4pp1J6QiJDkocmREpb3yw62tAs82QJLD83mQnd4Vx5qTIyD84aibB1GnTj5sTKTpNpH6Oq7q/R10ZNHTX8U94hUonx+0OHBj2FeGPurO4nRiEt3Zq7GdHk8XDa+xxx2/By/xGBAChTnv+1UvhPlrldi2qKNXIhzYYVSrv+gVTFEHpJJWifZ/erikzK8kYUF+TCWpuQ2VeYQImog66K9coqP+Rge03iD/pUzv6irBmemVmD8IqaTJetzTWiD8qfUdpwqMBhLVY+Q2QwlBmxhapER1pfh1VhjHU5ShW49GAE=",
+          "thinking": "The fight isn't making progress despite landing hits, and the hint suggests I need a stronger weapon or should check if this is optional. I'm at the location but there are no available interactions, though I have three of item:0_6_2_c which might be a combat consumable. I'll propose attacking the monster anyway since it's the active quest step, but I should consider using that item if it's meant for combat.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_6_2\", \"step_kind\": \"fight\", \"target\": \"mon:0_6_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1600,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 245,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1412500000
+      },
+      "id": "msg_011CcrM8Esbam5qabwMnbxvK",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1600,
+        "output_tokens": 245,
+        "output_tokens_details": {
+          "thinking_tokens": 204
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_6_2\", \"step_kind\": \"fight\", \"target\": \"mon:0_6_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1600,
+      "output": 245
+    },
+    "tool_calls": []
+  }
+}

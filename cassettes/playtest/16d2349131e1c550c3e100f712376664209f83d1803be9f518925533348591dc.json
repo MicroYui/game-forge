@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:16d2349131e1c550c3e100f712376664209f83d1803be9f518925533348591dc",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9255,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq0LCokBCA8YAipAX59MjodZTz1SXyI1MpshV/jTJzKbBhKay4JxCTK8Sve/e8NbEa9WoJZRV4PB8dmig0Rt0yPlK9RAs0O6SLSkdTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHfDpwbl+lG8xH/3tBoMR8zR6/QUFflPuD7HIjA+iYCQWQqG3vBQkEn350stEN+u2KKYsa9PZBhkz63RiPKKCo90vqFZlSf2Jczik40q0AmBTY8XA/ApWSqDKFes13irTXRgGR+C6/T4+pCBr9Ize2cGOrM58wS5Eo6hF+Iu1vNWsDvtkKSRO8LcBUqjVPP+meH2pRmc2nPKPq0pz9G84hB2gYtlCmccoaQnqHRBcth1a3OakC44fYxrYGCXuiFj9c4YsFPleggk5D5TNIZxHLPSa0tLV6igOTcR8fe/Wt2tdlS9r6aRqkjo1BBEsQTGmR1BsZEpR9M6APipcEkUcjKOt5Ek4V/paIm4JYmkTQB0pkACJGg0zsk1AzLPULAbJpO91A/6Jm0abmRBTUPxE4TcIaULxBXrHpY78vFlLyFMEUHtyRUpkfyBCSAoOu3t3uU+ELcAUsHTOamENt4p9yMocjdX+698zq52OtZEgbe4mjaoD+Wx/XIt3kS6VFXd5n4G0jLnFm6fa72cXXSn297RYkwADVlFXLP/6zPk0rQlczJtfEDEsoSypIDZEUS65NY2IG365NHbeW99fQprgAABSoL4Vw1An2XWhqua3QU/tSGfynyJwEaqCT1EnlPlO+rpY32bpDPolL2KlgTkN9oYLolE0MNVMqtfJBpS0pCYDGzpcf9xBay6X/V1DM0Nm3SX6qwG2Fu7mYd4pTZioxpMVgXZFR5NzSDLZOTUlw/FhT/sfapCyKdc8o4DtdkpvmIhi8TlNMHe80FG+VjxveWnlTIbs1UV69w8jc/d6y1yNmHux1r+BTJL8QYQ30s/EZk5x+1SpU5v2+IRfJpP3G9GAsTE4v5ySAuKY+cQutIYFKkRFJx1BIXLsZGRaofvnU7/QGOP7IULvLvKAReT7/8cNzu8jMQpV5FmKmAqDOhwXRpdd2VPzDGJwShs89W+rxYKPk7L27oquKaepCErB5Pa9LjIGGVrla3Eclf700yIx9G8C32cpTt0nv6p/5DUI74JPclPEiLkcAXkyPc+Pe1/BMHYiwJnc4XF+hAYaPx1o2eZQzjR0Oc0mnSOsS1jflKlDpKxNSI593vA0PMkIUfeDH11Bd+zlqWGKwFodo8c9xoFXOtB/AJlrpk1LxsbFPDXqF/CWd8A6lUWe7YNtdz67rt9jqgZIUQhQ7bPgMXzkL2a+zyAy933+ugyZ5s5+zwhLZoSnnREHwRyygFZOlI2ZpJlg9WhTnPzHmSyp+HtIQktpG6f69B4eX9bdw8sQ3pN0V/AH0WbKPMWIRILyFRcDj1ZGZLZ/3HfeqNoRFJojq0OnPZbcX0hqIz+/R/VvQBmbxGs5cyDGZXNdNcKc4f1EKz//VLcnk/sEPK7ctXZPF84DOahq24ke2pZIh6UipQTsZYq88VnTE/Yduy3M8TTJrpyO3WAwfF6mM9Jn4NkDnczlc4ja3FBdY1VIENbXoVImM0SrYGDcGCGblBLwTtravfTyGgz5l00dq0aRWV74W5LSk0Kt0HafrkKICxhbRCDTffriUtnI+OXycEDdloJwUYHtSpIDjhfBCMMNUTuY3zSngq/+MwcNpXM9oBj3Jj40EHIRSLx3fQnCIh7r6ilriY00kIGzknKT12JgKK7CyPoF11JDv0nDVovtmQzjAP6ZxdoNeVUeZQZ78SbjKIIoxHCkbgXzwGpi1hO7NXi2lE0QpC8ZGsDfreeRx0g3RN6EmMhzausNmZcszT0cBgB",
+          "thinking": "Looking at this MemTrace compaction log output, I'm noticing there's no explicit question from the user, but I can see some potential issues worth investigating. There's an inconsistency where most lines use `active_quest ::` but the final line switches to `active_quests ::` (plural), which could indicate a typo or a state change in the system.\n\nMore importantly, I'm seeing what looks like a navigation anomaly: at tick=123, the system reports arriving at `npc:0_5_15` but the position remains at (13,14), then shifts to (13,13) at tick=124. Even stranger, the navigation target appears to change mid-route—it starts heading toward `npc:0_5_12` at tick=125 but then reports arriving at `npc:0_5_14` by tick=128, suggesting the quest target switched unexpectedly during navigation.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 423,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1491500000
+      },
+      "id": "msg_011CcrLjZi3FGU7M3U1S8B9r",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 423,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 423,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

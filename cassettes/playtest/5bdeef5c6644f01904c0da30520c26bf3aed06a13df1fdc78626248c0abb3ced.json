@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5bdeef5c6644f01904c0da30520c26bf3aed06a13df1fdc78626248c0abb3ced",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3266,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er8CCokBCA8YAipAqSubGt1IuMJqhYmuDDSN69gYR7EbV9La+bwLjppd6FGssLeTpw4dW6A+FI/+IsVGIcWOzI/FqJrkCwka16VUVjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDA4Inac5jxKatI0YGRoMamxUnyhATsv0BEdPIjD6g28JJTjghXS1Q7ylOuj6VDXLsm+ngTpKNbTqS9Q8rJgZgSFHgGvmIiwMixIvoncqY8fqteCqjz6mi3GbBgQDirn5YPJPEXtdYW2Ty8j1+vZyoLp/5meD/Ah/UY1X7Uue4iu0ZmPie98WW7bvDZXFan99Zwxk+n1+EPBnmnNNzr/QmqLiqw67VBtmeUyn2wM8+PN6BxgB",
+          "thinking": "I'm heading toward NPC 0_14_5 to interact with it, continuing my navigation.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_14_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3332,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 67,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1833500000
+      },
+      "id": "msg_011CcrB4pEGgZnFJG332Lx3R",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3332,
+        "output_tokens": 67,
+        "output_tokens_details": {
+          "thinking_tokens": 39
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_14_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3332,
+      "output": 67
+    },
+    "tool_calls": []
+  }
+}

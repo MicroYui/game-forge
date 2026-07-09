@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:892df891a7a2d57c6b5395d07640e926bc0241ff170213347acd78e6d8336afb",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8176,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqQECokBCA8YAipALZt7MPzuWsGNl++u93Lz6OBI78Ugnh1rM7NZyXDjpOUBLO3Zh5aUTW0BZ4enC+jnget76a4zvm71rOvtbltUxjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKlg5Q4l5MZdu+l3nBoMSWyNWOvpncFRYD6mIjCyVzh+KVHgEckDBitcxE2tzhLZW7AvFd67cmKLERUXF+FsDKSP/oNylV/cOAYh190qxwJAPkcxeGj1QYgJtNIEMDry1v26ydQxUKAbpPUMJHtDzxdTDqXohJTGbvvSeWOFyWUO8Rwe+02M+xKAzQzed4/O/h0LaBbQMwiuJSORckP0uBqbKJOzRwxW8uivL9qPWBBkgpXnrprNbkZfZ/Q/1lE/kExi/0fDUKWiRka0MJIBsibyeuZHnVH+zG0DGr0aaiy47NkgqCrU/L/RUX51BWafkisbgnxNv9mIv+DCtKGTXh8BLLKawp9Q0QpYwKrx76qxVEGUeFHQhs7AmyHYV3rb17tv4FUjcxDZgBe8At/4CUben0ryi7aRMoYxYihCpU74BJ24we/RaI0BpTgMIStbdT/k7OkuzXv92lsmUPCbi0qdBP6a8qvrD9UcT2bgMTNrMi9bVbJ5KooQPS9gu1/+egPUtqUmVJTJSL4Ernvsb5/G+EEZoTUYAQ==",
+          "thinking": "The user has shared a log trace without asking a specific question, so I should figure out what they're looking for—whether that's an explanation of what the trace shows, help debugging an issue, or something else entirely.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like a compacted execution trace from an agent simulation (some kind of game AI or quest-driven bot). Let me break down what it's showing, in case that's helpful:\n\n## What the trace represents\n\n**Header:**\n- `11 step(s)` — total recorded steps in this trace\n- `0 verified, 0 verdict(s)` — no verification/assertion checks passed or produced a verdict (likely nothing was validated against expected behavior)\n- `Tail:` — you're only seeing the last portion of the compacted trace\n\n## Step-by-step (ticks 3–10)\n\nThe agent runs a classic **gather → hunt → kill** quest loop:\n\n| tick | pos | hp | quest event |\n|------|-----|-----|-------------|\n| 3 | (1,1) | 100 | `navigate_to:gather` → **arrived** at gather node |\n| 4 | (2,1) | 100 | `interact:gather` → **gathered** resource |\n| 5 | (2,1) | 100 | `navigate_to:mon` → **moving** toward monster |\n| 6 | (2,2) | 100 | `navigate_to:mon` → **arrived** near monster |\n| 7 | (1,2) | 100 | `attack:mon` → **hit** |\n| 8 ",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 435,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497500000
+      },
+      "id": "msg_011CcrG5gey9nLoRY4r3VipQ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 435,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 97
+        }
+      }
+    },
+    "response_normalized": "This looks like a compacted execution trace from an agent simulation (some kind of game AI or quest-driven bot). Let me break down what it's showing, in case that's helpful:\n\n## What the trace represents\n\n**Header:**\n- `11 step(s)` — total recorded steps in this trace\n- `0 verified, 0 verdict(s)` — no verification/assertion checks passed or produced a verdict (likely nothing was validated against expected behavior)\n- `Tail:` — you're only seeing the last portion of the compacted trace\n\n## Step-by-step (ticks 3–10)\n\nThe agent runs a classic **gather → hunt → kill** quest loop:\n\n| tick | pos | hp | quest event |\n|------|-----|-----|-------------|\n| 3 | (1,1) | 100 | `navigate_to:gather` → **arrived** at gather node |\n| 4 | (2,1) | 100 | `interact:gather` → **gathered** resource |\n| 5 | (2,1) | 100 | `navigate_to:mon` → **moving** toward monster |\n| 6 | (2,2) | 100 | `navigate_to:mon` → **arrived** near monster |\n| 7 | (1,2) | 100 | `attack:mon` → **hit** |\n| 8 ",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 435,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

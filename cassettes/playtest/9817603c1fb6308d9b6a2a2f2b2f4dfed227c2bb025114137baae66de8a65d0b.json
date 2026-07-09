@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9817603c1fb6308d9b6a2a2f2b2f4dfed227c2bb025114137baae66de8a65d0b",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7767,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErcDCokBCA8YAipAwiaZ/9mcVVGmq9hG8hpNoHnH0h+nhNwyw9sw5qxP+bGe8tNTOMN5e8uetjWmcTxoFpl+uPi+kdJZHL4aDkFGjDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKDh2noOBPEYu0+5QhoML6MPMNm1toifFI/AIjBLw3cWdHccLC1a8H4riBSmEWWvsx7+Qs6EcsqXXTs43Kdh370xqlPkXHHvSBSyTSwq2gG4s1CeJbqHz3U/cendTvg6SA9wro3Eh8uejuYUgZv3aJPgQFeYpmdCT5N/J6ChhbWAXYE4flhuqSuD69liIjOfG/LuVoJeTiyxR4iZ1tf46J4rCV1QSOIMjcSJuX4qrISelFd4YX3A0vKg79UpjFuD8jEarjS4Fon3IK7jO1xkFoguxbphq41WlEhgRkIw6VYaVrjQJ3l4OYM1h2Uj3lwMNVKYmXwrIHGio5bNFhRJPwk33Tkqi+Ws1zlgqMadG4RBwpOvCMal1ZCtlAolNvstMr91dVmOxtbJlBgB",
+          "thinking": "Looking at what appears to be a MemTrace compaction log, I'm trying to understand what system events are being traced and what the output is showing about the compaction process.",
+          "type": "thinking"
+        },
+        {
+          "text": "## What This Trace Shows\n\nThis is a **deterministic memory‑trace compaction** log — a compressed replay of an agent's actions. The header tells you:\n\n- **70 steps** total were recorded/compacted\n- **0 verified**, **0 verdicts** — no assertions were checked or confirmed during this run\n\nThe **Tail** shows the last 8 ticks, and they tell a clean little story: **a complete quest lifecycle.**\n\n## Reading the Event Sequence\n\n| Tick | Position | HP | Action → Result |\n|------|----------|----|----|\n| 61 | (17, 5) | 95 | `interact:npc` → **quest_accepted** |\n| 62 | (17, 5) | 95 | `navigate_to:mon` → arrived |\n| 63 | (17, 6) | 95 | `attack:mon` → miss |\n| 64 | (17, 6) | 95 | `attack:mon` → hit |\n| 65 | (17, 6) | 95 | `attack:mon` → hit |\n| 66 | (17, 6) | 94 | `attack:mon` → **victory** |\n| 67 | (17, 6) | 94 | `navigate_to:npc` → arrived |\n| 68 | (17, 5) | 94 | `interact:npc` → **quest_completed** |\n\n**Narrative:** Talk to NPC → accept quest →",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 422,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1491000000
+      },
+      "id": "msg_011CcreYa8dRuPiP7UZaUyCm",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 422,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 64
+        }
+      }
+    },
+    "response_normalized": "## What This Trace Shows\n\nThis is a **deterministic memory‑trace compaction** log — a compressed replay of an agent's actions. The header tells you:\n\n- **70 steps** total were recorded/compacted\n- **0 verified**, **0 verdicts** — no assertions were checked or confirmed during this run\n\nThe **Tail** shows the last 8 ticks, and they tell a clean little story: **a complete quest lifecycle.**\n\n## Reading the Event Sequence\n\n| Tick | Position | HP | Action → Result |\n|------|----------|----|----|\n| 61 | (17, 5) | 95 | `interact:npc` → **quest_accepted** |\n| 62 | (17, 5) | 95 | `navigate_to:mon` → arrived |\n| 63 | (17, 6) | 95 | `attack:mon` → miss |\n| 64 | (17, 6) | 95 | `attack:mon` → hit |\n| 65 | (17, 6) | 95 | `attack:mon` → hit |\n| 66 | (17, 6) | 94 | `attack:mon` → **victory** |\n| 67 | (17, 6) | 94 | `navigate_to:npc` → arrived |\n| 68 | (17, 5) | 94 | `interact:npc` → **quest_completed** |\n\n**Narrative:** Talk to NPC → accept quest →",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 422,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

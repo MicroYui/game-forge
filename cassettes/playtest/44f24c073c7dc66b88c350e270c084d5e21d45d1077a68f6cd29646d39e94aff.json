@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:44f24c073c7dc66b88c350e270c084d5e21d45d1077a68f6cd29646d39e94aff",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7872,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpAHCokBCA8YAipA3+MthCaDCXUh7eni8mVeaTkbgfmdrXmJ0tZtgbBlhSSMHJA0/3yZblGKRq7qiM8txP/UnR0raIEsnq5ZBSGiSzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDC5gr8W1r+vfw1+Q4RoMZFDWw14dXnKAaOUqIjB9yC5/yeGlHLfRS2JsnmNzEHu2+6huex5HJxVsZnS+2+Eax4ZlVnggs+bkWn79vE4qswXNmO0SyxwlAqNU7woKmXEJclyNPvrSw0Wjy9M/bC9/fC0pBSgpartcgZxuAdeDJua2ds2e1FN2+qxGM20XpwtnUzLqD2lTAueOtZ+sRlLqCWvavzr6rjfCHuvAAWdztcSH1fRvKIzKvEtxnFdl3rlm11ZMq/cTbuWpoxB46atlWpMnYPfJz6imLxTurjPNDhkNmRwBStUh/ecBjpwaOjFAgJoLzPpfgUFVPT2NX3XEERyNLtpnzSiy96INKyHQHJQTXLZZES3nLHPHKEEXiZFfVS7h0uXXSdO7R36Q2q0r96euxx+jFMyuPk0l6l037VgA3GF96fee84eEmFxELJLO2VbwnqWvzzqko/foZFvj6opRts+DF3wnOOTZkIDaAQIPyczzLRNKvQnmtcIh+82cEFbMtMAF0zUaF+m+qzjyGd5cUxCRYKjxsfTC6jV/pc7IqqZY6CVCFQn4UE+BQ2537t0AvshMdgRIHMD169BlGOIH3p+cm5G8Agl/NGut3CGpdb1snmenAF+jRmBUM7oE+SlB9GkLiPmoOB4krJ6mOO3wA5pPIlHNIaDhv2Zk9cLpWNOVWWa9j37oomb52ApMCG6bN6Xm6cvBKEZaFOAcGRRSOo/DASSX7sB5vnsvkrD1a2KDwrhiEUutLIWl3YjZ8YnwetFtuh7pBMnuMdAm4A09fEV7B8X6EED+tiLbhDSehVjOLrT5gqTNmDA1LZYJKDU94Nv6lVyqlCKf4+83xTFcLuaO1rCKsAw4uUa81ujneD7ByzGs5CfxkyXeEHdcQuC1gNMd/H3l9DBOs/0vb3Qk20RPIdzqbcxype369teZyQJqWD29QaiXw3GKeLvfJrVc4a8xxr601V7R+NIFBqoUBBVSy+HNrCQPeupSp3vF1L/fvpXQF50Gve8e8n+srHNeGAE=",
+          "thinking": "Looking at this game AI trace, it appears to be a debug log showing an agent completing a quest sequence—accepting from an NPC, traveling to a monster, engaging in combat with mixed results, then returning to finish the quest. The trace seems incomplete though, cutting off mid-analysis with a note about verification status.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from some kind of game-playing agent (RPG-style: quests, NPCs, monsters, combat). There's no explicit question attached, so let me summarize what the trace shows and flag a couple of things you may want to look at. Let me know what you actually need.\n\n## What the tail shows\n\nA clean, self-consistent quest loop over ticks 54–61:\n\n| Tick | Pos | HP | Event |\n|------|--------|----|-------|\n| 54 | (7,4) | 95 | `interact:npc:0_10_6` → **quest_accepted** |\n| 55 | (7,4) | 95 | `navigate_to:mon:0_10_6` → arrived |\n| 56 | (7,5) | 95 | `attack:mon` → miss |\n| 57 | (7,5) | 95 | `attack",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 438,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499000000
+      },
+      "id": "msg_011Ccrd6vBYHb58GK3gF4MW7",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 438,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 230
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from some kind of game-playing agent (RPG-style: quests, NPCs, monsters, combat). There's no explicit question attached, so let me summarize what the trace shows and flag a couple of things you may want to look at. Let me know what you actually need.\n\n## What the tail shows\n\nA clean, self-consistent quest loop over ticks 54–61:\n\n| Tick | Pos | HP | Event |\n|------|--------|----|-------|\n| 54 | (7,4) | 95 | `interact:npc:0_10_6` → **quest_accepted** |\n| 55 | (7,4) | 95 | `navigate_to:mon:0_10_6` → arrived |\n| 56 | (7,5) | 95 | `attack:mon` → miss |\n| 57 | (7,5) | 95 | `attack",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 438,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

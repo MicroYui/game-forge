@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:22dc38c2a47d060eb142d3dbc9f6ed4148cf77eb6a751684c373510b157b6e36",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6979,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoIHCokBCA8YAipAgwOuxectO4Q+SqH0NZ/THexZ886Ov9IJCCu30ovczov5r6p5Hv9oOfw+Hcm/TR+bjl22rXhqcsWqwUFUZpNFRzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGYEDO9iLwcWbc2sfhoMqRb49NtKPlR/vibYIjBlsaTNlc/ILsZVWZxNlX7wI67TI1t/ed9gCbYiMU8gH5J2yQgKeW5kq5/AeIkmgB8qpQUgUeRHLUoyZeHvVRqCxtcgNEENb9xF5DSiuPJ+rPOFh2EyTHMSU9497v+oRfqjEbAsh+KZjqi7TWn8a94puVFxIBfLIqzNy/Y1i4wX3KSWq4PRdKvZ28XSFIFaPW/N9FkykwTdaT2LTDEZDnIoz7HEmkaWZStDzobjFWTNBMfIkE5Vba46pqLqyI2IbDxqaFTowSo7TBBKpMAU9eYXsUJLBHqoFHSrtPIuHWKz9ecO3MRjDkQrBTg2bgrCaMcsqsReWwJtHveepE8yxxJhb9XMPkp6R6B3mFmihekzKpH3ik5m6deoJUEdMJ53Yoxi5/C3XDaxlIFAJ7b7fSaMOia9+qdS09Pigpii9fgfcDcdSahF3RoIscdZlafXTow/pU1gKTHyEKoHIg8bQ06tYQX20n7M0tahrajvTnGV9CxFFdNUgSvXBcIzqWoCxdUwomw2lWvYTNLgcmZulWopgJJn3gM9CNBHpaVmRsmSiSEjzcUvVIl0UcviOmudRnOU56U2vxhCc7eIrTJuuWLmMCDb/f7Yl7UEnEiSDnrmGvCigs62EmnWTNXdzribQpRzeN8hcXsfdOrP5Be95BETC0F7dFiV33dEC+VWnkaoFfjLSIt+U/qlFCWgWCGhbO4fQBMF8fFrBvrITNZ8KVHYP0ea0dTY7S203Nj7qCsqQlRsM4Bkpxq9Lf5YMJOGxIu7jO1cXxVE6MoK28ZjntzOCUCdBMWyQLC6wUa+8twZhtMg+oZ7eHoxzwIpEfbLXtame7KvSbrX5GhG/XsZ2/bVwir/NOirDsqtZnpB7rLNSBic1YEvSUNCVR0e5cK6TLXg99YVtz471jOYhRZjdtKI3ArwDlEDdnnolqdL3ODgfg9HiG9wdRO/d4DuMRKaPbxaltfVSRblJhgB",
+          "thinking": "Quest 7 is complete, and I have npc:0_17_7 available for interaction. Looking at the remaining quests that need a talk step—quests 5, 6, and 10-19—I need to figure out which NPC to approach next. The available interaction shows npc:0_17_7, but I'm wondering if I should check the reachable targets to see all NPCs I can access, since the quest-to-NPC mapping might not be immediately obvious.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_17_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_17_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2802,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 303,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2158500000
+      },
+      "id": "msg_011Ccro7f1RAmzzRERKv6wPH",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2802,
+        "output_tokens": 303,
+        "output_tokens_details": {
+          "thinking_tokens": 262
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_17_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_17_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2802,
+      "output": 303
+    },
+    "tool_calls": []
+  }
+}

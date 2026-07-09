@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cc4bf80a9b0e9125f27e6e05f4598f7c38aedae4dc88b13e3029f85998fbd32d",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6862,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtkGCokBCA8YAipAxS+SK8w8tiVA/cUfWRMn08Fqj2gc3LU35Xp8124kyaXf/d+tcd5GFw6j2cc7Zhso54LrSeRosdmqRAFUjJHmKjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDO3YgOE2gSALd2UwhRoMcQJV3JE58XY2b7CCIjCdNuAcqg+fiCmELV78n5Dkl3zZiqywmhytTPji5ELI4LCnrTQ9scUTzJhPWvJcB/Uq/ARXCgbp/vv9gzEF16TKmRjM48lhxmZrbgnQ0JXolidrhbh+1yrhmj8ACWDopIJTwHiHm4+5tEV3X461LqcxXV6V8UCPoNnPibtvP5DOsFAAhV/BKyAdk3vyYV2ftR164KvyYDj3NaAwHTSIaJUhr6txkSSq6CmqbOcBG3yKXGyHapZex703dCX+R+rCEbiYmVTKmJT6aNBwrzEkQTPatS7blexef23CYp+0f8Qg/nSSWA8iEL2P7zohxS8WR6bFFzuelcU04+EHzB+l+w0/7nMD1Wfhrcde+4iyRRtas6VWpMkGPqr6bc+i1FnVbgg9MJDyFvbP/Mr1tyv27pEQYZ+HSewOTv0i42AXPt+UxQIanFM4RM4Ot0BTgJFJ8/2ZGQsr8+ZEVB1E6H5iYQ4w4l0hm0v1khVBOmTBLjMELw+HiZV6yd5Afob4JbxXjRO5DU0INCTooGNOIhxAZg1dTXcc9cRffXbdcVXT80GvTMtNv/ktdl77e0SFtRFmqwyNmlfsRHQqxWD7T61vbVlg/BzieZruwjfnEp6B05TwIdC6O0UfrmODQn/8klS2l3HC/LoNiSWbqyMOUDy4DhuDTpgGDIZ6ZflV/XjsEOdYrsv+a11j8BaqsLN51EpTxehzQCati3otMAqw/I/IFaEuHOGZVdl2b/l6s6S3t79yHszn5NzHwNMlifeNnYb2rIHHaIC5oYzhf6yuYJgxQlY72Gzr2hHuHAdKn3vBGpuEhZFO3qBwC5zF5ueEUnnPg95YZX3J+oJ+WBH7aDrBA6QZ/N5Fcffmc4u/oY/eE/mZP6TYTV24UYFvZLaUfljBGL9SRTmLjDCrZ+PbLMzvTeQYAQ==",
+          "thinking": "I'm trying to figure out which quest to advance next. NPC 0_16_1 is available for interaction, but that quest is already completed. Looking at the remaining quests (0_16_2 through 0_16_12), they all have talk steps, and the pattern suggests quest 0_16_N starts by talking to npc 0_16_N. Since the available NPC doesn't match any of the remaining quests, I need to find which NPC corresponds to the next available quest.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_16_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2368,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 290,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1909000000
+      },
+      "id": "msg_011CcrknLPy9WM28RKYXHwfV",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2368,
+        "output_tokens": 290,
+        "output_tokens_details": {
+          "thinking_tokens": 249
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_16_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2368,
+      "output": 290
+    },
+    "tool_calls": []
+  }
+}

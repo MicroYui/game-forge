@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d6e1975f8db9591b1653b13a21d2621a267d55c542c09965ea6dc91572287a5c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3475,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoEDCokBCA8YAipAjZvl+CpEUKa+/cCSkS+80DNH4QtA6/XCPqoRNZxSy+95T9UDDVLfZNjTumvAZwmZG64aUUjIx9c2DmDX1DNYXjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAuSXh24x22aBnZyuRoMXnNBf8OjmoHE1j6AIjA9lTyl6ixWCIsGl277Z0XlUN9Qlk7BpPYfV+fFQl6yawG6l/BjEK0168n6N6gi4lsqpAEmJNcpJ/p72ZsUbuLLjK6Iagp1ZpCiCU+YLsd/9hM/CsYx9x+zH11zil4O4pJU1QQ1mBqRpWdrXjMH64krDavjbHOxXcRALep9GJsaib7sK821V8XyxBq2+FUez922rCKZQtuwR9YstI8pB0Fa5Fr7ma7qAD4XK22BZsV9zkxdtYIQOW3uAXRayBHwD76reVfTpb/cPQ/i+gFukROG0bZV+EyQwxgB",
+          "thinking": "I need to navigate to the target monster first before engaging in the fight, so I'm setting up a subgoal to reach mon:0_17_9.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_17_9\", \"step_kind\": \"fight\", \"target\": \"mon:0_17_9\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2762,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 106,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1646000000
+      },
+      "id": "msg_011CcrnuZyU4ipdY9sRZG7NX",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2762,
+        "output_tokens": 106,
+        "output_tokens_details": {
+          "thinking_tokens": 65
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_17_9\", \"step_kind\": \"fight\", \"target\": \"mon:0_17_9\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2762,
+      "output": 106
+    },
+    "tool_calls": []
+  }
+}

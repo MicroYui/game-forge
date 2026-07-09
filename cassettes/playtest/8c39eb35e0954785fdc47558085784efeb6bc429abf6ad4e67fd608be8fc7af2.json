@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8c39eb35e0954785fdc47558085784efeb6bc429abf6ad4e67fd608be8fc7af2",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3662,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvICCokBCA8YAipAQwyb87SprO0UGM00bJAVOHDKYY8XfsZSjNxtrVu6Du7Oo2jP1+WJk95ynUfge+MfJoHDqm3eDy5oUJT+lwe5GzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMaAEgHnNPk/m2ucehoMtKLmP1512b07H+1NIjDHdcqnGcoAnFtXgNHyc6Nq0pzS6Ne4Mnq+TwhLaLcqwxPLO/0oEZW8YJU/w9cg3HQqlQE3q9hts0elBhd2XIkeHhwoKolrafphH+8xyAfWW1Bb31y45lZIxAwBySAaoN32GPRe2O02411sqkB/uioz/eJzguIlOHGiPeDy4pMdwND3Iyo5fyE6Mk/dGvQHwOPHK6rl89lnmi6DTyZ0VpNJLv0Y6cWOfEKfkmBMVUF3upIljzNUBTnWnzhSjtEvOrdMtzfHj5mswRgB",
+          "thinking": "The active quest requires fighting a monster at my current position, and since the creature is nearby and my last action just arrived, I should attack now.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_17_1\", \"step_kind\": \"fight\", \"target\": \"mon:0_17_1\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2923,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 101,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1714000000
+      },
+      "id": "msg_011CcrDGzbgRMD3Szk3uwPyk",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2923,
+        "output_tokens": 101,
+        "output_tokens_details": {
+          "thinking_tokens": 60
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_17_1\", \"step_kind\": \"fight\", \"target\": \"mon:0_17_1\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2923,
+      "output": 101
+    },
+    "tool_calls": []
+  }
+}

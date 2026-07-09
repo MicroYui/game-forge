@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9c85a83f33b1fa98d0fa3c6bde8e36a9dad75b2ede852a663e94610f2db4f576",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9084,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpQHCokBCA8YAipAR9ASGE0g3JJYsTCWVXE+qAovwWBJQ4rYIlru2nhUkHSo3KQn3TD0yhR45VBInR5Cchhry5NEj4nIUXrWC4tV+jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDI3vTnAjv4tD14wa3BoM94mi+zw7z2D7DQFvIjDt76SYyAVYfzx0NW6JVRv4w5xToPGB6IHw65T2Gz6Ub8LEk+HGiN575q56KA8JdSQqtwWxQsZdM9LdrEa+7PZT+SneHcIAim+/fYF+/3zA9dqq1mTH8DdGrAJRmctvopwO7Ucm6WjiLd61r+Cjn6PWy3MJVfd140fLhbqW3E0dN4fyeN6Sb85z6i1t4cQV59IZYnoNM7XFcoZ8o9rqWpS9rS2JkVFo6ORo3oQDpLMSazfZ5Rco3OBp9figlqp6Y2k76sxrB4qpLJ+0WnaJ28qBzyqen7wJ8iqpzEzlhuEgNcZOkQayALFTrFxKmn8To4ob/qHIBxSpD4NFl8yLEA6hbg9lw/H4nsQ7MfQXMc3UAi8WXplcOzfpE05fW/qFirpCwtXNBgMfoOFM7s/b/5oSvDn4esqQIYmxiL3RKEmndbhykhuoXS2khFmT1dIyjzPCAsae1+kX+JyezhsJunHYWM9ScpiY5b7ltKTj5mGYJtbxfYdxToC2kCpbPts23TZ/Z/ypnHDHVVAw48V/wFWDaOVPgiOSOyOdP6qq0Z1U6525v55CloigT000YSRiBcVcSCBzqrZSlv0arGWv4fJi7zMgvvC4CkbN7nTFlflbEkvdYaEdPF65Yrd/ODFBLdB5AoFHCaWzzjZ84ew9xedk5As+qRIEK6FT+eIcpmrmfgKOFhE3qzQSZEyyvJu/LcUmdvqBSsd12aKa76eawzj5Lsi5W8vwAef74v6Rm+WZGBjRAg9pTq026sKFThe/rd4NQtmZHPkT/CEa2/5I7fxgHHsHXHr+XhKqT078kTjNcMO8BSJ11v9+B1De7GBtEyMS/vWMrPRXI9ZtXt9nTMUtHpvKvXkc4nZQAjXIrMXTWJtglKBxyLmTrz0SdB2c2T5tX/vUwr0eOhGGElS1MPKh/5vXloCCdVUZE5ef0Hu2DrFugNK7tW45e7wDN8GSGRuH5SMq1S4KUSz4nuEJHC7f4YzE6NN+Yz4rfRgB",
+          "thinking": "Looking at this log output from a MemTrace compaction system, it seems the user wants me to analyze what's happening—there's a trace showing 107 steps with no verified results or verdicts, and the tail end shows the agent navigating through ticks 96-103, though the thought cuts off mid-sentence.\n\nThe agent appears to be executing a quest sequence: accepting a quest from an NPC, traveling to encounter a monster, engaging in combat with successful hits leading to victory, then returning to the NPC to complete the quest. During the fight, the agent's HP drops slightly from 88 to 86, suggesting the combat was relatively low-damage. Since there's no explicit question, I should probably ask what specific analysis or help they're looking for with this trace data.",
+          "type": "thinking"
+        },
+        {
+          "text": "I see a compacted MemTrace log, but I'm not sure what you'd like me to do with it. Here's what I can read from it, plus some things worth noting:\n\n## What the trace shows\n\nA clean quest-loop completing across ticks 96–103:\n\n| Tick | Pos | HP | Action → Result |\n|------|-----|----|----|\n| 96 | (3,7) | 88 | navigate_to npc → arrived |\n| 97 | (4,7) | 88 | interact npc → quest_accepted |\n| 98 | (4,7) | 88 | navigate_to mon → arrived |\n| 99 | (4,8) | 88 | attack mon → hit |\n| 100 | (4,8) | 87 | attack mon → hit |\n| 101 | (4,8) | 86 | attack mon → **victory** |\n",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 434,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497000000
+      },
+      "id": "msg_011Ccrms8jzyKgMMSLyV4qKF",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 434,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 245
+        }
+      }
+    },
+    "response_normalized": "I see a compacted MemTrace log, but I'm not sure what you'd like me to do with it. Here's what I can read from it, plus some things worth noting:\n\n## What the trace shows\n\nA clean quest-loop completing across ticks 96–103:\n\n| Tick | Pos | HP | Action → Result |\n|------|-----|----|----|\n| 96 | (3,7) | 88 | navigate_to npc → arrived |\n| 97 | (4,7) | 88 | interact npc → quest_accepted |\n| 98 | (4,7) | 88 | navigate_to mon → arrived |\n| 99 | (4,8) | 88 | attack mon → hit |\n| 100 | (4,8) | 87 | attack mon → hit |\n| 101 | (4,8) | 86 | attack mon → **victory** |\n",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 434,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

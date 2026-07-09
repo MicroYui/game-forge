@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4fc8e69f675a0001459248153bf128d74a3620bf0772ff28790a297e78f3d2ed",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 10375,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpEFCokBCA8YAipAvyIyteYXxfLgNlasqn9JetcWIfm9WdVERArqoOFriak8LqWxquDWBVjG3+T9UVLbOXYyqlswaTqlfLLKpBO7YjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMkt+Cz2tfhhS5M7YBoMbzTr9QeVwM0qNrdPIjDqHie4/WpIGHl5d0NIhG66ftf9zFFx6uiY1jTuT+WJC3R5PGiyg+tphaeHiVO8rGgqtAMbSKOlM+R+MrCREPaqjmEDagwlqzujl2Qv18bSEtiudLeC0Q8XUVW9kXifyRA1fDWui+ilnWmLWBdFiqkrEX9azdttInXxZYbJsYUTwPnUc0OeN6Q8kX3gQ/6pPmIUamnAXutAl9SnL5qC9pypiAqPLT4SRz5kLrogpd2YTKh5bEgVXDIr3FSW5dAVVVNlwJZHGno+aMDDkQ927s2tQjxoYWM1kAQuJMIS8yqz8tnyc5oWd/vRxFJ1Cjp5khEuFciOrHs+WOJkODEJ1/8+N+2+kKh0kRoMOEMAFDCrst2NVXVO0caACAytm5xWlS3cYQprxm3gO0NHNTw8wCM9o0ikwVJ7z5dQpux1A38QrcH+c3tES4k/YkblzMWFE/tkQEVhT/KtsqW8kzpPIUbzZbg0lAWqyjVgQKWSYp4Fh75fdc6ajmh1LvOk0ci13koSBJ43ABNY5AQqgVK+CQMN20p7E2iMEZbkskYfsFe+NSk86+hM+jqxFpGdqePUHzSG9sqqUP5ZD9HGqUs7zvQD+Ek/L5bYNSo+DxWSl1oRNMiI/BLagG+rAXCR43UhpvWyv0D1Ivb+GAE=",
+          "thinking": "Looking at this trace output, it seems like a game AI or agent execution log showing some kind of memory compaction process. Since there's no specific question, I should offer to help interpret what's happening in the trace or explain any particular aspect they're curious about.",
+          "type": "thinking"
+        },
+        {
+          "text": "Looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation. There's no explicit question attached, so let me summarize what the trace shows and I can dig deeper if you tell me what you're after.\n\n## What the trace shows\n\n**Header:**\n- `35 step(s)` — the run covered 35 ticks\n- `0 verified, 0 verdict(s)` — nothing was checked/asserted (no validation ran, or it wasn't recorded)\n- `deterministic` — the run should be reproducible\n\n**Tail (last 8 ticks, 27→34)** — a clean quest-completion sequence:\n\n| tick | pos | hp | action → result |\n|------|-----|-----|-----------------|\n| 27 | (9,1) | 98 | navigate_to npc → **arrived** |\n| 28 | (10,1) | 98 | interact npc → **quest_accepted** |\n| 29 | (10,1) | 98 | navigate_to gather → **arrived** |\n| 30 | (11,1) | 98 | interact gather → **gathered** |\n| 31 | (11,1) | 98 | navigate_to mon → **",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 429,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1494500000
+      },
+      "id": "msg_011CcrgUP1X41rnHyDzLqhhX",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 429,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 135
+        }
+      }
+    },
+    "response_normalized": "Looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation. There's no explicit question attached, so let me summarize what the trace shows and I can dig deeper if you tell me what you're after.\n\n## What the trace shows\n\n**Header:**\n- `35 step(s)` — the run covered 35 ticks\n- `0 verified, 0 verdict(s)` — nothing was checked/asserted (no validation ran, or it wasn't recorded)\n- `deterministic` — the run should be reproducible\n\n**Tail (last 8 ticks, 27→34)** — a clean quest-completion sequence:\n\n| tick | pos | hp | action → result |\n|------|-----|-----|-----------------|\n| 27 | (9,1) | 98 | navigate_to npc → **arrived** |\n| 28 | (10,1) | 98 | interact npc → **quest_accepted** |\n| 29 | (10,1) | 98 | navigate_to gather → **arrived** |\n| 30 | (11,1) | 98 | interact gather → **gathered** |\n| 31 | (11,1) | 98 | navigate_to mon → **",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 429,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

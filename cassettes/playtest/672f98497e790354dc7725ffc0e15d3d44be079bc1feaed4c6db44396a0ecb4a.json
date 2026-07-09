@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:672f98497e790354dc7725ffc0e15d3d44be079bc1feaed4c6db44396a0ecb4a",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6925,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqAICokBCA8YAipASVh8kUK3UNEi9FMQGz7w7LTlPdqpmk/2leBxUcDJWomidcas6/dyxuMeYqq/DVuTQOCUtpcPVSqbQd2DiDLAeTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJfS0l4xof1ZYOIXUBoMuor8VJ+eSdHYuYDWIjDoxsNBaILFh0rmKrp92EUM8vDSMfarP4491cNz2hJo3UA/X6JWX6Y+rNT7bPvVBhMqwwaKX9u9oL4kEKgKOxI6ibfeZd7zMX2K3nLSMWeUgkf6oaqNiPD82aC+eIZnnjowdiPLhaKpKhBzHPasPo425N4+K9GeI0gInG7SZrZyFLIJeNj2lfODzGmNwsgFjpzInt9zMg09dJ/IKUHFWh4K/fO8p7WpL9tC9K33aVTojFVmpKLIfzI1oolx6+0yOVoc/MkMCwUhtLMvRkftcU4iunl3RQdYPBS1wSxJhLapCJEogUWxy6b4Qq7egUuZXgkvlNEUQJgyhoa37Z9sMVYL37uWtRnxGACTamytjTfLUt+u7Y6MneYYM3qojpjK4Oc+lIx533IJM4YUUFy8WKBZGc4yJHHTeguBhIcL8I8BdElo4Ot+FmjWD4Vndym/VkRXy1bXruoFU56s6Fty2w16BerE+dBhYvoLNznQ/dZ6H7gfI3bpegtpNapjUoQOmuCISj39G0X5c1oTe/v2humvwxSy+Rl30brYMMaHSp7SZFESI1ouymg1K+ECtMHsKsbhc5ebO9G2ZFknf9Tl+E8xwEtX9ODJeUAUdnQxWG2iKEwlhf+vRSUdgngrLPHNmgOu75wES0Nu2SuRKLC24XIw+drPKUIUVN4VD5zfR2NfZIsjyxBelGbVWVvwyaWp/e0nGWaUgwkAz9/nKmVlB285nr1OUKTyLv7LArtca/xFcCkO4uz0R2JKrd5fIbLWBQGsaPwjvSYzmSpjLWVSd1O51L71sxVXubRs5sc02wKU95Mc7XNuImorpXsgdsh6a+1/nV9ipxSWpu1s1wp7H+RaM+e3vdfupKyJsZQl3uDpI3Z4DH6jOoi8+YVyXhoqHIA2b+L1oPQnvKzvmmwBomZ7SARY6qs25A+Kcwsg8GTsM3K1OlvaV+aR5YfLVGBhCL5/xyUyfiMbVpyYNCAGwlGCFDYgYRKLCSNvosUYWrVP1h6ab4zx+U/pfVgk7VHEIV/TUqG6Hof85xdQberoM7PMa9Pt5RMiB6SDk4bbxgenMxxxVoUntgSm1x6GucwbiTIhIHfZoGOmdPHCXY3gmO9V2HnXH0698E9xC6aWYPKuqUkYfIrHES+/dbxn4dC7+joN5oZ5i7OukHmSmdGC3k8eCtXLVoc1GAE=",
+          "thinking": "I'm noticing there's no active quest right now, so I need to start one through dialogue. The available NPC is 0_11_6, but I'm considering quest 0_11_5 which maps to NPC 0_11_5. Let me figure out which quest to initiate and with which NPC, since the quest IDs seem to correspond to their NPC numbers.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_11_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2984,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 395,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2479500000
+      },
+      "id": "msg_011Ccr8dEPsehKwmJamTBbWR",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2984,
+        "output_tokens": 395,
+        "output_tokens_details": {
+          "thinking_tokens": 354
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_11_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2984,
+      "output": 395
+    },
+    "tool_calls": []
+  }
+}

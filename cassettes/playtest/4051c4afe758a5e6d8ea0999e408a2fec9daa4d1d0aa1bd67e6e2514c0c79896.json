@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4051c4afe758a5e6d8ea0999e408a2fec9daa4d1d0aa1bd67e6e2514c0c79896",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7610,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtwECokBCA8YAipAvO+brEhFNlUC+rWTufqq80R7lKX3ENOK6jQtWVGrptv7g3+pyxOI5EghaP+wJjOonms0mBG4N/decui7W+63gzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKJTP5Tb6oa35xBChxoMWNbCbcL5/C51dkjSIjBPl/lIhl2I62BDeZspmqJWfU9NqjqoyNGQwB4Ocd/pnoMZlSwrcjIS3nEVvdxixZAq/wLqydOzdFUWwjjbjDiYDZdn/g5GIzHR7YEvLq+zVGIDJGF41SHQks8kRMR/IBYXfVchVopYtWIe4yFFQiS7jxBpIFyrE2B2e/rohsZm94OrJoHjrpDJe97Ejc0uLXz7IOYdjTdgKyQ7mPWq7hL9tpTJGB5BK/Zc2fVP813kFcy9cKTp8k16FKOCL72Q+WyLgi3K9RHML76h2DmvQNHuBWJkXFk0ocK1i7k1o9cVmyy6zQhMDQuCn39w/vB/BD0Tgrkh524lcAScNv9LkxhufTgUCT6o9sZM0mOV0fUk+5+WGGDPvJQxoDy3WNbOwhvr9C8/KbD1mTTP9ZqUnl7hl8d4FJlZ+m2++Wj7MDxf38XG4nwvuhu/rsFTFKYokqc/xNbz5Jut7F/00UsFNeBZGMXyqgQa0L5CHKxJHdWm9xpew3O/6VL7NnejyyZztCGBUh2jVbT1srlUc5eTw/nY1gVDGJDiL6L8M6K5Kbp6XFWmQJJptVtuFkPOXGmB7pOLvxgB",
+          "thinking": "The user has shared what looks like a debug log from a game AI system, but there's no specific question attached. I should analyze the trace and ask what they're looking for help with.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like a debug trace from an agent/game simulation system. Let me break down what I'm seeing, and you can tell me what you'd like to do with it.\n\n## What the trace shows\n\n**Header:**\n- `MemTrace compaction (deterministic): 16 steps, 0 verified, 0 verdict(s)` — a memory/history compaction pass ran over 16 ticks. Nothing was \"verified\" and no \"verdicts\" were emitted, which may be worth flagging depending on what those counters are supposed to track.\n\n**The tail (an agent completing a quest chain):**\n\n| tick | pos | action | result |\n|------|-----|--------|--------|\n| 8 | (2,1) | navigate_to npc:0_7_1 | moving |\n| 9 | (3,1) | navigate_to npc:0_7_1 | arrived |\n| 10 | (4,1) | interact npc:0_7_1 | quest_accepted |\n| 11 | (4,1) | interact npc:0_7_1 | quest_completed |\n| 12 | (4,1) | navigate_to npc:0_7_2 | moving |\n| 13 | (5,1) | navigate_to npc:0_7_2 | moving |\n| 14 | (6,",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 439,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499500000
+      },
+      "id": "msg_011CcrMLJK4BBqeCCGTVczKf",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 439,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 111
+        }
+      }
+    },
+    "response_normalized": "This looks like a debug trace from an agent/game simulation system. Let me break down what I'm seeing, and you can tell me what you'd like to do with it.\n\n## What the trace shows\n\n**Header:**\n- `MemTrace compaction (deterministic): 16 steps, 0 verified, 0 verdict(s)` — a memory/history compaction pass ran over 16 ticks. Nothing was \"verified\" and no \"verdicts\" were emitted, which may be worth flagging depending on what those counters are supposed to track.\n\n**The tail (an agent completing a quest chain):**\n\n| tick | pos | action | result |\n|------|-----|--------|--------|\n| 8 | (2,1) | navigate_to npc:0_7_1 | moving |\n| 9 | (3,1) | navigate_to npc:0_7_1 | arrived |\n| 10 | (4,1) | interact npc:0_7_1 | quest_accepted |\n| 11 | (4,1) | interact npc:0_7_1 | quest_completed |\n| 12 | (4,1) | navigate_to npc:0_7_2 | moving |\n| 13 | (5,1) | navigate_to npc:0_7_2 | moving |\n| 14 | (6,",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 439,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

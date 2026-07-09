@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0a6ae5d1a021a3a2dce4a25af6594c93e38c21bb0ef157c7d8178148c6f5c463",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7991,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuAECokBCA8YAipAOckqbnBNA2lqGe17weVDswop4Jr4de74f1CLvPqaxw04qJVaMHuhqS4GmZ/wVxq2gq7P2gqDVgRsdbLluXSZ1zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOtnF9Yv6NCFgBTdfBoMGD6Lqjvqgh5Qhv6xIjCJC3p0ZLzEHqckRgwtmnMyuW3A+zZ4hM8vdhqa8mzad2CcTlM46SlEj8cCjGV1fdEqgwMqwFm44R7g87q7dn92zUqimkyHsLMPSOEdvOHHWgBzlrZFYM7lmMiK5q73aEhOwJAvwN9MIwNAR0vP/3q0tNUYBZo/lrs8V7I7SMmjtIi8fB5CUoht/hAyu9kOfXMemy0WXhRSylzmXMvp+ZdeWz4Ss4HHLUp04lfcXXcGdL/6uY8Ha8dIdo03ojLPuWKwHeLhs3FvJEKOlggl+Kl7AYWqBFrf9fuFJBp2NdptKadcu2FV+ndY4AhqGNjkbD5chn5/oDocwYksZzXqHjSM8Bn/+GKV/1uR/Uf3IqS7WPhiw1FVQBFLKi+d9I5BUDm4YD+AX+nZ3QyxJPbHdCSa7NU4Nw3T2Y1twdCZhTDxn/dFttbsFTla3PLjSltjgU0MiS0mx3G4AEDiegg/pDBk62cFfzjRcFghWrD40hLlQ3+2khWfH8Y1DZUAuFSgSND33wNXxy4qN+LGVNIDiIXsB/oBLHc05NSeKjvC+QB0laZeSPWs9s1xCw/0yMcI+tZ8SusdiYEYAQ==",
+          "thinking": "The user has shared what appears to be a trace log from some kind of memory compaction or game simulation system, but there's no explicit question attached. I should analyze what they've provided and ask what they're looking for help with.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from some simulation or agent system, but you haven't included a question. Let me summarize what the trace appears to show, and you can tell me what you need.\n\n## What the trace shows\n\n**Header:**\n- `3 step(s)` — 3 recorded ticks in the tail\n- `0 verified, 0 verdict(s)` — nothing has been checked/validated yet\n- `deterministic` — replayable/reproducible run\n\n**Timeline (an agent navigating to and interacting with an NPC):**\n\n| tick | pos | hp | quest | state |\n|------|--------|-----|-------|-------|\n| 0 | (0, 0) | 100 | `navigate_to:npc:0_13_0` | moving |\n| 1 | (1, 0) | 100 | `navigate_to:npc:0_13_0` | arrived |\n| 2 | (1, 1) | 100 | `interact:npc:0_13_0` | quest_accepted |\n\n**Behavior:** The agent moves from (0,0) → (1,0), reaches the navigation target, then moves to (1,1), switches from a `navigate_to` quest to an `interact` quest, and accepts a qu",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 199,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1379500000
+      },
+      "id": "msg_011Ccrg4U5SxN4tyY6K9us4m",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 199,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 119
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from some simulation or agent system, but you haven't included a question. Let me summarize what the trace appears to show, and you can tell me what you need.\n\n## What the trace shows\n\n**Header:**\n- `3 step(s)` — 3 recorded ticks in the tail\n- `0 verified, 0 verdict(s)` — nothing has been checked/validated yet\n- `deterministic` — replayable/reproducible run\n\n**Timeline (an agent navigating to and interacting with an NPC):**\n\n| tick | pos | hp | quest | state |\n|------|--------|-----|-------|-------|\n| 0 | (0, 0) | 100 | `navigate_to:npc:0_13_0` | moving |\n| 1 | (1, 0) | 100 | `navigate_to:npc:0_13_0` | arrived |\n| 2 | (1, 1) | 100 | `interact:npc:0_13_0` | quest_accepted |\n\n**Behavior:** The agent moves from (0,0) → (1,0), reaches the navigation target, then moves to (1,1), switches from a `navigate_to` quest to an `interact` quest, and accepts a qu",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 199,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

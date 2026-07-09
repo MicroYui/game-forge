@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ce31e7a322e65c05463670d18dcc86ec16babdb7f13118238b532ff560303dff",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2802,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep4CCokBCA8YAipAm5MB3Q4xcLf1oAMuC9ig+fi2gY+kfZNPgiYlton4OhNQwwDWwjxFQ+gJ6kno7ci1ooku5vlJy1JSeB6uLCxTITIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMHZM1acdFudRpk5SRoM8JbMtCfNVh3ldrQ7IjAlGJ8XmDJ2e77rP5FVJZieW68y2NuZ9vwUJ8FMl1U3R6nNAx4VB/lYL6gnTVDwzB8qQsyuUofln0MgsjNal0Ge/BvV2bvapKNeiwwsaHkiv89nKeqHhM9iWzsuIgqueyBgNbS+kuOmQXeuCJEYMVNM6X8JkxgB",
+          "thinking": "I need to navigate to NPC 0_17_2 and turn in the quest to them.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_17_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3202,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 54,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1736000000
+      },
+      "id": "msg_011CcrDS3Vov9q8BBpEj9hPB",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3202,
+        "output_tokens": 54,
+        "output_tokens_details": {
+          "thinking_tokens": 26
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_17_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3202,
+      "output": 54
+    },
+    "tool_calls": []
+  }
+}

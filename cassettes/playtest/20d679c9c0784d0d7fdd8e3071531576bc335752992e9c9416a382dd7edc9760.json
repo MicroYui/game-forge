@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:20d679c9c0784d0d7fdd8e3071531576bc335752992e9c9416a382dd7edc9760",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8700,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ev0ICokBCA8YAipA/3b8UXZ+OvsgXlPrR6oU9bYST7cGFDWUL/Q3wDfPwtGFOdlw0OOnUXcl2X5Kx3v3fG3Z4Vrnzyx/a7xyjTsSWzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOcEWJMpev8T054x2BoMjlCLoTGhTeDbnDupIjC2cHiZ8NkG6yL9TIBZdn2BubECQFOI2WidK4DShbf1UJJ2U6XIofBXDACVidnS1j8qoAcCbxrX4sniCQMxR1fWcHeCP0UWWCM4ThuH7aEw4FrrXOKfBA+M28xtVr0RyJpsLYS1GbHL2UCoEdit/TCKFUODA6Ev8Er7gEVkNRToI7EmnkbDJINKwTwk/xJavYiI3VyugJmb6eavZ1/UPnu0H1eu0iI/67X2OZ0c769gaTl3jm+XCGX9rl2K7P9V7nl+pdLpj40ZSVvC90cF3G21qmc/Iqx1LHDl/TZ550OBQlO/yzSXcpHfqnpOTdjF2TyYyyrkvCILPjHtSXx75qF5K68hcVdm6aLJddQ/7KuQH72dorH6hzKjZHvYuDR78lMafgYXj9mWTQQJG8+6w46qg98M0dz6GH8PqLAflSj7oPTRVwsZaXrgdeoYC/K369+lSwERX82YvtXxzTzT6tnXyuu6KijXDKvzjYoN7kgChFiq264rEo11aHbEndCfBaL5egtyBSy+MjzQic3nP4h4nUGKMmJrxeNqvGhC7HUHJY+LvsibsZ8mDe0u3vNYaFXPvrWKQ/hUX/FpELHV4h14DerBrxd60Dhl3KzuQQqFDGAdaVviu7fpf6GTCjkPG3560HpaSXl8R13i18cyloO4EAtcbpLBBq02Mf1Z8jnIC+WnnEnpFrO0KI+HV6iC1OGE0ci/LJEw6xLuiIqPtOAGXa5KQrsrlPlL691zS2K1211qPrqUPeJ0XHLIVCy/IM0/ZVM3oDDBmaIVtzUeWhLtOY5spCm8yCJIZ0hq5t9j/jTxKeIfUxzIJg7qRuHaCbXm0z0B2r+rpLD5XyQTHsF5j5DuCh7ohC2dhvBPCEFrVnSiE/o3EMgz4mcR1UhL7V6Nxqv6liRfXwkZkx+225JvWAL53mAw9FVb73Xvch6C/mr10pvVzulxQ70BnuUklS5nwUG2Ca1Wlhy4t+3r8LfYJ07E5JOwu6K2uGIG5DSmFygiDuWZrfKk3m8Q/mhgm91+oDShfLMNKOLiZgU4BmKThlq1rtdgfQkoADFRMlb0MyjA5SDlIq/0UU2O2XiJdsEP8+kqQ/8x96bIjXeEADZShcIQ7sscErJQv/RGEXmeQBeIBSynvdyqrTqa2iDgCHwnxo7RuQC/Y9M0XnvceOOPxX0KSNDYJr1F/tLjh59T8DT3BdaxNVE/41ulBq9gJ/BwzYbpjQxQOc9nWrzuMM/zJgMIzEIQr7YANKqHfCgoS2ATeJgdBxxD+Y8tHcZjwInU8lhyc6zRNDONccHFabFFIgcqGAE=",
+          "thinking": "Looking at this MemTrace compaction log, I can see it's a debugging trace with 48 steps but no verified results or verdicts yet. The data shows tick information from steps 40-47, and I'm noticing some patterns in the active_quests field that might be worth examining more closely.",
+          "type": "thinking"
+        },
+        {
+          "text": "I don't see an explicit question attached to this trace, so let me give you what I can read from it and flag the things that look off. Tell me what you're actually trying to figure out and I can go deeper.\n\n## What the trace shows\n\n- **48 steps compacted deterministically, but `0 verified, 0 verdict(s)`.** That combination usually means the compaction ran fine but no assertion/verification pass ever fired. If you expected verdicts, the checker likely isn't wired in or its predicate never matched.\n- The **tail (ticks 40–47)** is a clean quest sequence:\n  1. `",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 442,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1501000000
+      },
+      "id": "msg_011CcrMiw5WDcXvcTwmtVJY8",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 442,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 322
+        }
+      }
+    },
+    "response_normalized": "I don't see an explicit question attached to this trace, so let me give you what I can read from it and flag the things that look off. Tell me what you're actually trying to figure out and I can go deeper.\n\n## What the trace shows\n\n- **48 steps compacted deterministically, but `0 verified, 0 verdict(s)`.** That combination usually means the compaction ran fine but no assertion/verification pass ever fired. If you expected verdicts, the checker likely isn't wired in or its predicate never matched.\n- The **tail (ticks 40–47)** is a clean quest sequence:\n  1. `",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 442,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

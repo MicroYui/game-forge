@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:aea114f66683d946c85882ed8eaecf6de75fba531ff0937a5ddd4b65aacbd140",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 12559,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpQICokBCA8YAipA0w5cc1+6ctLKKZxGxUtjXqGAgfFvVYvh5JLP4HOJ7IxUR6aNQU3jAMixfSR8kibq/rqxC9uPpW6Y+kBrwktJkDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOUblHW1xgbdrcREthoMfCWkNjjEW018T8jGIjDUrcaFuMUXjq9y+KsE5zsrU4UMqvxF4J1KYOmQBuCW+VUECFZvEv9qj0n0iBfdiqoqtwZt7rKhbKhFL6UXgEl0lV2y6sbfsn1srTbOuha2sDWV50eOC7AVfwwf9HeJjQ1TGS33/U7r1Qu0JsSi1svKMG+IDcNgBl4cC8azdlEu1TboxQheNe87C0isSpWJ1+HVBKEiY5xg968g1EDK/3hygheDI7RxlCxfuTwXEOHe3uLAPKXtJ4bbus6IpedX5qJZOU9ADMmZ5O8ecfKZ1RJ5Gb3MYRLkBrYvoNhrO84t3B8cHp4qCR6oax/QJZ/szUiD+jr55BbLzLVWYD9nMoz6wcCVcQ2xHhmZYuXy1yw35DPdww/+Ldbo/GQsRtIJhkPztlE76yOtNpQq+WN+q8MaICpQMTiIzTLYDJWdzMDnDZjrqK5QCnby98wK+riI4hHy5Oc5bzA5Ov+OLvgWUGMedxRVUiyWErtkn/M50Sl1mPjDUjpKgqwAtf6BOa0NfBc86PobWx3ZAalr9n1CqgOHVy7djijztgvKR3EywvDF7gFf3EryOABF61ywKAWAQ2asZmQhP7F3qJ+jmZAsj+Rn616MKndOwypxF+UH8dno6mMKUroPWQiqySskoSNDsYi+L+pIp3XBdAT6obSVv701OnM/qSzoVr7Z8rUCY+F30qwuOk/2pyHtzpt0Ni8sqzOdxVqu7XSntDMyCzAUsRiy7e9Esa18uHV+b5r8uFGS9S6GZeBbzGyy5qY+z/r4TQ33CavhBLvXq39y5O0MLRKkTF/iFhLt9hf1arzWarfwjoeh1p9rX//udHW35jDIeoNyLlNf4YFEVZpiH0yIsaq22Vzx47QqrLwanVijplaTlG17fWzs6jdg2kJKNiWOzdtOrgqWSyMUkq6xxPbjuEdOg7i3uAoMOVFuZR/QdhsNXYQfqgL/JJg2vVOngnnRRcuH974xqeQzqp5V4uA8R6B0j3RMkgsAhdlELQQL48evxTEe+z1UAk2vtHDweekbrZQQl8ADwFlbkA2m7bq8LMPC9kzBuHeDUiUrXMkvT2Kuoh515BUK38R1eVLmkmcwHOvdZCGILda77YTZUQEKAGstg7Xk1LNcZwL+bee5HicUoULRFmgOlsVyb8qJ6zqtXK+XTEkak02HAi65GAE=",
+          "thinking": "I see that npc:0_16_5 is currently available for interaction, and I need to figure out which quest it connects to. We just finished quest 5 through this NPC, so I'm looking at the remaining known talk quests—4, 8, 9, 10, 11, and 12—to determine what comes next. I'm considering proposing quest:0_16_4 as the next step, targeting this NPC for a talk interaction.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_16_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2522,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 376,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2201000000
+      },
+      "id": "msg_011CcrmSZCTytwxsrEAQxBCA",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2522,
+        "output_tokens": 376,
+        "output_tokens_details": {
+          "thinking_tokens": 335
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_16_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2522,
+      "output": 376
+    },
+    "tool_calls": []
+  }
+}

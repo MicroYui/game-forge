@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a41c4f9622663bdfb3701260a0b594795e0ca23086c9b33defc4652770c27f6d",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9635,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Es8JCokBCA8YAipARylkhA8V20CEgteUGe9h3taGRjTckXaVD6wcwiBvlrMBlM05eV/FIFGzVugarMs2ydktJ2i7EEc3KNzAt6wtQTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLnlgBpRB0SdW+V5nRoMGGRjhRLqB0uUn4uzIjBh/9ivrrb4lYYttey0dZYC9R8txIJaCGfzbXdBmrjUIm6w3iYYWmuNuQlwLOIfthQq8gejv/9XcDYhATCyCXZbuutdYdw5ulIYI1kePzJ/Seh3aX9NiWx45/XE9Se+m5Rqmc8WTVIvfYHoe4ejl4qAPewc6Sx60VNqStRiUfLAdTuAbrzAcSXgdXXIzt9q3bGG/Cw4N/ZlxMRshR8KD2WfHGwXASjqXCfYRDQvd0qJkyIvuppLJkJq+6JWWMJ+hECUNN6d4O2ZEAuI4WlNQav4hmWUOv1RPp+DvqT/ywCQbi0iiU7SOSmykaAPglMAcTJMIK4g27v1Uxwre7OybsWyDTglkvvzImirRx0VgckG/j5UrzrxCLXZoE+DM/1lT474xTAEiBH/BMtbLsGsX+ZfNxlt33Lgy9OJqLtQwwo1OHvwlfcszIijY6alrZYbpsEs7r5ltxPwOBIrCpEkcBG20q98HD3zHMcpX4e/GmqPKM7UpsHhCIa2254pRzAI0Org9ExhBztxz4uNv6YgiwB7/X8OkQTuBT2Q7V5uA4FCis79diDLwaSKBnSMsuFFWh4epsWYGNVGHGGedhNEsUU7Zy9PudRrjZd3OKHZnynl0Pp8Xr2w5lRPp+FgYqMufHAETP6N2fFkG7G916HnQiUJn6qxxpBExiYzMPYlWovvjol4y5YU1OiDWN0XK2KP70hBVLg+3l5UQYjpTZ9qR9NoVEj1d1rHJjmF7Mah8K4CbAn0wES7EZ3e2ytwRlAcOkAl25ozD58qvVenOP3TJRfRQmy2Eo2qt3kYYOQG9BaKXn/swGIAWvabMbuGoMOxXWkmTQtH/LwxJevzwVZP6VnnWxXXtO9tsWqdItnn35DurBFC31lQY7T1W8l72mt5fZrueevnbSZ4D+28nZyS2CzfVhy7cl9pSpRIgNabsqN9xGix5htpzg6pl1cz/ENEAgPr9uwFkNkKCwZtLoxCoedtqjHrz+kN6WyELahfbhzDe2fu/HtarxWjoxPfQR5hdPkB28S1Ty3l50V2hfyrqDRCEBY0l3UZQ2jFgB/ztGXY1vQSHq6NDRik6aff7VcKIWzzX4KmYvkS6UYB+piIhpuQAo11nnNGfrvsWK7X9jI4CuysRWfit2LuKEiBHd6/Te7PXnAFx3Qubl9O19X6m59hKMvUYHmEgZ8mF8GKZ46em0vQhjDAf+oGBENmUwNrXZGfpaUn5vdyxM+0o2Wdq1uKrw+z5FyH88jHtj5qHjnY5IlMOcGkl/xY7G9d+AaOHA08LhmZZKHrWLalfk7RF+mvoD1gHe8XDxq1HOJYF48xsWFr4oTiI8W8ATmw4JCHtW5ehkldpqOkLxyRKxeuR+XuNKtxdkf24oQom+4hkaOXLSV+LTshqZieCIQto3Pr+BvtQ4igXhgB",
+          "thinking": "I'm looking at a trace log from a MemTrace compaction system that shows an agent executing a quest sequence over 20 steps. The log captures the agent's actions from accepting a quest through navigating to gather resources, then traveling to and defeating a monster in combat.\n\nI notice the active_quests field appears truncated or malformed—it stays empty until tick 18 where it shows just an opening bracket, suggesting the data might be cut off in the display. The fact that there are zero verified entries and zero verdicts also suggests this trace hasn't been validated yet.",
+          "type": "thinking"
+        },
+        {
+          "text": "I can see this is a **MemTrace compaction dump** — looks like a deterministic replay/trace of an agent (probably a game or simulation NPC/bot) running a quest sequence. You haven't asked a specific question yet, so let me summarize what the tail shows and flag a couple of things that stand out. Tell me what you're actually after (debugging, validation, format help, etc.).\n\n## What the trace shows\n\nThe agent completes a standard **quest loop** over ticks 12–19:\n\n| Tick | Pos",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 427,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1493500000
+      },
+      "id": "msg_011CcrGHDkYiHkVAY5zvBRai",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 427,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 348
+        }
+      }
+    },
+    "response_normalized": "I can see this is a **MemTrace compaction dump** — looks like a deterministic replay/trace of an agent (probably a game or simulation NPC/bot) running a quest sequence. You haven't asked a specific question yet, so let me summarize what the tail shows and flag a couple of things that stand out. Tell me what you're actually after (debugging, validation, format help, etc.).\n\n## What the trace shows\n\nThe agent completes a standard **quest loop** over ticks 12–19:\n\n| Tick | Pos",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 427,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

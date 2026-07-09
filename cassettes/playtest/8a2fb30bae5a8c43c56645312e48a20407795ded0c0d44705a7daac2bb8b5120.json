@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8a2fb30bae5a8c43c56645312e48a20407795ded0c0d44705a7daac2bb8b5120",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8536,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EskECokBCA8YAipAPJtnmpoVl8akt4nrRwKvT9jnIxKYPUArVnZevyiAJC/9xnG/St6CBDq+2L1VAmJ/XfZErNsNCLrlMdyZkqZRLjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDINJLHXz63NJCKPjrRoML1cYEh/j6/ydwrQgIjApx0o6LOjak2sa2SgK8oGPAPiFwkm/aE5V/XmJT365XnYu3ofho8+G/ezL/6/TLJYq7AJ75qHAwBFdZBYgrzHmKiiVD+mN2M5XW8//Pd0xuxeIw/UADGlAggybpjA65bBlsa0+FT08K4HL8bv76KrDuLXsqYqmIPVaUo/oSDFT0ZECOMs8IZBb2cXbiTMEdbB3Q5tTDwk0iAhaXLQXLuihoEBVhShLwwdVVBtPSfMzqsPQrG91LM+CQ+QOfvB8Pw+xmsQnAXMn/k84c8zr2fjuw11BOOX0FmVD4UrqwOwWBBL7eRVXHPjlCqV9/NxuOZZXzg+4kcuvomv3DPpwR9PUw1tqdsWbTPUvoUR/iwePA1QCC4W//c3mlfD89eDziG5Ze8FCbpqpAjJG51sGI04NDuG1sZ4WMhzHD6wEuXE2hpsiKGIg3iKqB/Ybqiuppw5aL80TZsLKu/GRD4UmzAntSj/tczPZT1VA1ik3STJRFVexmSaDqN/QixaFekpP5gqv1YS1Ud6B/4pY7aA5sGiNGs0oOPmMYBH/qB6mT5FMGAE=",
+          "thinking": "Looking at this log output, it seems to be a trace from a memory compaction system, though there's no specific question attached. I should analyze what's happening in the trace and explain the key events and patterns.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's my read of this trace. It looks like the output of a deterministic replay/compaction pass over an agent's memory log (\"MemTrace\"), showing an AI agent moving around a grid and doing quest steps.\n\n## Header\n\n```\n56 step(s), 0 verified, 0 verdict(s)\n```\n- **56 steps** were replayed/compacted.\n- **0 verified / 0 verdicts** — nothing was checked against expectations or flagged. This is just a raw trace dump, not a validation run. If you *expected* verifications, that \"0 verified\" is the thing to look into.\n\n## The tail (last 8 ticks)\n\nEach entry is `tick`, `pos=(x, y)`, `hp`, and the active quest step with its status.\n\nWalking through it, you can see one full quest cycle followed by the start of a new one:\n\n| tick | pos | quest step | status |\n|------|-----|-----------|--------|\n| 48 | (1,4) | navigate_to:gather:0_7_4 | arrived |\n| 49 | (2,4) | interact:gather:0_7_4 | gathered |\n| 50 | (2,4) | navigate_to:npc:0_7_4 | arrived |\n| 51 | (1,4) |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 449,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504500000
+      },
+      "id": "msg_011CcrMpLSpzYQZmDW4WjuKe",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 449,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 112
+        }
+      }
+    },
+    "response_normalized": "Here's my read of this trace. It looks like the output of a deterministic replay/compaction pass over an agent's memory log (\"MemTrace\"), showing an AI agent moving around a grid and doing quest steps.\n\n## Header\n\n```\n56 step(s), 0 verified, 0 verdict(s)\n```\n- **56 steps** were replayed/compacted.\n- **0 verified / 0 verdicts** — nothing was checked against expectations or flagged. This is just a raw trace dump, not a validation run. If you *expected* verifications, that \"0 verified\" is the thing to look into.\n\n## The tail (last 8 ticks)\n\nEach entry is `tick`, `pos=(x, y)`, `hp`, and the active quest step with its status.\n\nWalking through it, you can see one full quest cycle followed by the start of a new one:\n\n| tick | pos | quest step | status |\n|------|-----|-----------|--------|\n| 48 | (1,4) | navigate_to:gather:0_7_4 | arrived |\n| 49 | (2,4) | interact:gather:0_7_4 | gathered |\n| 50 | (2,4) | navigate_to:npc:0_7_4 | arrived |\n| 51 | (1,4) |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 449,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6bd21f68b71fcfec6bc728b59a892cc54a4fe30d42ae6f669b191a4bbf5b7602",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8554,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErgICokBCA8YAipAdWCJXIH7sCxqPMgZIELgLeyKODBQBBHIzlCSP012tDHX7ficSHm5BMChydoi11tSURzHW1JmsMk4AULvQVw4YzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDK0CcoaJ/2mkyx0fRhoMsDoGS1l6rdhFm1a4IjD1s3+oRKKNqrEA450g0JlPVhMP5J8vtFudRDWgEEuKuMfNceztGpN/jOX8yFRvrScq2wZ3AW8SQCqde4fI2MLiTeY8gHKcQ7+iuAJI4OuAi9iVHxUBSqcV5gyIqasp2OQZnCD3BJ8dbAPf5rXqA6oJASMz1Koj+Vxo2Aj150MK9NNqukkLnqjcpUPjz2ct78scC9yoYEbhu5yhu9q4+ogNYEfTjTKZCs5ojN4Dtbt04NEgTzu2e7NOcemEWux5yfdBN9K0GBmY+Kic6OceOF/righ+3SmuE83U4XOFNZHgbhtxVhL9X1LvNDDeLq7z/7lyPSvQVWfWslWathWOzyfVCn4obak4Xj8bZNGW7Ll1YTx9Wa7/0mklUvkIrMdyycKIcfhxxPf4Rzxty/bYT3zMgFQmeVvkuEpbq2mvvXO+rqjs2R4SA5o5W0mTE5Dr28RqgyWiXrNJS+RiduDdYmYj4zxxxjVBRYRQ4l6mCerkLAHPSVlhEc7Lhe1mhqHiYe7isWQ0mJ5jw24naE9yHD9ib0NhIDBL+aMne7kqzjhl9FF9y3qO6vV4lXOc88BIu8ss8mUya+pfMwYe0TWI4qg6lPJ3P42j6PC64dmyCbZoeJIkWhkFaSFDybiZdBtV4v2enk6ELyc5HNQG+D3XPe8h6qi+KKcSioDcjLOGWhx5a0eQ9guVlVdAeXyRax7cQSVS8ROLTdcbxbz8Tung90829jXzqTj53z5MHmYNdxdc4yzWTJdHISNCYon/DpQXyqWa4rvybhAyIeL3l/AZiASwdQjAIYQwhWU0H0zv9uIdkvg27E79ZhPdD+Qxpx0QpBR/J2Gb0Fjz70dXpAB/BXiw8wNF9udjH7QBjx3sJ43onHR7huTVIagVkrUGl7woma7XmZjDB3qorQifBS1EATL4uruFgPgADUz5Y8Ti7AW4tegsYECdiyR80vncQK7aSDvckDCRSITJi+OMO8PZWembDnKg1a4H0QbrTus7XLq4MkKN9VYPravIOCHlFVtFYrqv5MeU7jsb1g5Vx1FUXSovcNFD6yv7F4F1tI0gXv7PIJlGL/oXjbITQga5myJYNZJVRumHHNK7AG2YM8MkLVdgbUdEr6RTTBxixbGizQ24yKhARv6KosfssaLtf8DB3Q283W/TBTh6TLn0Q056i2Y9Oupct3eCaVwleM43iC83JQGGyRhes3/C8q3SbZnHGAE=",
+          "thinking": "Looking at this log output from a MemTrace compaction system, it appears to be a game AI trace with 108 steps recorded but no verified outcomes or verdicts yet. I'm noticing some unusual patterns in the navigation commands—like the \"navigate_to:mon:0_11_6\" entry that seems incomplete—which might indicate parsing issues or truncated data worth investigating.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's what your tail is telling me, step by step — though I'm not sure whether you want a **sanity check**, a **bug hunt**, or just an **explanation**, so let me cover the reading and flag the suspicious bits.\n\n## Timeline (ticks 99–106)\n\n| tick | pos | hp | event |\n|------|-----|----|----|\n| 99 | (6,5) | 90 | `navigate_to:mon:0_11_6 → moving` |\n| 100 | (6,6) | 90 | `navigate_to:mon:0_11",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 423,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1491500000
+      },
+      "id": "msg_011Ccrf1fzbsLPKGp9X9hKYg",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 423,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 335
+        }
+      }
+    },
+    "response_normalized": "Here's what your tail is telling me, step by step — though I'm not sure whether you want a **sanity check**, a **bug hunt**, or just an **explanation**, so let me cover the reading and flag the suspicious bits.\n\n## Timeline (ticks 99–106)\n\n| tick | pos | hp | event |\n|------|-----|----|----|\n| 99 | (6,5) | 90 | `navigate_to:mon:0_11_6 → moving` |\n| 100 | (6,6) | 90 | `navigate_to:mon:0_11",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 423,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5ddccca1bf6e1f7d888c1bda3b06cf5bce1aadb13e1d112022e05c6c3e78aae7",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8115,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErYECokBCA8YAipAkGnX7Rj4LFXIq9r45zUFEb+7OJR6luZpJqxPubIBuIAvpZIHBLX47bZcc/hDMdXa88oB9FSKiDUaGpyB6LhHfTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIhHu153AF+eKXZsYBoMlc/Ha8l6lkw0DDtWIjCYRZU5ZlZ5B2v7atNT6uWusCoF2pAMP7ALk1i6yUfTpmA0WJNcTsAxgatpBIbptbAq2QKbJjoXqQAh9ed+Zg2dvORvgfeh/RNdPlGIPAZow8wGcNw49iHk4/thFlGwEcQTrtf2lNjP7VhFaxD7zTcmNOwTThS5F5vpRT4WYzae+o4yLmW8K71A1VUGnCnUEZKRPEIdV1tghdgtVBxBAt5G1Y4e0/Oh5sgNjxakEmOVtt74A16BP29eg2jCiKBBv4rQQ09F7vyCQ2NzESI3BSu6s+DtdMMhUuU0a9JjIACyt+z5zksSs9Tg8MTaCU7Ivonr38uJbGvPYqgR2PTbH+DsTlwftnszKXgbQQbQoiuWHku891DB8esmtS4xGhhleH3TMejJGYtqw+Jsu4VJ/xn0Fufzh6JmycWB2hXomkNs0w3gNe8enkd0oCYFDoSbFNAwj3VH7hP9G//Ni4rwBKLshzpl3+ZMmVSzpQEm3vCLAfckZ2ItPJI2GkyEJHtBK+lAL+/dp29shLSR4zMYAQ==",
+          "thinking": "I'm looking at what seems to be a MemTrace compaction log output, but there's no specific question attached. I should ask what they'd like me to help with or provide some analysis of the trace data.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** but didn't include a specific question. Let me summarize what the trace shows, and you can tell me what you'd like to dig into.\n\n## What the log is telling you\n\n**Header:**\n- `38 step(s)` were compacted deterministically\n- `0 verified` — nothing has been verified yet\n- `0 verdict(s)` — no pass/fail conclusions reached\n\n**Tail (last 8 ticks, 28–35):** The agent walks along row `y=1` doing a scripted quest chain:\n\n| tick | pos | event |\n|------|-----|-------|\n| 28 | (12,1) | `navigate_to npc:0_8_3` → **arrived** |\n| 29 | (13,1) | `interact npc:0_8_3` → **quest_accepted** |\n| 30 | (13,1) | `interact npc:0_8_3` → **quest_completed** |\n| 31 | (13,1) | `navigate_to npc:0_8_4` → moving |\n| 32–34 | (14→16,1) | moving toward npc:0_8_4 |\n| 34 | (16,1) | → **arrived** |\n| 35 | (17,1) | `interact npc:0_8_4` → **",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 435,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497500000
+      },
+      "id": "msg_011CcrZVkVoKR3u14XkrUKyU",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 435,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 106
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** but didn't include a specific question. Let me summarize what the trace shows, and you can tell me what you'd like to dig into.\n\n## What the log is telling you\n\n**Header:**\n- `38 step(s)` were compacted deterministically\n- `0 verified` — nothing has been verified yet\n- `0 verdict(s)` — no pass/fail conclusions reached\n\n**Tail (last 8 ticks, 28–35):** The agent walks along row `y=1` doing a scripted quest chain:\n\n| tick | pos | event |\n|------|-----|-------|\n| 28 | (12,1) | `navigate_to npc:0_8_3` → **arrived** |\n| 29 | (13,1) | `interact npc:0_8_3` → **quest_accepted** |\n| 30 | (13,1) | `interact npc:0_8_3` → **quest_completed** |\n| 31 | (13,1) | `navigate_to npc:0_8_4` → moving |\n| 32–34 | (14→16,1) | moving toward npc:0_8_4 |\n| 34 | (16,1) | → **arrived** |\n| 35 | (17,1) | `interact npc:0_8_4` → **",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 435,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

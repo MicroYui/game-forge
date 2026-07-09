@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b51ad463518b552d7810503667a162d706a5ad9da8ba2ecc3b8be11afbbddff3",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8900,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Es4JCokBCA8YAipACLYmdkRKQ73JHX/2pdSUbOhCPqqHZKHLx5Y/Cy3DCwI5Z5lAV6QrfrLDH7xW85OzhUKJgRUrXSsSeVnkFuku9zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJZjrJ0LrfF+LekjIxoM0dHRr8tKl6xvsni/IjC6jWHd5COLNY3XJU6TJjb+CLlX6Hpd0s0L3FU77cLRtNOW8vheicruMsuEtNGgFe0q8QdNkV0bhzwJl2+qaWcFXtmUyt+9LncNnkkQxVNr8+TUWBNkc7sFB5/rBzQvo8aMQGlpK/3D1jcF3Ct0YVtm7GHwWne/+NOsOJJz8UhjQzeKZ/gb5+inB7k5YzjMQAp6FrNd6I6kJ6j1x2Jw7yDk80+1mJuwc23bxN86V0ZXJ61m0oLIPrOajWEwwLmxMBkV8t28zm2ZVpwK6yjcIY99sI9805VupGO+PMf8xsF3YItPdNWtLu9BTH8c8CkJ/sBcanieSzDriwmJSt7x0VlyKXKex/k4Q1SZYN4rKUHco0x8jFwQQblYjXIQVdrZqJGAdTNlMwh7KXhAgvEnDzotFt9Pz9uRhPjHKlBM1bOuA3rFAtDTdd5MdZeDA1pvxEZbePoxoaz+6QFoDOSZLj67IjIIHtH89eLV2I8DTpiKGxjHu27WyCT+dbrTnNgxaNM/srpYP12s6yS8A9vUwydtSRJ46BwHlM3vP5EOJTVdntaecR+XRNBOn/SRtogzRVl/LwXNqU+rPwqK8zBnjfJr9sjPqVbfX2/t8LZHwkD1VdrGJxD49JtauSw2oCCIn1z0IRyKEtBhTNuKXRCeK9YRZUetLY+K4r3K+QSMvLaigMuEHyQYYs9qLrfBebLc/hgCU1kZvgoYyoZ6K74nOoWS2JV3GIV5zszu6+GWjQFbdxAnGFBtPC2Rqhh+F9qBm0e08b5Pyc3RKtyT14aci7oyIZ3GoAV9ynFIlAG+pGWcmS3ZRT1To0Tk61xgOXbPcmUaN5BTHqwAN0jL4bxVRyV+1swiYCdiCfeVRLQSK1RESlrc0gkqCJnLuJo/r5f0n85aYwriqE4L09qP2jNaTAizA5q4TPBCl3xJVornjYY9fiZawtmupLlN4pP4a/Qk2Q2BmienHUuUwUenXMnpq1r3rbkKZiyIuT527pw1wZ42yRS0GQUzqb9pRL77T7Odf2ZTqARjDTj5d3PiAXoQW2VCKI8ObubjBKNRZ9BeNNlirUhl7VAOSeXXf9alzbxvWEZd0C45bBIpxcceqWmoZFVp1N7pbwhK4YwILO2j873qT+QmvZ51O2bYVIAQNGtanfNu8sX4GfAvWB6WcxTOUiv3CmcM17rJ3rbny4ijDcwHggAVxnj/NBvqUh2Y2Y5HcUQ2m57cnjr15LbflNAkjqvRTTnpbzCY3zH9bIxvxHBaacMFrsS9lTLZ3CL4x+txiXJT79vyGR0niJ1lsAdtS1wbqfAbcXrfYkuDq2rqycTAotQHHsIzQD5srbpkVfy4wf7l2xijbkoS51buFq9TTxRMR+RI5j7uNcuhZJUUqxlfJzkVKFMj+WEWoZkKuLRkpnTsCCgBGAE=",
+          "thinking": "Looking at this trace output from what seems to be a game AI system, I can see it's showing 39 steps with no verified states or verdicts yet, and the tail section displays ticks 31-38 with position changes but stable HP values. Since there's no specific question, I should ask what they're trying to understand about this trace.\n\nI'm noticing some inconsistencies in the formatting—there's a bracket mismatch in the active_quests field where some ticks show an opening bracket that doesn't close properly, and the quest progression shows a complete cycle from attack through victory, then navigation and interaction leading to a new quest. The zero verified states and verdicts might indicate this is still in progress or something didn't validate as expected.",
+          "type": "thinking"
+        },
+        {
+          "text": "I can see this is a **MemTrace compaction log**—looks like a deterministic replay/trace from an agent or game simulation. You haven't asked a specific question, so let me share what stands out and you can point me where you want to dig in.\n\n## What the trace shows\n\n**Summary line:** 39 steps replayed, but `0 verified, 0 verdict(s)` — meaning the compaction ran but nothing was checked/asserted against expected values",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 439,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499500000
+      },
+      "id": "msg_011Ccri6m4gtNkmA3dJaRDWY",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 439,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 372
+        }
+      }
+    },
+    "response_normalized": "I can see this is a **MemTrace compaction log**—looks like a deterministic replay/trace from an agent or game simulation. You haven't asked a specific question, so let me share what stands out and you can point me where you want to dig in.\n\n## What the trace shows\n\n**Summary line:** 39 steps replayed, but `0 verified, 0 verdict(s)` — meaning the compaction ran but nothing was checked/asserted against expected values",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 439,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3c71ff0530094740b831c7ac73699414c52366f07a7d40fd31d47b96d4214a7f",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6543,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoQHCokBCA8YAipAzpWYibh/Pgk9urakFx7ambsT3hKZDdZSxDPpH7pGB8AI5dBtTouttrJeuNMJOMnXZAZcgKnPBCPPrFoki68UqDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDqjkVHbVys/mqP+pBoMrB54OPiUYPVQNl5XIjCMl3qNko+/Ts/HnhZLMYQWhhOdGkR9cF/3IS2WqHqaoUumNKd+FDlKXtkfM0XserwqpwXE1uu7YNbeA/D1EPjrDkT0dsTssHsLlbXXZF1+QK/PBJAKRkAFCrVIDESHgyh3j3kdVPxgP0COBXxO3gCeYo4T3VriuYjCGqm0q0V8zLF5g82TZhKOYXBURdOM2a1kvYAtBSRCdNzGMgWDxeWKb4F84Mlf6HJReb+HhKQ5Sg+tuPpQUAZPS9MMftDrNxMVezncuSSe7Sd8aaK/HppLsz6ll/SKSHjXtWAzNE7vSw0+lsvkqa6ZEB1+JmrkwsLMcvRpLv0C15FJ8tsLXOWBaDFJZQkfsBNiHWVHID2pOtL4LXSPuNZfYsIXeB5pYGRz8K67W1n5wprc/fNU58QxUR4ryECi1nVQsLNKLzUB8tV1us/piQnWmyk5DrSeSVs93hcTdks783V4UyzpJoRaKxwJiTADIdF2UGsxqGpHukNWrCzbiRn3yqpR0xDSO4gspCDkiDoyfsa30e9QCLY41XkGiJHbt2xHOoywo/NX73xXHM9ewUj0cFb21XPxyFwk1Tu2SLhACVy7mLYvG30PDipeSYWeVU7iwH4Pzekc2iJ7X1+xq8IWPdW5/Fjp8YNmf2Ww9cfIFFd+4i2OW2axpPnkHvIVH0t5MMtPSZnznHCNh5OFOXxVgxyvoSWfHRWE3yh4PfqRxzjYawtZijkZcnjGsssiz8t5x8+pZX3Bq02GPKQlG6+QlXuGZxTw/F/2FYw5Np2AeqlDl/QQbdj2CIJxghWNbbujY/Ms1PGmplfLvjwkZVaaxu18NHas5bF3YYmRsv10wNXVwiqwSl5gakolrKA5mjz0iJLr3h/hnKFm3a71EC4y85b6QdI1CfueCkm9zDWuT1Bn9FX16S4010367LuAjvKtoGDDbwEVHtZcLj84VtqghMRrjDWGec4F1xFfMudCsC4pGAE=",
+          "thinking": "I'm looking at the available NPC interactions and trying to match them with known quests. The only available interaction is npc:0_17_6, but I'm having trouble finding which quest actually starts there—most of the quests I know about have talk steps but target different NPCs. I'm considering just picking the lowest quest ID I know and working with that, though the NPC targeting doesn't quite line up.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_17_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_17_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3059,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 322,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2334500000
+      },
+      "id": "msg_011CcrDyShw2wNUuwbTkLz2a",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3059,
+        "output_tokens": 322,
+        "output_tokens_details": {
+          "thinking_tokens": 281
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_17_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_17_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3059,
+      "output": 322
+    },
+    "tool_calls": []
+  }
+}

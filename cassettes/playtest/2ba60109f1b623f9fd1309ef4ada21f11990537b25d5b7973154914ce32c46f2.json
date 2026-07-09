@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2ba60109f1b623f9fd1309ef4ada21f11990537b25d5b7973154914ce32c46f2",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8460,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EusICokBCA8YAipAKfj2BEGsvU0YOFNqUhIMJEN+H4c8jB1Co+Qu72tcT5yEoG5SSz7xKdQpb/np4DT1HwKHDznRME735Wfe028XUzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIdDnoReEqDAiP1JChoMQ7IYoUXM1tBy5v9gIjATbk8oOoGgiULcfoqoVpGCajdJixwNM3bGWj+rSU8N8Dgp6nsl9bo9FqvsR8y0n9gqjgftpnK/M+SHmJYKdiyzdmRU6zSCX2Ag+m12PfUwIHJlhHZITBcwTxXaNDvc5Rm6iP81jb+wydKj/2oyElzsRU5L9Ya8NYNTqSk4ccZnxR2q5sWsDNJQoRyyxkS8CmkiKIcQ3JLn7tiMc6P6UaQpEwQ/SlREXEPyNxLTFKAt/p+Z6IvA3kcjKmQV33NQXlhF8NG3pysq/ZaSG/IOF1lOlHAJCRwGLVkI7R1tO63kgM8Bt3dFvFZrRwYaEIvEaT8Vapw07VF8qNbqs43yWZ59t7+bPhjXSD4CDQhZEwEbXDTysrU1KogQxl1tYZhiVmh7T8pko5CO72r6suP8WFc+NzqMnDs1JCG+OIVjEyGsK6wDdLcRon/4+q714yaXg+cNRAguHagPoS8MBl5fDX4vkUb7+RnfM7jgzk5ZVUUkqy1jkDtNnmVRxitgHo5RyvgYoSWIDQRn0iEooSBf/9nvKP6ZVY0U7kXpfxvcer4qd4H39fz3VydgHXr0A4Guw40cr6D90vfclxImknW+gtm/guS4BllrpS160yHu7GMz6+SB0HPWsOGyhIKmON3Ww51O5x6/WinArIcQiSa9DMtDRZSxJEsXC3wovd32s0mhiCx/0dZA36kEE3QeTgc3xO/Qzuyw20MEGvFGSrTMuIUMXuv7ntB9MTRt+/XIaFWeSNWpo9qhO7kxB5DLhMeyXga7GxbL9y4YgEWQyavpilL8XRh8EscNC900UmpW/EQO3h+Kxa0yadRhXVpH59T43/LCJb7IwldQfXpaYq2ydT5WBf5O6rJFUMx8Cr2RUIsgA5aI6B8ALkDLh1qO5uLA8rhI47jO8LmpUQoQFGX0Fg1QN9W2UyzV9QDp9qqJPb8zahcxQWwYvg8yqREqidb1VrRapDGfeBjz3Q9IlMRlaScFqTIZ3PJ9994DhclTbl2dgyetuoiD3burYVBeXL4yJHYCzgsjsxkILGN9T1sW/VQfjCuY2mPcZNLN/t0JvuJviFwp2Opej5UyW6XNKXKbkfvqIX2EdGOS3aTZMo1cn78d4YkZwIll+n7rJofHALw+bZQ1tAeG/kJVcSlCVKmMBysB0AgEyd1dYkE3OQHJntHMD4DdAV6V9YN9R33dbwlx6A07CMo8tdznChfZaAKPO5NeldFY8kN3zSgWDvxppm8IR5S8j3ugaW71mPBGBzY28x81EGOsNXu0p4wAnpRdkTP8GAE=",
+          "thinking": "Looking at this MemTrace compaction log, it appears to be a deterministic trace of an agent navigating through a game world and executing a quest sequence—moving to NPCs, interacting with them, and progressing through steps. The trace shows 35 total steps with zero verified states and zero verdicts, and I'm examining the tail end of the execution from ticks 26-33.",
+          "type": "thinking"
+        },
+        {
+          "text": "Here's what I can read from that trace — let me know what you actually need (debugging, verification, explanation, etc.) since no specific question came through.\n\n## What the trace shows\n\nA **deterministic MemTrace compaction** of 35 steps, with the tail (ticks 26–33) capturing one complete quest loop for `0_11_2`:\n\n| Tick | Pos | HP | Event |\n|------|-----|----|----|\n| 26–27 | (7,1)→(8,1) | 98 | `navigate_to:npc` → moving |\n| 28 | (9,1) | 98 | arrived at NPC |\n| 28 |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 445,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1502500000
+      },
+      "id": "msg_011Ccre74JopCwNZUJp9pKs6",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 445,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 310
+        }
+      }
+    },
+    "response_normalized": "Here's what I can read from that trace — let me know what you actually need (debugging, verification, explanation, etc.) since no specific question came through.\n\n## What the trace shows\n\nA **deterministic MemTrace compaction** of 35 steps, with the tail (ticks 26–33) capturing one complete quest loop for `0_11_2`:\n\n| Tick | Pos | HP | Event |\n|------|-----|----|----|\n| 26–27 | (7,1)→(8,1) | 98 | `navigate_to:npc` → moving |\n| 28 | (9,1) | 98 | arrived at NPC |\n| 28 |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 445,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

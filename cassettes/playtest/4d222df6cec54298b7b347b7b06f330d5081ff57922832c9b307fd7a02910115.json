@@ -1,0 +1,82 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4d222df6cec54298b7b347b7b06f330d5081ff57922832c9b307fd7a02910115",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 6646,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoQKCokBCA8YAipATvs766EomFGy2HwDpeHrAoL+7L/Tt0r1xujMIEZPa7Ikfz3oKVjLnqzd8bMosEDBDjvZiVhCJanIjcZKeaM1VjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPVr/CzqvFozBxEXCBoML7Es7TdcqECCFb+IIjAo+Phlfd4UGN6yQFiELO+EF/Nse1N7rfGId2FEXUMrZY7U/x/dAruc/BURas5EIsQqpwi3NSpY2/qa0yyj07Udun8luFVvvUqqgJPozLDJbkWsiJJna2apD24zNwut+lBpKRkgruBVFPtN35ikUmL8tx+zgsBGnHWNaxH9vTWZM1y85FaARBPuwsK38ltywjNiOtS5NfYETdQwm9TwxKwtwqvBFf8OM8bx7QISzMcf9JiQCm8/eQ8R1EFaJnXz3YZCRsFt0H7aMqrx+eUA8odZqkzzteh7vMh5o1rAHvqtKVjktaqFuAZiRMoQH5rwCA1GP0TrNc13hMunLpKo2Yq9pmKejC/7c6tB3n6n+yA5kqJkuiTBgZeFZLawnLCknYzj2Ppp0ZFE3/PxJexhogYtLvUn/FcqdQLdIlENiDnHb8U+Y9c3JsMAqrLZSes4OEDLbxRIpcIHTPPeKa6dxV0TNVJtTucq1/a1EacwDWsQ56ODjxK2E4SNvWZd4w2mrzGoeVuzPxf8FyvvYxpZOeIJ6nTHbArkQxsDvg5BddibZDQdntOr3VULmvLET78WQMlYdphtTD20W9CdsGNonk4Gl0ptMHnmG+xE4R2tEkeAjC7YhUqV8yyJNHMdxZWVmOPL32gTY2e8eDSPnOXnmeLYf+QfohGIItKA4eTS3jS5d2hgIAEJVJ67cHnRrKe889qIyzlmToU/BqOHvaIu/HjYZyI7KEK4w2Ertt8efVePdZePhxzXCJoIILB/tcBYqZx22Tae2JYNYkFPSdPaWevqB53wGIdni/Cv1+bHWHoVAigWPpxdS+1+YzcANbcnEczsffr8qbePSDy14vGiqOmeXgPKJEQ/hRrZTSs/cgNbD5+wie1s1nnSLnbhicbEcUKeOSEmZR0k5FGGU3yImU9oTLlapQ5iHinxMkwzzTg9Xtbx2NDMNuUvqek3A9gBDwbGRZVA6KqimOhcF8vZUld7ZLk0E9m2/kmHcZ5oLsNlXXUjPAiH/qmaKy1jZSMyiGAnMhu3z1YPMnNqpPiNeld46SezQQ+5l30dEKEdHzkX5gTp/8FdB7Ll5DNKKZiUqV+UvlQY/o1Wfb4eKgdm5dsLojHUKqclR9NsCBqKd04ptTltngTKJ0BjQsxBNjhugdx8ljG7ggeBHswX8Sl4PYY38Y+jEqXGQmhJ37HZeYR69hfKF+g3h+156ZnVX06w75wBc6lCUklFS2nih87MHwghgKoqdr1plVy+3dioJa04PRQvLWQ8gQyo8bnh9LYGVplEcKOJmg4WBv43Z4DiK52QtZ6ePorjzuil80yY+EuoKsk2fC29sm3U1s5QZhgZO9ERAGzNlnLkZQ+4iKGeJPlND90DB8lpO0MQe+Dbfn4qDeAn490PoxERCCBkxzDBj1jppB4H4kKRayng99oQfEnnx01SX/Gu+UTwC5QeCP1PofJ1aKtNbCV9ZruhthfTLBBV2iN3uimbqnGpGAE=",
+          "thinking": "Looking at this MemTrace compaction log, I can see it's a 113-step deterministic trace with nothing verified or resolved yet. The tail end shows ticks 104-111 tracking position, heap pointer, and active quests, so I'm examining what might be causing the lack of verification and whether there are any anomalies in the trace data.",
+          "type": "thinking"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 431,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1495500000
+      },
+      "id": "msg_011Ccrf4t6hn5JTx2b43gygq",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 431,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 512
+        }
+      }
+    },
+    "response_normalized": "",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 431,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

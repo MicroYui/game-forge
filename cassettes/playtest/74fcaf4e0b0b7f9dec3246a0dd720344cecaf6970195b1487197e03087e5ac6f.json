@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:74fcaf4e0b0b7f9dec3246a0dd720344cecaf6970195b1487197e03087e5ac6f",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8572,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ev8GCokBCA8YAipABYwth9vrUNuQEJcqlmoUGP2SsdT/6r22UevFZtDWsO87YFa7Pw47gKLFA+MAUbahJ6fDLpwO9AdfFv+SYF76vDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPra1XuCTl5UPwoB0BoM0SSyVGiom6eqETlUIjCuO1w3iuzw6B3lrGhgzDlTGdT6qAYUBJNBSBT2xSTgdJhMcNb14934QzC/oQd4xBwqogXo8uEV7mm4iBATJO6EkPRMagIYAEp90lXYYy6aeU4tZjFvXCgYoRCIBHgwZMyvHIcOL8aQJIKM6ix4cNLRwENun9eo8NUTmgtPD8xbMziNjjdVPlbp7n83BrKl8/r70KTMkTcJ88CWfZaGMbdqGUBGugfUH2FY4KkapI71nYt1yF5BRPrj5+qu7OO91QWi7YZtvD0A4CtAyefIETgjaJ9hj2c9fYx/zi82kSjMTCle3Gojm6TbTDyhNatiWVpk9VjR1VslFTVvo43v2WVRxISjgtEjrpu/zaoNcKRV5T52I7MfC5bdwrw3rBmalAV8pq09RPWNYPfCchnbDPObt5C3hE/1iwWfgUZ4yUYW3JJtyQ4TmqJDOtnMccR4YdD0VFlhnOja47oaKWJA3QahUIjzNDzVCOu5KBO3UNimbNRyzcOgL7ol2uDT2Rll/df8d3sm6HhEvFTxl2tx3t54C26sDewucGVcftwTJw4HpUptlFkwuUX74eoeEmvPOAFldmgzpuHkMKDO7H0gSOto7TPc2KFXKGYu7Q0/piaQx5Xar4PbG0b4C1sA8zjMoYo0B3QXBdFvgxffoOAmVzAWtsNPHNPVsauqx5GrQ9E+jeE/DXkjh6obCNU00aHygpBMLXpLPFsKrTsFoFEVimAwY++VImUXFIr9QaScWPASq/raVvvDhQ4h3QRhSaLEF620EJahGNTR7voTU/jht8NHCuZeypxb+gTTUDz1TqasmVFALW66IWEKkibOfZaHBJJaHYSOmgLdObKZs7YYyMStriYq9SrTKafnekPotSYzG9bWxUyM0kFOctT4zXnzxvYZeJhJUwqkRNNUHuSiJIYOI106mgnyvlW17s1PMmrGosMXQ8ndaQTq3KUovGuTLhaOyuOXRhgB",
+          "thinking": "Looking at this trace log, it appears to be a simulation or game engine output showing an agent progressing through a series of actions over 93 steps—gathering resources, navigating to locations, engaging in combat, and completing quests. The log captures the state transitions at each tick, tracking position, health, and quest progression from start to completion.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like a **deterministic replay/compaction trace** from a memory-tracing system (an agent or game-simulation harness). Since there's no explicit question attached, here's a read of what it's telling you — let me know what you actually want to do with it.\n\n## What the header says\n- `93 step(s)` — the full trace ran 93 ticks.\n- `0 verified` — none of the steps have passed a verification/assertion check yet.\n- `0 verdict(s)` — no pass/fail judgments were emitted.\n- `Tail:` — you're only seeing the last ~8 entries (ticks 84–91), not the whole run.\n\n## What the tail shows\nA single quest chain (`0_13_4`) running to completion:\n\n| tick | pos | hp | quest step | state |\n|------|-----|-----|-----------|-------|\n| 84 | (2,4) | 89 | interact:gather | g",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 438,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499000000
+      },
+      "id": "msg_011Ccrh9eBfajv5i5aDRR82c",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 438,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 225
+        }
+      }
+    },
+    "response_normalized": "This looks like a **deterministic replay/compaction trace** from a memory-tracing system (an agent or game-simulation harness). Since there's no explicit question attached, here's a read of what it's telling you — let me know what you actually want to do with it.\n\n## What the header says\n- `93 step(s)` — the full trace ran 93 ticks.\n- `0 verified` — none of the steps have passed a verification/assertion check yet.\n- `0 verdict(s)` — no pass/fail judgments were emitted.\n- `Tail:` — you're only seeing the last ~8 entries (ticks 84–91), not the whole run.\n\n## What the tail shows\nA single quest chain (`0_13_4`) running to completion:\n\n| tick | pos | hp | quest step | state |\n|------|-----|-----|-----------|-------|\n| 84 | (2,4) | 89 | interact:gather | g",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 438,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8b227e4b466cc009e6a5efee1366aea16d48281fcd2cf12cb649bb23e0ad9e05",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6327,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsYHCokBCA8YAipA9BwQm4Gxqwhn1QRKp4I1QSsxcq1hzxh+2zB04Lu80ODNJPpF5ikJqN6cjpwrzV5usLE6FaiR+RVymdwe6new6DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAgzFUxo+06nr/rGTxoMK2GZXoelAvz9pRHqIjBtGzRiTX/qkoVRupDPLgtoHpJi6D3ZmmALCslB7549fpLVBS8l7Vdkb37FetRZeRUq6QVDzs8SVqUGozQSK5QiZUwN2OYMELF32BAdVGMpC9xgDvA8vw55D7JhZpdS6cabrcSKCikkFS3yKbJeoM5AoXQoQG5chtSrPFXfFIG5a69NFOBJTZ992R3yCX3uAmFBtUSRGW3/KkovR2Lwghgx51Nn3vub80uqSpeBfyV2fyxJucDNS29q6fVMu2MxtwFgNM0+DlcCijAL5YpvnGYrQSNxzzK9Nu6Pmq7kVYjF3Nyn8m1EyKsgFwfvNrU9aGZ38EwpxFu67SRX9uYFOn0VP4M0zuy2vlrFlOtlIi2nsxsXe3D94Jgx3NWvkLM+mvO+GsaVXMsbRjbJvajthEXEDeW2txldG2yGqDtfjy+d/w+Vp/7QkvpH/hqpQga4XD7upTqTCG8amqtnxkTRCWixO0NgdhiDC5RaIQKh7E+LBaboOBTeYzWKsdRR6PP3OjplwUe8Meljqgb/Qc/qqlq3UEDnqjgWy0B9GZyQ48o7R8YCVC2lf0NGLxtso+n2pYSdIVZ22203xHGqC9Cmbut23hebndXq6QPsZyIEFK5jfdlPX3ml7hvt96wSGMtWZbW3Ip5TMlynln3Xl/OxJHL19j+E1Fd7UBZjlRjhjjTR+1+FBY0o9TNZuj4LSuirPjN3/RJcAQiNMmmQJ4NMR54FeeQFcmhz4uu3d47DpT3oHOYSbtmjyvpy+APaxjLhi9FoMSI9prBjJMX1u2doNXSwoHzIebr/NzH6u4GXDo3sbbVaHPSkBs1KVYUWbGay3QP/+mesdx7aO1+6Svg/U8jvqE2v1vPy4Jj6oUTotHX/hZAfQyK/MLc5S29DMrVkIHmJdoBlhIzRi79OixlOoYzvVN1CCHO4f36aCeDmUShhTD6VcKOIpbObzbAOr2gsvnohUEf6xJd83CZlQOOSXfXjdYPi8ffQ1vdPPKO8eP8KPEBz6C1GHfSr34IIxnXDGyFT7AbXj27ixpr5ADGqXejQD4+o5vMaQ3r6y2x7GAE=",
+          "thinking": "I've got three quests left to work through, and they all require talking to NPCs. There's an available interaction with npc:0_18_5 right now, so I'm considering whether to start with quest 3 and figure out which NPC I need to target for that talk step.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_18_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_18_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2034,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 360,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1917000000
+      },
+      "id": "msg_011CcrEffoqmS8TUpg66exXd",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2034,
+        "output_tokens": 360,
+        "output_tokens_details": {
+          "thinking_tokens": 319
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_18_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_18_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2034,
+      "output": 360
+    },
+    "tool_calls": []
+  }
+}

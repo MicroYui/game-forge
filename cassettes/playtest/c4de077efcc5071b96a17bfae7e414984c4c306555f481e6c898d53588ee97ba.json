@@ -1,0 +1,81 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c4de077efcc5071b96a17bfae7e414984c4c306555f481e6c898d53588ee97ba",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9409,
+    "raw_response": {
+      "content": [
+        {
+          "text": "It looks like you've shared a MemTrace compaction log from what appears to be a game AI or agent system. Let me break down what this shows:\n\n## Summary\n\n**Header:** 43 steps compacted, 0 verified, 0 verdicts — suggesting this is raw trace data without validation/assertions applied.\n\n## Trace Tail Analysis (ticks 34–41)\n\nThe agent is completing a quest sequence at a stable **hp=93** (no damage taken):\n\n| Tick | Position | Action | Outcome |\n|------|----------|--------|---------|\n| 34 | (2,3) | navigate → mon:0_9_3 | moving |\n| 35 | (3,3) | navigate → mon:0_9_3 | arrived |\n| 36 | (3,4) | attack → mon:0_9_3 | **victory** |\n| 37 | (3,4) | navigate → npc:0_9_3 | arrived |\n| 38 | (3,3) | interact → npc:0_9_3 | **quest_completed** |\n| 39 | (3,3) | navigate → npc:0_9_2 | moving |\n| 40 | (2,3) | navigate → npc:0_9_2 | arrived |\n| 41 | (1,3) | interact → npc:0_9_2 | **quest_accepted** |\n\n## Observations\n\n- **Clean quest loop:** navigate → attack → navigate → interact (complete) → navigate → interact (accept next). Classic fetch/kill quest chain.\n- **No combat damage:** hp constant at 93 even through the `victory` at tick",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 448,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504000000
+      },
+      "id": "msg_011CcrcKvaqoYp4LPmFjkzV8",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 448,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        }
+      }
+    },
+    "response_normalized": "It looks like you've shared a MemTrace compaction log from what appears to be a game AI or agent system. Let me break down what this shows:\n\n## Summary\n\n**Header:** 43 steps compacted, 0 verified, 0 verdicts — suggesting this is raw trace data without validation/assertions applied.\n\n## Trace Tail Analysis (ticks 34–41)\n\nThe agent is completing a quest sequence at a stable **hp=93** (no damage taken):\n\n| Tick | Position | Action | Outcome |\n|------|----------|--------|---------|\n| 34 | (2,3) | navigate → mon:0_9_3 | moving |\n| 35 | (3,3) | navigate → mon:0_9_3 | arrived |\n| 36 | (3,4) | attack → mon:0_9_3 | **victory** |\n| 37 | (3,4) | navigate → npc:0_9_3 | arrived |\n| 38 | (3,3) | interact → npc:0_9_3 | **quest_completed** |\n| 39 | (3,3) | navigate → npc:0_9_2 | moving |\n| 40 | (2,3) | navigate → npc:0_9_2 | arrived |\n| 41 | (1,3) | interact → npc:0_9_2 | **quest_accepted** |\n\n## Observations\n\n- **Clean quest loop:** navigate → attack → navigate → interact (complete) → navigate → interact (accept next). Classic fetch/kill quest chain.\n- **No combat damage:** hp constant at 93 even through the `victory` at tick",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 448,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

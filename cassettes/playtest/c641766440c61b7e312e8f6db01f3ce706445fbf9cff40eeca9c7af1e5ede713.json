@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c641766440c61b7e312e8f6db01f3ce706445fbf9cff40eeca9c7af1e5ede713",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7402,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpMHCokBCA8YAipAc652OtKFY60qQanKBnONvXReOJPOz/Pmj6LQLEgel6fc/RlRnAZJ/1auggLl2oBZKU+fJ80huFCY17CX+C8VOjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDA07z8wlb2O8IFRr7RoMq0aia8vIllyDK4RfIjDnfwQC8lW0XpPKPwhI7uR1gkzCn+3mAvytoKAkqdij2uIv9k8U65rVaZOWCscI2nQqtgV/s8Pu1sUAKr6t9qNfn2jOcCJV3UMbUaIfHLSJ55rinBMIP0UOS3VUbajwSz0yR3Wg7nifSKLs29L8PyI9Hvhyff2FYkbYU8goesJN8JQSsy70qHt2iiIJoD4NNqalZVmY4rmG1lOTHxKIjMaUzo6d6uudYrmBiUWeQTix6DhlMlGMEbY6aphyPgAggfNaxjk9osr9n8HeLBDI2tgKo6DxMmT8MFNtzUoWJqbW/3rc8VKKu87P1gjL7ybnq0Y9+nrg4AHyh86DJbfKltHiMpjQCN+Mmevw0ATDTZIHUhpFiV8gdBZUC255yHhQJrfISjQrH9VVZ/wD44NuFAdCQRLpTGn0TN6DcXnmLsj3Nd3+NwR45pfNC99LAI0NVWZX9DOEUuKxNPhZaxmbjFjfArt8TrcYVCn9DG68vvTb3197x4vlGyt4sK7CSyhTvDUQyctPdsd6BGn8fiSabVZAHU4MbLnp5ZkobP1gZOX4wK4u0HGb7p+KNCmkOPKPMIeGy+NcoHC1/Q9Zlo2771hUfyYPubmJwu4M8sqVn1TqB2KEY2Dd/EFh2ZiodWfWfw5HT7BpMvLr0U6f8cHWa/f6uCib6ZpXTDy/OIko7R7/Bwcr0qWoO4F3Bu3FCp+GT4EilV0LLW3rIPX0qprdYFp6JmQ9zeySSLJyJTD1dN+xZcwLSaJ9+qOtlcMfYFBC9cWr/FbwY9YtjC4SL6x8RjebVPjNhc9M6/NPwFLj+Y52hcgb8e1HoFevqhoBg3L5lB2yVLSmVv23SPkFCH1ybzwEvY83Oa07X2omZVWSZ452rQZNDyagPA+hikvY7jJMNM9hNWonjpilbUfMYQwncsrDZca+jYlrEh6XTE7aENd535sD+frh7ZwL8QS1QK/2Wc+LAC211s/ISg93Y7ihpfGYw6/EqGg6Ps9KGAE=",
+          "thinking": "I'm working through the available quests and NPCs to figure out what action to take next. There's an NPC available for interaction right now, and I need to match it with the appropriate quest—it looks like the quest numbering might correspond to the NPC identifiers, but I'm running into a mismatch between what quests are available and which NPCs I can actually interact with.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_8_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_8_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2546,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 330,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2098000000
+      },
+      "id": "msg_011Ccr5JstEcZy5a6WvKBkSX",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2546,
+        "output_tokens": 330,
+        "output_tokens_details": {
+          "thinking_tokens": 289
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_8_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_8_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2546,
+      "output": 330
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:60234c770a4522c9ae8264640bd3b7d20325c78b8b51b3f788ceab5661fba2e8",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8085,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq8ICokBCA8YAipAgeVkEQYQLLA6LqCJxC8VpzfAdSF1bIbAq7dXVDD42kMTTli0qnMVkn28vcN6bixPOUv+i5TE7HDyvzFqZOcGfDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHZU/nJUWfqwP0z/7xoMrtQhlt9HO3D0Tmv/IjBtw66c4Z4RAMALNvwXzYPCUBp8HA9aBCqwqYdZ7ks3e6DmYEAqTKY/ZV8DgvrqGUsq0gbjqjihweg0kT1CxfnyvvoqyM1r/7Hp3d3dLzUVZ/cW4/q9G4ZD58sGAI3GmCW3D4Hagqc5YWvvWW3jbtiQYr5mtBuiXbbLK5bgbn6HzS8zOhf5rgLoA78Vb8MG29cAbVnKv1wNdHxrjmLPCeI/MkES2NqPtzbwsawEUjbB2cCiQFvEkTbru4xcRh7B5CjEr81po3ew2pN2SjFtiVmMplPNUBiYTXL+xmPntK5fOlGaBC1bVlYKSxJ/vjp5n+TDQx+rSCq+JkuS4hJH9NM6R9uvyINqKMcDGaI7eLy8Wo8mKcj9my3mUH77dmzaxhDVMQbJLKTv2rl33yUsoGvxzOMpOthhIb97XOOzso/UW1IX8dFkD0mDDwMxMNRK5CDyGW3WHtruS2hO6QspkhsdRIN46njvyqFtkvQr1HpGGMngNQdISEiK1emF4UiFZqgqvogjd4S0JwuADkOZjmFR9Eui3k8FB8VfJ02ukKtXiV0sNZ+ft7ek4uT6ySBoJsdzpGO0uK/ps0Iu+bseoLjAoYCS1TIyMNOwpIF1idgYaSEnXfp5P5lX1NgPt237m/LayCkyiVtsGAIBlB6U5lFPi5LQzcz4IFPCBhOt5LfKkX+1sEUNAMRXMSu030/lNz8aPpuknMlSSKsQiFY+oRNAwukVy0Uj0YJmjZkNyLsDOSy/QuvgsvFht0LlfYb7S3rPCeLM6LvbZ7fCRHjQWa9oVta2yfonJgnCfqkVPM46OjVD77693b3caWIAAPTTe0cMbEBRSUOUruVbHlSRfYQFMb7O/CFFfNtmES3LhBJhTX6xGXQ3ygX5+ImLoXao5wG+XQzh4K41CgTgudnsY+WApyZtDH4SXwGbokOsICTtuPK82VG3DPEaDI94VqKjs97Zp3JuLmn1oRg6DQhPEXpCGUt/nyAeu8SQNunyhPO42+WX9TZAntnvYzty013l9EcgcYIViVEh+Cu3DXxEeitepwS5KnJarGPL//oNDjWsJEy0MLzc6K+9GVPnGcg4WTMy25VSLy/RF+swVjN5AX3eJec/2ozdCLggxBVATcNdjb+s+CF8/6mBQOKaXsM9h1i3BQZjqPWDd9YUfLaOYCBGOl2ksPo7Z/yJuN+Zy11mSVRxDQTTGAE=",
+          "thinking": "Looking at this MemTrace compaction log from what seems to be a game AI or agent trace system, I notice there's no explicit question, so I should analyze the output and identify what might be worth investigating. The most striking issue is that despite 105 steps being executed, there are zero verified results and zero verdicts, which suggests something went wrong in the verification or decision-making process. I'm also seeing an incomplete navigation command that cuts off mid-trace.\n\nThere are some positional inconsistencies worth examining—the agent appears to arrive at position (1,8) but the target navigation command references coordinates that don't quite align with where it actually ended up, which could indicate a pathfinding error or coordinate system mismatch.",
+          "type": "thinking"
+        },
+        {
+          "text": "I don't see a specific question attached, so let me offer some observations and then check what you need.\n\n## What this trace shows\n\nA deterministic MemTrace compaction of **105 steps**, with the tail (ticks 92–99) showing an agent progressing through a quest chain:\n\n| tick | pos | action | result |\n|------|-----|--------|--------|\n| 92 | (1,5) | `interact:npc:0_8_5` | quest_completed |\n| 93 | (1,5) | `navigate_to:npc:0_8_10` | moving |\n| 94–95 | (1,6)→(1,7) | navigate | moving |\n| 96 |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 448,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504000000
+      },
+      "id": "msg_011CcraLP64QQpVzim7KTXP6",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 448,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 306
+        }
+      }
+    },
+    "response_normalized": "I don't see a specific question attached, so let me offer some observations and then check what you need.\n\n## What this trace shows\n\nA deterministic MemTrace compaction of **105 steps**, with the tail (ticks 92–99) showing an agent progressing through a quest chain:\n\n| tick | pos | action | result |\n|------|-----|--------|--------|\n| 92 | (1,5) | `interact:npc:0_8_5` | quest_completed |\n| 93 | (1,5) | `navigate_to:npc:0_8_10` | moving |\n| 94–95 | (1,6)→(1,7) | navigate | moving |\n| 96 |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 448,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

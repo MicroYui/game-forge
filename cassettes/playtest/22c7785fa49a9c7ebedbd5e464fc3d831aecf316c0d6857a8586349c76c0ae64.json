@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:22c7785fa49a9c7ebedbd5e464fc3d831aecf316c0d6857a8586349c76c0ae64",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8604,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpcGCokBCA8YAipA4GDUDQUxy/oXuWDmdNVYZOjXq3Uwz+i4lJ5lfplydklwz+7TQKK6aodOy0JWypuXZ+peW+IStCf0xq3l40NrujIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMld2SaD3ltmb4OsCxoMB8VSB8JTo7To/6v0IjAE7xRTq8d6OYS5jXrFN27rSfcom5csQJHXI0pggT8DrITblRnICABoZnHG0Gu0IT4qugRkxVHdSRbZuE10GXhzxp3L6o0hGMwc/yq4atyYQbTQlcL3cMf8ZSHlcwQ5baP+2A4gkqJIk2kEw0AqjCMWlw4nXn+WRQRey64nMKILZLi/D1qOorzKj4AthAcPillhayi2QQ6azLyW5mr3QPf/cgIn2YSgM1RUhvmROeYSG5xuTk/ZSDvmlVhQjRJytSp7JfogfFwOb/8pBtRzXDjSXSOdSZBqqtZtZRDguywBRHkUx2HayCdikATr97w4kc/1ID4laiUCkFgqi4JFN4inq3Trc/KOIAbw7MUI6DCZtfHsCICjtGUO6x/WX7GE+oC+5CE1A9p4zZDQym4f7nULhQa5eD9Q/Ec94pb7sZ3aCITGLX/HmEDk2Riika502/Ibuwldrt2OWrD5qYXVhQlQSY0a5aPkyejcwTkgthnls2L8JSuD5qFTynh9pSQpvTrAcj58MPCmXplx/IcPeI6mVTTH68+sR+LmJb45nnaX7INZGEVr/x7dmy5j3izYpU6nVyf0tALL/AGsnWOigPmsdwTTem96KDk1FUKgNMjvxjEr8vp1IMX4iDJnVh5CHqBO4O7wHvyJp9tWROXysFlu8PU74TUnOGcERi4d3wVfMm8tj+/kuaIXwsjPGBSlIRA8naraRI3wYh5QNIEXtECFmgFRXxv7vdy+ZLt3miszsAHg0yoTp3rknag0CfFhqmMpqLK9VGA4BPXiYW2m509kD2MLk7d+tDM1yfYOLi/0zXXCzH8I5QViRoVbXxoYAQ==",
+          "thinking": "Looking at this trace log the user shared, it seems to be a debug output from a game AI or simulation system, but they haven't asked a specific question. I should analyze what's visible in the trace and offer some observations about potential issues I'm noticing, then ask what they'd like help with.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from some kind of game/agent simulation, but I don't see a specific question attached. Let me share what I can read from it, then you can tell me what you actually need.\n\n## What the trace shows\n\n- **Header:** `42 step(s), 0 verified, 0 verdict(s)` — the compaction ran over 42 ticks, but **nothing was verified and no verdicts were produced**. That's often a red flag (either verification is disabled, or no checks fired).\n- **Tail (ticks 33–40):** an agent walking east along row `y=1`, at constant `hp=97`, working through a quest chain for NPC `0_11`:\n  - `tick 33` → `interact:npc:0_11_2 -> quest_completed`\n  - `tick 34–37` → `navigate_to:npc:0_11_3 -> moving … arrived` (pos advances (10,1)→(13,1))\n  - `tick 38` → `interact:npc:0",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 436,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1498000000
+      },
+      "id": "msg_011CcreCS8rfHwRoisvrRD3f",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 436,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 189
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from some kind of game/agent simulation, but I don't see a specific question attached. Let me share what I can read from it, then you can tell me what you actually need.\n\n## What the trace shows\n\n- **Header:** `42 step(s), 0 verified, 0 verdict(s)` — the compaction ran over 42 ticks, but **nothing was verified and no verdicts were produced**. That's often a red flag (either verification is disabled, or no checks fired).\n- **Tail (ticks 33–40):** an agent walking east along row `y=1`, at constant `hp=97`, working through a quest chain for NPC `0_11`:\n  - `tick 33` → `interact:npc:0_11_2 -> quest_completed`\n  - `tick 34–37` → `navigate_to:npc:0_11_3 -> moving … arrived` (pos advances (10,1)→(13,1))\n  - `tick 38` → `interact:npc:0",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 436,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

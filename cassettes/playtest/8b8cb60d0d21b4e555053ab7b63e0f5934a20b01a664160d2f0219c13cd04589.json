@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8b8cb60d0d21b4e555053ab7b63e0f5934a20b01a664160d2f0219c13cd04589",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2646,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpwCCokBCA8YAipAQkqt+pQZeEYt6AWJZjQplsPtdRhUvcpOCQSnmu74hZM1NdakR5FJDCxt8Hhg0V9I9ELrmqQ781OztMHqBtekbzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFIwHQ+R5HT2yyuSfhoMSyX17AIYngL5+965IjB5sjD5UYSr4mtMR6XsI0lIU7oU5ObmqTeRhCod2FpU/XdptbAxK2nWczbwDQIgrVEqQPyWTnSEFZWx/df8oyPrgLh4+JoflkXer5zGpbJ8hTMeapFY8HR68tEDCxgrkNr6NlA3KDJRXJM2mGI0ZsTe68kYAQ==",
+          "thinking": "Gather is now available for me to use.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"gather:0_2_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3046,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 46,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1638000000
+      },
+      "id": "msg_011Ccr1j5hqR3Hs6DMoHbHdh",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3046,
+        "output_tokens": 46,
+        "output_tokens_details": {
+          "thinking_tokens": 21
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"gather:0_2_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3046,
+      "output": 46
+    },
+    "tool_calls": []
+  }
+}

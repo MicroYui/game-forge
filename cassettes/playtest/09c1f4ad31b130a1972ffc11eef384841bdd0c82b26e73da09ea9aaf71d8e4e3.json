@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:09c1f4ad31b130a1972ffc11eef384841bdd0c82b26e73da09ea9aaf71d8e4e3",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8440,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtEFCokBCA8YAipATU8piyRrzJkjTiTpXSQkPyYtjqGgsz7iDumoRGweQDaItIWZ73hse4wV09H5S7jJVs+fmFf8eaT06rN/iKIfPTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNviFKe0Zb5P3YZo5BoMvka580zcHToYT717IjATUqX9OBxmVCxApt8Ya1LHyA87lLUt9RGg6FfwAJjKPj1VvxgXEaqTIE+wQxgftfIq9APQPCFP2fZH8fMY8XmTaZOHTkOO0zTCquzaWbPikFiMim4aAmhL05KBcCWZNDJdmeC68zJYmAMtyhPlfdmE3n1tAyCcGoCCDv+nE4CN9Uujm3jvRCYuGuFZdT58yPeiYi2hHkkVN2cwW/oQZGF/sS4HnIJ/CBo3OGX3WHV0D9D2hAL3EX48RCbPQU6MqwIsAVFsR8M4Fz4C9eDcfMm3BcPkuO/XrWX8gTR9aDpffPEVKU4FdrpsXKqsm5XVWVPKwaO5y8ygrxJiDglMqGcJT4RnJqbZRAC8AGRjJ/8l8PLOQ3tcv9iSVwvPGH9Ou0MmG+ug/mhGtJ3hpJHbF841X5xf/lYiD9ypB0Vqvtj5y90d+OOU8gjYbo2c3lg8z6KK+RUv2yHGN0zbhL/JiBd82WgCJkFf0ncf34c53EYIjVhxvnqmPSRhBe5FZYY67zB+sQs0Ot35mOn4mCmGmBR6I8BdDvpla/kBh+49ymfS+nt4jGfr49bCQq1pxlBLgDrvx+CJLXHB0vhNPqAO03gn2DzWwJKrjCkMok7vuYugeH8xhI4Wscr6aG+cc0Fv89yMvjTB3CL7HK39EDLjfh9YRcq4rTn7GmQEKhC7izeFjApM/+28sat6MHYW1hJrYS3Xj4Gu8Kw68HyQyxo7poTze2RGobMQtxgB",
+          "thinking": "I'm looking at what seems to be a game AI trace log from a MemTrace compaction system showing 58 steps with no verified results or verdicts. Since there's no explicit question, I should ask what they'd like help with—whether they want me to explain what this log means, debug an issue, or something else entirely.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace/log dump but haven't included a question. Let me offer a quick read of what this appears to show, and then you can tell me what you actually need.\n\n## What the log seems to say\n\n**Header line:**\n- `MemTrace compaction (deterministic): 58 steps` — a memory/event trace was compacted down to 58 steps, run in deterministic mode.\n- `0 verified, 0 verdict(s)` — nothing was validated and no pass/fail judgments were produced. This is often the interesting part: either verification wasn't run, or no assertions were configured.\n\n**Tail (last events, ticks 48–55):** This reads like a game/agent simulation where an entity:\n1. **ticks 48–50** – walks westward `(12,5) → (10,5)` while `navigate_to:npc` is `moving`, then `arrived`.\n2. **tick 51** – `interact:npc → quest_accepted` (picks up a quest).\n3. **tick 52** – `navigate_to:gather → arrived`.\n4. **tick 53** – `interact:g",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 439,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1499500000
+      },
+      "id": "msg_011CcrKrNMk4WNEhLRJHAmhi",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 439,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 163
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace/log dump but haven't included a question. Let me offer a quick read of what this appears to show, and then you can tell me what you actually need.\n\n## What the log seems to say\n\n**Header line:**\n- `MemTrace compaction (deterministic): 58 steps` — a memory/event trace was compacted down to 58 steps, run in deterministic mode.\n- `0 verified, 0 verdict(s)` — nothing was validated and no pass/fail judgments were produced. This is often the interesting part: either verification wasn't run, or no assertions were configured.\n\n**Tail (last events, ticks 48–55):** This reads like a game/agent simulation where an entity:\n1. **ticks 48–50** – walks westward `(12,5) → (10,5)` while `navigate_to:npc` is `moving`, then `arrived`.\n2. **tick 51** – `interact:npc → quest_accepted` (picks up a quest).\n3. **tick 52** – `navigate_to:gather → arrived`.\n4. **tick 53** – `interact:g",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 439,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1ad877d598d9788213ca3b9253714bacec1a8d25d1a41bc5b1126d9b515cf68f",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8382,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvIFCokBCA8YAipAiw9zxB/62I+lAe1USqCPmcbhX4ENsAUxSfAnO2CtuJpWA3oVlbTOqJNc1r6RzEurF+aIdsi9KOmEAlYRNUclDTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDG3X0b3wUUM1IST07RoM1hZpVOZh02HEJl31IjBXKP+YADXLC727jERqUxkXOyI9XaIJa8oGas82fjDQc3vXah9SIm5TPlsjSmIpVhkqlQQRTTxJgtUfiySt+6yLccvz2lgd4XQOo8h4R/r5jBKDOTHvyxVQLijUZotgmdHuDiGdf+FzuzUbo/yVbDTNdPYze+R5eXl2l+tmxlbSUDq9s/2sNsne5ROhMjSfXXOBHlrdY4fiydK7Nv8AEB4d8IavR48odL5GT0q7iuqBKBTad4q+gMH4i4vv5o1a+06c/D0fhd5auWcktLXmX8s4rDdhAUrO9sWsU6m8dXE4CXa1Jw0ZYOzI/egocsriAL3JAFyiGPUIDgQFUcxbOhDqsJg8bNgg2RgAjbLUSoYJCUe8BaZelPkoMelsgnBJhbFXigK7bajxKPaeqQUFYAffsiImNevV+Dfawb2f4dBcVKE4L6CR8lRWqHjTrYX9x7pLF7H9o70RL/L1agFXQS4e9kEEgCspwdRwtSPOhVcLreRwUOBvjEnA6y7RcAgiLPyxWPKuHJL13F7u1Pkz+WE6i1EP7bUzn11mCxPKCIDB7LNLgb+sjfFVkjF7ADoyOp/gFMc9AxaM7fDHlL3A5/zaFZmSlEO/V5lNT4G5r2JEcTwWXLEOLyiJ7zPS2JXrTdo72jifBjIpUJHMDdsN/+k9KrEB3mkK1CojzcTV7e45pDunfTBDcnZejwBFk7uJR7HxbVZZpuYqDW8cuk+0RKfr+Rn9xldXqZaOeye10sADhxbCo5Laeel3dtlfaFCXZOezJqlgmwRpuhgB",
+          "thinking": "I'm looking at what appears to be a debug trace from a game or simulation, but there's no specific question attached. I should probably ask what they'd like help with—whether they want me to explain what the trace shows, debug an issue, or something else entirely.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation, but you didn't include a specific question. Let me summarize what the trace shows, and you can tell me what you'd like to do with it.\n\n## What the trace appears to show\n\nA deterministic compaction of **15 steps**, with **0 verified** and **0 verdicts** — meaning nothing in this trace has been validated/checked yet.\n\nThe **tail** (last events) shows an agent progressing through a quest chain:\n\n| Tick | Pos | HP | Quest action → result |\n|------|--------|-----|------------------------|\n| 7 | (1,2) | 97 | `attack:mon:0_12_0` → **victory** |\n| 8 | (1,2) | 97 | `navigate_to:npc:0_12_0` → **arrived** |\n| 9 | (1,1) | 97 | `interact:npc:0_12_0` → **quest_completed** |\n| 10 | (1,1) | 97 | `navigate_to:npc:0_12_1` → **moving** |\n| ",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 446,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1503000000
+      },
+      "id": "msg_011CcrfhinPjaDak9714Fuyj",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 446,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 161
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** from some kind of agent/game simulation, but you didn't include a specific question. Let me summarize what the trace shows, and you can tell me what you'd like to do with it.\n\n## What the trace appears to show\n\nA deterministic compaction of **15 steps**, with **0 verified** and **0 verdicts** — meaning nothing in this trace has been validated/checked yet.\n\nThe **tail** (last events) shows an agent progressing through a quest chain:\n\n| Tick | Pos | HP | Quest action → result |\n|------|--------|-----|------------------------|\n| 7 | (1,2) | 97 | `attack:mon:0_12_0` → **victory** |\n| 8 | (1,2) | 97 | `navigate_to:npc:0_12_0` → **arrived** |\n| 9 | (1,1) | 97 | `interact:npc:0_12_0` → **quest_completed** |\n| 10 | (1,1) | 97 | `navigate_to:npc:0_12_1` → **moving** |\n| ",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 446,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

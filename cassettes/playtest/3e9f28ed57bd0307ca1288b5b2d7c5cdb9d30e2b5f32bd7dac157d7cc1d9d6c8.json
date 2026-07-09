@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3e9f28ed57bd0307ca1288b5b2d7c5cdb9d30e2b5f32bd7dac157d7cc1d9d6c8",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3188,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqMCCokBCA8YAipAJQN+iULnh8hPPPq95toJkkfj1D4tROVlyh5on43awfwJKxu+RbhBjIMQBPzJ9keuuncB8ddPyedFIg+XPsYPkDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLpHcJeDbIYbkorPRhoMtpHKU5Xa5a6Q7CZXIjDdAKiK/IARcJbEmHggtzMET9YlIFRmDpyrZ2HPx9n2M9eyK4Fgvv07B3McXdgxwwkqR0PY/abbgS9Tw4jD0JMGIf269/3A7TgD8PpwzPqjgN4S52XU0f9sRQ4UEpZYZkz6gVSvzanyC/iC4l6wbqpfB7jUUwAhhLcwGAE=",
+          "thinking": "I'm looking at the next quest in the sequence—quest 15 has a talk interaction step with NPC 0_17_15 as the target.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_17_15\", \"step_kind\": \"talk\", \"target\": \"npc:0_17_15\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3199,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 66,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1764500000
+      },
+      "id": "msg_011CcrEQ1KQCShHbv15wk72x",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3199,
+        "output_tokens": 66,
+        "output_tokens_details": {
+          "thinking_tokens": 25
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_17_15\", \"step_kind\": \"talk\", \"target\": \"npc:0_17_15\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3199,
+      "output": 66
+    },
+    "tool_calls": []
+  }
+}

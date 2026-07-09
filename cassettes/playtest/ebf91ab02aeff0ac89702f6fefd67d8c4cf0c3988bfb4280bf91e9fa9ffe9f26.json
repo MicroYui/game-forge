@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ebf91ab02aeff0ac89702f6fefd67d8c4cf0c3988bfb4280bf91e9fa9ffe9f26",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4403,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ev8CCokBCA8YAipA35/4lnyoLJBP4wjgcBlpFFn6OssZ/hUcvN9EYtwdCuirHhK2lXTUR20BGH4HF+jqs8I1IC6zY7GxEl4X7HqafDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCE1CuTuFp/T4JIouRoMdH6ZnpDdKnt4s4yIIjBOjm6Jwqx0X/1fhnB8oxQjfu/uCcbSMVfNzB2LrVNFWn8kqS7EEG+yXMwE8G28lgEqogFsojayx/DNpQIq2x0qW2EcrBYjR6NSZbWR5opls02wL/UpW80XNncinY/Q7c4L/Vkff1HiZOU4bu5Q+A1HcBEx0CshT46uGZOJTWuL2RKyyZIxzume1GF4IuM7RUcPfYzduKiHviR7R4PWCC0JJvgN877w4ZSBht4W/A4Cl0TRQfXE6GMZOW2feHAfhXCCMycpM2gFIKiBBbXIJPCCHBMQvnkYAQ==",
+          "thinking": "I'm looking at three quests that all require dialogue interactions—quests 8, 9, and 10. Starting with quest 8, I need to identify the talk step and locate the target NPC, which appears to be NPC 0_10_8 based on the step identifier 0_10_8_0.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_8\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_8\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2471,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 113,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1518000000
+      },
+      "id": "msg_011CcrdQzfffC3opjYjmsWtk",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2471,
+        "output_tokens": 113,
+        "output_tokens_details": {
+          "thinking_tokens": 72
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_8\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_8\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2471,
+      "output": 113
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3ed0514e2fc4a1d326ed2416a6104d9249e2782d8644953ea27d54ca078d94f9",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8608,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvMICokBCA8YAipAh5oYgvUrcV3oW3u6NiAHYKKkA8uVdHqKXi5/ei85MaK7DM/9+QOL6PSiaXGqg3X/AqN5bBdwK5wB9mEys5W1RDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGV7++pobpkifRPovRoM0qXsVtQMJB/gYHg7IjCaUO6d+5ycKbVo60CjpZGoFZ6T38qsvwNqSSRxZUVKBFZzSJlFU5AlFoOGAK5pnzUqlgc0tp3ROQOTqsJRDE4qJTK6Wr/Y4JHAjlxbwlYNOVfmirwDmP8TG1B3A5PdJkeY4nuJ7tQBMbyhAj6G0XO1VZO8akiVvTa/O78s9SZ2Z1++nJLuv37TJa5/cfvz7Jt7HcrwtnwMNlxV7E8fl/OsJfrUrruJ0lD3nYlY8BFh5vSgO0+69H6zUMU7BHYxgTfjYa+MTuoIEK00CQss2baPhsHWhwnHQB2AmPLfdAaPOPxMzV+SruDcEXDr0nPLFb6reCmLg5i+Q4T/Iknfxd/XqhY1qcHygEujKzJRzu1eysUnl8FqRiJIJCoWYU81P7TueNejyZvMxlxFgiTzB2Mlw12G0A1vxoOAnML09sM/UjStI0Uiic5Btj6pi6CJG+pnI7cShTkKoGaQEraIwOniaebfeS4wiZMP58lnp59AFw8AFD+vD1qfBA4wfvlXMwX54BiFaTMHMXRAStK4i0V2eumm9hVrRLE3upgXLQ5FGQn6DgoZQTJss7Kt0v1EKHbnRw9GaZ9k/yxlqRORK2gZHSq3IAucclJUNcAqUd0+GHUztppG0CuDgx8jf07dIlC54EJljMo1izKST6DwlXFuDBiwbYS7ODT+ZuX5u6UuLnsBVF7ge7eYR4xqES/HervidS/eTw4tQU7xgXMvpO1NCIRk5MkYYjlXj1tL79w/2PSYyi5Frp8G9pBI9ukyEs0Zd7Z3F3KQtJhFEiN+DeOHlNwHpDphXdJMvVohW7Z8vuHs5pWTPngT+GOtQ0IfCDLgiSYsPtfSCA6p/JFKlbsagROBNFHWQo43Snni8xUqVxzfIUXDBEZrd3HgTauryBihMiZ8k2GjllGlTaXvaSF5BugxphI1cxy+dmBuauwFztBTER2WfH5wHaNuFspdM2D9jIUjknkk012QZbwI/ro6/jOUnl0SQIFQKZzzVp1HEUSemw6+avaabfojtl+cQFU+dT8SNpleQJ9GqIjBUuUPZsh7jo38TXdnbD2Be7fM+z2+WDVOnLdJoSbPVb1VvjBNyE0GEIxshWSiq9DlXfIAz2kCUsBgIxBNzb1vFQcZ5YBkYwbnLITg11JSAJIF/Aeuc0BAYYwwrXuannh3kk0Z+UNjdp+BsFzQk0ZSQ5BIr23KCnfZiEhvZ2YaioMa034cRGe5mL8lfGk0B8XODjNaUN/MuQ8FljXMYQxlP0vGR3n22Td/ZnIM0TBxyhMAmIHJgtIPCu/aQMAYAQ==",
+          "thinking": "Looking at this MemTrace compaction log with game quest trace data, I can see there's no explicit question, so I should ask what they'd like help with—whether they want me to analyze the trace, debug an issue, or explain what's happening in the log. I'm noticing some potential formatting issues like an unclosed bracket in the active_quests field around tick 37-38 that might be worth investigating.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a MemTrace compaction log, but I'm not sure what you'd like me to do with it. Happy to help—here's what I can observe so far, and then let me know your goal.\n\n**What the log shows:**\n- A deterministic compaction summarizing **46 steps**, with **0 verified** and **0 verdicts** — meaning nothing in this trace was checked/asserted against expectations.\n- The **tail** (ticks 37–44) traces an agent walking east along row `y=1` from `(9,1)` to `(14,1)` at a steady `hp=94`, progressing through a quest chain for `npc:0_17_",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 436,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1498000000
+      },
+      "id": "msg_011CcrnnVti7vbNYtfh1m9Pi",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 436,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 304
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a MemTrace compaction log, but I'm not sure what you'd like me to do with it. Happy to help—here's what I can observe so far, and then let me know your goal.\n\n**What the log shows:**\n- A deterministic compaction summarizing **46 steps**, with **0 verified** and **0 verdicts** — meaning nothing in this trace was checked/asserted against expectations.\n- The **tail** (ticks 37–44) traces an agent walking east along row `y=1` from `(9,1)` to `(14,1)` at a steady `hp=94`, progressing through a quest chain for `npc:0_17_",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 436,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

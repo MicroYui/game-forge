@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:58aa0f631920cb6b678f4a15a4329b7b2fe31f542140f4fb00dff9d7e347ac45",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3443,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuECCokBCA8YAipAvhGH/4znnPm1fvCzH5huQKqYSi4SD7hpRZVlD5K+4967HKmy2XVe0OZ9CYAcAmH6MT1ITvKTZ94PfBLaObsQvzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHP5+elm8BPROUEI6BoM7BWsxWyuzkj3Md1DIjAicBAfHA7X0m8EbY3sSaGnpfYopL8emqzFO80GI860tPsMGHOJMrAfcMyFuCun1F0qhAE1PjyiTRrP4Drd8FtZ6rhPyfJ9ie39GKsBTpwuQ2rODdfNterwawdM+l8srPRPSaSxdGINFVJojeGi15oznUmjXPo8j2xy2hIJu/qEyX6j1efyyMDfo28IIwQgfVyQm4Avt/zkE+9yw8QrECAFHf0ti8gNBygZHey9VBVGs8922gx51FUYAQ==",
+          "thinking": "The first interaction with npc:0_11_0 came up empty, so I'm moving on to npc:0_11_1 and should try engaging with that target next.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"The npc at npc:0_11_0 gave 'nothing_here' twice, so stop retrying it — you've now arrived at npc:0_11_1, so try an 'interact' step there instead, and confirm you're holding any prerequisite item that NPC may require before interacting.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 600,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 148,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 670000000
+      },
+      "id": "msg_011Ccr7q8AnkEzg6wH63vngC",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 600,
+        "output_tokens": 148,
+        "output_tokens_details": {
+          "thinking_tokens": 50
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"The npc at npc:0_11_0 gave 'nothing_here' twice, so stop retrying it — you've now arrived at npc:0_11_1, so try an 'interact' step there instead, and confirm you're holding any prerequisite item that NPC may require before interacting.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 600,
+      "output": 148
+    },
+    "tool_calls": []
+  }
+}

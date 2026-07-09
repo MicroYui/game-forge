@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d6a75f803ad81ec6868edbb8347fe5b48b3c709bfa85134e4ff7b3fb2d08e46b",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3540,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpwDCokBCA8YAipASQBIF0zOoeo6HUXW2zy9t5vUsBqlsj1rxpVds+aTz78pdCz87ssqCw++beclrV9o9W523RmR4sK8WSuUs0CqazIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNuo4JTJ3/5sRSL3nhoMEfxxKD/7L0UI2bb4IjAP8HfdYDf9icH0Nw6RQc6/TzeaWfjUobMq9zPpwFgaCaZGiP+747BmH3Lkyn0bEYgqvwGbtk/wiJE4ZxWLOVUKQfpcpCBFvHRUrz9PpLe2uwY0jDncbxlv0GSimWmupgBnmDqF4WQLTZU9Yow8UwNk7EaOH1ysAeYUEmxMYrbP4DR2Z8ILdyWbh5qnoi/fRWMWbPLV55gyHXd99nLCBLWEk9rMBLv2eCDU8RzLO2FKyCFPaJEIxVonnYCUaE1BQ2afq+W1T8H1QIhESKkuCq+TRJBjlZQ8AR+h0c11hgAvliCfnMRaL35X99+HXGFm8CHDYxgB",
+          "thinking": "Quest 2 is active and I need to turn in an item. I have item:0_10_2_c and the turn-in step is pointing to npc:0_10_2, so I'll proceed with that target.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_2\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_10_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1996,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 130,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1323000000
+      },
+      "id": "msg_011CcrcdzffHEhWtDiQk15w9",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1996,
+        "output_tokens": 130,
+        "output_tokens_details": {
+          "thinking_tokens": 87
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_2\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_10_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1996,
+      "output": 130
+    },
+    "tool_calls": []
+  }
+}

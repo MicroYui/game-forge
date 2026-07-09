@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7828965ef592c156bc64e770cb7078a112b9639cf7f76516f89a85849912a760",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3124,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqcCCokBCA8YAipAZYl0Gavxgy10pZ089fB2GYlpoK/Z7ZZ7wKWEqOFBNPQkHbps+unIqtxcJYsj61Shmv23PYuYowVusD3D1z3x8TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOnhQEaugywzpCJ9KBoM01ak+HNdeMabYDSPIjCjD7LFt+uvYSeFFH5g1ArO/tibndcSUQFSps3RVFjvQ0WWc3Xda3NA05/hhtcA8OkqS80gKOQGEDGmZIsOQdsfUtrtJ+Kb997vG6o/XyhF5kh13miJChBUSeeNu4tVaP9puQJ9Q40+s8MREf+njhCZbjGLRMhzjzM8C0Zi8hgB",
+          "thinking": "Quest 7 is currently active and I need to turn it in to npc:0_13_7.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_13_7\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_13_7\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2397,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 74,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1383500000
+      },
+      "id": "msg_011Ccr9ogDnS9qgQs3up7vc8",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2397,
+        "output_tokens": 74,
+        "output_tokens_details": {
+          "thinking_tokens": 31
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_13_7\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_13_7\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2397,
+      "output": 74
+    },
+    "tool_calls": []
+  }
+}

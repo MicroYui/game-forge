@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:382045c077748bb744c406e62df419e3c9eb30a05251c61d068c8eb11c8693aa",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3608,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er8CCokBCA8YAipAROZCaBQLOxfGAsLqAJAz+BjjthaWI1GOELapXsSchcXWhFKkNohF9rQBJRhqOVtwCskWYGOs6Ci2KhgTCKWqNTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOOTVDbmJaxdVt/bShoMCZfB6UktSfi6bKVnIjDHnklpQDwvVvkSbAqTz3kk01xokv8wd5LaMlrYyxGn6kWiQRhh28w8a8ZFztjOSJoqY4/9jvNuRsN+8yWmtqa6a9l0/r7M+C2z19e2OX9GKoNMkzApwI0SUs8lxgiK9dPYTnqypTwPZFPd+0nwH4GKWPu2lGlhJlFq70bbQlQMgURbOOSdTZeVGJj1F4VSTN7DV5BK+BgB",
+          "thinking": "I need to turn in quest 0_17_3 at the NPC since the turn-in step is available.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_17_3\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_17_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2868,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 83,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1641500000
+      },
+      "id": "msg_011CcrDWwa1CnmBiZSQgJoek",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2868,
+        "output_tokens": 83,
+        "output_tokens_details": {
+          "thinking_tokens": 40
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_17_3\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_17_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2868,
+      "output": 83
+    },
+    "tool_calls": []
+  }
+}

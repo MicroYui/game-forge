@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:647713ba9268d763984c0c6fdf0a58395c6e1e0bd83abc059068e9c4b823efaf",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7334,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er8ECokBCA8YAipA58b5wqDL/pItGlWOfA9CO22bz4K48wvylDzLrpsOYu0PXXdGZNknrFCxOvD1QcIsqJUfHXc1oMh0BhPwP0PdyzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAoYGFBxXeqUDH0jqhoMGKrxu+rkb+Bld4A+IjCvAEnzWkSIi88QX+k0faanUSD9IG6yzZMDNL0iZSzesCKdKxfaSqbglUq+Nxs87ZEq4gJsHk7yX/aVk6buvqOpiJQemg5Z4EILXjJgHpZgkS0oRAYe0rRAUhf8MhD7DjJHucZbqiDmCEteEjGpyHfi3hy4FiETsJzzCVYG9VTpbSflAPix/l0eB0NuVMmJpgrjJzgfQS51JQ/AY4OfH2mUpnBuwhjpSIGJMO3c1HvzGLZXb+h90oLaFvW/hLRa+t6+GZLRtWp37EdsotdcJPiQJdbORcKnyirn3M0kfGBt+j1wNTTspUgAD/kaCTI3Xuxi54zNPI//Q9TLXQ+StNYab6JpfCQ5OrGdX+B9cyHVlQfC4Eoqdcm/Y3MstjZHSPkSHGjNGv/0QTFKEEEu7t4wzamKwJXGyD73P9Epo5xePd3h81lV65j+g20hjuku8riOKxryUlGJDI4181ofdfZAl8V1Gj+Abz909wbL9gyuESdrQ4nGg+h5bxqiGDHZzvrsec65Dr74/q2oqDssg/eJJbFRxyQYAQ==",
+          "thinking": "Looking at this log output from what appears to be a game AI trace system, I can see there's no specific question asked, so I should analyze what's here and offer to help interpret the debugging information.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** but haven't asked a specific question. Let me offer an interpretation, and you can tell me what you actually need.\n\n## What this trace shows\n\nThis is a deterministic replay/compaction of an agent's action history (109 steps total, none verified yet). The tail shows a clean **quest lifecycle** playing out over ticks 97–104:\n\n| Tick | Pos | HP | Action → Result |\n|------|-----|----|--------------------|\n| 97 | (8,9) | 94 | `navigate_to:npc:0_5_10` → **arrived** |\n| 98 | (9,9) | 94 | `interact:npc:0_5_10` → **quest_accepted** |\n| 99 | (9,9) | 94 | `navigate_to:mon:0_5_10` → **arrived** |\n| 100 | (9,10) | 94 | `attack:mon:0_5_10` → **hit** |\n| 101 | (9,10) | 93 | `attack:mon:0_5_10` → **hit** |\n| 102 | (9,10) | 92 | `attack:mon:0_5_10` → **victory** |\n| 103 | (9,10) | 92 | `navigate_to",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 428,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1494000000
+      },
+      "id": "msg_011CcrLSX16dormqRhDocVXC",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 428,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 109
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** but haven't asked a specific question. Let me offer an interpretation, and you can tell me what you actually need.\n\n## What this trace shows\n\nThis is a deterministic replay/compaction of an agent's action history (109 steps total, none verified yet). The tail shows a clean **quest lifecycle** playing out over ticks 97–104:\n\n| Tick | Pos | HP | Action → Result |\n|------|-----|----|--------------------|\n| 97 | (8,9) | 94 | `navigate_to:npc:0_5_10` → **arrived** |\n| 98 | (9,9) | 94 | `interact:npc:0_5_10` → **quest_accepted** |\n| 99 | (9,9) | 94 | `navigate_to:mon:0_5_10` → **arrived** |\n| 100 | (9,10) | 94 | `attack:mon:0_5_10` → **hit** |\n| 101 | (9,10) | 93 | `attack:mon:0_5_10` → **hit** |\n| 102 | (9,10) | 92 | `attack:mon:0_5_10` → **victory** |\n| 103 | (9,10) | 92 | `navigate_to",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 428,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

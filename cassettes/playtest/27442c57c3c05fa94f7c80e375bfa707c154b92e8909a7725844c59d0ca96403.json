@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:27442c57c3c05fa94f7c80e375bfa707c154b92e8909a7725844c59d0ca96403",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8902,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvMECokBCA8YAipAAq0uRcnBEC8nklV8dNZUVcWbS+P87hlwiobRKMaUog+BaGCaVO2x2oDqDCvSQ3zfRlX2kVS7LqOJPxpLSuj8wzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPLtOvJOYinT6Rb7lBoMaUcFEj41dM7kTIbJIjAgnCUfvWT6LwptdeK0kw1rcLQKr0UBrXqCDlX+aWc3AVoGOJyAPy/HYYsOs6Sd5p8qlgMmhe5H7FI8VuodqC43cNH8wIQydMum4vqaT/LbYpkfF15GXBRyUBUCqRFsR9vtGgIJgmXFrop1UzIEdYWbF3YiY37drBTInLdkxvfuJWwp6dFc335iUUIiaOOQsUDb0JeWyo67rkx0JGZDQFyfjC9mPX+s+gbCMExzOHwmWLjKlMQnN4oywBFOJQH4uIpw1NOsEz0owfPvp6iFmADQU9d1Jcw3HtcLFMCn9vtZrGoHitGGN5mTlyl/h8cD9+x6mpj4rqULduZ7GDE9cXV4+uDcZx6RJay/pqZh0iXu5o1JqfWUQ7kqatULirw8dEUci6yBl4XmBTjlARKTawBrLwIgPoBPh6g8m7jy7dF7r44otVrUhrcS/N3XxKaA0r571bh/pAtv7NQE/GxRkQaFg8i6skXWTEqLiyWZvkLwVSkaJmdmpyEpqvJBlou2wEJDQPEWp3FHV/SdIav7tZ0wrkWUfLh0IqZN9RZROwA4GjiRFK60qP3c3r99+x63DnVS0Mw9n4sGxw6aikE0Wh3xSPX/PeesCDqEGAE=",
+          "thinking": "Looking at this log output, it seems to be a trace from some kind of agent or game simulation system. Since there's no specific question, I should ask what they're trying to understand about it or offer to help interpret what's happening in the trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted output from a **MemTrace compaction** run — a deterministic trace of some agent/game simulation. There's no explicit question attached, so let me summarize what this shows and then you can tell me what you actually need.\n\n## What the trace shows\n\n**Header**\n- `28 step(s)` compacted\n- `0 verified, 0 verdict(s)` — nothing has been validated/asserted against this trace yet\n\n**Tail (ticks 18–25)** — a single quest lifecycle for target `0_16_1`, with the agent at HP ~97–98:\n\n| Tick | Pos | Phase → State | Notes |\n|------|-----|---------------|-------|\n| 18 | (4,1) | `navigate_to:gather` → arrived | reached a gatherable |\n| 19 | (5,1) | `interact:gather` → gathered | picked it up |\n| 20 | (5,1) | `navigate_to:mon` → moving | heading to a monster |\n| 21 | (5,2) | `navigate_to:mon` → arrived | |\n| 22 | (4,2) | `attack:mon` → hit | HP 98→97 (took 1 dmg) |\n| 23 | (4,2",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 442,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1501000000
+      },
+      "id": "msg_011CcrkmgqGK8mRNF29twK5Y",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 442,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 119
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted output from a **MemTrace compaction** run — a deterministic trace of some agent/game simulation. There's no explicit question attached, so let me summarize what this shows and then you can tell me what you actually need.\n\n## What the trace shows\n\n**Header**\n- `28 step(s)` compacted\n- `0 verified, 0 verdict(s)` — nothing has been validated/asserted against this trace yet\n\n**Tail (ticks 18–25)** — a single quest lifecycle for target `0_16_1`, with the agent at HP ~97–98:\n\n| Tick | Pos | Phase → State | Notes |\n|------|-----|---------------|-------|\n| 18 | (4,1) | `navigate_to:gather` → arrived | reached a gatherable |\n| 19 | (5,1) | `interact:gather` → gathered | picked it up |\n| 20 | (5,1) | `navigate_to:mon` → moving | heading to a monster |\n| 21 | (5,2) | `navigate_to:mon` → arrived | |\n| 22 | (4,2) | `attack:mon` → hit | HP 98→97 (took 1 dmg) |\n| 23 | (4,2",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 442,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

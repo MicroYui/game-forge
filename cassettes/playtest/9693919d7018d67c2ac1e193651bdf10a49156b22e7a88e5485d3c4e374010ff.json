@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9693919d7018d67c2ac1e193651bdf10a49156b22e7a88e5485d3c4e374010ff",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 9278,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtsGCokBCA8YAipA6cGDcZ3fO7hiLBf0r+Vl8v51NjQ6s+uISy6F7wsXxqjr2q0oA4oGv9cOGeOchp1vDogYW3eURffyOREFHBcR4TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFI8aY0QXQPa5MlIdBoMWhTM2il1jid1HhSKIjC+n1gD4uiJ/jaYQ/XZlpprUi8nIn8Wbe9J+5Z3ekud9iTq3D4Zovino2fFJ3WpcI4q/gSZ5siODNiU46CNMRS5RUYpztbEWvmpdT/B5RILjKfFRCWox0eL0cGalUst213WYrnivjzpEEVT5nzdrPAzFf6w9P04YQKVgIOFhxUHrHUx/90YyQEp6AwGDFLJxaY+cLsyK1UBUzVlcJXTTxLpxYr1dlR0q+XdIgCc1+S5tMy1cHo7cuT9mZiJWtsPuDgwT1QGIlQTVZRp6FWjta1kdtKDs25t2r4rtKvHecPDBeIMRNHXehVlhyTc6Fm25HeW9Um5ZmFAc5LGItgJNEtSPGtPiBb35D9ltJOa6eyBG5tJFNliZ6GXzKpW64aFm3RblUgILT+1GlGUOOXOU0BRQehxadeABG8YvXdzAalhrEkgU/X0KMZ0BYl0AeS53STVlqBQQFPolYPLWKA+s0ZhOB4xtVcWVHtdRk4uCx+jVg00U1GU2lizjDfgSberkIwZg/kXA8D8vCaFbA1SeC6uuOU9F+c5ObzUSDtd3df5BC+3UV6d8ExbtCFdE/WcctE4LhV6qpYbAiOd2gKpyMu1CpfhSeH/FowndgSjlHKyHL9pETu/GfK9J1eXlZ/ItaogOgCLV2GVP9JuN4H6mOPLgv5BWqB7ByBMBXWX9eH2ngMLeywepMXqNYvSDTKp+R9WF6zSK/noMC9AtQpaZ6O4hR9VpUK/9w/o3q2reIen18guqu1I5AjItEWeoWVewRPJLcDKMcM3Xr9ToYGbJPcz+KrWPZq6ccC5dZu+Z98m4heZ3FHG5/ukPzMBtKskXtoR5/IfdYVanpi7G0zJkRAW8fuKiBsOrftXmxqct/6vPzq32wurtzbSPuEOptSVHPBkxHATQo2Vuy2ChzdRFpdoWhgB",
+          "thinking": "Looking at this log output, it seems to be a trace from some kind of game or simulation system showing 83 steps with position, health, and quest data. Since there's no explicit question, I should probably ask what they're trying to understand about this trace, but I can also offer to help interpret what's happening in the simulation.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a trace dump from a \"MemTrace\" system, but there's no specific question attached. Let me offer a reading of what this shows, and you can tell me what you actually need.\n\n## What the trace appears to show\n\n**Header line:**\n- `83 step(s)` — total recorded steps in the compacted trace\n- `0 verified` — no steps have passed a verification check\n- `0 verdict(s)` — no pass/fail judgments were emitted\n\nThe `0 verified, 0 verdict(s)` is the part that stands out. Despite a full, coherent quest sequence completing, nothing got asserted or checked.\n\n**Tail (a clean quest lifecycle, ticks 74–81):**\n\n| Tick | Pos | HP | Quest step → result |\n|------|-----|----|--------------------|\n| 74 | (6,7) | 93 | navigate_to npc → **arrived** |\n| 75 | (7,7) | 93 | interact npc → **qu",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 443,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1501500000
+      },
+      "id": "msg_011CcrKLuB4LKzhSw6y6vpzi",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 443,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 198
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a trace dump from a \"MemTrace\" system, but there's no specific question attached. Let me offer a reading of what this shows, and you can tell me what you actually need.\n\n## What the trace appears to show\n\n**Header line:**\n- `83 step(s)` — total recorded steps in the compacted trace\n- `0 verified` — no steps have passed a verification check\n- `0 verdict(s)` — no pass/fail judgments were emitted\n\nThe `0 verified, 0 verdict(s)` is the part that stands out. Despite a full, coherent quest sequence completing, nothing got asserted or checked.\n\n**Tail (a clean quest lifecycle, ticks 74–81):**\n\n| Tick | Pos | HP | Quest step → result |\n|------|-----|----|--------------------|\n| 74 | (6,7) | 93 | navigate_to npc → **arrived** |\n| 75 | (7,7) | 93 | interact npc → **qu",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 443,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

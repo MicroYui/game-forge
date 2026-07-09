@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:eec57de61edd77f206eef4805a462c149ea29cd170ce035d05f64ec676817431",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7729,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtYECokBCA8YAipAI68It1twwVwGnN6VZfTYOm/+hUBQ7EjYFSECDI0s2aK+dQGWDU110ZoXGLnnI4rM7iXvge/gFiHijHDmguxrODIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBoeA0OCksXq2SPrtxoMzT6W58tOcwez7eTuIjASYpI6v63OEWpQDvHErdGWv/2F0W6JMexcDoexXopI6qLcGk8zLQweCxnblJexmCEq+QJgZxJjqzW14yAMard1kGXX7u0sALboJpM1zWyZ0D09wijbaPCapm5XGCCm+0UdkLlzGjUZhMl7S4kYJs6TOMauqtpzqp7Gflaav7Hs9ro+9menk5gdFq+YNmmTv8OSbMYI7DmIFtyWSeTkUqe/gEYmi2ZGlTZI0NX/AV+aCOEv8JRjkcgGZxuFUIVIYmeRbEW4UkTarqYrf2my2inPgRu0zxHMHn2LVVdowDRJUiPhdcYT26tj8TYLAO7HKEFksXqPRqE3HNqdgH7vIoGcTVGxWi/a3PF7zsEhnSEy/4wxHs6wIS/qzcpsXlGw2AaxnIwJ7lm4okvDASu1MzcwNg3ZJ2skjyPXGDnIPSiZmyeHQhHwvX+rHePunVu6GS4Id9TD9N7a/nguOe0xftmbRfU8wLVOa+2jP1W2u0BBc3ngAAsIGq87hGvAFD6+imnECGFCf/xn5zGvwyWbp8gdE/8VRy08QqtMC91X9BVzvifC4xBs5sPt9tlACRgB",
+          "thinking": "I'm looking at a memory trace log from an AI agent navigating through a game with quests and combat mechanics. The user hasn't asked a specific question yet, so I should clarify what they're looking for—whether they want me to analyze the agent's performance, explain what's happening in the trace, or help debug something specific.",
+          "type": "thinking"
+        },
+        {
+          "text": "This looks like a **MemTrace compaction log** from an agent/game system — essentially a summarized replay of the last several simulation ticks. Here's how I read it:\n\n## What the trace shows\n\nA single-run, deterministic episode compacted to **15 steps** (with `0 verified` and `0 verdict(s)` — meaning no validation/assertion checks were attached to this trace).\n\nThe **tail** captures a complete quest lifecycle over ticks 7–14:\n\n| Tick | Pos | HP | Action | Result |\n|------|-----|-----|--------|--------|\n| 7 | (3,1) | 100 | `interact:npc:0_18_1` | quest_accepted |\n| 8 | (3,1) | 100 | `navigate_to:gather:0_18_1` | arrived |\n| 9 | (4,1) | 100 | `interact:gather:0_18_1` | gathered |\n| 10 | (4,1) | 100 | `navigate_to:mon:0_18_1` | moving |\n| 11 | (4,2) | 100 | `navigate_to:mon:0_18_1` | arrived |\n| 12 | (3,2) | 100 | `attack:mon:0_18_1` |",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 433,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1496500000
+      },
+      "id": "msg_011CcrrNkvt6kvvd6As8fPV8",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 433,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 117
+        }
+      }
+    },
+    "response_normalized": "This looks like a **MemTrace compaction log** from an agent/game system — essentially a summarized replay of the last several simulation ticks. Here's how I read it:\n\n## What the trace shows\n\nA single-run, deterministic episode compacted to **15 steps** (with `0 verified` and `0 verdict(s)` — meaning no validation/assertion checks were attached to this trace).\n\nThe **tail** captures a complete quest lifecycle over ticks 7–14:\n\n| Tick | Pos | HP | Action | Result |\n|------|-----|-----|--------|--------|\n| 7 | (3,1) | 100 | `interact:npc:0_18_1` | quest_accepted |\n| 8 | (3,1) | 100 | `navigate_to:gather:0_18_1` | arrived |\n| 9 | (4,1) | 100 | `interact:gather:0_18_1` | gathered |\n| 10 | (4,1) | 100 | `navigate_to:mon:0_18_1` | moving |\n| 11 | (4,2) | 100 | `navigate_to:mon:0_18_1` | arrived |\n| 12 | (3,2) | 100 | `attack:mon:0_18_1` |",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 433,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3c780148cdd19e90dc038269f28e604e8348fbea9d6f41045b3642e04b1a7efc",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7971,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvoGCokBCA8YAipAsU3csOFBFf/nJv85ffeoJwr/b/0fGcv8rK+w6367XP8C9W0HBEHHBknMxALl7ioMT8Y/QeMbYP4Vxqbt1pT1PDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIaeBTUR041YCcXg4RoMu7i6wMRfCjAfDpgkIjAsX9dmlHv5KkIXdMrFE7iF2CNp0ZaXsxdtc7M3hNZkMqtvkDA+HugIap9pJvrB+ZcqnQW1AvLo+VJqKuv7VP2ucyjyCHhX6Mox10cRmwsiGJbDE4Nu4qj7bzMQKcYirtAaZXXMExMA+77s+5u4cf5IbxUOenkp99+8pCGjS0XoqYCIOfHlU5LrvX/V7gWE5Xs4rPbKzrKCI8oe9QYAHBhPLKW/bTCxbHBU59syCAvjhGTIVGa2iRSY+s5VEXokvAVG3pAdYzbRa9wdiV3DEe68Gx4e02dxr2YXdn6G4yEgbiiPqddU4usU3NInEiZj1Ngsa1me27LY5H/bU0RN2vcL7nM2cwkozoJ1JDXlKD7J+em28uRrztc1c4tBthXvN4fvA/JHhWhX3tjwP/JDW56WzVbqo9pJqLunUmNdeGVIo0Eo/LkCz+9S+pSq3Bq2Dga3E4CxO3EqCQ5rUp/7GBG14UWXb+9sFNYkotAN7OYMrGuwu5Of2zWOkPBY3DVmjJSyJxEos8HezZBHFIC8lso5fIXm96kLHTqHcke7F2Wlh9JjJ+4ONz9YPk428UD6bLK5nLJbbQjD81X51lvPh84sPbQYk9ofdoxGZCCi10aPju9zBYJuQwz9fPC8B2GNQHGLRksZI39HuVv/0vaNmpiq5lCOPPC4BZ4DZ4M9jHr2JQ1NFHf0VlOCJCaM8Vpl3xMNZeLcBgdfnV7isUGy5xHGKmmA4hhxc7kZumM9s9wZuM+Hd+mWIeTJJaK+V0adGFUwIMbV0x3rvoiK0HCT5CV/RQVeJ56uuFxA2slkqsNicO+TdvrkEfurMy7Rjxiu7f6jKPuAeu68M6kcbhwYW+CzJhyH7oti/vqez1oauZFswK53kZ4FvZkIlxtXpZU7bRVbZsiPvvFMhzc08z+DUNhiU4Xyh+RCZcLMQqOAKWcvHnpwFxVOZ5kPYU2M5LYXKnIYAQ==",
+          "thinking": "I need to figure out which quest to advance next. Quest 0_4_2 has a talk step, and while NPC 0_4_1 is available, the reachable targets include NPC 0_4_2, which is likely the target for this talk step. I'll propose advancing quest 0_4_2 by talking to the appropriate NPC.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_4_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2057,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 319,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1826000000
+      },
+      "id": "msg_011Ccr2ZZhfifGUHeqtW7NSC",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2057,
+        "output_tokens": 319,
+        "output_tokens_details": {
+          "thinking_tokens": 278
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_4_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2057,
+      "output": 319
+    },
+    "tool_calls": []
+  }
+}

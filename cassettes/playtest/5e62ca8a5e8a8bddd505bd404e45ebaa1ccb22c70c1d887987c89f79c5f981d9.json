@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5e62ca8a5e8a8bddd505bd404e45ebaa1ccb22c70c1d887987c89f79c5f981d9",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 7891,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqMICokBCA8YAipAld+UHHD53qK3l0lpZ0G+kfKiQXcWVQq6/poJYlm231SzBCssXWo+HENVZa5XLw2FDt7lh+jhoSVaBCfrKZppSTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDIrPD2oPXUju4xS24BoMJ/x1U5dY17pYamdyIjCYvofnkhqcPLj1Wnj5jbiZ8HokcIO3aQNfx918eYH3HbBUq6AGeXZmKUpgpiqAzMgqxgYngRlewvSHpd1eqOGWzEydEZYfLwso2TrPiUSipIMLhCDwfo9HcxY/HZmrqfGNM6XVS0WxQTkKE7o0DD6SZ+GaB9tUL+v0GeFcmZD52LBs/l7xdAtmvBEvkKy/qHRDC+q+rjsDkPxCX8nSud1GDwttw9bYEIdLGzoiwIbXyoeW7D0dvmue0f13Fsr2lqmBQWusHj3ZNYEauLdau5LBNSfLcilW7w0mXft+d+tiiTQ/KKX+NNIPR7KKX1WwebCGaTlZXksBijLz8qsO+25iynn37KAZuX/zN5XuJa8o84KNIp68RQSGfAiGZzEeP5TpzdKQzva3G/KN0KLCgycT7LeYTtvBM7b26a8TwabriePRd3lzC2EzAWJdY4jBA9AZG7nbhWiRD/EN9KbtvDU1nZARmKfGLNSamaG9AhZfDuRu9b8P7GFsR7G/JxI2Orgfxbfl5tC6AIP45SZEBz+MKd9gnFQXoZB79ktkf3M5xCWVWCwSig2hJL5lfFqgkahOoy+XNQKuIrSKNCe6b5dF2RFe87lF/pMBVE4p5FrfBzPbSv4OmlMLM3Xb9a6bkQT8ABuGc2OtCcKXb4E3k50UxIZpBTvAAJMc4jLUKLUPitGSdk/JDyKaBPmW7SVE4tzcQk/3HPjL8PSNWteeaMz0yqKuNTe2Z3N9ohelCySBoJZclMsn6bGcYUKMxBb2dzWhEA0dHyJle68WmqWBZv9cU7iMSzOWZ/L1xvbhAixC3O7Sj5NOVdoE8/D3UWGnrsqiwxBrN46w8hdKQCniR1x9KEaXn2pwWNvPpBZuF3C3hT9BjI86RGX1T8FegIk4CDQ4Q7B0PKfnmwI9Pk+75CeXCmWjy+iGhPtb70d9m+CUp6/jyu2epufQPbXuEpsPWgRyUZLki3/lHf4uWdGCLUK5dkGipt7WQVojr7+K9qUxMNJquxsXjq+rg33htxEtjcIrgSyd7wUav6pUD1pSmD8p7U36Mvc8wUS2/dZHRewDUvWDlffPYL3ZC9YEArJ1V/KipdnMJ5hZDAto3Q/3Tt3wW/RfdvyMGs2RjcVA734pdIUyoHI2RDTRLu0PIfDZl89YvypqepPuc7oLXZt5kz2Uq69u714lbkt3GAE=",
+          "thinking": "Looking at this MemTrace compaction log from a game AI trace, I'm trying to understand what the user wants since there's no explicit question. The trace shows tick-by-tick interactions, and I'm noticing something interesting at ticks 27 and 28 where the same position has different outcomes—a quest completion followed by no interaction—which might indicate a state change or anomaly worth examining.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a **MemTrace compaction log** but didn't include a specific question. Let me summarize what the trace shows, flag a few things that stand out, and you can tell me what you actually need.\n\n## What the trace shows\n\nAn agent completing a quest chain over ticks 26–33:\n\n| Tick | Pos | Action | Result |\n|------|-----|--------|--------|\n| 26 | (6,1) | navigate_to npc:0_18_2 | arrived |\n| 27 | (5,1) | interact npc:0_18_2 | quest_completed |\n| 28 | (5,1) | interact npc:0_18_2 | **nothing_here** |\n| 29 | (5,",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 448,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1504000000
+      },
+      "id": "msg_011Ccrre1vCdmJPMX4MFPyut",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 448,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 287
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a **MemTrace compaction log** but didn't include a specific question. Let me summarize what the trace shows, flag a few things that stand out, and you can tell me what you actually need.\n\n## What the trace shows\n\nAn agent completing a quest chain over ticks 26–33:\n\n| Tick | Pos | Action | Result |\n|------|-----|--------|--------|\n| 26 | (6,1) | navigate_to npc:0_18_2 | arrived |\n| 27 | (5,1) | interact npc:0_18_2 | quest_completed |\n| 28 | (5,1) | interact npc:0_18_2 | **nothing_here** |\n| 29 | (5,",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 448,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

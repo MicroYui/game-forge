@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.memory",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:79b4fa296d833c56cad4fd180ee8b3728b4a40875623dec0148b2ef274d4c0a7",
+  "response": {
+    "finish_reason": "max_tokens",
+    "latency_ms": 8366,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq0ICokBCA8YAipA6CLfim3HIIQQhGVjK8qNZW68kGCDN+9F/kn7J/30V/HRL3GwjNZg7q74t/lIg6dHVTKrZOTD8wGLLVxefiHO7DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDH85Zx6KHRS93wMbVRoMrYWalr2fBxVRWxLfIjCRPQuYWJmMFTsQZ5BoEcd/EVMsJ1XgLL3ob5J9uJo8/PPvGZ78wdsB9JSb4jYFv98q0AbZel8zrNIXN2zTBKjPcnBNQLIwsiJrNZAor1bvTDyJASjTLXT0mxqzHJzxscSSfHgKPBJU1CmmZ3/TczgR0dC7GHROG0emvJOEDxHDRBi1ln0Il2TVkcEMLu380oJj/T9fvrVuN8sjdv6fTR9OhwE7JX+UQwubHxe+SEPxE/snacASBsim+6dfRruLt5Jg+Mjd+4wKeej8k8xd+0z4gAbBJechN4Q9h6PQ5OsFuirhKD07DkNxPYNH54CZVdqtavAjSqDMbOgreoEFUmBElApM5+nbpUA7Prc+kqSnND1VqmANackPIGbS+3PYziWci3HcCX2pxBX0IO4b1at/F6N9ux3elwi35XW4aD3oHKCjn2I/5t51T9DdsTSdVUN7QBbmN30Mv0GCUGw11B2dBMIcb4Ga+J+7tjjdJsTO7nLJc/dBh3lKcyQ6laylYyc5LHzFXINwpxAb3mtwP8S+VgbX0LqsfCPyCtkpFQT63+01Rx3WGjqPZU0llSSPtybuetPny0pegSFAzNH397K8RXfoocazZpEQpRhKxtMpvPz8lEeNaZfduGJn6a4XLuSvhGUTWPu6a8W/sjUq+XfXe2OF7du8WSMKUEpu4uY1Dn0ox1Sn0fybK6EOfUEpVLKnHcqEADxTd+1RPyQwt+Gen5x91Xz/FzEgJ3nKUvhmXZKK/Eh0Ry0JYUE9MiPME8oBLsM19Vp0K+X51SoUpqPTV01c8+4Fs9qbsr2zSW9ct4eAy7r/4dKJ/kI8nqPJkmoLPS19oBfdbryIVl2c+sq+Tff7HijPctDf5oXUjG6+VteoAWxSFmTiaEpl1rP4+CDxvcX7diMAbFsHUEB+Yf9O7GSYwGgL3cl5GATQ5wJCAjakoRlOZ/91xBsE/sLg88pe2tuVTzvbafJo4cv6Qp6khH/CESMppiPHv+0z6i3IK03VhCa0RWn+yK2r4D0wmZP/gYRe47jK++Ivmj6fpTFRejhZPKwgncQq2N3o23rhKake+LglNfOiw+Rcdk6xVH0P5TgYZXyzYUA3MNtT3q4kP6cCGkY6zxbk4khneabMndIPExlsmNE75iXLF5S2B+bFkJfYEEGm16J5yaS8lPvbnBVf77/JCD5qnikvye6V8H7MFRgB",
+          "thinking": "Looking at this MemTrace compaction output, it seems like a game AI memory system showing 26 steps with no verified entries or verdicts, along with some tail data tracking positions, health, and active quests. I notice the `active_quests` field appears truncated or malformed with an opening bracket but unclear content after it. Since there's no explicit question, I should clarify what analysis or help they're looking for with this trace.",
+          "type": "thinking"
+        },
+        {
+          "text": "It looks like you've pasted a MemTrace compaction dump, but I'm not sure what you'd like me to do with it. Happy to help once I know the goal—here are a few things I notice in the meantime:\n\n**Observations from the trace**\n\n- **26 steps, 0 verified, 0 verdicts.** The compaction is retaining steps but nothing is being verified. If you expect verdicts, the verification pass may not be wired up or triggering.\n- **The quest flow reads coherently** across ticks 18–25:\n  - `attack:mon:0_9_1 -> victory` → `navigate_to:npc:0_9_1 -> arrived` → `interact:npc:0_9_1 -> quest_completed`\n",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 445,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 512,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1502500000
+      },
+      "id": "msg_011Ccrc8q1RfBF5zQWfGsPSQ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "max_tokens",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 445,
+        "output_tokens": 512,
+        "output_tokens_details": {
+          "thinking_tokens": 280
+        }
+      }
+    },
+    "response_normalized": "It looks like you've pasted a MemTrace compaction dump, but I'm not sure what you'd like me to do with it. Happy to help once I know the goal—here are a few things I notice in the meantime:\n\n**Observations from the trace**\n\n- **26 steps, 0 verified, 0 verdicts.** The compaction is retaining steps but nothing is being verified. If you expect verdicts, the verification pass may not be wired up or triggering.\n- **The quest flow reads coherently** across ticks 18–25:\n  - `attack:mon:0_9_1 -> victory` → `navigate_to:npc:0_9_1 -> arrived` → `interact:npc:0_9_1 -> quest_completed`\n",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 445,
+      "output": 512
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0a9ca308b22c1b1287297624870274d618cceb61388e56ee0c989022f63bf099",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3142,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqUCCokBCA8YAipANtSTlQsN45fKbpp5GIEFcTout2R0bMOckHVlMDRsvksN8Xrq3UnTQCbEZvOkiNHjSp7DUKvdrUWOLfe6z72HvjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHxD0x96Lpl4x3lXVRoMz1WQLiMIPfW7YlHRIjA+R7jQBhVNFAoARkrc7XxRHv55SIkVkwMgE4wKMYYkXN7cXLs/v7yLyAazxtnB0LEqSUgcsNiSvo0mQuJOJIGsoVGhEyCY+ZXeSR4FLY9tQUYWZu8vwgNhEKltsmMP8P5LJPzEiIDx6/StjiapTFf2SDE2bOKEmxe8riYYAQ==",
+          "thinking": "I've arrived at the mon tile and I'm ready to attack.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_9_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2286,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 51,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1270500000
+      },
+      "id": "msg_011Ccr6mHfZin9JeG96UCfw6",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2286,
+        "output_tokens": 51,
+        "output_tokens_details": {
+          "thinking_tokens": 24
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_9_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2286,
+      "output": 51
+    },
+    "tool_calls": []
+  }
+}
