@@ -348,8 +348,8 @@ def record_router(cassettes_root: str = _CASSETTES_ROOT) -> ModelRouter:
         CassetteStore(cassettes_root),
         mode=RouterMode.RECORD,
         resume=True,
-        max_retries=6,
-        retry_backoff_s=2.0,
+        max_retries=8,
+        retry_backoff_s=3.0,
     )
 
 
