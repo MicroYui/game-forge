@@ -60,11 +60,16 @@ def test_recall_ranks_structurally_similar_recent_first():
 
 
 def test_recall_suppresses_repeated_dead_ends():
+    # Discriminating by construction: 'talk' progressed but is OLDER, while
+    # 'move' stalls 4x at the SAME state_hash and is the MOST RECENT run of
+    # episodes. Recency alone would hand the win to the last 'move' (age=0,
+    # recency=1.0 > talk's recency=0.2). The only way 'talk' can still win is
+    # TITAN's no_progress_count down-weight crushing 'move's verdict_weight to
+    # its floor (0.05). If that down-weight is deleted, 'move' wins instead.
     m = MemTrace()
-    # 'move' at h1 stalls 4× → heavily down-weighted vs a single 'talk' that progressed
+    m.record(_step(state="room", action_kind="talk", result="ok", state_hash="h1"))
     for _ in range(4):
         m.record(_step(state="room", action_kind="move", result="blocked", state_hash="h1"))
-    m.record(_step(state="room", action_kind="talk", result="ok", state_hash="h1"))
     top = m.recall("room", task=None, k=1)
     assert top[0].action["kind"] == "talk"
 
@@ -77,7 +82,16 @@ def test_recall_is_deterministic():
     m = MemTrace()
     for i in range(6):
         m.record(_step(state=f"s {i%2}", action_kind="a", result="ok", state_hash=f"h{i}"))
-    assert [e.step_index for e in m.recall("s 0", None, 3)] == [e.step_index for e in m.recall("s 0", None, 3)]
+    first = [e.step_index for e in m.recall("s 0", None, 3)]
+    second = [e.step_index for e in m.recall("s 0", None, 3)]
+    # Non-vacuous: guard against a broken recall that trivially returns `[]`
+    # (or fewer than k) both times, which would satisfy equality without
+    # proving anything about the ranking itself.
+    assert len(first) == 3
+    assert len(second) == 3
+    # The full ranked order (not just set membership) must be byte-identical
+    # across repeated calls against the same trace.
+    assert first == second
 
 
 def test_recall_embedding_off_by_default_calls_no_embedder():
@@ -111,14 +125,21 @@ def test_recall_embedder_called_and_cached():
 
 
 def test_recall_embedding_term_reranks():
-    # Two episodes tie on recency/structure vs the query, but one is embed-close
-    # (shares chars) and one embed-far; the close one must rank first — proving
-    # the embedding term participates in scoring.
+    # Discriminating by construction, not accident. Query "p q" vs:
+    #   near = "p pq"  -> tokens {"p","pq"}, jaccard = 1/3
+    #   far  = "q fz"  -> tokens {"q","fz"}, jaccard = 1/3   (EQUAL structural term)
+    # Both use result="ok" (never TITAN-down-weighted) and an explicit, IDENTICAL
+    # step_index=0 (n=2 episodes -> EQUAL recency too). So structural, recency and
+    # verdict_weight are tied exactly; only the embedding term can separate them.
+    # _CountingEmbedder's bag-of-chars gives cosine(query, near) = 0.943 (shares
+    # 'p' and repeats it) vs cosine(query, far) = 0.577 (shares only 'q') --
+    # verified numerically, not assumed. So 'near' must win under the real
+    # embedding term.
     emb = _CountingEmbedder()
     m = MemTrace(embedder=emb)
-    m.record(_step(state="zzz", action_kind="far", result="ok", state_hash="h1", step_index=0))
-    m.record(_step(state="qry", action_kind="near", result="ok", state_hash="h2", step_index=1))
-    top = m.recall("qry", None, 1)  # 'qry' shares all chars with the 'qry' episode
+    m.record(_step(state="p pq", action_kind="near", result="ok", state_hash="h1", step_index=0))
+    m.record(_step(state="q fz", action_kind="far", result="ok", state_hash="h2", step_index=0))
+    top = m.recall("p q", task=None, k=1)
     assert top[0].action["kind"] == "near"
 
 
@@ -139,7 +160,15 @@ def test_reflect_writes_downweighting_episode():
 
 
 class _RaisingRouter:
-    def route(self, *a, **k):
+    """Stub matching the REAL `ModelRouter.call(req)` API (not a decoy method
+    name) so a raising router actually exercises LLMCompactor's call site.
+    Counts invocations so tests can prove the router path was truly entered.
+    """
+    def __init__(self):
+        self.calls = 0
+
+    def call(self, req):
+        self.calls += 1
         raise RuntimeError("no live call in test")
 
 
@@ -149,8 +178,10 @@ def test_deterministic_compactor_never_touches_router():
     m = MemTrace()  # compactor=DeterministicCompactor()
     for i in range(5):
         m.record(_step(state=f"s{i}", result="ok", state_hash=f"h{i}"))
-    out = m.compact(m.trace[:], verdicts=[], router=_RaisingRouter())
+    router = _RaisingRouter()
+    out = m.compact(m.trace[:], verdicts=[], router=router)
     assert isinstance(out, str) and out  # produced a digest, no model call
+    assert router.calls == 0  # proves DeterministicCompactor never dials out
 
 
 def test_llm_compactor_uses_router_and_fails_closed():
@@ -159,6 +190,47 @@ def test_llm_compactor_uses_router_and_fails_closed():
     for i in range(5):
         m.record(_step(state=f"s{i}", result="ok", state_hash=f"h{i}"))
     # A raising router must NOT crash the run — LLMCompactor degrades to the
-    # deterministic digest (fail-closed).
-    out = m.compact(m.trace[:], verdicts=[], router=_RaisingRouter())
+    # deterministic digest (fail-closed) -- but only after genuinely calling
+    # router.call(req) and catching its failure (not e.g. an AttributeError
+    # on a mismatched stub method name, which would fail-closed for the wrong
+    # reason and pass even if the router were never invoked).
+    router = _RaisingRouter()
+    out = m.compact(m.trace[:], verdicts=[], router=router)
+    assert isinstance(out, str) and out
+    assert router.calls == 1  # the LLM path was actually entered
+
+
+def test_deterministic_compactor_digest_reflects_trace():
+    from gameforge.agents.playtest.memory import DeterministicCompactor
+    trace = [
+        Episode(
+            state_abstract="alpha room",
+            action={"kind": "talk", "target": "npc"},
+            result="quest_given",
+            state_hash="h1",
+            tick=0,
+            step_index=0,
+            verdict=1.0,  # verified
+        ),
+        Episode(
+            state_abstract="beta room",
+            action={"kind": "move"},
+            result="ok",
+            state_hash="h2",
+            tick=1,
+            step_index=1,
+            verdict=0.0,
+        ),
+    ]
+    out = DeterministicCompactor().compact(trace, verdicts=["ok", "ok"])
+    assert isinstance(out, str) and out
+    # Reflects real trace content, not a canned/empty string.
+    assert "2 step(s)" in out
+    assert "1 verified" in out
+    assert "talk:npc" in out  # the verified episode's action key appears
+
+
+def test_deterministic_compactor_empty_trace_never_raises():
+    from gameforge.agents.playtest.memory import DeterministicCompactor
+    out = DeterministicCompactor().compact([], verdicts=[])
     assert isinstance(out, str) and out
