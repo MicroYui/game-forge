@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:59c86ba2a1d4e41ccbd3f89d7f30528c532485f961206f0910f2e553a00c334e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4245,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq0DCokBCA8YAipAdjVJ/VxeFKfjfl/kDMV5NxbUflePZj7I64SjFSwnbIRfl0pMyfBLDgdL7Ssht+ceaGA4iQ81p30sAZsXPCp9wjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAK2KJZS3s5N0iaIuBoM9kgnzlajznsDI+e9IjDLwjX43G1vOV1ZVzMVLlai92Mb0lWgIaiUacThmaFtD8V7/zivPZU7UB3AYrOqudQq0AF43Qwd/qs7qAM40MmKwX0XC1+rT0vOuFXK9T2B7/dRrgeN+8iDZgP7LD8XAUHvzqqN+Voj+slzaRrgiRFxRXUjMAwx95rj0UhwjE4eXYsWy410wL8NXgdurFExH2EqYXeJp1wJHy6BpetgPYFvivKFO10/c9W6YY9uuMBEtT+0k4tTP/Hg8tUUPd8fcRJPNOMURIuJUn8tWJ7hnHpOZM3YjHeBZUUCzT8W05aAR6QotVCvhnkV/2sVFhxVFkBxMmMJzKxlcBGY0KbYk+hCJXtiGAE=",
+          "thinking": "The agent seems stuck trying to reach npc:0_2_12 — it keeps reporting \"moving\" but never actually gets there. I should check whether the path is blocked, try a different target or interaction type, or verify the waypoints are set up correctly.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Navigation to npc:0_2_12 has been stuck on 'moving' for many ticks without arriving — the direct path may be blocked. Try navigating to an intermediate reachable waypoint or door tile near that NPC first, or pick a different reachable NPC/target, then re-attempt the interaction once adjacent.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 182,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 754500000
+      },
+      "id": "msg_011CcpGk11q3ifq2BK1kwP5r",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 182,
+        "output_tokens_details": {
+          "thinking_tokens": 69
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Navigation to npc:0_2_12 has been stuck on 'moving' for many ticks without arriving — the direct path may be blocked. Try navigating to an intermediate reachable waypoint or door tile near that NPC first, or pick a different reachable NPC/target, then re-attempt the interaction once adjacent.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 182
+    },
+    "tool_calls": []
+  }
+}

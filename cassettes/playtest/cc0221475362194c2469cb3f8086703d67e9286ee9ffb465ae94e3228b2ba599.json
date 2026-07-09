@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cc0221475362194c2469cb3f8086703d67e9286ee9ffb465ae94e3228b2ba599",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3595,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo4CCokBCA8YAipA33fBx3UV6G9R5+IynRQJH/hfzrr9AI2MbnTVb5/qR6KW2/q/Q/3sGk5UHCv6ShAqGO0Gvwfkpa3jQX5l6U2AyjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKNZcAWA6pxoZpqjihoM9xQgeQ3qXClwlgQ4IjDH3Q18vnLq58Z3XsS0cKuOmvlhpEeRTjPIbLnsx4GXT3ddwvIJ/0XJvqd7nn3uVxQqMhzBQLwa/F4p5pklJyoa48+lQ23DAKhGU6D2A9xpnIAqduvaUnUxZnxvL0rBzmI5Twc0GAE=",
+          "thinking": "I need to interact with a specific NPC to progress a quest.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_2_0\", \"step_kind\": \"talk\", \"target\": \"npc:0_2_0\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1676,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 66,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1003000000
+      },
+      "id": "msg_011CcpFm583czjLJg4vnZkYJ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1676,
+        "output_tokens": 66,
+        "output_tokens_details": {
+          "thinking_tokens": 25
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_2_0\", \"step_kind\": \"talk\", \"target\": \"npc:0_2_0\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1676,
+      "output": 66
+    },
+    "tool_calls": []
+  }
+}

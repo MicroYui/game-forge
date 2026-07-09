@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3978ee6ba4ec45c00d3d9350b41d4aab25ae4a5d45fbc6aaa68c5799829cd922",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3933,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EokDCokBCA8YAipA8+0JhQdIa06xeCtyZX2ZnUmjrfgv7CCX5pQt8M4djmwR5FAoiTJRcxGlaNr63nsOFAZk5qY6LKSV3f31CaBMEjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDH6a6mx8dhQYs3C0cRoM++0l5KMt6WnlOxvNIjBmoRtwbYCsN/pMOB5OhA/ZKS7y749Ampi8f2z+AFA3g5CeSaQ/gZKya7ebYgMj184qrAEK7YzqAokNwhoDy70bsTDeaxu07l5yp6PAThXaXi3EgYI/ZQYmCeIQW24ulU/dm5MLP01pOwfhanFQKKv56l/381CHVfAveoUSvAhVjr/xfkzYzFu62HCNREqcxoRMZqKnPA9glLzuFKTGH5Di493ymUty2xfRBsdkZM1U42iMSf+LGFQnDvfqkbj4JbAnfZmuS9N83lVU5AZFF7ysUq0ekmbEijIsd5l4Gq9fGAE=",
+          "thinking": "I'm looking at a quest interaction scenario where the target NPC is 0_4_1, but the only available interaction is with NPC 0_4_0. Since 0_4_1 is reachable, I should propose talking to that target NPC directly.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_4_1\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_1\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1418,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 116,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 999000000
+      },
+      "id": "msg_011CcpH4p2ZWG4pkxA4pqswk",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1418,
+        "output_tokens": 116,
+        "output_tokens_details": {
+          "thinking_tokens": 75
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_4_1\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_1\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1418,
+      "output": 116
+    },
+    "tool_calls": []
+  }
+}

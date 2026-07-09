@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5c40e6f81352a401aef0c123c6fbf114c3b73c86749a8aa1ff40018fd957ef26",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6752,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsMHCokBCA8YAipAmcjda1buNhydw4lj2gKZ3CwRX4MtBwj6Yk2QNf28/aOP6MKbR1hWBAZM6SFDPdJH3v5ll0z6Fnv9QEXDXTN1BjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLqxRyUVn78LxDQZVxoM2+THhF2YT4woeMxKIjB0fQuv72tTZ8VZyUqF7TVCYizpvO5xWYFqMvoFT9kkWl9wYKm6WNT2axgPjkcFwDsq5gX7P6WmHgJeSoEc44kf+ynwdCoMHaiuAcc69sPVJm+tGMOgexeYYkOGa9rdyW4Ou2w3lTCoNGalv4wxb3y9TBhAqgUbkNxouXy/p6q0MLp3hGMptxbGBYIajXOB7fpJz8yizmMSV7+j5E9Lg7ksd/O1PR63reXkvs4t5JqfgKhVgKDeWIpBjEaN2ZsyDlShkBnvU6CaqdkDyMD9YX0BuxK3TG1Orzh+Cm8JzN/hb9XAcC/5Wl2JnTG3vd1s4QRjeAiedl4y6EzMfRIhIJk0B/UUKUq40Fy86ufMqoGIIiP+PRYlPsFUKbfGg2iX3TLutoa0WYY3zns/9B5qUcLzfCFkPCIltxsyPCe6JHliTH6NxvxaGdknE05SUXQmP6ACyQGB/4YAyzhcagh9KeHXQTQaXaIkfwMiXEwDSpWd/b2flv97sAmk8Dmx8Y53gdYD4dttiXM9kgXFM1b6bxhu3NWuv5f+IiSFVyy6NfZxDC9PjtbO4c6YOl4R6mmZRCPeFlHX5NpsXAhmhZaMkWaMGHG6Okas/Ht0G0gYLgaAMpTOlK1A4IgbHqRdDxG1vonwL78ujYeIabrNkPmzAsQuWJAxJvvcU6LzpLJuMaxIz1C3LTa0eKAXhgRijHJ9B0GEw9j6oTbYXSKcylT3FMlG3nmQbuARWFF7FMxXn2ASxjqLshXLUc1s3seG1RD4PxLOujJ5EO76Et4t7INdbMxDnXVWbg6UdlMGEujdqbbKsv/glNet8wEm2paSflSQtlw+8Qa52YzZHMktKIEdiDH76ktia+0r2VcJ66CGhY7IEqFBsruO7PBG6NXn5POl5WkCCqj+FnexTwF9ps5d259cxjoaagk3h3fkxcgmdt9pj6+oeu3VAhcLViFkFRrw6zMde+KNlRKBfI9vGOVALtVF171yrGUp2A4xPCtVQhEWu9GWk1jS1o+jvA6gFgGdq8BtDNVEfNdKGb2rxsC2t1KGV0LCcbJghRQ5GAE=",
+          "thinking": "I'm trying to figure out which quest to start next—quest:0_14_11 with a talk step seems like the right choice. The available NPC interaction is npc:0_14_10, but quest 11 probably requires npc:0_14_11, which is reachable according to the data. I need to reconcile what's available versus what the quest actually needs.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_14_11\", \"step_kind\": \"talk\", \"target\": \"npc:0_14_11\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2520,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 341,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2112500000
+      },
+      "id": "msg_011CcpRipETKKxb42QGwagkT",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2520,
+        "output_tokens": 341,
+        "output_tokens_details": {
+          "thinking_tokens": 300
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_14_11\", \"step_kind\": \"talk\", \"target\": \"npc:0_14_11\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2520,
+      "output": 341
+    },
+    "tool_calls": []
+  }
+}

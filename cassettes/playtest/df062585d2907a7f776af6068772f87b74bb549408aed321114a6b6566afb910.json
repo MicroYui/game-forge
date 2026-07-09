@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:df062585d2907a7f776af6068772f87b74bb549408aed321114a6b6566afb910",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3059,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvgCCokBCA8YAipADS1wB21c5MDv95khmrGBKa4LYIW0D6bx/1F+vqF5tA25MPca+u7rQAfJ/pRI/E94dy9t9/Vxn9WvWn6mOol0WTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEf5F0ZpgWOo+ZkzihoMtkwqJ3t0bgzKdWNnIjA1mxZivDtMFHsh6DmPM33bh1FJ2zeonv8kUdE8zdEg6qFLA8/fMqOJuKKP07rzxgoqmwE/cPM6bmFn9AIwyb8sZwZhivEFeLvuwd9mxz7UQsXc0/eQwn4zf4CxwF4+1ax40N2b9SSxPK02jC4U3o/kIDaGp8Du9ju3wcefBtI+pF9TG3bewi/Pw1lm0AAi7W233qYtqtVzq+mlvSZC2Sv/v9+9/t1DbuIRRIZ6T8QrWAWKOp3q1UEK0LtzSsMxqh3QnRy3irtBBaTeBktcmhgB",
+          "thinking": "I need to accept the quest first by talking to the NPC at location 0_1_3, which is nearby.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_1_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1706,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 85,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1065500000
+      },
+      "id": "msg_011CcpXJ7Avs7PRYkRqafieH",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1706,
+        "output_tokens": 85,
+        "output_tokens_details": {
+          "thinking_tokens": 60
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_1_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1706,
+      "output": 85
+    },
+    "tool_calls": []
+  }
+}

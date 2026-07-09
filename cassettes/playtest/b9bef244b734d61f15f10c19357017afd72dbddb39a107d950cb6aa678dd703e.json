@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b9bef244b734d61f15f10c19357017afd72dbddb39a107d950cb6aa678dd703e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7725,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtUJCokBCA8YAipA0IFmE/DcGsDTNWqvHBfpi76xYCFvmN9b1Tlp9fKoQeHoGZ0U0MQTtzXa4mfyOou0Enjdw+8QfqAGWeea/rHPHDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDJhwZD7l6Ou2pis+xoMQ5ldCTAZTS8umjSfIjAfejZ130c42tiFrCC1slUxJLKMN+eOh9jVpagzIX3hdxd2h/vB4OBCqpvBo0X8QvYq+Af7MVsq/89eGif9xB5u+Y7UqYqerOlE1M1qHSe0fK3dzOhJPfEp5ii2HJDjn31LoGJIjtkANIPsOw/AdLqyAL8H5Dc72iz5oPit88+lIFo8uFEjX4so1MIbu9WeDvA5vAfsDvYFC/0wKiSzGUiZeUuo6mzvpuRq5Lm7K64NmIJ/LIZ0KfjROjtaOnP6emBTXyjFjTeeXqYHbgph2/ZEl939Dysrib9OwDUhS4i37iCMPZQC99wYO1CkN6T6xYs9oiGX7oU/BP9XFn+XXhm4Y9TqN7jOIxI+HcyE2/yyCDOoRN7BBMm8B4/DK74JccozXvYebZi7Hdl2/XIGa7uhitartzBTFqa7IzM7dqMDMPRoWu5cUNs3TxRst4dr1OnfpcRAqK4jazDBKVoWdXFiazhbansvwavd6Wc5UJKtO1gkW2aaDahPnTDliE1drWZWD6qc89JO9+gNGPA6ObSHpgxu/LaoYo8++qjkoP1djjo6U1K42g4F+HheHCp0Zdk/3Aee2pEaVxJXAThc+HPa8S8AxfHtS0I3GuWJsHUNhIYKMHNZbt5okMT27Bqoey8UN5V1Ud3Bd9A8OjCZ9agR8CFiqAZHAHZUS/28DHwcw/hwl+xETActd06l4u7NEQ56I/xP1OK9F3XZbKaXxuU2XMGbk7MPqOm+Ev2pmA2MmE0gjzT1BxkW+qNadHYX9t7/8eYqM+Vq05NlxtH9/4Yk/skLMyp8ERqlg5K+v7189vnMIALR/Arp0XhPdbLbLxsTnhdRSFJ9ZvxBsEG29KSlfhYksJvWG342G9eEH246BoQ505X7Fc9tkadxiw6EFWqZYTc0BROegaptLUW8ze28rnDC1La8KjYZBE71CjYfqHG5xSBy3CxQInLv504xLwGbfSNLeZOzfxiKqSLTtagGooyfzwfkTjE6kDLXHTucC1cZFuYt9yDwaL9R+H+WdQKciBudKaydD3dA8wimeG4+ljBl2d3uxAyS99ysAZuvcSnnXJQMKr8yfnnYbEdNIi+hA23I+Xkbkd8nh2ZAv/f2Db/A1n+MuMXz+Rh5m++DODH0M11bl8fFyB9pgRhP0RThLULhJvcMtImJbA9j3VQSMJiCVmWl5yxoUnZAsyeRGAGFWN0ELobE7KksUaA9be8Hjr0BYiTGV2s5LdWo6To9lF7H/FRuI0S9HcIKqhI4JkoY9nX4uU0Fpu59jrgAe7GIO+GrknoZqQS05Ql8dW4n3Kf/nhB8C/FgM+8qrhJ8JPlXGW9ijH3Qs21l+AawpQNo4iK9bJ02PjayxkNstlM3q1jWBZEI5s6JKQWRiOyDivexokpFlgXGvNfKhfShpFhqBDAeozkRBy0aQxgB",
+          "thinking": "I'm looking at the available NPC interactions and trying to figure out which quest to advance. The system shows npc:0_11_1 is available, but I need to map that to an actual quest that starts with talking to that NPC. It's tricky to connect the interaction ID to the right quest, so I'm considering just picking a talk action for one of the known quests and seeing which NPC it corresponds to.\n\nGiven the naming pattern, quest:0_11_10 likely starts by talking to npc:0_11_10, which should be reachable. I'll go with that approach and propose talking to npc:0_11_10 to advance quest:0_11_10.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_11_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2069,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 440,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2134500000
+      },
+      "id": "msg_011CcpN1dMcXUWmYjWuKKKDK",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2069,
+        "output_tokens": 440,
+        "output_tokens_details": {
+          "thinking_tokens": 399
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_11_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2069,
+      "output": 440
+    },
+    "tool_calls": []
+  }
+}

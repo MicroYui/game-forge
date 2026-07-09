@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:78adaa4b580b42cf5dd26475b0a816c072e9b6456ea72a7602952c534a9e0480",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 18010,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqQHCokBCA8YAipAk5vYOUgJ+Z89wNfrAhd1SXHJG38dRDjTkDgUPLN7/8/ac75ZgtHfI8klKq+dx82NsTIaW6dZrBDgtDqIUXvjGzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMoyG3C7h7y6f9sanxoMd/x+VAMVL7+KtzIFIjCG0sv6C9DnTrefQhStkL9MVyiT4EA7P0/zRcbH/GKgC+JtD5oUQtDq2y6MxlMuHtAqxwUrP9tbIfUVtuE2iSbC3dMCiUuTrzUzNSni2opD276Y7ifOyMAjvEtboMy3U8RhjxbbUB+k9kG2p2urKuVVnLN1+/AO5+uH7Qo1ZtDGosUMRXp7mm9xHeCggx6bg4vRG8zbQXX7FxwcbbqT2iqGCp7V6a739Fnz0BzoH3X6SIuzExqEFbbIWL3ni9/zGKQyJ85XIIY1G0EmjqX76Uog25p6iDpxLLzanxA1JsQBYYQiaxhmEWalz/HXGxeCNxcyW+MGB9Ro13bS2lBYTP7ZuzQwxkbj8LWdFdgjARM2hzUCDNqfMX4MallZu2ZTWHlZPDYtQd0ySY3QYRwpTEKQln2g0zhQvfb3Vs5L+SsOmR7Rrj9/YyVQmmiDDENM2y+3jvj9F14F3xk31cXZUEEOK0RthmvESlnPAf8vI1gMPcg0jccVkY2dkOdOz9FMUyMz8vbmRzJ6S9EG4RBEdP3+380JOrdjHI6DfRYpQvfj3nhTFAbYTMnfEYxBxQiL+yzmhRc38BxivxRp7MGIiAaXAMqZEgTI8s0leP35WmsmIubx4kcn2YhbfX5VvU/fzGt28bsvQs8uCKmApCNOgMOwGzsFU8Rg4M/2OGqKbHGI6IVIlteJsnkxRGZm82oqiSJ/XETPxoYXHr/u82M19FZ0rzE97/kdyJ3wowZ1ZM8qR64DIt7NMo48+819kCIxZOm/UHOvyVxaUog7pPib27pKaLl1xnzmgC/mLBb8gVC9R6QhCgGS0LmYt7Oj14BKGQ49QofP2bGNfRtVw8Bt3qTdaieul74kRvCfe8S0Ni86MNzl/tyS+05HugX8T+Rs2eGYEt0RM/1fahWkcfMS+lFDD0rNRYl+6jfaOrlmH5DZA5k4Pm2pjFhsYSBJNGhNnyixS3bYbVxV17iJlg/ozREQRXr9ve6e7Gwuwg55NY3hF0M60anmfLAJ/EQYAQ==",
+          "thinking": "I need to start a quest since there's no active one. I see quest:0_14_1 requires talking to an NPC, likely npc:0_14_1, but the available interactions only show npc:0_14_0. I should navigate to npc:0_14_1 to initiate the quest, though I need to be adjacent to interact with them.\n\nActually, since npc:0_14_0 is available right now, let me try interacting with them first—they might be able to accept a quest.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_14_0\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2497,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 306,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2013500000
+      },
+      "id": "msg_011Ccpe2Kag3a1fcysHP6AoS",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2497,
+        "output_tokens": 306,
+        "output_tokens_details": {
+          "thinking_tokens": 281
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_14_0\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2497,
+      "output": 306
+    },
+    "tool_calls": []
+  }
+}

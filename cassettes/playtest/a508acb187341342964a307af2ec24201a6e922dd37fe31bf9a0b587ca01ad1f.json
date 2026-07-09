@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a508acb187341342964a307af2ec24201a6e922dd37fe31bf9a0b587ca01ad1f",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6267,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ev0HCokBCA8YAipAvVYW8WJTvvBDEmfql+4j3ZfnTRA0OX3qc/0vqw/CIWmp5gqW0oJiRJRK/n5viDMtDnDNdl6tFyjzGO+AzSCEOTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNy8PhJ0E9ZR/ApF6BoMgxtm6L5wYkrqJynDIjAO3wPT+iurdZQNta7U3kHn5kIpfG3WgbJTSUaoPlPVOaz8eoDacjxuh56XqbIM7U0qoAaLO+5s5fjBz29sSmsJjbwDZmkwEN+i33V2MqPzTKqHs16ZNgMLgMScvmf+aNSfaW2rjzbxAPGwcnD/6CT50zL5nJaAUwd4vz2mUXgdjYWqqmmuBjxVaXtD9KFowCXHMh9QP0W4lkrl3KXLYzooPH410i83nW3EK8ln8MJJj7+P0dZExv5WAZUtqJuzi6GDNnlzSiK1BWcxLDiA08IWil6zLFgXN7oxj1mfOHnM8iYL/FLc9qpw2J+XfMQ5QN00xSTsOP+MnE/XahjtHVkq5CJ+yTmkm5SKroBM8BplR/V476EeDei53kfjkHxRW9Rz4WA1hRC4s2ms9F+WFv3fGLTDnpH9uTOEKBdxVwV21pIO2B7ip5TXyfL+6IFdV/LuYyQ7L5PkAS7h2BbJRfLFyQnyPJGXwbb6BBuGeJ3KYQJWsYvaCoF0RHxGBW5Emz7SkSzFtb/enK0ZLw6lefSWa1jvEIwNdOKCtqjPzSGsYUFkjmWFo0C15aHAsOiad50F3c9Y1iKw3NFt4Ymj6qBYuF3z9IwuRmd5ieVT0BtD5H7Fq9lGek+nE9vw6fI4c5GVA54s7IH7JoK6dfqDNLspetNGb2bI3zqNA8s+BLAFASEfVv1kpRqbwZIGVbpOYDNcZmeh1ZW6w0qRhdnnf0OlP4YkrjE0mkWzDNOOm/Keow22ku7oxdnc13ZNSIUp75hcMCOGbBFe7gNfKIi1cLBNPCPYGUXtkEsdjMBMBJ/f+T4OFiq6+s+q608on9AMVv3K9BTAaAPl0qwlwb5TdU0BNsNOQRWVct8T212+N6Ubg0RZ35Wle1g1i96QY64nnui+OGSqSRheE9JONR54z4eJmzeZ4Ug3CJM7cMcneOp/k3EwB608V82LiqjI4gy1TSNF1h2r1hdLsSXqMF7TJ0hqgZVhX0u3yDM2QDS3a0MEpNH2X/iffmg/gfYfrNyXG4lE+89ddQb9K7Zm4DO49g5p8HT1trGMp2YH/StQqjCkCpBR8wOaZm6tjSH8qnzgcKNzZQbITSyCvumbkcccnuMiX+pUwLCSy6PGgRxl/Z+qsBiUOhgB",
+          "thinking": "I need to figure out which NPC to interact with for this talk quest. The quest is known but not active, and only npc:0_3_0 is currently in range, though npc:0_3_1 might be the actual quest giver. I should probably interact with the available NPC first, or navigate closer to npc:0_3_1 if that's who I need to talk to.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_3_0\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1297,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 335,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1486000000
+      },
+      "id": "msg_011CcpXnbyKbPT3WXUNcf4mz",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1297,
+        "output_tokens": 335,
+        "output_tokens_details": {
+          "thinking_tokens": 310
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_3_0\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1297,
+      "output": 335
+    },
+    "tool_calls": []
+  }
+}

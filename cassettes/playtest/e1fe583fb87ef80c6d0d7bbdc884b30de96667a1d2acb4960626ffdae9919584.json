@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e1fe583fb87ef80c6d0d7bbdc884b30de96667a1d2acb4960626ffdae9919584",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4503,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ev4DCokBCA8YAipAZ8cI8QC2O0jwz5w/HpoS4yLTGT6D9oWMg5TIMU0kPsC2daZjkeVlp+A+63ywL2gnhtsWZHss8QDcFnHrRz4hvTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMUpjmHB22mFgDgYnxoMwb6GqkzhuOJUVq+7IjBxKuYNhxVWZXuGRwaWW1DnvAAHmkcB64HcUXp1OlXHvkem8wnyCwZPN79OONsfVh8qoQKkDD9QP7182rRppvjIWa2tdqYMPeOSeegabAmyvb0uEprnLMFS46T6bT2XQc0CAr4n/C0MMP80Smka05yZQYZdAr27HlFUYFv8Lzy7JZTCrFuIz5bu6y6RyZbGQQedmin3G+GQviwxHWDJKnI8Ul4iF90Te1AvKCDYwss+13WB/PfegGtSVPBigJP2jDM/jfqltFI6pGcnmYTFZTSvgal/jJBPzfIZGg+JHlOefJ4lZE4Cdbh9slVhsZ7PVMJn0Pkv8qLs9jTnoBEa9Yw8Eqer21kLDB9tUnz7PCn4YC4h6r8cY2UtQd6jiWmJjJgOz0LmHBHGIec1C8Ctsi+SaONdM9frJSO+Ow7PZJr9lqTIPY7HzMf/TSNuPj4wX7MO99pXGAE=",
+          "thinking": "The interaction with that NPC returned nothing, which means either the NPC isn't there or the player isn't positioned adjacent to it. I should suggest moving to an adjacent tile before attempting interaction, or trying a different NPC that's reachable from the current location.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"The interact on npc:0_16_6 keeps returning 'nothing_here', so you're likely not adjacent to it — try navigate_to npc:0_16_6 until it reports 'arrived' before interacting, or engage a different reachable NPC like npc:0_16_5 that you just reached.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 600,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 215,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 837500000
+      },
+      "id": "msg_011CcpSm8UymgYJxRheTpQZD",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 600,
+        "output_tokens": 215,
+        "output_tokens_details": {
+          "thinking_tokens": 110
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"The interact on npc:0_16_6 keeps returning 'nothing_here', so you're likely not adjacent to it — try navigate_to npc:0_16_6 until it reports 'arrived' before interacting, or engage a different reachable NPC like npc:0_16_5 that you just reached.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 600,
+      "output": 215
+    },
+    "tool_calls": []
+  }
+}

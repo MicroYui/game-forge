@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2bb8bd598082cf0c5bdb8da73061817b266baa9633c34928eb26819bc5aacd1c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5095,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er4DCokBCA8YAipAiy1UyMV70IB0Xzv8EGZiGBWUPrYEVD2JRja4yBaHiAkvPcqbx7PNaNsTYYN1b5Kx1lfCfPqVmr6jPahfnRlLkDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDH9oXiZW2GFDQLQsMhoMy7dq2H55WHtOxl3GIjAe6o6rfapdU70ZPyq6qMcnbkR4WlwhEPzTkimf7a2tyfPzOi4hVQWKXFgOFzX6NLMq4QGR8iTR7UJW3cnwlZuskHCtBfrQ6fgPBYPqyFTWSseCDJjywMW8S/gyK1WNtFBcNI1tRmJ9NYPS/y0eqTS5BaBTXU9v2Ov5LcRhNpfckrilIKjOLfXSYFFgFgtzNj0wwUz6uGwWvzG11Vy4m3hZarA4plmlAOSktfMl10hBk3RumtTvPUaYJkfZEt77WO53sBngYrgbavM77xCi7LuShwuq/I0gP543gAnEGhw4FDGojPjv0jpO2hnp5qOSvembl61SIUDnSoxShgr/3wWQYixHMyce2672dXs0/f5VPlh+TjIYAQ==",
+          "thinking": "The NPC at npc:0_17_11 returned nothing, and attempting to navigate to npc:0_17_9 seems to be stuck in a movement loop without reaching the destination. I should verify whether these NPCs are actually accessible or try interacting with a different target that's within reach.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"The interact at npc:0_17_11 returned 'nothing_here', so that NPC may have moved or despawned — stop repeating navigate_to npc:0_17_9 (it's only echoing 'moving' without arriving). Re-scan the current state for a confirmed reachable NPC, navigate to a tile directly adjacent to it, and only then issue interact.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 208,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 819500000
+      },
+      "id": "msg_011CcpVD8ujmvGrm98Zdbzgg",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 208,
+        "output_tokens_details": {
+          "thinking_tokens": 81
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"The interact at npc:0_17_11 returned 'nothing_here', so that NPC may have moved or despawned — stop repeating navigate_to npc:0_17_9 (it's only echoing 'moving' without arriving). Re-scan the current state for a confirmed reachable NPC, navigate to a tile directly adjacent to it, and only then issue interact.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 208
+    },
+    "tool_calls": []
+  }
+}

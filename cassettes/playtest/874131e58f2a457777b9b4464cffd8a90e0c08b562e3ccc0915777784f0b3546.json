@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:874131e58f2a457777b9b4464cffd8a90e0c08b562e3ccc0915777784f0b3546",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5797,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuEFCokBCA8YAipAVrzhVngELYrf4YRochvG3UXL8vANngM2b3lCavglEUvQbThYa9myr3r0H/6BuFv5B4ojaXBtcvm0KeoVumsYzjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDELjPEFWoy7y0LhwmBoM+AsBf/74oCKQNIaNIjBg8+s+inMxr8sySC7iPrmqx4mfpojdn699nHPjwh1/RIpi18Q4FuQYTIyujOl3HJEqhAQs9hQZQ91BhZrCqi0g7cUzgzo69KMAWtHWTxxTyuvyXuE7aowmVo9J6z2L1SMArT7KSqBbo/yWpAv3MncUFG9FlIs85XuK4IdVtfXQPj8FyKHF0yhhkXNz8eospp+IadBwmTfA5mDdj+iM9K6j+IlijB1tYcwpp84G7z8z4pSWnuUnXFJsg9egU66y+siPvZqMM9Lj3Yx/GCj1Gy+BpHDibEBIO3Img2KNTa6rB9NgPhyRmJSGkrYniXcYF9N8dtpCIUl+YV3DZufuoPhjr69hOQrufre5Vn/sBONaHN4hevP4b4sLj3pXwobDFB0z6ef3PdXStE23Ng6bAS97ED2Xj9TU8y1C36e8a7eIRFFZDnO2GRtzu8J/KFfet1sR06nHF8u289uMq5sEr3Rp75SqfUn2U/rQixmADi5w+EgsYi7aegQZyncdgXS3l1QQcZgMQ5Ymi+4Zl8lkBChuWLbtTD90p5Ym0e119h7ef1OEQYLf0sptycIMJlXik7PayWMX1BzZhIQ21m2tzHERj4kPcTjM/xv+PGP0/aUTxvM4gRe43Pc7P6frOGB/jL+UsN334XOM+o37svqfbfhFY7Ben+ZQnwiASqvpxUZVDfWeeaP5W/BVcYIVbE1FK+DRXZGT3nJmCS8nPGFdN5vY5ZeDiK2TZ3g7lvNkTELWWWx+c5B0H3YYAQ==",
+          "thinking": "I need to figure out which quest to progress with. The next quest is quest:0_11_5 which requires a talk step, and there's an NPC nearby at npc:0_11_9. The target for the talk step should be npc:0_11_5, but I'm noticing the nearby NPC doesn't match up perfectly with the quest requirements.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_11_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2166,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 271,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1760500000
+      },
+      "id": "msg_011CcpNJjgqmxcXaCdHPA6BF",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2166,
+        "output_tokens": 271,
+        "output_tokens_details": {
+          "thinking_tokens": 230
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_11_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_11_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2166,
+      "output": 271
+    },
+    "tool_calls": []
+  }
+}

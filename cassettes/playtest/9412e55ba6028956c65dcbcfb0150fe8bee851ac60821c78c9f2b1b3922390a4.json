@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9412e55ba6028956c65dcbcfb0150fe8bee851ac60821c78c9f2b1b3922390a4",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6686,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtoHCokBCA8YAipAGx3Gy4XAGYJT6ak7A7TW8dwxf1mMRCphZPTDUxhXO3WkLAxpGrvBvJsRo2mmS0R2wcHERE71U5e749z9zAnS0jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLwgKq9VfK4gLgGDBRoMvQdI/dRwMxuAd/EtIjCv4W1LdkCPj7yBMfAkBuIyPhpSH55bIfxl9IdyU6xhcimwBO5w3GHazOoWdFtAalcq/QWlkwk8ihGQJABATo7u6W1R3thCmWOn5JYER+2EWqQgJMVZ6Ugz1U1KbGwoLF+M8qUJOdxsByydrSespl59OwTXKYWXouWxfDzWSSlD2qlWO9kYHEaF+rVRdTrpy0o+KqfAkQOCBPlG3QkieZiPZWQ5TzDwxMQ6gifLDRL9XjNRfKFLVoB2jrGGqclEckFmFwNLzR6hkMyW1HKrK0+le7Rx0pyTCC/kSAmuaNNnc5m4vy4cDNRNhAutc53nGopsV34TeJsUVUUUfKGrxPgiN6Ob1Km2Rhnd1z6ZuFbuYLPTMSE5b6eZSib9i2g23AVvYwenEd5JXZgRFkYmdJl2dNKUepvA4MFHlOxv9d7CkwZwzN0Jgd2NBUwaokFUpSgm2Q4x7Ep8RiIfayRCGVfzQe9Ese7QJzc7kg7Du2AO3XuP/a4cGjl2Kaa1pd/4rg6T38/SNJmaQxODgoVPsT9FpehVUHHz7pVB4NZXrKo8vlK5f1QV8Ch+L9iwI0d+ylwC3MVODyHhj9ci3qor1saoXWONcZ/UpAkNLZbkUQzDmIQ0qmfMobzGl/1fzgHCpde7XMwBqALntASmHJ5xY/Je8OeGOmoytNXNsfG+LvjNt8M7BuO777dBGP2HZaHppshJvtQcBH4ZDwtECOG8l48yAtcRnaMd6m4qMYzzelgO6q++oSA4eR/H7TBXmLkTbs6Foco5qXykTyIJ/C4m+zmefSAQk90v6zEBZNP7mHAWRHMwgxVUdphcCVAitudR6VJZ55Ys8UhNay66mxn5boVaRw+vcfpxyAVH06e38+/iLyRkXCm9MMNzGWveUfmOSzSjk+KOC5YbDLuRotixdUsDHnJ0CY3Lxv4Cb2U6KtpYWX8SLVX5BVlOCCZcJLeUCPSPJRVQZh2Ffwc623jN4PJ/f6fV46t5q/EiJbqXcOQH3jPjRt+L+A0L0oslIwEqmKyB8x30aBoei7UsipQgI1Ckw+u0DrtfZG6rS6WtmeyPAcCF/IealjuMqbZegUF/Fx8YAQ==",
+          "thinking": "I need to figure out which NPC corresponds to quest 0_1_3, a talk step. The only available interaction is npc:0_1_5, so I'll try interacting with that NPC even though the naming doesn't match what I'd expect.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_1_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1703,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 339,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1699000000
+      },
+      "id": "msg_011CcpXFMmSMonggmppgXSfy",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1703,
+        "output_tokens": 339,
+        "output_tokens_details": {
+          "thinking_tokens": 311
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_1_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1703,
+      "output": 339
+    },
+    "tool_calls": []
+  }
+}

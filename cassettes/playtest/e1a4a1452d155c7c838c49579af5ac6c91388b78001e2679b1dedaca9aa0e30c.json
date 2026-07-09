@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e1a4a1452d155c7c838c49579af5ac6c91388b78001e2679b1dedaca9aa0e30c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4042,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpgDCokBCA8YAipAGdZVrIeo5XYF5w16AvIAOom3C8ASN7PThDkm7HvdWH9XFB96adbaafVw1yf7yK1f66xT6R70U3CI57uiNAJ+RTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDF7TzhZRMf+OCcrUpRoMiiShJP71i3N4HJMPIjBzAKz43M2wmstrmSfYtEf/tdxG7joMl08pzdJuaHdpTvk9ZA9fH+RtM5+9hGDNDKUquwHZVIubhqFclsutMqpKQi3F9gHHtSWP0efdHgvm9qrqT/JfHa3VGY8ljjdxDvhy2dqumUDVKn5eFqaU4eFJYsh8HPoxQATuRof6WXQkYggqep/r84g0Vm/zExSCjFHeTKLg7bxoaGhrIe3BVhlK0bKARoanL6qzkrKhYtuueHxkerS6p8K6Qn8ZRb9FG58jkpTv4hJuatOqNyTTATh2C0vJNxGKeRc1KyHgb8Q20+86QEJOQf+AtoFeKAi/GAE=",
+          "thinking": "I need to initiate a conversation with NPC 0_5_11 to progress the quest, but currently only NPC 0_5_10 is available for interaction. I'll propose starting the talk with the target NPC 0_5_11 since that's what the quest requires.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_5_11\", \"step_kind\": \"talk\", \"target\": \"npc:0_5_11\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2189,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 115,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1382000000
+      },
+      "id": "msg_011CcpJToRbpYREwgWCug2dd",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2189,
+        "output_tokens": 115,
+        "output_tokens_details": {
+          "thinking_tokens": 74
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_5_11\", \"step_kind\": \"talk\", \"target\": \"npc:0_5_11\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2189,
+      "output": 115
+    },
+    "tool_calls": []
+  }
+}

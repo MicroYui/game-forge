@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:178f2f0cdaf9b0185ce516185ce2ebb2703cff46b919f59ca0021210746b53be",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6007,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsYFCokBCA8YAipAcQghq6Bxec+k7cHAMUJogk/vCvjNyukZ+iJO5DOO5szQjkO5Jy+35V4f/BW7M/ZWnIF6VN6nZJSqKfsezinz6jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDO/HCYZNAhFBia9faRoM3y8wovk55uMznbDpIjAbTyV3UQrlYr2U++fGmJ0JdAJ0CsRSTMVg3/UWikhGZj0Wuz9HWVAyO8BLaRcDQswq6QP8wMGoqOFdZFrtQiGkJvF7yBtWPVwM8kdEP5qVi6WRWyMVqpKueg08EZfPtI31y97RQ1LpyqUocIIW/DF/5NmJEs8G1R3OTCVJl4i9jt9BEXPcV9BEBcnFY/KHBctg5sTsgzd6tY5TgDF1e5FJ7S+Obssls/A0hT4xmG15AVkfQ4MTjuT1iZugk/Ee2CG9p6VF/SqqCeMD32JTSL4yeqCXmb0VlBQ3hgmdZe66bCRSyPkpSgfzDvz/sSjiQ8cgirvhhUjd3PsNC3KACnJeX71lIHoOGSpdP53mJCJUKXiM5AL0JlocICB8RHfxipRXg9XnMI4tLeNy6pw08wuO8gN5UUFBjn5rhXhdT+b4AJzPo7M+2seI7c9SoGfjTK+Y8zrsR5L7Emi0vQf9pLwMcge8kaFferT8/NJcQDwL7IFouCr2xZr3f2seK3Ib7ynUfG/83MyS3by8PGUb5n5M7OAnWjoMkT0nKZwN2AylNZKUWCJo4I7nil9i3O/SG3H7UVr4lqskZHMHFeeuc0K2+VX2YDOcrIpGgWeLlKknHkPqr/vzx+XUwJBzCn+aCgueLi0ON9XpWmVjjty0C5H0Eo3I9uEHflF+enYExgWGTIdD5iXLLC2C71nCCtjcyiFSWN1GZtI4qtJM79kYAQ==",
+          "thinking": "I'm looking at nearby NPCs to figure out which quest to start. There's npc:0_10_7 in the area, but I'm not immediately certain which quest involves them. I'll go with quest:0_10_4 since it has a talk step targeting npc:0_10_4, though npc:0_10_7 being nearby makes me wonder if there's another quest I should consider instead.\n\nActually, quest:0_10_7 is already completed, so quest:0_10_4 with its reachable target npc:0_10_4 is the better choice.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1725,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 259,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1510000000
+      },
+      "id": "msg_011CcpMChfGLZ3Hqctms7d1J",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1725,
+        "output_tokens": 259,
+        "output_tokens_details": {
+          "thinking_tokens": 218
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1725,
+      "output": 259
+    },
+    "tool_calls": []
+  }
+}

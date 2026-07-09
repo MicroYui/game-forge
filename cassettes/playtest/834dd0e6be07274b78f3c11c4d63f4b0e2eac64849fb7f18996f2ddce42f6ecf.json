@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:834dd0e6be07274b78f3c11c4d63f4b0e2eac64849fb7f18996f2ddce42f6ecf",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6874,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvMHCokBCA8YAipAZqOs06KyTWEnYzv0eVYs5bMVJTjrMTNPJWfB5X4sliSLycUvu00Sox9iGHyQB1U+OujnxI3lhXP2wVRQAG4PqTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHEbDyAE1r/a4ZiBMBoM2txHrOMi/u9B/zPOIjAGP1adTZk3lvZ/9Qc03otXnhSyGSHLk4fw/12tGEMRVsBqwCEg1rmVXuOceRoCfl8qlgb/doN+KWnguX7hgYMN48sJqNJ0wEdHILObsUMocOuDLja4xsHwI2XFWr6O1LR0kNU+8e8TJ1J0ymRRz+l1KEPsqIauLNfSaPlfSLekscm+PodbnskG4uhTOF7yY7ZtC7DZQC+vXiSl2Qsl0iJfvMXEtUCtBdV91P5GMS/jgkP3Fp+WPoXEBAe76A0Ei3cQB9P/KsQLW+uS9Wy3Fx9TVsNIrYpV4FzxoO5rrFc/PLTdpk9b9pNuyrTDiYa22Usa/650Svy6iwVdfCGUcJoouZw12JwmJQcUAOSkUDqndUSjdeG+DVo48SNwXHsxdUOmYCMHnAcUsC8nLT/+Jgr6JLOFdMy5M7Yl3v+DTUwq28rn3KLCJmh1zLXepWPTkPX1iLQW9mrj7dKCiUVL1I3k95weYpdhnd3JtGfz0BeU2Rx3Vi3WpWbm3AJ/8sMenlNmbANQZchMFEFYKwl9zkm6YRxDqjkCmvflPTnLuAl8uAgX77LsbcbszkQnwS9jdK3X6nxSMJvJ9t4pqZv0Aj/pxF4s4ueXdXYc8KvO+9d0eR7TirgB0qJhGVgl/SPB0jZlHQHERyavjVp2CRjKtmvftGs1FhshnHW6AbhYubLRzH+Evx38+14pyXkIhBH0WNKdNJw6x1WntMoMkxxwXsveMhmq+lIE95Vf5Z3Jmqp9oYEhDNT1FP9+ANvE+wd9PTUAYK7Vn4Yy4AmR8UiF8tFcCRwX2waq4YfzlEhnrTmUmFKhB2W16LdCYLhTvX90U/kYY1DJ/FZsrb5DNoGtjwT10SZIYLRCZoVptX7KHbs+lleD8IjCKSvKxN4GTDQnjX2gtH6j/H4ImJO3L9hgDn9O/zNdnFVPTDBdCFMWFkC+5J1ZNrD2NLUIYiajGvuW3VlDOG0EmAOJ9OCOeR3waKq95aGEP6j+M/Z6CqCplPEjMFLEzsg0jvktTvQUm2DoMMF+s5HgOf41pPyG8ZWUPbkwStOtx4Ys7UZBsAKv4SR3Er1K1bmjdlJWRvBpvSAdJU+ryifOZf8aOYNEWsQdFw8zIcDT9HLx5a4zGAE=",
+          "thinking": "The hint points to a failed interaction with npc:0_10_1, and since I know there's a gather action available at that location, I could try that instead. But I'm uncertain about the NPC-to-quest mapping, so I'm considering whether to attempt a talk interaction with a different NPC or stick with the gather action I know works.\n\nI'll go with quest:0_10_2 targeting npc:0_10_2 for a talk interaction, since that's a different NPC than the one that failed.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1710,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 337,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1697500000
+      },
+      "id": "msg_011CcpLvwFdjXxkw28ua9jaz",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1710,
+        "output_tokens": 337,
+        "output_tokens_details": {
+          "thinking_tokens": 296
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_2\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1710,
+      "output": 337
+    },
+    "tool_calls": []
+  }
+}

@@ -68,9 +68,22 @@ def test_playtest_completion_reproducible_and_beats_baseline():
         corpus, _replay_router(), use_planner=True, max_steps=_MAX_STEPS
     )
     assert r1 == r2  # byte-for-byte reproducible under REPLAY
+    assert r1.n_chains == 20  # all >=20 chains actually ran — honest denominator
 
     baseline = random_baseline(corpus, max_steps=_MAX_STEPS)
-    assert r1.completion_rate >= baseline.completion_rate
+    # "Significantly higher than the random floor" (design §9 anchor 2/6): the
+    # agent's Wilson CI lower bound clears the baseline's upper bound — the two
+    # 95% intervals do not overlap. This encodes the PASS condition WITHOUT a
+    # fixed % threshold (a hard number would invite gaming, §7.8); the recorded
+    # numbers decide, and here the layered agent (14/20) clears the no-LLM
+    # floor (1/20) with non-overlapping CIs.
+    assert r1.completion_rate > baseline.completion_rate
+    agent_low, _ = wilson_ci(r1.completed, r1.n_chains)
+    _, base_high = wilson_ci(baseline.completed, baseline.n_chains)
+    assert agent_low > base_high, (
+        f"agent CI-low {agent_low:.3f} must clear baseline CI-high {base_high:.3f} "
+        "(non-overlapping 95% CIs = significantly above the random floor)"
+    )
 
 
 # --------------------------------------------------------------------------
@@ -96,7 +109,14 @@ def test_planner_executor_ablation_reported():
     assert 0.0 <= flat.completion_rate <= 1.0
 
     delta = layered.completion_rate - flat.completion_rate
-    assert -1.0 <= delta <= 1.0  # a real, reportable number — sign not asserted
+    assert -1.0 <= delta <= 1.0  # a real, reportable number
+    # Anchor 3/6: the layered planner's contribution is POSITIVE (not merely
+    # "not worse") — the recorded numbers decide, and here layering strictly
+    # helps (+45pp: 14/20 vs 5/20). Reproducible under REPLAY.
+    assert delta > 0, (
+        f"layered {layered.completion_rate:.0%} must beat flat "
+        f"{flat.completion_rate:.0%} — the planner/executor split earns its keep"
+    )
 
 
 # --------------------------------------------------------------------------

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:32f28166a4b3c6a6cafbdfff65bd76f3d34b5992becab046d49a24c9ecff4c9d",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3994,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq4DCokBCA8YAipA0nNoH54EX50PTSbilTuw6ifI67HOwrHBmQiRKTyPJt7OfhhbpX8rXqVZu823lZTWpk73s0BEWscoWD8CJU4rkDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPEpYIGt1Ysu6APnEhoMRQ6wUkufxvDUdFMGIjB5OuPzQf6hVeQze7w2iB1zGkvM51aQlAst1b1B7nT6EOTkniiLQzeDjGUvs8Le0YEq0QFnSKFv42F/u/PUvepI9iB6/mPFlEBBElY15ak8alIgp4+pm28jUgr97/o1ledsYD7b6T0dyZ9APB0MDi1TmFvmJaDfAiPjO+/OvRNjsDLzQEicgKPppKXJ4ZQiT0/Gb06imtNpk6NYiMNbVRYdu6C9vI59LiVHB6KmHS1giySAb1E8DpB+E4ehhmNwBOnc1nne4zFWSbxLV0BRaelC9fxbbAuRS9uym5CRvdZDCm+9HJvIge6rRsKNvHmXz+kM/EmuGunNaX/KDW+ZRwRxpieRjxgB",
+          "thinking": "I'm at the turn-in step for quest 0_1_3, so I need to find the quest giver NPC and interact with them to complete it.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_1_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1747,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 121,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1176000000
+      },
+      "id": "msg_011CcpXLDYyCJ4nYp1nyHTW6",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1747,
+        "output_tokens": 121,
+        "output_tokens_details": {
+          "thinking_tokens": 93
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_1_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1747,
+      "output": 121
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:47109211aec350e38a176663c882adeb05801a46e4437e6fede0a0143b1c1846",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5481,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErgDCokBCA8YAipARcIkiHI8rKPAGHE3BThbqBHn7QVp4DFqsYgH57uwQVTFPy4a8uWJpz8Rns9pK6ALEUj5lDPPASU/dWRvu198ujIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOgMXN1KO0WJun5ejRoMKmGLZrtTy2A6bDOtIjBGPJvxH/u2hcaOauWJ3Ja131JJjgKsxzL0h29ZvV3Ap9P92THNJ51L0X7L0LWcPL8q2wE+CFFVRVRAFamy7yx5ROzEICgPTttIcatdQkFPtCJo/lXhWwqOkQBZyp6LlpBhZ3kUNtS4EmOMidc0Pzwt5Vcgw/JndF7BhJsDkZ+w1UCMvEoTF9PwxatXrvnmCtvAiesNvK4aVKQYjhLKkpbb2TBc1IQN79vbe36IUJx3wTihIgspKapyTB4KoGW6l3YYRCgPLcjsLeW0j7kWfPgFI+bsjI1/QjBexiKbxtkEF+eql6z83vgc1RX91kpkL+3/N6+0ahmgFVaikNLrdnZRIV7jPqceRzhK57HkzQ0YAQ==",
+          "thinking": "The player seems stuck in combat—they're landing hits but not dealing enough damage to progress. I should suggest they check the monster's current health to see how much damage they're actually doing, consider switching to a stronger weapon if they have one available, or acknowledge that this particular monster might be too difficult for their current level and recommend coming back later or finding an easier target first.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Attacks are landing but the monster isn't dropping — it may out-heal or out-tank your current weapon. Try equipping or buying a stronger weapon/consumable before re-engaging mon:0_6_2, or check if this monster is optional and route around it toward the actual quest objective.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 596,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 725500000
+      },
+      "id": "msg_011CcpJi6j3om4HiRrD5h7hZ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 596,
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "thinking_tokens": 70
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Attacks are landing but the monster isn't dropping — it may out-heal or out-tank your current weapon. Try equipping or buying a stronger weapon/consumable before re-engaging mon:0_6_2, or check if this monster is optional and route around it toward the actual quest objective.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 596,
+      "output": 171
+    },
+    "tool_calls": []
+  }
+}

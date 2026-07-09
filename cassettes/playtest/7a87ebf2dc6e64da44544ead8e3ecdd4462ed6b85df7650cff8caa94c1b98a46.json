@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7a87ebf2dc6e64da44544ead8e3ecdd4462ed6b85df7650cff8caa94c1b98a46",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4104,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoEDCokBCA8YAipAiw3dtg+E6Wyrj5AkUuR2ARHlHU526NvN7R0O0DXu/ds7rdcPC9upC0PfF1dqHXPvzo7cUxCWyUo8ejSdHc6MszIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHr69eyNLgiYmsSLbBoMjMbJ+SJBK0egaWe2IjCib6hMS/+nR0B1D32E2KZwhEH8eDNNsoBEvIdvMEk+HY0N9eSH4bBShhqjrmv55egqpAEp9ARD8tt2Wri+8vPTZuLbIKVt7C2vGjMSE6CGIxxTpSJ1CxkLPg2frmZvC06DGZxw1ojXpNx8gMMoPI8wgttwWpJUkC2jM5xAh119INVTNocC6bnmi27iBxPESZptPuCfXj/hSvSwsdgFp2M0ar4azptMVsNYE+SPtFwW3McK1/4+PVUYKrQjIxSqkkwdaFC3LrKz5NSl+DVxbRZpxbpT+BMd2RgB",
+          "thinking": "The navigation seems to be getting stuck on the NPC target without actually reaching it—I should check if the pathfinding is working correctly, try interacting directly instead, or pick a different destination that's actually reachable.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Navigation to npc:0_17_10 has been stuck in 'moving' for many ticks without arriving — the path may be blocked or the NPC unreachable. Try a different reachable intermediate target (e.g. an adjacent walkable tile or door), verify a required key/prerequisite to open the way, or issue a direct interact step once adjacent instead of continuing navigate_to.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 179,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 747000000
+      },
+      "id": "msg_011CcpVR8BQxxY2dpJDxMXvT",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 179,
+        "output_tokens_details": {
+          "thinking_tokens": 46
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Navigation to npc:0_17_10 has been stuck in 'moving' for many ticks without arriving — the path may be blocked or the NPC unreachable. Try a different reachable intermediate target (e.g. an adjacent walkable tile or door), verify a required key/prerequisite to open the way, or issue a direct interact step once adjacent instead of continuing navigate_to.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 179
+    },
+    "tool_calls": []
+  }
+}

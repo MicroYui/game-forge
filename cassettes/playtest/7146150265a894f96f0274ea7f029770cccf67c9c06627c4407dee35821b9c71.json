@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7146150265a894f96f0274ea7f029770cccf67c9c06627c4407dee35821b9c71",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2593,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqcCCokBCA8YAipAwQCJBS5EJ2Hfrt7pvjH1VYZJIgi5G66OmQHqNQH7uvzZLVyKNxSFU98zpXzJwm06v+0QEMEz591y03eXUarOFzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDP0/hakEchtwpFlT1BoMI1A76bLQe0AfkhO0IjCuc/iexPUfvz7bwBoNwh7iK6Tb5WHrdCu4FYAi4+g84EXuhyRgGhGITvNWyiV1X7UqSzyLAwYJhkdvNgL7MZArGd/q2HJd8Ztp/ugCVM5PfqsmRQZluVJqFaoAbCUjH12PbRaZcRk97rIRkdeRQ3VUPS7saX2/NjPK118qBRgB",
+          "thinking": "I can interact with npc:0_16_7 since it's available.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_16_7\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2206,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 50,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1228000000
+      },
+      "id": "msg_011CcpSXqzgE3DW4QVGvBvfC",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2206,
+        "output_tokens": 50,
+        "output_tokens_details": {
+          "thinking_tokens": 25
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_16_7\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2206,
+      "output": 50
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d2e97d53415465524f8528ac4a8ced98e5a4c1d91627ffa73b7d52f785ce4230",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4549,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsQDCokBCA8YAipABnifWTUEYTaJ9Z9/SpWGPXeXvrLGRlUwHffjXQ5+2RdhcCT/Mutc+eYJJCiQiUpAu/Z01+9hP6rN6rTohFc40TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPQ54ByuhYKGE12jlBoMEKIlo7f3fLTTmCObIjBAffW+SpjZ1qBvlzcNjTPn9l/ESSBK1/QXPKFW3+VDfQdxKAdofGYmXkwr4KV2DSYq5wEVH2vIGiHpwPIg4IY2Onrg9mH7lOZ5s27NsMJd7vlBHSKeXbDxXlzsZ+yGZKeGG/0xYb/i9zuykbWa8EV6H3xyVoFq1IJbR6uCiBLSmAfVHDRDnkNeRBY4AealUPWqwPnSPI+rTO9IRc5rd3w9ZWl0k6pyLh/wQ3h1FcVDzs8kRQoX6NJ7n73hVDDeF+A2/fSh88YbA5HzWQxFLG8V1RXolRc6vHuj7HF6Z3tKMG1uP4y2uKyFXMhDmN0GIm90fYs/QcpTbm4SAMlZ4QjQYfNSBIvHqPcx7QLv89tmNiCJl7FtmFovz18YAQ==",
+          "thinking": "The interaction with npc:0_14_8 came up empty, but navigation shifted to npc:0_14_7 which I've now reached. I should try engaging with this NPC since the previous target seems to have been outdated.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"The NPC at npc:0_14_8 returns 'nothing_here' — it's likely gone or the wrong target. Since you just arrived at npc:0_14_7, try interacting there instead, or verify which NPC actually holds the quest prerequisite before navigating further.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 600,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 187,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 767500000
+      },
+      "id": "msg_011CcpRMV9ABGL1tb78hwPJX",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 600,
+        "output_tokens": 187,
+        "output_tokens_details": {
+          "thinking_tokens": 90
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"The NPC at npc:0_14_8 returns 'nothing_here' — it's likely gone or the wrong target. Since you just arrived at npc:0_14_7, try interacting there instead, or verify which NPC actually holds the quest prerequisite before navigating further.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 600,
+      "output": 187
+    },
+    "tool_calls": []
+  }
+}

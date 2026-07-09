@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:369fa24313ac1bf36555dd13e19367072bf8ee3c3879cab0ac181596dd67e586",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2902,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpgCCokBCA8YAipAVQYhKdFHcCpE9Z9rh7t2VmxEn1RimQXSSnF+5hSXYu7NXnGCKD7OctCDN0GmAxOT5UoUKmu4NaSEUOO3tQ9gHDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPns3VeP2kFuoTmyZRoMw7ldqmpZTYBUB3fiIjCSHcLkcAdAXrORWXGroC2Fpr5A1TwQoHht26Fd78Gn9lcXvhGdDoFOZ8+IYjady30qPBbAVtyr8iaqb1Q6eP2jMyLrrJ7Qz42k5Nm506h/gDrTxl5QiP7Qh7nHN2kOoR0aTm+GVKOf3sHRc5d42hgB",
+          "thinking": "I need to head to that NPC location and complete the quest turn-in.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_18_6\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1870,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 52,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1065000000
+      },
+      "id": "msg_011CcpW26mojyZAEHXtjgQmH",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1870,
+        "output_tokens": 52,
+        "output_tokens_details": {
+          "thinking_tokens": 24
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_18_6\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1870,
+      "output": 52
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2bed3ff906ff14de25f5573bdad888acd4fa55e71a633fa21b5d7dfbef69b609",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4098,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErIDCokBCA8YAipAAuP8gFEbYfpXra0TJv4D57o0Gi694C48LXWceihap35AeQNzbYpQVdgv6EOKAAOKWFLRSY9WwvDfH52AcIA1bTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMpKB/NNyn2QXbGNAxoMxmzHBdEZUOarkNNpIjCC2t5TaWibFkVaxJP7PC/qc9BVFpqQd4SsjRF8pSa1T84pV8bGxBYHBn1H2dWVUjQq1QHb5xSb5Jd6dPSBMCKUipaAfdGc3BpoSQegoSNCdpQAjPnSLjenV0tYnYY8bZd3ChQJvaxIYWyKHQlXBoB8M5BeCqzZ40L/EvLxXsnbj8MK4Kp268gnHajpHthTEzl/15CdZC9/A/IqgRGKdAGszWMCqwcjNQrjxp4jUqpx+XlJ9uKxrJoGuXc18XfgBTaMMQ7/xu3a+j7x4VZyy4DdFFKpYXZ/pgYB0hdTS7XSs3BrvWNXZz+b/NAvHFSh9dqyif45PETyPZ1RdfVMlEyoeWGxxkGiWWwYAQ==",
+          "thinking": "The agent is stuck in a loop trying to gather the same node repeatedly instead of progressing. I should redirect it toward an alternative gather node or suggest moving to a completely fresh, unharvested location to break the cycle.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Stop re-interacting with gather:0_12_1 (it returns 'already_gathered'). Finish navigating fully to gather:0_12_2 and interact there, or pick a different un-harvested gather node this cycle.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 601,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 153,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 683000000
+      },
+      "id": "msg_011CcpPNMX4pZgUWJwE91uHv",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 601,
+        "output_tokens": 153,
+        "output_tokens_details": {
+          "thinking_tokens": 72
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Stop re-interacting with gather:0_12_1 (it returns 'already_gathered'). Finish navigating fully to gather:0_12_2 and interact there, or pick a different un-harvested gather node this cycle.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 601,
+      "output": 153
+    },
+    "tool_calls": []
+  }
+}

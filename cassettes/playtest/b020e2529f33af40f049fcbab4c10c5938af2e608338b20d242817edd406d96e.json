@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b020e2529f33af40f049fcbab4c10c5938af2e608338b20d242817edd406d96e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5470,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvYDCokBCA8YAipAXbtDJQAJeyVSw4gRgjig6HMZELHVK5nf2aqt0a7/rp9+si8uqNiETpmbZ6mW1YgAqe/F3WQHKqIcuFblW1EREDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOd0pzeXyybBZlaEoRoMVB7MZq4PTQFdcXQyIjCSv/6jtcKzInL9aqpfE9/m59fhhpCANLT3MIf5D3sbL6LIpAqP4yHHiFi7QRbwVlsqmQLF+jwnR0Lv7xx4eRUiiomWac7nciIk6sgegVOvPwPrwmBnkii+0FntmbcLt9LQg9Nz+ZdPkDcu69GKtfPIF/8x8dXKyY7uEEEv8dw4anlLL6RvspGII6pW5TDdAOB6OOjCBWwoBp48yoXL/4zT6zfjR1LIlf7hg0rDMgpv3xK+szQ5c06tZx3OcBOdS/2XBr/n5PpOMyLj/mPyfZuvYSmzgsMrx5Ndwgdb2ZmCk5SVaL67yEtVU5RttwzlDYfDLKTgE3epgpgCKU/dmnbMd3mDKVDM4nZ3MVDDwYFcVlTvLYtd8SzF1dmdQvZweXr0JZA9Te+ZB8eIJ2hzo1IDckjSpey1i7LXZ86UTRJw22JnrKQ7gvxU6itBahgB",
+          "thinking": "I've got several quests that need dialogue interactions, so I'm trying to figure out which NPC corresponds to each one. There's an NPC nearby at position 0_13_5, but I'm not certain about the mapping between quest IDs and their associated NPCs. I'll go with quest 0_13_4 and assume it maps to the NPC at the same coordinates.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_13_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_13_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1911,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 169,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1378000000
+      },
+      "id": "msg_011CcpQH3wcrMEWWa4BRXVEh",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1911,
+        "output_tokens": 169,
+        "output_tokens_details": {
+          "thinking_tokens": 128
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_13_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_13_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1911,
+      "output": 169
+    },
+    "tool_calls": []
+  }
+}

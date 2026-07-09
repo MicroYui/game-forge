@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:45082c8d55e49a053224386c13394583092a13387ba0ec4a2f22ea6953da8669",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3278,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqADCokBCA8YAipAgkeOjlQnVAE8gj02PSb5lpD2+ZNH7e+qnVMzEc+46v441Mhc9AaS+9XTS2ZBMG0ez45XXKUhBCH/kn4lU+JbqDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHSDyEp7siFwNk9qphoMqWyVEQ5Bk6kppRV2IjD7+g+C55n/XVruC1yyvbR/JsZznG44X2a+9IgL10SmA9mG9UOzc8SxH8vTMmOJQc8qwwG7FRezCu+7+ZiXzWf5Bx1QOI420KD9DnbjxTYCVzoDstiRJKETnyJTGhDbkKRClFAYN08/rC6zgUT0G82+O+OiWHxziWeQ7yjo+DaiQfZM6gpuc4aehKmzv1aj06BYBzYqSpybQAhDTug65Y3pYulSqxIxqckHwG9Xs5OAUtFIcd5b21acpFiW3ovvI0KbHYEjrbdCZ7OQ0f5KDOoCsmaITjGSnykm04P1dKZXxsZjrYHzxMyQDgphNlqC7IAyL3zn8bsYAQ==",
+          "thinking": "The player's getting a \"nothing_here\" response because they're not actually standing on the NPC's tile—I should suggest they navigate to the correct location first, or verify that the NPC they're targeting actually exists.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Interacting with npc:0_12_1 returns 'nothing_here', which usually means you're not standing on its tile. Try a move/navigate step to reach the NPC's location first, or pick a different reachable NPC or target instead of repeating the same interact.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 159,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 697000000
+      },
+      "id": "msg_011CcpPH3rnn19eppbqAxHW9",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 159,
+        "output_tokens_details": {
+          "thinking_tokens": 68
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Interacting with npc:0_12_1 returns 'nothing_here', which usually means you're not standing on its tile. Try a move/navigate step to reach the NPC's location first, or pick a different reachable NPC or target instead of repeating the same interact.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 159
+    },
+    "tool_calls": []
+  }
+}

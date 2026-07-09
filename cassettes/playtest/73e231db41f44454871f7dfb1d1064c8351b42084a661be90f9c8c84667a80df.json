@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:73e231db41f44454871f7dfb1d1064c8351b42084a661be90f9c8c84667a80df",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3007,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErICCokBCA8YAipAgjmGvbOnamYvyeSttfw0WAeG+c/TyclAko3Tf/Ut1/6SqN6LaWnJSHte/miBXRPqCwJfVbDTwBHo37BfbPL3TzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGJHvAlsej2UwwZvDRoMeZI6dMH4maHF0MTzIjC+CSEp3Ji+TWBSz+bP/bWLDbDsCy/VwIL6HWsRhzwgVY94lG6wyNLM8p2t0Iz4ZO0qVjm0pkDZ45SKVH0KxgctVfR+5CZieibtsIkDRj0zbVFxavquY56NbnSn2T8IiwiFMWpFT7s0TY/Nb4JJh9p4PfEnBC9KO8o9ipknFiXvJckFE4EVMV/CGAE=",
+          "thinking": "I'm in an active battle with a nearby Pokémon (0_11_3) and need to keep fighting.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_11_3\", \"step_kind\": \"fight\", \"target\": \"mon:0_11_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2232,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 73,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1298500000
+      },
+      "id": "msg_011CcpNC6pt312dcfDf3HF7B",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2232,
+        "output_tokens": 73,
+        "output_tokens_details": {
+          "thinking_tokens": 32
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_11_3\", \"step_kind\": \"fight\", \"target\": \"mon:0_11_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2232,
+      "output": 73
+    },
+    "tool_calls": []
+  }
+}

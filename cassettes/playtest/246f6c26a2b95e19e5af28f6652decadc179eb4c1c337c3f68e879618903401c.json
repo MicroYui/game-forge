@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:246f6c26a2b95e19e5af28f6652decadc179eb4c1c337c3f68e879618903401c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3780,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqUDCokBCA8YAipASQoZgKormoe4ya9ZxCXgvY/U9JJ5yssvkoCSVdCP/av6CT0NQevk973vNIa0tgzgzGIN7sHrCyJ/WsV7uiffBjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAWixymnioTmO666HxoMJ9eibW0D6xF8c+pNIjBeVQw4C8vGNO0DrNKoNVQfvY9tCBbTC2VNb4W+ZTrX/jyw2k8w915qFKuF8m+HXg8qyAE+KvElRmeJTsOkMkT3LRkqq38FtO6Rv2hkoNPVU7XS0I9yYdEyh7ZUDKK7ToOIAZZsJa6sxETSQATTZMYprFvShAxZ8ZGriohdgEdekJ5gd89HG+i/jXsEJJk+bn+4Nvo2fy8AjYfbOoXm5jUWChrD6dvzFKeomHBK23oeSlDslFmN8fxRnOWoIzfdodSVM296rv7lkd6wDqH/Z0ffT1NsrPNZA0Ug6RWQWvODzsRnYazuVIE43w7uAvuk9zO5plBBZ0Ymc8o64xgB",
+          "thinking": "The player seems to be stuck trying to reach npc:0_8_15 — they keep moving but never actually arrive, which suggests the pathfinding might be blocked or the target isn't reachable from their current position. I'd recommend either trying to interact with the NPC once they get closer, verifying the location is accessible, or switching to a different target altogether.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Navigation to npc:0_8_15 has been stuck on 'moving' for many ticks without arriving — the path may be blocked. Try a different reachable target or an intermediate waypoint near npc:0_8_15, or switch to an interact step if you're already adjacent; verify the NPC's tile is actually reachable before continuing.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 181,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 752000000
+      },
+      "id": "msg_011CcpLRet5SCDVWjsCaWwwK",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 181,
+        "output_tokens_details": {
+          "thinking_tokens": 64
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Navigation to npc:0_8_15 has been stuck on 'moving' for many ticks without arriving — the path may be blocked. Try a different reachable target or an intermediate waypoint near npc:0_8_15, or switch to an interact step if you're already adjacent; verify the NPC's tile is actually reachable before continuing.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 181
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2969ff8e13afe18b5e043129e55a4878dbe9154e5a70bc0e9b055460e4aedaf2",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5607,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eu8GCokBCA8YAipAry9f6tGqzik1HdAzMlp+PifZj74HmioaRNbpyh8t5AxsRMzQ4v8T4Ze5VdVQGO9r1Rc+ds5EE4wo4eI4++836zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNUN5ve/B75z0cpOnBoM3bxJOnj8qvEhmykgIjDjeNgftThU6aehuVRRLbWaVBg+lrtCnw4Mq7U7NTkJUNfMKwAxiEJ1LKO5Hvl+/JIqkgWdzKLbH/nAmUrv6YcJrbMqixaHaIIoD4s15g4vds1dHkxhA/WekKGvXoIUZWBVn4FYbAj4wqNC8+Sd6cwdxfZVgMq0GfLDtem29CgAW9JZhwJ//l8TtQCUxUfubbKMeDTr+kF1uUhXJI/3CCd+iUfCL/Ud6AMtRPelz9Etc397kqtKJADQgb5e5VurIhYgqzdQ8fkplY1N9utzn6Os8Tkii+N3VySDIds6ZryR/050JdZqzMluydI97d1ujokRxojFaH+goOihvW5NJqeQXFhD09k6gG9n1/MOpcN3dzIDRG9dngnsOoiAhmSfg68K7UJbk019TQvWaVltpJqNqWVAti5pg88RMc76g729iwDl9MpMEdaWEuceEMAY1bXegpJ8IoLXVLTXoDOOArljkWvMF5mcXn4eqTkoive3n1IXPQheFuGq7F26uBP2aOrONiWItpMnXNSsOmKGn8jDzo7t8CACcDouZg21QPXwMnptl8cuBmQ4rpki+B5d1hLSQCie8dRQK1w4h0qL1P48ac9V0vfCeQWtHDWAlaHSqjzxxLxBes1UkPGBb6Ie1dkFDhBZwMxAGcRB/GJZmzMIE6we2uYaCKrE70o7r02fbfk9sMXIQCs1biQQ+mAuH9or1fgSxkNBXZ/ePaWtsktgf54hbHoOuGhmVXiJl5eEhK6L3ROJLV7jOTGJn8uK0dUOtLeHyVN85rwqI1qfWxL61Qdzug/FnLW4buxQKlZKq6AOHCnTAaFMWlaZSeyITxaMPFT5A6It3UFLiRi2VnqU3AAGnYZLq+rhty7HecqqJ78T9o/bkoi6ti/xBW41ZG50C7Rv6P58VApObzZaPdpYNcvtMt//6O+AFLkN2CQRwWgw21+GGAE=",
+          "thinking": "I'm working through an active quest that requires collecting an item. The gather target is nearby and reachable, so I need to navigate to it and interact with it to complete this step.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_8_10\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2536,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 294,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2003000000
+      },
+      "id": "msg_011CcpaNGbBNnMXwv5EqpAJX",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2536,
+        "output_tokens": 294,
+        "output_tokens_details": {
+          "thinking_tokens": 266
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_8_10\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2536,
+      "output": 294
+    },
+    "tool_calls": []
+  }
+}

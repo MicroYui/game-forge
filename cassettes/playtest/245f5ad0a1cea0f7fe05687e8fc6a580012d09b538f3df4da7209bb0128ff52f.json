@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:245f5ad0a1cea0f7fe05687e8fc6a580012d09b538f3df4da7209bb0128ff52f",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4355,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eu0CCokBCA8YAipA2g8hf8UNwA3Zck+WhNRHbKuC9ZgvpUJr1xLjrg3aaY1vokyBfjVALsKO4G3wQt1obqHyFJ0D9H8GirCFsPXcGTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFyvTtpidXGfJCPUkhoMH3ngR8OiQNtUSylnIjB295E/K/m2bhTZkdHhuA4y/AD2F8HB9D45OioqJSr5kRQA8EYrQb6YsQls2ybGQ7QqkAFJGz5muCnRfcWs3ZAdIj0Wc0j6gOAIVmcXKl8AiIFyp+J/6czKiGQgV6+Wrc/vydyr6CE8YsDYvZLVsApvPaCxkEqCLOrljfqjBphH5L0enrH/zpBtjIhGITJwIS+i+1VCWfPlFj3nUWcWFwMU4/5FfU+UfO6+IKI/Ikyq2pGqCU/J1EmjMmzn9OGbQeRp7rUYAQ==",
+          "thinking": "I'm working through an active quest that requires collecting a specific item, and I need to identify which gather targets are reachable to propose the collection action.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_1_3\", \"step_kind\": \"collect\", \"target\": \"gather:0_1_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1394,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 91,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 924500000
+      },
+      "id": "msg_011CcpFdcYBoE25246NL4SzK",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1394,
+        "output_tokens": 91,
+        "output_tokens_details": {
+          "thinking_tokens": 50
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_1_3\", \"step_kind\": \"collect\", \"target\": \"gather:0_1_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1394,
+      "output": 91
+    },
+    "tool_calls": []
+  }
+}

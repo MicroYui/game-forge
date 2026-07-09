@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:63988b1a2b4a813b51ac36b6a54be2af9fe1ba796b751d7dd8e27f775d6984eb",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4705,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EukDCokBCA8YAipA871tPW+c0kHQqC74o/UPuFolUVAXZ+n5WtB8VeOkWSv3M5tYBiNrtYMNP1J2Dk5kODQJHVJ1KzH+ybZeLY1XajIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMCHMl5Kvc8VeECW5RoMBKbJredzeERieWxIIjBCt0pRsQn7lO5vOPX59q+jAB3jTfVgLj0gpUPSSOPE7W97KEPfDX2RaGQyr+zxP8YqjAK+6kUkeiIgJwTXZgAeyRTmzLpN5FjrYcdnyTk1g22nEIdD8OTZ8bA/chnX1AZGfL/k66ZxgLyMlXp1Voepp5oc5hbEgRTr/JKeITwqdemGrjQfMlRk/VH4J4s8xFkJiX4HPJW2Q1/mfutHDeSQGpjDaFww2/b5CmkJMAvhK3wwzDfKuw1OYnEa9mDbtVg5kOwBMeLHHigyIhM3r1QflzCXKPEkOyKR9RohM7sXCWYUl8WXqbq569tb7NqcaiPDMRaXQAIHwgeHMmILI7zbNhozTsfjgC0gJwEXROdH6mSh5flWRZ0dx9YZ/CmbbC4XgVmhBRyDDxcKcdWsYxfIACgUe/Kyz0E2spmeXvaUGAE=",
+          "thinking": "The first NPC interaction at that location didn't yield anything, so I've moved to the next NPC and successfully arrived. I should try interacting with this new NPC now, or verify that any prerequisites are met before proceeding.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"The npc at 0_8_13 returns 'nothing_here' (likely absent or already handled) — stop retrying it. Now that you've arrived at npc:0_8_14, try an 'interact' step there instead; if that also fails, check for a missing prerequisite item or pick a different reachable NPC/target.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 600,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 209,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 822500000
+      },
+      "id": "msg_011CcpLKxZ3M5XJ36impVAxy",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 600,
+        "output_tokens": 209,
+        "output_tokens_details": {
+          "thinking_tokens": 100
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"The npc at 0_8_13 returns 'nothing_here' (likely absent or already handled) — stop retrying it. Now that you've arrived at npc:0_8_14, try an 'interact' step there instead; if that also fails, check for a missing prerequisite item or pick a different reachable NPC/target.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 600,
+      "output": 209
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d3aebd4189992ab3741406904de9ba5e213da8253d2df45dae95f38eedff194c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5522,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpQDCokBCA8YAipAATaK8KFEhT5g4TH9HK02LMNzDs9+MzmVgGBW2WEE+ULUTNHbAWNt8lKCnQVVmo3JF5fWiw+ylAoqc1VSk9QbrDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOGzqbQPOie1cbtoKhoMw4mGHlf6LCrDBtg7IjB2m1ln6vCNHPhHrQ38dWTr6V732bwZ5AFHwnBO5kbgDrTI75F72Rpv9oiClOU4nNcqtwEJs1va03deYyB5kQLvSGwWtSxYaze8rd1UH89B5sOqmkiVRxtAIzMDvXNyMaupbBq1BBGRf2QoZ83XHQ7G9CHicPsiUZ8djrSVPlI9pQmuUIc0gD0+KeaGjjuhe31p6XlsbIQ3uEvlGBYYxdDgGbsc5ZhN+0qID56sJzOGquYTtjam4cFg+2kSbps4mHKUYfE3A6CJdpyzjvi6OAUmhVR3EHoj2PjNXYARon4IajIOZCWsS23pzhsYAQ==",
+          "thinking": "Since there's no current rewritten thinking yet, I'll start fresh with the next thinking:\n\nThe current subgoal doesn't have a specific quest attached to it, so I need to move forward. I can interact with npc:0_4_0, and since the available quests require accepting them through dialogue, I'll initiate that interaction.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_4_0\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1773,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 88,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1106500000
+      },
+      "id": "msg_011CcpY1WTo6YWZ1xJwZYTLG",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1773,
+        "output_tokens": 88,
+        "output_tokens_details": {
+          "thinking_tokens": 63
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_4_0\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1773,
+      "output": 88
+    },
+    "tool_calls": []
+  }
+}

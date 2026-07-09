@@ -1,0 +1,81 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9a321b5ff0158a78982a4b01e80a826b10f1378d907e854aab09928bbfac42bd",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 1845,
+    "raw_response": {
+      "content": [
+        {
+          "text": "{\"quest\": \"quest:0_7_2\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_7_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1437,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 43,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 826000000
+      },
+      "id": "msg_011CcpJsJg8suerLkCj1kd3M",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1437,
+        "output_tokens": 43,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_7_2\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_7_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1437,
+      "output": 43
+    },
+    "tool_calls": []
+  }
+}

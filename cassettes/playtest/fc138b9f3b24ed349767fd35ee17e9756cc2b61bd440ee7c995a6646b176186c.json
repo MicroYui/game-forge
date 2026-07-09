@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fc138b9f3b24ed349767fd35ee17e9756cc2b61bd440ee7c995a6646b176186c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5349,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo8DCokBCA8YAipAFr0k953haHJp6vrtgKNj2f1Kh1iO8+LAh85csRqevZ5fzKIN6Lfoa6Emmd9bGObHkcWhineCb8e02VSM0rEY/TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDNi5mg62oyqPZyc2hoMAJKsTKTWhuvCx5I5IjBpR1eO7MMrhDG6+33bvlzAIS0OV6tTUfGlTw6jF7lLqLEu8PY8tLT1/GcAgjn6NHQqsgHb7UlKjTxg4AYada/0psFX+ckhYfUctGFEMtAjCeJPJbv54rVqmLTFykqxlZmDbASanmmF6g2Wxnup7LgEunwEdmLMbTHQp7Fw249PgbnGxDAiJW9AfafXWD5C2dG1+WpggoRmVvr8naUIfY7gWxyn4rvAWdMCwg74Zmj0qcAPqjecronfcz15xZpZYDONL1rgzmBxfkWuGRFYPpWuXDQpKDz2XSW7GJ1pgTAdI+vzJBkOGAE=",
+          "thinking": "The navigate_to function keeps reporting movement without actually making progress, so I should verify whether the path is obstructed, try interacting once I'm adjacent to the target, or explore a different destination or action type.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Navigation to npc:0_8_16 has stalled at 'moving' for many ticks — the path may be blocked or the NPC out of reach. Try a different reachable intermediate target or an alternate step_kind (e.g. interact once adjacent), or navigate to a nearby walkable tile first before approaching npc:0_8_16.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 175,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 737000000
+      },
+      "id": "msg_011CcpLUhC4wdtPW7qtgWr6s",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 175,
+        "output_tokens_details": {
+          "thinking_tokens": 57
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Navigation to npc:0_8_16 has stalled at 'moving' for many ticks — the path may be blocked or the NPC out of reach. Try a different reachable intermediate target or an alternate step_kind (e.g. interact once adjacent), or navigate to a nearby walkable tile first before approaching npc:0_8_16.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 175
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1f1a0aa8e4ed9b1b79d7816af732412cb677ffcf0a35bd3ab7f46578db767dfc",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6584,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpIGCokBCA8YAipAkgSoeT72p8JU2JwfwNJTEKCN26LCAiL6QDNL/jlvqNvEy+3VyX4sA0KNJKSsA6cHi23fz2gn4rpUk/5ubUJ3AjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDDIpDyZi1rDXKwK1ExoMsGzGSdSat9WMjHaSIjCWAj+LmZ6NfPLHqJmPo83rmP+i5WC+9gw9/wBSGE1YYQ5qe2NnFERIivAmuyJGhcoqtQSo9C7HE7M+5vvq1Ymc2m4CBSb2uCd8SQFTe4pcFCJ36cpvv9AyGeKC7LaapE34NTdSZRJE7OXRHXUSeFRLJyc0KAhQFWonvsS9qPwbcNOBV6icEYhjJ3rM56+dnbpsjgINZjuR7uOCsPk+RFtJXA0DJ2cSclbpOKuZa209+fXuVkus6eGdBzPCwQigED//4gTpouy+ZVdjRo7V2oCiycVQpKDavdYol5fYHQe+295Qm3oaXm0jROLrbpVrT8auWgzdd8Jq/oD2luynUscttNMgPJKrOzBoRdN/1K4OUOGQnX0q+jFkxCmk2mHAK4WSW+XmbkiC2lgbO/EQdJk9M+RKdXTvc12cfe6V/QzszeHjvqSLUXCqbqIQ89D1I0e8MAetT7LOVJ++0WjVeBvhcQoEjETcdFtfcqHdbh6fCySf+AVcyIevXNputIMTu8GMKYL9zJXz7Rzy+WBwSpDob1DBRM0CGf97cw6qmzuPl1h4pzv0s/mkO+9Dq8x8NBNILnOftWGJmv3aa5eURr29ON7/F3EeAFcwyUQJ4GZlHL+vq+MgBQvOI8O35AUj7Cc40hlknTBq7FzWhyoZOG6dPQa3WWFz+41k6kXqd+VrDQ1+eF2omY1nuYmT2N5/xide8UQupFLIe65ecWZcVof7kDK1bbSpQ8yR4T8K20Yck2EFLG1M+x6PQ1plyD7CryH3IMoJYHyQpzHVdcA8yPhRfKu42oB/9MhI6iEUJzoE+mY0/u6NwEtBGAE=",
+          "thinking": "I'm working through a quest interaction problem where quest 0_3_1 requires talking to an NPC, but the available interaction is with npc:0_3_0 while the quest giver appears to be npc:0_3_1. I need to figure out which NPC actually initiates this quest and whether I should target the quest giver or the available interaction option.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_3_1\", \"step_kind\": \"talk\", \"target\": \"npc:0_3_1\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 942,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 283,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1178500000
+      },
+      "id": "msg_011CcpGv3uVJMgpTCeqre1e5",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 942,
+        "output_tokens": 283,
+        "output_tokens_details": {
+          "thinking_tokens": 242
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_3_1\", \"step_kind\": \"talk\", \"target\": \"npc:0_3_1\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 942,
+      "output": 283
+    },
+    "tool_calls": []
+  }
+}

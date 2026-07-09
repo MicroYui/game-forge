@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0541b9312f870337b545cd3bdade259c1d67002f4224954ed5d08793a589e6cf",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2370,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqQCCokBCA8YAipADnCiPDuJ4tKBCd49bxpFuQijbIzRd3j8LcNUaJ1MLJ9Sy5OJGoqO2OermibL47gpMLzQkamx/EsfCmwWPzJ34TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCpdFrGa41zmVLCWthoM5+MUSs7b6VsKWABcIjDACDNfMkguCltMzBirVLMvfF4MAwYMrhSJfK/NjlgXU3hquinAFbmhWrwzn8M4YIsqSJ9t255OlJSDJ3IPwAgsordR97oJBwOL0+8gIWjM92mWbxepkHIa7us21kKPe4SHI8DmxLoOTTX76ZTgl875TCZu4wzatFh9URgB",
+          "thinking": "I need to interact with gather:0_5_8 since it's now available.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"gather:0_5_8\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2448,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 48,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1344000000
+      },
+      "id": "msg_011CcpJG9GsKcc9f19h27XAo",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2448,
+        "output_tokens": 48,
+        "output_tokens_details": {
+          "thinking_tokens": 23
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"gather:0_5_8\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2448,
+      "output": 48
+    },
+    "tool_calls": []
+  }
+}

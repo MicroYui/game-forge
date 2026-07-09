@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:945b5ce345ceffc4383ba72262ad99246570d809d42e2b1e5aac9c6f6e24ef58",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6594,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErIICokBCA8YAipAAhRLru5bR0vjcVCTmi/OIhlNpVc5tWcNMhO0KLn24iFyjw7adKGhzwupWx0Fxsx3z5VTzomjHrv1apH01VSjFzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKMPEypkRW4uAAWR1hoM53ESofrb5E7Nfu3wIjAn8Be0FdaN/qQj4+At31g6rna/IRchxaZidpVOprd+Qd0r2gUIxBXOl2uhBeG2wXwq1QZhSwa6WWrUlfwVah19uPUx8YHDNs3Mnd76d+cpSojyVoAWWSg5EKY9mx8du0c3v6s6mf1MaEZQIF/DNe82ueqqJdKBHffZ5rkVChb4d9f8zBC078DiufaDSyBJAyx7aoiuhu05CNOLkpBtbTp7zxsrjoG46pP907Q/QE8RxaRv0PEu0vTzYqsofsE5fpstBXEq8naQI+wsIjIvpzvlUDFrRlTaZ4QILP8kWMjd+p8ObdN72rdDfM8T90FJ5poAu8SMBneWfd/5z66hpMyiBHgMTPRIBHAtpJ/K4diAaqBLmCLxfc0xclAFfgfEDdXSN2bMH3ggnv/w9+ll2sse83gGuD2uehHH7mxB2yiDGFvAoR8Ikh5lFWGSE9YZDGhurtQMhuLFpxUmMvxNesRXOpgoVvPpodjfmQqrKHebcAcrgsj6HD8HciskT70AHJSIjTi5JVuuUYgl0p1DI4p7waQttVAe4sS9Ph6kuRXdLeM1RuqRYDmY/ckDATpybRTdkd32FrRCVhDkg5VYYoo+npLHLSySW57d85cxHfRyDqu6/Wy3LP4LaAT4IRr/cQj5r52Sds4zhncrAA19M6WRoPCP7SVQA+ZlDAXFVdOLuOy2tse3C3053+C1wddZBd9iv/RISQEp0F1597k43mF4AWKwgvuLkmil9a6KQetghu4u3gunSX60GOElPAvzlxyz1ESB9LHp7eloixzLH1N8Xem7DKa4c/Xsy36ohP+cEv1RVqPZ9qLdLW1eEfBaZTO5+Sgtccq6CXW3dEbyxGY4pUXPigxJqswfK9KAd9NFu9X7ItTqGpsAtXgpmBybW1ONPIWpkAX2OdGaW/51E+9SJsy4A4ry4Z/uzAFnXFkqjZRjWjFgSEF4yVNKJBFfu1r8fhfwzf9z36+xD2QSRvOfFrkBHNkClBOvx4K/nqjoO7B5167XygvQJ0L3fcpYvuE9ys0qSy8ksd826eNQ8ihyqiZk0F65WYMn0t3yX+8nn3FK93jHjT5ncQ04qgesvHB67wFd7fGSbA0jSOsh54fMB7LixrVtMbyQA48DNchIZJi5SZn27uyvL9rUUrwC74iRlgxlmvbHfD0fGOj9W9DpFO0oABKficBoBlLUEWSOyMg74XECzBTnGAE=",
+          "thinking": "I'm working through the remaining quest and trying to figure out how to interact with the NPC. The talk action keeps failing when targeting npc:0_12_4, and the hint suggests I need to move closer first, so I should use an advance action to reach the NPC before attempting to talk.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_12_3\", \"step_kind\": \"advance\", \"target\": \"npc:0_12_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1331,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 365,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1578000000
+      },
+      "id": "msg_011CcpPZ97kEtDo8j1WbwKmV",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1331,
+        "output_tokens": 365,
+        "output_tokens_details": {
+          "thinking_tokens": 324
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_12_3\", \"step_kind\": \"advance\", \"target\": \"npc:0_12_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1331,
+      "output": 365
+    },
+    "tool_calls": []
+  }
+}

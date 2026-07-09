@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e371103105e3299136f2d6e2a36b1d4c3377728ae122d5d5246d0b2e82ec3f26",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2941,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErQCCokBCA8YAipAF6dHKkFDgREkE4GXYbIYy3LUcxPdAHdtDzrem1tocrxGqXqYNq4hOV79fvk0B5H09n/CEFEHhP1eoSa+dxzcWDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMYJWnNs08AZYQHPexoMeicW9yv2lhko6lxzIjAyJyiTeVzvljhk1vz/qyJjf4bjjgX0ekRONtsEv4ky2C8AfrLDQNi0/5asyGTgG38qWECWDcpLD0scgyNgDnMEPxRUn+I2pbaNajief2PI81qX2KtuHELxRaV9RWthig2zczG0i9zkBcvb2Xom3pt5WYgDcVrHvIQ8/8E7csRCeUv8LoYaSy1DOPAYAQ==",
+          "thinking": "I've arrived at the monster tile, so now I'm attacking.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_1_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1852,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 56,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1066000000
+      },
+      "id": "msg_011CcpXKo8nKb38P8vc6ZRYL",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1852,
+        "output_tokens": 56,
+        "output_tokens_details": {
+          "thinking_tokens": 29
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_1_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1852,
+      "output": 56
+    },
+    "tool_calls": []
+  }
+}

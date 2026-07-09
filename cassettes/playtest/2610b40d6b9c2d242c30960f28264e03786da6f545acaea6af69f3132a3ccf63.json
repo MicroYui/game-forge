@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2610b40d6b9c2d242c30960f28264e03786da6f545acaea6af69f3132a3ccf63",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2578,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqMCCokBCA8YAipA05kp4JAuCBX8ew3idp+klG2l+X26NX4sEL1gO/IuKXyf3NXkL6Cr7HzBIJM5EAE+pNMJgwUZtja0Qc85hsYouzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAC6/hIqhY2tBH+FUhoMyYTCPgGTYBhaJCf3IjAK5TQ/wczNB4Cgf2K36hEqSUGSO+hprTxAZUij53F9+YPBzoRI94nZbXmVpgzxTzIqR36TzwKhtTxkVh7AMMbGc/d3R7YsDHmbsmCdToB4pKwN0EKIwreUSFD7qD4ACmg9lE1Ql/anbG4ilf7z1PqqGu6PRaz/vXVIGAE=",
+          "thinking": "The current quest step is to turn in to NPC 0_4_8.",
+          "type": "thinking"
+        },
+        {
+          "text": "```json\n{\"kind\": \"interact\", \"target\": \"npc:0_4_8\"}\n```",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2039,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 58,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1164500000
+      },
+      "id": "msg_011CcpYNpW5sVsTw2DtGQhxX",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2039,
+        "output_tokens": 58,
+        "output_tokens_details": {
+          "thinking_tokens": 27
+        }
+      }
+    },
+    "response_normalized": "```json\n{\"kind\": \"interact\", \"target\": \"npc:0_4_8\"}\n```",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2039,
+      "output": 58
+    },
+    "tool_calls": []
+  }
+}

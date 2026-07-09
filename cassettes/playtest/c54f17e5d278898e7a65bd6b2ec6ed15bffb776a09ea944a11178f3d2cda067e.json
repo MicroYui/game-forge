@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c54f17e5d278898e7a65bd6b2ec6ed15bffb776a09ea944a11178f3d2cda067e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3173,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpECCokBCA8YAipAWXqn2g2HHUbKbs6f+/54BpFTPnasNV3oxZUp4RLZy84GSEos1yvUApMq97R7m3wGS1/ii5UIZ1GR+YkSxKBNTzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBLYSRn0qK9JvuqJ2hoMdM6tU2hm8YtT+DFGIjDj20M6uZyV3oH0q7IUuYAQomAbWXHjToVEPOZHTRgIA09jw5eRYfM+lIHgROumVKkqNedE4VQKXeoKIOyTLbrrIGeoGPMy/+mDJoIA422wlpxEPqJ9hc5GCejA7SI+dD7/P1wFCDQcGAE=",
+          "thinking": "I'm tracking an active combat encounter with a specific monster target.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_8_0\", \"step_kind\": \"fight\", \"target\": \"mon:0_8_0\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1924,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 60,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1112000000
+      },
+      "id": "msg_011CcpKH5mRPJKU1rFSfNFGj",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1924,
+        "output_tokens": 60,
+        "output_tokens_details": {
+          "thinking_tokens": 19
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_8_0\", \"step_kind\": \"fight\", \"target\": \"mon:0_8_0\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1924,
+      "output": 60
+    },
+    "tool_calls": []
+  }
+}

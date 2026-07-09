@@ -1,0 +1,81 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2af1c2a52a52bea58156b517b73aba0c6855d435a2e54d5d0cf2a73d3e8531d6",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2465,
+    "raw_response": {
+      "content": [
+        {
+          "text": "{\"hint\": \"You've arrived at npc:0_16_12 — stop navigating and issue the interaction step (e.g. talk_to or the quest-specific action) to make progress.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 600,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 61,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 452500000
+      },
+      "id": "msg_011CcpTKG2o9m7BnHcGWL47C",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 600,
+        "output_tokens": 61,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"You've arrived at npc:0_16_12 — stop navigating and issue the interaction step (e.g. talk_to or the quest-specific action) to make progress.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 600,
+      "output": 61
+    },
+    "tool_calls": []
+  }
+}

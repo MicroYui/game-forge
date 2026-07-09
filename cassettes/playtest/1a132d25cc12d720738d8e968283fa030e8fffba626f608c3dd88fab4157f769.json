@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1a132d25cc12d720738d8e968283fa030e8fffba626f608c3dd88fab4157f769",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3044,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EosDCokBCA8YAipAIbDCyO7P2Ut7x+XtipJYrTN/Iz99jx8n9sMs/BulqJ/IfXR9cNRyqLG+vpWUPlcxwrZt+dbSOk1md65lD7IiwTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLoq2E0MVjOwk3B7qRoMx+P3jiScveJV+4O3IjAm3ZzYcjaqKluDPqV+8n01DFfRA7er4vjJ2xIrj854fuPBJwYNjkZYx/mOecbzTKYqrgEGoTgGt6YMD7+VtsS6EEWebUr/uT8QUgQgNJXW7S8Bo1OVD1bO4gquDquIEwemznAfDepr4OzlwfG2Xfk/9sIcCw32RwPTImZFwANZPVhLfI+YPQ/hI+s54uhFCtOV9EflEBFO7iR4EIogSpT/T8JlYf2CQR9CXZplG7zhGVrbroY7HISbeL7Z5fv4MMsbMPTklnUbZOxgtmjyrKZpSdTSn73Frl76efitxqykMckYAQ==",
+          "thinking": "The player's attempt to interact with npc:0_14_6 didn't work out, so they've moved on to npc:0_14_5 instead. I should recommend trying to interact with this new NPC they've just encountered.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"npc:0_14_6 returned 'nothing_here' twice — that target seems absent. Now that you've arrived at npc:0_14_5, try an 'interact' step there instead, and verify any required prerequisite item is in hand before interacting.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 600,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 155,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 687500000
+      },
+      "id": "msg_011CcpRbKC1fyHLFfHHjJB6k",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 600,
+        "output_tokens": 155,
+        "output_tokens_details": {
+          "thinking_tokens": 67
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"npc:0_14_6 returned 'nothing_here' twice — that target seems absent. Now that you've arrived at npc:0_14_5, try an 'interact' step there instead, and verify any required prerequisite item is in hand before interacting.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 600,
+      "output": 155
+    },
+    "tool_calls": []
+  }
+}

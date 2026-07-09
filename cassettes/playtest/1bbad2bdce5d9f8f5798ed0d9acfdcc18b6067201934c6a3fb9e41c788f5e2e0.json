@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1bbad2bdce5d9f8f5798ed0d9acfdcc18b6067201934c6a3fb9e41c788f5e2e0",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3666,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eo8DCokBCA8YAipAzJQOYOkjbAuxj5xAihR0LI8II6MhcB0z0/3bVKfGngjBE9vbG4IxRLVt9BJqase+AVVQLoLGv5288fRHnTDNKDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKnAj0MBMcPeyg3jpRoMxXKlGaXSRJueMRtjIjB7+YQMz5pS0lIAEpktnISbRhJw7V9sHChmEVsWNLAU2OyJW53CfYt4gbahBnHGkwMqsgEXxihYmIDllTbm/6X5wcmInrJepe9EvFD2pw8g0RwDh6dHSyV1rxp1L1hMeJYxckgUaFvYTIF2SZ40P8GrwywPK4dI8Gyf7KRisIchdHCgLpWIXmgs8s5bbCcOJcRY/nsAjuZW01/yJJ3609xMilrg3kPccjbA8dOVeY7o1Z2JTcxDj+y+RrYTGeP4eQw4S8++NckYvNzh/zdlMfXeYVZl/BCGQifS+8GhrVKWk7sk68VcGAE=",
+          "thinking": "The agent seems to be stuck in a loop trying to reach npc:0_17_10—it keeps moving toward that target but never actually gets there. I should consider whether that location is actually reachable or if there's a better path to take, maybe by targeting a different NPC or trying an alternate interaction approach.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Navigation to npc:0_17_10 has been 'moving' for many ticks without arriving — the direct path may be blocked. Try navigating to an intermediate reachable tile or door near npc:0_17_10 first, or pick a different reachable NPC/target to make progress; verify a walkable route exists before repeating the same navigate_to.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 178,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 744500000
+      },
+      "id": "msg_011CcpVHRwXr7q4zk3mHiHFQ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 178,
+        "output_tokens_details": {
+          "thinking_tokens": 59
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Navigation to npc:0_17_10 has been 'moving' for many ticks without arriving — the direct path may be blocked. Try navigating to an intermediate reachable tile or door near npc:0_17_10 first, or pick a different reachable NPC/target to make progress; verify a walkable route exists before repeating the same navigate_to.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 178
+    },
+    "tool_calls": []
+  }
+}

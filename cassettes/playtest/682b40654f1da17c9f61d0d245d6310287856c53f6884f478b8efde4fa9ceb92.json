@@ -1,0 +1,81 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:682b40654f1da17c9f61d0d245d6310287856c53f6884f478b8efde4fa9ceb92",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2521,
+    "raw_response": {
+      "content": [
+        {
+          "text": "{\"hint\": \"Interacting with npc:0_10_1 keeps returning 'nothing_here' — the NPC isn't at that location or you're not adjacent. Try moving onto/next to the NPC's tile first, or pick a different reachable interaction target or step_kind instead of repeating this interact.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 101,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 552000000
+      },
+      "id": "msg_011CcpLv8Z16qCz55SBsv5gY",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 101,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Interacting with npc:0_10_1 keeps returning 'nothing_here' — the NPC isn't at that location or you're not adjacent. Try moving onto/next to the NPC's tile first, or pick a different reachable interaction target or step_kind instead of repeating this interact.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 101
+    },
+    "tool_calls": []
+  }
+}

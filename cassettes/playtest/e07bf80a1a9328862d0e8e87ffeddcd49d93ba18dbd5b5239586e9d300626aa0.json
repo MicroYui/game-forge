@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e07bf80a1a9328862d0e8e87ffeddcd49d93ba18dbd5b5239586e9d300626aa0",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6703,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eu8HCokBCA8YAipAIlifO858ybk59aG8N6ihjVfxuT0lQU4NATD+jBU5rlJ0zjY7XyhkxNwFxotSd81LltEZaVWfJghg/vHpjtGvbDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBJ2JNdEcryrZKaZRxoMkqbtjo/CCg7P/L57IjAePK3YyKyUDuvjAQaj31QGsaqvSU7ooc3CkTJwtd9eYwNtA/qUmXFu0+pvBAQnJX0qkgaXxLfGfqGRVhaUVlevPVj3FGn5YZKq25ZEc/b1jbR6UtwXMEq9uAddhIGzN6Q6lfXMj5sMvkIzuJduMQ9NB43cItEeNkH1hZ7ChkClE9N60NS1sGRrpYXcnMVOWCP4b4+VR4/SqQ8DbeTzs0qqbCTompoSY5BdimVmc6wxJ3zMPnIkZOqd9xDsPfsq2v3ACZGUM1D4z8ufhRAQ57qrmmEDFNmW6biY7CI5LU0OVQrQ3yY4P7yxt95FEsAsz4HHNJbbDaB1te12aFgaDrcKdbn80mPiTbr6k5BfMwfD8fJK0FSQLRfxXB5UisMtDjQjL5t8svF5YIaUtRNDzEHgdsMFZsthWKTIcAdYGfsQe4zlvZNIs/BWmED1jC5k4wEylw2/c7eWSykinyzlYyBAsAmRDtbk/DckAK99xmiZbKWwHj2ah3joh5U/Hl7ibxXlocEyspod0XE7mberS3kbBD3Au/SowH/5tOzvRQPS0LKgCmBZdrJleumL/zWjR6CwrWUpjAVBr/+cPKQ7GEkdwHlpSsFSFxbo1W3mSTOXmYCOii9/TVLZqIVbHPqCBBDOp32cM6xp0XBQR+qRc75oL5lASTRVyLH2TLrYwRZKE2YVrj100/O7leUAO++g+TBwMj8qW73JyM0qhqbiYdGpIsmMtI0L0YSOuTT7kCKzBFwBDA/S7mf0dg6gpyG/yCvYoEcaAy7kBXMraEs1FR1O4eWwSw3qyTXP/lb+gLkJFXGb1jKT+eO58Gn3dXIsFX1sjuQb5WqQBMp7ro6yvTp0ODmQYtZwihACvdFn013bTHxzvtCC1GgX6nW7nuosD0oKO/hFyVIaJn2EVD4pR4lgRWDgdsONd0eaecgD9t2PwU6Pgt6csi5chIrgwGS9O6Zg8AlsjygSzx/CevNTw7TA3XergFjEkBwYMxjeMO5JQyUcZzUWLj36LZ0AqAA/0rnFsfG7lVPFyCM1V2KurmXckcmn0hASVQUDu4ylQX2uYP/kmi90X6ggRPKQ6mRK8WBu2yAOzj37eZO9tJ/ln8LIbrmKnGAYAQ==",
+          "thinking": "I'm looking at the available NPC interaction and trying to match it with one of the known quests that has a talk step. The mapping isn't immediately clear, so I need to figure out which quest corresponds to this NPC and whether I should propose talking to them.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1843,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 350,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1796500000
+      },
+      "id": "msg_011CcpMSh5gJmL2F1ptm19VP",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1843,
+        "output_tokens": 350,
+        "output_tokens_details": {
+          "thinking_tokens": 309
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1843,
+      "output": 350
+    },
+    "tool_calls": []
+  }
+}

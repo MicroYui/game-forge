@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1d2928254bb2dd5670028d4457b9ed20a05c5e4d5a792429f0351b8f08fa7803",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3150,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EowCCokBCA8YAipA0ycup9KYHzkDzufeXYNKeGNTT5y8HPnz9XwcSSrfh2n2voQA+3FLdonBe2zgXu3GR3LdHKDnGm2r50SX6tEMAjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGznlTTJAciYRB0FWRoMGf+/fgt8R1G1MbYIIjAG6Ugzx2CdBOoDr40Gp0SZLfAGdRfTtytGDmlcBRADoEllAkyk48urwbPoogS1r4YqMLNgS7jS5XMJRFGI3/TrdNSPAYTy0hZtuXe8TK2lV9vf58zqNeoT9Ddih0d5yoaSNRgB",
+          "thinking": "The final action has arrived, so it's time to execute.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_6_1\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1488,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 41,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 846500000
+      },
+      "id": "msg_011CcpJcuLoP5jtgLCxThwBf",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1488,
+        "output_tokens": 41,
+        "output_tokens_details": {
+          "thinking_tokens": 14
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_6_1\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1488,
+      "output": 41
+    },
+    "tool_calls": []
+  }
+}

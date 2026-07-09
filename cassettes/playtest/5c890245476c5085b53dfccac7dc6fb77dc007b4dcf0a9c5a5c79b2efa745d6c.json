@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5c890245476c5085b53dfccac7dc6fb77dc007b4dcf0a9c5a5c79b2efa745d6c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6858,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtQHCokBCA8YAipADjpJRqlChIPVhETxs6G5y2aUNQg0w1QfcVUPQMNJNOWmWr4e9WOWAaAIF9bVdt0hsWFs+E0W7h70+3bzxAF8czIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDG0MjlFSMo5c/+FYmRoMli6tSRjXMkFxzYkzIjCkw9VcBKNxTGl2QOBs/x7V6ZiG9CDceyKjG+DQAgT/AKFRP1Va06/uy3VpaRBJJ2Iq9wUNGAdmVb/FGvpwy/smLnAA0uLB0h0KUiSC2L0Sq+pFTxZkT7IF3nfG/4bS1zyOQq1/g4AA+O6kPFwmXY57cYmcxIFPsJ4A+dMKOzuUpLjp6UdsrD5mq7WYP1eGvm/GzdqvvxV/29jA/tyTyG8MkBg3UcqLPIpdJRSwKy3J9BLytwwWge2YDd7SO9mcQLY0lSZPILlWq+J+CvuRHP/wSI4YF+5ELmSA8ccbHdjWZXtVJx8xIzKyy7jEsOmY+OpJjldODhtYHc6nIpboJq5mqW2YB/5f1bmTOBk9DpA7/KnBZUFYNdH+kaf7WNp9pp/9w9DuRIPM+qwuWXTDAxF+zrvkDu6Y2/w6k0RCNUDmBDdeKdCVQA4PsffZXyePsznqgqO/Flfv8c1E7Qc5Py+1F+Z/J6k03G4Rys0mq5F1nBBPE4PmvV1bysZUcDBEssZbPFLrt8LF7gR8FHHyWmijb2txl822bFO9rmWoNxSdixNyGeV+eG+fp3vVJJmgWZicEk7rhXhhUe1nECA8MHKad97RpkygKOjPZWQY4Z7I8e5sq0BD7vQxF4QUsMiaHp8CXBoOCOLv/qrPuFPFiSr0pGLYWRHKctmOA0WnUyqcxmPrHMfZ7vjO3SJ/Q05dAcJaVKFu9M9Lu8ltczAHcE+TNXHkBBtEXEACJZAmKQZrKCK4oXCCaVwNbxuyqHqC9SXiuvyduYT3P8g/D1fY9wUtA4U+DSzAyxUSckvmTVxr4kNWqCXM7H024o+oJJ0Nr2FdrGjTEvbx7Omxnj0gRCUup+4kwA32BQo35Lry5a4uRi+5JtNAVlTRqFPrefbkrQqOhkrf0CSBEhJQASGQ1OCkq0d9T29OAEJp/4COA4UIBJi9gcjszWyjr1ZWb7fAFMLIaTBuUX16qF0aX3JsiCKj2jY4Rm9E28GAhvoqaAR1yOYmB7BqjK/ZGCBfbNyU1Ae3Du1ksn3Q9tRPzdCiqyT37PJ5d6YJ7dgHBs7lEbzTe6n2CfanokLeducYAQ==",
+          "thinking": "I see there are several quests that require talking to NPCs, but the only available interaction is with npc:0_4_5, which is already completed. I need to navigate to the NPC corresponding to one of the pending talk quests—likely npc:0_4_3 for quest 0_4_3—to progress.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_4_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1877,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 327,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1756000000
+      },
+      "id": "msg_011CcpYAkmX8oQK4vEyzK7oR",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1877,
+        "output_tokens": 327,
+        "output_tokens_details": {
+          "thinking_tokens": 299
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_4_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1877,
+      "output": 327
+    },
+    "tool_calls": []
+  }
+}

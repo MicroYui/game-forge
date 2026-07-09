@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ba9bd910de103eb0dd55eb63811ab672db52f1e6a5f7e4a72e5499aacfaed167",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3392,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpYDCokBCA8YAipAgWBADWuYKvjo7/eQqA4Anu9vh5NaG3VsPWdpX2xLoeIbue2O/1yt3wEZrjZGUo5pnk/cjK/QJkImShjh5tEBZjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDN9tSmRPKw886x4yWhoMH+VnoEjkK9uxElCIIjD8OWac1fc2XmJIrdTPDSaAxlQi9a8KZYScZKFXJd+ANx8F/8gS2CpPBoIQHf4HAHMquQEF0lhJxPWtEQCKgxEG6sOug30zj+iDYSzaAGQcqwwMTkKGcg8tUwx69MfrqY6f9nQLMTABViI76+Q+0cwXGPYZ09RHZrQwFYJK6WxxYlGQETN8HizM/B2V8xHxwizYLG+CwPQomZjwtu0zXiQw6jqWfqagb/xPcKXtxa6E6VjuyalrMSM73iceb6mkrZZfyP0sYzpFHVfbOSPh9AburWg0Fjo5mQ0P6Ls7KLkPxUb7cEYfGypAzNMr5hgB",
+          "thinking": "The monster's health isn't decreasing from my attacks, so either I need a stronger weapon or my current damage output isn't effective enough—I should verify my equipment or try targeting something else.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Attacks on mon:0_2_5 keep landing but it isn't dying — you may be under-equipped. Try acquiring or equipping a stronger weapon before re-engaging, or switch to a different reachable target and return once better geared.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 595,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 146,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 662500000
+      },
+      "id": "msg_011CcpGDHRwH8Djp2sVAWBDA",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 595,
+        "output_tokens": 146,
+        "output_tokens_details": {
+          "thinking_tokens": 61
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Attacks on mon:0_2_5 keep landing but it isn't dying — you may be under-equipped. Try acquiring or equipping a stronger weapon before re-engaging, or switch to a different reachable target and return once better geared.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 595,
+      "output": 146
+    },
+    "tool_calls": []
+  }
+}

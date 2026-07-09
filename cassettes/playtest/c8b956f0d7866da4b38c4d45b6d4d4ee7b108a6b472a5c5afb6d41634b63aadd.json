@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c8b956f0d7866da4b38c4d45b6d4d4ee7b108a6b472a5c5afb6d41634b63aadd",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4969,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErADCokBCA8YAipAb5TXKNaPR/0XsAkdtzZfzJl9WGMl7gJGpiqI+qBuD8Ktf4WwrxdaoRY1AwnUB0HmHZkNOP7kywNNTGzEyoe+wTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDD4jJ64gNhMLG8e3DxoMhdMYTMjZdJdiaQ9SIjBlF5c8iwtXp6j42o+3pykDgPntdYt72oF9qeMJzUEik96HTmRV3JiIPGpNW0NuciUq0wFmt5iX6IegqzzZ3IYIiP/01wRH4ce/bjjo/pos9akTQR/MkS1lFi+u/e363T9VwOinzOZ8ex401ORrhed+Imf3K4YupZgf4XaiPR3Ibn7e+xHsYDepSu/1R13GJ/M2ZudJNq4tv2N4LRxqLnCAdYnNJ/TQECAh7LipnUYJF9TyFt2lrItJ9Em3l7e2DhergykudPpzWd0e3nk88CF/wMJyVXXIeSyHkjWjpEGOClWnKkGCXSBL85s0gnFInGEjzTQIGQXONHRguK6H0m122wARiVWBGAE=",
+          "thinking": "The action seems stuck in a \"moving\" state, which suggests the path might be blocked or the target NPC is unreachable. I should try selecting a different destination that's actually accessible, or wait until I arrive at the current location before attempting interaction, and maybe verify the pathfinding isn't encountering obstacles.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Navigation to npc:0_17_5 has been stuck on 'moving' for many ticks without arriving — the path may be blocked. Try navigating to a nearby reachable waypoint or intermediate tile first, or pick a different reachable NPC/target to advance the quest.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 162,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 704500000
+      },
+      "id": "msg_011CcpTnsCe2u3ZnhLreq97T",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 162,
+        "output_tokens_details": {
+          "thinking_tokens": 64
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Navigation to npc:0_17_5 has been stuck on 'moving' for many ticks without arriving — the path may be blocked. Try navigating to a nearby reachable waypoint or intermediate tile first, or pick a different reachable NPC/target to advance the quest.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 162
+    },
+    "tool_calls": []
+  }
+}

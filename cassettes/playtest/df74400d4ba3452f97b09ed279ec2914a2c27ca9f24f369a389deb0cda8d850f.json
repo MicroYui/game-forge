@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:df74400d4ba3452f97b09ed279ec2914a2c27ca9f24f369a389deb0cda8d850f",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5527,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvkGCokBCA8YAipAbb5/BwRV0aKWPldF1z8//RDyVXYz2M8Sy4uYyE+BiHeGeoIFIYSjyvv4uUDASMX8EiPwEsB9QdybN4NGG8n5vTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDE08K0tWoDic7x8l+BoMsOgIBql8WS7gHtm8IjCgUUeN8gL6RfvGiRUqSFAicU7yvv8slY6Y8MalbGOLwWH8EyAzaAdc/QHQGB4Itu4qnAVNm0JDJU25O7XU5UPMOTAm/YolMoKMZ88dPtGyrItO4/VX+9WEUX2ZJzNXVkgQY5HS6+Q89bfLY3vBjxgPp4nADUcdzv8vs4tbv4l2Rk8/1UISJ5tnwuW3bkivFYDTVRaVltGsxTuMz0kP5numR76un4kO0qoyJzJRyqi9Me8Fer6SdZ3EeUDvvsDFbCtjgCwB94kHqiJhrILaA9nT7aK45lICkU1AmZ6HDJA6uxI14ZVStc1gR3GVoKQQj/ZP2pAdJmRS7x042RCn0nWICoxGSE0rWp+h5NP1f1tBd6mLU3OQUbrtb2UE4tasziMD/4BiuebRAqxJimFLRRP3Li565GHCL/QAwwIRa8LZjtz9xJJn6lesLDXdtARSv60QRZDCx5JTyaZAiAfI3Y60d9/0OURni7obBMFgs9fNVp7X6xkFVZjy0yvE6ff7i1AxFdP8gM07L/DJ6DMOwtx+RxfVEd7az2EZj9M0MWJ+GjlsOEZrN2WUCp1yhSEcLy6kV3Pcfy41gH9TL9Z1OIbQ3MQz+fpS6EqwEim6E9zPJUHjvu6dLfQ+iVLakiJAL2bqy7jYrl9PKskzGAEsApczigWsfuMESkh6mc3SswjIjUXF0G2eVYbOoH1pd6Srgp5WolR4D9gdle1SIwt/BRBqYn/gU1RPMnXG4gpKMdVTkp/I2Ru4R7Amxy0igIQIHfDbddfIgtnQ+0dDY6ZeZ/jWgvj6YzyDIeQRbdXuEXW3dm3CmoWOe776YuLDeiOHf6mI93bjW2zsDlqA3XzfV3gQuY3BSN/4wYPLJcgGImi9xkSS5oQYq8qTJNuPD8lYtBFhvdHRWs+7xMp8Poej4TwySlUCt2DFqClIb6L0fENS9gBw3Z2WBLlKR4MOuNLxhhgB",
+          "thinking": "I have an available NPC (npc:0_16_5) and need to figure out which quest involves talking to them. Looking at the quests that require talk steps—quests 4, 8, 9, 10, 11, and 12—I'm trying to match one where the talk target is this NPC. Since the mapping is unclear, I'll propose initiating a talk interaction with npc:0_16_5 using one of these known quests.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_16_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1905,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 310,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1727500000
+      },
+      "id": "msg_011CcpSpZQ1tUD3qxmTguSex",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1905,
+        "output_tokens": 310,
+        "output_tokens_details": {
+          "thinking_tokens": 269
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_16_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1905,
+      "output": 310
+    },
+    "tool_calls": []
+  }
+}

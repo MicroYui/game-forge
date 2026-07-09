@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ad05b50d2696fe4c6e5461ea5a98d1aceae08d8195c15de32c10a86b118bcc15",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3666,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EocDCokBCA8YAipA0mAgXcJG7hrInaqFkTgezR0ioKdcPayk5IiQHutNp6ZPOfD9RSkR9vw/GSIxZKKw3NJKIDWne5Ss1mwN/L18vTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFyPnIP6QgIWs1+V8BoM5gpedI1LV91+bqaWIjChlbGS1iqLceO9WmOdIWDUoD6I1wjxRRcQH0dNIvbxosCGESPEFD7i9lUjMIBQ/LwqqgFfbp7bJWRPA1I3veNSSmb/2CA3YCh2rk6ozuFgJPeSGPFbq6se1eLqAGd7gUb1ssoniHjDWgJPp4CTeAw+osYXBFO/J7MaLVmEomCFBaAdmw1I52NruvejNV+JDqRfRIBFc0J7PqtmVBrg4TeG46Rw7kfTF8K1yxPo3Gmu1rGj9qhO7Unn10TnsNepi7vLingc65jpwKW36Q2ejajvrJs0BvS2XZ3nrUwBKBgB",
+          "thinking": "I'm looking at the available quests in the range 9-13, and quest 0_19_9 is marked as known with a talk interaction step. Since the NPC is reachable, I should initiate this quest by proposing a conversation with them.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_19_9\", \"step_kind\": \"talk\", \"target\": \"npc:0_19_9\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2069,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 118,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1329500000
+      },
+      "id": "msg_011CcpWdw1gbGzHYwaxuQvy9",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2069,
+        "output_tokens": 118,
+        "output_tokens_details": {
+          "thinking_tokens": 77
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_19_9\", \"step_kind\": \"talk\", \"target\": \"npc:0_19_9\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2069,
+      "output": 118
+    },
+    "tool_calls": []
+  }
+}

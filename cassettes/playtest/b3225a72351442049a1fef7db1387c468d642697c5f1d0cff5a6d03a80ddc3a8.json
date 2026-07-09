@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b3225a72351442049a1fef7db1387c468d642697c5f1d0cff5a6d03a80ddc3a8",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2990,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqUCCokBCA8YAipAjaKhHyS+R/pddNw7psXUEpANvvjpMxCPkhRbamC0V7KSexJp5LGGul8okyTQYgVrBS3hfpmpyg6WmIkNV9CZsTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFqxPC3v56VCgnpqnxoMMOsHcXrE2cIr9AG2IjBJt1pVZpgkFSxrBL2/yE6E3o1weXYugX2v73P96MJCyPCVkn/u9ti04ql1uYT3KgMqSbdxA//JfOv+ChzeSmNgAey5hh0+61ZunTqZCOPDo7sHRDdam4n68YI2Daa9xVyzroTXHSfJIDbRWjZ+xolys964SMakJpTUg3IYAQ==",
+          "thinking": "I'm checking on an active quest and gathering the available data for step 0_7_4.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_7_4\", \"step_kind\": \"collect\", \"target\": \"gather:0_7_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1582,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 69,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 963500000
+      },
+      "id": "msg_011CcpK6WHzneaApdAecgLNz",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1582,
+        "output_tokens": 69,
+        "output_tokens_details": {
+          "thinking_tokens": 28
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_7_4\", \"step_kind\": \"collect\", \"target\": \"gather:0_7_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1582,
+      "output": 69
+    },
+    "tool_calls": []
+  }
+}

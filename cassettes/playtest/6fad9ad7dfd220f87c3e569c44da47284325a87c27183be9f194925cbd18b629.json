@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6fad9ad7dfd220f87c3e569c44da47284325a87c27183be9f194925cbd18b629",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4108,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqADCokBCA8YAipAtejUh93Am4IQT+xpPWehzJY/ywGOdt+pjfgaXWXEK002Q2f9zqNdFrNYzSs6MhFiQKYxjzqOVasmOvjnIO5hWzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFUIv6CSyF5b6IdS6xoMw7sFRuadZ/b/354zIjDdocA+h6wpcaFtbqhOvVjTXJ663r55eP9IvUBxzJfhXZBQKY8uaJSxvLDgkQuzDkoqwwERlU9k6iXfHtoD/gJ6I2pzvZwOYxE6SYwYFGOmfve/OqgHMOhCacbVqZuJjTXn/dxPjz+6esqnDJH0RALGmgXEpZSv22R0i6yagxNGoxpUb3Iphkt+Qb6GcMVuRVQEcJEuH4Ijy7TUv9aF9Zrk1t8NqmvhHoXDibocSTb3prMqw9EstcGJz9dJX8d4k8FXeymhd5p0XrMZ6jEr4mOS04Z4FxIt+jLEQ9zLKz6qb5sHRAgVnwD+8IuhJCYhsME3vAiG5TQYAQ==",
+          "thinking": "The navigate command to npc:0_17_9 seems to be stuck in a loop without actually reaching the destination, and trying to interact with npc:0_17_6 returns nothing. I should verify whether the NPC is actually reachable or if I need to interact from a different tile position.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Navigation to npc:0_17_9 keeps returning 'moving' without arriving — it may be blocked or unreachable; try a different reachable NPC or target, and note that interacting with npc:0_17_6 gave 'nothing_here' so you must be adjacent to the correct NPC tile before interacting rather than at a nearby one.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 193,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 782000000
+      },
+      "id": "msg_011CcpVMCspyYpFeBfDMRSN5",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 193,
+        "output_tokens_details": {
+          "thinking_tokens": 74
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Navigation to npc:0_17_9 keeps returning 'moving' without arriving — it may be blocked or unreachable; try a different reachable NPC or target, and note that interacting with npc:0_17_6 gave 'nothing_here' so you must be adjacent to the correct NPC tile before interacting rather than at a nearby one.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 193
+    },
+    "tool_calls": []
+  }
+}

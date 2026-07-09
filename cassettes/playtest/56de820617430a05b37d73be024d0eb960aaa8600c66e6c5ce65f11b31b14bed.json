@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:56de820617430a05b37d73be024d0eb960aaa8600c66e6c5ce65f11b31b14bed",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3857,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqQDCokBCA8YAipA67OiwWCOV+qHOnaWkrv8offp+/8VeH04ckiTLAwhOgrOSb3ihUzCEV/Y544uQM6kAfYCUa2GG7GkrJKWpC5AVzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDACa24o86S5NWHLTlBoMSnihYJ5KQxeCBp0zIjBKNoZexFiwWqrl6LhR1nIGgENQf2wHzSVJEapA8mOwO9MGLLv5urcSNoYb3vS18oAqxwENO0RKTM91tl7tnOdhI3tHkGU/IahHiZqHlLmUoUQHbF95v3D6wCwZXfTUVgyiw8VYzYLJA/jzp3hOg5SlMPWiLDap+qfmDTChVHVGfI1HIjk0O7AHCoA2Bn35OVTUE6wnVO9N0Z8mGPyqmT6QlHq+zuJDZcOIavxEDifSS55sGv5muNR/UISqWs2B2u7pC55hDZ+mNLnX271uN2fFazaXdwkqFz+/8nXkOrVxQfvAG55RBn3gH8sXfX7RMhhl6IPhH6RU0uLWGAE=",
+          "thinking": "Quest 8 requires talking to an NPC, and based on the quest data it should be npc:0_7_8, but that's not showing up in the available interactions—only npc:0_7_9 is listed. I need to navigate to the correct NPC to proceed.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_7_8\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2039,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 119,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1317000000
+      },
+      "id": "msg_011CcpZkpz67byqdZVbMsrR2",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2039,
+        "output_tokens": 119,
+        "output_tokens_details": {
+          "thinking_tokens": 91
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_7_8\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2039,
+      "output": 119
+    },
+    "tool_calls": []
+  }
+}

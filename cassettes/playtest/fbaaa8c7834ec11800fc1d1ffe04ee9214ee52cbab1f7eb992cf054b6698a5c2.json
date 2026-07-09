@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fbaaa8c7834ec11800fc1d1ffe04ee9214ee52cbab1f7eb992cf054b6698a5c2",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4390,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EooDCokBCA8YAipA1HR8Wp978gIg8GYrTFwi1VoIihBaODyAU7B3gmSfqnnQ5mn6i01xQLdyzJo2qrtZwz2/bGx4tS/bqz1BV7GReTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJWbx9YJscj/FSVIuRoMIWig+OywiLik4lmPIjB+Y47J2aCzbWi8kjxr3GMYDnJMz+xPkLQmOF/pxQDzIZY87cLoPd6WQ3wk2byueNwqrQFgnwqfldtxoI1G3nZFuGklGeBQ2BPSE8DLau27ofBB2Pe+k0+IpyptDCucCYP3jeCXtnzNJfXfStwwtl7ggVyZf44DXOR/vYclIrTcmEUuFnEWV8uZiisgEA1gYS3/NP6WxMvCl+x5oacbSBJdxbnsu3mOltLen903+0+gUo2DvdMUElrBcLQhJdda/rDmZIR1Q5+tScORkPr5pzVA4p1P9Ei4BZ6KSnz1pTUg+RgB",
+          "thinking": "I've got two remaining quests to complete—both require talking to their respective NPCs. The quest givers should be identifiable by matching quest IDs, so I'm looking for npc:0_2_12 to initiate quest:0_2_12.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_2_12\", \"step_kind\": \"talk\", \"target\": \"npc:0_2_12\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2258,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 115,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1416500000
+      },
+      "id": "msg_011CcpGr7tjtFKhYoSYQwY9A",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2258,
+        "output_tokens": 115,
+        "output_tokens_details": {
+          "thinking_tokens": 74
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_2_12\", \"step_kind\": \"talk\", \"target\": \"npc:0_2_12\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2258,
+      "output": 115
+    },
+    "tool_calls": []
+  }
+}

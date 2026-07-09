@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7c05fe138d621623cfb16067dfa553183f2f28658a0ebb6633519fbcaf02525d",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6652,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep8GCokBCA8YAipA6hTysjbpZ/iQ+h5qsfx/iG1h7vCrUq+PU2+JqBelxQy6sZlD9jYcSVZ+ojcLa/+FGIBjiRf1C5SEVhKKLzSH+DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHD0EtFFql9fo6U2WBoMIGa2Y2qtoZhjf3mDIjB5y6PaBckowbI7PX46eb1pPQdIRc3njUvZ/U3cDBPhfisATM3WDfWv+EAQNmIVOPEqwgRpyk6TuO2mGJlYDlXLEy00Xm++RqhMIkPdA6MLZ4C8Ob8BfpvkhQvWETJGG3Gk9yQoHY+bli2H2f8lX+NSkhOT2CkdV4Q8OSvVwr9/ZmFE1haDnZozPIS5x4hdDKR0Oi0pWoo+VxxUNBZ9LYH+LaeavZ3+8YhpBTdGE67kxga6Z3TV7DTQnDrBd0laFODL7qr2Wx8clViAJHmoZp5Y5MzKtQIu/iXhq+qa6YwbkuJdfNNWwYbhXVrTizAs/1agM52h65YUAep0V2WNCydah4sxk9uxvsnEHkdi3UTA77Ttvk0sMZw9pwxc9UbJV5jLdQ7JCPG3tMxoaIVPBHbGleQD9YWzTKbkD/aaEx3FbIwcl/W5hetWDbpyuD20GoGjzp/CaGI55MGjpOJg/YU4181tqlpH56sicsAZl65ukL5iQ8j2foXhU6ijpsLS2fmB2xVdhRH7ggF0x6RQGTRaG+Awtqtvhi508FPRffVXu9PxfF6MwQ9xla/s5DYP0Ibmog5apJYBGaEOcizYVCUj5IY9LdOBc5B8GoaXTNdGitNCiO/zuYKaiK7gpU5oBZvTgoBYI7LgbhTLndspyUHPINYxF8t79zs9O7bvpzOWbf0SfrE7FVIjG9Eb5zCiu+1WUrLzTEODYvLsAmEx6B6anL42QaVZ+IYM8Y8sVFunxGPU2NYKU0QboJOr3u29Z7XORK2SmwGV9/aP6Y0rI+cy+ZpELw1MlwhJb1lgE6qZjBlmUzKtVQdaHhbJd/5bFtfZ5C9avBgB",
+          "thinking": "I'm working through a quest interaction where the current step requires talking to an NPC, but the available interaction with npc:0_12_4 isn't yielding results. The hint suggests I need to move to reach the correct NPC's location, so I'm reconsidering which NPC to target for the talk action.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_12_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_12_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1331,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 271,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1343000000
+      },
+      "id": "msg_011CcpPaqNi3PXJacnB7qZAi",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1331,
+        "output_tokens": 271,
+        "output_tokens_details": {
+          "thinking_tokens": 230
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_12_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_12_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1331,
+      "output": 271
+    },
+    "tool_calls": []
+  }
+}

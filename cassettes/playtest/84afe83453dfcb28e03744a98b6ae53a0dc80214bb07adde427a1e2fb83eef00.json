@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:84afe83453dfcb28e03744a98b6ae53a0dc80214bb07adde427a1e2fb83eef00",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7002,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqcHCokBCA8YAipAXiDBTPgY8Tvs3BDvxJMX6T2VE3oxl2C1Y4ql1P6mPDoKIDEWG2EmFBEwYToe3B/Zmm09C7PsvY7Q9aMStvDd4DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNC3QWuimPTebGl29hoMxBmdjUUDM3OaLbkwIjCVYVSI5wSdy1QTKLhacwzBSg5Pdc0FUsVwaSxtie2jQN2cAfma91rSzoV2u2IGpUkqygU7PZtA1Gag4aeXJs9gKYKBcn36EmVt5WLcjh7+ixwcJslMb7P6yE55rCEtmzsi8NHw2rjZ0YKg95Ob/co+tB+WhzKbJqTPZT72JuDZtVyUCa4VMY219HJO/i3UMGOtTK8TrLopHtEzNXdsl62ULapeM/GSRcJJ8Q4oJ/siqSDGIbakFLvmW0Xl5HumlcTI18ewfLB3u2jpRiVaXVMApXy1y2FYpqCDg1IUwucfqdAtz51j3JQxjk7UHn8lY5q1llcz7+Kir05C1dq63XFqWTOkPZch3ji10nRbrE8v5Hy4ZFw/qlDTy6CUv3DnyKSY+TRm/g+P4lVT/xNkQGtawSW2JFtqhyZSOmfXoQGGAmSuzAJT5sqc4aqm93a8Tdv4TkaLb6M0fHPjX6pdnSIX0eI9mRKYsw9PgUnl5b9neMF+W7eJECtnCIYliHxl0VDz3QD+26AMT/Mwh9S59pD4hZDHqjl3YbRsN5yIlLzNgg4fCjyZ5sDOG+1MqiEyNZx2vkqg6nnCoN5uoVkvaE9eCqFNnQ0qUW+Xcd1Oot7oxk9V90sCgo5l371hbXt8lft9hYz63GwBKVe8rgauWMvgNfBJEbLOJ8qb/P0Vge1Byd1AsisF6IPCV8rQoQIdaI6s4uwGPdlO5TymALA7bVP7sopRoaH4t0SwoI4kxFKWJDAfMtLKU3sey6snXGu6of8fDRbijXXMkyubwKDFK7jXFkZrWmNcYay0ioYM5RrItMpPsuJcl8heSrQdUyLDg6BAqu5ndRg3NMQZ/wBUg4hbozOoBJ8R4QHfAwBbrQbWw314u3I0oPzHIwbjNFGBMD9aZLupraUVmER9WVdEk9tpn/7Mvb1+WaACHItJxP/QKAwI5kvfK13VC03EPxo7pXPlbgDVKO54JL+xrqyymH10zmRxyEx2WTItJPJxH4pYFWOhtSISe8aEhtvwKYMYAQ==",
+          "thinking": "I'm looking at the available quests to start—0_1_3, 0_1_6, and 0_1_7 are all talk-based steps—but I need to figure out which NPC corresponds to which quest since the quest step IDs don't directly specify the target. The only available interaction right now is npc:0_1_4, though that quest is already completed. Let me try proposing a talk action to start quest 0_1_3 and work out which NPC target makes sense.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_1_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_1_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1362,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 344,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1541000000
+      },
+      "id": "msg_011CcpFbc7qPUdfX7AfxPLq6",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1362,
+        "output_tokens": 344,
+        "output_tokens_details": {
+          "thinking_tokens": 303
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_1_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_1_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1362,
+      "output": 344
+    },
+    "tool_calls": []
+  }
+}

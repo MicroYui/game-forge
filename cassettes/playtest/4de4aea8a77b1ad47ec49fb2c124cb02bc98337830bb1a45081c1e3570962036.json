@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4de4aea8a77b1ad47ec49fb2c124cb02bc98337830bb1a45081c1e3570962036",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4182,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er0DCokBCA8YAipAG7YO2QwQC03KArx05O93SaZBgKcb98KI8fxwr7UihEBI9w23PZB5l36T6aft9vAWXSFpKVXcYJki/9qTa5ahejIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMx1FpiNsts/WgRVuxoMtG9wIqWPdadwo9f1IjDGRV0BJH3jG5yqpbDnavPuNlujrqQxRFeQ3ODGSH7jMD9U3sHlg7PDCBNG+FVdwlgq4AHv1cFhl5tK4r3pQYaDTlhfcCi0eA5xTjliFk4/F9t8W01UdHG0XkqQyGSE5J7tfiFup+ZLKjSj2tlT8+T5DtV51aqnKH/odDKcsuc6EjeoVRzEiXIKc8Iy7ynThiC5XnkqrgHwSKw1MJEBKaTSbWF9H4UyOIy4gffEZkHKCvI6CkwTmDWr0yQyvA39SyyiNQIPde1KDN1NPv7qGSSNMBn5BjVlERMvtbWIQPlO+giofZy9VG/gWvUd4lt6cb25vfLZs7I8h55tbvNlKgiumFvGYZSk6eRcUdFyFT3rAb40rRgB",
+          "thinking": "I need to progress through a talk quest by interacting with an NPC that's available right now.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_11_1\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2424,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 110,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1487000000
+      },
+      "id": "msg_011Ccpcx64r8QJXR2XTE7qtX",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2424,
+        "output_tokens": 110,
+        "output_tokens_details": {
+          "thinking_tokens": 85
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_11_1\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2424,
+      "output": 110
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:502e6c0af122e3494fd8d1492ac26cd771bf188cd5b21711f514afc3d3c183f0",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4587,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpsECokBCA8YAipATG0nUhbNrS6xsQPOMbkf9EXwxqBJrcnPcHpJAV1pS+KMyOCI/oh4pjvsBdG1E52AUahbJVK9OSPyqTXuWfcUIDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKR5K8VxHqCciE/ijBoMsxpfNSB+m2aZuEmcIjDBF2YXrtZDG6tNiWLspdE2ms+ts2mBSYfiiPrSoO6wFc5L3BUfNqnttPKloWbvN9AqvgKCAz54AOjLM8FKmmnVS7v9vVo+yqAQHRneHfdi7GNkaZnVGv8TowkPjHnlEIhgIY1XHw407OukMI4KonM/vdZnCcSeqUvoCJ2MrbuPA0q+htrv04eoPNTfuQ40/a16uteDbuLOA+TlNJ/V8d5pXAdcGrGknKtA7CqYRwBBS2SV6AnmM40wBc8En3rGtvYhxhOkl5e7BUouOQkhA2mwe9bos3KABKPUCKTCy6Bbttnm6nqZB7j7n2vR1GZfF3E0MUSfzw+VxnazY446Q4T8+WegWsdPbDk/hEgBfUTrBUnW9Ly/q0a1w73RMDwqeIK05SblDcLFP0uRmr4EenHdrG9DlVrj832ZpnUst+87MR3cXOa7Vi/NAWtTHCqlUAonlGI7gaAx4xUtFCuXFEU+l8oW65ymgmc80BuJq9ii3PcYAQ==",
+          "thinking": "The combat seems to be landing hits but the monster isn't going down, so the issue might be that the target is too resilient for my current equipment or strategy—I should consider switching to a stronger weapon or ability, or double-check that I'm actually attacking the right enemy.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Attacks on mon:0_8_4 are landing but not defeating it — the fight may be a stalemate. Try equipping a stronger weapon or using a special combat ability before continuing, or check whether a different reachable target/objective should be pursued instead of grinding this monster.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 596,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 201,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 800500000
+      },
+      "id": "msg_011CcpKbE6ETLNXVyAqGhJK2",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 596,
+        "output_tokens": 201,
+        "output_tokens_details": {
+          "thinking_tokens": 104
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Attacks on mon:0_8_4 are landing but not defeating it — the fight may be a stalemate. Try equipping a stronger weapon or using a special combat ability before continuing, or check whether a different reachable target/objective should be pursued instead of grinding this monster.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 596,
+      "output": 201
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ad99e58407631aab226aad464c86a7fe3fd48b89f24f1c7334b929f93c9e5dce",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6063,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er4HCokBCA8YAipAseOBiIojkO+6XY3h34DgKyGHY5fARAbE88lgfA0mQg1DZklWHo62LiCCHkT+iwoedr1t/xkmCqMHDrM6V75z1jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMnTIkEp/daxHsH0VhoMqzudAQktUU5IY3YMIjA34nDBiAwUpOCJH9tkgKA7gD5Ssv29YW1z9L56p8GYGF53vxpU0TvP3TE9xOoMmdUq4QW+eSlaEcgqBczrceioQrfozuoC7WuOe7T+bl7Bq1Ys6JRb674+M0PVkcvwkQ/+ZT4ICFfH5FidbSvt7922NUDA98iwaSsJVbF8PD4oAocRRqNtyjYus+YVFJYEE50qrWy7O+6SSOOd1sLggW5Yblyu/Fz+uNhcvFVupakVpwuiz8nYFBIwCYtKGBOhK3LV5mR6HUhaMFoQRZLtg33nCH9QTDVEJPLYLU7k0y9e253D1Eh3y3GJLTmj+Kin0w9B9NS16er1PwqROpyGHt0TQhFoX0YWlyLTHYn4Nx5+PS57I9BK8UtVjhvRleqsY3NBciHrhV6HVIUCqNu/Gemty0DQCrFpr1Sm0MHgwNVnVc1PEDHR4O3K92ElTq05F9i+DiEUxbQn/N3adoj/sUpGNyOVkw1UQuyyJk/9KYcdwLwtz1E2uC+eZlYWFA+9WXIfEb5C6GXQ/1c21WkCkZytaY52wL5iS8l7EFjK576B8rNe4CRvj5Z2hZU+jkv9JNBFQUi3ViT3Gz5G5IejvI9914tJqaJNeN02YsPC3B1r5hXnn3eOpBHFE9UHKIek8ANMq9DJ8hEj7iZxknr7i0iZHnkWNCQp48uM5PxDmE151ajsTdchITpXrlN4DaYTXYSJTFAkC7KezLjD2gX4+tOS7MH+F52M4tTTgwFss+cvsU8Reb5lZdxRHDXL1nLzrTot+2cS4OkkRLBpM1UL9sa1iJoQGybbVhUxxbqRWsFQT967SAyWA1SV0LXQfMX5J/M4a8p2Cf3ZQDsBrwgeWQU0sEL1kZXLltlFzIXDQoIfR3GyHNf+tNv2GUujmwpts0wANHYKlYUvavSg1igTa88kERD5DclQvIAe+svhHBApTeCyr+h7qyVEByH+KV+7Aw/mmcOH/2WgRf0PKx9YaJ3glrVa6aYCRwEhDCyn0wa2WG5H3OeE0JIiGmhbK2mpybbCsJ54kzPJ9jZ7xteWUYXdvjRpkxgB",
+          "thinking": "I need to advance the earliest available quest, which is quest:0_2_4, a talk step with npc:0_2_4. Though npc:0_2_7 is nearby and available to interact with, I should prioritize the lowest-numbered quest and navigate to npc:0_2_4 to complete the interaction.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_2_7\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2262,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 318,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1926000000
+      },
+      "id": "msg_011CcpXe1vEGLtXZo5VTrSmq",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2262,
+        "output_tokens": 318,
+        "output_tokens_details": {
+          "thinking_tokens": 293
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_2_7\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2262,
+      "output": 318
+    },
+    "tool_calls": []
+  }
+}

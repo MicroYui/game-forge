@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:50ef76e4bb30c93b496423bb1e97673dd8d335ef25393908dffc014a79f90feb",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5909,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EogHCokBCA8YAipAfTDFQZBR9KWs2A9AxtdOUv9bVD/6A7l7E6BccsD3P6f7CDF9Acmb4ZZI/5JoxZ5J/HNJAuKw62A3pg0r1aMg1jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAOAJtMr4j/3Pq5LKRoMR2FEj97uDWjp3sg8IjB55/lTsPWy5cpWppAhzLKeOglNQnPRSRbKgzInuZbLcr5+JMZih5k0e9YgpGIjj+UqqwV74EaG0FQkd51yWs/cpCXf6Y1C8oYyrE8i+cyKf7Vh3UkS2jjNJfp1uH0zCn+qY6E14wI+ITKECZq5wqZIsjDUi8rZsGGgGvcuiAinzh9EhA41kZ7NCpi6+yY+S6xOriQcmGAXA56ng+ZjJzt+yHVNQa5kJQF4VVciZw17rLCDqJZrVKA7kd0YlfL3O36sDj36E8AyFHOkp4OU49bwFjrDSWGb6I+O1qTiTOQr2RAGmVsmkPit8QrYFqsCfcpHwcV1pmnR16JoDKqWMv7wxic5zXXJth7wNk8JDSiygaDvjzzkJvBYDQGk6MZP5SblSznKOSTG2MSqFxPMFv+6u/K+Q2CYiJb5ITn94ZbB+E8SdJHH+EZvYl9ERJD7rmAEfVjAYGzEycqlfM3+dVjyaOg8yVsyhuxioREEIO/E95JFKisJjSV+Nn1NIyHpMI4Eb2Wf9jDAqs7FwKVUzgWMOVoC13A1C5joobF43uScAp8DMY1pp+I6l5T0H9XxJJVW0BZhZra8tDBZHT1qIBFSKvJDuwWB76oM25UrCUh/J5Awggmu6760N1FEpSsDSGUiFWzbFskL6ed0M34ypG3K6dtAvMmYQtLryt2vYP4qcZEtACJc+KaFBEJYrclEgSUxYc7ITC7i62ji8mx8kn8fJ5zNglwoNQbdaSKmL6TeVlA7CEHFX4yd4bPmWAP1nfKgr2SQx3C/l0HtwZ4rE/X+q6fSwknrYziq3NVr45LhwDt1M5oLKc7phbzkvdLJc/W70Q6Bo5dsoAL888YesOrkeOdN9YbpHnCsVnGnGSubKAn49nUA4gXYhL6igMFRSk3X+Ym+IfNcJkLChOB2HOlysNsBqrJi43VhA61vB3Vrd7ja4ggAPodfJ+p1hlzZZHM1b9Xi6F9kiXcIGrvFFRgB",
+          "thinking": "I'm trying to figure out which NPC should handle which quest. I have two quests that both involve talking—0_12_3 and 0_12_4—but only npc:0_12_2 is available for interaction, while I'd expect npc:0_12_3 to handle quest 0_12_3. There's a mismatch between what the quest structure suggests and what's actually available.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_12_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_12_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1231,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 322,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1420500000
+      },
+      "id": "msg_011CcpPPy2HHBUWdKxkdc6md",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1231,
+        "output_tokens": 322,
+        "output_tokens_details": {
+          "thinking_tokens": 281
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_12_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_12_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1231,
+      "output": 322
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c69e0487fa207f8536547b96c2283c318953f5b6ddfb8ec3f23dc5b74c86a788",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4536,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EosFCokBCA8YAipAGDn71jqKDN1oeQIJHYARseIGUOB8C+OIBgTXKGfHPAOHDsQ1yzEIE+TEafwBrpEQKL7CEW3/6UhX1F9UQtGMAzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAjGpG8IjQlmNp/MVRoMApJXkF43h87D8ZFuIjC4LaHbFp0QKJyFXj/TrrFUjzHHKLI3FpFLLTgskSStFviyLEWmmvJO+dt2PkT9tyoqrgMo7Doe6sgRTJ75ydZak8MQrfF6vZSTpjItKJKL6vK9HXGWsZ33IFJi4iRwmUvW37xkbOu+1p6yPzpsxnSMHnhH4G9XH9B/FKvyO3qXWEXGQWYGTM94sgM2IzEPhUpCuO0jkruGR6j2ROeGiGM790vFctVsUGYGliWXC2TW6WfWQbCzHfsakI8ANTmQaV66Ij4sITEIbvcCEr9+VzdLJSRAdzTnoLD5elbhpYdlYhV1zndClLr5TRjwbOT71O7wDeT9zvDXcFptu+Q5AK5NDFcEQZdSWxe5q2y0GXvjbLQ6dn3zsXXIgZc2Zu5crcRUKl2UChq3oGFxwJF4qhelEnNuiY4m4Z8xu5ikE3fgtZpawEDA98xdrz+x98wzD6Mnyhi5Osd8+T7I4i6wDVgBiH9TQJtR1P/euVNkw4ysDe6DYrzpZJb9IpUifyUsQQ9G7Ua6x1Pgae3J0hWonRkxiEAP16gyoOy2P35xDMW58dVuLHXcL1siLbiJz4mFI91FPkwOca7ehwdOvEDdRJ1Y8HubM7lD/5DxPj2y2aC/aYNhO+J4ZxjImU8zGkLz6nGbGAE=",
+          "thinking": "The monster is taking damage but not progressing toward defeat—it might just be a slow fight, or the player could need better equipment or a different strategy to break through.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Attacks are landing but the monster isn't dropping — it may out-heal or out-tank your current damage. Consider equipping a stronger weapon or using a combat buff/consumable before resuming the fight on mon:0_19_4, or disengage and pursue an easier reachable target to gain levels first.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 596,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 230,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 873000000
+      },
+      "id": "msg_011CcpWVuwUVAmMeDWFgWK7h",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 596,
+        "output_tokens": 230,
+        "output_tokens_details": {
+          "thinking_tokens": 124
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Attacks are landing but the monster isn't dropping — it may out-heal or out-tank your current damage. Consider equipping a stronger weapon or using a combat buff/consumable before resuming the fight on mon:0_19_4, or disengage and pursue an easier reachable target to gain levels first.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 596,
+      "output": 230
+    },
+    "tool_calls": []
+  }
+}

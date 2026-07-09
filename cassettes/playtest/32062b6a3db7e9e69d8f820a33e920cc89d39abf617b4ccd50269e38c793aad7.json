@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:32062b6a3db7e9e69d8f820a33e920cc89d39abf617b4ccd50269e38c793aad7",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3819,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErMCCokBCA8YAipAYg+HGpnHnapO3i4uxV7ghNMI4LBvc2kVJyfXPjsadPTyYD12p7uczi0dGKxgMKm7WpiJKaQbMQs+OqtKSE4EYjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOxicJubKbq2FMVT6BoMgsS6P0IuCurWaEMZIjAoLo+ifO+weBZgIM1cpwd0DxUCfL2m/gpSuVPYCwxrOUh/e8y4HF5DojCq7FSYLKUqV5esqR8V2Vdh1E2uctxBumhoPGAHdVYbCCNvfFQ/3dYL9/i+BRVoHfCT6Ef+is9w0F/TutW2dSJHTwVM1HcYajgXZb/bb+oyKRhMw9fey9huwdQdEj2nWRgB",
+          "thinking": "The next quest marker is 0_5_4 at the talk step, and I can reach the target NPC for it.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_5_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_5_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1967,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 77,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1176000000
+      },
+      "id": "msg_011CcpHwkhJojoJ77gLjbj48",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1967,
+        "output_tokens": 77,
+        "output_tokens_details": {
+          "thinking_tokens": 36
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_5_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_5_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1967,
+      "output": 77
+    },
+    "tool_calls": []
+  }
+}

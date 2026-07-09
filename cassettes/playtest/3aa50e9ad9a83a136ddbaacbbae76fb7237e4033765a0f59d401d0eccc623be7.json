@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3aa50e9ad9a83a136ddbaacbbae76fb7237e4033765a0f59d401d0eccc623be7",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6331,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErUHCokBCA8YAipAjRsCSvj6Uae0lueL60S7sbH0tCq2+Nl2R6SJRpDgLizLNqk6kC55lGJJO5pNvb/xgx+h7LF4LyuST6vOANSMvTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPpvpCk3iYP5WPSnfRoMFLCWtN6YSExsGJ9/IjBcGIWXybJmCaLRipjYlsQtq05lUhm7hDgmbG+rmSIGVDEnFBdrY4LbG+eCbjtfnLEq2AUncfwxi/DpZvDkwEAValPrSUirLjMHpyVB2ff2sMcOlf8PNAnXzfqyEQ5qjvCEviHMpjqWk1MQm/9Cj0YcXrQDFDdExXunIQW7CLlRE0b30N6XhjWVCAD+j2EynTyQ2CpGIpfB4xxccKHSlYOF7MmwuCBaPlJGaF5mjDfgrn6JYSVcPT9GevrfgqwnUDBEv2JjIGd2oA/KUd6BSpylOQTkcAgPjkJ1l3jb7C3SDrlfd6uQeqSg+3mE0QiGuMIF/KSJqFcWAdbAV87VaU0Jyy3sGXTwWzI7JbXQNRdbFdEYx6AQN1EEQn2U+XhixJpBqHGnlmW8ErJlSYaQb9+cSp0rpwxizocuhx8OtwKD7vNx20vq9HbOXD/4GzczEEHycO2B3W6aTJIRXgJFrzcPFPXJSXEZ7TZABGJisyqHjtSwtJwdVBRTco38WmUoA0OYuU3GNIwe6pETpBTnLr6LKmFRs5xpgDWA3bxm6nfuMfVUNT3Xx9Ltp/Y3ND0Su9O8qWyRbPuyufqeDSYgtw1Fmih3P25RhbuG1PBk9+pF+ozAZng8brkHiMWo0eYlLVPP7hYuCzjP2XQHkoWbjPYkw7mJrob2HZmbszlMZ/rd2bXe/S5xZW2E+FkH+TQPwMADDxktRkzJQrX2ZCu0WaYNiqmAxMfCQpuEEmo3eR19nxl7irhifzSDsLkMPwYJKuWNwLVN1nFfKglrHOqfqNn2c2p2n/whQ8lB7j6HUnhy2LaduOZiU+AShhc7vZXwqyGgxF1rDlt1vS0PnCgK5+gY3AveOnk/Yh17QHyEXxGWjP2Yum2cv4e97U7Fnm0QvcFQqsH3c8V7AqhsllhHoorubQvvQ2fgAt/RF+8teqPE8udJs70w3ykMF4e3LVL5qinwZpTXM0XaJWm3XAj0AsejOQURlawhADS2uFztoChUXx35KnbCG2oIXlwtR+QyBlj8MFuBvIe8Gn+xWBgB",
+          "thinking": "I see there's no active quest right now, so I need to initiate one by talking to an NPC. Quest 0_14_1 has a talk step that should trigger with npc:0_14_1, even though only npc:0_14_0 appears in my available interactions. Let me navigate to and interact with npc:0_14_1 to start the quest.\n\nActually, looking at what's available, I can only interact with npc:0_14_0 right now. Even though we already completed a quest with this NPC, interacting again might trigger the next quest, so let me go ahead and interact with npc:0_14_0.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_14_0\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2497,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 307,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2016000000
+      },
+      "id": "msg_011Ccpe41Y2kWjpMbErpPMxD",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2497,
+        "output_tokens": 307,
+        "output_tokens_details": {
+          "thinking_tokens": 282
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_14_0\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2497,
+      "output": 307
+    },
+    "tool_calls": []
+  }
+}

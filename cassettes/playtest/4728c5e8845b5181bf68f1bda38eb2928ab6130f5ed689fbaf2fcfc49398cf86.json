@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4728c5e8845b5181bf68f1bda38eb2928ab6130f5ed689fbaf2fcfc49398cf86",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7138,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqoJCokBCA8YAipAyWhtxhPvp7CNrMwsfpuDBvaM0m8NP0MwHr1nLEVfJFB+tHfIOd4k8mVIMTgJUteozqWrt8pbuldQVO4pAyfsZDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEEw2jEo1ED6Il4ONBoMNPraVSYAmSpYz8KeIjBgECIJoHltHq/x9LwIazY5nuOy5BNqD0EYctyQHQ13qIe7+AWCmj2GwYh5wue/GmoqzQdIRKr7dlA88bAOrgU25pqhoJ6JSTWRzzheYEeNxw5GizOnUpYI6vIItWcW9a6ErwBXoQpwzxZpKfJgUC3IEyoiSOly/dsxbcZruHBtfBo7SmJu0XpEC2RSR+68KDgsGLTGBIv7XXSatC/T5R6ffoUTwGx/NzTsLSBeBhhQcau0aciI4Pv1MKE/j6I8jsCUFm2kkepe7phIGDCdUsLPoMo1T7uw7o2Qd3Q+Lays8qtGJo4oRLIF3WfBJhkxyyveC/KSWNjpPzEa9icaat2ki+9i0kasDbOL7InF0q6g+5LcqwJBpJwhckAnI2wB+39oribMFK/3cDcvzzu04AMJ0pA8xf7lR9XW1IyPhFR9XT4h0r49NIItbfpzDCK2Dk3yTBYYam0or1oCqo/KfoIJoW6ZCmuNOyoofrTzpD+BZC4yAoE59xI3icHg4IX2lXy3zIMDNgU4v4AitVKyBOfyRq3SuMsoxbVDvG5hyigd2gp6n7m4HZbOdJoDLKCj5bR+46YnTFSt4rZQOAc2gr5QzOQeUeE26erozC6UJAy744q2V7YjE66hVnZETuGdPPNBJvZWIZz+0vH61qf7/hhMPjYwgfPaEFxcavvZnmCIRtTq1ZCimAOQVBJ9C4lCYsSRzxW/ZPAFdIgVv8+XpnRRugl1lpVPdvkzOjtABttZ9XenWnZ6CP4rwVaQeoLnLxbdXWQ2mCrmwkjDduqu3SPmi4CUNzeIC9hF1jdeIQhjvTIt/0Ncq+9LInOeFS7N5V9KS575bRtJNJV56ImKvoUKfDNNKuRMEs9C7VW4bplCP4Vmb+s7AEiJf9PwI+j4QlsXq0KT+4pRrZS6CKcHaCaNPsmNy7ERrbXF4aRzigYm6bak82UubDKkNey+9djkVc4QKov3CyBO5Pmwngn/Br5JN1/3QQIIWR+2HY3lSuH45c1ks6EJSERGcPVYidJ/Gi0SwhsOJcQtLd/QJ+0nMx3zMikfD7qKBm510wNlqLXLCQRFUUh01IAvZLpkiGgPAN7SS6+8LFGylKmVGkiV+aKkJ5P6SJL8aURRub6gXcM8dwqK3Du+w/ZnmbG2WXi+iaaSX3QMceuMV96aRt4l5xn9+DpF8umhdLLzAT2hCINW0mj4fbuQygXKyQDHshOtM2TxKOOxI8eKNvmfDM2yTERgxXHixs0FXwVSlijbSZbra1NSd7nMvyQx+woaORrEf+Wuos1HZoF3pwwvuKWwQuWCOnySKjbWdAtVycR6Aop8T7QMEnFMDDSLGF84OVccVgworESSrizr6yhqdUKqf8JiGAE=",
+          "thinking": "I see that npc:0_13_5 is the only available interaction, and I need to figure out which of the known quests (4, 8, 9, 10, 11) has a talk step that connects to this NPC. Since the quest IDs don't directly correspond to the NPC identifier, I'll try initiating a conversation with one of these quests at npc:0_13_5 to see which one matches.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_13_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_13_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1933,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 439,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2064000000
+      },
+      "id": "msg_011CcpQFcFmBeooorBSyLbsp",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1933,
+        "output_tokens": 439,
+        "output_tokens_details": {
+          "thinking_tokens": 398
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_13_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_13_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1933,
+      "output": 439
+    },
+    "tool_calls": []
+  }
+}

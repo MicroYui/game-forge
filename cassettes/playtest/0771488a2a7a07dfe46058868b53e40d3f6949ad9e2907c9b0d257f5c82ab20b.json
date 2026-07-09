@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0771488a2a7a07dfe46058868b53e40d3f6949ad9e2907c9b0d257f5c82ab20b",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6035,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuQHCokBCA8YAipAC2WE5VmnTIkRsHJRj2Rrakpl6/3qbE981KM3z7XP5xNBNM+rXa3x15fGMKdlm8jUC560FJcFsEcAxU5nVHHHqjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDL9CVUKCEROVuTKVEBoMvu9RXwuKD6a5pbhwIjDCMnXOk2yZ7kgpLUOWJpE8nJUsgjUEgH8hswdJ1KwFhp0D5jnnhRkFN7JKqrT8VcYqhwYROnqRr3mLcxvlcNFgi4TP0VcK+PSN6s52d1kpnrLEjGge0tBcgjgqIrrNqoKssr+JVj61vE7E0N25iaevVu5YonXTq9H+B3687KkmbucZ5sdFLPudj68nmjBxwmFr1RVgVH3NKebAwPXGupz9nWmnyF5x9sd0nDPe0yLUnFdqVVIQnLSC1HFiHgTDDhtMFkKDM1czTW5wwX25NJbFCJ0SMeopgdtNxfMThilRfydZrE1lnACqxidle50+XmZHOx7EaWcPl6F+gGiEeakGK7se60g+GGkivcCZlGRG7XSriF3zq+cPSph6LIhsfUgiD37Re7oaJ3+agQq3TBLi+qEhSTV6ExkuBQfXmtdxUNDJM23T0tDVV3AzAAqHm8N/ymhMbUAGV0oSGKoLxxci79vnPiqbSFR6M5A4aPL7WaTI8/VWEPkMogNZ2szv8l4OCAJiTPKQIzrdNgY6ADKhJu4VY3RChiPi1h17uUXp5Ts+SZct3HgBZxJdxUm6VJRHOa5u+CRPfU3+rW6M7Y6qE7cr0LZNd8nQEnUKQRGvTjSXh+FuWWfpLVnE+obZbMaj9WdzugDAD+2kReXf2wGXAghEZnUjQX23w3rQQy3K2+OZFK6qfjNqKt2mkUdrTJVohEspCEpll17wySRZtZN9EpL8Dn3lNYG35cPo9eECZOSBxyr3N5mjbiyY+ECxvhi2wczF/aAOCUyk1rcveT9xwKe2PQSpKRa9Jg6Pitj4zGegMtz51IfmmAuR7XAmljdFWyneIK+qd3Z6+CfFU8BlFviO8k+lyYq0HhzodX/nJSFFR2k1zSczHQkDGhpvB9HLfH9lODfRIF02E8mRNbBXqG6WDfZkjhVuVFHUDsLKDEShkP3h1/uTIqNvPnPLQ2xegK5yFXtS7GzJcObcY7ypJSro9l2m16AtfNT+7kGW56LvIonajlhxDW6BXTp5p2hklsSXFM+F9rW4eWDUfEMTV8JaszObVudV/enX/0TIkIL3+w0I3emHZR/Yu/7wnuGAvtC2EJU7WyQLGAE=",
+          "thinking": "I'm working through which quest to start with—both quest 9 and 10 have talk steps, and npc:0_10_8 is the available interaction. Quest 9 seems like the right choice, but the NPC I'd need to talk to (npc:0_10_9) isn't currently available, though it is reachable. I'm settling on quest 9's talk step with the available npc:0_10_8.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_9\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_8\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1887,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 359,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1841000000
+      },
+      "id": "msg_011CcpMiVkFNoY6CKMceZydP",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1887,
+        "output_tokens": 359,
+        "output_tokens_details": {
+          "thinking_tokens": 318
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_9\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_8\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1887,
+      "output": 359
+    },
+    "tool_calls": []
+  }
+}

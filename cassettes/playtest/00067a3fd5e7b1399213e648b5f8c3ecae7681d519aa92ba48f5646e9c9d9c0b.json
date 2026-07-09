@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:00067a3fd5e7b1399213e648b5f8c3ecae7681d519aa92ba48f5646e9c9d9c0b",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7561,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EtUDCokBCA8YAipAtVYzEZRUW79oNUZ1nzdYwe4CuFdvDkTOZMl7gnlmpgH3CY2eT8xKzAhnzPNthqXp2n7JBskxFiGBeqI/sZjH5zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHGO09/VKn93PrfGWRoMaNKKFr2/pzduv0RNIjD1tzXYJSI7tsHfrL7sc8YTApfngTmajk2ZiwDX32e2BZdbnn3C1xQdkLyYx7POx/cq+AHjI0B7CtIVqyvr1MFocb95MfbAg5ZJ8/gVA8F+Bgi+EDSAmNwMVhRM+b1gYyJGgXEiIh1ejf80pr+fVFHOKETiPutwvgs0o3HzIAtzPjHBpFfbHcIDgWv+pwUX9eT9Z3eyo7xV6eB5bk9nW6N7b2JaxZGMam67EY0lo39SD/V2IPS/duRpyi4h4rQ7AZuBCG2BFxKVVbuG5+8Pg1dQyyTT4WzTXY0I52BLqksoQ/DTcuWa2IfX98g4aBwhV8NzyTmQm3UVhNGmxE16jRu4aYvgxho0Bt5XkeLCTR7yMhAz9Rm4WAlq5BJTrz2uqM+9Qkj5IVnB1XVkUBgB",
+          "thinking": "The NPC interaction keeps returning nothing, which suggests either the NPC has moved or we're not positioned correctly next to it. Since we're already navigating to the NPC's location at coordinates 0_12_3, I should make sure we're actually adjacent before attempting to interact.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Interacting with npc:0_12_2 keeps returning 'nothing_here' — you're likely not adjacent to it (or it has moved). Finish navigating to the NPC's tile first, then interact; if it still fails, try the alternate NPC npc:0_12_3 you're already heading toward.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 196,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 789500000
+      },
+      "id": "msg_011CcpPT8RugBBAfoekZpzzn",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 196,
+        "output_tokens_details": {
+          "thinking_tokens": 90
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Interacting with npc:0_12_2 keeps returning 'nothing_here' — you're likely not adjacent to it (or it has moved). Finish navigating to the NPC's tile first, then interact; if it still fails, try the alternate NPC npc:0_12_3 you're already heading toward.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 196
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:626835c19e680a234a952bc5360108f70b00022ebac0c64b146dfa02c014f472",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4572,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsADCokBCA8YAipAtKpZCoECMFuhEOGRYO/xrsRJ9cshP02yf+7JbYcmsv4tcw9cKep0v3a0SvEpM2K7qrq9kxYltwU6R7dhFTgmNDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDF8Bed9QlYrS2AO8fhoMkqfNM0purxH0HEuKIjBmYDGFKvGWveOdKe9WxbaLumVv58sWimalIWkayb45un0ewxcRxuy8u7anJjbx3+4q4wHyJpCQgwNSIYdQ3rqlibs1VgFbS6PRcdbGRFIvYA76Un/8Iiy4lvIOSMbuhRogjPRBLtnOMtqWZJOa/Ji4FxzSwCtHy5Ne8DRgELK9ZANekPxHR6BsR4J9hXxCLzGyCqFuyfIt+uLgOZ5Rb+o86+efX84YIVAh6/7/Ulm7Nhw405726eo8Tk4PitxcrDr/xVwqgz19y/y/WSbL9C/rYvSt3wcpFs/EZJKDOqAuX3B7xnrz2CoNtlk37Dkn34XV6Rewuj1Zk6qW1hKnyt3OIMtH+s091XuSd5SmChdYc3zfBX+qLhgB",
+          "thinking": "The action is failing because the agent isn't positioned at or adjacent to the NPC—I should navigate to the NPC's location first, or verify the NPC is actually there before attempting the action.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Interacting with npc:0_10_4 keeps returning 'nothing_here', so the agent likely isn't standing on or adjacent to it. Try a navigate/move step to reach the NPC's tile first, or verify the NPC actually exists at that location — otherwise pick a different reachable NPC or target to advance the quest.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 183,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 757000000
+      },
+      "id": "msg_011CcpMdBqqHs2fLQn25Km1u",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 599,
+        "output_tokens": 183,
+        "output_tokens_details": {
+          "thinking_tokens": 68
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Interacting with npc:0_10_4 keeps returning 'nothing_here', so the agent likely isn't standing on or adjacent to it. Try a navigate/move step to reach the NPC's tile first, or verify the NPC actually exists at that location — otherwise pick a different reachable NPC or target to advance the quest.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 599,
+      "output": 183
+    },
+    "tool_calls": []
+  }
+}

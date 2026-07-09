@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e30008a434393f9f55d57b61ce1e63121d63b4151da8dd7e6c2aa9e575082f56",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4367,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErkECokBCA8YAipAwwHqaII6s5Gy1r79yJs6cKx37y7xqtqrhDcFow3kDvFScpYlmGWEbERBwaGrj8ZoBezZCpzY2XjWVMg22bwvzTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHc54PjREEK/j93XuRoMkvjKX434tYq4gf5gIjBxjJn9eu6lB7JvLtrhb8KnpLpPDvSCAjqSqC+fLLDFTHRWUj7bdOEYeJ0JiV6J2MYq3AKGGnKesNUQqlWFzYrubTBuTKP/n8REGxODFqcQRKeKQK/r7mEbVX7pEMfqXtmuEUvEuwAuxH8g9g1eOGopreEt95yfAWAx2UEMdd2pJz3vfI7S3E4KyS+swCVf2+uvZhEOWgKila5QsLS3CHJ5vOVksButqnfo1a5mq8dctwghUafZUjLUGokkzkZM+sh+9bnj28JgUTCpHteSjaXnRIpFUXyib/acGK3oIt8LVls2ehxMP7a7upwOGMBf0x8GJbmZs3gJVFN4At/j69zplSNhTByDi9qK3k79w41mgLy5EYClT9SbkBb6rWRDTac1zYk96kv+jg2r5ebk6ALMKWLN9aloTfx8ag6RzRWzQV0SMVMYU6ZpS2EwlR55ckhN6MmOAtSjaSFg2trh1Sb0pCCyhAf0OzaTNq1hYq4MTPnM6zZkj6vodDjARlA+RRg/s9m21gw++Om7GSbZhacYAQ==",
+          "thinking": "The attacks are connecting but there's no visible progress on the monster, so maybe it's regenerating or I need a stronger weapon—I should suggest checking the monster's HP or trying a different strategy.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Attacks on mon:0_19_8 are landing but not defeating it — this fight may be stalling. Consider checking whether a stronger weapon or buff item is needed, or disengage and pursue a different reachable subgoal target before returning to this monster.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 596,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 196,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 788000000
+      },
+      "id": "msg_011CcpWcRGVepaCLgKPzpC7u",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 596,
+        "output_tokens": 196,
+        "output_tokens_details": {
+          "thinking_tokens": 106
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Attacks on mon:0_19_8 are landing but not defeating it — this fight may be stalling. Consider checking whether a stronger weapon or buff item is needed, or disengage and pursue a different reachable subgoal target before returning to this monster.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 596,
+      "output": 196
+    },
+    "tool_calls": []
+  }
+}

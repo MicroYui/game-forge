@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:aeb375e2b9bcc0428f53bbcd7dc0830fb72a8fc43aa9b1f4cb76a370587459a8",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2666,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpMCCokBCA8YAipA+Yj9Fq1II+/D9WHjJKFpJaGcTSjvcFg6uMOEFiyYcDeCJ9u6ker29CbaRcElIXqw8myz/VIrOxA8wCPm/2Q9JTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNtXh+/sz5jwdIIQZBoMAD906iPLO4thGQk4IjCNkyZ3J5asCd6HSU5nDaK7l9jq6mUUG4mpM9Mtd2gKGZ/qgsmdp1IkxkPTjuyDQWEqN41yh63qus3eBz80GWo/C0/LVCArQrLEfkxq3UBqNG2Tv1fvU78rOy+tlN6ZVp9dEOORkfmCW1kYAQ==",
+          "thinking": "The action has completed successfully, so I'm ready to proceed with the attack.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"attack\", \"target_id\": \"mon:0_15_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1732,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 44,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 976000000
+      },
+      "id": "msg_011CcpS45FNY8EALtXWYDdRX",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1732,
+        "output_tokens": 44,
+        "output_tokens_details": {
+          "thinking_tokens": 17
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"attack\", \"target_id\": \"mon:0_15_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1732,
+      "output": 44
+    },
+    "tool_calls": []
+  }
+}

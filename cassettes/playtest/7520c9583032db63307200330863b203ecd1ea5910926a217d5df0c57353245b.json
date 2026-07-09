@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7520c9583032db63307200330863b203ecd1ea5910926a217d5df0c57353245b",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5759,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuUFCokBCA8YAipAP0hzEY65dqheHXPDUv8LDIfquahIvDvKPek+eUrrleBSeNgH190vPEa7CtbCkoe7ekX4HpvTqmw27+EhwstRGDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFm1GdRV4sX7JzQTTxoMV4gDjxcB3iTsc+CXIjBavDpUBjVuRuvcES8lzME0LlnjQ05CaHLklN3wCX6wKx3PcVSXw68Qk9KAOBCmWQQqiARJiVUYTQh33cbYSCNDYUM6HIyZTFfshPO8Nd1gWGwoR79UtsvbC8xPG57F2DCq9eVpSQLdsqeDvoJX9f1GImgQGw9E2fFZcj4Ko3OsWR2LRmbQPjOkMQdGendfdyFg7l808SZeAYoqFSnNYlIaTZo5V1SIxap3ooR2uXR1ptKPmw83BZh5vgKp8+cqv+4286IT82XF+ZmATQUoS8VZ0Vbd6B92FpRAgicY8wwdE/W33Dx1V0gvIRVsFcI88WMTUfifpkh98RZ0eoXFVIcJcA67ByTdpxvWCDZDgrI1ok3bw+kCVLEKRvAonwfHug7WaouVbudeQAP/P84Y32avOYiVUEXB+X1N+oOMrNAheXIST3vAgxmlhD23n3YuHqhAowCiwNnIevl8pX/y4T3SBB4H6hGFFEF5NOD7FswVONhih5MVKCqVTWaKMSsSGWtINgh7F20pbmP7125M4dYdrLeHlcD8AuPs6+mBmL0P9Y37bwFKMmq7LA1GnNbUkA36TtTzMuM05WOGVz2yOOUsua3sI6cxVEFQd+u63brHLZ8VG2HB/PXUng2SALWytQcOy8TMucwvbMp0dD/f7NxgVRTrGVuQP2OgKhU6BpC6IuIsGX4Bn0ILs9De2Ya1xrcBUbOdjyOH4uHy0EXfTze0BYclTXYsX+YgKDaa9TUK74qhTF+uWhJqOolWGAE=",
+          "thinking": "I need to figure out which NPC gives this quest. The available interactions only show npc:0_3_0, but I'm wondering if npc:0_3_1 might be the one I need. Let me try interacting with npc:0_3_0 first since that's what's available to me right now.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_3_0\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1297,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 243,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1256000000
+      },
+      "id": "msg_011CcpXnB6McCwuvNDVPht2F",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1297,
+        "output_tokens": 243,
+        "output_tokens_details": {
+          "thinking_tokens": 218
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_3_0\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1297,
+      "output": 243
+    },
+    "tool_calls": []
+  }
+}

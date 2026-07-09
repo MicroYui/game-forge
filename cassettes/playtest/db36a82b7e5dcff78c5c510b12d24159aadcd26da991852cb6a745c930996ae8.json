@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:db36a82b7e5dcff78c5c510b12d24159aadcd26da991852cb6a745c930996ae8",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2650,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep0CCokBCA8YAipAcLQWs7u3zoPVBUwq/5fVwlk7P863CWM/vPSgXsG+00PDeEMd55sLFzsTzue66DT1LrKIoE/2kD5YHCuSSBxnDzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDE21ee94VSjmYe3gJxoM9ggypgSM0VLIKGtjIjBRMlSdWEugy+ZH+X7rASpenQBM18wt38rc9orwBbq1ZyCugHjbuxSb4HuXAgu9TOwqQV5jOMLyj0w9evO+0p+4HygUOxEPc9HjV0U1o0OOplL2E1QnUCyK5PiiSCXGbZT3sw09xbpKjTbrUdDx77mkb5S3GAE=",
+          "thinking": "I need to navigate to the subgoal gather:0_17_0 to collect it.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_17_0\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2422,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 54,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1346000000
+      },
+      "id": "msg_011CcpTMd6NjBsuBorRRR3Ex",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2422,
+        "output_tokens": 54,
+        "output_tokens_details": {
+          "thinking_tokens": 26
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_17_0\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2422,
+      "output": 54
+    },
+    "tool_calls": []
+  }
+}

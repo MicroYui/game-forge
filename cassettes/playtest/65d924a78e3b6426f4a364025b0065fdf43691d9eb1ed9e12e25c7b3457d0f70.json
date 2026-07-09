@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:65d924a78e3b6426f4a364025b0065fdf43691d9eb1ed9e12e25c7b3457d0f70",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6913,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Es0HCokBCA8YAipAc/3TqGR4kS+EFjcJ1sGDPWN6ebdqTjk8g+g0b8ECzz82VkVI6p84C1Iuq2sg8NNJxiiMSO3A2P5uW8dSDswm8TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNztq/oVBlmy10Zo4RoMGO5BVz3vQmSE6OWjIjC25JQ0KsISchVvCIPMId/tWw33AyVRfMlwkwAzh4md3cQOcDGGrwhNLSuRJWNbOpEq8AW8KrrTGLJ0TyLiAhW0QZeI18gzk4GIZ/oCdVnmGv3mWlh7zQMgmz2w+vsfuvF4yquZTOGjPeTi8k6Z1zFUcc//ahbcGg0nfSJyDNJ0XnXf13mYwM5mp+RuS3wIwnF0cOpiZ+dixzu+ZYj28gOQNioef2hgMEK7XDjr+a9pB6UFxYMzQhsH+rySwSxbUI5LyGAyjnhV5NvW9eHVtSFHhNL3C1wUxyCYKroIVbYVTuT0J/xjEoE5rytMlbdHkR0uBNhQc9HblO4KCUfHDc1gwoIQIp7FyypGFiDbHw1VfYCfKHwVXmV44LfFUpn3LHlIRXUlbQPLGHQHvfJg7zU4Jf3zsFm3Zhlt8ho98Sh8UTVEPC+af+gQXocwjsHctWvhSPKTxa/XjhBXTTu9PHTaLhLqTvK2lJVSNGjHwJ70Aunt8zrx0UMFPFftCrZ6hhooOxCSuauGixdF7wcWfc0kUvZtn9JX6lKl3izVj2FS8phNJi660aq0RpIjh1/ElBd5FPoeX93WhTJe4s2fQxBY+S2R/vKUMgreExkOGbFD0bcffOU0uVH3YgwzgnWUOtWbxJhJmBudLjVl+9IThI343DoXm+DZOqy0pxU7r7fdRsHEcLg7ojaHOQtMxJpDp3nciYcmF/0p14159p8fQAgmvXYrXCyGssj45qKajGctwO29rXZDdPO2kjJOOF93SR1RgyF8uaFu5Jhp1zV+RnV7MOeoOEXPkSkmnf1HNWaLwMNNtfl9QS+6jxGZnK9807xnhDQK8bqwePUp0A93bGrlYj1WfcPvFyH00G1DBViexbJk6D9ZVuQcWS5WqYgABYwGH+lKwGsDDq5LnRRiowsyXUWyIEznC0d+SOKmIvSwn114jgS14oDswZapp8W4mBMFHjbxOJvGM0soqpk6ay0FMDqYOWEXH5KV0WeimYxfeqkI4rF53bgk4NFx6h2UIlOlsYaAGTFzhd+96dP2yAW+9glcbaWXWlqSeuMwN+DYrwQN4xgB",
+          "thinking": "I'm trying to figure out which quest corresponds to the available NPC interaction at npc:0_10_5. There are several quests with talk steps (IDs 4, 8, 9, 10), but the mapping between the NPC and quest isn't clear, so I'll need to make an educated guess or try one of them.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1843,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 343,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1779000000
+      },
+      "id": "msg_011CcpMPvaD6mLfZHwPUYWRQ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1843,
+        "output_tokens": 343,
+        "output_tokens_details": {
+          "thinking_tokens": 302
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1843,
+      "output": 343
+    },
+    "tool_calls": []
+  }
+}

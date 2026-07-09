@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d35d19c4066b7f37213c14c9a0f6514003eec457244368f67047b6563bd8a579",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2333,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EosCCokBCA8YAipAyo3txz3scKpQD+7QQCUlvrWhcohefzPfkNjGPye9hYIxUFu9Bcz6CO6gczbqohYx1R2UnAobO5Hvq6Y68m+yRDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDL0js7UB0yEX0FpYIBoMYGtrbC05W2ybZM9cIjDKiA1JG6tnoEADn1ldCT39tk0oiNF1VQVuFx4krMAqhoTVnUgNPoZpplq3Af71KPMqL7rE0b90HbvzlD+01qGK9XVIYBy77S0/XMdan2XCuhxcUcdYYTdMVpcMmOkEs0HAGAE=",
+          "thinking": "I need to navigate to the NPC at coordinates 0_14_4 to initiate a conversation.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_14_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2615,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 48,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1427500000
+      },
+      "id": "msg_011CcpR3HHH9FZkwZkxb5GxD",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2615,
+        "output_tokens": 48,
+        "output_tokens_details": {
+          "thinking_tokens": 20
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_14_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2615,
+      "output": 48
+    },
+    "tool_calls": []
+  }
+}

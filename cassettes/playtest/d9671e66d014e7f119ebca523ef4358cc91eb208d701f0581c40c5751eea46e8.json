@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d9671e66d014e7f119ebca523ef4358cc91eb208d701f0581c40c5751eea46e8",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6485,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Et0HCokBCA8YAipAHTzIYA8OLky2AIuXu8/IVVgt/+tJFlALmhnDGUJaXsZjwAlajOV4Z8k01yIcucn5fk0Jr7tRkqcArixNUMbWpDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDAzHh0EhX5ALNQdQdBoMu2yvpWEPru/ghEkiIjCABrfjZKc20hAueXk1hrvgqNlp5P+PzeSbSuJeKvuCm+vZF0a+PASfQ+AGB2wOr9wqgAagaDgRx+TmicnnBrdU80hvbZatQoQ8LiMcj5nzqQICBAieWnhLLV/1Zcr8uMlLq866D+aWtjRW+WHfd+9DaOWxSULphulnwBqWkcNj76NWl2fzAlbvxrpxJbOE/dzWL0CYibX1ojl/mNACx4w7UGoHZEB1Z9B8cM1osmpvd9qQaP1VFkQ0FIG6wiLkueenx//9t50wMJ5/jqdbTXffdojQPPGADvyd9Nj89J/SxwVkBc+CeKtRnvGczTd/0lodouSo7m0hznr+PoppOmFNwMmzFkkR1DglgJCFd8mtkIynhtU/+WrsCAK5QFgiD8DpAGxwqVDtIVov1oos8efLqaPHSkUTvGYsqfMhE6n5/k8qj6BWMt8Aj+cbzyuNjjyLx5RBusvReqS9m/RJUWg58nYLtWki2Ca3fu8IcWv8ffKpG4JjL11dHeHoLFc05IiERO48JIokD2LemjfxywHB19xAvKAa6lcCEM27CaLyos2GcQyUY46XjfBGyRSRqWE+4I454kxvqLFXATSPq9rUVwWBVMU+pWlGFQZZv5r0wLGlDKmF8s8lb9O+X9xbLVHQgRVXaHUA3uw80nGtxtb1/a8MSXHfRTTFXWKmJEPbDKM4rgWPnZwUqnkMWha76i2JcfVWVDS/evQxwpAzUDO16XDJe6wCKFTeCy2Ys7CbWLFssoVYVH70e0Xyg9UC3DvMRYOlCceFUVsjOiFOp7/yQp7UIW75yL4DYDw3SmWwQyYjsSCDEiZwxf2R9PrfHazgyD2/3yPsa3nitwCYb0XlDLsC31o/EGNY+dsLzdZgBWd5hhW9YZjgqgAcDeknOp89WmopcwifNA5CQ6JHSOysWuhTpaKYyxB13UXlPOqFUJffAdU8VAdzy+K87FwHNXNdWVMIaZ44r+0yss9MX2HXr8SbAyxOxrT3SPjSczL1xV4GRb/QmSffu5WSXcmX+x/dd0VoQvjL8jpRTaxfC+BSxQGOvIAH/AJv3j0uBLb/9UfPrKfTsiaJHHW74t+wfhjogDQYAQ==",
+          "thinking": "I need to start a quest to make progress, and the available quest is a talk-type interaction with npc:0_4_1. Even though the current interactions only show npc:0_4_0, I can reach npc:0_4_1, so I'll navigate there to initiate the talk step and begin the quest.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_4_1\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1773,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 360,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1786500000
+      },
+      "id": "msg_011CcpY3CmUgQaGnB1KB4wmn",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1773,
+        "output_tokens": 360,
+        "output_tokens_details": {
+          "thinking_tokens": 332
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_4_1\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1773,
+      "output": 360
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4c1030837baeaaaae90d850a8824e926607ea54a356f629ccfe11b387a469c6e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7024,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpsJCokBCA8YAipAUT5/L6jFQLNIbZAgZCW9PTuSJN9HKOue7IT0A5ACoOZpBhxO/63d/XL7WyODGGSSuAdRLcCkMDhALi0vqgI/jTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDN73r64Lgw9gzNAAqRoMBEfuhNhHR9jPTqh6IjD3KEVHm04itzXFgodgJix/1cSdnjMcPxW13efnf57dfU9BSfsmIIcTIYgTKbU5vZUqvgcSYT27hR/QPAY6ESeCR7lUov76w/c/OZ72uWIYWJdMFlZHevp9tw9GHtHMwqUjf6jql4sXCO67GCEjZsexsy8GydQj/8e4CHlSImOnpUH8/UhMcLHQ08imgGMN5Om23VVVg1Ca3H0huQVPQiHWeOMj6nvvQMZgZ/55v9e1mpGOO98aaQLjs7ZscLGK2xTM9D2T5S1H59g4fi9Jqw0TTovx2t3i2dWz4NyQuQCCVx4df3FHNiVFqqbPzWim6z/rHB2RtsTn1sQwC2M4uwFeezsCk9hfKlcqesPxa4QsbGBzhHGbkRuuq06KRGRHHyLQyTC6hU9XNBFAxK0gmCBbOwztnXYgS+uaEbjPyXUcJE7DiGzJvOVLZ/eYOrw6bWPjha8aGj8khcChpDc6SP1V/t2lLKwUiScI8YrWWTS8kbVzA8zjoDCgjWlvzKuj8MYPsjoQ8/A2y7UNd1C/RsgkeR8GLEzqmbYjntns8xQhaQIJv4LVKdxjGX4QGCpMbWWO1gkGY5AhPwGVPm5P9kedZDIO2BU9nFLztLqlZ6dFAngIw4AQSj2+Sd1+4lawoj1DtDk/M3DrvcXz2tHHy/slJbvQtViqeo0XYqyx+6tvG2txNEsvuSR8e0gzOGalJ7Ql+QJ0mQ1KzAxdS70soxGgwtgPsi9GNLiOsbXUiUz6AWIA1xAgV6UppumMBkKwGge8gkzh+4mWv/6iJKo+Cvt2cFdDCw0MyiJxKNxu5tR0GrNnset+RfakqLE2UhQKmcchHyCZnofFkdUR4oG23yfNGcAV78+eUdexckhkdJLhYIF3qH78e7HnZlYe75pXVCqAhabkNVGJCjW1GUFYPsJRf3aOjcHgXjGvALk5WnBpZWGCDSamfbhR+YbJSbW+xFAkoLDiX7d/CHidBa8M+uihIzwR7RFQnlUS/L3118btsKzZXdnlqZ3CLwI4HATBl6kdo89QWPxyn3XFKFhRmzFTGyMv5YOFFpvEvRy2bViCTfSKt/WcRw6PGYtEoBLPGvdsHaDS8l5hvVmbBMKrI+X53VMDyJ8zFNK2uBvCsd34wRY8HkwWJpExFRvvBfMdPCzxesuTjUhFV5af/g7DnhxfxLzH3DZfM/RTYBsCWBsuiuaQU36LRH2iF7vYGLTNBERs8koLfKg5NjKH2RUMiZgcWjrqH6oFderyZonySsxB7VbuJb10PlJXExms13a0GHq9FxyFoBUmWktY3RTRWI+kTqYSPjKqvhmMD4JOC9LbjiF8mCKsSe1UXP4FKZmu0/nRGAE=",
+          "thinking": "I'm working through which quest to pursue with the available NPC. There are two quests that involve talking—quest:0_18_3 and quest:0_18_6—but only npc:0_18_4 is currently available for interaction, while quest:0_18_3 seems to require npc:0_18_3 as the target. I'm trying to figure out if I should propose quest:0_18_3 anyway or go with a different approach given the constraint.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_18_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_18_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1441,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 442,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1825500000
+      },
+      "id": "msg_011CcpVsuQy26un1Dq26nBZs",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1441,
+        "output_tokens": 442,
+        "output_tokens_details": {
+          "thinking_tokens": 401
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_18_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_18_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1441,
+      "output": 442
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6a9ecfae6516b48de339ebaf9cd90b00980a5ff2962dd1256365bba4992e082e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2729,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpwCCokBCA8YAipABG+yDZ1v942t1hYECDNNtoW+hIC1kbMr9NiCXp5wg41WJETqF8yIqGfnWli0jnLFvv6XoxvqJn9FwLuqW3kxSTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDP/ljkYffsshcWrWkxoMP0QUnPXaVGfzAIFFIjD+IzSTIEVlymfNeqSWhTxgU9VU3bleWPWy9aBJ0XNRsTb/Pt5pzVQkzSKDh/f4kEwqQJiPii2EKxtxD/xwtUOw/7XUNT0VvscQWSTp5XsUhtj2x/g0XWfZWTYPJT4MS66bU/djummpsMpmLhAplnq61XYYAQ==",
+          "thinking": "An NPC with ID 0_7_6 is now available and ready for interaction.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_7_6\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1880,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 48,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1060000000
+      },
+      "id": "msg_011CcpJyiSYtRUKCDvrdSoqT",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1880,
+        "output_tokens": 48,
+        "output_tokens_details": {
+          "thinking_tokens": 23
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_7_6\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1880,
+      "output": 48
+    },
+    "tool_calls": []
+  }
+}

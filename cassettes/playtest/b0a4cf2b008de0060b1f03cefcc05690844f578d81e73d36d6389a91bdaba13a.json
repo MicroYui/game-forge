@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b0a4cf2b008de0060b1f03cefcc05690844f578d81e73d36d6389a91bdaba13a",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3690,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EskCCokBCA8YAipAAuGfhXH7EXqCK0PfVFY1eaq/pg7zZX92yz5zZVP3hS2nXdS83anHs6cW7MkZVa++ifP8FHT6AFmI7QlP7z3V+TIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDP6yPvZ7JEuAx5R8xRoMHPC/xdwj2jt7alaCIjBGpbgSsaPNCd68IlFZNXh/3Zu7xy0ik5adMFczm1VOxgSe6DLKLRR7cEIgYr9Fzv0qbWd2Rk9dFu1U+rncdcBf/vQmhNJyOMVr2OI7n6MlZpyDbG/9k/o0IbcugWdnyniBv1ty/8pVGXBQdOKte0hcjtGOD2+pY6IXZkNLbOhdzLnB2Hvm3TNn88RzEmqZqIn1A2LTNdUCuIjKPQEThzsYAQ==",
+          "thinking": "I need to turn in the quest at NPC 0_13_9 since that's the current step and they're available for interaction.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_13_9\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_13_9\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2038,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 86,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1234000000
+      },
+      "id": "msg_011CcpQZZ5Wy2RUGHrxwRgNP",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2038,
+        "output_tokens": 86,
+        "output_tokens_details": {
+          "thinking_tokens": 43
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_13_9\", \"step_kind\": \"turn_in\", \"target\": \"npc:0_13_9\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2038,
+      "output": 86
+    },
+    "tool_calls": []
+  }
+}

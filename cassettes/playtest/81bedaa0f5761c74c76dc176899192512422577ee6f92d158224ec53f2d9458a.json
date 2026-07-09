@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:81bedaa0f5761c74c76dc176899192512422577ee6f92d158224ec53f2d9458a",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5476,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErsGCokBCA8YAipANjylzkuUB2Q5I/JMBYE4WdRYrQZWEmL8MbdQFx8vzV5FnjhwSF+j4kE1tfDzWCDB0bZGd9XnbyzFM7WIZj+6lzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDApSCYjtvFQDypJ3BxoMx0EH5/93HM41lFDwIjDBNVzwM7bgppdGXHKvtsscM5cHCJ4MDbc4l9ZACWb5JYxVaJyJ4YyLtVuAGTrimzwq3gRqOlBZHW0XniLu4rXdurGSYcwj8H3IbXU3E2hl8MVOYfYWYXeWZ3jpOABJpOh2tS+iSx3i8nz/jzdlKM7OBL+NVq1pspEFNPK3WxSrdLKtOHRk1QyS7s0z1hOsJXP91AosRhwmvRprQswzokBEsHnFtMeALw2LCvfiNLGyUWbL79aIpx2DdMmiTBFDpYBJcHMQZcp74Jb1So7/oA+GUtAxRmekmlQkPg+Lu4IshursFBA18OHznbZowpuJq4/Uc+3SLWoWu1XwDt28ETjtFjlyaaLyeMpskAzolM5wYbyrjww89Zy23uryX9sVPDfLcQQwKoGdgt7NFF3It4tqKxyW9P++k0icbX0NyGoxCqTJmzB4cyOstLiKfKuN1OyYeC5PYCsmw00RXNh6ykZz6hKPlKhMAIUoD9jy1Q0WTgMex0+8rQ73m+oXxE30VciJckytml7Nft/tzqGVA//dL8TzTiOp2t/bYf1JB0wqf9UmFPuX5jS4AtAO2zRK2Fvg/DewIxe2hJZwwTnDHa/B2hh7AIzZpulFYafmKaYM62oiRcFJS9NNHT7oNfRTh3IciDPatpSJb7Y1Lsr7UQXfOOhyqwG8u1MiFjZ6q3vlQ1klsWOsOKEUU5sb6UEZHfYsdoA1XwTdyn0+3Y+X6Mu+V+c1Y0G72c5T0nOvRDSgEGYNuiQk8Y+W70Ndkx5fdgPWxXdO64tLYAmN+/e1gI6H/YWTeF9ENWsTM+wrCzYUbQyW0dr6Ee+UDwqak/jravXnDGKO4Y4LTbZLtVlyy/bTjtXSA4rmb9NeKYh4M8MIRUoYAQ==",
+          "thinking": "The current quest path isn't working out, so I'm looking at alternatives nearby. NPC 0_17_11 is close by, and I'm trying to figure out which quest starts there—likely quest 0_17_10 or something similar—so I can switch to that instead.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_17_10\", \"step_kind\": \"talk\", \"target\": \"npc:0_17_10\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2555,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 312,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2057500000
+      },
+      "id": "msg_011CcpVPHZfdWWuokE5eFMPq",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2555,
+        "output_tokens": 312,
+        "output_tokens_details": {
+          "thinking_tokens": 271
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_17_10\", \"step_kind\": \"talk\", \"target\": \"npc:0_17_10\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2555,
+      "output": 312
+    },
+    "tool_calls": []
+  }
+}

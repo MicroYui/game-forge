@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:57e4748755e20100c1cdb47c05df9e1a49e579fc39d47ff79a96fb27b38aa09a",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5456,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvQFCokBCA8YAipAGUx+zyNlgnSANVOQhzZPo674FixhXv2O4Tpw2rCqV5QaZ15KV5hajeWrR4hhTbzC9k5qrjBKGHEjAihHLtKAJjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMBX1iO8UOXwmsMy2RoMtpzYL4+8i1rHTWKCIjBdEmXH6oAcpALoCfD2kb/k+kMTQQBj/HOSv7nCdIUK2cAc4sT5zpsQdQs3YmqJPSgqlwQ9IdqltTElys3QKSVrh5xHnoOedbzzW1WIUT6pRAglcLocMDDv6Q5uCdwd6vjWI9h/JIT2DmudfSRHdc+TZp6FNPEJo1HxA/USLFySi4FH/GXonjFMn3ZPZPbaM72baCmDb6yiPNm0nIB2RH1h3ZK+XAXKFSb16GomoIxl/dcK8kKkc4aVdrL0FPaUqCw8OUPJKU1uBGG4NmoExhOPCIEEErlbqMLRL1zi0OopbcE5lPCzrxhuQjEDeinBRfcxhXeDXl+XlCCOm/41I+evLsflTjeYGsHKT4mnQ0KU64DlL5KjR00em2/LIqhwWK2pEv7LVxR2t017P9tzYpnPmI1cptNH53a2CAXNvi60NXdoWwbazSAnagdSWXUpCj6H6GmA6OhVZ2Iswpz5VIUyGSNot9nzDpQ9QwxBODnaqVU1NLKuiZb+zEBe9mZey6EsmiMTC/IKIstxJAbDQtOf/XExOhIQ1OiJBsKBwxgfmWnY7E0A8EFjwqZ8Yk1fX3EtJVLFW7uqDhbYyeHwT12zBfcCeaplS2uPib0FECrCHBxJxTyJLkMsjc6UQfaXxOuB79RQux+o4DgGHwtPYVNMloK9gxwcIF1Zwb+tzp/h8FApjVHVuX3XE9BpXwYq6qJq8fkwFkmbEAWA81bMLNQJlX+SI4UEty7paz9VHI/ZlYttQtnZAefqlFMbykRv/oRDMsle/uDLt3hnGAE=",
+          "thinking": "I need to navigate to the next NPC to accept the upcoming quest. The available interactions only show one NPC, but the quest I need to accept requires talking to a different one, so I'm heading there now.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_7_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1780,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 241,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1492500000
+      },
+      "id": "msg_011CcpZNwTeuLgRzWja6rmDP",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1780,
+        "output_tokens": 241,
+        "output_tokens_details": {
+          "thinking_tokens": 213
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_7_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1780,
+      "output": 241
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:dc646f367aad2ac818521178878d4db6e7276c74ddbaee89af6c5214e63ca62b",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7443,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ev0HCokBCA8YAipA3KJU1Gahr9u44iCXQY1NiBqlSn5P5x3VbM4UvQ50Fl6zGIeMEHitd/RJRQzCXptXCEQhg5l28FLdFE+5mrjFADIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDEsBpv3hS6Yf4scevBoMmPoQyiUWvHzABFC/IjDejeutEl1mb9utYsOEpayAb5HjdQVyCR4z+CAc4Qex/rmquAAzASl/el9R8Lrpc4AqoAZMUfOjwoFyOVmIZpyROYEzkzdY7tvBUWGjzJEF6OnSuHnYUtK7aJci1ht/S2ZjLewggsieOgzjn7PuDXqfDbmb84Y2/KeuX/4eSSMQKpPcreygTkxNsU7nwvUuZGGIqKvFH4R1x53VRDX1mdUVAtg2GL8/gh1Tn90jtKUQpOkvq1oFuFGYgTzwYodyN4zuRTqjrURT/oNeAjpk06zbyAyX1zhDtS/mQM91ivSn+q0+mQrIbsvWMUOeZD0yxLekc51uKyz06OsXUXbYYvEdjLsqxlw6PrYtt1rgBon826HXzOxvwEn/d429FBE2EyQvVo2pWCefnjotdWlBO7Tqoz/Qu3wT4tvlPfyjzCUtjGHCe1KhtlJR2bwaToJaGz6PHKlg0MYQuPJkxAeeJYYHVcfTWuunX9iFyfHif1qQwQQV4+E+XxH+n7/zUa3qOOTWRdGEEWX3YEgliTls1i4xTlFSLaqCU/W3rOoZ5/tj5Z2HsvDMjCg4LLo83lzKmn/RJmXF8RWbxDWxaernz94CZ/9WoTHcadIL3Cphlt9ABYuYo3Kn4E9CpltgYaENkEXxOhQSy7poTDvhUbMi7h46ie8zHVIOm5qM40JTGIeWQDWnpQ72/B9Mli8R7eUJStK5tWPzz5euDs6thO9VfBU6mLSGbbDVcotlJSY22xZ5OUVU4ogo03rk7sQvArsspqo1bXV3kmOsG4J+2auOgJzosZJVTxU8Wx505Z8z6d4T7qsEvPWJjxLPlYDuA11fdhzMgH5E16EBGEzWXV8kd+i5FQnnG7rJvyJjq3pBdQ2gXvVLYsCERw39YF64LiabX/QnTihH0iGF+28Qu0FIIzVfdxisoFMwXBd34kkhupwvgsA1jWnl4JARmr/S7AV2Opxnn3kfFCAE7vkexQH2uXQjLMvXLIedpLmZs1KKb4HcnXpi2Iygru5RiZVM6bq/iylhN5PYh1/+maNEwaYKwq7Eo+f3IwwPngEwrtwEj4VJOOffSYQ3+9fQuIPq5Sl6yh7Po2wHvwVEsT6yqDP+BnWM3OczVWFyTwv5Jn7QOg8ovRPCihgB",
+          "thinking": "I see that npc:0_14_7 is available to interact with and I need to find a quest with a talk step targeting this NPC. Quest 5 and 6 are known options, and based on the naming pattern where quest:0_14_X corresponds to npc:0_14_X, I should pick quest:0_14_5 to talk to npc:0_14_7.\n\nWait, that doesn't match up. Quest 7 would correspond to npc:0_14_7, but that quest is already done. Since only npc:0_14_7 is currently available and I need to progress quest 5, I should target npc:0_14_5 instead, which is reachable.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_14_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_14_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2425,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 375,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2150000000
+      },
+      "id": "msg_011CcpRRqRAfpBwQknjP23iS",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2425,
+        "output_tokens": 375,
+        "output_tokens_details": {
+          "thinking_tokens": 334
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_14_5\", \"step_kind\": \"talk\", \"target\": \"npc:0_14_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2425,
+      "output": 375
+    },
+    "tool_calls": []
+  }
+}

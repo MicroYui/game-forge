@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:674e727c2c53f501f7a8fa941bd5ba50b1ce37142cf8b0c2791a86abca78f42f",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5593,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep8ECokBCA8YAipALgplO7zoY0m9HDT68GXB82tTFlZN1GG5T+ZS3RwwCjMfsUYnKmjYDIVz4QG1JDsuYV8xYjFmJ/dyOevpypKTCTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDASzbBEExCjGRFyvihoMXeWH168S/YPwkhJbIjDHptEuwofK1CKBEWrQnNIQrNmdlOrgWa1IaKzgc1BWA5KlEKPWMWbSew5as1/a4K8qwgKU+nThZXnSCV6Ej6ofUXqNnFolrMOjxvrtXu8b9IWTQWAon46mMbcWwaEiFKRkp+I3dNVoezBeLEVmYgVnVcy9jiuNwL+/HkR9VXf4VolbuOhepVj2QuEi6J61aG05sPiRbbGWvU3r+IRDKy+mYJF440EyhNGfNpZjxMscl1hKoKRPOXqNFAHZwDdF5J3jHx/fVotmJVyHoInE2XRF60xIQsANBEz/PUaJ9RtEHYiJfbMkWEgiMQCW1eZPpcBcWNDWF5p7Py9LVghoR6m5wkXjVkOYu9Ik+dNJ0IwnEpk6bPREd35rziIEx0yNx7M5M17CUAH/PxGewZDegOdT+wM58w33JlrR1bkU4A2BSA3f+3isQfZ/ShJDafIVjr1FNQ7eyhhRexi4r7B26/cgV5bdHdGNmuXZicQdZKJ9WLlIyXlCGAE=",
+          "thinking": "The combat loop seems stuck—I'm landing hits and the occasional miss, but the monster isn't taking damage or progressing toward defeat. This could mean the enemy is too powerful for my current gear, or I need to switch tactics entirely rather than just keep attacking the same way. I should verify if the monster's health is actually decreasing, consider upgrading my weapon, or try disengaging to reassess the situation.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Combat on mon:0_17_7 is landing hits but the monster isn't going down — check whether its HP is actually dropping. Consider equipping a stronger weapon or using a combat item/buff before resuming, or if it's out-leveled, disengage and pursue a different reachable objective.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 596,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 205,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 810500000
+      },
+      "id": "msg_011CcpTy5mxqEoVB1cVMeoPV",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 596,
+        "output_tokens": 205,
+        "output_tokens_details": {
+          "thinking_tokens": 103
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Combat on mon:0_17_7 is landing hits but the monster isn't going down — check whether its HP is actually dropping. Consider equipping a stronger weapon or using a combat item/buff before resuming, or if it's out-leveled, disengage and pursue a different reachable objective.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 596,
+      "output": 205
+    },
+    "tool_calls": []
+  }
+}

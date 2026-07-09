@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b78c116322eba9215d672508231fb9ca57485e8ff07d0308f5b514c3536e6b05",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6275,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Et4GCokBCA8YAipAhqBc7Dokf+eclD+QZJIeAwQ2jau5ROY+qmFJoWFvteySpECIgaTr5f3gLkAgpwxNe/NDnY3He7YWuRhEvcnZvDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDB2P2tjlvWTnAuwOUBoMaQoTl2NCeDgHr2fVIjD0KGCFr62ZBsuzexDN18Syz3aWypvk4DJ0oGOr5ZnAl1aEHgfubIuONKpNZ7fp/3AqgQUPC4BvQ5qnWGSid81lm8v6vQ7r9SJSztvpbqvNMFOZRDPA6AcoWazD14VqR8H6XJ+QbhJZLdW4e4sJ5HR0sAMUzxTL3EOwt6NWSNyAGVQjlS0uQdyIiH+EyN1ZMHo1f4dIVUuWCdTKnsrAf1IUxA6ViI94/d2g0O+0MaJMs2EZ0nhwGnNENu2p9lz9sVHybCMGJidCMDK0YmuNwWc3efgpIpEGZfdv5FLprdDv5eCWm0WFk0k7xxVO0IFRcxSEEV1yYkNqJzfNVsWVCWmbCbsbgV4nW8Odq39pAko5FL0ZXdfQ8JzkWkOXodPW//4XcfiFxMnw0KsFI66EW2EYfqFQLenJL7Rrl1kxXohe6QMGoczI+1MNP4+aExYKAoVwV2FCwPXqZehPN8bnbxacogenQMblr9QP1cwrUh0RQXrS/zfTYuKxwMlBRHXu718lc0PqPw7GmGp+mqORiyjFwWsjBffPmr6DK57H3EfQzqhxm5VK8K7kkVP35ponKoCppRnSCBguaG6lrTN6XmCaBcDjzTWy/7ZMnqzS3p6TRUukwhnHChduhmWm0SQfNCGiMwt+x7pfZFKsMrCTDFcT1icVTM+9uRNVNcvuYi7Ob0D91jibduJ/Mr8/pkzf5XVWr/SXM2Iw/jzy2hbpoLjZKfxuOvv/lU+Yu/Di6b0mrLhO07SrvROdnJouJzcpAK5KEDDh+RKqIICaj5adkKMM/wJo5m9PlT/6rAISoFfzIcmDR+Vs7zjJ5oc8YuPaydDBrfrxizX6LrqoKZ4L/DJP8BU2mJeoQ0GelyKBl0CNOpk8Z6auCnL/LdDKcOcwmCZFnMy+KASf1ceAd21nHOuSvgjowhgB",
+          "thinking": "I notice there are several known quests waiting to be started, and the active quest list is empty. Looking at what's available, I see npc:0_8_6 is currently accessible, but quest:0_8_5 is the next logical one to pursue since it has a talk step. Let me navigate to the corresponding NPC to advance that quest.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_8_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2452,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 292,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1956000000
+      },
+      "id": "msg_011CcpaG1ApSidAbVX5Qt1Cb",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2452,
+        "output_tokens": 292,
+        "output_tokens_details": {
+          "thinking_tokens": 264
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_8_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2452,
+      "output": 292
+    },
+    "tool_calls": []
+  }
+}

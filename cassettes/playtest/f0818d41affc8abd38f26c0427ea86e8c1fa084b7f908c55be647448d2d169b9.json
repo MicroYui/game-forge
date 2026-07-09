@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f0818d41affc8abd38f26c0427ea86e8c1fa084b7f908c55be647448d2d169b9",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4864,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Er8FCokBCA8YAipA7f7x6z8QKk7iEPdMV8rAMDczYqWum3b0H7UEyEVtQ0fVkgNhR1hf/OMcz3WYePeOQT915iSUzz5drizy/NnUIDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFgGE/+4lk5FEgptZRoM3Asz1usYt9s+iDVmIjDZDLfIWmcFA9jABeMbtHNNvMm0Dz9uj0b8q10qLMIuf+wjg1Y5XTxr6/6V5ISWF04q4gNTVq64cKmZVPuGCiDt5+KoDjAuZvJDPONJM8kKDa2rkdMKGT/dO8x4i1/mu+oHBNYNz3OwEsAsPHyLkvPjaOeJnIetVejGLAq1eSpgYRvkduhCsWeBQpIyCWGXD5/gfpDt9Jdnj+Sgff7zqhYrDWe4r8oT/QX3TDxR/6ymjK9c+Dsw5Crd9kAezJJh/zJU2sjo9BGUD/xsRSMCZBUip0I/FD49nmny0u3LZ8dpLgBsc0RSJj1uCDKSgvnvDdeMKupKqkwxsHnZtSaDfrymzLv+fYbOD9p1HFt0MtQDVRSZAt1F/OKwi10et2PN2ahm8aKafrr2cCWnC8IJhZmv+YZ/5UhMsYcYW9QKm0yS2KH+JyS8Sp+73tRybZoeUYJf07uIsmS6ci8Bed6bizeYsWZhAFoz2dYjBsBA9J3Sh5vkedTVaa7kIe8yXh2R7dxCJLc1X2r7fWp/WMXnHrSJ3wjljptXQzWDx+Qmx57MOzjTD8RVYs0V1Rn1OePdR1RYVA5Uju2oC7ceZQAIi0YVKkzQnHyAOZNheC8JfcVdS2xCJckr9vLiSIvSOdD+bkg3xAEMiMrgrt1oHmxAobGnZymnULIrT9Va4vIGnXPjlmQ69legKpyvA2vaVL4GrkJXVdmNcxgB",
+          "thinking": "I'm looking at two available quests and trying to figure out which NPC initiates quest 0_10_9, since I know npc:0_10_8 is available but it's unclear which quest it actually starts.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_9\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_8\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1887,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 236,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1533500000
+      },
+      "id": "msg_011CcpMhtyxs9q3uFBWUh1SE",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1887,
+        "output_tokens": 236,
+        "output_tokens_details": {
+          "thinking_tokens": 195
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_9\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_8\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1887,
+      "output": 236
+    },
+    "tool_calls": []
+  }
+}

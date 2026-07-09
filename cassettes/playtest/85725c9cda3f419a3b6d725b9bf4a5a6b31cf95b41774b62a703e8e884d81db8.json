@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:85725c9cda3f419a3b6d725b9bf4a5a6b31cf95b41774b62a703e8e884d81db8",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2628,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpwCCokBCA8YAipAAqPWQ+wKPP5WujIumQ4KSYoCEDJGAIPMT5gLlcZWNIOGiRtXIc2iMTx95hSG7gRWC7ZhazhxpTeNUdpbx1yhnzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDM5niYaxDljHY/+2SxoMXj3bZ988vv5wvmhKIjAP7brh6exEOt5HknzUYOy/AqjTFyOm7R/8t7vvxyJpD8yjsNId7IcbA/xwpGt6quoqQFEJjs/o5f9VZuybSaMHzQ9UP+EGN4BctowpNyL7t9w8/t51dhSCKa2BCMHk7KAhPtrAeXrAqAj8m6zIpKn/dkwYAQ==",
+          "thinking": "I need to navigate to the gather:0_0_0 subgoal.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_0_0\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1163,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 54,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 716500000
+      },
+      "id": "msg_011CcpFGD8Si2YatFQ1jskao",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1163,
+        "output_tokens": 54,
+        "output_tokens_details": {
+          "thinking_tokens": 26
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_0_0\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1163,
+      "output": 54
+    },
+    "tool_calls": []
+  }
+}

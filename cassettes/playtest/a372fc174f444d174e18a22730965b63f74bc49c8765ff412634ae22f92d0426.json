@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a372fc174f444d174e18a22730965b63f74bc49c8765ff412634ae22f92d0426",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6898,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EucICokBCA8YAipAjYgZ5RJVLQJcDkYXsyr1Z716eoQAl11x443i1q+57c5t4TNlPCNGZJ8Vv/cDD+rNvb3HrbLZG7N6cwmL2v4DCDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGHZeZKea4uVQkbOdBoMLGg9xPaJBHgwynecIjD07gdCq4VH+oRUcyT7WvRfFbe/seAHBypj9v7T16glHXXJUMneUZEyGP3ag2mNUWUqigdjy2qz6ZG2ryI8QViux1WbWn8Y5ew10h9zOr8QlKvrtsPxu6bVdkxm+yt240Z383+4ifHM3mbaiBWoassiReJHGk3ZA/cHz7Z2mJR2GWIKldRSqfEcP11K7cAA6g2mntoVAlVhrAWKV0+oLkueMT5arO2+CZXizIwjCAyUOyNAZZmQV7UGbq1dGTiBdr1WW7/+VzopXs5KUXN/9gOPI9r5Rw+tE+9h8ar0EK8Umn/uI74TvRKVIuB2QWcy+wycyGOdXgkqJVJtgWlajCMGRX2Tq3rU3UXWmTmwOvJoIOAkvhMNzQuPmNCZWzNB5zxd2hMRs3Z55AarJ0GiWCx2fPVLDIwSLGNlfsXd4TMqhjJyI8du4kROCgspSwLmjS1zjbcq2+hj+zsoDSA1h4o+F3qHtdPJfcvr1w62MkVkm1n/8dGilPZH8VlhVIjgRcMnKs5pOkxw0sSHZS63ghTPJnDKzmuDqDVIglFoA0y4Rr92BWwcDReeg7j3nKf3SqS1HtBpUi4tX5W8AoK+XLzeprxsvQ35lbLJghAvU7VM5n8VMbF6oEqOJeYUbDF/hhkPX0puVqCuMl0R7EEmjcWHB9bsi6LgbIHPpiQ3czrjeW779x3T3qC55MJdBJr9HTxLFy64S/aAP6ZUOhmie/YvpnG73gLKh58t2aLf7VlEf3NrX3jJds0yUu+cbaO3s+pS6oC1v7Sh0gC+FY6GIGBjD7LdZYJNryi7MIqSTwUvRh75PZ110h9Rz5/dR2sBj7ct6FRUz8hOllL8kIe0aH6nF4fLn4Cps/0F3gDbpSRSCyvqLxfkVzNsUTCQLduuiOHa6h0BzpUvgfibZVlMn4nLtnl5O5b09jBSNBoFg6stnXpvx6Dg9VNmB17sE8ialv+Bm5uz+YRUqgM19o3x91Kqpa84dT3YFyvaFrUQTS+fzlDlhYNYYRiSNdVAGdsdyVbjjNq/uv8+HgY8Gdxx9h3nl4JQ2Kfm51dNScxeMsC8OP7Qs1ZZKRY2oateStAF/KLWWesHWEfYy6LrkUCBpvShXXu0+sXI8wuacKVTXRKuSZBkOiEcYHWkKc8d0YoQTrqQF1H0J3P1a5VEu2wqCJWpsLodJNsIhVQKk8XsdoQnYLtDfH4xF1h1QHP8V+sOWGB0cvESiwCquMpGV83SzQj+2fuiL9F43QIbdj8xSL8lKZgiO4/9I/3z3/+qRVkYAQ==",
+          "thinking": "I'm looking at the available NPC interaction npc:0_16_5 and trying to figure out which quest it corresponds to. I know quests 4, 8, 9, 10, 11, and 12 all need talk steps, but the mapping isn't clear. I'll propose having the player talk to npc:0_16_5 as part of quest:0_16_4 to advance the dialogue.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_16_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1905,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 391,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1930000000
+      },
+      "id": "msg_011CcpSosGmbteAjkxvbKSDf",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1905,
+        "output_tokens": 391,
+        "output_tokens_details": {
+          "thinking_tokens": 350
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_16_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1905,
+      "output": 391
+    },
+    "tool_calls": []
+  }
+}

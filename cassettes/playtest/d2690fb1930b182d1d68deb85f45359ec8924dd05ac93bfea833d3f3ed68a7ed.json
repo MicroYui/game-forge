@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d2690fb1930b182d1d68deb85f45359ec8924dd05ac93bfea833d3f3ed68a7ed",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7041,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EugFCokBCA8YAipAPoL+0Ewlvr+YG8xK/WDUII/BbtK6gI1mHK9gmz4eM/wG+vfRk/YrtLPxkaMqPgYwHvE2LgTjrkcuoBd0oYL7STIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCFoOg9iyvJv4o5K7xoMifmdWcuGvdtb++gOIjAmKKKUgyH1fh/s8PvbEaeVAlYHV6T6cYiyPmzFdpx94Gbd1FrdiTVn2u9X2Y/4g6oqiwTFPuyZAvaznqhuz38pLsreNHXJ+ZNh52Hggj8UcDt+wTazafmjyBmdvG4uG5T2KAkCVL9pWsexdziCEM2ZO6tJixxgq8RnKvXwaufpdjNjzujVYKuRD6iDWfmXO+dNzufEteJxpajff+UklwWEDu+lZoXc49PV+t0Zg2TOqXvOMkhIm7dH8Rk+aXyNnN5yUt+uLHkAoO7kXg5BrG4OLbSABQMDsU/jg2/8xZvBMgPwa4nIu6PhrcXpBh7Ox4T5+zMmt1WKOICodcyp1rABhCWOvr3LC2azRzp4/d8Htv+NjhCib5FeCPxxrE3IwUGBILqC78rAhqlUhZ3SEV9sEl6j8tGw2gaIn5kBLwuIS2j6NUGEgnVCFmPyDgIk8CMv4g54GXRgJydKd7EKr4aVQtJvlwjoxe+uXSgnHQohkCthGysHp++kIsgznCjcql/ZJS6ES8dCeH16zyfgfdc4OioW5LMZpa4yyGOfYigt46v5pc6/M4VBvaTHROg8Szx2iCtILaN/kzIDVzy82+DBRNHHSLxbTLGBuP9j0LQeSe3uhaQ3KHPOxdFD6g2sodnzC7/HHqOTCh7c0ksULem935aXurDNgo01ryammfEOEXGzNgA9jEmdaRdFRIbORdqalhRPkmzCfitAq2SlbuFo5q+AOZgLFMcgg0IvpMBg1BcOCkhllGIHVeFgtNFAGAE=",
+          "thinking": "I need to progress through available quests by talking to NPCs. The current subgoal is generic advance with several known quests that have talk steps. I can interact with npc:0_5_2 to start a quest, but since quest:0_5_3 is already completed, I should move on to the next quest with npc:0_5_3 and navigate there to continue the talk step.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_5_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2245,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 221,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1675000000
+      },
+      "id": "msg_011CcpYX1AFn8BduRdpeF2S3",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2245,
+        "output_tokens": 221,
+        "output_tokens_details": {
+          "thinking_tokens": 193
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_5_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2245,
+      "output": 221
+    },
+    "tool_calls": []
+  }
+}

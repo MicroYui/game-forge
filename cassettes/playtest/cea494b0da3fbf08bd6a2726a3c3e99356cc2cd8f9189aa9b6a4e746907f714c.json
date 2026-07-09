@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cea494b0da3fbf08bd6a2726a3c3e99356cc2cd8f9189aa9b6a4e746907f714c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2493,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqUCCokBCA8YAipAGfGkPaJPhcB/b7GRv/uW2/YleH/rh31TpoT7BCgswhxkUkiNJ51tEWJdphI1WcbPi0cF+lElJxMcjCNcB1OmPTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBWUetJ7KFnXT6nu9RoM50dluPeNEPBbBLx7IjAs6Hnxt1/3NXqtjaOfTJv0n7+A90rhgVgOmGlDOVosD25lR6yAdVGCBvZMwtDlW5MqSSdnZz+qf9ME8tFjsSLB3iphbnL/yHnOhQ7fleW5320DEf7R0DJXkIF+ImqIQYbQnICHPU/GYeSV78bSa+Fv1mDfukw2goN3d4oYAQ==",
+          "thinking": "I need to reference the interaction with npc:0_8_9 from the available_interactions list.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_8_9\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2416,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 50,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1333000000
+      },
+      "id": "msg_011CcpKfhJhZCL1JxVfNHMW7",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2416,
+        "output_tokens": 50,
+        "output_tokens_details": {
+          "thinking_tokens": 25
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_8_9\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2416,
+      "output": 50
+    },
+    "tool_calls": []
+  }
+}

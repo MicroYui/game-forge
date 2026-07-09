@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:dca14aa55348d2b775cdd9de5e8ec56de9e92f4d2778c49a5398571abd6bbc10",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3393,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq8CCokBCA8YAipAcSuMjqu9up4vjWXCkmBEcFbnrVBZCJ794XV9xglWlBcMeiPB+OICZuFm1cXm1CH56Rp3G6VtPuV+z1aOoSOLUDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCVDgQzjJhvDdatJsBoMCpfwUqg/Lm6MtubFIjC5lYn4X8rpnVfC4COk28lR7oPFEkZ35ojMq6Y2gjl8B+brUlAIYdeU9LZwvOB6SSIqU0kNUmD9T6bvSViHVQXRw24RpzCBG0x+ExzX/L4Ow/8puNVRPm3HVX+GwXjnPGfDC8sOm8MWq2Bw9Gn618v3cW6QXeemlNFyJIJ9ntmg9b/vXkFlGAE=",
+          "thinking": "I'm on quest 6 and need to attack the target monster at position 0_16_6, which is within reach.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_16_6\", \"step_kind\": \"fight\", \"target\": \"mon:0_16_6\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1990,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 73,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1177500000
+      },
+      "id": "msg_011CcpSdtQx1gME3K6QtN5n4",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1990,
+        "output_tokens": 73,
+        "output_tokens_details": {
+          "thinking_tokens": 32
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_16_6\", \"step_kind\": \"fight\", \"target\": \"mon:0_16_6\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1990,
+      "output": 73
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:386734bd31a5c08d8f569cb28a18bffa4e54aadbf405f0c4b059a8aa3a5799c6",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5934,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvsECokBCA8YAipA+xE/x3aaz8tO1WXQGy6JftzUCgfmH1zCA/rTCBVNav5nLLFIeNrdgy0cCSp38A6AKf7+vuPhNs38jF6v4PKhgDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNyamlO1gaVRTVl8uBoMCn1Q8W6Uatew7WAnIjAmViqh2M9c6LzOqT5NaoJUS0BN53BWDipGvKiTq9+zD2hcl/XZXEZMJMiOyF0I68YqngNA3+KIPVgXMBnjR6oZ/ANmn9lsS5dCycbneebJ0erlzKKslwOr7SD/skbyHeTQVICWvHrmFG2aFq9N0Vciqtef73X8JCHtOhCuXJ2ln0J/ANfFxuQ3M6Imz3seYRSXnYZEr/Q3cf3TkX35Igr3ZoHg7/u3z9euS55yrHJVuJ4ssgooIfiRayUD1ZNjxK2p8Ip0mNJ3pz3GIiIv5ftEV/yW/Ns3AKvn0jAtINPgnEod6TbOzzbYx2XKoqNGimELyiTdA9wp7F6N2KtjIoc/+05bTygIgkIlVvMlyx0RuiGLgbYTZozidAZ1Nat5MqOZNoWrk5k537WSNkp/XOp9c6iRo0QglZQqSMTuh8HaWk0zwl8guzGEv5yE0zaGWz5UesgscD4pJg8xs9fxdKLBA/GntT6MHBZW3ErQF4OFJOhVi/+MOPOq2xev5G5aaOGIrGLHRKeDK9jouc5AJak4vqUQ3ntdiyNIjbCi88UUcNFjGZzjB8GfwwkmPLC4XYSvzJnMXL7wiDLMSxNs6qJlmc54YHWZYIJpvOJ8yeGUSgoYAQ==",
+          "thinking": "The combat's showing hits and misses but no real progress, so the hint needs to point toward something actionable—maybe checking if the weapon's strong enough, looking at the target's remaining health, or finding ways to boost the hit rate since misses are dragging things down.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Combat on mon:0_17_2 is landing hits but stalling on misses — before repeating attack, check whether a better weapon or buff is equipped to raise hit chance, or verify the monster's remaining HP is actually decreasing; if it is, keep attacking, otherwise disengage and pursue a different reachable objective.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 596,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 247,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 915500000
+      },
+      "id": "msg_011CcpTaE3fEHc1YXL7jxMwW",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 596,
+        "output_tokens": 247,
+        "output_tokens_details": {
+          "thinking_tokens": 133
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Combat on mon:0_17_2 is landing hits but stalling on misses — before repeating attack, check whether a better weapon or buff is equipped to raise hit chance, or verify the monster's remaining HP is actually decreasing; if it is, keep attacking, otherwise disengage and pursue a different reachable objective.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 596,
+      "output": 247
+    },
+    "tool_calls": []
+  }
+}

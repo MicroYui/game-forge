@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5c7e66aff4e04f592211ddc9de09e60df4f592a390cb14ddc2d416586f53e021",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7306,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuUHCokBCA8YAipAu8nPYiR8iKGRgrMXI4GRDn0rM2pqxHoEzdk67gOMwE1LS97xKky3FQu+nnA8I/7it+p+yl8lsGp7aM3cawF9OTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPXt43xGTmwBg7EUNxoM7DGK18nXQA1HTdAmIjCALHq9QKCCmI1dB5oxW4KmNYUG6OYpmpRCD+g090daF7dMvvs22baBNr57KHzjOhkqiAaVOv879LQZ8b/uVyG22vnKgMN3vSD0xVHcw5CMcIMcPLVTxdGo29shZtWIq3uyVa5SqWkzE+IAY1WmYN2OOHVL1jXiSFt9WzPbb31rg91wCGdt/wbvl70+xx1Si+vo7vsIKDtMopgEco75zvp41rCFyx2Ck7R7hjzsLCmQyrFWCK8HaGOxAL20wpe3ESvU4NM1sNs9wTSFyyVLsXnnIivHPFbxylBuRDmt+MYSGEBqfjgCebdtoaskL6vNJ/cW5RpywuMAXACJLIso4P4Rzk8yaatqg0905mN9PzP5A+JQEd3f+KXnB+gKzWYlv33gnpgpDMx4xacUJFIEo727cNUg7YEwDMgU274MmXJmb6j5EVuexJiliAqrZ61JumJkCYSNDzRXXbi9P1YOhmUUdvgzP2w3nw3zZpzZPi6WJx6s7QS9hqmEsGXVisE5QyAuDOC/qP2k/8oBlzJANTI9tlyC/V2hXc087S9XDgkpODa8oswmZ+nisBrwNGxuTx+rJiM06w5oQFDqdai0sEFxeD6PSxJKjg+3isWGeoUjfZjj4jX/R6U0o18SAOTBDG3EXWkMob3Xr4lsEeZb9T9FREuEMzTCwf1p2oeUlkB0Ph4lagwreCb8M5HBwjHjjAt1AzhMHMFH/HYKH51KqglJDuOWoBd+CuQxwUsP2zKGZTlRDZZnjrBgLRBIBqMYaUGniYgmld5QHZiukse3gZabXqFphdDj94W1YZqVt6AnzgicyOEnGaV6yYxxgKplJHqVkrSo9FfCNgM2/nbezmk3QArqqyljl7Kz3efzLcCdxXv4KbW3zt1AyBSDXLkWjq4zp7SyC3qzHwhJI7+8IrBqa8Jt/pp/2pF1Ryoa0KMRygI4HAiENJHHodI5ViddIBw0TWzJZtV7Q0WqDLwhaVd9FWMRItxoc+CVxl1KJARu4/XY9Ek35yiu41js8w3iX0bTR1Z89/gvynuESu8TVZAyY8BCQ1QuJQ1KILlYy7TcjqVpN1n4MaGIpUS14cTfUe4blJuxibxNgUL5ghgB",
+          "thinking": "I see that npc:0_10_7 is available to interact with, but its associated quest is already completed. I'm wondering if talking to this NPC might trigger a different quest or advance something else. Let me look through the known quests that can be started via dialogue—quests 4, 5, 6, 8, 9, and 10—and figure out which one I should initiate next.\n\nSince only npc:0_10_7 is currently within interaction range and the other NPCs aren't accessible right now, I'll go ahead and start quest 4 by talking to npc:0_10_4.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1758,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 333,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1711500000
+      },
+      "id": "msg_011CcpMBvEHGJDqsG38KpyPj",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1758,
+        "output_tokens": 333,
+        "output_tokens_details": {
+          "thinking_tokens": 292
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1758,
+      "output": 333
+    },
+    "tool_calls": []
+  }
+}

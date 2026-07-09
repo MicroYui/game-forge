@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c04a3b33f8122d1ba2a79ed89282e1c992b3e7bfe0726817f758281085d8fcdb",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2997,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ep0CCokBCA8YAipA2EOeVGb+5ih/MbQz+cPPOESMsQ3qeIwUWCFP6gRpaU9Co5FBeV9tmOVyL3mcOMzabX2CrbSGQbGoCRA9T8rpojIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDBc/JyeFHO+vsdtfRRoMSS4kekHFjDAVU6SlIjDzmNsgchK7h1I0kLz5b8S0t6aeAdc6IsZ6G14hB2+VCja9NjLHY7vrzvDqp7wUadIqQUZ8+g8ATt8aOIvePk6lqPbAfnJ8MAcFTKH3fuYcuQ9TdrqQ9l3iNmlu8J76BWVlr5zx4x3AD/pGVkQVnLmlxVAjGAE=",
+          "thinking": "I need to head to npc:0_8_13 first.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_8_13\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2618,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 52,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1439000000
+      },
+      "id": "msg_011CcpLE8Sh6onKqFMXgHKku",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2618,
+        "output_tokens": 52,
+        "output_tokens_details": {
+          "thinking_tokens": 24
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_8_13\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2618,
+      "output": 52
+    },
+    "tool_calls": []
+  }
+}

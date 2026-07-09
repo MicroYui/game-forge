@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:759b101a2fea79eda10dbfbd3bc1c7355084a8dd0f1ca35c4b971eb3595aacc2",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2543,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpkCCokBCA8YAipAi8hOJALi7HIzaMgU63WTk42xjhiigYYd2+fwZatLJhimyQ3QL5oFMGZu8OuX20xknGErx10i7HWh0ZbKpRC+MjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDMGeW9qMD6dvbo6jgxoMwXNtBq8+MK6ZxwNPIjDYMQlsdLSG0BH9pIRvs+wJdSARZO2F1QFbW9e5uo5mqazKRLCqI0w3GBKs9nR2AQ4qPRo9o9PYXhn+0s39JxM59Trqe/NZw4lrz0Vx6nTmmfrjgt9Q2KhWM/DCc/Oox7gDFiW/4tmLC3lyDo6LrIEYAQ==",
+          "thinking": "I need to head to the NPC at coordinates 0, 10, 10 to turn in the quest.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_10_10\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2308,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 52,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1284000000
+      },
+      "id": "msg_011CcpMpuh4wz7BH4THs99Rf",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2308,
+        "output_tokens": 52,
+        "output_tokens_details": {
+          "thinking_tokens": 24
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_10_10\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2308,
+      "output": 52
+    },
+    "tool_calls": []
+  }
+}

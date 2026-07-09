@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9e70fb565d739a44b6a38fb10fbbb11ec935487e997fcd1f50a35509a721e74e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3576,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ev8CCokBCA8YAipAUgg9c0/lN8t48TVmBJl9v/oLq7bpf2UmzeEFH1x6rsfA7kr13H+8WjUNYKlbJIOWvtVJFhWnH1HtiM80WMFF0DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOTT5yKMkWPGsKXUFBoM6YQg5nxd76hrGHIUIjA/gmUmAEXrp91mf/bQlXbYMRfxlsn+0c8OWUzRvi9Pprxv9ryijcLfC5ZAg6Lh7tUqogElbl+f6ZqywxG11ZxElHP+tEvFiCLA2WrN9F2AzXlwcUcHe2fSx7Or4watUXQl/jlGyInW6jD12Jg9FOwr1YdSQEO5DpSvFpxOFKZ6t+QxAm6aJ2AfAAhRFtj8kYT8gH+Ggf1aMLzsPkig4UKpnmG1C5Q2iGar7Ed6ANrLUke1nPhtaMx7BmxCPRK3x5YKLcF4Tiz0Uvau7o9m5/b1Kn1O3q4YAQ==",
+          "thinking": "The first interaction didn't yield results, so I'm moving on to try the next NPC target that just became available.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"The npc:0_14_11 interaction returns 'nothing_here' — that target is gone or wrong. Now that you've arrived at npc:0_14_12, try an 'interact' with npc:0_14_12 instead, or verify the correct NPC id/prerequisite item before retrying.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 600,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 161,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 702500000
+      },
+      "id": "msg_011CcpRqNYa2Q2CYdGtFxYsm",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 600,
+        "output_tokens": 161,
+        "output_tokens_details": {
+          "thinking_tokens": 58
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"The npc:0_14_11 interaction returns 'nothing_here' — that target is gone or wrong. Now that you've arrived at npc:0_14_12, try an 'interact' with npc:0_14_12 instead, or verify the correct NPC id/prerequisite item before retrying.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 600,
+      "output": 161
+    },
+    "tool_calls": []
+  }
+}

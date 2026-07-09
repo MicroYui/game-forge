@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e0dcd85ef5fbdc2367ee6caf27393cc229ae1d51367ac06b0f62bae208d58be8",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7253,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoQICokBCA8YAipAQuKn+6Wd9z/NJebH5cPzgykneJQIvsD15dK02j4IWgNiGAjmKzzOyZR4SUSPKcK50NctwfzRbVec8ZCxE1QczDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDI1MY/RnU3s/G1b2UhoMRwmVE6UZ/q+te/QzIjBAmW6tkteQ2MNJGqQjf4l6r/pafgdjcXkYCZmeFNBNY90NH0y7lLwwLiGd1BA7QBUqpwYL5LsegV4RFA97BaO0fx6AUrvbRBVrhElK61tjt32v4ti8XuRQUvUmYhgUgZq2ZCgKvO1VCawdbSW9L9XLSqoEK0u7PLXCG/cE2IqR5Mf9H1JHI2OsAmVAs1b2tmQdOafM9Awe9NyWxIHF6ZbgWjNqQjjOuSkzMbOspgCE5TGqAgiXMFVNfNasiOzDSk3hMi8VowHOzYKY00yXwmRuRFZ2BPw48BrJgkGBDwE6WAxNHtFK9gyWP3cMCYbHiPRf0CWpGGuBsQiJxOw2ZO2+kdK1u+8+HX5UevEV1mTGNArtgl5bxbH9twTj6dQuqJDaeJO24HqHDLPTLvCRY3Beb0BY+4Fdfd1Hhj5y4nkny8I+Ihdf6PnRiZOdrniMvZbOSkJRFEjgdAGCHdNtwsSJv0hhX+0/VUHzDSxP0mZVAf+66rZUjGbUOrEs/lyuilLuEORPgY/mXEmAZD7YNDfMj6a+1x1norMHesR5QGOdX9b+kKDmuSbplHbn7ybKg059FFuQ9s4P7G3o1U1RvguFCYSD0/tndoMf1SZDyY3uXso/6Y8AiGlSDFqC0p+aHH3LRcC7lla260YdRGFumRQ0rzGiyV58gG3mv18K/zO1Zhb2Jiz1DFITxUpUEBm6ZKFsdNe4DKWIrBo3ocNjR8FdAe//D++GjfdTJw0bbUsnvVzmqQzrRSx0iTTBoLiOj/9dLgfmJe97Pem2tICOyRhTviluaBe06K/HuhL8P7NVB1A3EoqBsO9Cz3xSN8xYs305kQZJN+MSXuX+RNKn4uQCC6+2OuDYFBPaHtxVaLyWHRp9yG5810BZJqRKJdd3oJ9YwFXOrxTzG+5Uf5hUkP+ue3NNgfG5AzKX3J/fNlzW+cmS74Qe9mbR1AAZksxksoNkTF0orMY2hY5Zdq5KWxWs4Lp37KAdevPm87oeephzRQ4g7BP+alUxQdB4QT/V/ElzneB2FuikoKAwpUVXEL9HyAe+ERP9h8nTmhon2X45Wjy3dPS2w8uiHOfU7EUuRavBcqNwTlNUYvF3beju8BEZjZf/uSMXPyqmZd18/hFpnjMlKElTenEKiBcYAQ==",
+          "thinking": "I see that npc:0_10_5 is available for interaction, and I need to find which quest involves talking to this NPC. Looking at the known quests with talk steps—quests 4, 8, 9, and 10—I'm uncertain about the exact mapping, but I'll target quest:0_10_4 since npc:0_10_5 is the available interaction point.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1843,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 377,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1864000000
+      },
+      "id": "msg_011CcpMQhQiUegvJe9N1yfvm",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1843,
+        "output_tokens": 377,
+        "output_tokens_details": {
+          "thinking_tokens": 336
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1843,
+      "output": 377
+    },
+    "tool_calls": []
+  }
+}

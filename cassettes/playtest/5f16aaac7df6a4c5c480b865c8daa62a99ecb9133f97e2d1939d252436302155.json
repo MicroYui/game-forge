@@ -1,0 +1,81 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5f16aaac7df6a4c5c480b865c8daa62a99ecb9133f97e2d1939d252436302155",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 1852,
+    "raw_response": {
+      "content": [
+        {
+          "text": "{\"quest\": \"quest:0_19_3\", \"step_kind\": \"fight\", \"target\": \"mon:0_19_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1940,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 41,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1072500000
+      },
+      "id": "msg_011CcpWCKU5GJ48L4SpAgZZi",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1940,
+        "output_tokens": 41,
+        "output_tokens_details": {
+          "thinking_tokens": 0
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_19_3\", \"step_kind\": \"fight\", \"target\": \"mon:0_19_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1940,
+      "output": 41
+    },
+    "tool_calls": []
+  }
+}

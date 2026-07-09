@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:58ef75dfeb5eae241f7ecc7f4ddedef4e1968ad4293611daaff6892115b0c185",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3001,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqcCCokBCA8YAipAiLXDxA7/X/h4ouk+okg4oXQBpZZqdMnwg3h3ySVSLSPQogSdXsJtEWCBgRZkHnvUnqTPxjMFklIeadBZ25qKxjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCUZ4Iwsg06k9gmVLxoMK5odJtE+HcujEUqYIjDGjPyRohAQIEc06IWKQwmOL/vTJ8sXibXfappR6/9x7eC0Vwemv9jtHNjHKFXHpaMqS+3Wxb/wWoPQ8L6YRQmMzRnQ4+a1HPwV0GjaA4QEUXAqR0bLCQp2Fyi0QoR4v4yh8i52xhMX9wXL6FkpP2wuv7u/MMFbPk84kxEwtBgB",
+          "thinking": "I need to navigate to the target monster at position 0_14_2 to engage in the active quest fight.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"mon:0_14_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2658,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 55,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1466500000
+      },
+      "id": "msg_011CcpemK86ErPKdLhmkrHzF",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2658,
+        "output_tokens": 55,
+        "output_tokens_details": {
+          "thinking_tokens": 27
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"mon:0_14_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2658,
+      "output": 55
+    },
+    "tool_calls": []
+  }
+}

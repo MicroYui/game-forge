@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e4892ea7cde0809b4014108f066fa105c872e2d3b10dadf65c46cd98c605a43e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3909,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EokDCokBCA8YAipAdN12sK08sm1eeUV52XIFnDSwyRxiyQCB17ICzp1BS4N2OJckvvpHcpBpnVlowYVCNIhe6nWYYEP/VvUxGFgQeTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKFywa99Gpi72pBPKRoM3vnjfOg05edaEqu2IjDufTqfK82GsgPQDO51XAYbCbnnLM51owgJyeKnhQxXz7K2Syq8FDccW0MjV8Ic5tUqrAEG56mCVlwuBIsEgKenimCklyqfceQ+v9clVA7zteUJy5r8TA1KTva0ee9zfImLADEUtTdbI9b4zi2Eeetv4R4/pqYRe9pR/aSkTPNCOk7WBIBFFJPAHetvhIjTEClkUIUM1DwsB4yrdG9eauQTzbcm8eSiJcTSueEVO0pfYZ7U2Mcf72pHrkERWLVMoF20IHFdfLjQy/DR6WQWCKPCOd7gMcFkUk5nld52a6sDGAE=",
+          "thinking": "The active quest is at the turn-in stage, so I need to interact with the quest giver NPC who's nearby to complete it.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"interact\", \"target\": \"npc:0_2_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2235,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 94,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1352500000
+      },
+      "id": "msg_011CcpXboDBy2W8tZLbvvTMn",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2235,
+        "output_tokens": 94,
+        "output_tokens_details": {
+          "thinking_tokens": 69
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"interact\", \"target\": \"npc:0_2_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2235,
+      "output": 94
+    },
+    "tool_calls": []
+  }
+}

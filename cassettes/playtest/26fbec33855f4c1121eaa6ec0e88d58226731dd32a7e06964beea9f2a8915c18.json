@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.reflect",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:26fbec33855f4c1121eaa6ec0e88d58226731dd32a7e06964beea9f2a8915c18",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4959,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EvADCokBCA8YAipAOSV1vICpRRUqiAQo4fRk0UgJ1sBS777WFUGV5AmcaFz097W2Cc7WrrHg7QI/cRDi5kZZWSGukR0vwZwwnvy2pDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPT+j7QlNK2tx/w9QRoMkLMzYG3wkHIzPJ1lIjBl4q5TVzp4NFGUcBCjdiXqtCZHAOuAggIHTggUZiHcTddRFGDlM7yKfIFpmef8SJ0qkwKOscTqP5kAKjGaUP/zws7Eiw/kpcGwqwRnRLa1o6n1fog4pki+gIanJMoFVGxpsO/Srak8pbAoi+7X5C8cug9jcYlreg5Ny+EZMDIGoDhavIOxuqFBtAeAsj1hLWUZolwl8qaa5jy77b/FHO5EabIGNF4GOXPvQoXP9hXTdr+mhZALkQqpYAitU9mjveXMj+6ftUd3TsJ3y3eF8kY4kX0gMFJfxhRpjznIZGlSoQsiI+b+C1Vx1vshLA7XpN1Bm/Ar78mAlcv9+2j1F+VqlLgUdJhnfEUzfL5u2dlvLGfNWWcnlFEdgdCJxF6d7bRYSADDVsqY4oKPmibydb6zF5ij3tP8xwe7nU5Ct5AMlQj334C7khgB",
+          "thinking": "The trace shows the NPC was stuck trying to reach npc:0_17_10 for several ticks before a new target 0_17_11 appeared, suggesting the original destination was unreachable or the NPC had moved. I should try interacting now that it's at the new location, or consider a different approach altogether.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"hint\": \"Navigation to npc:0_17_10 stalled repeatedly at 'moving' — it may be blocked or the NPC has moved. Since you just arrived at npc:0_17_11, try interacting with that NPC now, or pick a different reachable target instead of re-navigating to 0_17_10.\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 600,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 203,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 807500000
+      },
+      "id": "msg_011CcpV59HqAJ793z46TgEyd",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 600,
+        "output_tokens": 203,
+        "output_tokens_details": {
+          "thinking_tokens": 97
+        }
+      }
+    },
+    "response_normalized": "{\"hint\": \"Navigation to npc:0_17_10 stalled repeatedly at 'moving' — it may be blocked or the NPC has moved. Since you just arrived at npc:0_17_11, try interacting with that NPC now, or pick a different reachable target instead of re-navigating to 0_17_10.\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 600,
+      "output": 203
+    },
+    "tool_calls": []
+  }
+}

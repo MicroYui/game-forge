@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:83dcc1d917a69507d97407a3b37dc68bf295ae253a1a4d81c326857f13ed5859",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3273,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq8DCokBCA8YAipADQlOIXVXuWVrV1qJTlRfKoBJhpeSJUfgLnaCZY9Bvk4bypk3ZxSRRHUlH4O7hI9JNZcBgnrpBolabTbxNPWilTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHAZv/h+BHADqbxxpRoMosgdPzh6pCG/l65tIjAlgEAhEoQhhMJoYULIyaeIkcD+HESqT8KohU6ciKbft9Vj8Wg5nCpksT6SZEEHnSoq0gERiwd5r/mhKr+TG0I1GFUexdWUPwMAxtozlAzOii6OQQQvKXFMNcaNiHXbwAJkLqDbUWqYiixzvmXAN5YSXquFz5qJzLBSU0FWBqBNCyCHko9fiZPZ8vPIxPbE85R9I9JeNuuv+oYwdMEa9XeyJRaym57Ql9HzfAeJGBkzTBeHXsb5pcmH0C5mM9KQHH2R7kmcG6wbK3mkDIQf6Jlh1o+vUP7mH56lHhJ7Kgx3HNbarDVh9U/2RjM8fwcV6q/3/NIMZTl+sFvLWnhXzSsA8JIzHzwYAQ==",
+          "thinking": "I need to navigate to the nearby gather point at coordinates 0_10_2 and then interact with it.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_10_2\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1993,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 106,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1261500000
+      },
+      "id": "msg_011CcpLxcSboJNSUKyiBjfUB",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1993,
+        "output_tokens": 106,
+        "output_tokens_details": {
+          "thinking_tokens": 78
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"gather:0_10_2\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1993,
+      "output": 106
+    },
+    "tool_calls": []
+  }
+}

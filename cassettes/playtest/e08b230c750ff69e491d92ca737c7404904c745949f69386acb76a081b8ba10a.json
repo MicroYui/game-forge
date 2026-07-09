@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.executor",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e08b230c750ff69e491d92ca737c7404904c745949f69386acb76a081b8ba10a",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 2655,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpcCCokBCA8YAipAd2z31pGgV/7EG6gKy+FJQO0vDKw/A2X9hAYErDZbXiP6HfUmaqXsFopFUo9xT9ec7fe2E99j2xXwAkILAzLt1DIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDCEZPUfchzYrF9XdhhoMN1N+mQwnYNBFi25sIjDlDKjJHUztWTdLYX4LM/AVrG1pGAvC8qRIAVtf6ns81UNZE6A2S17teZO+0PZkADUqO/rX64zCIsl9IoaDssJxXlD3f+KryaBw4H5pYKJfqigGgyszeM2Ao1hXpujViJBVPDwbZBS1XOvFI6GRGAE=",
+          "thinking": "I need to head to the NPC at coordinates 0_2_6 to turn in a quest.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_2_6\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2334,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 52,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1297000000
+      },
+      "id": "msg_011CcpG8YxCMqg5sdwAV9u9P",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2334,
+        "output_tokens": 52,
+        "output_tokens_details": {
+          "thinking_tokens": 24
+        }
+      }
+    },
+    "response_normalized": "{\"kind\": \"navigate_to\", \"target\": \"npc:0_2_6\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2334,
+      "output": 52
+    },
+    "tool_calls": []
+  }
+}

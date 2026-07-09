@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ae77ea679cf7f4542fa7d70cd7b9108a17fd3995c17b8e429eca8d292f0f2ccf",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6637,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Ev4GCokBCA8YAipA3weyT7cwzzP/iG7EmYuXz9JqJNL4smTA17wm+WT3G+gvCTXAx1JaQCImqf6AQQEjTiwKlwvFp1yyjpF2edgSKDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDK76au69qxocmewzKBoMxBhMOvM2TlX41BrMIjDeu4yCdsvT5qQK/o31xQDapn8lUDkfjI56hV+usXefE1Ali7vOjF+Y51wAazIEEnsqoQVjJ2zqcSBuqKzyWNVd7tg4CwKrSRntczzznWDkPmxOnAWyXjLdbdvIrojVlDKWFTqzIGWJfUcflxOg3OWIKml1mRb440eF2++JRxLpmU1M/j3nQIr+94h2UGE1+9wFJJpyY8coiAm7XXmWaMZYV/CPFzs/KKV0/wIFfCxYBKzflNuTV7KfCbhu/vjoSVKCMu4OB8xbsDYJWHleppU1QoK+3pg2/RMj9NNx7oukyMB6gEcNxRuSCJhg/K1sN+o3qygw/IgqSmcpfznZgp/Qj42V/U+NwEa6N/JyT6rvA5fj2l9qgIVmiKjE0SHEZXYY8ItB55U+vTylv1fOjZIts68l4n08/+eI/yrajEv+zP4+8CQgmdegobR/hG8/dny2rCx7YsOVa6qYVFmxFJ6ctCILSsOAH2TlANI757KpYWCs2ZGzQuSYUsjpo/xk1fNw4shzZJ8OMCkQ1XIQh882ZToKqiwhYyiiQo7FNqKP5M9Y+dcE5EXT3Kz3ODTkm8+ZVTCugzb7ltZKltxEeKRYeTaycLsLT0gTfwhk/aNJ8vYo1VVnRrro5rHhx7enQPT2LmBiN4Xtb3u8a9pgalq2cHZ2MDmqXBaj7W49QJy24QOSHddk9I6bBjlvZUu8G3H1dnnyRBR0DQe4J83RrASn70afKMk/y7ZmiMDtNZiR1QjbAPAaqtL+ZhWWbUXSLLeKbsRyRqPZoQp9X30rGBRE2mntJ5QXs5QJ+vREviziyYcAShbebLd93W8GTJeaTUQzE+pGoAUxyttdpnB/+ldu/nP4usUkjZlo3s7c/cTZWhRm7Tq458Z7Da4jU8G/tHcItA+s3tQAzjNEQ2kU8o9p7YKTNGLTp6AcXZQ7i7rdCqt/5UYpEDPmZtK4WTeBr81zSlslGAE=",
+          "thinking": "I'm looking at three available quests (8, 9, 10) that all require talking to an NPC, but I only have one interaction available: npc:0_10_4. The challenge is I don't know which NPC each quest needs, so I'm trying to figure out if I can just propose talking to npc:0_10_4 for one of these quests, though it's unclear which one would actually work.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_8\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1853,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 304,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1686500000
+      },
+      "id": "msg_011CcpMcUtEks8dT6uLrQP5z",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1853,
+        "output_tokens": 304,
+        "output_tokens_details": {
+          "thinking_tokens": 263
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_8\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1853,
+      "output": 304
+    },
+    "tool_calls": []
+  }
+}

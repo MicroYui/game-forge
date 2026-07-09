@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:90775d416001ad268aea004d561701d26a564028e5369ee9bec47774b80f334e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6647,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpgHCokBCA8YAipA8I3h1H/bhLF747cwxWUnEFFj2AHL6K1P2aNyO4kSJ1/fhF2NBDmGJiD1U7KhlMfUInwIVg508fClRjSUzg+9HzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHa7oZDxIOn+mWTdLhoMOOPO2hudA1oDkr7KIjAczDH599lVEZ/zwApg8hpcUQYT/2Q1eBvgda6sKItx02LANP1L3TNIrHOP8OiRVFwquwV5hzQ8Q1TVDRtKL6gpEC57NB0OXk+t1Y2F75eX3A4TMdxcadZZIpzItPo56D7j9iLBP2a1hlVD58OAh6Odzw4XvRkWSMpMi9/+wWAzm8xgRtCtPiv4qFvtgopIoBkT75fkNsjVeh/C+sDk1osmr1BDOp/hwmQ7ThDL7F97HQHF+8TcEXza8MEcSGbkkD/CoEj2CiOTE69EGRvxzGi3auSV3bUT6SaTiWSJUCGaa1uySR1L2Oexk5H47pa/QlfKibCw2FuxDjD5GeXxCsjMJSZ96ZQJ8iT0rakrErNoNso7OFqXZKXNF720aAh85g0F0nqlfRTJEABY1NzevkRK0NXcU7XdLkMA6WQ+oNOtyQTjtRC7WweBjnvz2zYLMw5UzRe9Qm4E9pmGCgL7o1oY2ZRRQBYQQRjsdFNDK/6/P5HUMcPmuZ+b8l7yH8uHeho+s/FR+mFeQg+o5P36ffz3p5k6Pb5PwUTuW7Msx0FynVazt44K/Yz3ecY6x9kI08x2NNnwEMSw0GdUkdXXCu5AW8W2YV6GLuiZ9StNLPEbVZYEbp5lVdJw+9hh5UgLJgpJGRuxf4AI3ClfU1ttEspLkU8f6ZKUI+pKg6SjD5+TDkxJtQRFkk9UCvxlvSFfbzXUDeYSnrkCkpZHm9uf9C8d2wuzG4/tAXMjSGXAHnIUDJTBQ9dd0pT2fqiR3MdcXgifqVcrj1zQVGmag19kxPmtxs4SLvam/Ndd/LI46Mcn/vJ6FQFDlrPIJU5h0uwxFU8t0Md6Ceh9bU4Y0lyjEFjLgE6xxdseKKFshEfLZaTIw6PjI3JOe7mA1gjbt17+XgSrqTOQfSvnRgV62/wFGqbkMFOOa31wJRETfi3IZsWNs03fmAnzekJUf6RqvTJ6DhpAIYIZDKaat/yShTQgnyCfqaKtfdtkoQwaqBFtdcwYAQ==",
+          "thinking": "I'm trying to figure out which NPC to target for the quest that starts with \"talk\" — quest:0_17_9 seems like the right one, but I'm uncertain about the NPC mapping. The nearby NPC is npc:0_17_6, though the hint suggests navigation to npc:0_17_10 is stuck, so I should probably work with what's reachable instead.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_17_9\", \"step_kind\": \"talk\", \"target\": \"npc:0_17_9\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2569,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 335,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2122000000
+      },
+      "id": "msg_011CcpVUUS9tycZ2TejbXuLW",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2569,
+        "output_tokens": 335,
+        "output_tokens_details": {
+          "thinking_tokens": 294
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_17_9\", \"step_kind\": \"talk\", \"target\": \"npc:0_17_9\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2569,
+      "output": 335
+    },
+    "tool_calls": []
+  }
+}

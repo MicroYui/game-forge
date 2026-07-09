@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:317e606d308b82dde1c0b2e83b61a4adfc5160c63a176cb19ddb6f718f1bb24a",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3608,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsUCCokBCA8YAipACSN2bLbiMv1GqrPZRbGMVwZKJpMb3N3ofTAfxlS5gtiE6hjSZ1O1eGxk66nrZGd8r6P8wTLpBH7IDqxeElZIoDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDNt0zhmshRHUCxijihoMUX/6C0KXqU0GYZwkIjA6SOC1ClaALAmglncJ3o8f2rGvUvNBSLi56pEpaEfjQ9pObF8jPkleSwGui3TulVoqaYlqzIqJm74gtuYLeM7yAMm9It+Ff36gaQiq6MXZ/UE4vGWmvt/RBkzgrRA6fLQ2P/Cnwkb4gfV7h621SFnBx5lF1DbZX3E9xUsUz9O/jb7YlTR12vNOXo3Gja4cTSpU0A+eNSyL4i2TiRgB",
+          "thinking": "I'm identifying the next quest to initiate—quest 0_19_3—which involves a dialogue interaction with NPC 0_19_3, so I'll set up the conversation.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_19_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_19_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1807,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 83,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1111000000
+      },
+      "id": "msg_011CcpWAKwJ3PhJmF14FCxEX",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1807,
+        "output_tokens": 83,
+        "output_tokens_details": {
+          "thinking_tokens": 42
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_19_3\", \"step_kind\": \"talk\", \"target\": \"npc:0_19_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1807,
+      "output": 83
+    },
+    "tool_calls": []
+  }
+}

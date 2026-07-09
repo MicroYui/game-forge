@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f133ef1ce416531e29fa41a9f64643e34f653f6d3ae41e6b9555a0a040df7f94",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 7445,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuoHCokBCA8YAipAjXNhnB0fMCXRg3YhzZvzTvsBp4rdV2cL8o9Tqmf2f7OGCkmaiq2AJeo6EQ/OqSgBXjrETne0qbL19+ibd87Y9zIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDK50t3gjILNQn6GioBoMA7MA9DK511dU+HudIjDHABr0TMACHpDZnzOarT5hyXIAxOlf4D9JUNSeScZKPTUoSOzQczrqx3OC2QbMhc0qjQZ36UmXES9Fb1YNnhgYJXWjuHeFHwMHT1lg04EEhGjSPvkhR/sOIDEcj2MaIWC611HWUQ81bZCKh0Cho4PLTSEV87Ta5ktVCJaGzM7ME0Et3kn79wMPG0Vh7pNAoslylmxir3f3uiKZ2Ewz71ENmGOHPQC1P1LMgzt5BsYHjfaSJIWUCUBrLlxnJqHoND9TZB3GY3u6OfukZqF0sMAjBTNRomuuZ6iEZoph27ruYVktYLcGkBEf7Zx1KgIJiYjCr2k0ei1j1z+zHBB6ZjFwK5VJUGhPD3sj95e6Vmz7Pas50gFa3qz+UNaHkZtz/Dv0IQiMDcQcFkpexI5C0qqpcOOjhaJWhdhxGuE4UgAEOfd3E7EpiJEgFaFC/SaQx1q2WD3CIiaDC9RxGBnu//f5cXDP7imId0jTndNIFhTeXMknURoeQ7DUc1SXgq4+sO99HzDrf9rEaP7GjmR7Ce2Sk3DlcZZOaTfpAVr7ds5LAGbMK6MxhBgEWde7PAptjtOjNP1EUCHT7NJcbFtzLwyB0ifOT08aPHd6EKtw7VkAL8ERMcBjTGph8EpGUjlbScXs/Ve/w/8cyn3AnInIkQ401P9XtezZWxVymz+sqcTHLiUpnuzDW6IRs4OsNrlvPjoqwdu+8vamcJafExdaa+vj83fWIzs0iAmjKKuOgC44884Pf1gVtfHso8FD2mo031JzLyctG2Sxc7h9vhkLMNfOmRW9kU6UoQrPnKbtH89q6KwWFaKDrKmNzkfEgPtvzisDihRe0dX2oAXx2YpERt+wzUylefGxY7F0tdAbktQphYi/PJ9X1LHlvsE2KEnYuk6vQ0Lgu4lIeGceDe8RT0hw1Y1u4VIKZbo04httrpsiQJ94X16cGzdrIZIfjJ2IBh2FRmdHyyJmlPvJ4/wkUfYELblBL7g+KZxCxmhaPX5yErc3LD++KEDFAz9ofqZ3BvhbbynP2rXB+XVwRVDn4JmfxcSgcDlVFZvGaVN82Q5E0EoOFAGtC3FJRcXtXtnSCeIvVWc8h6wTwfVEC+9R+ACNGAE=",
+          "thinking": "I'm checking which quest corresponds to the available NPC interaction. Based on the naming pattern where quest:0_13_X talks to npc:0_13_X, it seems quest 0_13_5 should target npc:0_13_5, but that quest appears to be completed already. I need to figure out which of the other available quests—0_13_8, 9, 10, 11, or 4—actually uses this NPC interaction.\n\nSince npc:0_13_4 is reachable but not currently available, I'll propose talking to it as part of quest 0_13_4, which is the next lowest known quest.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_13_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_13_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1933,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 361,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1869000000
+      },
+      "id": "msg_011CcpQGKj7rT4ZHKBU2UySs",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1933,
+        "output_tokens": 361,
+        "output_tokens_details": {
+          "thinking_tokens": 320
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_13_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_13_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1933,
+      "output": 361
+    },
+    "tool_calls": []
+  }
+}

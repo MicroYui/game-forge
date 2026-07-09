@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e526828403c4457b68e2fe59fa1fed5972169e71a3dbb244cb28e81af9431847",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6835,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq4ICokBCA8YAipAJpQ2xrx/mojE7JJKR/WvOb+gtynbvtH5SioIVet1h8+HveW7ew/Uc4PecokhHX7LjeTdss4dGmmU8YbkJAibuTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOwd6O7JtCjTq2LjRRoM7+ML8JDl9OdphagMIjCiuCWBlxRK8h3Qv/8Zd928OsJsKlCEFBLh+RPyVuNyL0P0m6tijPLvc0YbLFR1YHEq0QaBgnlkK6YgV2iuI7NIi5+loZvfN9WLUX2+PoOQ4wOV2SF+zS6Jzkc1wN9udq3OpoEq6/s0Vvt++eLgFxylAsZ4aPv4cAMoa+xLA3lsg+1NkIstKdJJdBmLPnecSk1GPVnJJiyMJvuaj16LkmOq2AmGtkzD7aJkHSWb+r7fnHY49DpIofNfzYqCSazEI//oLNt3ENnEau56LB36B8CDXu4s807yXK70TlHDOuVEv/xcjZwcIuIY9HO7+1E5HsY6QVVeBbHMUqG8QRjEYV3wDtjp1yF4OkHG6JfoolUH46moNtZGDZjREnF+hzbAIgIm2Z2UZaKnbha2fKwp3D9VGeOTKYQs0EtDDvPeRmA48+ahDCa0YDKQHcn3aTN1ZBHSel15lqr5SJBeComGlmebvPLf9thBqoVYUiwZ3ozz0oEGYJCd6KW9l+gtKN+yccEoISgkYSRWG0wpFOgKlx9QP5+EZIjR2OCk56rikBQz0uGOB5j9v5jMoMRlD/WWGa/Z+QeuJfVbarqZFlnRKNLAUtU5ja9f2U4mbbs3pJuVnr3GnQYS0FKA5mJkTv86cZc9vJgkNQ34VFc1Ioj4YCfQl2ZbalelD25v4/uyXmMNnm0V99cR/leaMIcBk4T7hjccXrEh2LNA7+lbiRkgZlS+xN9ZLRk/D1Kp0qZ4RYaKujDz7Kv/kp+6DYQyfSrEto3cShu/tvN8VVOZ9E8eIbSxVNuKe+AtGUF2ad92BLOVh5w0xNIP8ek3QsGXzU8rn97OR8JbgUzejTJrPFQ7V5hyKsDFDWhUUwe7HubbLt0Vs4YgX9KzYpOFxMLR5ca5zBor2B8nsN7Y9780v81+uYng/RABCMlBGYSXCLu4eJZk1ikPtM1WwJmr5opuwUM/c8Hx25zdegfZz1i3piKiyxb57OTHDttfZ2+caLrCmKf0a227LTPRBcIjqTYwvsbDQgu61ntJFvo5XLeofrGPfU4yqHZwfCqOJA3rBtXCITJDkhLJl6UU+2oRJ6HfGIaAjAE/CYkvqXQHmIXrGFzP9YGcXthdQDeqosQ4ozxQvwmdMUPt/Zo3BOoPav+G55OfNQu7FG6oc2Q3A7cslQ4nfH2eMAP8pkFU1b4JFdyram474beQVIMYAQ==",
+          "thinking": "I'm looking at which quest corresponds to the available NPC interaction. I have several known quests that require talk steps, but I need to figure out which one targets this specific NPC. Since the mapping isn't clear, I'll propose a talk subgoal with one of the known quests and attempt to interact with the NPC.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_16_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_5\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1905,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 388,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1922500000
+      },
+      "id": "msg_011CcpSqA3rWM4iLkbzQ7W26",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1905,
+        "output_tokens": 388,
+        "output_tokens_details": {
+          "thinking_tokens": 347
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_16_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_5\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1905,
+      "output": 388
+    },
+    "tool_calls": []
+  }
+}

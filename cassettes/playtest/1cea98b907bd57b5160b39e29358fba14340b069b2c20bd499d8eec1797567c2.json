@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1cea98b907bd57b5160b39e29358fba14340b069b2c20bd499d8eec1797567c2",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 9855,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EoQHCokBCA8YAipAkPA868+OnDMKptRMCe5UL6CTTNmesHpYyxmBN9IHM1rSZex7VALiSxfQk1T8dQYK7VGI5PeLo5YGauTYtssStDIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDOxgzsii6OpVctuq6hoMQ17xwMNmWzzPXMpfIjBLe+0+Vl6WqBMsKSKa6pXrlF69N+/b2ociFo88K5UiRmgYJAAbSZVQFo8hDcCbTOgqpwWHYsua6RYy/vXHJ9tcvcghqL4Nl0TquqbnBJlYWIlPUDaGkIxD7OarO5JYQVVPmoLHWKK1VZmeut4K51y/qYr2fxrwNMRHu3Yr0Qpc1o+zFR8pys9lZ0R8y4YQB6C6H8p3tSRV8XA4GOVbb2O9U/A2tcj5DwnjY+GpiyFpLeMZIQT21Py4Q2OiKelYkZaypQj9bGy1f8shE9p45it6yJuqeUVwlAsIbQyKB9wiJiAdIWdxek6fiGLipoNFQJnu8IB/V5YrYaDs+cSxXcNo85LtlCsV+P5aTxGBqDZ8H+gJX45RXSbSynDWPiEWDC4H4sw5oh81kH27eyZGvJKQLg1Tl+6lZszzrJdCBPGCUcAKl258cLdwcP/PjQ4TUbAMKgVNq7a24zISLApfdlaVuW+nxdlYVY3Yw9jt3bblIq5EvGOIhViXAfGKa6AJ71GG3geSOs2UlYsg+7mG4j3QLfDoC0iCUrJPkzCHslcGuV43DqZLy2CHdjVUaET4oC8IhqPlKAhAzzWyUCq+g+ed2rGObBYEw4s+R9w6A7cYBgl2XY+NpCp+LIBzwltcEZOJklK8idOTRo7FhOgrlUK0bcx8bysnSx5O1vA+OaNRKS7h5BJSAVgdh1nlVzZqDDCV+1WyjO6/i8Mo7hwWkOLNddK3xnokhY7CEQNd8zt5CWWgjtiguCqNzlsyb05qSBleI1C96uR2SmXLIbb6Oh3VhVN0BWkfZh7z1jNadXrIkFhc9bVQyUF0UaWugFPqGa3TlkSxafBjiBekpMc1Eewxlb79YgXsKeHIKUSeXmN7ADleNRcKNXS6TMCLAwhKhTRXPohbNluEX2WUmjPgWTyARCVR4ZqNlhwAjwQ7c8jD7k7HFPOPcI6jtOz/+4iCxH2uVaMM1hRAjMesGAE=",
+          "thinking": "The quest requires talking to npc:0_16_12, but we're stuck trying to navigate there. Since the NPC is in our reachable targets, I should try talking to them directly instead of continuing to move, or pick an intermediate waypoint to break the navigation deadlock.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_16_12\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_12\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2178,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 289,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1811500000
+      },
+      "id": "msg_011CcpTGsf6ASu922yJDQV1q",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2178,
+        "output_tokens": 289,
+        "output_tokens_details": {
+          "thinking_tokens": 248
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_16_12\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_12\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2178,
+      "output": 289
+    },
+    "tool_calls": []
+  }
+}

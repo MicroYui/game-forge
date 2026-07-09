@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:964c91a39977af9d517c3a31c5250e54f6c96925f7bd5f9418e5fcfeb54ed3cd",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 5527,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqwFCokBCA8YAipAXGGED+mustkU+aukYPSPuyFJ9Oxgtgj7w+8BxhlEdY/AshV8N+ofra3TDt1ffYNrhzdSz/E0p/i1HXUR/PWzQjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDP8uv7NXNj2BWkQJhBoMNIeu4pVuy4gThkiOIjBCny6GwZBZn3AA8pdoPQXBEBAN+1umz8jL/PmQzs9tMyIw9qKmGY0jrU3WkpIFrd0qzwP6+J8xcayHhDmHVIaVtxaiD9JfDVn4Us702qV9G9NEO/At7xmbDiFLvJ7n4ndfliT9UZ9wmOtNr80PeGtEmA0FljKOnL7dhlAJTQBWFNw3Hc8vtKiePo7rmBzlHEa3bVj/dB9yLp1zx4CYtYTorR1iftzpaik0jF/HPO08MA1Q4Zhr0x7HZn6utPqS0PaHUZkU2CZiyzTvSViU7u6pdwMEi3OEQvqcpC3kHV1JphlJ5qg3wgX+AsrAwtkRZkrLKVNEz74wYwBVMobdQSzk80fhgzq1pFW2icXs+2AJoiT+gOLrWdguOKbg1GxElWxfKpqWJoFDGTxaK3zpS5bVbEzf0kavXk8YPKBM4CcOTa8FUvQzS+oegXO55mVtOxX/L8OHl3iIWdQgfvQsvzRMfvHnsuOa7zo5pYdBdkp2jN4jsi/14EljPQ0mx7Qqyqqsynx/Nej/CpODmnSf+tvQ2szuYrs5Jptr7vfgAT9cJ1wGZ9ccxlMIyRVngNA2b6BahmB2Err7C6Fj1updPiVtFM4weqPihjcgYMwQjIdYZgfRR0j3OFC2395u/OHz1xPoAXP6/a3Skli7ttIO4i3e5TIcAyav8DlpM1td04i/8zVPGAE=",
+          "thinking": "I need to figure out which NPC to talk to for the available quests. The known quests that need talking are 4, 8, 9, 10, 11, 12, and 13, but only NPC 0_19_5 is currently available as an interaction, and that quest is already done. I'm thinking the quests probably correspond to NPCs with matching indices, so quest 0_19_4 would map to NPC 0_19_4, but I need to check the reachable targets to see which NPCs are actually accessible.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_19_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_19_4\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1945,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 226,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1537500000
+      },
+      "id": "msg_011CcpWR5cFdwo9sjrq2RUgH",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1945,
+        "output_tokens": 226,
+        "output_tokens_details": {
+          "thinking_tokens": 185
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_19_4\", \"step_kind\": \"talk\", \"target\": \"npc:0_19_4\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1945,
+      "output": 226
+    },
+    "tool_calls": []
+  }
+}

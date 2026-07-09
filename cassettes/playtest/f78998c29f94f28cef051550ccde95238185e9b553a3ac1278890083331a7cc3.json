@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f78998c29f94f28cef051550ccde95238185e9b553a3ac1278890083331a7cc3",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6549,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuwHCokBCA8YAipA+l1vg7g65noa3T3QINFQ824J4O6mmktBTRroxIu4PydKLrS9kppgF9M0e+di4p8bozeJ37xBld7IQfI/urdwQTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGKXWzAE4GEtMBkiyRoM/Sq2kOELKqzRpUikIjDrKPR9KHoa/2JRU7P4X3/isKHRdPh1Tz+d1bfCu8KQ5o9uUBDMjCo3eCoNiLC7C20qjwavmd9hqdrVLX3u0SHwBOpVpQQezFymNN3JbcjKz9jXU8urXx6eEQVLyilGq1lZR/ZgNn7zjzX0qHjgvU1UGRliYpwokYsaBhib+NQcBjYbuNUxzW8X14vRvtsHjU7Rlv23XfdF5d19FANg5B6NOwlv8G6czEqM9k0inrwjk6OscGgYa05B5PTARTCbG5KN0XtVyjQuS32vpiKlLhTCnGiN+m/kvxEcNGHB1S1LRp7sSHdA3sqzn7yhNIXofpBQJoKcmlyDhIQ/PSziaFmj60gh/+5TRJYeCmc4Xup1Lh9FJMEyqMQbWZW/8/FNk7Gq17g9sAxrwZWvx7MFPk1GxD6nit/whgGEdIbZ3slHr4BJzj5dYpb/2ue3yZXbLMxXjvoFuDmJBnCIwPVe7oRkDneuSX49USL4sjG0hA8dNLUGFni52LG+g5UWe2UukYtCCHTvfEKpzUkJNM1Hy6hmRObWrrj/kaPfN+5ieeKBhmKmZIiQBaIj8RRVx2v3paPZjvvqzaoyms0oqbE1Gf6OxcEi4qqHeA+6RKaBe0VhZ2UcuO92rzxCisORZCGXlewB6gjd1tle/S4rsF0zZlN25QdOy+YxHeMHyEQLZAZWGWua2WgRevWbsvZmfgOIFXLArtU5ZhyAMYtSP0IRKuvZpcFyhMQS3qkVITonn3zhkEgEI9Hq5tebbpe4ABwFG/7gnlcyDCG/dP8RmbrVOyALsCgPLE1UtDJnRoeGmBB4Pi/rg+tezWDTv5D7DeKYtcHtY9cH/D8IOEL7l+tWQ8h0h1ZEKbK1tiSZA/bEmQnKNM7OQiBlPD1t2zdL+pOYZ+jpAU3iGWXKuqJPMs6FMXVY24NvbFFlVhxflxircYMkeinte+3JypV5OJsi3QhF7FXfA97WfuuHbvvOLbecoOw7e3a/ADhNJRwgr142sr+hL1kqNoMkdQEGU8QVSn6FJ+GMzxJhPELTQuKaMX2R1J3Ts6oQz0RGaTOyxyWi3DlbDxTjaeqY+9icwol7WbL6P7ZlJwSZvpUM9sPsziolMGjgZxEYAQ==",
+          "thinking": "I'm working through which NPC to target for these quests. Quest 9 and 10 both involve talking, and while the target for quest 9 isn't immediately clear, I have npc:0_10_8 available as an interaction option. I'll go with that as the safe choice and initiate the conversation.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_10_9\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_9\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1887,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 384,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1903500000
+      },
+      "id": "msg_011CcpMj4KoyNR52izh319Xa",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1887,
+        "output_tokens": 384,
+        "output_tokens_details": {
+          "thinking_tokens": 343
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_10_9\", \"step_kind\": \"talk\", \"target\": \"npc:0_10_9\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1887,
+      "output": 384
+    },
+    "tool_calls": []
+  }
+}

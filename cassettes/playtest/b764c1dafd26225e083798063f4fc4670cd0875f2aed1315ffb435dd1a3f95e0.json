@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b764c1dafd26225e083798063f4fc4670cd0875f2aed1315ffb435dd1a3f95e0",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 11370,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EsoICokBCA8YAipA0Xw5RKAjq9ZI1jmP2sYWue0u4zptoIvoL4/4ws+B2yniOEWOVbUYA5ONVnozVEPC8nrXnG/HWHCTSiiQXjATUjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDGRuSDb0tumGG4zteBoMe/d+yahE17791nAUIjABhkk03WDwlQad2k9IsGEG3uLML1dXURRkr8w79+VGkiAdBdtgXU9ouAtWDkYSpzQq7QZX5UPg6XtUeHz6gLhWpNtc5n2yNplN2tLVxUIv++LmLiYB3i1UKtRb4fPNJN6wCTYY5tauPUOGIScIBKvSmXvF0+tlQ09/kOO16tyBuoMeqNGxwx/Ae5r7N3+0qyZrrBl4pQMKg/UgZuPDxux7XGIaAN73KgA/6DmLnfm8Pjn4teto+agZtBkEz9tCfyXvam64+wW/vMZiVwMdiGU4rrOc5FgvkQUxcLNOld+KQ6q9Wdri3GR7OSTwaJyWoNGljc23gnPPfdlsh02JFQhhBBd6LgbehkTvMvknRFK1lyctYBl2q5oE7J2HY9I1EGozUgYxglMaxfvwj+s09lNOUX44NWkD4ZuvVedQXY7b4pXmvbcHOkuhT2iex5LsBGquOOpBtCX4YMzWYI+5tUPq9GJT6DYqoSipbmFfqtR86L1gODscI9iZCleR4QGIDTEkNV4A9iUalM4IuixZVn4UFAE6bB83wuKhsHoSlD3xlmwUHnMOUmJJF2M7MAwRvm6adqsIU4GIJV5F26bSj7l4ZsE0dTPo8kSDt2kxlELRujn3DWR5t3Met3ikCb1d9FVOifTsP1aioyKNkL94Bz6iaZC63KvP3vcyfdjGqlf13KSOcqCkc2Ma/5bHU6sGTMFuJL6xGhI9s7NJ8x8Lk+3Y9pWTAJjFni4wq6dWJdtFa3y3Y0T92IDtXs/Jt3OBloS4uYZ26kABwVI/RjKkvJwroK3Oi2UKkzwK+8wXV3yvg5RJClfULbODtnMOPDRnFS3Lrgy1uwgoFkQXjV1f0yJgZMzoXluhb0qJZTf1U2dDd3ts6g47MwCJF9Z0fewhji7R4nsqy6vJjHT1jdcspw4zpwAv85XN/L4IL9WVCyTvKtIZHjGdTP5GnCsCnA6hcpDy9imMc9F5stviJCLKgKqn0SIPotZ2VDwltSCJNK4snqYN8Y4Z2b+C8a9R1+Q3OettkF5yOF7NPZ7dWl9ap+8ZiH7heWVNYz2H2BYbKq9ag8q2C1UeaFA7uJ2kZ6gU10HY+MDnAdzOeUJMwk6SkdP8QWCq9Nm4DvwMrmiHGhNm45/NXN5iWieIcCbt1rXJ0LxH7BrDZiNfOofb4cOTeznsHhxWTGys91B1g/F9+hGilWIWXCyvRzy1RuYHf4aOjGx3OhOUUmNQMnTMm1pza9l2GAE=",
+          "thinking": "I'm trying to figure out which quest corresponds to the available NPC interaction at npc:0_16_6. Several quests have a talk step, so I need to match the right one—quest:0_16_8 seems like a reasonable choice since its talk target aligns with this NPC, though I'm still working through which quest actually starts here.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_16_8\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_6\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1935,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 397,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1960000000
+      },
+      "id": "msg_011CcpShu9TvRVQR4qxwjnJs",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1935,
+        "output_tokens": 397,
+        "output_tokens_details": {
+          "thinking_tokens": 356
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_16_8\", \"step_kind\": \"talk\", \"target\": \"npc:0_16_6\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1935,
+      "output": 397
+    },
+    "tool_calls": []
+  }
+}

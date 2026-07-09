@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "playtest.planner",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9b7c6f542812eede9082815c9016bdaba2ee20af50a9f5ba6a3c3895a86a54b7",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 8892,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqMICokBCA8YAipA18kT9jMl+jy8UPtn+kHiPACKzUrPycsHhVVGqUq0eF0gQPKszQj0LvHY5BetCLQy5JvV3jK3azhwo72Bz0u8zTIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDPrcDOI0aVU/OYQgeRoMScowo2ztvHddbsDxIjC+1WbQ7EMvEB5wP0KeQapXzUKghAVJQ4oHc4nZ8v52kJi6LqPniVkRsSzR9iL/cvQqxgY0q9QJXEQbKDEQNNv16BSU4cgwVFzctOY19Kd6r7lVgB4tfnME7dPAgnkIdE175U3nlnuVkj4346vdeU6MYHW/NTWhxG1D30uuT9f/wut7q/qEh/4u8htfIW0fpw0nC1H9smWl5HQejh7oyp9XOxMEpqfwH3WQZqA2+S0ddZGMQ+jvb64dPsZFOhZ6uTypWCUj1Z4vvlG0ATN2sHggBRhRrzsxpJuQW9BfiRkp9wiqudv//bvHtPzBbHmLisgOQdqNP2c5YCcc/jk+RQYQyzD1Y1Tp6KkSQahaZ6javtAE6W99k/BQ88VC3gEI1EUugHLCuSn2WmdaV2TflGGrf9qjiY+3JBoySqL5FLoXXkbOZVniDUxPiC3dTx0ywkdIDYiSM++mhAR3x+toIo6xv/IzphTbL1gIlsz01j5LXl/arXEtpYubRRdaIgFY6rg7LcVL6d2/SacsZ+Anwb+XI7RUp/7MhZc+pezo9nMCXc8ox1xIHTRnqEQoATq71IL1PqHOPQRxcW+7sRHCaHsBEhC6G9t3lbFnDJFi8+8A+N5pNDXNbVqVrhkJOAzyg/EVZIuz+NP1iuFkM0O39qJ5llJwRR/emAvUFE0oygyQVzOv+7Bhl0mqZf+U20Hqn09qEWBtkutOJ57Y8+/5aL1iur/ZtaDj8NhxuRna6sCvrJXBphugWJaX1waxfZrymrfQqhlLFwkuhUH4aZ9cfi4xQ3UtWOBhTUrn69XLuw3nC3XIVO+hDarwWCs7nux+lai+KissKJMuQD7zueEskksSEdkMuFL8rMJieegPw0QUSPKo8GYK+LwwRZOLIuYwoh7Nt1BzzitIn+lyCMyeaOXAXGTI6kd/4P6uVjdaUTtN+ijKdSnM84Iwra+vgfsLuqfGIfnpUwuHgOalDpTXWw6Jod3o5zghyVDkYABn+Kn7QOVFQopSEZkSCZugzwMaYF0gnM+AUALFV1I6JscL5a38F9LHEW+Zn3HfVK23tbGNU5mtmZ2K6NVWhxg8VHq3CnFR8XQ62yXZ6GsOayqNGDY3kF5G5bsdYs0+DeBMBnhwSoiH/32bcZkQsuCcqB+NoNUU85Zn+0daeI9dim8vDGZ34XxRH+y3jpctGAE=",
+          "thinking": "I'm looking at the available NPCs and quests to figure out which interaction makes sense. There's npc:0_4_3 available, and I need to match it with a quest that has a talk step targeting that NPC, but the mapping isn't clear from what I can see.",
+          "type": "thinking"
+        },
+        {
+          "text": "{\"quest\": \"quest:0_4_6\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_3\"}",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 1591,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 383,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1753000000
+      },
+      "id": "msg_011CcpHRsBertZVtSxGWV2Pu",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 1591,
+        "output_tokens": 383,
+        "output_tokens_details": {
+          "thinking_tokens": 342
+        }
+      }
+    },
+    "response_normalized": "{\"quest\": \"quest:0_4_6\", \"step_kind\": \"talk\", \"target\": \"npc:0_4_3\"}",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 1591,
+      "output": 383
+    },
+    "tool_calls": []
+  }
+}
