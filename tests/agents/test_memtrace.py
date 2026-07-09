@@ -120,3 +120,45 @@ def test_recall_embedding_term_reranks():
     m.record(_step(state="qry", action_kind="near", result="ok", state_hash="h2", step_index=1))
     top = m.recall("qry", None, 1)  # 'qry' shares all chars with the 'qry' episode
     assert top[0].action["kind"] == "near"
+
+
+def test_add_and_lookup_skill():
+    m = MemTrace()
+    m.add_skill("nav_to_giver", "start#h1", "at#giver", [{"kind": "move"}, {"kind": "talk"}])
+    hits = m.skills_for("start#h1", "at#giver")
+    assert hits == [[{"kind": "move"}, {"kind": "talk"}]]
+    assert m.skills_for("x", "y") == []
+
+
+def test_reflect_writes_downweighting_episode():
+    m = MemTrace()
+    m.record(_step(state="room", action_kind="move", result="unreachable", state_hash="h1"))
+    note = m.reflect(m.trace[:], verdict="unreachable")
+    assert isinstance(note, str) and note
+    assert any(e.verdict < 0 for e in m.trace)
+
+
+class _RaisingRouter:
+    def route(self, *a, **k):
+        raise RuntimeError("no live call in test")
+
+
+def test_deterministic_compactor_never_touches_router():
+    # Default MemTrace uses DeterministicCompactor → zero-model even if a router
+    # that would explode is handed in.
+    m = MemTrace()  # compactor=DeterministicCompactor()
+    for i in range(5):
+        m.record(_step(state=f"s{i}", result="ok", state_hash=f"h{i}"))
+    out = m.compact(m.trace[:], verdicts=[], router=_RaisingRouter())
+    assert isinstance(out, str) and out  # produced a digest, no model call
+
+
+def test_llm_compactor_uses_router_and_fails_closed():
+    from gameforge.agents.playtest.memory import LLMCompactor
+    m = MemTrace(compactor=LLMCompactor())
+    for i in range(5):
+        m.record(_step(state=f"s{i}", result="ok", state_hash=f"h{i}"))
+    # A raising router must NOT crash the run — LLMCompactor degrades to the
+    # deterministic digest (fail-closed).
+    out = m.compact(m.trace[:], verdicts=[], router=_RaisingRouter())
+    assert isinstance(out, str) and out

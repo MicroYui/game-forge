@@ -15,6 +15,9 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import Protocol
 
+from gameforge.contracts.model_router import Message, ModelRequest, ModelSnapshot
+from gameforge.runtime.model_router.router import ModelRouter
+
 # Results that mean the state/action pair advanced nothing (TITAN down-weight).
 _NO_PROGRESS_RESULTS = frozenset({"blocked", "unreachable", "noop", "invalid", "already"})
 
@@ -25,6 +28,35 @@ _NO_PROGRESS_CAP = 4
 # Never fully zeroes the term (a poor embedding match still leaves the other
 # three deterministic factors in control) — mirrors verdict_weight's floor.
 _EMBED_FLOOR = 0.05
+
+# reflect() verdicts that write a NEGATIVE down-weighting episode (TITAN-style);
+# any other verdict string writes a neutral (verdict=0.0) note.
+_NEGATIVE_REFLECT_VERDICTS = frozenset({"unreachable", "abort_quest", "stuck", "fail"})
+
+# How many trailing episodes DeterministicCompactor includes in its tail digest.
+_COMPACT_TAIL = 8
+
+_COMPACT_SNAPSHOT = ModelSnapshot(provider="anthropic", model="claude-opus-4-8", snapshot_tag="m2a@1")
+_COMPACT_PROMPT_VERSION = "playtest.memory.compact@1"
+_COMPACT_NODE_ID = "playtest.memory"
+
+
+def _action_key(action: dict) -> str:
+    kind = str(action.get("kind", action.get("type", "?")))
+    target = action.get("target") or action.get("target_id") or ""
+    return f"{kind}:{target}"
+
+
+def _episode_fields(item: "Episode | dict") -> tuple[str, dict, str, str]:
+    """Normalize a trace item (Episode or the raw `step` dict) to its fields."""
+    if isinstance(item, Episode):
+        return item.state_abstract, dict(item.action), item.result, item.state_hash
+    return (
+        str(item.get("state", item.get("state_abstract", ""))),
+        dict(item.get("action", {})),
+        str(item.get("result", "")),
+        str(item.get("state_hash", "")),
+    )
 
 
 class Embedder(Protocol):
@@ -72,37 +104,115 @@ class Episode:
     verdict: float = 0.0  # verifier-conditioned weight delta (reflect/compact set it)
 
 
+class Compactor(Protocol):
+    """Compaction strategy: summarize a completed trace into a short digest.
+
+    Two first-class strategies ship (Task 8b compares them empirically):
+    `DeterministicCompactor` (zero-model) and `LLMCompactor` (router-backed,
+    fail-closed to the deterministic digest). Both must never raise.
+    """
+
+    def compact(
+        self,
+        trace: list[Episode],
+        verdicts: list,
+        *,
+        router: ModelRouter | None = None,
+        node_id: str = _COMPACT_NODE_ID,
+    ) -> str: ...
+
+
+class DeterministicCompactor:
+    """Zero-model compaction: verified-skill highlights + a tail digest.
+
+    Never touches `router` — this is the strategy that keeps the whole memory
+    layer model-free, used as the default and as every fail-closed fallback.
+    """
+
+    def compact(
+        self,
+        trace: list[Episode],
+        verdicts: list,
+        *,
+        router: ModelRouter | None = None,
+        node_id: str = _COMPACT_NODE_ID,
+    ) -> str:
+        del router, node_id  # zero-model by construction: never referenced
+        if not trace:
+            return "MemTrace compaction (deterministic): empty trace."
+        verified = [ep for ep in trace if ep.verdict > 0]
+        tail = trace[-_COMPACT_TAIL:]
+        lines = [
+            f"MemTrace compaction (deterministic): {len(trace)} step(s), "
+            f"{len(verified)} verified, {len(list(verdicts))} verdict(s)."
+        ]
+        if verified:
+            lines.append("Verified:")
+            lines.extend(
+                f"  - {ep.state_abstract[:40]} :: {_action_key(ep.action)} -> {ep.result}"
+                for ep in verified
+            )
+        lines.append("Tail:")
+        lines.extend(
+            f"  - {ep.state_abstract[:40]} :: {_action_key(ep.action)} -> {ep.result}" for ep in tail
+        )
+        return "\n".join(lines)
+
+
 class MemTrace:
-    def __init__(self, embedder: Embedder | None = None) -> None:
+    def __init__(
+        self,
+        embedder: Embedder | None = None,
+        compactor: Compactor | None = None,
+    ) -> None:
         self.trace: list[Episode] = []
         # state_hash -> action_key -> Counter[result] (persistent transition graph).
         self.transitions: dict[str, dict[str, Counter]] = {}
+        # (start_sig, goal_sig) -> list of {"name", "actions"} verified sub-trajectories.
+        self.skills: dict[tuple[str, str], list[dict]] = {}
         self._embedder = embedder
         self._embed_cache: dict[str, list[float]] = {}
+        self._compactor: Compactor = compactor if compactor is not None else DeterministicCompactor()
 
-    def record(self, step: dict) -> None:
-        action_dict = dict(step["action"])
-        state_hash = str(step.get("state_hash", ""))
-        result = str(step["result"])
-        self.trace.append(
-            Episode(
-                state_abstract=str(step["state"]),
-                action=action_dict,
-                result=result,
-                state_hash=state_hash,
-                tick=int(step.get("tick", -1)),
-                step_index=int(step.get("step_index", len(self.trace))),
-            )
+    def _append(
+        self,
+        *,
+        state_abstract: str,
+        action: dict,
+        result: str,
+        state_hash: str,
+        tick: int,
+        verdict: float = 0.0,
+        step_index: int | None = None,
+    ) -> Episode:
+        ep = Episode(
+            state_abstract=state_abstract,
+            action=action,
+            result=result,
+            state_hash=state_hash,
+            tick=tick,
+            step_index=step_index if step_index is not None else len(self.trace),
+            verdict=verdict,
         )
+        self.trace.append(ep)
         if state_hash:
             bucket = self.transitions.setdefault(state_hash, {})
-            bucket.setdefault(self.action_key(action_dict), Counter())[result] += 1
+            bucket.setdefault(_action_key(action), Counter())[result] += 1
+        return ep
+
+    def record(self, step: dict) -> None:
+        self._append(
+            state_abstract=str(step["state"]),
+            action=dict(step["action"]),
+            result=str(step["result"]),
+            state_hash=str(step.get("state_hash", "")),
+            tick=int(step.get("tick", -1)),
+            step_index=int(step["step_index"]) if "step_index" in step else None,
+        )
 
     @staticmethod
     def action_key(action: dict) -> str:
-        kind = str(action.get("kind", action.get("type", "?")))
-        target = action.get("target") or action.get("target_id") or ""
-        return f"{kind}:{target}"
+        return _action_key(action)
 
     def no_progress_count(self, state_hash: str, action: dict) -> int:
         bucket = self.transitions.get(state_hash, {}).get(self.action_key(action))
@@ -151,3 +261,87 @@ class MemTrace:
             for ep in episodes
         ]
         return "\n".join(lines)
+
+    # -- Skill layer (Voyager): exact-match reusable verified sub-trajectories --
+
+    def add_skill(self, name: str, start_sig: str, goal_sig: str, actions: list[dict]) -> None:
+        key = (start_sig, goal_sig)
+        self.skills.setdefault(key, []).append({"name": name, "actions": [dict(a) for a in actions]})
+
+    def skills_for(self, start_sig: str, goal_sig: str) -> list[list[dict]]:
+        return [list(rec["actions"]) for rec in self.skills.get((start_sig, goal_sig), [])]
+
+    # -- Reflection: deterministic verdict-conditioned down-weighting write --
+
+    def reflect(self, failed_trace: list[dict] | list[Episode], verdict: str) -> str:
+        verdict_value = -1.0 if verdict in _NEGATIVE_REFLECT_VERDICTS else 0.0
+        if failed_trace:
+            state_abstract, action, result, state_hash = _episode_fields(failed_trace[-1])
+        else:
+            state_abstract, action, result, state_hash = "", {}, "", ""
+        # Reuse the ORIGINAL result (not a synthesized one) so this note also
+        # reinforces the transition graph's no-progress count for that exact
+        # (state_hash, action) pair — this is how recall down-weights the path,
+        # not merely this one new episode's own (negative) verdict.
+        self._append(
+            state_abstract=state_abstract,
+            action=action,
+            result=result or verdict,
+            state_hash=state_hash,
+            tick=-1,
+            verdict=verdict_value,
+        )
+        return (
+            f"reflect[{verdict}]: at '{state_abstract[:60]}' "
+            f"action={_action_key(action)} result={result} verdict={verdict_value:+.1f}"
+        )
+
+    # -- Compaction: dispatches to the configured strategy (both fail-closed) --
+
+    def compact(
+        self,
+        trace: list[Episode],
+        verdicts: list,
+        router: ModelRouter | None = None,
+        node_id: str = _COMPACT_NODE_ID,
+    ) -> str:
+        return self._compactor.compact(trace, verdicts, router=router, node_id=node_id)
+
+
+class LLMCompactor:
+    """Router-backed tail summarizer (recorded/replayable through the Router).
+
+    Fails closed to `DeterministicCompactor`'s digest on ANY transport/parse
+    failure — construction, request-building, the call itself, or an empty
+    response all degrade to the deterministic digest rather than raise.
+    """
+
+    def __init__(self) -> None:
+        self._fallback = DeterministicCompactor()
+
+    def compact(
+        self,
+        trace: list[Episode],
+        verdicts: list,
+        *,
+        router: ModelRouter | None = None,
+        node_id: str = _COMPACT_NODE_ID,
+    ) -> str:
+        digest = self._fallback.compact(trace, verdicts, router=None, node_id=node_id)
+        if router is None:
+            return digest
+        try:
+            req = ModelRequest(
+                model_snapshot=_COMPACT_SNAPSHOT,
+                messages=[Message(role="user", content=digest)],
+                params={"max_tokens": 512, "temperature": 0},
+                agent_node_id=node_id,
+                prompt_version=_COMPACT_PROMPT_VERSION,
+            )
+            resp = router.call(req)
+            text = str(resp.response_normalized).strip()
+            if not text:
+                raise ValueError("empty compaction response")
+            return text
+        except Exception:
+            return digest
