@@ -25,3 +25,25 @@ def test_record_defaults_missing_optional_keys():
     assert e.state_hash == ""
     assert e.tick == -1
     assert e.step_index == 0
+
+
+def test_transition_graph_counts_results_per_state_action():
+    m = MemTrace()
+    for _ in range(3):
+        m.record(_step(state="a", action_kind="move", result="blocked", state_hash="h1"))
+    m.record(_step(state="a", action_kind="move", result="ok", state_hash="h1"))
+    key = m.action_key({"kind": "move"})
+    assert m.transitions["h1"][key]["blocked"] == 3
+    assert m.transitions["h1"][key]["ok"] == 1
+    assert m.no_progress_count("h1", {"kind": "move"}) == 3
+
+
+def test_no_progress_count_zero_for_unseen_state_action():
+    m = MemTrace()
+    assert m.no_progress_count("nope", {"kind": "x"}) == 0
+
+
+def test_empty_state_hash_not_indexed_in_transitions():
+    m = MemTrace()
+    m.record(_step(state="a", result="ok"))  # no state_hash
+    assert m.transitions == {}
