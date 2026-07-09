@@ -31,9 +31,18 @@ class Executor:
     def __init__(self, snapshot: ModelSnapshot = DEFAULT_SNAPSHOT) -> None:
         self.snapshot = snapshot
 
-    def act(self, subgoal: Subgoal, state: str, router: ModelRouter) -> tuple[Action, str]:
+    def act(
+        self,
+        subgoal: Subgoal,
+        state: str,
+        router: ModelRouter,
+        *,
+        recall: str | None = None,
+    ) -> tuple[Action, str]:
         version, system = get_prompt("playtest.executor")
         user = f"Subgoal: {json.dumps(subgoal, sort_keys=True)}\n\nState:\n{state}"
+        if recall:
+            user = f"{user}\n\nRelevant past experience:\n{recall}"
 
         h: str | None = None
         try:

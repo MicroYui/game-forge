@@ -156,6 +156,7 @@ def run_playtest_corpus(
     *,
     use_planner: bool = True,
     memory_factory=None,
+    memory: object = None,
     seed: int = 0,
     max_steps: int = 200,
 ) -> PlaytestCorpusResult:
@@ -164,6 +165,13 @@ def run_playtest_corpus(
     Each chain: `snapshot_to_world` → fresh `AureusEnv` → `reset(scenario, seed)`
     → `PlaytestAgent.run`. `completed` is the env's verdict; `steps` is the
     action-trace length. Nothing here re-decides completion — it only measures.
+
+    `memory_factory`, when given, is called ONCE PER CHAIN to build a fresh
+    `MemTrace` instance (the memory-on ablation mode, Task 7/8) so state never
+    leaks across chains. `memory` is the plain per-run value used when no
+    factory is given; it defaults to `None` (M2b-1's memory-off shape,
+    byte-identical requests — see `test_playtest_recall_injection.py`'s
+    regression lock). `memory_factory` always wins when both are given.
     """
     agent = PlaytestAgent()
     outcomes: list[tuple[bool, int]] = []
@@ -176,7 +184,7 @@ def run_playtest_corpus(
             env,
             router,
             use_planner=use_planner,
-            memory=(memory_factory() if memory_factory else None),
+            memory=(memory_factory() if memory_factory else memory),
             max_steps=max_steps,
         )
         outcomes.append((bool(report.completed), len(report.action_trace)))

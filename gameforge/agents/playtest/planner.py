@@ -31,12 +31,19 @@ class Planner:
         self.snapshot = snapshot
 
     def plan(
-        self, state: str, router: ModelRouter, *, extra: str | None = None
+        self,
+        state: str,
+        router: ModelRouter,
+        *,
+        extra: str | None = None,
+        recall: str | None = None,
     ) -> tuple[Subgoal, str]:
         version, system = get_prompt("playtest.planner")
         user = state
         if extra is not None:
             user = f"{user}\n\nCorrective hint: {extra}"
+        if recall:
+            user = f"{user}\n\nRelevant past experience:\n{recall}"
 
         h: str | None = None
         try:
