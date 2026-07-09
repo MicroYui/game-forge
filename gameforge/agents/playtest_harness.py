@@ -28,6 +28,7 @@ import sys
 from dataclasses import dataclass
 
 from gameforge.agents.playtest.agent import PlaytestAgent
+from gameforge.agents.playtest.memory import LLMCompactor, MemTrace
 from gameforge.agents.scenario_gen import generate_chains
 from gameforge.apps.cli.ir_to_world import snapshot_to_world
 from gameforge.contracts.agent_io import PlaytestInput
@@ -92,6 +93,18 @@ class PlaytestCorpusResult:
     per_chain: list[dict]
     by_length: dict[str, dict]
     mean_steps: float
+
+
+@dataclass
+class AblationReport:
+    """One ablation variant's completion rate + Wilson CI + its delta against a
+    base variant (Task 7: memory ablation; Task 8b: compactor comparison reuses
+    the same shape informally via `format_compaction_comparison`)."""
+
+    variant: str
+    completion_rate: float
+    ci: tuple[float, float]
+    delta_vs_base: float
 
 
 def _length_bucket(steps: int) -> str:
@@ -189,6 +202,42 @@ def run_playtest_corpus(
         )
         outcomes.append((bool(report.completed), len(report.action_trace)))
     return _aggregate(outcomes)
+
+
+# --- memory ablation (Task 7) ------------------------------------------------
+def memory_ablation(
+    chain_snapshots: list[Snapshot],
+    router: ModelRouter,
+    *,
+    max_steps: int = RECORD_MAX_STEPS,
+) -> tuple[PlaytestCorpusResult, PlaytestCorpusResult, AblationReport]:
+    """Memory ablation: mem-OFF base (`memory_factory=None`, `use_planner=True`)
+    vs mem-ON (`memory_factory=lambda: MemTrace()`, i.e. the
+    `DeterministicCompactor` default) over the SAME corpus/router/max_steps.
+    `router` is reused for both runs — a single shared `CassetteStore` — since
+    the mem-on requests diverge from the mem-off ones only by the injected
+    recall text (distinct request_hashes, no collision).
+
+    Returns `(base, mem_on, report)`: the two `PlaytestCorpusResult`s plus a
+    mem-on `AblationReport` relative to `base`
+    (`delta_vs_base = mem_on.completion_rate - base.completion_rate`)."""
+    base = run_playtest_corpus(
+        chain_snapshots, router, use_planner=True, memory_factory=None, max_steps=max_steps
+    )
+    mem_on = run_playtest_corpus(
+        chain_snapshots,
+        router,
+        use_planner=True,
+        memory_factory=lambda: MemTrace(),
+        max_steps=max_steps,
+    )
+    report = AblationReport(
+        variant="mem-on",
+        completion_rate=mem_on.completion_rate,
+        ci=wilson_ci(mem_on.completed, mem_on.n_chains),
+        delta_vs_base=mem_on.completion_rate - base.completion_rate,
+    )
+    return base, mem_on, report
 
 
 # --- no-LLM random baseline (completion floor) ------------------------------
@@ -352,6 +401,49 @@ def format_ablation_report(
     return "\n".join(lines)
 
 
+def format_memory_ablation_report(
+    base: PlaytestCorpusResult,
+    mem_on: PlaytestCorpusResult,
+    report: AblationReport,
+) -> str:
+    """Combined report for the memory ablation (Task 7): both full corpus
+    breakdowns plus the mem-on-vs-mem-off delta + Wilson CI. Identical shape
+    whether the corpora came from RECORD or REPLAY."""
+    lines = [
+        format_result(base, title="Memory OFF (base)"),
+        "",
+        format_result(mem_on, title="Memory ON (DeterministicCompactor)"),
+        "",
+        "=== Memory Ablation ===",
+        f"mem-off completion_rate: {base.completion_rate:.1%}",
+        f"mem-on  completion_rate: {mem_on.completion_rate:.1%}  "
+        f"95%CI=[{report.ci[0]:.2f}, {report.ci[1]:.2f}]",
+        f"delta (mem-on - mem-off): {report.delta_vs_base:+.1%}",
+    ]
+    return "\n".join(lines)
+
+
+def format_compaction_comparison(
+    det_result: PlaytestCorpusResult,
+    llm_result: PlaytestCorpusResult,
+) -> str:
+    """Compactor-strategy comparison (Task 8b): both completion rates + Wilson
+    CIs + the delta (llm - deterministic), reported honestly with NO fixed
+    threshold — the recorded numbers pick the winner (M3+ default compactor)."""
+    det_ci = wilson_ci(det_result.completed, det_result.n_chains)
+    llm_ci = wilson_ci(llm_result.completed, llm_result.n_chains)
+    delta = llm_result.completion_rate - det_result.completion_rate
+    lines = [
+        "=== Compactor Comparison (DeterministicCompactor vs LLMCompactor) ===",
+        f"deterministic completion_rate: {det_result.completion_rate:.1%}  "
+        f"95%CI=[{det_ci[0]:.2f}, {det_ci[1]:.2f}]",
+        f"llm           completion_rate: {llm_result.completion_rate:.1%}  "
+        f"95%CI=[{llm_ci[0]:.2f}, {llm_ci[1]:.2f}]",
+        f"delta (llm - deterministic): {delta:+.1%}",
+    ]
+    return "\n".join(lines)
+
+
 # --- CLI --------------------------------------------------------------------
 def _run_ablation_and_report(
     router: ModelRouter,
@@ -375,6 +467,44 @@ def _run_ablation_and_report(
     return layered, flat, baseline
 
 
+def _run_memory_ablation_and_report(
+    router: ModelRouter,
+) -> tuple[PlaytestCorpusResult, PlaytestCorpusResult, AblationReport]:
+    """Task 7: run the memory ablation (mem-off base vs mem-on with the default
+    `DeterministicCompactor`) over the corpus at `RECORD_MAX_STEPS` and print
+    the combined report. `router` is reused (one shared `CassetteStore` — the
+    mem-on requests differ from the mem-off ones only by the injected recall
+    text, so there is no collision). Called identically by `--record` and
+    `--replay` so the printed report is reproducible under REPLAY."""
+    corpus = default_chain_snapshots()
+    base, mem_on, report = memory_ablation(corpus, router, max_steps=RECORD_MAX_STEPS)
+    print(format_memory_ablation_report(base, mem_on, report))
+    return base, mem_on, report
+
+
+def _run_compactor_comparison_and_report(
+    router: ModelRouter,
+    mem_on_deterministic: PlaytestCorpusResult,
+) -> PlaytestCorpusResult:
+    """Task 8b: run the 4th record variant — `memory_factory=lambda:
+    MemTrace(compactor=LLMCompactor())` — over the corpus at `RECORD_MAX_STEPS`
+    and print its completion rate next to the already-computed
+    `DeterministicCompactor` mem-on rate. `router` is reused (same shared
+    `CassetteStore`); the two mem-on corpora differ only by compactor, so their
+    request_hashes diverge (the `compact` calls carry distinct content) and
+    neither collides with the other's cassettes."""
+    corpus = default_chain_snapshots()
+    mem_on_llm = run_playtest_corpus(
+        corpus,
+        router,
+        use_planner=True,
+        memory_factory=lambda: MemTrace(compactor=LLMCompactor()),
+        max_steps=RECORD_MAX_STEPS,
+    )
+    print(format_compaction_comparison(mem_on_deterministic, mem_on_llm))
+    return mem_on_llm
+
+
 def _run_record() -> int:
     if os.environ.get("GAMEFORGE_LLM_LIVE") != "1":
         print(
@@ -393,14 +523,20 @@ def _run_record() -> int:
 
     print(
         "Recording playtest corpus (live gateway) — layered + flat ablation, "
-        f"max_steps={RECORD_MAX_STEPS}…"
+        f"memory ablation, compactor comparison, max_steps={RECORD_MAX_STEPS}…"
     )
-    _run_ablation_and_report(record_router())
+    router = record_router()
+    _run_ablation_and_report(router)
+    _, mem_on_det, _ = _run_memory_ablation_and_report(router)
+    _run_compactor_comparison_and_report(router, mem_on_det)
     return 0
 
 
 def _run_replay() -> int:
-    _run_ablation_and_report(replay_router())
+    router = replay_router()
+    _run_ablation_and_report(router)
+    _, mem_on_det, _ = _run_memory_ablation_and_report(router)
+    _run_compactor_comparison_and_report(router, mem_on_det)
     return 0
 
 
