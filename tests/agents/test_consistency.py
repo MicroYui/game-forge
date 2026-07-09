@@ -13,8 +13,9 @@ from gameforge.spine.ir.snapshot import Snapshot
 
 class _PerVariantTransport:
     """Returns a different canned response per prompt_version (agent-logic test
-    double, no network) — lets a test give each of the 3 quorum samples its
-    own answer."""
+    double, no network) — lets a test give each perspective sample (and each
+    rebuttal round query) its own scripted answer. Any variant not explicitly
+    scripted defaults to "[]" (an empty, well-formed sample)."""
 
     def __init__(self, by_prompt_version: dict[str, str]):
         self._by = by_prompt_version
@@ -40,12 +41,16 @@ _MINORITY_HINT = {"span": "the hero", "issue": "off-topic"}
 
 
 def test_quorum_keeps_majority_hint_drops_minority(tmp_path):
+    # 2/3 perspectives report the hint directly (no dispute — the third is
+    # simply silent), so it must pass WITHOUT any rebuttal round at all.
     by_variant = {
-        "consistency@1#s0": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#s1": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#s2": json.dumps([_MINORITY_HINT]),
+        "consistency@1#p_temporal": json.dumps([_MAJORITY_HINT]),
+        "consistency@1#p_identity": json.dumps([_MAJORITY_HINT]),
+        "consistency@1#p_spoiler": "[]",
     }
-    res = ConsistencyAssistant().run(_dialogue_input(), _router(by_variant, tmp_path))
+    transport = _PerVariantTransport(by_variant)
+    router = ModelRouter(transport, CassetteStore(tmp_path), mode=RouterMode.PASSTHROUGH)
+    res = ConsistencyAssistant().run(_dialogue_input(), router)
 
     hints = res.produced["hints"]
     assert res.produced["samples"] == 3
@@ -57,30 +62,126 @@ def test_quorum_keeps_majority_hint_drops_minority(tmp_path):
     assert res.fallback_taken is False
     assert res.role == "consistency"
     assert len(res.request_hashes) == 3
-    assert len(set(res.request_hashes)) == 3  # 3 distinct variants -> 3 distinct request_hashes
+    assert len(set(res.request_hashes)) == 3  # 3 distinct perspective variants
+
+    # Nothing was disputed (no hint in [1, threshold)) so no rebuttal round
+    # (`#r_*` variants) was ever queried — exactly 3 calls total.
+    assert len(transport.calls) == 3
+    assert all("#p_" in c.prompt_version for c in transport.calls)
 
 
 def test_quorum_drops_hint_reported_by_only_one_sample(tmp_path):
     by_variant = {
-        "consistency@1#s0": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#s1": "[]",
-        "consistency@1#s2": "[]",
+        "consistency@1#p_temporal": json.dumps([_MAJORITY_HINT]),
+        "consistency@1#p_identity": "[]",
+        "consistency@1#p_spoiler": "[]",
     }
     res = ConsistencyAssistant().run(_dialogue_input(), _router(by_variant, tmp_path))
     assert res.produced["hints"] == []
-    assert res.fallback_taken is False  # 2/3 samples parsed fine (just reported nothing)
+    assert res.fallback_taken is False  # 3/3 samples parsed fine (2 just reported nothing)
 
 
 def test_all_samples_unparseable_falls_back_to_empty_hints(tmp_path):
     by_variant = {
-        "consistency@1#s0": "not json at all",
-        "consistency@1#s1": "still not json",
-        "consistency@1#s2": "nope",
+        "consistency@1#p_temporal": "not json at all",
+        "consistency@1#p_identity": "still not json",
+        "consistency@1#p_spoiler": "nope",
     }
     res = ConsistencyAssistant().run(_dialogue_input(), _router(by_variant, tmp_path))
     assert res.fallback_taken is True
     assert res.produced["hints"] == []
     assert len(res.request_hashes) == 3
+
+
+# --------------------------------------------------------------------------
+# Rebuttal round (Part C / Task 9): a hint reported by only 1/3 perspectives
+# is DISPUTED and must go through exactly one rebuttal round; it survives
+# only if the rebuttal round lifts confirmations to >= threshold. These two
+# tests are the discriminators: if the rebuttal round (or its threshold
+# check) were removed, one of the two would flip.
+# --------------------------------------------------------------------------
+def test_disputed_hint_survives_rebuttal_when_confirmed(tmp_path):
+    # Only 'temporal' reports the hint in round 1 -> count=1 < threshold(2) ->
+    # disputed -> rebuttal round triggered. In the rebuttal round, 'identity'
+    # and 'spoiler' both confirm -> confirmations=2 >= threshold(2) -> keep.
+    by_variant = {
+        "consistency@1#p_temporal": json.dumps([_MINORITY_HINT]),
+        "consistency@1#p_identity": "[]",
+        "consistency@1#p_spoiler": "[]",
+        "consistency@1#r_temporal": "[]",
+        "consistency@1#r_identity": json.dumps([_MINORITY_HINT]),
+        "consistency@1#r_spoiler": json.dumps([_MINORITY_HINT]),
+    }
+    transport = _PerVariantTransport(by_variant)
+    router = ModelRouter(transport, CassetteStore(tmp_path), mode=RouterMode.PASSTHROUGH)
+    res = ConsistencyAssistant().run(_dialogue_input(), router)
+
+    assert res.produced["hints"] == [
+        {**_MINORITY_HINT, "is_suggestion": True}
+    ]
+    assert res.fallback_taken is False
+    # 3 first-round + 3 rebuttal-round calls, all distinct request_hashes.
+    assert len(res.request_hashes) == 6
+    assert len(set(res.request_hashes)) == 6
+    rebuttal_calls = [c for c in transport.calls if "#r_" in c.prompt_version]
+    assert len(rebuttal_calls) == 3
+
+
+def test_disputed_hint_dropped_when_rebuttal_refutes(tmp_path):
+    # Same first round (1/3 reports it), but the rebuttal round only lifts
+    # confirmations to 1 (< threshold 2) -> stays dropped. If the rebuttal
+    # round's threshold check were removed (e.g. "any confirmation keeps the
+    # hint"), this test would incorrectly see the hint survive.
+    by_variant = {
+        "consistency@1#p_temporal": json.dumps([_MINORITY_HINT]),
+        "consistency@1#p_identity": "[]",
+        "consistency@1#p_spoiler": "[]",
+        "consistency@1#r_temporal": "[]",
+        "consistency@1#r_identity": json.dumps([_MINORITY_HINT]),
+        "consistency@1#r_spoiler": "[]",
+    }
+    transport = _PerVariantTransport(by_variant)
+    router = ModelRouter(transport, CassetteStore(tmp_path), mode=RouterMode.PASSTHROUGH)
+    res = ConsistencyAssistant().run(_dialogue_input(), router)
+
+    assert res.produced["hints"] == []
+    assert res.fallback_taken is False
+    assert len(res.request_hashes) == 6
+    rebuttal_calls = [c for c in transport.calls if "#r_" in c.prompt_version]
+    assert len(rebuttal_calls) == 3
+
+
+def test_threshold_is_honored_unanimity_required(tmp_path):
+    # threshold=3 over 3 perspectives requires unanimity. The hint is reported
+    # by 2/3 in round 1 (disputed under threshold=3, since 2 < 3); with
+    # rebut=False no rebuttal round runs at all, so it cannot be rescued and
+    # must be dropped. If `threshold` were ignored (hardcoded to 2), this
+    # hint would incorrectly survive from round 1 alone.
+    by_variant = {
+        "consistency@1#p_temporal": json.dumps([_MAJORITY_HINT]),
+        "consistency@1#p_identity": json.dumps([_MAJORITY_HINT]),
+        "consistency@1#p_spoiler": "[]",
+    }
+    transport = _PerVariantTransport(by_variant)
+    router = ModelRouter(transport, CassetteStore(tmp_path), mode=RouterMode.PASSTHROUGH)
+    res = ConsistencyAssistant().run(_dialogue_input(), router, threshold=3, rebut=False)
+
+    assert res.produced["hints"] == []
+    assert len(res.request_hashes) == 3  # rebut=False -> no rebuttal calls at all
+    assert all("#r_" not in c.prompt_version for c in transport.calls)
+
+
+def test_threshold_unanimity_hint_passes_when_all_three_agree(tmp_path):
+    by_variant = {
+        "consistency@1#p_temporal": json.dumps([_MAJORITY_HINT]),
+        "consistency@1#p_identity": json.dumps([_MAJORITY_HINT]),
+        "consistency@1#p_spoiler": json.dumps([_MAJORITY_HINT]),
+    }
+    res = ConsistencyAssistant().run(
+        _dialogue_input(), _router(by_variant, tmp_path), threshold=3, rebut=False
+    )
+    assert len(res.produced["hints"]) == 1
+    assert res.produced["hints"][0]["span"] == _MAJORITY_HINT["span"]
 
 
 def test_consistency_checker_findings_are_strictly_llm_assisted_partitioned(tmp_path):
@@ -89,9 +190,9 @@ def test_consistency_checker_findings_are_strictly_llm_assisted_partitioned(tmp_
     report.deterministic_findings, regardless of what other checkers produce.
     This is the real evaluation of M1's LlmRoutedChecker placeholder."""
     by_variant = {
-        "consistency@1#s0": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#s1": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#s2": "[]",
+        "consistency@1#p_temporal": json.dumps([_MAJORITY_HINT]),
+        "consistency@1#p_identity": json.dumps([_MAJORITY_HINT]),
+        "consistency@1#p_spoiler": "[]",
     }
     router = _router(by_variant, tmp_path)
     assistant = ConsistencyAssistant()
@@ -112,9 +213,9 @@ def test_consistency_checker_findings_are_strictly_llm_assisted_partitioned(tmp_
 
 def test_consistency_checker_check_directly(tmp_path):
     by_variant = {
-        "consistency@1#s0": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#s1": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#s2": json.dumps([_MAJORITY_HINT]),
+        "consistency@1#p_temporal": json.dumps([_MAJORITY_HINT]),
+        "consistency@1#p_identity": json.dumps([_MAJORITY_HINT]),
+        "consistency@1#p_spoiler": json.dumps([_MAJORITY_HINT]),
     }
     router = _router(by_variant, tmp_path)
     checker = ConsistencyChecker(ConsistencyAssistant(), router, _dialogue_input())

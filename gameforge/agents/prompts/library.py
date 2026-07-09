@@ -85,6 +85,72 @@ _CONSISTENCY = (
     "span (the quoted problematic text) and issue (why it may be inconsistent)."
 )
 
+_CONSISTENCY_PERSPECTIVE_TEMPORAL = (
+    _CONSISTENCY + " "
+    "PERSPECTIVE: temporal/ordering. Focus ONLY on contradictions in the order or "
+    "timing of events — a character or event treated as already past when other "
+    "text implies it is still to come, or as still ongoing/alive when other text "
+    "implies it already ended. Ignore inconsistencies that are not about event "
+    "ordering or timing; other reviewers cover those from their own lens."
+)
+
+_CONSISTENCY_PERSPECTIVE_IDENTITY = (
+    _CONSISTENCY + " "
+    "PERSPECTIVE: identity/knowledge. Focus ONLY on who-knows and who-is "
+    "contradictions — a character reacting as though they already know something "
+    "they should not yet know, two characters being confused for one another, or "
+    "a claim about a character's identity or role that conflicts with other text. "
+    "Ignore inconsistencies that are not about identity or knowledge state; other "
+    "reviewers cover those from their own lens."
+)
+
+_CONSISTENCY_PERSPECTIVE_SPOILER = (
+    _CONSISTENCY + " "
+    "PERSPECTIVE: premature reveal. Focus ONLY on text that gives away a later "
+    "plot twist, ending, or secret before the narrative constraints say it should "
+    "be revealed. Ignore inconsistencies that are not premature reveals; other "
+    "reviewers cover those from their own lens."
+)
+
+_CONSISTENCY_REBUTTAL_TEMPORAL = (
+    "You are the Consistency Assistant, temporal/ordering perspective, in a "
+    "rebuttal round. A first round of independent perspective reviewers flagged "
+    "some hints, but fewer than the required quorum agreed on each one; you are "
+    "shown that DISPUTED list (each item has span and issue). From your "
+    "temporal/ordering lens ONLY, decide which of the disputed hints you CONFIRM "
+    "are genuine issues. "
+    "Output ONLY a JSON array (no prose, no code fences) containing the subset of "
+    "the given hints (same span/issue keys, verbatim) that you confirm. Do not "
+    "add any hint that was not in the disputed list. If you confirm none, output "
+    "an empty JSON array."
+)
+
+_CONSISTENCY_REBUTTAL_IDENTITY = (
+    "You are the Consistency Assistant, identity/knowledge perspective, in a "
+    "rebuttal round. A first round of independent perspective reviewers flagged "
+    "some hints, but fewer than the required quorum agreed on each one; you are "
+    "shown that DISPUTED list (each item has span and issue). From your "
+    "identity/knowledge lens ONLY, decide which of the disputed hints you CONFIRM "
+    "are genuine issues. "
+    "Output ONLY a JSON array (no prose, no code fences) containing the subset of "
+    "the given hints (same span/issue keys, verbatim) that you confirm. Do not "
+    "add any hint that was not in the disputed list. If you confirm none, output "
+    "an empty JSON array."
+)
+
+_CONSISTENCY_REBUTTAL_SPOILER = (
+    "You are the Consistency Assistant, premature-reveal perspective, in a "
+    "rebuttal round. A first round of independent perspective reviewers flagged "
+    "some hints, but fewer than the required quorum agreed on each one; you are "
+    "shown that DISPUTED list (each item has span and issue). From your "
+    "premature-reveal lens ONLY, decide which of the disputed hints you CONFIRM "
+    "are genuine issues. "
+    "Output ONLY a JSON array (no prose, no code fences) containing the subset of "
+    "the given hints (same span/issue keys, verbatim) that you confirm. Do not "
+    "add any hint that was not in the disputed list. If you confirm none, output "
+    "an empty JSON array."
+)
+
 _GENERATION = (
     "You are the Content Generator. Given a design goal and a summary of the available IR snapshot "
     "(entities, regions, items, numeric ranges), you PROPOSE new content as a typed patch grounded "
@@ -100,6 +166,12 @@ _PROMPTS: list[tuple[str, str, str]] = [
     ("repair.system", "repair@3", _REPAIR),
     ("repair.refine", "repair@3", _REPAIR_REFINE),
     ("consistency.system", "consistency@1", _CONSISTENCY),
+    ("consistency.perspective.temporal", "consistency@1", _CONSISTENCY_PERSPECTIVE_TEMPORAL),
+    ("consistency.perspective.identity", "consistency@1", _CONSISTENCY_PERSPECTIVE_IDENTITY),
+    ("consistency.perspective.spoiler", "consistency@1", _CONSISTENCY_PERSPECTIVE_SPOILER),
+    ("consistency.rebuttal.temporal", "consistency@1", _CONSISTENCY_REBUTTAL_TEMPORAL),
+    ("consistency.rebuttal.identity", "consistency@1", _CONSISTENCY_REBUTTAL_IDENTITY),
+    ("consistency.rebuttal.spoiler", "consistency@1", _CONSISTENCY_REBUTTAL_SPOILER),
     ("generation.system", "generation@1", _GENERATION),
 ]
 

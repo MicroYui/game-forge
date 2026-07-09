@@ -77,8 +77,8 @@ class _FixedTransport:
 
 
 class _PerVariantTransport:
-    """Returns a canned response per `prompt_version` — lets the 3 quorum
-    samples each get their own answer."""
+    """Returns a canned response per `prompt_version` — lets each of the 3
+    perspective-diverse consistency samples get their own answer."""
 
     def __init__(self, by_prompt_version: dict[str, str]) -> None:
         self._by = by_prompt_version
@@ -140,9 +140,9 @@ def test_deterministic_and_llm_strictly_partitioned(tmp_path):
     det_checkers = compile_all(Constraint.from_yaml(_DET_CONSTRAINT_YAML))
 
     by_variant = {
-        "consistency@1#s0": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#s1": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#s2": "[]",  # minority: dropped by quorum
+        "consistency@1#p_temporal": json.dumps([_MAJORITY_HINT]),
+        "consistency@1#p_identity": json.dumps([_MAJORITY_HINT]),
+        "consistency@1#p_spoiler": "[]",  # 2/3 perspectives agree — passes without rebuttal
     }
     router = _passthrough(_PerVariantTransport(by_variant), tmp_path)
     consistency_checker = ConsistencyChecker(
