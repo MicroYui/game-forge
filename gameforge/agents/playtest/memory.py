@@ -173,6 +173,10 @@ class MemTrace:
         self._embedder = embedder
         self._embed_cache: dict[str, list[float]] = {}
         self._compactor: Compactor = compactor if compactor is not None else DeterministicCompactor()
+        # Set by `compact(...)`; once populated, `recall_text` prepends it to
+        # every subsequent recall so the compactor CHOICE causally changes
+        # what the planner/executor see (Task 8b needs Det vs LLM to diverge).
+        self._compacted_digest: str | None = None
 
     def _append(
         self,
@@ -254,13 +258,19 @@ class MemTrace:
 
     def recall_text(self, state: str, task: object, k: int = 3) -> str | None:
         episodes = self.recall(state, task, k)
-        if not episodes:
-            return None
         lines = [
             f"- at {ep.state_abstract[:60]} did {self.action_key(ep.action)} -> {ep.result}"
             for ep in episodes
         ]
-        return "\n".join(lines)
+        body = "\n".join(lines) if lines else None
+        if self._compacted_digest is None:
+            # Unchanged path (no compaction has run yet): byte-identical to
+            # before this fix, including the empty-trace `None` case.
+            return body
+        summary = f"Summary of progress so far:\n{self._compacted_digest}"
+        if body is None:
+            return summary
+        return f"{summary}\n\n{body}"
 
     # -- Skill layer (Voyager): exact-match reusable verified sub-trajectories --
 
@@ -305,7 +315,11 @@ class MemTrace:
         router: ModelRouter | None = None,
         node_id: str = _COMPACT_NODE_ID,
     ) -> str:
-        return self._compactor.compact(trace, verdicts, router=router, node_id=node_id)
+        digest = self._compactor.compact(trace, verdicts, router=router, node_id=node_id)
+        # STORE it so `recall_text` surfaces it on subsequent steps — this is
+        # what makes compaction causally active instead of a measured no-op.
+        self._compacted_digest = digest
+        return digest
 
 
 class LLMCompactor:

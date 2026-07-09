@@ -234,3 +234,76 @@ def test_deterministic_compactor_empty_trace_never_raises():
     from gameforge.agents.playtest.memory import DeterministicCompactor
     out = DeterministicCompactor().compact([], verdicts=[])
     assert isinstance(out, str) and out
+
+
+# ---------------------------------------------------------------------------
+# Compaction must be causally active: `compact(...)` STORES its digest, and
+# `recall_text` surfaces it on subsequent calls. Before this wiring the digest
+# was computed and thrown away — DeterministicCompactor vs LLMCompactor could
+# never produce a different `recall_text`, making Task 8b's "compare the two
+# compactors' effect on completion rate" undiscriminating by construction.
+# ---------------------------------------------------------------------------
+
+class _ScriptedRouter:
+    """Fake router (no transport, no live call): always answers a fixed,
+    distinct summary string, and counts invocations so a test can prove the
+    router path was genuinely entered."""
+
+    def __init__(self, text: str) -> None:
+        self._text = text
+        self.calls = 0
+
+    def call(self, req):  # noqa: ANN001 — Protocol shape only
+        self.calls += 1
+        from gameforge.contracts.model_router import ModelResponse
+        return ModelResponse(response_normalized=self._text)
+
+
+def test_recall_text_gains_digest_section_only_after_compact():
+    m = MemTrace()  # DeterministicCompactor by default
+    m.record(_step(state="a", result="ok", state_hash="h1"))
+
+    before = m.recall_text("a", task=None)
+    assert before is not None
+    assert "Summary of progress so far:" not in before  # no compaction ran yet
+
+    digest = m.compact(m.trace[:], verdicts=[])
+    after = m.recall_text("a", task=None)
+    assert after is not None
+    assert after.startswith(f"Summary of progress so far:\n{digest}\n\n")
+    assert after.endswith(before)  # recall-item lines still present, unchanged
+
+
+def test_compactor_choice_changes_injected_recall_text():
+    # Same trace, same query — only the compactor differs. If the digest were
+    # computed and discarded (the pre-fix bug), det_text == llm_text always.
+    step = _step(state="a", result="ok", state_hash="h1")
+
+    det = MemTrace()  # DeterministicCompactor
+    det.record(step)
+    det.compact(det.trace[:], verdicts=[])
+    det_text = det.recall_text("a", task=None)
+
+    from gameforge.agents.playtest.memory import LLMCompactor
+    router = _ScriptedRouter("LLM DISTINCT SUMMARY: quest nearly complete")
+    llm = MemTrace(compactor=LLMCompactor())
+    llm.record(step)
+    llm.compact(llm.trace[:], verdicts=[], router=router)
+    llm_text = llm.recall_text("a", task=None)
+
+    assert router.calls == 1  # the LLM path was genuinely entered, not skipped
+    assert det_text != llm_text  # the compactor CHOICE changed the injected context
+    assert "LLM DISTINCT SUMMARY" in llm_text
+    assert "LLM DISTINCT SUMMARY" not in det_text
+
+
+def test_recall_text_returns_summary_only_when_digest_set_but_no_recall_items():
+    m = MemTrace()
+    digest = m.compact([], verdicts=[])  # empty trace -> deterministic empty-trace digest
+    assert m.trace == []
+    assert m.recall_text("anything", task=None) == f"Summary of progress so far:\n{digest}"
+
+
+def test_recall_text_none_when_truly_empty_and_uncompacted():
+    # No trace, no compact() call yet -> still None, unchanged from before this fix.
+    assert MemTrace().recall_text("x", task=None) is None
