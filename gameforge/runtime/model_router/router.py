@@ -6,6 +6,7 @@ same ModelResponse (PRD §5.5: 只承诺回放复现).
 """
 from __future__ import annotations
 
+import time
 from enum import Enum
 
 from gameforge.contracts.cassette import CASSETTE_MISS, CassetteRecord
@@ -39,12 +40,18 @@ class ModelRouter:
         max_retries: int = 2,
         max_calls: int | None = None,
         resume: bool = False,
+        retry_backoff_s: float = 0.0,
     ) -> None:
         self._transport = transport
         self._store = store
         self._mode = mode
         self._max_retries = max_retries
         self._max_calls = max_calls
+        # Exponential wait (retry_backoff_s * 2**attempt) between transport
+        # retries. 0.0 (default) = immediate retries, unchanged behavior. A
+        # positive value lets a long RECORD ride through a flapping gateway
+        # (transient 500s) instead of aborting the whole run.
+        self._retry_backoff_s = retry_backoff_s
         # RECORD + resume: reuse any cassette already on disk instead of
         # re-calling the transport, so an interrupted multi-thousand-call record
         # pass can be restarted and only records the still-missing requests.
@@ -86,7 +93,8 @@ class ModelRouter:
 
     def _complete_with_retry(self, req: ModelRequest) -> ModelResponse:
         last: Exception | None = None
-        for _ in range(self._max_retries + 1):
+        attempts = self._max_retries + 1
+        for attempt in range(attempts):
             if self._max_calls is not None and self._live_calls >= self._max_calls:
                 raise QuotaExceeded(f"live-call quota {self._max_calls} exhausted")
             self._live_calls += 1  # count EVERY real transport attempt (retries included)
@@ -94,6 +102,8 @@ class ModelRouter:
                 return self._transport.complete(req)
             except Exception as exc:  # transient gateway errors → retry then degrade
                 last = exc
+                if self._retry_backoff_s > 0 and attempt < attempts - 1:
+                    time.sleep(self._retry_backoff_s * (2**attempt))
         raise RuntimeError(
             f"transport failed after {self._max_retries + 1} attempts: {last}"
         )

@@ -137,6 +137,50 @@ def test_record_default_recalls_even_if_cassette_exists(tmp_path):
     assert len(stub2.calls) == 1  # re-called live despite the existing cassette
 
 
+def test_retry_backoff_sleeps_between_attempts(tmp_path, monkeypatch):
+    # Against a flapping gateway, immediate retries all fail in a burst. With
+    # retry_backoff_s>0 the router waits (exponentially) between attempts so it
+    # can ride through a transient outage. Sleeps are recorded (not real) here.
+    import gameforge.runtime.model_router.router as rmod
+
+    sleeps: list[float] = []
+    monkeypatch.setattr(rmod.time, "sleep", lambda s: sleeps.append(s))
+
+    req = _req()
+    n = {"i": 0}
+
+    class _Flaky2:
+        def __init__(self):
+            self.calls = []
+
+        def complete(self, r):
+            self.calls.append(r)
+            n["i"] += 1
+            if n["i"] <= 2:  # fail twice, then succeed
+                raise RuntimeError("500")
+            return ModelResponse(response_normalized="ok")
+
+    f = _Flaky2()
+    router = ModelRouter(
+        f, CassetteStore(tmp_path), mode=RouterMode.RECORD,
+        max_retries=5, retry_backoff_s=1.0,
+    )
+    assert router.call(req).response_normalized == "ok"
+    assert len(f.calls) == 3  # 2 failures + 1 success
+    assert sleeps == [1.0, 2.0]  # exponential backoff before retries 2 and 3; none after success
+
+
+def test_retry_backoff_zero_default_never_sleeps(tmp_path, monkeypatch):
+    # Default retry_backoff_s=0.0 preserves the original immediate-retry behavior.
+    import gameforge.runtime.model_router.router as rmod
+
+    sleeps: list[float] = []
+    monkeypatch.setattr(rmod.time, "sleep", lambda s: sleeps.append(s))
+    flaky = _FlakyTransport(fail_times=2, response=ModelResponse(response_normalized="ok"))
+    ModelRouter(flaky, CassetteStore(tmp_path), mode=RouterMode.RECORD, max_retries=2).call(_req())
+    assert sleeps == []  # no backoff configured → no sleeps
+
+
 def test_passthrough_calls_transport_but_never_writes_cassette(tmp_path):
     req = _req()
     stub = StubTransport({request_hash(req): ModelResponse(response_normalized="live-only")})
