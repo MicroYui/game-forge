@@ -652,7 +652,9 @@ git commit -m "feat(bench): add deterministic Flare candidate discovery"
 ### Task 3: Offline adjudication, independent groups, and provisional gate
 
 **Files:**
+- Modify: `gameforge/bench/flare_evidence.py`
 - Create: `gameforge/bench/flare_adjudication.py`
+- Modify: `tests/bench/conftest.py`
 - Create: `tests/bench/test_flare_adjudication.py`
 
 **Interfaces:**
@@ -662,12 +664,33 @@ git commit -m "feat(bench): add deterministic Flare candidate discovery"
 - Produces: `evaluate_provisional_gate(groups: Sequence[CandidateFixGroup], matrix: Sequence[ApplicabilityRow], search_round: str) -> GateSummary`
 - Consumes: Task 1 contracts and Task 2 immutable discovery facts
 
+**Post-Task-2 audit clarification:** The approved expanded-round rule requires every initial
+group decision to remain byte-equivalent, but the Task 1 ledger retained only aggregate
+adjudicator/reviewer sets and dropped per-group root-cause references and identity assignment.
+Add `group_decision_sha256: Sha256` to `CandidateFixGroup`, derived only by `adjudicate` as
+`sha256_hex(canonical_bytes(the complete CandidateGroupDecision))`. Do not sort any decision
+arrays before hashing and do not accept this digest from evidence. Both evidence group decisions
+and ledger groups require globally unique `fix_group_id` values. In an expanded ledger, the
+initial group IDs must be an ordered prefix, each prefix digest must equal the corresponding
+prior group digest, and new groups may appear only as a suffix. Standalone gate evaluation counts
+distinct group IDs and must not allow duplicates to inflate the threshold. This is an audit
+commitment only; it does not change any valid gate count or outcome.
+
+The test sketches below are behavioral examples, not permission to create internally stale
+Pydantic copies. Every mutation intended to reach adjudication semantics must refresh the review
+attestation and keep unrelated fields valid. Commit-range tests use real fixture OIDs and matching
+`selected_parent_edges`; tests locate the multicommit group by `fix_group_id` rather than assuming
+it is at index zero. The dedicated candidate-exclusions fixture must include a reviewed
+`non_bug/rejected` decision (use the merge candidate), in addition to `non_config_only` and
+`revert_or_duplicate`. A root group's first edge uses its discovered empty-tree `diff_base_oid`.
+
 - [ ] **Step 1: Write failing adjudication and gate tests**
 
 ```python
 # tests/bench/test_flare_adjudication.py
 import pytest
 
+from gameforge.bench.flare_evidence import canonical_bytes
 from gameforge.bench.flare_adjudication import (
     AdjudicationError,
     adjudicate,
@@ -685,16 +708,19 @@ def test_adjudication_groups_contiguous_first_parent_commits_and_counts_groups_n
     assert all(group.config_only for group in ledger.groups if group.counts_toward_gate)
 
 
-def test_mixed_or_non_contiguous_group_is_rejected(discovered_ledger, positive_evidence):
-    bad = positive_evidence.model_copy(
-        update={"group_decisions": [
-            positive_evidence.group_decisions[0].model_copy(
-                update={"commits": ["a" * 40, "c" * 40]}
-            ),
-            *positive_evidence.group_decisions[1:],
-        ]}
+def test_non_contiguous_group_is_rejected(
+    discovered_ledger, positive_evidence, flare_git_repo
+):
+    bad = replace_group_commits(
+        positive_evidence,
+        fix_group_id="group-multicommit",
+        commits=[flare_git_repo.multicommit_a, flare_git_repo.multicommit_c],
+        selected_parent_edges=real_selected_edges(
+            discovered_ledger,
+            [flare_git_repo.multicommit_a, flare_git_repo.multicommit_c],
+        ),
     )
-    with pytest.raises(AdjudicationError, match="first-parent|candidate"):
+    with pytest.raises(AdjudicationError, match="complete first-parent range"):
         adjudicate(discovered_ledger, bad)
 
 
@@ -718,29 +744,30 @@ def test_contiguous_context_commit_is_required_for_a_multicommit_group(
     discovered_ledger, evidence_with_multicommit_group, flare_git_repo
 ):
     ledger, _ = adjudicate(discovered_ledger, evidence_with_multicommit_group)
-    assert ledger.groups[0].commits == [
+    group = next(
+        item for item in ledger.groups if item.fix_group_id == "group-multicommit"
+    )
+    assert group.commits == [
         flare_git_repo.multicommit_a,
         flare_git_repo.multicommit_b,
         flare_git_repo.multicommit_c,
     ]
-    assert ledger.groups[0].before_commit == flare_git_repo.before_multicommit
-    assert ledger.groups[0].after_commit == flare_git_repo.multicommit_c
-    assert ledger.groups[0].after_committed_at > 0
-    assert ledger.groups[0].changed_paths == sorted(ledger.groups[0].changed_paths)
-    assert [item.commit_oid for item in ledger.groups[0].diff_evidence] == (
-        ledger.groups[0].commits
+    assert group.before_commit == flare_git_repo.before_multicommit
+    assert group.after_commit == flare_git_repo.multicommit_c
+    assert group.after_committed_at > 0
+    assert group.changed_paths == sorted(group.changed_paths)
+    assert [item.commit_oid for item in group.diff_evidence] == (
+        group.commits
     )
-    incomplete = evidence_with_multicommit_group.model_copy(update={
-        "group_decisions": [
-            evidence_with_multicommit_group.group_decisions[0].model_copy(update={
-                "commits": [
-                    flare_git_repo.multicommit_a,
-                    flare_git_repo.multicommit_c,
-                ]
-            }),
-            *evidence_with_multicommit_group.group_decisions[1:],
-        ]
-    })
+    incomplete = replace_group_commits(
+        evidence_with_multicommit_group,
+        fix_group_id="group-multicommit",
+        commits=[flare_git_repo.multicommit_a, flare_git_repo.multicommit_c],
+        selected_parent_edges=real_selected_edges(
+            discovered_ledger,
+            [flare_git_repo.multicommit_a, flare_git_repo.multicommit_c],
+        ),
+    )
     with pytest.raises(AdjudicationError, match="complete first-parent range"):
         adjudicate(discovered_ledger, incomplete)
 
@@ -820,13 +847,10 @@ def test_initial_failure_requires_the_prefrozen_expanded_round():
 def test_expanded_round_cannot_relabel_or_regroup_initial_candidates(
     expanded_discovery, expanded_evidence, initial_ledger, initial_decision
 ):
-    changed = expanded_evidence.model_copy(
-        update={"group_decisions": [
-            expanded_evidence.group_decisions[0].model_copy(
-                update={"rationale": "changed after seeing the initial gate"}
-            ),
-            *expanded_evidence.group_decisions[1:],
-        ]}
+    changed = replace_group_rationale(
+        expanded_evidence,
+        fix_group_id=expanded_evidence.group_decisions[0].fix_group_id,
+        rationale="changed after seeing the initial gate",
     )
     with pytest.raises(AdjudicationError, match="initial decision"):
         adjudicate(expanded_discovery, changed, initial_ledger, initial_decision)
@@ -838,9 +862,32 @@ def test_expanded_round_can_only_append_new_top_level_lineage_resolutions(
     ledger, _ = adjudicate(
         expanded_discovery, expanded_evidence, initial_ledger, initial_decision
     )
-    initial_ids = {item.link_id for item in initial_ledger.lineage_resolutions}
-    expanded_ids = {item.link_id for item in ledger.lineage_resolutions}
-    assert initial_ids < expanded_ids
+    initial = [canonical_bytes(item) for item in initial_ledger.lineage_resolutions]
+    expanded = [canonical_bytes(item) for item in ledger.lineage_resolutions]
+    assert expanded[:len(initial)] == initial
+    assert len(expanded) > len(initial)
+
+
+@pytest.mark.parametrize("mutation", ["change", "reorder", "prepend"])
+def test_expanded_candidate_decisions_are_an_unchanged_ordered_prefix(
+    mutation, expanded_discovery, expanded_evidence, initial_ledger, initial_decision
+):
+    changed = mutate_initial_candidate_decisions(
+        expanded_evidence, initial_ledger, mutation
+    )
+    with pytest.raises(AdjudicationError, match="initial decision|ordered prefix"):
+        adjudicate(expanded_discovery, changed, initial_ledger, initial_decision)
+
+
+@pytest.mark.parametrize("mutation", ["change", "reorder", "prepend"])
+def test_expanded_lineage_resolutions_are_an_unchanged_ordered_prefix(
+    mutation, expanded_discovery, expanded_evidence, initial_ledger, initial_decision
+):
+    changed = mutate_initial_lineage_resolutions(
+        expanded_evidence, initial_ledger, mutation
+    )
+    with pytest.raises(AdjudicationError, match="lineage resolution|ordered prefix"):
+        adjudicate(expanded_discovery, changed, initial_ledger, initial_decision)
 
 
 @pytest.mark.parametrize(
@@ -914,11 +961,11 @@ reviewer. These entries intentionally have no defect class.
 
 The closed reason codes are `non_bug | out_of_taxonomy | non_config_only | indeterminate_oracle | revert_or_duplicate | insufficient_context`. `indeterminate_oracle` and `insufficient_context` require `ambiguous`; the other four require `rejected`. Mixed engine/schema/config commits use `non_config_only`, not a second overlapping code.
 
-Reject evidence when its source/candidate/prior hash is wrong; approval is stale; an evidence ref does not resolve; a commit is unknown or assigned twice; a grouped range omits an intervening first-parent commit; a selected merge parent differs from discovery's exact `selected_parent_oid`; or any commit in a proposed group is not config-only. Membership in `parent_oids` is insufficient because B0A grouping is first-parent continuous. Every discovered candidate must appear in exactly one group or one `CandidateDisposition`; the two sets must be disjoint and their union must equal the candidate universe. Use a candidate disposition, without a fake defect class, for non-bugs, out-of-taxonomy changes, non-config-only commits, indeterminate oracles, duplicate/backport/revert evidence, and insufficient context. Matrix rejected/ambiguous counts include only typed cases; untyped exclusions are counted by `reason_code` in the gate summary. During expanded adjudication, every initial group and candidate-level decision must be byte-equivalent after canonical projection, including group ID, commits, cases, dispositions, labels, rationale, reviewer/adjudicator, and evidence refs. Existing top-level lineage resolutions must also be byte-equivalent; expanded evidence may append new groups, candidate decisions, and resolutions only for newly materialized links, but may not relabel, regroup, or delete an initial candidate.
+Reject evidence when its source/candidate/prior hash is wrong; approval is stale; an evidence ref does not resolve; a commit is unknown or assigned twice; a grouped range omits an intervening first-parent commit; a selected merge parent differs from discovery's exact `selected_parent_oid`; or any commit in a proposed group is not config-only. Membership in `parent_oids` is insufficient because B0A grouping is first-parent continuous. Every discovered candidate must appear in exactly one group or one `CandidateDisposition`; the two sets must be disjoint and their union must equal the candidate universe. Use a candidate disposition, without a fake defect class, for non-bugs, out-of-taxonomy changes, non-config-only commits, indeterminate oracles, duplicate/backport/revert evidence, and insufficient context. Matrix rejected/ambiguous counts include only typed cases; untyped exclusions are counted by `reason_code` in the gate summary. During expanded adjudication, every initial group and candidate-level decision must be byte-equivalent after canonical projection, including group ID, commits, cases, dispositions, labels, rationale, reviewer/adjudicator, and evidence refs. `CandidateFixGroup.group_decision_sha256` binds the complete reviewed group projection. Initial group IDs and initial candidate-decision commit IDs must remain ordered prefixes of their expanded sequences; new decisions may only be appended. Existing top-level lineage resolutions must also be byte-equivalent; expanded evidence may append new groups, candidate decisions, and resolutions only for newly materialized links, but may not relabel, regroup, reorder, insert before, or delete an initial candidate. Reject duplicate group IDs before building any mapping or evaluating the gate.
 
 Expanded adjudication accepts only a prior pair from the same registered search. The prior ledger must be `search_round="initial"`; its decision must point to the full canonical prior-ledger bytes and have `expanded_round_required`; and the prior ledger's schema version, complete `search_frame`, `search_spec_sha256`, `search_registration`, `observed_revision_count`, and complete `discovery_tool` must equal the corresponding binding fields in the expanded discovery. Both evidence prior hashes must match that exact pair. Parameterized one-field mutations independently prove that another head/spec, registration commit, observed source revision, or tool revision is rejected before projection comparison.
 
-Derive every `CandidateFixGroup` entirely from discovery facts and reviewed decisions: `before_commit` is the selected parent of the first commit, `after_commit`/`after_committed_at` come from the final commit, `changed_paths` is the sorted union, `config_only` is the conjunction, and `diff_evidence[]` preserves the ordered per-commit patch/message records. `lineage_links[]` contains the resolved stable link IDs touching the group. No combined patch is synthesized during offline adjudication and no group field may require reopening the Flare clone.
+Derive every `CandidateFixGroup` entirely from discovery facts and reviewed decisions: `group_decision_sha256` hashes the complete canonical reviewed group decision; `before_commit` is the selected diff base of the first commit (its first parent, or the empty-tree OID for a root); `after_commit`/`after_committed_at` come from the final commit; `changed_paths` is the sorted union; `config_only` is the conjunction; and `diff_evidence[]` preserves the ordered per-commit patch/message records. `lineage_links[]` contains the resolved stable link IDs touching the group. No combined patch is synthesized during offline adjudication and no group field may require reopening the Flare clone.
 
 Objective lineage cannot inflate independence. `cherry_pick` and `backport` links must resolve as the same fix, with at most one endpoint in a counted group and every non-primary endpoint excluded as `revert_or_duplicate` unless a continuous group can contain it. A revert endpoint is always uncounted. Only a raw `patch_id` collision may resolve as independent, and only with nonempty root-cause evidence showing distinct fixes. Add negative tests that try to count both cherry-pick/backport endpoints or a revert and assert the gate rejects them.
 
@@ -926,7 +973,7 @@ Derive group disposition with priority `ambiguous`, then `proposed`, then `rejec
 
 `CandidateLedger` repeats the full `search_frame`, search-spec registration, search round, `observed_revision_count`, complete `discovery_tool`, discovery-ledger/candidate-universe/adjudication-evidence hashes, evidence revision, prior ledger/decision hashes when expanded, and derived adjudicator/reviewer identities, then contains groups, candidate decisions, applicability matrix, gate summary, and top-level lineage resolutions. Its `adjudication_evidence_sha256` hashes the full canonical evidence including the attestation. `B0ADecision` is deliberately minimal: schema version, full canonical candidate-ledger SHA-256, and a gate summary byte-equivalent to the ledger's gate. There are no self-hash fields and no redundant transitive hash copies: each downstream object binds the complete canonical upstream bytes. Tests must mutate one provenance field at a time and prove replay rejects the tampered chain.
 
-All helper constructors referenced by this test (`make_groups`, `complete_matrix`, evidence replacement helpers) are defined before the tests in the same module. Reusable pydantic fixtures live in `tests/bench/conftest.py`; `foreign_initial_pair_factory` changes exactly one requested prior-ledger binding field, recomputes `B0ADecision.candidate_ledger_sha256`, replaces both expanded-evidence prior hashes, and refreshes the evidence approval-payload hash/attestation so every other provenance check is valid. The stated GREEN run cannot rely on undeclared pytest fixtures.
+All helper constructors referenced by this test (`make_groups`, `complete_matrix`, evidence replacement helpers) are defined before the tests in the same module. Every replacement helper rebuilds a fully valid `AdjudicationEvidence` and refreshes the approval-payload hash; a targeted negative test must leave only its intended semantic violation. Reusable pydantic fixtures live in `tests/bench/conftest.py`; `foreign_initial_pair_factory` changes exactly one requested prior-ledger binding field, recomputes `B0ADecision.candidate_ledger_sha256`, replaces both expanded-evidence prior hashes, and refreshes the evidence approval-payload hash/attestation so every other provenance check is valid. Add explicit regression tests for the exact group-decision digest, changed initial root-cause refs, swapped per-group adjudicator assignments, duplicate group IDs, initial-group reorder/insertion, duplicate IDs not inflating the gate, candidate-decision change/reorder/prepend, and lineage-resolution change/reorder/prepend. Positive expanded replay compares the complete canonical initial prefixes, not only ID sets. The stated GREEN run cannot rely on undeclared pytest fixtures.
 
 - [ ] **Step 4: Run focused tests to verify GREEN**
 
@@ -937,7 +984,8 @@ Expected: all tests pass.
 - [ ] **Step 5: Commit**
 
 ```bash
-git add gameforge/bench/flare_adjudication.py tests/bench/test_flare_adjudication.py
+git add gameforge/bench/flare_evidence.py gameforge/bench/flare_adjudication.py \
+  tests/bench/conftest.py tests/bench/test_flare_adjudication.py
 git commit -m "feat(bench): add Flare B0A adjudication gate"
 ```
 

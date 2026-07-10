@@ -433,6 +433,7 @@ CandidateLedger {
 
 CandidateFixGroup {
   fix_group_id,
+  group_decision_sha256,
   commits[],
   before_commit,
   after_commit,
@@ -464,6 +465,12 @@ CandidateDisposition {
   reviewer_id
 }
 ```
+
+`group_decision_sha256` 是完整 canonical `CandidateGroupDecision` 的 SHA-256 commitment，
+不是由 evidence 声明的值。它使 expanded round 在不重新接收初轮 evidence 的前提下，仍能
+逐组验证初轮 root-cause refs、case decisions、逐组 adjudicator/reviewer 与 rationale 未被
+改写。expanded groups 必须以初轮 group 序列为有序前缀，新 group 只能追加在其后；两轮都
+拒绝重复 `fix_group_id`。
 
 `disposition_summary` 必须由 cases 确定性派生；任何 gate、split 或指标都读取 case/unit
 disposition，而不是摘要。B0A gate summary 记录 proposed group/class 数、失败原因和
