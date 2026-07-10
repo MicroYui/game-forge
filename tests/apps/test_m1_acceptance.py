@@ -85,6 +85,16 @@ def test_clean_baseline_has_zero_oracle_false_positives():
     assert report.unproven_findings == []
 
 
+def test_clean_baseline_has_no_false_economy_collapse():
+    # After plumbing SELLS sink attrs, the clean baseline gains a sink (price=50
+    # potion) but has NO faucet (wolf gold cells empty) -> zero income -> the
+    # sink can never fire -> no collapse. Lock that plumbing introduced no false
+    # simulation-bucket positive on clean.
+    report = run_review(_CLEAN, _CONSTRAINTS, seed=0)
+    assert not any(f.defect_class == "economy_collapse"
+                   for f in report.simulation_findings)
+
+
 def test_dsl_compiles_to_clingo_and_z3():
     constraints = _load_all_constraints()
     checkers = compile_all(constraints)
