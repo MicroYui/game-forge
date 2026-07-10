@@ -54,6 +54,7 @@ def _power_rows(bdr: list[Metric], per_class_n: dict[DefectClass, int]) -> list[
 def build_bench_report(
     seed: int = 0,
     with_agent: bool = True,
+    with_external: bool = True,
     per_class_n: dict[DefectClass, int] | None = None,
     n_clean: int = 40,
     constraints=None,
@@ -65,10 +66,14 @@ def build_bench_report(
     seeded = score.bdr + _narrative_pending()
     agent = aggregate_agent_metrics() if with_agent else []
     power = _power_rows(score.bdr, corpus.per_class_n)
+    external = None
+    if with_external:
+        from gameforge.bench.external import build_external_report
+        external = build_external_report(constraints)
     meta = BenchMeta(seed=seed, corpus_size=len(corpus.samples), model_snapshot=model_snapshot)
     return BenchReport(
         seeded=seeded, oracle_fp=score.oracle_fp, constraint_fp=score.constraint_fp,
-        agent=agent, power=power, meta=meta,
+        agent=agent, power=power, meta=meta, external=external,
     )
 
 
@@ -76,9 +81,12 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run GameForge-Bench (seeded).")
     parser.add_argument("--json", action="store_true", help="emit the JSON BenchReport")
     parser.add_argument("--no-agent", action="store_true", help="skip agent metrics (faster)")
+    parser.add_argument("--no-external", action="store_true", help="skip external Flare cross-validation")
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args(argv)
-    report = build_bench_report(seed=args.seed, with_agent=not args.no_agent)
+    report = build_bench_report(
+        seed=args.seed, with_agent=not args.no_agent, with_external=not args.no_external
+    )
     print(report.to_json() if args.json else format_text(report))
     return 0
 

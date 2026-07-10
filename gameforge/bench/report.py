@@ -9,22 +9,34 @@ interactive panel is deferred to M3c/M4 (interface-defined here via the JSON).
 """
 from __future__ import annotations
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from gameforge.bench.metrics import FPReport, Metric
 from gameforge.bench.power import PowerRow
 
 
 class ExternalReport(BaseModel):
-    """External-validity cross-check (M3b): detection on a real open-source
-    game's non-injected defects. Interface-defined now, filled in M3b."""
+    """External-validity cross-check (M3b): the GameForge checkers run over REAL
+    open-source game content (Flare / flareteam/flare-game), breaking the seeded
+    self-circularity (a checker built independent of a taxonomy, validated on
+    content nobody on this project authored). Carries BOTH detection on real
+    NON-INJECTED defect samples (from mined bug-fix commits) AND the checker's
+    false-positive behavior on real CLEAN content — the seeded oracle-FP=0 was
+    measured only on the synthetic Aureus base, which never had, e.g., the
+    standalone items real game content does."""
 
     source: str
-    n_samples: int
-    detected: int
-    rate: float
-    ci_low: float
-    ci_high: float
+    n_real_entities: int = 0
+    # detection on real non-injected defect samples (mined pre-fix configs)
+    n_defect_samples: int = 0
+    detected: int = 0
+    detection_rate: float = 0.0
+    ci_low: float = 0.0
+    ci_high: float = 1.0
+    # the checkers' finding behaviour on real CLEAN content (external FP signal)
+    clean_deterministic_findings: int = 0
+    clean_findings_by_class: dict[str, int] = Field(default_factory=dict)
+    note: str = ""
 
 
 class BenchMeta(BaseModel):
@@ -93,7 +105,13 @@ def format_text(report: BenchReport) -> str:
     if report.external is not None:
         e = report.external
         lines.append(f"\n-- External validity ({e.source}) --")
-        lines.append(f"  detected {e.detected}/{e.n_samples} = {e.rate:.1%} "
-                     f"95%CI=[{e.ci_low:.2f},{e.ci_high:.2f}]")
+        lines.append(f"  real entities imported: {e.n_real_entities}")
+        if e.n_defect_samples:
+            lines.append(f"  detected {e.detected}/{e.n_defect_samples} real defects "
+                         f"= {e.detection_rate:.1%} 95%CI=[{e.ci_low:.2f},{e.ci_high:.2f}]")
+        lines.append(f"  deterministic findings on real CLEAN content: "
+                     f"{e.clean_deterministic_findings} {dict(e.clean_findings_by_class)}")
+        if e.note:
+            lines.append(f"  note: {e.note}")
 
     return "\n".join(lines)

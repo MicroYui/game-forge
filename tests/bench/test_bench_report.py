@@ -34,10 +34,14 @@ def test_bench_report_round_trips_json():
 
 def test_external_slot_accepts_m3b_report():
     r = _sample()
-    r.external = ExternalReport(source="flare", n_samples=12, detected=9,
-                                rate=0.75, ci_low=0.43, ci_high=0.93)
+    r.external = ExternalReport(
+        source="flare-game", n_real_entities=7, n_defect_samples=12, detected=9,
+        detection_rate=0.75, ci_low=0.43, ci_high=0.93,
+        clean_deterministic_findings=3, clean_findings_by_class={"isolated_node": 3},
+    )
     back = BenchReport.model_validate_json(r.to_json())
-    assert back.external is not None and back.external.source == "flare"
+    assert back.external is not None and back.external.source == "flare-game"
+    assert back.external.clean_findings_by_class["isolated_node"] == 3
 
 
 def test_format_text_separates_buckets_and_reports_oracle_fp_and_power():
