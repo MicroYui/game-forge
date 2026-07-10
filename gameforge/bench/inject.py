@@ -99,10 +99,18 @@ def _suffix(rng: random.Random) -> str:
 # ---------------------------------------------------------------------------
 def _inject_dangling_reference(base: Snapshot, rng: random.Random) -> InjectedSample:
     entities, relations = _clone_lists(base)
-    relations.sort(key=lambda r: r.id)  # deterministic candidate order
-    if not relations:
+    # Prefer relations whose dangling dst is a PURE dangling reference. Breaking
+    # a quest-structural edge (HAS_STEP/PRECEDES/STARTS_AT) also cascades into
+    # dead_quest/unsatisfiable_completion — that would violate single-defect
+    # isolation (design §3 invariant (b)), so exclude those when alternatives
+    # exist (fall back to any relation only if the base has nothing else).
+    _cascade = {EdgeType.HAS_STEP, EdgeType.PRECEDES, EdgeType.STARTS_AT}
+    cands = sorted((r for r in relations if r.type not in _cascade), key=lambda r: r.id)
+    if not cands:
+        cands = sorted(relations, key=lambda r: r.id)
+    if not cands:
         raise ValueError("base snapshot has no relation to make dangling")
-    rel = relations[rng.randrange(len(relations))]
+    rel = cands[rng.randrange(len(cands))]
     bad_dst = f"entity:injected-dangling-{_suffix(rng)}"
     rel.dst_id = bad_dst
 
@@ -160,48 +168,52 @@ def _inject_missing_drop_source(base: Snapshot, rng: random.Random) -> InjectedS
 # ---------------------------------------------------------------------------
 def _inject_unreachable_target(base: Snapshot, rng: random.Random) -> InjectedSample:
     entities, relations = _clone_lists(base)
-    steps = sorted(
-        (
-            e for e in entities
-            if e.type is NodeType.QUEST_STEP
-            and e.attrs.get("kind") in ("talk", "turn_in")
-            and e.attrs.get("target")
-        ),
-        key=lambda e: e.id,
-    )
-    if not steps:
-        raise ValueError("base snapshot has no talk/turn_in step with a target")
-    step = steps[rng.randrange(len(steps))]
-    target_id = step.attrs["target"]
-    target = next((e for e in entities if e.id == target_id), None)
-    if target is None:
-        raise ValueError(f"target entity {target_id!r} referenced by step {step.id!r} not found")
-
     region = next((e for e in entities if e.type is NodeType.REGION and "grid" in e.attrs), None)
     if region is None:
         raise ValueError("base snapshot has no region carrying grid metadata")
     grid = region.attrs["grid"]
     width, height = int(grid["width"]), int(grid["height"])
-    if width < 2 or height < 2:
+    if width < 3 or height < 3:
         raise ValueError("region grid too small to carve an isolated unreachable cell")
 
-    # Move the target into the bottom-right corner and wall off its only two
-    # in-bounds (4-directional) neighbors — a corner cell has no others — so
-    # it is provably unreachable from anywhere else on the grid, including
-    # the region's `start_pos`.
+    # Wall off the bottom-right CORNER's only two in-bounds neighbors so it is
+    # provably unreachable. Then inject a SELF-CONTAINED quest whose giver sits
+    # at a reachable cell (0,0) and whose talk step targets a NEW npc placed in
+    # that corner. `GraphChecker._unreachable_target` tests reachability from the
+    # quest GIVER to the step target — so giver and target MUST be different
+    # entities (the clean base's lone npc is both giver and target of its quest,
+    # which would make the check `reachable(corner, corner) == True`).
     corner = (width - 1, height - 1)
     blocked = {tuple(c) for c in grid.get("blocked", [])}
     blocked.add((width - 2, height - 1))
     blocked.add((width - 1, height - 2))
     region.attrs = {**region.attrs, "grid": {**grid, "blocked": [list(c) for c in sorted(blocked)]}}
-    target.attrs = {**target.attrs, "pos": list(corner)}
+
+    suffix = _suffix(rng)
+    giver_id = f"npc:injected-ur-giver-{suffix}"
+    target_id = f"npc:injected-ur-target-{suffix}"
+    quest_id = f"quest:injected-ur-{suffix}"
+    step_id = f"step:injected-ur-talk-{suffix}"
+    entities.append(Entity(id=giver_id, type=NodeType.NPC,
+                           attrs={"name": "UR Giver", "pos": [0, 0]}))
+    entities.append(Entity(id=target_id, type=NodeType.NPC,
+                           attrs={"name": "UR Target", "pos": list(corner)}))
+    entities.append(Entity(id=quest_id, type=NodeType.QUEST,
+                           attrs={"title": "Injected Unreachable Target",
+                                  "giver": giver_id, "region": region.id}))
+    entities.append(Entity(id=step_id, type=NodeType.QUEST_STEP,
+                           attrs={"kind": "talk", "target": target_id}))
+    relations.append(Relation(id=f"rel:injected-ur-starts-{suffix}",
+                              type=EdgeType.STARTS_AT, src_id=quest_id, dst_id=giver_id))
+    relations.append(Relation(id=f"rel:injected-ur-hasstep-{suffix}",
+                              type=EdgeType.HAS_STEP, src_id=quest_id, dst_id=step_id))
 
     snapshot = Snapshot.from_entities_relations(entities, relations)
     gt = GroundTruth(
         defect_class=DefectClass.unreachable_target,
-        injected_entities=[target_id],
-        note=f"moved target {target_id!r} (step {step.id!r}) to corner {corner}, "
-        f"walled off from the region's start_pos",
+        injected_entities=[quest_id, step_id, target_id],
+        note=f"quest {quest_id!r} talk step targets {target_id!r} walled into corner "
+        f"{corner}, unreachable from giver {giver_id!r} at (0,0)",
     )
     return InjectedSample(snapshot=snapshot, ground_truth=gt, needs_nav=True)
 
@@ -430,17 +442,36 @@ def _inject_economy_collapse(base: Snapshot, rng: random.Random) -> InjectedSamp
     monsters = sorted((e for e in entities if e.type is NodeType.MONSTER), key=lambda e: e.id)
     if not monsters:
         raise ValueError("base snapshot has no monster to turn into a runaway faucet")
+    currencies = sorted((e for e in entities if e.type is NodeType.CURRENCY), key=lambda e: e.id)
+    if not currencies:
+        raise ValueError("base snapshot has no currency to flood")
     m = monsters[rng.randrange(len(monsters))]
+    cur = currencies[0].id
     gmin = 500 + rng.randrange(500)
     gmax = gmin + 500 + rng.randrange(500)  # >>> any sink price → source ≫ sink
-    m.attrs = {**m.attrs, "gold_min": gmin, "gold_max": gmax, "currency": "gold"}
+    m.attrs = {
+        **m.attrs, "gold_min": gmin, "gold_max": gmax, "currency": cur, "kills_per_tick": 5,
+    }
+    # `EconomyModel.from_snapshot` reads gold sources off MONSTER--DROPS_FROM-->
+    # CURRENCY edges (not the monster's item drop_table). The clean base has no
+    # such gold-faucet edge, so add one — otherwise the inflated gold_min/max are
+    # never simulated and no collapse occurs.
+    has_edge = any(
+        r.type is EdgeType.DROPS_FROM and r.src_id == m.id and r.dst_id == cur
+        for r in relations
+    )
+    if not has_edge:
+        relations.append(Relation(
+            id=f"rel:injected-gold-faucet-{_suffix(rng)}",
+            type=EdgeType.DROPS_FROM, src_id=m.id, dst_id=cur,
+        ))
 
     snapshot = Snapshot.from_entities_relations(entities, relations)
     gt = GroundTruth(
         defect_class=DefectClass.economy_collapse,
         injected_entities=[m.id],
-        note=f"monster {m.id!r} gold_min/max→{gmin}/{gmax} with no offsetting sink: "
-        f"gold supply diverges (economy collapse)",
+        note=f"monster {m.id!r} made a runaway {cur!r} faucet (gold_min/max→{gmin}/{gmax}, "
+        f"kills_per_tick=5, DROPS_FROM→{cur}) with no offsetting sink: gold supply diverges",
     )
     return InjectedSample(snapshot=snapshot, ground_truth=gt)
 

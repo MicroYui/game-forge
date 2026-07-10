@@ -168,24 +168,28 @@ def test_missing_drop_source_removes_the_items_only_source():
 
 
 # --- 3. unreachable_target ----------------------------------------------------
-def test_unreachable_target_has_no_grid_path_from_start():
-    base = clean_base()
-    s = inject(base, DefectClass.unreachable_target, seed=1)
+def test_unreachable_target_giver_cannot_reach_the_walled_target():
+    # The injector adds a SELF-CONTAINED quest: a giver at a reachable cell and
+    # a talk step whose target is a NEW npc walled into the grid corner.
+    # `GraphChecker._unreachable_target` checks reachability from the GIVER to
+    # the target (NOT from the player start), so the property test does too.
+    s = inject(clean_base(), DefectClass.unreachable_target, seed=1)
     assert s.needs_nav is True
-    target_id = s.ground_truth.injected_entities[-1]
-
-    base_attrs, base_start = _region_and_start(base)
-    base_g = base.to_graph()
-    base_target = base_g.get_node(target_id)
-    base_pos = tuple(int(v) for v in base_target.attrs["pos"])
-    assert _grid_reachable(base_attrs, base_start, base_pos)  # base: reachable (sanity)
-
-    attrs, start = _region_and_start(s.snapshot)
+    quest_id, step_id, target_id = s.ground_truth.injected_entities
     g = s.snapshot.to_graph()
-    target = g.get_node(target_id)
-    pos = tuple(int(v) for v in target.attrs["pos"])
-    assert pos != base_pos  # actually moved
-    assert not _grid_reachable(attrs, start, pos)
+    giver = next(
+        r.dst_id for r in g.all_relations()
+        if r.type is EdgeType.STARTS_AT and r.src_id == quest_id
+    )
+    assert giver != target_id  # giver and target MUST differ (else reachable(x,x)==True)
+
+    attrs, _ = _region_and_start(s.snapshot)
+    giver_pos = tuple(int(v) for v in g.get_node(giver).attrs["pos"])
+    target_pos = tuple(int(v) for v in g.get_node(target_id).attrs["pos"])
+    # independent grid BFS (not the nav module): giver cannot reach the target,
+    # but CAN reach some other interior cell (the grid is not globally blocked)
+    assert not _grid_reachable(attrs, giver_pos, target_pos)
+    assert _grid_reachable(attrs, giver_pos, (0, 1)) or _grid_reachable(attrs, giver_pos, (1, 0))
 
 
 # --- 4. cyclic_dependency -----------------------------------------------------
@@ -225,21 +229,18 @@ def test_injectors_are_seeded_reproducible_and_distinct():
 
 
 # `clean_base()` (design fixture) has exactly ONE quest, ONE collect step, and
-# its two talk/turn_in steps share a single target NPC (confirmed by direct
-# inspection above) — so for `missing_drop_source`, `dead_quest`, and
-# `unreachable_target` there is only ONE candidate to mutate from this base,
-# and neither injector mixes the seed into the mutation itself (there is
-# nothing to make unique: a deletion is a deletion, a corner is a corner).
-# Their snapshots are therefore identical across seeds on THIS base — that is
-# correct, not a bug: distinctness is a property of (base, defect) having a
-# search space bigger than one, not an unconditional per-injector guarantee.
-# `dangling_reference`/`cyclic_dependency`/`unsatisfiable_completion` all mix
-# the seed into the injected id (a suffix) or into which of >1 candidates is
-# picked, so they DO diverge across seeds even on this small base.
+# its lone talk/turn_in target is also the quest giver — so for
+# `missing_drop_source` and `dead_quest` there is only ONE candidate to mutate
+# from this base, and neither injector mixes the seed into the mutation itself
+# (a deletion is a deletion). Their snapshots are therefore identical across
+# seeds on THIS base — correct, not a bug: distinctness is a property of
+# (base, defect) having a search space bigger than one.
+# `dangling_reference`/`cyclic_dependency`/`unsatisfiable_completion`/
+# `unreachable_target` all mix the seed into an injected id suffix (or into
+# which of >1 candidates is picked), so they DO diverge across seeds.
 _SEED_INVARIANT_ON_CLEAN_BASE = {
     DefectClass.missing_drop_source,
     DefectClass.dead_quest,
-    DefectClass.unreachable_target,
 }
 
 
