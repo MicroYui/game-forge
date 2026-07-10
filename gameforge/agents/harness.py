@@ -278,6 +278,9 @@ def record_router(cassettes_root: str = _CASSETTES_ROOT) -> ModelRouter:
         AnthropicMessagesTransport(base_url="http://localhost:4141", api_key=get_llm_key()),
         CassetteStore(cassettes_root),
         mode=RouterMode.RECORD,
+        resume=True,  # reuse unchanged on-disk cassettes; only re-record changed requests
+        max_retries=8,
+        retry_backoff_s=3.0,  # ride through the gateway's transient 500s on a long record
     )
 
 
