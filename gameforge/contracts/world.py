@@ -122,6 +122,7 @@ class ShopEntry(BaseModel):
     item: str
     price: int
     currency: str = "gold"
+    buy_prob: float | None = None  # sim sink purchase-probability; kernel ignores it
 
 
 class ShopSpec(BaseModel):
