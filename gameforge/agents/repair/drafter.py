@@ -33,6 +33,11 @@ _VALID_OP_KINDS = {
     "add_relation", "delete_relation", "set_relation_attr", "replace_subgraph",
 }
 
+# old_value optimistic concurrency is meaningful only for in-place updates
+# (set_*/replace_subgraph); for add_* (no prior value) and delete_* (identified
+# by id) a model-supplied old_value only causes spurious apply_patch rejections.
+_DROP_OLD_VALUE_OPS = {"add_entity", "add_relation", "delete_entity", "delete_relation"}
+
 _CATALOG_CAP = 50  # per-type cap on the available-entity catalog (bounds token size)
 
 
@@ -167,18 +172,20 @@ class RepairDrafter:
             target = item.get("target")
             if not isinstance(target, str) or not target:
                 continue  # every TypedOp needs a target
-            # deletion is identified by target id alone; a model-summarized
-            # old_value can't match apply_patch's full-object current value and
-            # would spuriously trip its optimistic-concurrency pre-check, so drop
-            # it for deletes. old_value stays authoritative for set_* ops, where
-            # it guards against stale writes.
-            is_delete = op_kind in ("delete_relation", "delete_entity")
+            # old_value is an optimistic-concurrency assertion about a
+            # PRE-EXISTING value, so it is meaningful only for in-place updates
+            # (set_entity_attr / set_relation_attr / replace_subgraph). For
+            # add_* (no prior value) and delete_* (identified by target id
+            # alone), a model-summarized old_value can never equal apply_patch's
+            # full-object current value and would only trip its concurrency
+            # pre-check into a spurious PatchRejected — so drop it there.
+            drop_old_value = op_kind in _DROP_OLD_VALUE_OPS
             ops.append(
                 TypedOp(
                     op_id=str(item.get("op_id", f"op{i}")),
                     op=op_kind,  # type: ignore[arg-type]  # validated against _VALID_OP_KINDS
                     target=target,
-                    old_value=None if is_delete else item.get("old_value"),
+                    old_value=None if drop_old_value else item.get("old_value"),
                     new_value=item.get("new_value"),
                     source_ref=item.get("source_ref"),
                 )

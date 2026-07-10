@@ -42,26 +42,35 @@ def test_ir_context_exposes_relations_catalog_and_edge_types():
     assert EdgeType.PRECEDES.value in ctx["edge_types"]
 
 
-def test_build_ops_drops_old_value_on_delete_ops():
-    # A model-summarized old_value on a delete op can't match apply_patch's
+def test_build_ops_drops_old_value_on_add_and_delete_ops():
+    # A model-summarized old_value on an add/delete op can't match apply_patch's
     # full-object current value, so its optimistic-concurrency pre-check
-    # (spine/patch.py) would spuriously reject the whole patch. Deletion is
-    # identified by target id alone, so the drafter drops old_value for
-    # delete_relation/delete_entity — while keeping it authoritative for set_*
-    # ops, where it genuinely guards against stale writes.
+    # (spine/patch.py) would spuriously reject the whole patch. old_value is an
+    # assertion about a PRE-EXISTING value — meaningful only for in-place updates
+    # (set_*/replace_subgraph); add_* have no prior value and delete_* are
+    # identified by id alone, so the drafter drops old_value there.
     raw = [
         {"op": "delete_relation", "target": "r_pre",
          "old_value": {"type": "PRECEDES", "src_id": "s1", "dst_id": "s2"}},
         {"op": "delete_entity", "target": "e1", "old_value": {"type": "QUEST"}},
+        {"op": "add_relation", "target": "rel_fix_1", "old_value": {"stale": True},
+         "new_value": {"type": "PRECEDES", "src_id": "s3", "dst_id": "s4"}},
+        {"op": "add_entity", "target": "e_new", "old_value": {"stale": True},
+         "new_value": {"type": "NPC", "attrs": {}}},
         {"op": "set_relation_attr", "target": "r_x.price", "old_value": 50, "new_value": 60},
         {"op": "set_entity_attr", "target": "e2.gold", "old_value": 5, "new_value": 3},
+        {"op": "replace_subgraph", "target": "sg", "old_value": {"v": 1}, "new_value": {"v": 2}},
     ]
     by_op = {o.op: o for o in RepairDrafter()._build_ops(raw)}
+    # add_* / delete_* drop old_value (spurious-rejection class)
     assert by_op["delete_relation"].old_value is None
     assert by_op["delete_entity"].old_value is None
-    # set_* ops keep old_value (optimistic concurrency preserved)
+    assert by_op["add_relation"].old_value is None
+    assert by_op["add_entity"].old_value is None
+    # in-place updates keep old_value (optimistic concurrency preserved)
     assert by_op["set_relation_attr"].old_value == 50
     assert by_op["set_entity_attr"].old_value == 5
+    assert by_op["replace_subgraph"].old_value == {"v": 1}
 
 
 def test_ir_context_still_includes_focus_node_attrs():
