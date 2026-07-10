@@ -101,6 +101,15 @@ def test_fix_pass_rate_ge_70pct():
     result = run_repair_corpus(default_scenario_dirs(), _CONSTRAINTS, replay_router())
     assert result.attempted == 10
     assert result.fix_pass_rate >= 0.70
+    # The economy-sink-adapter increment lifted this to a genuine 10/10: the
+    # plumbed SELLS sink made economy_collapse economically fixable, and the
+    # delete-op old_value drop (drafter._build_ops) stopped a summarized
+    # old_value from spuriously rejecting unsatisfiable_completion's patch.
+    # Deterministic REPLAY, so pin the win as a regression lock.
+    by_class = {r["defect_class"]: r["passed"] for r in result.per_scenario}
+    assert by_class["economy_collapse"] is True
+    assert by_class["unsatisfiable_completion"] is True
+    assert result.fix_pass_rate == 1.0
 
 
 # --------------------------------------------------------------------------

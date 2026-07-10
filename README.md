@@ -19,6 +19,7 @@ See `docs/superpowers/specs/` for the PRD and foundational contracts (single sou
 | **M2a-part1** | Model Router (RECORD/REPLAY/PASSTHROUGH) + Cassette store + deterministic agent orchestration — foundations only | ✅ acceptance passing |
 | **M2a-part2** | 6 bounded LLM agent roles (extraction/triage/repair/consistency/generation) + verifier-guided repair search; Fix Pass Rate 90% | ✅ acceptance passing |
 | **M2b-1** | Playtest agent core (state abstraction + planner/executor + verifier-grounding + reflection + main loop) + regression harness (completion rate + Wilson CI + random baseline) + planner/executor ablation | ✅ acceptance passing (REPLAY/scripted smoke) |
+| Pre-M4: economy sink adapter | Plumb SELLS price/currency/buy_prob so the economy sim models real gold sinks from CSV; `economy_collapse` becomes economically fixable → **repair Fix Pass Rate 9/10 → 10/10** | ✅ acceptance passing |
 | M2b-1b, M2b-2, M3–M4 | see `docs/superpowers/specs/` and `CLAUDE.md` | ⬜ planned |
 
 ## Layout (contract §1)
