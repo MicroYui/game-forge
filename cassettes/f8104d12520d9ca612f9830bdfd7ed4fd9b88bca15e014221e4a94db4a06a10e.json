@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f8104d12520d9ca612f9830bdfd7ed4fd9b88bca15e014221e4a94db4a06a10e",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 12558,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "ErYHCokBCA8YAipAB+0PVRiP6ezgtNyfCPRwaFH1CqSgL7tdzu2LW09Vh9Ho7WoQpmtC4zHma0bp30L8zD0DgBYVcnDNVoMbAYomuzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDHwmUE8tRKQdEwcg/RoMM9haxt4bpgdf2UAPIjBvfodNEEou+Riq5jdnt9Uxe+YckAZGsElIdTPmxvwGIbMpoJneSO0q2VRXuaWY7AUq2QUzFPh9azZDQopVgpO40VfzqvLFwf4F//fo6B3qN1U4suf2OgN48Ny/75ESLheDiE1tj9sycliVG8Cn/+5YkaOBRrsHJ2ZkWSchPBUj3nM5cmFRMeDviVw0skqIRvzvjlM7SoBwUlCiMwZy3T3vN2vYjHKR8pS55FBiVy7ZqQasQntOXonidvTCj5msbDRm3vfbMf8Su+wmh5kFpLj83rkWTkt6hOekodICUPUEsHETK3mvp5dY2mY/rNIoLLH/EYBkKsOfZyyRaSWme58MOtm950wCGcw7l1rOUniM0tYAkzg3dUIuTJttMJ4BnrYMT33K+zJ9VESOsbxSeBelrPcGpOOS2OMroVpepRGgiedJb+TE7zAJ5MSPBZz2rL/N2KKPnViKKKXlp7XzktPW4fUgtKzjR+ShmxpLN930B+0xduS27/zSLQLRNAu4ydWliiyWYS8GTgtUEfFelR/fu9rxmH7AQywXS+bnReTC05LqN5oCeUeNsc1hkkhij25BK8CFDymmQ9MyAXQyHz/h+4Vk+f3mFReHDjc+eiQyn/nCLPgLRpMUm6Gy+uAS1i/Nz06g//DNMgW8JLmt4IJ8M9VfR2j+jOIYL3tLDvkSszr6nqBvk0oemy633hMtHWWAUmQaIuBUFqwkBXI+bWOPS2wcwNp0PAyiitXUqPwl3LM+7h1r2vwaAQvJzNvIhDoLJfwPx8YPLjzYmLuK7OgGBoajRlw1uhcdIH64RqGACmLg/IwXgFtXI4gPvzVxiOlRRB3hN6UZWn+zuADCM8Sg8w6hMrepfEWZSNd8UfuI7fCqMTse7zXwJtxZfZ7ZAmPIhgWkX3i+598K/DklSNjoiqaOQc8TS6S5S7tI8pRqgj90lEUvgCz1vZqkMiOc7QZVo4Lnq7OYhaaeP1jDBmees/djl9ZV8dMi9Ziy0dsJxNFvxcVrycATCqic4e//a3t5L45L8SE+F39Rn5MYAQ==",
+          "thinking": "I'm noticing a key contradiction in the narrative: the Guard claims the Warden died three nights ago, but the Elder insists the Warden is alive and well. There's also an issue where the Guard seems to be revealing information prematurely—suggesting the Elders know about the Warden's death but haven't announced it yet. Meanwhile, Commander Vale's leadership of the garrison appears consistent and doesn't present the same kind of contradiction.",
+          "type": "thinking"
+        },
+        {
+          "text": "[\n  {\n    \"span\": \"the Warden fell three nights ago. The elders simply haven't said so aloud yet\",\n    \"issue\": \"The guard claims knowledge of the Warden's death and that the elders are concealing it; this both prematurely reveals a plot point the narrative may withhold and asserts a knowledge state (guard knows a secret truth) that conflicts with the Elder's later authoritative claim.\"\n  },\n  {\n    \"span\": \"The Warden lives and is in good health; she will address the outpost herself at dusk\",\n    \"issue\": \"Directly contradicts the guard's earlier statement that the Warden fell three nights ago — the Warden cannot both be dead and alive/in good health, a warden-status identity/knowledge inconsistency.\"\n  }\n]",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 545,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 510,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1547500000
+      },
+      "id": "msg_011CctCxadHczrwf1jdFThfC",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 545,
+        "output_tokens": 510,
+        "output_tokens_details": {
+          "thinking_tokens": 259
+        }
+      }
+    },
+    "response_normalized": "[\n  {\n    \"span\": \"the Warden fell three nights ago. The elders simply haven't said so aloud yet\",\n    \"issue\": \"The guard claims knowledge of the Warden's death and that the elders are concealing it; this both prematurely reveals a plot point the narrative may withhold and asserts a knowledge state (guard knows a secret truth) that conflicts with the Elder's later authoritative claim.\"\n  },\n  {\n    \"span\": \"The Warden lives and is in good health; she will address the outpost herself at dusk\",\n    \"issue\": \"Directly contradicts the guard's earlier statement that the Warden fell three nights ago — the Warden cannot both be dead and alive/in good health, a warden-status identity/knowledge inconsistency.\"\n  }\n]",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 545,
+      "output": 510
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9ce75c56ba0b0b5ab9eaf85d2d43e208006973147a639f1a2eff3c6d85080724",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 9552,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EqoJCokBCA8YAipAxpp/xRad2xYvTiTNJfVnlyYEQ7H02o9YQSSx93zHreXgtf+9/PciUFaHZjaamCoMF/ILSoetRtXq4KJgavQBWzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDFyCtiU/g80OVhhtSRoMCFXCq7kX1Qskqb3VIjCDSHq5ywftRdpUVoXcgMPxQUPTFE57iPHwUDnw/+NqkEBTFDhPi0P9bjfFM2bL9AYqzQdYRZGVKfeJdChilXP3+ZPdVdJH2a59n4hGInENG/nebARV2wi/nfAoTyEJ0xXXvn4/RlPSiNquWykNROe0ByVNXs6KD1xRGouv66KxhmS/pj75YWEiVjP7YTQjt0FO3Wv4p9jdRITgAIpRnWHMEeEEraFn5dH/pmhTflNNd3ai1xG1xa7k31d5z6O/PJ9Jj9RG5sBPXhK6Pwg2lL4sE3ymbLlhbP/hmTkCuCuV80m4/ahxCqAkh0Tz47+poWPaXG0xIOn06ikl1Qq9gLu2HebAwjMs3ArDyHx7mTcCjvZl84zM9d04lCY4cbeCqEcAM6wI6gxW7lruhpD3ayADg4Acss/vC3gn0fdrhVJLC31Ypo2wji2+4cg+AAL+Bn+U6dzGlouR2h9M+LiGiF7Fi4pK5fAO2OoQ2tB7SlccolO9eZCGV4Z+3+yjxcUNoxqmN4HGkGqpYRfGymNoJIvOxzZVsIozmcxYXgj/w/j4Dw+Aq4kLcdGpwuSuEOyr8VwG3Gxo7thd0TxrCaqTlqFh3XZsoP+WhGrhFrZ0EGWKyNRD01Mlp0kz4FFeHDC7x+sdmXn7zavY0C5fEuxtqCr6m1yutsji6zGFuawKakikdjKwojr1G/RuVz4dbLlW9IHfJBV1brlkYXXiaNVd5nWOHY18QO4Y6SIn80SgpnBOzQg4x7q1PYNJsHqA7gfbI5mP6+4Y7CfZPPxJzM0An1Cp+5nP+YZXI8a9/2nUZF47mKorpO1JuekVd2mvNTTTcd0oI3EuxbNm2iQ+Gvl/BcpFJT5dP4JYWMYd39zKReoUzk3AzIcSrVUQjuFZ5BUDE3oiQ/VW0vF4zyudVzekAqOFWZJiPQFBBXGhM6ZG/68UOR353OWHyP/EC9TfOC1RC3JA1akhMprDCz7fTFWik76WmYnENi9ULyxwveH1cYbQpUFqVHTqH1eDNESi1mVGlyEoc8biyC2Q+IvITkHj6ijQ7C4gJ4Y6hwLmolJ9dMsE84syJwzV2nDJnwmGt3zEim3pXQs/KAX5mfUL/+0CiljcLX1MpRbolSb7koObCeeijJ5pRiArlO2F5ov0NHYuMVoJ5RBMbg//SSjXYpovkfGdmH8OTCroiLXRVHSBu4mf7tZH42S7uQGQUf7oH6zHwbBHLWuSwVL9Yo5BTaP0TqgYj6JYyfpNOFq9gXTJw8oZwaW3EUhROEx1aLyadwm+7+m+PGc4wDKtA2GaZWLEEOQzKML51ypKUV7cWXXzqkdPrPrkoa3f7ohB0YT+XPPwrZwvk5HXFXkAABw+mWlLysioGAE=",
+          "thinking": "I'm looking at a dangling reference where step:3 points to an encounter that doesn't exist. I could either repoint the TRIGGERED_BY relation to a valid encounter like enc:wolves and update the step's encounter attribute to match, or just delete the relation entirely—though that would leave the step still referencing the missing encounter through its own attribute.\n\nI'll go with repointing: I'll update the relation's source to enc:wolves and set step:3's encounter attribute to enc:wolves as well, since the relation goes from enc:ghost to step:3 and I need to replace that ghost encounter with a real one.",
+          "type": "thinking"
+        },
+        {
+          "text": "[{\"op\": \"set_relation_attr\", \"target\": \"rel:TRIGGERED_BY:enc:ghost->step:3:13.src_id\", \"old_value\": \"enc:ghost\", \"new_value\": \"enc:wolves\"}, {\"op\": \"set_entity_attr\", \"target\": \"step:3.encounter\", \"old_value\": \"enc:ghost\", \"new_value\": \"enc:wolves\"}]",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2723,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 509,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2634000000
+      },
+      "id": "msg_011CctCo6doLZRqY3CKi4vQa",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2723,
+        "output_tokens": 509,
+        "output_tokens_details": {
+          "thinking_tokens": 377
+        }
+      }
+    },
+    "response_normalized": "[{\"op\": \"set_relation_attr\", \"target\": \"rel:TRIGGERED_BY:enc:ghost->step:3:13.src_id\", \"old_value\": \"enc:ghost\", \"new_value\": \"enc:wolves\"}, {\"op\": \"set_entity_attr\", \"target\": \"step:3.encounter\", \"old_value\": \"enc:ghost\", \"new_value\": \"enc:wolves\"}]",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2723,
+      "output": 509
+    },
+    "tool_calls": []
+  }
+}

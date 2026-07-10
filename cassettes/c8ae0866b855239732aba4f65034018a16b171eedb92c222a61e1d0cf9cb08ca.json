@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c8ae0866b855239732aba4f65034018a16b171eedb92c222a61e1d0cf9cb08ca",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 4731,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EpEDCokBCA8YAipAwftaQ+y+SYvMXYbsiS9mm84SSKnv39Qc+wSYGti0TpHh8B0pR+3W8m4MLEyr6i2+P/0vyqLs4D/9UiHy0UKFxzIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDJ9+l0RTNuepAj85XxoMTkE95VcPy+XVTZl5IjD0FVPvOaD793dDNimxumwbHddx+hyiSBdZexp6/u6B5+IfTn7FjVeZHDi2Y+J1PacqtAGrWUwEUuqqHve7/kEmQiP9mowaGr8+sDx64NZF5xowLcKKgTF7cSAZmfw2sPg56YyI5YvtoV4D21J/DJ704lU3ivawydn02On1feEh23KtNL2WiHAaDE3YQqPu23t/Ve5l2qLYWZbNKWHaaMjOzA7j04qzpiWVhbjzjMYZ+oBwBiHhtC5oIRsKeUnPyv4KK2woNnroPM9nS6KIQntalAu1Jd9EG9EDd37sSVy7ofMgEi0y6nEYAQ==",
+          "thinking": "The baseline is generating too much gold per tick per agent, so I need to dial back the gold_min and gold_max values substantially—bringing gold_max down to around 30 and gold_min to 10 should help balance things out.",
+          "type": "thinking"
+        },
+        {
+          "text": "[{\"op\": \"set_entity_attr\", \"target\": \"m:wolf.gold_min\", \"old_value\": 500, \"new_value\": 10},\n{\"op\": \"set_entity_attr\", \"target\": \"m:wolf.gold_max\", \"old_value\": 1000, \"new_value\": 30}]",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3063,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1961500000
+      },
+      "id": "msg_011CctCrKSZt5jDdU3V7aTXh",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 3063,
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "thinking_tokens": 78
+        }
+      }
+    },
+    "response_normalized": "[{\"op\": \"set_entity_attr\", \"target\": \"m:wolf.gold_min\", \"old_value\": 500, \"new_value\": 10},\n{\"op\": \"set_entity_attr\", \"target\": \"m:wolf.gold_max\", \"old_value\": 1000, \"new_value\": 30}]",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 3063,
+      "output": 172
+    },
+    "tool_calls": []
+  }
+}

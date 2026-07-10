@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7a6c972043a623a804660d3dec00ccf36dca28365d64565dea8e80ec89ab8068",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 3670,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EuUCCokBCA8YAipAnhjbk5mWLmlhPUiSKCUciMMq7olvTA3AkTBC2LqQf5Llm+DfnHP/5SmQTQ3cCcCsMTmrJOQezw6+gLEIAWt2YjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDKOgdLUmecbAaMasUhoM0/NQtBgGq+KmUFJ3IjCZGH0U7YN68U2OGKh2uDjMK2SNmC9MikAlwvpABTtOhQnrz9SQtjtSsN6GfbUs4V4qiAEgLkJOC5XSQAGV7V6K72F0aAJo8NNE2YRuyddMyJ4WtRlrlHGAAGkd/rIGpRaHtgfkbFzlGJ3aXi0Mbe03xw9DgWDz2x6l0HFdN9Z4LAVBrUvyoRYYAgLlYLnSNwyPgLSHRReESdohLQO12IW2pNHSy5TBzuG7BgKgmKzEEyP/Lkj1oK3bquc9GAE=",
+          "thinking": "I'm identifying where the premature reveal happens—the guard telling the Warden that someone fell three nights ago, which should have remained secret.",
+          "type": "thinking"
+        },
+        {
+          "text": "[\n  {\n    \"span\": \"the Warden fell three nights ago. The elders simply haven't said so aloud yet.\",\n    \"issue\": \"This appears to reveal the Warden's death—a secret the elders have deliberately kept hidden ('haven't said so aloud yet')—well before the narrative is set to disclose it, constituting a premature reveal of a later plot twist.\"\n  }\n]",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 511,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 168,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 675500000
+      },
+      "id": "msg_011CctCyVGMt5EQEqq737MYC",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 511,
+        "output_tokens": 168,
+        "output_tokens_details": {
+          "thinking_tokens": 40
+        }
+      }
+    },
+    "response_normalized": "[\n  {\n    \"span\": \"the Warden fell three nights ago. The elders simply haven't said so aloud yet.\",\n    \"issue\": \"This appears to reveal the Warden's death—a secret the elders have deliberately kept hidden ('haven't said so aloud yet')—well before the narrative is set to disclose it, constituting a premature reveal of a later plot twist.\"\n  }\n]",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 511,
+      "output": 168
+    },
+    "tool_calls": []
+  }
+}

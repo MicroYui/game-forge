@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "generation",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:17f00ae6639bbd0eb7c9919266bece92d2932b33659500595f1a83783e1e0cda",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 6928,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "Eq8DCokBCA8YAipAjJ4hr7d9YqYtx97a3ExMaJTussv6eJKcuIhnEIPl1CTpyfVcUY14bxSyn3icmMiMzFR3/zegsKL7NjtKy/+L9jIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDLIDhLkdvt57koPlSRoMFwlCg4j41e4rW2y4IjDyBvqRXBbaRdrbni12eSYh+T41oy2ZTRYX5aX2dd7QaAlDY6+MINPEa9qKo8HYbIsq0gGTl1g4SLAQWxe4dvG715NzDg3uJBwyHP+zMiEWepgDvDUwpF2nh0cNd1SWBcl9mJMQWVSYUDgH7nLixVd7qfRHa6NRGUN/mAxTTPqi/Y+Yt1VGlWOnVAW/cu+xBNi5OgU7Chjbsj8tcyP6sIM7FG7wN4+yCIynrbJNAQGABmCkXhUHyJ6aDbHwfUAYAUQpcimxwlOjMbN6WUaflmIX/9EXbVwXL/fV3taeO09kI4QerYn05BOTF5vLYX5z7En7JDnjknl+GVulaTA8hh6Gjrw/RKYYAQ==",
+          "thinking": "I'm setting up a new side quest that grants 40 gold, adding both the quest entity and at least one quest step using the existing NPC giver and outpost region, structured as add operations.",
+          "type": "thinking"
+        },
+        {
+          "text": "[\n  {\"op\": \"add\", \"target\": \"quest:herb_errand\", \"old_value\": null, \"new_value\": {\"id\": \"quest:herb_errand\", \"type\": \"QUEST\", \"attrs\": {\"giver\": \"npc:qi\", \"region\": \"region:outpost\", \"reward\": {\"gold\": 40}, \"title\": \"Herb Errand\"}}},\n  {\"op\": \"add\", \"target\": \"step:herb_errand_1\", \"old_value\": null, \"new_value\": {\"id\": \"step:herb_errand_1\", \"type\": \"QUEST_STEP\", \"attrs\": {\"count\": 1, \"encounter\": null, \"item\": null, \"kind\": \"talk\", \"order\": 0, \"quest_id\": \"quest:herb_errand\", \"target\": \"npc:qi\"}}},\n  {\"op\": \"add\", \"target\": \"step:herb_errand_2\", \"old_value\": null, \"new_value\": {\"id\": \"step:herb_errand_2\", \"type\": \"QUEST_STEP\", \"attrs\": {\"count\": 2, \"encounter\": null, \"item\": \"item:herb\", \"kind\": \"collect\", \"order\": 1, \"quest_id\": \"quest:herb_errand\", \"target\": null}}},\n  {\"op\": \"add\", \"target\": \"step:herb_errand_3\", \"old_value\": null, \"new_value\": {\"id\": \"step:herb_errand_3\", \"type\": \"QUEST_STEP\", \"attrs\": {\"count\": 1, \"encounter\": null, \"item\": null, \"kind\": \"turn_in\", \"order\": 2, \"quest_id\": \"quest:herb_errand\", \"target\": \"npc:qi\"}}}\n]",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 2049,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 585,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2487000000
+      },
+      "id": "msg_011CctD33PUTdnwqLnmwmhHG",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 2049,
+        "output_tokens": 585,
+        "output_tokens_details": {
+          "thinking_tokens": 79
+        }
+      }
+    },
+    "response_normalized": "[\n  {\"op\": \"add\", \"target\": \"quest:herb_errand\", \"old_value\": null, \"new_value\": {\"id\": \"quest:herb_errand\", \"type\": \"QUEST\", \"attrs\": {\"giver\": \"npc:qi\", \"region\": \"region:outpost\", \"reward\": {\"gold\": 40}, \"title\": \"Herb Errand\"}}},\n  {\"op\": \"add\", \"target\": \"step:herb_errand_1\", \"old_value\": null, \"new_value\": {\"id\": \"step:herb_errand_1\", \"type\": \"QUEST_STEP\", \"attrs\": {\"count\": 1, \"encounter\": null, \"item\": null, \"kind\": \"talk\", \"order\": 0, \"quest_id\": \"quest:herb_errand\", \"target\": \"npc:qi\"}}},\n  {\"op\": \"add\", \"target\": \"step:herb_errand_2\", \"old_value\": null, \"new_value\": {\"id\": \"step:herb_errand_2\", \"type\": \"QUEST_STEP\", \"attrs\": {\"count\": 2, \"encounter\": null, \"item\": \"item:herb\", \"kind\": \"collect\", \"order\": 1, \"quest_id\": \"quest:herb_errand\", \"target\": null}}},\n  {\"op\": \"add\", \"target\": \"step:herb_errand_3\", \"old_value\": null, \"new_value\": {\"id\": \"step:herb_errand_3\", \"type\": \"QUEST_STEP\", \"attrs\": {\"count\": 1, \"encounter\": null, \"item\": null, \"kind\": \"turn_in\", \"order\": 2, \"quest_id\": \"quest:herb_errand\", \"target\": \"npc:qi\"}}}\n]",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 2049,
+      "output": 585
+    },
+    "tool_calls": []
+  }
+}

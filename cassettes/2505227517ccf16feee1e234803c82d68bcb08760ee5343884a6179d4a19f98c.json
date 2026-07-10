@@ -1,0 +1,86 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "claude-opus-4-8",
+    "provider": "anthropic",
+    "snapshot_tag": "m2a@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2505227517ccf16feee1e234803c82d68bcb08760ee5343884a6179d4a19f98c",
+  "response": {
+    "finish_reason": "end_turn",
+    "latency_ms": 9655,
+    "raw_response": {
+      "content": [
+        {
+          "signature": "EocKCokBCA8YAipApCsIWBB4UHXfUM8HgZ2jwu70MVUOzHoKDFrR9lBCu4yE9GR/3In2bi0pxg3T2TLenGUeryA6vcn2ToQgsZneGjIPY2xhdWRlLW9wdXMtNC04OABCCHRoaW5raW5nWiRjZWQxZjk4ZS0wYjUxLTQ2MTAtODI4Mi00ZTVkODgzODQ1NzQSDB8ZmASEF3867/R+9RoMfyavv1VqBjdJ3qwfIjBgLzWBPWvsRPHFata8F+Qu+/l06EOwfAiSX5mruQd4UJYUiQ1YuI/ARYggxs8N9dMqqggcF69cZOT3NUhQfDH+kWGccnv+kWVw0IrMllbZ/Jl3OJZqJhgyikdQt9UL0zQWqMPuKHxfR8dVBqyZPADII1hK9cMqSKKY2O55PXT+jvFTIBHuEztceeUQdiGkCYyxwKO5o7JDNeRWnwXugZNz+MXm9yy9SabMwFDZlBd7NZZsE6uuRoMvsW0llmqSK0Vncg7SaFEHwATkojCEq3ymrEfEsuynlCQyI34zg97UpEs5UdzM8fauK58M3rVRCoCn7ZTqvAULNJLRtj+ftHvznkh/Zh1lWH9cfdVaM3pTU1crutrsicQr3+73TSqaRa5WwPHzLBOL8xWIqSETchBYRB6IgMCQnJ1RszZKjx6G9lef6znk0i1D1YppO5INuzv11IpyPJYZNlx9NHCORsYU35l69R0p2GtLRRiSuHldMEi1eKrDiGuNTgoSXRUy7knlt4Cqr28TxjiwHjMOSgArI75PwQ89Zpgv8jAA1lIOafcrTFBV8AUIJ3EHEoozPcjvQZNtaXxnY2MyhgmsLSUDxX6uok48aExN9AgGGBe0V/qd5IdeAqIeDxlkm5f/imJeioNT8VZvq1jV6TpU5X6ymoxqGVRtY6I6BH6WDMPmtVo/9HtDGYvJXTKMzWsJ2u/H2UhZaNZuQnZ+uTBi11igQT5CAuMHyTlEwdoiDefnkOeOwbu/s+8iwnUxG6SO7Xw3XRZxJXdBti3TjbJ2tD14NUpkyezg0lRJZ96Hbd8cJHxDcOVs/36Fv5T+CkcOeo3XmN73y3IYj3Ke3aIkyaiLmFLy/d9UCFciiQ2vNJ2KMxIWRIjgxN86kuH3FnQ6XVA2Vcd3NUF3sJTFcWqQWOvpjhBF2XlQd1PqXkIPgDU2DcGr8AJxYJX+1dEwkrluJmZuCeOyikQ7iApQbSu8jJUnZDWXzw+3B3nmRISdep1doNCyS2mJv5dc6VkpH1U0Ec/Bzuw5Tb9msnk4yTnguy4JCiy3tJNjhpXVbjGizO7FxUNuvd4+KavTxRivFc3y1pOf16CHRMsrIZfYdfQ4bAqj3yGs7F9wpMzlmCSSjNTJPXoqIIOmlvKonXNosSYOnaFP8Mz51+o98PuI0biRHwM87g0EDegwksZs9WlZD/zJmFgHgLbeKV94uRhJoFgqiGpeF0tEOE8xLdWafKPz9mu4xxFW83zLMp1U1C4/q8PnINn+fbjAPdEI5ZkhVFimYU2cMEic4A0nLLkZ08s7BJGiStbdO3tVWav4Zy8plZ6rOsaS6iHH2ksmnGDkaehGzpTwV6H9V8kt5EvbU9UGeCxrZeCKTsCtuP6A1FNwP+fm1VLg4RkArBNuOa3SoPOn99wO2+MZQBx6TWSvDkQ13P8Wku2hb4SiyPZqXW0mAxlmhU6I300dUohwJ4H9RL91W92GxJrITacCmM8qmP/uGAE=",
+          "thinking": "I'm spotting some temporal contradictions in the narrative. The guard mentions the Warden returning from the northern watch (implying she's alive and coming back) but then claims she fell three nights ago—which directly conflicts with the elder's statement that the Warden is alive and well, planning to address everyone at dusk. There's also an issue with the guard revealing the Warden's death prematurely, which spoils what should be a revelation from the elders.",
+          "type": "thinking"
+        },
+        {
+          "text": "[\n  {\n    \"span\": \"The outpost gates stay sealed until the Warden returns from the northern watch.\",\n    \"issue\": \"Treats the Warden as alive and still to return in the future, but the guard immediately after states the Warden already fell three nights ago — an event ordering/timing contradiction.\"\n  },\n  {\n    \"span\": \"the Warden fell three nights ago\",\n    \"issue\": \"Places the Warden's death in the past, contradicting both the earlier line that she is still to 'return from the northern watch' and the later claim that she 'lives' and will 'address the outpost herself at dusk' (a still-to-come event).\"\n  },\n  {\n    \"span\": \"The Warden lives and is in good health; she will address the outpost herself at dusk.\",\n    \"issue\": \"Treats the Warden as currently alive with an event still to come, directly contradicting the earlier statement that she already 'fell three nights ago' — the Warden is simultaneously treated as past-dead and future-active.\"\n  }\n]",
+          "type": "text"
+        }
+      ],
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 535,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 2500000000000,
+            "token_count": 672,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1947500000
+      },
+      "id": "msg_011CctCwqQmDXVua2ft8DPQJ",
+      "model": "claude-opus-4-8",
+      "role": "assistant",
+      "stop_details": null,
+      "stop_reason": "end_turn",
+      "stop_sequence": null,
+      "type": "message",
+      "usage": {
+        "cache_creation": {
+          "ephemeral_1h_input_tokens": 0,
+          "ephemeral_5m_input_tokens": 0
+        },
+        "cache_creation_input_tokens": 0,
+        "cache_read_input_tokens": 0,
+        "inference_geo": "global",
+        "input_tokens": 535,
+        "output_tokens": 672,
+        "output_tokens_details": {
+          "thinking_tokens": 350
+        }
+      }
+    },
+    "response_normalized": "[\n  {\n    \"span\": \"The outpost gates stay sealed until the Warden returns from the northern watch.\",\n    \"issue\": \"Treats the Warden as alive and still to return in the future, but the guard immediately after states the Warden already fell three nights ago — an event ordering/timing contradiction.\"\n  },\n  {\n    \"span\": \"the Warden fell three nights ago\",\n    \"issue\": \"Places the Warden's death in the past, contradicting both the earlier line that she is still to 'return from the northern watch' and the later claim that she 'lives' and will 'address the outpost herself at dusk' (a still-to-come event).\"\n  },\n  {\n    \"span\": \"The Warden lives and is in good health; she will address the outpost herself at dusk.\",\n    \"issue\": \"Treats the Warden as currently alive with an event still to come, directly contradicting the earlier statement that she already 'fell three nights ago' — the Warden is simultaneously treated as past-dead and future-active.\"\n  }\n]",
+    "token_usage": {
+      "cache_read": 0,
+      "cache_write": 0,
+      "input": 535,
+      "output": 672
+    },
+    "tool_calls": []
+  }
+}
