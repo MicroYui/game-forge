@@ -42,6 +42,28 @@ def test_ir_context_exposes_relations_catalog_and_edge_types():
     assert EdgeType.PRECEDES.value in ctx["edge_types"]
 
 
+def test_build_ops_drops_old_value_on_delete_ops():
+    # A model-summarized old_value on a delete op can't match apply_patch's
+    # full-object current value, so its optimistic-concurrency pre-check
+    # (spine/patch.py) would spuriously reject the whole patch. Deletion is
+    # identified by target id alone, so the drafter drops old_value for
+    # delete_relation/delete_entity — while keeping it authoritative for set_*
+    # ops, where it genuinely guards against stale writes.
+    raw = [
+        {"op": "delete_relation", "target": "r_pre",
+         "old_value": {"type": "PRECEDES", "src_id": "s1", "dst_id": "s2"}},
+        {"op": "delete_entity", "target": "e1", "old_value": {"type": "QUEST"}},
+        {"op": "set_relation_attr", "target": "r_x.price", "old_value": 50, "new_value": 60},
+        {"op": "set_entity_attr", "target": "e2.gold", "old_value": 5, "new_value": 3},
+    ]
+    by_op = {o.op: o for o in RepairDrafter()._build_ops(raw)}
+    assert by_op["delete_relation"].old_value is None
+    assert by_op["delete_entity"].old_value is None
+    # set_* ops keep old_value (optimistic concurrency preserved)
+    assert by_op["set_relation_attr"].old_value == 50
+    assert by_op["set_entity_attr"].old_value == 5
+
+
 def test_ir_context_still_includes_focus_node_attrs():
     ents = [Entity(id="q", type=NodeType.QUEST, attrs={"reward_gold": 120})]
     snap = Snapshot.from_entities_relations(ents, [])

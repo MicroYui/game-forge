@@ -167,12 +167,18 @@ class RepairDrafter:
             target = item.get("target")
             if not isinstance(target, str) or not target:
                 continue  # every TypedOp needs a target
+            # deletion is identified by target id alone; a model-summarized
+            # old_value can't match apply_patch's full-object current value and
+            # would spuriously trip its optimistic-concurrency pre-check, so drop
+            # it for deletes. old_value stays authoritative for set_* ops, where
+            # it guards against stale writes.
+            is_delete = op_kind in ("delete_relation", "delete_entity")
             ops.append(
                 TypedOp(
                     op_id=str(item.get("op_id", f"op{i}")),
                     op=op_kind,  # type: ignore[arg-type]  # validated against _VALID_OP_KINDS
                     target=target,
-                    old_value=item.get("old_value"),
+                    old_value=None if is_delete else item.get("old_value"),
                     new_value=item.get("new_value"),
                     source_ref=item.get("source_ref"),
                 )
