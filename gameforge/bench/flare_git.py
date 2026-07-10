@@ -351,59 +351,6 @@ class ReadOnlyGitRepo:
         return version
 
 
-def verify_search_registration(
-    repo: ReadOnlyGitRepo,
-    spec: FlareSearchSpec,
-    registration: SearchRegistration,
-    result_project_commit_oid: str,
-) -> None:
-    """Verify registered spec bytes and strict ancestry for a generated result."""
-
-    spec = FlareSearchSpec.model_validate(spec.model_dump(mode="python"))
-    registration = SearchRegistration.model_validate(registration.model_dump(mode="python"))
-    registration_oid = registration.project_commit_oid
-    result_oid = _validate_oid(result_project_commit_oid, label="result project commit")
-
-    try:
-        if repo.resolve(registration_oid) != registration_oid:
-            raise GitEvidenceError("registration commit resolved to a different object")
-        if repo.resolve(result_oid) != result_oid:
-            raise GitEvidenceError("result project commit resolved to a different object")
-    except GitEvidenceError as exc:
-        raise GitEvidenceError("unable to resolve search registration provenance commits") from exc
-
-    if registration_oid == result_oid:
-        raise GitEvidenceError(
-            "search registration commit must predate and be an ancestor of the result commit"
-        )
-    try:
-        merge_base = repo._run(["merge-base", registration_oid, result_oid])
-        merge_base_oid = _validate_oid(
-            merge_base.decode("ascii", errors="strict").strip(),
-            label="registration merge base",
-        )
-    except (GitEvidenceError, UnicodeDecodeError) as exc:
-        raise GitEvidenceError(
-            "search registration commit must predate and be an ancestor of the result commit"
-        ) from exc
-    if merge_base_oid != registration_oid:
-        raise GitEvidenceError(
-            "search registration commit must predate and be an ancestor of the result commit"
-        )
-
-    registered_path = _normalize_path(registration.repo_relative_path)
-    try:
-        registered_bytes = repo._run(
-            ["cat-file", "blob", f"{registration_oid}:{registered_path}"]
-        )
-    except GitEvidenceError as exc:
-        raise GitEvidenceError("unable to read the registered canonical search spec") from exc
-    if registered_bytes != canonical_bytes(spec):
-        raise GitEvidenceError(
-            "registered canonical search spec bytes differ from the supplied search spec"
-        )
-
-
 def _is_eligible(path: str, spec: FlareSearchSpec) -> bool:
     return any(posix_glob_matches(path, pattern) for pattern in spec.config_path_globs) and not any(
         posix_glob_matches(path, pattern) for pattern in spec.excluded_path_globs

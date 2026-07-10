@@ -3,7 +3,9 @@ import subprocess
 
 import pytest
 
+import gameforge.bench.flare_git as flare_git
 from gameforge.bench.flare_evidence import (
+    GIT_COMMON_PREFIX,
     GIT_FIXED_ENVIRONMENT,
     SearchRegistration,
     canonical_bytes,
@@ -13,8 +15,54 @@ from gameforge.bench.flare_git import (
     GitEvidenceError,
     ReadOnlyGitRepo,
     discover_candidates,
-    verify_search_registration,
 )
+
+
+def test_provenance_git_commands_stay_out_of_production_surface():
+    assert not hasattr(flare_git, "verify_search_registration")
+
+
+def _run_provenance_git(repo_path, *args, allowed_returncodes=(0,)):
+    prefix = [str(repo_path) if token == "{repo}" else token for token in GIT_COMMON_PREFIX]
+    completed = subprocess.run(
+        [*prefix, *args],
+        check=False,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env={"PATH": os.environ["PATH"], **GIT_FIXED_ENVIRONMENT},
+        shell=False,
+    )
+    if completed.returncode not in allowed_returncodes:
+        stderr = completed.stderr.decode("utf-8", errors="replace").strip()
+        raise AssertionError(f"provenance fixture Git command failed: {stderr}")
+    return completed
+
+
+def _verify_registered_search_provenance(repo_path, spec, registration, result_commit):
+    registration_commit = registration.project_commit_oid
+    assert registration_commit != result_commit, (
+        "search registration commit must predate and be an ancestor of the result commit"
+    )
+    ancestry = _run_provenance_git(
+        repo_path,
+        "merge-base",
+        "--is-ancestor",
+        registration_commit,
+        result_commit,
+        allowed_returncodes=(0, 1),
+    )
+    assert ancestry.returncode == 0, (
+        "search registration commit must predate and be an ancestor of the result commit"
+    )
+    registered = _run_provenance_git(
+        repo_path,
+        "cat-file",
+        "blob",
+        f"{registration_commit}:{registration.repo_relative_path}",
+    )
+    assert registered.stdout == canonical_bytes(spec), (
+        "registered canonical search spec bytes differ from the supplied search spec"
+    )
 
 
 def test_discover_is_byte_stable_and_keeps_non_config_candidates_for_rejection(
@@ -435,8 +483,8 @@ def test_search_registration_provenance_reads_canonical_spec_from_registration_c
         project_commit_oid=search_registration_repo.registration_commit,
         repo_relative_path=search_registration_repo.repo_relative_path,
     )
-    verify_search_registration(
-        ReadOnlyGitRepo(search_registration_repo.path),
+    _verify_registered_search_provenance(
+        search_registration_repo.path,
         search_spec,
         registration,
         search_registration_repo.result_commit,
@@ -453,9 +501,9 @@ def test_search_registration_provenance_rejects_spec_mismatch(
     mismatched_spec = search_spec.model_copy(
         update={"expected_revision_count": search_spec.expected_revision_count + 1}
     )
-    with pytest.raises(GitEvidenceError, match="canonical search spec"):
-        verify_search_registration(
-            ReadOnlyGitRepo(search_registration_repo.path),
+    with pytest.raises(AssertionError, match="canonical search spec"):
+        _verify_registered_search_provenance(
+            search_registration_repo.path,
             mismatched_spec,
             registration,
             search_registration_repo.result_commit,
@@ -469,9 +517,9 @@ def test_search_registration_provenance_rejects_registration_after_result(
         project_commit_oid=search_registration_repo.late_registration_commit,
         repo_relative_path=search_registration_repo.late_repo_relative_path,
     )
-    with pytest.raises(GitEvidenceError, match="must predate and be an ancestor"):
-        verify_search_registration(
-            ReadOnlyGitRepo(search_registration_repo.path),
+    with pytest.raises(AssertionError, match="must predate and be an ancestor"):
+        _verify_registered_search_provenance(
+            search_registration_repo.path,
             search_spec,
             late_registration,
             search_registration_repo.result_commit,
@@ -485,9 +533,9 @@ def test_search_registration_provenance_requires_a_strictly_earlier_commit(
         project_commit_oid=search_registration_repo.registration_commit,
         repo_relative_path=search_registration_repo.repo_relative_path,
     )
-    with pytest.raises(GitEvidenceError, match="must predate and be an ancestor"):
-        verify_search_registration(
-            ReadOnlyGitRepo(search_registration_repo.path),
+    with pytest.raises(AssertionError, match="must predate and be an ancestor"):
+        _verify_registered_search_provenance(
+            search_registration_repo.path,
             search_spec,
             registration,
             search_registration_repo.registration_commit,
