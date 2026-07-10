@@ -21,7 +21,6 @@ than the couple of hand-authored scenarios.
 from __future__ import annotations
 
 import argparse
-import math
 import os
 import random
 import sys
@@ -39,6 +38,7 @@ from gameforge.game.aureus.kernel import AureusEnv
 from gameforge.runtime.cassette.store import CassetteStore
 from gameforge.runtime.model_router.router import ModelRouter, RouterMode
 from gameforge.spine.ir.snapshot import Snapshot
+from gameforge.spine.stats import wilson_ci
 
 _CASSETTES_ROOT = "cassettes/playtest"
 
@@ -61,27 +61,6 @@ RECORD_MAX_STEPS = 150
 _SHORT_MAX = 20  # steps <20   → short
 _MEDIUM_MAX = 60  # 20..59      → medium; >=60 → long
 _BUCKET_ORDER = ("short", "medium", "long")
-
-
-# --- Wilson score interval --------------------------------------------------
-def wilson_ci(k: int, n: int, z: float = 1.96) -> tuple[float, float]:
-    """95% Wilson score interval for `k` successes of `n` trials.
-
-    Pure stdlib. `n == 0` → `(0.0, 0.0)`. The bounds are clamped to `[0, 1]` and
-    pinned to bracket the point estimate p̂ (a Wilson interval always contains
-    p̂ mathematically; the pin removes floating-point noise at the p̂∈{0,1}
-    extremes, where the exact bounds are 0.0 and 1.0 respectively).
-    """
-    if n <= 0:
-        return (0.0, 0.0)
-    p = k / n
-    z2 = z * z
-    denom = 1.0 + z2 / n
-    center = p + z2 / (2 * n)
-    spread = z * math.sqrt(p * (1 - p) / n + z2 / (4 * n * n))
-    low = (center - spread) / denom
-    high = (center + spread) / denom
-    return (max(0.0, min(low, p)), min(1.0, max(high, p)))
 
 
 # --- result aggregate -------------------------------------------------------

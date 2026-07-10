@@ -85,7 +85,10 @@ def _caravan_corpus(n: int = 2):
 
 # --- wilson_ci numerics ----------------------------------------------------
 def test_wilson_ci_degenerate_zero_sample():
-    assert wilson_ci(0, 0) == (0.0, 0.0)
+    # M3a: `wilson_ci` moved to `gameforge.spine.stats` (shared with `bench`)
+    # and n<=0 now returns the full `[0, 1]` interval — zero trials means zero
+    # information, not a confident point estimate at 0.
+    assert wilson_ci(0, 0) == (0.0, 1.0)
 
 
 def test_wilson_ci_all_success_upper_is_one():
