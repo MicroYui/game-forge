@@ -80,6 +80,7 @@ def build_bench_report(
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="Run GameForge-Bench (seeded).")
     parser.add_argument("--json", action="store_true", help="emit the JSON BenchReport")
+    parser.add_argument("--html", action="store_true", help="emit a minimal static HTML view")
     parser.add_argument("--no-agent", action="store_true", help="skip agent metrics (faster)")
     parser.add_argument("--no-external", action="store_true", help="skip external Flare cross-validation")
     parser.add_argument("--seed", type=int, default=0)
@@ -87,7 +88,13 @@ def main(argv: list[str] | None = None) -> int:
     report = build_bench_report(
         seed=args.seed, with_agent=not args.no_agent, with_external=not args.no_external
     )
-    print(report.to_json() if args.json else format_text(report))
+    if args.json:
+        print(report.to_json())
+    elif args.html:
+        from gameforge.bench.panel import render_html
+        print(render_html(report))
+    else:
+        print(format_text(report))
     return 0
 
 
