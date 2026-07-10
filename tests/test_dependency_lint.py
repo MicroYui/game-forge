@@ -61,6 +61,36 @@ def _spine_import_violations() -> list[str]:
     return violations
 
 
+def _bench_seeded_core_agents_imports() -> list[str]:
+    """Every DIRECT `gameforge.agents` import in the bench SEEDED CORE. Only
+    `agent_metrics.py` is the sanctioned bridge (REPLAY aggregation of M2); the
+    seeded pipeline (inject/corpus/metrics/report/taxonomy/power/bases/run_bench)
+    must stay agent-free so the deterministic bench and its anti-circularity
+    story never entangle with the agent layer."""
+    bench_dir = pathlib.Path(_SPINE_DIR).parent / "bench"
+    violations: list[str] = []
+    for path in sorted(bench_dir.glob("*.py")):
+        if path.name in ("__init__.py", "agent_metrics.py"):
+            continue  # agent_metrics is the ONE allowed bridge
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        modules: list[str] = []
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import):
+                modules += [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom) and not node.level:
+                modules.append(node.module or "")
+        for mod in modules:
+            if mod == "gameforge.agents" or mod.startswith("gameforge.agents."):
+                violations.append(f"{path.name}: {mod}")
+    return violations
+
+
+def test_bench_seeded_core_does_not_import_agents():
+    assert _bench_seeded_core_agents_imports() == [], (
+        "bench seeded core must stay agent-free (only agent_metrics.py bridges to M2)"
+    )
+
+
 def test_import_linter_contracts_pass():
     assert lint_imports(no_cache=True) == EXIT_STATUS_SUCCESS
 
