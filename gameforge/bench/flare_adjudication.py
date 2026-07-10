@@ -100,6 +100,16 @@ def _validate_assignments(
     if overlap:
         raise AdjudicationError("grouped and candidate-level decisions assign the same commit")
     candidates = {item.commit.commit_oid: item for item in discovered.discovered_candidates}
+    for disposition in evidence.candidate_decisions:
+        candidate = candidates[disposition.commit_oid]
+        if not candidate.config_only and disposition.reason_code != "non_config_only":
+            raise AdjudicationError(
+                f"non-config candidate {disposition.commit_oid} requires non_config_only"
+            )
+        if candidate.config_only and disposition.reason_code == "non_config_only":
+            raise AdjudicationError(
+                f"config_only candidate {disposition.commit_oid} cannot use non_config_only"
+            )
     for group in evidence.group_decisions:
         selected = [candidates[oid] for oid in group.commits]
         for previous, current in zip(selected, selected[1:], strict=False):
@@ -255,6 +265,15 @@ def evaluate_provisional_gate(
     ):
         raise AdjudicationError("gate requires the exact B0A applicability matrix")
     rows = {row.defect_class: row for row in validated_matrix}
+    for group in validated_groups:
+        for case in group.cases:
+            if (
+                case.disposition == "proposed"
+                and rows[case.defect_class].domain_applicability == "not_applicable"
+            ):
+                raise AdjudicationError(
+                    f"not_applicable class {case.defect_class.value} cannot be proposed"
+                )
 
     # A repeated ID is one reviewed fix, even if supplied more than once.
     unique_groups: dict[str, CandidateFixGroup] = {}
@@ -386,7 +405,7 @@ def _validate_lineage(
             if len(endpoint_group_ids) != 2:
                 raise AdjudicationError("separate patch_id lineage requires two affected groups")
             root_cause_projections = {
-                tuple(
+                frozenset(
                     canonical_bytes(ref)
                     for ref in decision_by_group[group_id].root_cause_evidence_refs
                 )

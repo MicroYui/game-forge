@@ -27,6 +27,7 @@ from gameforge.bench.flare_evidence import (
     canonical_bytes,
     sha256_hex,
 )
+from gameforge.bench.taxonomy import DefectClass
 
 
 _APPLICABLE_CLASSES = (
@@ -418,6 +419,7 @@ def _rebind_evidence_to_discovery(
     discovery: DiscoveryLedger,
     *,
     appended_resolutions: Sequence[LineageResolution],
+    validate: bool = True,
 ) -> AdjudicationEvidence:
     changed = evidence.model_copy(
         update={
@@ -440,9 +442,54 @@ def _rebind_evidence_to_discovery(
             "reviewed_payload_sha256": sha256_hex(canonical_bytes(payload)),
         }
     )
+    if not validate:
+        return changed.model_copy(update={"review_attestation": attestation})
     return AdjudicationEvidence.model_validate(
         {**payload, "review_attestation": attestation.model_dump(mode="json")}
     )
+
+
+def _separate_patch_evidence(
+    discovery: DiscoveryLedger,
+    evidence: AdjudicationEvidence,
+    *,
+    source_oid: str,
+    source_group_id: str,
+    source_refs: Sequence[EvidenceRef],
+    target_oid: str,
+    target_group_id: str,
+    target_refs: Sequence[EvidenceRef],
+    validate: bool = True,
+) -> tuple[DiscoveryLedger, AdjudicationEvidence]:
+    link = _patch_link(
+        source_oid=source_oid,
+        target_oid=target_oid,
+        patch_id=_oid(910),
+    )
+    expanded_discovery = _with_objective_links(discovery, link)
+    groups = [
+        group.model_copy(update={"root_cause_evidence_refs": list(source_refs)})
+        if group.fix_group_id == source_group_id
+        else group.model_copy(update={"root_cause_evidence_refs": list(target_refs)})
+        if group.fix_group_id == target_group_id
+        else group
+        for group in evidence.group_decisions
+    ]
+    changed = evidence.model_copy(update={"group_decisions": groups})
+    rebound = _rebind_evidence_to_discovery(
+        changed,
+        expanded_discovery,
+        appended_resolutions=[
+            LineageResolution(
+                link_id=link.link_id,
+                resolution="separate",
+                affected_group_ids=[source_group_id, target_group_id],
+                rationale="Synthetic patch collision has separately reviewed root causes.",
+            )
+        ],
+        validate=validate,
+    )
+    return expanded_discovery, rebound
 
 
 def test_adjudication_groups_contiguous_first_parent_commits_and_counts_groups_not_commits(
@@ -958,3 +1005,111 @@ def test_revert_endpoint_is_always_uncounted(discovered_ledger, positive_evidenc
     )
     with pytest.raises(AdjudicationError, match="revert"):
         adjudicate(discovered_ledger, bad)
+
+
+def test_separate_patch_groups_require_distinct_unordered_root_cause_ref_sets(
+    discovered_ledger, positive_evidence, flare_git_repo
+):
+    root = next(
+        group for group in positive_evidence.group_decisions if group.fix_group_id == "group-root"
+    )
+    quest = next(
+        group for group in positive_evidence.group_decisions if group.fix_group_id == "group-quest"
+    )
+    first_ref = root.root_cause_evidence_refs[0]
+    second_ref = quest.root_cause_evidence_refs[0]
+    discovery, evidence = _separate_patch_evidence(
+        discovered_ledger,
+        positive_evidence,
+        source_oid=flare_git_repo.root,
+        source_group_id="group-root",
+        source_refs=[first_ref, second_ref],
+        target_oid=flare_git_repo.quest_fix,
+        target_group_id="group-quest",
+        target_refs=[second_ref, first_ref],
+    )
+    with pytest.raises(AdjudicationError, match="root-cause evidence"):
+        adjudicate(discovery, evidence)
+
+
+def test_duplicate_root_cause_ref_within_group_is_rejected(
+    discovered_ledger, positive_evidence, flare_git_repo
+):
+    root = next(
+        group for group in positive_evidence.group_decisions if group.fix_group_id == "group-root"
+    )
+    first_ref = root.root_cause_evidence_refs[0]
+    discovery, evidence = _separate_patch_evidence(
+        discovered_ledger,
+        positive_evidence,
+        source_oid=flare_git_repo.root,
+        source_group_id="group-root",
+        source_refs=[first_ref],
+        target_oid=flare_git_repo.quest_fix,
+        target_group_id="group-quest",
+        target_refs=[first_ref, first_ref],
+        validate=False,
+    )
+    with pytest.raises(AdjudicationError, match="root-cause evidence|duplicate"):
+        adjudicate(discovery, evidence)
+
+
+def test_non_config_candidate_cannot_be_disposed_as_non_bug(
+    discovered_ledger, positive_evidence, flare_git_repo
+):
+    mixed = next(
+        item
+        for item in positive_evidence.candidate_decisions
+        if item.commit_oid == flare_git_repo.mixed_fix
+    )
+    assert mixed.reason_code == "non_config_only"
+    changed = mixed.model_copy(
+        update={
+            "reason_code": "non_bug",
+            "rationale": "Invalidly relabeled non-config fixture candidate.",
+        }
+    )
+    bad = _refresh_evidence(
+        positive_evidence,
+        candidate_decisions=[
+            changed if item.commit_oid == mixed.commit_oid else item
+            for item in positive_evidence.candidate_decisions
+        ],
+    )
+    with pytest.raises(AdjudicationError, match="non_config_only|config_only"):
+        adjudicate(discovered_ledger, bad)
+
+
+def test_config_only_candidate_cannot_be_disposed_as_non_config_only(
+    discovered_ledger, positive_evidence, flare_git_repo
+):
+    candidates = {item.commit.commit_oid: item for item in discovered_ledger.discovered_candidates}
+    merge = next(
+        item
+        for item in positive_evidence.candidate_decisions
+        if item.commit_oid == flare_git_repo.merge_commit
+    )
+    assert candidates[merge.commit_oid].config_only
+    changed = merge.model_copy(
+        update={
+            "reason_code": "non_config_only",
+            "rationale": "Invalidly relabeled config-only fixture candidate.",
+        }
+    )
+    bad = _refresh_evidence(
+        positive_evidence,
+        candidate_decisions=[
+            changed if item.commit_oid == merge.commit_oid else item
+            for item in positive_evidence.candidate_decisions
+        ],
+    )
+    with pytest.raises(AdjudicationError, match="non_config_only|config_only"):
+        adjudicate(discovered_ledger, bad)
+
+
+def test_public_gate_rejects_proposed_case_on_not_applicable_row():
+    groups = make_groups(8, 4)
+    case = groups[0].cases[0].model_copy(update={"defect_class": DefectClass.prob_sum_ne_1})
+    groups[0] = groups[0].model_copy(update={"cases": [case]})
+    with pytest.raises(AdjudicationError, match="not_applicable"):
+        evaluate_provisional_gate(groups, complete_matrix(), "expanded")

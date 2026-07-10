@@ -674,6 +674,11 @@ class CandidateGroupDecision(_StrictModel):
     def validate_group_decision(self) -> CandidateGroupDecision:
         if len(self.commits) != len(set(self.commits)):
             raise ValueError("group commits must be unique")
+        root_cause_refs = [
+            (ref.kind, ref.target_id) for ref in self.root_cause_evidence_refs
+        ]
+        if len(root_cause_refs) != len(set(root_cause_refs)):
+            raise ValueError("duplicate root-cause evidence refs are not allowed")
         if [edge.commit_oid for edge in self.selected_parent_edges] != self.commits:
             raise ValueError("selected_parent_edges must cover group commits in order")
         if self.adjudicator_id == self.reviewer_id:
