@@ -248,12 +248,19 @@ class AureusCsvAdapter:
                 source_ref=sref("monsters", i),
             ))
 
-        # SELLS (shop -> item) via shops.entries.
+        # SELLS (shop -> item) via shops.entries. Plumb the sink attrs the
+        # economy sim reads off the relation (price/currency/buy_prob); include
+        # only keys the entry actually carries so from_snapshot's price-None
+        # skip and buy_prob default (0.5) stay well-defined.
         for i, shop in enumerate(workbook.get("shops", [])):
             for entry in shop.get("entries", []):
+                sell_attrs = {
+                    k: entry[k] for k in ("price", "currency", "buy_prob") if k in entry
+                }
                 g.add_relation(Relation(
                     id=rid.next(EdgeType.SELLS, shop["shop_id"], entry["item"]),
                     type=EdgeType.SELLS, src_id=shop["shop_id"], dst_id=entry["item"],
+                    attrs=sell_attrs,
                     source_ref=sref("shops", i),
                 ))
 

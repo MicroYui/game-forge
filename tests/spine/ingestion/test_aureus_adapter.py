@@ -93,3 +93,41 @@ def test_to_ir_skips_monster_currency_drops_from_without_gold_attrs():
     snap = AureusCsvAdapter().to_ir(wb, file_ref="outpost")
     g = snap.to_graph()
     assert g.neighbors("m:wolf", EdgeType.DROPS_FROM, direction="out") == []
+
+
+def test_to_ir_plumbs_sells_relation_attrs():
+    wb = _wb()
+    wb["shops"] = [{"shop_id": "shop:s", "entries": [
+        {"currency": "gold", "item": "item:x", "price": 50, "buy_prob": 0.5}]}]
+    snap = AureusCsvAdapter().to_ir(wb, file_ref="outpost")
+    g = snap.to_graph()
+    sells = g.neighbors("shop:s", EdgeType.SELLS, direction="out")
+    assert len(sells) == 1
+    assert sells[0].dst_id == "item:x"
+    assert sells[0].attrs["price"] == 50
+    assert sells[0].attrs["currency"] == "gold"
+    assert sells[0].attrs["buy_prob"] == 0.5
+
+
+def test_to_ir_sells_omits_buy_prob_when_absent():
+    # buy_prob absent from config -> key omitted so from_snapshot applies its
+    # own default (0.5); price/currency still plumbed.
+    wb = _wb()
+    wb["shops"] = [{"shop_id": "shop:s", "entries": [
+        {"currency": "gold", "item": "item:x", "price": 50}]}]
+    snap = AureusCsvAdapter().to_ir(wb, file_ref="outpost")
+    g = snap.to_graph()
+    sells = g.neighbors("shop:s", EdgeType.SELLS, direction="out")
+    assert sells[0].attrs.get("price") == 50
+    assert "buy_prob" not in sells[0].attrs
+
+
+def test_from_ir_roundtrip_lossless_with_shop_buy_prob():
+    # Relations are NOT read back by from_ir (rebuilt from entity attrs), so
+    # adding relation attrs must not change from_ir(to_ir(x)) == x.
+    wb = _wb()
+    wb["shops"] = [{"shop_id": "shop:s", "entries": [
+        {"currency": "gold", "item": "item:x", "price": 50, "buy_prob": 0.5}]}]
+    adapter = AureusCsvAdapter()
+    back = adapter.from_ir(adapter.to_ir(wb, file_ref="outpost"))
+    assert back == wb
