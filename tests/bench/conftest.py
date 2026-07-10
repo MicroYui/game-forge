@@ -32,6 +32,7 @@ from gameforge.bench.flare_evidence import (
     sha256_hex,
 )
 from gameforge.bench.flare_git import ReadOnlyGitRepo, discover_candidates
+from gameforge.bench.taxonomy import DefectClass
 from tests.bench.flare_git_fixture import (
     build_flare_git_repo,
     build_search_registration_repo,
@@ -271,7 +272,7 @@ def _group_decision(
                 evidence_refs=[_patch_ref(selected[-1])],
             )
         ],
-        adjudicator_id=_ADJUDICATOR_ID,
+        adjudicator_id=f"{_ADJUDICATOR_ID}-{fix_group_id}",
         reviewer_id=_REVIEWER_ID,
         rationale=f"Reviewed fixture group {fix_group_id}.",
     )
@@ -439,6 +440,7 @@ def _derived_group(
     )
     return CandidateFixGroup(
         fix_group_id=decision.fix_group_id,
+        group_decision_sha256=sha256_hex(canonical_bytes(decision)),
         commits=list(decision.commits),
         before_commit=selected[0].commit.diff_base_oid,
         after_commit=selected[-1].commit.commit_oid,
@@ -707,8 +709,22 @@ def evidence_with_multicommit_group(positive_evidence):
 
 
 @pytest.fixture
-def evidence_with_candidate_exclusions(positive_evidence):
-    return positive_evidence
+def evidence_with_candidate_exclusions(positive_evidence, flare_git_repo):
+    candidate_decisions = [
+        item.model_copy(
+            update={
+                "reason_code": "non_bug",
+                "rationale": "The reviewed merge is integration history, not a bug fix.",
+            }
+        )
+        if item.commit_oid == flare_git_repo.merge_commit
+        else item
+        for item in positive_evidence.candidate_decisions
+    ]
+    return _refresh_evidence(
+        positive_evidence,
+        candidate_decisions=candidate_decisions,
+    )
 
 
 @pytest.fixture
@@ -737,7 +753,7 @@ def multilabel_evidence(positive_evidence):
     rejected = first.case_decisions[0].model_copy(
         update={
             "case_id": "case-group-root-rejected-reference",
-            "defect_class": "dangling_reference",
+            "defect_class": DefectClass.dangling_reference,
             "disposition": "rejected",
             "rationale": "The same group is not a dangling-reference case.",
         }
@@ -757,7 +773,7 @@ def evidence_proposing_prob_sum(positive_evidence):
     changed_case = first.case_decisions[0].model_copy(
         update={
             "case_id": "case-group-root-probability",
-            "defect_class": "prob_sum_ne_1",
+            "defect_class": DefectClass.prob_sum_ne_1,
         }
     )
     changed_first = first.model_copy(update={"case_decisions": [changed_case]})

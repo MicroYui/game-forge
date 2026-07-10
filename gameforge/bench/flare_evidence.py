@@ -683,6 +683,7 @@ class CandidateGroupDecision(_StrictModel):
 
 class CandidateFixGroup(_StrictModel):
     fix_group_id: StableId
+    group_decision_sha256: Sha256
     commits: list[Oid] = Field(min_length=1)
     before_commit: Oid
     after_commit: Oid
@@ -850,6 +851,9 @@ class CandidateLedger(_StrictModel):
             raise ValueError("expanded candidate ledger requires both prior hashes")
         if self.search_round == "initial" and has_prior != (False, False):
             raise ValueError("initial candidate ledger forbids prior hashes")
+        group_ids = [group.fix_group_id for group in self.groups]
+        if len(group_ids) != len(set(group_ids)):
+            raise ValueError("candidate ledger fix_group_id values must be globally unique")
         grouped = [oid for group in self.groups for oid in group.commits]
         excluded = [item.commit_oid for item in self.candidate_decisions]
         if len(grouped) != len(set(grouped)) or len(excluded) != len(set(excluded)):
@@ -892,6 +896,9 @@ class AdjudicationEvidence(_StrictModel):
         artifact_ids = [artifact.artifact_id for artifact in self.source_artifacts]
         if len(artifact_ids) != len(set(artifact_ids)):
             raise ValueError("source artifact IDs must be unique")
+        group_ids = [group.fix_group_id for group in self.group_decisions]
+        if len(group_ids) != len(set(group_ids)):
+            raise ValueError("evidence fix_group_id values must be globally unique")
         reviewer_id = self.review_attestation.reviewer_id
         if any(group.reviewer_id != reviewer_id for group in self.group_decisions):
             raise ValueError("group reviewer IDs must match the review attestation")
