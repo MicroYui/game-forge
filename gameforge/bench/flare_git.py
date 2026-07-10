@@ -138,15 +138,36 @@ class ReadOnlyGitRepo:
             return self.path
         raise GitEvidenceError(f"not a Git repository: {self.path}")
 
-    def _reject_local_attributes(self) -> None:
-        attributes = self.git_dir / "info" / "attributes"
+    def _locate_common_git_dir(self) -> Path:
+        marker = self.git_dir / "commondir"
+        if not marker.exists() and not marker.is_symlink():
+            return self.git_dir
         try:
-            if attributes.is_symlink() or (attributes.exists() and attributes.stat().st_size > 0):
-                raise GitEvidenceError(
-                    "nonempty repo-local info/attributes is forbidden for evidence discovery"
-                )
-        except OSError as exc:
-            raise GitEvidenceError("unable to inspect repo-local info/attributes") from exc
+            lines = marker.read_text(encoding="utf-8", errors="strict").splitlines()
+        except (OSError, UnicodeDecodeError) as exc:
+            raise GitEvidenceError("unable to read the repository commondir marker") from exc
+        if len(lines) != 1 or not lines[0] or "\x00" in lines[0]:
+            raise GitEvidenceError("repository commondir marker has an invalid format")
+        location = Path(lines[0])
+        if not location.is_absolute():
+            location = self.git_dir / location
+        if not location.is_dir():
+            raise GitEvidenceError("repository common Git directory does not exist")
+        return location.resolve()
+
+    def _reject_local_attributes(self) -> None:
+        git_dirs = dict.fromkeys((self.git_dir, self._locate_common_git_dir()))
+        for git_dir in git_dirs:
+            attributes = git_dir / "info" / "attributes"
+            try:
+                if attributes.is_symlink() or (
+                    attributes.exists() and attributes.stat().st_size > 0
+                ):
+                    raise GitEvidenceError(
+                        "nonempty repo-local info/attributes is forbidden for evidence discovery"
+                    )
+            except OSError as exc:
+                raise GitEvidenceError("unable to inspect repo-local info/attributes") from exc
 
     @staticmethod
     def _child_environment() -> dict[str, str]:
@@ -192,15 +213,22 @@ class ReadOnlyGitRepo:
         return completed.stdout
 
     def resolve(self, oid: str) -> str:
+        oid = _validate_oid(oid, label="commit")
         output = self._run(_render_args(GIT_RESOLVE_ARGS, pinned_head=oid))
         resolved = output.decode("ascii", errors="strict").strip()
         return _validate_oid(resolved, label="resolved commit")
 
     def reachable_commits(self, spec: FlareSearchSpec) -> list[str]:
-        revision_range = (
-            spec.pinned_head
+        pinned_head = _validate_oid(spec.pinned_head, label="pinned head")
+        after_exclusive = (
+            None
             if spec.after_exclusive is None
-            else f"{spec.after_exclusive}..{spec.pinned_head}"
+            else _validate_oid(spec.after_exclusive, label="after_exclusive")
+        )
+        revision_range = (
+            pinned_head
+            if after_exclusive is None
+            else f"{after_exclusive}..{pinned_head}"
         )
         output = self._run(
             _render_args(GIT_HISTORY_ARGS, revision_range=revision_range)
@@ -226,6 +254,7 @@ class ReadOnlyGitRepo:
         return _validate_oid(oid, label="empty-tree object")
 
     def _metadata(self, oid: str) -> _CommitMetadata:
+        oid = _validate_oid(oid, label="commit")
         output = self._run(_render_args(GIT_METADATA_ARGS, commit=oid))
         fields = output.split(b"\x00", 4)
         if len(fields) != 5:
@@ -266,6 +295,8 @@ class ReadOnlyGitRepo:
         return self._metadata(oid).full_message
 
     def changed_paths(self, parent: str, oid: str) -> list[str]:
+        parent = _validate_oid(parent, label="parent")
+        oid = _validate_oid(oid, label="commit")
         output = self._run(_render_args(GIT_PATHS_ARGS, parent=parent, commit=oid))
         fields = output.split(b"\x00")
         if fields and fields[-1] == b"":
@@ -281,11 +312,15 @@ class ReadOnlyGitRepo:
         return _validate_path_set(paths)
 
     def patch_bytes(self, parent: str, oid: str) -> bytes:
+        parent = _validate_oid(parent, label="parent")
+        oid = _validate_oid(oid, label="commit")
         return self._run(_render_args(GIT_PATCH_ARGS, parent=parent, commit=oid))
 
     def eligible_patch_bytes(
         self, parent: str, oid: str, eligible_paths: Sequence[str]
     ) -> bytes:
+        parent = _validate_oid(parent, label="parent")
+        oid = _validate_oid(oid, label="commit")
         paths = _validate_path_set(eligible_paths)
         if not paths:
             raise GitEvidenceError("eligible patch requires at least one path")
@@ -314,6 +349,59 @@ class ReadOnlyGitRepo:
         if not version:
             raise GitEvidenceError("git --version returned an empty value")
         return version
+
+
+def verify_search_registration(
+    repo: ReadOnlyGitRepo,
+    spec: FlareSearchSpec,
+    registration: SearchRegistration,
+    result_project_commit_oid: str,
+) -> None:
+    """Verify registered spec bytes and strict ancestry for a generated result."""
+
+    spec = FlareSearchSpec.model_validate(spec.model_dump(mode="python"))
+    registration = SearchRegistration.model_validate(registration.model_dump(mode="python"))
+    registration_oid = registration.project_commit_oid
+    result_oid = _validate_oid(result_project_commit_oid, label="result project commit")
+
+    try:
+        if repo.resolve(registration_oid) != registration_oid:
+            raise GitEvidenceError("registration commit resolved to a different object")
+        if repo.resolve(result_oid) != result_oid:
+            raise GitEvidenceError("result project commit resolved to a different object")
+    except GitEvidenceError as exc:
+        raise GitEvidenceError("unable to resolve search registration provenance commits") from exc
+
+    if registration_oid == result_oid:
+        raise GitEvidenceError(
+            "search registration commit must predate and be an ancestor of the result commit"
+        )
+    try:
+        merge_base = repo._run(["merge-base", registration_oid, result_oid])
+        merge_base_oid = _validate_oid(
+            merge_base.decode("ascii", errors="strict").strip(),
+            label="registration merge base",
+        )
+    except (GitEvidenceError, UnicodeDecodeError) as exc:
+        raise GitEvidenceError(
+            "search registration commit must predate and be an ancestor of the result commit"
+        ) from exc
+    if merge_base_oid != registration_oid:
+        raise GitEvidenceError(
+            "search registration commit must predate and be an ancestor of the result commit"
+        )
+
+    registered_path = _normalize_path(registration.repo_relative_path)
+    try:
+        registered_bytes = repo._run(
+            ["cat-file", "blob", f"{registration_oid}:{registered_path}"]
+        )
+    except GitEvidenceError as exc:
+        raise GitEvidenceError("unable to read the registered canonical search spec") from exc
+    if registered_bytes != canonical_bytes(spec):
+        raise GitEvidenceError(
+            "registered canonical search spec bytes differ from the supplied search spec"
+        )
 
 
 def _is_eligible(path: str, spec: FlareSearchSpec) -> bool:

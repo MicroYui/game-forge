@@ -3,8 +3,18 @@ import subprocess
 
 import pytest
 
-from gameforge.bench.flare_evidence import canonical_bytes, sha256_hex
-from gameforge.bench.flare_git import GitEvidenceError, ReadOnlyGitRepo, discover_candidates
+from gameforge.bench.flare_evidence import (
+    GIT_FIXED_ENVIRONMENT,
+    SearchRegistration,
+    canonical_bytes,
+    sha256_hex,
+)
+from gameforge.bench.flare_git import (
+    GitEvidenceError,
+    ReadOnlyGitRepo,
+    discover_candidates,
+    verify_search_registration,
+)
 
 
 def test_discover_is_byte_stable_and_keeps_non_config_candidates_for_rejection(
@@ -171,6 +181,79 @@ def test_successful_discovery_uses_only_argument_arrays(
     assert calls
 
 
+@pytest.mark.parametrize(
+    ("method_name", "bad_argument_index"),
+    [
+        ("resolve", 0),
+        ("commit_facts", 0),
+        ("commit_message", 0),
+        ("changed_paths", 0),
+        ("changed_paths", 1),
+        ("patch_bytes", 0),
+        ("patch_bytes", 1),
+        ("eligible_patch_bytes", 0),
+        ("eligible_patch_bytes", 1),
+    ],
+)
+def test_public_revision_arguments_reject_options_before_subprocess(
+    flare_git_repo, monkeypatch, method_name, bad_argument_index
+):
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+    arguments = {
+        "resolve": [flare_git_repo.head],
+        "commit_facts": [flare_git_repo.head],
+        "commit_message": [flare_git_repo.head],
+        "changed_paths": [flare_git_repo.before_loot, flare_git_repo.loot_fix],
+        "patch_bytes": [flare_git_repo.before_loot, flare_git_repo.loot_fix],
+        "eligible_patch_bytes": [
+            flare_git_repo.before_loot,
+            flare_git_repo.loot_fix,
+            ["mods/core/loot/table.txt"],
+        ],
+    }[method_name]
+    arguments[bad_argument_index] = "--output=/tmp/flare-option-injection"
+    calls = []
+
+    def guarded_run(args, **kwargs):
+        calls.append(args)
+        return subprocess.CompletedProcess(
+            args,
+            returncode=129,
+            stdout=b"",
+            stderr=b"blocked option-like revision",
+        )
+
+    monkeypatch.setattr(subprocess, "run", guarded_run)
+    with pytest.raises(GitEvidenceError, match="lowercase full Git OID"):
+        getattr(repo, method_name)(*arguments)
+    assert calls == []
+
+
+@pytest.mark.parametrize("field_name", ["pinned_head", "after_exclusive"])
+def test_reachable_revision_range_rejects_options_before_subprocess(
+    flare_git_repo, search_spec, monkeypatch, field_name
+):
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+    unsafe_spec = search_spec.model_copy(
+        update={field_name: "--output=/tmp/flare-range-option-injection"}
+    )
+    calls = []
+
+    def guarded_run(args, **kwargs):
+        calls.append(args)
+        return subprocess.CompletedProcess(
+            args,
+            returncode=129,
+            stdout=b"",
+            stderr=b"blocked option-like revision range",
+        )
+
+    monkeypatch.setattr(subprocess, "run", guarded_run)
+    with pytest.raises(GitEvidenceError, match="lowercase full Git OID"):
+        repo.reachable_commits(unsafe_spec)
+    assert calls == []
+
+
 def test_repository_git_config_and_locale_cannot_change_patch_bytes(
     flare_git_repo, search_spec, search_registration, tmp_path, monkeypatch
 ):
@@ -312,6 +395,102 @@ def test_repo_local_info_attributes_are_rejected(
             search_registration,
             "initial",
             tmp_path / "blobs",
+        )
+
+
+def test_linked_worktree_rejects_common_git_dir_info_attributes(flare_git_repo, tmp_path):
+    linked_path = tmp_path / "linked-worktree"
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(flare_git_repo.path),
+            "worktree",
+            "add",
+            "--detach",
+            str(linked_path),
+            flare_git_repo.head,
+        ],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env={"PATH": os.environ["PATH"], **GIT_FIXED_ENVIRONMENT},
+        shell=False,
+    )
+    common_attributes = flare_git_repo.git_dir / "info" / "attributes"
+    common_attributes.write_text("*.txt -diff\n", encoding="utf-8")
+
+    repo = ReadOnlyGitRepo(linked_path)
+    assert repo.git_dir != flare_git_repo.git_dir
+    assert (repo.git_dir / "commondir").is_file()
+    assert not (repo.git_dir / "info" / "attributes").exists()
+    with pytest.raises(GitEvidenceError, match="info/attributes"):
+        repo.commit_facts(flare_git_repo.head)
+
+
+def test_search_registration_provenance_reads_canonical_spec_from_registration_commit(
+    search_registration_repo, search_spec
+):
+    registration = SearchRegistration(
+        project_commit_oid=search_registration_repo.registration_commit,
+        repo_relative_path=search_registration_repo.repo_relative_path,
+    )
+    verify_search_registration(
+        ReadOnlyGitRepo(search_registration_repo.path),
+        search_spec,
+        registration,
+        search_registration_repo.result_commit,
+    )
+
+
+def test_search_registration_provenance_rejects_spec_mismatch(
+    search_registration_repo, search_spec
+):
+    registration = SearchRegistration(
+        project_commit_oid=search_registration_repo.registration_commit,
+        repo_relative_path=search_registration_repo.repo_relative_path,
+    )
+    mismatched_spec = search_spec.model_copy(
+        update={"expected_revision_count": search_spec.expected_revision_count + 1}
+    )
+    with pytest.raises(GitEvidenceError, match="canonical search spec"):
+        verify_search_registration(
+            ReadOnlyGitRepo(search_registration_repo.path),
+            mismatched_spec,
+            registration,
+            search_registration_repo.result_commit,
+        )
+
+
+def test_search_registration_provenance_rejects_registration_after_result(
+    search_registration_repo, search_spec
+):
+    late_registration = SearchRegistration(
+        project_commit_oid=search_registration_repo.late_registration_commit,
+        repo_relative_path=search_registration_repo.late_repo_relative_path,
+    )
+    with pytest.raises(GitEvidenceError, match="must predate and be an ancestor"):
+        verify_search_registration(
+            ReadOnlyGitRepo(search_registration_repo.path),
+            search_spec,
+            late_registration,
+            search_registration_repo.result_commit,
+        )
+
+
+def test_search_registration_provenance_requires_a_strictly_earlier_commit(
+    search_registration_repo, search_spec
+):
+    registration = SearchRegistration(
+        project_commit_oid=search_registration_repo.registration_commit,
+        repo_relative_path=search_registration_repo.repo_relative_path,
+    )
+    with pytest.raises(GitEvidenceError, match="must predate and be an ancestor"):
+        verify_search_registration(
+            ReadOnlyGitRepo(search_registration_repo.path),
+            search_spec,
+            registration,
+            search_registration_repo.registration_commit,
         )
 
 

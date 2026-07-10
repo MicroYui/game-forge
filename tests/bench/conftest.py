@@ -32,7 +32,10 @@ from gameforge.bench.flare_evidence import (
     sha256_hex,
 )
 from gameforge.bench.flare_git import ReadOnlyGitRepo, discover_candidates
-from tests.bench.flare_git_fixture import build_flare_git_repo
+from tests.bench.flare_git_fixture import (
+    build_flare_git_repo,
+    build_search_registration_repo,
+)
 
 
 REGISTERED_SEARCH_SPEC_PAYLOAD = {
@@ -602,6 +605,14 @@ def search_registration():
     return SearchRegistration(
         project_commit_oid="a" * 40,
         repo_relative_path="scenarios/flare_corpus/search-spec.json",
+    )
+
+
+@pytest.fixture
+def search_registration_repo(tmp_path, search_spec):
+    return build_search_registration_repo(
+        tmp_path / "search-registration-repo",
+        canonical_bytes(search_spec),
     )
 
 

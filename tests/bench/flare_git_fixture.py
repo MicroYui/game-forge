@@ -47,6 +47,17 @@ class FlareGitRepoFixture:
     revision_count: int
 
 
+@dataclass(frozen=True)
+class SearchRegistrationRepoFixture:
+    path: Path
+    git_dir: Path
+    repo_relative_path: str
+    registration_commit: str
+    result_commit: str
+    late_repo_relative_path: str
+    late_registration_commit: str
+
+
 class _GitBuilder:
     def __init__(self, path: Path) -> None:
         self.path = path
@@ -335,4 +346,55 @@ def build_flare_git_repo(path: Path) -> FlareGitRepoFixture:
         merge_commit=merge_commit,
         head=merge_commit,
         revision_count=revision_count,
+    )
+
+
+def build_search_registration_repo(
+    path: Path, registered_search_spec_bytes: bytes
+) -> SearchRegistrationRepoFixture:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    init_env = {
+        "PATH": os.environ["PATH"],
+        "GIT_CONFIG_GLOBAL": "/dev/null",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "LANG": "C",
+        "LC_ALL": "C",
+        "TZ": "UTC",
+    }
+    subprocess.run(
+        ["git", "init", "--initial-branch=main", str(path)],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env=init_env,
+        shell=False,
+    )
+    git = _GitBuilder(path)
+    git.run("config", "commit.gpgSign", "false")
+    git.run("config", "core.hooksPath", "/dev/null")
+    git.commit("Initialize project provenance fixture", {"README.md": "fixture\n"})
+
+    repo_relative_path = "scenarios/flare_corpus/search-spec.json"
+    registration_commit = git.commit(
+        "Register Flare search specification",
+        {repo_relative_path: registered_search_spec_bytes},
+    )
+    result_commit = git.commit(
+        "Record generated Flare discovery result",
+        {"scenarios/flare_corpus/discovered-initial.json": b'{"result":"fixture"}\n'},
+    )
+    late_repo_relative_path = "scenarios/flare_corpus/late-search-spec.json"
+    late_registration_commit = git.commit(
+        "Register search specification after result",
+        {late_repo_relative_path: registered_search_spec_bytes},
+    )
+
+    return SearchRegistrationRepoFixture(
+        path=path,
+        git_dir=path / ".git",
+        repo_relative_path=repo_relative_path,
+        registration_commit=registration_commit,
+        result_commit=result_commit,
+        late_repo_relative_path=late_repo_relative_path,
+        late_registration_commit=late_registration_commit,
     )
