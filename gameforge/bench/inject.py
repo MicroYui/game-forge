@@ -25,12 +25,11 @@ is a cross-run promise (re-running the same `(base, defect, seed)` on a fresh
 `uv run pytest` process must still produce the same `snapshot_id`), so the
 seed derivation must be too.
 
-Only the 6 STRUCTURAL injectors are implemented in this milestone slice
-(Task 2): dangling_reference, missing_drop_source, unreachable_target,
-cyclic_dependency, dead_quest, unsatisfiable_completion. The 5 numeric/economy
-injectors (Task 3) and 4 narrative injectors (Task 4) register into the same
-`inject()` dispatch table later — declared in `taxonomy.DefectClass` now,
-implementation deferred (不简化只延后), not stubbed here.
+All 15 taxonomy classes are implemented: 6 structural (Task 2), 5
+numeric/economy (Task 3), and 4 narrative (Task 4). The narrative injectors
+leave the IR graph clean and carry their defect in a seeded
+`DialogueNarrativeInput` (the M2 Consistency quorum's input), since narrative
+inconsistency lives in dialogue/lore text, not the content graph.
 """
 
 from __future__ import annotations
@@ -41,10 +40,12 @@ from dataclasses import dataclass
 from typing import Callable
 
 from gameforge.bench.taxonomy import DefectClass
+from gameforge.contracts.agent_io import DialogueNarrativeInput
 from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
 from gameforge.spine.ir.snapshot import Snapshot
 
 _SOURCE_EDGES = (EdgeType.GRANTS, EdgeType.DROPS_FROM)
+_NARRATIVE_CONSTRAINT = "C-narrative-quest-lore-consistency"
 
 
 @dataclass
@@ -299,6 +300,218 @@ def _inject_unsatisfiable_completion(base: Snapshot, rng: random.Random) -> Inje
     return InjectedSample(snapshot=snapshot, ground_truth=gt)
 
 
+# ---------------------------------------------------------------------------
+# 7. reward_out_of_range (design §3 strategy 7) — constraint `reward.gold <= 150`
+# ---------------------------------------------------------------------------
+def _inject_reward_out_of_range(base: Snapshot, rng: random.Random) -> InjectedSample:
+    entities, relations = _clone_lists(base)
+    quests = sorted(
+        (
+            e for e in entities
+            if e.type is NodeType.QUEST
+            and isinstance(e.attrs.get("reward"), dict)
+            and "gold" in e.attrs["reward"]
+        ),
+        key=lambda e: e.id,
+    )
+    if not quests:
+        raise ValueError("base snapshot has no quest with a gold reward to inflate")
+    quest = quests[rng.randrange(len(quests))]
+    new_gold = 151 + rng.randrange(1, 1000)  # over the 150 cap, varied by seed
+    quest.attrs = {**quest.attrs, "reward": {**quest.attrs["reward"], "gold": new_gold}}
+
+    snapshot = Snapshot.from_entities_relations(entities, relations)
+    gt = GroundTruth(
+        defect_class=DefectClass.reward_out_of_range,
+        injected_entities=[quest.id],
+        note=f"quest {quest.id!r} reward.gold set to {new_gold} (> 150 balance cap)",
+    )
+    return InjectedSample(snapshot=snapshot, ground_truth=gt)
+
+
+# ---------------------------------------------------------------------------
+# 8. prob_sum_ne_1 (design §3 strategy 8) — drop-table entry probs must sum to 1
+# ---------------------------------------------------------------------------
+def _inject_prob_sum_ne_1(base: Snapshot, rng: random.Random) -> InjectedSample:
+    entities, relations = _clone_lists(base)
+    tables = sorted(
+        (e for e in entities if e.type is NodeType.DROP_TABLE and e.attrs.get("entries")),
+        key=lambda e: e.id,
+    )
+    if not tables:
+        raise ValueError("base snapshot has no drop table to perturb")
+    tbl = tables[rng.randrange(len(tables))]
+    entries = [dict(en) for en in tbl.attrs["entries"]]
+    # bump one entry's probability by a seeded NON-ZERO delta so the exact sum ≠ 1
+    delta = [0.05, 0.1, 0.15, 0.2, 0.25, 0.3][rng.randrange(6)]
+    idx = rng.randrange(len(entries))
+    entries[idx] = {**entries[idx], "probability": round(entries[idx]["probability"] + delta, 4)}
+    tbl.attrs = {**tbl.attrs, "entries": entries}
+
+    snapshot = Snapshot.from_entities_relations(entities, relations)
+    gt = GroundTruth(
+        defect_class=DefectClass.prob_sum_ne_1,
+        injected_entities=[tbl.id],
+        note=f"drop table {tbl.id!r} entry #{idx} probability +{delta}: entries no "
+        f"longer sum to exactly 1",
+    )
+    return InjectedSample(snapshot=snapshot, ground_truth=gt)
+
+
+# ---------------------------------------------------------------------------
+# 9. non_monotonic_curve (design §3 strategy 9) — `kind=curve` FORMULA curve
+# ---------------------------------------------------------------------------
+def _inject_non_monotonic_curve(base: Snapshot, rng: random.Random) -> InjectedSample:
+    entities, relations = _clone_lists(base)
+    curves = sorted(
+        (
+            e for e in entities
+            if e.type is NodeType.FORMULA
+            and e.attrs.get("kind") == "curve"
+            and isinstance(e.attrs.get("curve"), list)
+            and len(e.attrs["curve"]) >= 2
+        ),
+        key=lambda e: e.id,
+    )
+    if not curves:
+        raise ValueError("base snapshot has no kind=curve FORMULA with a >=2-point curve")
+    f = curves[rng.randrange(len(curves))]
+    curve = list(f.attrs["curve"])
+    i = rng.randrange(len(curve) - 1)
+    curve[i + 1] = curve[i] - (1 + rng.randrange(5))  # strictly below its predecessor
+    f.attrs = {**f.attrs, "curve": curve}
+
+    snapshot = Snapshot.from_entities_relations(entities, relations)
+    gt = GroundTruth(
+        defect_class=DefectClass.non_monotonic_curve,
+        injected_entities=[f.id],
+        note=f"formula {f.id!r} curve made non-monotonic at index {i + 1} ({curve})",
+    )
+    return InjectedSample(snapshot=snapshot, ground_truth=gt)
+
+
+# ---------------------------------------------------------------------------
+# 10. gacha_expectation_violation (design §3 strategy 10)
+# ---------------------------------------------------------------------------
+def _inject_gacha_expectation_violation(base: Snapshot, rng: random.Random) -> InjectedSample:
+    entities, relations = _clone_lists(base)
+    pools = sorted(
+        (
+            e for e in entities
+            if e.type is NodeType.GACHA_POOL
+            and "base_rate" in e.attrs and "pity_threshold" in e.attrs
+        ),
+        key=lambda e: e.id,
+    )
+    if not pools:
+        raise ValueError("base snapshot has no gacha pool with base_rate/pity_threshold")
+    g = pools[rng.randrange(len(pools))]
+    # much lower base_rate AND much higher pity → expected pulls exceed the
+    # pool's declared max_expected_pulls budget (constraint violated).
+    new_rate = round(g.attrs["base_rate"] / (10 + rng.randrange(10)), 6)
+    new_pity = int(g.attrs["pity_threshold"]) + (40 + rng.randrange(40))
+    g.attrs = {**g.attrs, "base_rate": new_rate, "pity_threshold": new_pity}
+
+    snapshot = Snapshot.from_entities_relations(entities, relations)
+    gt = GroundTruth(
+        defect_class=DefectClass.gacha_expectation_violation,
+        injected_entities=[g.id],
+        note=f"gacha pool {g.id!r} base_rate→{new_rate}, pity→{new_pity}: expected "
+        f"pulls now exceed max_expected_pulls budget",
+    )
+    return InjectedSample(snapshot=snapshot, ground_truth=gt)
+
+
+# ---------------------------------------------------------------------------
+# 11. economy_collapse (design §3 strategy 11) — sim-detected (bucket=simulation)
+# ---------------------------------------------------------------------------
+def _inject_economy_collapse(base: Snapshot, rng: random.Random) -> InjectedSample:
+    entities, relations = _clone_lists(base)
+    monsters = sorted((e for e in entities if e.type is NodeType.MONSTER), key=lambda e: e.id)
+    if not monsters:
+        raise ValueError("base snapshot has no monster to turn into a runaway faucet")
+    m = monsters[rng.randrange(len(monsters))]
+    gmin = 500 + rng.randrange(500)
+    gmax = gmin + 500 + rng.randrange(500)  # >>> any sink price → source ≫ sink
+    m.attrs = {**m.attrs, "gold_min": gmin, "gold_max": gmax, "currency": "gold"}
+
+    snapshot = Snapshot.from_entities_relations(entities, relations)
+    gt = GroundTruth(
+        defect_class=DefectClass.economy_collapse,
+        injected_entities=[m.id],
+        note=f"monster {m.id!r} gold_min/max→{gmin}/{gmax} with no offsetting sink: "
+        f"gold supply diverges (economy collapse)",
+    )
+    return InjectedSample(snapshot=snapshot, ground_truth=gt)
+
+
+# ---------------------------------------------------------------------------
+# 12–15. narrative injectors (design §3 strategies 12–15) — bucket=llm_assisted.
+# The snapshot graph stays CLEAN; the defect lives in a seeded
+# `DialogueNarrativeInput` (the M2 Consistency quorum's input). Each embeds
+# class-specific UPPERCASE markers so a property test can confirm the
+# contradiction was injected WITHOUT running the consistency checker.
+# ---------------------------------------------------------------------------
+def _narrative_actor(entities: list[Entity], rng: random.Random, node_type: NodeType, fallback: str) -> str:
+    cands = sorted((e.id for e in entities if e.type is node_type))
+    return cands[rng.randrange(len(cands))] if cands else fallback
+
+
+def _narrative_sample(
+    base: Snapshot, defect: DefectClass, entity: str, text: str
+) -> InjectedSample:
+    # snapshot unchanged (clean graph); the DialogueNarrativeInput carries the defect
+    snapshot = Snapshot.from_entities_relations(
+        list(base.entities.values()), list(base.relations.values())
+    )
+    dlg = DialogueNarrativeInput(dialogue=text, narrative_constraint_ids=[_NARRATIVE_CONSTRAINT])
+    gt = GroundTruth(defect_class=defect, injected_entities=[entity], note=text[:120])
+    return InjectedSample(snapshot=snapshot, ground_truth=gt, dialogue=dlg)
+
+
+def _inject_character_violation(base: Snapshot, rng: random.Random) -> InjectedSample:
+    entities, _ = _clone_lists(base)
+    who = _narrative_actor(entities, rng, NodeType.NPC, "npc:unknown")
+    trait = ["honest", "loyal", "peaceful", "generous"][rng.randrange(4)]
+    action = ["lies to rob the merchant", "betrays the outpost", "starts a brawl",
+              "hoards the reward"][rng.randrange(4)]
+    v = _suffix(rng)
+    text = (f"[v{v}] {who} is established as TRAIT:{trait}. Later {who} says: "
+            f"CONTRADICTION: '{action}' — irreconcilable with being {trait}.")
+    return _narrative_sample(base, DefectClass.character_violation, who, text)
+
+
+def _inject_spoiler(base: Snapshot, rng: random.Random) -> InjectedSample:
+    entities, _ = _clone_lists(base)
+    who = _narrative_actor(entities, rng, NodeType.NPC, "npc:unknown")
+    twist = ["the king is the traitor", "the relic is cursed", "the guide is a spy",
+             "the outpost falls"][rng.randrange(4)]
+    v = _suffix(rng)
+    text = (f"[v{v}] REVEAL: '{twist}' is gated behind the finale quest. "
+            f"{who} blurts it in the intro — SPOILER: revealed far too early.")
+    return _narrative_sample(base, DefectClass.spoiler, who, text)
+
+
+def _inject_faction_violation(base: Snapshot, rng: random.Random) -> InjectedSample:
+    entities, _ = _clone_lists(base)
+    who = _narrative_actor(entities, rng, NodeType.MONSTER, "mon:wolves")
+    v = _suffix(rng)
+    text = (f"[v{v}] ENEMIES: the Wolves ({who}) and the Outpost Guard are sworn foes. "
+            f"Yet {who} says: ALLIANCE: 'We Guards happily fight alongside you.'")
+    return _narrative_sample(base, DefectClass.faction_violation, who, text)
+
+
+def _inject_uniqueness_violation(base: Snapshot, rng: random.Random) -> InjectedSample:
+    entities, _ = _clone_lists(base)
+    npcs = sorted(e.id for e in entities if e.type is NodeType.NPC)
+    a = npcs[0] if npcs else "npc:a"
+    b = npcs[1] if len(npcs) > 1 else "npc:b"
+    v = _suffix(rng)
+    text = (f"[v{v}] Lore: there is exactly one Chosen. {a} claims UNIQUE-ROLE:Chosen. "
+            f"{b} also claims UNIQUE-ROLE:Chosen — two holders of a one-holder role.")
+    return _narrative_sample(base, DefectClass.uniqueness_violation, a, text)
+
+
 _INJECTORS: dict[DefectClass, Callable[[Snapshot, random.Random], InjectedSample]] = {
     DefectClass.dangling_reference: _inject_dangling_reference,
     DefectClass.missing_drop_source: _inject_missing_drop_source,
@@ -306,6 +519,15 @@ _INJECTORS: dict[DefectClass, Callable[[Snapshot, random.Random], InjectedSample
     DefectClass.cyclic_dependency: _inject_cyclic_dependency,
     DefectClass.dead_quest: _inject_dead_quest,
     DefectClass.unsatisfiable_completion: _inject_unsatisfiable_completion,
+    DefectClass.reward_out_of_range: _inject_reward_out_of_range,
+    DefectClass.prob_sum_ne_1: _inject_prob_sum_ne_1,
+    DefectClass.non_monotonic_curve: _inject_non_monotonic_curve,
+    DefectClass.gacha_expectation_violation: _inject_gacha_expectation_violation,
+    DefectClass.economy_collapse: _inject_economy_collapse,
+    DefectClass.character_violation: _inject_character_violation,
+    DefectClass.spoiler: _inject_spoiler,
+    DefectClass.faction_violation: _inject_faction_violation,
+    DefectClass.uniqueness_violation: _inject_uniqueness_violation,
 }
 
 
@@ -313,11 +535,8 @@ def inject(base: Snapshot, defect: DefectClass, seed: int) -> InjectedSample:
     """Mutate `base` to introduce one instance of `defect`, deterministically
     keyed on `(base.snapshot_id, defect.value, seed)` (module docstring).
 
-    Dispatches to a per-class injector. Only the 6 structural classes (Task 2
-    of this milestone) are registered so far; the remaining 9 (numeric/
-    economy Task 3, narrative Task 4) raise `NotImplementedError` until their
-    tasks land — declared in `taxonomy.DefectClass` now, not stubbed here
-    (不简化只延后).
+    Dispatches to a per-class injector — all 15 taxonomy classes are
+    registered (6 structural / 5 numeric-economy / 4 narrative).
     """
     handler = _INJECTORS.get(defect)
     if handler is None:
