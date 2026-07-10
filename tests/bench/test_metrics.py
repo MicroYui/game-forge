@@ -12,12 +12,18 @@ from gameforge.spine.dsl.compile import compile_all
 
 def _report_for(snapshot, needs_nav=False):
     checkers = compile_all(default_constraints())
+    # run the economy sim too, so simulation-bucket classes (economy_collapse)
+    # are scorable — mirrors metrics._run_pipeline.
+    from gameforge.spine.sim.economy import EconomyModel, EconomySimulator, to_findings
+    model = EconomyModel.from_snapshot(snapshot)
+    sim = EconomySimulator().run(model, seed=0, n_agents=50, n_ticks=200)
+    sim_findings = to_findings(sim, snapshot.snapshot_id, model=model)
     nav = None
     if needs_nav:
         from gameforge.apps.cli.ir_to_world import snapshot_to_world
         from gameforge.game.aureus.kernel import AureusEnv
         nav = AureusEnv(snapshot_to_world(snapshot)).nav_provider()
-    return build_review_report(snapshot, checkers, nav=nav)
+    return build_review_report(snapshot, checkers, sim_findings=sim_findings, nav=nav)
 
 
 def test_detects_true_when_class_and_entity_match():
@@ -40,6 +46,22 @@ def test_detects_false_when_class_matches_but_entity_does_not():
     assert detects(_report_for(s.snapshot), wrong) is False
 
 
+def test_every_deterministic_and_simulation_class_is_detected_end_to_end():
+    # Locks per-class detectability for ALL 11 det/sim classes through the real
+    # checker/sim pipeline — a silent BDR→0 regression (a checker renaming its
+    # defect_class, clean-base drift, an entity-naming change) would fail here
+    # even though the narrower tests above stay green. "Soundness is the selling
+    # point", so every headline class carries its own end-to-end assertion.
+    from gameforge.bench.taxonomy import CLASS_META
+
+    det_sim = [dc for dc in DefectClass
+               if CLASS_META[dc].bucket in (Bucket.deterministic, Bucket.simulation)]
+    assert len(det_sim) == 11
+    for dc in det_sim:
+        s = inject(clean_base(), dc, seed=1)
+        assert detects(_report_for(s.snapshot, needs_nav=s.needs_nav), s.ground_truth) is True, dc
+
+
 def test_score_seeded_perfect_bdr_and_zero_oracle_fp_on_small_corpus():
     corpus = build_corpus(
         seed=0, n_clean=3,
@@ -57,9 +79,10 @@ def test_score_seeded_perfect_bdr_and_zero_oracle_fp_on_small_corpus():
     for m in result.bdr:
         assert m.k <= m.n and 0.0 <= m.ci_low <= m.ci_high <= 1.0
         assert isinstance(m, Metric)
-    # oracle-FP (deterministic findings on clean) must be 0 — the headline KPI
+    # oracle-FP (deterministic findings on clean) must be 0 — the headline KPI.
+    # Reported over DISTINCT clean configs (the corpus repeats one clean base).
     assert result.oracle_fp.count == 0
-    assert result.oracle_fp.n == 3
+    assert result.oracle_fp.n == 1
 
 
 def test_score_seeded_skips_llm_assisted_classes_in_deterministic_pass():

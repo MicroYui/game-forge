@@ -147,13 +147,19 @@ def score_seeded(corpus: Corpus, constraints: list[Constraint]) -> SeededScore:
         ))
 
     # oracle-FP: any deterministic OR unproven Finding on a clean snapshot is a
-    # checker-algorithm false positive (the headline KPI — must be 0).
+    # checker-algorithm false positive (the headline KPI — must be 0). Dedupe
+    # the clean list by snapshot_id first: `build_corpus` repeats ONE clean
+    # config, so scoring it N times would report a fake-tight CI over N
+    # "independent" samples. We report over DISTINCT clean configs (honest n);
+    # a tighter CI needs more distinct clean bases (design §3 "多 base"; M3b's
+    # Flare corpus adds real ones).
+    distinct_clean = {c.snapshot_id: c for c in corpus.clean}
     ofp = 0
-    for clean in corpus.clean:
+    for clean in distinct_clean.values():
         report = _run_pipeline(clean, checkers, needs_nav=False)
         if report.deterministic_findings or report.unproven_findings:
             ofp += 1
-    n_clean = len(corpus.clean)
+    n_clean = len(distinct_clean)
     olow, ohigh = wilson_ci(ofp, n_clean)
     oracle_fp = FPReport(n=n_clean, count=ofp,
                          rate=(ofp / n_clean if n_clean else 0.0), ci_low=olow, ci_high=ohigh)

@@ -152,8 +152,13 @@ def test_dangling_reference_points_dst_to_nonexistent_id():
     # the injected relation's dst is NOT a known entity id (structural check, no checker)
     bad = s.ground_truth.injected_entities[-1]
     assert bad not in ids
-    assert clean_base().to_graph()  # base itself has no dangling ref (sanity)
-    # and no relation in the base already dangles onto that exact id
+    # a relation in the MUTATED snapshot actually points its dst at `bad` — i.e.
+    # the graph genuinely dangles now (not just a GroundTruth label); this would
+    # FAIL if the injector recorded the GT but forgot to repoint a relation.
+    danglers = [r for r in g.all_relations() if r.dst_id == bad]
+    assert len(danglers) == 1
+    assert danglers[0].id == s.ground_truth.injected_entities[0]  # the named relation
+    # base itself has no dangling ref onto that exact id
     base_g = clean_base().to_graph()
     assert all(r.dst_id != bad for r in base_g.all_relations())
 
