@@ -16,6 +16,7 @@ Two inline scenarios built directly from Entity/Relation +
 from __future__ import annotations
 
 from gameforge.contracts.ir import EdgeType, Entity, NodeType, Relation
+from gameforge.spine.ingestion.aureus_adapter import AureusCsvAdapter
 from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.sim.economy import (
     EconomyModel,
@@ -143,3 +144,56 @@ def test_collapse_finding_carries_faucet_entities_when_model_given():
         if f.defect_class == "economy_collapse"
     )
     assert without_model.entities == []
+
+
+def _econ_workbook(gold_min, gold_max, sink_price, buy_prob):
+    # Minimal valid economy workbook: a gold currency, a wolf faucet
+    # (gold_min/max + currency => DROPS_FROM(monster->currency)), and a shop
+    # sink (SELLS with price/currency/buy_prob). Region+npc keep the snapshot
+    # well-formed for to_graph.
+    return {
+        "regions": [{"region_id": "region:r", "name": "R",
+                     "grid": {"width": 4, "height": 4, "blocked": []},
+                     "start_pos": [0, 0], "scenario_id": "sc"}],
+        "npcs": [{"npc_id": "npc:a", "name": "A", "region": "region:r", "pos": [1, 0]}],
+        "currencies": [{"currency_id": "gold", "name": "Gold"}],
+        "items": [{"item_id": "item:potion", "name": "Potion"}],
+        "monsters": [{
+            "monster_id": "m:wolf", "name": "Wolf",
+            "stats": {"atk": 1, "def": 1, "hp": 1}, "skills": None,
+            "drop_table_id": None, "ai": "aggressive",
+            "gold_min": gold_min, "gold_max": gold_max,
+            "currency": "gold", "kills_per_tick": 1,
+        }],
+        "shops": [{"shop_id": "shop:s", "entries": [
+            {"currency": "gold", "item": "item:potion",
+             "price": sink_price, "buy_prob": buy_prob}]}],
+    }
+
+
+def _model_from_wb(wb):
+    return EconomyModel.from_snapshot(AureusCsvAdapter().to_ir(wb, file_ref="econ"))
+
+
+def test_adapter_derived_model_has_nonempty_sink():
+    model = _model_from_wb(_econ_workbook(gold_min=5, gold_max=9,
+                                          sink_price=50, buy_prob=0.5))
+    assert model.sources, "faucet must be modeled from CSV"
+    assert model.sinks, "sink must now be modeled from CSV (the fix)"
+    sink = model.sinks[0]
+    assert sink["price"] == 50 and sink["buy_prob"] == 0.5 and sink["currency"] == "gold"
+
+
+def test_adapter_sink_causally_prevents_collapse():
+    # Balanced: small faucet (<= sink drain) + an always-buying sink -> net<=0,
+    # no collapse. Runaway: same shape but a huge faucet the sink can't absorb
+    # -> collapse. The ONLY difference is faucet size, so the sink is proven
+    # causally load-bearing (not a measured no-op).
+    balanced = _model_from_wb(_econ_workbook(gold_min=5, gold_max=9,
+                                             sink_price=50, buy_prob=1.0))
+    runaway = _model_from_wb(_econ_workbook(gold_min=500, gold_max=1000,
+                                            sink_price=50, buy_prob=1.0))
+    rb = EconomySimulator().run(balanced, seed=0, n_agents=50, n_ticks=200)
+    rr = EconomySimulator().run(runaway, seed=0, n_agents=50, n_ticks=200)
+    assert detect_collapse(rb) is None, "balanced faucet+sink must not collapse"
+    assert detect_collapse(rr) is not None, "faucet >> sink must still collapse"
