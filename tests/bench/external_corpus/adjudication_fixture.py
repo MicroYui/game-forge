@@ -404,6 +404,100 @@ def discovery_with_external_lineage_siblings() -> DiscoveryLedger:
     return DiscoveryLedger.model_validate(payload)
 
 
+def discovery_with_recursive_external_revert() -> DiscoveryLedger:
+    discovery = discovery_ledger()
+    selected_oid = discovery.discovered_candidates[0].commit.commit_oid
+    external_revert_oid = oid(42)
+    external_original_oid = oid(41)
+    profile_payload = discovery.source_profile.model_dump(mode="json")
+    backport_rule = LineageRegexRule(
+        rule_id="trailer.backport",
+        link_type="backport",
+        pattern=r"(?m)^Backport-of: ([0-9a-f]{40})$",
+    )
+    revert_rule = LineageRegexRule(
+        rule_id="trailer.revert",
+        link_type="revert",
+        pattern=r"(?m)^This reverts commit ([0-9a-f]{40})\.$",
+    )
+    profile_payload["lineage_rules"] = [
+        backport_rule.model_dump(mode="json"),
+        revert_rule.model_dump(mode="json"),
+    ]
+    profile = SourceProfile.model_validate(profile_payload)
+    profile_sha256 = sha256_hex(canonical_bytes(profile))
+
+    link_payloads = [
+        {
+            "link_type": "backport",
+            "source_oid": external_revert_oid,
+            "target_oid": selected_oid,
+            "rule_id": backport_rule.rule_id,
+        },
+        {
+            "link_type": "revert",
+            "source_oid": external_original_oid,
+            "target_oid": external_revert_oid,
+            "rule_id": revert_rule.rule_id,
+        },
+    ]
+    links = [
+        LineageLink(
+            link_id=sha256_hex(canonical_bytes(link_payload)),
+            **link_payload,
+        )
+        for link_payload in link_payloads
+    ]
+    candidate_oids = [
+        candidate.commit.commit_oid for candidate in discovery.discovered_candidates
+    ]
+    universe = {
+        "source_id": profile.source_id,
+        "profile_sha256": profile_sha256,
+        "ordered_candidate_oids": candidate_oids,
+    }
+    payload = discovery.model_dump(mode="json")
+    payload["discovered_candidates"][0]["diff_evidence"]["commit_message"] += (
+        f"Backport-of: {external_revert_oid}\n"
+    )
+    payload.update(
+        {
+            "source_profile": profile.model_dump(mode="json"),
+            "source_profile_sha256": profile_sha256,
+            "lineage_context_commits": [
+                CommitMetadata(
+                    commit=CandidateCommit(
+                        commit_oid=external_original_oid,
+                        parent_oids=[oid(40)],
+                        selected_parent_oid=oid(40),
+                        diff_base_oid=oid(40),
+                        committed_at=41,
+                        subject="Original external fix",
+                    ),
+                    full_message="Original external fix\n",
+                ).model_dump(mode="json"),
+                CommitMetadata(
+                    commit=CandidateCommit(
+                        commit_oid=external_revert_oid,
+                        parent_oids=[external_original_oid],
+                        selected_parent_oid=external_original_oid,
+                        diff_base_oid=external_original_oid,
+                        committed_at=42,
+                        subject="Revert original external fix",
+                    ),
+                    full_message=(
+                        "Revert original external fix\n\n"
+                        f"This reverts commit {external_original_oid}.\n"
+                    ),
+                ).model_dump(mode="json"),
+            ],
+            "objective_lineage_links": [link.model_dump(mode="json") for link in links],
+            "candidate_universe_sha256": sha256_hex(canonical_bytes(universe)),
+        }
+    )
+    return DiscoveryLedger.model_validate(payload)
+
+
 def write_cas(discovery: DiscoveryLedger, blob_dir: Path) -> None:
     blob_dir.mkdir(parents=True, exist_ok=True)
     for index, candidate in enumerate(discovery.discovered_candidates):

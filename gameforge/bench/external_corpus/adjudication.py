@@ -342,11 +342,14 @@ def _validate_lineage(
         if link.link_type == "revert":
             if link.target_oid in group_by_commit:
                 raise AdjudicationError("a revert endpoint cannot enter a fix group")
-            target = candidate_by_oid[link.target_oid]
-            decision = decisions.get(link.target_oid)
-            expected_reason = "revert" if target.config_only else "non_config_only"
-            if decision is None or decision.reason_code != expected_reason:
-                raise AdjudicationError(f"a revert endpoint must be excluded as {expected_reason}")
+            target = candidate_by_oid.get(link.target_oid)
+            if target is not None:
+                decision = decisions.get(link.target_oid)
+                expected_reason = "revert" if target.config_only else "non_config_only"
+                if decision is None or decision.reason_code != expected_reason:
+                    raise AdjudicationError(
+                        f"a revert endpoint must be excluded as {expected_reason}"
+                    )
         if resolution.resolution == "same_group" and len(endpoint_group_ids) > 1:
             raise AdjudicationError(
                 "same_group lineage endpoints must belong to at most one fix group"

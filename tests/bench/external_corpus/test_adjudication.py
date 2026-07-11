@@ -23,6 +23,7 @@ from tests.bench.external_corpus.adjudication_fixture import (
     discovery_ledger,
     discovery_with_external_lineage_siblings,
     discovery_with_lineage,
+    discovery_with_recursive_external_revert,
     oid,
     reviewed_evidence,
 )
@@ -258,6 +259,30 @@ def test_external_lineage_context_connects_selected_siblings_without_assignment(
 
     with pytest.raises(AdjudicationError, match="lineage siblings"):
         adjudicate(discovery, reviewed)
+
+
+def test_recursive_external_revert_context_needs_no_candidate_disposition():
+    discovery = discovery_with_recursive_external_revert()
+    evidence = reviewed_evidence(discovery)
+    reviewed = _reattest(
+        evidence,
+        lineage_resolutions=[
+            LineageResolution(
+                link_id=link.link_id,
+                resolution="same_group",
+                affected_group_ids=(
+                    ["group.0"] if link.link_type == "backport" else []
+                ),
+                rationale="Reviewed recursive external lineage context.",
+            )
+            for link in discovery.objective_lineage_links
+        ],
+    )
+
+    ledger, decision = adjudicate(discovery, reviewed)
+
+    assert decision.gate.status == "pass"
+    assert ledger.lineage_resolutions == reviewed.lineage_resolutions
 
 
 def test_one_reviewed_lineage_representative_can_count():

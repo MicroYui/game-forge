@@ -333,6 +333,42 @@ def test_generic_direct_match_replay_rejects_forged_registered_rule(
         verify_discovery_direct_matches(blob_dir, forged)
 
 
+def test_generic_ledger_rejects_selected_candidate_without_direct_match(
+    generic_git_repo, tmp_path
+):
+    profile = _sky_profile(generic_git_repo, limit=100)
+    ledger = discover_candidates(
+        ReadOnlyGitRepo(generic_git_repo.path),
+        profile,
+        _registration(profile.source_id),
+        tmp_path / "blobs",
+    )
+    payload = ledger.model_dump(mode="json")
+    lineage_oids = {
+        oid
+        for link in payload["objective_lineage_links"]
+        for oid in (link["source_oid"], link["target_oid"])
+    }
+    candidate = next(
+        item
+        for item in payload["discovered_candidates"]
+        if item["selection_reasons"][0]["kind"] == "direct_match"
+        and item["selection_reasons"][0]["rule_ids"] == ["message.fix"]
+        and item["commit"]["commit_oid"] not in lineage_oids
+    )
+    candidate["commit"]["subject"] = "Documentation cleanup"
+    candidate["diff_evidence"]["commit_message"] = "Documentation cleanup\n"
+    candidate["selection_reasons"] = [
+        {
+            "kind": "adjacent_context",
+            "anchor_oid": payload["discovered_candidates"][0]["commit"]["commit_oid"],
+        }
+    ]
+
+    with pytest.raises(ValidationError, match="direct_match"):
+        DiscoveryLedger.model_validate(payload)
+
+
 def test_generic_direct_match_replay_rejects_wrong_eligible_patch_bytes(
     generic_git_repo, tmp_path
 ):

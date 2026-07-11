@@ -672,12 +672,11 @@ class DiscoveryLedger(_StrictModel):
         if self.discovered_candidates != expected_order:
             raise ValueError("discovered_candidates differ from registered candidate order")
 
-        rule_ids = {
+        direct_rule_ids = {
             rule.rule_id
             for rule in (
                 *self.source_profile.message_rules,
                 *self.source_profile.diff_rules,
-                *self.source_profile.lineage_rules,
             )
         }
         diff_rule_ids = {rule.rule_id for rule in self.source_profile.diff_rules}
@@ -702,8 +701,14 @@ class DiscoveryLedger(_StrictModel):
                 and len(candidate.changed_paths) == len(expected_eligible)
             ):
                 raise ValueError("candidate config_only must be derived from eligible paths")
+            if any(
+                reason.kind != "direct_match" for reason in candidate.selection_reasons
+            ):
+                raise ValueError(
+                    "generic selected candidates require only direct_match selection reasons"
+                )
             for reason in candidate.selection_reasons:
-                if not set(reason.rule_ids) <= rule_ids:
+                if not set(reason.rule_ids) <= direct_rule_ids:
                     raise ValueError("selection reason uses an unknown source-profile rule")
             matched_diff_rule = any(
                 reason.kind == "direct_match"
