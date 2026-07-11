@@ -1,0 +1,103 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl2_skeleton.txt b/mods/empyrean_campaign/enemies/lvl2_skeleton.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..930d69b121552967467e3316230c41d15ab4b1d7
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl2_skeleton.txt
+@@ -0,0 +1,31 @@
++INCLUDE enemies/base/skeleton_weak.txt
++
++name=Skeleton
++level=2
++categories=skeleton,undead,dungeon
++rarity=common
++xp=2
++
++# combat stats
++hp=140
++speed=3
++turn_delay=400ms
++chance_pursue=10
++
++power=melee,164,10
++
++accuracy=90
++avoidance=10
++poise=45
++
++dmg_melee_min=30
++dmg_melee_max=60
++cooldown=2200ms
++
++absorb_min=5
++absorb_max=8
++
++# loot
++loot=loot/level_2.txt
++
++
+diff --git a/mods/empyrean_campaign/maps/perdition_mines.txt b/mods/empyrean_campaign/maps/perdition_mines.txt
+index ad24b635306dfe2141cf4d81cd2cf5599a77fa99..ae5f3007599408ee283781660c931bf644c41629 100644
+--- a/mods/empyrean_campaign/maps/perdition_mines.txt
++++ b/mods/empyrean_campaign/maps/perdition_mines.txt
+@@ -286,6 +286,8 @@ number=4,5
+ type=krolan
+ location=5,15,1,1
+ number=1
++requires_not_status=emp_krolan_key
++requires_status=emp_krolan_init
+ 
+ [enemy]
+ type=undead
+@@ -293,3 +295,10 @@ location=10,12,6,5
+ level=1
+ number=2,3
+ 
++[enemy]
++type=skeleton
++location=5,16,1,1
++level=2
++number=1
++requires_not_status=emp_krolan_init
++
+diff --git a/tiled/empyrean_campaign/perdition_mines.tmx b/tiled/empyrean_campaign/perdition_mines.tmx
+index 7b6cf98cdef17fc7a2a44293968f09add9fc592e..f61a5e3dda05c2fa6156ed5c0875bcb61f166675 100644
+--- a/tiled/empyrean_campaign/perdition_mines.tmx
++++ b/tiled/empyrean_campaign/perdition_mines.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="56" height="38" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="23">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="56" height="38" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="24">
+  <properties>
+   <property name="music" value="music/cave_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_cave.txt"/>
+@@ -241,7 +241,7 @@
+    </properties>
+   </object>
+  </objectgroup>
+- <objectgroup name="enemy" visible="0">
++ <objectgroup name="enemy">
+   <object id="2" type="undead" x="1088" y="160" width="288" height="288">
+    <properties>
+     <property name="level" value="1"/>
+@@ -275,6 +275,8 @@
+   <object id="7" type="krolan" x="160" y="480" width="32" height="32">
+    <properties>
+     <property name="number" value="1"/>
++    <property name="requires_not_status" value="emp_krolan_key"/>
++    <property name="requires_status" value="emp_krolan_init"/>
+    </properties>
+   </object>
+   <object id="8" type="undead" x="320" y="384" width="192" height="160">
+@@ -283,5 +285,12 @@
+     <property name="number" value="2,3"/>
+    </properties>
+   </object>
++  <object id="23" type="skeleton" x="160" y="512" width="32" height="32">
++   <properties>
++    <property name="level" value="2"/>
++    <property name="number" value="1"/>
++    <property name="requires_not_status" value="emp_krolan_init"/>
++   </properties>
++  </object>
+  </objectgroup>
+ </map>

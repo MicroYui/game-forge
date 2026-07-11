@@ -1,0 +1,53 @@
+diff --git a/mods/empyrean_campaign/maps/river_trail.txt b/mods/empyrean_campaign/maps/river_trail.txt
+index 23e7624f9d4ab1633e0012bd7bc22977d449c1d9..8e5287bf0a299450ff9633d143c8b37ae95dd31c 100644
+--- a/mods/empyrean_campaign/maps/river_trail.txt
++++ b/mods/empyrean_campaign/maps/river_trail.txt
+@@ -262,14 +262,17 @@ location=69,24,1,1
+ soundfx=soundfx/environment/forest_owl_loop.ogg
+ 
+ [enemy]
+-type=zombie_rotting
++type=zombie
+ location=4,21,1,1
++level=1
+ 
+ [enemy]
+-type=zombie_rotting
++type=zombie
+ location=46,5,1,1
++level=1
+ 
+ [enemy]
+-type=zombie_rotting
++type=zombie
+ location=54,7,1,1
++level=1
+ 
+diff --git a/tiled/empyrean_campaign/river_trail.tmx b/tiled/empyrean_campaign/river_trail.tmx
+index 4da2d734b94522704daddbfa5f31d3f574836f29..27f0743fe6d8e190e19fdb8938ef3ae59dbdea2d 100644
+--- a/tiled/empyrean_campaign/river_trail.tmx
++++ b/tiled/empyrean_campaign/river_trail.tmx
+@@ -258,8 +258,20 @@
+   </object>
+  </objectgroup>
+  <objectgroup name="enemy">
+-  <object id="3" type="zombie_rotting" x="128" y="672" width="32" height="32"/>
+-  <object id="4" type="zombie_rotting" x="1472" y="160" width="32" height="32"/>
+-  <object id="5" type="zombie_rotting" x="1728" y="224" width="32" height="32"/>
++  <object id="3" type="zombie" x="128" y="672" width="32" height="32">
++   <properties>
++    <property name="level" value="1"/>
++   </properties>
++  </object>
++  <object id="4" type="zombie" x="1472" y="160" width="32" height="32">
++   <properties>
++    <property name="level" value="1"/>
++   </properties>
++  </object>
++  <object id="5" type="zombie" x="1728" y="224" width="32" height="32">
++   <properties>
++    <property name="level" value="1"/>
++   </properties>
++  </object>
+  </objectgroup>
+ </map>

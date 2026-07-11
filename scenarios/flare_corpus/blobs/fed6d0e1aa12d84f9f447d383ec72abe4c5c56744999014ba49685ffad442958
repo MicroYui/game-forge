@@ -1,0 +1,79 @@
+diff --git a/mods/empyrean_campaign/books/merchants_journal.txt b/mods/empyrean_campaign/books/merchants_journal.txt
+index a766097b5ae002428582ba245e12b7cc5c60257c..cf7b89f6f67c410d4f5605653d3a3a64d9dfdf9a 100644
+--- a/mods/empyrean_campaign/books/merchants_journal.txt
++++ b/mods/empyrean_campaign/books/merchants_journal.txt
+@@ -20,7 +20,7 @@ text=-1  Dagger
+ [text]
+ text_pos=190,80,60,left
+ text_font=0,0,0,font_cursive
+-text=400
++text=100
+ 
+ [text]
+ text_pos=25,110,200,left
+@@ -30,7 +30,7 @@ text=+1  Cloth Shirt
+ [text]
+ text_pos=190,110,60,left
+ text_font=0,0,0,font_cursive
+-text=-75
++text=-18
+ 
+ [text]
+ text_pos=25,140,200,left
+@@ -40,7 +40,7 @@ text=+1  Gold Ring
+ [text]
+ text_pos=190,140,60,left
+ text_font=0,0,0,font_cursive
+-text=-175
++text=-50
+ 
+ # page 2
+ [text]
+@@ -51,12 +51,12 @@ text=1488/9/28
+ [text]
+ text_pos=275,80,200,left
+ text_font=0,0,0,font_cursive
+-text=-4  Health Potion
++text=-2  Health Potion
+ 
+ [text]
+ text_pos=440,80,60,left
+ text_font=0,0,0,font_cursive
+-text=320
++text=120
+ 
+ [text]
+ text_pos=275,110,200,left
+@@ -66,5 +66,5 @@ text=+1  Dagger
+ [text]
+ text_pos=440,110,60,left
+ text_font=0,0,0,font_cursive
+-text=-100
++text=-25
+ 
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+index 9c9df1d0bec55a32e3f9ec720b7c6f8f70dafe0b..a3c7510c5ba434da796cdb628c705e97f3f12a75 100644
+--- a/mods/empyrean_campaign/items/categories/quest.txt
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -16,7 +16,7 @@ pickup_status=emp_krolan_emerald
+ 
+ [item]
+ id=1002
+-name=Merchant's Journal
++name=Abasi's Journal
+ INCLUDE items/base/misc/book.txt
+ quality=unique
+ item_type=quest
+diff --git a/mods/empyrean_campaign/quests/journal.txt b/mods/empyrean_campaign/quests/journal.txt
+index 9b112de56db6b086793b9f3ccc6862891318e6eb..e1eb33e63027dbfd95f202da0ff595505061a1ef 100644
+--- a/mods/empyrean_campaign/quests/journal.txt
++++ b/mods/empyrean_campaign/quests/journal.txt
+@@ -1,7 +1,7 @@
+ [quest]
+ requires_status=emp_journal_init
+ requires_not_status=emp_journal_found
+-quest_text=Find the Abasi's journal. It is likely being carried by a nearby goblin.
++quest_text=Find Abasi's journal. It is likely being carried by a nearby goblin.
+ 
+ [quest]
+ requires_status=emp_journal_found

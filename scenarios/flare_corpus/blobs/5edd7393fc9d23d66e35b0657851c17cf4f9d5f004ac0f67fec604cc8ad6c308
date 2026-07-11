@@ -1,0 +1,1563 @@
+diff --git a/mods/alpha_demo/maps/ancient_temple.txt b/mods/alpha_demo/maps/ancient_temple.txt
+index bc791e6147037ac26e6d4c908210f24ba070d17d..f839ce38499d5993baf962dce472ae2ec38ed90b 100644
+--- a/mods/alpha_demo/maps/ancient_temple.txt
++++ b/mods/alpha_demo/maps/ancient_temple.txt
+@@ -1,10 +1,21 @@
+ [header]
+ width=104
+ height=104
++tilewidth=64
++tileheight=32
+ music=safe_room_theme.ogg
+ tileset=tileset_dungeon.txt
+ title=Ancient Temple
+ 
++[tilesets]
++tileset=../../../tiled/dungeon/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128,0,0
++tileset=../../../tiled/dungeon/set_rules.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
++tileset=../../../tiled/dungeon/door_left.png,64,128,-16,-8
++tileset=../../../tiled/dungeon/door_right.png,64,128,16,-8
++tileset=../../../tiled/dungeon/stairs.png,256,256,0,48
++
+ [layer]
+ type=background
+ data=
+diff --git a/mods/alpha_demo/maps/averguard_academy.txt b/mods/alpha_demo/maps/averguard_academy.txt
+index b66433a0588fe63315f0176d0fd8472133d87a71..880c49363c134f002ea8c4aee7c0e72410b11a25 100644
+--- a/mods/alpha_demo/maps/averguard_academy.txt
++++ b/mods/alpha_demo/maps/averguard_academy.txt
+@@ -1,18 +1,24 @@
+ [header]
+-title=Averguard Academy
+ width=70
+ height=100
+-tileset=tileset_dungeon.txt
+ location=62,3,7
++tilewidth=64
++tileheight=32
+ music=dungeon_theme.ogg
++tileset=tileset_dungeon.txt
++title=Averguard Academy
+ 
+ [tilesets]
+-tileset=../../../tiled/dungeon/tiled_collision.png,64,32
+-tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128
++tileset=../../../tiled/dungeon/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128,0,0
++tileset=../../../tiled/dungeon/set_rules.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
++tileset=../../../tiled/dungeon/door_left.png,64,128,-16,-8
++tileset=../../../tiled/dungeon/door_right.png,64,128,16,-8
++tileset=../../../tiled/dungeon/stairs.png,256,256,0,48
+ 
+ [layer]
+ type=background
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -117,7 +123,6 @@ data=
+ 
+ [layer]
+ type=object
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -220,10 +225,8 @@ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ 
+-
+ [layer]
+ type=collision
+-format=dec
+ data=
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -335,114 +338,114 @@ intermap=averguard_atrium.txt,9,57
+ # bookstand
+ location=31,22,1,1
+ hotspot=location
+-tooltip=Book Stand
+ mapmod=object,31,22,165
+-soundfx=soundfx/inventory/inventory_page.ogg
+ msg="Some say the Averguard Academy is the greatest collection of knowledge within the empire."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Book Stand
+ 
+ [event]
+ # bookstand
+ location=28,22,1,1
+ hotspot=location
+-tooltip=Book Stand
+ mapmod=object,28,22,165
+-soundfx=soundfx/inventory/inventory_page.ogg
+ msg="Professor Langlier is High Sage of the Averguard.  Several volumes kept here are his own writings."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Book Stand
+ 
+ [event]
+ # bookstand
+ location=25,22,1,1
+ hotspot=location
+-tooltip=Book Stand
+ mapmod=object,25,22,165
+-soundfx=soundfx/inventory/inventory_page.ogg
+ msg="The Academy is only open to oathkeeping members of the Averguard.  Few others know of its existence."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Book Stand
+ 
+ [event]
+ # bookstand
+ location=22,31,1,1
+ hotspot=location
+-tooltip=Book Stand
+ mapmod=object,22,31,164
+-soundfx=soundfx/inventory/inventory_page.ogg
+ msg="The peasants could not be trusted with literacy.  Most gave up their books without incident."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Book Stand
+ 
+ [event]
+ # bookstand
+ type=run_once
+ location=20,75,2,1
+ hotspot=location
+-tooltip=Book Stand
++loot=id,21,75,2
+ mapmod=object,20,75,164
+-soundfx=soundfx/inventory/inventory_page.ogg
+ msg=This false book has a secret compartment.
+-loot=id,21,75,2
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Book Stand
+ 
+ [event]
+ # barrel
+ type=run_once
+-tooltip=Barrel
+ location=10,49,1,1
+ hotspot=location
+ mapmod=object,10,49,162
+ soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
+ 
+ [event]
+ # barrel
+ type=run_once
+-tooltip=Barrel
+ location=10,48,1,1
+ hotspot=location
++loot=random,11,48,1
+ mapmod=object,10,48,162
+ soundfx=soundfx/wood_open.ogg
+-loot=random,11,48,1
++tooltip=Barrel
+ 
+ [event]
+ # barrel
+ type=run_once
+-tooltip=Barrel
+ location=10,47,1,1
+ hotspot=location
+ mapmod=object,10,47,162
+ soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
+ 
+ [event]
+ # barrel
+ type=run_once
+-tooltip=Barrel
+ location=12,49,1,1
+ hotspot=location
+ mapmod=object,12,49,162
+ soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
+ 
+ [event]
+ # crate
+ type=run_once
+-tooltip=Crate
+ location=11,46,1,1
+ hotspot=location
++loot=random,12,46,1
+ mapmod=object,11,46,163
+ soundfx=soundfx/wood_open.ogg
+-loot=random,12,46,1
++tooltip=Crate
+ 
+ [event]
+ # crate
+ type=run_once
+-tooltip=Crate
+ location=13,49,1,1
+ hotspot=location
+ mapmod=object,13,49,163
+ soundfx=soundfx/wood_open.ogg
++tooltip=Crate
+ 
+ [event]
+ # crate
+ type=run_once
+-tooltip=Crate
+ location=15,49,1,1
+ hotspot=location
++loot=random,14,48,1
+ mapmod=object,15,49,163
+ soundfx=soundfx/wood_open.ogg
+-loot=random,14,48,1
++tooltip=Crate
+ 
+ [event]
+ # boss tomb
+@@ -455,18 +458,18 @@ msg=This tomb glows with magical runes.
+ type=run_once
+ location=4,90,1,2
+ hotspot=location
+-tooltip=Langlier's Tomb
+ loot=random,5,90,5
+ loot=random,5,91,6
++tooltip=Langlier's Tomb
+ 
+ [event]
+ # teleport chest
+ type=run_once
+-tooltip=Treasure Chest
+ location=45,97,1,1
+ hotspot=location
+-mapmod=object,45,97,161
+ loot=random,45,98,7
++mapmod=object,45,97,161
++tooltip=Treasure Chest
+ 
+ [enemy]
+ # entrance guards
+@@ -482,6 +485,7 @@ direction=3
+ [enemy]
+ type=zombie_rotting
+ location=50,25
++
+ [enemy]
+ type=zombie
+ location=50,30
+@@ -505,26 +509,26 @@ number=1,3
+ [enemygroup]
+ # foyer
+ type=undead
++location=34,26,9,14
+ level=4,6
+ number=2,3
+-location=34,26,9,14
+ 
+ [enemygroup]
+ # north book location
+-location=15,22,18,18
+ type=zombie
++location=15,22,18,18
+ level=3,5
+ number=3,4
+ 
+ [enemygroup]
+-location=15,22,18,18
+ type=zombie
++location=15,22,18,18
+ level=3,5
+ number=2,2
+ 
+ [enemygroup]
+-location=15,22,18,18
+ type=undead
++location=15,22,18,18
+ level=3,5
+ number=1,2
+ 
+@@ -564,8 +568,6 @@ number=2,4
+ # langlier's location
+ type=antlion
+ location=10,67,17,26
+-number=3,5
+ level=3,5
+-
+-
++number=3,5
+ 
+diff --git a/mods/alpha_demo/maps/averguard_atrium.txt b/mods/alpha_demo/maps/averguard_atrium.txt
+index 4b8eea277e7c010ab8d4fb140f4d46a633a5f3a1..d05f0ea1a102f4b411bb9965c1f5452daaec2a45 100644
+--- a/mods/alpha_demo/maps/averguard_atrium.txt
++++ b/mods/alpha_demo/maps/averguard_atrium.txt
+@@ -1,18 +1,24 @@
+ [header]
+-title=Averguard Atrium
+ width=20
+ height=60
+-tileset=tileset_dungeon.txt
+ location=16,11,1
++tilewidth=64
++tileheight=32
+ music=dungeon_theme.ogg
++tileset=tileset_dungeon.txt
++title=Averguard Atrium
+ 
+ [tilesets]
+-tileset=../../../tiled/dungeon/tiled_collision.png,64,32
+-tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128
++tileset=../../../tiled/dungeon/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128,0,0
++tileset=../../../tiled/dungeon/set_rules.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
++tileset=../../../tiled/dungeon/door_left.png,64,128,-16,-8
++tileset=../../../tiled/dungeon/door_right.png,64,128,16,-8
++tileset=../../../tiled/dungeon/stairs.png,256,256,0,48
+ 
+ [layer]
+ type=background
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,17,16,16,16,16,16,17,16,17,17,18,0,0,0,0,0,0,
+@@ -77,7 +83,6 @@ data=
+ 
+ [layer]
+ type=object
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,77,69,69,107,73,244,245,74,107,69,65,78,0,0,0,0,0,
+@@ -142,7 +147,6 @@ data=
+ 
+ [layer]
+ type=collision
+-format=dec
+ data=
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,1,1,1,1,1,0,0,1,1,1,1,1,3,3,3,3,3,
+@@ -233,8 +237,8 @@ intermap=averguard_complex.txt,98,70
+ [event]
+ type=on_load
+ location=2,48,1,1
+-requires_status=waypoint_averguard_atrium
+ mapmod=background,8,50,265
++requires_status=waypoint_averguard_atrium
+ 
+ [event]
+ type=teleport
+@@ -246,10 +250,10 @@ tooltip=Warp Zone
+ [event]
+ type=run_once
+ location=6,47,6,6
++mapmod=background,8,50,265
++msg=Averguard Atrium waypoint discovered
+ requires_not=waypoint_averguard_atrium
+ set_status=waypoint_averguard_atrium
+-msg=Averguard Atrium waypoint discovered
+-mapmod=background,8,50,265
+ 
+ [enemy]
+ type=goblin_charger
+@@ -275,12 +279,3 @@ location=11,32
+ type=skeleton
+ location=4,37
+ 
+-
+-
+-
+-
+-
+-
+-
+-
+-
+diff --git a/mods/alpha_demo/maps/averguard_complex.txt b/mods/alpha_demo/maps/averguard_complex.txt
+index cd1c3ba8dcd29881973a3b9816a64ae4324ebb37..21b862ed9d6376ae2a95710317a86e07b446b9f4 100644
+--- a/mods/alpha_demo/maps/averguard_complex.txt
++++ b/mods/alpha_demo/maps/averguard_complex.txt
+@@ -1,18 +1,24 @@
+ [header]
+-title=Averguard Complex
+ width=101
+ height=120
++tilewidth=64
++tileheight=32
++music=dungeon_theme.ogg
+ tileset=tileset_dungeon.txt
+ location=98,70,1
+-music=dungeon_theme.ogg
++title=Averguard Complex
+ 
+ [tilesets]
+-tileset=../../../tiled/dungeon/tiled_collision.png,64,32
+-tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128
++tileset=../../../tiled/dungeon/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128,0,0
++tileset=../../../tiled/dungeon/set_rules.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
++tileset=../../../tiled/dungeon/door_left.png,64,128,-16,-8
++tileset=../../../tiled/dungeon/door_right.png,64,128,16,-8
++tileset=../../../tiled/dungeon/stairs.png,256,256,0,48
+ 
+ [layer]
+ type=background
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -135,10 +141,8 @@ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,33,34,32,33,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ 
+-
+ [layer]
+ type=object
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -263,7 +267,6 @@ data=
+ 
+ [layer]
+ type=collision
+-format=dec
+ data=
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -396,197 +399,197 @@ intermap=averguard_atrium.txt,2,52
+ type=run_once
+ location=85,74,1,1
+ hotspot=location
+-tooltip=Crate
++loot=random,86,74,2
+ mapmod=object,85,74,163
+ soundfx=soundfx/wood_open.ogg
+-loot=random,86,74,2
++tooltip=Crate
+ 
+ [event]
+ # zombie barrels
+ type=run_once
+ location=74,63,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,74,64,2
+ mapmod=object,74,63,162
+ soundfx=soundfx/wood_open.ogg
+-loot=random,74,64,2
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=73,62,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,72,62,2
+ mapmod=object,73,62,162
+ soundfx=soundfx/wood_open.ogg
+-loot=random,72,62,2
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=74,62,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,74,61,2
+ mapmod=object,74,62,162
+ soundfx=soundfx/wood_open.ogg
+-loot=random,74,61,2
++tooltip=Barrel
+ 
+ [event]
+ # goblin firepit barrel/crate
+ type=run_once
+ location=72,96,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,73,96,2
+ mapmod=object,72,96,162
+ soundfx=soundfx/wood_open.ogg
+-loot=random,73,96,2
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=72,97,1,1
+ hotspot=location
+-tooltip=Crate
++loot=random,73,97,2
+ mapmod=object,72,97,163
+ soundfx=soundfx/wood_open.ogg
+-loot=random,73,97,2
++tooltip=Crate
+ 
+ [event]
+ # secret room crate
+ type=run_once
+ location=73,110,1,1
+ hotspot=location
+-tooltip=Crate
++loot=random,72,109,5
+ mapmod=object,73,110,163
+ soundfx=soundfx/wood_open.ogg
+-loot=random,72,109,5
++tooltip=Crate
+ 
+ [event]
+ # conference room book
+ location=50,90,1,1
+ hotspot=location
+-tooltip=Book Stand
+ mapmod=object,50,90,164
+-soundfx=soundfx/inventory/inventory_page.ogg
+ msg=This book is entitled "Training Your Antlion". Chapter 1 is "How Not To Get Eaten". The rest of the book is unfinished.
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Book Stand
+ 
+ [event]
+ # barracks chests
+ type=run_once
+ location=41,59,1,1
+ hotspot=location
+-tooltip=Treasure Chest
++loot=random,42,59,3
+ mapmod=object,41,59,160
+ soundfx=soundfx/wood_open.ogg
+-loot=random,42,59,3
++tooltip=Treasure Chest
+ 
+ [event]
+ type=run_once
+ location=41,57,1,1
+ hotspot=location
+-tooltip=Treasure Chest
++loot=random,42,57,4
+ mapmod=object,41,57,160
+ soundfx=soundfx/wood_open.ogg
+-loot=random,42,57,4
++tooltip=Treasure Chest
+ 
+ [event]
+ type=run_once
+ location=41,55,1,1
+ hotspot=location
+-tooltip=Treasure Chest
++loot=random,42,55,5
+ mapmod=object,41,55,160
+ soundfx=soundfx/wood_open.ogg
+-loot=random,42,55,5
++tooltip=Treasure Chest
+ 
+ [event]
+ type=run_once
+ location=41,53,1,1
+ hotspot=location
+-tooltip=Treasure Chest
++loot=random,42,53,4
+ mapmod=object,41,53,160
+ soundfx=soundfx/wood_open.ogg
+-loot=random,42,53,4
++tooltip=Treasure Chest
+ 
+ [event]
+ type=run_once
+ location=41,51,1,1
+ hotspot=location
+-tooltip=Treasure Chest
++loot=random,42,51,3
+ mapmod=object,41,51,160
+ soundfx=soundfx/wood_open.ogg
+-loot=random,42,51,3
++tooltip=Treasure Chest
+ 
+ [event]
+ # large room storage
+ type=run_once
+ location=50,28,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,51,28,3
+ mapmod=object,50,28,162
+ soundfx=soundfx/wood_open.ogg
+-loot=random,51,28,3
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=50,29,1,1
+ hotspot=location
+-tooltip=Crate
++loot=random,51,29,3
+ mapmod=object,50,29,163
+ soundfx=soundfx/wood_open.ogg
+-loot=random,51,29,3
++tooltip=Crate
+ 
+ [event]
+ type=run_once
+ location=55,28,1,1
+ hotspot=location
+-tooltip=Crate
++loot=random,54,28,3
+ mapmod=object,55,28,163
+ soundfx=soundfx/wood_open.ogg
+-loot=random,54,28,3
++tooltip=Crate
+ 
+ [event]
+ type=run_once
+ location=55,29,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,54,29,3
+ mapmod=object,55,29,162
+ soundfx=soundfx/wood_open.ogg
+-loot=random,54,29,3
++tooltip=Barrel
+ 
+ [event]
+ # kill room chest
+ type=run_once
+ location=9,20,1,1
+ hotspot=location
+-tooltip=Treasure Chest
++loot=random,10,20,7;random,9,21,7
+ mapmod=object,9,20,160
+ soundfx=soundfx/wood_open.ogg
+-loot=random,10,20,7;random,9,21,7
++tooltip=Treasure Chest
+ 
+ [event]
+ # kill room chest
+ type=run_once
+ location=9,29,1,1
+ hotspot=location
+-tooltip=Treasure Chest
++loot=random,10,29,6;random,9,28,8
+ mapmod=object,9,29,160
+ soundfx=soundfx/wood_open.ogg
+-loot=random,10,29,6;random,9,28,8
++tooltip=Treasure Chest
+ 
+-# kill room switches
+ [event]
++# kill room switches
+ type=run_once
+ location=12,24,1,2
+ hotspot=location
+-tooltip=Switch System
+-soundfx=soundfx/door_open.ogg
+ mapmod=object,12,24,166;object,12,25,150;object,11,22,0;object,12,22,0;object,13,22,0;object,14,22,0;object,15,22,0;object,16,22,0;object,17,22,0;object,18,22,0;object,19,22,0;object,20,22,0;object,21,22,0;object,22,22,0;object,23,22,0;object,24,22,0;object,11,23,0;object,11,24,0;object,11,25,0;object,11,26,0;object,11,27,0;object,12,27,0;object,13,27,0;object,14,27,0;object,15,27,0;object,16,27,0;object,17,27,0;object,18,27,0;object,19,27,0;object,20,27,0;object,21,27,0;object,22,27,0;object,23,27,0;object,24,27,0;collision,11,22,0;collision,12,22,0;collision,13,22,0;collision,14,22,0;collision,15,22,0;collision,16,22,0;collision,17,22,0;collision,18,22,0;collision,19,22,0;collision,20,22,0;collision,21,22,0;collision,22,22,0;collision,23,22,0;collision,24,22,0;collision,11,23,0;collision,11,24,0;collision,11,25,0;collision,11,26,0;collision,11,27,0;collision,12,27,0;collision,13,27,0;collision,14,27,0;collision,15,27,0;collision,16,27,0;collision,17,27,0;collision,18,27,0;collision,19,27,0;collision,20,27,0;collision,21,27,0;collision,22,27,0;collision,23,27,0;collision,24,27,0
++soundfx=soundfx/door_open.ogg
++tooltip=Switch System
+ 
+ [event]
+-#brazier sound effect
++# brazier sound effect
+ location=56,17,7,6
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [event]
+-#brazier sound effect
++# brazier sound effect
+ location=44,17,7,6
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+@@ -601,6 +604,7 @@ soundfx=soundfx/environment/open_fire.ogg
+ type=skeletal_sniper
+ location=85,69
+ direction=5
++
+ [enemy]
+ type=skeletal_sniper
+ location=85,72
+@@ -609,12 +613,15 @@ direction=5
+ [enemy]
+ type=zombie_bloodthirsty
+ location=71,62
++
+ [enemy]
+ type=zombie_bloodthirsty
+ location=73,63
++
+ [enemy]
+ type=zombie_bloodthirsty
+ location=73,72
++
+ [enemy]
+ type=zombie_bloodthirsty
+ location=68,69
+@@ -622,9 +629,11 @@ location=68,69
+ [enemy]
+ type=skeletal_archer
+ location=69,81
++
+ [enemy]
+ type=skeletal_archer
+ location=70,84
++
+ [enemy]
+ type=skeletal_mage
+ location=73,83
+@@ -633,14 +642,17 @@ location=73,83
+ type=goblin_charger_elite
+ location=74,94
+ direction=5
++
+ [enemy]
+ type=goblin_charger_elite
+ location=76,94
+ direction=1
++
+ [enemy]
+ type=goblin_spearman_elite
+ location=75,93
+ direction=7
++
+ [enemy]
+ type=goblin_spearman_elite
+ location=75,95
+@@ -649,12 +661,15 @@ direction=3
+ [enemy]
+ type=skeletal_warrior
+ location=66,92
++
+ [enemy]
+ type=skeletal_sniper
+ location=61,87
++
+ [enemy]
+ type=zombie_iceclaw
+ location=61,89
++
+ [enemy]
+ type=zombie_iceclaw
+ location=62,91
+@@ -663,24 +678,31 @@ location=62,91
+ type=skeletal_warrior
+ location=51,90
+ direction=1
++
+ [enemy]
+ type=zombie_brute
+ location=46,87
++
+ [enemy]
+ type=zombie_brute
+ location=46,94
++
+ [enemy]
+ type=antlion
+ location=49,89
++
+ [enemy]
+ type=antlion
+ location=48,89
++
+ [enemy]
+ type=antlion
+ location=48,90
++
+ [enemy]
+ type=antlion
+ location=48,91
++
+ [enemy]
+ type=antlion
+ location=49,91
+@@ -688,18 +710,23 @@ location=49,91
+ [enemy]
+ type=zombie_brute
+ location=42,110
++
+ [enemy]
+ type=zombie_iceclaw
+ location=47,115
++
+ [enemy]
+ type=zombie_bloodthirsty
+ location=52,110
++
+ [enemy]
+ type=skeletal_warrior
+ location=47,112
++
+ [enemy]
+ type=antlion
+ location=48,118
++
+ [enemy]
+ type=antlion
+ location=39,109
+@@ -708,6 +735,7 @@ location=39,109
+ type=skeletal_warrior
+ location=56,80
+ direction=7
++
+ [enemy]
+ type=skeletal_warrior
+ location=55,73
+@@ -717,34 +745,42 @@ direction=3
+ type=skeletal_warrior
+ location=39,76
+ direction=1
++
+ [enemy]
+ type=skeleton
+ location=36,75
+ direction=5
++
+ [enemy]
+ type=skeleton
+ location=36,76
+ direction=5
++
+ [enemy]
+ type=skeleton
+ location=36,77
+ direction=5
++
+ [enemy]
+ type=skeleton
+ location=36,78
+ direction=5
++
+ [enemy]
+ type=skeleton
+ location=37,75
+ direction=5
++
+ [enemy]
+ type=skeleton
+ location=37,76
+ direction=5
++
+ [enemy]
+ type=skeleton
+ location=37,77
+ direction=5
++
+ [enemy]
+ type=skeleton
+ location=37,78
+@@ -754,6 +790,7 @@ direction=5
+ type=skeletal_warrior
+ location=42,69
+ direction=7
++
+ [enemy]
+ type=skeletal_warrior
+ location=45,69
+@@ -762,15 +799,19 @@ direction=7
+ [enemy]
+ type=skeletal_warrior
+ location=40,60
++
+ [enemy]
+ type=skeletal_sniper
+ location=42,53
++
+ [enemy]
+ type=skeletal_warrior
+ location=44,54
++
+ [enemy]
+ type=skeletal_mage
+ location=44,56
++
+ [enemy]
+ type=skeletal_warrior
+ location=42,49
+@@ -778,30 +819,39 @@ location=42,49
+ [enemy]
+ type=zombie_brute
+ location=72,42
++
+ [enemy]
+ type=zombie_brute
+ location=68,47
++
+ [enemy]
+ type=zombie_brute
+ location=64,43
++
+ [enemy]
+ type=zombie_iceclaw
+ location=58,41
++
+ [enemy]
+ type=zombie_iceclaw
+ location=56,47
++
+ [enemy]
+ type=zombie_iceclaw
+ location=64,48
++
+ [enemy]
+ type=zombie_bloodthirsty
+ location=57,44
++
+ [enemy]
+ type=zombie_bloodthirsty
+ location=54,42
++
+ [enemy]
+ type=zombie_bloodthirsty
+ location=74,44
++
+ [enemy]
+ type=zombie_bloodthirsty
+ location=67,41
+@@ -809,18 +859,23 @@ location=67,41
+ [enemy]
+ type=skeletal_sniper
+ location=55,63
++
+ [enemy]
+ type=antlion
+ location=55,62
++
+ [enemy]
+ type=antlion
+ location=56,63
++
+ [enemy]
+ type=skeletal_sniper
+ location=59,54
++
+ [enemy]
+ type=antlion
+ location=59,53
++
+ [enemy]
+ type=antlion
+ location=59,55
+@@ -828,6 +883,7 @@ location=59,55
+ [enemy]
+ type=antlion_blinker
+ location=43,35
++
+ [enemy]
+ type=antlion_blinker
+ location=44,36
+@@ -835,9 +891,11 @@ location=44,36
+ [enemy]
+ type=antlion
+ location=69,23
++
+ [enemy]
+ type=antlion
+ location=70,26
++
+ [enemy]
+ type=antlion
+ location=72,24
+@@ -845,6 +903,7 @@ location=72,24
+ [enemy]
+ type=skeletal_warrior
+ location=51,28
++
+ [enemy]
+ type=skeletal_warrior
+ location=54,29
+@@ -853,14 +912,17 @@ location=54,29
+ type=skeletal_mage
+ location=58,18
+ direction=6
++
+ [enemy]
+ type=skeletal_warrior
+ location=61,18
+ direction=0
++
+ [enemy]
+ type=antlion
+ location=61,21
+ direction=2
++
+ [enemy]
+ type=skeletal_sniper
+ location=58,21
+@@ -870,14 +932,17 @@ direction=4
+ type=skeletal_mage
+ location=46,18
+ direction=6
++
+ [enemy]
+ type=skeletal_warrior
+ location=49,18
+ direction=0
++
+ [enemy]
+ type=antlion
+ location=46,21
+ direction=2
++
+ [enemy]
+ type=skeletal_sniper
+ location=49,21
+@@ -888,14 +953,17 @@ direction=4
+ type=antlion
+ location=11,20
+ direction=7
++
+ [enemy]
+ type=zombie_bloodthirsty
+ location=13,20
+ direction=7
++
+ [enemy]
+ type=antlion
+ location=15,20
+ direction=7
++
+ [enemy]
+ type=zombie_bloodthirsty
+ location=17,20
+@@ -905,14 +973,17 @@ direction=7
+ type=antlion
+ location=11,29
+ direction=3
++
+ [enemy]
+ type=zombie_iceclaw
+ location=13,29
+ direction=3
++
+ [enemy]
+ type=antlion
+ location=15,29
+ direction=3
++
+ [enemy]
+ type=zombie_iceclaw
+ location=17,29
+@@ -922,6 +993,7 @@ direction=3
+ type=skeletal_occultist
+ location=9,23
+ direction=5
++
+ [enemy]
+ type=skeletal_sniper
+ location=9,26
+diff --git a/mods/alpha_demo/maps/averguard_prison.txt b/mods/alpha_demo/maps/averguard_prison.txt
+index 1bfc012f4e8b6867399a726314fd609e603941a0..d8acf2e432959f7ccc6e3e2db8daf120e8f3016e 100644
+--- a/mods/alpha_demo/maps/averguard_prison.txt
++++ b/mods/alpha_demo/maps/averguard_prison.txt
+@@ -11,6 +11,11 @@ title=Averguard Prison
+ [tilesets]
+ tileset=../../../tiled/dungeon/tiled_collision.png,64,32,0,0
+ tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128,0,0
++tileset=../../../tiled/dungeon/set_rules.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
++tileset=../../../tiled/dungeon/door_left.png,64,128,-16,-8
++tileset=../../../tiled/dungeon/door_right.png,64,128,16,-8
++tileset=../../../tiled/dungeon/stairs.png,256,256,0,48
+ 
+ [layer]
+ type=background
+@@ -354,11 +359,20 @@ tooltip=Treasure Chest
+ type=run_once
+ location=3,43,1,1
+ hotspot=location
+-mapmod=collision,23,53,0
++mapmod=object,3,43,150;object,23,53,113;collision,23,53,0
+ soundfx=soundfx/door_open.ogg
+ tooltip=Switch
+ 
+ [event]
++# hidden room book
++location=23,29,1,1
++hotspot=location
++mapmod=object,23,29,165
++soundfx=soundfx/inventory/inventory_page.ogg
++msg=The last entry of this well-preserved journal reads: "I feared it would come to this.  I knew the Warden's secrets but they would not be contained forever."
++tooltip=Book Stand
++
++[event]
+ # hidden room chest
+ type=run_once
+ location=21,30,1,1
+@@ -381,9 +395,27 @@ tooltip=Crate
+ # trap tile that opens three cells
+ type=run_once
+ location=66,49,1,2
+-mapmod=collision,69,48,0
++mapmod=object,63,48,113;object,66,48,113;object,69,48,113;collision,63,48,0;collision,66,48,0;collision,69,48,0
+ soundfx=soundfx/door_open.ogg
+ 
++[event]
++# brazier sound effect
++location=9,82,6,5
++cooldown=120
++soundfx=soundfx/environment/open_fire.ogg
++
++[event]
++# brazier sound effect
++location=86,41,3,3
++cooldown=120
++soundfx=soundfx/environment/open_fire.ogg
++
++[event]
++# brazier sound effect
++location=91,41,3,3
++cooldown=120
++soundfx=soundfx/environment/open_fire.ogg
++
+ [enemy]
+ type=zombie_brute
+ location=20,52,1,1
+diff --git a/mods/alpha_demo/maps/averguard_temple.txt b/mods/alpha_demo/maps/averguard_temple.txt
+index 9b26b924ece7cc213e051ed3193c1ee8efc7f246..f1c2778db301eb15a85ab691e365b48973bdb795 100644
+--- a/mods/alpha_demo/maps/averguard_temple.txt
++++ b/mods/alpha_demo/maps/averguard_temple.txt
+@@ -1,17 +1,23 @@
+ [header]
+-title=Averguard Temple
+ width=28
+ height=129
+-tileset=tileset_dungeon.txt
++tilewidth=64
++tileheight=32
+ music=boss_theme.ogg
++tileset=tileset_dungeon.txt
++title=Averguard Temple
+ 
+ [tilesets]
+-tileset=../../../tiled/dungeon/tiled_collision.png,64,32
+-tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128
++tileset=../../../tiled/dungeon/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128,0,0
++tileset=../../../tiled/dungeon/set_rules.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
++tileset=../../../tiled/dungeon/door_left.png,64,128,-16,-8
++tileset=../../../tiled/dungeon/door_right.png,64,128,16,-8
++tileset=../../../tiled/dungeon/stairs.png,256,256,0,48
+ 
+ [layer]
+ type=background
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,18,16,18,18,19,17,19,16,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,16,18,18,18,16,19,16,17,17,18,0,0,0,0,0,0,0,0,
+@@ -144,7 +150,6 @@ data=
+ 
+ [layer]
+ type=object
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,77,65,65,65,65,65,65,65,65,65,78,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,68,0,0,0,0,145,0,0,0,0,66,0,0,0,0,0,0,0,
+@@ -278,7 +283,6 @@ data=
+ 
+ [layer]
+ type=collision
+-format=dec
+ data=
+ 3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,2,0,0,0,0,1,3,3,3,3,3,3,3,
+@@ -419,11 +423,9 @@ intermap=averguard_atrium.txt,8,2
+ type=run_once
+ location=19,118,1,1
+ hotspot=location
+-tooltip=Switch
+-mapmod=object,19,118,150
+-mapmod=object,10,118,112
+-mapmod=collision,10,118,0
++mapmod=object,19,118,150;object,10,118,112;collision,10,118,0
+ soundfx=soundfx/door_open.ogg
++tooltip=Switch
+ 
+ [event]
+ # fire statue trap
+@@ -438,77 +440,75 @@ power_path=15,58,hero
+ type=run_once
+ location=15,88,1,1
+ hotspot=location
+-tooltip=Sealed Temple Door
+-requires_status=ak_temple_search
+-requires_not=ak_maddox_search
+-requires_item=9001
+ msg=You insert the Averguard Key. Runes glow around the door, then fade. The door is still sealed.
++requires_item=9001
++requires_not=ak_maddox_search
++requires_status=ak_temple_search
+ set_status=ak_temple_sealed
++tooltip=Sealed Temple Door
+ 
+ [event]
+ # the first time you use the talisman
+ type=run_once
+ location=15,88,1,1
+ hotspot=location
+-tooltip=Activate Talisman
+-requires_status=ak_maddox_search
+-requires_not=ak_talisman_used
+-soundfx=soundfx/powers/quake.ogg
+-shakycam=60
+ msg=You read aloud the runes on Langlier's Talisman. The Avergard Key begins to glow!
++requires_not=ak_talisman_used
++requires_status=ak_maddox_search
+ set_status=ak_talisman_used
++shakycam=60
++soundfx=soundfx/powers/quake.ogg
++tooltip=Activate Talisman
+ 
+ [event]
+ type=run_once
+ location=15,88,1,1
+ hotspot=location
+-tooltip=Temple Door
++mapmod=object,15,88,113;collision,15,88,0
+ requires_status=ak_talisman_used
+-mapmod=object,15,88,113
+-mapmod=collision,15,88,0
+ soundfx=soundfx/door_open.ogg
++tooltip=Temple Door
+ 
+ [event]
+ location=2,117,1,1
+ hotspot=location
+-tooltip=Book Stand
+ mapmod=object,2,117,164
+-soundfx=soundfx/inventory/inventory_page.ogg
+ msg="Some said Sir Maddox cared too much for the peasants.  He would not quarantine, saying the villagers did not deserve to die locked away."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Book Stand
+ 
+ [event]
+ location=2,121,1,1
+ hotspot=location
+-tooltip=Book Stand
+ mapmod=object,2,121,164
+-soundfx=soundfx/inventory/inventory_page.ogg
+ msg="Maddox died of the plague in 638.  After attempts to magically revive him failed he was sealed deep behind the temple."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Book Stand
+ 
+ [event]
+ # chest in the boss room
+ type=run_once
+ location=15,1,1,1
+ hotspot=location
+-tooltip=Treasure Chest
+-requires_not=ak_maddox_defeated
+ msg=This chest is locked.
++requires_not=ak_maddox_defeated
++tooltip=Treasure Chest
+ 
+ [event]
+ type=run_once
+ location=15,1,1,1
+ hotspot=location
+-tooltip=Treasure Chest
+-requires_status=ak_maddox_defeated
++loot=random,14,2,6;random,15,2,7;random,16,2,5
+ mapmod=object,15,1,161
++requires_status=ak_maddox_defeated
+ soundfx=soundfx/wood_open.ogg
+-loot=random,14,2,6;random,15,2,7;random,16,2,5
++tooltip=Treasure Chest
+ 
+ [event]
+ type=run_once
+ location=14,62,3,1
+ msg=A plaque under the statue reads "Sir Evan Maddox, may he return to rescue us all"
+ 
+-
+ [event]
+ # when entering Maddox's Burial Chamber
+ type=run_once
+@@ -519,9 +519,9 @@ msg=A ghastly voice reverberates from the next chamber.  "What fool disturbs my
+ type=run_once
+ location=15,9,1,2
+ hotspot=location
+-tooltip=Maddox's Tomb
+-msg=You wipe dust away from the tomb lid, revealing an inscription: "Here lies Sir Evan Maddox"
+ loot=random,16,9,5
++msg=You wipe dust away from the tomb lid, revealing an inscription: "Here lies Sir Evan Maddox"
++tooltip=Maddox's Tomb
+ 
+ [event]
+ # brazier sound effect
+@@ -643,19 +643,19 @@ direction=7
+ 
+ [enemygroup]
+ type=undead
++location=6,49,19,18
+ level=3,6
+ number=3,5
+-location=6,49,19,18
+ 
+ [enemygroup]
+ type=undead
++location=6,49,19,18
+ level=3,6
+ number=3,5
+-location=6,49,19,18
+ 
+ [enemygroup]
+ type=undead
+ location=1,115,5,9
+-number=1,3
+ level=4,6
++number=1,3
+ 
+diff --git a/mods/alpha_demo/maps/frontier_outpost.txt b/mods/alpha_demo/maps/frontier_outpost.txt
+index d86f4272a55d83aaf0ac6e52e235b2acae7e2540..f9118195cb09c818462d90a92e42f16fe231dcba 100644
+--- a/mods/alpha_demo/maps/frontier_outpost.txt
++++ b/mods/alpha_demo/maps/frontier_outpost.txt
+@@ -1,10 +1,21 @@
+ [header]
+ width=64
+ height=64
++tilewidth=64
++tileheight=32
+ music=unrest_theme.ogg
+ tileset=tileset_grassland.txt
+ title=Frontier Outpost
+ 
++[tilesets]
++tileset=../../../tiled/grassland/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/grassland/grassland.png,64,128,0,0
++tileset=../../../tiled/grassland/grassland_water.png,64,64,0,32
++tileset=../../../tiled/grassland/grassland_structures.png,64,256,0,0
++tileset=../../../tiled/grassland/grassland_trees.png,128,256,-32,0
++tileset=../../../tiled/grassland/set_rules.png,64,32,0,0
++tileset=../../../tiled/grassland/tiled_grassland_2x2.png,128,64,0,16
++
+ [layer]
+ type=background
+ data=
+diff --git a/mods/alpha_demo/maps/frontier_plains.txt b/mods/alpha_demo/maps/frontier_plains.txt
+index 6b684ca9eec15630a42f72fa4abf02aff404c0e1..bbc1918f5edc76e875e69389a1c85bf3923aa5e3 100644
+--- a/mods/alpha_demo/maps/frontier_plains.txt
++++ b/mods/alpha_demo/maps/frontier_plains.txt
+@@ -1,10 +1,20 @@
+ [header]
+ width=256
+ height=256
++tilewidth=64
++tileheight=32
+ music=overworld_theme.ogg
+ tileset=tileset_grassland.txt
+ title=Frontier Plains
+ 
++[tilesets]
++tileset=../../../tiled/grassland/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/grassland/grassland.png,64,128,0,0
++tileset=../../../tiled/grassland/grassland_water.png,64,64,0,32
++tileset=../../../tiled/grassland/grassland_structures.png,64,256,0,0
++tileset=../../../tiled/grassland/grassland_trees.png,128,256,-32,0
++tileset=../../../tiled/grassland/tiled_grassland_2x2.png,128,64,0,16
++
+ [layer]
+ type=background
+ data=
+diff --git a/mods/alpha_demo/maps/goblin_warrens.txt b/mods/alpha_demo/maps/goblin_warrens.txt
+index 5108c26999e8416a5300c6e21fe8bd9616ed2054..d5f24d9fef9f7a682f2a80bf9b265c1eee666180 100644
+--- a/mods/alpha_demo/maps/goblin_warrens.txt
++++ b/mods/alpha_demo/maps/goblin_warrens.txt
+@@ -1,18 +1,24 @@
+ [header]
+-title=Goblin Warrens
+ width=60
+ height=82
+-tileset=tileset_dungeon.txt
++tilewidth=64
++tileheight=32
+ location=28,76,3
+ music=dungeon_theme.ogg
++tileset=tileset_dungeon.txt
++title=Goblin Warrens
+ 
+ [tilesets]
+-tileset=../../../tiled/dungeon/tiled_collision.png,64,32
+-tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128
++tileset=../../../tiled/dungeon/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128,0,0
++tileset=../../../tiled/dungeon/set_rules.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
++tileset=../../../tiled/dungeon/door_left.png,64,128,-16,-8
++tileset=../../../tiled/dungeon/door_right.png,64,128,16,-8
++tileset=../../../tiled/dungeon/stairs.png,256,256,0,48
+ 
+ [layer]
+ type=background
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,32,33,35,0,0,0,0,0,0,0,32,33,35,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,33,34,33,0,0,0,0,0,0,0,33,34,33,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -99,7 +105,6 @@ data=
+ 
+ [layer]
+ type=object
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,77,105,65,78,0,0,0,0,0,0,77,65,65,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,108,0,0,70,0,0,0,0,0,0,64,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -186,7 +191,6 @@ data=
+ 
+ [layer]
+ type=collision
+-format=dec
+ data=
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,3,3,3,3,3,3,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,1,3,3,3,3,3,3,1,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -291,51 +295,51 @@ intermap=ydrakka_pass.txt,92,54
+ type=run_once
+ location=3,36,1,1
+ hotspot=location
+-tooltip=Treasure Chest
++loot=random,4,36,3
+ mapmod=object,3,36,160
+ soundfx=soundfx/wood_open.ogg
+-loot=random,4,36,3
++tooltip=Treasure Chest
+ 
+ [event]
+ # dorm room barrel
+ type=run_once
+ location=1,32,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,2,32,2
+ mapmod=object,1,32,162
+ soundfx=soundfx/wood_open.ogg
+-loot=random,2,32,2
++tooltip=Barrel
+ 
+ [event]
+ # dorm room book
+ type=run_once
+ location=2,28,1,1
+ hotspot=location
+-tooltip=Book Stand
+-requires_status=ak_ukkonen_search
+-requires_not=ak_tome_found
++loot=id,2,29,9000
+ mapmod=object,2,28,165
+-soundfx=soundfx/inventory/inventory_page.ogg
+ msg=This book bears the seal of the Averguard
+-loot=id,2,29,9000
++requires_not=ak_tome_found
++requires_status=ak_ukkonen_search
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Book Stand
+ 
+ [event]
+ # overlook book 1
+ location=38,51,1,1
+ hotspot=location
+-tooltip=Book Stand
+ mapmod=object,38,51,164
+-soundfx=soundfx/inventory/inventory_page.ogg
+ msg="In the Age of Settlement, the Averguard Knights defended peasants against the chaos of the wilderness."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Book Stand
+ 
+ [event]
+ # overlook book 2
+ location=38,46,1,1
+ hotspot=location
+-tooltip=Book Stand
+ mapmod=object,38,46,164
+-soundfx=soundfx/inventory/inventory_page.ogg
+ msg="Sir Evan Maddox led the Averguard when the plague struck.  Powerful clerics from the corners of the world were brought here.  By the time a cure was found it was too late."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Book Stand
+ 
+ [event]
+ # brazier sound effect
+diff --git a/mods/alpha_demo/maps/river_encampment.txt b/mods/alpha_demo/maps/river_encampment.txt
+index 136efd6726b2aa44bc8cc27854482cabfcd7d5ed..dd773653f5311786d3cfaad64633fa1cb4c87cbd 100644
+--- a/mods/alpha_demo/maps/river_encampment.txt
++++ b/mods/alpha_demo/maps/river_encampment.txt
+@@ -1,6 +1,8 @@
+ [header]
+ width=64
+ height=64
++tilewidth=64
++tileheight=32
+ music=overworld_theme.ogg
+ tileset=tileset_grassland.txt
+ title=River Encampment
+diff --git a/mods/alpha_demo/maps/warp_zone.txt b/mods/alpha_demo/maps/warp_zone.txt
+index 8b8e29aa94ad272ef067a53891117d8ff26bd5a2..cc9d26828f6ca079395d592d314dcb9fff494015 100644
+--- a/mods/alpha_demo/maps/warp_zone.txt
++++ b/mods/alpha_demo/maps/warp_zone.txt
+@@ -1,10 +1,18 @@
+ [header]
+ width=64
+ height=64
++tilewidth=64
++tileheight=32
+ music=magical_theme.ogg
+ tileset=tileset_dungeon.txt
+ title=Warp Zone
+ 
++[tilesets]
++tileset=../../../tiled/dungeon/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128,0,0
++tileset=../../../tiled/dungeon/set_rules.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
++
+ [layer]
+ type=background
+ data=
+diff --git a/mods/alpha_demo/maps/ydrakka_pass.txt b/mods/alpha_demo/maps/ydrakka_pass.txt
+index 33e201b6160b07fc122b3e512423bb3be0d9f483..b27141c5c4f87597e208041030b8ccbfaa1c5d9b 100644
+--- a/mods/alpha_demo/maps/ydrakka_pass.txt
++++ b/mods/alpha_demo/maps/ydrakka_pass.txt
+@@ -1,10 +1,21 @@
+ [header]
+ width=256
+ height=100
++tilewidth=64
++tileheight=32
+ music=forest_theme.ogg
+ tileset=tileset_grassland.txt
+ title=Ydrakka Pass
+ 
++[tilesets]
++tileset=../../../tiled/grassland/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/grassland/grassland.png,64,128,0,0
++tileset=../../../tiled/grassland/grassland_water.png,64,64,0,32
++tileset=../../../tiled/grassland/grassland_structures.png,64,256,0,0
++tileset=../../../tiled/grassland/grassland_trees.png,128,256,-32,0
++tileset=../../../tiled/grassland/set_rules.png,64,32,0,0
++tileset=../../../tiled/grassland/tiled_grassland_2x2.png,128,64,0,16
++
+ [layer]
+ type=background
+ data=
+diff --git a/tiled/averguard/lost_mine.tmx b/tiled/averguard/lost_mine.tmx
+index 3e5afb2d4dbdb3d79315a516e17179aaf764449e..cfc56db529f8fc38242a30cb3e5bb8ea226beee3 100644
+--- a/tiled/averguard/lost_mine.tmx
++++ b/tiled/averguard/lost_mine.tmx
+@@ -1,10 +1,10 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <map version="1.0" orientation="isometric" width="100" height="100" tilewidth="64" tileheight="32">
+  <tileset firstgid="1" name="Collision" tilewidth="64" tileheight="32">
+-  <image source="tiled_collision.png" width="960" height="32"/>
++  <image source="../cave/tiled_collision.png" width="960" height="32"/>
+  </tileset>
+  <tileset firstgid="16" name="Caves" tilewidth="64" tileheight="128">
+-  <image source="tiled_cave.png" width="1024" height="1920"/>
++  <image source="../cave/tiled_cave.png" width="1024" height="1920"/>
+  </tileset>
+  <layer name="background" width="100" height="100">
+   <data encoding="csv">
+diff --git a/tiled/frontier/warp_zone.tmx b/tiled/frontier/warp_zone.tmx
+index 36ffb3238d0e8d2de973996cb86755267f93d288..350904afdae6427878abe64685c9b275432c6225 100644
+--- a/tiled/frontier/warp_zone.tmx
++++ b/tiled/frontier/warp_zone.tmx
+@@ -257,6 +257,7 @@
+   <object type="teleport" x="1216" y="1184" width="64" height="64">
+    <properties>
+     <property name="hotspot" value="location"/>
++    <property name="intermap" value="brothers_lair_atrium.txt,17,22"/>
+     <property name="requires_status" value="waypoint_brothers_lair_atrium"/>
+     <property name="tooltip" value="Brothers Lair Atrium"/>
+    </properties>

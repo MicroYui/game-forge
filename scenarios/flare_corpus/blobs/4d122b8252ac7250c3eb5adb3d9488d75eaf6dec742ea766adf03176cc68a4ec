@@ -1,0 +1,39 @@
+diff --git a/mods/alpha_demo/engine/classes.txt b/mods/alpha_demo/engine/classes.txt
+index 04056fd56700995b32de86334b0aa0bca3a18d38..69f1437fe8c88666a8e0bfd94f3d0708d26ad1a2 100644
+--- a/mods/alpha_demo/engine/classes.txt
++++ b/mods/alpha_demo/engine/classes.txt
+@@ -35,7 +35,7 @@ actionbar=0,0,0,0,0,0,0,0,0,0,22,16
+ name=Keeper
+ description=Keepers focus on defensive powers for survival. Primary attribute: Defense
+ currency=7
+-equipment=64,66,67,56
++equipment=64,66,67,56,31
+ primary=defense,1
+ powers=7
+ actionbar=7,0,0,0,0,0,0,0,0,0,1,3
+@@ -44,5 +44,5 @@ actionbar=7,0,0,0,0,0,0,0,0,0,1,3
+ name=Wanderer
+ description=Wanderers choose their own paths. Primary attribute: custom
+ currency=37
+-equipment=64,66,67
++equipment=64,66,67,31
+ actionbar=0,0,0,0,0,0,0,0,0,0,1,0
+diff --git a/mods/alpha_demo/items/categories/weapons_melee.txt b/mods/alpha_demo/items/categories/weapons_melee.txt
+index e1454b199b9f47134206b462c6277815907c56a2..5598b62be25b004f79109b7e63c361191d02168f 100644
+--- a/mods/alpha_demo/items/categories/weapons_melee.txt
++++ b/mods/alpha_demo/items/categories/weapons_melee.txt
+@@ -1,6 +1,14 @@
+ # Basic Melee Weapons #################
+ 
+ [item]
++id=31
++name=Broken Dagger
++INCLUDE items/base/weapons/melee/dagger.txt
++quality=low
++dmg=melee,5,15
++price=10
++
++[item]
+ id=32
+ name=Dagger
+ INCLUDE items/base/weapons/melee/dagger.txt

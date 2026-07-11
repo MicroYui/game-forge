@@ -1,0 +1,144 @@
+diff --git a/mods/empyrean_campaign/powers/categories/magician.txt b/mods/empyrean_campaign/powers/categories/magician.txt
+index d1a5fd6b90fdfabb7b1ff9b234079e97316b605d..59e51a3458554c93ae952bcdadb81192e5b723b5 100644
+--- a/mods/empyrean_campaign/powers/categories/magician.txt
++++ b/mods/empyrean_campaign/powers/categories/magician.txt
+@@ -310,31 +310,31 @@ trait_crits_impaired=95
+ id=152
+ INCLUDE powers/base/magician/energy_flow.txt
+ post_effect=mp,10,0
+-post_effect=mp_regen,15,0
++post_effect=mp_regen,75,0
+ 
+ [power]
+ id=153
+ INCLUDE powers/base/magician/energy_flow.txt
+ post_effect=mp,20,0
+-post_effect=mp_regen,30,0
++post_effect=mp_regen,125,0
+ 
+ [power]
+ id=154
+ INCLUDE powers/base/magician/energy_flow.txt
+ post_effect=mp,30,0
+-post_effect=mp_regen,45,0
++post_effect=mp_regen,175,0
+ 
+ [power]
+ id=155
+ INCLUDE powers/base/magician/energy_flow.txt
+ post_effect=mp,40,0
+-post_effect=mp_regen,60,0
++post_effect=mp_regen,225,0
+ 
+ [power]
+ id=156
+ INCLUDE powers/base/magician/energy_flow.txt
+ post_effect=mp,50,0
+-post_effect=mp_regen,75,0
++post_effect=mp_regen,275,0
+ 
+ # freeze shard cloud
+ [power]
+diff --git a/mods/empyrean_campaign/powers/categories/ranger.txt b/mods/empyrean_campaign/powers/categories/ranger.txt
+index a2ed4ea7812b1de965f928f7bd5ff9c738d6b095..6e0b2fb9b7e3d924de80942108329c93b45a4320 100644
+--- a/mods/empyrean_campaign/powers/categories/ranger.txt
++++ b/mods/empyrean_campaign/powers/categories/ranger.txt
+@@ -569,32 +569,32 @@ floor=true
+ [power]
+ id=111
+ INCLUDE powers/base/ranger/wolfs_eye.txt
+-post_effect=accuracy,10,0
+-post_effect=crit,3,0
++post_effect=accuracy,15,0
++post_effect=crit,2,0
+ 
+ [power]
+ id=112
+ INCLUDE powers/base/ranger/wolfs_eye.txt
+-post_effect=accuracy,20,0
+-post_effect=crit,6,0
++post_effect=accuracy,30,0
++post_effect=crit,4,0
+ 
+ [power]
+ id=113
+ INCLUDE powers/base/ranger/wolfs_eye.txt
+-post_effect=accuracy,30,0
+-post_effect=crit,9,0
++post_effect=accuracy,45,0
++post_effect=crit,6,0
+ 
+ [power]
+ id=114
+ INCLUDE powers/base/ranger/wolfs_eye.txt
+-post_effect=accuracy,40,0
+-post_effect=crit,12,0
++post_effect=accuracy,60,0
++post_effect=crit,8,0
+ 
+ [power]
+ id=115
+ INCLUDE powers/base/ranger/wolfs_eye.txt
+-post_effect=accuracy,50,0
+-post_effect=crit,15,0
++post_effect=accuracy,75,0
++post_effect=crit,10,0
+ 
+ 
+ 
+diff --git a/mods/empyrean_campaign/powers/categories/warrior.txt b/mods/empyrean_campaign/powers/categories/warrior.txt
+index 8de1765f8bae1771bbe42ab5c5ea4fba8f8a99ae..b6aa5c71087f701aacacf485e6ce5165d3ae2f06 100644
+--- a/mods/empyrean_campaign/powers/categories/warrior.txt
++++ b/mods/empyrean_campaign/powers/categories/warrior.txt
+@@ -305,35 +305,35 @@ post_effect=stun,0,3s,75
+ [power]
+ id=37
+ INCLUDE powers/base/warrior/stone_wall.txt
+-post_effect=hp,25,0
++post_effect=hp,100,0
+ post_effect=absorb_min,3,0
+ post_effect=absorb_max,3,0
+ 
+ [power]
+ id=38
+ INCLUDE powers/base/warrior/stone_wall.txt
+-post_effect=hp,50,0
++post_effect=hp,150,0
+ post_effect=absorb_min,6,0
+ post_effect=absorb_max,6,0
+ 
+ [power]
+ id=39
+ INCLUDE powers/base/warrior/stone_wall.txt
+-post_effect=hp,75,0
++post_effect=hp,200,0
+ post_effect=absorb_min,9,0
+ post_effect=absorb_max,9,0
+ 
+ [power]
+ id=40
+ INCLUDE powers/base/warrior/stone_wall.txt
+-post_effect=hp,100,0
++post_effect=hp,250,0
+ post_effect=absorb_min,12,0
+ post_effect=absorb_max,12,0
+ 
+ [power]
+ id=41
+ INCLUDE powers/base/warrior/stone_wall.txt
+-post_effect=hp,125,0
++post_effect=hp,300,0
+ post_effect=absorb_min,15,0
+ post_effect=absorb_max,15,0
+ 
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 64b61b6450d681ad1265d32999ef873248ba8bb6..e6efe6e6cf69415999f4c5e7e9ff531779c9cd51 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.14
+ game=flare-game
+-version=1.14.21
++version=1.14.22
+ engine_version_min=1.14.237

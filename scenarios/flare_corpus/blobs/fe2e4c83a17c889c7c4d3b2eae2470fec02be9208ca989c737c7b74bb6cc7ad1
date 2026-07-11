@@ -1,0 +1,156 @@
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+index b5d036f2794877c39f5fa4002f0caa6ed3b50a77..4ede0ad47146ce5bfda4e652d5af311035013d36 100644
+--- a/mods/empyrean_campaign/items/categories/quest.txt
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -332,6 +332,7 @@ quest_item=true
+ quality=unique
+ item_type=key
+ pickup_status=emp_pit_key
++no_stash=shared
+ 
+ [item]
+ id=1031
+diff --git a/mods/empyrean_campaign/maps/the_pit.txt b/mods/empyrean_campaign/maps/the_pit.txt
+index f75843e852986804b70833658d932ba8e9e8a6a3..752a297edf04173dd2fee4954b471183a8bf2889 100644
+--- a/mods/empyrean_campaign/maps/the_pit.txt
++++ b/mods/empyrean_campaign/maps/the_pit.txt
+@@ -388,9 +388,9 @@ location=27,4,1,1
+ activate=on_trigger
+ cooldown=1s
+ hotspot=location
+-msg=It's locked.
+-requires_not_item=1030
+-requires_not_status=emp_pit_chest,emp_pit_key
++repeat=true
++requires_not_status=emp_pit_chest
++script=scripts/maps/the_pit/locked_chest.txt
+ tooltip=Treasure Chest
+ 
+ [event]
+@@ -406,7 +406,7 @@ remove_item=1030
+ repeat=false
+ requires_item=1030
+ requires_not_status=emp_pit_chest
+-requires_status=emp_pit_key
++requires_status=emp_pit_key,emp_lezaith_defeated
+ set_status=emp_pit_chest
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+diff --git a/mods/empyrean_campaign/scripts/maps/the_pit/locked_chest.txt b/mods/empyrean_campaign/scripts/maps/the_pit/locked_chest.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..bde3f37cc6938e8792a312077ccd41825a193104
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/maps/the_pit/locked_chest.txt
+@@ -0,0 +1,11 @@
++# No key
++[event]
++requires_not_item=1030
++msg=It's locked.
++
++# Have key, but Lezaith not defeated
++[event]
++requires_item=1030
++requires_not_status=emp_lezaith_defeated
++msg=You try to unlock the chest, but it's sealed by an unknown power.
++
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 587087692ef7ac973bbcb51bd68c1cd9f493fa47..1e402a943e705458cd473503132bb6bffd49f538 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.06.03:0
+ game=flare-game
+-version=1.11.20
++version=1.11.21
+ engine_version_min=1.11.85
+diff --git a/tiled/empyrean_campaign/the_pit.tmx b/tiled/empyrean_campaign/the_pit.tmx
+index a9508848cc2dda141fb95871c628f39795d53dbb..0215f45289c8643a8d1d2a4cd36cda5b195dde50 100644
+--- a/tiled/empyrean_campaign/the_pit.tmx
++++ b/tiled/empyrean_campaign/the_pit.tmx
+@@ -1,5 +1,8 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="80" height="80" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="45">
++<map version="1.5" tiledversion="1.7.0" orientation="isometric" renderorder="right-down" width="80" height="80" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextlayerid="7" nextobjectid="45">
++ <editorsettings>
++  <export target="../../mods/empyrean_campaign/maps/the_pit.txt" format="flare"/>
++ </editorsettings>
+  <properties>
+   <property name="hero_pos" value="71,71"/>
+   <property name="music" value="music/wind_ambient.ogg"/>
+@@ -23,7 +26,7 @@
+  <tileset firstgid="266" name="boss_chest" tilewidth="64" tileheight="64" tilecount="4" columns="4">
+   <image source="../common/boss_chest.png" width="256" height="64"/>
+  </tileset>
+- <layer name="background" width="80" height="80">
++ <layer id="1" name="background" width="80" height="80">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -107,7 +110,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="object" width="80" height="80">
++ <layer id="2" name="object" width="80" height="80">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -191,7 +194,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="80" height="80">
++ <layer id="3" name="collision" width="80" height="80">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -275,7 +278,7 @@
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ </data>
+  </layer>
+- <objectgroup name="event">
++ <objectgroup id="4" name="event">
+   <object id="1" name="activate trap" type="event" x="864" y="1248" width="160" height="64">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+@@ -378,9 +381,9 @@
+     <property name="activate" value="on_trigger"/>
+     <property name="cooldown" value="1s"/>
+     <property name="hotspot" value="location"/>
+-    <property name="msg" value="It's locked."/>
+-    <property name="requires_not_item" value="1030"/>
+-    <property name="requires_not_status" value="emp_pit_chest,emp_pit_key"/>
++    <property name="repeat" value="true"/>
++    <property name="requires_not_status" value="emp_pit_chest"/>
++    <property name="script" value="scripts/maps/the_pit/locked_chest.txt"/>
+     <property name="tooltip" value="Treasure Chest"/>
+    </properties>
+   </object>
+@@ -395,7 +398,7 @@
+     <property name="repeat" value="false"/>
+     <property name="requires_item" value="1030"/>
+     <property name="requires_not_status" value="emp_pit_chest"/>
+-    <property name="requires_status" value="emp_pit_key"/>
++    <property name="requires_status" value="emp_pit_key,emp_lezaith_defeated"/>
+     <property name="set_status" value="emp_pit_chest"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -437,7 +440,7 @@
+    </properties>
+   </object>
+  </objectgroup>
+- <objectgroup name="enemy">
++ <objectgroup id="5" name="enemy">
+   <object id="18" type="enemy" x="224" y="672" width="32" height="32">
+    <properties>
+     <property name="category" value="forgotten_grave"/>
+@@ -547,7 +550,7 @@
+    </properties>
+   </object>
+  </objectgroup>
+- <objectgroup name="npc">
++ <objectgroup id="6" name="npc">
+   <object id="38" type="npc" x="768" y="128" width="32" height="32">
+    <properties>
+     <property name="filename" value="npcs/glowing_obelisk_4.txt"/>

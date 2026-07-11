@@ -1,0 +1,94 @@
+diff --git a/mods/frontier/maps/ancient_temple.txt b/mods/frontier/maps/ancient_temple.txt
+index ac4890af03db24c57ce0171967f0cf4564861149..c381db8800a32d156f4577de5a1f0a4f9b935093 100644
+--- a/mods/frontier/maps/ancient_temple.txt
++++ b/mods/frontier/maps/ancient_temple.txt
+@@ -600,7 +600,7 @@ set_status=waypoint_ancient_temple
+ # Waypoint
+ type=teleport
+ location=44,93,2,2
+-hotspot=-64,-16,128,64
++hotspot=location
+ intermap=warp_zone.txt,22,44
+ tooltip=Warp Zone
+ 
+@@ -718,16 +718,6 @@ location=21,9,6,6
+ level=3,3
+ number=1,3
+ 
+-[enemygroup]
+-# island chest
+-type=run_once
+-location=24.4688,12.1875,1,1
+-hotspot=-16,-28,32,36
+-loot=random,22,13,3;random,23,13,4;random,24,13,3
+-mapmod=object,23,12,161
+-soundfx=soundfx/wood_open.ogg
+-tooltip=Treasure Chest
+-
+ [enemy]
+ type=cursed_grave
+ location=79,37,1,1
+diff --git a/mods/frontier/maps/ydrakka_pass.txt b/mods/frontier/maps/ydrakka_pass.txt
+index 76e665b253fd02263d1b9dd4363a41d1f30452a2..33e201b6160b07fc122b3e512423bb3be0d9f483 100644
+--- a/mods/frontier/maps/ydrakka_pass.txt
++++ b/mods/frontier/maps/ydrakka_pass.txt
+@@ -361,7 +361,7 @@ tooltip=Supplies
+ # Warp Zone
+ type=teleport
+ location=101,46,2,2
+-hotspot=-64,-16,128,64
++hotspot=location
+ intermap=warp_zone.txt,29,36
+ tooltip=Warp Zone
+ 
+diff --git a/tiled/frontier/ancient_temple.tmx b/tiled/frontier/ancient_temple.tmx
+index 5da9bca2e975794ad4772e3aa79e3a3d0ae064e4..ee41abbf63996266ec1401105b101437df71c11a 100644
+--- a/tiled/frontier/ancient_temple.tmx
++++ b/tiled/frontier/ancient_temple.tmx
+@@ -595,7 +595,7 @@
+   <object x="1440" y="3040"/>
+   <object name="Waypoint" type="teleport" x="1408" y="2976" width="64" height="64">
+    <properties>
+-    <property name="hotspot" value="-64,-16,128,64"/>
++    <property name="hotspot" value="location"/>
+     <property name="intermap" value="warp_zone.txt,22,44"/>
+     <property name="tooltip" value="Warp Zone"/>
+    </properties>
+@@ -723,15 +723,6 @@
+     <property name="number" value="1,3"/>
+    </properties>
+   </object>
+-  <object name="island chest" type="run_once" x="783" y="390" width="32" height="32">
+-   <properties>
+-    <property name="hotspot" value="-16,-28,32,36"/>
+-    <property name="loot" value="random,22,13,3;random,23,13,4;random,24,13,3"/>
+-    <property name="mapmod" value="object,23,12,161"/>
+-    <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Treasure Chest"/>
+-   </properties>
+-  </object>
+  </objectgroup>
+  <objectgroup name="enemy" width="104" height="104">
+   <object type="cursed_grave" x="2528" y="1184" width="32" height="32">
+diff --git a/tiled/frontier/ydrakka_pass.tmx b/tiled/frontier/ydrakka_pass.tmx
+index 0fb657ccf2169abf9cb7ff20410e2296cbe90202..4211bbf277f5e232c3e8f7d2a9fceb797fb49c73 100644
+--- a/tiled/frontier/ydrakka_pass.tmx
++++ b/tiled/frontier/ydrakka_pass.tmx
+@@ -342,7 +342,7 @@
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ </data>
+  </layer>
+- <objectgroup name="event" width="256" height="100">
++ <objectgroup name="event" width="256" height="100" visible="0">
+   <object name="to Goblin Warrens" type="teleport" x="2944" y="1696" width="32" height="32">
+    <properties>
+     <property name="intermap" value="goblin_warrens.txt,29,79"/>
+@@ -379,7 +379,7 @@
+   </object>
+   <object name="Warp Zone" type="teleport" x="3232" y="1472" width="64" height="64">
+    <properties>
+-    <property name="hotspot" value="-64,-16,128,64"/>
++    <property name="hotspot" value="location"/>
+     <property name="intermap" value="warp_zone.txt,29,36"/>
+     <property name="tooltip" value="Warp Zone"/>
+    </properties>

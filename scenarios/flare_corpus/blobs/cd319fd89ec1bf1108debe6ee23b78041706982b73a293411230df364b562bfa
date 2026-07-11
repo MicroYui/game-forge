@@ -1,0 +1,125 @@
+diff --git a/mods/empyrean_campaign/maps/iron_labyrinth/room11.txt b/mods/empyrean_campaign/maps/iron_labyrinth/room11.txt
+index f3ab0934081de0ee1df8a8ca01027f262824dcb0..73cc250f312b31c447c200a081e8354896a90f3b 100644
+--- a/mods/empyrean_campaign/maps/iron_labyrinth/room11.txt
++++ b/mods/empyrean_campaign/maps/iron_labyrinth/room11.txt
+@@ -229,6 +229,51 @@ location=14,12,1,1
+ activate=on_load
+ soundfx=soundfx/environment/open_fire_loop.ogg
+ 
++[event]
++# Alt puzzle 1
++type=event
++location=1,1,1,1
++activate=on_load
++chance_exec=20
++mapmod=object,19,12,272;object,19,14,273;object,19,16,273
++repeat=false
++
++[event]
++# Alt puzzle 2
++type=event
++location=2,1,1,1
++activate=on_load
++chance_exec=20
++mapmod=object,19,12,272;object,19,14,273;object,19,16,272
++repeat=false
++
++[event]
++# Alt puzzle 3
++type=event
++location=3,1,1,1
++activate=on_load
++chance_exec=20
++mapmod=object,19,12,273;object,19,14,272;object,19,16,273
++repeat=false
++
++[event]
++# Alt puzzle 4
++type=event
++location=1,2,1,1
++activate=on_load
++chance_exec=20
++mapmod=object,19,12,273;object,19,14,273;object,19,16,272
++repeat=false
++
++[event]
++# Alt puzzle 5
++type=event
++location=2,2,1,1
++activate=on_load
++chance_exec=20
++mapmod=object,19,12,272;object,19,14,272;object,19,16,273
++repeat=false
++
+ [enemy]
+ type=enemy
+ location=8,8,12,12
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index fdaaf1875970b8517b4ca9851223077987ad7809..47f6a11c56be8f2e56944cbf86fd94cd01fc2e24 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.14.06
+ game=flare-game
+-version=1.14.35
++version=1.14.36
+ engine_version_min=1.14.258
+diff --git a/tiled/iron_labyrinth/room11.tmx b/tiled/iron_labyrinth/room11.tmx
+index f5ed10c36b44e862da2bf47292adefe4b9943b09..490c904ae3e10edf2a97f09c0ca0451be0e3947e 100644
+--- a/tiled/iron_labyrinth/room11.tmx
++++ b/tiled/iron_labyrinth/room11.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.11" tiledversion="1.12.1" orientation="isometric" renderorder="right-down" width="28" height="28" tilewidth="192" tileheight="96" infinite="0" backgroundcolor="#000000" nextlayerid="34" nextobjectid="13">
++<map version="1.11" tiledversion="1.12.1" orientation="isometric" renderorder="right-down" width="28" height="28" tilewidth="192" tileheight="96" infinite="0" backgroundcolor="#000000" nextlayerid="122" nextobjectid="19">
+  <editorsettings>
+   <export target="../../mods/empyrean_campaign/maps/iron_labyrinth/room11.txt" format="flare"/>
+  </editorsettings>
+@@ -237,6 +237,46 @@
+     <property name="soundfx" value="soundfx/environment/open_fire_loop.ogg"/>
+    </properties>
+   </object>
++  <object id="13" name="Alt puzzle 1" type="event" x="96" y="96" width="96" height="96">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="chance_exec" value="20"/>
++    <property name="mapmod" value="object,19,12,272;object,19,14,273;object,19,16,273"/>
++    <property name="repeat" value="false"/>
++   </properties>
++  </object>
++  <object id="15" name="Alt puzzle 2" type="event" x="192" y="96" width="96" height="96">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="chance_exec" value="20"/>
++    <property name="mapmod" value="object,19,12,272;object,19,14,273;object,19,16,272"/>
++    <property name="repeat" value="false"/>
++   </properties>
++  </object>
++  <object id="16" name="Alt puzzle 3" type="event" x="288" y="96" width="96" height="96">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="chance_exec" value="20"/>
++    <property name="mapmod" value="object,19,12,273;object,19,14,272;object,19,16,273"/>
++    <property name="repeat" value="false"/>
++   </properties>
++  </object>
++  <object id="17" name="Alt puzzle 4" type="event" x="96" y="192" width="96" height="96">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="chance_exec" value="20"/>
++    <property name="mapmod" value="object,19,12,273;object,19,14,273;object,19,16,272"/>
++    <property name="repeat" value="false"/>
++   </properties>
++  </object>
++  <object id="18" name="Alt puzzle 5" type="event" x="192" y="192" width="96" height="96">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="chance_exec" value="20"/>
++    <property name="mapmod" value="object,19,12,272;object,19,14,272;object,19,16,273"/>
++    <property name="repeat" value="false"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup id="33" name="enemy">
+   <object id="12" type="enemy" x="768" y="768" width="1152" height="1152">

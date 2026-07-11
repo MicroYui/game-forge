@@ -1,0 +1,102 @@
+diff --git a/mods/alpha_demo/enemies/reanimated_skeleton.txt b/mods/alpha_demo/enemies/reanimated_skeleton.txt
+index 47890b37791adb3fee373110a264699381f08f73..35ab34b9f812a4a83e10aeefb83717e821e6fc52 100644
+--- a/mods/alpha_demo/enemies/reanimated_skeleton.txt
++++ b/mods/alpha_demo/enemies/reanimated_skeleton.txt
+@@ -31,9 +31,6 @@ cooldown=25
+ absorb_min=5
+ absorb_max=15
+ 
+-# loot
+-loot=currency,33,2,10
+-
+ # Miner's gloves
+-loot=129,5
++loot=129,100
+ 
+diff --git a/mods/alpha_demo/maps/mineshaft_longsword.txt b/mods/alpha_demo/maps/mineshaft_longsword.txt
+index df9929c99a03e065b4d5b72b8cdde4ff48be2d97..a745531d4d28350c545adb9e14e19b553b12ad79 100644
+--- a/mods/alpha_demo/maps/mineshaft_longsword.txt
++++ b/mods/alpha_demo/maps/mineshaft_longsword.txt
+@@ -263,10 +263,13 @@ type=on_load
+ location=8,24,1,1
+ soundfx=soundfx/environment/cave_droplets_loop.ogg
+ 
+-[enemy]
+-type=reanimated_skeleton
+-location=5,27,1,1
+-direction=5
++[event]
++# spawn_reanimated_skeleton
++type=on_load
++location=22,46,4,4
++requires_not=ml_skeleton_defeated
++requires_status=ml_skeleton_search
++spawn=reanimated_skeleton,6,28
+ 
+ [enemygroup]
+ type=miner
+diff --git a/mods/alpha_demo/npcs/martigan.txt b/mods/alpha_demo/npcs/martigan.txt
+index 27b1f4ffa291cba5a1a82f3b8ef6adab7e2e9c7e..5c83ea19834238b74d4a26dfa7105f62c3798070 100644
+--- a/mods/alpha_demo/npcs/martigan.txt
++++ b/mods/alpha_demo/npcs/martigan.txt
+@@ -17,7 +17,7 @@ set_status=martigan_init
+ 
+ [dialog]
+ topic=Goblin Camp
+-requires_status=martigan_init
++requires_status=ml_skeleton_reward
+ requires_not=fr_rilrak_search
+ him=We're having problems. Goblins. All the noise from our mining is drawing their attention. We can't have them thinking we're easy prey.
+ set_status=fr_rilrak_search
+@@ -48,7 +48,7 @@ him=A member of the Order passed through our camp a few days ago. He left for th
+ 
+ [dialog]
+ topic=Rotten Tower
+-requires_status=martigan_init
++requires_status=ml_skeleton_reward
+ requires_not=rotten_tower_search
+ him=This region was once well guarded. There are watch towers positioned throughout these plains, but most are abandoned and crumbling now.
+ him=I need someone to inspect the outpost tower in White Winds, south west of the Frontier Plains. Let me know if goblins have found their way inside.
+@@ -77,7 +77,8 @@ him=Are you sure? Did you look inside the tower?
+ you=I saw no signs of goblins through the locked iron grate door.
+ set_status=rotten_tower_reward
+ him=Good! Have this small reward.
+-reward_currency=25
++reward_currency=40
++reward_xp=20
+ 
+ [dialog]
+ topic=Mineshaft
+@@ -103,5 +104,5 @@ requires_not=ml_skeleton_reward
+ you=I've defeated the Reanimated Skeleton.
+ him=Excellent work! As promised, here's a little something for your troubles.
+ set_status=ml_skeleton_reward
+-reward_currency=25
++reward_currency=10
+ 
+diff --git a/tiled/frontier/mineshaft_longsword.tmx b/tiled/frontier/mineshaft_longsword.tmx
+index 9c50675044fd625624573fe6f2c1d76023813c60..a805d45579f6407e85eb0070c9ed4388c0273356 100644
+--- a/tiled/frontier/mineshaft_longsword.tmx
++++ b/tiled/frontier/mineshaft_longsword.tmx
+@@ -1,4 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
++<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+ <map version="1.0" orientation="isometric" width="64" height="64" tilewidth="64" tileheight="32" backgroundcolor="#000000">
+  <properties>
+   <property name="music" value="cave_theme.ogg"/>
+@@ -258,11 +259,11 @@
+     <property name="soundfx" value="soundfx/environment/cave_droplets_loop.ogg"/>
+    </properties>
+   </object>
+- </objectgroup>
+- <objectgroup name="enemy" width="64" height="64">
+-  <object type="reanimated_skeleton" x="160" y="864" width="32" height="32">
++  <object name="spawn_reanimated_skeleton" type="on_load" x="704" y="1472" width="128" height="128">
+    <properties>
+-    <property name="direction" value="5"/>
++    <property name="requires_not" value="ml_skeleton_defeated"/>
++    <property name="requires_status" value="ml_skeleton_search"/>
++    <property name="spawn" value="reanimated_skeleton,6,28"/>
+    </properties>
+   </object>
+  </objectgroup>

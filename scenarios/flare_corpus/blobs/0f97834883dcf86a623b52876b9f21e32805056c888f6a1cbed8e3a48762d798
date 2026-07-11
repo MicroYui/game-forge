@@ -1,0 +1,510 @@
+diff --git a/mods/alpha_demo/maps/averguard_temple.txt b/mods/alpha_demo/maps/averguard_temple.txt
+index d7cc4345a25869a32599620e456c67a853afbcea..355dad4f9a99a4b3e33dd147b29eca09641c1a51 100644
+--- a/mods/alpha_demo/maps/averguard_temple.txt
++++ b/mods/alpha_demo/maps/averguard_temple.txt
+@@ -434,7 +434,7 @@ tooltip=Switch
+ 
+ [event]
+ # fire statue trap
+-type=run_always
++type=on_trigger
+ location=6,51,19,14
+ cooldown=30
+ power=31
+diff --git a/mods/alpha_demo/maps/brothers_lair_fire_hall.txt b/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
+index 68b5f40ef3a6f0d8b9d6eb3ce8ada0320aede975..ce0daad19b45107ca9cb3c2883c5be36d6c7d708 100644
+--- a/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
+@@ -355,7 +355,7 @@ unset_status=lb_fire_key
+ 
+ [event]
+ # Vesuvvio's Chest Locked
+-type=run_always
++type=on_trigger
+ location=21,60,1,1
+ hotspot=location
+ power=18
+@@ -366,7 +366,7 @@ tooltip=Runed Chest
+ 
+ [event]
+ # Vesuvvio's Diary
+-type=run_always
++type=on_trigger
+ location=19,16,1,1
+ hotspot=location
+ mapmod=object,19,16,165
+diff --git a/mods/alpha_demo/maps/brothers_lair_ice_hall.txt b/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
+index 3d90f8fcec9cd69a9093aaa450197fa7857e80f7..1af25726490c2ea869e9f2b593207b3702c2856b 100644
+--- a/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
+@@ -289,7 +289,7 @@ tooltip=Suspicious Bookcase
+ 
+ [event]
+ # Lore: Plotting
+-type=run_always
++type=on_trigger
+ location=18,46,1,1
+ hotspot=location
+ mapmod=object,18,46,165
+@@ -299,7 +299,7 @@ tooltip=Book Stand
+ 
+ [event]
+ # Lore: The Trap
+-type=run_always
++type=on_trigger
+ location=16,46,1,1
+ hotspot=location
+ mapmod=object,16,46,165
+@@ -309,7 +309,7 @@ tooltip=Book Stand
+ 
+ [event]
+ # Lore: Under the Wing
+-type=run_always
++type=on_trigger
+ location=25,60,1,1
+ hotspot=location
+ msg="My brothers and I wandered around for a few days. In an incredible stroke of luck, we encountered a master necromancer who, seeing the marks of banishment on our foreheads, took us as his apprentices."
+@@ -318,7 +318,7 @@ tooltip=Bookcase
+ 
+ [event]
+ # Lore: Outgrowing
+-type=run_always
++type=on_trigger
+ location=30,48,1,1
+ hotspot=location
+ mapmod=object,30,48,165
+@@ -328,7 +328,7 @@ tooltip=Book Stand
+ 
+ [event]
+ # Lore: Academy
+-type=run_always
++type=on_trigger
+ location=7,51,1,1
+ hotspot=location
+ mapmod=object,7,51,164
+@@ -338,7 +338,7 @@ tooltip=Book Stand
+ 
+ [event]
+ # Lore: Outcast
+-type=run_always
++type=on_trigger
+ location=17,71,1,1
+ hotspot=location
+ mapmod=object,17,71,164
+@@ -348,7 +348,7 @@ tooltip=Book Stand
+ 
+ [event]
+ # Lore: New Residence
+-type=run_always
++type=on_trigger
+ location=16,10,1,1
+ hotspot=location
+ mapmod=object,16,10,165
+@@ -358,7 +358,7 @@ tooltip=Book Stand
+ 
+ [event]
+ # Scathelocke's Diary
+-type=run_always
++type=on_trigger
+ location=18,10,1,1
+ hotspot=location
+ mapmod=object,18,10,165
+@@ -478,7 +478,7 @@ unset_status=lb_ice_key
+ 
+ [event]
+ # Scathelocke's Chest Locked
+-type=run_always
++type=on_trigger
+ location=14,10,1,1
+ hotspot=location
+ power=14
+diff --git a/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt b/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
+index aede2f500ec2bcc1091e340d3f19c0a7a80f7259..25fb068e19ee2d44c9116f476682e18a8e5548e9 100644
+--- a/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
++++ b/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
+@@ -208,13 +208,13 @@ requires_status=lb_ice_unlocked
+ 
+ [event]
+ # brazier sound effect
+-type=run_always
++type=on_trigger
+ location=4,6,8,5
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [event]
+-type=run_always
++type=on_trigger
+ location=3,32,13,6
+ cooldown=60
+ power=6
+@@ -223,7 +223,7 @@ power_path=11,34,hero
+ requires_status=lb_wind_attack
+ 
+ [event]
+-type=run_always
++type=on_trigger
+ location=3,32,13,6
+ cooldown=60
+ power=122
+@@ -232,7 +232,7 @@ power_path=9,34,hero
+ requires_status=lb_fire_attack
+ 
+ [event]
+-type=run_always
++type=on_trigger
+ location=3,32,13,6
+ cooldown=60
+ power=123
+diff --git a/mods/alpha_demo/maps/brothers_lair_wind_hall.txt b/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
+index 0ad12f34aca87f3e3369bdad6e35eec0511f21a2..36a26dbd5a5e4201295002a8137cc6e75c9fed24 100644
+--- a/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
+@@ -289,7 +289,7 @@ tooltip=Waiting Ice Switch
+ 
+ [event]
+ # Storage Room Clue Book
+-type=run_always
++type=on_trigger
+ location=13,31,1,1
+ hotspot=location
+ mapmod=object,13,31,164
+@@ -299,7 +299,7 @@ tooltip=Book Stand
+ 
+ [event]
+ # Bedroom Clue Book
+-type=run_always
++type=on_trigger
+ location=25,19,1,1
+ hotspot=location
+ mapmod=object,25,19,165
+@@ -317,7 +317,7 @@ soundfx=soundfx/door_open.ogg,0,0
+ 
+ [event]
+ # Grisbon's Diary
+-type=run_always
++type=on_trigger
+ location=31,8,1,1
+ hotspot=location
+ mapmod=object,31,8,164
+@@ -442,7 +442,7 @@ unset_status=lb_wind_key
+ 
+ [event]
+ # Grisbon's Chest Locked
+-type=run_always
++type=on_trigger
+ location=31,7,1,1
+ hotspot=location
+ power=6
+@@ -453,7 +453,7 @@ tooltip=Runed Chest
+ 
+ [event]
+ # brazier sound effect
+-type=run_always
++type=on_trigger
+ location=9,30,7,7
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+diff --git a/mods/alpha_demo/maps/cave_of_living_bones2.txt b/mods/alpha_demo/maps/cave_of_living_bones2.txt
+index 52828ab31992af6dc817da9a8ab6853fca5143e1..e3a7513a3dd2404f68581f1b8892ee9defb5ff3d 100644
+--- a/mods/alpha_demo/maps/cave_of_living_bones2.txt
++++ b/mods/alpha_demo/maps/cave_of_living_bones2.txt
+@@ -316,7 +316,7 @@ tooltip=Crate
+ 
+ [event]
+ # Give Pillar Quest
+-type=run_always
++type=on_trigger
+ location=47,44,1,1
+ hotspot=45,42,3,3
+ msg=This pillar is laced with cracks and crevices. Maybe with enough force it can be knocked down.
+@@ -326,7 +326,7 @@ tooltip=Giant Pillar
+ 
+ [event]
+ # Place Explosive
+-type=run_always
++type=on_trigger
+ location=47,44,1,1
+ hotspot=45,42,3,3
+ mapmod=object,47,44,163
+diff --git a/mods/alpha_demo/maps/goblin_warrens.txt b/mods/alpha_demo/maps/goblin_warrens.txt
+index 839ff56c9423cbb37b6f03531f64fa8053775088..dabd189ce51c769b80a3efc8a8e8c83dbf712856 100644
+--- a/mods/alpha_demo/maps/goblin_warrens.txt
++++ b/mods/alpha_demo/maps/goblin_warrens.txt
+@@ -356,7 +356,7 @@ tooltip=Book Stand
+ 
+ [event]
+ # brazier sound effect
+-type=run_always
++type=on_trigger
+ location=41,44,5,9
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+diff --git a/mods/devlab/maps/lab_basic.txt b/mods/devlab/maps/lab_basic.txt
+index cef7dda843625a5369c3c1a06827be986e6058af..c540188300ce4f5c9368b3f51b8bd2344b861413 100644
+--- a/mods/devlab/maps/lab_basic.txt
++++ b/mods/devlab/maps/lab_basic.txt
+@@ -158,7 +158,7 @@ repeat=false
+ tooltip=Folders
+ 
+ [event]
+-type=run_always
++type=on_trigger
+ location=2,4,1,1
+ hotspot=location
+ tooltip=Intermediate Lessons
+diff --git a/tiled/averguard/averguard_temple.tmx b/tiled/averguard/averguard_temple.tmx
+index b06a83f3331b45c60fe23addc865e0930f015115..0943d377767dcda24a2b63f9e1ddbd55a11fb0e4 100644
+--- a/tiled/averguard/averguard_temple.tmx
++++ b/tiled/averguard/averguard_temple.tmx
+@@ -446,7 +446,7 @@
+     <property name="repeat" value="false"/>
+    </properties>
+   </object>
+-  <object name="fire statue trap" type="run_always" x="192" y="1632" width="608" height="448">
++  <object name="fire statue trap" type="on_trigger" x="192" y="1632" width="608" height="448">
+    <properties>
+     <property name="cooldown" value="30"/>
+     <property name="power" value="31"/>
+diff --git a/tiled/averguard/goblin_warrens.tmx b/tiled/averguard/goblin_warrens.tmx
+index 90051fe816e24b2dffb2e62708c3581da6c48ee0..9d38df793a7f74f51ab3ce6c6503edb03e566808 100644
+--- a/tiled/averguard/goblin_warrens.tmx
++++ b/tiled/averguard/goblin_warrens.tmx
+@@ -364,7 +364,7 @@
+     <property name="repeat" value="false"/>
+    </properties>
+   </object>
+-  <object name="brazier sound effect" type="run_always" x="1312" y="1408" width="160" height="288">
++  <object name="brazier sound effect" type="on_trigger" x="1312" y="1408" width="160" height="288">
+    <properties>
+     <property name="cooldown" value="120"/>
+     <property name="soundfx" value="soundfx/environment/open_fire.ogg"/>
+diff --git a/tiled/devlab/lab_basic.tmx b/tiled/devlab/lab_basic.tmx
+index 8d462236dad9755783026362a0284235b6ff620b..ba595ef510b2ce696086a50f6e86bac39e5c704d 100644
+--- a/tiled/devlab/lab_basic.tmx
++++ b/tiled/devlab/lab_basic.tmx
+@@ -168,7 +168,7 @@
+     <property name="repeat" value="false"/>
+    </properties>
+   </object>
+-  <object type="run_always" x="64" y="128" width="32" height="32">
++  <object type="on_trigger" x="64" y="128" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="tooltip" value="Intermediate Lessons"/>
+diff --git a/tiled/living_bones/brothers_lair_fire_hall.tmx b/tiled/living_bones/brothers_lair_fire_hall.tmx
+index a376da3cbc0f722b092209c6c27c60523ea7208c..3589749e215824f052174198575d1117cbac6dbb 100644
+--- a/tiled/living_bones/brothers_lair_fire_hall.tmx
++++ b/tiled/living_bones/brothers_lair_fire_hall.tmx
+@@ -360,7 +360,7 @@
+     <property name="repeat" value="false"/>
+    </properties>
+   </object>
+-  <object name="Vesuvvio's Chest Locked" type="run_always" x="672" y="1920" width="32" height="32">
++  <object name="Vesuvvio's Chest Locked" type="on_trigger" x="672" y="1920" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="power" value="18"/>
+@@ -370,7 +370,7 @@
+     <property name="tooltip" value="Runed Chest"/>
+    </properties>
+   </object>
+-  <object name="Vesuvvio's Diary" type="run_always" x="608" y="512" width="32" height="32">
++  <object name="Vesuvvio's Diary" type="on_trigger" x="608" y="512" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,19,16,165"/>
+diff --git a/tiled/living_bones/brothers_lair_ice_hall.tmx b/tiled/living_bones/brothers_lair_ice_hall.tmx
+index 3cc5f681b1546bc4e95334682e4b372eb30771af..d29bb2e0fe08e139a2bd1f6883240db6fa0b1782 100644
+--- a/tiled/living_bones/brothers_lair_ice_hall.tmx
++++ b/tiled/living_bones/brothers_lair_ice_hall.tmx
+@@ -300,7 +300,7 @@
+     <property name="repeat" value="false"/>
+    </properties>
+   </object>
+-  <object name="Lore: Plotting" type="run_always" x="576" y="1472" width="32" height="32">
++  <object name="Lore: Plotting" type="on_trigger" x="576" y="1472" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,18,46,165"/>
+@@ -309,7 +309,7 @@
+     <property name="tooltip" value="Book Stand"/>
+    </properties>
+   </object>
+-  <object name="Lore: The Trap" type="run_always" x="512" y="1472" width="32" height="32">
++  <object name="Lore: The Trap" type="on_trigger" x="512" y="1472" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,16,46,165"/>
+@@ -318,7 +318,7 @@
+     <property name="tooltip" value="Book Stand"/>
+    </properties>
+   </object>
+-  <object name="Lore: Under the Wing" type="run_always" x="800" y="1920" width="32" height="32">
++  <object name="Lore: Under the Wing" type="on_trigger" x="800" y="1920" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="msg" value="&quot;My brothers and I wandered around for a few days. In an incredible stroke of luck, we encountered a master necromancer who, seeing the marks of banishment on our foreheads, took us as his apprentices.&quot;"/>
+@@ -326,7 +326,7 @@
+     <property name="tooltip" value="Bookcase"/>
+    </properties>
+   </object>
+-  <object name="Lore: Outgrowing" type="run_always" x="960" y="1536" width="32" height="32">
++  <object name="Lore: Outgrowing" type="on_trigger" x="960" y="1536" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,30,48,165"/>
+@@ -335,7 +335,7 @@
+     <property name="tooltip" value="Book Stand"/>
+    </properties>
+   </object>
+-  <object name="Lore: Academy" type="run_always" x="224" y="1632" width="32" height="32">
++  <object name="Lore: Academy" type="on_trigger" x="224" y="1632" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,7,51,164"/>
+@@ -344,7 +344,7 @@
+     <property name="tooltip" value="Book Stand"/>
+    </properties>
+   </object>
+-  <object name="Lore: Outcast" type="run_always" x="544" y="2272" width="32" height="32">
++  <object name="Lore: Outcast" type="on_trigger" x="544" y="2272" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,17,71,164"/>
+@@ -353,7 +353,7 @@
+     <property name="tooltip" value="Book Stand"/>
+    </properties>
+   </object>
+-  <object name="Lore: New Residence" type="run_always" x="512" y="320" width="32" height="32">
++  <object name="Lore: New Residence" type="on_trigger" x="512" y="320" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,16,10,165"/>
+@@ -362,7 +362,7 @@
+     <property name="tooltip" value="Book Stand"/>
+    </properties>
+   </object>
+-  <object name="Scathelocke's Diary" type="run_always" x="576" y="320" width="32" height="32">
++  <object name="Scathelocke's Diary" type="on_trigger" x="576" y="320" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,18,10,165"/>
+@@ -472,7 +472,7 @@
+     <property name="repeat" value="false"/>
+    </properties>
+   </object>
+-  <object name="Scathelocke's Chest Locked" type="run_always" x="448" y="320" width="32" height="32">
++  <object name="Scathelocke's Chest Locked" type="on_trigger" x="448" y="320" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="power" value="14"/>
+diff --git a/tiled/living_bones/brothers_lair_sacrifice_room.tmx b/tiled/living_bones/brothers_lair_sacrifice_room.tmx
+index 5a28a91dc18f2ede01f57d6ee72c0579feb68607..697aef5da98f6d565e235f6293e1fb0f23b318fd 100644
+--- a/tiled/living_bones/brothers_lair_sacrifice_room.tmx
++++ b/tiled/living_bones/brothers_lair_sacrifice_room.tmx
+@@ -221,13 +221,13 @@
+     <property name="repeat" value="false"/>
+    </properties>
+   </object>
+-  <object name="brazier sound effect" type="run_always" x="128" y="192" width="256" height="160">
++  <object name="brazier sound effect" type="on_trigger" x="128" y="192" width="256" height="160">
+    <properties>
+     <property name="cooldown" value="120"/>
+     <property name="soundfx" value="soundfx/environment/open_fire.ogg"/>
+    </properties>
+   </object>
+-  <object type="run_always" x="96" y="1024" width="416" height="192">
++  <object type="on_trigger" x="96" y="1024" width="416" height="192">
+    <properties>
+     <property name="cooldown" value="60"/>
+     <property name="power" value="6"/>
+@@ -236,7 +236,7 @@
+     <property name="requires_status" value="lb_wind_attack"/>
+    </properties>
+   </object>
+-  <object type="run_always" x="96" y="1024" width="416" height="192">
++  <object type="on_trigger" x="96" y="1024" width="416" height="192">
+    <properties>
+     <property name="cooldown" value="60"/>
+     <property name="power" value="122"/>
+@@ -245,7 +245,7 @@
+     <property name="requires_status" value="lb_fire_attack"/>
+    </properties>
+   </object>
+-  <object type="run_always" x="96" y="1024" width="416" height="192">
++  <object type="on_trigger" x="96" y="1024" width="416" height="192">
+    <properties>
+     <property name="cooldown" value="60"/>
+     <property name="power" value="123"/>
+diff --git a/tiled/living_bones/brothers_lair_wind_hall.tmx b/tiled/living_bones/brothers_lair_wind_hall.tmx
+index aa9cc574948afcc33d027c7767c486d5e3d9fa76..c19afed85719438a77cbb9cee93d499faedaddfc 100644
+--- a/tiled/living_bones/brothers_lair_wind_hall.tmx
++++ b/tiled/living_bones/brothers_lair_wind_hall.tmx
+@@ -293,7 +293,7 @@
+     <property name="repeat" value="false"/>
+    </properties>
+   </object>
+-  <object name="Storage Room Clue Book" type="run_always" x="416" y="992" width="32" height="32">
++  <object name="Storage Room Clue Book" type="on_trigger" x="416" y="992" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,13,31,164"/>
+@@ -302,7 +302,7 @@
+     <property name="tooltip" value="Book Stand"/>
+    </properties>
+   </object>
+-  <object name="Bedroom Clue Book" type="run_always" x="800" y="608" width="32" height="32">
++  <object name="Bedroom Clue Book" type="on_trigger" x="800" y="608" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,25,19,165"/>
+@@ -318,7 +318,7 @@
+     <property name="soundfx" value="soundfx/door_open.ogg,0,0"/>
+    </properties>
+   </object>
+-  <object name="Grisbon's Diary" type="run_always" x="992" y="256" width="32" height="32">
++  <object name="Grisbon's Diary" type="on_trigger" x="992" y="256" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,31,8,164"/>
+@@ -432,7 +432,7 @@
+     <property name="repeat" value="false"/>
+    </properties>
+   </object>
+-  <object name="Grisbon's Chest Locked" type="run_always" x="992" y="224" width="32" height="32">
++  <object name="Grisbon's Chest Locked" type="on_trigger" x="992" y="224" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="power" value="6"/>
+@@ -442,7 +442,7 @@
+     <property name="tooltip" value="Runed Chest"/>
+    </properties>
+   </object>
+-  <object name="brazier sound effect" type="run_always" x="288" y="960" width="224" height="224">
++  <object name="brazier sound effect" type="on_trigger" x="288" y="960" width="224" height="224">
+    <properties>
+     <property name="cooldown" value="120"/>
+     <property name="soundfx" value="soundfx/environment/open_fire.ogg"/>
+diff --git a/tiled/living_bones/cave_of_living_bones2.tmx b/tiled/living_bones/cave_of_living_bones2.tmx
+index 9551120fef5f158ee49eb155ee19a26167f8afb8..508c5ea91b65ed84459f30370555f2b419d38ee3 100644
+--- a/tiled/living_bones/cave_of_living_bones2.tmx
++++ b/tiled/living_bones/cave_of_living_bones2.tmx
+@@ -309,7 +309,7 @@
+     <property name="repeat" value="false"/>
+    </properties>
+   </object>
+-  <object name="Give Pillar Quest" type="run_always" x="1504" y="1408" width="32" height="32">
++  <object name="Give Pillar Quest" type="on_trigger" x="1504" y="1408" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="45,42,3,3"/>
+     <property name="msg" value="This pillar is laced with cracks and crevices. Maybe with enough force it can be knocked down."/>
+@@ -318,7 +318,7 @@
+     <property name="tooltip" value="Giant Pillar"/>
+    </properties>
+   </object>
+-  <object name="Place Explosive" type="run_always" x="1504" y="1408" width="32" height="32">
++  <object name="Place Explosive" type="on_trigger" x="1504" y="1408" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="45,42,3,3"/>
+     <property name="mapmod" value="object,47,44,163"/>

@@ -1,0 +1,96 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl4_cid.txt b/mods/empyrean_campaign/enemies/lvl4_cid.txt
+index 1fdfd1ff6673e1c1925b6e934e1b7826b18115be..d3b29c2d6c52f12e2928fd33082fd88fcd024694 100644
+--- a/mods/empyrean_campaign/enemies/lvl4_cid.txt
++++ b/mods/empyrean_campaign/enemies/lvl4_cid.txt
+@@ -37,3 +37,5 @@ quest_loot=emp_stmaria2_init,emp_stmaria2_key,1005
+ # loot
+ loot=loot/level_4.txt
+ 
++# Dark Steppers
++loot=94,1
+diff --git a/mods/empyrean_campaign/enemies/lvl4_geno.txt b/mods/empyrean_campaign/enemies/lvl4_geno.txt
+index 001dcd0a9593fd9c905f8719706308740e16ae23..bc1b810a9ee1168b1bdce3ca00bf52d9c9eb59bc 100644
+--- a/mods/empyrean_campaign/enemies/lvl4_geno.txt
++++ b/mods/empyrean_campaign/enemies/lvl4_geno.txt
+@@ -37,3 +37,5 @@ quest_loot=emp_stmaria1_init,emp_stmaria1_key,1004
+ # loot
+ loot=loot/level_4.txt
+ 
++# Blood Tunic
++loot=93,1
+diff --git a/mods/empyrean_campaign/enemies/lvl4_seagate.txt b/mods/empyrean_campaign/enemies/lvl4_seagate.txt
+index 2aebbfd32c383630fcd26c8ba60b21fa6b494b3f..ff69509a553ed8b06471bc3dc40ca09e98e9e8a1 100644
+--- a/mods/empyrean_campaign/enemies/lvl4_seagate.txt
++++ b/mods/empyrean_campaign/enemies/lvl4_seagate.txt
+@@ -32,3 +32,5 @@ loot_count=5,7
+ 
+ loot=loot/level_4.txt
+ 
++# Seagate's Tri-pants
++loot=95,1
+diff --git a/mods/empyrean_campaign/items/categories/level_4.txt b/mods/empyrean_campaign/items/categories/level_4.txt
+index a88e3f1e4d95e3e60391ec8efa9c6ced5d17bf54..e764801b1923b5af3afa06270d2e26f3a1f51b5e 100644
+--- a/mods/empyrean_campaign/items/categories/level_4.txt
++++ b/mods/empyrean_campaign/items/categories/level_4.txt
+@@ -334,3 +334,45 @@ bonus=absorb_min,2
+ bonus=accuracy,5
+ bonus=poise,5
+ bonus=xp_gain,10
++
++[item]
++id=93
++name=Blood Tunic
++flavor=
++INCLUDE items/base/armor/cloth/chest.txt
++level=4
++quality=unique
++price=2400
++abs=3
++requires_stat=physical,4
++requires_stat=defense,6
++bonus=hp,100
++bonus=hp_regen,100
++
++[item]
++id=94
++name=Dark Steppers
++INCLUDE items/base/armor/cloth/feet.txt
++level=4
++quality=unique
++price=1200
++abs=1,2
++requires_stat=offense,4
++requires_stat=defense,6
++bonus=avoidance,15
++bonus=dark_resist,10
++
++[item]
++id=95
++name=Segate's Tri-pants
++INCLUDE items/base/armor/cloth/legs.txt
++level=4
++quality=unique
++price=1600
++abs=1,2
++requires_stat=mental,4
++requires_stat=defense,6
++bonus=fire_resist,10
++bonus=ice_resist,10
++bonus=lightning_resist,10
++
+diff --git a/mods/empyrean_campaign/items/sets.txt b/mods/empyrean_campaign/items/sets.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..b9c701249e5e1a30612d8a2485edc3cc9eda0fad
+--- /dev/null
++++ b/mods/empyrean_campaign/items/sets.txt
+@@ -0,0 +1,10 @@
++[set]
++id=1
++name=St. Maria Garb
++color=255,64,255
++items=93,94,95
++bonus=2,mp,15
++bonus=2,mp_regen,10
++bonus=3,hp,125
++bonus=3,hp_regen,125
++bonus=3,return_damage,25

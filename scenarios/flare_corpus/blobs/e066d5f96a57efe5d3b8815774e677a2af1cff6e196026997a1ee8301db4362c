@@ -1,0 +1,58 @@
+diff --git a/mods/alpha_demo/npcs/martigan.txt b/mods/alpha_demo/npcs/martigan.txt
+index 137bf854de265fa5ed3aa1686cfb71aebe40ac68..2515151de16f4af5319f2693c6b434bdbfa323de 100644
+--- a/mods/alpha_demo/npcs/martigan.txt
++++ b/mods/alpha_demo/npcs/martigan.txt
+@@ -84,3 +84,27 @@ set_status=rotten_tower_reward
+ him=Good! Here goes a little reward!
+ reward_currency=25
+ 
++[dialog]
++topic=Mineshaft
++requires_status=martigan_init
++requires_not=ml_skeleton_search
++you=So how's the mining business?
++him=Not good at all. While I was digging, my pickaxe scraped a skull that was wedged in the rock wall. Before I knew it, the nasty thing started moving and a whole body emerged. Now that thing is in there, preventing any more mining.
++him=Kill that skeleton for me, and I'll make it worth your while.
++set_status=ml_skeleton_search
++
++[dialog]
++topic=Reanimated Skeleton
++requires_status=ml_skeleton_search
++requires_not=ml_skeleton_defeated
++him=Please take care of that skeleton. Work in the mine can't continue otherwise.
++
++[dialog]
++topic=Skeleton Defeated
++requires_status=ml_skeleton_defeated
++requires_not=ml_skeleton_reward
++you=I've defeated the Reanimated Skeleton.
++him=Excellent work! As promised, here's a little something for your troubles.
++set_status=ml_skeleton_reward
++reward_currency=25
++
+diff --git a/mods/alpha_demo/quests/index.txt b/mods/alpha_demo/quests/index.txt
+index c5889b2bead5f9ffb1e8b02fae41f59e1612952b..7f6195b7b844cda530522c7fffb227b09b436348 100644
+--- a/mods/alpha_demo/quests/index.txt
++++ b/mods/alpha_demo/quests/index.txt
+@@ -1,5 +1,6 @@
+ averguard_keep.txt
+ frontier.txt
+ rotten_tower.txt
++mineshaft_longsword.txt
+ living_bones.txt
+ 
+diff --git a/mods/alpha_demo/quests/mineshaft_longsword.txt b/mods/alpha_demo/quests/mineshaft_longsword.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..b7087df1da05b0f002a71a87e427ffd3a969e148
+--- /dev/null
++++ b/mods/alpha_demo/quests/mineshaft_longsword.txt
+@@ -0,0 +1,9 @@
++[quest]
++requires_status=ml_skeleton_search
++requires_not=ml_skeleton_defeated
++quest_text=Find and defeat the Reanimated Skeleton in Mineshaft Longsword.
++
++[quest]
++requires_status=ml_skeleton_defeated
++requires_not=ml_skeleton_reward
++quest_text=Report the defeat of the Reanimated Skeleton to Martigan.

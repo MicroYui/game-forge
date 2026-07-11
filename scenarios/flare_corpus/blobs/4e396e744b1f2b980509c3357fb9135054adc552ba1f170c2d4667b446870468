@@ -1,0 +1,36 @@
+diff --git a/mods/alpha_demo/npcs/statue_guardian_fire.txt b/mods/alpha_demo/npcs/statue_guardian_fire.txt
+index 80b44ed94ed17383e3d5a1b85c9ec01e5cd3fdc6..e654ab1012d14f9c493c259c090b6d4d1d287e9c 100644
+--- a/mods/alpha_demo/npcs/statue_guardian_fire.txt
++++ b/mods/alpha_demo/npcs/statue_guardian_fire.txt
+@@ -16,6 +16,7 @@ him=Intruder! You shall not interrupt the masters' work!
+ 
+ [dialog]
+ requires_status=lb_fire_password
++requires_not=lb_fire_unlocked
+ him=Who goes there?
+ you=Vesuvvio.
+ him=...Are you feeling alright, Master Vesuvvio? You did not refer to yourself as "the Destroyer."
+diff --git a/mods/alpha_demo/npcs/statue_guardian_ice.txt b/mods/alpha_demo/npcs/statue_guardian_ice.txt
+index 6cce57e7b1eba6850eb1ec2931da234c1c18a848..1e81ce0d286a1c843592a990028151893050e979 100644
+--- a/mods/alpha_demo/npcs/statue_guardian_ice.txt
++++ b/mods/alpha_demo/npcs/statue_guardian_ice.txt
+@@ -16,6 +16,7 @@ him=Intruder! You shall not interrupt the masters' work!
+ 
+ [dialog]
+ requires_status=lb_ice_password
++requires_not=lb_ice_unlocked
+ him=Who goes there?
+ you=Scathelocke.
+ set_status=lb_ice_unlocked
+diff --git a/mods/alpha_demo/npcs/statue_guardian_wind.txt b/mods/alpha_demo/npcs/statue_guardian_wind.txt
+index 498d434c3e2da89da0393e932046d1e351943afc..3c9b94680665074a0a7346362be9a229e9bcefe9 100644
+--- a/mods/alpha_demo/npcs/statue_guardian_wind.txt
++++ b/mods/alpha_demo/npcs/statue_guardian_wind.txt
+@@ -16,6 +16,7 @@ him=Intruder! You shall not interrupt the masters' work!
+ 
+ [dialog]
+ requires_status=lb_wind_password
++requires_not=lb_wind_unlocked
+ him=Who goes there?
+ you=Grisbon.
+ set_status=lb_wind_unlocked

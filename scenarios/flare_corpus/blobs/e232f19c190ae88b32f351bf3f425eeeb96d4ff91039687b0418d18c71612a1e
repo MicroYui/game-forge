@@ -1,0 +1,77 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl10_minotaur_necromancer.txt b/mods/empyrean_campaign/enemies/lvl10_minotaur_necromancer.txt
+index 648f41dfb83e1b697df57a1f987a250919d84a66..0eab4f3028b878133c37adad2bd0e9c09513849a 100644
+--- a/mods/empyrean_campaign/enemies/lvl10_minotaur_necromancer.txt
++++ b/mods/empyrean_campaign/enemies/lvl10_minotaur_necromancer.txt
+@@ -7,26 +7,23 @@ rarity=rare
+ xp=1024
+ 
+ # combat stats
+-hp=305
++hp=385
+ speed=7
+ turn_delay=166ms
+-chance_pursue=0
+-chance_flee=100
+-threat_range=8
++chance_pursue=10
++chance_flee=25
++threat_range=16
+ 
+-power=ranged,193,100
++power=ranged,193,25
++power=ranged,195,50
+ 
+ accuracy=135
+ avoidance=55
+ poise=52
+ 
+-dmg_melee_min=150
+-dmg_melee_max=180
+-dmg_ranged_min=145
+-dmg_ranged_max=155
+ absorb_min=10
+ absorb_max=11
+-cooldown=1575ms
++cooldown=575ms
+ 
+ # loot
+ loot=loot/level_10.txt
+diff --git a/mods/empyrean_campaign/powers/categories/enemy.txt b/mods/empyrean_campaign/powers/categories/enemy.txt
+index 83f633065f231c9ced9510cfd65dfc92978956af..fe0993c5fd2138a3a4dec8b549b23407368de3e3 100644
+--- a/mods/empyrean_campaign/powers/categories/enemy.txt
++++ b/mods/empyrean_campaign/powers/categories/enemy.txt
+@@ -504,11 +504,13 @@ buff=true
+ post_effect=spawn_runes,0,533ms
+ 
+ # Heal minions
+-# FIXME: does not work
+-# [power]
+-# id=195
+-# type=fixed
+-# new_state=shoot
+-# buff_party=true
+-# soundfx=soundfx/powers/heal.ogg
+-# post_effect=hp_restore,25,33ms
++[power]
++id=195
++type=fixed
++new_state=cast
++buff_party=true
++requires_spawns=1
++soundfx=soundfx/powers/heal.ogg
++post_effect=hp_restore,25,33ms
++post_effect=heal_animation,0,600ms
++cooldown=800ms
+diff --git a/mods/empyrean_campaign/powers/effects.txt b/mods/empyrean_campaign/powers/effects.txt
+index 0caed8a9ecfcbc96eef4e47ee9098529a3d90e27..d5f306ad4f1d37d146ac6bbdc6ea8a51b5d59d55 100644
+--- a/mods/empyrean_campaign/powers/effects.txt
++++ b/mods/empyrean_campaign/powers/effects.txt
+@@ -70,3 +70,8 @@ can_stack=false
+ animation=animations/powers/runes.txt
+ render_above=false
+ 
++[effect]
++id=heal_animation
++can_stack=false
++animation=animations/powers/heal.txt
++render_above=true

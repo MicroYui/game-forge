@@ -1,0 +1,52 @@
+diff --git a/mods/empyrean_campaign/maps/goblin_cave.txt b/mods/empyrean_campaign/maps/goblin_cave.txt
+index 619464fa849505b9e75dd6b4681af557e2e05f37..cf058916a3cc9132b8a5c4877bc15e656c908a89 100644
+--- a/mods/empyrean_campaign/maps/goblin_cave.txt
++++ b/mods/empyrean_campaign/maps/goblin_cave.txt
+@@ -343,8 +343,6 @@ type=goblin_chief
+ location=5,5,1,1
+ level=2
+ number=1
+-requires_not_status=emp_journal_found
+-requires_status=emp_journal_init
+ 
+ [enemy]
+ type=goblin
+@@ -374,11 +372,3 @@ level=1
+ number=2
+ wander_radius=1
+ 
+-[enemy]
+-type=goblin
+-location=3,2,5,4
+-level=2
+-number=2
+-requires_not_status=emp_journal_init
+-wander_radius=1
+-
+diff --git a/tiled/empyrean_campaign/goblin_cave.tmx b/tiled/empyrean_campaign/goblin_cave.tmx
+index c8ab7f8f2abbe9cd66676b22ef67cb9aa205ace5..39bcb8dd79e303785d8363a8f983cf55b7a32c4c 100644
+--- a/tiled/empyrean_campaign/goblin_cave.tmx
++++ b/tiled/empyrean_campaign/goblin_cave.tmx
+@@ -333,8 +333,6 @@
+    <properties>
+     <property name="level" value="2"/>
+     <property name="number" value="1"/>
+-    <property name="requires_not_status" value="emp_journal_found"/>
+-    <property name="requires_status" value="emp_journal_init"/>
+    </properties>
+   </object>
+   <object id="33" type="goblin" x="96" y="192" width="160" height="128">
+@@ -365,13 +363,5 @@
+     <property name="wander_radius" value="1"/>
+    </properties>
+   </object>
+-  <object id="37" type="goblin" x="96" y="64" width="160" height="128">
+-   <properties>
+-    <property name="level" value="2"/>
+-    <property name="number" value="2"/>
+-    <property name="requires_not_status" value="emp_journal_init"/>
+-    <property name="wander_radius" value="1"/>
+-   </properties>
+-  </object>
+  </objectgroup>
+ </map>

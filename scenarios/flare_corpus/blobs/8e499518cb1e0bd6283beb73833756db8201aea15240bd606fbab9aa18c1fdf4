@@ -1,0 +1,316 @@
+diff --git a/mods/alpha_demo/maps/ancient_temple.txt b/mods/alpha_demo/maps/ancient_temple.txt
+index 6f8760a6e97cd79c44dfd18bb8057de15137323c..31ac0af5ea888144964c672c704af223e226ed91 100644
+--- a/mods/alpha_demo/maps/ancient_temple.txt
++++ b/mods/alpha_demo/maps/ancient_temple.txt
+@@ -346,7 +346,7 @@ type=teleport
+ location=48,101,2,1
+ hotspot=48,102,2,1
+ intermap=frontier_plains.txt,118,138
+-soundfx=soundfx/door_open.ogg
++soundfx=soundfx/door_open.ogg,0,0
+ 
+ [event]
+ type=teleport
+diff --git a/mods/alpha_demo/maps/averguard_atrium.txt b/mods/alpha_demo/maps/averguard_atrium.txt
+index c2ab18cf17a9404466f415b4edfce3d1b102e65b..5b056cc7c12c057b3bcc8e89d6993cbf0a813aba 100644
+--- a/mods/alpha_demo/maps/averguard_atrium.txt
++++ b/mods/alpha_demo/maps/averguard_atrium.txt
+@@ -214,14 +214,14 @@ type=teleport
+ location=18,10,1,2
+ hotspot=19,10,1,2
+ intermap=goblin_warrens.txt,2,9
+-soundfx=soundfx/door_open.ogg
++soundfx=soundfx/door_open.ogg,0,0
+ 
+ [event]
+ type=teleport
+ location=8,1,2,1
+ hotspot=8,1,2,1
+ intermap=averguard_temple.txt,15,126
+-soundfx=soundfx/door_open.ogg
++soundfx=soundfx/door_open.ogg,0,0
+ 
+ [event]
+ type=teleport
+diff --git a/mods/alpha_demo/maps/brothers_lair_atrium.txt b/mods/alpha_demo/maps/brothers_lair_atrium.txt
+index aecbdfb3ec6ebc0115d39366414165e296badf7a..39d863613dc201afb3a7b40d454a2647dca0e371 100644
+--- a/mods/alpha_demo/maps/brothers_lair_atrium.txt
++++ b/mods/alpha_demo/maps/brothers_lair_atrium.txt
+@@ -184,7 +184,7 @@ type=teleport
+ location=2,13,1,2
+ hotspot=2,13,1,2
+ intermap=brothers_lair_ice_hall.txt,47,71
+-soundfx=soundfx/door_open.ogg
++soundfx=soundfx/door_open.ogg,0,0
+ 
+ [event]
+ # to Sacrifice Room
+@@ -198,7 +198,7 @@ type=teleport
+ location=14,47,2,1
+ hotspot=14,48,2,1
+ intermap=cave_of_living_bones2.txt,32,4
+-soundfx=soundfx/door_open.ogg
++soundfx=soundfx/door_open.ogg,0,0
+ 
+ [event]
+ # to Fire Hall
+@@ -206,7 +206,7 @@ type=teleport
+ location=13,1,2,1
+ hotspot=13,1,2,1
+ intermap=brothers_lair_fire_hall.txt,25,77
+-soundfx=soundfx/door_open.ogg
++soundfx=soundfx/door_open.ogg,0,0
+ 
+ [event]
+ # to Wind Hall
+@@ -214,7 +214,7 @@ type=teleport
+ location=27,13,1,2
+ hotspot=28,13,1,2
+ intermap=brothers_lair_wind_hall.txt,3,19
+-soundfx=soundfx/door_open.ogg
++soundfx=soundfx/door_open.ogg,0,0
+ 
+ [event]
+ # Unset a lot of event variables
+diff --git a/mods/alpha_demo/maps/brothers_lair_fire_hall.txt b/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
+index 209ec1cd64d72584fdc1b99767cab814bde5a51d..cfd67c5169d41ba3ebd28f8fa76e584ff6233fb4 100644
+--- a/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
+@@ -274,7 +274,7 @@ type=teleport
+ location=24,78,2,1
+ hotspot=24,79,2,1
+ intermap=brothers_lair_atrium.txt,14,2
+-soundfx=soundfx/door_open.ogg
++soundfx=soundfx/door_open.ogg,0,0
+ 
+ [event]
+ # Barrel
+diff --git a/mods/alpha_demo/maps/brothers_lair_ice_hall.txt b/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
+index 9ef90d1d8db464b44d2489b3472a5b4c17fb4e91..63950bd233daf80029359f1cb2b11b7cdbfd84a0 100644
+--- a/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
+@@ -274,7 +274,7 @@ type=teleport
+ location=48,70,1,2
+ hotspot=49,70,1,2
+ intermap=brothers_lair_atrium.txt,3,13
+-soundfx=soundfx/door_open.ogg
++soundfx=soundfx/door_open.ogg,0,0
+ 
+ [event]
+ # Bookcase Door
+diff --git a/mods/alpha_demo/maps/brothers_lair_wind_hall.txt b/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
+index a8b620ab531fd54b374e0ac7f87c73577b48a00b..ee76b0465d96c5ef792bde6fa870e956928ab628 100644
+--- a/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
+@@ -304,7 +304,7 @@ type=teleport
+ location=2,18,1,2
+ hotspot=2,18,1,2
+ intermap=brothers_lair_atrium.txt,26,14
+-soundfx=soundfx/door_open.ogg
++soundfx=soundfx/door_open.ogg,0,0
+ 
+ [event]
+ # Grisbon's Diary
+diff --git a/mods/devlab/maps/lab_basic.txt b/mods/devlab/maps/lab_basic.txt
+index 5eb62ed0bd2fc5cb5c5cf0ebdca5e0412592f8a2..b7fa665e55f0c89ef3dade50df09f9af423f63cf 100644
+--- a/mods/devlab/maps/lab_basic.txt
++++ b/mods/devlab/maps/lab_basic.txt
+@@ -8,13 +8,13 @@ tileset=tileset_dungeon.txt
+ title=Dev Lab - Basic Lessons
+ 
+ [tilesets]
+-tileset=../../../../flare-game/tiled/dungeon/tiled_collision.png,64,32,0,0
+-tileset=../../../../flare-game/tiled/dungeon/tiled_dungeon.png,64,128,0,0
+-tileset=../../../../flare-game/tiled/dungeon/set_rules.png,64,32,0,0
+-tileset=../../../../flare-game/tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
+-tileset=../../../../flare-game/tiled/dungeon/door_left.png,64,128,-16,-8
+-tileset=../../../../flare-game/tiled/dungeon/door_right.png,64,128,16,-8
+-tileset=../../../../flare-game/tiled/dungeon/stairs.png,256,256,0,48
++tileset=../../../tiled/dungeon/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128,0,0
++tileset=../../../tiled/dungeon/set_rules.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
++tileset=../../../tiled/dungeon/door_left.png,64,128,-16,-8
++tileset=../../../tiled/dungeon/door_right.png,64,128,16,-8
++tileset=../../../tiled/dungeon/stairs.png,256,256,0,48
+ 
+ [layer]
+ type=background
+@@ -123,7 +123,7 @@ type=teleport
+ location=3,28,2,2
+ hotspot=location
+ intermap=lab_welcome.txt,4,2
+-soundfx=soundfx/door_open.ogg
++soundfx=soundfx/door_open.ogg,0,0
+ 
+ [event]
+ # Maps
+diff --git a/mods/devlab/maps/lab_welcome.txt b/mods/devlab/maps/lab_welcome.txt
+index 87d4306b39d7691cb266bacf88a10c37bc162e77..6c9486af185403e0e22580241250b76d93eff84e 100644
+--- a/mods/devlab/maps/lab_welcome.txt
++++ b/mods/devlab/maps/lab_welcome.txt
+@@ -8,13 +8,13 @@ tileset=tileset_dungeon.txt
+ title=Dev Lab - Welcome
+ 
+ [tilesets]
+-tileset=../../../../flare-game/tiled/dungeon/tiled_collision.png,64,32,0,0
+-tileset=../../../../flare-game/tiled/dungeon/tiled_dungeon.png,64,128,0,0
+-tileset=../../../../flare-game/tiled/dungeon/set_rules.png,64,32,0,0
+-tileset=../../../../flare-game/tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
+-tileset=../../../../flare-game/tiled/dungeon/door_left.png,64,128,-16,-8
+-tileset=../../../../flare-game/tiled/dungeon/door_right.png,64,128,16,-8
+-tileset=../../../../flare-game/tiled/dungeon/stairs.png,256,256,0,48
++tileset=../../../tiled/dungeon/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128,0,0
++tileset=../../../tiled/dungeon/set_rules.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
++tileset=../../../tiled/dungeon/door_left.png,64,128,-16,-8
++tileset=../../../tiled/dungeon/door_right.png,64,128,16,-8
++tileset=../../../tiled/dungeon/stairs.png,256,256,0,48
+ 
+ [layer]
+ type=background
+@@ -73,5 +73,5 @@ type=teleport
+ location=4,1,2,1
+ hotspot=location
+ intermap=lab_basic.txt,4,27
+-soundfx=soundfx/door_open.ogg
++soundfx=soundfx/door_open.ogg,0,0
+ 
+diff --git a/tiled/averguard/averguard_atrium.tmx b/tiled/averguard/averguard_atrium.tmx
+index feb543088b09ccf7a01f9089b401b313d7142b46..1a9ff57ecfbc34bf0c75b75ead89ad8e1d6d91f6 100644
+--- a/tiled/averguard/averguard_atrium.tmx
++++ b/tiled/averguard/averguard_atrium.tmx
+@@ -228,14 +228,14 @@
+    <properties>
+     <property name="hotspot" value="19,10,1,2"/>
+     <property name="intermap" value="goblin_warrens.txt,2,9"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
++    <property name="soundfx" value="soundfx/door_open.ogg,0,0"/>
+    </properties>
+   </object>
+   <object type="teleport" x="256" y="32" width="64" height="32">
+    <properties>
+     <property name="hotspot" value="8,1,2,1"/>
+     <property name="intermap" value="averguard_temple.txt,15,126"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
++    <property name="soundfx" value="soundfx/door_open.ogg,0,0"/>
+    </properties>
+   </object>
+   <object type="teleport" x="512" y="1632" width="32" height="64">
+diff --git a/tiled/devlab/lab_basic.tmx b/tiled/devlab/lab_basic.tmx
+index 7f90d6d4a9333ad9134e38aaf598431b97af2a0e..c53735c003176d40944fa706463db79e2ac5459a 100644
+--- a/tiled/devlab/lab_basic.tmx
++++ b/tiled/devlab/lab_basic.tmx
+@@ -137,7 +137,7 @@
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="lab_welcome.txt,4,2"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
++    <property name="soundfx" value="soundfx/door_open.ogg,0,0"/>
+    </properties>
+   </object>
+   <object name="Maps" type="run_once" x="32" y="640" width="64" height="64">
+diff --git a/tiled/devlab/lab_welcome.tmx b/tiled/devlab/lab_welcome.tmx
+index 12b81a006e7115b63bdc9f5562db506ce55310de..82429cd7ec25e9c5dea5b7a9e1f0b68af3b09243 100644
+--- a/tiled/devlab/lab_welcome.tmx
++++ b/tiled/devlab/lab_welcome.tmx
+@@ -86,7 +86,7 @@
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="lab_basic.txt,4,27"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
++    <property name="soundfx" value="soundfx/door_open.ogg,0,0"/>
+    </properties>
+   </object>
+  </objectgroup>
+diff --git a/tiled/frontier/ancient_temple.tmx b/tiled/frontier/ancient_temple.tmx
+index 2aad9cdfddce090e443ed9e3fbceeacdc42bdb45..05a8eaaa7fa6c125803ad6b268a5cab7c089dc6d 100644
+--- a/tiled/frontier/ancient_temple.tmx
++++ b/tiled/frontier/ancient_temple.tmx
+@@ -359,7 +359,7 @@
+    <properties>
+     <property name="hotspot" value="48,102,2,1"/>
+     <property name="intermap" value="frontier_plains.txt,118,138"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
++    <property name="soundfx" value="soundfx/door_open.ogg,0,0"/>
+    </properties>
+   </object>
+   <object type="teleport" x="320" y="480" width="64" height="32">
+diff --git a/tiled/living_bones/brothers_lair_atrium.tmx b/tiled/living_bones/brothers_lair_atrium.tmx
+index 6fb8171644db3b21d35dc492cbff0b3b517e1684..b8cdc4ee28c62012fe690d9d16aff3a6222ebca4 100644
+--- a/tiled/living_bones/brothers_lair_atrium.tmx
++++ b/tiled/living_bones/brothers_lair_atrium.tmx
+@@ -197,7 +197,7 @@
+    <properties>
+     <property name="hotspot" value="2,13,1,2"/>
+     <property name="intermap" value="brothers_lair_ice_hall.txt,47,71"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
++    <property name="soundfx" value="soundfx/door_open.ogg,0,0"/>
+    </properties>
+   </object>
+   <object name="to Sacrifice Room" type="teleport" x="448" y="480" width="64" height="32">
+@@ -209,21 +209,21 @@
+    <properties>
+     <property name="hotspot" value="14,48,2,1"/>
+     <property name="intermap" value="cave_of_living_bones2.txt,32,4"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
++    <property name="soundfx" value="soundfx/door_open.ogg,0,0"/>
+    </properties>
+   </object>
+   <object name="to Fire Hall" type="teleport" x="416" y="32" width="64" height="32">
+    <properties>
+     <property name="hotspot" value="13,1,2,1"/>
+     <property name="intermap" value="brothers_lair_fire_hall.txt,25,77"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
++    <property name="soundfx" value="soundfx/door_open.ogg,0,0"/>
+    </properties>
+   </object>
+   <object name="to Wind Hall" type="teleport" x="864" y="416" width="32" height="64">
+    <properties>
+     <property name="hotspot" value="28,13,1,2"/>
+     <property name="intermap" value="brothers_lair_wind_hall.txt,3,19"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
++    <property name="soundfx" value="soundfx/door_open.ogg,0,0"/>
+    </properties>
+   </object>
+   <object name="Unset a lot of event variables" type="on_load" x="32" y="96" width="32" height="32">
+diff --git a/tiled/living_bones/brothers_lair_fire_hall.tmx b/tiled/living_bones/brothers_lair_fire_hall.tmx
+index caab50e8f18f72a793d885b2b799d38c96c98059..26a9593d8148a069ffce9ed11014af314e7ffb72 100644
+--- a/tiled/living_bones/brothers_lair_fire_hall.tmx
++++ b/tiled/living_bones/brothers_lair_fire_hall.tmx
+@@ -287,7 +287,7 @@
+    <properties>
+     <property name="hotspot" value="24,79,2,1"/>
+     <property name="intermap" value="brothers_lair_atrium.txt,14,2"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
++    <property name="soundfx" value="soundfx/door_open.ogg,0,0"/>
+    </properties>
+   </object>
+   <object name="Barrel" type="run_once" x="736" y="2048" width="32" height="32">
+diff --git a/tiled/living_bones/brothers_lair_ice_hall.tmx b/tiled/living_bones/brothers_lair_ice_hall.tmx
+index a84d7190494f3220ae22b2892486edd2a16073f0..b5659ad13b538db00ae96145f158123e29c2ec94 100644
+--- a/tiled/living_bones/brothers_lair_ice_hall.tmx
++++ b/tiled/living_bones/brothers_lair_ice_hall.tmx
+@@ -287,7 +287,7 @@
+    <properties>
+     <property name="hotspot" value="49,70,1,2"/>
+     <property name="intermap" value="brothers_lair_atrium.txt,3,13"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
++    <property name="soundfx" value="soundfx/door_open.ogg,0,0"/>
+    </properties>
+   </object>
+   <object name="Bookcase Door" type="run_once" x="544" y="1440" width="32" height="32">
+diff --git a/tiled/living_bones/brothers_lair_wind_hall.tmx b/tiled/living_bones/brothers_lair_wind_hall.tmx
+index 01ee23256e8a0cda981eb2aace99c4744a595e5e..1d841e70c2b172bf2fcc6c4731e89c936a39a1c1 100644
+--- a/tiled/living_bones/brothers_lair_wind_hall.tmx
++++ b/tiled/living_bones/brothers_lair_wind_hall.tmx
+@@ -306,7 +306,7 @@
+    <properties>
+     <property name="hotspot" value="2,18,1,2"/>
+     <property name="intermap" value="brothers_lair_atrium.txt,26,14"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
++    <property name="soundfx" value="soundfx/door_open.ogg,0,0"/>
+    </properties>
+   </object>
+   <object name="Grisbon's Diary" type="run_always" x="992" y="256" width="32" height="32">

@@ -1,0 +1,44 @@
+diff --git a/mods/empyrean_campaign/maps/stormrock_ruins.txt b/mods/empyrean_campaign/maps/stormrock_ruins.txt
+index e4fcc0aa7eb466a2d4539a610cfd92abcbd717e6..5df7d13b30200b2c50159df1d696cf89505d2f8f 100644
+--- a/mods/empyrean_campaign/maps/stormrock_ruins.txt
++++ b/mods/empyrean_campaign/maps/stormrock_ruins.txt
+@@ -663,7 +663,7 @@ location=43,13,1,2
+ hotspot=location
+ intramap=47,26
+ repeat=false
+-soundfx=soundfx/environment/teleporter.ogg
++soundfx=soundfx/environment/teleporter.ogg,0,0
+ 
+ [event]
+ type=on_trigger
+@@ -671,7 +671,7 @@ location=43,37,1,2
+ hotspot=location
+ intramap=47,26
+ repeat=false
+-soundfx=soundfx/environment/teleporter.ogg
++soundfx=soundfx/environment/teleporter.ogg,0,0
+ 
+ [event]
+ # Aldwulf corpse
+diff --git a/tiled/empyrean_campaign/stormrock_ruins.tmx b/tiled/empyrean_campaign/stormrock_ruins.tmx
+index b72afb9350fc622f643bca0714882509e1df7240..b4fcb09b8bd926de0478f4e0fcf34da24731dc8d 100644
+--- a/tiled/empyrean_campaign/stormrock_ruins.tmx
++++ b/tiled/empyrean_campaign/stormrock_ruins.tmx
+@@ -642,7 +642,7 @@
+     <property name="hotspot" value="location"/>
+     <property name="intramap" value="47,26"/>
+     <property name="repeat" value="false"/>
+-    <property name="soundfx" value="soundfx/environment/teleporter.ogg"/>
++    <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+    </properties>
+   </object>
+   <object id="76" type="on_trigger" x="1376" y="1184" width="32" height="64">
+@@ -650,7 +650,7 @@
+     <property name="hotspot" value="location"/>
+     <property name="intramap" value="47,26"/>
+     <property name="repeat" value="false"/>
+-    <property name="soundfx" value="soundfx/environment/teleporter.ogg"/>
++    <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+    </properties>
+   </object>
+   <object id="81" name="Aldwulf corpse" type="on_load" x="1248" y="2368" width="32" height="32">

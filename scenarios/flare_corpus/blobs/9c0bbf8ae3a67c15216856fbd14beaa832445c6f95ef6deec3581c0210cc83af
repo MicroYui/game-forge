@@ -1,0 +1,352 @@
+diff --git a/mods/empyrean_campaign/maps/blackmire_mines.txt b/mods/empyrean_campaign/maps/blackmire_mines.txt
+index beaaf7d59e1ddd1f98cc8086da7209553e52c174..8800dad75cc7b1d6c2295edd139a1d80ad14de3e 100644
+--- a/mods/empyrean_campaign/maps/blackmire_mines.txt
++++ b/mods/empyrean_campaign/maps/blackmire_mines.txt
+@@ -4,6 +4,7 @@ height=80
+ tilewidth=64
+ tileheight=32
+ orientation=isometric
++background_color=0,0,0,255
+ hero_pos=76,6
+ music=music/cave_theme.ogg
+ tileset=tilesetdefs/tileset_cave.txt
+@@ -285,6 +286,7 @@ location=65,21,2,2
+ activate=on_trigger
+ hotspot=location
+ intermap=maps/hyperspace.txt,30,17
++requires_status=emp_waypoint_4
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ tooltip=Hyperspace
+ 
+diff --git a/mods/empyrean_campaign/maps/dilapidated_sewers.txt b/mods/empyrean_campaign/maps/dilapidated_sewers.txt
+index 65bb20aeb611fb29fc667e1c77ae58eb527f60d8..b47e22cd61d2a78a41b2f73938bf85abec156a9d 100644
+--- a/mods/empyrean_campaign/maps/dilapidated_sewers.txt
++++ b/mods/empyrean_campaign/maps/dilapidated_sewers.txt
+@@ -4,6 +4,7 @@ height=80
+ tilewidth=64
+ tileheight=32
+ orientation=isometric
++background_color=0,0,0,255
+ hero_pos=64,8
+ music=music/dungeon_theme.ogg
+ tileset=tilesetdefs/tileset_dungeon.txt
+@@ -297,6 +298,7 @@ location=35,27,2,2
+ activate=on_trigger
+ hotspot=location
+ intermap=maps/hyperspace.txt,17,30
++requires_status=emp_waypoint_8
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ tooltip=Hyperspace
+ 
+diff --git a/mods/empyrean_campaign/maps/lochport_cemetery.txt b/mods/empyrean_campaign/maps/lochport_cemetery.txt
+index 3c6bdb4791798e30f71160e3cba6429e6c2e1a87..c06cf44eaba38c653b9eed63c76e52067bcc0f26 100644
+--- a/mods/empyrean_campaign/maps/lochport_cemetery.txt
++++ b/mods/empyrean_campaign/maps/lochport_cemetery.txt
+@@ -4,6 +4,7 @@ height=80
+ tilewidth=64
+ tileheight=32
+ orientation=isometric
++background_color=0,0,0,255
+ hero_pos=2,7
+ music=music/forest_theme.ogg
+ tileset=tilesetdefs/tileset_grassland.txt
+@@ -295,6 +296,7 @@ location=45,14,2,2
+ activate=on_trigger
+ hotspot=location
+ intermap=maps/hyperspace.txt,23,10
++requires_status=emp_waypoint_2
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ tooltip=Hyperspace
+ 
+diff --git a/mods/empyrean_campaign/maps/nazia_underground.txt b/mods/empyrean_campaign/maps/nazia_underground.txt
+index 816dfde9de05b8fa36c2300522e7e652c6cc1df9..37c9a3c8341304f2a57e1839552c35f874be8f0f 100644
+--- a/mods/empyrean_campaign/maps/nazia_underground.txt
++++ b/mods/empyrean_campaign/maps/nazia_underground.txt
+@@ -366,6 +366,7 @@ location=57,15,2,2
+ activate=on_trigger
+ hotspot=location
+ intermap=maps/hyperspace.txt,23,30
++requires_status=emp_waypoint_7
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ tooltip=Hyperspace
+ 
+diff --git a/mods/empyrean_campaign/maps/st_maria_2.txt b/mods/empyrean_campaign/maps/st_maria_2.txt
+index 013dd046c2ac1eb3913f4e3879ebd9ed04cf9b8a..b45280f16bb79d671cca69f9279cdcb2f50b05ac 100644
+--- a/mods/empyrean_campaign/maps/st_maria_2.txt
++++ b/mods/empyrean_campaign/maps/st_maria_2.txt
+@@ -258,6 +258,7 @@ location=43,21,2,2
+ activate=on_trigger
+ hotspot=location
+ intermap=maps/hyperspace.txt,28,11
++requires_status=emp_waypoint_3
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ tooltip=Hyperspace
+ 
+diff --git a/mods/empyrean_campaign/maps/stonewood.txt b/mods/empyrean_campaign/maps/stonewood.txt
+index 48bd8108bf3a21215c1debb019915c5bf3d9254f..e82f6562ac8fc4e0c5da298a1083aa970fcb9c2a 100644
+--- a/mods/empyrean_campaign/maps/stonewood.txt
++++ b/mods/empyrean_campaign/maps/stonewood.txt
+@@ -4,6 +4,7 @@ height=80
+ tilewidth=64
+ tileheight=32
+ orientation=isometric
++background_color=0,0,0,255
+ hero_pos=2,8
+ music=music/forest_theme.ogg
+ tileset=tilesetdefs/tileset_grassland.txt
+@@ -296,6 +297,7 @@ location=59,44,2,2
+ activate=on_trigger
+ hotspot=location
+ intermap=maps/hyperspace.txt,17,10
++requires_status=emp_waypoint_1
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ tooltip=Hyperspace
+ 
+diff --git a/mods/empyrean_campaign/maps/stormrock_pass.txt b/mods/empyrean_campaign/maps/stormrock_pass.txt
+index 057f66ba4e7abd15145b8d719af3b0604e72117c..507ae713ad97b90c3d7cae8efc02c2cca24a6181 100644
+--- a/mods/empyrean_campaign/maps/stormrock_pass.txt
++++ b/mods/empyrean_campaign/maps/stormrock_pass.txt
+@@ -882,6 +882,7 @@ location=70,63,2,2
+ activate=on_trigger
+ hotspot=location
+ intermap=maps/hyperspace.txt,30,23
++requires_status=emp_waypoint_5
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ tooltip=Hyperspace
+ 
+diff --git a/mods/empyrean_campaign/maps/temple_of_mez_2.txt b/mods/empyrean_campaign/maps/temple_of_mez_2.txt
+index d6ef2f8a11eef208c04661b3459d6dfb386e94a2..9d1388d60e7bee420b32bbaab092878ec1f6577f 100644
+--- a/mods/empyrean_campaign/maps/temple_of_mez_2.txt
++++ b/mods/empyrean_campaign/maps/temple_of_mez_2.txt
+@@ -4,6 +4,7 @@ height=100
+ tilewidth=64
+ tileheight=32
+ orientation=isometric
++background_color=0,0,0,255
+ hero_pos=70,10
+ music=music/dungeon_theme.ogg
+ tileset=tilesetdefs/tileset_dungeon.txt
+@@ -337,6 +338,7 @@ location=38,29,2,2
+ activate=on_trigger
+ hotspot=location
+ intermap=maps/hyperspace.txt,28,28
++requires_status=emp_waypoint_6
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ tooltip=Hyperspace
+ 
+diff --git a/mods/empyrean_campaign/maps/underworld_catacombs.txt b/mods/empyrean_campaign/maps/underworld_catacombs.txt
+index 3f3524a5fbc2b8f99e26f0081644a5e7533a7167..0ef5e679705387c07102c0a3aaf28064fffd7e66 100644
+--- a/mods/empyrean_campaign/maps/underworld_catacombs.txt
++++ b/mods/empyrean_campaign/maps/underworld_catacombs.txt
+@@ -522,6 +522,7 @@ location=58,42,2,2
+ activate=on_trigger
+ hotspot=location
+ intermap=maps/hyperspace.txt,9,23
++requires_status=emp_waypoint_10
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ tooltip=Hyperspace
+ 
+diff --git a/mods/empyrean_campaign/maps/wizards_tower_2.txt b/mods/empyrean_campaign/maps/wizards_tower_2.txt
+index 4c86a882dd946d9a5ce58c9a3829e86c1e5e59e6..9804cddbcd2fb1d0f4f1ebcb7964cad6ecc25237 100644
+--- a/mods/empyrean_campaign/maps/wizards_tower_2.txt
++++ b/mods/empyrean_campaign/maps/wizards_tower_2.txt
+@@ -373,6 +373,7 @@ location=17,85,2,2
+ activate=on_trigger
+ hotspot=location
+ intermap=maps/hyperspace.txt,11,28
++requires_status=emp_waypoint_9
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ tooltip=Hyperspace
+ 
+diff --git a/tiled/empyrean_campaign/blackmire_mines.tmx b/tiled/empyrean_campaign/blackmire_mines.tmx
+index 63b97cbfa6dbc816ef3b853916192148244f3eea..ca5e1f6d842f121ba855c79c0c6267c04a9cd590 100644
+--- a/tiled/empyrean_campaign/blackmire_mines.tmx
++++ b/tiled/empyrean_campaign/blackmire_mines.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.0.3" orientation="isometric" renderorder="right-down" width="80" height="80" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="51">
++<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="80" height="80" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="51">
+  <properties>
+   <property name="hero_pos" value="76,6"/>
+   <property name="music" value="music/cave_theme.ogg"/>
+@@ -287,6 +287,7 @@
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/hyperspace.txt,30,17"/>
++    <property name="requires_status" value="emp_waypoint_4"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+     <property name="tooltip" value="Hyperspace"/>
+    </properties>
+diff --git a/tiled/empyrean_campaign/dilapidated_sewers.tmx b/tiled/empyrean_campaign/dilapidated_sewers.tmx
+index d74ea586ea1710273d0ad2c02fa97531b453ad06..a239b77ca8c6c55f42611b6b12d0d9e82e37f3e2 100644
+--- a/tiled/empyrean_campaign/dilapidated_sewers.tmx
++++ b/tiled/empyrean_campaign/dilapidated_sewers.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="80" height="80" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="59">
++<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="80" height="80" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="59">
+  <properties>
+   <property name="hero_pos" value="64,8"/>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+@@ -307,6 +307,7 @@
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/hyperspace.txt,17,30"/>
++    <property name="requires_status" value="emp_waypoint_8"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+     <property name="tooltip" value="Hyperspace"/>
+    </properties>
+diff --git a/tiled/empyrean_campaign/lochport_cemetery.tmx b/tiled/empyrean_campaign/lochport_cemetery.tmx
+index 67f573e5125248c494f9009461bc5f95bc873a3d..8411dac4cbe85040cfc7ff52b4182b9c5bcd4552 100644
+--- a/tiled/empyrean_campaign/lochport_cemetery.tmx
++++ b/tiled/empyrean_campaign/lochport_cemetery.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="60" height="80" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="55">
++<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="60" height="80" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="55">
+  <properties>
+   <property name="hero_pos" value="2,7"/>
+   <property name="music" value="music/forest_theme.ogg"/>
+@@ -304,6 +304,7 @@
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/hyperspace.txt,23,10"/>
++    <property name="requires_status" value="emp_waypoint_2"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+     <property name="tooltip" value="Hyperspace"/>
+    </properties>
+diff --git a/tiled/empyrean_campaign/nazia_underground.tmx b/tiled/empyrean_campaign/nazia_underground.tmx
+index 7010354016953fa8f9f8e244cc504f3db2064880..d67ca78ac57a0fd03a6efa19f193c93fd82fe154 100644
+--- a/tiled/empyrean_campaign/nazia_underground.tmx
++++ b/tiled/empyrean_campaign/nazia_underground.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.0" orientation="isometric" renderorder="right-down" width="100" height="60" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="29">
++<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="100" height="60" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="29">
+  <properties>
+   <property name="hero_pos" value="92,29"/>
+   <property name="music" value="music/overworld_theme.ogg"/>
+@@ -223,7 +223,7 @@
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,3,1,1,1,1,1,1,3,4,4,4,4,4,4,4,4,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ </data>
+  </layer>
+- <objectgroup name="event" visible="0">
++ <objectgroup name="event">
+   <object id="1" name="switch 1" type="event" x="2144" y="960" width="32" height="32">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+@@ -362,6 +362,7 @@
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/hyperspace.txt,23,30"/>
++    <property name="requires_status" value="emp_waypoint_7"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+     <property name="tooltip" value="Hyperspace"/>
+    </properties>
+diff --git a/tiled/empyrean_campaign/st_maria_2.tmx b/tiled/empyrean_campaign/st_maria_2.tmx
+index fd5443451630b541e682bd0efa070669407bd157..b615a84d2f5b4d96e8ccd3c955f4e9ce6ac12a2a 100644
+--- a/tiled/empyrean_campaign/st_maria_2.tmx
++++ b/tiled/empyrean_campaign/st_maria_2.tmx
+@@ -268,6 +268,7 @@
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/hyperspace.txt,28,11"/>
++    <property name="requires_status" value="emp_waypoint_3"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+     <property name="tooltip" value="Hyperspace"/>
+    </properties>
+diff --git a/tiled/empyrean_campaign/stonewood.tmx b/tiled/empyrean_campaign/stonewood.tmx
+index 5a34ff755911fa2f6d7acaed9bb911778197452c..d9336255e5885212c2488fc513225226bfa02a69 100644
+--- a/tiled/empyrean_campaign/stonewood.tmx
++++ b/tiled/empyrean_campaign/stonewood.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="100" height="80" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="52">
++<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="100" height="80" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="52">
+  <properties>
+   <property name="hero_pos" value="2,8"/>
+   <property name="music" value="music/forest_theme.ogg"/>
+@@ -307,6 +307,7 @@
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/hyperspace.txt,17,10"/>
++    <property name="requires_status" value="emp_waypoint_1"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+     <property name="tooltip" value="Hyperspace"/>
+    </properties>
+diff --git a/tiled/empyrean_campaign/stormrock_pass.tmx b/tiled/empyrean_campaign/stormrock_pass.tmx
+index 386ad1d1f3533fec7f7475f5559ad30b7ad2e2ae..05d8a223bee6aa29de1d80aff8bc1892c9e411b1 100644
+--- a/tiled/empyrean_campaign/stormrock_pass.tmx
++++ b/tiled/empyrean_campaign/stormrock_pass.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.0" orientation="isometric" renderorder="right-down" width="132" height="132" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="46">
++<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="132" height="132" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="46">
+  <properties>
+   <property name="hero_pos" value="24,81"/>
+   <property name="music" value="music/magical_theme.ogg"/>
+@@ -896,6 +896,7 @@
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/hyperspace.txt,30,23"/>
++    <property name="requires_status" value="emp_waypoint_5"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+     <property name="tooltip" value="Hyperspace"/>
+    </properties>
+diff --git a/tiled/empyrean_campaign/temple_of_mez_2.tmx b/tiled/empyrean_campaign/temple_of_mez_2.tmx
+index c1bd3e7e25963a59c09a5b54b523bdd9824a4b47..81925d620ca08c5f6d9a1f72b274e252f6a3ddf6 100644
+--- a/tiled/empyrean_campaign/temple_of_mez_2.tmx
++++ b/tiled/empyrean_campaign/temple_of_mez_2.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.0.3" orientation="isometric" renderorder="right-down" width="100" height="100" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="55">
++<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="100" height="100" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="55">
+  <properties>
+   <property name="hero_pos" value="70,10"/>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+@@ -349,6 +349,7 @@
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/hyperspace.txt,28,28"/>
++    <property name="requires_status" value="emp_waypoint_6"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+     <property name="tooltip" value="Hyperspace"/>
+    </properties>
+diff --git a/tiled/empyrean_campaign/underworld_catacombs.tmx b/tiled/empyrean_campaign/underworld_catacombs.tmx
+index 1eb9b5a0cbf011f544230ac6afa588f602f572b0..8f0492aa125dec9eef44a1be7a24bd2e18acbe34 100644
+--- a/tiled/empyrean_campaign/underworld_catacombs.tmx
++++ b/tiled/empyrean_campaign/underworld_catacombs.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.0" orientation="isometric" renderorder="right-down" width="120" height="105" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="60">
++<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="120" height="105" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="60">
+  <properties>
+   <property name="hero_pos" value="70,99"/>
+   <property name="music" value="music/cave_theme.ogg"/>
+@@ -504,6 +504,7 @@
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/hyperspace.txt,9,23"/>
++    <property name="requires_status" value="emp_waypoint_10"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+     <property name="tooltip" value="Hyperspace"/>
+    </properties>
+diff --git a/tiled/empyrean_campaign/wizards_tower_2.tmx b/tiled/empyrean_campaign/wizards_tower_2.tmx
+index 68728592b76e9191e3f29387f3a49c238a7e6ec3..0708d093eec3da97c3ec02b6deb66514b6f5bbbe 100644
+--- a/tiled/empyrean_campaign/wizards_tower_2.tmx
++++ b/tiled/empyrean_campaign/wizards_tower_2.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.0" orientation="isometric" renderorder="right-down" width="100" height="108" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="50">
++<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="100" height="108" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="50">
+  <properties>
+   <property name="hero_pos" value="10,68"/>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+@@ -383,6 +383,7 @@
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/hyperspace.txt,11,28"/>
++    <property name="requires_status" value="emp_waypoint_9"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+     <property name="tooltip" value="Hyperspace"/>
+    </properties>

@@ -1,0 +1,220 @@
+diff --git a/mods/empyrean_campaign/animations/powers/status_freeze.txt b/mods/empyrean_campaign/animations/powers/status_freeze.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..a06cab096e10b9b4b8d94a14fe0beebcf1758d67
+--- /dev/null
++++ b/mods/empyrean_campaign/animations/powers/status_freeze.txt
+@@ -0,0 +1,11 @@
++
++image=images/powers/freeze.png
++
++[power]
++frames=4
++duration=400ms
++type=looped
++frame=0,0,0,334,38,31,20,24
++frame=1,0,42,180,30,35,13,25
++frame=2,0,44,107,26,34,9,24
++frame=3,0,45,45,27,33,11,23
+diff --git a/mods/empyrean_campaign/powers/categories/enemy.txt b/mods/empyrean_campaign/powers/categories/enemy.txt
+index f27430fa389deb9a609a06400db99d0cc2a8bcdc..64d03ebb613aa299aed772e122d206849da9f074 100644
+--- a/mods/empyrean_campaign/powers/categories/enemy.txt
++++ b/mods/empyrean_campaign/powers/categories/enemy.txt
+@@ -134,7 +134,7 @@ speed=15
+ trait_elemental=ice
+ post_power=159
+ wall_power=159
+-post_effect=slow,50,2s
++post_effect=slow_ice,50,2s
+ modifier_accuracy=multiply,75,0
+ 
+ # fireball
+@@ -191,7 +191,7 @@ base_damage=melee
+ lifespan=33ms
+ radius=1.0
+ starting_pos=melee
+-post_effect=slow,0,5s
++post_effect=slow_ice,0,5s
+ cooldown=5s
+ 
+ # shadowball
+@@ -278,7 +278,7 @@ radius=1.0
+ starting_pos=melee
+ trait_elemental=ice
+ post_power=159
+-post_effect=slow,50,2s
++post_effect=slow_ice,50,2s
+ 
+ # antlion explode
+ [power]
+@@ -320,7 +320,7 @@ complete_animation=true
+ count=12
+ multitarget=true
+ modifier_damage=multiply,80,0
+-post_effect=slow,25,4s
++post_effect=slow_ice,25,4s
+ 
+ # Prioss's multi-spear
+ [power]
+@@ -708,7 +708,7 @@ speed=15
+ trait_elemental=ice
+ post_power=159
+ wall_power=159
+-post_effect=slow,50,2s
++post_effect=slow_ice,50,2s
+ modifier_damage=multiply,75,0
+ modifier_accuracy=multiply,75,0
+ count=12
+@@ -990,7 +990,7 @@ visual_option=2
+ starting_pos=source
+ multitarget=true
+ post_effect=stun,0,1s,25
+-post_effect=slow,50,4s
++post_effect=slow_ice,50,4s
+ cooldown=5s
+ modifier_damage=multiply,80,0
+ post_effect=knockback,20,100ms
+@@ -1051,7 +1051,7 @@ base_damage=ment
+ visual_random=3
+ count=8
+ modifier_damage=multiply,30,0
+-post_effect=slow,25,4s
++post_effect=slow_ice,25,4s
+ post_effect=knockback,15,100ms
+ angle_variance=2
+ speed_variance=0.05
+@@ -1135,7 +1135,7 @@ speed=15
+ trait_elemental=ice
+ post_power=159
+ wall_power=159
+-post_effect=slow,50,2s
++post_effect=slow_ice,50,2s
+ modifier_accuracy=multiply,75,0
+ count=3
+ angle_variance=6
+diff --git a/mods/empyrean_campaign/powers/categories/items.txt b/mods/empyrean_campaign/powers/categories/items.txt
+index cef31dc8a38653ed9659f9bc5029b03a38c85930..94fd64b5cc8a120946437c57bf2c2156bf65749c 100644
+--- a/mods/empyrean_campaign/powers/categories/items.txt
++++ b/mods/empyrean_campaign/powers/categories/items.txt
+@@ -104,7 +104,7 @@ speed=16
+ trait_elemental=ice
+ post_power=159
+ wall_power=159
+-post_effect=slow,50,8s
++post_effect=slow_ice,50,8s
+ cooldown=2s
+ 
+ [power]
+diff --git a/mods/empyrean_campaign/powers/categories/magician.txt b/mods/empyrean_campaign/powers/categories/magician.txt
+index a56b2de7ea56ca8f350fc651fb04ec1dce78b937..eb87c70743daae1997ecfacdcf7874c12cd88bb1 100644
+--- a/mods/empyrean_campaign/powers/categories/magician.txt
++++ b/mods/empyrean_campaign/powers/categories/magician.txt
+@@ -103,31 +103,31 @@ modifier_damage=multiply,125,0
+ id=127
+ INCLUDE powers/base/magician/ice_bolt.txt
+ requires_mp=2
+-post_effect=slow,50,4s
++post_effect=slow_ice,50,4s
+ 
+ [power]
+ id=128
+ INCLUDE powers/base/magician/ice_bolt.txt
+ requires_mp=3
+-post_effect=slow,50,6s
++post_effect=slow_ice,50,6s
+ 
+ [power]
+ id=129
+ INCLUDE powers/base/magician/ice_bolt.txt
+ requires_mp=4
+-post_effect=slow,50,8s
++post_effect=slow_ice,50,8s
+ 
+ [power]
+ id=130
+ INCLUDE powers/base/magician/ice_bolt.txt
+ requires_mp=5
+-post_effect=slow,50,10s
++post_effect=slow_ice,50,10s
+ 
+ [power]
+ id=131
+ INCLUDE powers/base/magician/ice_bolt.txt
+ requires_mp=6
+-post_effect=slow,50,12s
++post_effect=slow_ice,50,12s
+ 
+ 
+ 
+@@ -212,35 +212,35 @@ id=142
+ INCLUDE powers/base/magician/freeze.txt
+ requires_mp=6
+ modifier_damage=multiply,70,0
+-post_effect=slow,25,4s
++post_effect=slow_ice,25,4s
+ 
+ [power]
+ id=143
+ INCLUDE powers/base/magician/freeze.txt
+ requires_mp=8
+ modifier_damage=multiply,75,0
+-post_effect=slow,25,6s
++post_effect=slow_ice,25,6s
+ 
+ [power]
+ id=144
+ INCLUDE powers/base/magician/freeze.txt
+ requires_mp=10
+ modifier_damage=multiply,80,0
+-post_effect=slow,25,8s
++post_effect=slow_ice,25,8s
+ 
+ [power]
+ id=145
+ INCLUDE powers/base/magician/freeze.txt
+ requires_mp=12
+ modifier_damage=multiply,85,0
+-post_effect=slow,25,10s
++post_effect=slow_ice,25,10s
+ 
+ [power]
+ id=146
+ INCLUDE powers/base/magician/freeze.txt
+ requires_mp=14
+ modifier_damage=multiply,90,0
+-post_effect=slow,25,12s
++post_effect=slow_ice,25,12s
+ 
+ 
+ 
+diff --git a/mods/empyrean_campaign/powers/effects.txt b/mods/empyrean_campaign/powers/effects.txt
+index 6634037786f7d0ae82db0f0c28f998439fde2a86..3863b98fd9c26b1fec8e7045c6208f3ac2dd3b99 100644
+--- a/mods/empyrean_campaign/powers/effects.txt
++++ b/mods/empyrean_campaign/powers/effects.txt
+@@ -27,6 +27,16 @@ icon=24
+ can_stack=false
+ 
+ [effect]
++id=slow_ice
++name=Slow
++type=speed
++icon=24
++can_stack=false
++animation=animations/powers/status_freeze.txt
++render_above=true
++color_mod=127,127,255
++
++[effect]
+ id=stun
+ name=Stun
+ type=stun
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 796b55fb581cc8f78ddfe794e35a42653cee7133..ae6e48b9722a07051deb9177cd34fcb5c01cf041 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.06.03:0
+ game=flare-game
+-version=1.11.12
++version=1.11.13
+ engine_version_min=1.11.46

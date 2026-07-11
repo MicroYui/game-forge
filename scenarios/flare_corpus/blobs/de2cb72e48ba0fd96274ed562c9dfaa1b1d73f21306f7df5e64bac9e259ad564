@@ -1,0 +1,150 @@
+diff --git a/mods/empyrean_campaign/quests/000_empyrean.txt b/mods/empyrean_campaign/quests/000_empyrean.txt
+index eb902a2e14174682e3db446fa2d07ef66c0b7328..ee86641255bed780b885045c8432e18bfd3fb8da 100644
+--- a/mods/empyrean_campaign/quests/000_empyrean.txt
++++ b/mods/empyrean_campaign/quests/000_empyrean.txt
+@@ -1,4 +1,5 @@
+ name=Return to Empyrean
++complete_status=emp_main_finish
+ 
+ [quest]
+ requires_status=emp_main_init
+diff --git a/mods/empyrean_campaign/quests/001_krolan.txt b/mods/empyrean_campaign/quests/001_krolan.txt
+index 538ac666ac60bd23c21b937ab7fab01577e29ea2..3b482e4367ea06ff2fbe4fa1be480491488c38e9 100644
+--- a/mods/empyrean_campaign/quests/001_krolan.txt
++++ b/mods/empyrean_campaign/quests/001_krolan.txt
+@@ -1,16 +1,17 @@
+-name=Krolan's Missing
+-
+-[quest]
+-requires_status=emp_krolan_init
+-requires_not_status=emp_krolan_key
+-quest_text=Travel to the Perdition Mines and look for Krolan.
+-
+-[quest]
+-requires_status=emp_krolan_key
+-requires_not_status=emp_krolan_emerald
+-quest_text=Use Krolan's key to search his chest.
+-
+-[quest]
+-requires_status=emp_krolan_emerald
+-requires_not_status=emp_krolan_finish
+-quest_text=Return to Udana and inform her of Krolan's death.
++name=Krolan's Missing
++complete_status=emp_krolan_finish
++
++[quest]
++requires_status=emp_krolan_init
++requires_not_status=emp_krolan_key
++quest_text=Travel to the Perdition Mines and look for Krolan.
++
++[quest]
++requires_status=emp_krolan_key
++requires_not_status=emp_krolan_emerald
++quest_text=Use Krolan's key to search his chest.
++
++[quest]
++requires_status=emp_krolan_emerald
++requires_not_status=emp_krolan_finish
++quest_text=Return to Udana and inform her of Krolan's death.
+diff --git a/mods/empyrean_campaign/quests/002_journal.txt b/mods/empyrean_campaign/quests/002_journal.txt
+index 8f6fb387f204923043146415dde27dd3253d95ab..47451812c9e7a536c77861750dac4970a94d9837 100644
+--- a/mods/empyrean_campaign/quests/002_journal.txt
++++ b/mods/empyrean_campaign/quests/002_journal.txt
+@@ -1,4 +1,5 @@
+ name=The Merchant's Journal
++complete_status=emp_journal_finish
+ 
+ [quest]
+ requires_status=emp_journal_init
+diff --git a/mods/empyrean_campaign/quests/003_ardwen.txt b/mods/empyrean_campaign/quests/003_ardwen.txt
+index 36d96c768cfc9ee99c94da04644e94e40e95b3f8..8f146ec855a84f165265eb35688f7fa4a42815f6 100644
+--- a/mods/empyrean_campaign/quests/003_ardwen.txt
++++ b/mods/empyrean_campaign/quests/003_ardwen.txt
+@@ -1,4 +1,5 @@
+ name=Trapped in the Crypt
++complete_status=emp_ardwen_finish
+ 
+ [quest]
+ requires_status=emp_ardwen_init
+diff --git a/mods/empyrean_campaign/quests/004_fort_amir.txt b/mods/empyrean_campaign/quests/004_fort_amir.txt
+index 54b14827c2ae4d59eb7b8db691742ac57754ede1..6c34d022686f7371922d14a9c707ab2c35382495 100644
+--- a/mods/empyrean_campaign/quests/004_fort_amir.txt
++++ b/mods/empyrean_campaign/quests/004_fort_amir.txt
+@@ -1,4 +1,5 @@
+ name=The One-Eyed Guardians
++complete_status=emp_amir_finish
+ 
+ [quest]
+ requires_status=emp_amir_init
+diff --git a/mods/empyrean_campaign/quests/005_ort.txt b/mods/empyrean_campaign/quests/005_ort.txt
+index 042fab82be7d481619176d97e1aaf0eded9530c6..055253970a3a78639d69f714d806b42ab39e6943 100644
+--- a/mods/empyrean_campaign/quests/005_ort.txt
++++ b/mods/empyrean_campaign/quests/005_ort.txt
+@@ -1,4 +1,5 @@
+ name=Brother?
++complete_status=emp_ort_finish
+ 
+ [quest]
+ requires_status=emp_ort_init
+diff --git a/mods/empyrean_campaign/quests/007_nazia_mines.txt b/mods/empyrean_campaign/quests/007_nazia_mines.txt
+index 9bd5889bb1277e1fe2f8eecdcbfd2dd3ad012a90..08cf4500eda676ce47bf7aefb7b7a97eb7b937bc 100644
+--- a/mods/empyrean_campaign/quests/007_nazia_mines.txt
++++ b/mods/empyrean_campaign/quests/007_nazia_mines.txt
+@@ -1,4 +1,5 @@
+ name=Trapped!
++complete_status=emp_naziamines_finish
+ 
+ [quest]
+ requires_status=emp_naziamines_init
+diff --git a/mods/empyrean_campaign/quests/008_mog.txt b/mods/empyrean_campaign/quests/008_mog.txt
+index 994beef6460b3f59bc64aa3fd9bb883f34067201..8fa0b32def06f1d44800a53672a2961ec17cc6f3 100644
+--- a/mods/empyrean_campaign/quests/008_mog.txt
++++ b/mods/empyrean_campaign/quests/008_mog.txt
+@@ -1,4 +1,5 @@
+ name=The Lost Soul of the Mog Caverns
++complete_status=emp_mog_finish
+ 
+ [quest]
+ requires_status=emp_mog_init
+diff --git a/mods/empyrean_campaign/quests/009_nasu.txt b/mods/empyrean_campaign/quests/009_nasu.txt
+index 97f72b06e23a1ad92ece46cc767310b7bd04ee11..60de973e70574c6b5005ff801066b72f0cb9eb85 100644
+--- a/mods/empyrean_campaign/quests/009_nasu.txt
++++ b/mods/empyrean_campaign/quests/009_nasu.txt
+@@ -1,4 +1,5 @@
+ name=An Unusual Name...
++complete_status=emp_nasu_finish
+ 
+ [quest]
+ requires_status=emp_nasu_init
+diff --git a/mods/empyrean_campaign/quests/010_torture.txt b/mods/empyrean_campaign/quests/010_torture.txt
+index 72c931eb160e3c34957d5b7bd581becd091b94fc..5c18af00e89e57dc653cf23c8dfee1f8b08cedaa 100644
+--- a/mods/empyrean_campaign/quests/010_torture.txt
++++ b/mods/empyrean_campaign/quests/010_torture.txt
+@@ -1,4 +1,5 @@
+ name=Warden's Notes
++complete_status=emp_torture_finish
+ 
+ [quest]
+ requires_status=emp_torture_init
+diff --git a/mods/empyrean_campaign/quests/011_martigan.txt b/mods/empyrean_campaign/quests/011_martigan.txt
+index ad6fe04fcbbd238357effa20f2737057d90298ee..efd8ca0c774a95fd02559d99e47fa0fee6bf43b6 100644
+--- a/mods/empyrean_campaign/quests/011_martigan.txt
++++ b/mods/empyrean_campaign/quests/011_martigan.txt
+@@ -1,4 +1,5 @@
+ name=Fallen Comrades
++complete_status=emp_martigan_finish
+ 
+ [quest]
+ requires_status=emp_martigan_init
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 19ed96f7b8432c0b5a8c2aed8a924f1fa9466e59..85c76a075fa8f92e2ab7176138d9c31d1ba9ee21 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:0.90:0
+ game=flare-game
+-version=1.06.07
+-engine_version_min=1.06.20
++version=1.06.08
++engine_version_min=1.06.22

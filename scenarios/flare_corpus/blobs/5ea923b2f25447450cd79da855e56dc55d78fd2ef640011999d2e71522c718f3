@@ -1,0 +1,55 @@
+diff --git a/mods/empyrean_campaign/maps/temple_of_mez_3.txt b/mods/empyrean_campaign/maps/temple_of_mez_3.txt
+index 3cdb1f50299dfc25ee98eb5ef13a6fd9e1751c87..74717283c0d3f09a0ee2dfddc6bba5ce8e421c1d 100644
+--- a/mods/empyrean_campaign/maps/temple_of_mez_3.txt
++++ b/mods/empyrean_campaign/maps/temple_of_mez_3.txt
+@@ -695,7 +695,7 @@ repeat=false
+ requires_not_status=emp_mez_chest2
+ set_status=emp_mez_chest2
+ soundfx=soundfx/wood_open.ogg
+-tooltip=Supplies
++tooltip=Treasure Chest
+ 
+ [event]
+ # Supplies
+@@ -710,7 +710,7 @@ repeat=false
+ requires_not_status=emp_mez_chest1
+ set_status=emp_mez_chest1
+ soundfx=soundfx/wood_open.ogg
+-tooltip=Supplies
++tooltip=Treasure Chest
+ 
+ [event]
+ # Cave wind sound effect
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 6f4c3e1030512b88dd8fd1a959ba9ee53011832c..60e3df03cd26902ade6eb9cfb501e4a46fea0b1d 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:0.90:0
+ game=flare-game
+-version=0.95.03
++version=0.95.04
+ engine_version_min=0.90.30
+diff --git a/tiled/empyrean_campaign/temple_of_mez_3.tmx b/tiled/empyrean_campaign/temple_of_mez_3.tmx
+index 1205955db0763fe0ef90ed26ca9969f5e11200ce..31da2cfdef1490312ea197301eb1f0764afcca73 100644
+--- a/tiled/empyrean_campaign/temple_of_mez_3.tmx
++++ b/tiled/empyrean_campaign/temple_of_mez_3.tmx
+@@ -712,7 +712,7 @@
+     <property name="requires_not_status" value="emp_mez_chest2"/>
+     <property name="set_status" value="emp_mez_chest2"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Supplies"/>
++    <property name="tooltip" value="Treasure Chest"/>
+    </properties>
+   </object>
+   <object id="14" name="Supplies" type="event" x="2400" y="2240" width="32" height="32">
+@@ -726,7 +726,7 @@
+     <property name="requires_not_status" value="emp_mez_chest1"/>
+     <property name="set_status" value="emp_mez_chest1"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Supplies"/>
++    <property name="tooltip" value="Treasure Chest"/>
+    </properties>
+   </object>
+   <object id="15" name="Cave wind sound effect" type="event" x="0" y="0" width="32" height="32">

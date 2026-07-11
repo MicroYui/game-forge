@@ -1,0 +1,74 @@
+diff --git a/mods/empyrean_campaign/npcs/florin.txt b/mods/empyrean_campaign/npcs/florin.txt
+index f9a565e4fda0758da21504ca57c4d6d3647c1b10..e3c119ae6197e46bc5aac8d36c5ef9f295bd3be1 100644
+--- a/mods/empyrean_campaign/npcs/florin.txt
++++ b/mods/empyrean_campaign/npcs/florin.txt
+@@ -18,4 +18,28 @@ vox_intro=soundfx/npcs/male_merchant_02.ogg
+ vox_intro=soundfx/npcs/male_merchant_03.ogg
+ vox_intro=soundfx/npcs/male_merchant_04.ogg
+ 
+-#talker=true
++talker=true
++
++[dialog]
++topic=Book of the Dead
++requires_status=emp_main_init
++you=What can you tell me about the Book of the Dead?
++him=The Book of the Dead tells of redemption for those who sign their name in gravebloom ink. Your sins will be washed away, and you will be able to return to wherever you were banished from.
++you=So, where can I find gravebloom ink?
++him=Gravebloom ink is not something you find. You must make it yourself. Besides the Gravebloom flower, you will need to sacrifice your own blood with a special blade.
++him=Even if you can create some gravebloom ink, you won't be able to write with just anything. The ink won't stick to a normal quill. You will need to find something capable of holding the gravebloom ink.
++him=If you can perform the ritual to make gravebloom ink and find a suitable writing utensil, redemption may be yours.
++
++[dialog]
++topic=Gravebloom
++requires_status=emp_main_gravebloom
++set_status=emp_main_info1
++him=Ah yes, that is most certainly a gravebloom flower. It is the primary component in the creation of gravebloom ink.
++
++[dialog]
++topic=Black Quill
++requires_status=emp_main_quill
++you=Do you think this quill is capable of holding gravebloom ink?
++him=It's certainly no normal quill. I've never seen anything like it.
++set_status=emp_main_info2
++him=If anything is capable of writing with gravebloom ink, it is that quill.
+diff --git a/mods/empyrean_campaign/quests/000_empyrean.txt b/mods/empyrean_campaign/quests/000_empyrean.txt
+index e049ff9667be5561d45474b3989e3e1f504c7baf..b166eed8dfbf470acba85affe380c9c8d1b7f157 100644
+--- a/mods/empyrean_campaign/quests/000_empyrean.txt
++++ b/mods/empyrean_campaign/quests/000_empyrean.txt
+@@ -2,7 +2,7 @@ name=Return to Empyrean
+ 
+ [quest]
+ requires_status=emp_main_init
+-quest_text=The Book of the Dead states redemption is possible for those who sign their name in gravebloom ink. Aquiring gravebloom ink may be the key to return to the city of Empyrean.
++quest_text=The Book of the Dead states redemption is possible for those who sign their name in gravebloom ink. Florin in Perdition Harbor can tell you more.
+ 
+ [quest]
+ requires_status=emp_seagate_defeated
+@@ -11,8 +11,25 @@ quest_text=Before leaving St. Maria's Crypt, it would be wise to look for anythi
+ 
+ [quest]
+ requires_status=emp_main_gravebloom
+-quest_text=You've found a gravebloom flower. It's likely to be used as a component in the creation of gravebloom ink.
++requires_not_status=emp_main_info1
++quest_text=Ask Florin about the Gravebloom flower.
++
++[quest]
++requires_status=emp_main_gravebloom
++requires_status=emp_main_info1
++quest_text=You've found a gravebloom flower. It is a primary component in the creation of gravebloom ink.
++
++[quest]
++requires_status=emp_mez_defeated
++requires_not_status=emp_main_quill
++quest_text=A strange black feather fell off of Mez. You should take it before leaving the Temple of Mez.
++
++[quest]
++requires_status=emp_main_quill
++requires_not_status=emp_main_info2
++quest_text=Ask Florin about the Black Quill.
+ 
+ [quest]
+ requires_status=emp_main_quill
++requires_status=emp_main_info2
+ quest_text=The Black Quill you found is the only thing capable of holding gravebloom ink. It will be the only way to write in the Book of the Dead.

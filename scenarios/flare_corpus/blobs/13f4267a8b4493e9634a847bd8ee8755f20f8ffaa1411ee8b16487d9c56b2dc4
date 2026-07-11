@@ -1,0 +1,163 @@
+diff --git a/mods/mods.txt b/mods/mods.txt
+index fd176edec2af130e398742161cfd78f90b9b3795..366a37de3657d9c64d2dfd1773fa170d7d6113fe 100644
+--- a/mods/mods.txt
++++ b/mods/mods.txt
+@@ -4,4 +4,3 @@ fantasycore
+ frontier
+ averguard
+ living_bones
+-lpc
+diff --git a/src/MapIso.cpp b/src/MapIso.cpp
+index 55aa80f96afeb58427e5147058d3ac11783ec292..9d13ba7a96a214e9b71271de721d1b122c319068 100644
+--- a/src/MapIso.cpp
++++ b/src/MapIso.cpp
+@@ -647,10 +647,10 @@ void MapIso::render(Renderable r[], int rnum) {
+ 			current_tile = background[i][j];
+ 
+ 			if (current_tile > 0) {
+-				Point p = map_to_screen(i * TILE_W, j * TILE_W, shakycam.x, shakycam.y);
++				Point p = map_to_screen(i * UNITS_PER_TILE, j * UNITS_PER_TILE, shakycam.x, shakycam.y);
++				p = center_tile(p);
+ 				dest.x = p.x;
+-				dest.y = p.y + TILE_H_HALF;
+-				// adding TILE_H_HALF gets us to the tile center instead of top corner
++				dest.y = p.y;
+ 				dest.x -= tset.tiles[current_tile].offset.x;
+ 				dest.y -= tset.tiles[current_tile].offset.y;
+ 				dest.w = tset.tiles[current_tile].src.w;
+@@ -687,10 +687,10 @@ void MapIso::render(Renderable r[], int rnum) {
+ 			current_tile = object[i][j];
+ 
+ 			if (current_tile > 0) {
+-				Point p = map_to_screen(i * TILE_W, j * TILE_W, shakycam.x, shakycam.y);
++				Point p = map_to_screen(i * UNITS_PER_TILE, j * UNITS_PER_TILE, shakycam.x, shakycam.y);
++				p = center_tile(p);
+ 				dest.x = p.x;
+-				dest.y = p.y + TILE_H_HALF;
+-				// adding TILE_H_HALF gets us to the tile center instead of top corner
++				dest.y = p.y;
+ 				dest.x -= tset.tiles[current_tile].offset.x;
+ 				dest.y -= tset.tiles[current_tile].offset.y;
+ 				dest.w = tset.tiles[current_tile].src.w;
+diff --git a/src/Utils.cpp b/src/Utils.cpp
+index 43a4307d1cd191fcb494d305ff5568964b252317..6d336e19744efc14a54396951dda9f74983bc33c 100644
+--- a/src/Utils.cpp
++++ b/src/Utils.cpp
+@@ -38,31 +38,38 @@ Point round(FPoint fp) {
+ Point screen_to_map(int x, int y, int camx, int camy) {
+ 	Point r;
+ 	if (TILESET_ORIENTATION == TILESET_ISOMETRIC) {
+-	    int scrx = x - VIEW_W_HALF;
+-	    int scry = y - VIEW_H_HALF;
+-	    r.x = scrx + scry*2 + camx;
+-	    r.y = scry*2 - scrx + camy;
+-    }
+-    else {
+-	    r.x = x - VIEW_W_HALF + camx;
+-	    r.y = y - VIEW_H_HALF + camy;
+-    }
++		int scrx = x - VIEW_W_HALF;
++		int scry = y - VIEW_H_HALF;
++		r.x = scrx + scry*2 + camx;
++		r.y = scry*2 - scrx + camy;
++	}
++	else {
++		r.x = x - VIEW_W_HALF + camx;
++		r.y = y - VIEW_H_HALF + camy;
++	}
+ 	return r;
+ }
+ 
+ Point map_to_screen(int x, int y, int camx, int camy) {
+ 	Point r;
+ 	if (TILESET_ORIENTATION == TILESET_ISOMETRIC) {
+-	    r.x = VIEW_W_HALF + (x - camx - y + camy)/(float)UNITS_PER_PIXEL_X;
+-	    r.y = VIEW_H_HALF + (x - camx + y - camy)/(float)UNITS_PER_PIXEL_Y;
+-    }
+-	else {
+-	    r.x = VIEW_W_HALF - (camx - x)/(float)UNITS_PER_PIXEL_X;
+-	    r.y = VIEW_H_HALF - (camy - y)/(float)UNITS_PER_PIXEL_Y;
++		r.x = VIEW_W_HALF + (x - camx - y + camy)/(float)UNITS_PER_PIXEL_X;
++		r.y = VIEW_H_HALF + (x - camx + y - camy)/(float)UNITS_PER_PIXEL_Y;
++	}
++	else { //TILESET_ORTHOGONAL
++		r.x = VIEW_W_HALF - (camx - x)/(float)UNITS_PER_PIXEL_X;
++		r.y = VIEW_H_HALF - (camy - y)/(float)UNITS_PER_PIXEL_Y;
+ 	}
+ 	return r;
+ }
+ 
++Point center_tile(Point p) {
++	if (TILESET_ORIENTATION == TILESET_ORTHOGONAL)
++		p.x += TILE_W_HALF;
++	p.y += TILE_H_HALF;
++	return p;
++}
++
+ Point collision_to_map(Point p) {
+ 	p.x = (p.x << TILE_SHIFT) + TILE_W_HALF;
+ 	p.y = (p.y << TILE_SHIFT) + TILE_H_HALF;
+@@ -225,7 +232,7 @@ void sort_by_tile(Renderable r[], int rnum) {
+ 						zpos[j+1] = ztemp;
+ 						rtemp = r[j];
+ 						r[j] = r[j+1];
+-						r[j+1] = rtemp;			
++						r[j+1] = rtemp;
+ 					}
+ 				}
+ 			}
+@@ -282,19 +289,19 @@ void drawLine(SDL_Surface *screen, Point pos0, Point pos1, Uint32 color) {
+  */
+ SDL_Surface* createSurface(int width, int height) {
+ 
+-    SDL_Surface *surface;
+-    Uint32 rmask, gmask, bmask, amask;
++	SDL_Surface *surface;
++	Uint32 rmask, gmask, bmask, amask;
+ 
+ #if SDL_BYTEORDER == SDL_BIG_ENDIAN
+-    rmask = 0xff000000;
+-    gmask = 0x00ff0000;
+-    bmask = 0x0000ff00;
+-    amask = 0x000000ff;
++	rmask = 0xff000000;
++	gmask = 0x00ff0000;
++	bmask = 0x0000ff00;
++	amask = 0x000000ff;
+ #else
+-    rmask = 0x000000ff;
+-    gmask = 0x0000ff00;
+-    bmask = 0x00ff0000;
+-    amask = 0xff000000;
++	rmask = 0x000000ff;
++	gmask = 0x0000ff00;
++	bmask = 0x00ff0000;
++	amask = 0xff000000;
+ #endif
+ 
+ 	if (HWSURFACE) 
+@@ -302,9 +309,9 @@ SDL_Surface* createSurface(int width, int height) {
+ 	else
+ 		surface = SDL_CreateRGBSurface(SDL_SWSURFACE|SDL_SRCALPHA, width, height, 32, rmask, gmask, bmask, amask);	
+ 	
+-    if(surface == NULL) {
+-        fprintf(stderr, "CreateRGBSurface failed: %s\n", SDL_GetError());
+-    }
++	if(surface == NULL) {
++		fprintf(stderr, "CreateRGBSurface failed: %s\n", SDL_GetError());
++	}
+ 	
+ 	// optimize
+ 	SDL_Surface *cleanup = surface;
+diff --git a/src/Utils.h b/src/Utils.h
+index 60a05628d06ce8e10ce618631d76f2ac3001a510..b00503a99743d5164c68272317d53cb351a17487 100644
+--- a/src/Utils.h
++++ b/src/Utils.h
+@@ -64,6 +64,7 @@ int round(float f);
+ Point round(FPoint fp);
+ Point screen_to_map(int x, int y, int camx, int camy);
+ Point map_to_screen(int x, int y, int camx, int camy);
++Point center_tile(Point p);
+ Point map_to_collision(Point p);
+ Point collision_to_map(Point p);
+ FPoint calcVector(Point pos, int direction, int dist);

@@ -1,0 +1,25 @@
+diff --git a/mods/minicore/engine/font_settings.txt b/mods/minicore/engine/font_settings.txt
+index 46a180647a4315ecc2946c1799bcf787075f1b1f..790821282a81be57fdf717fba88231c81a582404 100644
+--- a/mods/minicore/engine/font_settings.txt
++++ b/mods/minicore/engine/font_settings.txt
+@@ -1,8 +1,14 @@
+ # Only .ttf files are supported, due to limitations in SDL_ttf
+ # The font must be placed in /fonts
+-ptsize=9
+-render=blended
+-font_regular=LiberationSans-Regular.ttf
+-# NOT YET IMPLEMENTED
+-#font_italic=LiberationSans-Italic.ttf
+-#font_bold=LiberationSans-Bold.ttf
++
++[font_regular]
++default=LiberationSans-Regular.ttf,9,1
++ja=unifont-5.1.ttf,9,1
++
++[font_bold]
++default=LiberationSans-Bold.ttf,9,1
++ja=unifont-5.1.ttf,9,1
++
++[font_italic]
++default=LiberationSans-Italic.ttf,9,1
++ja=unifont-5.1.ttf,9,1

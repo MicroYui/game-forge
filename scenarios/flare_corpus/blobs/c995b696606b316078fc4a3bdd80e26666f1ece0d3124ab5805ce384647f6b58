@@ -1,0 +1,308 @@
+diff --git a/mods/empyrean_campaign/engine/damage_types.txt b/mods/empyrean_campaign/engine/damage_types.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6c0e4a5a4cd2db6a80e78919ac6be199f0cc3754
+--- /dev/null
++++ b/mods/empyrean_campaign/engine/damage_types.txt
+@@ -0,0 +1,9 @@
++APPEND
++
++[damage_type]
++id=scroll
++# name=Scroll
++# name_min=Scroll Min
++# name_max=Scroll Max
++min=scroll_min
++max=scroll_max
+diff --git a/mods/empyrean_campaign/engine/stats.txt b/mods/empyrean_campaign/engine/stats.txt
+index a2a7170f2583e00b5325bcc2a22a39ca260efa73..ffc2d00f10c5d28bda0330734a9dc3cb06f88546 100644
+--- a/mods/empyrean_campaign/engine/stats.txt
++++ b/mods/empyrean_campaign/engine/stats.txt
+@@ -55,3 +55,8 @@ stat_per_primary=defense,poise,1
+ speed=6
+ 
+ sfx_step=cloth
++
++stat=scroll_min,15
++stat_per_level=scroll_min,15
++stat=scroll_max,20
++stat_per_level=scroll_max,20
+diff --git a/mods/empyrean_campaign/items/categories/scrolls.txt b/mods/empyrean_campaign/items/categories/scrolls.txt
+index 12a749f5a12dd9bacbc26d0db9d19b0e66a92e73..064ee6677f0ecd81b18c82412dd460ede19ffc96 100644
+--- a/mods/empyrean_campaign/items/categories/scrolls.txt
++++ b/mods/empyrean_campaign/items/categories/scrolls.txt
+@@ -3,10 +3,88 @@
+ [item]
+ id=203
+ name=Summon Zombie Scroll
+-INCLUDE items/base/scrolls/scroll_1.txt
++INCLUDE items/base/scrolls/scroll_2.txt
+ power=181
+-power_desc=Use: Summon Zombie
++power_desc=Use: Summon a zombie to fight for you
++price=50
++price_per_level=50
++price_sell=12
++max_quantity=20
++
++[item]
++id=412
++name=Perdition Scroll
++INCLUDE items/base/scrolls/scroll_8.txt
++power=246
++power_desc=Use: Teleport to Perdition Harbor
++price=50
++price_per_level=50
++price_sell=12
++max_quantity=20
++
++[item]
++id=413
++name=Shield Scroll
++INCLUDE items/base/scrolls/scroll_4.txt
++power=247
++power_desc=Use: Create a magical shield that absorbs damage
++price=50
++price_per_level=50
++price_sell=12
++max_quantity=20
++
++[item]
++id=414
++name=Fireball Scroll
++INCLUDE items/base/scrolls/scroll_3.txt
++power=248
++power_desc=Use: Shoot a fireball
++price=50
++price_per_level=50
++price_sell=12
++max_quantity=20
++
++[item]
++id=415
++name=Ice Bolt Scroll
++INCLUDE items/base/scrolls/scroll_7.txt
++power=249
++power_desc=Use: Shoot an ice bolt
++price=50
++price_per_level=50
++price_sell=12
++max_quantity=20
++
++[item]
++id=416
++name=Haste Scroll
++INCLUDE items/base/scrolls/scroll_1.txt
++power=250
++power_desc=Use: Move at an increased speed for a limited time
++price=50
++price_per_level=50
++price_sell=12
++max_quantity=20
++
++[item]
++id=417
++name=Immunity Scroll
++INCLUDE items/base/scrolls/scroll_5.txt
++power=251
++power_desc=Use: Remove debuffs and become immune to debuffs for a limited time
++price=50
++price_per_level=50
++price_sell=12
++max_quantity=20
++
++[item]
++id=418
++name=Reflection Scroll
++INCLUDE items/base/scrolls/scroll_6.txt
++power=252
++power_desc=Use: Creates a magical shield that reflects projectiles and damage for a limited time
+ price=50
+ price_per_level=50
+-max_quantity=5
++price_sell=12
++max_quantity=20
+ 
+diff --git a/mods/empyrean_campaign/menus/character.txt b/mods/empyrean_campaign/menus/character.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..9a17ddc1ec08274a24f3475a3cc7423c392df9bd
+--- /dev/null
++++ b/mods/empyrean_campaign/menus/character.txt
+@@ -0,0 +1,4 @@
++APPEND
++
++show_stat=scroll_min,false
++show_stat=scroll_max,false
+diff --git a/mods/empyrean_campaign/powers/base/magician/shield.txt b/mods/empyrean_campaign/powers/base/magician/shield.txt
+index 5ad97335737220aa1d928ec9a5a1dce10de2a9a5..748f625efb33e376a9787d332e85b646c9928d8e 100644
+--- a/mods/empyrean_campaign/powers/base/magician/shield.txt
++++ b/mods/empyrean_campaign/powers/base/magician/shield.txt
+@@ -8,4 +8,6 @@ buff=true
+ post_effect=shield,0,0
+ cooldown=30s
+ base_damage=ment
++remove_effect=reflect_scroll,0
++remove_effect=reflect_scroll_dmg,0
+ 
+diff --git a/mods/empyrean_campaign/powers/categories/items.txt b/mods/empyrean_campaign/powers/categories/items.txt
+index 629397f1f25cd16c0affe5b3a9ba56759b773421..455e5db11d22045adc8db24944ac9f9d30513dfb 100644
+--- a/mods/empyrean_campaign/powers/categories/items.txt
++++ b/mods/empyrean_campaign/powers/categories/items.txt
+@@ -19,13 +19,127 @@ script=on_cast,scripts/powers/alchemist_skirt_mp.txt
+ [power]
+ id=181
+ type=spawn
+-icon=72
+-name=Summon Zombie
++icon=73
++name=Summon Zombie Scroll
+ new_state=cast
+ requires_item=203
+-cooldown=2s
++cooldown=20s
+ spawn_type=summon_zombie
+ spawn_limit=fixed,1
+ spawn_level=level,1,1
+ requires_los=true
+ requires_empty_target=true
++
++[power]
++id=246
++type=fixed
++icon=79
++name=Perdition Scroll
++new_state=cast
++requires_item=412
++cooldown=30s
++soundfx=soundfx/environment/teleporter.ogg
++script=on_cast,scripts/powers/perdition_scroll.txt
++buff=true
++post_effect=teleport,0,533ms
++
++[power]
++id=247
++type=fixed
++icon=75
++name=Shield Scroll
++new_state=cast
++requires_item=413
++cooldown=15s
++soundfx=soundfx/powers/shield.ogg
++buff=true
++post_effect=shield,0,0
++base_damage=scroll
++remove_effect=reflect_scroll,0
++remove_effect=reflect_scroll_dmg,0
++
++[power]
++id=248
++type=missile
++icon=74
++name=Fireball Scroll
++new_state=cast
++requires_item=414
++base_damage=scroll
++modifier_damage=multiply,175,175
++face=true
++directional=true
++animation=animations/powers/fireball.txt
++soundfx=soundfx/powers/fireball.ogg
++use_hazard=true
++aim_assist=true
++lifespan=800ms
++radius=1.0
++speed=16
++trait_elemental=fire
++post_power=158
++wall_power=158
++cooldown=2s
++
++[power]
++id=249
++type=missile
++icon=78
++name=Ice Bolt Scroll
++new_state=cast
++requires_item=415
++base_damage=scroll
++modifier_damage=multiply,150,150
++face=true
++directional=true
++animation=animations/powers/icicle.txt
++soundfx=soundfx/powers/shock.ogg
++use_hazard=true
++aim_assist=true
++lifespan=800ms
++radius=1.0
++speed=16
++trait_elemental=ice
++post_power=159
++wall_power=159
++post_effect=slow,50,8s
++cooldown=2s
++
++[power]
++id=250
++type=fixed
++icon=72
++name=Haste Scroll
++new_state=cast
++requires_item=416
++buff=true
++soundfx=soundfx/powers/heal.ogg
++cooldown=15s
++post_effect=haste,110,10s
++post_effect=haste_attack,120,10s
++
++[power]
++id=251
++type=fixed
++icon=76
++name=Immunity Scroll
++new_state=cast
++requires_item=417
++buff=true
++soundfx=soundfx/powers/heal.ogg
++cooldown=20s
++post_effect=immunity,0,10s
++
++[power]
++id=252
++type=fixed
++icon=77
++name=Reflection Scroll
++new_state=cast
++requires_item=418
++buff=true
++soundfx=soundfx/powers/shield.ogg
++cooldown=20s
++post_effect=reflect_scroll,100,15s
++post_effect=reflect_scroll_dmg,25,15s
++remove_effect=shield,0
+diff --git a/mods/empyrean_campaign/powers/effects.txt b/mods/empyrean_campaign/powers/effects.txt
+index 4b6d927939c60aa095ade250f28d6494e5df200f..ed8166e054d94a315a0916e266b56e96e92b68aa 100644
+--- a/mods/empyrean_campaign/powers/effects.txt
++++ b/mods/empyrean_campaign/powers/effects.txt
+@@ -139,3 +139,15 @@ can_stack=false
+ animation=animations/powers/runes.txt
+ render_above=false
+ 
++[effect]
++id=reflect_scroll
++type=reflect_chance
++icon=13
++name=Reflect
++animation=animations/powers/shield_orange.txt
++can_stack=false
++
++[effect]
++id=reflect_scroll_dmg
++type=return_damage
++can_stack=false
+diff --git a/mods/empyrean_campaign/scripts/powers/perdition_scroll.txt b/mods/empyrean_campaign/scripts/powers/perdition_scroll.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..b6e463c13acf7eed74084e7a3f0fdb23b5effe53
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/perdition_scroll.txt
+@@ -0,0 +1,2 @@
++[event]
++intermap=maps/perdition_harbor.txt,15,23

@@ -1,0 +1,44 @@
+diff --git a/mods/empyrean_campaign/maps/wizards_tower_3.txt b/mods/empyrean_campaign/maps/wizards_tower_3.txt
+index 22421e50954f28f75d050c47d0eb24f8bff3f1a2..ca3be729542fd9c13432f0102db241417f7033b8 100644
+--- a/mods/empyrean_campaign/maps/wizards_tower_3.txt
++++ b/mods/empyrean_campaign/maps/wizards_tower_3.txt
+@@ -611,7 +611,7 @@ tooltip=Treasure Chest
+ type=event
+ location=0,4,1,1
+ activate=on_load
+-mapmod=object,77,79,291
++mapmod=object,77,76,291
+ requires_not_status=emp_metzger_respawn
+ requires_status=emp_metzger_chest2
+ 
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index c6c911703ad197289203e9d195d382ca72c3aeab..816ed7d36ae138d42545cca785d22293cb29e617 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:0.90:0
+ game=flare-game
+-version=1.0.05
++version=1.0.06
+ engine_version_min=1.0.22
+diff --git a/tiled/empyrean_campaign/wizards_tower_3.tmx b/tiled/empyrean_campaign/wizards_tower_3.tmx
+index 5e457a0a37e9a93baa391e382bdbc3f0e3ef077a..9d9c4f0f82db5000bd563963c0fd108550e86d11 100644
+--- a/tiled/empyrean_campaign/wizards_tower_3.tmx
++++ b/tiled/empyrean_campaign/wizards_tower_3.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="84" height="92" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="71">
++<map version="1.0" tiledversion="1.1.3" orientation="isometric" renderorder="right-down" width="84" height="92" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="71">
+  <properties>
+   <property name="hero_pos" value="4,7"/>
+   <property name="music" value="music/boss_theme.ogg"/>
+@@ -608,7 +608,7 @@
+   <object id="40" name="chest2 open" type="event" x="0" y="128" width="32" height="32">
+    <properties>
+     <property name="activate" value="on_load"/>
+-    <property name="mapmod" value="object,77,79,291"/>
++    <property name="mapmod" value="object,77,76,291"/>
+     <property name="requires_not_status" value="emp_metzger_respawn"/>
+     <property name="requires_status" value="emp_metzger_chest2"/>
+    </properties>

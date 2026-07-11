@@ -1,0 +1,244 @@
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+index 8b1c728063373b3ea1d7ab95a5f330b69b0bb4c5..171bbf7f1541963f4449e89aeadea4cbb0e41aed 100644
+--- a/mods/empyrean_campaign/items/categories/quest.txt
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -46,7 +46,7 @@ pickup_status=emp_stmaria1_key
+ 
+ [item]
+ id=1005
+-name=St. Maria Prison Key
++name=St. Maria Catacombs Key
+ INCLUDE items/base/misc/key.txt
+ quest_item=true
+ quality=unique
+diff --git a/mods/empyrean_campaign/maps/hyperspace.txt b/mods/empyrean_campaign/maps/hyperspace.txt
+index d61a5563cc4f1e379055ae11761e350f8997e20e..2588b33037c7ec86db52bdf05fdface22d0568bb 100644
+--- a/mods/empyrean_campaign/maps/hyperspace.txt
++++ b/mods/empyrean_campaign/maps/hyperspace.txt
+@@ -185,7 +185,7 @@ soundfx=soundfx/environment/teleporter.ogg,0,0
+ tooltip=Lochport Cemetery
+ 
+ [event]
+-# to St. Maria: Prison
++# to St. Maria: Catacombs
+ type=event
+ location=29,9,2,2
+ activate=on_trigger
+@@ -193,7 +193,7 @@ hotspot=location
+ intermap=maps/st_maria_2.txt,44,24
+ requires_status=emp_waypoint_3
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+-tooltip=St. Maria: Prison
++tooltip=St. Maria: Catacombs
+ 
+ [event]
+ # to Blackmire Mines
+@@ -307,7 +307,7 @@ mapmod=background,22,8,265
+ requires_status=emp_waypoint_2
+ 
+ [event]
+-# unlock St. Maria: Prison
++# unlock St. Maria: Catacombs
+ type=event
+ location=29,7,1,1
+ activate=on_load
+diff --git a/mods/empyrean_campaign/maps/st_maria_1.txt b/mods/empyrean_campaign/maps/st_maria_1.txt
+index a9f57f89993e52d171b5159d402391ff755bee0f..6df1bb1d2e84933b2bc052935a7bca3629380b52 100644
+--- a/mods/empyrean_campaign/maps/st_maria_1.txt
++++ b/mods/empyrean_campaign/maps/st_maria_1.txt
+@@ -4,6 +4,7 @@ height=70
+ tilewidth=64
+ tileheight=32
+ orientation=isometric
++background_color=0,0,0,255
+ hero_pos=39,66
+ music=music/dungeon_theme.ogg
+ tileset=tilesetdefs/tileset_dungeon.txt
+@@ -262,14 +263,14 @@ soundfx=soundfx/door_open.ogg
+ tooltip=Switch
+ 
+ [event]
+-# to St. Maria: Prison
++# to St. Maria: Catacombs
+ type=event
+ location=37,15,4,4
+ activate=on_trigger
+ hotspot=location
+ intermap=maps/st_maria_2.txt,33,7
+ soundfx=soundfx/environment/stairs.ogg,0,0
+-tooltip=St. Maria: Prison
++tooltip=St. Maria: Catacombs
+ 
+ [event]
+ type=event
+diff --git a/mods/empyrean_campaign/maps/st_maria_2.txt b/mods/empyrean_campaign/maps/st_maria_2.txt
+index b45280f16bb79d671cca69f9279cdcb2f50b05ac..21a3809575c05a957c7cb96bb48c6210bb8cbaf8 100644
+--- a/mods/empyrean_campaign/maps/st_maria_2.txt
++++ b/mods/empyrean_campaign/maps/st_maria_2.txt
+@@ -8,7 +8,7 @@ background_color=0,0,0,255
+ hero_pos=33,7
+ music=music/dungeon_theme.ogg
+ tileset=tilesetdefs/tileset_dungeon.txt
+-title=St. Maria: Prison
++title=St. Maria: Catacombs
+ 
+ [tilesets]
+ tileset=../../../tiled/dungeon/tiled_collision.png,64,32,0,0
+@@ -268,7 +268,7 @@ type=event
+ location=42,21,4,5
+ activate=on_trigger
+ mapmod=background,43,22,265
+-msg=St. Maria: Prison waypoint discovered.
++msg=St. Maria: Catacombs waypoint discovered.
+ repeat=false
+ requires_not_status=emp_waypoint_3
+ set_status=emp_waypoint_3
+diff --git a/mods/empyrean_campaign/maps/st_maria_3.txt b/mods/empyrean_campaign/maps/st_maria_3.txt
+index 54deba1a83ce2c6d8a1a59b728731c8dc9f0de22..5ae228364ed4636cbd0623bf0d24c16e5295799b 100644
+--- a/mods/empyrean_campaign/maps/st_maria_3.txt
++++ b/mods/empyrean_campaign/maps/st_maria_3.txt
+@@ -213,14 +213,14 @@ data=
+ 4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4
+ 
+ [event]
+-# to St. Maria: Crypt
++# to St. Maria: Catacombs
+ type=event
+ location=6,46,1,2
+ activate=on_trigger
+ hotspot=location
+ intermap=maps/st_maria_2.txt,15,5
+ soundfx=soundfx/environment/stairs.ogg,0,0
+-tooltip=St. Maria: Prison
++tooltip=St. Maria: Catacombs
+ 
+ [event]
+ # torch set 1
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index b1c3a41235a7735acd08d4c7fbca4aaea11301a7..096906972e7effeeaa05a5ce269b8aab33a2d11b 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:0.90:0
+ game=flare-game
+-version=1.06
++version=1.06.01
+ engine_version_min=1.05.11
+diff --git a/tiled/empyrean_campaign/hyperspace.tmx b/tiled/empyrean_campaign/hyperspace.tmx
+index bb75d2cfcce6c10c1196c3106fe0868d79d94dc0..9b1af0a8597dbe4899956bcb55a0e3cf23658850 100644
+--- a/tiled/empyrean_campaign/hyperspace.tmx
++++ b/tiled/empyrean_campaign/hyperspace.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="40" height="40" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="27">
++<map version="1.0" tiledversion="1.1.5" orientation="isometric" renderorder="right-down" width="40" height="40" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="27">
+  <properties>
+   <property name="hero_pos" value="12,12"/>
+   <property name="music" value="music/safe_room_theme.ogg"/>
+@@ -194,14 +194,14 @@
+     <property name="tooltip" value="Lochport Cemetery"/>
+    </properties>
+   </object>
+-  <object id="4" name="to St. Maria: Prison" type="event" x="928" y="288" width="64" height="64">
++  <object id="4" name="to St. Maria: Catacombs" type="event" x="928" y="288" width="64" height="64">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/st_maria_2.txt,44,24"/>
+     <property name="requires_status" value="emp_waypoint_3"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+-    <property name="tooltip" value="St. Maria: Prison"/>
++    <property name="tooltip" value="St. Maria: Catacombs"/>
+    </properties>
+   </object>
+   <object id="5" name="to Blackmire Mines" type="event" x="992" y="512" width="64" height="64">
+@@ -304,7 +304,7 @@
+     <property name="requires_status" value="emp_waypoint_2"/>
+    </properties>
+   </object>
+-  <object id="17" name="unlock St. Maria: Prison" type="event" x="928" y="224" width="32" height="32">
++  <object id="17" name="unlock St. Maria: Catacombs" type="event" x="928" y="224" width="32" height="32">
+    <properties>
+     <property name="activate" value="on_load"/>
+     <property name="mapmod" value="background,29,10,265"/>
+diff --git a/tiled/empyrean_campaign/st_maria_1.tmx b/tiled/empyrean_campaign/st_maria_1.tmx
+index 0530872aca54ea32e3cf2f76cc2f0be964ce2702..3a27a4f81e78ff83a4b8ae861a3174264d26c9d9 100644
+--- a/tiled/empyrean_campaign/st_maria_1.tmx
++++ b/tiled/empyrean_campaign/st_maria_1.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="70" height="70" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="59">
++<map version="1.0" tiledversion="1.1.5" orientation="isometric" renderorder="right-down" width="70" height="70" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="59">
+  <properties>
+   <property name="hero_pos" value="39,66"/>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+@@ -273,13 +273,13 @@
+     <property name="tooltip" value="Switch"/>
+    </properties>
+   </object>
+-  <object id="7" name="to St. Maria: Prison" type="event" x="1184" y="480" width="128" height="128">
++  <object id="7" name="to St. Maria: Catacombs" type="event" x="1184" y="480" width="128" height="128">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/st_maria_2.txt,33,7"/>
+     <property name="soundfx" value="soundfx/environment/stairs.ogg,0,0"/>
+-    <property name="tooltip" value="St. Maria: Prison"/>
++    <property name="tooltip" value="St. Maria: Catacombs"/>
+    </properties>
+   </object>
+   <object id="8" type="event" x="704" y="736" width="32" height="32">
+diff --git a/tiled/empyrean_campaign/st_maria_2.tmx b/tiled/empyrean_campaign/st_maria_2.tmx
+index b615a84d2f5b4d96e8ccd3c955f4e9ce6ac12a2a..08bed66ebd7177bf0972044dcc158f184c337587 100644
+--- a/tiled/empyrean_campaign/st_maria_2.tmx
++++ b/tiled/empyrean_campaign/st_maria_2.tmx
+@@ -1,10 +1,10 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="70" height="70" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="95">
++<map version="1.0" tiledversion="1.1.5" orientation="isometric" renderorder="right-down" width="70" height="70" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="95">
+  <properties>
+   <property name="hero_pos" value="33,7"/>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_dungeon.txt"/>
+-  <property name="title" value="St. Maria: Prison"/>
++  <property name="title" value="St. Maria: Catacombs"/>
+  </properties>
+  <tileset firstgid="1" name="collision" tilewidth="64" tileheight="32" tilecount="15" columns="15">
+   <image source="../dungeon/tiled_collision.png" width="960" height="32"/>
+@@ -277,7 +277,7 @@
+    <properties>
+     <property name="activate" value="on_trigger"/>
+     <property name="mapmod" value="background,43,22,265"/>
+-    <property name="msg" value="St. Maria: Prison waypoint discovered."/>
++    <property name="msg" value="St. Maria: Catacombs waypoint discovered."/>
+     <property name="repeat" value="false"/>
+     <property name="requires_not_status" value="emp_waypoint_3"/>
+     <property name="set_status" value="emp_waypoint_3"/>
+diff --git a/tiled/empyrean_campaign/st_maria_3.tmx b/tiled/empyrean_campaign/st_maria_3.tmx
+index 40522004d09343e2800cd7d88e7d90b8b2886b45..c0645beb607a973f582e2657cdc65e2c7e6e66b2 100644
+--- a/tiled/empyrean_campaign/st_maria_3.tmx
++++ b/tiled/empyrean_campaign/st_maria_3.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="40" height="60" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="81">
++<map version="1.0" tiledversion="1.1.5" orientation="isometric" renderorder="right-down" width="40" height="60" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="81">
+  <properties>
+   <property name="hero_pos" value="7,47"/>
+   <property name="music" value="music/boss_theme.ogg"/>
+@@ -227,13 +227,13 @@
+ </data>
+  </layer>
+  <objectgroup name="event">
+-  <object id="1" name="to St. Maria: Crypt" type="event" x="192" y="1472" width="32" height="64">
++  <object id="1" name="to St. Maria: Catacombs" type="event" x="192" y="1472" width="32" height="64">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/st_maria_2.txt,15,5"/>
+     <property name="soundfx" value="soundfx/environment/stairs.ogg,0,0"/>
+-    <property name="tooltip" value="St. Maria: Prison"/>
++    <property name="tooltip" value="St. Maria: Catacombs"/>
+    </properties>
+   </object>
+   <object id="6" name="torch set 1" type="event" x="352" y="1216" width="384" height="64">

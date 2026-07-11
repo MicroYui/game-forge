@@ -1,0 +1,206 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl4_geno.txt b/mods/empyrean_campaign/enemies/lvl4_geno.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6a00788739ab59cb7a40855ee4510e2c9aa7e983
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl4_geno.txt
+@@ -0,0 +1,39 @@
++INCLUDE enemies/base/skeleton_mage.txt
++
++name=Geno
++level=4
++categories=geno
++xp=32
++
++# combat stats
++hp=620
++speed=3.5
++turn_delay=200ms
++
++chance_pursue=15
++
++power=melee,164,5
++power=ranged,174,15
++
++accuracy=105
++avoidance=40
++poise=26
++
++absorb_min=3
++absorb_max=4
++
++dmg_melee_min=85
++dmg_melee_max=90
++dmg_ment_min=105
++dmg_ment_max=125
++
++cooldown=1000ms
++
++loot_count=3,4
++
++# st. maria key
++quest_loot=emp_stmaria1_init,emp_stmaria1_key,1004
++
++# loot
++loot=loot/level_4.txt
++
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+index 81b15b8f5c1fe0ff8c5f5cab784a59056a95c6b1..874780ee5e3f743e6b955a40e2be698237049488 100644
+--- a/mods/empyrean_campaign/items/categories/quest.txt
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -30,3 +30,12 @@ INCLUDE items/base/rings/silver_3.txt
+ quality=unique
+ item_type=quest
+ pickup_status=emp_ardwen_ring
++
++[item]
++id=1004
++name=St. Maria Key
++INCLUDE items/base/misc/key.txt
++quality=unique
++item_type=quest
++pickup_status=emp_stmaria1_key
++
+diff --git a/mods/empyrean_campaign/maps/st_maria_1.txt b/mods/empyrean_campaign/maps/st_maria_1.txt
+index 508bed3f38ed99f9ccb84b1ddc614910ad5f97fb..f57da0d99e26e70ff06bb19645bae41e41495ec6 100644
+--- a/mods/empyrean_campaign/maps/st_maria_1.txt
++++ b/mods/empyrean_campaign/maps/st_maria_1.txt
+@@ -327,6 +327,40 @@ repeat=false
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+ 
++[event]
++# Locked Door
++type=on_trigger
++location=38,22,2,2
++hotspot=location
++msg=This door needs a key to be opened.
++requires_not_status=emp_stmaria1_key;emp_stmaria1_door
++tooltip=Locked Door
++
++[event]
++# Unlock Door
++type=on_trigger
++location=35,24,1,1
++hotspot=38,22,2,2
++mapmod=collision,38,22,0;collision,39,22,0;collision,38,23,0;collision,39,23,0;object,38,23,0;object,39,23,0;object,37,22,216;object,40,22,222
++remove_item=1004
++requires_item=1004
++requires_not_status=emp_stmaria1_door
++set_status=emp_stmaria1_door
++tooltip=Locked Door
++
++[event]
++# Unlock Door (on_load)
++type=on_load
++location=35,22,1,1
++mapmod=collision,38,22,0;collision,39,22,0;collision,38,23,0;collision,39,23,0;object,38,23,0;object,39,23,0;object,37,22,216;object,40,22,222
++requires_status=emp_stmaria1_door
++
++[event]
++type=on_load
++location=28,63,1,1
++requires_not_status=emp_stmaria1_init
++set_status=emp_stmaria1_init
++
+ [enemy]
+ type=skeleton_mage
+ location=37,50,1,1
+@@ -499,3 +533,9 @@ level=3
+ number=2
+ wander_radius=2
+ 
++[enemy]
++type=geno
++location=55,29,1,1
++number=1
++wander_radius=1
++
+diff --git a/mods/empyrean_campaign/powers/categories/enemy.txt b/mods/empyrean_campaign/powers/categories/enemy.txt
+index f400ceecc9b167d2e2309f51260f2a263b750ed9..4f81f19f295d6128cdc4f7a6a6925b40d7dc2f16 100644
+--- a/mods/empyrean_campaign/powers/categories/enemy.txt
++++ b/mods/empyrean_campaign/powers/categories/enemy.txt
+@@ -153,3 +153,23 @@ post_power=158
+ wall_power=158
+ modifier_damage=multiply,120,0
+ 
++# skeleton shock
++[power]
++id=174
++type=missile
++new_state=cast
++face=true
++directional=false
++animation=animations/powers/lightning.txt
++soundfx=soundfx/powers/shock.ogg
++use_hazard=true
++aim_assist=true
++base_damage=ment
++lifespan=866ms
++radius=1.0
++speed=15
++trait_elemental=lightning
++trait_crits_impaired=50
++post_power=159
++wall_power=159
++
+diff --git a/tiled/empyrean_campaign/st_maria_1.tmx b/tiled/empyrean_campaign/st_maria_1.tmx
+index f0030e42baa997133b26589896940eede50cb746..929b8cce29f84402541b2475ed38403fe1958ec5 100644
+--- a/tiled/empyrean_campaign/st_maria_1.tmx
++++ b/tiled/empyrean_campaign/st_maria_1.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="70" height="70" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="47">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="70" height="70" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="52">
+  <properties>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_dungeon.txt"/>
+@@ -338,6 +338,37 @@
+     <property name="tooltip" value="Crate"/>
+    </properties>
+   </object>
++  <object id="47" name="Locked Door" type="on_trigger" x="1216" y="704" width="64" height="64">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="msg" value="This door needs a key to be opened."/>
++    <property name="requires_not_status" value="emp_stmaria1_key;emp_stmaria1_door"/>
++    <property name="tooltip" value="Locked Door"/>
++   </properties>
++  </object>
++  <object id="48" name="Unlock Door" type="on_trigger" x="1120" y="768" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="38,22,2,2"/>
++    <property name="mapmod" value="collision,38,22,0;collision,39,22,0;collision,38,23,0;collision,39,23,0;object,38,23,0;object,39,23,0;object,37,22,216;object,40,22,222"/>
++    <property name="remove_item" value="1004"/>
++    <property name="requires_item" value="1004"/>
++    <property name="requires_not_status" value="emp_stmaria1_door"/>
++    <property name="set_status" value="emp_stmaria1_door"/>
++    <property name="tooltip" value="Locked Door"/>
++   </properties>
++  </object>
++  <object id="49" name="Unlock Door (on_load)" type="on_load" x="1120" y="704" width="32" height="32">
++   <properties>
++    <property name="mapmod" value="collision,38,22,0;collision,39,22,0;collision,38,23,0;collision,39,23,0;object,38,23,0;object,39,23,0;object,37,22,216;object,40,22,222"/>
++    <property name="requires_status" value="emp_stmaria1_door"/>
++   </properties>
++  </object>
++  <object id="51" type="on_load" x="896" y="2016" width="32" height="32">
++   <properties>
++    <property name="requires_not_status" value="emp_stmaria1_init"/>
++    <property name="set_status" value="emp_stmaria1_init"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="enemy">
+   <object id="17" type="skeleton_mage" x="1184" y="1600" width="32" height="32">
+@@ -512,5 +543,11 @@
+     <property name="wander_radius" value="2"/>
+    </properties>
+   </object>
++  <object id="50" type="geno" x="1760" y="928" width="32" height="32">
++   <properties>
++    <property name="number" value="1"/>
++    <property name="wander_radius" value="1"/>
++   </properties>
++  </object>
+  </objectgroup>
+ </map>

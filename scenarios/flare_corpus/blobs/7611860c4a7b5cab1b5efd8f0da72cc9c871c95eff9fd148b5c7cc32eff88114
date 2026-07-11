@@ -1,0 +1,279 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl1_goblin_runner.txt b/mods/empyrean_campaign/enemies/lvl1_goblin_runner.txt
+index e19f38548714124e7bb39590f0bdad290f539e40..48dfadc3865b25925554e5fbd89ca175cc238051 100644
+--- a/mods/empyrean_campaign/enemies/lvl1_goblin_runner.txt
++++ b/mods/empyrean_campaign/enemies/lvl1_goblin_runner.txt
+@@ -7,7 +7,7 @@ rarity=uncommon
+ xp=2
+ 
+ # combat stats
+-hp=40
++hp=60
+ speed=4
+ turn_delay=200ms
+ chance_pursue=10
+@@ -22,7 +22,7 @@ poise=60
+ dmg_melee_min=15
+ dmg_melee_max=20
+ cooldown=1600ms
+-absorb_min=0
++absorb_min=1
+ absorb_max=1
+ 
+ # loot
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_charger.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_charger.txt
+index e89ca243757321bca53f76f4a6787f372b971671..d250bd579416bdf05785491195933456d5f26317 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin_charger.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_charger.txt
+@@ -7,7 +7,7 @@ rarity=uncommon
+ xp=4
+ 
+ # combat stats
+-hp=90
++hp=120
+ speed=4
+ turn_delay=200ms
+ chance_pursue=10
+@@ -22,7 +22,7 @@ poise=62
+ dmg_melee_min=30
+ dmg_melee_max=35
+ cooldown=1600ms
+-absorb_min=1
++absorb_min=2
+ absorb_max=2
+ 
+ # loot
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
+index 17c530f57768a8d040adc50bfc40a2338704de82..61a9123c4c512f9852cdc92daf2d38ae5ff98e31 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
+@@ -7,23 +7,23 @@ rarity=rare
+ xp=8
+ 
+ # combat stats
+-hp=440
++hp=380
+ speed=2.5
+ melee_range=2.375
+ turn_delay=200ms
+ chance_pursue=50
+ 
+-power=melee,166,10
+-power=ranged,166,15
++power=melee,166,1
++power=ranged,166,5
+ power=on_join_combat,167,100
+ 
+ accuracy=95
+ avoidance=25
+ poise=51
+ 
+-dmg_ment_min=80
+-dmg_ment_max=85
+-absorb_min=2
++dmg_ment_min=60
++dmg_ment_max=70
++absorb_min=1
+ absorb_max=2
+ cooldown=1000ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
+index 9f09bfe5b69badb85ba80c7c4106260375e82877..65f43be46679c29adc5ee7de7f5a93e73332845b 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
+@@ -7,13 +7,13 @@ rarity=uncommon
+ xp=4
+ 
+ # combat stats
+-hp=110
++hp=100
+ speed=2
+ turn_delay=400ms
+ chance_pursue=15
+ 
+ power=melee,164,5
+-power=ranged,165,10
++power=ranged,165,3
+ 
+ accuracy=90
+ avoidance=15
+@@ -24,6 +24,8 @@ dmg_melee_max=45
+ dmg_ranged_min=45
+ dmg_ranged_max=50
+ cooldown=2000ms
++absorb_min=1
++absorb_max=2
+ 
+ # loot
+ loot=loot/level_2.txt
+diff --git a/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt b/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt
+index 17910094d230bafc50f39a26bf78bbcd9d43e417..bc0b71a96a27ab44c912f4c7ed675e92e1661700 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt
+@@ -7,22 +7,22 @@ rarity=rare
+ xp=4
+ 
+ # combat stats
+-hp=120
++hp=100
+ speed=3.5
+ turn_delay=200ms
+ chance_pursue=5
+ 
+ power=melee,164,5
+-power=ranged,171,15
++power=ranged,171,3
+ 
+ accuracy=95
+ avoidance=20
+ poise=32
+ 
+-dmg_melee_min=30
+-dmg_melee_max=35
+-dmg_ranged_min=50
+-dmg_ranged_max=75
++dmg_melee_min=20
++dmg_melee_max=30
++dmg_ranged_min=30
++dmg_ranged_max=45
+ absorb_min=1
+ absorb_max=2
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt
+index 20f28b6402b047199f5b16781de5ffbace267fd2..dc5b478ce621e5985b63e4dc746b967be8239ca3 100644
+--- a/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt
+@@ -7,26 +7,26 @@ rarity=uncommon
+ xp=8
+ 
+ # combat stats
+-hp=160
++hp=140
+ speed=3.5
+ turn_delay=200ms
+ 
+-chance_pursue=15
++chance_pursue=5
+ 
+ power=melee,164,5
+-power=ranged,173,15
++power=ranged,173,3
+ 
+ accuracy=100
+ avoidance=35
+ poise=24
+ 
+ absorb_min=2
+-absorb_max=3
++absorb_max=2
+ 
+-dmg_melee_min=40
+-dmg_melee_max=45
+-dmg_ment_min=60
+-dmg_ment_max=80
++dmg_melee_min=35
++dmg_melee_max=40
++dmg_ment_min=45
++dmg_ment_max=55
+ 
+ vulnerable_fire=50
+ vulnerable_ice=200
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt
+index 5de42c2a8a3099b283c683f23f54f9995847cd85..ba26d0cb6c5ca8c5a0d8728b3db57909d5af0043 100644
+--- a/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt
+@@ -7,26 +7,26 @@ rarity=uncommon
+ xp=8
+ 
+ # combat stats
+-hp=160
++hp=140
+ speed=3.5
+ turn_delay=200ms
+ 
+-chance_pursue=15
++chance_pursue=5
+ 
+ power=melee,164,5
+-power=ranged,172,15
++power=ranged,172,3
+ 
+ accuracy=100
+ avoidance=35
+ poise=24
+ 
+ absorb_min=2
+-absorb_max=3
++absorb_max=2
+ 
+-dmg_melee_min=40
+-dmg_melee_max=45
+-dmg_ment_min=60
+-dmg_ment_max=80
++dmg_melee_min=35
++dmg_melee_max=40
++dmg_ment_min=45
++dmg_ment_max=55
+ 
+ vulnerable_fire=200
+ vulnerable_ice=50
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt
+index ed9d4663093bf6b5fa011674608f545d689566c1..2bb4e0c864e42a9299285534903db536be76eb14 100644
+--- a/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt
+@@ -7,22 +7,22 @@ rarity=rare
+ xp=8
+ 
+ # combat stats
+-hp=170
++hp=150
+ speed=3.5
+ turn_delay=200ms
+ chance_pursue=5
+ 
+ power=melee,164,5
+-power=ranged,171,15
++power=ranged,171,3
+ 
+ accuracy=100
+ avoidance=25
+ poise=34
+ 
+-dmg_melee_min=45
+-dmg_melee_max=50
+-dmg_ranged_min=65
+-dmg_ranged_max=90
++dmg_melee_min=35
++dmg_melee_max=45
++dmg_ranged_min=45
++dmg_ranged_max=60
+ absorb_min=2
+ absorb_max=3
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl4_geno.txt b/mods/empyrean_campaign/enemies/lvl4_geno.txt
+index 6a00788739ab59cb7a40855ee4510e2c9aa7e983..8026727706ccb0ac95e73a5f2b09ceb48d9adb52 100644
+--- a/mods/empyrean_campaign/enemies/lvl4_geno.txt
++++ b/mods/empyrean_campaign/enemies/lvl4_geno.txt
+@@ -6,7 +6,7 @@ categories=geno
+ xp=32
+ 
+ # combat stats
+-hp=620
++hp=580
+ speed=3.5
+ turn_delay=200ms
+ 
+@@ -22,10 +22,10 @@ poise=26
+ absorb_min=3
+ absorb_max=4
+ 
+-dmg_melee_min=85
+-dmg_melee_max=90
+-dmg_ment_min=105
+-dmg_ment_max=125
++dmg_melee_min=65
++dmg_melee_max=70
++dmg_ment_min=75
++dmg_ment_max=85
+ 
+ cooldown=1000ms
+ 

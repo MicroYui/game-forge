@@ -1,0 +1,44 @@
+diff --git a/mods/alpha_demo/maps/averguard_temple.txt b/mods/alpha_demo/maps/averguard_temple.txt
+index 764b5cb2004a20d2c8446ffbc09aecc66aaed2a3..98e23ce95baf53e292211017f5a1766956da0a2e 100644
+--- a/mods/alpha_demo/maps/averguard_temple.txt
++++ b/mods/alpha_demo/maps/averguard_temple.txt
+@@ -456,7 +456,7 @@ tooltip=Sealed Temple Door
+ # the first time you use the talisman
+ type=run_once
+ location=13,89,1,1
+-hotspot=location
++hotspot=15,88,1,1
+ msg=You read aloud the runes on Langlier's Talisman. The Avergard Key begins to glow!
+ requires_not=ak_talisman_used
+ requires_status=ak_maddox_search
+@@ -468,7 +468,7 @@ tooltip=Activate Talisman
+ [event]
+ type=run_once
+ location=17,91,1,1
+-hotspot=location
++hotspot=15,88,1,1
+ mapmod=object,15,88,113;collision,15,88,0
+ requires_status=ak_talisman_used
+ soundfx=soundfx/door_open.ogg
+diff --git a/tiled/averguard/averguard_temple.tmx b/tiled/averguard/averguard_temple.tmx
+index df24fdbbdf56d4d19f834e4c3fcb7d406ac54e96..4f4418cdc5ce2fabe8160202e16e8234ead4e76f 100644
+--- a/tiled/averguard/averguard_temple.tmx
++++ b/tiled/averguard/averguard_temple.tmx
+@@ -466,7 +466,7 @@
+   </object>
+   <object name="the first time you use the talisman" type="run_once" x="416" y="2848" width="32" height="32">
+    <properties>
+-    <property name="hotspot" value="location"/>
++    <property name="hotspot" value="15,88,1,1"/>
+     <property name="msg" value="You read aloud the runes on Langlier's Talisman. The Avergard Key begins to glow!"/>
+     <property name="requires_not" value="ak_talisman_used"/>
+     <property name="requires_status" value="ak_maddox_search"/>
+@@ -478,7 +478,7 @@
+   </object>
+   <object type="run_once" x="544" y="2912" width="32" height="32">
+    <properties>
+-    <property name="hotspot" value="location"/>
++    <property name="hotspot" value="15,88,1,1"/>
+     <property name="mapmod" value="object,15,88,113;collision,15,88,0"/>
+     <property name="requires_status" value="ak_talisman_used"/>
+     <property name="soundfx" value="soundfx/door_open.ogg"/>

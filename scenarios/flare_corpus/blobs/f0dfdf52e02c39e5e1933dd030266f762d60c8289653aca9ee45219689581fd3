@@ -1,0 +1,593 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl3_ardwen.txt b/mods/empyrean_campaign/enemies/lvl3_ardwen.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..18ec291eb83c11ce09e850a3e689d2e8206f661b
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl3_ardwen.txt
+@@ -0,0 +1,28 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Ardwen
++level=3
++categories=ardwen
++xp=10
++
++defeat_status=emp_ardwen_defeated
++
++# combat stats
++hp=560
++speed=4.5
++turn_delay=200ms
++chance_pursue=10
++
++power=melee,164,10
++power=melee,168,5
++
++accuracy=110
++avoidance=25
++poise=70
++
++dmg_melee_min=120
++dmg_melee_max=140
++cooldown=2400ms
++
++#loot
++loot=loot/level_3.txt
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+index e4e2c1d98f596214a45af34322b450ca6f19be6e..81b15b8f5c1fe0ff8c5f5cab784a59056a95c6b1 100644
+--- a/mods/empyrean_campaign/items/categories/quest.txt
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -23,3 +23,10 @@ item_type=quest
+ pickup_status=emp_journal_found
+ book=books/merchants_journal.txt
+ 
++[item]
++id=1003
++name=Ardwen's Ring
++INCLUDE items/base/rings/silver_3.txt
++quality=unique
++item_type=quest
++pickup_status=emp_ardwen_ring
+diff --git a/mods/empyrean_campaign/maps/family_crypt.txt b/mods/empyrean_campaign/maps/family_crypt.txt
+index 22dc6b1a3f7b4ee0c3ba8bfad744b4c41e41770e..d3060412f665ae2adc967863997d41f2b24cb1ee 100644
+--- a/mods/empyrean_campaign/maps/family_crypt.txt
++++ b/mods/empyrean_campaign/maps/family_crypt.txt
+@@ -34,8 +34,8 @@ data=
+ 0,0,0,0,0,0,0,0,0,0,34,20,22,32,49,0,0,0,0,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,36,37,17,46,18,40,44,0,0,35,20,22,33,49,0,18,46,44,18,37,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,18,36,45,43,36,46,47,49,0,32,27,26,32,49,0,39,45,40,36,19,39,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,18,19,47,17,38,16,59,61,49,34,33,34,35,49,63,57,45,16,38,16,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,17,39,38,18,46,17,56,62,49,35,24,25,33,49,60,58,44,17,41,37,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,18,19,47,17,38,16,59,57,49,34,33,34,35,49,63,57,45,16,38,16,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,17,39,38,18,46,17,56,58,49,35,24,25,33,49,60,58,44,17,41,37,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,38,19,16,37,17,38,38,48,0,32,20,22,32,49,50,44,36,19,38,17,36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,45,18,19,17,19,48,50,0,0,32,20,22,33,49,0,50,50,47,17,16,42,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,17,45,43,46,36,49,0,0,0,32,27,26,34,49,0,0,0,18,19,39,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -143,8 +143,8 @@ data=
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,0,2,4,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,0,2,0,0,1,3,3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,1,0,4,4,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,1,0,4,4,0,1,3,3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,0,0,0,0,3,3,3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -153,9 +153,9 @@ data=
+ 3,3,3,3,3,3,3,3,2,2,0,0,0,0,2,2,3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,2,2,0,0,0,0,2,2,3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,1,1,1,1,1,1,2,2,0,0,0,0,2,2,1,1,1,2,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,1,2,2,0,0,0,0,2,2,0,0,0,0,2,2,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,4,4,0,0,0,0,2,2,0,0,0,0,2,2,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,1,2,0,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,4,0,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -175,10 +175,10 @@ data=
+ 3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,1,1,2,2,2,2,0,0,0,0,2,2,2,2,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,1,1,2,2,2,2,0,0,0,0,2,2,2,2,1,1,0,0,1,3,3,3,3,1,1,1,1,1,1,1,1,1,1,3,
+-3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,1,0,0,2,2,2,2,2,2,1,3,
+-3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,1,1,1,1,1,0,0,2,2,2,2,0,0,1,3,
+-3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,2,0,0,0,0,2,2,2,2,0,0,1,3,
+-3,1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,2,0,0,1,3,
++3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,1,0,0,1,1,1,1,4,4,1,3,
++3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,3,
++3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,2,0,0,0,0,1,1,1,1,0,0,1,3,
++3,1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,3,
+ 3,1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,
+ 3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,
+ 3,1,1,1,1,1,1,1,2,2,0,0,0,0,2,2,2,2,2,2,2,3,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,3,
+@@ -202,12 +202,16 @@ data=
+ type=on_trigger
+ location=15,14,1,2
+ intramap=7,14
++soundfx=soundfx/environment/teleporter.ogg
+ 
+ [event]
+-# rune teleport
++# start Ardwen quest
+ type=on_trigger
+-location=8,14,1,2
+-intramap=16,15
++location=7,14,1,1
++repeat=false
++requires_not_status=emp_ardwen_init,emp_ardwen_finish
++save_game=true
++set_status=emp_ardwen_init
+ 
+ [event]
+ # open door
+@@ -216,17 +220,21 @@ location=12,3,1,1
+ hotspot=location
+ mapmod=object,12,3,166;object,19,12,113;collision,19,12,0
+ repeat=false
++requires_not_status=emp_ardwen_init
+ soundfx=soundfx/door_open.ogg
+ tooltip=Switch
+ 
+ [event]
+-# treasure
++# Ardwen's key
+ type=on_trigger
+-location=10,51,1,1
+-hotspot=location
+-loot=loot/level_2.txt
++location=8,51,1,1
++hotspot=10,51,1,1
++loot=1003,fixed,1
+ mapmod=object,10,51,160
+ repeat=false
++requires_not_status=emp_ardwen_ring
++requires_status=emp_ardwen_init
++set_status=emp_ardwen_chest
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+ 
+@@ -236,7 +244,7 @@ type=on_trigger
+ location=25,37,1,1
+ hotspot=location
+ mapmod=object,25,37,165
+-msg=TODO: Write something about dead people
++msg=Ardwen (1308-1364), founder of Valverde
+ repeat=false
+ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=In Memoriam
+@@ -248,28 +256,145 @@ location=31,38,2,1
+ hotspot=location
+ intermap=maps/valverde_cemetery.txt,48,46
+ tooltip=Valverde Cemetery
++unset_status=emp_ardwen_chest
++
++[event]
++# treasure
++type=on_trigger
++location=10,51,1,1
++hotspot=location
++loot=loot/level_2.txt
++mapmod=object,10,51,160
++repeat=false
++requires_not_status=emp_ardwen_init;emp_ardwen_chest
++soundfx=soundfx/wood_open.ogg
++tooltip=Treasure Chest
++
++[event]
++# Ardwen's key (on_load)
++type=on_load
++location=8,49,1,1
++mapmod=object,10,51,160
++repeat=false
++requires_status=emp_ardwen_ring
++set_status=emp_ardwen_chest
++
++[event]
++# Spawn Ardwen
++type=on_trigger
++location=11,3,1,2
++hotspot=location
++mapmod=collision,12,4,0
++msg=The coffin has a small slot the size of Ardwen's ring. You place the ring in the slot.
++remove_item=1003
++repeat=false
++requires_not_status=emp_ardwen_summoned
++requires_status=emp_ardwen_ring
++set_status=emp_ardwen_summoned
++shakycam=1s
++spawn=ardwen,12,4
++tooltip=Ardwen's Coffin
++
++[event]
++# open door (ardwen defeated)
++type=on_trigger
++location=12,1,1,1
++hotspot=12,3,1,1
++mapmod=object,12,3,166;object,19,12,113;collision,19,12,0
++repeat=false
++requires_status=emp_ardwen_defeated
++reward_xp=200
++set_status=emp_ardwen_finish
++soundfx=soundfx/door_open.ogg
++tooltip=Switch
++unset_status=emp_ardwen_init;emp_ardwen_ring;emp_ardwen_summoned;emp_ardwen_defeated
++
++[event]
++# locked door
++type=on_trigger
++location=14,1,1,1
++hotspot=12,3,1,1
++msg=The switch won't budge.
++requires_not_status=emp_ardwen_defeated
++requires_status=emp_ardwen_init
++tooltip=Switch
++
++[event]
++# clear Ardwen quest collision tile
++type=on_load
++location=10,1,1,1
++mapmod=collision,12,4,0
++requires_not_status=emp_ardwen_init
++
++[event]
++# Spawn Ardwen (on_load)
++type=on_load
++location=8,1,1,1
++mapmod=collision,12,4,0
++repeat=false
++requires_status=emp_ardwen_summoned
++spawn=ardwen,12,4
++
++[event]
++# remove chest status
++type=on_load
++location=6,49,1,1
++repeat=false
++requires_not_status=emp_ardwen_init
++requires_status=emp_ardwen_chest
++unset_status=emp_ardwen_chest
++
++[event]
++# Wind sound
++type=on_load
++location=0,0,1,1
++soundfx=soundfx/environment/cave_wind_loop.ogg
+ 
+ [enemy]
+ type=skeleton_archer
+ location=12,34,1,1
+ level=2
+ number=1
++wander_radius=1
+ 
+ [enemy]
+ type=skeleton_archer
+ location=11,26,1,1
+ level=2
+ number=1
++wander_radius=1
++
++[enemy]
++type=undead
++location=2,23,3,10
++level=2
++number=2
++wander_radius=1
++
++[enemy]
++type=undead
++location=20,27,2,10
++level=2
++number=2
++wander_radius=1
++
++[enemy]
++type=undead
++location=20,13,2,10
++level=2
++number=2
++wander_radius=1
+ 
+ [enemy]
+ type=undead
+-location=2,17,4,20
++location=2,37,6,4
+ level=2
+-number=3,4
++number=2
++wander_radius=2
+ 
+ [enemy]
+ type=undead
+-location=18,17,4,20
++location=10,49,4,5
+ level=2
+-number=3,4
++number=2
+ 
+diff --git a/mods/empyrean_campaign/quests/ardwen.txt b/mods/empyrean_campaign/quests/ardwen.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..0f349e708f5316bb2330eb131db68d04dcb12bfd
+--- /dev/null
++++ b/mods/empyrean_campaign/quests/ardwen.txt
+@@ -0,0 +1,19 @@
++[quest]
++requires_status=emp_ardwen_init
++requires_not_status=emp_ardwen_ring
++quest_text=Find a way to escape the Family Crypt.
++
++[quest]
++requires_status=emp_ardwen_ring
++requires_not_status=emp_ardwen_summoned
++quest_text=You found a strange ring. Maybe it will aid in escaping the Family Crypt.
++
++[quest]
++requires_status=emp_ardwen_summoned
++requires_not_status=emp_ardwen_defeated
++quest_text=Defeat Ardwen.
++
++[quest]
++requires_status=emp_ardwen_defeated
++requires_not_status=emp_ardwen_finish
++quest_text=Ardwen has been defeated. The lever near his coffin will likely open the nearby gate.
+diff --git a/tiled/empyrean_campaign/family_crypt.tmx b/tiled/empyrean_campaign/family_crypt.tmx
+index d5d773d7b5b2b1cd05500ec25427ace90973647a..32871cdcf25877396054ddd47f7e596bce8505cd 100644
+--- a/tiled/empyrean_campaign/family_crypt.tmx
++++ b/tiled/empyrean_campaign/family_crypt.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="38" height="56" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="24">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="38" height="56" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="38">
+  <properties>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_dungeon.txt"/>
+@@ -46,8 +46,8 @@
+ 0,0,0,0,0,0,0,0,0,0,34,20,22,32,49,0,0,0,0,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,36,37,17,46,18,40,44,0,0,35,20,22,33,49,0,18,46,44,18,37,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,18,36,45,43,36,46,47,49,0,32,27,26,32,49,0,39,45,40,36,19,39,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,18,19,47,17,38,16,59,61,49,34,33,34,35,49,63,57,45,16,38,16,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,17,39,38,18,46,17,56,62,49,35,24,25,33,49,60,58,44,17,41,37,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,18,19,47,17,38,16,59,57,49,34,33,34,35,49,63,57,45,16,38,16,40,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,17,39,38,18,46,17,56,58,49,35,24,25,33,49,60,58,44,17,41,37,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,38,19,16,37,17,38,38,48,0,32,20,22,32,49,50,44,36,19,38,17,36,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,45,18,19,17,19,48,50,0,0,32,20,22,33,49,0,50,50,47,17,16,42,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,17,45,43,46,36,49,0,0,0,32,27,26,34,49,0,0,0,18,19,39,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -150,13 +150,13 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="38" height="56" visible="0">
++ <layer name="collision" width="38" height="56">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,0,2,4,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,0,2,0,0,1,3,3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,1,0,4,4,0,0,0,0,0,0,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,1,0,4,4,0,1,3,3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,0,0,0,0,3,3,3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -165,9 +165,9 @@
+ 3,3,3,3,3,3,3,3,2,2,0,0,0,0,2,2,3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,2,2,0,0,0,0,2,2,3,3,3,0,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,1,1,1,1,1,1,2,2,0,0,0,0,2,2,1,1,1,2,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,1,2,2,0,0,0,0,2,2,0,0,0,0,2,2,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,4,4,0,0,0,0,2,2,0,0,0,0,2,2,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,1,2,0,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,4,0,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -187,10 +187,10 @@
+ 3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,1,1,2,2,2,2,0,0,0,0,2,2,2,2,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,1,1,2,2,2,2,0,0,0,0,2,2,2,2,1,1,0,0,1,3,3,3,3,1,1,1,1,1,1,1,1,1,1,3,
+-3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,1,0,0,2,2,2,2,2,2,1,3,
+-3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,1,1,1,1,1,0,0,2,2,2,2,0,0,1,3,
+-3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,2,0,0,0,0,2,2,2,2,0,0,1,3,
+-3,1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,2,0,0,2,0,0,1,3,
++3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,1,0,0,1,1,1,1,4,4,1,3,
++3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,3,
++3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,2,0,0,0,0,1,1,1,1,0,0,1,3,
++3,1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,3,
+ 3,1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,
+ 3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,
+ 3,1,1,1,1,1,1,1,2,2,0,0,0,0,2,2,2,2,2,2,2,3,1,1,1,1,1,1,0,0,0,0,0,0,0,0,1,3,
+@@ -214,11 +214,15 @@
+   <object id="4" name="rune teleport" type="on_trigger" x="480" y="448" width="32" height="64">
+    <properties>
+     <property name="intramap" value="7,14"/>
++    <property name="soundfx" value="soundfx/environment/teleporter.ogg"/>
+    </properties>
+   </object>
+-  <object id="5" name="rune teleport" type="on_trigger" x="256" y="448" width="32" height="64">
++  <object id="5" name="start Ardwen quest" type="on_trigger" x="224" y="448" width="32" height="32">
+    <properties>
+-    <property name="intramap" value="16,15"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_ardwen_init,emp_ardwen_finish"/>
++    <property name="save_game" value="true"/>
++    <property name="set_status" value="emp_ardwen_init"/>
+    </properties>
+   </object>
+   <object id="12" name="open door" type="on_trigger" x="384" y="96" width="32" height="32">
+@@ -226,16 +230,20 @@
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,12,3,166;object,19,12,113;collision,19,12,0"/>
+     <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_ardwen_init"/>
+     <property name="soundfx" value="soundfx/door_open.ogg"/>
+     <property name="tooltip" value="Switch"/>
+    </properties>
+   </object>
+-  <object id="13" name="treasure" type="on_trigger" x="320" y="1632" width="32" height="32">
++  <object id="13" name="Ardwen's key" type="on_trigger" x="256" y="1632" width="32" height="32">
+    <properties>
+-    <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/level_2.txt"/>
++    <property name="hotspot" value="10,51,1,1"/>
++    <property name="loot" value="1003,fixed,1"/>
+     <property name="mapmod" value="object,10,51,160"/>
+     <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_ardwen_ring"/>
++    <property name="requires_status" value="emp_ardwen_init"/>
++    <property name="set_status" value="emp_ardwen_chest"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+    </properties>
+@@ -244,7 +252,7 @@
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,25,37,165"/>
+-    <property name="msg" value="TODO: Write something about dead people"/>
++    <property name="msg" value="Ardwen (1308-1364), founder of Valverde"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
+     <property name="tooltip" value="In Memoriam"/>
+@@ -255,6 +263,90 @@
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/valverde_cemetery.txt,48,46"/>
+     <property name="tooltip" value="Valverde Cemetery"/>
++    <property name="unset_status" value="emp_ardwen_chest"/>
++   </properties>
++  </object>
++  <object id="24" name="treasure" type="on_trigger" x="320" y="1632" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="loot/level_2.txt"/>
++    <property name="mapmod" value="object,10,51,160"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_ardwen_init;emp_ardwen_chest"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Treasure Chest"/>
++   </properties>
++  </object>
++  <object id="25" name="Ardwen's key (on_load)" type="on_load" x="256" y="1568" width="32" height="32">
++   <properties>
++    <property name="mapmod" value="object,10,51,160"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_status" value="emp_ardwen_ring"/>
++    <property name="set_status" value="emp_ardwen_chest"/>
++   </properties>
++  </object>
++  <object id="26" name="Spawn Ardwen" type="on_trigger" x="352" y="96" width="32" height="64">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="mapmod" value="collision,12,4,0"/>
++    <property name="msg" value="The coffin has a small slot the size of Ardwen's ring. You place the ring in the slot."/>
++    <property name="remove_item" value="1003"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_ardwen_summoned"/>
++    <property name="requires_status" value="emp_ardwen_ring"/>
++    <property name="set_status" value="emp_ardwen_summoned"/>
++    <property name="shakycam" value="1s"/>
++    <property name="spawn" value="ardwen,12,4"/>
++    <property name="tooltip" value="Ardwen's Coffin"/>
++   </properties>
++  </object>
++  <object id="28" name="open door (ardwen defeated)" type="on_trigger" x="384" y="32" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="12,3,1,1"/>
++    <property name="mapmod" value="object,12,3,166;object,19,12,113;collision,19,12,0"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_status" value="emp_ardwen_defeated"/>
++    <property name="reward_xp" value="200"/>
++    <property name="set_status" value="emp_ardwen_finish"/>
++    <property name="soundfx" value="soundfx/door_open.ogg"/>
++    <property name="tooltip" value="Switch"/>
++    <property name="unset_status" value="emp_ardwen_init;emp_ardwen_ring;emp_ardwen_summoned;emp_ardwen_defeated"/>
++   </properties>
++  </object>
++  <object id="29" name="locked door" type="on_trigger" x="448" y="32" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="12,3,1,1"/>
++    <property name="msg" value="The switch won't budge."/>
++    <property name="requires_not_status" value="emp_ardwen_defeated"/>
++    <property name="requires_status" value="emp_ardwen_init"/>
++    <property name="tooltip" value="Switch"/>
++   </properties>
++  </object>
++  <object id="30" name="clear Ardwen quest collision tile" type="on_load" x="320" y="32" width="32" height="32">
++   <properties>
++    <property name="mapmod" value="collision,12,4,0"/>
++    <property name="requires_not_status" value="emp_ardwen_init"/>
++   </properties>
++  </object>
++  <object id="31" name="Spawn Ardwen (on_load)" type="on_load" x="256" y="32" width="32" height="32">
++   <properties>
++    <property name="mapmod" value="collision,12,4,0"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_status" value="emp_ardwen_summoned"/>
++    <property name="spawn" value="ardwen,12,4"/>
++   </properties>
++  </object>
++  <object id="32" name="remove chest status" type="on_load" x="192" y="1568" width="32" height="32">
++   <properties>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_ardwen_init"/>
++    <property name="requires_status" value="emp_ardwen_chest"/>
++    <property name="unset_status" value="emp_ardwen_chest"/>
++   </properties>
++  </object>
++  <object id="37" name="Wind sound" type="on_load" x="0" y="0" width="32" height="32">
++   <properties>
++    <property name="soundfx" value="soundfx/environment/cave_wind_loop.ogg"/>
+    </properties>
+   </object>
+  </objectgroup>
+@@ -263,24 +355,48 @@
+    <properties>
+     <property name="level" value="2"/>
+     <property name="number" value="1"/>
++    <property name="wander_radius" value="1"/>
+    </properties>
+   </object>
+   <object id="17" type="skeleton_archer" x="352" y="832" width="32" height="32">
+    <properties>
+     <property name="level" value="2"/>
+     <property name="number" value="1"/>
++    <property name="wander_radius" value="1"/>
++   </properties>
++  </object>
++  <object id="19" type="undead" x="64" y="736" width="96" height="320">
++   <properties>
++    <property name="level" value="2"/>
++    <property name="number" value="2"/>
++    <property name="wander_radius" value="1"/>
++   </properties>
++  </object>
++  <object id="21" type="undead" x="640" y="864" width="64" height="320">
++   <properties>
++    <property name="level" value="2"/>
++    <property name="number" value="2"/>
++    <property name="wander_radius" value="1"/>
++   </properties>
++  </object>
++  <object id="33" type="undead" x="640" y="416" width="64" height="320">
++   <properties>
++    <property name="level" value="2"/>
++    <property name="number" value="2"/>
++    <property name="wander_radius" value="1"/>
+    </properties>
+   </object>
+-  <object id="19" type="undead" x="64" y="544" width="128" height="640">
++  <object id="34" type="undead" x="64" y="1184" width="192" height="128">
+    <properties>
+     <property name="level" value="2"/>
+-    <property name="number" value="3,4"/>
++    <property name="number" value="2"/>
++    <property name="wander_radius" value="2"/>
+    </properties>
+   </object>
+-  <object id="21" type="undead" x="576" y="544" width="128" height="640">
++  <object id="35" type="undead" x="320" y="1568" width="128" height="160">
+    <properties>
+     <property name="level" value="2"/>
+-    <property name="number" value="3,4"/>
++    <property name="number" value="2"/>
+    </properties>
+   </object>
+  </objectgroup>

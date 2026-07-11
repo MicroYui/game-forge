@@ -1,0 +1,100 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl5_summon_zombie.txt b/mods/empyrean_campaign/enemies/lvl5_summon_zombie.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..7432f14fc23daea64c98ad6507e91471679ad6f5
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl5_summon_zombie.txt
+@@ -0,0 +1,22 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Zombie
++level=5
++categories=summon_zombie
++
++# combat stats
++hp=1040
++speed=6
++turn_delay=400ms
++chance_pursue=10
++
++power=melee,164,10
++power=melee,168,5
++
++accuracy=100
++avoidance=30
++poise=32
++
++dmg_melee_min=90
++dmg_melee_max=95
++cooldown=1200ms
+diff --git a/mods/empyrean_campaign/items/categories/level_8.txt b/mods/empyrean_campaign/items/categories/level_8.txt
+index 04d8d0cd6adab9eeafacc2dd4377c9e5c202267f..f0bfc46953e2a23535776a6e3e606ca745b2ff25 100644
+--- a/mods/empyrean_campaign/items/categories/level_8.txt
++++ b/mods/empyrean_campaign/items/categories/level_8.txt
+@@ -323,3 +323,5 @@ quality=rare
+ price=11200
+ bonus=item_find,30
+ 
++# 197-202
++# unique and set items
+diff --git a/mods/empyrean_campaign/items/categories/scrolls.txt b/mods/empyrean_campaign/items/categories/scrolls.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..f9b608ba6e339f60de92d877204ef047318c6ab4
+--- /dev/null
++++ b/mods/empyrean_campaign/items/categories/scrolls.txt
+@@ -0,0 +1,11 @@
++# Scrolls #############################
++
++[item]
++id=203
++name=Summon Zombie Scroll
++INCLUDE items/base/scrolls/scroll_1.txt
++power=181
++power_desc=Use: Summon Zombie
++price=5000
++max_quantity=5
++
+diff --git a/mods/empyrean_campaign/items/items.txt b/mods/empyrean_campaign/items/items.txt
+index d4b0eb5f34d138ff1999149941cd45d35ad874d3..bf6a8209f2c9fefd14d192af91a9b34c4d378991 100644
+--- a/mods/empyrean_campaign/items/items.txt
++++ b/mods/empyrean_campaign/items/items.txt
+@@ -20,6 +20,9 @@ loot_animation=animations/loot/coins100.txt,100,0
+ # Potions (id 2-3)
+ INCLUDE items/categories/potions.txt
+ 
++# Scrolls (id 203)
++INCLUDE items/categories/scrolls.txt
++
+ # Levels 1-4
+ INCLUDE items/categories/level_1.txt
+ INCLUDE items/categories/level_2.txt
+diff --git a/mods/empyrean_campaign/npcs/bakat.txt b/mods/empyrean_campaign/npcs/bakat.txt
+index f689310d312c3b6dffc892c3ff67af54b0d1efe3..999e5fa153fa2eee5d2d673eb07e1e8f5d3ba76a 100644
+--- a/mods/empyrean_campaign/npcs/bakat.txt
++++ b/mods/empyrean_campaign/npcs/bakat.txt
+@@ -8,4 +8,4 @@ vox_intro=soundfx/enemies/goblin_ment.ogg
+ 
+ # shop info
+ vendor=true
+-constant_stock=2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3
++constant_stock=2,2,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,203,203,203,203,203
+diff --git a/mods/empyrean_campaign/powers/categories/items.txt b/mods/empyrean_campaign/powers/categories/items.txt
+index f5d1feaf4d244ab46857a5c4d129277d090fdf30..70fd0ca7188cb6b69b965fb3f67f9c9cec50ac3f 100644
+--- a/mods/empyrean_campaign/powers/categories/items.txt
++++ b/mods/empyrean_campaign/powers/categories/items.txt
+@@ -22,3 +22,16 @@ cooldown=500ms
+ buff=true
+ post_effect=mp_restore,25,33ms
+ 
++[power]
++id=181
++type=spawn
++icon=72
++name=Summon Zombie
++new_state=cast
++#soundfx=
++requires_item=203
++cooldown=2s
++spawn_type=summon_zombie
++spawn_limit=fixed,1
++requires_los=true
++requires_empty_target=true

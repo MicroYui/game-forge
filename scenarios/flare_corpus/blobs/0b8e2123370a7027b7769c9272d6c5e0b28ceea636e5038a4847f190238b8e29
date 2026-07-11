@@ -1,0 +1,288 @@
+diff --git a/mods/empyrean_campaign/maps/temple_of_mez_3.txt b/mods/empyrean_campaign/maps/temple_of_mez_3.txt
+index 0462dd6477542ddda0c8a660861c34d16ccfdc6e..c31946868617a2fab4548d32bdee0b0a6ed6d58d 100644
+--- a/mods/empyrean_campaign/maps/temple_of_mez_3.txt
++++ b/mods/empyrean_campaign/maps/temple_of_mez_3.txt
+@@ -652,8 +652,7 @@ location=41,47,1,1
+ activate=on_trigger
+ mapmod=collision,40,47,1;collision,66,62,1;object,40,47,132;object,66,62,134
+ repeat=false
+-requires_not_status=emp_mez_spawn_reset,emp_mez_trap,emp_mez_defeated
+-save_game=true
++requires_not_status=emp_mez_trap,emp_mez_defeated
+ set_status=emp_mez_trap
+ shakycam=2s
+ soundfx=soundfx/environment/stone_open.ogg,0,0
+@@ -669,27 +668,10 @@ soundfx=soundfx/environment/stairs.ogg,0,0
+ tooltip=Temple of Mez: Main Hall
+ 
+ [event]
+-# rock trrap (on_load)
+-type=event
+-location=38,42,1,1
+-activate=on_load
+-mapmod=collision,40,47,1;collision,66,62,1;object,40,47,132;object,66,62,134
+-requires_status=emp_mez_trap
+-
+-[event]
+-# warp to status reset
+-type=event
+-location=15,18,1,1
+-activate=on_load
+-intramap=26,31
+-requires_status=emp_mez_defeated
+-set_status=emp_mez_spawn_reset
+-
+-[event]
+ # deactivate rock trap
+ type=event
+-location=41,28,27,36
+-activate=on_trigger
++location=38,42,1,1
++activate=static
+ mapmod=collision,40,47,0;collision,66,62,0;object,40,47,0;object,66,62,0
+ repeat=false
+ requires_status=emp_mez_trap,emp_mez_defeated
+@@ -707,6 +689,8 @@ loot=loot/level_8.txt
+ loot_count=4,5
+ mapmod=object,74,74,97
+ repeat=false
++requires_not_status=emp_mez_chest2
++set_status=emp_mez_chest2
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+ 
+@@ -720,6 +704,8 @@ loot=loot/level_8.txt
+ loot_count=4,5
+ mapmod=object,75,70,99
+ repeat=false
++requires_not_status=emp_mez_chest1
++set_status=emp_mez_chest1
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+ 
+@@ -754,11 +740,47 @@ soundfx=soundfx/environment/forest_owl_loop.ogg
+ [event]
+ # reset statuses
+ type=event
+-location=26,31,1,1
+-activate=on_trigger
+-requires_status=emp_mez_spawn_reset
+-save_game=true
+-unset_status=emp_mez_spawn_reset,emp_mez_trap,emp_mez_defeated
++location=1,0,1,1
++activate=on_load
++requires_status=emp_mez_respawn
++unset_status=emp_mez_defeated,emp_mez_chest1,emp_mez_chest2
++
++[event]
++# reset trap
++type=event
++location=2,0,1,1
++activate=on_load
++requires_status=emp_mez_trap
++unset_status=emp_mez_trap
++
++[event]
++# Black Quill
++type=event
++location=52,45,1,1
++activate=on_load
++hotspot=location
++loot=1101,fixed,1
++repeat=false
++requires_not_status=emp_main_quill
++requires_status=emp_mez_defeated
++
++[event]
++# chest1 open
++type=event
++location=0,2,1,1
++activate=on_load
++mapmod=object,75,70,99
++requires_not_status=emp_mez_respawn
++requires_status=emp_mez_chest1
++
++[event]
++# chest2 open
++type=event
++location=1,2,1,1
++activate=on_load
++mapmod=object,74,74,97
++requires_not_status=emp_mez_respawn
++requires_status=emp_mez_chest2
+ 
+ [enemy]
+ type=enemy
+@@ -775,11 +797,23 @@ level=7
+ number=4
+ 
+ [enemy]
++# Mez (respawn)
++type=enemy
++location=53,44,1,1
++category=mez
++level=8
++number=1
++requires_status=emp_mez_respawn
++wander_radius=1
++
++[enemy]
++# Mez (first encounter)
+ type=enemy
+ location=53,44,1,1
+ category=mez
+ level=8
+ number=1
++requires_not_status=emp_mez_respawn,emp_mez_defeated
+ wander_radius=1
+ 
+ [npc]
+diff --git a/mods/empyrean_campaign/npcs/glowing_obelisk_2.txt b/mods/empyrean_campaign/npcs/glowing_obelisk_2.txt
+index 42000220b864efd7847f727610ddbd52e98b4eb7..45d8fd1f92b549c990a25ace3baeb400362cbd7e 100644
+--- a/mods/empyrean_campaign/npcs/glowing_obelisk_2.txt
++++ b/mods/empyrean_campaign/npcs/glowing_obelisk_2.txt
+@@ -15,4 +15,4 @@ topic=Teleport
+ requires_status=emp_main_quill
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ intermap=maps/nazia_highlands.txt,69,9
+-unset_status=emp_mez_trap
++set_status=emp_mez_respawn
+diff --git a/tiled/empyrean_campaign/temple_of_mez_3.tmx b/tiled/empyrean_campaign/temple_of_mez_3.tmx
+index ea682f621d528c0e6d3a678d42f58ef4a711205a..ae763f47da6d19c74923c1b25cc78fae73bb341a 100644
+--- a/tiled/empyrean_campaign/temple_of_mez_3.tmx
++++ b/tiled/empyrean_campaign/temple_of_mez_3.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="100" height="100" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="24">
++<map version="1.0" tiledversion="1.0.1" orientation="isometric" renderorder="right-down" width="100" height="100" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="34">
+  <properties>
+   <property name="hero_pos" value="26,31"/>
+   <property name="music" value="music/boss_theme.ogg"/>
+@@ -671,8 +671,7 @@
+     <property name="activate" value="on_trigger"/>
+     <property name="mapmod" value="collision,40,47,1;collision,66,62,1;object,40,47,132;object,66,62,134"/>
+     <property name="repeat" value="false"/>
+-    <property name="requires_not_status" value="emp_mez_spawn_reset,emp_mez_trap,emp_mez_defeated"/>
+-    <property name="save_game" value="true"/>
++    <property name="requires_not_status" value="emp_mez_trap,emp_mez_defeated"/>
+     <property name="set_status" value="emp_mez_trap"/>
+     <property name="shakycam" value="2s"/>
+     <property name="soundfx" value="soundfx/environment/stone_open.ogg,0,0"/>
+@@ -687,24 +686,9 @@
+     <property name="tooltip" value="Temple of Mez: Main Hall"/>
+    </properties>
+   </object>
+-  <object id="5" name="rock trrap (on_load)" type="event" x="1216" y="1344" width="32" height="32">
++  <object id="9" name="deactivate rock trap" type="event" x="1216" y="1344" width="32" height="32">
+    <properties>
+-    <property name="activate" value="on_load"/>
+-    <property name="mapmod" value="collision,40,47,1;collision,66,62,1;object,40,47,132;object,66,62,134"/>
+-    <property name="requires_status" value="emp_mez_trap"/>
+-   </properties>
+-  </object>
+-  <object id="8" name="warp to status reset" type="event" x="480" y="576" width="32" height="32">
+-   <properties>
+-    <property name="activate" value="on_load"/>
+-    <property name="intramap" value="26,31"/>
+-    <property name="requires_status" value="emp_mez_defeated"/>
+-    <property name="set_status" value="emp_mez_spawn_reset"/>
+-   </properties>
+-  </object>
+-  <object id="9" name="deactivate rock trap" type="event" x="1312" y="896" width="864" height="1152">
+-   <properties>
+-    <property name="activate" value="on_trigger"/>
++    <property name="activate" value="static"/>
+     <property name="mapmod" value="collision,40,47,0;collision,66,62,0;object,40,47,0;object,66,62,0"/>
+     <property name="repeat" value="false"/>
+     <property name="requires_status" value="emp_mez_trap,emp_mez_defeated"/>
+@@ -721,6 +705,8 @@
+     <property name="loot_count" value="4,5"/>
+     <property name="mapmod" value="object,74,74,97"/>
+     <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_mez_chest2"/>
++    <property name="set_status" value="emp_mez_chest2"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+    </properties>
+@@ -733,6 +719,8 @@
+     <property name="loot_count" value="4,5"/>
+     <property name="mapmod" value="object,75,70,99"/>
+     <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_mez_chest1"/>
++    <property name="set_status" value="emp_mez_chest1"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+    </properties>
+@@ -761,12 +749,44 @@
+     <property name="soundfx" value="soundfx/environment/forest_owl_loop.ogg"/>
+    </properties>
+   </object>
+-  <object id="22" name="reset statuses" type="event" x="832" y="992" width="32" height="32">
++  <object id="24" name="reset statuses" type="event" x="32" y="0" width="32" height="32">
+    <properties>
+-    <property name="activate" value="on_trigger"/>
+-    <property name="requires_status" value="emp_mez_spawn_reset"/>
+-    <property name="save_game" value="true"/>
+-    <property name="unset_status" value="emp_mez_spawn_reset,emp_mez_trap,emp_mez_defeated"/>
++    <property name="activate" value="on_load"/>
++    <property name="requires_status" value="emp_mez_respawn"/>
++    <property name="unset_status" value="emp_mez_defeated,emp_mez_chest1,emp_mez_chest2"/>
++   </properties>
++  </object>
++  <object id="25" name="reset trap" type="event" x="64" y="0" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="requires_status" value="emp_mez_trap"/>
++    <property name="unset_status" value="emp_mez_trap"/>
++   </properties>
++  </object>
++  <object id="30" name="Black Quill" type="event" x="1664" y="1440" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="1101,fixed,1"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_main_quill"/>
++    <property name="requires_status" value="emp_mez_defeated"/>
++   </properties>
++  </object>
++  <object id="32" name="chest1 open" type="event" x="0" y="64" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="mapmod" value="object,75,70,99"/>
++    <property name="requires_not_status" value="emp_mez_respawn"/>
++    <property name="requires_status" value="emp_mez_chest1"/>
++   </properties>
++  </object>
++  <object id="33" name="chest2 open" type="event" x="32" y="64" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="mapmod" value="object,74,74,97"/>
++    <property name="requires_not_status" value="emp_mez_respawn"/>
++    <property name="requires_status" value="emp_mez_chest2"/>
+    </properties>
+   </object>
+  </objectgroup>
+@@ -785,11 +805,21 @@
+     <property name="number" value="4"/>
+    </properties>
+   </object>
+-  <object id="12" type="enemy" x="1696" y="1408" width="32" height="32">
++  <object id="12" name="Mez (respawn)" type="enemy" x="1696" y="1408" width="32" height="32">
++   <properties>
++    <property name="category" value="mez"/>
++    <property name="level" value="8"/>
++    <property name="number" value="1"/>
++    <property name="requires_status" value="emp_mez_respawn"/>
++    <property name="wander_radius" value="1"/>
++   </properties>
++  </object>
++  <object id="26" name="Mez (first encounter)" type="enemy" x="1696" y="1408" width="32" height="32">
+    <properties>
+     <property name="category" value="mez"/>
+     <property name="level" value="8"/>
+     <property name="number" value="1"/>
++    <property name="requires_not_status" value="emp_mez_respawn,emp_mez_defeated"/>
+     <property name="wander_radius" value="1"/>
+    </properties>
+   </object>

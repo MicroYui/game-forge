@@ -1,0 +1,213 @@
+diff --git a/mods/empyrean_campaign/scripts/reset_amir.txt b/mods/empyrean_campaign/scripts/reset_amir.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..bb38935a0db5b9fc590e4bf3a50bf7595646e7cf
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/reset_amir.txt
+@@ -0,0 +1,15 @@
++[event]
++unset_status=emp_amir_init
++unset_status=emp_amir_gem_a
++unset_status=emp_amir_gem_b
++unset_status=emp_amir_statue_a
++unset_status=emp_amir_statue_b
++unset_status=emp_amir_bookcase
++unset_status=emp_amir_finish
++remove_item=1006
++remove_item=1007
++msg=Reset quest: "The One-Eyed Guardians"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/fort_amir.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_ardwen.txt b/mods/empyrean_campaign/scripts/reset_ardwen.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..cd020ee3ef4910903bde03a8b015ab4c9fb7c0ed
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/reset_ardwen.txt
+@@ -0,0 +1,13 @@
++[event]
++unset_status=emp_ardwen_init
++unset_status=emp_ardwen_ring
++unset_status=emp_ardwen_chest
++unset_status=emp_ardwen_summoned
++unset_status=emp_ardwen_defeated
++unset_status=emp_ardwen_finish
++remove_item=1003
++msg=Reset quest: "Trapped in the Crypt"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/family_crypt.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_journal.txt b/mods/empyrean_campaign/scripts/reset_journal.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..c787e66913962e3b2890aac5e87cdd56daf1ebb3
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/reset_journal.txt
+@@ -0,0 +1,12 @@
++[event]
++unset_status=emp_journal_init
++unset_status=emp_journal_found
++unset_status=emp_journal_later
++unset_status=emp_journal_finish
++unset_status=emp_abasi_2
++remove_item=1002
++msg=Reset quest: "The Merchant's Journal"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/goblin_camp.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_krolan.txt b/mods/empyrean_campaign/scripts/reset_krolan.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..3c610a14b682ecc569bab24ad1850904c1194f65
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/reset_krolan.txt
+@@ -0,0 +1,12 @@
++[event]
++unset_status=emp_krolan_init
++unset_status=emp_krolan_key
++unset_status=emp_krolan_emerald
++unset_status=emp_krolan_finish
++remove_item=1000
++remove_item=1001
++msg=Reset quest: "Krolan's Missing"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/perdition_harbor.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_main.txt b/mods/empyrean_campaign/scripts/reset_main.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..0fa4f7b234556a52b05fa5402626444b0ccc30dc
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/reset_main.txt
+@@ -0,0 +1,35 @@
++[event]
++unset_status=emp_main_init
++unset_status=emp_main_info1,emp_main_info2
++unset_status=emp_main_reward1,emp_main_reward2
++
++unset_status=emp_main_gravebloom
++unset_status=emp_main_quill
++
++unset_status=emp_stmaria1_init,emp_stmaria1_key,emp_stmaria1_door
++unset_status=emp_stmaria2_init,emp_stmaria2_key,emp_stmaria2_door
++unset_status=emp_seagate_door,emp_seagate_teleport,emp_seagate_defeated
++
++unset_status=emp_mez1_init,emp_mez1_key,emp_mez1_door
++unset_status=emp_mez2_init,emp_mez2_key,emp_mez2_door
++unset_status=emp_mez_trap,emp_mez_defeated
++
++remove_item=1100
++remove_item=1101
++remove_item=1102
++remove_item=1103
++remove_item=1104
++
++remove_item=1004
++remove_item=1005
++remove_item=1006
++
++remove_item=1014
++remove_item=1015
++remove_item=1016
++
++msg=Reset quest: "Return to Empyrean"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/perdition_harbor.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_mog.txt b/mods/empyrean_campaign/scripts/reset_mog.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..783d861822761bc09ab55ac9b545ec68a645b9e0
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/reset_mog.txt
+@@ -0,0 +1,19 @@
++[event]
++unset_status=emp_mog_init
++unset_status=emp_mog_note2
++unset_status=emp_mog_note3
++unset_status=emp_mog_note4
++unset_status=emp_mog_note5
++unset_status=emp_mog_door1
++unset_status=emp_mog_door2
++unset_status=emp_mog_finish
++remove_item=1017
++remove_item=1018
++remove_item=1019
++remove_item=1020
++remove_item=1021
++msg=Reset quest: "The Lost Soul of the Mog Caverns"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/mog_caverns.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_naziamines.txt b/mods/empyrean_campaign/scripts/reset_naziamines.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..4e763ecb06280027907e3563c3b007e8068e61da
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/reset_naziamines.txt
+@@ -0,0 +1,14 @@
++[event]
++unset_status=emp_naziamines_init
++unset_status=emp_naziamines_dynamite
++unset_status=emp_naziamines_chest
++unset_status=emp_naziamines_cleared
++unset_status=emp_naziamines_finish
++remove_item=1016
++remove_item=1010
++msg=Reset quest: "Trapped!"
++# TODO reset figurine quest
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/nazia_mines.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_ort.txt b/mods/empyrean_campaign/scripts/reset_ort.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..84d5c38014a9103d956e53b8404f6a893fc1e4c3
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/reset_ort.txt
+@@ -0,0 +1,11 @@
++[event]
++unset_status=emp_ort_init
++unset_status=emp_ort_finish
++remove_item=1008
++remove_item=1009
++msg=Reset quest: "Brother?"
++# TODO reset figurine quest
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/grot_lagoon.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_stormrock.txt b/mods/empyrean_campaign/scripts/reset_stormrock.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..140b9de6c80fdc7d5dece59a7d0c8d1a119ec448
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/reset_stormrock.txt
+@@ -0,0 +1,11 @@
++[event]
++unset_status=emp_stormrock_init
++unset_status=emp_stormrock_search
++unset_status=emp_stormrock_key
++unset_status=emp_stormrock_door
++remove_item=1013
++msg=Reset quest: "Locked Out"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/stormrock_ruins.txt
+diff --git a/mods/empyrean_campaign/scripts/unlock_waypoints.txt b/mods/empyrean_campaign/scripts/unlock_waypoints.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..a691fa9c5f1ae11f0eabb8ac4429e3e5c2057b37
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/unlock_waypoints.txt
+@@ -0,0 +1,11 @@
++[event]
++set_status=emp_waypoint_0
++set_status=emp_waypoint_1
++set_status=emp_waypoint_2
++set_status=emp_waypoint_3
++set_status=emp_waypoint_4
++set_status=emp_waypoint_5
++set_status=emp_waypoint_6
++set_status=emp_waypoint_7
++set_status=emp_waypoint_8
++msg=Unlocked all waypoints

@@ -1,0 +1,69 @@
+diff --git a/mods/empyrean_campaign/maps/underworld_stronghold_2.txt b/mods/empyrean_campaign/maps/underworld_stronghold_2.txt
+index b0988927d9377b8daf3803b30eedcc613815f0e4..cdbabeed5dfe41ac2614e2e1d8f2557fa026f449 100644
+--- a/mods/empyrean_campaign/maps/underworld_stronghold_2.txt
++++ b/mods/empyrean_campaign/maps/underworld_stronghold_2.txt
+@@ -1590,6 +1590,7 @@ requires_status=emp_stronghold2_bypass
+ type=event
+ location=19,36,2,1
+ intramap=17,64
++requires_status=emp_stronghold2_bypass
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ 
+ [event]
+@@ -1597,6 +1598,7 @@ soundfx=soundfx/environment/teleporter.ogg,0,0
+ type=event
+ location=17,62,2,1
+ intramap=19,34
++requires_status=emp_stronghold2_bypass
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ 
+ [event]
+@@ -1604,6 +1606,7 @@ soundfx=soundfx/environment/teleporter.ogg,0,0
+ type=event
+ location=35,63,2,1
+ intramap=69,65
++requires_status=emp_stronghold2_bypass
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ 
+ [event]
+@@ -1611,6 +1614,7 @@ soundfx=soundfx/environment/teleporter.ogg,0,0
+ type=event
+ location=69,63,2,1
+ intramap=35,65
++requires_status=emp_stronghold2_bypass
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ 
+ [event]
+diff --git a/tiled/empyrean_campaign/underworld_stronghold_2.tmx b/tiled/empyrean_campaign/underworld_stronghold_2.tmx
+index 776bb547617dc4248f6da9d3e6ab4763a7902247..20738cea1fbed9d92427fa43a3cdcd28fbfd9644 100644
+--- a/tiled/empyrean_campaign/underworld_stronghold_2.tmx
++++ b/tiled/empyrean_campaign/underworld_stronghold_2.tmx
+@@ -1481,24 +1481,28 @@
+   <object id="232" name="bypass teleporter" type="event" x="608" y="1152" width="64" height="32">
+    <properties>
+     <property name="intramap" value="17,64"/>
++    <property name="requires_status" value="emp_stronghold2_bypass"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+    </properties>
+   </object>
+   <object id="233" name="bypass teleporter" type="event" x="544" y="1984" width="64" height="32">
+    <properties>
+     <property name="intramap" value="19,34"/>
++    <property name="requires_status" value="emp_stronghold2_bypass"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+    </properties>
+   </object>
+   <object id="234" name="bypass teleporter" type="event" x="1120" y="2016" width="64" height="32">
+    <properties>
+     <property name="intramap" value="69,65"/>
++    <property name="requires_status" value="emp_stronghold2_bypass"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+    </properties>
+   </object>
+   <object id="235" name="bypass teleporter" type="event" x="2208" y="2016" width="64" height="32">
+    <properties>
+     <property name="intramap" value="35,65"/>
++    <property name="requires_status" value="emp_stronghold2_bypass"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+    </properties>
+   </object>

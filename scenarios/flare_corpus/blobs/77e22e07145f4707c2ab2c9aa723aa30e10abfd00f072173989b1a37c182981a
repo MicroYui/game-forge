@@ -1,0 +1,90 @@
+diff --git a/mods/living_bones/maps/brothers_lair_atrium.txt b/mods/living_bones/maps/brothers_lair_atrium.txt
+index 4f201a14a32459bcd57974f92cd1f462f4fa3dcb..75072ded2e4df27e5f8670e7a3085b87f7620bd9 100644
+--- a/mods/living_bones/maps/brothers_lair_atrium.txt
++++ b/mods/living_bones/maps/brothers_lair_atrium.txt
+@@ -204,19 +204,27 @@ location=3,13,3,2
+ unset_status=lb_ice_looted
+ 
+ [event]
+-# Unset "lb_ice_looted"
++# Unset "lb_fire_looted"
+ type=run_once
+ location=13,2,2,3
+ unset_status=lb_fire_looted
+ 
+ [event]
+-# Unset "lb_ice_looted"
++# Unset "lb_wind_looted" & other vars
+ type=run_once
+ location=24,13,3,2
+ unset_status=lb_wind_looted
+ unset_status=lb_wind_rotatedleft
+ unset_status=lb_wind_rotatedright
+ 
++[event]
++# Unset "lb_*_attack"
++type=run_once
++location=13,17,4,4
++unset_status=lb_ice_attack
++unset_status=lb_fire_attack
++unset_status=lb_wind_attack
++
+ [enemygroup]
+ # Random Enemy (40%)
+ type=undead
+diff --git a/mods/living_bones/maps/brothers_lair_sacrifice_room.txt b/mods/living_bones/maps/brothers_lair_sacrifice_room.txt
+index d3811a0090c6299980331f15ff50c12aa2c52b94..5ca0e3b573691233a7b669db1ba17f124ae6aef8 100644
+--- a/mods/living_bones/maps/brothers_lair_sacrifice_room.txt
++++ b/mods/living_bones/maps/brothers_lair_sacrifice_room.txt
+@@ -157,3 +157,51 @@ location=9,34
+ [npc]
+ type=statue_guardian_wind
+ location=11,34
++
++[event]
++type=run_always
++location=0,0,20,40
++requires_status=lb_ice_attack
++power=123
++power_damage=5,10
++power_path=7,34,hero
++power_cooldown=60
++
++[event]
++type=run_always
++location=0,0,20,40
++requires_status=lb_fire_attack
++power=122
++power_damage=5,10
++power_path=9,34,hero
++power_cooldown=60
++
++[event]
++type=run_always
++location=0,0,20,40
++requires_status=lb_wind_attack
++power=6
++power_damage=5,10
++power_path=11,34,hero
++power_cooldown=60
++
++[event]
++type=run_once
++location=0,0,20,40
++requires_status=lb_ice_unlocked
++mapmod=object,9,29,113
++mapmod=collision,9,29,0
++
++[event]
++type=run_once
++location=0,0,20,40
++requires_status=lb_fire_unlocked
++mapmod=object,9,26,113
++mapmod=collision,9,26,0
++
++[event]
++type=run_once
++location=0,0,20,40
++requires_status=lb_wind_unlocked
++mapmod=object,9,23,113
++mapmod=collision,9,23,0

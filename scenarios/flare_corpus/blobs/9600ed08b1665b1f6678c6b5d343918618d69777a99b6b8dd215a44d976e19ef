@@ -1,0 +1,51 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl5_goblin_hurler.txt b/mods/empyrean_campaign/enemies/lvl5_goblin_hurler.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..cdeaf68a3c985762df41021c31d91636fde64a2c
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl5_goblin_hurler.txt
+@@ -0,0 +1,32 @@
++INCLUDE enemies/base/goblin.txt
++
++name=Goblin Hurler
++level=5
++categories=goblin,goblin_spearman,dungeon
++rarity=uncommon
++xp=32
++
++# combat stats
++hp=250
++speed=2
++turn_delay=400ms
++chance_pursue=15
++
++power=melee,164,5
++power=ranged,165,3
++
++accuracy=105
++avoidance=30
++poise=22
++
++dmg_melee_min=85
++dmg_melee_max=90
++dmg_ranged_min=90
++dmg_ranged_max=95
++cooldown=2000ms
++absorb_min=4
++absorb_max=5
++
++# loot
++loot=loot/level_5.txt
++
+diff --git a/mods/empyrean_campaign/enemies/lvl5_goblin_vanguard.txt b/mods/empyrean_campaign/enemies/lvl5_goblin_vanguard.txt
+index 33c1bad6abc82330a1d282b19616b85073fe90f3..08b5397168ace9fe0c0eb48740a89a5e962c5532 100644
+--- a/mods/empyrean_campaign/enemies/lvl5_goblin_vanguard.txt
++++ b/mods/empyrean_campaign/enemies/lvl5_goblin_vanguard.txt
+@@ -2,7 +2,7 @@ INCLUDE enemies/base/goblin.txt
+ 
+ name=Goblin Vanguard
+ level=5
+-categories=goblin,dungeon,grassland
++categories=goblin,dungeon
+ rarity=common
+ xp=32
+ 

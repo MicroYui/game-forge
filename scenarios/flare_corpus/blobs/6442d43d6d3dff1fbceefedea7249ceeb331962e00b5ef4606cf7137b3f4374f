@@ -1,0 +1,66 @@
+diff --git a/mods/empyrean_campaign/npcs/abasi_2.txt b/mods/empyrean_campaign/npcs/abasi_2.txt
+index ce131ab93aa5576d0e77f725a3263fb78500c806..8aa55e5653ea3619193db85a0f2f6f05ae378090 100644
+--- a/mods/empyrean_campaign/npcs/abasi_2.txt
++++ b/mods/empyrean_campaign/npcs/abasi_2.txt
+@@ -17,5 +17,39 @@ vox_intro=soundfx/npcs/male_merchant_02.ogg
+ vox_intro=soundfx/npcs/male_merchant_03.ogg
+ vox_intro=soundfx/npcs/male_merchant_04.ogg
+ 
+-#talker=true
++talker=true
++
++[dialog]
++topic=Talk
++requires_not_status=emp_journal_init
++requires_not_status=emp_journal_finish
++him=Greetings, wanderer.
++him=Judging from your appearance, you're no stranger to a long journey. For that reason, I ask that you keep an eye out for my missing journal.
++him=I first noticed it was missing after a night of camping near the Goblin Cave. I searched for a while, but ultimately decided it was best to move on.
++him=If you come across my journal in your travels, please return it to me.
++set_status=emp_journal_init
++set_status=emp_journal_later
++msg=Quest added.
++
++[dialog]
++topic=Journal
++requires_status=emp_journal_init
++requires_not_status=emp_journal_found
++him=Any luck finding my journal?
++you=Not yet.
++
++[dialog]
++topic=Journal
++requires_status=emp_journal_init
++requires_status=emp_journal_found
++you=Here is your journal.
++him=Wonderful! I had considered it forever lost at this point.
++him=I am in your debt. Please take this as a reward for your trouble.
++remove_item=1002
++reward_currency=300
++reward_xp=100
++set_status=emp_journal_finish
++unset_status=emp_journal_init
++unset_status=emp_journal_found
++unset_status=emp_journal_later
+ 
+diff --git a/mods/empyrean_campaign/quests/002_journal.txt b/mods/empyrean_campaign/quests/002_journal.txt
+index b0d1fabbff874b8aac1f433d83bcd96649a87d7f..8f6fb387f204923043146415dde27dd3253d95ab 100644
+--- a/mods/empyrean_campaign/quests/002_journal.txt
++++ b/mods/empyrean_campaign/quests/002_journal.txt
+@@ -3,9 +3,16 @@ name=The Merchant's Journal
+ [quest]
+ requires_status=emp_journal_init
+ requires_not_status=emp_journal_found
++requires_not_status=emp_journal_later
+ quest_text=Find Abasi's journal. It is likely being carried by a nearby goblin.
+ 
+ [quest]
++requires_status=emp_journal_init
++requires_status=emp_journal_later
++requires_not_status=emp_journal_found
++quest_text=Find Abasi's journal. He said that it was last seen near the Goblin Cave.
++
++[quest]
+ requires_status=emp_journal_found
+ requires_not_status=emp_journal_finish
+ quest_text=Return the journal to Abasi.

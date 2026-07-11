@@ -1,0 +1,182 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl6_gruzza.txt b/mods/empyrean_campaign/enemies/lvl6_gruzza.txt
+index d8023deff580d0f0f40b7725b7da8caff413de5b..f8bbbea3892103456aabb58d41af1903a500d01f 100644
+--- a/mods/empyrean_campaign/enemies/lvl6_gruzza.txt
++++ b/mods/empyrean_campaign/enemies/lvl6_gruzza.txt
+@@ -32,3 +32,5 @@ quest_loot=emp_amir_init,emp_amir_gem_b,1007
+ loot_count=3,4
+ loot=loot/level_6.txt
+ 
++# Amir Blade
++loot=197,1
+diff --git a/mods/empyrean_campaign/enemies/lvl6_prioss.txt b/mods/empyrean_campaign/enemies/lvl6_prioss.txt
+index 48c6f8a00f48557b24f1a49b2986765e10ddcaf0..93026c2834c263dd459d1fb5a82e8a7b0c0228e5 100644
+--- a/mods/empyrean_campaign/enemies/lvl6_prioss.txt
++++ b/mods/empyrean_campaign/enemies/lvl6_prioss.txt
+@@ -31,3 +31,5 @@ absorb_max=6
+ loot_count=3,4
+ loot=loot/level_6.txt
+ 
++# Huntsman Bow
++loot=198,1
+diff --git a/mods/empyrean_campaign/enemies/lvl7_antlion_queen.txt b/mods/empyrean_campaign/enemies/lvl7_antlion_queen.txt
+index 4dfccd158c67361e9a208085304d280793113f44..4a7f99e41a03bb5d7d8d98d774da095338e728b7 100644
+--- a/mods/empyrean_campaign/enemies/lvl7_antlion_queen.txt
++++ b/mods/empyrean_campaign/enemies/lvl7_antlion_queen.txt
+@@ -33,3 +33,5 @@ cooldown=1400ms
+ loot_count=3,4
+ loot=loot/level_7.txt
+ 
++# Greed Cowl
++loot=199,1
+diff --git a/mods/empyrean_campaign/enemies/lvl8_kylana.txt b/mods/empyrean_campaign/enemies/lvl8_kylana.txt
+index db1a66ba48db2e07f56dce47ffd3e5576c56d00e..a029acbe0aece77437032606cad593c8082f4bfc 100644
+--- a/mods/empyrean_campaign/enemies/lvl8_kylana.txt
++++ b/mods/empyrean_campaign/enemies/lvl8_kylana.txt
+@@ -36,3 +36,5 @@ quest_loot=emp_mez2_init,emp_mez2_key,1015
+ loot_count=3,4
+ loot=loot/level_8.txt
+ 
++# Escape Boots
++loot=201,1
+diff --git a/mods/empyrean_campaign/enemies/lvl8_mez.txt b/mods/empyrean_campaign/enemies/lvl8_mez.txt
+index fd02e5e32f5ee89b2a4082add01701647cb166e5..38a48314545748e9acf963d20635da7b4a6243fd 100644
+--- a/mods/empyrean_campaign/enemies/lvl8_mez.txt
++++ b/mods/empyrean_campaign/enemies/lvl8_mez.txt
+@@ -38,4 +38,5 @@ quest_loot=emp_main_init,emp_main_quill,1101
+ loot_count=5,7
+ loot=loot/level_8.txt
+ 
+-
++# Mez's Wraps
++loot=202,1
+diff --git a/mods/empyrean_campaign/enemies/lvl8_zola.txt b/mods/empyrean_campaign/enemies/lvl8_zola.txt
+index 865400981fc5aa7590608ccb737c442944a43a23..003d97c2a101588f85121b60c77b89f602d14524 100644
+--- a/mods/empyrean_campaign/enemies/lvl8_zola.txt
++++ b/mods/empyrean_campaign/enemies/lvl8_zola.txt
+@@ -30,3 +30,6 @@ quest_loot=emp_mez1_init,emp_mez1_key,1014
+ #loot
+ loot_count=3,4
+ loot=loot/level_8.txt
++
++# Battle Leathers
++loot=200,1
+diff --git a/mods/empyrean_campaign/items/categories/level_8.txt b/mods/empyrean_campaign/items/categories/level_8.txt
+index 0eaff58db6372f4387f490ad1e0978676bf2e9d7..a0d02a2edc7d73ce396be74ec6f0f0876abc695c 100644
+--- a/mods/empyrean_campaign/items/categories/level_8.txt
++++ b/mods/empyrean_campaign/items/categories/level_8.txt
+@@ -333,5 +333,95 @@ price=800
+ requires_level=6
+ bonus=item_find,30
+ 
+-# 197-202
+ # unique and set items
++[item]
++id=197
++name=Amir Blade
++flavor=A remnant of those who guarded Fort Amir.
++INCLUDE items/base/weapons/melee/shortsword.txt
++level=8
++quality=unique
++price=900
++dmg_melee=45,50
++requires_stat=physical,20
++bonus=dmg_melee_min,20
++bonus=dmg_melee_max,20
++bonus=accuracy,15
++bonus=lightning_resist,20
++
++[item]
++id=198
++name=Huntsman Bow
++flavor=Compact enough to be deadly at all ranges of combat.
++INCLUDE items/base/weapons/ranged/shortbow.txt
++level=8
++quality=unique
++price=900
++dmg_ranged=45,50
++requires_stat=offense,20
++bonus=dmg_ranged_min,20
++bonus=dmg_ranged_max,20
++bonus=crit,5
++bonus=poise,10
++
++[item]
++id=199
++name=Greed Cowl
++flavor=Riches fit for a queen.
++INCLUDE items/base/armor/mage/head.txt
++level=8
++quality=unique
++price=270
++abs=3
++requires_stat=defense,14
++requires_stat=mental,8
++bonus=xp_gain,1
++bonus=currency_find,10
++bonus=item_find,25
++
++[item]
++id=200
++name=Battle Leathers
++flavor=Designed to keep its wearer moving forward.
++INCLUDE items/base/armor/leather/legs.txt
++level=8
++quality=unique
++price=450
++abs=5
++requires_stat=defense,16
++requires_stat=physical,6
++bonus=hp_regen,150
++bonus=poise,25
++bonus=fire_resist,35
++
++[item]
++id=201
++name=Escape Boots
++flavor=Running away doesn't mean the battle is lost.
++INCLUDE items/base/armor/mage/feet.txt
++level=8
++quality=unique
++price=270
++abs=3,4
++requires_stat=defense,14
++requires_stat=mental,8
++bonus=mp_regen,15
++bonus=speed,125
++bonus=avoidance,25
++
++[item]
++id=202
++name=Mez's Wraps
++flavor=With its layers of reptilian skin, not much can penetrate this armor.
++INCLUDE items/base/armor/leather/chest.txt
++level=8
++quality=unique
++price=675
++abs=5
++requires_stat=defense,15
++requires_stat=offense,7
++bonus=hp,150
++bonus=accuracy,15
++bonus=crit,1
++bonus=poise,20
++
+diff --git a/mods/empyrean_campaign/items/sets.txt b/mods/empyrean_campaign/items/sets.txt
+index adef8f121e0b19c37dc2a320080a077dc62e2711..a7ce16d5d8a32f2c45914a3a0f5f0b990e3a4f4c 100644
+--- a/mods/empyrean_campaign/items/sets.txt
++++ b/mods/empyrean_campaign/items/sets.txt
+@@ -8,3 +8,14 @@ bonus=2,mp_regen,10
+ bonus=3,hp,50
+ bonus=3,hp_regen,50
+ bonus=3,return_damage,25
++
++[set]
++id=2
++name=Temple Guard's Outfit
++color=255,64,255
++items=200,201,202
++bonus=2,ice_resist,25
++bonus=2,poise,15
++bonus=3,xp_gain,5
++bonus=3,absorb_min,10
++bonus=3,absorb_max,10

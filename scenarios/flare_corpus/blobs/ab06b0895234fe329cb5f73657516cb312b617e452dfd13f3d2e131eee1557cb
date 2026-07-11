@@ -1,0 +1,35 @@
+diff --git a/mods/empyrean_campaign/quests/0011_alchemy.txt b/mods/empyrean_campaign/quests/0011_alchemy.txt
+index 2eca85fcc62c138e175ac0e0ee5dc6cb32a18c5e..739ab97f7d2e885b3b31dcbe0057280970009dd8 100644
+--- a/mods/empyrean_campaign/quests/0011_alchemy.txt
++++ b/mods/empyrean_campaign/quests/0011_alchemy.txt
+@@ -3,25 +3,30 @@ complete_status=emp_alchemy_finish
+ 
+ [quest]
+ requires_status=emp_alchemy_init
++requires_not_status=emp_alchemy_finish
+ quest_text=Florin requested a sample of 3 ingredients: Aloe Vera, Mana Crystals, and Mushrooms.
+ 
+ [quest]
+ requires_status=emp_alchemy_init
++requires_not_status=emp_alchemy_finish
+ requires_item=751
+ quest_text=You've found some Aloe Vera.
+ 
+ [quest]
+ requires_status=emp_alchemy_init
++requires_not_status=emp_alchemy_finish
+ requires_item=752
+ quest_text=You've found a Mana Crystal.
+ 
+ [quest]
+ requires_status=emp_alchemy_init
++requires_not_status=emp_alchemy_finish
+ requires_item=754
+ quest_text=You've found some Mushrooms.
+ 
+ [quest]
+ requires_status=emp_alchemy_init
++requires_not_status=emp_alchemy_finish
+ requires_item=751:1,752:1,754:1
+ quest_text=You've found all 3 ingredients. Return them to Florin.
+ 

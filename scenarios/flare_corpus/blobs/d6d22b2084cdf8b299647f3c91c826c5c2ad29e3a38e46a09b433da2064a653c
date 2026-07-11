@@ -1,0 +1,43 @@
+diff --git a/mods/alpha_demo/maps/frontier_plains.txt b/mods/alpha_demo/maps/frontier_plains.txt
+index 569f82d771a7c13dd43d32fb79a999e064c5b44c..6ac67aa5c111cd377cdedfb5a237d54dc03f7ca0 100644
+--- a/mods/alpha_demo/maps/frontier_plains.txt
++++ b/mods/alpha_demo/maps/frontier_plains.txt
+@@ -1101,14 +1101,6 @@ type=on_load
+ location=75.4062,94.7188,1,1
+ soundfx=soundfx/environment/raven_loop.ogg
+ 
+-[event]
+-# Cutscene
+-type=on_load
+-location=246,182,2,2
+-cutscene=frontier_plains_cutscene.txt
+-requires_not_status=been_on_plains
+-set_status=been_on_plains
+-
+ [enemygroup]
+ # goblin camp
+ type=goblin
+diff --git a/tiled/frontier/frontier_plains.tmx b/tiled/frontier/frontier_plains.tmx
+index 8b586366c931c081c1381dcdfb8a20798aa7343a..a03dcc57f88017cfe5f1fbf747dccdd47304759a 100644
+--- a/tiled/frontier/frontier_plains.tmx
++++ b/tiled/frontier/frontier_plains.tmx
+@@ -1,5 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+ <map version="1.0" orientation="isometric" width="256" height="256" tilewidth="64" tileheight="32">
+  <properties>
+   <property name="music" value="music/overworld_theme.ogg"/>
+@@ -1070,13 +1069,6 @@
+     <property name="soundfx" value="soundfx/environment/raven_loop.ogg"/>
+    </properties>
+   </object>
+-  <object name="Cutscene" type="on_load" x="7872" y="5824" width="64" height="64">
+-   <properties>
+-    <property name="cutscene" value="frontier_plains_cutscene.txt"/>
+-    <property name="requires_not_status" value="been_on_plains"/>
+-    <property name="set_status" value="been_on_plains"/>
+-   </properties>
+-  </object>
+  </objectgroup>
+  <objectgroup name="enemygroup" width="256" height="256" visible="0">
+   <object name="goblin camp" type="goblin" x="1568" y="960" width="192" height="192">

@@ -1,0 +1,65 @@
+diff --git a/mods/empyrean_campaign/enemies/zombie_rotting.txt b/mods/empyrean_campaign/enemies/zombie_rotting.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..e34f7dfc64f5f13743b7aa8d752f8db9659cbe3b
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/zombie_rotting.txt
+@@ -0,0 +1,32 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Rotting Zombie
++level=1
++categories=zombie_rotting,zombie,undead,dungeon
++xp=1
++
++# combat stats
++hp=125
++speed=1.5
++turn_delay=400ms
++chance_pursue=5
++chance_melee_phys=5
++power_melee_phys=1
++
++accuracy=70
++avoidance=20
++poise=50
++
++dmg_melee_min=10
++dmg_melee_max=30
++cooldown=833ms
++
++# loot
++loot=loot/leveled_low.txt
++
++# cloth set
++loot=64,5
++loot=65,5
++loot=66,5
++loot=67,5
++
+diff --git a/mods/empyrean_campaign/engine/stats.txt b/mods/empyrean_campaign/engine/stats.txt
+index 40f4f6fa04796427ff658a3190559fc1f0be45ab..221294e59641ca047e126c9fdb373efba798b86d 100644
+--- a/mods/empyrean_campaign/engine/stats.txt
++++ b/mods/empyrean_campaign/engine/stats.txt
+@@ -16,7 +16,7 @@ mp_regen=10
+ mp_regen_per_level=1
+ mp_regen_per_mental=4
+ accuracy=75
+-accuracy_per_level=2
++accuracy_per_level=1
+ accuracy_per_offense=1
+ avoidance=25
+ avoidance_per_level=1
+@@ -41,8 +41,11 @@ dmg_ranged_max_per_offense=5
+ 
+ #absorb_min=0
+ #absorb_max=0
+-absorb_min_per_defense=5
+-absorb_max_per_defense=5
++absorb_min_per_defense=1
++absorb_max_per_defense=1
++
++poise=60
++poise_per_defense=1
+ 
+ speed=6
+ 

@@ -1,0 +1,148 @@
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+index 629949acd20863216f7d68f86a7eaa803788eba0..c9b3368b037fde972aba9caefee1f3284cef875a 100644
+--- a/mods/empyrean_campaign/items/categories/quest.txt
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -6,6 +6,7 @@ quest_item=true
+ quality=unique
+ item_type=key
+ pickup_status=emp_krolan_key
++no_stash=shared
+ 
+ [item]
+ id=1001
+@@ -15,6 +16,7 @@ quest_item=true
+ quality=unique
+ item_type=gem
+ pickup_status=emp_krolan_emerald
++no_stash=shared
+ 
+ [item]
+ id=1002
+diff --git a/mods/empyrean_campaign/maps/perdition_mines.txt b/mods/empyrean_campaign/maps/perdition_mines.txt
+index 5a6d5d3f33791481f3ba679f5a2b06186ba46988..22dd71d65dbc7d97420e203adf18be21fc3c0b5e 100644
+--- a/mods/empyrean_campaign/maps/perdition_mines.txt
++++ b/mods/empyrean_campaign/maps/perdition_mines.txt
+@@ -4,6 +4,7 @@ height=38
+ tilewidth=64
+ tileheight=32
+ orientation=isometric
++background_color=0,0,0,255
+ hero_pos=52,18
+ music=music/cave_theme.ogg
+ tileset=tilesetdefs/tileset_cave.txt
+@@ -170,6 +171,7 @@ loot=loot/level_2.txt;1001,fixed,1
+ loot_count=3,4
+ mapmod=object,4,16,176
+ repeat=false
++requires_item=1000
+ requires_not_status=emp_krolan_emerald
+ requires_status=emp_krolan_init,emp_krolan_key
+ soundfx=soundfx/wood_open.ogg
+diff --git a/mods/empyrean_campaign/npcs/udana.txt b/mods/empyrean_campaign/npcs/udana.txt
+index 2eb206074200a3d5d1ef607de57b8984e4036bd4..ed12f72f03c6b0dc6fcc0e27fc0496f2d81117d1 100644
+--- a/mods/empyrean_campaign/npcs/udana.txt
++++ b/mods/empyrean_campaign/npcs/udana.txt
+@@ -33,16 +33,27 @@ her=Could you please travel to the mines and look for Krolan? I will find some w
+ set_status=emp_krolan_init
+ msg=Quest added.
+ 
++# no emerald
+ [dialog]
+ topic=Krolan
+ requires_status=emp_krolan_init
+-requires_not_status=emp_krolan_emerald
++requires_not_item=1001:1
+ her=Please hurry to find Krolan. The Perdition Mines are located near the Salted Field.
+ 
++# emerald obtained, but no key
++[dialog]
++topic=Krolan
++requires_status=emp_krolan_init
++requires_not_item=1000:1
++requires_item=1001:1
++her=Please hurry to find Krolan. The Perdition Mines are located near the Salted Field.
++
++# both key and emerald obtained
+ [dialog]
+ topic=Krolan
+ requires_status=emp_krolan_init
+ requires_status=emp_krolan_emerald
++requires_item=1000:1,1001:1
+ you=I have found Krolan, but he was no longer of this world.
+ her=This is terrible news. Our camp is already small, so this is a devastating loss.
+ you=If it's any solace, I have his key and this emerald. Mementos to remember him by.
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 2f6fc23d02f9fc94839d7cd1127160f6af2dd30f..585653f50998e814fe296fb50b910cb78acd1eff 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.06.03:0
+ game=flare-game
+-version=1.11.08
++version=1.11.09
+ engine_version_min=1.11.46
+diff --git a/tiled/empyrean_campaign/perdition_mines.tmx b/tiled/empyrean_campaign/perdition_mines.tmx
+index 13f607443cd80e2fbeb190810f1a4991c3809655..b483aad5f000c358af183667bc6bb0f603d3d2a8 100644
+--- a/tiled/empyrean_campaign/perdition_mines.tmx
++++ b/tiled/empyrean_campaign/perdition_mines.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="56" height="38" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="26">
++<map version="1.4" tiledversion="1.4.2" orientation="isometric" renderorder="right-down" width="56" height="38" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextlayerid="6" nextobjectid="26">
+  <properties>
+   <property name="hero_pos" value="52,18"/>
+   <property name="music" value="music/cave_theme.ogg"/>
+@@ -19,7 +19,7 @@
+   <tileoffset x="0" y="16"/>
+   <image source="../cave/tiled_cave_2x2.png" width="256" height="64"/>
+  </tileset>
+- <layer name="background" width="56" height="38">
++ <layer id="1" name="background" width="56" height="38">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -61,7 +61,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="object" width="56" height="38">
++ <layer id="2" name="object" width="56" height="38">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -103,7 +103,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="56" height="38">
++ <layer id="3" name="collision" width="56" height="38">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -145,7 +145,7 @@
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ </data>
+  </layer>
+- <objectgroup name="event">
++ <objectgroup id="4" name="event">
+   <object id="1" name="to Salted Field" type="event" x="1760" y="576" width="32" height="96">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+@@ -171,6 +171,7 @@
+     <property name="loot_count" value="3,4"/>
+     <property name="mapmod" value="object,4,16,176"/>
+     <property name="repeat" value="false"/>
++    <property name="requires_item" value="1000"/>
+     <property name="requires_not_status" value="emp_krolan_emerald"/>
+     <property name="requires_status" value="emp_krolan_init,emp_krolan_key"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+@@ -262,7 +263,7 @@
+    </properties>
+   </object>
+  </objectgroup>
+- <objectgroup name="enemy">
++ <objectgroup id="5" name="enemy">
+   <object id="2" type="enemy" x="1088" y="160" width="288" height="224">
+    <properties>
+     <property name="category" value="undead"/>

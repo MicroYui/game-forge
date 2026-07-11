@@ -1,0 +1,57 @@
+diff --git a/mods/empyrean_campaign/maps/torture_chambers.txt b/mods/empyrean_campaign/maps/torture_chambers.txt
+index 6717d355871234ba2878cce63227715bc1b205ea..ea1ae4c3deb703ffafe9aa5b894bb8bf6b64d633 100644
+--- a/mods/empyrean_campaign/maps/torture_chambers.txt
++++ b/mods/empyrean_campaign/maps/torture_chambers.txt
+@@ -761,6 +761,15 @@ mapmod=object,28,31,163
+ repeat=false
+ requires_status=emp_torture_finish
+ 
++[event]
++# reset if quest is broken
++type=event
++location=2,0,1,1
++activate=on_load
++requires_not_status=emp_torture_barriers
++requires_status=emp_torture_finish
++script=scripts/reset_torture.txt
++
+ [enemy]
+ type=enemy
+ location=80,15,4,3
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 2349a7eff59efce12eb896097807a9b39030c0fc..342bf789f2e9a125985812a995c036b5647cbf4a 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:0.90:0
+ game=flare-game
+-version=1.05.02
++version=1.05.03
+ engine_version_min=1.0.22
+diff --git a/tiled/empyrean_campaign/torture_chambers.tmx b/tiled/empyrean_campaign/torture_chambers.tmx
+index 02ad1d85f3a0d46d0c5d830516722b636f6abc50..b08b56d9a3f7bda4ed8988c87442875e21d9bea4 100644
+--- a/tiled/empyrean_campaign/torture_chambers.tmx
++++ b/tiled/empyrean_campaign/torture_chambers.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.5" orientation="isometric" renderorder="right-down" width="102" height="100" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="74">
++<map version="1.0" tiledversion="1.1.5" orientation="isometric" renderorder="right-down" width="102" height="100" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="75">
+  <properties>
+   <property name="hero_pos" value="97,8"/>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+@@ -730,6 +730,14 @@
+     <property name="requires_status" value="emp_torture_finish"/>
+    </properties>
+   </object>
++  <object id="74" name="reset if quest is broken" type="event" x="64" y="0" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="requires_not_status" value="emp_torture_barriers"/>
++    <property name="requires_status" value="emp_torture_finish"/>
++    <property name="script" value="scripts/reset_torture.txt"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="enemy">
+   <object id="52" type="enemy" x="2560" y="480" width="128" height="96">

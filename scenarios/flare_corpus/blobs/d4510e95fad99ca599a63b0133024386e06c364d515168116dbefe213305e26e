@@ -1,0 +1,67 @@
+diff --git a/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt b/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
+index a0ea46c4faa26e184eefe6958eb1fee382d535b1..cf0614c97f13bc8d37a1cb3903e51303210064da 100644
+--- a/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
++++ b/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
+@@ -180,19 +180,25 @@ intermap=brothers_lair_atrium.txt,15,16
+ 
+ [event]
+ type=run_once
+-location=0,0,18,45
++location=0,0,20,47
++requires_status=lb_ice_defeated,lb_fire_defeated,lb_wind_defeated
++set_status=lb_necromancers_defeated
++
++[event]
++type=run_once
++location=0,0,20,47
+ mapmod=collision,9,23,0;object,9,23,113
+ requires_status=lb_wind_unlocked
+ 
+ [event]
+ type=run_once
+-location=0,0,18,45
++location=0,0,20,47
+ mapmod=collision,9,26,0;object,9,26,113
+ requires_status=lb_fire_unlocked
+ 
+ [event]
+ type=run_once
+-location=0,0,18,45
++location=0,0,20,47
+ mapmod=collision,9,29,0;object,9,29,113
+ requires_status=lb_ice_unlocked
+ 
+diff --git a/tiled/living_bones/brothers_lair_sacrifice_room.tmx b/tiled/living_bones/brothers_lair_sacrifice_room.tmx
+index 9487cbe1827c73f70d48b5515c0469f6563a51aa..fd2aa4a6e1c6cf94dc4061bd7c7f0545c1aa088d 100644
+--- a/tiled/living_bones/brothers_lair_sacrifice_room.tmx
++++ b/tiled/living_bones/brothers_lair_sacrifice_room.tmx
+@@ -193,25 +193,25 @@
+     <property name="intermap" value="brothers_lair_atrium.txt,15,16"/>
+    </properties>
+   </object>
+-  <object x="0" y="0" width="640" height="1504">
++  <object type="run_once" x="0" y="0" width="640" height="1504">
+    <properties>
+     <property name="requires_status" value="lb_ice_defeated,lb_fire_defeated,lb_wind_defeated"/>
+     <property name="set_status" value="lb_necromancers_defeated"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="0" y="0" width="576" height="1440">
++  <object type="run_once" x="0" y="0" width="640" height="1504">
+    <properties>
+     <property name="mapmod" value="collision,9,23,0;object,9,23,113"/>
+     <property name="requires_status" value="lb_wind_unlocked"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="0" y="0" width="576" height="1440">
++  <object type="run_once" x="0" y="0" width="640" height="1504">
+    <properties>
+     <property name="mapmod" value="collision,9,26,0;object,9,26,113"/>
+     <property name="requires_status" value="lb_fire_unlocked"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="0" y="0" width="576" height="1440">
++  <object type="run_once" x="0" y="0" width="640" height="1504">
+    <properties>
+     <property name="mapmod" value="collision,9,29,0;object,9,29,113"/>
+     <property name="requires_status" value="lb_ice_unlocked"/>

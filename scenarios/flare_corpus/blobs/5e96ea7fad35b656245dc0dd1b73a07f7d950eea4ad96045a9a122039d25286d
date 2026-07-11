@@ -1,0 +1,1171 @@
+diff --git a/mods/empyrean_campaign/languages/data.de.po b/mods/empyrean_campaign/languages/data.de.po
+index 1f1661487d9663af3d4347dfee50c7bfd0de621f..b85566bf4b55cc3ab1cfdb9928671320a353740a 100644
+--- a/mods/empyrean_campaign/languages/data.de.po
++++ b/mods/empyrean_campaign/languages/data.de.po
+@@ -6,7 +6,7 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: PACKAGE VERSION\n"
+ "Report-Msgid-Bugs-To: \n"
+-"POT-Creation-Date: 2018-03-04 11:34+\n"
++"POT-Creation-Date: 2018-03-26 11:22+\n"
+ "PO-Revision-Date: 2018-03-04 00:00+\n"
+ "Last-Translator: Janet Hunt <jane.hunt@fantasymail.de>\n"
+ "Language-Team: LANGUAGE <LL@li.org>\n"
+@@ -131,19 +131,19 @@ msgstr "Raufbold"
+ msgid "Brutes rely on physical strength and melee weapons to strike down foes. Primary attribute: Physical"
+ msgstr "Raufbolde verlassen sich auf körperliche Stärke und nutzen am liebsten kräftige Nahkampfwaffen. Primärattribut: Kraft"
+ 
+-#: ../engine/classes.txt:16
++#: ../engine/classes.txt:17
+ msgid "Scout"
+ msgstr "Pfadfinder"
+ 
+-#: ../engine/classes.txt:17
++#: ../engine/classes.txt:18
+ msgid "Scouts specialize in range weaponry and combat accuracy. Primary attribute: Offense"
+ msgstr "Pfadfinder sind auf Fernkampfwaffen und Genauigkeit im Kampf spezialisiert. Primärattribut: Angriff"
+ 
+-#: ../engine/classes.txt:26
++#: ../engine/classes.txt:28
+ msgid "Adept"
+ msgstr "Zauberlehrling"
+ 
+-#: ../engine/classes.txt:27
++#: ../engine/classes.txt:29
+ msgid "Adepts have natural abilities in casting magical spells. Primary attribute: Mental"
+ msgstr "Zauberlehrlinge haben natürliche magische Fähigkeiten für Zaubersprüche. Primärattribut: Geist"
+ 
+@@ -855,26 +855,22 @@ msgstr "Bei der Statue fehlt ein Auge."
+ msgid "The bookcase slides back and reveals a hidden path."
+ msgstr "Der Bücherschrank gleitet zurück und eröffnet einen versteckten Weg."
+ 
+-#: ../maps/fort_nasu.txt:1086
++#: ../maps/fort_nasu.txt:1026
+ msgid "Book Stand"
+ msgstr "Bücherregal"
+ 
+-#: ../maps/fort_nasu.txt:1125
++#: ../maps/fort_nasu.txt:1065
+ msgid "Altar"
+ msgstr ""
+ 
+-#: ../maps/fort_nasu.txt:1132
++#: ../maps/fort_nasu.txt:1073
+ msgid "As you enter the throne room, you see an Altar with a wooden figurine placed upon it."
+ msgstr "Als du den Thronraum betrittst siehst du einen Altar, auf dem eine hölzerne Figur platziert ist."
+ 
+-#: ../maps/fort_nasu.txt:1162
++#: ../maps/fort_nasu.txt:1103
+ msgid "Strange Book"
+ msgstr "Seltsames Buch"
+ 
+-#: ../maps/fort_nasu.txt:1192
+-msgid "A book entitled \"Reflection\" sits here, but all the pages are missing."
+-msgstr "Hier gibt es ein Buch mit dem Titel \"Reflektionen\", aber alle Seiten fehlen."
+-
+ #: ../maps/goblin_camp.txt:11
+ msgid "Goblin Camp"
+ msgstr "Goblinlager"
+@@ -1908,7 +1904,7 @@ msgid "Translators"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:35
+-msgid "gunchleoc"
++msgid "GunChleoc"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:36
+@@ -1916,18 +1912,22 @@ msgid "Igor Paliychuk"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:37
+-msgid "Pavel Maryanov"
++msgid "Janet Hunt"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:38
+-msgid "Pawel Puszczyński"
++msgid "Pavel Maryanov"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:39
++msgid "Pawel Puszczyński"
++msgstr ""
++
++#: ../cutscenes/credits.txt:40
+ msgid "Sang-froid"
+ msgstr ""
+ 
+-#: ../cutscenes/credits.txt:41
++#: ../cutscenes/credits.txt:42
+ msgid "sujiniku"
+ msgstr ""
+ 
+@@ -4136,7 +4136,8 @@ msgid "Thunderstrike"
+ msgstr "Donnerschlag"
+ 
+ #: ../powers/base/magician/thunderstrike.txt:4
+-msgid "Lightning strikes from the sky with a high chance to crit movement-impaired enemies."
++#, fuzzy
++msgid "Lightning strikes from the sky with a high chance to critically damage movement-impaired enemies."
+ msgstr "Der Himmel wirft Blitze, um deine Gegner zu lähmen."
+ 
+ #: ../powers/base/magician/shock.txt:1
+@@ -4279,7 +4280,7 @@ msgstr "Queste zurücksetzen: \"Das Tagebuch des Händlers\""
+ msgid "Reset quest: \"Krolan's Missing\""
+ msgstr "Queste zurücksetzen: \"Krolan wird vermißt\""
+ 
+-#: ../scripts/reset_main.txt:49
++#: ../scripts/reset_main.txt:59
+ msgid "Reset quest: \"Return to Empyrean\""
+ msgstr "Queste zurücksetzen: \"Rückkehr zu Empyrean\""
+ 
+@@ -4315,5 +4316,8 @@ msgstr "Queste zurücksetzen: \"Notizen des Wärters\""
+ msgid "Unlocked all waypoints"
+ msgstr "Alle Sprungportale sind freigeschalten"
+ 
++#~ msgid "A book entitled \"Reflection\" sits here, but all the pages are missing."
++#~ msgstr "Hier gibt es ein Buch mit dem Titel \"Reflektionen\", aber alle Seiten fehlen."
++
+ #~ msgid "to Black Oak City"
+ #~ msgstr "zur Schwarz-Eichen-Stadt"
+diff --git a/mods/empyrean_campaign/languages/data.fr.po b/mods/empyrean_campaign/languages/data.fr.po
+index 4d2c7c27fd1a7e66466c5171f4a59457234cd13f..804a883940fe97c20d68c15887c252b7237bf646 100644
+--- a/mods/empyrean_campaign/languages/data.fr.po
++++ b/mods/empyrean_campaign/languages/data.fr.po
+@@ -6,7 +6,7 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: 1.0\n"
+ "Report-Msgid-Bugs-To: \n"
+-"POT-Creation-Date: 2018-03-04 11:34+\n"
++"POT-Creation-Date: 2018-03-26 11:22+\n"
+ "PO-Revision-Date: 2017-07-22 14:22+\n"
+ "Last-Translator: Sang-froid <remi.millerat@gmail.com>\n"
+ "Language-Team: French\n"
+@@ -134,19 +134,19 @@ msgstr "Brute"
+ msgid "Brutes rely on physical strength and melee weapons to strike down foes. Primary attribute: Physical"
+ msgstr "Les brutes comptent sur la force physique et les armes de mêlée pour frapper les ennemis. Attribut principal: Physique"
+ 
+-#: ../engine/classes.txt:16
++#: ../engine/classes.txt:17
+ msgid "Scout"
+ msgstr "Éclaireur"
+ 
+-#: ../engine/classes.txt:17
++#: ../engine/classes.txt:18
+ msgid "Scouts specialize in range weaponry and combat accuracy. Primary attribute: Offense"
+ msgstr "Les Éclaireurs se spécialisent dans l'armement de Longue Portée et la précision de combat. Attribut principal: Attaque"
+ 
+-#: ../engine/classes.txt:26
++#: ../engine/classes.txt:28
+ msgid "Adept"
+ msgstr "Adepte"
+ 
+-#: ../engine/classes.txt:27
++#: ../engine/classes.txt:29
+ msgid "Adepts have natural abilities in casting magical spells. Primary attribute: Mental"
+ msgstr "Les adeptes ont des aptitudes naturelles dans l'émission de sorts magiques. Attribut principal: Mental"
+ 
+@@ -885,28 +885,24 @@ msgstr "Il manque un oeil à la statue."
+ msgid "The bookcase slides back and reveals a hidden path."
+ msgstr "La bibliothèque recule et révèle un passage secret."
+ 
+-#: ../maps/fort_nasu.txt:1086
++#: ../maps/fort_nasu.txt:1026
+ #, fuzzy
+ msgid "Book Stand"
+ msgstr "Livre de la Mort"
+ 
+-#: ../maps/fort_nasu.txt:1125
++#: ../maps/fort_nasu.txt:1065
+ msgid "Altar"
+ msgstr ""
+ 
+-#: ../maps/fort_nasu.txt:1132
++#: ../maps/fort_nasu.txt:1073
+ msgid "As you enter the throne room, you see an Altar with a wooden figurine placed upon it."
+ msgstr ""
+ 
+-#: ../maps/fort_nasu.txt:1162
++#: ../maps/fort_nasu.txt:1103
+ #, fuzzy
+ msgid "Strange Book"
+ msgstr "Étrange Saphire B"
+ 
+-#: ../maps/fort_nasu.txt:1192
+-msgid "A book entitled \"Reflection\" sits here, but all the pages are missing."
+-msgstr ""
+-
+ #: ../maps/goblin_camp.txt:11
+ msgid "Goblin Camp"
+ msgstr "Camp Gobelin"
+@@ -1968,7 +1964,7 @@ msgid "Translators"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:35
+-msgid "gunchleoc"
++msgid "GunChleoc"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:36
+@@ -1976,18 +1972,22 @@ msgid "Igor Paliychuk"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:37
+-msgid "Pavel Maryanov"
++msgid "Janet Hunt"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:38
+-msgid "Pawel Puszczyński"
++msgid "Pavel Maryanov"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:39
++msgid "Pawel Puszczyński"
++msgstr ""
++
++#: ../cutscenes/credits.txt:40
+ msgid "Sang-froid"
+ msgstr ""
+ 
+-#: ../cutscenes/credits.txt:41
++#: ../cutscenes/credits.txt:42
+ msgid "sujiniku"
+ msgstr ""
+ 
+@@ -4258,7 +4258,8 @@ msgid "Thunderstrike"
+ msgstr "Éclair"
+ 
+ #: ../powers/base/magician/thunderstrike.txt:4
+-msgid "Lightning strikes from the sky with a high chance to crit movement-impaired enemies."
++#, fuzzy
++msgid "Lightning strikes from the sky with a high chance to critically damage movement-impaired enemies."
+ msgstr "La foudre frappe du ciel avec une grande chance de faire de coups critiques sur les ennemis qui ont des troubles du mouvement."
+ 
+ #: ../powers/base/magician/shock.txt:1
+@@ -4405,7 +4406,7 @@ msgstr "Le Journal du Marchant"
+ msgid "Reset quest: \"Krolan's Missing\""
+ msgstr "L'Oubli de Krolan"
+ 
+-#: ../scripts/reset_main.txt:49
++#: ../scripts/reset_main.txt:59
+ #, fuzzy
+ msgid "Reset quest: \"Return to Empyrean\""
+ msgstr "Retourner à Empyrean"
+diff --git a/mods/empyrean_campaign/languages/data.gd.po b/mods/empyrean_campaign/languages/data.gd.po
+index 265bf780be7d5a2b6c1d4a9171013c41d587a70d..d8681867e92035fd55202cda680c8021c1bf9517 100644
+--- a/mods/empyrean_campaign/languages/data.gd.po
++++ b/mods/empyrean_campaign/languages/data.gd.po
+@@ -5,7 +5,7 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: \n"
+ "Report-Msgid-Bugs-To: \n"
+-"POT-Creation-Date: 2018-03-04 11:34+\n"
++"POT-Creation-Date: 2018-03-26 11:22+\n"
+ "PO-Revision-Date: 2018-03-10 21:02+0100\n"
+ "Last-Translator: GunChleoc <fios@foramnagaidhlig.net>\n"
+ "Language-Team: Fòram na Gàidhlig\n"
+@@ -13,8 +13,7 @@ msgstr ""
+ "MIME-Version: 1.0\n"
+ "Content-Type: text/plain; charset=UTF-8\n"
+ "Content-Transfer-Encoding: 8bit\n"
+-"Plural-Forms: nplurals=4; plural=(n==1 || n==11) ? 0 : (n==2 || n==12) ? 1 : "
+-"(n > 2 && n < 20) ? 2 : 3;\n"
++"Plural-Forms: nplurals=4; plural=(n==1 || n==11) ? 0 : (n==2 || n==12) ? 1 : (n > 2 && n < 20) ? 2 : 3;\n"
+ "X-Generator: Virtaal 0.7.1\n"
+ 
+ #: ../items/items.txt:8
+@@ -133,19 +132,19 @@ msgstr "Brùid"
+ msgid "Brutes rely on physical strength and melee weapons to strike down foes. Primary attribute: Physical"
+ msgstr "Cuiridh brùidean an earbsa ann an neart na bodhaige is airm dlùtha gus nàimhdean a mhilleadh. Prìomh-bhuadh: bodhaig"
+ 
+-#: ../engine/classes.txt:16
++#: ../engine/classes.txt:17
+ msgid "Scout"
+ msgstr "Rabhadair"
+ 
+-#: ../engine/classes.txt:17
++#: ../engine/classes.txt:18
+ msgid "Scouts specialize in range weaponry and combat accuracy. Primary attribute: Offense"
+ msgstr "Tha rabhadairean eòlach air airm astair is pongalachd sa chòmhrag. Prìomh-bhuadh: ionnsaigh"
+ 
+-#: ../engine/classes.txt:26
++#: ../engine/classes.txt:28
+ msgid "Adept"
+ msgstr "Innleachdach"
+ 
+-#: ../engine/classes.txt:27
++#: ../engine/classes.txt:29
+ msgid "Adepts have natural abilities in casting magical spells. Primary attribute: Mental"
+ msgstr "Tha comasan nàdarra aig innleachdaich gus geasan a chur. Prìomh-bhuadh: inntinn"
+ 
+@@ -857,26 +856,22 @@ msgstr "Tha sùil a dhìth air an ìomhaigh."
+ msgid "The bookcase slides back and reveals a hidden path."
+ msgstr "Dh’fhosgail am preas-leabhraichean, a’ toirt slighe dhìomhair am follais."
+ 
+-#: ../maps/fort_nasu.txt:1086
++#: ../maps/fort_nasu.txt:1026
+ msgid "Book Stand"
+ msgstr "Seas-leabhraichean"
+ 
+-#: ../maps/fort_nasu.txt:1125
++#: ../maps/fort_nasu.txt:1065
+ msgid "Altar"
+ msgstr "Altair"
+ 
+-#: ../maps/fort_nasu.txt:1132
++#: ../maps/fort_nasu.txt:1073
+ msgid "As you enter the throne room, you see an Altar with a wooden figurine placed upon it."
+ msgstr "Tha thu a’ tighinn a-steach do sheòmar na cathrach agus chì thu altair le samhail fiodha air."
+ 
+-#: ../maps/fort_nasu.txt:1162
++#: ../maps/fort_nasu.txt:1103
+ msgid "Strange Book"
+ msgstr "Leabhar neònach"
+ 
+-#: ../maps/fort_nasu.txt:1192
+-msgid "A book entitled \"Reflection\" sits here, but all the pages are missing."
+-msgstr "Tha leabhar air a bheil “Ath-thilgeadh” ann ach tha na duilleagan uile a dhìth air."
+-
+ #: ../maps/goblin_camp.txt:11
+ msgid "Goblin Camp"
+ msgstr "Campa nam bòcan"
+@@ -1910,7 +1905,8 @@ msgid "Translators"
+ msgstr "Eadar-theangadairean"
+ 
+ #: ../cutscenes/credits.txt:35
+-msgid "gunchleoc"
++#, fuzzy
++msgid "GunChleoc"
+ msgstr "GunChleoc"
+ 
+ #: ../cutscenes/credits.txt:36
+@@ -1918,18 +1914,22 @@ msgid "Igor Paliychuk"
+ msgstr "Igor Paliychuk"
+ 
+ #: ../cutscenes/credits.txt:37
++msgid "Janet Hunt"
++msgstr ""
++
++#: ../cutscenes/credits.txt:38
+ msgid "Pavel Maryanov"
+ msgstr "Pavel Maryanov"
+ 
+-#: ../cutscenes/credits.txt:38
++#: ../cutscenes/credits.txt:39
+ msgid "Pawel Puszczyński"
+ msgstr "Pawel Puszczyński"
+ 
+-#: ../cutscenes/credits.txt:39
++#: ../cutscenes/credits.txt:40
+ msgid "Sang-froid"
+ msgstr "Sang-froid"
+ 
+-#: ../cutscenes/credits.txt:41
++#: ../cutscenes/credits.txt:42
+ msgid "sujiniku"
+ msgstr "sujiniku"
+ 
+@@ -4138,7 +4138,8 @@ msgid "Thunderstrike"
+ msgstr "Buille tàirneanach"
+ 
+ #: ../powers/base/magician/thunderstrike.txt:4
+-msgid "Lightning strikes from the sky with a high chance to crit movement-impaired enemies."
++#, fuzzy
++msgid "Lightning strikes from the sky with a high chance to critically damage movement-impaired enemies."
+ msgstr "Boillsgidh dealan o na speuran aig astar le teans math gun dèan e dochann èiginneach air nàimhdean air a bheil cion-gluasaid."
+ 
+ #: ../powers/base/magician/shock.txt:1
+@@ -4281,7 +4282,7 @@ msgstr "Ath-shuidhich ceann-turais: “Leabhar-latha a’ mharsanta”"
+ msgid "Reset quest: \"Krolan's Missing\""
+ msgstr "Ath-shuidhich ceann-turais: “Chaidh Cròlan air chall”"
+ 
+-#: ../scripts/reset_main.txt:49
++#: ../scripts/reset_main.txt:59
+ msgid "Reset quest: \"Return to Empyrean\""
+ msgstr "Ath-shuidhich ceann-turais: “Till gu Impirean”"
+ 
+@@ -4317,6 +4318,9 @@ msgstr "Ath-shuidhich ceann-turais: \"Nòtaichean a’ mhaoir\""
+ msgid "Unlocked all waypoints"
+ msgstr "Chaidh a’ ghlas a thoirt far gach puinge-turais"
+ 
++#~ msgid "A book entitled \"Reflection\" sits here, but all the pages are missing."
++#~ msgstr "Tha leabhar air a bheil “Ath-thilgeadh” ann ach tha na duilleagan uile a dhìth air."
++
+ #, fuzzy
+ #~ msgid "Summon Zombie"
+ #~ msgstr "Corp coisiche a' lobhadh"
+diff --git a/mods/empyrean_campaign/languages/data.it.po b/mods/empyrean_campaign/languages/data.it.po
+index c9e5d8a211aad1b98e3784616998fd0072b37eb6..e2cd1b14a38a5af79a08335d43a001b083aac6d7 100644
+--- a/mods/empyrean_campaign/languages/data.it.po
++++ b/mods/empyrean_campaign/languages/data.it.po
+@@ -7,7 +7,7 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: 1.0\n"
+ "Report-Msgid-Bugs-To: \n"
+-"POT-Creation-Date: 2018-03-04 11:34+\n"
++"POT-Creation-Date: 2018-03-26 11:22+\n"
+ "PO-Revision-Date: 2017-10-03 13:34+\n"
+ "Last-Translator: Stefano Peris <lordstephen77@gmail.com>>\n"
+ "Language-Team: Italian>\n"
+@@ -133,19 +133,19 @@ msgstr "Bruto"
+ msgid "Brutes rely on physical strength and melee weapons to strike down foes. Primary attribute: Physical"
+ msgstr "I bruti si basano su forze fisiche e armi da mischia per colpire i nemici. Attributo primario: Fisico"
+ 
+-#: ../engine/classes.txt:16
++#: ../engine/classes.txt:17
+ msgid "Scout"
+ msgstr "esploratore"
+ 
+-#: ../engine/classes.txt:17
++#: ../engine/classes.txt:18
+ msgid "Scouts specialize in range weaponry and combat accuracy. Primary attribute: Offense"
+ msgstr "Gli esploratori sono specializzati in armi a distanza e precisione in combattimento. Attributo primario: offesa"
+ 
+-#: ../engine/classes.txt:26
++#: ../engine/classes.txt:28
+ msgid "Adept"
+ msgstr "Adepto"
+ 
+-#: ../engine/classes.txt:27
++#: ../engine/classes.txt:29
+ msgid "Adepts have natural abilities in casting magical spells. Primary attribute: Mental"
+ msgstr "Gli adepti hanno abilità naturali nel lanciare incantesimi magici. Attributo primario: Mentale"
+ 
+@@ -865,26 +865,22 @@ msgstr "Alla statua manca un occhio"
+ msgid "The bookcase slides back and reveals a hidden path."
+ msgstr "La libreria scorre all'indietro rivelando un percorso nascosto."
+ 
+-#: ../maps/fort_nasu.txt:1086
++#: ../maps/fort_nasu.txt:1026
+ msgid "Book Stand"
+ msgstr "Piedistallo libro"
+ 
+-#: ../maps/fort_nasu.txt:1125
++#: ../maps/fort_nasu.txt:1065
+ msgid "Altar"
+ msgstr "Altare"
+ 
+-#: ../maps/fort_nasu.txt:1132
++#: ../maps/fort_nasu.txt:1073
+ msgid "As you enter the throne room, you see an Altar with a wooden figurine placed upon it."
+ msgstr "Quando entri nella sala del trono, vedi un Altare con una figura di legno posta su di esso."
+ 
+-#: ../maps/fort_nasu.txt:1162
++#: ../maps/fort_nasu.txt:1103
+ msgid "Strange Book"
+ msgstr "Strano Libro"
+ 
+-#: ../maps/fort_nasu.txt:1192
+-msgid "A book entitled \"Reflection\" sits here, but all the pages are missing."
+-msgstr ""
+-
+ #: ../maps/goblin_camp.txt:11
+ msgid "Goblin Camp"
+ msgstr "Campo Goblin"
+@@ -1938,7 +1934,7 @@ msgid "Translators"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:35
+-msgid "gunchleoc"
++msgid "GunChleoc"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:36
+@@ -1946,18 +1942,22 @@ msgid "Igor Paliychuk"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:37
+-msgid "Pavel Maryanov"
++msgid "Janet Hunt"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:38
+-msgid "Pawel Puszczyński"
++msgid "Pavel Maryanov"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:39
++msgid "Pawel Puszczyński"
++msgstr ""
++
++#: ../cutscenes/credits.txt:40
+ msgid "Sang-froid"
+ msgstr ""
+ 
+-#: ../cutscenes/credits.txt:41
++#: ../cutscenes/credits.txt:42
+ msgid "sujiniku"
+ msgstr ""
+ 
+@@ -4181,7 +4181,7 @@ msgid "Thunderstrike"
+ msgstr ""
+ 
+ #: ../powers/base/magician/thunderstrike.txt:4
+-msgid "Lightning strikes from the sky with a high chance to crit movement-impaired enemies."
++msgid "Lightning strikes from the sky with a high chance to critically damage movement-impaired enemies."
+ msgstr ""
+ 
+ #: ../powers/base/magician/shock.txt:1
+@@ -4327,7 +4327,7 @@ msgstr "La rivista del mercante"
+ msgid "Reset quest: \"Krolan's Missing\""
+ msgstr "Resettare la ricerca: \"Intrappolato nella cripta\""
+ 
+-#: ../scripts/reset_main.txt:49
++#: ../scripts/reset_main.txt:59
+ #, fuzzy
+ msgid "Reset quest: \"Return to Empyrean\""
+ msgstr "Ritorna a Empyrean"
+diff --git a/mods/empyrean_campaign/languages/data.ja.po b/mods/empyrean_campaign/languages/data.ja.po
+index c54ef196f6a9d6692736e0e69ae2e67606197eae..eca78764624449bd32a58eb6491c8d012c51b4a5 100644
+--- a/mods/empyrean_campaign/languages/data.ja.po
++++ b/mods/empyrean_campaign/languages/data.ja.po
+@@ -7,7 +7,7 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: PACKAGE VERSION\n"
+ "Report-Msgid-Bugs-To: \n"
+-"POT-Creation-Date: 2018-03-04 11:34+\n"
++"POT-Creation-Date: 2018-03-26 11:22+\n"
+ "PO-Revision-Date: 2017-12-10 02:53+0900\n"
+ "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+ "Language-Team: LANGUAGE <LL@li.org>\n"
+@@ -133,19 +133,19 @@ msgstr ""
+ msgid "Brutes rely on physical strength and melee weapons to strike down foes. Primary attribute: Physical"
+ msgstr "Brute なら、物理的な強さが頼りになります。近接戦の武器で敵を攻撃します。 第一の特徴: 肉体"
+ 
+-#: ../engine/classes.txt:16
++#: ../engine/classes.txt:17
+ msgid "Scout"
+ msgstr ""
+ 
+-#: ../engine/classes.txt:17
++#: ../engine/classes.txt:18
+ msgid "Scouts specialize in range weaponry and combat accuracy. Primary attribute: Offense"
+ msgstr "Scout は遠距離攻撃の武器と戦闘の精度に特化しています。 第一の特徴: 攻撃"
+ 
+-#: ../engine/classes.txt:26
++#: ../engine/classes.txt:28
+ msgid "Adept"
+ msgstr ""
+ 
+-#: ../engine/classes.txt:27
++#: ../engine/classes.txt:29
+ msgid "Adepts have natural abilities in casting magical spells. Primary attribute: Mental"
+ msgstr "Adept は魔法呪文を自然に唱えられる技能を持ちます。 第一の特徴: 精神"
+ 
+@@ -859,26 +859,22 @@ msgstr "この像には目が欠けている。"
+ msgid "The bookcase slides back and reveals a hidden path."
+ msgstr "本棚が後ろにスライドして、隠れていた通路があらわれた。"
+ 
+-#: ../maps/fort_nasu.txt:1086
++#: ../maps/fort_nasu.txt:1026
+ msgid "Book Stand"
+ msgstr "ブックスタンド"
+ 
+-#: ../maps/fort_nasu.txt:1125
++#: ../maps/fort_nasu.txt:1065
+ msgid "Altar"
+ msgstr "祭壇"
+ 
+-#: ../maps/fort_nasu.txt:1132
++#: ../maps/fort_nasu.txt:1073
+ msgid "As you enter the throne room, you see an Altar with a wooden figurine placed upon it."
+ msgstr "あなたは謁見室に入ると、祭壇が見え、その近くに木の像があるのが見えた。"
+ 
+-#: ../maps/fort_nasu.txt:1162
++#: ../maps/fort_nasu.txt:1103
+ msgid "Strange Book"
+ msgstr "奇妙な本"
+ 
+-#: ../maps/fort_nasu.txt:1192
+-msgid "A book entitled \"Reflection\" sits here, but all the pages are missing."
+-msgstr ""
+-
+ #: ../maps/goblin_camp.txt:11
+ msgid "Goblin Camp"
+ msgstr "ゴブリンの野営地"
+@@ -1914,7 +1910,7 @@ msgid "Translators"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:35
+-msgid "gunchleoc"
++msgid "GunChleoc"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:36
+@@ -1922,18 +1918,22 @@ msgid "Igor Paliychuk"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:37
+-msgid "Pavel Maryanov"
++msgid "Janet Hunt"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:38
+-msgid "Pawel Puszczyński"
++msgid "Pavel Maryanov"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:39
++msgid "Pawel Puszczyński"
++msgstr ""
++
++#: ../cutscenes/credits.txt:40
+ msgid "Sang-froid"
+ msgstr ""
+ 
+-#: ../cutscenes/credits.txt:41
++#: ../cutscenes/credits.txt:42
+ msgid "sujiniku"
+ msgstr ""
+ 
+@@ -4153,7 +4153,7 @@ msgid "Thunderstrike"
+ msgstr "サンダーストライク"
+ 
+ #: ../powers/base/magician/thunderstrike.txt:4
+-msgid "Lightning strikes from the sky with a high chance to crit movement-impaired enemies."
++msgid "Lightning strikes from the sky with a high chance to critically damage movement-impaired enemies."
+ msgstr ""
+ 
+ #: ../powers/base/magician/shock.txt:1
+@@ -4299,7 +4299,7 @@ msgstr "商人ジャーナル"
+ msgid "Reset quest: \"Krolan's Missing\""
+ msgstr "Krolan の消失"
+ 
+-#: ../scripts/reset_main.txt:49
++#: ../scripts/reset_main.txt:59
+ #, fuzzy
+ msgid "Reset quest: \"Return to Empyrean\""
+ msgstr "Empyrean に戻る"
+diff --git a/mods/empyrean_campaign/languages/data.pl.po b/mods/empyrean_campaign/languages/data.pl.po
+index ab0b8ef6ed3eb3d0cd2631403d425a16f8c05daa..d4fb9721f2234c7eb24f22b440e2e8c62a399174 100644
+--- a/mods/empyrean_campaign/languages/data.pl.po
++++ b/mods/empyrean_campaign/languages/data.pl.po
+@@ -6,7 +6,7 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: 1.0\n"
+ "Report-Msgid-Bugs-To: \n"
+-"POT-Creation-Date: 2018-03-04 11:34+\n"
++"POT-Creation-Date: 2018-03-26 11:22+\n"
+ "PO-Revision-Date: 2018-12-12 01:29+0100\n"
+ "Last-Translator: Paweł Puszczyński <pawonashi@gmail.com>\n"
+ "Language-Team: Polish\n"
+@@ -132,19 +132,19 @@ msgstr "Siłacz"
+ msgid "Brutes rely on physical strength and melee weapons to strike down foes. Primary attribute: Physical"
+ msgstr "Siłacze polegają na sile fizycznej i broni do walki w zwarciu, by powalić swoich przeciwników. Podstawowy atrybut: Siła Fizyczna"
+ 
+-#: ../engine/classes.txt:16
++#: ../engine/classes.txt:17
+ msgid "Scout"
+ msgstr "Zwiadowca"
+ 
+-#: ../engine/classes.txt:17
++#: ../engine/classes.txt:18
+ msgid "Scouts specialize in range weaponry and combat accuracy. Primary attribute: Offense"
+ msgstr "Zwiadowcy specjalizują się w broniach dystansowych i precyzji podczas walki. Podstawowy atrybut: Atak"
+ 
+-#: ../engine/classes.txt:26
++#: ../engine/classes.txt:28
+ msgid "Adept"
+ msgstr "Adept"
+ 
+-#: ../engine/classes.txt:27
++#: ../engine/classes.txt:29
+ msgid "Adepts have natural abilities in casting magical spells. Primary attribute: Mental"
+ msgstr "Adepci posiadają naturalne zdolności do rzucania magicznych czarów. Podstawowy atrybut: Siła Umysłu"
+ 
+@@ -861,26 +861,22 @@ msgstr "W statule brakuje oka."
+ msgid "The bookcase slides back and reveals a hidden path."
+ msgstr "Regał odsuwa się, ukazując ukrytą ścieżkę."
+ 
+-#: ../maps/fort_nasu.txt:1086
++#: ../maps/fort_nasu.txt:1026
+ msgid "Book Stand"
+ msgstr "Regał z Książkami"
+ 
+-#: ../maps/fort_nasu.txt:1125
++#: ../maps/fort_nasu.txt:1065
+ msgid "Altar"
+ msgstr "Ołtarz"
+ 
+-#: ../maps/fort_nasu.txt:1132
++#: ../maps/fort_nasu.txt:1073
+ msgid "As you enter the throne room, you see an Altar with a wooden figurine placed upon it."
+ msgstr "Wchodząc do sali tronowej, zauważasz Ołtarz z umiejscowioną na nim drewnianą figurką."
+ 
+-#: ../maps/fort_nasu.txt:1162
++#: ../maps/fort_nasu.txt:1103
+ msgid "Strange Book"
+ msgstr "Dziwna Książka"
+ 
+-#: ../maps/fort_nasu.txt:1192
+-msgid "A book entitled \"Reflection\" sits here, but all the pages are missing."
+-msgstr "Znajduje się tu książka zatytułowana \"Odbicie\", ale nie ma w niej żadnej kartki."
+-
+ #: ../maps/goblin_camp.txt:11
+ msgid "Goblin Camp"
+ msgstr "Obóz Goblinów"
+@@ -1917,7 +1913,7 @@ msgid "Translators"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:35
+-msgid "gunchleoc"
++msgid "GunChleoc"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:36
+@@ -1925,18 +1921,22 @@ msgid "Igor Paliychuk"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:37
+-msgid "Pavel Maryanov"
++msgid "Janet Hunt"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:38
+-msgid "Pawel Puszczyński"
++msgid "Pavel Maryanov"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:39
++msgid "Pawel Puszczyński"
++msgstr ""
++
++#: ../cutscenes/credits.txt:40
+ msgid "Sang-froid"
+ msgstr ""
+ 
+-#: ../cutscenes/credits.txt:41
++#: ../cutscenes/credits.txt:42
+ msgid "sujiniku"
+ msgstr ""
+ 
+@@ -4158,7 +4158,8 @@ msgid "Thunderstrike"
+ msgstr "Grom"
+ 
+ #: ../powers/base/magician/thunderstrike.txt:4
+-msgid "Lightning strikes from the sky with a high chance to crit movement-impaired enemies."
++#, fuzzy
++msgid "Lightning strikes from the sky with a high chance to critically damage movement-impaired enemies."
+ msgstr "Błyskawica uderza z nieba z wysoką szansą na zadanie krytycznych obrażeń spowolnionym bądź unieruchomionym przeciwnikom."
+ 
+ #: ../powers/base/magician/shock.txt:1
+@@ -4304,7 +4305,7 @@ msgstr "Dziennik Kupca."
+ msgid "Reset quest: \"Krolan's Missing\""
+ msgstr "Zaginięcie Krolana"
+ 
+-#: ../scripts/reset_main.txt:49
++#: ../scripts/reset_main.txt:59
+ #, fuzzy
+ msgid "Reset quest: \"Return to Empyrean\""
+ msgstr "Powrót do Empyrean"
+@@ -4348,6 +4349,9 @@ msgstr "Zresetowano zadanie: \"Uwięzienie w Krypcie\""
+ msgid "Unlocked all waypoints"
+ msgstr ""
+ 
++#~ msgid "A book entitled \"Reflection\" sits here, but all the pages are missing."
++#~ msgstr "Znajduje się tu książka zatytułowana \"Odbicie\", ale nie ma w niej żadnej kartki."
++
+ #~ msgid "to Black Oak City"
+ #~ msgstr "do Miasta Czarnego Dębu"
+ 
+diff --git a/mods/empyrean_campaign/languages/data.pot b/mods/empyrean_campaign/languages/data.pot
+index 5b5bcd9b4108ebab1460313a0b6a0241e62678a7..562745bd02b4a696f1d425acfcda6b407a0c8c2e 100644
+--- a/mods/empyrean_campaign/languages/data.pot
++++ b/mods/empyrean_campaign/languages/data.pot
+@@ -6,7 +6,7 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: PACKAGE VERSION\n"
+ "Report-Msgid-Bugs-To: \n"
+-"POT-Creation-Date: 2018-03-04 11:34+\n"
++"POT-Creation-Date: 2018-03-26 11:22+\n"
+ "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+ "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+ "Language-Team: LANGUAGE <LL@li.org>\n"
+@@ -131,19 +131,19 @@ msgstr ""
+ msgid "Brutes rely on physical strength and melee weapons to strike down foes. Primary attribute: Physical"
+ msgstr ""
+ 
+-#: ../engine/classes.txt:16
++#: ../engine/classes.txt:17
+ msgid "Scout"
+ msgstr ""
+ 
+-#: ../engine/classes.txt:17
++#: ../engine/classes.txt:18
+ msgid "Scouts specialize in range weaponry and combat accuracy. Primary attribute: Offense"
+ msgstr ""
+ 
+-#: ../engine/classes.txt:26
++#: ../engine/classes.txt:28
+ msgid "Adept"
+ msgstr ""
+ 
+-#: ../engine/classes.txt:27
++#: ../engine/classes.txt:29
+ msgid "Adepts have natural abilities in casting magical spells. Primary attribute: Mental"
+ msgstr ""
+ 
+@@ -855,26 +855,22 @@ msgstr ""
+ msgid "The bookcase slides back and reveals a hidden path."
+ msgstr ""
+ 
+-#: ../maps/fort_nasu.txt:1086
++#: ../maps/fort_nasu.txt:1026
+ msgid "Book Stand"
+ msgstr ""
+ 
+-#: ../maps/fort_nasu.txt:1125
++#: ../maps/fort_nasu.txt:1065
+ msgid "Altar"
+ msgstr ""
+ 
+-#: ../maps/fort_nasu.txt:1132
++#: ../maps/fort_nasu.txt:1073
+ msgid "As you enter the throne room, you see an Altar with a wooden figurine placed upon it."
+ msgstr ""
+ 
+-#: ../maps/fort_nasu.txt:1162
++#: ../maps/fort_nasu.txt:1103
+ msgid "Strange Book"
+ msgstr ""
+ 
+-#: ../maps/fort_nasu.txt:1192
+-msgid "A book entitled \"Reflection\" sits here, but all the pages are missing."
+-msgstr ""
+-
+ #: ../maps/goblin_camp.txt:11
+ msgid "Goblin Camp"
+ msgstr ""
+@@ -1908,7 +1904,7 @@ msgid "Translators"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:35
+-msgid "gunchleoc"
++msgid "GunChleoc"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:36
+@@ -1916,18 +1912,22 @@ msgid "Igor Paliychuk"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:37
+-msgid "Pavel Maryanov"
++msgid "Janet Hunt"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:38
+-msgid "Pawel Puszczyński"
++msgid "Pavel Maryanov"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:39
++msgid "Pawel Puszczyński"
++msgstr ""
++
++#: ../cutscenes/credits.txt:40
+ msgid "Sang-froid"
+ msgstr ""
+ 
+-#: ../cutscenes/credits.txt:41
++#: ../cutscenes/credits.txt:42
+ msgid "sujiniku"
+ msgstr ""
+ 
+@@ -4136,7 +4136,7 @@ msgid "Thunderstrike"
+ msgstr ""
+ 
+ #: ../powers/base/magician/thunderstrike.txt:4
+-msgid "Lightning strikes from the sky with a high chance to crit movement-impaired enemies."
++msgid "Lightning strikes from the sky with a high chance to critically damage movement-impaired enemies."
+ msgstr ""
+ 
+ #: ../powers/base/magician/shock.txt:1
+@@ -4279,7 +4279,7 @@ msgstr ""
+ msgid "Reset quest: \"Krolan's Missing\""
+ msgstr ""
+ 
+-#: ../scripts/reset_main.txt:49
++#: ../scripts/reset_main.txt:59
+ msgid "Reset quest: \"Return to Empyrean\""
+ msgstr ""
+ 
+diff --git a/mods/empyrean_campaign/languages/data.ru.po b/mods/empyrean_campaign/languages/data.ru.po
+index 386efa95b8f23d37d24cca7310bc09716e692def..48e77015f895d84907dc8b381bb2cd2085a6442c 100644
+--- a/mods/empyrean_campaign/languages/data.ru.po
++++ b/mods/empyrean_campaign/languages/data.ru.po
+@@ -6,7 +6,7 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: flare-empyrean_campaign\n"
+ "Report-Msgid-Bugs-To: \n"
+-"POT-Creation-Date: 2018-03-04 11:34+\n"
++"POT-Creation-Date: 2018-03-26 11:22+\n"
+ "PO-Revision-Date: 2016-09-14 16:46+\n"
+ "Last-Translator: Pavel Maryanov <acid@jack.kiev.ua>\n"
+ "Language-Team: Russian <gnu@dn07.ru>\n"
+@@ -134,19 +134,19 @@ msgstr "Варвар"
+ msgid "Brutes rely on physical strength and melee weapons to strike down foes. Primary attribute: Physical"
+ msgstr "Варвары сражаются, используя физическую силу и оружие ближнего боя. Основной навык: Сила"
+ 
+-#: ../engine/classes.txt:16
++#: ../engine/classes.txt:17
+ msgid "Scout"
+ msgstr "Разведчик"
+ 
+-#: ../engine/classes.txt:17
++#: ../engine/classes.txt:18
+ msgid "Scouts specialize in range weaponry and combat accuracy. Primary attribute: Offense"
+ msgstr "Разведчики предпочитают оружие дальнего боя и меткость. Основной навык: Нападение"
+ 
+-#: ../engine/classes.txt:26
++#: ../engine/classes.txt:28
+ msgid "Adept"
+ msgstr "Адепт"
+ 
+-#: ../engine/classes.txt:27
++#: ../engine/classes.txt:29
+ msgid "Adepts have natural abilities in casting magical spells. Primary attribute: Mental"
+ msgstr "Адепты обладают природной способностью накладывать магические заклинания. Основной навык: Интеллект"
+ 
+@@ -881,26 +881,22 @@ msgstr "У статуи не хватает одного глаза."
+ msgid "The bookcase slides back and reveals a hidden path."
+ msgstr "Книжный шкаф скользит назад и открывает потайной проход."
+ 
+-#: ../maps/fort_nasu.txt:1086
++#: ../maps/fort_nasu.txt:1026
+ msgid "Book Stand"
+ msgstr "Книжная Стойка"
+ 
+-#: ../maps/fort_nasu.txt:1125
++#: ../maps/fort_nasu.txt:1065
+ msgid "Altar"
+ msgstr "Алтарь"
+ 
+-#: ../maps/fort_nasu.txt:1132
++#: ../maps/fort_nasu.txt:1073
+ msgid "As you enter the throne room, you see an Altar with a wooden figurine placed upon it."
+ msgstr "Войдя в тронный зал, вы увидели алтарь и стоящую на нём деревянную статуэтку."
+ 
+-#: ../maps/fort_nasu.txt:1162
++#: ../maps/fort_nasu.txt:1103
+ msgid "Strange Book"
+ msgstr "Странная Книга"
+ 
+-#: ../maps/fort_nasu.txt:1192
+-msgid "A book entitled \"Reflection\" sits here, but all the pages are missing."
+-msgstr "Тут лежит книга с названием «Отражение», но в ней не хватает всех страниц."
+-
+ #: ../maps/goblin_camp.txt:11
+ msgid "Goblin Camp"
+ msgstr "Лагерь Гоблинов"
+@@ -1963,7 +1959,7 @@ msgid "Translators"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:35
+-msgid "gunchleoc"
++msgid "GunChleoc"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:36
+@@ -1971,18 +1967,22 @@ msgid "Igor Paliychuk"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:37
+-msgid "Pavel Maryanov"
++msgid "Janet Hunt"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:38
+-msgid "Pawel Puszczyński"
++msgid "Pavel Maryanov"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:39
++msgid "Pawel Puszczyński"
++msgstr ""
++
++#: ../cutscenes/credits.txt:40
+ msgid "Sang-froid"
+ msgstr ""
+ 
+-#: ../cutscenes/credits.txt:41
++#: ../cutscenes/credits.txt:42
+ msgid "sujiniku"
+ msgstr ""
+ 
+@@ -4250,7 +4250,8 @@ msgid "Thunderstrike"
+ msgstr "Удар молнии"
+ 
+ #: ../powers/base/magician/thunderstrike.txt:4
+-msgid "Lightning strikes from the sky with a high chance to crit movement-impaired enemies."
++#, fuzzy
++msgid "Lightning strikes from the sky with a high chance to critically damage movement-impaired enemies."
+ msgstr "Удар молнии с неба с большим шансом нанесения критического урона замедленным врагам."
+ 
+ #: ../powers/base/magician/shock.txt:1
+@@ -4397,7 +4398,7 @@ msgstr "Дневник Торговца"
+ msgid "Reset quest: \"Krolan's Missing\""
+ msgstr "Кролан Пропал"
+ 
+-#: ../scripts/reset_main.txt:49
++#: ../scripts/reset_main.txt:59
+ #, fuzzy
+ msgid "Reset quest: \"Return to Empyrean\""
+ msgstr "Возвращение в Эмпирей"
+@@ -4441,6 +4442,9 @@ msgstr "Склеп-ловушка"
+ msgid "Unlocked all waypoints"
+ msgstr ""
+ 
++#~ msgid "A book entitled \"Reflection\" sits here, but all the pages are missing."
++#~ msgstr "Тут лежит книга с названием «Отражение», но в ней не хватает всех страниц."
++
+ #, fuzzy
+ #~ msgid "to Black Oak City"
+ #~ msgstr "в Город Красильный Дуб"
+diff --git a/mods/empyrean_campaign/languages/data.uk.po b/mods/empyrean_campaign/languages/data.uk.po
+index c45eacd2c825934451f91014d624968feda17029..4dbc758fd2aff0a434815dc331706bf0b0ef6f0e 100644
+--- a/mods/empyrean_campaign/languages/data.uk.po
++++ b/mods/empyrean_campaign/languages/data.uk.po
+@@ -6,7 +6,7 @@ msgid ""
+ msgstr ""
+ "Project-Id-Version: 0.19\n"
+ "Report-Msgid-Bugs-To: \n"
+-"POT-Creation-Date: 2018-03-04 11:34+\n"
++"POT-Creation-Date: 2018-03-26 11:22+\n"
+ "PO-Revision-Date: 2013-10-12 16:38+0200\n"
+ "Last-Translator: Igor Paliychuk <mansonigor@gmail.com>\n"
+ "Language-Team: Ukrainian <LL@li.org>\n"
+@@ -134,19 +134,19 @@ msgstr "Звір"
+ msgid "Brutes rely on physical strength and melee weapons to strike down foes. Primary attribute: Physical"
+ msgstr "Звірі покладаються на фізичну силу і зброю ближнього бою щоб вразити ворога. Основний атрибут: Фізика"
+ 
+-#: ../engine/classes.txt:16
++#: ../engine/classes.txt:17
+ msgid "Scout"
+ msgstr "Розвідник"
+ 
+-#: ../engine/classes.txt:17
++#: ../engine/classes.txt:18
+ msgid "Scouts specialize in range weaponry and combat accuracy. Primary attribute: Offense"
+ msgstr "Розвідники спеціалізуються на зброї дальнього бою і бойовій точності. Основний атрибут: Напад"
+ 
+-#: ../engine/classes.txt:26
++#: ../engine/classes.txt:28
+ msgid "Adept"
+ msgstr "Адепт"
+ 
+-#: ../engine/classes.txt:27
++#: ../engine/classes.txt:29
+ msgid "Adepts have natural abilities in casting magical spells. Primary attribute: Mental"
+ msgstr "Адепти мають природні здібності в киданні магічних заклинань. Основний атрибут: Психіка"
+ 
+@@ -893,27 +893,23 @@ msgstr ""
+ msgid "The bookcase slides back and reveals a hidden path."
+ msgstr ""
+ 
+-#: ../maps/fort_nasu.txt:1086
++#: ../maps/fort_nasu.txt:1026
+ #, fuzzy
+ msgid "Book Stand"
+ msgstr "Книга мертвих"
+ 
+-#: ../maps/fort_nasu.txt:1125
++#: ../maps/fort_nasu.txt:1065
+ msgid "Altar"
+ msgstr ""
+ 
+-#: ../maps/fort_nasu.txt:1132
++#: ../maps/fort_nasu.txt:1073
+ msgid "As you enter the throne room, you see an Altar with a wooden figurine placed upon it."
+ msgstr ""
+ 
+-#: ../maps/fort_nasu.txt:1162
++#: ../maps/fort_nasu.txt:1103
+ msgid "Strange Book"
+ msgstr ""
+ 
+-#: ../maps/fort_nasu.txt:1192
+-msgid "A book entitled \"Reflection\" sits here, but all the pages are missing."
+-msgstr ""
+-
+ #: ../maps/goblin_camp.txt:11
+ msgid "Goblin Camp"
+ msgstr "Табір гоблінів"
+@@ -1969,7 +1965,7 @@ msgid "Translators"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:35
+-msgid "gunchleoc"
++msgid "GunChleoc"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:36
+@@ -1977,18 +1973,22 @@ msgid "Igor Paliychuk"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:37
+-msgid "Pavel Maryanov"
++msgid "Janet Hunt"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:38
+-msgid "Pawel Puszczyński"
++msgid "Pavel Maryanov"
+ msgstr ""
+ 
+ #: ../cutscenes/credits.txt:39
++msgid "Pawel Puszczyński"
++msgstr ""
++
++#: ../cutscenes/credits.txt:40
+ msgid "Sang-froid"
+ msgstr ""
+ 
+-#: ../cutscenes/credits.txt:41
++#: ../cutscenes/credits.txt:42
+ msgid "sujiniku"
+ msgstr ""
+ 
+@@ -4290,7 +4290,7 @@ msgid "Thunderstrike"
+ msgstr ""
+ 
+ #: ../powers/base/magician/thunderstrike.txt:4
+-msgid "Lightning strikes from the sky with a high chance to crit movement-impaired enemies."
++msgid "Lightning strikes from the sky with a high chance to critically damage movement-impaired enemies."
+ msgstr ""
+ 
+ #: ../powers/base/magician/shock.txt:1
+@@ -4435,7 +4435,7 @@ msgstr "Журнал Торговця"
+ msgid "Reset quest: \"Krolan's Missing\""
+ msgstr "Скриня Клорана"
+ 
+-#: ../scripts/reset_main.txt:49
++#: ../scripts/reset_main.txt:59
+ msgid "Reset quest: \"Return to Empyrean\""
+ msgstr ""
+ 
+diff --git a/mods/empyrean_campaign/powers/base/magician/thunderstrike.txt b/mods/empyrean_campaign/powers/base/magician/thunderstrike.txt
+index 392b119c1f5d992f8ed05e4e5ad536758f8b034c..7d06ea46e0317f29779732ce3d222ab2ed42a0c1 100644
+--- a/mods/empyrean_campaign/powers/base/magician/thunderstrike.txt
++++ b/mods/empyrean_campaign/powers/base/magician/thunderstrike.txt
+@@ -1,7 +1,7 @@
+ name=Thunderstrike
+ type=fixed
+ icon=36
+-description=Lightning strikes from the sky with a high chance to crit movement-impaired enemies.
++description=Lightning strikes from the sky with a high chance to critically damage movement-impaired enemies.
+ new_state=cast
+ face=true
+ requires_los=true
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 816ed7d36ae138d42545cca785d22293cb29e617..64d22d1e440e870df7a1f6703d40a51bd8439ee0 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:0.90:0
+ game=flare-game
+-version=1.0.06
++version=1.0.07
+ engine_version_min=1.0.22

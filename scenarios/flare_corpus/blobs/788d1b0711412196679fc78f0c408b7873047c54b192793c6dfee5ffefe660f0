@@ -1,0 +1,70 @@
+diff --git a/mods/320x240/menus/powers.txt b/mods/320x240/menus/powers.txt
+index df0adc4d46076ea7601822051a4073ba39b121ed..8ff748045ad076a497576742192ebfdc3dd36acf 100644
+--- a/mods/320x240/menus/powers.txt
++++ b/mods/320x240/menus/powers.txt
+@@ -108,6 +108,13 @@ position=56,136
+ requires_offense=4
+ requires_point=true
+ 
++# rapid fire
++[power]
++id=23
++tab=1
++position=56,168
++requires_offense=5
++requires_point=true
+ 
+ 
+ ### Wizard Tab ################################################################
+diff --git a/mods/fantasycore/menus/powers.txt b/mods/fantasycore/menus/powers.txt
+index 6ce68eb677a8a6318eca86b3106f839ccdd682b6..26674146f36064d5003d28d63d30c897b00b4c09 100644
+--- a/mods/fantasycore/menus/powers.txt
++++ b/mods/fantasycore/menus/powers.txt
+@@ -108,7 +108,13 @@ position=112,272
+ requires_offense=4
+ requires_point=true
+ 
+-
++# rapid fire
++[power]
++id=23
++tab=1
++position=112,336
++requires_offense=5
++requires_point=true
+ 
+ ### Wizard Tab ################################################################
+ # channel
+diff --git a/mods/fantasycore/powers/powers.txt b/mods/fantasycore/powers/powers.txt
+index 29c64cde62458f558ec4db0bf75913807d2c0cbd..3003667e488b8e875060eeb5c241bf8c1a1fc7de 100644
+--- a/mods/fantasycore/powers/powers.txt
++++ b/mods/fantasycore/powers/powers.txt
+@@ -413,9 +413,28 @@ new_state=shoot
+ face=true
+ requires_offense_weapon=true
+ base_damage=ranged
++starting_pos=melee
+ aim_assist=32
+ allow_power_mod=true
+ 
++[power]
++id=23
++name=Rapid Fire
++type=missile
++icon=0
++description=Fire five low power missiles in quick succession
++new_state=shoot
++face=true
++requires_offense_weapon=true
++requires_mp=5
++base_damage=ranged
++starting_pos=melee
++aim_assist=32
++allow_power_mod=true
++missile_num=5
++delay=2
++damage_multiplier=66
++cooldown=5000
+ 
+ [power]
+ id=30

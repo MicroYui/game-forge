@@ -1,0 +1,26 @@
+diff --git a/mods/alpha_demo/maps/brothers_lair_ice_hall.txt b/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
+index 377d37f5d07541fdb4d762c5b4c7310ae61a109c..20c82048423366a0883511051417480cac66f645 100644
+--- a/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
+@@ -494,7 +494,7 @@ hotspot=location
+ power=14
+ power_damage=100,150
+ power_path=14,10,hero
+-requires_not_status=lb_ice_looted;lb_ice_key
++requires_not_status=lb_ice_key,lb_ice_looted
+ tooltip=Runed Chest
+ 
+ [event]
+diff --git a/tiled/living_bones/brothers_lair_ice_hall.tmx b/tiled/living_bones/brothers_lair_ice_hall.tmx
+index d56106f0c4cb8ca33a2a2295a071088b3f2ec192..4d0fc20108154b0ed64d9e5a300b266ef353cfcd 100644
+--- a/tiled/living_bones/brothers_lair_ice_hall.tmx
++++ b/tiled/living_bones/brothers_lair_ice_hall.tmx
+@@ -487,7 +487,7 @@
+     <property name="power" value="14"/>
+     <property name="power_damage" value="100,150"/>
+     <property name="power_path" value="14,10,hero"/>
+-    <property name="requires_not_status" value="lb_ice_looted;lb_ice_key"/>
++    <property name="requires_not_status" value="lb_ice_key,lb_ice_looted"/>
+     <property name="tooltip" value="Runed Chest"/>
+    </properties>
+   </object>

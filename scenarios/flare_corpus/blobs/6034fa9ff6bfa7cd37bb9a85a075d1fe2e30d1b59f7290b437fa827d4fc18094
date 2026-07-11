@@ -1,0 +1,987 @@
+diff --git a/mods/empyrean_campaign/books/il_notes_1.txt b/mods/empyrean_campaign/books/il_notes_1.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..a40e338a72a0da14b8b244370c5d7d88579042c5
+--- /dev/null
++++ b/mods/empyrean_campaign/books/il_notes_1.txt
+@@ -0,0 +1,40 @@
++pos=0,0,1137,700
++align=center
++soundfx_open=soundfx/inventory/inventory_page.ogg
++soundfx_close=soundfx/inventory/inventory_book.ogg
++
++close=932,68
++background=images/menus/book.png
++
++### Page 1
++[text]
++text_pos=155,70,400,left
++text_font=128,0,0,font_cursive
++text=1462/3/10
++requires_status=emp_il_notes_1
++
++[text]
++text_pos=155,120,400,left
++text_font=0,0,0,font_cursive
++text=The dig near Perdition Harbor is starting to show promise. We found ruins. Unlike anything else in the area. We'll get a good amount of gold from the relics here. A welcome change for the guys that transferred from the Empyrean's operation in the complex under Lochport.
++requires_status=emp_il_notes_1
++
++[text]
++text_pos=155,560,400,center
++text_font=128,0,0,font_regular
++text=[Missing page]
++requires_not_status=emp_il_notes_1
++
++### Page 2
++[text]
++text_pos=605,120,400,left
++text_font=0,0,0,font_cursive
++text=They told me about the other expeditions, a tower in Black Oak City and a temple in the Stormrock region. Both just as fruitless.
++requires_status=emp_il_notes_1
++
++[text]
++text_pos=605,560,400,center
++text_font=128,0,0,font_regular
++text=[Missing page]
++requires_not_status=emp_il_notes_1
++
+diff --git a/mods/empyrean_campaign/books/il_notes_1_nav.txt b/mods/empyrean_campaign/books/il_notes_1_nav.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d56635f8b2284260937eaf403c45d999f605ee0d
+--- /dev/null
++++ b/mods/empyrean_campaign/books/il_notes_1_nav.txt
+@@ -0,0 +1,13 @@
++INCLUDE books/il_notes_1.txt
++
++### Navigation buttons
++# [button]
++# button_pos=155,600
++# button_image=images/menus/buttons/left.png
++# book=
++
++[button]
++button_pos=932,600
++button_image=images/menus/buttons/right.png
++book=books/il_notes_2_nav.txt
++
+diff --git a/mods/empyrean_campaign/books/il_notes_2.txt b/mods/empyrean_campaign/books/il_notes_2.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..b987e2c4f89f2660dc51aaa8d2fc6d9b7e5b868d
+--- /dev/null
++++ b/mods/empyrean_campaign/books/il_notes_2.txt
+@@ -0,0 +1,46 @@
++pos=0,0,1137,700
++align=center
++soundfx_open=soundfx/inventory/inventory_page.ogg
++soundfx_close=soundfx/inventory/inventory_book.ogg
++
++close=932,68
++background=images/menus/book.png
++
++### Page 1
++[text]
++text_pos=155,70,400,left
++text_font=128,0,0,font_cursive
++text=1462/3/15
++requires_status=emp_il_notes_2
++
++[text]
++text_pos=155,120,400,left
++text_font=0,0,0,font_cursive
++text=Today, we found a peculiar yellow-green mineral. Almost blinding to look at. Perhaps someone from the Empyrean Chamber knows what it is...
++requires_status=emp_il_notes_2
++
++[text]
++text_pos=155,560,400,center
++text_font=128,0,0,font_regular
++text=[Missing page]
++requires_not_status=emp_il_notes_2
++
++### Page 2
++[text]
++text_pos=605,70,400,left
++text_font=128,0,0,font_cursive
++text=1462/3/16
++requires_status=emp_il_notes_2
++
++[text]
++text_pos=605,120,400,left
++text_font=0,0,0,font_cursive
++text=The messenger to the Chamber called the mineral "Mastite". It was made clear that any we find must be brought to the surface. No questions. This stuff is obviously something special. They better make it worth our while.
++requires_status=emp_il_notes_2
++
++[text]
++text_pos=605,560,400,center
++text_font=128,0,0,font_regular
++text=[Missing page]
++requires_not_status=emp_il_notes_2
++
+diff --git a/mods/empyrean_campaign/books/il_notes_2_nav.txt b/mods/empyrean_campaign/books/il_notes_2_nav.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d83dcd3b05a5d9bbf176b591a6a35dd4ddebe920
+--- /dev/null
++++ b/mods/empyrean_campaign/books/il_notes_2_nav.txt
+@@ -0,0 +1,13 @@
++INCLUDE books/il_notes_2.txt
++
++### Navigation buttons
++[button]
++button_pos=155,600
++button_image=images/menus/buttons/left.png
++book=books/il_notes_1_nav.txt
++
++[button]
++button_pos=932,600
++button_image=images/menus/buttons/right.png
++book=books/il_notes_3_nav.txt
++
+diff --git a/mods/empyrean_campaign/books/il_notes_3.txt b/mods/empyrean_campaign/books/il_notes_3.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..5905cc97dbcbf0868c61cdc8485e335275723fc8
+--- /dev/null
++++ b/mods/empyrean_campaign/books/il_notes_3.txt
+@@ -0,0 +1,46 @@
++pos=0,0,1137,700
++align=center
++soundfx_open=soundfx/inventory/inventory_page.ogg
++soundfx_close=soundfx/inventory/inventory_book.ogg
++
++close=932,68
++background=images/menus/book.png
++
++### Page 1
++[text]
++text_pos=155,70,400,left
++text_font=128,0,0,font_cursive
++text=1462/3/23
++requires_status=emp_il_notes_3
++
++[text]
++text_pos=155,120,400,left
++text_font=0,0,0,font_cursive
++text=There's more to this whole Mastite thing than we're being told. Yesterday, one of the crew was about to grab a chunk he had found. In the blink of an eye, some sort of energy ball flew out of it and blasted the poor guy back about 100 paces.
++requires_status=emp_il_notes_3
++
++[text]
++text_pos=155,560,400,center
++text_font=128,0,0,font_regular
++text=[Missing page]
++requires_not_status=emp_il_notes_3
++
++### Page 2
++# [text]
++# text_pos=605,70,400,left
++# text_font=128,0,0,font_cursive
++# text=
++# requires_status=emp_il_notes_3
++
++[text]
++text_pos=605,120,400,left
++text_font=0,0,0,font_cursive
++text=What does the Chamber's healer do? Gives him a measly potion! Why are we waiting until the damage is done? We need defensive mages! But somehow, that's out of the question for the Empyrean...
++requires_status=emp_il_notes_3
++
++[text]
++text_pos=605,560,400,center
++text_font=128,0,0,font_regular
++text=[Missing page]
++requires_not_status=emp_il_notes_3
++
+diff --git a/mods/empyrean_campaign/books/il_notes_3_nav.txt b/mods/empyrean_campaign/books/il_notes_3_nav.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..bfe8f4fae9b448d74605e01ef009f8d973314d69
+--- /dev/null
++++ b/mods/empyrean_campaign/books/il_notes_3_nav.txt
+@@ -0,0 +1,13 @@
++INCLUDE books/il_notes_3.txt
++
++### Navigation buttons
++[button]
++button_pos=155,600
++button_image=images/menus/buttons/left.png
++book=books/il_notes_2_nav.txt
++
++[button]
++button_pos=932,600
++button_image=images/menus/buttons/right.png
++book=books/il_notes_4_nav.txt
++
+diff --git a/mods/empyrean_campaign/books/il_notes_4.txt b/mods/empyrean_campaign/books/il_notes_4.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..659ffe41c727acf5037fcf1cf9fb9296f2124651
+--- /dev/null
++++ b/mods/empyrean_campaign/books/il_notes_4.txt
+@@ -0,0 +1,46 @@
++pos=0,0,1137,700
++align=center
++soundfx_open=soundfx/inventory/inventory_page.ogg
++soundfx_close=soundfx/inventory/inventory_book.ogg
++
++close=932,68
++background=images/menus/book.png
++
++### Page 1
++[text]
++text_pos=155,70,400,left
++text_font=128,0,0,font_cursive
++text=1462/3/25
++requires_status=emp_il_notes_4
++
++[text]
++text_pos=155,120,400,left
++text_font=0,0,0,font_cursive
++text=I've calmed down enough to write a coherent letter to the Chamber requesting the resources we need. Now we just have to wait. In the meantime, we'll continue exploring as carefully as possible.
++requires_status=emp_il_notes_4
++
++[text]
++text_pos=155,560,400,center
++text_font=128,0,0,font_regular
++text=[Missing page]
++requires_not_status=emp_il_notes_4
++
++### Page 2
++[text]
++text_pos=605,70,400,left
++text_font=128,0,0,font_cursive
++text=1462/4/27
++requires_status=emp_il_notes_4
++
++[text]
++text_pos=605,120,400,left
++text_font=0,0,0,font_cursive
++text=The Chamber finally gave their response. They did send a few mages, but not nearly enough. There's a promise of a larger gold share when the excavation is complete. Somehow, I don't think Empyrean politics will allow such a thing to manifest.
++requires_status=emp_il_notes_4
++
++[text]
++text_pos=605,560,400,center
++text_font=128,0,0,font_regular
++text=[Missing page]
++requires_not_status=emp_il_notes_4
++
+diff --git a/mods/empyrean_campaign/books/il_notes_4_nav.txt b/mods/empyrean_campaign/books/il_notes_4_nav.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6a85b3f998acd80970b97935478c67534aa81d64
+--- /dev/null
++++ b/mods/empyrean_campaign/books/il_notes_4_nav.txt
+@@ -0,0 +1,13 @@
++INCLUDE books/il_notes_4.txt
++
++### Navigation buttons
++[button]
++button_pos=155,600
++button_image=images/menus/buttons/left.png
++book=books/il_notes_3_nav.txt
++
++[button]
++button_pos=932,600
++button_image=images/menus/buttons/right.png
++book=books/il_notes_5_nav.txt
++
+diff --git a/mods/empyrean_campaign/books/il_notes_5.txt b/mods/empyrean_campaign/books/il_notes_5.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..3e9c90d0cdd058ff9ba030bb1bc6820e5b4ccc19
+--- /dev/null
++++ b/mods/empyrean_campaign/books/il_notes_5.txt
+@@ -0,0 +1,46 @@
++pos=0,0,1137,700
++align=center
++soundfx_open=soundfx/inventory/inventory_page.ogg
++soundfx_close=soundfx/inventory/inventory_book.ogg
++
++close=932,68
++background=images/menus/book.png
++
++### Page 1
++[text]
++text_pos=155,70,400,left
++text_font=128,0,0,font_cursive
++text=1462/6/3
++requires_status=emp_il_notes_5
++
++[text]
++text_pos=155,120,400,left
++text_font=0,0,0,font_cursive
++text=These ruins are larger than we had imagined. There must be other connections to the surface. Krolan found a portal today, but no one dared to enter.
++requires_status=emp_il_notes_5
++
++[text]
++text_pos=155,560,400,center
++text_font=128,0,0,font_regular
++text=[Missing page]
++requires_not_status=emp_il_notes_5
++
++### Page 2
++# [text]
++# text_pos=605,70,400,left
++# text_font=128,0,0,font_cursive
++# text=
++# requires_status=emp_il_notes_5
++
++[text]
++text_pos=605,120,400,left
++text_font=0,0,0,font_cursive
++text=We asked the mages to try analyzing it. Unfortunately, they reported not being able to see through to the other side.
++requires_status=emp_il_notes_5
++
++[text]
++text_pos=605,560,400,center
++text_font=128,0,0,font_regular
++text=[Missing page]
++requires_not_status=emp_il_notes_5
++
+diff --git a/mods/empyrean_campaign/books/il_notes_5_nav.txt b/mods/empyrean_campaign/books/il_notes_5_nav.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..b00e7dd985319972f3c8cda2fdb2d93f3b263ecd
+--- /dev/null
++++ b/mods/empyrean_campaign/books/il_notes_5_nav.txt
+@@ -0,0 +1,13 @@
++INCLUDE books/il_notes_5.txt
++
++### Navigation buttons
++[button]
++button_pos=155,600
++button_image=images/menus/buttons/left.png
++book=books/il_notes_4_nav.txt
++
++[button]
++button_pos=932,600
++button_image=images/menus/buttons/right.png
++book=books/il_notes_6_nav.txt
++
+diff --git a/mods/empyrean_campaign/books/il_notes_6.txt b/mods/empyrean_campaign/books/il_notes_6.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..9b58dfd009b98894a0d577204645f730c5a7ab70
+--- /dev/null
++++ b/mods/empyrean_campaign/books/il_notes_6.txt
+@@ -0,0 +1,46 @@
++pos=0,0,1137,700
++align=center
++soundfx_open=soundfx/inventory/inventory_page.ogg
++soundfx_close=soundfx/inventory/inventory_book.ogg
++
++close=932,68
++background=images/menus/book.png
++
++### Page 1
++[text]
++text_pos=155,70,400,left
++text_font=128,0,0,font_cursive
++text=1462/8/12
++requires_status=emp_il_notes_6
++
++[text]
++text_pos=155,120,400,left
++text_font=0,0,0,font_cursive
++text=It's finally over! We reached a massive chamber inhabited by a giant antlion! The mages were able to hold it back while we grabbed everything that wasn't nailed down. Thought we were trapped when we had to barricade the gate. Thank the heavens that the portal brought us back here.
++requires_status=emp_il_notes_6
++
++[text]
++text_pos=155,560,400,center
++text_font=128,0,0,font_regular
++text=[Missing page]
++requires_not_status=emp_il_notes_6
++
++### Page 2
++# [text]
++# text_pos=605,70,400,left
++# text_font=128,0,0,font_cursive
++# text=
++# requires_status=emp_il_notes_6
++
++[text]
++text_pos=605,120,400,left
++text_font=0,0,0,font_cursive
++text=A few of the guys were still working on the floor above and didn't follow us into the chamber. We'll head back down and rendezvous with them tomorrow.
++requires_status=emp_il_notes_6
++
++[text]
++text_pos=605,560,400,center
++text_font=128,0,0,font_regular
++text=[Missing page]
++requires_not_status=emp_il_notes_6
++
+diff --git a/mods/empyrean_campaign/books/il_notes_6_nav.txt b/mods/empyrean_campaign/books/il_notes_6_nav.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d0eaab980e0d13a4ba6e1535052d69b30d90d944
+--- /dev/null
++++ b/mods/empyrean_campaign/books/il_notes_6_nav.txt
+@@ -0,0 +1,13 @@
++INCLUDE books/il_notes_6.txt
++
++### Navigation buttons
++[button]
++button_pos=155,600
++button_image=images/menus/buttons/left.png
++book=books/il_notes_5_nav.txt
++
++[button]
++button_pos=932,600
++button_image=images/menus/buttons/right.png
++book=books/il_notes_7_nav.txt
++
+diff --git a/mods/empyrean_campaign/books/il_notes_7.txt b/mods/empyrean_campaign/books/il_notes_7.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d5e2d276f0bdf1c31f94a3593ef027a353ac61c3
+--- /dev/null
++++ b/mods/empyrean_campaign/books/il_notes_7.txt
+@@ -0,0 +1,46 @@
++pos=0,0,1137,700
++align=center
++soundfx_open=soundfx/inventory/inventory_page.ogg
++soundfx_close=soundfx/inventory/inventory_book.ogg
++
++close=932,68
++background=images/menus/book.png
++
++### Page 1
++[text]
++text_pos=155,70,400,left
++text_font=128,0,0,font_cursive
++text=1462/8/13
++requires_status=emp_il_notes_7
++
++[text]
++text_pos=155,120,400,left
++text_font=0,0,0,font_cursive
++text=When we returned today, the layout of the first floor did not match our maps. Thankfully, an Empyrean mage made it back with us. I asked them to try sensing for human life on the lower levels. Zero results thus far, but I still have hope.
++requires_status=emp_il_notes_7
++
++[text]
++text_pos=155,560,400,center
++text_font=128,0,0,font_regular
++text=[Missing page]
++requires_not_status=emp_il_notes_7
++
++### Page 2
++# [text]
++# text_pos=605,70,400,left
++# text_font=128,0,0,font_cursive
++# text=
++# requires_status=emp_il_notes_7
++
++[text]
++text_pos=605,120,400,left
++text_font=0,0,0,font_cursive
++text=The Chamber sees the situation differently. Orders came in for operations to be moved to other nearby sites. Krolan obeyed. Said he didn't want end up dead like "those guys". As if our guys are dead! When I find them, we're going to snag the rest of that Mastite for ourselves!
++requires_status=emp_il_notes_7
++
++[text]
++text_pos=605,560,400,center
++text_font=128,0,0,font_regular
++text=[Missing page]
++requires_not_status=emp_il_notes_7
++
+diff --git a/mods/empyrean_campaign/books/il_notes_7_nav.txt b/mods/empyrean_campaign/books/il_notes_7_nav.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..98dd1669f13ca1fd8d9cef4bd856e1cd32664f98
+--- /dev/null
++++ b/mods/empyrean_campaign/books/il_notes_7_nav.txt
+@@ -0,0 +1,13 @@
++INCLUDE books/il_notes_7.txt
++
++### Navigation buttons
++[button]
++button_pos=155,600
++button_image=images/menus/buttons/left.png
++book=books/il_notes_6_nav.txt
++
++# [button]
++# button_pos=932,600
++# button_image=images/menus/buttons/right.png
++# book=
++#
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+index ec5bdb4123496a734b997e43496c2737c76a6bdc..49ddb9aa07ad4a4b40d7d66a00d7ee9ebcea0f99 100644
+--- a/mods/empyrean_campaign/items/categories/quest.txt
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -422,3 +422,81 @@ no_stash=shared
+ max_quantity=999
+ price=50,player_level:50
+ price_sell=25
++
++[item]
++id=1106
++name=Excavation Journal Pages
++INCLUDE items/base/scrolls/scroll_blank.txt
++item_type=book
++quest_item=true
++quality=unique
++no_stash=all
++pickup_status=emp_il_notes_1
++book=books/il_notes_1.txt
++
++[item]
++id=1107
++name=Excavation Journal Pages
++INCLUDE items/base/scrolls/scroll_blank.txt
++item_type=book
++quest_item=true
++quality=unique
++no_stash=all
++pickup_status=emp_il_notes_2
++book=books/il_notes_2.txt
++
++[item]
++id=1108
++name=Excavation Journal Pages
++INCLUDE items/base/scrolls/scroll_blank.txt
++item_type=book
++quest_item=true
++quality=unique
++no_stash=all
++pickup_status=emp_il_notes_3
++book=books/il_notes_3.txt
++
++[item]
++id=1109
++name=Excavation Journal Pages
++INCLUDE items/base/scrolls/scroll_blank.txt
++item_type=book
++quest_item=true
++quality=unique
++no_stash=all
++pickup_status=emp_il_notes_4
++book=books/il_notes_4.txt
++
++[item]
++id=1110
++name=Excavation Journal Pages
++INCLUDE items/base/scrolls/scroll_blank.txt
++item_type=book
++quest_item=true
++quality=unique
++no_stash=all
++pickup_status=emp_il_notes_5
++book=books/il_notes_5.txt
++
++[item]
++id=1111
++name=Excavation Journal Pages
++INCLUDE items/base/scrolls/scroll_blank.txt
++item_type=book
++quest_item=true
++quality=unique
++no_stash=all
++pickup_status=emp_il_notes_6
++book=books/il_notes_6.txt
++
++[item]
++id=1112
++name=Excavation Journal Pages
++INCLUDE items/base/scrolls/scroll_blank.txt
++item_type=book
++quest_item=true
++quality=unique
++no_stash=all
++pickup_status=emp_il_notes_7
++book=books/il_notes_7.txt
++
+diff --git a/mods/empyrean_campaign/loot/scrolls.txt b/mods/empyrean_campaign/loot/scrolls.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..85b52cdda8d353c6c1d64126f7db333174bc3d6c
+--- /dev/null
++++ b/mods/empyrean_campaign/loot/scrolls.txt
+@@ -0,0 +1,9 @@
++loot=203,100,1
++loot=412,100,1
++loot=413,100,1
++loot=414,100,1
++loot=415,100,1
++loot=416,100,1
++loot=417,100,1
++loot=418,100,1
++
+diff --git a/mods/empyrean_campaign/maps/iron_labyrinth/room5.txt b/mods/empyrean_campaign/maps/iron_labyrinth/room5.txt
+index 9e58b44e8555e84d783c7190cc4bd2a1b29fc262..a5d163d3af53fabd352a253d38ff14d626e63d5f 100644
+--- a/mods/empyrean_campaign/maps/iron_labyrinth/room5.txt
++++ b/mods/empyrean_campaign/maps/iron_labyrinth/room5.txt
+@@ -10,13 +10,13 @@ procgen_type=normal
+ tileset=tilesetdefs/tileset_ruins.txt
+ 
+ [tilesets]
+-tileset=../../../../../mods/hd-flare-game/tiled/tilesheets/tiled_collision.png,192,96,0,0
+-tileset=../../../../../mods/hd-flare-game/tiled/tilesheets/tiled_set_rules.png,192,96,0,0
+-tileset=../../../../../mods/hd-flare-game/tiled/tilesheets/ruins.png,192,384,0,0
+-tileset=../../../../../mods/hd-flare-game/tiled/tilesheets/ruins_door_left.png,192,384,-48,-24
+-tileset=../../../../../mods/hd-flare-game/tiled/tilesheets/ruins_door_right.png,192,384,48,-24
+-tileset=../../../../../mods/hd-flare-game/tiled/tilesheets/ruins_2x2.png,384,192,0,48
+-tileset=../../../../../mods/hd-flare-game/tiled/tilesheets/boss_chest.png,192,192,0,0
++tileset=../../../../tiled/tilesheets/tiled_collision.png,192,96,0,0
++tileset=../../../../tiled/tilesheets/tiled_set_rules.png,192,96,0,0
++tileset=../../../../tiled/tilesheets/ruins.png,192,384,0,0
++tileset=../../../../tiled/tilesheets/ruins_door_left.png,192,384,-48,-24
++tileset=../../../../tiled/tilesheets/ruins_door_right.png,192,384,48,-24
++tileset=../../../../tiled/tilesheets/ruins_2x2.png,384,192,0,48
++tileset=../../../../tiled/tilesheets/boss_chest.png,192,192,0,0
+ 
+ [layer]
+ type=background
+@@ -172,6 +172,18 @@ repeat=false
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+ 
++[event]
++# Lectern
++type=event
++location=14,12,1,1
++activate=on_trigger
++hotspot=location
++loot=loot/scrolls.txt
++mapmod=object,14,12,276
++repeat=false
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Lectern
++
+ [enemy]
+ type=enemy
+ location=10,10,9,7
+diff --git a/mods/empyrean_campaign/maps/iron_labyrinth/warp_room.txt b/mods/empyrean_campaign/maps/iron_labyrinth/warp_room.txt
+index 5fed88e469b5d93afd5848e77e388ecd07df1be3..d97fe1daf2258c2d13db99c8d0576321c1d4df89 100644
+--- a/mods/empyrean_campaign/maps/iron_labyrinth/warp_room.txt
++++ b/mods/empyrean_campaign/maps/iron_labyrinth/warp_room.txt
+@@ -11,13 +11,13 @@ procgen_unique_status=emp_il_warp_room
+ tileset=tilesetdefs/tileset_ruins.txt
+ 
+ [tilesets]
+-tileset=../../../../../mods/hd-flare-game/tiled/tilesheets/tiled_collision.png,192,96,0,0
+-tileset=../../../../../mods/hd-flare-game/tiled/tilesheets/tiled_set_rules.png,192,96,0,0
+-tileset=../../../../../mods/hd-flare-game/tiled/tilesheets/ruins.png,192,384,0,0
+-tileset=../../../../../mods/hd-flare-game/tiled/tilesheets/ruins_door_left.png,192,384,-48,-24
+-tileset=../../../../../mods/hd-flare-game/tiled/tilesheets/ruins_door_right.png,192,384,48,-24
+-tileset=../../../../../mods/hd-flare-game/tiled/tilesheets/ruins_2x2.png,384,192,0,48
+-tileset=../../../../../mods/hd-flare-game/tiled/tilesheets/boss_chest.png,192,192,0,0
++tileset=../../../../tiled/tilesheets/tiled_collision.png,192,96,0,0
++tileset=../../../../tiled/tilesheets/tiled_set_rules.png,192,96,0,0
++tileset=../../../../tiled/tilesheets/ruins.png,192,384,0,0
++tileset=../../../../tiled/tilesheets/ruins_door_left.png,192,384,-48,-24
++tileset=../../../../tiled/tilesheets/ruins_door_right.png,192,384,48,-24
++tileset=../../../../tiled/tilesheets/ruins_2x2.png,384,192,0,48
++tileset=../../../../tiled/tilesheets/boss_chest.png,192,192,0,0
+ 
+ [layer]
+ type=background
+@@ -169,7 +169,23 @@ hotspot=location
+ loot=412,fixed,1
+ mapmod=background_fringe,13,14,381;object,18,10,276
+ requires_not_status=emp_il_warp_room_active
++script=scripts/maps/iron_labyrinth/notes_drop_5.txt
+ set_status=emp_il_warp_room_active,emp_il_warp_room_unknown
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Lectern
++
++[event]
++# Lectern (warp active)
++type=event
++location=18,10,1,1
++activate=on_trigger
++hotspot=location
++mapmod=object,18,10,276
++repeat=false
++requires_not_tile=object,18,10,276
++requires_status=emp_il_warp_room_active
++script=scripts/maps/iron_labyrinth/notes_drop_5.txt
++soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Lectern
+ 
+ [event]
+@@ -188,7 +204,7 @@ tooltip=Unknown Destination
+ type=event
+ location=9,9,1,1
+ activate=on_load
+-mapmod=background_fringe,13,14,381;object,18,10,276
++mapmod=background_fringe,13,14,381
+ requires_status=emp_il_warp_room_active
+ 
+ [event]
+diff --git a/mods/empyrean_campaign/maps/iron_labyrinth_chasm.txt b/mods/empyrean_campaign/maps/iron_labyrinth_chasm.txt
+index 8e7c97b12707156e97b255fc9635d7af567c1d54..d9224b377bb880d4514a8e77a8b5f220a9a7fb93 100644
+--- a/mods/empyrean_campaign/maps/iron_labyrinth_chasm.txt
++++ b/mods/empyrean_campaign/maps/iron_labyrinth_chasm.txt
+@@ -11,13 +11,13 @@ tileset=tilesetdefs/tileset_ruins.txt
+ title=Iron Labyrinth: Chasm
+ 
+ [tilesets]
+-tileset=../../../../mods/hd-flare-game/tiled/tilesheets/tiled_collision.png,192,96,0,0
+-tileset=../../../../mods/hd-flare-game/tiled/tilesheets/tiled_set_rules.png,192,96,0,0
+-tileset=../../../../mods/hd-flare-game/tiled/tilesheets/ruins.png,192,384,0,0
+-tileset=../../../../mods/hd-flare-game/tiled/tilesheets/ruins_door_left.png,192,384,-48,-24
+-tileset=../../../../mods/hd-flare-game/tiled/tilesheets/ruins_door_right.png,192,384,48,-24
+-tileset=../../../../mods/hd-flare-game/tiled/tilesheets/ruins_2x2.png,384,192,0,48
+-tileset=../../../../mods/hd-flare-game/tiled/tilesheets/boss_chest.png,192,192,0,0
++tileset=../../../tiled/tilesheets/tiled_collision.png,192,96,0,0
++tileset=../../../tiled/tilesheets/tiled_set_rules.png,192,96,0,0
++tileset=../../../tiled/tilesheets/ruins.png,192,384,0,0
++tileset=../../../tiled/tilesheets/ruins_door_left.png,192,384,-48,-24
++tileset=../../../tiled/tilesheets/ruins_door_right.png,192,384,48,-24
++tileset=../../../tiled/tilesheets/ruins_2x2.png,384,192,0,48
++tileset=../../../tiled/tilesheets/boss_chest.png,192,192,0,0
+ 
+ [layer]
+ type=background
+@@ -645,6 +645,18 @@ location=20,35,1,1
+ activate=on_load
+ soundfx=soundfx/environment/open_fire_loop.ogg
+ 
++[event]
++# Lectern
++type=event
++location=14,34,1,1
++activate=on_trigger
++hotspot=location
++mapmod=object,14,34,277
++repeat=false
++script=scripts/maps/iron_labyrinth/notes_drop_6.txt
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Lectern
++
+ [enemy]
+ # Razu
+ type=enemy
+diff --git a/mods/empyrean_campaign/maps/perdition_harbor_cave.txt b/mods/empyrean_campaign/maps/perdition_harbor_cave.txt
+index 8d789ec04c05cf57875791c0e13929f13780ad99..efa41fe04fee7d66b0c74e02f8bf2d32b8cf9747 100644
+--- a/mods/empyrean_campaign/maps/perdition_harbor_cave.txt
++++ b/mods/empyrean_campaign/maps/perdition_harbor_cave.txt
+@@ -186,11 +186,12 @@ unset_status=emp_il_f1,emp_il_f2,emp_il_f3
+ type=event
+ location=3,14,1,1
+ activate=on_trigger
++book=books/il_notes_1_nav.txt
+ cooldown=500ms
+ hotspot=location
+ mapmod=object,3,14,414
+ repeat=true
+-soundfx=soundfx/inventory/inventory_page.ogg
++script=scripts/maps/iron_labyrinth/notes_turn_in.txt
+ tooltip=Excavation Journal
+ 
+ [npc]
+diff --git a/mods/empyrean_campaign/scripts/maps/iron_labyrinth/notes_drop.txt b/mods/empyrean_campaign/scripts/maps/iron_labyrinth/notes_drop.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..3b565dd130e3917494dcb3c0dc2e25d1f0dde6e8
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/maps/iron_labyrinth/notes_drop.txt
+@@ -0,0 +1,54 @@
++[event]
++random_status=clear
++
++[event]
++requires_not_status=emp_il_notes_1
++random_status=append,emp_il_notes_1_drop
++
++[event]
++requires_not_status=emp_il_notes_2
++random_status=append,emp_il_notes_2_drop
++
++[event]
++requires_not_status=emp_il_notes_3
++random_status=append,emp_il_notes_3_drop
++
++[event]
++requires_not_status=emp_il_notes_4
++random_status=append,emp_il_notes_4_drop
++
++# page 5 exclusivly drops in teleporter rooms
++# page 6 exclusivly drops in the treasure room after the antlion boss
++
++[event]
++requires_not_status=emp_il_notes_7
++random_status=append,emp_il_notes_7_drop
++
++[event]
++random_status=roll
++random_status=set
++
++[event]
++requires_status=emp_il_notes_1_drop
++loot=1106,fixed,1
++
++[event]
++requires_status=emp_il_notes_2_drop
++loot=1107,fixed,1
++
++[event]
++requires_status=emp_il_notes_3_drop
++loot=1108,fixed,1
++
++[event]
++requires_status=emp_il_notes_4_drop
++loot=1109,fixed,1
++
++[event]
++requires_status=emp_il_notes_7_drop
++loot=1112,fixed,1
++
++[event]
++random_status=unset
++random_status=clear
++
+diff --git a/mods/empyrean_campaign/scripts/maps/iron_labyrinth/notes_drop_5.txt b/mods/empyrean_campaign/scripts/maps/iron_labyrinth/notes_drop_5.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..073a8fdb413f550a9ead93f64ebe8ea86dc7e0da
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/maps/iron_labyrinth/notes_drop_5.txt
+@@ -0,0 +1,8 @@
++[event]
++requires_not_status=emp_il_notes_5
++loot=1110,fixed,1
++
++[event]
++requires_status=emp_il_warp_room_active
++loot=loot/scrolls.txt
++
+diff --git a/mods/empyrean_campaign/scripts/maps/iron_labyrinth/notes_drop_6.txt b/mods/empyrean_campaign/scripts/maps/iron_labyrinth/notes_drop_6.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..828641d6842d7b096745a7ea12baca654568c7cf
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/maps/iron_labyrinth/notes_drop_6.txt
+@@ -0,0 +1,7 @@
++[event]
++requires_not_status=emp_il_notes_6
++loot=1111,fixed,1
++
++[event]
++loot=loot/scrolls.txt
++
+diff --git a/mods/empyrean_campaign/scripts/maps/iron_labyrinth/notes_turn_in.txt b/mods/empyrean_campaign/scripts/maps/iron_labyrinth/notes_turn_in.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..cd14cd29fa257d9782a255a141b0a24de5bc804b
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/maps/iron_labyrinth/notes_turn_in.txt
+@@ -0,0 +1,8 @@
++[event]
++remove_item=1106:1
++remove_item=1107:1
++remove_item=1108:1
++remove_item=1109:1
++remove_item=1110:1
++remove_item=1111:1
++remove_item=1112:1
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index d5ec655496ee16582bf42aea291c4addc02c8513..a41510fb39cab399560ec4e06aca632d8524d13a 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.14.06
+ game=flare-game
+-version=1.14.24
++version=1.14.25
+ engine_version_min=1.14.250
+diff --git a/tiled/iron_labyrinth/iron_labyrinth_chasm.tmx b/tiled/iron_labyrinth/iron_labyrinth_chasm.tmx
+index 1857b20faaf5f215342712453c78e338c5bb7db5..24cd8151744ce5ab7d41c5d43bcc56ba4a01a67f 100644
+--- a/tiled/iron_labyrinth/iron_labyrinth_chasm.tmx
++++ b/tiled/iron_labyrinth/iron_labyrinth_chasm.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.11" tiledversion="1.11.2" orientation="isometric" renderorder="right-down" width="84" height="84" tilewidth="192" tileheight="96" infinite="0" backgroundcolor="#000000" nextlayerid="78" nextobjectid="70">
++<map version="1.11" tiledversion="1.11.2" orientation="isometric" renderorder="right-down" width="84" height="84" tilewidth="192" tileheight="96" infinite="0" backgroundcolor="#000000" nextlayerid="86" nextobjectid="71">
+  <editorsettings>
+   <export target="../../mods/empyrean_campaign/maps/iron_labyrinth_chasm.txt" format="flare"/>
+  </editorsettings>
+@@ -634,6 +634,17 @@
+     <property name="soundfx" value="soundfx/environment/open_fire_loop.ogg"/>
+    </properties>
+   </object>
++  <object id="70" name="Lectern" type="event" x="1344" y="3264" width="96" height="96">
++   <properties>
++    <property name="activate" value="on_trigger"/>
++    <property name="hotspot" value="location"/>
++    <property name="mapmod" value="object,14,34,277"/>
++    <property name="repeat" value="false"/>
++    <property name="script" value="scripts/maps/iron_labyrinth/notes_drop_6.txt"/>
++    <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
++    <property name="tooltip" value="Lectern"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup id="53" name="enemy">
+   <object id="26" name="Razu" type="enemy" x="3456" y="4032" width="96" height="96">
+diff --git a/tiled/iron_labyrinth/perdition_harbor_cave.tmx b/tiled/iron_labyrinth/perdition_harbor_cave.tmx
+index 1a1624bdc2d89d1be60f250859b557328e435187..1e1a37d76417333fe0b7df10b5aff6e3f8806ab9 100644
+--- a/tiled/iron_labyrinth/perdition_harbor_cave.tmx
++++ b/tiled/iron_labyrinth/perdition_harbor_cave.tmx
+@@ -195,11 +195,12 @@
+   <object id="14" name="Excavation Journal" type="event" x="288" y="1344" width="96" height="96">
+    <properties>
+     <property name="activate" value="on_trigger"/>
++    <property name="book" value="books/il_notes_1_nav.txt"/>
+     <property name="cooldown" value="500ms"/>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,3,14,414"/>
+     <property name="repeat" value="true"/>
+-    <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
++    <property name="script" value="scripts/maps/iron_labyrinth/notes_turn_in.txt"/>
+     <property name="tooltip" value="Excavation Journal"/>
+    </properties>
+   </object>
+diff --git a/tiled/iron_labyrinth/room5.tmx b/tiled/iron_labyrinth/room5.tmx
+index 1b27207a4f5bda9bb50df51eac653a596e0c26af..91fa42ea01e68b4b67b3ca307c2de73f36b84350 100644
+--- a/tiled/iron_labyrinth/room5.tmx
++++ b/tiled/iron_labyrinth/room5.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.11" tiledversion="1.11.2" orientation="isometric" renderorder="right-down" width="28" height="28" tilewidth="192" tileheight="96" infinite="0" backgroundcolor="#000000" nextlayerid="32" nextobjectid="8">
++<map version="1.11" tiledversion="1.11.2" orientation="isometric" renderorder="right-down" width="28" height="28" tilewidth="192" tileheight="96" infinite="0" backgroundcolor="#000000" nextlayerid="32" nextobjectid="9">
+  <editorsettings>
+   <export target="../../mods/empyrean_campaign/maps/iron_labyrinth/room5.txt" format="flare"/>
+  </editorsettings>
+@@ -185,6 +185,17 @@
+     <property name="tooltip" value="Crate"/>
+    </properties>
+   </object>
++  <object id="8" name="Lectern" type="event" x="1344" y="1152" width="96" height="96">
++   <properties>
++    <property name="activate" value="on_trigger"/>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="loot/scrolls.txt"/>
++    <property name="mapmod" value="object,14,12,276"/>
++    <property name="repeat" value="false"/>
++    <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
++    <property name="tooltip" value="Lectern"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup id="23" name="enemy">
+   <object id="6" type="enemy" x="960" y="960" width="864" height="672">
+diff --git a/tiled/iron_labyrinth/warp_room.tmx b/tiled/iron_labyrinth/warp_room.tmx
+index 49ee81cbf52d714b8d7a456d26119432dcc20122..f3c47f4c60e6c1269d5bf0c592dae769b35d8506 100644
+--- a/tiled/iron_labyrinth/warp_room.tmx
++++ b/tiled/iron_labyrinth/warp_room.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.11" tiledversion="1.11.2" orientation="isometric" renderorder="right-down" width="28" height="28" tilewidth="192" tileheight="96" infinite="0" backgroundcolor="#000000" nextlayerid="39" nextobjectid="10">
++<map version="1.11" tiledversion="1.11.2" orientation="isometric" renderorder="right-down" width="28" height="28" tilewidth="192" tileheight="96" infinite="0" backgroundcolor="#000000" nextlayerid="39" nextobjectid="11">
+  <editorsettings>
+   <export target="../../mods/empyrean_campaign/maps/iron_labyrinth/warp_room.txt" format="flare"/>
+  </editorsettings>
+@@ -181,7 +181,22 @@
+     <property name="loot" value="412,fixed,1"/>
+     <property name="mapmod" value="background_fringe,13,14,381;object,18,10,276"/>
+     <property name="requires_not_status" value="emp_il_warp_room_active"/>
++    <property name="script" value="scripts/maps/iron_labyrinth/notes_drop_5.txt"/>
+     <property name="set_status" value="emp_il_warp_room_active,emp_il_warp_room_unknown"/>
++    <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
++    <property name="tooltip" value="Lectern"/>
++   </properties>
++  </object>
++  <object id="10" name="Lectern (warp active)" type="event" x="1728" y="960" width="96" height="96">
++   <properties>
++    <property name="activate" value="on_trigger"/>
++    <property name="hotspot" value="location"/>
++    <property name="mapmod" value="object,18,10,276"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_tile" value="object,18,10,276"/>
++    <property name="requires_status" value="emp_il_warp_room_active"/>
++    <property name="script" value="scripts/maps/iron_labyrinth/notes_drop_5.txt"/>
++    <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
+     <property name="tooltip" value="Lectern"/>
+    </properties>
+   </object>
+@@ -198,7 +213,7 @@
+   <object id="8" name="Update tele tile (on_load)" type="event" x="864" y="864" width="96" height="96">
+    <properties>
+     <property name="activate" value="on_load"/>
+-    <property name="mapmod" value="background_fringe,13,14,381;object,18,10,276"/>
++    <property name="mapmod" value="background_fringe,13,14,381"/>
+     <property name="requires_status" value="emp_il_warp_room_active"/>
+    </properties>
+   </object>

@@ -1,0 +1,230 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin.txt b/mods/empyrean_campaign/enemies/lvl2_goblin.txt
+index de7de059582ce6361eb742b6ae28608e111edf02..212155f2ac1fc234e12d4694998cc560be0c0779 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin.txt
+@@ -15,9 +15,9 @@ chance_pursue=10
+ 
+ power=melee,164,5
+ 
+-accuracy=85
+-avoidance=10
+-poise=40
++accuracy=90
++avoidance=15
++poise=42
+ 
+ dmg_melee_min=40
+ dmg_melee_max=45
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_charger.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_charger.txt
+index 9ac09fc79f4007157c74cbf76b2a945fe85a8dde..4cb380259f9fab799b7d92093308cd53de7255f3 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin_charger.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_charger.txt
+@@ -15,15 +15,15 @@ chance_pursue=10
+ power=melee,164,5
+ power=melee,168,1
+ 
+-accuracy=90
+-avoidance=10
+-poise=60
++accuracy=95
++avoidance=15
++poise=62
+ 
+ dmg_melee_min=30
+ dmg_melee_max=35
+ cooldown=1600ms
+ absorb_min=1
+-absorb_max=1
++absorb_max=2
+ 
+ # loot
+ loot=loot/level_2.txt
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
+index a7258caa6ae0c4c839e488fdb23739d5d713b0d6..67485732351bdb2f9bbbb4f0d9b2d822b4bba06d 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
+@@ -7,7 +7,7 @@ rarity=rare
+ xp=5
+ 
+ # combat stats
+-hp=125
++hp=440
+ speed=2.5
+ melee_range=2.375
+ turn_delay=200ms
+@@ -17,14 +17,14 @@ power=melee,166,10
+ power=ranged,166,15
+ power=on_join_combat,167,100
+ 
+-accuracy=90
+-avoidance=35
+-poise=50
++accuracy=95
++avoidance=25
++poise=51
+ 
+-dmg_ment_min=50
+-dmg_ment_max=55
+-absorb_min=1
+-absorb_max=1
++dmg_ment_min=80
++dmg_ment_max=85
++absorb_min=2
++absorb_max=2
+ cooldown=1000ms
+ 
+ # quest_loot
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
+index 5e5022d52d61bfd18cd2449956a87ffb69e2ab36..3fed6c7009c643204bd912ec1c6ab75b6cb6755c 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
+@@ -7,7 +7,7 @@ rarity=uncommon
+ xp=2
+ 
+ # combat stats
+-hp=90
++hp=110
+ speed=2
+ turn_delay=400ms
+ chance_pursue=15
+@@ -15,9 +15,9 @@ chance_pursue=15
+ power=melee,164,5
+ power=ranged,165,10
+ 
+-accuracy=85
+-avoidance=10
+-poise=45
++accuracy=90
++avoidance=15
++poise=46
+ 
+ dmg_melee_min=40
+ dmg_melee_max=45
+diff --git a/mods/empyrean_campaign/enemies/lvl2_krolan.txt b/mods/empyrean_campaign/enemies/lvl2_krolan.txt
+index 56fc86a9d02d41609c17d996325cc82fdb2f829d..e8085784876b9e40de5f0a8ea733c872662d04ff 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_krolan.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_krolan.txt
+@@ -7,19 +7,19 @@ rarity=rare
+ xp=5
+ 
+ # combat stats
+-hp=135
++hp=420
+ speed=3.5
+ turn_delay=400ms
+ chance_pursue=10
+ 
+ power=melee,164,20
+ 
+-accuracy=90
+-avoidance=10
+-poise=45
++accuracy=95
++avoidance=15
++poise=48
+ 
+-dmg_melee_min=45
+-dmg_melee_max=50
++dmg_melee_min=70
++dmg_melee_max=80
+ cooldown=1100ms
+ 
+ absorb_min=2
+diff --git a/mods/empyrean_campaign/enemies/lvl2_skeleton.txt b/mods/empyrean_campaign/enemies/lvl2_skeleton.txt
+index 7dfd09323d159f3ec5305a5fdfb37d1233d62740..2f99ffa2bf97c9a0df1b580b6ff077c9ee4a3799 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_skeleton.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_skeleton.txt
+@@ -14,15 +14,15 @@ chance_pursue=10
+ 
+ power=melee,164,10
+ 
+-accuracy=90
+-avoidance=10
+-poise=45
++accuracy=95
++avoidance=15
++poise=48
+ 
+ dmg_melee_min=40
+ dmg_melee_max=50
+ cooldown=2200ms
+ 
+-absorb_min=1
++absorb_min=2
+ absorb_max=2
+ 
+ # loot
+diff --git a/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt b/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt
+index a0c3bc2e9d6544b50c1d1f2ea23b2528a1295a73..9d22f79fa9c04afd7c50b19c72378adb8c3a283c 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt
+@@ -16,15 +16,15 @@ power=melee,164,5
+ power=ranged,171,15
+ 
+ accuracy=95
+-avoidance=15
+-poise=30
++avoidance=20
++poise=32
+ 
+ dmg_melee_min=30
+ dmg_melee_max=35
+ dmg_ranged_min=50
+ dmg_ranged_max=75
+ absorb_min=1
+-absorb_max=1
++absorb_max=2
+ 
+ cooldown=2000ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl2_zombie.txt b/mods/empyrean_campaign/enemies/lvl2_zombie.txt
+index 5acb4750a345a596c9436663ff831a65ba96ad43..ce8d77c6e8a78b6233d0db98c4fb5c71440d8b8c 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_zombie.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_zombie.txt
+@@ -14,9 +14,9 @@ chance_pursue=10
+ 
+ power=melee,164,5
+ 
+-accuracy=80
+-avoidance=10
+-poise=50
++accuracy=85
++avoidance=15
++poise=52
+ 
+ dmg_melee_min=45
+ dmg_melee_max=50
+diff --git a/mods/empyrean_campaign/enemies/lvl3_ardwen.txt b/mods/empyrean_campaign/enemies/lvl3_ardwen.txt
+index 3c480ae9d517559bbd50d3912394d5cfc3d83ae7..ccb77298891cd05aed6219f0b4ec46c5582d6426 100644
+--- a/mods/empyrean_campaign/enemies/lvl3_ardwen.txt
++++ b/mods/empyrean_campaign/enemies/lvl3_ardwen.txt
+@@ -8,21 +8,21 @@ xp=10
+ defeat_status=emp_ardwen_defeated
+ 
+ # combat stats
+-hp=560
+-speed=4.5
++hp=520
++speed=4
+ turn_delay=200ms
+ chance_pursue=10
+ 
+ power=melee,164,10
+ power=melee,168,5
+ 
+-accuracy=110
+-avoidance=25
+-poise=70
++accuracy=90
++avoidance=20
++poise=54
+ 
+-dmg_melee_min=120
+-dmg_melee_max=140
+-cooldown=2400ms
++dmg_melee_min=90
++dmg_melee_max=95
++cooldown=1200ms
+ 
+ #loot
+ loot_count=3,4

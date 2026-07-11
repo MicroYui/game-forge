@@ -1,0 +1,43 @@
+diff --git a/mods/alpha_demo/maps/cave1.txt b/mods/alpha_demo/maps/cave1.txt
+index a253f642b96afa7c74164bf7080f931b11606248..167f3322f8123a317cc839e354d5313bf296ba8a 100644
+--- a/mods/alpha_demo/maps/cave1.txt
++++ b/mods/alpha_demo/maps/cave1.txt
+@@ -551,7 +551,7 @@ location=36,5,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=57,11,1,1
++location=57,12,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+diff --git a/tiled/averguard/cave1.tmx b/tiled/averguard/cave1.tmx
+index 7b68b469c6d8e90848b29578c29b6988771fc405..447767cbba410e38ff369f8607ca83621cfa8dfb 100644
+--- a/tiled/averguard/cave1.tmx
++++ b/tiled/averguard/cave1.tmx
+@@ -6,13 +6,13 @@
+   <property name="tileset" value="tilesetdefs/tileset_cave.txt"/>
+   <property name="title" value="Caves Level 1"/>
+  </properties>
+- <tileset firstgid="1" name="tiled_collision.png" tilewidth="64" tileheight="32">
++ <tileset firstgid="1" name="tiled_collision.png" tilewidth="64" tileheight="32" tilecount="15" columns="15">
+   <image source="../cave/tiled_collision.png" width="960" height="32"/>
+  </tileset>
+- <tileset firstgid="16" name="tiled_cave.png" tilewidth="64" tileheight="128">
++ <tileset firstgid="16" name="tiled_cave.png" tilewidth="64" tileheight="128" tilecount="240" columns="16">
+   <image source="../cave/tiled_cave.png" width="1024" height="1920"/>
+  </tileset>
+- <tileset firstgid="256" name="set_rules.png" tilewidth="64" tileheight="32">
++ <tileset firstgid="256" name="set_rules.png" tilewidth="64" tileheight="32" tilecount="8" columns="2">
+   <image source="../cave/set_rules.png" width="128" height="128"/>
+  </tileset>
+  <layer name="background" width="100" height="100">
+@@ -532,7 +532,7 @@
+  </objectgroup>
+  <objectgroup name="enemy">
+   <object id="29" type="antlion_hatchling" x="1152" y="160" width="32" height="32"/>
+-  <object id="30" type="antlion_hatchling" x="1824" y="352" width="32" height="32"/>
++  <object id="30" type="antlion_hatchling" x="1824" y="384" width="32" height="32"/>
+   <object id="31" type="antlion_hatchling" x="1056" y="320" width="32" height="32"/>
+   <object id="32" type="antlion_slasher" x="1184" y="320" width="32" height="32"/>
+   <object id="33" type="antlion_hatchling" x="1344" y="224" width="32" height="32"/>

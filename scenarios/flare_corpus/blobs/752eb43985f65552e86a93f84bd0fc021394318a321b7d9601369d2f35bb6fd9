@@ -1,0 +1,166 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl13_goblin_thief.txt b/mods/empyrean_campaign/enemies/lvl13_goblin_thief.txt
+index 496601785f831bbd663e43848d612352bf2db336..8dec1060304c85836d2816cffac1e6bb47421dd8 100644
+--- a/mods/empyrean_campaign/enemies/lvl13_goblin_thief.txt
++++ b/mods/empyrean_campaign/enemies/lvl13_goblin_thief.txt
+@@ -27,7 +27,23 @@ stat=absorb_max,13
+ 
+ # loot
+ loot=loot/level_13.txt
++loot_count=1,2
+ 
+ # high potion drop rate because goblin can steal potions
+ loot=2,50,1
+ loot=3,50,1
++loot=775,50,1
++loot=776,50,1
++loot=777,50,1
++loot=778,50,1
++loot=779,50,1
++loot=780,50,1
++loot=781,50,1
++loot=782,50,1
++
++# potion crafting materials as well
++loot=750,75,1
++loot=751,100,1,3
++loot=752,100,1,3
++loot=753,100,1,3
++loot=754,100,1,3
+diff --git a/mods/empyrean_campaign/scripts/powers/goblin_steal.txt b/mods/empyrean_campaign/scripts/powers/goblin_steal.txt
+index 744494ef15e28f8cf3a05cb3276d41a61e12024a..9005682796f2390dbb6dec0561d570f25d611ac2 100644
+--- a/mods/empyrean_campaign/scripts/powers/goblin_steal.txt
++++ b/mods/empyrean_campaign/scripts/powers/goblin_steal.txt
+@@ -1,20 +1,109 @@
+-# 1 Health Potion
+ [event]
+-requires_not_status=emp_script_goblin_steal
+-chance_exec=50
++random_status=clear
++
++
++
++# Health Potion
++[event]
+ requires_item=2
+-remove_item=2
+-set_status=emp_script_goblin_steal
+-msg=Goblin Thief stole a potion!
++random_status=append,emp_script_goblin_steal_1
+ 
+-# 1 Mana Potion
++# Mana Potion
+ [event]
+-requires_not_status=emp_script_goblin_steal
+ requires_item=3
++random_status=append,emp_script_goblin_steal_2
++
++# Stamina Potion
++[event]
++requires_item=775
++random_status=append,emp_script_goblin_steal_3
++
++# Restoration Potion
++[event]
++requires_item=776
++random_status=append,emp_script_goblin_steal_4
++
++# Treasure Potion
++[event]
++requires_item=777
++random_status=append,emp_script_goblin_steal_5
++
++# Elemental Potion
++[event]
++requires_item=778
++random_status=append,emp_script_goblin_steal_6
++
++# Super Health Potion
++[event]
++requires_item=779
++random_status=append,emp_script_goblin_steal_7
++
++# Ultra Health Potion
++[event]
++requires_item=780
++random_status=append,emp_script_goblin_steal_8
++
++# Super Mana Potion
++[event]
++requires_item=781
++random_status=append,emp_script_goblin_steal_9
++
++# Ultra Mana Potion
++[event]
++requires_item=782
++random_status=append,emp_script_goblin_steal_10
++
++
++
++[event]
++random_status=roll
++random_status=set
++
++
++
++[event]
++requires_status=emp_script_goblin_steal_1
++remove_item=2
++
++[event]
++requires_status=emp_script_goblin_steal_2
+ remove_item=3
+-set_status=emp_script_goblin_steal
+-msg=Goblin Thief stole a potion!
+ 
+-# Gold
+ [event]
+-unset_status=emp_script_goblin_steal
++requires_status=emp_script_goblin_steal_3
++remove_item=775
++
++[event]
++requires_status=emp_script_goblin_steal_4
++remove_item=776
++
++[event]
++requires_status=emp_script_goblin_steal_5
++remove_item=777
++
++[event]
++requires_status=emp_script_goblin_steal_6
++remove_item=778
++
++[event]
++requires_status=emp_script_goblin_steal_7
++remove_item=779
++
++[event]
++requires_status=emp_script_goblin_steal_8
++remove_item=780
++
++[event]
++requires_status=emp_script_goblin_steal_9
++remove_item=781
++
++[event]
++requires_status=emp_script_goblin_steal_10
++remove_item=782
++
++
++
++[event]
++msg=Goblin Thief stole a potion!
++random_status=unset
++random_status=clear
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 84b39e0627ac8e6aa1b61ed934f8107ef7ab755e..c9c8280ec9c44aa111a0c62f08880e53dcf34c7e 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.06.03:0
+ game=flare-game
+-version=1.12.07
+-engine_version_min=1.12.04
++version=1.12.08
++engine_version_min=1.12.20

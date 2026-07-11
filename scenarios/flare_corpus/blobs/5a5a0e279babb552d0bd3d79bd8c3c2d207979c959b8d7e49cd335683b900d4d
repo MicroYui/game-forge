@@ -1,0 +1,1966 @@
+diff --git a/mods/empyrean_campaign/enemies/base/ardwen.txt b/mods/empyrean_campaign/enemies/base/ardwen.txt
+index a62da4558790958f8b68e7abf845ce510ce3a4f0..f7e19d67eedb73e473314dcb0f505f5a29263a2a 100644
+--- a/mods/empyrean_campaign/enemies/base/ardwen.txt
++++ b/mods/empyrean_campaign/enemies/base/ardwen.txt
+@@ -26,4 +26,4 @@ loot_count=3,4
+ loot=loot/level_3.txt
+ 
+ # Ardwen's Gloves
+-loot=69,1
++loot=92,1
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
+index 97adf1987d52231f760eb48d15eff4dcdadb391e..7862af7a1cf501d9f33cc5ef4617b28e542ca6e7 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
+@@ -35,5 +35,5 @@ loot_count=3,4
+ loot=loot/level_2.txt
+ 
+ # Goblin Branch
+-loot=68,1
++loot=91,1
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl2_krolan.txt b/mods/empyrean_campaign/enemies/lvl2_krolan.txt
+index 39d9718fc4193934dec8e4228a8dee71fb46b8cf..b4ef72c4af9f4d7df7022517282d39a3410f7cd5 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_krolan.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_krolan.txt
+@@ -33,5 +33,5 @@ loot_count=3,4
+ loot=loot/level_2.txt
+ 
+ # Krolan's Pick
+-loot=67,1
++loot=90,1
+ 
+diff --git a/mods/empyrean_campaign/items/categories/level_2.txt b/mods/empyrean_campaign/items/categories/level_2.txt
+index a2f0c99fc34bca7bf23e4fb97ba8cfc35c9a5cb1..1ffac1fe14bafdd323a593ba623ddc4e4924375d 100644
+--- a/mods/empyrean_campaign/items/categories/level_2.txt
++++ b/mods/empyrean_campaign/items/categories/level_2.txt
+@@ -2,91 +2,133 @@
+ 
+ [item]
+ id=12
+-name=Cloth Shirt
++name=Brute Shirt
+ INCLUDE items/base/armor/cloth/chest.txt
+ quality=high
+ price=300
+ abs=1
+-bonus=hp,75
++bonus=hp,50
+ 
+ [item]
+ id=13
+-name=Cloth Shirt
++name=Scout Shirt
+ INCLUDE items/base/armor/cloth/chest.txt
+ quality=high
+ price=300
+ abs=1
+-bonus=hp_regen,75
++bonus=accuracy,4
+ 
+ [item]
+ id=14
+-name=Cloth Pants
++name=Adept Shirt
++INCLUDE items/base/armor/cloth/chest.txt
++quality=high
++price=300
++abs=1
++bonus=mp,10
++
++[item]
++id=15
++name=Brute Pants
+ INCLUDE items/base/armor/cloth/legs.txt
+ quality=high
+ price=200
+ abs=0,1
+-bonus=avoidance,4
++bonus=poise,3
+ 
+ [item]
+-id=15
+-name=Cloth Pants
++id=16
++name=Scout Pants
++INCLUDE items/base/armor/cloth/legs.txt
++quality=high
++price=200
++abs=0,1
++bonus=avoidance,2
++
++[item]
++id=17
++name=Adept Pants
+ INCLUDE items/base/armor/cloth/legs.txt
+ quality=high
+ price=200
+ abs=0,1
++bonus=mp,5
++
++[item]
++id=18
++name=Brute Sandals
++INCLUDE items/base/armor/cloth/feet.txt
++quality=high
++price=150
+ bonus=poise,2
+ 
+ [item]
+-id=16
+-name=Cloth Sandals
++id=19
++name=Scout Sandals
+ INCLUDE items/base/armor/cloth/feet.txt
+ quality=high
+ price=150
+-bonus=avoidance,2
++bonus=avoidance,1
+ 
+ [item]
+-id=17
+-name=Cloth Sandals
++id=20
++name=Adept Sandals
+ INCLUDE items/base/armor/cloth/feet.txt
+ quality=high
+ price=150
+-bonus=poise,1
++bonus=mp_regen,2
+ 
+ [item]
+-id=18
+-name=Cloth Gloves
++id=21
++name=Brute Gloves
+ INCLUDE items/base/armor/cloth/hands.txt
+ quality=high
+ price=100
+-bonus=crit,2
++bonus=crit,1
+ 
+ [item]
+-id=19
+-name=Cloth Gloves
++id=22
++name=Scout Gloves
+ INCLUDE items/base/armor/cloth/hands.txt
+ quality=high
+ price=100
+-bonus=accuracy,4
++bonus=accuracy,1
+ 
+ [item]
+-id=20
+-name=Cloth Sash
++id=23
++name=Adept Gloves
++INCLUDE items/base/armor/cloth/hands.txt
++quality=high
++price=100
++bonus=mp_regen,3
++
++[item]
++id=24
++name=Brute Sash
+ INCLUDE items/base/armor/belt.txt
+ quality=high
+ price=200
+-bonus=mp,15
++bonus=hp_regen,25
+ 
+ [item]
+-id=21
+-name=Cloth Sash
++id=25
++name=Scout Sash
+ INCLUDE items/base/armor/belt.txt
+ quality=high
+ price=200
+-bonus=mp_regen,15
++bonus=avoidance,2
+ 
+ [item]
+-id=22
+-name=Dagger
++id=26
++name=Adept Sash
++INCLUDE items/base/armor/belt.txt
++quality=high
++price=200
++bonus=mp_regen,10
++
++[item]
++id=27
++name=Brute Dagger
+ INCLUDE items/base/weapons/melee/dagger.txt
+ quality=high
+ price=400
+@@ -96,8 +138,8 @@ bonus=dmg_melee_min,5
+ bonus=dmg_melee_max,5
+ 
+ [item]
+-id=23
+-name=Slingshot
++id=28
++name=Scout Slingshot
+ INCLUDE items/base/weapons/ranged/slingshot.txt
+ quality=high
+ price=400
+@@ -107,8 +149,8 @@ bonus=dmg_ranged_min,5
+ bonus=dmg_ranged_max,5
+ 
+ [item]
+-id=24
+-name=Wand
++id=29
++name=Adept Wand
+ INCLUDE items/base/weapons/magic/wand.txt
+ quality=high
+ price=400
+@@ -118,8 +160,8 @@ bonus=dmg_ment_min,5
+ bonus=dmg_ment_max,5
+ 
+ [item]
+-id=25
+-name=Wood Buckler
++id=30
++name=Keeper Buckler
+ INCLUDE items/base/shields/wood.txt
+ quality=high
+ abs=1
+@@ -128,50 +170,58 @@ price=300
+ bonus=absorb_max,1
+ 
+ [item]
+-id=26
+-name=Fire Ring
++id=31
++name=Exiled Fire Ring
+ INCLUDE items/base/rings/gold_5.txt
+ quality=high
+ price=700
+-bonus=fire_resist,10
++bonus=fire_resist,5
+ 
+ [item]
+-id=27
+-name=Ice Ring
++id=32
++name=Exiled Ice Ring
+ INCLUDE items/base/rings/silver_4.txt
+ quality=high
+ price=700
+-bonus=ice_resist,10
++bonus=ice_resist,5
+ 
+ [item]
+-id=28
+-name=Lightning Ring
++id=33
++name=Exiled Lightning Ring
+ INCLUDE items/base/rings/silver_5.txt
+ quality=high
+ price=700
+-bonus=lightning_resist,10
++bonus=lightning_resist,5
+ 
+ [item]
+-id=29
+-name=Experience Ring
++id=34
++name=Exiled Dark Ring
++INCLUDE items/base/rings/gold_3.txt
++quality=high
++price=700
++bonus=dark_resist,5
++
++[item]
++id=35
++name=Exiled Experience Ring
+ INCLUDE items/base/rings/silver_2.txt
+ quality=high
+ price=700
+-bonus=xp_gain,10
++bonus=xp_gain,5
+ 
+ [item]
+-id=30
+-name=Wealth Ring
++id=36
++name=Exiled Wealth Ring
+ INCLUDE items/base/rings/gold_2.txt
+ quality=high
+ price=700
+-bonus=currency_find,20
++bonus=currency_find,10
+ 
+ [item]
+-id=31
+-name=Treasure Ring
++id=37
++name=Exiled Treasure Ring
+ INCLUDE items/base/rings/gold_4.txt
+ quality=high
+ price=700
+-bonus=item_find,30
++bonus=item_find,25
+ 
+diff --git a/mods/empyrean_campaign/items/categories/level_3.txt b/mods/empyrean_campaign/items/categories/level_3.txt
+index c960e9eb4c178f4bff1da3b4186a79c0707d8ebc..3410e104f0ff5a566f2497d9e4327fd81e74258f 100644
+--- a/mods/empyrean_campaign/items/categories/level_3.txt
++++ b/mods/empyrean_campaign/items/categories/level_3.txt
+@@ -1,108 +1,158 @@
+ # equipment intended for players level 3
+ 
+ [item]
+-id=32
+-name=Cloth Shirt
++id=38
++name=Brute Shirt
++INCLUDE items/base/armor/cloth/chest.txt
++quality=epic
++price=600
++abs=1,2
++requires_stat=defense,3
++bonus=hp,100
++
++[item]
++id=39
++name=Scout Shirt
+ INCLUDE items/base/armor/cloth/chest.txt
+ quality=epic
+ price=600
+ abs=1,2
+ requires_stat=defense,3
+-bonus=hp,125
++bonus=accuracy,8
+ 
+ [item]
+-id=33
+-name=Cloth Shirt
++id=40
++name=Adept Shirt
+ INCLUDE items/base/armor/cloth/chest.txt
+ quality=epic
+ price=600
+ abs=1,2
+ requires_stat=defense,3
+-bonus=hp_regen,125
++bonus=mp,20
++
++[item]
++id=41
++name=Brute Pants
++INCLUDE items/base/armor/cloth/legs.txt
++quality=epic
++price=400
++abs=1
++requires_stat=defense,3
++bonus=poise,6
+ 
+ [item]
+-id=34
+-name=Cloth Pants
++id=42
++name=Scout Pants
+ INCLUDE items/base/armor/cloth/legs.txt
+ quality=epic
+ price=400
+ abs=1
+ requires_stat=defense,3
+-bonus=avoidance,8
++bonus=avoidance,4
+ 
+ [item]
+-id=35
+-name=Cloth Pants
++id=43
++name=Adept Pants
+ INCLUDE items/base/armor/cloth/legs.txt
+ quality=epic
+ price=400
+ abs=1
+ requires_stat=defense,3
++bonus=mp,10
++
++[item]
++id=44
++name=Brute Sandals
++INCLUDE items/base/armor/cloth/feet.txt
++quality=epic
++price=300
++abs=0,1
++requires_stat=defense,3
+ bonus=poise,4
+ 
+ [item]
+-id=36
+-name=Cloth Sandals
++id=45
++name=Scout Sandals
+ INCLUDE items/base/armor/cloth/feet.txt
+ quality=epic
+ price=300
+ abs=0,1
+ requires_stat=defense,3
+-bonus=avoidance,4
++bonus=avoidance,2
+ 
+ [item]
+-id=37
+-name=Cloth Sandals
++id=46
++name=Adept Sandals
+ INCLUDE items/base/armor/cloth/feet.txt
+ quality=epic
+ price=300
+ abs=0,1
+ requires_stat=defense,3
+-bonus=poise,2
++bonus=mp_regen,4
+ 
+ [item]
+-id=38
+-name=Cloth Gloves
++id=47
++name=Brute Gloves
+ INCLUDE items/base/armor/cloth/hands.txt
+ quality=epic
+ price=200
+ abs=0,1
+ requires_stat=defense,3
+-bonus=crit,4
++bonus=crit,2
+ 
+ [item]
+-id=39
+-name=Cloth Gloves
++id=48
++name=Scout Gloves
+ INCLUDE items/base/armor/cloth/hands.txt
+ quality=epic
+ price=200
+ abs=0,1
+ requires_stat=defense,3
+-bonus=accuracy,8
++bonus=accuracy,2
+ 
+ [item]
+-id=40
+-name=Cloth Sash
++id=49
++name=Adept Gloves
++INCLUDE items/base/armor/cloth/hands.txt
++quality=epic
++price=200
++abs=0,1
++requires_stat=defense,3
++bonus=mp_regen,6
++
++[item]
++id=50
++name=Brute Sash
+ INCLUDE items/base/armor/belt.txt
+ quality=epic
+ price=400
+ abs=0,1
+ requires_stat=defense,3
+-bonus=mp,30
++bonus=hp_regen,50
+ 
+ [item]
+-id=41
+-name=Cloth Sash
++id=51
++name=Scout Sash
+ INCLUDE items/base/armor/belt.txt
+ quality=epic
+ price=400
+ abs=0,1
+ requires_stat=defense,3
+-bonus=mp_regen,30
++bonus=avoidance,4
+ 
+ [item]
+-id=42
+-name=Dagger
++id=52
++name=Adept Sash
++INCLUDE items/base/armor/belt.txt
++quality=epic
++price=400
++abs=0,1
++requires_stat=defense,3
++bonus=mp_regen,20
++
++[item]
++id=53
++name=Brute Dagger
+ INCLUDE items/base/weapons/melee/dagger.txt
+ quality=epic
+ price=800
+@@ -112,8 +162,8 @@ bonus=dmg_melee_min,10
+ bonus=dmg_melee_max,10
+ 
+ [item]
+-id=43
+-name=Slingshot
++id=54
++name=Scout Slingshot
+ INCLUDE items/base/weapons/ranged/slingshot.txt
+ quality=epic
+ price=800
+@@ -123,8 +173,8 @@ bonus=dmg_ranged_min,10
+ bonus=dmg_ranged_max,10
+ 
+ [item]
+-id=44
+-name=Wand
++id=55
++name=Adept Wand
+ INCLUDE items/base/weapons/magic/wand.txt
+ quality=epic
+ price=800
+@@ -134,8 +184,8 @@ bonus=dmg_ment_min,10
+ bonus=dmg_ment_max,10
+ 
+ [item]
+-id=45
+-name=Wood Buckler
++id=56
++name=Keeper Buckler
+ INCLUDE items/base/shields/wood.txt
+ quality=epic
+ abs=1,2
+@@ -144,50 +194,58 @@ price=600
+ bonus=absorb_max,2
+ 
+ [item]
+-id=46
+-name=Fire Ring
++id=57
++name=Exiled Fire Ring
+ INCLUDE items/base/rings/gold_5.txt
+ quality=epic
+ price=1400
+-bonus=fire_resist,15
++bonus=fire_resist,10
+ 
+ [item]
+-id=47
+-name=Ice Ring
++id=58
++name=Exiled Ice Ring
+ INCLUDE items/base/rings/silver_4.txt
+ quality=epic
+ price=1400
+-bonus=ice_resist,15
++bonus=ice_resist,10
+ 
+ [item]
+-id=48
+-name=Lightning Ring
++id=59
++name=Exiled Lightning Ring
+ INCLUDE items/base/rings/silver_5.txt
+ quality=epic
+ price=1400
+-bonus=lightning_resist,15
++bonus=lightning_resist,10
+ 
+ [item]
+-id=49
+-name=Experience Ring
++id=60
++name=Exiled Dark Ring
++INCLUDE items/base/rings/gold_3.txt
++quality=epic
++price=1400
++bonus=dark_resist,10
++
++[item]
++id=61
++name=Exiled Experience Ring
+ INCLUDE items/base/rings/silver_2.txt
+ quality=epic
+ price=1400
+-bonus=xp_gain,15
++bonus=xp_gain,10
+ 
+ [item]
+-id=50
+-name=Wealth Ring
++id=62
++name=Exiled Wealth Ring
+ INCLUDE items/base/rings/gold_2.txt
+ quality=epic
+ price=1400
+-bonus=currency_find,30
++bonus=currency_find,20
+ 
+ [item]
+-id=51
+-name=Treasure Ring
++id=63
++name=Exiled Treasure Ring
+ INCLUDE items/base/rings/gold_4.txt
+ quality=epic
+ price=1400
+-bonus=item_find,40
++bonus=item_find,50
+ 
+diff --git a/mods/empyrean_campaign/items/categories/level_4.txt b/mods/empyrean_campaign/items/categories/level_4.txt
+index b5d0b10e43fadcf2a73b1a792ce210c059e65a72..5bdfb7adf4ccdd1a459df3e4ff17e8d292135a9e 100644
+--- a/mods/empyrean_campaign/items/categories/level_4.txt
++++ b/mods/empyrean_campaign/items/categories/level_4.txt
+@@ -1,63 +1,159 @@
+ # equipment intended for players level 4
+ 
+ [item]
+-id=52
+-name=Cloth Shirt
++id=64
++name=Brute Shirt
+ INCLUDE items/base/armor/cloth/chest.txt
+ quality=rare
+ price=1200
+-abs=1,2
++abs=2
++requires_stat=defense,6
++bonus=hp,150
++
++[item]
++id=65
++name=Scout Shirt
++INCLUDE items/base/armor/cloth/chest.txt
++quality=rare
++price=1200
++abs=2
+ requires_stat=defense,6
+-bonus=hp,175
+-bonus=hp_regen,175
++bonus=accuracy,8
+ 
+ [item]
+-id=53
+-name=Cloth Pants
++id=66
++name=Adept Shirt
++INCLUDE items/base/armor/cloth/chest.txt
++quality=rare
++price=1200
++abs=2
++requires_stat=defense,6
++bonus=mp,20
++
++[item]
++id=67
++name=Brute Pants
+ INCLUDE items/base/armor/cloth/legs.txt
+ quality=rare
+ price=800
+ abs=1,2
+ requires_stat=defense,6
+-bonus=avoidance,12
+ bonus=poise,6
+ 
+ [item]
+-id=54
+-name=Cloth Sandals
++id=68
++name=Scout Pants
++INCLUDE items/base/armor/cloth/legs.txt
++quality=rare
++price=800
++abs=1,2
++requires_stat=defense,6
++bonus=avoidance,4
++
++[item]
++id=69
++name=Adept Pants
++INCLUDE items/base/armor/cloth/legs.txt
++quality=rare
++price=800
++abs=1,2
++requires_stat=defense,6
++bonus=mp,10
++
++[item]
++id=70
++name=Brute Sandals
+ INCLUDE items/base/armor/cloth/feet.txt
+ quality=rare
+ price=600
+ abs=1
+ requires_stat=defense,6
+-bonus=avoidance,6
+-bonus=poise,3
++bonus=poise,4
+ 
+ [item]
+-id=55
+-name=Cloth Gloves
++id=71
++name=Scout Sandals
++INCLUDE items/base/armor/cloth/feet.txt
++quality=rare
++price=600
++abs=1
++requires_stat=defense,6
++bonus=avoidance,2
++
++[item]
++id=72
++name=Adept Sandals
++INCLUDE items/base/armor/cloth/feet.txt
++quality=rare
++price=600
++abs=1
++requires_stat=defense,6
++bonus=mp_regen,4
++
++[item]
++id=73
++name=Brute Gloves
++INCLUDE items/base/armor/cloth/hands.txt
++quality=rare
++price=400
++abs=1
++requires_stat=defense,6
++bonus=crit,2
++
++[item]
++id=74
++name=Scout Gloves
+ INCLUDE items/base/armor/cloth/hands.txt
+ quality=rare
+ price=400
+ abs=1
+ requires_stat=defense,6
+-bonus=crit,6
+-bonus=accuracy,12
++bonus=accuracy,2
+ 
+ [item]
+-id=56
+-name=Cloth Sash
++id=75
++name=Adept Gloves
++INCLUDE items/base/armor/cloth/hands.txt
++quality=rare
++price=400
++abs=1
++requires_stat=defense,6
++bonus=mp_regen,6
++
++[item]
++id=76
++name=Brute Sash
+ INCLUDE items/base/armor/belt.txt
+ quality=rare
+ price=800
+ abs=1
+ requires_stat=defense,6
+-bonus=mp,45
+-bonus=mp_regen,45
++bonus=hp_regen,50
+ 
+ [item]
+-id=57
+-name=Dagger
++id=77
++name=Scout Sash
++INCLUDE items/base/armor/belt.txt
++quality=rare
++price=800
++abs=1
++requires_stat=defense,6
++bonus=avoidance,4
++
++[item]
++id=78
++name=Adept Sash
++INCLUDE items/base/armor/belt.txt
++quality=rare
++price=800
++abs=1
++requires_stat=defense,6
++bonus=mp_regen,20
++
++
++[item]
++id=79
++name=Brute Dagger
+ INCLUDE items/base/weapons/melee/dagger.txt
+ quality=rare
+ price=1600
+@@ -67,8 +163,8 @@ bonus=dmg_melee_min,15
+ bonus=dmg_melee_max,15
+ 
+ [item]
+-id=58
+-name=Slingshot
++id=80
++name=Scout Slingshot
+ INCLUDE items/base/weapons/ranged/slingshot.txt
+ quality=rare
+ price=1600
+@@ -78,8 +174,8 @@ bonus=dmg_ranged_min,15
+ bonus=dmg_ranged_max,15
+ 
+ [item]
+-id=59
+-name=Wand
++id=81
++name=Adept Wand
+ INCLUDE items/base/weapons/magic/wand.txt
+ quality=rare
+ price=1600
+@@ -89,8 +185,8 @@ bonus=dmg_ment_min,15
+ bonus=dmg_ment_max,15
+ 
+ [item]
+-id=60
+-name=Wood Buckler
++id=82
++name=Keeper Buckler
+ INCLUDE items/base/shields/wood.txt
+ quality=rare
+ abs=2
+@@ -99,56 +195,64 @@ price=1200
+ bonus=absorb_max,3
+ 
+ [item]
+-id=61
+-name=Fire Ring
++id=83
++name=Exiled Fire Ring
+ INCLUDE items/base/rings/gold_5.txt
+ quality=rare
+ price=2800
+-bonus=fire_resist,20
++bonus=fire_resist,15
+ 
+ [item]
+-id=62
+-name=Ice Ring
++id=84
++name=Exiled Ice Ring
+ INCLUDE items/base/rings/silver_4.txt
+ quality=rare
+ price=2800
+-bonus=ice_resist,20
++bonus=ice_resist,15
+ 
+ [item]
+-id=63
+-name=Lightning Ring
++id=85
++name=Exiled Lightning Ring
+ INCLUDE items/base/rings/silver_5.txt
+ quality=rare
+ price=2800
+-bonus=lightning_resist,20
++bonus=lightning_resist,15
+ 
+ [item]
+-id=64
+-name=Experience Ring
++id=86
++name=Exiled Dark Ring
++INCLUDE items/base/rings/gold_3.txt
++quality=rare
++price=2800
++bonus=dark_resist,15
++
++[item]
++id=87
++name=Exiled Experience Ring
+ INCLUDE items/base/rings/silver_2.txt
+ quality=rare
+ price=2800
+-bonus=xp_gain,20
++bonus=xp_gain,15
+ 
+ [item]
+-id=65
+-name=Wealth Ring
++id=88
++name=Exiled Wealth Ring
+ INCLUDE items/base/rings/gold_2.txt
+ quality=rare
+ price=2800
+-bonus=currency_find,40
++bonus=currency_find,30
+ 
+ [item]
+-id=66
+-name=Treasure Ring
++id=89
++name=Exiled Treasure Ring
+ INCLUDE items/base/rings/gold_4.txt
+ quality=rare
+ price=2800
+-bonus=item_find,50
++bonus=item_find,75
+ 
+ # unique items
+ [item]
+-id=67
++id=90
+ name=Krolan's Pick
+ flavor=Sharp enough to cut through stone.
+ INCLUDE items/base/weapons/melee/dagger.txt
+@@ -159,10 +263,10 @@ requires_stat=physical,10
+ bonus=dmg_melee_min,20
+ bonus=dmg_melee_max,20
+ bonus=crit,1
+-bonus=currency_find,30
++bonus=currency_find,10
+ 
+ [item]
+-id=68
++id=91
+ name=Goblin Branch
+ flavor=Mana flows inside its primitive exterior.
+ INCLUDE items/base/weapons/magic/wand.txt
+@@ -172,11 +276,11 @@ dmg_ment=25,30
+ requires_stat=mental,10
+ bonus=dmg_ment_min,20
+ bonus=dmg_ment_max,20
+-bonus=mp_regen,30
+-bonus=lightning_resist,40
++bonus=mp_regen,10
++bonus=lightning_resist,5
+ 
+ [item]
+-id=69
++id=92
+ name=Ardwen's Gloves
+ flavor=These hands built a village.
+ INCLUDE items/base/armor/cloth/hands.txt
+@@ -186,6 +290,6 @@ abs=1,2
+ requires_stat=offense,4
+ requires_stat=defense,6
+ bonus=absorb_min,2
+-bonus=accuracy,25
++bonus=accuracy,5
+ bonus=poise,5
+ bonus=xp_gain,10
+diff --git a/mods/empyrean_campaign/loot/level_1.txt b/mods/empyrean_campaign/loot/level_1.txt
+index 59912d390ced562461803658e91434ab075d854e..f1b852faf3f7a284650bd5a231d705ddc1eec7dd 100644
+--- a/mods/empyrean_campaign/loot/level_1.txt
++++ b/mods/empyrean_campaign/loot/level_1.txt
+@@ -116,8 +116,6 @@ id=21
+ chance=1
+ quantity=1
+ 
+-
+-# magic weapons
+ [loot]
+ id=22
+ chance=1
+@@ -133,8 +131,6 @@ id=24
+ chance=1
+ quantity=1
+ 
+-
+-# magic misc
+ [loot]
+ id=25
+ chance=1
+@@ -145,6 +141,9 @@ id=26
+ chance=1
+ quantity=1
+ 
++
++
++# magic weapons
+ [loot]
+ id=27
+ chance=1
+@@ -160,6 +159,9 @@ id=29
+ chance=1
+ quantity=1
+ 
++
++
++# magic misc
+ [loot]
+ id=30
+ chance=1
+@@ -170,3 +172,38 @@ id=31
+ chance=1
+ quantity=1
+ 
++[loot]
++id=32
++chance=1
++quantity=1
++
++[loot]
++id=33
++chance=1
++quantity=1
++
++[loot]
++id=34
++chance=1
++quantity=1
++
++[loot]
++id=35
++chance=1
++quantity=1
++
++[loot]
++id=35
++chance=1
++quantity=1
++
++[loot]
++id=36
++chance=1
++quantity=1
++
++[loot]
++id=37
++chance=1
++quantity=1
++
+diff --git a/mods/empyrean_campaign/loot/level_2.txt b/mods/empyrean_campaign/loot/level_2.txt
+index 5f15a84ffe9230f8b5c1b90659a6c3e77a675872..e35ad3ae645697c46dc4b48626571663aee99f1e 100644
+--- a/mods/empyrean_campaign/loot/level_2.txt
++++ b/mods/empyrean_campaign/loot/level_2.txt
+@@ -116,8 +116,6 @@ id=21
+ chance=2
+ quantity=1
+ 
+-
+-# magic weapons
+ [loot]
+ id=22
+ chance=2
+@@ -133,8 +131,6 @@ id=24
+ chance=2
+ quantity=1
+ 
+-
+-# magic misc
+ [loot]
+ id=25
+ chance=2
+@@ -145,6 +141,9 @@ id=26
+ chance=2
+ quantity=1
+ 
++
++
++# magic weapons
+ [loot]
+ id=27
+ chance=2
+@@ -160,6 +159,9 @@ id=29
+ chance=2
+ quantity=1
+ 
++
++
++# magic misc
+ [loot]
+ id=30
+ chance=2
+@@ -170,38 +172,44 @@ id=31
+ chance=2
+ quantity=1
+ 
+-
+-# epic clothes
+ [loot]
+ id=32
+-chance=1
++chance=2
+ quantity=1
+ 
+ [loot]
+ id=33
+-chance=1
++chance=2
+ quantity=1
+ 
+ [loot]
+ id=34
+-chance=1
++chance=2
+ quantity=1
+ 
+ [loot]
+ id=35
+-chance=1
++chance=2
++quantity=1
++
++[loot]
++id=35
++chance=2
+ quantity=1
+ 
+ [loot]
+ id=36
+-chance=1
++chance=2
+ quantity=1
+ 
+ [loot]
+ id=37
+-chance=1
++chance=2
+ quantity=1
+ 
++
++
++# epic clothes
+ [loot]
+ id=38
+ chance=1
+@@ -222,8 +230,6 @@ id=41
+ chance=1
+ quantity=1
+ 
+-
+-# epic weapons
+ [loot]
+ id=42
+ chance=1
+@@ -239,8 +245,6 @@ id=44
+ chance=1
+ quantity=1
+ 
+-
+-# epic misc
+ [loot]
+ id=45
+ chance=1
+@@ -276,3 +280,74 @@ id=51
+ chance=1
+ quantity=1
+ 
++[loot]
++id=52
++chance=1
++quantity=1
++
++
++
++# epic weapons
++[loot]
++id=53
++chance=1
++quantity=1
++
++[loot]
++id=54
++chance=1
++quantity=1
++
++[loot]
++id=55
++chance=1
++quantity=1
++
++
++
++# epic misc
++[loot]
++id=56
++chance=1
++quantity=1
++
++[loot]
++id=57
++chance=1
++quantity=1
++
++[loot]
++id=58
++chance=1
++quantity=1
++
++[loot]
++id=59
++chance=1
++quantity=1
++
++[loot]
++id=60
++chance=1
++quantity=1
++
++[loot]
++id=61
++chance=1
++quantity=1
++
++[loot]
++id=61
++chance=1
++quantity=1
++
++[loot]
++id=62
++chance=1
++quantity=1
++
++[loot]
++id=63
++chance=1
++quantity=1
++
+diff --git a/mods/empyrean_campaign/loot/level_3.txt b/mods/empyrean_campaign/loot/level_3.txt
+index ec2fe1a78e74016756f2c7913922f95cb6375119..51cb67502ec437a3bd6f33c7ab9312e0dccec47c 100644
+--- a/mods/empyrean_campaign/loot/level_3.txt
++++ b/mods/empyrean_campaign/loot/level_3.txt
+@@ -116,8 +116,6 @@ id=21
+ chance=3
+ quantity=1
+ 
+-
+-# magic weapons
+ [loot]
+ id=22
+ chance=3
+@@ -133,8 +131,6 @@ id=24
+ chance=3
+ quantity=1
+ 
+-
+-# magic misc
+ [loot]
+ id=25
+ chance=3
+@@ -145,6 +141,9 @@ id=26
+ chance=3
+ quantity=1
+ 
++
++
++# magic weapons
+ [loot]
+ id=27
+ chance=3
+@@ -160,6 +159,9 @@ id=29
+ chance=3
+ quantity=1
+ 
++
++
++# magic misc
+ [loot]
+ id=30
+ chance=3
+@@ -170,38 +172,44 @@ id=31
+ chance=3
+ quantity=1
+ 
+-
+-# epic clothes
+ [loot]
+ id=32
+-chance=2
++chance=3
+ quantity=1
+ 
+ [loot]
+ id=33
+-chance=2
++chance=3
+ quantity=1
+ 
+ [loot]
+ id=34
+-chance=2
++chance=3
+ quantity=1
+ 
+ [loot]
+ id=35
+-chance=2
++chance=3
++quantity=1
++
++[loot]
++id=35
++chance=3
+ quantity=1
+ 
+ [loot]
+ id=36
+-chance=2
++chance=3
+ quantity=1
+ 
+ [loot]
+ id=37
+-chance=2
++chance=3
+ quantity=1
+ 
++
++
++# epic clothes
+ [loot]
+ id=38
+ chance=2
+@@ -222,8 +230,6 @@ id=41
+ chance=2
+ quantity=1
+ 
+-
+-# epic weapons
+ [loot]
+ id=42
+ chance=2
+@@ -239,8 +245,6 @@ id=44
+ chance=2
+ quantity=1
+ 
+-
+-# epic misc
+ [loot]
+ id=45
+ chance=2
+@@ -276,84 +280,218 @@ id=51
+ chance=2
+ quantity=1
+ 
++[loot]
++id=52
++chance=2
++quantity=1
++
++
++
++# epic weapons
++[loot]
++id=53
++chance=2
++quantity=1
++
++[loot]
++id=54
++chance=2
++quantity=1
++
++[loot]
++id=55
++chance=2
++quantity=1
++
++
++
++# epic misc
++[loot]
++id=56
++chance=2
++quantity=1
++
++[loot]
++id=57
++chance=2
++quantity=1
++
++[loot]
++id=58
++chance=2
++quantity=1
++
++[loot]
++id=59
++chance=2
++quantity=1
++
++[loot]
++id=60
++chance=2
++quantity=1
++
++[loot]
++id=61
++chance=2
++quantity=1
++
++[loot]
++id=61
++chance=2
++quantity=1
++
++[loot]
++id=62
++chance=2
++quantity=1
++
++[loot]
++id=63
++chance=2
++quantity=1
++
++
+ 
+ # rare clothes
+ [loot]
+-id=52
++id=64
+ chance=1
+ quantity=1
+ 
+ [loot]
+-id=53
++id=65
+ chance=1
+ quantity=1
+ 
+ [loot]
+-id=54
++id=66
+ chance=1
+ quantity=1
+ 
+ [loot]
+-id=55
++id=67
+ chance=1
+ quantity=1
+ 
+ [loot]
+-id=56
++id=68
++chance=1
++quantity=1
++
++[loot]
++id=69
++chance=1
++quantity=1
++
++[loot]
++id=70
++chance=1
++quantity=1
++
++[loot]
++id=71
++chance=1
++quantity=1
++
++[loot]
++id=72
+ chance=1
+ quantity=1
+ 
++[loot]
++id=73
++chance=1
++quantity=1
++
++[loot]
++id=74
++chance=1
++quantity=1
++
++[loot]
++id=75
++chance=1
++quantity=1
++
++[loot]
++id=76
++chance=1
++quantity=1
++
++[loot]
++id=77
++chance=1
++quantity=1
++
++[loot]
++id=78
++chance=1
++quantity=1
++
++
+ 
+ # rare weapons
+ [loot]
+-id=57
++id=79
+ chance=1
+ quantity=1
+ 
+ [loot]
+-id=58
++id=80
+ chance=1
+ quantity=1
+ 
+ [loot]
+-id=59
++id=81
+ chance=1
+ quantity=1
+ 
+ 
++
+ # rare misc
+ [loot]
+-id=60
++id=82
+ chance=1
+ quantity=1
+ 
+ [loot]
+-id=61
++id=83
+ chance=1
+ quantity=1
+ 
+ [loot]
+-id=62
++id=84
+ chance=1
+ quantity=1
+ 
+ [loot]
+-id=63
++id=85
+ chance=1
+ quantity=1
+ 
+ [loot]
+-id=64
++id=86
+ chance=1
+ quantity=1
+ 
+ [loot]
+-id=65
++id=87
+ chance=1
+ quantity=1
+ 
+ [loot]
+-id=66
++id=87
++chance=1
++quantity=1
++
++[loot]
++id=88
++chance=1
++quantity=1
++
++[loot]
++id=89
+ chance=1
+ quantity=1
+ 
+diff --git a/mods/empyrean_campaign/loot/level_4.txt b/mods/empyrean_campaign/loot/level_4.txt
+index 48c28d0435ce5f7c3c1b2469974494270c687b46..34219661778108bd9f3938094c452292d52ff0ef 100644
+--- a/mods/empyrean_campaign/loot/level_4.txt
++++ b/mods/empyrean_campaign/loot/level_4.txt
+@@ -1,21 +1,21 @@
+-# level 3 loot
++# level 4 loot
+ 
+ # gold
+ [loot]
+ id=currency
+-chance=50
++chance=80
+ quantity=20,30
+ 
+ 
+ # potions
+ [loot]
+ id=2
+-chance=13
++chance=23
+ quantity=1
+ 
+ [loot]
+ id=3
+-chance=13
++chance=23
+ quantity=1
+ 
+ 
+@@ -116,8 +116,6 @@ id=21
+ chance=5
+ quantity=1
+ 
+-
+-# magic weapons
+ [loot]
+ id=22
+ chance=5
+@@ -133,8 +131,6 @@ id=24
+ chance=5
+ quantity=1
+ 
+-
+-# magic misc
+ [loot]
+ id=25
+ chance=5
+@@ -145,6 +141,9 @@ id=26
+ chance=5
+ quantity=1
+ 
++
++
++# magic weapons
+ [loot]
+ id=27
+ chance=5
+@@ -160,6 +159,9 @@ id=29
+ chance=5
+ quantity=1
+ 
++
++
++# magic misc
+ [loot]
+ id=30
+ chance=5
+@@ -170,38 +172,44 @@ id=31
+ chance=5
+ quantity=1
+ 
+-
+-# epic clothes
+ [loot]
+ id=32
+-chance=3
++chance=5
+ quantity=1
+ 
+ [loot]
+ id=33
+-chance=3
++chance=5
+ quantity=1
+ 
+ [loot]
+ id=34
+-chance=3
++chance=5
+ quantity=1
+ 
+ [loot]
+ id=35
+-chance=3
++chance=5
++quantity=1
++
++[loot]
++id=35
++chance=5
+ quantity=1
+ 
+ [loot]
+ id=36
+-chance=3
++chance=5
+ quantity=1
+ 
+ [loot]
+ id=37
+-chance=3
++chance=5
+ quantity=1
+ 
++
++
++# epic clothes
+ [loot]
+ id=38
+ chance=3
+@@ -222,8 +230,6 @@ id=41
+ chance=3
+ quantity=1
+ 
+-
+-# epic weapons
+ [loot]
+ id=42
+ chance=3
+@@ -239,8 +245,6 @@ id=44
+ chance=3
+ quantity=1
+ 
+-
+-# epic misc
+ [loot]
+ id=45
+ chance=3
+@@ -276,84 +280,218 @@ id=51
+ chance=3
+ quantity=1
+ 
++[loot]
++id=52
++chance=3
++quantity=1
++
++
++
++# epic weapons
++[loot]
++id=53
++chance=3
++quantity=1
++
++[loot]
++id=54
++chance=3
++quantity=1
++
++[loot]
++id=55
++chance=3
++quantity=1
++
++
++
++# epic misc
++[loot]
++id=56
++chance=3
++quantity=1
++
++[loot]
++id=57
++chance=3
++quantity=1
++
++[loot]
++id=58
++chance=3
++quantity=1
++
++[loot]
++id=59
++chance=3
++quantity=1
++
++[loot]
++id=60
++chance=3
++quantity=1
++
++[loot]
++id=61
++chance=3
++quantity=1
++
++[loot]
++id=61
++chance=3
++quantity=1
++
++[loot]
++id=62
++chance=3
++quantity=1
++
++[loot]
++id=63
++chance=3
++quantity=1
++
++
+ 
+ # rare clothes
+ [loot]
+-id=52
++id=64
+ chance=2
+ quantity=1
+ 
+ [loot]
+-id=53
++id=65
+ chance=2
+ quantity=1
+ 
+ [loot]
+-id=54
++id=66
+ chance=2
+ quantity=1
+ 
+ [loot]
+-id=55
++id=67
+ chance=2
+ quantity=1
+ 
+ [loot]
+-id=56
++id=68
++chance=2
++quantity=1
++
++[loot]
++id=69
++chance=2
++quantity=1
++
++[loot]
++id=70
++chance=2
++quantity=1
++
++[loot]
++id=71
++chance=2
++quantity=1
++
++[loot]
++id=72
+ chance=2
+ quantity=1
+ 
++[loot]
++id=73
++chance=2
++quantity=1
++
++[loot]
++id=74
++chance=2
++quantity=1
++
++[loot]
++id=75
++chance=2
++quantity=1
++
++[loot]
++id=76
++chance=2
++quantity=1
++
++[loot]
++id=77
++chance=2
++quantity=1
++
++[loot]
++id=78
++chance=2
++quantity=1
++
++
+ 
+ # rare weapons
+ [loot]
+-id=57
++id=79
+ chance=2
+ quantity=1
+ 
+ [loot]
+-id=58
++id=80
+ chance=2
+ quantity=1
+ 
+ [loot]
+-id=59
++id=81
+ chance=2
+ quantity=1
+ 
+ 
++
+ # rare misc
+ [loot]
+-id=60
++id=82
+ chance=2
+ quantity=1
+ 
+ [loot]
+-id=61
++id=83
+ chance=2
+ quantity=1
+ 
+ [loot]
+-id=62
++id=84
+ chance=2
+ quantity=1
+ 
+ [loot]
+-id=63
++id=85
+ chance=2
+ quantity=1
+ 
+ [loot]
+-id=64
++id=86
+ chance=2
+ quantity=1
+ 
+ [loot]
+-id=65
++id=87
+ chance=2
+ quantity=1
+ 
+ [loot]
+-id=66
++id=87
++chance=2
++quantity=1
++
++[loot]
++id=88
++chance=2
++quantity=1
++
++[loot]
++id=89
+ chance=2
+ quantity=1
+ 
+diff --git a/mods/empyrean_campaign/npcs/traveling_merchant.txt b/mods/empyrean_campaign/npcs/traveling_merchant.txt
+index ec160a4760cc135c765acb7fa913b69a8f9ea192..655bf4a04bde27db176d0820466608790c430b39 100644
+--- a/mods/empyrean_campaign/npcs/traveling_merchant.txt
++++ b/mods/empyrean_campaign/npcs/traveling_merchant.txt
+@@ -7,7 +7,7 @@ gfx=animations/npcs/wandering_trader1.txt
+ 
+ # shop info
+ vendor=true
+-constant_stock=2,2,2,2,2,3,3,3,3,3,22,23,24,25,12,13,14,15,16,17,18,19,20,21
++constant_stock=2,2,2,2,2,3,3,3,3,3,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30
+ 
+ # voiceover files
+ vox_intro=soundfx/npcs/male_merchant_01.ogg
+diff --git a/mods/empyrean_campaign/npcs/udana.txt b/mods/empyrean_campaign/npcs/udana.txt
+index 90aac3b099fe8d93d8832b488a7be2eba3aa947e..5530c243d62f96483c823ca81e41e8cb627295e5 100644
+--- a/mods/empyrean_campaign/npcs/udana.txt
++++ b/mods/empyrean_campaign/npcs/udana.txt
+@@ -46,7 +46,7 @@ her=The key is enough of a memento. For your invaluable help, I can at least mak
+ remove_item=1000
+ remove_item=1001
+ reward_xp=100
+-reward_item=31,1
++reward_item=37,1
+ set_status=emp_krolan_finish
+ unset_status=emp_krolan_init
+ unset_status=emp_krolan_key

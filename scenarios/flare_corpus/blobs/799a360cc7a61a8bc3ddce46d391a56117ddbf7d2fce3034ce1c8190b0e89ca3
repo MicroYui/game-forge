@@ -1,0 +1,26 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl16_lezaith.txt b/mods/empyrean_campaign/enemies/lvl16_lezaith.txt
+index 21de475ffac77a4353389fff2d70ea4ea6f31886..92f8caacdd775afd7de870b948161ec3d8a9bfb7 100644
+--- a/mods/empyrean_campaign/enemies/lvl16_lezaith.txt
++++ b/mods/empyrean_campaign/enemies/lvl16_lezaith.txt
+@@ -13,8 +13,8 @@ stat=hp,13280
+ speed=4.7
+ turn_delay=200ms
+ 
+-passive_powers=185
+-passive_powers=287
++# bleed & slow/stun immunities
++passive_powers=185,287
+ 
+ stat=accuracy,165
+ stat=avoidance,90
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 04697be52882f295866abc035703097eae8e8337..ca1c7a84996d905d2aec39e7a34bcae1fb1ce09e 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.14
+ game=flare-game
+-version=1.14.16
++version=1.14.17
+ engine_version_min=1.14.200

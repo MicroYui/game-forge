@@ -1,0 +1,740 @@
+diff --git a/mods/averguard/maps/averguard_academy.txt b/mods/averguard/maps/averguard_academy.txt
+index f6a1558cb9c24fd1f65ed851d66a22e41dbb12ea..1f0e3f4cffd5259c451fe9b466305719611a0e67 100644
+--- a/mods/averguard/maps/averguard_academy.txt
++++ b/mods/averguard/maps/averguard_academy.txt
+@@ -456,18 +456,19 @@ loot=random,45,98,7
+ 
+ # entrance guards
+ [enemy]
+-type=skeleton
++type=skeletal_mage
+ location=60,14
+ direction=3
++
+ [enemy]
+-type=skeleton
++type=skeletal_mage
+ location=65,14
+ direction=3
+ 
+ [enemygroup]
+ type=undead
+ location=58,23,9,7
+-level=1,3
++level=3,5
+ number=1,3
+ 
+ [enemy]
+@@ -480,7 +481,7 @@ location=50,30
+ # foyer
+ [enemygroup]
+ type=undead
+-level=5,6
++level=4,6
+ number=2,3
+ location=34,26,9,14
+ 
+@@ -488,32 +489,32 @@ location=34,26,9,14
+ [enemygroup]
+ location=15,22,18,18
+ type=zombie
+-level=1,3
++level=3,5
+ number=3,4
+ 
+ [enemygroup]
+ location=15,22,18,18
+ type=zombie
+-level=2,3
++level=3,5
+ number=2,2
+ 
+ [enemygroup]
+ location=15,22,18,18
+ type=undead
+-level=3,4
++level=3,5
+ number=1,2
+ 
+ # center book location
+ [enemygroup]
+ type=zombie
+ location=25,42,30,30
+-level=2,3
++level=3,5
+ number=7,10
+ 
+ [enemygroup]
+ type=zombie
+ location=25,42,30,30
+-level=1,3
++level=3,5
+ number=3,7
+ 
+ [enemygroup]
+@@ -525,14 +526,14 @@ number=4,6
+ [enemygroup]
+ type=antlion
+ location=51,66,7,9
+-level=1,2
++level=3,5
+ number=1,3
+ 
+ #south book location
+ [enemygroup]
+ type=undead
+ location=13,68,12,8
+-level=1,3
++level=3,5
+ number=2,4
+ 
+ #guards teleport chest
+@@ -545,7 +546,7 @@ location=45,85
+ type=antlion
+ location=10,67,17,26
+ number=3,5
+-level=1,2
++level=3,5
+ 
+ [enemy]
+ type=professor_langlier
+diff --git a/mods/averguard/maps/averguard_complex.txt b/mods/averguard/maps/averguard_complex.txt
+index cb682700562082af6c03c78fdb590242247029b4..9e03df0765eb3b3ccbfc90450671c980df25f45d 100644
+--- a/mods/averguard/maps/averguard_complex.txt
++++ b/mods/averguard/maps/averguard_complex.txt
+@@ -569,69 +569,69 @@ loot=random,9,28,8
+ 
+ # intro skeletons
+ [enemy]
+-type=skeletal_archer
++type=skeletal_sniper
+ location=85,69
+ direction=5
+ [enemy]
+-type=skeletal_archer
++type=skeletal_sniper
+ location=85,72
+ direction=5
+ 
+ # corner zombies
+ [enemy]
+-type=zombie
++type=zombie_bloodthirsty
+ location=71,62
+ [enemy]
+-type=zombie
++type=zombie_bloodthirsty
+ location=73,63
+ [enemy]
+-type=zombie
++type=zombie_bloodthirsty
+ location=73,72
+ [enemy]
+-type=zombie
++type=zombie_bloodthirsty
+ location=68,69
+ 
+ # skeletons across the bridge
+ [enemy]
+-type=skeleton
++type=skeletal_archer
+ location=69,81
+ [enemy]
+-type=skeleton
++type=skeletal_archer
+ location=70,84
+ [enemy]
+-type=skeleton
++type=skeletal_mage
+ location=73,83
+ 
+ # goblins around the fire pit
+ [enemy]
+-type=goblin_charger
++type=goblin_charger_elite
+ location=74,94
+ direction=5
+ [enemy]
+-type=goblin_charger
++type=goblin_charger_elite
+ location=76,94
+ direction=1
+ [enemy]
+-type=goblin_spearman
++type=goblin_spearman_elite
+ location=75,93
+ direction=7
+ [enemy]
+-type=goblin_spearman
++type=goblin_spearman_elite
+ location=75,95
+ direction=3
+ 
+ # small sarcophagus room creatures
+ [enemy]
+-type=skeleton
++type=skeletal_warrior
+ location=66,92
+ [enemy]
+-type=skeleton
++type=skeletal_sniper
+ location=61,87
+ [enemy]
+-type=zombie
++type=zombie_iceclaw
+ location=61,89
+ [enemy]
+-type=zombie
++type=zombie_iceclaw
+ location=62,91
+ 
+ # conference room
+@@ -640,10 +640,10 @@ type=skeletal_warrior
+ location=51,90
+ direction=1
+ [enemy]
+-type=zombie
++type=zombie_brute
+ location=46,87
+ [enemy]
+-type=zombie
++type=zombie_brute
+ location=46,94
+ [enemy]
+ type=antlion
+@@ -663,13 +663,13 @@ location=49,91
+ 
+ # sarcophagus cross location
+ [enemy]
+-type=zombie
++type=zombie_brute
+ location=42,110
+ [enemy]
+-type=zombie
++type=zombie_iceclaw
+ location=47,115
+ [enemy]
+-type=zombie
++type=zombie_bloodthirsty
+ location=52,110
+ [enemy]
+ type=skeletal_warrior
+@@ -744,7 +744,7 @@ direction=7
+ type=skeletal_warrior
+ location=40,60
+ [enemy]
+-type=skeletal_archer
++type=skeletal_sniper
+ location=42,53
+ [enemy]
+ type=skeletal_warrior
+@@ -758,39 +758,39 @@ location=42,49
+ 
+ # zombie infestation
+ [enemy]
+-type=zombie
++type=zombie_brute
+ location=72,42
+ [enemy]
+-type=zombie
++type=zombie_brute
+ location=68,47
+ [enemy]
+-type=zombie
++type=zombie_brute
+ location=64,43
+ [enemy]
+-type=zombie
++type=zombie_iceclaw
+ location=58,41
+ [enemy]
+-type=zombie
++type=zombie_iceclaw
+ location=56,47
+ [enemy]
+-type=zombie_rotting
++type=zombie_iceclaw
+ location=64,48
+ [enemy]
+-type=zombie_rotting
++type=zombie_bloodthirsty
+ location=57,44
+ [enemy]
+-type=zombie_rotting
++type=zombie_bloodthirsty
+ location=54,42
+ [enemy]
+-type=zombie_rotting
++type=zombie_bloodthirsty
+ location=74,44
+ [enemy]
+-type=zombie_rotting
++type=zombie_bloodthirsty
+ location=67,41
+ 
+ # antlion trainers left of chasm
+ [enemy]
+-type=skeletal_archer
++type=skeletal_sniper
+ location=55,63
+ [enemy]
+ type=antlion
+@@ -799,7 +799,7 @@ location=55,62
+ type=antlion
+ location=56,63
+ [enemy]
+-type=skeletal_archer
++type=skeletal_sniper
+ location=59,54
+ [enemy]
+ type=antlion
+@@ -810,10 +810,10 @@ location=59,55
+ 
+ # hallway behind barracks
+ [enemy]
+-type=antlion
++type=antlion_blinker
+ location=43,35
+ [enemy]
+-type=antlion
++type=antlion_blinker
+ location=44,36
+ 
+ # large room south nook
+@@ -829,15 +829,15 @@ location=72,24
+ 
+ # large room storage
+ [enemy]
+-type=skeleton
++type=skeletal_warrior
+ location=51,28
+ [enemy]
+-type=skeleton
++type=skeletal_warrior
+ location=54,29
+ 
+ # large room right side
+ [enemy]
+-type=goblin_charger
++type=skeletal_mage
+ location=58,18
+ direction=6
+ [enemy]
+@@ -849,13 +849,13 @@ type=antlion
+ location=61,21
+ direction=2
+ [enemy]
+-type=skeleton
++type=skeletal_sniper
+ location=58,21
+ direction=4
+ 
+ # large room left side
+ [enemy]
+-type=goblin_charger
++type=skeletal_mage
+ location=46,18
+ direction=6
+ [enemy]
+@@ -867,7 +867,7 @@ type=antlion
+ location=46,21
+ direction=2
+ [enemy]
+-type=skeleton
++type=skeletal_sniper
+ location=49,21
+ direction=4
+ 
+@@ -952,7 +952,7 @@ type=antlion
+ location=11,20
+ direction=7
+ [enemy]
+-type=zombie
++type=zombie_bloodthirsty
+ location=13,20
+ direction=7
+ [enemy]
+@@ -960,7 +960,7 @@ type=antlion
+ location=15,20
+ direction=7
+ [enemy]
+-type=zombie
++type=zombie_bloodthirsty
+ location=17,20
+ direction=7
+ 
+@@ -969,7 +969,7 @@ type=antlion
+ location=11,29
+ direction=3
+ [enemy]
+-type=zombie
++type=zombie_iceclaw
+ location=13,29
+ direction=3
+ [enemy]
+@@ -977,16 +977,16 @@ type=antlion
+ location=15,29
+ direction=3
+ [enemy]
+-type=zombie
++type=zombie_iceclaw
+ location=17,29
+ direction=3
+ 
+ [enemy]
+-type=skeletal_warrior
++type=skeletal_occultist
+ location=9,23
+ direction=5
+ [enemy]
+-type=skeletal_warrior
++type=skeletal_sniper
+ location=9,26
+ direction=5
+ 
+diff --git a/mods/averguard/maps/averguard_prison.txt b/mods/averguard/maps/averguard_prison.txt
+index 1d3bd6ebd0f1fe2bee126305a541fd06d324ce32..2445d902be27d6e0ede080b28d93d85519df1bb9 100644
+--- a/mods/averguard/maps/averguard_prison.txt
++++ b/mods/averguard/maps/averguard_prison.txt
+@@ -402,50 +402,50 @@ soundfx=soundfx/door_open.ogg
+ [enemygroup]
+ type=zombie
+ location=2,43,5,5
+-level=1,1
++level=2,4
+ number=1,3
+ 
+ [enemy]
+-type=zombie
++type=zombie_brute
+ location=20,52
+ 
+ [enemy]
+-type=goblin_charger
++type=goblin_charger_elite
+ location=23,52
+ 
+ [enemy]
+-type=zombie
++type=zombie_brute
+ location=12,65
+ 
+ [enemygroup]
+ type=zombie
+ number=0,2
+-level=1,3
++level=2,4
+ location=14,56,2,22
+ 
+ [enemygroup]
+ type=zombie
+ location=2,74,7,1
+ number=3,3
+-level=1,3
++level=2,4
+ 
+ [enemygroup]
+ type=zombie
+ location=23,62,2,5
+ number=1,2
+-level=1,3
++level=2,4
+ 
+ [enemygroup]
+ type=zombie
+ location=23,62,2,5
+ number=0,2
+-level=1,3
++level=2,4
+ 
+ #outside torture room
+ [enemygroup]
+ type=undead
+ location=9,97,6,2
+-level=1,3
++level=2,4
+ number=3,5
+ 
+ #torture room
+@@ -459,7 +459,7 @@ location=17,91,2,2
+ type=undead
+ location=7,82,12,11
+ number=3,5
+-level=1,3
++level=3,5
+ 
+ [enemy]
+ type=skeletal_warrior
+@@ -467,32 +467,32 @@ location=16,84
+ 
+ #around the statue
+ [enemy]
+-type=zombie_rotting
++type=zombie_brute
+ location=36,55,5
+ [enemy]
+-type=zombie_rotting
++type=zombie_brute
+ location=38,55,1
+ [enemy]
+-type=zombie_rotting
++type=zombie_brute
+ location=37,54,7
+ [enemy]
+-type=zombie_rotting
++type=zombie_brute
+ location=37,56,3
+ 
+ #pit room
+ [enemy]
+-type=skeletal_warrior
++type=skeletal_archer
+ location=56,57,4
+ 
+ [enemy]
+-type=skeleton
++type=skeletal_archer
+ location=63,52
+ 
+ [enemygroup]
+ type=zombie
+ location=51,47,19,1
+ number=6,6
+-level=1,3
++level=2,4
+ 
+ #tomb room
+ [enemygroup]
+@@ -506,12 +506,12 @@ location=86,63,8,18
+ type=zombie
+ location=86,41,8,4
+ number=2,3
+-level=1,3
++level=3,5
+ 
+ [enemygroup]
+ type=antlion
+ location=86,52,4,9
+-level=1,2
++level=2,4
+ number=4,6
+ 
+ [enemy]
+diff --git a/mods/averguard/maps/averguard_temple.txt b/mods/averguard/maps/averguard_temple.txt
+index e42dd3cb90344e87c325ad65cb653fb55217e017..f238adfb970289782a424e92d763be8e4b49ac09 100644
+--- a/mods/averguard/maps/averguard_temple.txt
++++ b/mods/averguard/maps/averguard_temple.txt
+@@ -577,7 +577,7 @@ location=13,102
+ direction=3
+ 
+ [enemy]
+-type=zombie
++type=zombie_brute
+ location=12,100
+ direction=3
+ 
+@@ -612,12 +612,12 @@ location=21,102
+ direction=3
+ 
+ [enemy]
+-type=zombie
++type=zombie_iceclaw
+ location=21,104
+ direction=3
+ 
+ [enemy]
+-type=skeleton
++type=skeletal_mage
+ location=15,99
+ direction=3
+ 
+@@ -641,12 +641,12 @@ location=6,49,19,18
+ 
+ # the tomb guardians
+ [enemy]
+-type=skeletal_archer
++type=skeletal_sniper
+ location=14,27
+ direction=7
+ 
+ [enemy]
+-type=skeletal_archer
++type=skeletal_sniper
+ location=16,27
+ direction=7
+ 
+diff --git a/mods/averguard/maps/goblin_warrens.txt b/mods/averguard/maps/goblin_warrens.txt
+index baf25e370d7e22032107d18e3810eca9488dec2b..af970f945d128a65c539a73b0e3d5cdab5f4616a 100644
+--- a/mods/averguard/maps/goblin_warrens.txt
++++ b/mods/averguard/maps/goblin_warrens.txt
+@@ -290,7 +290,7 @@ hotspot=-16,-28,32,36
+ tooltip=Treasure Chest
+ mapmod=object,3,36,160
+ soundfx=soundfx/wood_open.ogg
+-loot=random,4,36,2
++loot=random,4,36,3
+ 
+ [event]
+ # dorm room barrel
+@@ -300,7 +300,7 @@ hotspot=-16,-36,32,44
+ tooltip=Barrel
+ mapmod=object,1,32,162
+ soundfx=soundfx/wood_open.ogg
+-loot=random,2,32,1
++loot=random,2,32,2
+ 
+ [event]
+ # dorm room book
+@@ -350,75 +350,75 @@ direction=2
+ 
+ [enemygroup]
+ type=goblin
+-level=1,3
+-number=4,8
+ location=8,38,21,21
++level=2,4
++number=4,8
+ 
+ [enemygroup]
+ type=antlion
+-level=1,2
+-number=0,2
+ location=28,1,2,3
++level=2,4
++number=0,2
+ 
+ [enemygroup]
+ type=dungeon
+-level=1,2
+-number=0,2
+ location=18,1,2,3
++level=2,3
++number=0,2
+ 
+ [enemygroup]
+ type=antlion
+ location=8,60,16,9
+-number=0,2
+-level=1,2
++level=2,3
++number=2,3
+ 
+ [enemygroup]
+ type=dungeon
+ location=1,58,3,2
+-level=1,2
++level=2,3
+ number=0,2
+ 
+ [enemygroup]
+ type=antlion
+ location=28,8,17,27
++level=2,3
+ number=3,5
+-level=1,2
+ 
+ [enemygroup]
+ type=goblin
+ location=1,48,6,2
++level=2,3
+ number=0,2
+-level=1,2
+ 
+ [enemygroup]
+ type=goblin
+-level=1,2
+ location=33,58,6,11
+-number=0,2
++level=2,2
++number=2,3
+ 
+ [enemygroup]
+ type=goblin
+ location=42,45,3,7
++level=2,3
+ number=1,3
+-level=1,2
+ 
+ [enemygroup]
+ type=undead
+ location=42,45,3,7
+-number=1,1
+-level=1,2
++level=2,3
++number=1,2
+ 
+ [enemygroup]
+ type=goblin
+ location=20,28,19,9
++level=2,4
+ number=0,2
+-level=1,2
+ 
+ [enemygroup]
+ type=goblin
+ location=1,18,4,2
++level=2,3
+ number=0,3
+-level=1,2
+ 
+ [npc]
+ type=guill
+diff --git a/mods/averguard/npcs/guill.txt b/mods/averguard/npcs/guill.txt
+index 6fcbfb7d0de51492f70751f3ec42d81cd690ceba..b4eba6b6c7be6aa7f2efbe215104a82a890f6fb2 100644
+--- a/mods/averguard/npcs/guill.txt
++++ b/mods/averguard/npcs/guill.txt
+@@ -39,7 +39,7 @@ requires_status=ak_tome_found
+ requires_item=9000
+ remove_item=9000
+ set_status=ak_tome_reward
+-reward_xp=15
++reward_xp=100
+ him=You found this tome in Ukkonen's lair? Most excellent -- I feared this volume was lost. With it we can piece together the true history of this keep. I just need a moment to study...
+ 
+ [dialog]
+@@ -53,10 +53,10 @@ him=I don't know, but we should investigate. Head into the Atrium, then the Aver
+ requires_status=ak_key_found
+ requires_item=9001
+ you=I have the prison key. The old prison warden carried it on his person -- he was infected, haunting the depths of the Prison.
+-reward_xp=75
++reward_xp=200
+ reward_item=1,1
+ reward_item=2,1
+-reward_currency=25
++reward_currency=100
+ set_status=ak_key_reward
+ him=A true shame that he was infected.  Well, now that we have the Averguard Key, the depths of Averguard Keep are open to us. The Order thanks you.
+ 
+@@ -85,8 +85,8 @@ requires_item=9002
+ you=I am back from the Academy. Langlier was rags and bones, yet still a powerful mage. He wore this symbol.
+ set_status=ak_talisman_reward
+ set_status=ak_maddox_search
+-reward_xp=100
+-reward_currency=50
++reward_xp=250
++reward_currency=125
+ him=Fate has delivered this talisman to you. With it and the Averguard Key, you have the ability to open the Burial Chamber. Read these runes aloud at the sealed door and the path will be opened.
+ 
+ [dialog]
+@@ -98,8 +98,8 @@ requires_status=ak_maddox_defeated
+ set_status=ak_maddox_reward
+ remove_item=9001
+ remove_item=9002
+-reward_xp=250
+-reward_currency=100
++reward_xp=500
++reward_currency=250
+ reward_item=10,1
+ him=You have risked much for the Order. Take this final reward, as your mission here is complete. The grip of necromancy over Averguard Keep is broken -- in time the remaining undead will pass over into death.
+ you=Thank you Guill. I am glad to be of service.
+@@ -113,8 +113,8 @@ requires_status=ak_ukkonen_search
+ requires_status=ak_ukkonen_defeated
+ requires_not=ak_ukkonen_reward
+ set_status=ak_ukkonen_reward
+-reward_currency=20
+-reward_xp=35
++reward_currency=50
++reward_xp=100
+ him=Ukkonen is defeated -- I sensed a calm in this place the moment you ended him. Take this reward for your bravery.
+ 
+ #New icons: book, key, talisman

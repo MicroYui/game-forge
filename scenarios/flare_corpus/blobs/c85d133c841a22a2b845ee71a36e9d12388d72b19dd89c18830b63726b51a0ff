@@ -1,0 +1,64 @@
+diff --git a/mods/empyrean_campaign/maps/fort_amir.txt b/mods/empyrean_campaign/maps/fort_amir.txt
+index db4a23e7c833100a8ad52b8368e4e4ec71ef8934..8ca66dbde01a1bb42fcc69492e1f64fb6f73392f 100644
+--- a/mods/empyrean_campaign/maps/fort_amir.txt
++++ b/mods/empyrean_campaign/maps/fort_amir.txt
+@@ -446,7 +446,9 @@ type=on_trigger
+ location=38,57,4,1
+ mapmod=object,40,51,0;collision,40,51,0
+ repeat=false
+-requires_status=emp_amir_bookcase
++requires_not_status=emp_amir_bookcase
++requires_status=emp_amir_finish
++set_status=emp_amir_bookcase
+ soundfx=soundfx/environment/stone_open.ogg,40,51
+ 
+ [event]
+@@ -535,6 +537,13 @@ type=on_load
+ location=37,57,1,1
+ soundfx=soundfx/environment/open_fire_loop.ogg
+ 
++[event]
++# clear bookcase status
++type=on_load
++location=16,78,1,1
++requires_status=emp_amir_finish
++unset_status=emp_amir_bookcase
++
+ [enemy]
+ type=dungeon
+ location=2,32,20,34
+diff --git a/tiled/empyrean_campaign/fort_amir.tmx b/tiled/empyrean_campaign/fort_amir.tmx
+index 390c7f3d8d85da85fbe4903fda8671edadcbe50d..d446d1efdcc8f2b1f55f64819258d1fad7d33a8e 100644
+--- a/tiled/empyrean_campaign/fort_amir.tmx
++++ b/tiled/empyrean_campaign/fort_amir.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="80" height="80" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="50">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="80" height="80" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="51">
+  <properties>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_dungeon.txt"/>
+@@ -447,7 +447,9 @@
+    <properties>
+     <property name="mapmod" value="object,40,51,0;collision,40,51,0"/>
+     <property name="repeat" value="false"/>
+-    <property name="requires_status" value="emp_amir_bookcase"/>
++    <property name="requires_not_status" value="emp_amir_bookcase"/>
++    <property name="requires_status" value="emp_amir_finish"/>
++    <property name="set_status" value="emp_amir_bookcase"/>
+     <property name="soundfx" value="soundfx/environment/stone_open.ogg,40,51"/>
+    </properties>
+   </object>
+@@ -525,6 +527,12 @@
+     <property name="soundfx" value="soundfx/environment/open_fire_loop.ogg"/>
+    </properties>
+   </object>
++  <object id="50" name="clear bookcase status" type="on_load" x="512" y="2496" width="32" height="32">
++   <properties>
++    <property name="requires_status" value="emp_amir_finish"/>
++    <property name="unset_status" value="emp_amir_bookcase"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="enemy" visible="0">
+   <object id="2" type="dungeon" x="64" y="1024" width="640" height="1088">

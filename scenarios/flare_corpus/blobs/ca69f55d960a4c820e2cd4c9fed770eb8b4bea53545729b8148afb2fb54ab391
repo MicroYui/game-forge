@@ -1,0 +1,26 @@
+diff --git a/mods/alpha_demo/powers/categories/warrior.txt b/mods/alpha_demo/powers/categories/warrior.txt
+index 173e0ef5cd918229492997fa1cef2b847025306a..6ff6a3a4506b4164ea4641a7c7c49776bc76cf5c 100644
+--- a/mods/alpha_demo/powers/categories/warrior.txt
++++ b/mods/alpha_demo/powers/categories/warrior.txt
+@@ -19,7 +19,7 @@ id=3
+ name=Block
+ icon=4
+ description=Raise your shield to raise your avoidance by 10% and absorb by 1-5. Chance to reflect missiles increased by 50%.
+-new_state=block
++type=block
+ face=true
+ requires_flags=shield
+ post_effect=reflect_chance,50,0
+diff --git a/mods/empyrean_campaign/powers/base/warrior/block.txt b/mods/empyrean_campaign/powers/base/warrior/block.txt
+index 44a15b574c5b02174665da445d641fd967decf81..2b1184a321c0aa6900ec5be370730bcdb8d8dd94 100644
+--- a/mods/empyrean_campaign/powers/base/warrior/block.txt
++++ b/mods/empyrean_campaign/powers/base/warrior/block.txt
+@@ -1,7 +1,7 @@
+ name=Block
+ description=Raise your shield to thwart incoming damage.
+ icon=4
+-new_state=block
++type=block
+ face=true
+ requires_flags=shield
+ post_effect=block_icon,1,0

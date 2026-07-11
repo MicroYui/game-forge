@@ -1,0 +1,265 @@
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+index 9d24f6656cae2f90eb074d4c0c4770b89445a830..017b6dcf001d60cb763e2fa9d4e5451607a1ce29 100644
+--- a/mods/empyrean_campaign/items/categories/quest.txt
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -90,6 +90,7 @@ quality=unique
+ item_type=artifact
+ bonus=dmg_melee_min,10
+ bonus=dmg_melee_max,10
++pickup_status=emp_fig_1
+ 
+ [item]
+ id=1010
+@@ -101,6 +102,7 @@ quality=unique
+ item_type=artifact
+ bonus=dmg_ment_min,10
+ bonus=dmg_ment_max,10
++pickup_status=emp_fig_2
+ 
+ [item]
+ id=1011
+@@ -112,6 +114,7 @@ quality=unique
+ item_type=artifact
+ bonus=dmg_ranged_min,10
+ bonus=dmg_ranged_max,10
++pickup_status=emp_fig_3
+ 
+ [item]
+ id=1012
+@@ -123,6 +126,7 @@ quality=unique
+ item_type=artifact
+ bonus=absorb_min,10
+ bonus=absorb_max,10
++pickup_status=emp_fig_4
+ 
+ [item]
+ id=1013
+diff --git a/mods/empyrean_campaign/maps/fort_nasu.txt b/mods/empyrean_campaign/maps/fort_nasu.txt
+index 66d64a0134c6757679420afe53eeaf3e5f25d3a7..e5faabaf0df1c985b1bfe9a102bb587c10cb9a4f 100644
+--- a/mods/empyrean_campaign/maps/fort_nasu.txt
++++ b/mods/empyrean_campaign/maps/fort_nasu.txt
+@@ -1108,6 +1108,36 @@ msg=Quest added.
+ requires_not_status=emp_nasu_init,emp_nasu_finish
+ set_status=emp_nasu_init
+ 
++[event]
++# Cat fig
++type=event
++location=18,7,1,1
++activate=on_trigger
++hotspot=location
++loot=1011,fixed,1
++repeat=false
++requires_not_status=emp_fig_3
++tooltip=Altar
++
++[event]
++# Fig message
++type=event
++location=18,11,2,1
++activate=on_trigger
++msg=As you enter the throne room, you see an Altar with a wooden figurine placed upon it.
++repeat=false
++requires_not_status=emp_fig_3
++
++[event]
++# Set Cat fig status
++type=event
++location=93,58,1,1
++activate=on_load
++repeat=false
++requires_item=1011
++requires_not_status=emp_fig_3
++set_status=emp_fig_3
++
+ [enemy]
+ type=enemy
+ location=59,64,13,4
+diff --git a/mods/empyrean_campaign/maps/lake_kuuma.txt b/mods/empyrean_campaign/maps/lake_kuuma.txt
+index 7c43c6e4d4324caa940c1067f019d603787b6d75..9d9b328c308d9ffd6b0af51335a28f39e8a1bab7 100644
+--- a/mods/empyrean_campaign/maps/lake_kuuma.txt
++++ b/mods/empyrean_campaign/maps/lake_kuuma.txt
+@@ -1178,6 +1178,16 @@ requires_status=emp_main_gravebloom
+ reward_xp=800
+ set_status=emp_main_reward1
+ 
++[event]
++# Set Bear fig status
++type=event
++location=16,23,1,1
++activate=on_load
++repeat=false
++requires_item=1009
++requires_not_status=emp_fig_1
++set_status=emp_fig_1
++
+ [enemy]
+ type=enemy
+ location=39,27,5,6
+diff --git a/mods/empyrean_campaign/maps/nazia_mines.txt b/mods/empyrean_campaign/maps/nazia_mines.txt
+index da594ef3264b8f584dec589002323727a9ae3efc..075529e4502cc54d1a34eff2cf2862fb04340bb5 100644
+--- a/mods/empyrean_campaign/maps/nazia_mines.txt
++++ b/mods/empyrean_campaign/maps/nazia_mines.txt
+@@ -351,9 +351,7 @@ tooltip=Treasure Chest
+ type=event
+ location=29,41,2,1
+ activate=on_trigger
+-msg=You pick up a glimmering object from the rubble.
+ requires_status=emp_naziamines_cleared
+-reward_item=1010,1
+ reward_xp=6400
+ set_status=emp_naziamines_finish
+ unset_status=emp_naziamines_init,emp_naziamines_cleared
+@@ -382,6 +380,25 @@ activate=on_load
+ mapmod=collision,29,30,0;object,29,30,0
+ requires_status=emp_naziamines_cleared
+ 
++[event]
++# Owl fig
++type=event
++location=29,41,2,1
++activate=on_trigger
++loot=1010,fixed,1
++repeat=false
++requires_not_status=emp_fig_2
++
++[event]
++# Set Owl fig status
++type=event
++location=38,56,1,1
++activate=on_load
++repeat=false
++requires_item=1010
++requires_not_status=emp_fig_2
++set_status=emp_fig_2
++
+ [enemy]
+ type=enemy
+ location=29,40,1,1
+diff --git a/mods/empyrean_campaign/npcs/bakat.txt b/mods/empyrean_campaign/npcs/bakat.txt
+index 076f33dce30b024a392ff425ff0359fcd99f1032..2ef3071e2166f91ac4c1804b2837052fd0c0ec7b 100644
+--- a/mods/empyrean_campaign/npcs/bakat.txt
++++ b/mods/empyrean_campaign/npcs/bakat.txt
+@@ -29,4 +29,5 @@ remove_item=1008
+ reward_item=1009,1
+ reward_xp=1600
+ set_status=emp_ort_finish
++set_status=emp_fig_1
+ unset_status=emp_ort_init
+diff --git a/tiled/empyrean_campaign/fort_nasu.tmx b/tiled/empyrean_campaign/fort_nasu.tmx
+index 68440613250a6421f526aef9da90ffb9b7c068d1..ac1dd47f1ea07145c4fa6bd2f95860651e8b15a0 100644
+--- a/tiled/empyrean_campaign/fort_nasu.tmx
++++ b/tiled/empyrean_campaign/fort_nasu.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="100" height="100" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="94">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="100" height="100" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="97">
+  <properties>
+   <property name="hero_pos" value="96,66"/>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+@@ -1061,6 +1061,33 @@
+     <property name="set_status" value="emp_nasu_init"/>
+    </properties>
+   </object>
++  <object id="94" name="Cat fig" type="event" x="576" y="224" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_trigger"/>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="1011,fixed,1"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_fig_3"/>
++    <property name="tooltip" value="Altar"/>
++   </properties>
++  </object>
++  <object id="95" name="Fig message" type="event" x="576" y="352" width="64" height="32">
++   <properties>
++    <property name="activate" value="on_trigger"/>
++    <property name="msg" value="As you enter the throne room, you see an Altar with a wooden figurine placed upon it."/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_fig_3"/>
++   </properties>
++  </object>
++  <object id="96" name="Set Cat fig status" type="event" x="2976" y="1856" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_item" value="1011"/>
++    <property name="requires_not_status" value="emp_fig_3"/>
++    <property name="set_status" value="emp_fig_3"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="enemy">
+   <object id="63" type="enemy" x="1888" y="2048" width="416" height="128">
+diff --git a/tiled/empyrean_campaign/lake_kuuma.tmx b/tiled/empyrean_campaign/lake_kuuma.tmx
+index a130666407bc00031ea1e0f8ce23671052173041..62180752a47fa397badaa84129850257bf3d1d6a 100644
+--- a/tiled/empyrean_campaign/lake_kuuma.tmx
++++ b/tiled/empyrean_campaign/lake_kuuma.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="132" height="132" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="82">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="132" height="132" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="83">
+  <properties>
+   <property name="hero_pos" value="26,28"/>
+   <property name="music" value="music/overworld_theme.ogg"/>
+@@ -1161,6 +1161,15 @@
+     <property name="set_status" value="emp_main_reward1"/>
+    </properties>
+   </object>
++  <object id="82" name="Set Bear fig status" type="event" x="512" y="736" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_item" value="1009"/>
++    <property name="requires_not_status" value="emp_fig_1"/>
++    <property name="set_status" value="emp_fig_1"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="enemy" visible="0">
+   <object id="5" type="enemy" x="1248" y="864" width="160" height="192">
+diff --git a/tiled/empyrean_campaign/nazia_mines.tmx b/tiled/empyrean_campaign/nazia_mines.tmx
+index e69640fce280f548fa9ec22cbd542ed2b0d1a87d..1114a27cf0f1a12a3bc5b181ebf451008342b51f 100644
+--- a/tiled/empyrean_campaign/nazia_mines.tmx
++++ b/tiled/empyrean_campaign/nazia_mines.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="40" height="60" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="32">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="40" height="60" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="34">
+  <properties>
+   <property name="hero_pos" value="33,57"/>
+   <property name="music" value="music/cave_theme.ogg"/>
+@@ -344,9 +344,7 @@
+   <object id="15" name="finish quest" type="event" x="928" y="1312" width="64" height="32">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+-    <property name="msg" value="You pick up a glimmering object from the rubble."/>
+     <property name="requires_status" value="emp_naziamines_cleared"/>
+-    <property name="reward_item" value="1010,1"/>
+     <property name="reward_xp" value="6400"/>
+     <property name="set_status" value="emp_naziamines_finish"/>
+     <property name="unset_status" value="emp_naziamines_init,emp_naziamines_cleared"/>
+@@ -373,6 +371,23 @@
+     <property name="requires_status" value="emp_naziamines_cleared"/>
+    </properties>
+   </object>
++  <object id="32" name="Owl fig" type="event" x="928" y="1312" width="64" height="32">
++   <properties>
++    <property name="activate" value="on_trigger"/>
++    <property name="loot" value="1010,fixed,1"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_fig_2"/>
++   </properties>
++  </object>
++  <object id="33" name="Set Owl fig status" type="event" x="1216" y="1792" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_item" value="1010"/>
++    <property name="requires_not_status" value="emp_fig_2"/>
++    <property name="set_status" value="emp_fig_2"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="enemy">
+   <object id="9" type="enemy" x="928" y="1280" width="32" height="32">

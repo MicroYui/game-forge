@@ -1,0 +1,81 @@
+diff --git a/mods/empyrean_campaign/engine/damage_types.txt b/mods/empyrean_campaign/engine/damage_types.txt
+index 6c0e4a5a4cd2db6a80e78919ac6be199f0cc3754..1cb96a45f7c313a7ec456c0f86cd7ae19ba94236 100644
+--- a/mods/empyrean_campaign/engine/damage_types.txt
++++ b/mods/empyrean_campaign/engine/damage_types.txt
+@@ -2,8 +2,11 @@ APPEND
+ 
+ [damage_type]
+ id=scroll
+-# name=Scroll
+-# name_min=Scroll Min
+-# name_max=Scroll Max
+ min=scroll_min
+ max=scroll_max
++
++[damage_type]
++id=mage_shield
++min=mage_shield_min
++max=mage_shield_max
++
+diff --git a/mods/empyrean_campaign/engine/stats.txt b/mods/empyrean_campaign/engine/stats.txt
+index e3d0942ffccaa6b1177260755fbb698866aad7df..a03c597728637b06764703e90bc1d6a12ba54475 100644
+--- a/mods/empyrean_campaign/engine/stats.txt
++++ b/mods/empyrean_campaign/engine/stats.txt
+@@ -61,6 +61,15 @@ stat_per_level=scroll_min,15
+ stat=scroll_max,20
+ stat_per_level=scroll_max,20
+ 
++stat=mage_shield_min,5
++stat_per_level=mage_shield_min,5
++stat_per_primary=mental,mage_shield_min,2
++stat_per_primary=defense,mage_shield_min,1
++stat=mage_shield_max,10
++stat_per_level=mage_shield_max,10
++stat_per_primary=mental,mage_shield_max,2
++stat_per_primary=defense,mage_shield_max,1
++
+ cooldown_hit=1s
+ 
+ categories=hero
+diff --git a/mods/empyrean_campaign/menus/character.txt b/mods/empyrean_campaign/menus/character.txt
+index 5cbba625f51e6003fd921619a9f181eb400bc8cf..b6212863f3e071d3465b6d55db23f795fcad2864 100644
+--- a/mods/empyrean_campaign/menus/character.txt
++++ b/mods/empyrean_campaign/menus/character.txt
+@@ -1,7 +1,10 @@
+ APPEND
+ 
+-show_stat=scroll_min,false
+-show_stat=scroll_max,false
+ show_stat=hp_steal,false
+ show_stat=mp_steal,false
+ show_stat=stealth,false
++
++show_stat=scroll_min,false
++show_stat=scroll_max,false
++show_stat=mage_shield_min,false
++show_stat=mage_shield_max,false
+diff --git a/mods/empyrean_campaign/powers/base/magician/shield.txt b/mods/empyrean_campaign/powers/base/magician/shield.txt
+index 748f625efb33e376a9787d332e85b646c9928d8e..3efdbceb104af7e498431c5e23b31a9e2a6fec1d 100644
+--- a/mods/empyrean_campaign/powers/base/magician/shield.txt
++++ b/mods/empyrean_campaign/powers/base/magician/shield.txt
+@@ -7,7 +7,7 @@ soundfx=soundfx/powers/shield.ogg
+ buff=true
+ post_effect=shield,0,0
+ cooldown=30s
+-base_damage=ment
++base_damage=mage_shield
+ remove_effect=reflect_scroll,0
+ remove_effect=reflect_scroll_dmg,0
+ 
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index a373a067e75d7baf64c73b4ce2cf2358b7c40733..dc5fedd10f62d37848fdd5d7bd43b072d2c67f8f 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.06.03:0
+ game=flare-game
+-version=1.12
+-engine_version_min=1.11.94
++version=1.12.01
++engine_version_min=1.12.04

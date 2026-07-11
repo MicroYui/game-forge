@@ -1,0 +1,44 @@
+diff --git a/mods/empyrean_campaign/maps/halls_of_infinity.txt b/mods/empyrean_campaign/maps/halls_of_infinity.txt
+index 20447a241e7858681b639ea5ea5d12185172fe27..402f1e33b4b086242611d734a8ce127cfee3a17d 100644
+--- a/mods/empyrean_campaign/maps/halls_of_infinity.txt
++++ b/mods/empyrean_campaign/maps/halls_of_infinity.txt
+@@ -457,7 +457,7 @@ type=event
+ location=22,29,1,1
+ activate=on_load
+ mapmod=background,14,28,63
+-requires_status=emp_fig_2_placed
++requires_status=emp_fig_4_placed
+ 
+ [event]
+ # Altar 4 (placed fig)
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 8a9ea769f9dbb46c681996a6edb9b2736880dcaf..61fba7780f826b21e1ec7a5402e07aba06628689 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:0.90:0
+ game=flare-game
+-version=1.06.02
++version=1.06.03
+ engine_version_min=1.05.11
+diff --git a/tiled/empyrean_campaign/halls_of_infinity.tmx b/tiled/empyrean_campaign/halls_of_infinity.tmx
+index 16e14a288cc9980bbdd818b243d85050900d4c07..987d2512a6d838482f883be6b4bc5e799c5bb886 100644
+--- a/tiled/empyrean_campaign/halls_of_infinity.tmx
++++ b/tiled/empyrean_campaign/halls_of_infinity.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="24" height="60" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="35">
++<map version="1.0" tiledversion="1.1.5" orientation="isometric" renderorder="right-down" width="24" height="60" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="35">
+  <properties>
+   <property name="hero_pos" value="12,55"/>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+@@ -446,7 +446,7 @@
+    <properties>
+     <property name="activate" value="on_load"/>
+     <property name="mapmod" value="background,14,28,63"/>
+-    <property name="requires_status" value="emp_fig_2_placed"/>
++    <property name="requires_status" value="emp_fig_4_placed"/>
+    </properties>
+   </object>
+   <object id="27" name="Altar 4 (placed fig)" type="event" x="704" y="896" width="32" height="32">

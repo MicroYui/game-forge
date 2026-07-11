@@ -1,0 +1,46 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl13_goblin_thief.txt b/mods/empyrean_campaign/enemies/lvl13_goblin_thief.txt
+index c0888ee3cb7a7990ef8e2647edec8d95a5c10fa3..496601785f831bbd663e43848d612352bf2db336 100644
+--- a/mods/empyrean_campaign/enemies/lvl13_goblin_thief.txt
++++ b/mods/empyrean_campaign/enemies/lvl13_goblin_thief.txt
+@@ -28,7 +28,6 @@ stat=absorb_max,13
+ # loot
+ loot=loot/level_13.txt
+ 
+-# gold & potions
+-loot=currency,50,125,250
++# high potion drop rate because goblin can steal potions
+ loot=2,50,1
+ loot=3,50,1
+diff --git a/mods/empyrean_campaign/scripts/powers/goblin_steal.txt b/mods/empyrean_campaign/scripts/powers/goblin_steal.txt
+index ff0f31ee8df7d7a4560d57e169a550e45b12c2be..744494ef15e28f8cf3a05cb3276d41a61e12024a 100644
+--- a/mods/empyrean_campaign/scripts/powers/goblin_steal.txt
++++ b/mods/empyrean_campaign/scripts/powers/goblin_steal.txt
+@@ -1,7 +1,7 @@
+ # 1 Health Potion
+ [event]
+ requires_not_status=emp_script_goblin_steal
+-chance_exec=33
++chance_exec=50
+ requires_item=2
+ remove_item=2
+ set_status=emp_script_goblin_steal
+@@ -10,7 +10,6 @@ msg=Goblin Thief stole a potion!
+ # 1 Mana Potion
+ [event]
+ requires_not_status=emp_script_goblin_steal
+-chance_exec=50
+ requires_item=3
+ remove_item=3
+ set_status=emp_script_goblin_steal
+@@ -18,11 +17,4 @@ msg=Goblin Thief stole a potion!
+ 
+ # Gold
+ [event]
+-requires_not_status=emp_script_goblin_steal
+-requires_currency=1
+-remove_currency=250
+-set_status=emp_script_goblin_steal
+-msg=Goblin Thief stole some Gold!
+-
+-[event]
+ unset_status=emp_script_goblin_steal

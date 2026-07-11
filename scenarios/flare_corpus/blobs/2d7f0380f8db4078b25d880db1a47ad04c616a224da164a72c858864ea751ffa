@@ -1,0 +1,110 @@
+diff --git a/mods/empyrean_campaign/items/categories/level_12_unique.txt b/mods/empyrean_campaign/items/categories/level_12_unique.txt
+index 8c4b736969833155c99ed3bb9888d50145028516..3a54d158ddaaccac120574a876c1291c1eb4e432 100644
+--- a/mods/empyrean_campaign/items/categories/level_12_unique.txt
++++ b/mods/empyrean_campaign/items/categories/level_12_unique.txt
+@@ -31,13 +31,15 @@ level=12
+ quality=unique
+ 
+ # Wizard's Tower 2
+-# TODO maybe this should make Channel drop potions randomly?
+ [item]
+ id=309
+ INCLUDE items/base/armor/mage_alt2/legs.txt
+ name=Alchemist's Skirt
+ level=12
+ quality=unique
++replace_power=162,234
++replace_power=163,235
++power_desc=Drinking potions may create another potion of the same type.
+ 
+ # Metzger
+ [item]
+diff --git a/mods/empyrean_campaign/powers/base/items/health_potion.txt b/mods/empyrean_campaign/powers/base/items/health_potion.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..62a1d112bceaff2b517f573d91f83cf4d59442fe
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/base/items/health_potion.txt
+@@ -0,0 +1,9 @@
++type=fixed
++icon=64
++name=Health Potion
++soundfx=soundfx/powers/potion.ogg
++new_state=instant
++requires_item=2
++cooldown=500ms
++buff=true
++post_effect=hp_restore,25,33ms
+diff --git a/mods/empyrean_campaign/powers/base/items/mana_potion.txt b/mods/empyrean_campaign/powers/base/items/mana_potion.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..296f950a0a31803f682b4249e154aba681d2b446
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/base/items/mana_potion.txt
+@@ -0,0 +1,9 @@
++type=fixed
++icon=65
++name=Mana Potion
++new_state=instant
++soundfx=soundfx/powers/potion.ogg
++requires_item=3
++cooldown=500ms
++buff=true
++post_effect=mp_restore,25,33ms
+diff --git a/mods/empyrean_campaign/powers/categories/items.txt b/mods/empyrean_campaign/powers/categories/items.txt
+index 70fd0ca7188cb6b69b965fb3f67f9c9cec50ac3f..a8f19136778354b3c01de3b01e63c8559b877361 100644
+--- a/mods/empyrean_campaign/powers/categories/items.txt
++++ b/mods/empyrean_campaign/powers/categories/items.txt
+@@ -1,26 +1,20 @@
+ [power]
+ id=162
+-type=fixed
+-icon=64
+-name=Health Potion
+-soundfx=soundfx/powers/potion.ogg
+-new_state=instant
+-requires_item=2
+-cooldown=500ms
+-buff=true
+-post_effect=hp_restore,25,33ms
++INCLUDE powers/base/items/health_potion.txt
+ 
+ [power]
+ id=163
+-type=fixed
+-icon=65
+-name=Mana Potion
+-new_state=instant
+-soundfx=soundfx/powers/potion.ogg
+-requires_item=3
+-cooldown=500ms
+-buff=true
+-post_effect=mp_restore,25,33ms
++INCLUDE powers/base/items/mana_potion.txt
++
++[power]
++id=234
++INCLUDE powers/base/items/health_potion.txt
++script=on_cast,scripts/powers/alchemist_skirt_hp.txt
++
++[power]
++id=235
++INCLUDE powers/base/items/mana_potion.txt
++script=on_cast,scripts/powers/alchemist_skirt_mp.txt
+ 
+ [power]
+ id=181
+diff --git a/mods/empyrean_campaign/scripts/powers/alchemist_skirt_hp.txt b/mods/empyrean_campaign/scripts/powers/alchemist_skirt_hp.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..c10bb3aab972650c7921feacdf7ad23c36296b14
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/alchemist_skirt_hp.txt
+@@ -0,0 +1,2 @@
++[event]
++loot=2,25,1,1
+diff --git a/mods/empyrean_campaign/scripts/powers/alchemist_skirt_mp.txt b/mods/empyrean_campaign/scripts/powers/alchemist_skirt_mp.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..1d451b91207e5992c119d23f7a15c27541fdf9d8
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/alchemist_skirt_mp.txt
+@@ -0,0 +1,2 @@
++[event]
++loot=3,25,1,1

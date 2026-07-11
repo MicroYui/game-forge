@@ -1,0 +1,319 @@
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+index c9b3368b037fde972aba9caefee1f3284cef875a..eabfb839da7c4366928788ef9002572cded62e68 100644
+--- a/mods/empyrean_campaign/items/categories/quest.txt
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -27,6 +27,7 @@ quality=unique
+ item_type=book
+ pickup_status=emp_journal_found
+ book=books/merchants_journal.txt
++no_stash=shared
+ 
+ [item]
+ id=1003
+diff --git a/mods/empyrean_campaign/npcs/abasi.txt b/mods/empyrean_campaign/npcs/abasi.txt
+index 1c97f08484da4c6f4b8313662360852088969089..c35c2bebe7311fd29db8966531f0d65ad3483d03 100644
+--- a/mods/empyrean_campaign/npcs/abasi.txt
++++ b/mods/empyrean_campaign/npcs/abasi.txt
+@@ -1,9 +1,4 @@
+-name=Abasi, Traveling Merchant
+-
+-portrait=images/portraits/male11.png
+-
+-# animation info
+-gfx=animations/npcs/wandering_trader1.txt
++INCLUDE npcs/base/abasi/common.txt
+ 
+ # shop info
+ vendor=true
+@@ -11,49 +6,5 @@ constant_stock=2:5,3:5,750:10
+ random_stock=loot/trader_abasi.txt
+ random_stock_count=10,12
+ 
+-# voiceover files
+-vox_intro=soundfx/npcs/male_merchant_01.ogg
+-vox_intro=soundfx/npcs/male_merchant_02.ogg
+-vox_intro=soundfx/npcs/male_merchant_03.ogg
+-vox_intro=soundfx/npcs/male_merchant_04.ogg
+-
+-talker=true
+-
+-[dialog]
+-topic=Talk
+-requires_not_status=emp_journal_init
+-requires_not_status=emp_journal_finish
+-him=Be careful on these roads. Those goblins are nothing but trouble.
+-you=Thanks for the warning.
+-him=It's the least I can do.
+-him=When I awoke this morning, my journal was missing. No doubt one of those filthy green creatures stole it from me.
+-him=If you come across my journal in your travels, please return it to me.
+-set_status=emp_journal_init
+-msg=Quest added.
+-
+-[dialog]
+-topic=Journal
+-requires_status=emp_journal_init
+-requires_not_status=emp_journal_found
+-him=Any luck finding my journal?
+-you=Not yet.
+-
+-[dialog]
+-topic=Journal
+-requires_status=emp_journal_init
+-requires_status=emp_journal_found
+-you=Here is your journal.
+-him=Wonderful! I had considered it forever lost at this point.
+-him=I am in your debt. Please take this as a reward for your trouble.
+-remove_item=1002
+-reward_currency=300
+-reward_xp=100
+-set_status=emp_journal_finish
+-unset_status=emp_journal_init
+-unset_status=emp_journal_found
+-
+-[dialog]
+-topic=Talk
+-requires_status=emp_journal_finish
+-him=Show no mercy for those thieving goblins.
+-
++INCLUDE npcs/base/abasi/quest_intro1.txt
++INCLUDE npcs/base/abasi/quest_common.txt
+diff --git a/mods/empyrean_campaign/npcs/abasi_2.txt b/mods/empyrean_campaign/npcs/abasi_2.txt
+index 11cec707762fab5430809a696b1cb71f59e1b8d6..7072b338d9a584f7b69b29862e0c3632bb779345 100644
+--- a/mods/empyrean_campaign/npcs/abasi_2.txt
++++ b/mods/empyrean_campaign/npcs/abasi_2.txt
+@@ -1,9 +1,4 @@
+-name=Abasi, Traveling Merchant
+-
+-portrait=images/portraits/male11.png
+-
+-# animation info
+-gfx=animations/npcs/wandering_trader2.txt
++INCLUDE npcs/base/abasi/common.txt
+ 
+ # shop info
+ vendor=true
+@@ -11,45 +6,6 @@ constant_stock=2:10,3:10,750:20
+ random_stock=loot/trader_abasi_2.txt
+ random_stock_count=15,20
+ 
+-# voiceover files
+-vox_intro=soundfx/npcs/male_merchant_01.ogg
+-vox_intro=soundfx/npcs/male_merchant_02.ogg
+-vox_intro=soundfx/npcs/male_merchant_03.ogg
+-vox_intro=soundfx/npcs/male_merchant_04.ogg
+-
+-talker=true
+-
+-[dialog]
+-topic=Talk
+-requires_not_status=emp_journal_init
+-requires_not_status=emp_journal_finish
+-him=Greetings, wanderer.
+-him=Judging from your appearance, you're no stranger to a long journey. For that reason, I ask that you keep an eye out for my missing journal.
+-him=I first noticed it was missing after a night of camping near the Goblin Cave. I searched for a while, but ultimately decided it was best to move on.
+-him=If you come across my journal in your travels, please return it to me.
+-set_status=emp_journal_init
+-set_status=emp_journal_later
+-msg=Quest added.
+-
+-[dialog]
+-topic=Journal
+-requires_status=emp_journal_init
+-requires_not_status=emp_journal_found
+-him=Any luck finding my journal?
+-you=Not yet.
+-
+-[dialog]
+-topic=Journal
+-requires_status=emp_journal_init
+-requires_status=emp_journal_found
+-you=Here is your journal.
+-him=Wonderful! I had considered it forever lost at this point.
+-him=I am in your debt. Please take this as a reward for your trouble.
+-remove_item=1002
+-reward_currency=300
+-reward_xp=100
+-set_status=emp_journal_finish
+-unset_status=emp_journal_init
+-unset_status=emp_journal_found
+-unset_status=emp_journal_later
++INCLUDE npcs/base/abasi/quest_intro2.txt
++INCLUDE npcs/base/abasi/quest_common.txt
+ 
+diff --git a/mods/empyrean_campaign/npcs/abasi_3.txt b/mods/empyrean_campaign/npcs/abasi_3.txt
+index cf63d5dfd76f1f655bf98ee277eaf6316551ba62..444005400d585b3fb7468a6d9ce7d263d73d2ed4 100644
+--- a/mods/empyrean_campaign/npcs/abasi_3.txt
++++ b/mods/empyrean_campaign/npcs/abasi_3.txt
+@@ -1,9 +1,4 @@
+-name=Abasi, Traveling Merchant
+-
+-portrait=images/portraits/male11.png
+-
+-# animation info
+-gfx=animations/npcs/wandering_trader1.txt
++INCLUDE npcs/base/abasi/common.txt
+ 
+ # shop info
+ vendor=true
+@@ -12,45 +7,6 @@ constant_stock=2:20,3:20,750:40,203:10,412:10,413:10,414:10,415:10,416:10,417:10
+ random_stock=loot/trader_martigan.txt
+ random_stock_count=15,20
+ 
+-# voiceover files
+-vox_intro=soundfx/npcs/male_merchant_01.ogg
+-vox_intro=soundfx/npcs/male_merchant_02.ogg
+-vox_intro=soundfx/npcs/male_merchant_03.ogg
+-vox_intro=soundfx/npcs/male_merchant_04.ogg
+-
+-talker=true
+-
+-[dialog]
+-topic=Talk
+-requires_not_status=emp_journal_init
+-requires_not_status=emp_journal_finish
+-him=Greetings, wanderer.
+-him=Judging from your appearance, you're no stranger to a long journey. For that reason, I ask that you keep an eye out for my missing journal.
+-him=I first noticed it was missing after a night of camping near the Goblin Cave. I searched for a while, but ultimately decided it was best to move on.
+-him=If you come across my journal in your travels, please return it to me.
+-set_status=emp_journal_init
+-set_status=emp_journal_later
+-msg=Quest added.
+-
+-[dialog]
+-topic=Journal
+-requires_status=emp_journal_init
+-requires_not_status=emp_journal_found
+-him=Any luck finding my journal?
+-you=Not yet.
+-
+-[dialog]
+-topic=Journal
+-requires_status=emp_journal_init
+-requires_status=emp_journal_found
+-you=Here is your journal.
+-him=Wonderful! I had considered it forever lost at this point.
+-him=I am in your debt. Please take this as a reward for your trouble.
+-remove_item=1002
+-reward_currency=300
+-reward_xp=100
+-set_status=emp_journal_finish
+-unset_status=emp_journal_init
+-unset_status=emp_journal_found
+-unset_status=emp_journal_later
++INCLUDE npcs/base/abasi/quest_intro2.txt
++INCLUDE npcs/base/abasi/quest_common.txt
+ 
+diff --git a/mods/empyrean_campaign/npcs/base/abasi/common.txt b/mods/empyrean_campaign/npcs/base/abasi/common.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..2718fd643a210ab85a167b11601ca649d1a2f148
+--- /dev/null
++++ b/mods/empyrean_campaign/npcs/base/abasi/common.txt
+@@ -0,0 +1,15 @@
++name=Abasi, Traveling Merchant
++
++portrait=images/portraits/male11.png
++
++# animation info
++gfx=animations/npcs/wandering_trader1.txt
++
++# voiceover files
++vox_intro=soundfx/npcs/male_merchant_01.ogg
++vox_intro=soundfx/npcs/male_merchant_02.ogg
++vox_intro=soundfx/npcs/male_merchant_03.ogg
++vox_intro=soundfx/npcs/male_merchant_04.ogg
++
++talker=true
++
+diff --git a/mods/empyrean_campaign/npcs/base/abasi/quest_common.txt b/mods/empyrean_campaign/npcs/base/abasi/quest_common.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..9f6cd68c70bf86afdf89efa7fc5b49944ec7640e
+--- /dev/null
++++ b/mods/empyrean_campaign/npcs/base/abasi/quest_common.txt
+@@ -0,0 +1,28 @@
++[dialog]
++topic=Journal
++requires_status=emp_journal_init
++requires_not_item=1002:1
++him=Any luck finding my journal?
++you=Not yet.
++
++[dialog]
++topic=Journal
++requires_status=emp_journal_init
++requires_status=emp_journal_found
++requires_item=1002:1
++you=Here is your journal.
++him=Wonderful! I had considered it forever lost at this point.
++him=I am in your debt. Please take this as a reward for your trouble.
++remove_item=1002
++reward_currency=300
++reward_xp=100
++set_status=emp_journal_finish
++unset_status=emp_journal_init
++unset_status=emp_journal_found
++unset_status=emp_journal_later
++
++[dialog]
++topic=Talk
++requires_status=emp_journal_finish
++him=Show no mercy for those thieving goblins.
++
+diff --git a/mods/empyrean_campaign/npcs/base/abasi/quest_intro1.txt b/mods/empyrean_campaign/npcs/base/abasi/quest_intro1.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6cd38d795b5c174a6cebceff6f0d18ead757a2ac
+--- /dev/null
++++ b/mods/empyrean_campaign/npcs/base/abasi/quest_intro1.txt
+@@ -0,0 +1,12 @@
++[dialog]
++topic=Talk
++requires_not_status=emp_journal_init
++requires_not_status=emp_journal_finish
++him=Be careful on these roads. Those goblins are nothing but trouble.
++you=Thanks for the warning.
++him=It's the least I can do.
++him=When I awoke this morning, my journal was missing. No doubt one of those filthy green creatures stole it from me.
++him=If you come across my journal in your travels, please return it to me.
++set_status=emp_journal_init
++msg=Quest added.
++
+diff --git a/mods/empyrean_campaign/npcs/base/abasi/quest_intro2.txt b/mods/empyrean_campaign/npcs/base/abasi/quest_intro2.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..f20ec6f42a9a22a34db43e8ebb6473d0be9c21c8
+--- /dev/null
++++ b/mods/empyrean_campaign/npcs/base/abasi/quest_intro2.txt
+@@ -0,0 +1,12 @@
++[dialog]
++topic=Talk
++requires_not_status=emp_journal_init
++requires_not_status=emp_journal_finish
++him=Greetings, wanderer.
++him=Judging from your appearance, you're no stranger to a long journey. For that reason, I ask that you keep an eye out for my missing journal.
++him=I first noticed it was missing after a night of camping near the Goblin Cave. I searched for a while, but ultimately decided it was best to move on.
++him=If you come across my journal in your travels, please return it to me.
++set_status=emp_journal_init
++set_status=emp_journal_later
++msg=Quest added.
++
+diff --git a/mods/empyrean_campaign/scripts/reset_journal.txt b/mods/empyrean_campaign/scripts/reset_journal.txt
+index c787e66913962e3b2890aac5e87cdd56daf1ebb3..3dd7732c52ce60abd9331de645fb7de6a7bfceed 100644
+--- a/mods/empyrean_campaign/scripts/reset_journal.txt
++++ b/mods/empyrean_campaign/scripts/reset_journal.txt
+@@ -4,6 +4,7 @@ unset_status=emp_journal_found
+ unset_status=emp_journal_later
+ unset_status=emp_journal_finish
+ unset_status=emp_abasi_2
++unset_status=emp_abasi_3
+ remove_item=1002
+ msg=Reset quest: "The Merchant's Journal"
+ 
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 585653f50998e814fe296fb50b910cb78acd1eff..42f7800960bc331abaa96676a3184228da84dd30 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.06.03:0
+ game=flare-game
+-version=1.11.09
++version=1.11.10
+ engine_version_min=1.11.46

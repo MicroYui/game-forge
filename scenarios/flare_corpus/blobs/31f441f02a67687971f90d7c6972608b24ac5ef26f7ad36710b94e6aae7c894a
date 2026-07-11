@@ -1,0 +1,289 @@
+diff --git a/mods/alpha_demo/maps/ancient_temple.txt b/mods/alpha_demo/maps/ancient_temple.txt
+index 1ac4bd66fbaa91e5dcab8f2066f22cf6c815ca44..7d239c56014679a300bd93145004335e8874040f 100644
+--- a/mods/alpha_demo/maps/ancient_temple.txt
++++ b/mods/alpha_demo/maps/ancient_temple.txt
+@@ -8,13 +8,13 @@ tileset=tileset_dungeon.txt
+ title=Ancient Temple
+ 
+ [tilesets]
+-tileset=../../../../flare-game/tiled/dungeon/tiled_collision.png,64,32,0,0
+-tileset=../../../../flare-game/tiled/dungeon/tiled_dungeon.png,64,128,0,0
+-tileset=../../../../flare-game/tiled/dungeon/set_rules.png,64,32,0,0
+-tileset=../../../../flare-game/tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
+-tileset=../../../../flare-game/tiled/dungeon/door_left.png,64,128,-16,-8
+-tileset=../../../../flare-game/tiled/dungeon/door_right.png,64,128,16,-8
+-tileset=../../../../flare-game/tiled/dungeon/stairs.png,256,256,0,48
++tileset=../../../tiled/dungeon/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128,0,0
++tileset=../../../tiled/dungeon/set_rules.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
++tileset=../../../tiled/dungeon/door_left.png,64,128,-16,-8
++tileset=../../../tiled/dungeon/door_right.png,64,128,16,-8
++tileset=../../../tiled/dungeon/stairs.png,256,256,0,48
+ 
+ [layer]
+ type=background
+@@ -437,7 +437,7 @@ soundfx=soundfx/powers/teleport.ogg
+ type=run_once
+ location=23,12,1,1
+ hotspot=location
+-loot=id,23,13,128
++loot=128,23,13,1,100
+ mapmod=object,23,12,161
+ requires_not=at_chest1
+ set_status=at_chest1
+@@ -449,7 +449,7 @@ tooltip=Treasure Chest
+ type=run_once
+ location=24,11,1,1
+ hotspot=location
+-loot=id,25,11,57
++loot=57,25,11,1,100
+ mapmod=object,24,11,160
+ requires_not=at_chest2
+ set_status=at_chest2
+diff --git a/mods/alpha_demo/maps/frontier_plains.txt b/mods/alpha_demo/maps/frontier_plains.txt
+index 5c8f81d24a0b1b6cfa9f1ffa3653a05cb90d96ca..1633ab4017f39c66d557402348db1ce7c78cc79e 100644
+--- a/mods/alpha_demo/maps/frontier_plains.txt
++++ b/mods/alpha_demo/maps/frontier_plains.txt
+@@ -8,12 +8,12 @@ tileset=tileset_grassland.txt
+ title=Frontier Plains
+ 
+ [tilesets]
+-tileset=../../../../flare-game/tiled/grassland/tiled_collision.png,64,32,0,0
+-tileset=../../../../flare-game/tiled/grassland/grassland.png,64,128,0,0
+-tileset=../../../../flare-game/tiled/grassland/grassland_water.png,64,64,0,32
+-tileset=../../../../flare-game/tiled/grassland/grassland_structures.png,64,256,0,0
+-tileset=../../../../flare-game/tiled/grassland/grassland_trees.png,128,256,-32,0
+-tileset=../../../../flare-game/tiled/grassland/tiled_grassland_2x2.png,128,64,0,16
++tileset=../../../tiled/grassland/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/grassland/grassland.png,64,128,0,0
++tileset=../../../tiled/grassland/grassland_water.png,64,64,0,32
++tileset=../../../tiled/grassland/grassland_structures.png,64,256,0,0
++tileset=../../../tiled/grassland/grassland_trees.png,128,256,-32,0
++tileset=../../../tiled/grassland/tiled_grassland_2x2.png,128,64,0,16
+ 
+ [layer]
+ type=background
+@@ -830,7 +830,7 @@ intermap=ancient_temple.txt,49,99
+ type=run_once
+ location=117,35,1,1
+ hotspot=location
+-loot=id,117,36,65
++loot=65,117,36,1,100
+ mapmod=object,117,35,99
+ requires_not=fp_crate3
+ set_status=fp_crate3
+@@ -842,7 +842,7 @@ tooltip=Supplies
+ type=run_once
+ location=50,30,1,1
+ hotspot=location
+-loot=id,50,31,1
++loot=1,50,31,1,100
+ mapmod=object,50,30,97
+ requires_not=fp_crate1
+ set_status=fp_crate1
+@@ -854,7 +854,7 @@ tooltip=Supplies
+ type=run_once
+ location=125,43,1,1
+ hotspot=location
+-loot=currency,124,43,15
++loot=currency,124,43,15,100
+ mapmod=object,125,43,97
+ requires_not=fp_crate4
+ set_status=fp_crate4
+@@ -866,7 +866,7 @@ tooltip=Supplies
+ type=run_once
+ location=114,97,1,1
+ hotspot=location
+-loot=currency,114,98,10
++loot=currency,114,98,10,100
+ mapmod=object,114,97,99
+ requires_not=fp_crate2
+ set_status=fp_crate2
+diff --git a/mods/alpha_demo/maps/river_encampment.txt b/mods/alpha_demo/maps/river_encampment.txt
+index b8e95eeea1486dcde83f867c0961931e8a3a9d3a..774faa43efe677e5078dbfcb2a60fb44435553b1 100644
+--- a/mods/alpha_demo/maps/river_encampment.txt
++++ b/mods/alpha_demo/maps/river_encampment.txt
+@@ -8,13 +8,13 @@ tileset=tileset_grassland.txt
+ title=River Encampment
+ 
+ [tilesets]
+-tileset=../../../../flare-game/tiled/grassland/tiled_collision.png,64,32,0,0
+-tileset=../../../../flare-game/tiled/grassland/grassland.png,64,128,0,0
+-tileset=../../../../flare-game/tiled/grassland/grassland_water.png,64,64,0,32
+-tileset=../../../../flare-game/tiled/grassland/grassland_structures.png,64,256,0,0
+-tileset=../../../../flare-game/tiled/grassland/grassland_trees.png,128,256,-32,0
+-tileset=../../../../flare-game/tiled/grassland/set_rules.png,64,32,0,0
+-tileset=../../../../flare-game/tiled/grassland/tiled_grassland_2x2.png,128,64,0,16
++tileset=../../../tiled/grassland/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/grassland/grassland.png,64,128,0,0
++tileset=../../../tiled/grassland/grassland_water.png,64,64,0,32
++tileset=../../../tiled/grassland/grassland_structures.png,64,256,0,0
++tileset=../../../tiled/grassland/grassland_trees.png,128,256,-32,0
++tileset=../../../tiled/grassland/set_rules.png,64,32,0,0
++tileset=../../../tiled/grassland/tiled_grassland_2x2.png,128,64,0,16
+ 
+ [layer]
+ type=background
+@@ -354,7 +354,7 @@ location=41,18,1,1
+ type=run_once
+ location=20,43,1,1
+ hotspot=location
+-loot=currency,21,44,12
++loot=currency,21,44,12,100
+ mapmod=object,20,43,99
+ requires_not=re_crate2
+ set_status=re_crate2
+@@ -366,7 +366,7 @@ tooltip=Supplies
+ type=run_once
+ location=10,13,1,1
+ hotspot=location
+-loot=id,11,13,127
++loot=127,11,13,1,100
+ mapmod=object,10,13,99
+ requires_not=re_crate4
+ set_status=re_crate4
+@@ -378,7 +378,7 @@ tooltip=Supplies
+ type=run_once
+ location=9,15,1,1
+ hotspot=location
+-loot=id,10,15,2
++loot=2,10,15,1,100
+ mapmod=object,9,15,97
+ requires_not=re_crate3
+ set_status=re_crate3
+@@ -390,7 +390,7 @@ tooltip=Supplies
+ type=run_once
+ location=38,27,1,1
+ hotspot=location
+-loot=id,38,26,1
++loot=1,38,26,1,100
+ mapmod=object,38,27,97
+ requires_not=re_crate1
+ set_status=re_crate1
+diff --git a/tiled/frontier/ancient_temple.tmx b/tiled/frontier/ancient_temple.tmx
+index 6dc042b0f88111b932cf3dcd9c86aed4abf5578e..12ad6d8e44e76a3521ec09198e2f94718dd7d314 100644
+--- a/tiled/frontier/ancient_temple.tmx
++++ b/tiled/frontier/ancient_temple.tmx
+@@ -449,7 +449,7 @@
+   <object name="island chest" type="run_once" x="736" y="384" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="id,23,13,128"/>
++    <property name="loot" value="128,23,13,1,100"/>
+     <property name="mapmod" value="object,23,12,161"/>
+     <property name="requires_not" value="at_chest1"/>
+     <property name="set_status" value="at_chest1"/>
+@@ -460,7 +460,7 @@
+   <object name="island chest" type="run_once" x="768" y="352" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="id,25,11,57"/>
++    <property name="loot" value="57,25,11,1,100"/>
+     <property name="mapmod" value="object,24,11,160"/>
+     <property name="requires_not" value="at_chest2"/>
+     <property name="set_status" value="at_chest2"/>
+diff --git a/tiled/frontier/frontier_plains.tmx b/tiled/frontier/frontier_plains.tmx
+index 95d2f9a22b198dfe9ffcb36eb8f85fe700f2c344..b6b95c925ce930ce525c630f50b844ba73d88cdd 100644
+--- a/tiled/frontier/frontier_plains.tmx
++++ b/tiled/frontier/frontier_plains.tmx
+@@ -835,7 +835,7 @@
+   <object name="camp supply" type="run_once" x="3744" y="1120" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="id,117,36,65"/>
++    <property name="loot" value="65,117,36,1,100"/>
+     <property name="mapmod" value="object,117,35,99"/>
+     <property name="requires_not" value="fp_crate3"/>
+     <property name="set_status" value="fp_crate3"/>
+@@ -846,7 +846,7 @@
+   <object name="camp supply" type="run_once" x="1600" y="960" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="id,50,31,1"/>
++    <property name="loot" value="1,50,31,1,100"/>
+     <property name="mapmod" value="object,50,30,97"/>
+     <property name="requires_not" value="fp_crate1"/>
+     <property name="set_status" value="fp_crate1"/>
+@@ -857,7 +857,7 @@
+   <object name="camp supply" type="run_once" x="4000" y="1376" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,124,43,15"/>
++    <property name="loot" value="currency,124,43,15,100"/>
+     <property name="mapmod" value="object,125,43,97"/>
+     <property name="requires_not" value="fp_crate4"/>
+     <property name="set_status" value="fp_crate4"/>
+@@ -868,7 +868,7 @@
+   <object name="camp supply" type="run_once" x="3648" y="3104" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,114,98,10"/>
++    <property name="loot" value="currency,114,98,10,100"/>
+     <property name="mapmod" value="object,114,97,99"/>
+     <property name="requires_not" value="fp_crate2"/>
+     <property name="set_status" value="fp_crate2"/>
+@@ -892,7 +892,6 @@
+     <property name="requires_status" value="fp_crate1"/>
+    </properties>
+   </object>
+-  <object x="1472" y="864"/>
+   <object type="on_load" x="3680" y="3072" width="32" height="32">
+    <properties>
+     <property name="mapmod" value="object,114,97,99"/>
+diff --git a/tiled/frontier/river_encampment.tmx b/tiled/frontier/river_encampment.tmx
+index 929a792c32cae60a45c02a7ecaf985efb44369fe..6f7c819268b2a5cacd0887c55f55368ae0bc4984 100644
+--- a/tiled/frontier/river_encampment.tmx
++++ b/tiled/frontier/river_encampment.tmx
+@@ -278,7 +278,7 @@
+   <object name="cliff passage container" type="run_once" x="640" y="1376" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,21,44,12"/>
++    <property name="loot" value="currency,21,44,12,100"/>
+     <property name="mapmod" value="object,20,43,99"/>
+     <property name="requires_not" value="re_crate2"/>
+     <property name="set_status" value="re_crate2"/>
+@@ -289,7 +289,7 @@
+   <object name="boss container 1" type="run_once" x="320" y="416" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="id,11,13,127"/>
++    <property name="loot" value="127,11,13,1,100"/>
+     <property name="mapmod" value="object,10,13,99"/>
+     <property name="requires_not" value="re_crate4"/>
+     <property name="set_status" value="re_crate4"/>
+@@ -300,7 +300,7 @@
+   <object name="boss container 2" type="run_once" x="288" y="480" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="id,10,15,2"/>
++    <property name="loot" value="2,10,15,1,100"/>
+     <property name="mapmod" value="object,9,15,97"/>
+     <property name="requires_not" value="re_crate3"/>
+     <property name="set_status" value="re_crate3"/>
+@@ -311,7 +311,7 @@
+   <object name="pier container" type="run_once" x="1216" y="864" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="id,38,26,1"/>
++    <property name="loot" value="1,38,26,1,100"/>
+     <property name="mapmod" value="object,38,27,97"/>
+     <property name="requires_not" value="re_crate1"/>
+     <property name="set_status" value="re_crate1"/>
+@@ -329,7 +329,6 @@
+     <property name="intermap" value="river_barrow.txt,60,30"/>
+    </properties>
+   </object>
+-  <object x="1632" y="1984"/>
+   <object type="on_load" x="1216" y="928" width="32" height="32">
+    <properties>
+     <property name="mapmod" value="object,38,27,97"/>
+@@ -342,7 +341,6 @@
+     <property name="requires_status" value="re_crate2"/>
+    </properties>
+   </object>
+-  <object x="192" y="512"/>
+   <object type="on_load" x="224" y="512" width="32" height="32">
+    <properties>
+     <property name="mapmod" value="object,9,15,97"/>

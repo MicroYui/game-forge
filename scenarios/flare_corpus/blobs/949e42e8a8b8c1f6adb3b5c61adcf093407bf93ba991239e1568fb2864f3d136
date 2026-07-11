@@ -1,0 +1,40 @@
+diff --git a/mods/empyrean_campaign/maps/perdition_mines.txt b/mods/empyrean_campaign/maps/perdition_mines.txt
+index b5d8d4d0b11c1148a8a21642619c41d581323ae8..dd8dd3822a7d7ea97ef6c841a78edcd4829a57c8 100644
+--- a/mods/empyrean_campaign/maps/perdition_mines.txt
++++ b/mods/empyrean_campaign/maps/perdition_mines.txt
+@@ -166,6 +166,7 @@ mapmod=object,4,16,176
+ repeat=false
+ requires_not_status=emp_krolan_emerald
+ requires_status=emp_krolan_init,emp_krolan_key
++soundfx=soundfx/wood_open.ogg
+ tooltip=Krolan's Chest
+ 
+ [event]
+@@ -177,6 +178,7 @@ loot=loot/level_2.txt
+ mapmod=object,4,16,176
+ repeat=false
+ requires_not_status=emp_krolan_init
++soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+ 
+ [event]
+diff --git a/tiled/empyrean_campaign/perdition_mines.tmx b/tiled/empyrean_campaign/perdition_mines.tmx
+index 6965f4d8ed9ae727c565f69dd1d6cdcdcb162ceb..6f9b32d67f2d7eea6e88bbaad7cefafd3a7c8760 100644
+--- a/tiled/empyrean_campaign/perdition_mines.tmx
++++ b/tiled/empyrean_campaign/perdition_mines.tmx
+@@ -164,6 +164,7 @@
+     <property name="repeat" value="false"/>
+     <property name="requires_not_status" value="emp_krolan_emerald"/>
+     <property name="requires_status" value="emp_krolan_init,emp_krolan_key"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Krolan's Chest"/>
+    </properties>
+   </object>
+@@ -174,6 +175,7 @@
+     <property name="mapmod" value="object,4,16,176"/>
+     <property name="repeat" value="false"/>
+     <property name="requires_not_status" value="emp_krolan_init"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+    </properties>
+   </object>

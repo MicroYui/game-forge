@@ -1,0 +1,51 @@
+diff --git a/mods/empyrean_campaign/engine/stats.txt b/mods/empyrean_campaign/engine/stats.txt
+index f7ca3b205dad7c96f4ade4cc0a45fd02f4639963..e3d0942ffccaa6b1177260755fbb698866aad7df 100644
+--- a/mods/empyrean_campaign/engine/stats.txt
++++ b/mods/empyrean_campaign/engine/stats.txt
+@@ -62,3 +62,5 @@ stat=scroll_max,20
+ stat_per_level=scroll_max,20
+ 
+ cooldown_hit=1s
++
++categories=hero
+diff --git a/mods/empyrean_campaign/powers/categories/enemy.txt b/mods/empyrean_campaign/powers/categories/enemy.txt
+index ad65fe8a4300a4c194748e45496c047fa044f251..e0370f1f07b8bbab465023fb7e2fa8cb15117936 100644
+--- a/mods/empyrean_campaign/powers/categories/enemy.txt
++++ b/mods/empyrean_campaign/powers/categories/enemy.txt
+@@ -851,7 +851,7 @@ radius=1.0
+ starting_pos=melee
+ modifier_damage=multiply,50,0
+ cooldown=20s
+-script=on_hit,scripts/powers/goblin_steal.txt
++post_power=273
+ 
+ # antlion larva spawn 1
+ [power]
+@@ -1186,3 +1186,15 @@ count=3
+ angle_variance=6
+ speed_variance=0.1
+ 
++# goblin steal script execution
++[power]
++id=273
++type=fixed
++new_state=instant
++use_hazard=true
++ignore_zero_damage=true
++lifespan=33ms
++radius=1.0
++starting_pos=target
++target_categories=hero
++script=on_hit,scripts/powers/goblin_steal.txt
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 911b26a9af77cbf3da0c915c92f1f2e2ea19bda2..d30a1c495ea58da3e66a22cac7d8b47b5a93ba07 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.06.03:0
+ game=flare-game
+-version=1.11.02
+-engine_version_min=1.10.05
++version=1.11.03
++engine_version_min=1.11.46

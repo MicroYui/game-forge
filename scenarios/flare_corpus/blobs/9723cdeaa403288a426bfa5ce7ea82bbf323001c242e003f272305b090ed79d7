@@ -1,0 +1,296 @@
+diff --git a/mods/empyrean_campaign/maps/merrimead_swamp.txt b/mods/empyrean_campaign/maps/merrimead_swamp.txt
+index 2479d9376f25ceb467dc0ba5a175933eb73c0567..982de73711bf30071dca30ec1156386b683ae71a 100644
+--- a/mods/empyrean_campaign/maps/merrimead_swamp.txt
++++ b/mods/empyrean_campaign/maps/merrimead_swamp.txt
+@@ -419,3 +419,147 @@ type=on_load
+ location=43,27,1,1
+ soundfx=soundfx/environment/forest_owl_loop.ogg
+ 
++[event]
++# Supplies
++type=on_trigger
++location=45,25,1,1
++hotspot=location
++loot=loot/leveled_low.txt
++mapmod=object,45,25,99
++repeat=false
++soundfx=soundfx/wood_open.ogg
++tooltip=Supplies
++
++[event]
++# Supplies
++type=on_trigger
++location=16,61,1,1
++hotspot=location
++loot=loot/leveled_low.txt
++mapmod=object,16,61,97
++repeat=false
++soundfx=soundfx/wood_open.ogg
++tooltip=Supplies
++
++[event]
++# Supplies
++type=on_trigger
++location=62,34,1,1
++hotspot=location
++loot=loot/leveled_low.txt
++mapmod=object,62,34,97
++repeat=false
++soundfx=soundfx/wood_open.ogg
++tooltip=Supplies
++
++[enemy]
++# goblins
++type=goblin
++location=19,15,5,10
++level=1,3
++number=3,4
++
++[enemy]
++# goblins
++type=goblin
++location=13,31,6,10
++level=1,3
++number=3,4
++
++[enemy]
++# goblins
++type=goblin
++location=15,45,8,12
++level=1,3
++number=3,4
++
++[enemy]
++# goblins
++type=goblin
++location=3,57,5,12
++level=1,3
++number=3,4
++
++[enemy]
++# goblins
++type=goblin
++location=11,71,13,5
++level=1,3
++number=3,4
++
++[enemy]
++# goblins
++type=goblin
++location=25,61,7,13
++level=1,3
++number=3,4
++
++[enemy]
++# goblin elite
++type=goblin_charger_elite
++location=22,63,1,1
++number=1
++
++[enemy]
++# goblins
++type=goblin
++location=30,52,12,4
++level=1,3
++number=3,4
++
++[enemy]
++# goblins
++type=goblin
++location=30,42,13,4
++level=1,3
++number=3,4
++
++[enemy]
++# goblins
++type=goblin
++location=33,27,11,10
++level=1,3
++number=3,4
++
++[enemy]
++# goblins
++type=goblin
++location=27,10,7,14
++level=1,3
++number=3,4
++
++[enemy]
++# zombies
++type=zombie
++location=55,53,6,12
++level=1,2
++number=2,4
++
++[enemy]
++# zombies
++type=zombie
++location=60,32,5,12
++level=1,2
++number=2,4
++
++[enemy]
++# zombies
++type=zombie
++location=53,18,10,7
++level=1,2
++number=2,4
++
++[enemy]
++# skeletons
++type=skeleton
++location=49,27,5,17
++level=2
++number=2,3
++
++[enemy]
++# skeletons
++type=skeleton
++location=63,11,5,7
++level=2
++number=2,3
++
+diff --git a/tiled/empyrean_campaign/merrimead_swamp.tmx b/tiled/empyrean_campaign/merrimead_swamp.tmx
+index d34a406e97fce4b185c096eabf4ee1a981b2ced1..d9d841ba2eac34204ba797ddf6d772e543d69da2 100644
+--- a/tiled/empyrean_campaign/merrimead_swamp.tmx
++++ b/tiled/empyrean_campaign/merrimead_swamp.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="80" height="80" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="26">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="80" height="80" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="47">
+  <properties>
+   <property name="music" value="music/overworld_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_grassland.txt"/>
+@@ -407,5 +407,132 @@
+     <property name="soundfx" value="soundfx/environment/forest_owl_loop.ogg"/>
+    </properties>
+   </object>
++  <object id="43" name="Supplies" type="on_trigger" x="1440" y="800" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="mapmod" value="object,45,25,99"/>
++    <property name="repeat" value="false"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Supplies"/>
++   </properties>
++  </object>
++  <object id="44" name="Supplies" type="on_trigger" x="512" y="1952" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="mapmod" value="object,16,61,97"/>
++    <property name="repeat" value="false"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Supplies"/>
++   </properties>
++  </object>
++  <object id="46" name="Supplies" type="on_trigger" x="1984" y="1088" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="mapmod" value="object,62,34,97"/>
++    <property name="repeat" value="false"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Supplies"/>
++   </properties>
++  </object>
++ </objectgroup>
++ <objectgroup name="enemy" visible="0">
++  <object id="26" name="goblins" type="goblin" x="608" y="480" width="160" height="320">
++   <properties>
++    <property name="level" value="1,3"/>
++    <property name="number" value="3,4"/>
++   </properties>
++  </object>
++  <object id="27" name="goblins" type="goblin" x="416" y="992" width="192" height="320">
++   <properties>
++    <property name="level" value="1,3"/>
++    <property name="number" value="3,4"/>
++   </properties>
++  </object>
++  <object id="28" name="goblins" type="goblin" x="480" y="1440" width="256" height="384">
++   <properties>
++    <property name="level" value="1,3"/>
++    <property name="number" value="3,4"/>
++   </properties>
++  </object>
++  <object id="29" name="goblins" type="goblin" x="96" y="1824" width="160" height="384">
++   <properties>
++    <property name="level" value="1,3"/>
++    <property name="number" value="3,4"/>
++   </properties>
++  </object>
++  <object id="30" name="goblins" type="goblin" x="352" y="2272" width="416" height="160">
++   <properties>
++    <property name="level" value="1,3"/>
++    <property name="number" value="3,4"/>
++   </properties>
++  </object>
++  <object id="31" name="goblins" type="goblin" x="800" y="1952" width="224" height="416">
++   <properties>
++    <property name="level" value="1,3"/>
++    <property name="number" value="3,4"/>
++   </properties>
++  </object>
++  <object id="32" name="goblin elite" type="goblin_charger_elite" x="704" y="2016" width="32" height="32">
++   <properties>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="33" name="goblins" type="goblin" x="960" y="1664" width="384" height="128">
++   <properties>
++    <property name="level" value="1,3"/>
++    <property name="number" value="3,4"/>
++   </properties>
++  </object>
++  <object id="34" name="goblins" type="goblin" x="960" y="1344" width="416" height="128">
++   <properties>
++    <property name="level" value="1,3"/>
++    <property name="number" value="3,4"/>
++   </properties>
++  </object>
++  <object id="35" name="goblins" type="goblin" x="1056" y="864" width="352" height="320">
++   <properties>
++    <property name="level" value="1,3"/>
++    <property name="number" value="3,4"/>
++   </properties>
++  </object>
++  <object id="36" name="goblins" type="goblin" x="864" y="320" width="224" height="448">
++   <properties>
++    <property name="level" value="1,3"/>
++    <property name="number" value="3,4"/>
++   </properties>
++  </object>
++  <object id="37" name="zombies" type="zombie" x="1760" y="1696" width="192" height="384">
++   <properties>
++    <property name="level" value="1,2"/>
++    <property name="number" value="2,4"/>
++   </properties>
++  </object>
++  <object id="38" name="zombies" type="zombie" x="1920" y="1024" width="160" height="384">
++   <properties>
++    <property name="level" value="1,2"/>
++    <property name="number" value="2,4"/>
++   </properties>
++  </object>
++  <object id="39" name="zombies" type="zombie" x="1696" y="576" width="320" height="224">
++   <properties>
++    <property name="level" value="1,2"/>
++    <property name="number" value="2,4"/>
++   </properties>
++  </object>
++  <object id="40" name="skeletons" type="skeleton" x="1568" y="864" width="160" height="544">
++   <properties>
++    <property name="level" value="2"/>
++    <property name="number" value="2,3"/>
++   </properties>
++  </object>
++  <object id="41" name="skeletons" type="skeleton" x="2016" y="352" width="160" height="224">
++   <properties>
++    <property name="level" value="2"/>
++    <property name="number" value="2,3"/>
++   </properties>
++  </object>
+  </objectgroup>
+ </map>

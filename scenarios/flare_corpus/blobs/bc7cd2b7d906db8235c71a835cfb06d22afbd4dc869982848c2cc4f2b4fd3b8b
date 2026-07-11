@@ -1,0 +1,105 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl10_skeleton_sharpshooter.txt b/mods/empyrean_campaign/enemies/lvl10_skeleton_sharpshooter.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..c8843f40ef35cab9928ecc34ca6155df34e4c011
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl10_skeleton_sharpshooter.txt
+@@ -0,0 +1,35 @@
++INCLUDE enemies/base/skeleton_archer.txt
++
++name=Skeleton Sharpshooter
++level=10
++categories=skeleton_archer,skeleton,undead,dungeon,grassland
++rarity=uncommon
++xp=1024
++
++# combat stats
++hp=275
++speed=4.8
++turn_delay=200ms
++chance_pursue=5
++
++power=melee,164,1
++power=ranged,196,5
++passive_powers=185
++
++accuracy=140
++avoidance=65
++poise=37
++
++dmg_melee_min=140
++dmg_melee_max=145
++dmg_ranged_min=150
++dmg_ranged_max=155
++absorb_min=9
++absorb_max=10
++
++cooldown=1575ms
++
++# loot
++loot=loot/level_10.txt
++
++
+diff --git a/mods/empyrean_campaign/enemies/lvl10_zombie_leecher.txt b/mods/empyrean_campaign/enemies/lvl10_zombie_leecher.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..fd75e10225f6616e7175d6fa7c5e99cebfb918b3
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl10_zombie_leecher.txt
+@@ -0,0 +1,27 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Leecher Zombie
++level=10
++categories=zombie,undead,dungeon,grassland
++rarity=uncommon
++xp=1024
++
++# combat stats
++hp=285
++speed=4.8
++turn_delay=400ms
++chance_pursue=10
++
++power=melee,164,4
++power=melee,187,6
++
++accuracy=125
++avoidance=55
++poise=47
++
++dmg_melee_min=150
++dmg_melee_max=155
++cooldown=1575ms
++
++#loot
++loot=loot/level_10.txt
+diff --git a/mods/empyrean_campaign/powers/categories/enemy.txt b/mods/empyrean_campaign/powers/categories/enemy.txt
+index c4c3f096545ce43f95bfb20b288cd6ba2e684c70..a8d57cd8dd49a83ab0a7bba44a49c32c225ffcb0 100644
+--- a/mods/empyrean_campaign/powers/categories/enemy.txt
++++ b/mods/empyrean_campaign/powers/categories/enemy.txt
+@@ -515,3 +515,26 @@ soundfx=soundfx/powers/heal.ogg
+ post_effect=hp_restore,50,33ms
+ post_effect=heal_animation,0,600ms
+ cooldown=5s
++
++# shoot 3 arrows
++[power]
++id=196
++type=missile
++new_state=shoot
++face=true
++directional=true
++requires_los=true
++animation=animations/powers/arrows.txt
++soundfx=soundfx/powers/shoot.ogg
++use_hazard=true
++aim_assist=true
++requires_flags=ranged
++base_damage=ranged
++lifespan=533ms
++radius=1.0
++speed=24
++count=3
++angle_variance=20
++speed_variance=0.15
++wall_power=157
++modifier_accuracy=multiply,50,0

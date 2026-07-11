@@ -1,0 +1,24 @@
+diff --git a/mods/empyrean_campaign/maps/nazia_mines.txt b/mods/empyrean_campaign/maps/nazia_mines.txt
+index 075529e4502cc54d1a34eff2cf2862fb04340bb5..8b7b98a55712b6ac865ee8e77649f93948d88f55 100644
+--- a/mods/empyrean_campaign/maps/nazia_mines.txt
++++ b/mods/empyrean_campaign/maps/nazia_mines.txt
+@@ -388,6 +388,7 @@ activate=on_trigger
+ loot=1010,fixed,1
+ repeat=false
+ requires_not_status=emp_fig_2
++requires_status=emp_naziamines_finish
+ 
+ [event]
+ # Set Owl fig status
+diff --git a/tiled/empyrean_campaign/nazia_mines.tmx b/tiled/empyrean_campaign/nazia_mines.tmx
+index 1114a27cf0f1a12a3bc5b181ebf451008342b51f..caae258c40d49fff41b33119620fa458d663da47 100644
+--- a/tiled/empyrean_campaign/nazia_mines.tmx
++++ b/tiled/empyrean_campaign/nazia_mines.tmx
+@@ -377,6 +377,7 @@
+     <property name="loot" value="1010,fixed,1"/>
+     <property name="repeat" value="false"/>
+     <property name="requires_not_status" value="emp_fig_2"/>
++    <property name="requires_status" value="emp_naziamines_finish"/>
+    </properties>
+   </object>
+   <object id="33" name="Set Owl fig status" type="event" x="1216" y="1792" width="32" height="32">

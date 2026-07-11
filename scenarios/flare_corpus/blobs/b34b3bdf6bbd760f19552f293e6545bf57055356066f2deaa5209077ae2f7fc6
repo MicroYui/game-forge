@@ -1,0 +1,73 @@
+diff --git a/mods/alpha_demo/maps/brothers_lair_fire_hall.txt b/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
+index 7ec7e05a695bfce6a8859caed0050b533bc7df34..a5fed818ea812861301186d8c12372593a95a289 100644
+--- a/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
+@@ -3,6 +3,7 @@ width=50
+ height=80
+ tilewidth=64
+ tileheight=32
++orientation=isometric
+ music=music/magical_theme.ogg
+ tileset=tilesetdefs/tileset_dungeon.txt
+ title=Brothers' Lair Fire Hall
+@@ -326,7 +327,6 @@ type=on_trigger
+ location=21,20,1,1
+ power=18
+ power_damage=100,150
+-power_path=0,0,21,20
+ repeat=false
+ 
+ [event]
+@@ -335,7 +335,6 @@ type=on_trigger
+ location=24,20,1,1
+ power=18
+ power_damage=100,150
+-power_path=0,0,24,20
+ repeat=false
+ 
+ [event]
+diff --git a/tiled/living_bones/brothers_lair_fire_hall.tmx b/tiled/living_bones/brothers_lair_fire_hall.tmx
+index 0b4e1c4c6b89c0a79049bdaa39bc8c54657f0fbb..d95d3c1a66dc68172536e1e1c015f6e025fca0f0 100644
+--- a/tiled/living_bones/brothers_lair_fire_hall.tmx
++++ b/tiled/living_bones/brothers_lair_fire_hall.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" width="50" height="80" tilewidth="64" tileheight="32" backgroundcolor="#000000">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="50" height="80" tilewidth="64" tileheight="32" backgroundcolor="#000000">
+  <properties>
+   <property name="music" value="music/magical_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_dungeon.txt"/>
+@@ -282,7 +282,7 @@
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ </data>
+  </layer>
+- <objectgroup name="event" width="50" height="80">
++ <objectgroup name="event">
+   <object name="Warp to Atrium" type="on_trigger" x="768" y="2496" width="64" height="32">
+    <properties>
+     <property name="hotspot" value="24,79,2,1"/>
+@@ -334,7 +334,6 @@
+    <properties>
+     <property name="power" value="18"/>
+     <property name="power_damage" value="100,150"/>
+-    <property name="power_path" value="0,0,21,20"/>
+     <property name="repeat" value="false"/>
+    </properties>
+   </object>
+@@ -342,7 +341,6 @@
+    <properties>
+     <property name="power" value="18"/>
+     <property name="power_damage" value="100,150"/>
+-    <property name="power_path" value="0,0,24,20"/>
+     <property name="repeat" value="false"/>
+    </properties>
+   </object>
+@@ -477,7 +475,7 @@
+    </properties>
+   </object>
+  </objectgroup>
+- <objectgroup name="enemy" width="50" height="80">
++ <objectgroup name="enemy">
+   <object type="krakatoa" x="704" y="576" width="32" height="32"/>
+   <object name="4-6 Undead" type="undead" x="672" y="1824" width="256" height="256">
+    <properties>

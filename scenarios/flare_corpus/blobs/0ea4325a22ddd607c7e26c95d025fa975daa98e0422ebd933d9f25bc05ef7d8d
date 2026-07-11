@@ -1,0 +1,403 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl10_xonun.txt b/mods/empyrean_campaign/enemies/lvl10_xonun.txt
+index ebbb8ec5cb28620ddfa408dd96ca1e91f3199ef9..9f47ef149f56a48cefc448eb16df4dab52213747 100644
+--- a/mods/empyrean_campaign/enemies/lvl10_xonun.txt
++++ b/mods/empyrean_campaign/enemies/lvl10_xonun.txt
+@@ -30,8 +30,8 @@ stat=dmg_melee_max,145
+ stat=dmg_ment_min,150
+ stat=dmg_ment_max,155
+ 
+-vulnerable=lightning,150
+-vulnerable=dark,75
++stat=lightning_resist,-50
++stat=dark_resist,25
+ 
+ cooldown=1325ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl11_antlion_venom.txt b/mods/empyrean_campaign/enemies/lvl11_antlion_venom.txt
+index 00420932ea2be675bc965c1a32846f04e5a0f7e2..e8bd73c77982bf80029e87016668582ad6f19afa 100644
+--- a/mods/empyrean_campaign/enemies/lvl11_antlion_venom.txt
++++ b/mods/empyrean_campaign/enemies/lvl11_antlion_venom.txt
+@@ -30,8 +30,8 @@ stat=dmg_melee_max,160
+ stat=dmg_ment_min,170
+ stat=dmg_ment_max,175
+ 
+-vulnerable=lightning,125
+-vulnerable=dark,50
++stat=lightning_resist,-25
++stat=dark_resist,50
+ 
+ cooldown=1350ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl11_buchi.txt b/mods/empyrean_campaign/enemies/lvl11_buchi.txt
+index 27f731d2b21dbde9726d4e7a9fa2e88b69478695..6bcff883be21be55d27473aa22d55b29b8f63055 100644
+--- a/mods/empyrean_campaign/enemies/lvl11_buchi.txt
++++ b/mods/empyrean_campaign/enemies/lvl11_buchi.txt
+@@ -31,8 +31,8 @@ stat=dmg_melee_max,190
+ stat=dmg_ment_min,200
+ stat=dmg_ment_max,205
+ 
+-vulnerable=fire,125
+-vulnerable=ice,50
++stat=fire_resist,-25
++stat=ice_resist,50
+ 
+ cooldown=1200ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl11_skeleton_blaze.txt b/mods/empyrean_campaign/enemies/lvl11_skeleton_blaze.txt
+index 95bdf8151c3711d523a2290ecf7eb91ad7f084ed..3068076da4f608bf4496e320dea851ae0031dfa3 100644
+--- a/mods/empyrean_campaign/enemies/lvl11_skeleton_blaze.txt
++++ b/mods/empyrean_campaign/enemies/lvl11_skeleton_blaze.txt
+@@ -25,8 +25,8 @@ stat=dmg_melee_max,160
+ stat=dmg_ment_min,165
+ stat=dmg_ment_max,170
+ 
+-vulnerable=fire,50
+-vulnerable=ice,125
++stat=fire_resist,50
++stat=ice_resist,-25
+ 
+ cooldown=1350ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl11_skeleton_frost.txt b/mods/empyrean_campaign/enemies/lvl11_skeleton_frost.txt
+index cbf09b878d34782baee6c8f0f5d6a21e11a40676..f0f1ee169fc88c81a9e04883be9877a8a22cfef6 100644
+--- a/mods/empyrean_campaign/enemies/lvl11_skeleton_frost.txt
++++ b/mods/empyrean_campaign/enemies/lvl11_skeleton_frost.txt
+@@ -25,8 +25,8 @@ stat=dmg_melee_max,160
+ stat=dmg_ment_min,165
+ stat=dmg_ment_max,170
+ 
+-vulnerable=ice,50
+-vulnerable=fire,125
++stat=ice_resist,50
++stat=fire_resist,-25
+ 
+ cooldown=1350ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl12_metzger.txt b/mods/empyrean_campaign/enemies/lvl12_metzger.txt
+index 3b6bed7543f8aec1bc4ed4854c5c7fd03e21ba0c..77e323131602d8f50727e5b3d6c1f890473710a6 100644
+--- a/mods/empyrean_campaign/enemies/lvl12_metzger.txt
++++ b/mods/empyrean_campaign/enemies/lvl12_metzger.txt
+@@ -34,8 +34,8 @@ stat=dmg_melee_max,205
+ stat=dmg_ment_min,210
+ stat=dmg_ment_max,215
+ 
+-vulnerable=lightning,50
+-vulnerable=dark,50
++stat=lightning_resist,50
++stat=dark_resist,50
+ 
+ cooldown=1275ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl12_nishi.txt b/mods/empyrean_campaign/enemies/lvl12_nishi.txt
+index a2a22b01015c471d2fec7f96fbef59b0083b21cd..323fa5bbcee30528d063c7d99f8a7c8b897b0ec0 100644
+--- a/mods/empyrean_campaign/enemies/lvl12_nishi.txt
++++ b/mods/empyrean_campaign/enemies/lvl12_nishi.txt
+@@ -25,8 +25,8 @@ stat=dmg_ment_max,205
+ stat=absorb_min,11
+ stat=absorb_max,12
+ 
+-vulnerable=fire,50
+-vulnerable=ice,125
++stat=fire_resist,50
++stat=ice_resist,-25
+ 
+ cooldown=1275ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl13_antlion_fossilized.txt b/mods/empyrean_campaign/enemies/lvl13_antlion_fossilized.txt
+index 66462769796449421417b9c75e087bae8938b1ab..f43ddce3d939e74836c923fcd6984d5b37769b14 100644
+--- a/mods/empyrean_campaign/enemies/lvl13_antlion_fossilized.txt
++++ b/mods/empyrean_campaign/enemies/lvl13_antlion_fossilized.txt
+@@ -25,7 +25,7 @@ stat=dmg_melee_max,190
+ stat=dmg_ment_min,200
+ stat=dmg_ment_max,205
+ 
+-vulnerable=ice,75
++stat=ice_resist,25
+ 
+ cooldown=1300ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl14_antlion_firethorn.txt b/mods/empyrean_campaign/enemies/lvl14_antlion_firethorn.txt
+index d12bd9d266e5660396d59005e42e24e3e6ca2162..377c20f8aab51cacff12bb1d944546698bdb3416 100644
+--- a/mods/empyrean_campaign/enemies/lvl14_antlion_firethorn.txt
++++ b/mods/empyrean_campaign/enemies/lvl14_antlion_firethorn.txt
+@@ -23,8 +23,8 @@ stat=dmg_melee_max,205
+ stat=dmg_ment_min,215
+ stat=dmg_ment_max,220
+ 
+-vulnerable=fire,75
+-vulnerable=ice,150
++stat=fire_resist,25
++stat=ice_resist,-50
+ 
+ cooldown=1275ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl14_skeleton_shocker.txt b/mods/empyrean_campaign/enemies/lvl14_skeleton_shocker.txt
+index e08ef75ba0efe05ce1edc4a4006eb9d947c40d69..d0d9a07c1281a7997505cf77309592560d368952 100644
+--- a/mods/empyrean_campaign/enemies/lvl14_skeleton_shocker.txt
++++ b/mods/empyrean_campaign/enemies/lvl14_skeleton_shocker.txt
+@@ -25,8 +25,8 @@ stat=dmg_melee_max,205
+ stat=dmg_ment_min,210
+ stat=dmg_ment_max,215
+ 
+-vulnerable=lightning,50
+-vulnerable=dark,125
++stat=lightning_resist,50
++stat=dark_resist,-25
+ 
+ cooldown=1275ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl16_rakk.txt b/mods/empyrean_campaign/enemies/lvl16_rakk.txt
+index c872366295f9ebb2d2eb4ddb47a344fd074b43ec..bca45b9480ca398791a33d353ab9778d5f5d8b7f 100644
+--- a/mods/empyrean_campaign/enemies/lvl16_rakk.txt
++++ b/mods/empyrean_campaign/enemies/lvl16_rakk.txt
+@@ -21,8 +21,8 @@ stat=dmg_ment_max,265
+ stat=absorb_min,15
+ stat=absorb_max,16
+ 
+-vulnerable=fire,125
+-vulnerable=ice,50
++stat=fire_resist,-25
++stat=ice_resist,50
+ 
+ cooldown=1175ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt
+index fd36adf238c98346370344c95c7547997c59b90a..9e4af077579aad38901f1bc932c5b93979c7b70e 100644
+--- a/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt
+@@ -25,8 +25,8 @@ stat=dmg_melee_max,40
+ stat=dmg_ment_min,45
+ stat=dmg_ment_max,50
+ 
+-vulnerable=fire,75
+-vulnerable=ice,150
++stat=fire_resist,25
++stat=ice_resist,-50
+ 
+ cooldown=1550ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt
+index fb598af2e7b834e22d5067cec96362aada933513..fc081571eeb8c663f5782ecd07e49c4103ceffc3 100644
+--- a/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt
+@@ -25,8 +25,8 @@ stat=dmg_melee_max,40
+ stat=dmg_ment_min,45
+ stat=dmg_ment_max,50
+ 
+-vulnerable=fire,150
+-vulnerable=ice,75
++stat=fire_resist,-50
++stat=ice_resist,25
+ 
+ cooldown=1550ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl5_antlion_freezer.txt b/mods/empyrean_campaign/enemies/lvl5_antlion_freezer.txt
+index 043516fda870c33314527258ba0fed1c0ca0c1ac..78789304331cc10cad462155ec0fcfc18f250668 100644
+--- a/mods/empyrean_campaign/enemies/lvl5_antlion_freezer.txt
++++ b/mods/empyrean_campaign/enemies/lvl5_antlion_freezer.txt
+@@ -23,8 +23,8 @@ stat=dmg_melee_max,70
+ stat=dmg_ment_min,80
+ stat=dmg_ment_max,85
+ 
+-vulnerable=fire,150
+-vulnerable=ice,75
++stat=fire_resist,-50
++stat=ice_resist,25
+ 
+ cooldown=1500ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl5_frozen_corpse.txt b/mods/empyrean_campaign/enemies/lvl5_frozen_corpse.txt
+index ab79d2fb1dbc4d1d64ff54df7239a9829ede8830..b804093fc12a071e93105f69273fe5b173119e55 100644
+--- a/mods/empyrean_campaign/enemies/lvl5_frozen_corpse.txt
++++ b/mods/empyrean_campaign/enemies/lvl5_frozen_corpse.txt
+@@ -23,8 +23,8 @@ stat=dmg_melee_min,75
+ stat=dmg_melee_max,80
+ cooldown=1700ms
+ 
+-vulnerable=fire,125
+-vulnerable=ice,90
++stat=fire_resist,-25
++stat=ice_resist,10
+ 
+ #loot
+ loot=loot/level_5.txt
+diff --git a/mods/empyrean_campaign/enemies/lvl5_skeleton_frostsword.txt b/mods/empyrean_campaign/enemies/lvl5_skeleton_frostsword.txt
+index 4c43ed0f30c0ad94a74ae748a24c5077250c0da7..959aeb6add61dff8d7be3bc3a08f726356d595e0 100644
+--- a/mods/empyrean_campaign/enemies/lvl5_skeleton_frostsword.txt
++++ b/mods/empyrean_campaign/enemies/lvl5_skeleton_frostsword.txt
+@@ -26,8 +26,8 @@ cooldown=1500ms
+ stat=absorb_min,5
+ stat=absorb_max,5
+ 
+-vulnerable=fire,125
+-vulnerable=ice,90
++stat=fire_resist,-25
++stat=ice_resist,10
+ 
+ # loot
+ loot=loot/level_5.txt
+diff --git a/mods/empyrean_campaign/enemies/lvl6_antlion_burster.txt b/mods/empyrean_campaign/enemies/lvl6_antlion_burster.txt
+index 4ce17c085bc1733b3110fc4d0a5f60a7d19cef11..a0958a1b7cb07b55c62bbcdb358c82345a1e113e 100644
+--- a/mods/empyrean_campaign/enemies/lvl6_antlion_burster.txt
++++ b/mods/empyrean_campaign/enemies/lvl6_antlion_burster.txt
+@@ -25,8 +25,8 @@ stat=absorb_max,7
+ stat=dmg_ment_min,155
+ stat=dmg_ment_max,160
+ 
+-vulnerable=fire,75
+-vulnerable=ice,150
++stat=fire_resist,25
++stat=ice_resist,-50
+ 
+ cooldown=1475ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl6_antlion_frostbite.txt b/mods/empyrean_campaign/enemies/lvl6_antlion_frostbite.txt
+index 5066879b85f1554a05fabf494a180acb5c5d1119..f2b7925e2026d7379cc422d792c5629b67cca52a 100644
+--- a/mods/empyrean_campaign/enemies/lvl6_antlion_frostbite.txt
++++ b/mods/empyrean_campaign/enemies/lvl6_antlion_frostbite.txt
+@@ -23,8 +23,8 @@ stat=dmg_melee_max,85
+ stat=dmg_ment_min,95
+ stat=dmg_ment_max,100
+ 
+-vulnerable=fire,150
+-vulnerable=ice,75
++stat=fire_resist,-50
++stat=ice_resist,25
+ 
+ cooldown=1475ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl6_antlion_spitter.txt b/mods/empyrean_campaign/enemies/lvl6_antlion_spitter.txt
+index ef0096431b08627b8212ada281d9f7b0343f0de8..97bf5fb77419593ada9f55ea53b360dd53edeca9 100644
+--- a/mods/empyrean_campaign/enemies/lvl6_antlion_spitter.txt
++++ b/mods/empyrean_campaign/enemies/lvl6_antlion_spitter.txt
+@@ -23,8 +23,8 @@ stat=dmg_melee_max,85
+ stat=dmg_ment_min,95
+ stat=dmg_ment_max,100
+ 
+-vulnerable=fire,75
+-vulnerable=ice,150
++stat=fire_resist,25
++stat=ice_resist,-50
+ 
+ cooldown=1475ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl6_skeleton_frost_mage.txt b/mods/empyrean_campaign/enemies/lvl6_skeleton_frost_mage.txt
+index 502ae1493a5d22d23748e3c6db64ff874c16f882..b9cacca437f788f46087d1d81d73f887210f2a27 100644
+--- a/mods/empyrean_campaign/enemies/lvl6_skeleton_frost_mage.txt
++++ b/mods/empyrean_campaign/enemies/lvl6_skeleton_frost_mage.txt
+@@ -25,8 +25,8 @@ stat=dmg_melee_max,85
+ stat=dmg_ment_min,90
+ stat=dmg_ment_max,95
+ 
+-vulnerable=fire,150
+-vulnerable=ice,75
++stat=fire_resist,-50
++stat=ice_resist,25
+ 
+ cooldown=1475ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl7_wyvern_fire.txt b/mods/empyrean_campaign/enemies/lvl7_wyvern_fire.txt
+index 3a2d7af2ee838f3ec045b522150d3e64e31b7e19..8355773d1fe96cc791a0d47b336a097d61ec4a09 100644
+--- a/mods/empyrean_campaign/enemies/lvl7_wyvern_fire.txt
++++ b/mods/empyrean_campaign/enemies/lvl7_wyvern_fire.txt
+@@ -22,8 +22,8 @@ stat=dmg_ment_max,115
+ stat=absorb_min,6
+ stat=absorb_max,7
+ 
+-vulnerable=fire,75
+-vulnerable=ice,150
++stat=fire_resist,25
++stat=ice_resist,-50
+ 
+ cooldown=1650ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl7_wyvern_ice.txt b/mods/empyrean_campaign/enemies/lvl7_wyvern_ice.txt
+index a8f561ee0ed70f2b14e4893acbb99754cf52c95e..718272c186733f947f10d797c0f3b2a111f8954a 100644
+--- a/mods/empyrean_campaign/enemies/lvl7_wyvern_ice.txt
++++ b/mods/empyrean_campaign/enemies/lvl7_wyvern_ice.txt
+@@ -22,8 +22,8 @@ stat=dmg_ment_max,115
+ stat=absorb_min,6
+ stat=absorb_max,7
+ 
+-vulnerable=fire,150
+-vulnerable=ice,75
++stat=fire_resist,-50
++stat=ice_resist,25
+ 
+ cooldown=1650ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl9_antlion_sprayer.txt b/mods/empyrean_campaign/enemies/lvl9_antlion_sprayer.txt
+index 947f8ce0e3ad62143cfa1ebfe7c4173c07e1d5e8..497b6fd7d354692fe7a8045c999cfa799125f5d3 100644
+--- a/mods/empyrean_campaign/enemies/lvl9_antlion_sprayer.txt
++++ b/mods/empyrean_campaign/enemies/lvl9_antlion_sprayer.txt
+@@ -21,8 +21,8 @@ stat=absorb_max,10
+ stat=dmg_ment_min,140
+ stat=dmg_ment_max,145
+ 
+-vulnerable=fire,75
+-vulnerable=ice,150
++stat=fire_resist,25
++stat=ice_resist,-50
+ 
+ cooldown=1400ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl9_wyvern_tundra.txt b/mods/empyrean_campaign/enemies/lvl9_wyvern_tundra.txt
+index 3fbd2832a3812556a703f57d90e621747af9aa3d..a87796b81b4423627a070083ea66ab1b6cfb5ee6 100644
+--- a/mods/empyrean_campaign/enemies/lvl9_wyvern_tundra.txt
++++ b/mods/empyrean_campaign/enemies/lvl9_wyvern_tundra.txt
+@@ -26,8 +26,8 @@ stat=dmg_ment_max,145
+ stat=absorb_min,8
+ stat=absorb_max,9
+ 
+-vulnerable=fire,150
+-vulnerable=ice,75
++stat=fire_resist,-50
++stat=ice_resist,25
+ 
+ cooldown=1600ms
+ 
+diff --git a/mods/empyrean_campaign/engine/loot.txt b/mods/empyrean_campaign/engine/loot.txt
+index 23f8507af448583843ca904d49d0a5fa6dfef9cd..acad6ab5271b697b79fe595b3faf40fd84fc6c5c 100644
+--- a/mods/empyrean_campaign/engine/loot.txt
++++ b/mods/empyrean_campaign/engine/loot.txt
+@@ -1,3 +1,3 @@
+ APPEND
+ 
+-vendor_ratio_buyback=100
++vendor_ratio_sell_old=1.0
+diff --git a/mods/empyrean_campaign/engine/stats.txt b/mods/empyrean_campaign/engine/stats.txt
+index a03c597728637b06764703e90bc1d6a12ba54475..887b01bac44de86c4ccc6d357acc13eb83629db9 100644
+--- a/mods/empyrean_campaign/engine/stats.txt
++++ b/mods/empyrean_campaign/engine/stats.txt
+@@ -73,3 +73,6 @@ stat_per_primary=defense,mage_shield_max,1
+ cooldown_hit=1s
+ 
+ categories=hero
++
++[render_layers]
++INCLUDE engine/hero_layers.txt
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index e33cbda94cc64d1aaeea9ab7b676458467489cc1..636ed48e4ed23312f9265933093143692ebf35a5 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.06.03:0
+ game=flare-game
+-version=1.12.11
+-engine_version_min=1.12.71
++version=1.12.12
++engine_version_min=1.12.94
+diff --git a/mods/fantasycore/engine/loot.txt b/mods/fantasycore/engine/loot.txt
+index 6d78485c89ee6600e11a64a5b967321ad92b4512..a78a2c2cf951eb5ec82d9b53541bb28d8946501d 100644
+--- a/mods/fantasycore/engine/loot.txt
++++ b/mods/fantasycore/engine/loot.txt
+@@ -12,7 +12,7 @@ autopickup_range=1
+ 
+ # Currency
+ currency_name=Gold
+-vendor_ratio=25
++vendor_ratio_sell=0.25
+ 
+ # Drops
+ drop_max=1

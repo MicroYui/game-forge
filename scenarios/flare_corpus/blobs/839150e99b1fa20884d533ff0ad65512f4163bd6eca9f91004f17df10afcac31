@@ -1,0 +1,108 @@
+diff --git a/mods/empyrean_campaign/powers/base/warrior/block.txt b/mods/empyrean_campaign/powers/base/warrior/block.txt
+deleted file mode 100644
+index 2b1184a321c0aa6900ec5be370730bcdb8d8dd94..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/powers/base/warrior/block.txt
++++ /dev/null
+@@ -1,8 +0,0 @@
+-name=Block
+-description=Raise your shield to thwart incoming damage.
+-icon=4
+-type=block
+-face=true
+-requires_flags=shield
+-post_effect=block_icon,1,0
+-
+diff --git a/mods/empyrean_campaign/powers/base/warrior/shield_bash.txt b/mods/empyrean_campaign/powers/base/warrior/shield_bash.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..27a3fd839c7c5f56cc1286f1f97f46a5d82f40c8
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/base/warrior/shield_bash.txt
+@@ -0,0 +1,19 @@
++name=Shield Bash
++description=Dash into enemies, crushing them with sheer force.
++icon=4
++type=fixed
++new_state=block
++state_duration=166ms
++face=true
++use_hazard=true
++base_damage=melee
++lifespan=166ms
++radius=1.0
++starting_pos=melee
++aim_assist=true
++requires_flags=shield
++charge_speed=12
++cooldown=1500ms
++relative_pos=true
++modifier_critical=absolute,100,0
++soundfx_hit=soundfx/powers/block.ogg
+diff --git a/mods/empyrean_campaign/powers/categories/warrior.txt b/mods/empyrean_campaign/powers/categories/warrior.txt
+index edb32ddb7b60a9672f35ecc4d9dd8927321d4c33..80d31c15d4f6ac1979762c31404726aea031e0a7 100644
+--- a/mods/empyrean_campaign/powers/categories/warrior.txt
++++ b/mods/empyrean_campaign/powers/categories/warrior.txt
+@@ -20,48 +20,38 @@ aim_assist=true
+ 
+ 
+ ####
+-### Block
++### Shield Bash
+ ####
+ 
+ [power]
+ id=2
+-INCLUDE powers/base/warrior/block.txt
+-post_effect=reflect_chance,80,0
+-post_effect=absorb_min,15,0
+-post_effect=absorb_max,15,0
+-post_effect=return_damage,100
++INCLUDE powers/base/warrior/shield_bash.txt
++requires_mp=2
++modifier_damage=multiply,75,0
+ 
+ [power]
+ id=3
+-INCLUDE powers/base/warrior/block.txt
+-post_effect=reflect_chance,85,0
+-post_effect=absorb_min,30,0
+-post_effect=absorb_max,30,0
+-post_effect=return_damage,125
++INCLUDE powers/base/warrior/shield_bash.txt
++requires_mp=3
++modifier_damage=multiply,90,0
+ 
+ [power]
+ id=4
+-INCLUDE powers/base/warrior/block.txt
+-post_effect=reflect_chance,90,0
+-post_effect=absorb_min,45,0
+-post_effect=absorb_max,45,0
+-post_effect=return_damage,150
++INCLUDE powers/base/warrior/shield_bash.txt
++requires_mp=4
++modifier_damage=multiply,105,0
+ 
+ [power]
+ id=5
+-INCLUDE powers/base/warrior/block.txt
+-post_effect=reflect_chance,95,0
+-post_effect=absorb_min,60,0
+-post_effect=absorb_max,60,0
+-post_effect=return_damage,175
++INCLUDE powers/base/warrior/shield_bash.txt
++requires_mp=5
++modifier_damage=multiply,120,0
+ 
+ [power]
+ id=6
+-INCLUDE powers/base/warrior/block.txt
+-post_effect=reflect_chance,100,0
+-post_effect=absorb_min,75,0
+-post_effect=absorb_max,75,0
+-post_effect=return_damage,200
++INCLUDE powers/base/warrior/shield_bash.txt
++requires_mp=6
++modifier_damage=multiply,135,0
+ 
+ 
+ 

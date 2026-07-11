@@ -1,0 +1,998 @@
+diff --git a/mods/empyrean_campaign/books/crafting_alchemy.txt b/mods/empyrean_campaign/books/crafting_alchemy.txt
+index 96130c613313204f516716e16756c6dbdab0757b..4eb8f7743834e4397f83f934d598436fe7a6a450 100644
+--- a/mods/empyrean_campaign/books/crafting_alchemy.txt
++++ b/mods/empyrean_campaign/books/crafting_alchemy.txt
+@@ -81,6 +81,23 @@ text_font=255,255,255,font_regular
+ text_shadow=true
+ text=Mana Crystal
+ 
++# Input: Mushrooms
++[image]
++image_pos=32,192
++image_icon=516
++
++[button]
++button_image=images/menus/buttons/button_plus.png
++button_pos=64,192
++requires_status=emp_alchemy_3
++script=scripts/crafting/alchemy/add_3.txt
++
++[text]
++text_pos=88,196,136,left
++text_font=255,255,255,font_normal
++text_shadow=true
++text=Mushrooms
++
+ # slot 0
+ [image]
+ image_pos=304,48
+@@ -99,6 +116,12 @@ image_pos=256,96
+ image_icon=514
+ requires_status=emp_alchemy_slot1_2
+ 
++# slot 1, mushrooms
++[image]
++image_pos=256,96
++image_icon=516
++requires_status=emp_alchemy_slot1_3
++
+ # slot 2, aloe vera
+ [image]
+ image_pos=304,96
+@@ -111,6 +134,12 @@ image_pos=304,96
+ image_icon=514
+ requires_status=emp_alchemy_slot2_2
+ 
++# slot 3, mushrooms
++[image]
++image_pos=304,96
++image_icon=516
++requires_status=emp_alchemy_slot2_3
++
+ # slot 3, aloe vera
+ [image]
+ image_pos=352,96
+@@ -123,6 +152,12 @@ image_pos=352,96
+ image_icon=514
+ requires_status=emp_alchemy_slot3_2
+ 
++# slot 3, mushrooms
++[image]
++image_pos=352,96
++image_icon=516
++requires_status=emp_alchemy_slot3_3
++
+ # output, hp potion
+ [image]
+ image_pos=304,208
+@@ -149,3 +184,55 @@ text_shadow=true
+ text=Mana Potion
+ requires_status=emp_alchemy_output_1
+ 
++# output, stamina potion
++[image]
++image_pos=304,208
++image_icon=0
++requires_status=emp_alchemy_output_2
++
++[text]
++text_pos=240,248,160,center
++text_font=255,255,255,font_normal
++text_shadow=true
++text=Stamina Potion
++requires_status=emp_alchemy_output_2
++
++# output, restoration potion
++[image]
++image_pos=304,208
++image_icon=0
++requires_status=emp_alchemy_output_3
++
++[text]
++text_pos=240,248,160,center
++text_font=255,255,255,font_normal
++text_shadow=true
++text=Restoration Potion
++requires_status=emp_alchemy_output_3
++
++# output, treasure potion
++[image]
++image_pos=304,208
++image_icon=0
++requires_status=emp_alchemy_output_4
++
++[text]
++text_pos=240,248,160,center
++text_font=255,255,255,font_normal
++text_shadow=true
++text=Treasure Potion
++requires_status=emp_alchemy_output_4
++
++# output, elemental potion
++[image]
++image_pos=304,208
++image_icon=0
++requires_status=emp_alchemy_output_5
++
++[text]
++text_pos=240,248,160,center
++text_font=255,255,255,font_normal
++text_shadow=true
++text=Elemental Potion
++requires_status=emp_alchemy_output_5
++
+diff --git a/mods/empyrean_campaign/images/icons/icons_crafting.png b/mods/empyrean_campaign/images/icons/icons_crafting.png
+index 8b30e9fa7f9dd81b8a3e28609f9ef478dab940ee..b901e73757754c8de60205ec2a63504199c43fff 100644
+GIT binary patch
+literal 7499
+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
+VV;-q=W{v;=002ovPDHLkV1kF*Vs!uj
+
+literal 7904
+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
+KMNUMnLSTZ1&{f6&
+
+diff --git a/mods/empyrean_campaign/items/categories/crafting.txt b/mods/empyrean_campaign/items/categories/crafting.txt
+index bb992f55fecf396569d61272fabcb841630d3403..fd354cd860a567b0a4dd6b5fea87142ba06ea8a1 100644
+--- a/mods/empyrean_campaign/items/categories/crafting.txt
++++ b/mods/empyrean_campaign/items/categories/crafting.txt
+@@ -48,3 +48,14 @@ loot_animation=animations/loot/gem.txt
+ book=books/crafting_alchemy.txt
+ book_is_readable=false
+ 
++[item]
++id=754
++name=Mushrooms
++item_type=crafting
++quality=crafting
++icon=516
++price=10
++max_quantity=40
++soundfx=soundfx/inventory/inventory_gem.ogg
++loot_animation=animations/loot/gem.txt
++
+diff --git a/mods/empyrean_campaign/items/categories/potions.txt b/mods/empyrean_campaign/items/categories/potions.txt
+index 6a498a24a8cfed164795188e210144e275f53ee2..8f51aebdb54c9efc775c48d933727968b7b49dd4 100644
+--- a/mods/empyrean_campaign/items/categories/potions.txt
++++ b/mods/empyrean_campaign/items/categories/potions.txt
+@@ -24,3 +24,55 @@ price_per_level=20
+ max_quantity=20
+ no_stash=shared
+ 
++[item]
++id=775
++name=Stamina Potion
++INCLUDE items/base/potion/hp.txt
++icon=0
++power=269
++power_desc=Temporarily increase regeneration and movement speed
++price=20
++price_sell=15
++price_per_level=20
++max_quantity=20
++no_stash=true
++
++[item]
++id=776
++name=Restoration Potion
++INCLUDE items/base/potion/hp.txt
++icon=0
++power=270
++power_desc=Restore 25% of both HP and MP
++price=40
++price_sell=35
++price_per_level=30
++max_quantity=20
++no_stash=true
++
++[item]
++id=777
++name=Treasure Potion
++INCLUDE items/base/potion/hp.txt
++icon=0
++power=271
++power_desc=Temporarily increases the ability to find items and gold
++price=40
++price_sell=35
++price_per_level=30
++max_quantity=20
++no_stash=true
++
++[item]
++id=778
++name=Elemental Potion
++INCLUDE items/base/potion/hp.txt
++icon=0
++power=272
++power_desc=Temporarily increases the resistance to all forms of magic by 50%
++price=40
++price_sell=35
++price_per_level=30
++max_quantity=20
++no_stash=true
++
+diff --git a/mods/empyrean_campaign/loot/level_1.txt b/mods/empyrean_campaign/loot/level_1.txt
+index 7810a22aeec499009e08e9a66ee1f33d859820e7..cacf9f4763d0e5aa7cef7a4653e8f7baf48fe8af 100644
+--- a/mods/empyrean_campaign/loot/level_1.txt
++++ b/mods/empyrean_campaign/loot/level_1.txt
+@@ -4,6 +4,7 @@ loot=currency,50,5,15
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=4,3
+diff --git a/mods/empyrean_campaign/loot/level_10.txt b/mods/empyrean_campaign/loot/level_10.txt
+index 4c066e314dd5902f38f82ae4da287e6238268020..23425c80a4ed694c278ce0b0764da497c3367279 100644
+--- a/mods/empyrean_campaign/loot/level_10.txt
++++ b/mods/empyrean_campaign/loot/level_10.txt
+@@ -4,6 +4,7 @@ loot=currency,50,30,40
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=204,5
+diff --git a/mods/empyrean_campaign/loot/level_11.txt b/mods/empyrean_campaign/loot/level_11.txt
+index cfce0af1bbdcde8ffc5a77b68924165b14fada17..4162dc72a0bd58465c944b452ee1d32704b97015 100644
+--- a/mods/empyrean_campaign/loot/level_11.txt
++++ b/mods/empyrean_campaign/loot/level_11.txt
+@@ -4,6 +4,7 @@ loot=currency,50,35,45
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=204,8
+diff --git a/mods/empyrean_campaign/loot/level_12.txt b/mods/empyrean_campaign/loot/level_12.txt
+index 5fb80f40e6a540195ab4afd9920df2e3b786719c..b3379d0cfb515f522b9465d0ac0072d09ee32abb 100644
+--- a/mods/empyrean_campaign/loot/level_12.txt
++++ b/mods/empyrean_campaign/loot/level_12.txt
+@@ -4,6 +4,7 @@ loot=currency,50,40,50
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=204,13
+diff --git a/mods/empyrean_campaign/loot/level_13.txt b/mods/empyrean_campaign/loot/level_13.txt
+index cc37d0a5b3f15844dbb8180b678d06b3b5f0924f..5e29b29e512d0be52df5345e00ecd6ff27b47012 100644
+--- a/mods/empyrean_campaign/loot/level_13.txt
++++ b/mods/empyrean_campaign/loot/level_13.txt
+@@ -4,6 +4,7 @@ loot=currency,50,25,35
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=311,3
+diff --git a/mods/empyrean_campaign/loot/level_14.txt b/mods/empyrean_campaign/loot/level_14.txt
+index 0dc45f7df99d326f811c4fbbdebf3c0f4cda8697..182c9de9b6a34cbcaaafc986aaa28ec37ea04222 100644
+--- a/mods/empyrean_campaign/loot/level_14.txt
++++ b/mods/empyrean_campaign/loot/level_14.txt
+@@ -4,6 +4,7 @@ loot=currency,50,30,40
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=311,5
+diff --git a/mods/empyrean_campaign/loot/level_15.txt b/mods/empyrean_campaign/loot/level_15.txt
+index 0753151c27dc4d0613dbcf2805a26a12fe5c9491..fab903fd39250dc902553f4f24e322460e4501af 100644
+--- a/mods/empyrean_campaign/loot/level_15.txt
++++ b/mods/empyrean_campaign/loot/level_15.txt
+@@ -4,6 +4,7 @@ loot=currency,50,35,45
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=311,8
+diff --git a/mods/empyrean_campaign/loot/level_16.txt b/mods/empyrean_campaign/loot/level_16.txt
+index 6d0468a129aba3ced4e18e247899b3ff273be1c4..054be2a52a4f3db6a48ebd8020ecdcfd6b47868c 100644
+--- a/mods/empyrean_campaign/loot/level_16.txt
++++ b/mods/empyrean_campaign/loot/level_16.txt
+@@ -4,6 +4,7 @@ loot=currency,50,40,50
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=311,13
+diff --git a/mods/empyrean_campaign/loot/level_2.txt b/mods/empyrean_campaign/loot/level_2.txt
+index e9e693f4567b6d7f646e7665c436e53008b6d9d9..e2f51932d6870f26972bb43921cc6e5a817031f3 100644
+--- a/mods/empyrean_campaign/loot/level_2.txt
++++ b/mods/empyrean_campaign/loot/level_2.txt
+@@ -4,6 +4,7 @@ loot=currency,50,10,20
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=4,5
+diff --git a/mods/empyrean_campaign/loot/level_3.txt b/mods/empyrean_campaign/loot/level_3.txt
+index 87b557d46e69e0f6603f7763c376264a46d1d69c..e2e8e04c08d3d91973c4207ab2b9859f1d04d7e8 100644
+--- a/mods/empyrean_campaign/loot/level_3.txt
++++ b/mods/empyrean_campaign/loot/level_3.txt
+@@ -4,6 +4,7 @@ loot=currency,50,15,25
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=4,8
+diff --git a/mods/empyrean_campaign/loot/level_4.txt b/mods/empyrean_campaign/loot/level_4.txt
+index 60b2033ab38041be29305eeb61f63e71491511ed..8527c063b4751c6b01eed4a7fdb0dbca82a82548 100644
+--- a/mods/empyrean_campaign/loot/level_4.txt
++++ b/mods/empyrean_campaign/loot/level_4.txt
+@@ -4,6 +4,7 @@ loot=currency,50,20,30
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=4,13
+diff --git a/mods/empyrean_campaign/loot/level_5.txt b/mods/empyrean_campaign/loot/level_5.txt
+index a3a9da792564a87389fe038008849253b740a4f6..4a6e5010a5bd191b68dc26f1747634e72030b539 100644
+--- a/mods/empyrean_campaign/loot/level_5.txt
++++ b/mods/empyrean_campaign/loot/level_5.txt
+@@ -4,6 +4,7 @@ loot=currency,50,25,35
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=96,3
+diff --git a/mods/empyrean_campaign/loot/level_6.txt b/mods/empyrean_campaign/loot/level_6.txt
+index c9b96c830d0a012b18ead26160bd09a01f03c6d4..2f33817f9cf36f5405450dcdbeab305b5b6817b7 100644
+--- a/mods/empyrean_campaign/loot/level_6.txt
++++ b/mods/empyrean_campaign/loot/level_6.txt
+@@ -4,6 +4,7 @@ loot=currency,50,30,40
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=96,5
+diff --git a/mods/empyrean_campaign/loot/level_7.txt b/mods/empyrean_campaign/loot/level_7.txt
+index 2dd3152b8271c2b8e7173f526500781ebbcdebd4..5f9ba164c1646d05f63e6449112e5b6d2cb116cb 100644
+--- a/mods/empyrean_campaign/loot/level_7.txt
++++ b/mods/empyrean_campaign/loot/level_7.txt
+@@ -4,6 +4,7 @@ loot=currency,50,35,45
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=96,8
+diff --git a/mods/empyrean_campaign/loot/level_8.txt b/mods/empyrean_campaign/loot/level_8.txt
+index 9a5a11d85a7dbf00567418c25d551780b009f7b8..9b26a031382a476f1ec3ca5c5875ee7e66f35514 100644
+--- a/mods/empyrean_campaign/loot/level_8.txt
++++ b/mods/empyrean_campaign/loot/level_8.txt
+@@ -4,6 +4,7 @@ loot=currency,50,40,50
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=96,13
+diff --git a/mods/empyrean_campaign/loot/level_9.txt b/mods/empyrean_campaign/loot/level_9.txt
+index c5fb9a586ca4d32638a0c5fcc8da1bcea6159acd..acf4482dba02aa27fa7bc8bade6f836666679cd3 100644
+--- a/mods/empyrean_campaign/loot/level_9.txt
++++ b/mods/empyrean_campaign/loot/level_9.txt
+@@ -4,6 +4,7 @@ loot=currency,50,25,35
+ # crafting
+ loot=751,15
+ loot=752,15
++loot=754,15
+ 
+ # normal clothes
+ loot=204,3
+diff --git a/mods/empyrean_campaign/powers/categories/items.txt b/mods/empyrean_campaign/powers/categories/items.txt
+index 8e02a46dafb939f578185a67cf01729b12947bc4..71cbbc764f4c74c43c3e6bdafca4a80a983f8a9e 100644
+--- a/mods/empyrean_campaign/powers/categories/items.txt
++++ b/mods/empyrean_campaign/powers/categories/items.txt
+@@ -145,3 +145,63 @@ cooldown=20s
+ post_effect=reflect_scroll,100,15s
+ post_effect=reflect_scroll_dmg,25,15s
+ remove_effect=shield,0
++
++[power]
++id=269
++type=fixed
++icon=0
++name=Stamina Potion
++soundfx=soundfx/powers/potion.ogg
++new_state=instant
++requires_item=775
++cooldown=500ms
++buff=true
++post_effect=stamina_potion_icon,0,60s
++post_effect=hp_regen,300,60s
++post_effect=mp_regen,30,60s
++post_effect=speed,110,60s
++
++[power]
++id=270
++type=fixed
++icon=0
++name=Restoration Potion
++soundfx=soundfx/powers/potion.ogg
++new_state=instant
++requires_item=776
++cooldown=500ms
++buff=true
++post_effect=hp_restore,25,33ms
++post_effect=mp_restore,25,33ms
++# TODO requires_hpmp_state=any?
++
++[power]
++id=271
++type=fixed
++icon=0
++name=Treasure Potion
++soundfx=soundfx/powers/potion.ogg
++new_state=instant
++requires_item=777
++cooldown=500ms
++buff=true
++post_effect=treasure_potion_icon,0,60s
++post_effect=item_find,400,60s
++post_effect=currency_find,50,60s
++
++[power]
++id=272
++type=fixed
++icon=0
++name=Elemental Potion
++soundfx=soundfx/powers/potion.ogg
++new_state=instant
++requires_item=778
++cooldown=500ms
++buff=true
++post_effect=elemental_potion_icon,0,60s
++post_effect=fire_resist,50,60s
++post_effect=ice_resist,50,60s
++post_effect=lightning_resist,50,60s
++post_effect=dark_resist,50,60s
++
+diff --git a/mods/empyrean_campaign/powers/effects.txt b/mods/empyrean_campaign/powers/effects.txt
+index ed8166e054d94a315a0916e266b56e96e92b68aa..8ffd954b558709450a814609d137d274f0b85fca 100644
+--- a/mods/empyrean_campaign/powers/effects.txt
++++ b/mods/empyrean_campaign/powers/effects.txt
+@@ -151,3 +151,22 @@ can_stack=false
+ id=reflect_scroll_dmg
+ type=return_damage
+ can_stack=false
++
++[effect]
++id=stamina_potion_icon
++name=Stamina Potion
++icon=0
++can_stack=false
++
++[effect]
++id=treasure_potion_icon
++name=Treasure Potion
++icon=0
++can_stack=false
++
++[effect]
++id=elemental_potion_icon
++name=Elemental Potion
++icon=0
++can_stack=false
++
+diff --git a/mods/empyrean_campaign/scripts/crafting/alchemy/add_3.txt b/mods/empyrean_campaign/scripts/crafting/alchemy/add_3.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..23ad37da967f0e25a564ca6633c7dc5c1ec2d4aa
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/crafting/alchemy/add_3.txt
+@@ -0,0 +1,25 @@
++# add Mushrooms
++
++[event]
++requires_status=emp_alchemy_slot1_fill
++requires_status=emp_alchemy_slot2_fill
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_slot3_3
++set_status=emp_alchemy_slot3_fill
++unset_status=emp_alchemy_3
++
++[event]
++requires_status=emp_alchemy_slot1_fill
++requires_not_status=emp_alchemy_slot2_fill
++set_status=emp_alchemy_slot2_3
++set_status=emp_alchemy_slot2_fill
++unset_status=emp_alchemy_3
++
++[event]
++requires_not_status=emp_alchemy_slot1_fill
++set_status=emp_alchemy_slot1_3
++set_status=emp_alchemy_slot1_fill
++unset_status=emp_alchemy_3
++
++[event]
++script=scripts/crafting/alchemy/check_resources.txt
+diff --git a/mods/empyrean_campaign/scripts/crafting/alchemy/check_resources.txt b/mods/empyrean_campaign/scripts/crafting/alchemy/check_resources.txt
+index 19b42ee42f1d822c58d18053cd89c0755829c38e..5a030de3405aec35967e09389afe507ed687bd39 100644
+--- a/mods/empyrean_campaign/scripts/crafting/alchemy/check_resources.txt
++++ b/mods/empyrean_campaign/scripts/crafting/alchemy/check_resources.txt
+@@ -6,6 +6,10 @@ unset_status=emp_alchemy_2
+ unset_status=emp_alchemy_craft
+ unset_status=emp_alchemy_output_0
+ unset_status=emp_alchemy_output_1
++unset_status=emp_alchemy_output_2
++unset_status=emp_alchemy_output_3
++unset_status=emp_alchemy_output_4
++unset_status=emp_alchemy_output_5
+ 
+ # empty bottle
+ [event]
+@@ -31,6 +35,15 @@ requires_not_status=emp_alchemy_slot2_2
+ requires_not_status=emp_alchemy_slot3_2
+ set_status=emp_alchemy_2
+ 
++# mushrooms
++[event]
++requires_item=754
++requires_status=emp_alchemy_slot0_0
++requires_not_status=emp_alchemy_slot1_3
++requires_not_status=emp_alchemy_slot2_3
++requires_not_status=emp_alchemy_slot3_3
++set_status=emp_alchemy_3
++
+ # hp potion recipe
+ [event]
+ requires_item=750
+@@ -53,3 +66,77 @@ requires_not_status=emp_alchemy_slot3_fill
+ set_status=emp_alchemy_output_1
+ set_status=emp_alchemy_craft
+ 
++# stamina potion recipe
++[event]
++requires_item=750
++requires_item=754
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_3
++requires_not_status=emp_alchemy_slot2_fill
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_output_2
++set_status=emp_alchemy_craft
++
++# restoration potion recipe
++[event]
++requires_item=750
++requires_item=751,752
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_1
++requires_status=emp_alchemy_slot2_2
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_output_3
++set_status=emp_alchemy_craft
++
++[event]
++requires_item=750
++requires_item=751,752
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_2
++requires_status=emp_alchemy_slot2_1
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_output_3
++set_status=emp_alchemy_craft
++
++# treasure potion recipe
++[event]
++requires_item=750
++requires_item=751,754
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_1
++requires_status=emp_alchemy_slot2_3
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_output_4
++set_status=emp_alchemy_craft
++
++[event]
++requires_item=750
++requires_item=751,754
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_3
++requires_status=emp_alchemy_slot2_1
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_output_4
++set_status=emp_alchemy_craft
++
++# elemental potion recipe
++[event]
++requires_item=750
++requires_item=752,754
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_2
++requires_status=emp_alchemy_slot2_3
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_output_5
++set_status=emp_alchemy_craft
++
++[event]
++requires_item=750
++requires_item=752,754
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_3
++requires_status=emp_alchemy_slot2_2
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_output_5
++set_status=emp_alchemy_craft
++
+diff --git a/mods/empyrean_campaign/scripts/crafting/alchemy/clear.txt b/mods/empyrean_campaign/scripts/crafting/alchemy/clear.txt
+index 927e10f5dc119720bb36b3cc04c50d48a46a7e6d..1612ef9ae927c7c208135abaab1fb128e6c7091c 100644
+--- a/mods/empyrean_campaign/scripts/crafting/alchemy/clear.txt
++++ b/mods/empyrean_campaign/scripts/crafting/alchemy/clear.txt
+@@ -4,6 +4,7 @@ unset_status=emp_alchemy_slot0_0
+ 
+ unset_status=emp_alchemy_1
+ unset_status=emp_alchemy_2
++unset_status=emp_alchemy_3
+ 
+ unset_status=emp_alchemy_slot1_1
+ unset_status=emp_alchemy_slot2_1
+@@ -11,6 +12,9 @@ unset_status=emp_alchemy_slot3_1
+ unset_status=emp_alchemy_slot1_2
+ unset_status=emp_alchemy_slot2_2
+ unset_status=emp_alchemy_slot3_2
++unset_status=emp_alchemy_slot1_3
++unset_status=emp_alchemy_slot2_3
++unset_status=emp_alchemy_slot3_3
+ 
+ unset_status=emp_alchemy_slot1_fill
+ unset_status=emp_alchemy_slot2_fill
+@@ -19,3 +23,7 @@ unset_status=emp_alchemy_slot3_fill
+ unset_status=emp_alchemy_craft
+ unset_status=emp_alchemy_output_0
+ unset_status=emp_alchemy_output_1
++unset_status=emp_alchemy_output_2
++unset_status=emp_alchemy_output_3
++unset_status=emp_alchemy_output_4
++unset_status=emp_alchemy_output_5
+diff --git a/mods/empyrean_campaign/scripts/crafting/alchemy/craft.txt b/mods/empyrean_campaign/scripts/crafting/alchemy/craft.txt
+index 6444a9bbf5729843d434a7084577e840cc07a0ec..76b0fedf5262f154d8205bae7705849acbe96b91 100644
+--- a/mods/empyrean_campaign/scripts/crafting/alchemy/craft.txt
++++ b/mods/empyrean_campaign/scripts/crafting/alchemy/craft.txt
+@@ -10,5 +10,29 @@ requires_status=emp_alchemy_output_1
+ remove_item=750,752
+ reward_item=3,1
+ 
++# stamina potion
++[event]
++requires_status=emp_alchemy_output_2
++remove_item=750,754
++reward_item=775,1
++
++# restoration potion
++[event]
++requires_status=emp_alchemy_output_3
++remove_item=750,751,752
++reward_item=776,1
++
++# treasure potion
++[event]
++requires_status=emp_alchemy_output_4
++remove_item=750,751,754
++reward_item=777,1
++
++# elemental potion
++[event]
++requires_status=emp_alchemy_output_5
++remove_item=750,752,754
++reward_item=778,1
++
+ [event]
+ script=scripts/crafting/alchemy/check_resources.txt

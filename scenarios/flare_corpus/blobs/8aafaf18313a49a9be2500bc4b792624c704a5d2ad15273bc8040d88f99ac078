@@ -1,0 +1,172 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl1_goblin_runner.txt b/mods/empyrean_campaign/enemies/lvl1_goblin_runner.txt
+index 1486e590eade21c8b2784aef039a9823d4d3ec8c..e98ab343f9d2f5c889a917fa266cde3695aef425 100644
+--- a/mods/empyrean_campaign/enemies/lvl1_goblin_runner.txt
++++ b/mods/empyrean_campaign/enemies/lvl1_goblin_runner.txt
+@@ -1,6 +1,6 @@
+ INCLUDE enemies/base/goblin_runner.txt
+ 
+-name=Goblin Charger
++name=Goblin Runner
+ level=1
+ categories=goblin_charger,goblin,dungeon,grassland
+ rarity=uncommon
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin.txt b/mods/empyrean_campaign/enemies/lvl2_goblin.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..de7de059582ce6361eb742b6ae28608e111edf02
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin.txt
+@@ -0,0 +1,28 @@
++INCLUDE enemies/base/goblin.txt
++
++name=Goblin
++level=2
++categories=goblin,dungeon,grassland
++rarity=common
++xp=2
++
++# combat stats
++hp=100
++speed=2
++melee_range=1.125
++turn_delay=400ms
++chance_pursue=10
++
++power=melee,164,5
++
++accuracy=85
++avoidance=10
++poise=40
++
++dmg_melee_min=40
++dmg_melee_max=45
++cooldown=2000ms
++
++# loot
++loot=loot/level_2.txt
++
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_charger.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_charger.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..9ac09fc79f4007157c74cbf76b2a945fe85a8dde
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_charger.txt
+@@ -0,0 +1,30 @@
++INCLUDE enemies/base/goblin_runner.txt
++
++name=Goblin Charger
++level=2
++categories=goblin_charger,goblin,dungeon,grassland
++rarity=uncommon
++xp=2
++
++# combat stats
++hp=90
++speed=4
++turn_delay=200ms
++chance_pursue=10
++
++power=melee,164,5
++power=melee,168,1
++
++accuracy=90
++avoidance=10
++poise=60
++
++dmg_melee_min=30
++dmg_melee_max=35
++cooldown=1600ms
++absorb_min=1
++absorb_max=1
++
++# loot
++loot=loot/level_2.txt
++
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
+index eae4259dbb9a104572865c0cf8b720a590f46288..a7258caa6ae0c4c839e488fdb23739d5d713b0d6 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
+@@ -8,7 +8,7 @@ xp=5
+ 
+ # combat stats
+ hp=125
+-speed=2
++speed=2.5
+ melee_range=2.375
+ turn_delay=200ms
+ chance_pursue=50
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
+index b347f35e40ebad5ee2437a8ccae2fde1ec91e8ec..5e5022d52d61bfd18cd2449956a87ffb69e2ab36 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
+@@ -3,7 +3,7 @@ INCLUDE enemies/base/goblin.txt
+ name=Goblin Spearman
+ level=2
+ categories=goblin,goblin_spearman,dungeon,grassland
+-rarity=common
++rarity=uncommon
+ xp=2
+ 
+ # combat stats
+diff --git a/mods/empyrean_campaign/enemies/lvl2_krolan.txt b/mods/empyrean_campaign/enemies/lvl2_krolan.txt
+index 9433f8080f69149002f1e2b8c05e68582a6c12de..56fc86a9d02d41609c17d996325cc82fdb2f829d 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_krolan.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_krolan.txt
+@@ -1,4 +1,4 @@
+-INCLUDE enemies/base/skeleton_weak.txt
++INCLUDE enemies/base/skeleton.txt
+ 
+ name=Krolan
+ level=2
+@@ -8,7 +8,7 @@ xp=5
+ 
+ # combat stats
+ hp=135
+-speed=4.5
++speed=3.5
+ turn_delay=400ms
+ chance_pursue=10
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl2_skeleton.txt b/mods/empyrean_campaign/enemies/lvl2_skeleton.txt
+index 662a7ca48a1e71d5e253916deb96dbef890491b0..7dfd09323d159f3ec5305a5fdfb37d1233d62740 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_skeleton.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_skeleton.txt
+@@ -8,7 +8,7 @@ xp=2
+ 
+ # combat stats
+ hp=110
+-speed=4
++speed=3
+ turn_delay=400ms
+ chance_pursue=10
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl2_zombie.txt b/mods/empyrean_campaign/enemies/lvl2_zombie.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..86e2f3b8cb25954f9426e0695da04e0da641c02a
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl2_zombie.txt
+@@ -0,0 +1,26 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Zombie
++level=2
++categories=zombie,undead,dungeon,grassland
++rarity=common
++xp=2
++
++# combat stats
++hp=110
++speed=1.5
++turn_delay=400ms
++chance_pursue=10
++
++power=melee,164,5
++
++accuracy=80
++avoidance=10
++poise=50
++
++dmg_melee_min=45
++dmg_melee_max=50
++cooldown=2400ms
++
++#loot
++loot=loot/level_2.txt

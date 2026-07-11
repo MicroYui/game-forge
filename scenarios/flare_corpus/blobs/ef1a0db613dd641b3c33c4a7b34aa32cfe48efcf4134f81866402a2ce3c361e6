@@ -1,0 +1,210 @@
+diff --git a/mods/empyrean_campaign/powers/base/items/fireball_scroll.txt b/mods/empyrean_campaign/powers/base/items/fireball_scroll.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6c8cc0fc5d3abf330f7e63ec120b5c077f25f0bc
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/base/items/fireball_scroll.txt
+@@ -0,0 +1,18 @@
++type=missile
++icon=74
++new_state=cast
++base_damage=scroll
++modifier_damage=multiply,175,175
++face=true
++directional=true
++animation=animations/powers/fireball.txt
++soundfx=soundfx/powers/fireball.ogg
++use_hazard=true
++aim_assist=true
++lifespan=800ms
++radius=1.0
++speed=16
++trait_elemental=fire
++post_power=158
++wall_power=158
++
+diff --git a/mods/empyrean_campaign/powers/base/items/icebolt_scroll.txt b/mods/empyrean_campaign/powers/base/items/icebolt_scroll.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..ae35b4961a2391d1851e0ed13e207bac58fd48ca
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/base/items/icebolt_scroll.txt
+@@ -0,0 +1,19 @@
++type=missile
++icon=78
++new_state=cast
++base_damage=scroll
++modifier_damage=multiply,150,150
++face=true
++directional=true
++animation=animations/powers/icicle.txt
++soundfx=soundfx/powers/shock.ogg
++use_hazard=true
++aim_assist=true
++lifespan=800ms
++radius=1.0
++speed=16
++trait_elemental=ice
++post_power=159
++wall_power=159
++post_effect=slow_ice,50,8s
++
+diff --git a/mods/empyrean_campaign/powers/base/ranger/shoot.txt b/mods/empyrean_campaign/powers/base/ranger/shoot.txt
+index ab40fb9e173887f3b15b66c39c1eb6217287b086..fb5358f5a8115df85e4ff900d1a70ce48d12786d 100644
+--- a/mods/empyrean_campaign/powers/base/ranger/shoot.txt
++++ b/mods/empyrean_campaign/powers/base/ranger/shoot.txt
+@@ -13,4 +13,5 @@ lifespan=533ms
+ radius=1.0
+ speed=24
+ requires_flags=ranged
+-
++replace_by_effect=289,fireball_scroll,1
++replace_by_effect=291,icebolt_scroll,1
+diff --git a/mods/empyrean_campaign/powers/categories/items.txt b/mods/empyrean_campaign/powers/categories/items.txt
+index cff824e9b2744ac5c9c775a4762871e707148236..4e14975d270fb940ffb61d88a329bcb6bb3dc1c0 100644
+--- a/mods/empyrean_campaign/powers/categories/items.txt
++++ b/mods/empyrean_campaign/powers/categories/items.txt
+@@ -63,52 +63,21 @@ remove_effect=reflect_scroll_dmg,0
+ 
+ [power]
+ id=248
+-type=missile
+-icon=74
+ name=Fireball Scroll
+-description=Use: Shoot a fireball
+-new_state=cast
++description=Use: Shoot a fireball. For a brief time, additional fireballs can be shot by performing a basic attack.
++INCLUDE powers/base/items/fireball_scroll.txt
+ requires_item=414
+-base_damage=scroll
+-modifier_damage=multiply,175,175
+-face=true
+-directional=true
+-animation=animations/powers/fireball.txt
+-soundfx=soundfx/powers/fireball.ogg
+-use_hazard=true
+-aim_assist=true
+-lifespan=800ms
+-radius=1.0
+-speed=16
+-trait_elemental=fire
+-post_power=158
+-wall_power=158
+-cooldown=2s
++pre_power=288
++cooldown=12s
+ 
+ [power]
+ id=249
+-type=missile
+-icon=78
+ name=Ice Bolt Scroll
+-description=Use: Shoot an ice bolt
+-new_state=cast
++description=Use: Shoot an ice bolt. For a brief time, addition ice bolts can be shot by performing a basic attack.
++INCLUDE powers/base/items/icebolt_scroll.txt
+ requires_item=415
+-base_damage=scroll
+-modifier_damage=multiply,150,150
+-face=true
+-directional=true
+-animation=animations/powers/icicle.txt
+-soundfx=soundfx/powers/shock.ogg
+-use_hazard=true
+-aim_assist=true
+-lifespan=800ms
+-radius=1.0
+-speed=16
+-trait_elemental=ice
+-post_power=159
+-wall_power=159
+-post_effect=slow_ice,50,8s
+-cooldown=2s
++pre_power=290
++cooldown=12s
+ 
+ [power]
+ id=250
+@@ -234,3 +203,27 @@ id=286
+ INCLUDE powers/base/items/ultra_mana_potion.txt
+ script=on_cast,scripts/powers/alchemist_skirt/ultra_mp.txt
+ 
++[power]
++id=288
++type=fixed
++new_state=instant
++buff=true
++post_effect=fireball_scroll,0,10s
++remove_effect=icebolt_scroll
++
++[power]
++id=289
++INCLUDE powers/base/items/fireball_scroll.txt
++
++[power]
++id=290
++type=fixed
++new_state=instant
++buff=true
++post_effect=icebolt_scroll,0,10s
++remove_effect=fireball_scroll
++
++[power]
++id=291
++INCLUDE powers/base/items/icebolt_scroll.txt
++
+diff --git a/mods/empyrean_campaign/powers/categories/magician.txt b/mods/empyrean_campaign/powers/categories/magician.txt
+index eb87c70743daae1997ecfacdcf7874c12cd88bb1..678936a559e035349c8990e6e690ea6d30ef597c 100644
+--- a/mods/empyrean_campaign/powers/categories/magician.txt
++++ b/mods/empyrean_campaign/powers/categories/magician.txt
+@@ -20,6 +20,8 @@ lifespan=266ms
+ radius=1.0
+ speed=12
+ starting_pos=melee
++replace_by_effect=289,fireball_scroll,1
++replace_by_effect=291,icebolt_scroll,1
+ 
+ 
+ 
+diff --git a/mods/empyrean_campaign/powers/categories/warrior.txt b/mods/empyrean_campaign/powers/categories/warrior.txt
+index 4327d393d81d649d838f33b873a6f0a8fc1f556e..cb796c82dbb9cf7eeb9a80baf31f4337a49a312a 100644
+--- a/mods/empyrean_campaign/powers/categories/warrior.txt
++++ b/mods/empyrean_campaign/powers/categories/warrior.txt
+@@ -16,6 +16,8 @@ lifespan=33ms
+ radius=1.0
+ starting_pos=melee
+ aim_assist=true
++replace_by_effect=289,fireball_scroll,1
++replace_by_effect=291,icebolt_scroll,1
+ 
+ 
+ 
+diff --git a/mods/empyrean_campaign/powers/effects.txt b/mods/empyrean_campaign/powers/effects.txt
+index 2dfe58d7dffa37c6a3fe65042fe507e6c1367584..9a9831160cee82fd9db8bdd12e80324f24a5438d 100644
+--- a/mods/empyrean_campaign/powers/effects.txt
++++ b/mods/empyrean_campaign/powers/effects.txt
+@@ -184,3 +184,15 @@ name=Elemental Potion
+ icon=4
+ can_stack=false
+ 
++[effect]
++id=fireball_scroll
++name=Fireball Scroll
++icon=74
++can_stack=false
++
++[effect]
++id=icebolt_scroll
++name=Ice Bolt Scroll
++icon=78
++can_stack=false
++
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 78c44f79534360e4c11da1d4bd7a19369db2bb4f..f29becaabf145dbd814aa12c2a4a6ee327e3c766 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.13.01
+ game=flare-game
+-version=1.13.03
++version=1.13.04
+ engine_version_min=1.13.12

@@ -1,0 +1,2686 @@
+diff --git a/mods/empyrean_campaign/cutscenes/ending.txt b/mods/empyrean_campaign/cutscenes/ending.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6da6b4d2cabe444235a6256971eb5cd9e1783f1e
+--- /dev/null
++++ b/mods/empyrean_campaign/cutscenes/ending.txt
+@@ -0,0 +1,32 @@
++caption_margins=5,5
++caption_background=0,0,0,200
++music=music/unrest_theme.ogg
++
++[scene]
++image=images/menus/backgrounds/badlands.png,1
++caption=At long last, your journey across the surface and into the Underworld has come to an end.
++pause=8s
++caption=Upon entering The Pit, a glowing obelisk shined in the distance.
++pause=8s
++caption=Guarding the obelisk was Leziath, a formidable opponent, yet no match for Exiled who faced her.
++pause=8s
++caption=With Leziath's defeat, the path to the obelisk was clear.
++pause=8s
++image=images/cutscenes/obelisk.png,1
++caption=Not a moment after Leziath crumbles into a pile of bones, a bolt of lightning strikes the obelisk.
++pause=8s
++caption=Did Leziath cast a spell on the obelisk with her dying breath? Had Empyrean finally collapsed?
++pause=8s
++image=images/cutscenes/arrival.png,1
++caption=Maybe it's true what they say. No one returns from the surface. Most die or go missing. A few hide and survive, for a while.
++pause=8s
++caption=Even the Exiled.
++pause=8s
++
++INCLUDE cutscenes/credits.txt
++
++[vscroll]
++text=And a very special thanks to...
++text=You!
++
++separator=64
+diff --git a/mods/empyrean_campaign/enemies/lvl15_antlion_shivering.txt b/mods/empyrean_campaign/enemies/lvl15_antlion_shivering.txt
+index 0a04068de5cd681669b789cfde81b816277e9b42..c952a3b635fc9bc824bbf65497affa75c8f22986 100644
+--- a/mods/empyrean_campaign/enemies/lvl15_antlion_shivering.txt
++++ b/mods/empyrean_campaign/enemies/lvl15_antlion_shivering.txt
+@@ -2,7 +2,7 @@ INCLUDE enemies/base/antlion_ice.txt
+ 
+ name=Shivering Antlion
+ level=15
+-categories=antlion,dungeon
++categories=antlion,dungeon,can_heal
+ rarity=uncommon
+ xp=32768
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl15_hobgoblin.txt b/mods/empyrean_campaign/enemies/lvl15_hobgoblin.txt
+index 2a96b33e5f1102191147e4c8e8e589d337ae364e..3b9432f20ccef3014720ad9d8d7235eee3d5e9b1 100644
+--- a/mods/empyrean_campaign/enemies/lvl15_hobgoblin.txt
++++ b/mods/empyrean_campaign/enemies/lvl15_hobgoblin.txt
+@@ -2,7 +2,7 @@ INCLUDE enemies/base/hobgoblin.txt
+ 
+ name=Hobgoblin
+ level=15
+-categories=goblin,dungeon,grassland
++categories=goblin,dungeon,grassland,can_heal
+ rarity=common
+ xp=32768
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl15_hobgoblin_archer.txt b/mods/empyrean_campaign/enemies/lvl15_hobgoblin_archer.txt
+index 13f088415a110905de12d04901986f718086475b..f605cb34ca10acbe73fc1ab95dfb1fa7f97ab5e8 100644
+--- a/mods/empyrean_campaign/enemies/lvl15_hobgoblin_archer.txt
++++ b/mods/empyrean_campaign/enemies/lvl15_hobgoblin_archer.txt
+@@ -2,7 +2,7 @@ INCLUDE enemies/base/hobgoblin_archer.txt
+ 
+ name=Hobgoblin Archer
+ level=15
+-categories=goblin,goblin_archer,dungeon,grassland
++categories=goblin,goblin_archer,dungeon,grassland,can_heal
+ rarity=uncommon
+ xp=32768
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl15_skeleton_guardian.txt b/mods/empyrean_campaign/enemies/lvl15_skeleton_guardian.txt
+index fceb83345bc8ee7452efdc16764959fadab6f977..63c8c8d7cd6eaab72c6c1498a428849f584e8838 100644
+--- a/mods/empyrean_campaign/enemies/lvl15_skeleton_guardian.txt
++++ b/mods/empyrean_campaign/enemies/lvl15_skeleton_guardian.txt
+@@ -2,7 +2,7 @@ INCLUDE enemies/base/skeleton.txt
+ 
+ name=Skeleton Guardian
+ level=15
+-categories=skeleton_knight,skeleton,undead,dungeon
++categories=skeleton_knight,skeleton,undead,dungeon,can_heal
+ rarity=uncommon
+ xp=32768
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl15_spawn_antlion_shivering.txt b/mods/empyrean_campaign/enemies/lvl15_spawn_antlion_shivering.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..fcc6663bb990213a46bcd27e605c6bffaec22f64
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl15_spawn_antlion_shivering.txt
+@@ -0,0 +1,4 @@
++INCLUDE enemies/lvl15_antlion_shivering.txt
++
++categories=lvl15_dungeon,can_heal
++passive_powers=194
+diff --git a/mods/empyrean_campaign/enemies/lvl15_spawn_hobgoblin.txt b/mods/empyrean_campaign/enemies/lvl15_spawn_hobgoblin.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..731475b1ed9c7709512327bac6f3ba0cba092dbd
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl15_spawn_hobgoblin.txt
+@@ -0,0 +1,4 @@
++INCLUDE enemies/lvl15_hobgoblin.txt
++
++categories=lvl15_dungeon,can_heal
++passive_powers=194
+diff --git a/mods/empyrean_campaign/enemies/lvl15_spawn_hobgoblin_archer.txt b/mods/empyrean_campaign/enemies/lvl15_spawn_hobgoblin_archer.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..48b42c86b06cce6069a43275e2a745a23f6cb216
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl15_spawn_hobgoblin_archer.txt
+@@ -0,0 +1,4 @@
++INCLUDE enemies/lvl15_hobgoblin_archer.txt
++
++categories=lvl15_dungeon,can_heal
++passive_powers=194
+diff --git a/mods/empyrean_campaign/enemies/lvl15_spawn_skeleton_guardian.txt b/mods/empyrean_campaign/enemies/lvl15_spawn_skeleton_guardian.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6645392f39c18793ecd47b75230121703f1c7592
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl15_spawn_skeleton_guardian.txt
+@@ -0,0 +1,4 @@
++INCLUDE enemies/lvl15_skeleton_guardian.txt
++
++categories=lvl15_dungeon,can_heal
++passive_powers=185,194
+diff --git a/mods/empyrean_campaign/enemies/lvl15_spawn_wyvern_ancient.txt b/mods/empyrean_campaign/enemies/lvl15_spawn_wyvern_ancient.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..a0ff710a315f996b71dff63f37fa08068e5a73f6
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl15_spawn_wyvern_ancient.txt
+@@ -0,0 +1,4 @@
++INCLUDE enemies/lvl15_wyvern_ancient.txt
++
++categories=lvl15_dungeon,can_heal
++passive_powers=194
+diff --git a/mods/empyrean_campaign/enemies/lvl15_wyvern_ancient.txt b/mods/empyrean_campaign/enemies/lvl15_wyvern_ancient.txt
+index 3122b1794110bbb83625de9fa9396e6df9dea884..d1b6b4ce5eef4e13046d2437dcb97862239efe8b 100644
+--- a/mods/empyrean_campaign/enemies/lvl15_wyvern_ancient.txt
++++ b/mods/empyrean_campaign/enemies/lvl15_wyvern_ancient.txt
+@@ -2,7 +2,7 @@ INCLUDE enemies/base/wyvern.txt
+ 
+ name=Ancient Wyvern
+ level=15
+-categories=wyvern,wyvern_normal,dungeon
++categories=wyvern,wyvern_normal,dungeon,can_heal
+ rarity=common
+ xp=32768
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl16_forgotten_grave.txt b/mods/empyrean_campaign/enemies/lvl16_forgotten_grave.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..aef117b2b88a1004b7a0ebeb46ff1ec4ba51e284
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl16_forgotten_grave.txt
+@@ -0,0 +1,21 @@
++INCLUDE enemies/base/grave.txt
++
++name=Forgotten Grave
++level=16
++xp=65536
++categories=forgotten_grave
++
++# combat stats
++stat=hp,1700
++stat=poise,100
++
++power=melee,262,100
++power=ranged,262,100
++passive_powers=170
++
++cooldown=2250ms
++
++# loot
++loot=loot/level_16.txt
++loot_count=1,2
++
+diff --git a/mods/empyrean_campaign/enemies/lvl16_lezaith.txt b/mods/empyrean_campaign/enemies/lvl16_lezaith.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..0485bd195d7555a8eb4d42168014c92a294dcfb0
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl16_lezaith.txt
+@@ -0,0 +1,63 @@
++INCLUDE enemies/base/skeleton_mage.txt
++animations=animations/enemies/skeleton_mage_high_boss.txt
++
++name=Lezaith
++level=16
++categories=lezaith
++xp=262144
++
++defeat_status=emp_lezaith_defeated
++
++# combat stats
++stat=hp,13280
++speed=4.7
++turn_delay=200ms
++
++passive_powers=185
++
++stat=accuracy,165
++stat=avoidance,90
++stat=poise,55
++
++stat=absorb_min,15
++stat=absorb_max,15
++
++stat=dmg_melee_min,260
++stat=dmg_melee_max,265
++stat=dmg_ment_min,270
++stat=dmg_ment_max,275
++
++cooldown=1175ms
++
++# treasure chest key
++quest_loot=emp_pit_init,emp_pit_key,1030
++
++# loot
++loot=loot/level_16.txt
++loot_count=8
++
++# Underworld Armament part 3
++loot=427,1
++loot=428,1
++loot=429,1
++
++# Ranged units behaviour, see docs/ranged_behavior.txt
++chance_pursue=5
++chance_flee=20
++flee_duration=1s
++flee_cooldown=1s
++flee_range=8
++threat_range=10,20
++power=melee,164,2
++power=melee,179,5
++power=melee,183,2
++power=melee,263,1
++power=melee,264,1
++power=melee,265,1
++power=melee,266,1
++power=melee,267,1
++power=ranged,263,50
++power=ranged,264,50
++power=ranged,265,50
++power=ranged,266,50
++power=ranged,267,50
+diff --git a/mods/empyrean_campaign/images/cutscenes/obelisk.png b/mods/empyrean_campaign/images/cutscenes/obelisk.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..74d7af115f159abf800f46cfd1f85175c86baf7f
+GIT binary patch
+literal 51754
+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
+A6aWAK
+
+literal 0
+HcmV?d00001
+
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+index cdbc762366eff6f2564980e36a808895514b1a1a..8b1c728063373b3ea1d7ab95a5f330b69b0bb4c5 100644
+--- a/mods/empyrean_campaign/items/categories/quest.txt
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -287,6 +287,15 @@ quality=unique
+ item_type=key
+ pickup_status=emp_stronghold2_key
+ 
++[item]
++id=1030
++name=Treasure Chest Key
++INCLUDE items/base/misc/key.txt
++quest_item=true
++quality=unique
++item_type=key
++pickup_status=emp_pit_key
++
+ ### Main quest items
+ [item]
+ id=1100
+diff --git a/mods/empyrean_campaign/maps/perdition_harbor.txt b/mods/empyrean_campaign/maps/perdition_harbor.txt
+index 22329b2aa3007d4f26c88d094f3827bbe15618dd..b30d3504f094aeb1a7d45876be1be023eb5be6ce 100644
+--- a/mods/empyrean_campaign/maps/perdition_harbor.txt
++++ b/mods/empyrean_campaign/maps/perdition_harbor.txt
+@@ -316,6 +316,16 @@ requires_status=emp_main_knife
+ reward_xp=51200
+ set_status=emp_main_reward3
+ 
++[event]
++# ending cutscene
++type=event
++location=14,37,1,1
++activate=on_load
++cutscene=cutscenes/ending.txt
++requires_not_status=empyrean_ending
++requires_status=emp_main_finish
++set_status=empyrean_ending
++
+ [npc]
+ type=npc
+ location=25,8,1,1
+diff --git a/mods/empyrean_campaign/maps/the_pit.txt b/mods/empyrean_campaign/maps/the_pit.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..bd99a30859d18fdcb7692e28d2d9891569e4c974
+--- /dev/null
++++ b/mods/empyrean_campaign/maps/the_pit.txt
+@@ -0,0 +1,566 @@
++[header]
++width=80
++height=80
++tilewidth=64
++tileheight=32
++orientation=isometric
++background_color=0,0,0,255
++hero_pos=71,71
++music=music/wind_ambient.ogg
++parallax_layers=maps/parallax/fog.txt
++tileset=tilesetdefs/tileset_cave.txt
++title=The Pit
++
++[tilesets]
++tileset=../../../tiled/cave/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/cave/tiled_cave.png,64,128,0,0
++tileset=../../../tiled/cave/set_rules.png,64,32,0,0
++tileset=../../../tiled/cave/tiled_cave_2x2.png,128,64,0,16
++
++[layer]
++type=background
++data=
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,18,19,16,17,18,19,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,21,22,23,20,21,51,23,20,57,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,24,25,49,27,24,25,26,27,24,25,26,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,31,28,29,30,31,28,29,30,31,28,29,30,31,57,0,0,0,0,0,0,31,28,29,30,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,19,16,17,18,19,16,17,53,19,16,17,18,19,16,57,0,0,0,0,18,19,53,49,18,19,57,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,22,23,20,21,22,57,0,0,22,23,20,21,22,23,20,21,22,23,20,21,22,23,20,21,57,23,20,21,22,49,20,21,22,23,20,21,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,24,25,26,55,24,25,26,27,57,25,26,27,24,25,26,53,24,25,51,27,24,25,26,27,24,25,26,27,24,25,54,27,24,25,26,27,24,25,26,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,31,28,54,30,31,28,29,30,31,28,51,30,31,28,54,30,31,28,29,54,31,28,29,52,31,28,29,30,31,28,29,30,31,28,29,30,31,28,29,49,31,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,18,19,16,17,18,19,16,17,18,19,16,17,18,19,16,17,18,19,16,17,18,19,16,17,18,19,16,17,18,48,16,17,18,19,16,17,18,19,16,17,18,19,16,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,22,23,20,21,48,23,20,21,22,23,20,21,22,23,20,21,22,23,20,52,22,23,20,21,22,23,20,21,22,23,20,21,22,23,20,21,22,23,20,21,22,23,20,21,57,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,54,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,30,31,49,29,30,31,28,29,30,0,0,0,0,56,28,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,201,197,193,206,28,29,30,31,28,29,30,31,51,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,18,19,16,17,18,19,16,17,0,0,0,0,0,0,56,17,18,19,16,17,18,19,55,17,54,19,55,17,18,201,193,197,193,193,209,217,216,210,193,193,202,19,16,17,18,19,16,17,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,21,22,23,20,21,48,23,20,21,0,0,0,0,0,0,0,0,56,23,52,21,22,23,20,21,22,23,20,201,193,209,218,219,218,219,218,219,218,219,218,219,198,23,20,21,22,23,20,21,22,57,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,24,25,53,27,24,25,26,27,24,25,0,0,0,0,0,0,0,0,0,56,24,25,52,27,24,25,26,27,52,192,216,217,216,217,216,217,216,217,216,217,216,217,198,27,24,25,26,27,55,49,26,27,24,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,28,29,30,31,28,29,30,31,28,29,0,0,0,0,0,0,0,0,0,0,56,29,30,31,28,29,30,31,28,204,208,219,218,219,218,219,218,219,218,219,211,199,207,31,28,29,30,50,28,29,30,31,28,29,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,16,17,18,19,16,17,18,19,16,17,57,0,0,0,0,0,0,0,0,0,16,17,18,19,16,17,18,19,16,17,192,217,216,217,216,217,216,217,216,217,194,17,18,19,16,17,18,19,16,17,18,19,16,52,18,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,20,21,22,23,20,21,22,23,20,21,22,0,0,0,0,0,0,0,0,0,20,21,22,23,55,21,22,23,20,21,200,208,218,219,218,219,218,219,218,219,198,21,22,23,20,21,22,23,20,21,22,49,20,21,22,54,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,56,55,26,27,24,25,26,27,24,25,26,57,0,0,0,0,0,0,0,27,24,25,26,27,24,25,26,27,24,25,26,200,208,217,216,217,216,217,216,211,203,25,26,27,24,25,26,27,24,25,26,27,24,25,26,50,24,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,56,30,49,28,29,53,31,28,29,30,31,0,0,0,0,0,0,0,31,28,29,30,31,28,29,30,31,28,29,30,31,196,219,218,219,218,219,211,203,28,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,28,29,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,56,52,19,16,17,18,19,16,48,18,19,57,0,0,0,0,17,18,19,16,17,52,19,16,17,18,54,16,50,18,19,200,208,216,217,211,195,203,19,51,17,18,19,16,17,18,19,0,0,0,0,56,17,18,19,51,17,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,56,23,20,21,22,23,20,21,22,23,20,57,22,23,20,21,53,23,20,21,51,23,20,54,22,23,20,21,22,23,53,204,199,199,207,21,22,23,20,21,22,23,20,21,0,0,0,0,0,0,0,56,22,23,20,21,22,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,56,24,25,26,27,24,25,26,27,24,25,26,27,24,55,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,0,0,0,0,0,0,0,0,56,50,24,25,26,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,56,30,31,28,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,53,29,30,31,28,53,30,31,28,29,30,31,28,29,30,31,28,29,30,31,28,0,0,0,0,0,0,0,0,0,30,48,28,29,30,31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,56,16,17,18,19,16,17,18,19,16,17,18,19,16,53,18,19,16,17,18,51,16,17,18,19,16,17,18,19,16,17,18,19,16,17,18,19,0,0,0,0,0,0,0,0,0,0,18,19,50,17,18,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,23,20,21,22,23,20,21,22,23,20,21,22,23,55,21,22,23,20,21,55,23,20,21,51,23,20,21,22,23,49,21,22,23,0,0,0,0,0,0,0,0,0,21,22,55,20,21,22,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,51,26,27,24,25,26,27,0,0,0,0,0,0,0,0,0,25,53,27,24,25,26,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,0,0,0,0,0,0,0,0,0,29,30,31,28,29,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,18,19,16,17,18,19,16,17,18,19,16,17,18,19,16,17,18,19,16,17,18,19,57,57,0,0,0,0,0,0,0,17,18,19,16,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,20,21,22,23,20,21,22,23,20,21,22,23,20,21,22,23,20,21,22,23,20,55,57,0,0,0,0,0,0,21,52,23,20,21,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,25,26,27,24,25,26,27,0,0,0,56,24,25,26,27,24,25,26,27,24,25,52,57,0,0,0,0,0,25,53,27,24,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,28,29,30,31,28,29,30,0,0,0,0,0,0,0,0,56,28,29,30,31,49,29,30,31,57,29,30,31,28,29,30,31,28,29,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,17,18,19,16,17,18,0,0,0,0,0,0,0,0,0,56,17,18,19,16,17,18,19,16,17,18,19,16,51,18,49,16,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,23,20,21,48,23,20,21,0,0,0,0,0,0,0,0,0,0,0,0,56,23,20,21,22,23,20,21,22,23,20,21,22,23,20,21,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,24,25,26,27,24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,25,26,27,24,51,26,27,24,25,26,27,24,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,31,28,29,30,31,28,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,30,31,28,29,30,31,28,29,30,31,28,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,19,16,17,18,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,16,17,18,19,16,17,18,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,23,20,21,22,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,21,22,23,20,21,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,27,24,25,26,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,31,28,29,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,19,16,17,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,23,20,21,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,27,24,25,26,0,0,0,0,0,0,0,0,0,0,0,0,27,24,25,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,31,28,29,30,0,0,0,0,0,0,0,0,0,28,29,30,31,28,29,30,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,19,16,48,18,0,0,0,0,0,0,0,0,19,16,51,18,19,16,17,49,19,57,17,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,23,20,21,22,57,0,0,0,0,0,0,22,23,50,21,22,23,20,21,22,23,20,21,48,57,20,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,27,51,25,26,27,57,0,0,0,0,0,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,57,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,31,28,29,30,31,28,57,0,0,0,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,16,17,18,19,16,17,57,19,16,17,18,19,16,17,18,0,0,56,18,19,16,17,18,19,16,17,18,19,16,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,53,22,23,50,21,22,23,20,21,22,23,20,21,22,0,0,0,56,23,20,21,22,23,20,21,48,23,20,21,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,49,27,24,25,26,27,24,25,26,27,24,25,0,0,0,0,0,0,0,0,0,56,24,25,26,27,24,25,26,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,31,28,29,30,31,28,29,30,31,28,0,0,0,0,0,0,0,0,0,0,0,0,56,30,31,28,29,30,31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,16,17,18,19,16,17,18,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,19,16,17,18,19,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,20,21,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,20,21,22,23,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,24,25,26,27,24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,31,28,29,30,31,28,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,19,16,17,18,19,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,23,20,21,22,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,27,24,25,26,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,31,28,29,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,19,16,17,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,23,20,49,22,57,0,0,0,0,0,0,0,23,20,57,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,27,24,25,26,27,57,25,26,27,24,25,26,27,0,0,57,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,50,29,30,31,28,29,30,31,28,29,30,54,265,0,30,57,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,16,17,18,19,16,17,18,19,16,17,18,19,16,17,53,19,57,57,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,21,22,23,20,21,22,23,20,21,22,23,20,21,22,23,20,21,57,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,57,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,30,49,28,29,30,31,48,29,30,31,57,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,18,19,16,17,18,19,16,17,18,19,16,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,23,20,21,22,23,20,21,22,23,20,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,24,25,26,27,50,25,26,27,24,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,31,28,29,30,31,28,29,30,31,28,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,16,17,18,48,16,17,18,19,16,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,21,22,50,20,21,22,23,20,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,25,26,27,24,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,30,31,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
++
++[layer]
++type=object
++data=
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,72,113,109,97,101,65,109,69,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,76,84,133,0,0,0,0,0,0,121,97,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,98,103,134,0,0,0,0,0,161,0,0,0,121,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,132,0,0,0,0,0,0,0,0,0,0,0,117,77,0,0,0,0,0,114,65,65,113,97,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,72,80,151,0,82,83,0,0,0,0,0,0,82,83,0,81,73,0,0,0,102,80,0,0,0,0,117,69,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,72,69,97,65,113,97,73,0,112,153,0,0,119,103,0,0,0,0,0,0,81,115,0,0,117,65,113,97,99,0,0,0,0,0,0,0,81,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,102,101,80,0,0,0,0,0,85,113,80,150,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,85,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,98,103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,114,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,119,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,96,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,113,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,83,0,0,0,0,0,0,82,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,121,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,100,0,0,0,0,0,0,0,0,82,67,71,67,87,0,0,121,80,0,0,0,0,0,0,81,99,0,0,144,146,0,0,0,0,133,132,0,0,0,0,0,0,0,0,0,0,0,117,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,68,0,0,0,0,0,0,0,82,74,0,0,0,75,118,0,0,0,0,0,0,0,0,0,0,0,0,144,148,0,0,0,0,134,0,0,0,0,0,133,0,0,0,0,0,0,0,0,81,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,76,80,0,0,0,0,0,0,0,66,0,0,0,0,0,75,67,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,132,0,0,0,82,83,0,0,0,121,101,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,72,84,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,75,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,115,0,0,0,0,153,85,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,112,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,75,116,0,0,0,0,0,0,0,0,135,0,0,0,0,0,151,0,0,0,0,0,0,0,0,0,0,132,0,0,0,0,0,0,152,117,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,100,0,0,0,0,0,0,0,0,0,117,77,0,0,0,0,0,0,0,0,96,0,0,0,0,0,82,83,0,133,0,0,0,0,0,0,0,0,0,0,0,149,144,0,0,0,0,0,0,0,0,0,0,0,150,117,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,64,0,0,0,0,82,120,0,0,0,0,66,0,0,0,0,0,0,0,0,100,0,0,0,0,0,117,80,0,0,134,0,0,0,0,0,0,0,0,150,0,151,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,96,0,0,0,0,81,99,132,0,0,0,119,77,0,0,0,0,0,0,102,115,132,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,85,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,75,83,0,0,0,0,0,135,0,0,0,0,66,0,0,0,0,0,0,96,149,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,132,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,112,0,0,0,0,0,0,0,0,0,0,85,77,0,0,0,102,65,115,135,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,135,0,0,0,0,0,0,0,0,0,82,71,67,67,83,0,0,0,0,0,121,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,75,83,0,0,0,0,0,0,0,0,0,0,121,65,65,69,84,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,67,74,0,0,0,75,87,0,0,0,0,0,81,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,75,87,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,70,0,0,0,0,0,0,75,118,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,75,67,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,86,78,0,0,0,0,0,0,0,64,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,75,71,87,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,78,0,0,0,0,0,0,0,0,96,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,79,71,71,87,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,70,0,0,0,0,0,0,0,0,102,103,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,67,67,67,71,67,67,71,67,118,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,112,0,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,100,0,0,0,0,0,82,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,87,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,119,113,73,0,0,0,0,0,0,68,0,0,0,0,86,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,71,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,77,0,0,0,0,0,96,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,116,0,0,0,0,0,0,0,82,71,71,118,0,0,0,0,0,0,0,0,0,0,0,117,73,0,0,0,0,100,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,0,0,0,0,0,0,82,78,0,0,75,67,71,71,120,0,0,0,0,0,0,0,0,81,69,97,113,65,84,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,0,0,0,0,0,70,0,0,0,0,0,0,0,75,118,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,114,80,0,0,0,0,0,82,78,0,0,0,0,0,0,0,0,79,71,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,0,0,0,0,0,82,78,0,0,0,0,0,0,0,0,0,0,0,75,67,87,0,0,0,0,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,112,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,118,0,0,0,0,0,0,0,0,0,0,0,86,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,72,103,0,0,0,0,82,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,67,118,0,0,0,0,0,0,0,0,82,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,83,0,0,0,0,0,86,71,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,112,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,67,67,71,71,67,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,0,0,0,0,86,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,83,0,0,86,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,72,99,0,0,85,77,0,0,0,0,0,0,0,0,0,0,0,98,65,113,101,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,0,0,0,0,70,0,0,0,0,0,0,0,0,72,69,97,99,146,144,148,81,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,0,0,0,0,70,0,0,0,0,0,0,0,114,103,0,0,0,0,0,0,147,85,113,69,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,0,0,0,0,81,77,0,0,0,0,0,102,103,0,0,0,0,0,0,0,0,0,0,0,119,65,65,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,147,0,0,0,0,85,77,0,0,0,0,96,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,85,97,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,149,0,0,0,0,0,81,77,0,0,98,103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,146,81,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,116,144,0,0,0,0,0,81,65,65,99,0,0,0,0,0,82,67,120,0,0,0,0,0,0,0,0,0,0,0,81,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,87,0,0,0,0,0,0,150,153,0,0,0,0,0,0,66,0,75,116,0,0,0,0,0,0,0,0,0,0,0,81,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,120,0,0,0,0,0,0,0,0,0,0,0,0,86,74,0,0,75,71,67,71,71,87,0,0,0,0,0,0,0,117,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,83,0,0,0,0,0,0,0,0,0,0,86,74,0,0,0,0,0,0,0,0,75,67,120,0,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,116,0,0,0,0,0,0,0,0,86,74,0,0,0,0,0,0,0,0,0,0,0,75,87,0,0,0,0,0,119,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,67,71,71,120,0,0,0,86,78,0,0,0,0,0,0,0,0,0,0,0,0,0,75,118,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,71,67,67,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,102,99,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,0,0,0,0,0,82,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,112,133,0,0,0,86,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,132,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,112,0,0,0,0,117,73,0,0,0,0,0,0,102,65,101,73,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,151,0,0,0,0,121,69,69,97,101,65,97,103,0,0,117,77,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,120,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,77,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,150,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,121,101,73,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,149,119,77,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,118,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,147,121,77,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,71,67,71,67,67,67,67,118,0,0,0,0,0,0,0,0,0,0,121,73,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,0,0,0,0,0,0,0,0,0,0,0,66,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,120,0,0,0,0,0,0,0,0,0,0,66,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,116,0,0,0,0,0,0,0,0,0,66,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,0,144,148,0,0,0,0,0,0,66,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,0,146,0,0,0,0,0,0,70,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,116,0,0,0,0,151,0,0,0,66,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,67,71,67,116,153,0,0,0,70,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,116,0,0,82,74,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,71,67,74,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
++
++[layer]
++type=collision
++data=
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,4,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,4,0,1,1,0,0,0,0,0,0,1,1,0,1,1,3,3,3,1,1,0,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,3,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,0,4,4,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,1,0,0,0,0,0,0,0,1,1,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,4,1,2,2,2,2,2,2,4,4,2,2,2,2,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,1,1,0,0,0,0,0,0,0,1,3,3,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,2,2,2,4,4,4,4,4,4,4,4,4,4,2,0,0,0,1,1,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,1,1,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,2,4,4,4,4,4,4,4,4,4,4,4,4,2,0,0,0,1,1,0,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,1,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,2,2,4,4,4,4,4,4,4,4,4,2,2,2,0,0,0,0,0,0,0,0,0,0,4,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,1,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,1,0,0,2,4,4,4,4,4,4,4,4,4,2,1,4,0,0,0,0,0,0,0,0,0,0,0,4,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,1,0,0,0,0,1,1,0,0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,1,0,0,2,2,4,4,4,4,4,4,4,4,2,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,1,0,0,0,0,1,1,0,0,0,0,1,1,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,2,2,4,4,4,4,4,4,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,2,4,4,4,4,4,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,4,4,2,2,2,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,1,1,1,3,3,3,1,1,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,1,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,3,3,3,3,3,3,1,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,1,1,3,3,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,1,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,1,1,1,1,4,4,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,4,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,4,0,0,0,0,1,1,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,1,1,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,4,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,4,1,0,0,0,0,0,0,1,3,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,3,3,3,3,3,3,1,1,1,1,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,4,0,0,0,0,1,1,1,1,1,1,1,1,0,0,1,1,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,1,1,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,4,1,0,0,0,0,0,0,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,4,0,0,0,0,0,0,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,4,0,0,0,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,0,0,0,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,1,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
++
++[event]
++# activate trap
++type=event
++location=27,39,5,2
++activate=on_trigger
++mapmod=collision,28,43,1;collision,29,43,1;collision,28,44,1;collision,29,44,1;object,27,44,97;object,28,44,65;object,29,44,69;object,30,44,65;object,27,43,67;object,28,43,67;object,29,43,67;object,30,43,67
++music=music/boss_theme.ogg
++repeat=false
++requires_not_status=emp_lezaith_defeated
++shakycam=2s
++soundfx=soundfx/powers/quake.ogg
++
++[event]
++# to Underworld Stronghold: Barracks
++type=event
++location=68,64,2,2
++activate=on_trigger
++hotspot=location
++intermap=maps/underworld_stronghold_2.txt,12,34
++soundfx=soundfx/environment/teleporter.ogg,0,0
++tooltip=Underworld Stronghold: Barracks
++
++[event]
++# screen shake after fall
++type=event
++location=3,0,1,1
++activate=on_load
++repeat=false
++requires_status=emp_pit_fall
++shakycam=500ms
++unset_status=emp_pit_fall
++
++[event]
++# Cave wind sound effect
++type=event
++location=0,0,1,1
++activate=on_load
++soundfx=soundfx/environment/cave_wind_loop.ogg
++
++[event]
++# Water dripping
++type=event
++location=66,66,1,1
++activate=on_load
++soundfx=soundfx/environment/cave_droplets_loop.ogg
++
++[event]
++# Water dripping
++type=event
++location=44,48,1,1
++activate=on_load
++soundfx=soundfx/environment/cave_droplets_loop.ogg
++
++[event]
++# Water dripping
++type=event
++location=28,49,1,1
++activate=on_load
++soundfx=soundfx/environment/cave_droplets_loop.ogg
++
++[event]
++# Water dripping
++type=event
++location=38,22,1,1
++activate=on_load
++soundfx=soundfx/environment/cave_droplets_loop.ogg
++
++[event]
++# Water dripping
++type=event
++location=42,15,1,1
++activate=on_load
++soundfx=soundfx/environment/cave_droplets_loop.ogg
++
++[event]
++# Water dripping
++type=event
++location=58,29,1,1
++activate=on_load
++soundfx=soundfx/environment/cave_droplets_loop.ogg
++
++[event]
++# Water dripping
++type=event
++location=42,6,1,1
++activate=on_load
++soundfx=soundfx/environment/cave_droplets_loop.ogg
++
++[event]
++# Water dripping
++type=event
++location=25,19,1,1
++activate=on_load
++soundfx=soundfx/environment/cave_droplets_loop.ogg
++
++[event]
++# Water dripping
++type=event
++location=5,18,1,1
++activate=on_load
++soundfx=soundfx/environment/cave_droplets_loop.ogg
++
++[event]
++# set init status
++type=event
++location=1,0,1,1
++activate=on_load
++repeat=false
++requires_not_status=emp_pit_init
++set_status=emp_pit_init
++
++[event]
++# locked chest
++type=event
++location=27,4,1,1
++activate=on_trigger
++cooldown=1s
++hotspot=location
++msg=It's locked.
++requires_not_item=1030
++requires_not_status=emp_pit_chest,emp_pit_key
++tooltip=Treasure Chest
++
++[event]
++# unlock chest
++type=event
++location=27,0,1,1
++activate=on_trigger
++hotspot=27,4,1,1
++loot=loot/level_16.txt
++loot_count=8,12
++mapmod=object,27,4,177
++remove_item=1030
++repeat=false
++requires_item=1030
++requires_not_status=emp_pit_chest
++requires_status=emp_pit_key
++set_status=emp_pit_chest
++soundfx=soundfx/wood_open.ogg
++tooltip=Treasure Chest
++unset_status=emp_pit_key
++
++[event]
++# lighting effect on obelisk
++type=event
++location=20,3,12,8
++activate=on_trigger
++power=207
++power_path=24,4
++repeat=false
++requires_not_status=emp_main_finish
++requires_status=emp_lezaith_defeated
++shakycam=2s
++
++[event]
++# set main quest status
++type=event
++location=5,0,1,1
++activate=on_load
++repeat=false
++requires_not_status=emp_main_pit
++set_status=emp_main_pit
++
++[event]
++# chest open
++type=event
++location=4,0,1,1
++activate=on_load
++mapmod=object,27,4,177
++requires_not_status=emp_lezaith_respawn
++requires_status=emp_pit_chest
++
++[event]
++# reset statuses
++type=event
++location=2,0,1,1
++activate=on_load
++requires_status=emp_lezaith_respawn
++unset_status=emp_lezaith_defeated,emp_pit_chest
++
++[enemy]
++type=enemy
++location=7,21,1,1
++category=forgotten_grave
++number=1
++
++[enemy]
++type=enemy
++location=41,7,1,1
++category=forgotten_grave
++number=1
++
++[enemy]
++type=enemy
++location=58,19,1,1
++category=forgotten_grave
++number=1
++
++[enemy]
++type=enemy
++location=14,8,1,1
++category=forgotten_grave
++number=1
++
++[enemy]
++type=enemy
++location=9,13,1,1
++category=forgotten_grave
++number=1
++
++[enemy]
++type=enemy
++location=18,25,1,1
++category=forgotten_grave
++number=1
++
++[enemy]
++type=enemy
++location=40,29,1,1
++category=forgotten_grave
++number=1
++
++[enemy]
++type=enemy
++location=49,16,1,1
++category=forgotten_grave
++number=1
++
++[enemy]
++type=enemy
++location=52,34,1,1
++category=forgotten_grave
++number=1
++
++[enemy]
++type=enemy
++location=29,7,1,1
++category=forgotten_grave
++number=1
++
++[enemy]
++type=enemy
++location=33,21,1,1
++category=forgotten_grave
++number=1
++
++[enemy]
++type=enemy
++location=26,24,1,1
++category=forgotten_grave
++number=1
++
++[enemy]
++type=enemy
++location=24,13,1,1
++category=forgotten_grave
++number=1
++
++[enemy]
++type=enemy
++location=1,8,22,18
++category=dungeon
++level=15
++number=4
++
++[enemy]
++type=enemy
++location=37,6,30,33
++category=dungeon
++level=15
++number=6
++
++[enemy]
++# Lezaith (first encounter)
++type=enemy
++location=27,11,1,1
++category=lezaith
++level=16
++number=1
++requires_not_status=emp_lezaith_respawn,emp_lezaith_defeated
++
++[enemy]
++# Lezaith (respawn)
++type=enemy
++location=27,11,1,1
++category=lezaith
++level=16
++number=1
++requires_status=emp_lezaith_respawn
++
++[npc]
++type=npc
++location=24,4,1,1
++filename=npcs/glowing_obelisk_4.txt
++
+diff --git a/mods/empyrean_campaign/maps/underworld_stronghold_2.txt b/mods/empyrean_campaign/maps/underworld_stronghold_2.txt
+index 902b8a054a27b18830fe86c47793883f48068c97..b0988927d9377b8daf3803b30eedcc613815f0e4 100644
+--- a/mods/empyrean_campaign/maps/underworld_stronghold_2.txt
++++ b/mods/empyrean_campaign/maps/underworld_stronghold_2.txt
+@@ -1671,7 +1671,8 @@ tooltip=Halls of Infinity
+ type=event
+ location=12,20,4,3
+ activate=on_trigger
+-intermap=maps/the_pit.txt,0,0
++intermap=maps/the_pit.txt,71,71
++set_status=emp_pit_fall
+ 
+ [enemy]
+ type=enemy
+diff --git a/mods/empyrean_campaign/npcs/glowing_obelisk_4.txt b/mods/empyrean_campaign/npcs/glowing_obelisk_4.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..338c6924fc8ce38cadd5fb8ae31e18f0fbdbd804
+--- /dev/null
++++ b/mods/empyrean_campaign/npcs/glowing_obelisk_4.txt
+@@ -0,0 +1,19 @@
++name=Glowing Obelisk
++
++# animation info
++gfx=animations/npcs/return_obelisk2.txt
++
++talker=true
++
++[dialog]
++topic=Teleport
++requires_not_status=emp_lezaith_defeated
++him=(You touch the obelisk, but nothing happens.)
++
++[dialog]
++topic=Teleport
++requires_status=emp_lezaith_defeated
++soundfx=soundfx/environment/teleporter.ogg,0,0
++intermap=maps/perdition_harbor.txt,15,23
++set_status=emp_lezaith_respawn
++set_status=emp_main_finish
+diff --git a/mods/empyrean_campaign/powers/categories/enemy.txt b/mods/empyrean_campaign/powers/categories/enemy.txt
+index 057b8d27d517bfbe9521d76c1c5ac5f3c23d6289..39c29872aad5a5e3ca0626af6954f172feb8add2 100644
+--- a/mods/empyrean_campaign/powers/categories/enemy.txt
++++ b/mods/empyrean_campaign/powers/categories/enemy.txt
+@@ -967,6 +967,7 @@ soundfx=soundfx/powers/heal.ogg
+ post_effect=hp_restore,50,33ms
+ post_effect=heal_animation,0,600ms
+ cooldown=5s
++target_categories=can_heal
+ 
+ # ice quake
+ [power]
+@@ -1052,3 +1053,134 @@ angle_variance=2
+ speed_variance=0.05
+ missile_angle=5
+ starting_pos=source
++
++# Forgotten Grave spawn power
++[power]
++id=262
++type=spawn
++spawn_type=lvl15_dungeon
++new_state=cast
++starting_pos=source
++target_neighbor=1
++soundfx=soundfx/powers/teleport.ogg
++spawn_limit=fixed,10
++requires_empty_target=true
++cooldown=10s
++
++# Lezaith's knife barrage
++[power]
++id=263
++type=missile
++new_state=cast
++face=true
++directional=true
++animation=animations/powers/throw_knife.txt
++use_hazard=true
++aim_assist=true
++base_damage=melee
++lifespan=800ms
++radius=1.0
++speed=12
++modifier_damage=multiply,90,0
++modifier_accuracy=multiply,90,0
++count=8
++angle_variance=20
++speed_variance=0.05
++
++# Lezaith's tri-Fire
++[power]
++id=264
++type=missile
++new_state=cast
++face=true
++directional=true
++requires_los=true
++animation=animations/powers/fireball.txt
++soundfx=soundfx/powers/fireball.ogg
++use_hazard=true
++aim_assist=true
++base_damage=ment
++lifespan=866ms
++radius=1.0
++speed=15
++trait_elemental=fire
++post_power=158
++wall_power=158
++modifier_damage=multiply,105,0
++modifier_accuracy=multiply,75,0
++count=3
++angle_variance=6
++speed_variance=0.1
++
++# Lezaith's tri-Ice
++[power]
++id=265
++type=missile
++new_state=cast
++face=true
++directional=true
++requires_los=true
++animation=animations/powers/icicle.txt
++soundfx=soundfx/powers/shock.ogg
++use_hazard=true
++aim_assist=true
++base_damage=ment
++lifespan=866ms
++radius=1.0
++speed=15
++trait_elemental=ice
++post_power=159
++wall_power=159
++post_effect=slow,50,2s
++modifier_accuracy=multiply,75,0
++count=3
++angle_variance=6
++speed_variance=0.1
++
++# Lezaith's tri-Lightning
++[power]
++id=266
++type=missile
++new_state=cast
++face=true
++directional=false
++animation=animations/powers/lightning.txt
++soundfx=soundfx/powers/shock.ogg
++use_hazard=true
++aim_assist=true
++base_damage=ment
++lifespan=800ms
++radius=1.0
++speed=16
++trait_elemental=lightning
++trait_crits_impaired=25
++post_power=159
++wall_power=159
++modifier_accuracy=multiply,75,0
++count=3
++angle_variance=6
++speed_variance=0.1
++
++# Lezaith's tri-Dark
++[power]
++id=267
++type=missile
++new_state=cast
++face=true
++directional=false
++animation=animations/powers/plasmaball.txt
++soundfx=soundfx/powers/shock.ogg
++use_hazard=true
++aim_assist=true
++base_damage=ment
++lifespan=866ms
++radius=1.0
++speed=15
++trait_elemental=dark
++modifier_accuracy=multiply,125,0
++post_power=160
++wall_power=160
++count=3
++angle_variance=6
++speed_variance=0.1
++
+diff --git a/mods/empyrean_campaign/quests/000_empyrean.txt b/mods/empyrean_campaign/quests/000_empyrean.txt
+index 3114046f9424199629738a53ae495120aa718262..eb902a2e14174682e3db446fa2d07ef66c0b7328 100644
+--- a/mods/empyrean_campaign/quests/000_empyrean.txt
++++ b/mods/empyrean_campaign/quests/000_empyrean.txt
+@@ -71,5 +71,10 @@ quest_text=Make your way to the Underworld. A portal to the Underworld was locat
+ 
+ [quest]
+ requires_status=emp_main_stronghold
++requires_not_status=emp_main_pit
+ quest_text=You've found a stronghold in the Underworld. If there is a way back to Empyrean, it is through here.
+ 
++[quest]
++requires_status=emp_main_pit
++requires_not_status=emp_main_finish
++quest_text=Face what awaits you in The Pit.
+diff --git a/tiled/empyrean_campaign/perdition_harbor.tmx b/tiled/empyrean_campaign/perdition_harbor.tmx
+index cf578b55ed77915e9f2cf40ef8fa7b28d5498d2e..f67c76c51396c71ac40b843a5f6552c5188c60e6 100644
+--- a/tiled/empyrean_campaign/perdition_harbor.tmx
++++ b/tiled/empyrean_campaign/perdition_harbor.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="40" height="40" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="32">
++<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="40" height="40" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="33">
+  <properties>
+   <property name="hero_pos" value="2,24"/>
+   <property name="music" value="music/unrest_theme.ogg"/>
+@@ -308,6 +308,15 @@
+     <property name="set_status" value="emp_main_reward3"/>
+    </properties>
+   </object>
++  <object id="32" name="ending cutscene" type="event" x="448" y="1184" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="cutscene" value="cutscenes/ending.txt"/>
++    <property name="requires_not_status" value="empyrean_ending"/>
++    <property name="requires_status" value="emp_main_finish"/>
++    <property name="set_status" value="empyrean_ending"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="npc">
+   <object id="5" type="npc" x="800" y="256" width="32" height="32">
+diff --git a/tiled/empyrean_campaign/the_pit.tmx b/tiled/empyrean_campaign/the_pit.tmx
+new file mode 100644
+index 0000000000000000000000000000000000000000..e3d08f6ec0e4c29cd9017649508c91fa261caa28
+--- /dev/null
++++ b/tiled/empyrean_campaign/the_pit.tmx
+@@ -0,0 +1,554 @@
++<?xml version="1.0" encoding="UTF-8"?>
++<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="80" height="80" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="45">
++ <properties>
++  <property name="hero_pos" value="71,71"/>
++  <property name="music" value="music/wind_ambient.ogg"/>
++  <property name="parallax_layers" value="maps/parallax/fog.txt"/>
++  <property name="tileset" value="tilesetdefs/tileset_cave.txt"/>
++  <property name="title" value="The Pit"/>
++ </properties>
++ <tileset firstgid="1" name="collision" tilewidth="64" tileheight="32" tilecount="15" columns="15">
++  <image source="../cave/tiled_collision.png" width="960" height="32"/>
++ </tileset>
++ <tileset firstgid="16" name="cave" tilewidth="64" tileheight="128" tilecount="240" columns="16">
++  <image source="../cave/tiled_cave.png" width="1024" height="1920"/>
++ </tileset>
++ <tileset firstgid="256" name="set_rules" tilewidth="64" tileheight="32" tilecount="8" columns="2">
++  <image source="../cave/set_rules.png" width="128" height="128"/>
++ </tileset>
++ <tileset firstgid="264" name="tiled_cave_2x2" tilewidth="128" tileheight="64" tilecount="2" columns="2">
++  <tileoffset x="0" y="16"/>
++  <image source="../cave/tiled_cave_2x2.png" width="256" height="64"/>
++ </tileset>
++ <layer name="background" width="80" height="80">
++  <data encoding="csv">
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,17,18,19,16,17,18,19,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,20,21,22,23,20,21,51,23,20,57,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,24,25,49,27,24,25,26,27,24,25,26,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,31,28,29,30,31,28,29,30,31,28,29,30,31,57,0,0,0,0,0,0,31,28,29,30,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,19,16,17,18,19,16,17,53,19,16,17,18,19,16,57,0,0,0,0,18,19,53,49,18,19,57,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,22,23,20,21,22,57,0,0,22,23,20,21,22,23,20,21,22,23,20,21,22,23,20,21,57,23,20,21,22,49,20,21,22,23,20,21,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,24,25,26,55,24,25,26,27,57,25,26,27,24,25,26,53,24,25,51,27,24,25,26,27,24,25,26,27,24,25,54,27,24,25,26,27,24,25,26,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,31,28,54,30,31,28,29,30,31,28,51,30,31,28,54,30,31,28,29,54,31,28,29,52,31,28,29,30,31,28,29,30,31,28,29,30,31,28,29,49,31,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,18,19,16,17,18,19,16,17,18,19,16,17,18,19,16,17,18,19,16,17,18,19,16,17,18,19,16,17,18,48,16,17,18,19,16,17,18,19,16,17,18,19,16,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,22,23,20,21,48,23,20,21,22,23,20,21,22,23,20,21,22,23,20,52,22,23,20,21,22,23,20,21,22,23,20,21,22,23,20,21,22,23,20,21,22,23,20,21,57,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,54,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,30,31,49,29,30,31,28,29,30,0,0,0,0,56,28,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,201,197,193,206,28,29,30,31,28,29,30,31,51,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,18,19,16,17,18,19,16,17,0,0,0,0,0,0,56,17,18,19,16,17,18,19,55,17,54,19,55,17,18,201,193,197,193,193,209,217,216,210,193,193,202,19,16,17,18,19,16,17,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,21,22,23,20,21,48,23,20,21,0,0,0,0,0,0,0,0,56,23,52,21,22,23,20,21,22,23,20,201,193,209,218,219,218,219,218,219,218,219,218,219,198,23,20,21,22,23,20,21,22,57,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,24,25,53,27,24,25,26,27,24,25,0,0,0,0,0,0,0,0,0,56,24,25,52,27,24,25,26,27,52,192,216,217,216,217,216,217,216,217,216,217,216,217,198,27,24,25,26,27,55,49,26,27,24,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,28,29,30,31,28,29,30,31,28,29,0,0,0,0,0,0,0,0,0,0,56,29,30,31,28,29,30,31,28,204,208,219,218,219,218,219,218,219,218,219,211,199,207,31,28,29,30,50,28,29,30,31,28,29,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,16,17,18,19,16,17,18,19,16,17,57,0,0,0,0,0,0,0,0,0,16,17,18,19,16,17,18,19,16,17,192,217,216,217,216,217,216,217,216,217,194,17,18,19,16,17,18,19,16,17,18,19,16,52,18,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,20,21,22,23,20,21,22,23,20,21,22,0,0,0,0,0,0,0,0,0,20,21,22,23,55,21,22,23,20,21,200,208,218,219,218,219,218,219,218,219,198,21,22,23,20,21,22,23,20,21,22,49,20,21,22,54,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,56,55,26,27,24,25,26,27,24,25,26,57,0,0,0,0,0,0,0,27,24,25,26,27,24,25,26,27,24,25,26,200,208,217,216,217,216,217,216,211,203,25,26,27,24,25,26,27,24,25,26,27,24,25,26,50,24,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,56,30,49,28,29,53,31,28,29,30,31,0,0,0,0,0,0,0,31,28,29,30,31,28,29,30,31,28,29,30,31,196,219,218,219,218,219,211,203,28,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,28,29,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,56,52,19,16,17,18,19,16,48,18,19,57,0,0,0,0,17,18,19,16,17,52,19,16,17,18,54,16,50,18,19,200,208,216,217,211,195,203,19,51,17,18,19,16,17,18,19,0,0,0,0,56,17,18,19,51,17,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,56,23,20,21,22,23,20,21,22,23,20,57,22,23,20,21,53,23,20,21,51,23,20,54,22,23,20,21,22,23,53,204,199,199,207,21,22,23,20,21,22,23,20,21,0,0,0,0,0,0,0,56,22,23,20,21,22,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,56,24,25,26,27,24,25,26,27,24,25,26,27,24,55,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,0,0,0,0,0,0,0,0,56,50,24,25,26,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,56,30,31,28,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,53,29,30,31,28,53,30,31,28,29,30,31,28,29,30,31,28,29,30,31,28,0,0,0,0,0,0,0,0,0,30,48,28,29,30,31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,56,16,17,18,19,16,17,18,19,16,17,18,19,16,53,18,19,16,17,18,51,16,17,18,19,16,17,18,19,16,17,18,19,16,17,18,19,0,0,0,0,0,0,0,0,0,0,18,19,50,17,18,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,23,20,21,22,23,20,21,22,23,20,21,22,23,55,21,22,23,20,21,55,23,20,21,51,23,20,21,22,23,49,21,22,23,0,0,0,0,0,0,0,0,0,21,22,55,20,21,22,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,51,26,27,24,25,26,27,0,0,0,0,0,0,0,0,0,25,53,27,24,25,26,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,0,0,0,0,0,0,0,0,0,29,30,31,28,29,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,18,19,16,17,18,19,16,17,18,19,16,17,18,19,16,17,18,19,16,17,18,19,57,57,0,0,0,0,0,0,0,17,18,19,16,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,20,21,22,23,20,21,22,23,20,21,22,23,20,21,22,23,20,21,22,23,20,55,57,0,0,0,0,0,0,21,52,23,20,21,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,25,26,27,24,25,26,27,0,0,0,56,24,25,26,27,24,25,26,27,24,25,52,57,0,0,0,0,0,25,53,27,24,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,28,29,30,31,28,29,30,0,0,0,0,0,0,0,0,56,28,29,30,31,49,29,30,31,57,29,30,31,28,29,30,31,28,29,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,17,18,19,16,17,18,0,0,0,0,0,0,0,0,0,56,17,18,19,16,17,18,19,16,17,18,19,16,51,18,49,16,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,23,20,21,48,23,20,21,0,0,0,0,0,0,0,0,0,0,0,0,56,23,20,21,22,23,20,21,22,23,20,21,22,23,20,21,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,24,25,26,27,24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,25,26,27,24,51,26,27,24,25,26,27,24,25,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,31,28,29,30,31,28,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,30,31,28,29,30,31,28,29,30,31,28,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,19,16,17,18,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,16,17,18,19,16,17,18,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,23,20,21,22,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,21,22,23,20,21,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,27,24,25,26,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,31,28,29,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,19,16,17,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,23,20,21,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,27,24,25,26,0,0,0,0,0,0,0,0,0,0,0,0,27,24,25,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,31,28,29,30,0,0,0,0,0,0,0,0,0,28,29,30,31,28,29,30,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,19,16,48,18,0,0,0,0,0,0,0,0,19,16,51,18,19,16,17,49,19,57,17,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,23,20,21,22,57,0,0,0,0,0,0,22,23,50,21,22,23,20,21,22,23,20,21,48,57,20,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,27,51,25,26,27,57,0,0,0,0,0,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,57,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,31,28,29,30,31,28,57,0,0,0,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,28,29,30,31,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,16,17,18,19,16,17,57,19,16,17,18,19,16,17,18,0,0,56,18,19,16,17,18,19,16,17,18,19,16,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,53,22,23,50,21,22,23,20,21,22,23,20,21,22,0,0,0,56,23,20,21,22,23,20,21,48,23,20,21,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,49,27,24,25,26,27,24,25,26,27,24,25,0,0,0,0,0,0,0,0,0,56,24,25,26,27,24,25,26,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,31,28,29,30,31,28,29,30,31,28,0,0,0,0,0,0,0,0,0,0,0,0,56,30,31,28,29,30,31,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,16,17,18,19,16,17,18,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,19,16,17,18,19,57,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,20,21,22,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,20,21,22,23,20,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,27,24,25,26,27,24,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,31,28,29,30,31,28,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,19,16,17,18,19,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,23,20,21,22,23,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,26,27,24,25,26,27,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,30,31,28,29,30,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,18,19,16,17,18,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,22,23,20,49,22,57,0,0,0,0,0,0,0,23,20,57,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,27,24,25,26,27,57,25,26,27,24,25,26,27,0,0,57,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,50,29,30,31,28,29,30,31,28,29,30,54,265,0,30,57,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,16,17,18,19,16,17,18,19,16,17,18,19,16,17,53,19,57,57,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,21,22,23,20,21,22,23,20,21,22,23,20,21,22,23,20,21,57,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,26,27,24,25,26,27,24,25,26,27,24,25,26,27,24,25,26,57,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,30,49,28,29,30,31,48,29,30,31,57,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,18,19,16,17,18,19,16,17,18,19,16,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,23,20,21,22,23,20,21,22,23,20,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,24,25,26,27,50,25,26,27,24,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,31,28,29,30,31,28,29,30,31,28,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,16,17,18,48,16,17,18,19,16,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,21,22,50,20,21,22,23,20,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,25,26,27,24,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,56,30,31,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
++</data>
++ </layer>
++ <layer name="object" width="80" height="80">
++  <data encoding="csv">
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,72,113,109,97,101,65,109,69,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,76,84,133,0,0,0,0,0,0,121,97,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,98,103,134,0,0,0,0,0,161,0,0,0,121,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,132,0,0,0,0,0,0,0,0,0,0,0,117,77,0,0,0,0,0,114,65,65,113,97,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,72,80,151,0,82,83,0,0,0,0,0,0,82,83,0,81,73,0,0,0,102,80,0,0,0,0,117,69,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,72,69,97,65,113,97,73,0,112,153,0,0,119,103,0,0,0,0,0,0,81,115,0,0,117,65,113,97,99,0,0,0,0,0,0,0,81,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,102,101,80,0,0,0,0,0,85,113,80,150,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,85,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,98,103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,114,80,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,119,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,96,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,113,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,83,0,0,0,0,0,0,82,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,121,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,100,0,0,0,0,0,0,0,0,82,67,71,67,87,0,0,121,80,0,0,0,0,0,0,81,99,0,0,144,146,0,0,0,0,133,132,0,0,0,0,0,0,0,0,0,0,0,117,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,68,0,0,0,0,0,0,0,82,74,0,0,0,75,118,0,0,0,0,0,0,0,0,0,0,0,0,144,148,0,0,0,0,134,0,0,0,0,0,133,0,0,0,0,0,0,0,0,81,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,76,80,0,0,0,0,0,0,0,66,0,0,0,0,0,75,67,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,132,0,0,0,82,83,0,0,0,121,101,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,72,84,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,75,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,115,0,0,0,0,153,85,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,112,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,75,116,0,0,0,0,0,0,0,0,135,0,0,0,0,0,151,0,0,0,0,0,0,0,0,0,0,132,0,0,0,0,0,0,152,117,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,100,0,0,0,0,0,0,0,0,0,117,77,0,0,0,0,0,0,0,0,96,0,0,0,0,0,82,83,0,133,0,0,0,0,0,0,0,0,0,0,0,149,144,0,0,0,0,0,0,0,0,0,0,0,150,117,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,64,0,0,0,0,82,120,0,0,0,0,66,0,0,0,0,0,0,0,0,100,0,0,0,0,0,117,80,0,0,134,0,0,0,0,0,0,0,0,150,0,151,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,96,0,0,0,0,81,99,132,0,0,0,119,77,0,0,0,0,0,0,102,115,132,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,85,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,75,83,0,0,0,0,0,135,0,0,0,0,66,0,0,0,0,0,0,96,149,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,132,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,112,0,0,0,0,0,0,0,0,0,0,85,77,0,0,0,102,65,115,135,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,135,0,0,0,0,0,0,0,0,0,82,71,67,67,83,0,0,0,0,0,121,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,75,83,0,0,0,0,0,0,0,0,0,0,121,65,65,69,84,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,67,74,0,0,0,75,87,0,0,0,0,0,81,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,75,87,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,70,0,0,0,0,0,0,75,118,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,75,67,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,86,78,0,0,0,0,0,0,0,64,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,75,71,87,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,78,0,0,0,0,0,0,0,0,96,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,79,71,71,87,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,70,0,0,0,0,0,0,0,0,102,103,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,67,67,67,71,67,67,71,67,118,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,112,0,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,100,0,0,0,0,0,82,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,87,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,119,113,73,0,0,0,0,0,0,68,0,0,0,0,86,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,71,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,77,0,0,0,0,0,96,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,116,0,0,0,0,0,0,0,82,71,71,118,0,0,0,0,0,0,0,0,0,0,0,117,73,0,0,0,0,100,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,0,0,0,0,0,0,82,78,0,0,75,67,71,71,120,0,0,0,0,0,0,0,0,81,69,97,113,65,84,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,0,0,0,0,0,70,0,0,0,0,0,0,0,75,118,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,114,80,0,0,0,0,0,82,78,0,0,0,0,0,0,0,0,79,71,83,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,0,0,0,0,0,82,78,0,0,0,0,0,0,0,0,0,0,0,75,67,87,0,0,0,0,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,112,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,118,0,0,0,0,0,0,0,0,0,0,0,86,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,72,103,0,0,0,0,82,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,67,118,0,0,0,0,0,0,0,0,82,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,83,0,0,0,0,0,86,71,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,112,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,67,67,71,71,67,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,0,0,0,0,86,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,83,0,0,86,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,72,99,0,0,85,77,0,0,0,0,0,0,0,0,0,0,0,98,65,113,101,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,0,0,0,0,70,0,0,0,0,0,0,0,0,72,69,97,99,146,144,148,81,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,0,0,0,0,70,0,0,0,0,0,0,0,114,103,0,0,0,0,0,0,147,85,113,69,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,0,0,0,0,81,77,0,0,0,0,0,102,103,0,0,0,0,0,0,0,0,0,0,0,119,65,65,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,147,0,0,0,0,85,77,0,0,0,0,96,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,85,97,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,149,0,0,0,0,0,81,77,0,0,98,103,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,146,81,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,116,144,0,0,0,0,0,81,65,65,99,0,0,0,0,0,82,67,120,0,0,0,0,0,0,0,0,0,0,0,81,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,87,0,0,0,0,0,0,150,153,0,0,0,0,0,0,66,0,75,116,0,0,0,0,0,0,0,0,0,0,0,81,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,120,0,0,0,0,0,0,0,0,0,0,0,0,86,74,0,0,75,71,67,71,71,87,0,0,0,0,0,0,0,117,77,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,83,0,0,0,0,0,0,0,0,0,0,86,74,0,0,0,0,0,0,0,0,75,67,120,0,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,116,0,0,0,0,0,0,0,0,86,74,0,0,0,0,0,0,0,0,0,0,0,75,87,0,0,0,0,0,119,73,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,67,71,71,120,0,0,0,86,78,0,0,0,0,0,0,0,0,0,0,0,0,0,75,118,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,71,67,67,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,102,99,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,0,0,0,0,0,82,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,112,133,0,0,0,86,74,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,132,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,112,0,0,0,0,117,73,0,0,0,0,0,0,102,65,101,73,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,151,0,0,0,0,121,69,69,97,101,65,97,103,0,0,117,77,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,120,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,81,77,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,150,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,121,101,73,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,116,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,149,119,77,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,118,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,147,121,77,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,71,67,71,67,67,67,67,118,0,0,0,0,0,0,0,0,0,0,121,73,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,0,0,0,0,0,0,0,0,0,0,0,66,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,120,0,0,0,0,0,0,0,0,0,0,66,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,116,0,0,0,0,0,0,0,0,0,66,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,0,144,148,0,0,0,0,0,0,66,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,0,0,146,0,0,0,0,0,0,70,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,79,116,0,0,0,0,151,0,0,0,66,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,67,71,67,116,153,0,0,0,70,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,116,0,0,82,74,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,75,71,67,74,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
++</data>
++ </layer>
++ <layer name="collision" width="80" height="80">
++  <data encoding="csv">
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,4,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,4,0,1,1,0,0,0,0,0,0,1,1,0,1,1,3,3,3,1,1,0,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,3,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,0,1,1,1,1,1,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,1,1,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0,0,0,0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,1,1,0,0,0,0,0,0,1,1,0,0,4,4,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,1,0,0,0,0,0,0,0,1,1,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,4,1,2,2,2,2,2,2,4,4,2,2,2,2,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,1,1,0,0,0,0,0,0,0,1,3,3,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,2,2,2,4,4,4,4,4,4,4,4,4,4,2,0,0,0,1,1,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,1,1,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,2,4,4,4,4,4,4,4,4,4,4,4,4,2,0,0,0,1,1,0,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,1,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,2,2,4,4,4,4,4,4,4,4,4,2,2,2,0,0,0,0,0,0,0,0,0,0,4,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,1,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,1,0,0,2,4,4,4,4,4,4,4,4,4,2,1,4,0,0,0,0,0,0,0,0,0,0,0,4,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,1,0,0,0,0,1,1,0,0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,1,0,0,2,2,4,4,4,4,4,4,4,4,2,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,1,0,0,0,0,1,1,0,0,0,0,1,1,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,2,2,4,4,4,4,4,4,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,2,4,4,4,4,4,2,2,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,4,4,2,2,2,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,1,1,1,3,3,3,1,1,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,1,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,3,3,3,3,3,3,1,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,1,1,3,3,1,1,1,1,1,0,0,0,0,0,0,0,0,1,1,1,1,1,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,1,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,1,1,1,1,4,4,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,4,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,4,0,0,0,0,1,1,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,1,1,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,4,0,0,0,0,0,1,1,1,1,0,0,0,0,0,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,4,1,0,0,0,0,0,0,1,3,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,1,1,1,1,1,1,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,1,1,1,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,3,3,3,3,3,3,1,1,1,1,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,4,0,0,0,0,1,1,1,1,1,1,1,1,0,0,1,1,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,4,1,1,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,0,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,0,0,0,0,0,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,4,1,0,0,0,0,0,0,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,4,0,0,0,0,0,0,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,0,0,4,0,0,0,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,0,0,0,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,0,0,1,1,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
++</data>
++ </layer>
++ <objectgroup name="event">
++  <object id="1" name="activate trap" type="event" x="864" y="1248" width="160" height="64">
++   <properties>
++    <property name="activate" value="on_trigger"/>
++    <property name="mapmod" value="collision,28,43,1;collision,29,43,1;collision,28,44,1;collision,29,44,1;object,27,44,97;object,28,44,65;object,29,44,69;object,30,44,65;object,27,43,67;object,28,43,67;object,29,43,67;object,30,43,67"/>
++    <property name="music" value="music/boss_theme.ogg"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_lezaith_defeated"/>
++    <property name="shakycam" value="2s"/>
++    <property name="soundfx" value="soundfx/powers/quake.ogg"/>
++   </properties>
++  </object>
++  <object id="2" name="to Underworld Stronghold: Barracks" type="event" x="2176" y="2048" width="64" height="64">
++   <properties>
++    <property name="activate" value="on_trigger"/>
++    <property name="hotspot" value="location"/>
++    <property name="intermap" value="maps/underworld_stronghold_2.txt,12,34"/>
++    <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
++    <property name="tooltip" value="Underworld Stronghold: Barracks"/>
++   </properties>
++  </object>
++  <object id="3" name="screen shake after fall" type="event" x="96" y="0" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_status" value="emp_pit_fall"/>
++    <property name="shakycam" value="500ms"/>
++    <property name="unset_status" value="emp_pit_fall"/>
++   </properties>
++  </object>
++  <object id="4" name="Cave wind sound effect" type="event" x="0" y="0" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="soundfx" value="soundfx/environment/cave_wind_loop.ogg"/>
++   </properties>
++  </object>
++  <object id="5" name="Water dripping" type="event" x="2112" y="2112" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="soundfx" value="soundfx/environment/cave_droplets_loop.ogg"/>
++   </properties>
++  </object>
++  <object id="6" name="Water dripping" type="event" x="1408" y="1536" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="soundfx" value="soundfx/environment/cave_droplets_loop.ogg"/>
++   </properties>
++  </object>
++  <object id="7" name="Water dripping" type="event" x="896" y="1568" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="soundfx" value="soundfx/environment/cave_droplets_loop.ogg"/>
++   </properties>
++  </object>
++  <object id="8" name="Water dripping" type="event" x="1216" y="704" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="soundfx" value="soundfx/environment/cave_droplets_loop.ogg"/>
++   </properties>
++  </object>
++  <object id="13" name="Water dripping" type="event" x="1344" y="480" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="soundfx" value="soundfx/environment/cave_droplets_loop.ogg"/>
++   </properties>
++  </object>
++  <object id="14" name="Water dripping" type="event" x="1856" y="928" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="soundfx" value="soundfx/environment/cave_droplets_loop.ogg"/>
++   </properties>
++  </object>
++  <object id="15" name="Water dripping" type="event" x="1344" y="192" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="soundfx" value="soundfx/environment/cave_droplets_loop.ogg"/>
++   </properties>
++  </object>
++  <object id="16" name="Water dripping" type="event" x="800" y="608" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="soundfx" value="soundfx/environment/cave_droplets_loop.ogg"/>
++   </properties>
++  </object>
++  <object id="17" name="Water dripping" type="event" x="160" y="576" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="soundfx" value="soundfx/environment/cave_droplets_loop.ogg"/>
++   </properties>
++  </object>
++  <object id="37" name="set init status" type="event" x="32" y="0" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_pit_init"/>
++    <property name="set_status" value="emp_pit_init"/>
++   </properties>
++  </object>
++  <object id="39" name="locked chest" type="event" x="864" y="128" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_trigger"/>
++    <property name="cooldown" value="1s"/>
++    <property name="hotspot" value="location"/>
++    <property name="msg" value="It's locked."/>
++    <property name="requires_not_item" value="1030"/>
++    <property name="requires_not_status" value="emp_pit_chest,emp_pit_key"/>
++    <property name="tooltip" value="Treasure Chest"/>
++   </properties>
++  </object>
++  <object id="40" name="unlock chest" type="event" x="864" y="0" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_trigger"/>
++    <property name="hotspot" value="27,4,1,1"/>
++    <property name="loot" value="loot/level_16.txt"/>
++    <property name="loot_count" value="8,12"/>
++    <property name="mapmod" value="object,27,4,177"/>
++    <property name="remove_item" value="1030"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_item" value="1030"/>
++    <property name="requires_not_status" value="emp_pit_chest"/>
++    <property name="requires_status" value="emp_pit_key"/>
++    <property name="set_status" value="emp_pit_chest"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Treasure Chest"/>
++    <property name="unset_status" value="emp_pit_key"/>
++   </properties>
++  </object>
++  <object id="41" name="lighting effect on obelisk" type="event" x="640" y="96" width="384" height="256">
++   <properties>
++    <property name="activate" value="on_trigger"/>
++    <property name="power" value="207"/>
++    <property name="power_path" value="24,4"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_main_finish"/>
++    <property name="requires_status" value="emp_lezaith_defeated"/>
++    <property name="shakycam" value="2s"/>
++   </properties>
++  </object>
++  <object id="42" name="set main quest status" type="event" x="160" y="0" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_main_pit"/>
++    <property name="set_status" value="emp_main_pit"/>
++   </properties>
++  </object>
++  <object id="43" name="chest open" type="event" x="128" y="0" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="mapmod" value="object,27,4,177"/>
++    <property name="requires_not_status" value="emp_lezaith_respawn"/>
++    <property name="requires_status" value="emp_pit_chest"/>
++   </properties>
++  </object>
++  <object id="44" name="reset statuses" type="event" x="64" y="0" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="requires_status" value="emp_lezaith_respawn"/>
++    <property name="unset_status" value="emp_lezaith_defeated,emp_pit_chest"/>
++   </properties>
++  </object>
++ </objectgroup>
++ <objectgroup name="enemy">
++  <object id="18" type="enemy" x="224" y="672" width="32" height="32">
++   <properties>
++    <property name="category" value="forgotten_grave"/>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="19" type="enemy" x="1312" y="224" width="32" height="32">
++   <properties>
++    <property name="category" value="forgotten_grave"/>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="20" type="enemy" x="1856" y="608" width="32" height="32">
++   <properties>
++    <property name="category" value="forgotten_grave"/>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="21" type="enemy" x="448" y="256" width="32" height="32">
++   <properties>
++    <property name="category" value="forgotten_grave"/>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="22" type="enemy" x="288" y="416" width="32" height="32">
++   <properties>
++    <property name="category" value="forgotten_grave"/>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="23" type="enemy" x="576" y="800" width="32" height="32">
++   <properties>
++    <property name="category" value="forgotten_grave"/>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="24" type="enemy" x="1280" y="928" width="32" height="32">
++   <properties>
++    <property name="category" value="forgotten_grave"/>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="25" type="enemy" x="1568" y="512" width="32" height="32">
++   <properties>
++    <property name="category" value="forgotten_grave"/>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="26" type="enemy" x="1664" y="1088" width="32" height="32">
++   <properties>
++    <property name="category" value="forgotten_grave"/>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="27" type="enemy" x="928" y="224" width="32" height="32">
++   <properties>
++    <property name="category" value="forgotten_grave"/>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="28" type="enemy" x="1056" y="672" width="32" height="32">
++   <properties>
++    <property name="category" value="forgotten_grave"/>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="29" type="enemy" x="832" y="768" width="32" height="32">
++   <properties>
++    <property name="category" value="forgotten_grave"/>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="30" type="enemy" x="768" y="416" width="32" height="32">
++   <properties>
++    <property name="category" value="forgotten_grave"/>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="31" type="enemy" x="32" y="256" width="704" height="576">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="15"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="32" type="enemy" x="1184" y="192" width="960" height="1056">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="15"/>
++    <property name="number" value="6"/>
++   </properties>
++  </object>
++  <object id="33" name="Lezaith (first encounter)" type="enemy" x="864" y="352" width="32" height="32">
++   <properties>
++    <property name="category" value="lezaith"/>
++    <property name="level" value="16"/>
++    <property name="number" value="1"/>
++    <property name="requires_not_status" value="emp_lezaith_respawn,emp_lezaith_defeated"/>
++   </properties>
++  </object>
++  <object id="36" name="Lezaith (respawn)" type="enemy" x="864" y="352" width="32" height="32">
++   <properties>
++    <property name="category" value="lezaith"/>
++    <property name="level" value="16"/>
++    <property name="number" value="1"/>
++    <property name="requires_status" value="emp_lezaith_respawn"/>
++   </properties>
++  </object>
++ </objectgroup>
++ <objectgroup name="npc">
++  <object id="38" type="npc" x="768" y="128" width="32" height="32">
++   <properties>
++    <property name="filename" value="npcs/glowing_obelisk_4.txt"/>
++   </properties>
++  </object>
++ </objectgroup>
++</map>
+diff --git a/tiled/empyrean_campaign/underworld_stronghold_2.tmx b/tiled/empyrean_campaign/underworld_stronghold_2.tmx
+index 0e335335fbc775c142c293d699221c0a51e25bdd..776bb547617dc4248f6da9d3e6ab4763a7902247 100644
+--- a/tiled/empyrean_campaign/underworld_stronghold_2.tmx
++++ b/tiled/empyrean_campaign/underworld_stronghold_2.tmx
+@@ -240,7 +240,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="100" height="100" visible="0">
++ <layer name="collision" width="100" height="100">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -344,7 +344,7 @@
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ </data>
+  </layer>
+- <objectgroup name="event" visible="0">
++ <objectgroup name="event">
+   <object id="1" name="Unlock waypoint" type="event" x="1312" y="128" width="192" height="192">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+@@ -1553,11 +1553,12 @@
+   <object id="241" name="to The Pit" type="event" x="384" y="640" width="128" height="96">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+-    <property name="intermap" value="maps/the_pit.txt,0,0"/>
++    <property name="intermap" value="maps/the_pit.txt,71,71"/>
++    <property name="set_status" value="emp_pit_fall"/>
+    </properties>
+   </object>
+  </objectgroup>
+- <objectgroup name="enemy" visible="0">
++ <objectgroup name="enemy">
+   <object id="242" type="enemy" x="1344" y="576" width="640" height="384">
+    <properties>
+     <property name="category" value="dungeon"/>

@@ -1,0 +1,693 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..20f28b6402b047199f5b16781de5ffbace267fd2
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt
+@@ -0,0 +1,38 @@
++INCLUDE enemies/base/skeleton_mage.txt
++
++name=Skeleton Fire Mage
++level=3
++categories=skeleton_mage,skeleton,undead,dungeon,fire
++rarity=uncommon
++xp=8
++
++# combat stats
++hp=160
++speed=3.5
++turn_delay=200ms
++
++chance_pursue=15
++
++power=melee,164,5
++power=ranged,173,15
++
++accuracy=100
++avoidance=35
++poise=24
++
++absorb_min=2
++absorb_max=3
++
++dmg_melee_min=40
++dmg_melee_max=45
++dmg_ment_min=60
++dmg_ment_max=80
++
++vulnerable_fire=50
++vulnerable_ice=200
++
++cooldown=2000ms
++
++# loot
++loot=loot/level_3.txt
++
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..5de42c2a8a3099b283c683f23f54f9995847cd85
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt
+@@ -0,0 +1,38 @@
++INCLUDE enemies/base/skeleton_mage.txt
++
++name=Skeleton Ice Mage
++level=3
++categories=skeleton_mage,skeleton,undead,dungeon,ice
++rarity=uncommon
++xp=8
++
++# combat stats
++hp=160
++speed=3.5
++turn_delay=200ms
++
++chance_pursue=15
++
++power=melee,164,5
++power=ranged,172,15
++
++accuracy=100
++avoidance=35
++poise=24
++
++absorb_min=2
++absorb_max=3
++
++dmg_melee_min=40
++dmg_melee_max=45
++dmg_ment_min=60
++dmg_ment_max=80
++
++vulnerable_fire=200
++vulnerable_ice=50
++
++cooldown=2000ms
++
++# loot
++loot=loot/level_3.txt
++
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_knight.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_knight.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..3e06ba2be06146886e75c70e4aa39d15b33965fb
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_knight.txt
+@@ -0,0 +1,30 @@
++INCLUDE enemies/base/skeleton.txt
++
++name=Skeleton Knight
++level=3
++categories=skeleton_knight,skeleton,undead,dungeon
++rarity=common
++xp=8
++
++# combat stats
++hp=160
++speed=4
++turn_delay=400ms
++chance_pursue=10
++
++power=melee,164,10
++
++accuracy=100
++avoidance=20
++poise=51
++
++dmg_melee_min=55
++dmg_melee_max=65
++cooldown=2200ms
++
++absorb_min=3
++absorb_max=3
++
++# loot
++loot=loot/level_3.txt
++
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..ed9d4663093bf6b5fa011674608f545d689566c1
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt
+@@ -0,0 +1,34 @@
++INCLUDE enemies/base/skeleton_archer.txt
++
++name=Skeleton Sniper
++level=3
++categories=skeleton_archer,skeleton,undead,dungeon,grassland
++rarity=rare
++xp=8
++
++# combat stats
++hp=170
++speed=3.5
++turn_delay=200ms
++chance_pursue=5
++
++power=melee,164,5
++power=ranged,171,15
++
++accuracy=100
++avoidance=25
++poise=34
++
++dmg_melee_min=45
++dmg_melee_max=50
++dmg_ranged_min=65
++dmg_ranged_max=90
++absorb_min=2
++absorb_max=3
++
++cooldown=2000ms
++
++# loot
++loot=loot/level_3.txt
++
++
+diff --git a/mods/empyrean_campaign/enemies/lvl3_zombie_brute.txt b/mods/empyrean_campaign/enemies/lvl3_zombie_brute.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..9f9d4e5ae33ae12b29d6c0d4567982e14deb042f
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl3_zombie_brute.txt
+@@ -0,0 +1,26 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Zombie Brute
++level=3
++categories=zombie,undead,dungeon,grassland
++rarity=common
++xp=8
++
++# combat stats
++hp=160
++speed=2.5
++turn_delay=400ms
++chance_pursue=10
++
++power=melee,164,5
++
++accuracy=90
++avoidance=20
++poise=54
++
++dmg_melee_min=60
++dmg_melee_max=65
++cooldown=2400ms
++
++#loot
++loot=loot/level_3.txt
+diff --git a/mods/empyrean_campaign/maps/st_maria_1.txt b/mods/empyrean_campaign/maps/st_maria_1.txt
+index a4bb9c7d6ba1853ba59849132b0828f94ff0ada0..508bed3f38ed99f9ccb84b1ddc614910ad5f97fb 100644
+--- a/mods/empyrean_campaign/maps/st_maria_1.txt
++++ b/mods/empyrean_campaign/maps/st_maria_1.txt
+@@ -175,14 +175,14 @@ data=
+ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,1,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,1,1,1,1,1,1,0,0,0,0,2,2,2,2,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,2,3,3,2,0,0,0,0,1,
+-1,0,0,1,0,4,0,0,4,0,1,0,0,1,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,4,0,0,4,2,3,3,2,0,0,0,0,1,
++1,0,0,1,0,4,0,0,4,0,1,0,0,1,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,4,4,0,4,2,3,3,2,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,4,4,4,4,2,3,3,2,0,0,0,0,1,
+ 1,0,0,4,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,3,3,2,0,0,0,0,1,
+ 1,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,1,
+ 1,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,1,
+ 1,0,0,4,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,3,3,2,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,0,0,0,0,2,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,2,4,4,4,4,2,3,3,2,0,0,0,0,1,
+-1,0,0,1,0,4,0,0,4,0,1,0,0,1,3,3,3,3,3,3,2,0,0,0,0,2,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,2,4,0,0,4,2,3,3,2,0,0,0,0,1,
++1,0,0,1,0,4,0,0,4,0,1,0,0,1,3,3,3,3,3,3,2,0,0,0,0,2,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,2,4,0,4,4,2,3,3,2,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,2,4,0,0,4,2,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,2,3,3,2,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,2,4,0,0,4,2,3,3,3,3,3,3,3,3,1,0,0,1,0,0,1,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,2,2,2,2,0,0,0,0,1,
+ 1,1,1,1,1,0,0,0,0,1,1,1,1,1,3,3,3,3,3,3,2,4,0,0,4,2,3,3,3,3,3,3,3,3,1,0,0,1,0,0,1,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,0,0,0,0,0,0,0,0,1,
+@@ -210,7 +210,7 @@ data=
+ 3,3,3,3,1,1,0,0,1,1,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,2,3,3,3,3,3,3,1,0,0,1,1,0,0,0,0,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,0,0,0,0,0,0,0,0,1,
+ 1,1,1,1,1,0,0,0,0,1,1,1,1,1,3,3,3,3,3,3,2,4,0,0,4,2,3,3,3,3,3,3,1,0,0,1,1,0,0,0,0,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,0,0,0,0,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,2,4,0,0,4,2,3,3,3,3,3,3,1,0,0,1,1,0,0,0,0,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,2,2,2,2,0,0,0,0,1,
+-1,4,0,0,0,0,0,0,0,0,0,0,4,1,3,3,3,3,3,3,2,4,0,0,4,2,3,3,3,3,3,3,1,0,0,1,1,0,0,0,0,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,2,4,0,0,4,2,3,3,2,0,0,0,0,1,
++1,4,0,0,0,0,0,0,0,0,0,0,4,1,3,3,3,3,3,3,2,4,0,0,4,2,3,3,3,3,3,3,1,0,0,1,1,0,0,0,0,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,2,4,0,4,4,2,3,3,2,0,0,0,0,1,
+ 1,4,0,0,0,0,0,0,0,4,4,0,4,1,3,3,3,3,3,3,2,0,0,0,0,2,3,3,3,3,3,3,1,0,0,1,1,0,0,0,0,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,2,4,4,4,4,2,3,3,2,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,4,4,4,4,1,1,1,1,1,1,1,2,0,0,0,0,2,3,3,3,3,3,3,1,0,0,1,1,0,0,0,0,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,3,3,2,0,0,0,0,1,
+ 1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,1,
+@@ -254,6 +254,7 @@ location=58,49,1,1
+ hotspot=location
+ mapmod=collision,46,54,0;collision,47,54,0;collision,46,55,0;collision,47,55,0;object,47,54,0;object,47,55,0;object,46,53,213;object,46,56,219;object,58,49,166
+ repeat=false
++soundfx=soundfx/door_open.ogg
+ tooltip=Switch
+ 
+ [event]
+@@ -326,3 +327,175 @@ repeat=false
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+ 
++[enemy]
++type=skeleton_mage
++location=37,50,1,1
++direction=7
++level=3
++number=1
++wander_radius=0
++
++[enemy]
++type=skeleton_mage
++location=40,50,1,1
++direction=7
++level=3
++number=1
++wander_radius=0
++
++[enemy]
++type=undead
++location=21,53,4,4
++level=3
++number=2
++wander_radius=2
++
++[enemy]
++type=undead
++location=22,35,2,6
++level=3
++number=2
++wander_radius=2
++
++[enemy]
++type=undead
++location=1,49,4,4
++level=3
++number=1
++wander_radius=2
++
++[enemy]
++type=undead
++location=10,50,3,3
++level=3
++number=1
++wander_radius=2
++
++[enemy]
++type=undead
++location=9,41,3,3
++level=3
++number=1
++wander_radius=2
++
++[enemy]
++type=undead
++location=5,24,4,10
++level=3
++number=3
++wander_radius=2
++
++[enemy]
++type=undead
++location=1,41,4,4
++level=3
++number=1
++wander_radius=2
++
++[enemy]
++type=undead
++location=3,7,8,8
++level=3
++number=3
++wander_radius=2
++
++[enemy]
++type=undead
++location=22,17,2,6
++level=3
++number=2
++wander_radius=2
++
++[enemy]
++type=undead
++location=33,1,12,4
++level=3
++number=3
++wander_radius=2
++
++[enemy]
++type=undead
++location=65,3,4,4
++level=3
++number=1,2
++wander_radius=2
++
++[enemy]
++type=undead
++location=65,39,4,4
++level=3
++number=1,2
++wander_radius=2
++
++[enemy]
++type=undead
++location=55,32,4,4
++level=3
++number=2
++wander_radius=2
++
++[enemy]
++type=undead
++location=57,4,4,4
++level=3
++number=1,2
++wander_radius=2
++
++[enemy]
++type=undead
++location=65,15,4,4
++level=3
++number=1,2
++wander_radius=2
++
++[enemy]
++type=undead
++location=55,22,4,4
++level=3
++number=2
++wander_radius=2
++
++[enemy]
++type=undead
++location=65,51,4,4
++level=3
++number=1,2
++wander_radius=2
++
++[enemy]
++type=undead
++location=51,53,4,4
++level=3
++number=1,2
++wander_radius=2
++
++[enemy]
++type=undead
++location=21,1,4,4
++level=3
++number=2
++wander_radius=2
++
++[enemy]
++type=skeleton_knight
++location=37,31,1,1
++direction=7
++level=3
++number=1
++wander_radius=0
++
++[enemy]
++type=skeleton_knight
++location=40,31,1,1
++direction=7
++level=3
++number=1
++wander_radius=0
++
++[enemy]
++type=undead
++location=37,38,4,6
++level=3
++number=2
++wander_radius=2
++
+diff --git a/mods/empyrean_campaign/powers/categories/enemy.txt b/mods/empyrean_campaign/powers/categories/enemy.txt
+index e159808b22bcfeb5fb45cb9fdc41c083c1f4eb3b..f400ceecc9b167d2e2309f51260f2a263b750ed9 100644
+--- a/mods/empyrean_campaign/powers/categories/enemy.txt
++++ b/mods/empyrean_campaign/powers/categories/enemy.txt
+@@ -111,3 +111,45 @@ radius=1.0
+ speed=24
+ wall_power=157
+ 
++# ice bolt
++[power]
++id=172
++type=missile
++new_state=cast
++face=true
++directional=true
++requires_los=true
++animation=animations/powers/icicle.txt
++soundfx=soundfx/powers/shock.ogg
++use_hazard=true
++aim_assist=true
++base_damage=ment
++lifespan=866ms
++radius=1.0
++speed=15
++trait_elemental=ice
++post_power=159
++wall_power=159
++post_effect=slow,50,2s
++
++# fireball
++[power]
++id=173
++type=missile
++new_state=cast
++face=true
++directional=true
++requires_los=true
++animation=animations/powers/fireball.txt
++soundfx=soundfx/powers/fireball.ogg
++use_hazard=true
++aim_assist=true
++base_damage=ment
++lifespan=866ms
++radius=1.0
++speed=15
++trait_elemental=fire
++post_power=158
++wall_power=158
++modifier_damage=multiply,120,0
++
+diff --git a/tiled/empyrean_campaign/st_maria_1.tmx b/tiled/empyrean_campaign/st_maria_1.tmx
+index 26b25c527d70c1b3193b4b7fe7ed07c53f509b26..f0030e42baa997133b26589896940eede50cb746 100644
+--- a/tiled/empyrean_campaign/st_maria_1.tmx
++++ b/tiled/empyrean_campaign/st_maria_1.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="70" height="70" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="15">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="70" height="70" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="47">
+  <properties>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_dungeon.txt"/>
+@@ -178,7 +178,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,76,71,83,83,282,283,83,83,83,95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="70" height="70" visible="0">
++ <layer name="collision" width="70" height="70">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+@@ -187,14 +187,14 @@
+ 1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,1,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,1,1,1,1,1,1,0,0,0,0,2,2,2,2,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,2,3,3,2,0,0,0,0,1,
+-1,0,0,1,0,4,0,0,4,0,1,0,0,1,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,4,0,0,4,2,3,3,2,0,0,0,0,1,
++1,0,0,1,0,4,0,0,4,0,1,0,0,1,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,4,4,0,4,2,3,3,2,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,4,4,4,4,2,3,3,2,0,0,0,0,1,
+ 1,0,0,4,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,3,3,2,0,0,0,0,1,
+ 1,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,1,
+ 1,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,1,
+ 1,0,0,4,0,0,0,0,0,0,4,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,3,3,2,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,2,0,0,0,0,2,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,2,4,4,4,4,2,3,3,2,0,0,0,0,1,
+-1,0,0,1,0,4,0,0,4,0,1,0,0,1,3,3,3,3,3,3,2,0,0,0,0,2,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,2,4,0,0,4,2,3,3,2,0,0,0,0,1,
++1,0,0,1,0,4,0,0,4,0,1,0,0,1,3,3,3,3,3,3,2,0,0,0,0,2,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,2,4,0,4,4,2,3,3,2,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,2,4,0,0,4,2,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,2,3,3,2,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,2,4,0,0,4,2,3,3,3,3,3,3,3,3,1,0,0,1,0,0,1,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,2,2,2,2,0,0,0,0,1,
+ 1,1,1,1,1,0,0,0,0,1,1,1,1,1,3,3,3,3,3,3,2,4,0,0,4,2,3,3,3,3,3,3,3,3,1,0,0,1,0,0,1,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,0,0,0,0,0,0,0,0,1,
+@@ -222,7 +222,7 @@
+ 3,3,3,3,1,1,0,0,1,1,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,2,3,3,3,3,3,3,1,0,0,1,1,0,0,0,0,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,0,0,0,0,0,0,0,0,1,
+ 1,1,1,1,1,0,0,0,0,1,1,1,1,1,3,3,3,3,3,3,2,4,0,0,4,2,3,3,3,3,3,3,1,0,0,1,1,0,0,0,0,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,0,0,0,0,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,2,4,0,0,4,2,3,3,3,3,3,3,1,0,0,1,1,0,0,0,0,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,2,2,2,2,0,0,0,0,1,
+-1,4,0,0,0,0,0,0,0,0,0,0,4,1,3,3,3,3,3,3,2,4,0,0,4,2,3,3,3,3,3,3,1,0,0,1,1,0,0,0,0,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,2,4,0,0,4,2,3,3,2,0,0,0,0,1,
++1,4,0,0,0,0,0,0,0,0,0,0,4,1,3,3,3,3,3,3,2,4,0,0,4,2,3,3,3,3,3,3,1,0,0,1,1,0,0,0,0,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,2,4,0,4,4,2,3,3,2,0,0,0,0,1,
+ 1,4,0,0,0,0,0,0,0,4,4,0,4,1,3,3,3,3,3,3,2,0,0,0,0,2,3,3,3,3,3,3,1,0,0,1,1,0,0,0,0,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,2,4,4,4,4,2,3,3,2,0,0,0,0,1,
+ 1,0,0,0,0,0,0,0,0,4,4,4,4,1,1,1,1,1,1,1,2,0,0,0,0,2,3,3,3,3,3,3,1,0,0,1,1,0,0,0,0,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,2,2,2,2,2,2,3,3,2,0,0,0,0,1,
+ 1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,2,0,0,0,0,1,
+@@ -265,6 +265,7 @@
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="collision,46,54,0;collision,47,54,0;collision,46,55,0;collision,47,55,0;object,47,54,0;object,47,55,0;object,46,53,213;object,46,56,219;object,58,49,166"/>
+     <property name="repeat" value="false"/>
++    <property name="soundfx" value="soundfx/door_open.ogg"/>
+     <property name="tooltip" value="Switch"/>
+    </properties>
+   </object>
+@@ -338,4 +339,178 @@
+    </properties>
+   </object>
+  </objectgroup>
++ <objectgroup name="enemy">
++  <object id="17" type="skeleton_mage" x="1184" y="1600" width="32" height="32">
++   <properties>
++    <property name="direction" value="7"/>
++    <property name="level" value="3"/>
++    <property name="number" value="1"/>
++    <property name="wander_radius" value="0"/>
++   </properties>
++  </object>
++  <object id="19" type="skeleton_mage" x="1280" y="1600" width="32" height="32">
++   <properties>
++    <property name="direction" value="7"/>
++    <property name="level" value="3"/>
++    <property name="number" value="1"/>
++    <property name="wander_radius" value="0"/>
++   </properties>
++  </object>
++  <object id="20" type="undead" x="672" y="1696" width="128" height="128">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="2"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="22" type="undead" x="704" y="1120" width="64" height="192">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="2"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="23" type="undead" x="32" y="1568" width="128" height="128">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="1"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="24" type="undead" x="320" y="1600" width="96" height="96">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="1"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="25" type="undead" x="288" y="1312" width="96" height="96">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="1"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="26" type="undead" x="160" y="768" width="128" height="320">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="3"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="27" type="undead" x="32" y="1312" width="128" height="128">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="1"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="28" type="undead" x="96" y="224" width="256" height="256">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="3"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="29" type="undead" x="704" y="544" width="64" height="192">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="2"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="30" type="undead" x="1056" y="32" width="384" height="128">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="3"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="31" type="undead" x="2080" y="96" width="128" height="128">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="1,2"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="32" type="undead" x="2080" y="1248" width="128" height="128">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="1,2"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="33" type="undead" x="1760" y="1024" width="128" height="128">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="2"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="34" type="undead" x="1824" y="128" width="128" height="128">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="1,2"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="35" type="undead" x="2080" y="480" width="128" height="128">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="1,2"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="36" type="undead" x="1760" y="704" width="128" height="128">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="2"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="37" type="undead" x="2080" y="1632" width="128" height="128">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="1,2"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="38" type="undead" x="1632" y="1696" width="128" height="128">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="1,2"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="43" type="undead" x="672" y="32" width="128" height="128">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="2"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++  <object id="44" type="skeleton_knight" x="1184" y="992" width="32" height="32">
++   <properties>
++    <property name="direction" value="7"/>
++    <property name="level" value="3"/>
++    <property name="number" value="1"/>
++    <property name="wander_radius" value="0"/>
++   </properties>
++  </object>
++  <object id="45" type="skeleton_knight" x="1280" y="992" width="32" height="32">
++   <properties>
++    <property name="direction" value="7"/>
++    <property name="level" value="3"/>
++    <property name="number" value="1"/>
++    <property name="wander_radius" value="0"/>
++   </properties>
++  </object>
++  <object id="46" type="undead" x="1184" y="1216" width="128" height="192">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="2"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
++ </objectgroup>
+ </map>

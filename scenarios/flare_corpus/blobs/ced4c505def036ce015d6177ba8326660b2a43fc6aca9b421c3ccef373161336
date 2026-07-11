@@ -1,0 +1,1884 @@
+diff --git a/mods/empyrean_campaign/items/items.txt b/mods/empyrean_campaign/items/items.txt
+index ee821af6fd58f5084f8e865b1bd99dfd45b96a34..2f69b14516e755f9c04c46d596f81e3c6b59fc1b 100644
+--- a/mods/empyrean_campaign/items/items.txt
++++ b/mods/empyrean_campaign/items/items.txt
+@@ -70,3 +70,11 @@ quality=unique
+ bonus=stealth,100
+ power=501
+ power_desc=Use: Turn Invisible
++
++[item]
++id=2002
++name=DEV Tome
++INCLUDE items/base/misc/book.txt
++quality=unique
++power=503
++power_desc=Use: Open DEV Tome
+diff --git a/mods/empyrean_campaign/npcs/base/dev_tome/items.txt b/mods/empyrean_campaign/npcs/base/dev_tome/items.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..8672f4d84d7a8de412f6c2a396a346cacaf1494c
+--- /dev/null
++++ b/mods/empyrean_campaign/npcs/base/dev_tome/items.txt
+@@ -0,0 +1,154 @@
++[dialog]
++topic=Give items
++id=items
++response_only=true
++response=item_gold
++response=item_potions
++response=item_scrolls
++response=item_underworld_set
++response=item_dev_boots
++response=main
++her=
++
++[dialog]
++topic=Gold
++id=item_gold
++response_only=true
++reward_currency=50000
++
++[dialog]
++topic=Potions
++id=item_potions
++response_only=true
++response=item_potion_hp
++response=item_potion_mp
++response=item_potion_stamina
++response=item_potion_restoration
++response=item_potion_treasure
++response=item_potion_elemental
++response=main
++her=
++
++[dialog]
++topic=Health Potion
++id=item_potion_hp
++response_only=true
++reward_item=2:20
++
++[dialog]
++topic=Mana Potion
++id=item_potion_mp
++response_only=true
++reward_item=3:20
++
++[dialog]
++topic=Stamina Potion
++id=item_potion_stamina
++response_only=true
++reward_item=775:20
++
++[dialog]
++topic=Restoration Potion
++id=item_potion_restoration
++response_only=true
++reward_item=776:20
++
++[dialog]
++topic=Treasure Potion
++id=item_potion_treasure
++response_only=true
++reward_item=777:20
++
++[dialog]
++topic=Elemental Potion
++id=item_potion_elemental
++response_only=true
++reward_item=778:20
++
++[dialog]
++topic=Scrolls
++id=item_scrolls
++response_only=true
++response=item_scroll_zombie
++response=item_scroll_perdition
++response=item_scroll_shield
++response=item_scroll_fireball
++response=item_scroll_icebolt
++response=item_scroll_haste
++response=item_scroll_immunity
++response=item_scroll_reflection
++response=main
++her=
++
++[dialog]
++topic=Summon Zombie Scroll
++id=item_scroll_zombie
++response_only=true
++reward_item=203:20
++
++[dialog]
++topic=Perdition Scroll
++id=item_scroll_perdition
++response_only=true
++reward_item=412:20
++
++[dialog]
++topic=Shield Scroll
++id=item_scroll_shield
++response_only=true
++reward_item=413:20
++
++[dialog]
++topic=Fireball Scroll
++id=item_scroll_fireball
++response_only=true
++reward_item=414:20
++
++[dialog]
++topic=Ice Bolt Scroll
++id=item_scroll_icebolt
++response_only=true
++reward_item=415:20
++
++[dialog]
++topic=Haste Scroll
++id=item_scroll_haste
++response_only=true
++reward_item=416:20
++
++[dialog]
++topic=Immunity Scroll
++id=item_scroll_immunity
++response_only=true
++reward_item=417:20
++
++[dialog]
++topic=Reflection Scroll
++id=item_scroll_reflection
++response_only=true
++reward_item=418:20
++
++[dialog]
++topic=Underworld Set (with rings)
++id=item_underworld_set
++response_only=true
++reward_item=419
++reward_item=420
++reward_item=421
++reward_item=422
++reward_item=423
++reward_item=424
++reward_item=425
++reward_item=426
++reward_item=427
++reward_item=428
++reward_item=429
++
++[dialog]
++topic=DEV Boots
++id=item_dev_boots
++response_only=true
++reward_item=2000
++#reward_item=2001
++
++
+diff --git a/mods/empyrean_campaign/npcs/base/dev_tome/reset_quests.txt b/mods/empyrean_campaign/npcs/base/dev_tome/reset_quests.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..7176e11b1f632291d822240279c71a76d0a6249f
+--- /dev/null
++++ b/mods/empyrean_campaign/npcs/base/dev_tome/reset_quests.txt
+@@ -0,0 +1,98 @@
++[dialog]
++topic=Reset quests
++id=reset_quests
++response_only=true
++response=reset_main
++response=reset_krolan
++response=reset_alchemy
++response=reset_journal
++response=reset_ardwen
++response=reset_amir
++response=reset_ort
++response=reset_stormrock
++response=reset_naziamines
++response=reset_mog
++response=reset_nasu
++response=reset_torture
++response=reset_martigan
++response=main
++her=
++
++[dialog]
++topic=Reset quest: "Return to Empyrean"
++id=reset_main
++response_only=true
++script=scripts/dev/quests/reset_main.txt
++
++[dialog]
++topic=Reset quest: "Krolan's Missing"
++id=reset_krolan
++response_only=true
++script=scripts/dev/quests/reset_krolan.txt
++
++[dialog]
++topic=Reset quest: "Alchemy"
++id=reset_alchemy
++response_only=true
++script=scripts/dev/quests/reset_alchemy.txt
++
++[dialog]
++topic=Reset quest: "The Merchant's Journal"
++id=reset_journal
++response_only=true
++script=scripts/dev/quests/reset_journal.txt
++
++[dialog]
++topic=Reset quest: "Trapped in the Crypt"
++id=reset_ardwen
++response_only=true
++script=scripts/dev/quests/reset_ardwen.txt
++
++[dialog]
++topic=Reset quest: "The One-Eyed Guardians"
++id=reset_amir
++response_only=true
++script=scripts/dev/quests/reset_amir.txt
++
++[dialog]
++topic=Reset quest: "Brother?"
++id=reset_ort
++response_only=true
++script=scripts/dev/quests/reset_ort.txt
++
++[dialog]
++topic=Reset quest: "Locked Out"
++id=reset_stormrock
++response_only=true
++script=scripts/dev/quests/reset_stormrock.txt
++
++[dialog]
++topic=Reset quest: "Trapped!"
++id=reset_naziamines
++response_only=true
++script=scripts/dev/quests/reset_naziamines.txt
++
++[dialog]
++topic=Reset quest: "The Lost Soul of the Mog Caverns"
++id=reset_mog
++response_only=true
++script=scripts/dev/quests/reset_mog.txt
++
++[dialog]
++topic=Reset quest: "An Unusual Name..."
++id=reset_nasu
++response_only=true
++script=scripts/dev/quests/reset_nasu.txt
++
++[dialog]
++topic=Reset quest: "Warden's Notes"
++id=reset_torture
++response_only=true
++script=scripts/dev/quests/reset_torture.txt
++
++[dialog]
++topic=Reset quest: "Fallen Comrades"
++id=reset_martigan
++response_only=true
++script=scripts/dev/quests/reset_martigan.txt
++
+diff --git a/mods/empyrean_campaign/npcs/base/dev_tome/respec.txt b/mods/empyrean_campaign/npcs/base/dev_tome/respec.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..016d8cd1f10145bf5d6ceffe3825f8695f60353a
+--- /dev/null
++++ b/mods/empyrean_campaign/npcs/base/dev_tome/respec.txt
+@@ -0,0 +1,195 @@
++[dialog]
++topic=Respec
++id=respec
++response_only=true
++response=respec_powers
++response=respec_stats
++response=respec_xp
++response=main
++her=
++
++[dialog]
++topic=Reset power points
++id=respec_powers
++response_only=true
++respec=powers
++
++[dialog]
++topic=Reset stat points
++id=respec_stats
++response_only=true
++respec=stats
++
++[dialog]
++topic=Reset level
++id=respec_xp
++response_only=true
++response=respec_lvl1
++response=respec_lvl2
++response=respec_lvl3
++response=respec_lvl4
++response=respec_lvl5
++response=respec_lvl6
++response=respec_lvl7
++response=respec_lvl8
++response=respec_lvl9
++response=respec_lvl10
++response=respec_lvl11
++response=respec_lvl12
++response=respec_lvl13
++response=respec_lvl14
++response=respec_lvl15
++response=respec_lvl16
++response=respec_lvl17
++response=respec_lvl18
++response=respec_lvl19
++response=respec_lvl20
++response=main
++her=
++
++[dialog]
++topic=Level 1
++id=respec_lvl1
++response_only=true
++respec=xp
++
++[dialog]
++topic=Level 2
++id=respec_lvl2
++response_only=true
++respec=xp
++reward_xp=256
++
++[dialog]
++topic=Level 3
++id=respec_lvl3
++response_only=true
++respec=xp
++reward_xp=768
++
++[dialog]
++topic=Level 4
++id=respec_lvl4
++response_only=true
++respec=xp
++reward_xp=1792
++
++[dialog]
++topic=Level 4
++id=respec_lvl4
++response_only=true
++respec=xp
++reward_xp=1792
++
++[dialog]
++topic=Level 5
++id=respec_lvl5
++response_only=true
++respec=xp
++reward_xp=3840
++
++[dialog]
++topic=Level 6
++id=respec_lvl6
++response_only=true
++respec=xp
++reward_xp=7936
++
++[dialog]
++topic=Level 7
++id=respec_lvl7
++response_only=true
++respec=xp
++reward_xp=16128
++
++[dialog]
++topic=Level 8
++id=respec_lvl8
++response_only=true
++respec=xp
++reward_xp=32512
++
++[dialog]
++topic=Level 9
++id=respec_lvl9
++response_only=true
++respec=xp
++reward_xp=65280
++
++[dialog]
++topic=Level 10
++id=respec_lvl10
++response_only=true
++respec=xp
++reward_xp=130816
++
++[dialog]
++topic=Level 11
++id=respec_lvl11
++response_only=true
++respec=xp
++reward_xp=261888
++
++[dialog]
++topic=Level 12
++id=respec_lvl12
++response_only=true
++respec=xp
++reward_xp=524032
++
++[dialog]
++topic=Level 13
++id=respec_lvl13
++response_only=true
++respec=xp
++reward_xp=1048320
++
++[dialog]
++topic=Level 14
++id=respec_lvl14
++response_only=true
++respec=xp
++reward_xp=2096896
++
++[dialog]
++topic=Level 15
++id=respec_lvl15
++response_only=true
++respec=xp
++reward_xp=4194048
++
++[dialog]
++topic=Level 16
++id=respec_lvl16
++response_only=true
++respec=xp
++reward_xp=8388352
++
++[dialog]
++topic=Level 17
++id=respec_lvl17
++response_only=true
++respec=xp
++reward_xp=16776960
++
++[dialog]
++topic=Level 18
++id=respec_lvl18
++response_only=true
++respec=xp
++reward_xp=33554176
++
++[dialog]
++topic=Level 19
++id=respec_lvl19
++response_only=true
++respec=xp
++reward_xp=67108608
++
++[dialog]
++topic=Level 20
++id=respec_lvl20
++response_only=true
++respec=xp
++reward_xp=134217472
++
+diff --git a/mods/empyrean_campaign/npcs/base/dev_tome/teleport.txt b/mods/empyrean_campaign/npcs/base/dev_tome/teleport.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..7a49bdacca51539c1d116b8d7b4e74919c0fc6f6
+--- /dev/null
++++ b/mods/empyrean_campaign/npcs/base/dev_tome/teleport.txt
+@@ -0,0 +1,476 @@
++# teleport: region select
++[dialog]
++topic=Teleport
++id=teleport
++response_only=true
++response=map_region_intro
++response=map_region_st_maria
++response=map_region_mez
++response=map_region_wizard
++response=map_region_underworld
++response=map_region_infinity
++response=map_region_hoi
++response=main
++her=
++
++[dialog]
++topic=Introduction
++id=map_region_intro
++response_only=true
++response=map_arrival
++response=map_river_trail
++response=map_perdition_harbor
++response=map_hyperspace
++response=map_book_of_the_dead
++response=main
++her=
++
++[dialog]
++topic=Region 1: Salted Field -> St. Maria
++id=map_region_st_maria
++response_only=true
++response=map_salted_field
++response=map_perdition_mines
++response=map_stonewood
++response=map_goblin_camp
++response=map_goblin_cave
++response=map_merrimead_swamp
++response=map_lochport_cemetery
++response=map_family_crypt
++response=map_lochport
++response=map_st_maria_1
++response=map_st_maria_2
++response=map_st_maria_3
++response=main
++her=
++
++[dialog]
++topic=Region 2: Lake Kuuma -> Temple of Mez
++id=map_region_mez
++response_only=true
++response=map_lake_kuuma
++response=map_fort_amir
++response=map_blackmire_mines
++response=map_abandoned_mines
++response=map_grot_lagoon
++response=map_the_breach
++response=map_stormrock_pass
++response=map_stormrock_ruins
++response=map_antlion_nest
++response=map_temple_of_mez_1
++response=map_temple_of_mez_2
++response=map_temple_of_mez_3
++response=main
++her=
++
++[dialog]
++topic=Region 3: Nazia Highlands -> Wizard's Tower
++id=map_region_wizard
++response_only=true
++response=map_nazia_highlands
++response=map_nazia_mines
++response=map_nazia_underground
++response=map_southern_ridge
++response=map_mog_caverns
++response=map_black_oak_farm
++response=map_dilapidated_sewers
++response=map_fort_nasu
++response=map_black_oak_city
++response=map_wizards_tower_1
++response=map_wizards_tower_2
++response=map_wizards_tower_3
++response=main
++her=
++
++[dialog]
++topic=Region 4: Underworld
++id=map_region_underworld
++response_only=true
++response=map_underworld
++response=map_underworld_catacombs
++response=map_underworld_mines
++response=map_oasis
++response=map_underworld_stronghold_1
++response=map_underworld_stronghold_2
++response=map_the_pit
++response=main
++her=
++
++[dialog]
++topic=Halls of Infinity
++id=map_region_hoi
++response_only=true
++response=map_hoi_hub
++response=map_hoi_1
++response=map_hoi_2
++response=map_hoi_3
++response=map_hoi_4
++response=map_hoi_5
++response=map_hoi_6
++response=map_hoi_7
++response=map_hoi_8
++response=map_hoi_9
++response=map_hoi_10
++response=main
++her=
++
++[dialog]
++topic=Arrival
++intermap=maps/arrival.txt
++id=map_arrival
++response_only=true
++
++[dialog]
++topic=River Trail
++intermap=maps/river_trail.txt
++id=map_river_trail
++response_only=true
++
++[dialog]
++topic=Perdition Harbor
++intermap=maps/perdition_harbor.txt
++id=map_perdition_harbor
++response_only=true
++
++[dialog]
++topic=Hyperspace
++intermap=maps/hyperspace.txt
++id=map_hyperspace
++response_only=true
++
++[dialog]
++topic=Book of the Dead
++intermap=maps/book_of_the_dead.txt
++id=map_book_of_the_dead
++response_only=true
++
++[dialog]
++topic=Salted Field
++intermap=maps/salted_field.txt
++id=map_salted_field
++response_only=true
++
++[dialog]
++topic=Perdition Mines
++intermap=maps/perdition_mines.txt
++id=map_perdition_mines
++response_only=true
++
++[dialog]
++topic=Stonewood
++intermap=maps/stonewood.txt
++id=map_stonewood
++response_only=true
++
++[dialog]
++topic=Goblin Camp
++intermap=maps/goblin_camp.txt
++id=map_goblin_camp
++response_only=true
++
++[dialog]
++topic=Goblin Cave
++intermap=maps/goblin_cave.txt
++id=map_goblin_cave
++response_only=true
++
++[dialog]
++topic=Merrimead Swamp
++intermap=maps/merrimead_swamp.txt
++id=map_merrimead_swamp
++response_only=true
++
++[dialog]
++topic=Lochport Cemetery
++intermap=maps/lochport_cemetery.txt
++id=map_lochport_cemetery
++response_only=true
++
++[dialog]
++topic=Family Crypt
++intermap=maps/family_crypt.txt
++id=map_family_crypt
++response_only=true
++
++[dialog]
++topic=Lochport
++intermap=maps/lochport.txt
++id=map_lochport
++response_only=true
++
++[dialog]
++topic=St. Maria: Mausoleum
++intermap=maps/st_maria_1.txt
++id=map_st_maria_1
++response_only=true
++
++[dialog]
++topic=St. Maria: Catacombs
++intermap=maps/st_maria_2.txt
++id=map_st_maria_2
++response_only=true
++
++[dialog]
++topic=St. Maria: Crypt
++intermap=maps/st_maria_3.txt
++id=map_st_maria_3
++response_only=true
++
++[dialog]
++topic=Lake Kuuma
++intermap=maps/lake_kuuma.txt
++id=map_lake_kuuma
++response_only=true
++
++[dialog]
++topic=Fort Amir
++intermap=maps/fort_amir.txt
++id=map_fort_amir
++response_only=true
++
++[dialog]
++topic=Blackmire Mines
++intermap=maps/blackmire_mines.txt
++id=map_blackmire_mines
++response_only=true
++
++[dialog]
++topic=Abandoned Mines
++intermap=maps/abandoned_mines.txt
++id=map_abandoned_mines
++response_only=true
++
++[dialog]
++topic=Grot Lagoon
++intermap=maps/grot_lagoon.txt
++id=map_grot_lagoon
++response_only=true
++
++[dialog]
++topic=The Breach
++intermap=maps/the_breach.txt
++id=map_the_breach
++response_only=true
++
++[dialog]
++topic=Stormrock Pass
++intermap=maps/stormrock_pass.txt
++id=map_stormrock_pass
++response_only=true
++
++[dialog]
++topic=Stormrock Ruins
++intermap=maps/stormrock_ruins.txt
++id=map_stormrock_ruins
++response_only=true
++
++[dialog]
++topic=Antlion Nest
++intermap=maps/antlion_nest.txt
++id=map_antlion_nest
++response_only=true
++
++[dialog]
++topic=Temple of Mez: Basement
++intermap=maps/temple_of_mez_1.txt
++id=map_temple_of_mez_1
++response_only=true
++
++[dialog]
++topic=Temple of Mez: Main Hall
++intermap=maps/temple_of_mez_2.txt
++id=map_temple_of_mez_2
++response_only=true
++
++[dialog]
++topic=Temple of Mez: Entrance
++intermap=maps/temple_of_mez_3.txt
++id=map_temple_of_mez_3
++response_only=true
++
++[dialog]
++topic=Nazia Highlands
++intermap=maps/nazia_highlands.txt
++id=map_nazia_highlands
++response_only=true
++
++[dialog]
++topic=Nazia Mines
++intermap=maps/nazia_mines.txt
++id=map_nazia_mines
++response_only=true
++
++[dialog]
++topic=Nazia Underground
++intermap=maps/nazia_underground.txt
++id=map_nazia_underground
++response_only=true
++
++[dialog]
++topic=Southern Ridge
++intermap=maps/southern_ridge.txt
++id=map_southern_ridge
++response_only=true
++
++[dialog]
++topic=Mog Caverns
++intermap=maps/mog_caverns.txt
++id=map_mog_caverns
++response_only=true
++
++[dialog]
++topic=Black Oak Farm
++intermap=maps/black_oak_farm.txt
++id=map_black_oak_farm
++response_only=true
++
++[dialog]
++topic=Dilapidated Sewers
++intermap=maps/dilapidated_sewers.txt
++id=map_dilapidated_sewers
++response_only=true
++
++[dialog]
++topic=Fort Nasu
++intermap=maps/fort_nasu.txt
++id=map_fort_nasu
++response_only=true
++
++[dialog]
++topic=Black Oak City
++intermap=maps/black_oak_city.txt
++id=map_black_oak_city
++response_only=true
++
++[dialog]
++topic=Wizard's Tower: Entrance Hall
++intermap=maps/wizards_tower_1.txt
++id=map_wizards_tower_1
++response_only=true
++
++[dialog]
++topic=Wizard's Tower: Research Chambers
++intermap=maps/wizards_tower_2.txt
++id=map_wizards_tower_2
++response_only=true
++
++[dialog]
++topic=Wizard's Tower: Laboratory
++intermap=maps/wizards_tower_3.txt
++id=map_wizards_tower_3
++response_only=true
++
++[dialog]
++topic=Underworld
++intermap=maps/underworld.txt
++id=map_underworld
++response_only=true
++
++[dialog]
++topic=Torture Chambers
++intermap=maps/torture_chambers.txt
++id=map_torture_chambers
++response_only=true
++
++[dialog]
++topic=Underworld Catacombs
++intermap=maps/underworld_catacombs.txt
++id=map_underworld_catacombs
++response_only=true
++
++[dialog]
++topic=Underworld Mines
++intermap=maps/underworld_mines.txt
++id=map_underworld_mines
++response_only=true
++
++[dialog]
++topic=Oasis
++intermap=maps/oasis.txt
++id=map_oasis
++response_only=true
++
++[dialog]
++topic=Underworld Stronghold: Foyer
++intermap=maps/underworld_stronghold_1.txt
++id=map_underworld_stronghold_1
++response_only=true
++
++[dialog]
++topic=Underworld Stronghold: Barracks
++intermap=maps/underworld_stronghold_2.txt
++id=map_underworld_stronghold_2
++response_only=true
++
++[dialog]
++topic=The Pit
++intermap=maps/the_pit.txt
++id=map_the_pit
++response_only=true
++
++[dialog]
++topic=Halls of Infinity
++intermap=maps/halls_of_infinity.txt
++id=map_hoi_hub
++response_only=true
++
++[dialog]
++topic=Halls of Infinity: 1
++intermap=maps/halls_of_infinity/halls_of_infinity_1.txt
++id=map_hoi_1
++response_only=true
++
++[dialog]
++topic=Halls of Infinity: 2
++intermap=maps/halls_of_infinity/halls_of_infinity_2.txt
++id=map_hoi_2
++response_only=true
++
++[dialog]
++topic=Halls of Infinity: 3
++intermap=maps/halls_of_infinity/halls_of_infinity_3.txt
++id=map_hoi_3
++response_only=true
++
++[dialog]
++topic=Halls of Infinity: 4
++intermap=maps/halls_of_infinity/halls_of_infinity_4.txt
++id=map_hoi_4
++response_only=true
++
++[dialog]
++topic=Halls of Infinity: 5
++intermap=maps/halls_of_infinity/halls_of_infinity_5.txt
++id=map_hoi_5
++response_only=true
++
++[dialog]
++topic=Halls of Infinity: 6
++intermap=maps/halls_of_infinity/halls_of_infinity_6.txt
++id=map_hoi_6
++response_only=true
++
++[dialog]
++topic=Halls of Infinity: 7
++intermap=maps/halls_of_infinity/halls_of_infinity_7.txt
++id=map_hoi_7
++response_only=true
++
++[dialog]
++topic=Halls of Infinity: 8
++intermap=maps/halls_of_infinity/halls_of_infinity_8.txt
++id=map_hoi_8
++response_only=true
++
++[dialog]
++topic=Halls of Infinity: 9
++intermap=maps/halls_of_infinity/halls_of_infinity_9.txt
++id=map_hoi_9
++response_only=true
++
++[dialog]
++topic=Halls of Infinity: 10
++intermap=maps/halls_of_infinity/halls_of_infinity_10.txt
++id=map_hoi_10
++response_only=true
++
+diff --git a/mods/empyrean_campaign/npcs/dev_tome.txt b/mods/empyrean_campaign/npcs/dev_tome.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..5b205ae6d1fc357a9d024a0729b1ec4dcbcc15a6
+--- /dev/null
++++ b/mods/empyrean_campaign/npcs/dev_tome.txt
+@@ -0,0 +1,82 @@
++name=DEV Tome
++
++talker=true
++
++# main menu
++[dialog]
++# topic is only visible when used as a response
++topic=Cancel
++id=main
++response=teleport
++response=player
++response=campaign
++response=cancel
++her=
++
++# this is the "Cancel" that appears at the top level, which closes the menu
++[dialog]
++topic=Cancel
++id=cancel
++response_only=true
++
++[dialog]
++topic=Player
++id=player
++response_only=true
++response=items
++response=respec
++response=save_game
++response=restore_hpmp
++response=main
++her=
++
++[dialog]
++topic=Campaign
++id=campaign
++response_only=true
++response=reset_quests
++response=waypoints
++response=main
++her=
++
++INCLUDE npcs/base/dev_tome/teleport.txt
++INCLUDE npcs/base/dev_tome/reset_quests.txt
++INCLUDE npcs/base/dev_tome/items.txt
++INCLUDE npcs/base/dev_tome/respec.txt
++
++# restore HP/MP
++[dialog]
++topic=Restore HP/MP/status
++id=restore_hpmp
++response_only=true
++restore=all
++
++# save game
++[dialog]
++topic=Save game at current position
++id=save_game
++response_only=true
++save_game=true
++
++# waypoints
++[dialog]
++topic=Waypoints
++id=waypoints
++response_only=true
++response=waypoints_lock
++response=waypoints_unlock
++response=main
++her=
++
++[dialog]
++topic=Lock all Hyperspace waypoints
++id=waypoints_lock
++response_only=true
++script=scripts/dev/waypoints_lock.txt
++
++[dialog]
++topic=Unlock all Hyperspace waypoints
++id=waypoints_unlock
++response_only=true
++script=scripts/dev/waypoints_unlock.txt
++
+diff --git a/mods/empyrean_campaign/powers/powers.txt b/mods/empyrean_campaign/powers/powers.txt
+index f78a967a59fe4a3c08cc185f95a38c4ad05ccd2b..8c445765b4b321ee7be34b9ec0fb255da42161bc 100644
+--- a/mods/empyrean_campaign/powers/powers.txt
++++ b/mods/empyrean_campaign/powers/powers.txt
+@@ -47,6 +47,7 @@ soundfx=soundfx/powers/teleport.ogg
+ buff=true
+ post_effect=dev_invis,0,0
+ replace_by_effect=502,dev_invis,1
++requires_equipped_item=2001
+ 
+ [power]
+ id=502
+@@ -57,4 +58,13 @@ new_state=cast
+ soundfx=soundfx/powers/teleport.ogg
+ buff=true
+ remove_effect=dev_invis,1
++requires_equipped_item=2001
+ 
++[power]
++id=503
++name=DEV Tome
++icon=225
++type=fixed
++new_state=instant
++script=on_cast,scripts/powers/dev_tome.txt
++requires_item=2002,0
+diff --git a/mods/empyrean_campaign/scripts/chad.txt b/mods/empyrean_campaign/scripts/chad.txt
+deleted file mode 100644
+index b46d6e92ec8fe7b44e2149f651530935ce2a8bb2..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/chad.txt
++++ /dev/null
+@@ -1,23 +0,0 @@
+-# give the player max level + many good items; useful for testing
+-
+-[event]
+-reward_xp=134217472
+-reward_item=419
+-reward_item=420
+-reward_item=421
+-reward_item=422
+-reward_item=423
+-reward_item=424
+-reward_item=425
+-reward_item=426
+-reward_item=427
+-reward_item=428
+-reward_item=429
+-reward_item=2000
+-
+-# some consumables
+-reward_item=2,20
+-reward_item=3,20
+-
+-# and of course some gold
+-reward_currency=50000
+diff --git a/mods/empyrean_campaign/scripts/dev/chad.txt b/mods/empyrean_campaign/scripts/dev/chad.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..b46d6e92ec8fe7b44e2149f651530935ce2a8bb2
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/chad.txt
+@@ -0,0 +1,23 @@
++# give the player max level + many good items; useful for testing
++
++[event]
++reward_xp=134217472
++reward_item=419
++reward_item=420
++reward_item=421
++reward_item=422
++reward_item=423
++reward_item=424
++reward_item=425
++reward_item=426
++reward_item=427
++reward_item=428
++reward_item=429
++reward_item=2000
++
++# some consumables
++reward_item=2,20
++reward_item=3,20
++
++# and of course some gold
++reward_currency=50000
+diff --git a/mods/empyrean_campaign/scripts/dev/give_unique_items.txt b/mods/empyrean_campaign/scripts/dev/give_unique_items.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..ed2b278bc883696e98e0d84e8a073013bf31fe6d
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/give_unique_items.txt
+@@ -0,0 +1,19 @@
++[event]
++reward_item=90
++reward_item=91
++reward_item=92
++reward_item=93
++reward_item=94
++reward_item=95
++reward_item=197
++reward_item=198
++reward_item=199
++reward_item=200
++reward_item=201
++reward_item=202
++reward_item=305
++reward_item=306
++reward_item=307
++reward_item=308
++reward_item=309
++reward_item=310
+diff --git a/mods/empyrean_campaign/scripts/dev/quests/reset_alchemy.txt b/mods/empyrean_campaign/scripts/dev/quests/reset_alchemy.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..ad46bf9cb5e530b6389e21c910fedb1212440af8
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/quests/reset_alchemy.txt
+@@ -0,0 +1,9 @@
++[event]
++unset_status=emp_alchemy_init
++unset_status=emp_alchemy_finish
++msg=Reset quest: "Alchemy"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/perdition_harbor.txt
++
+diff --git a/mods/empyrean_campaign/scripts/dev/quests/reset_amir.txt b/mods/empyrean_campaign/scripts/dev/quests/reset_amir.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..bb38935a0db5b9fc590e4bf3a50bf7595646e7cf
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/quests/reset_amir.txt
+@@ -0,0 +1,15 @@
++[event]
++unset_status=emp_amir_init
++unset_status=emp_amir_gem_a
++unset_status=emp_amir_gem_b
++unset_status=emp_amir_statue_a
++unset_status=emp_amir_statue_b
++unset_status=emp_amir_bookcase
++unset_status=emp_amir_finish
++remove_item=1006
++remove_item=1007
++msg=Reset quest: "The One-Eyed Guardians"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/fort_amir.txt
+diff --git a/mods/empyrean_campaign/scripts/dev/quests/reset_ardwen.txt b/mods/empyrean_campaign/scripts/dev/quests/reset_ardwen.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..cd020ee3ef4910903bde03a8b015ab4c9fb7c0ed
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/quests/reset_ardwen.txt
+@@ -0,0 +1,13 @@
++[event]
++unset_status=emp_ardwen_init
++unset_status=emp_ardwen_ring
++unset_status=emp_ardwen_chest
++unset_status=emp_ardwen_summoned
++unset_status=emp_ardwen_defeated
++unset_status=emp_ardwen_finish
++remove_item=1003
++msg=Reset quest: "Trapped in the Crypt"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/family_crypt.txt
+diff --git a/mods/empyrean_campaign/scripts/dev/quests/reset_journal.txt b/mods/empyrean_campaign/scripts/dev/quests/reset_journal.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..3dd7732c52ce60abd9331de645fb7de6a7bfceed
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/quests/reset_journal.txt
+@@ -0,0 +1,13 @@
++[event]
++unset_status=emp_journal_init
++unset_status=emp_journal_found
++unset_status=emp_journal_later
++unset_status=emp_journal_finish
++unset_status=emp_abasi_2
++unset_status=emp_abasi_3
++remove_item=1002
++msg=Reset quest: "The Merchant's Journal"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/goblin_camp.txt
+diff --git a/mods/empyrean_campaign/scripts/dev/quests/reset_krolan.txt b/mods/empyrean_campaign/scripts/dev/quests/reset_krolan.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..3c610a14b682ecc569bab24ad1850904c1194f65
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/quests/reset_krolan.txt
+@@ -0,0 +1,12 @@
++[event]
++unset_status=emp_krolan_init
++unset_status=emp_krolan_key
++unset_status=emp_krolan_emerald
++unset_status=emp_krolan_finish
++remove_item=1000
++remove_item=1001
++msg=Reset quest: "Krolan's Missing"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/perdition_harbor.txt
+diff --git a/mods/empyrean_campaign/scripts/dev/quests/reset_main.txt b/mods/empyrean_campaign/scripts/dev/quests/reset_main.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..68773b25bd8da1e0e25b6493eac71231ccf8869c
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/quests/reset_main.txt
+@@ -0,0 +1,63 @@
++[event]
++unset_status=emp_main_init
++unset_status=emp_main_info1,emp_main_info2,emp_main_info3
++unset_status=emp_main_reward1,emp_main_reward2,emp_main_reward3
++unset_status=emp_main_finish
++# unset_status=empyrean_backstory
++unset_status=empyrean_ending
++
++unset_status=emp_main_gravebloom
++unset_status=emp_main_quill
++unset_status=emp_main_knife
++unset_status=emp_main_bloodvial
++unset_status=emp_main_bloodinkwell
++unset_status=emp_main_underworld
++unset_status=emp_main_stronghold
++unset_status=emp_main_pit
++
++unset_status=emp_stmaria1_init,emp_stmaria1_key,emp_stmaria1_door
++unset_status=emp_stmaria2_init,emp_stmaria2_key,emp_stmaria2_door
++unset_status=emp_seagate_defeated,emp_seagate_torches,emp_seagate_respawn
++#old statuses
++unset_status=emp_seagate_teleport,emp_seagate_door
++
++unset_status=emp_mez1_init,emp_mez1_key,emp_mez1_door
++unset_status=emp_mez2_init,emp_mez2_key,emp_mez2_door
++unset_status=emp_mez_trap,emp_mez_defeated
++
++unset_status=emp_wizard1_init,emp_wizard1_key,emp_wizard1_door
++unset_status=emp_wizard2_init,emp_wizard2_key,emp_wizard2_door
++unset_status=emp_metzger_defeated,emp_metzger_respawn,emp_metzger_switch1,emp_metzger_switch2,emp_metzger_switch3,emp_metzger_switch4
++
++unset_status=emp_stronghold1_init,emp_stronghold1_key,emp_stronghold1_door
++unset_status=emp_stronghold2_init,emp_stronghold2_key,emp_stronghold2_door
++unset_status=emp_stronghold2_bypass
++unset_status=emp_pit_init,emp_pit_key,emp_pit_chest,emp_pit_fall
++unset_status=emp_lezaith_respawn,emp_lezaith_defeated
++
++remove_item=1100
++remove_item=1101
++remove_item=1102
++remove_item=1103
++remove_item=1104
++
++remove_item=1004
++remove_item=1005
++remove_item=1006
++
++remove_item=1014
++remove_item=1015
++remove_item=1016
++
++remove_item=1022
++remove_item=1023
++
++remove_item=1028
++remove_item=1029
++remove_item=1030
++
++msg=Reset quest: "Return to Empyrean"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/perdition_harbor.txt
+diff --git a/mods/empyrean_campaign/scripts/dev/quests/reset_martigan.txt b/mods/empyrean_campaign/scripts/dev/quests/reset_martigan.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..ba9983779a068cd43a0e72d1c019b03e57bd312a
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/quests/reset_martigan.txt
+@@ -0,0 +1,20 @@
++[event]
++unset_status=emp_martigan_init
++unset_status=emp_martigan_trade
++unset_status=emp_martigan_sword
++unset_status=emp_martigan_bow
++unset_status=emp_martigan_staff
++unset_status=emp_martigan_finish
++unset_status=emp_oasis_shortcut
++remove_item=1025,1026,1027
++
++# reset figurine quest
++remove_item=1012
++unset_status=emp_fig_4
++unset_status=emp_fig_4_placed
++
++msg=Reset quest: "Fallen Comrades"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/oasis.txt
+diff --git a/mods/empyrean_campaign/scripts/dev/quests/reset_mog.txt b/mods/empyrean_campaign/scripts/dev/quests/reset_mog.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..783d861822761bc09ab55ac9b545ec68a645b9e0
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/quests/reset_mog.txt
+@@ -0,0 +1,19 @@
++[event]
++unset_status=emp_mog_init
++unset_status=emp_mog_note2
++unset_status=emp_mog_note3
++unset_status=emp_mog_note4
++unset_status=emp_mog_note5
++unset_status=emp_mog_door1
++unset_status=emp_mog_door2
++unset_status=emp_mog_finish
++remove_item=1017
++remove_item=1018
++remove_item=1019
++remove_item=1020
++remove_item=1021
++msg=Reset quest: "The Lost Soul of the Mog Caverns"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/mog_caverns.txt
+diff --git a/mods/empyrean_campaign/scripts/dev/quests/reset_nasu.txt b/mods/empyrean_campaign/scripts/dev/quests/reset_nasu.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..4913df00df9506f751cb63a5f935fd80232e8acf
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/quests/reset_nasu.txt
+@@ -0,0 +1,21 @@
++[event]
++unset_status=emp_nasu_door1
++unset_status=emp_nasu_door2
++unset_status=emp_nasu_door3
++unset_status=emp_nasu_door4
++unset_status=emp_nasu_door5
++unset_status=emp_nasu_init
++unset_status=emp_nasu_buchi
++unset_status=emp_nasu_teleporter
++unset_status=emp_nasu_finish
++
++# reset figurine quest
++remove_item=1011
++unset_status=emp_fig_3
++unset_status=emp_fig_3_placed
++
++msg=Reset quest: "An Unusual Name..."
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/fort_nasu.txt
+diff --git a/mods/empyrean_campaign/scripts/dev/quests/reset_naziamines.txt b/mods/empyrean_campaign/scripts/dev/quests/reset_naziamines.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..4a82058083a8de11d43575b71af73c3ba4122a4e
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/quests/reset_naziamines.txt
+@@ -0,0 +1,18 @@
++[event]
++unset_status=emp_naziamines_init
++unset_status=emp_naziamines_dynamite
++unset_status=emp_naziamines_chest
++unset_status=emp_naziamines_cleared
++unset_status=emp_naziamines_finish
++remove_item=1016
++
++# reset figurine quest
++remove_item=1010
++unset_status=emp_fig_2
++unset_status=emp_fig_2_placed
++
++msg=Reset quest: "Trapped!"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/nazia_mines.txt
+diff --git a/mods/empyrean_campaign/scripts/dev/quests/reset_ort.txt b/mods/empyrean_campaign/scripts/dev/quests/reset_ort.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..c8ea51e232fe634f16da28f7b4fa7c2004db6aad
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/quests/reset_ort.txt
+@@ -0,0 +1,15 @@
++[event]
++unset_status=emp_ort_init
++unset_status=emp_ort_finish
++remove_item=1008
++
++# reset figurine quest
++remove_item=1009
++unset_status=emp_fig_1
++unset_status=emp_fig_1_placed
++
++msg=Reset quest: "Brother?"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/grot_lagoon.txt
+diff --git a/mods/empyrean_campaign/scripts/dev/quests/reset_stormrock.txt b/mods/empyrean_campaign/scripts/dev/quests/reset_stormrock.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..140b9de6c80fdc7d5dece59a7d0c8d1a119ec448
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/quests/reset_stormrock.txt
+@@ -0,0 +1,11 @@
++[event]
++unset_status=emp_stormrock_init
++unset_status=emp_stormrock_search
++unset_status=emp_stormrock_key
++unset_status=emp_stormrock_door
++remove_item=1013
++msg=Reset quest: "Locked Out"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/stormrock_ruins.txt
+diff --git a/mods/empyrean_campaign/scripts/dev/quests/reset_torture.txt b/mods/empyrean_campaign/scripts/dev/quests/reset_torture.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d71c6a985eef6422ed253e6a91031a96e40792f4
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/quests/reset_torture.txt
+@@ -0,0 +1,17 @@
++[event]
++unset_status=emp_torture_init
++unset_status=emp_torture_notes
++unset_status=emp_torture_traps
++unset_status=emp_torture_barriers
++unset_status=emp_torture_finish
++unset_status=emp_torture_door
++unset_status=emp_torture_save
++unset_status=emp_torture_chest1
++unset_status=emp_torture_chest2
++unset_status=emp_vohn_defeated
++remove_item=1024
++msg=Reset quest: "Warden's Notes"
++
++[event]
++requires_not_status=disable_reset_teleport
++intermap=maps/torture_chambers.txt
+diff --git a/mods/empyrean_campaign/scripts/dev/waypoints_lock.txt b/mods/empyrean_campaign/scripts/dev/waypoints_lock.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..c6841c3021083502b8daa95a2908902d6184a5d6
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/waypoints_lock.txt
+@@ -0,0 +1,15 @@
++[event]
++unset_status=emp_waypoint_0
++unset_status=emp_waypoint_1
++unset_status=emp_waypoint_2
++unset_status=emp_waypoint_3
++unset_status=emp_waypoint_4
++unset_status=emp_waypoint_5
++unset_status=emp_waypoint_6
++unset_status=emp_waypoint_7
++unset_status=emp_waypoint_8
++unset_status=emp_waypoint_9
++unset_status=emp_waypoint_10
++unset_status=emp_waypoint_11
++msg=Locked all waypoints
++intermap=maps/hyperspace.txt
+diff --git a/mods/empyrean_campaign/scripts/dev/waypoints_unlock.txt b/mods/empyrean_campaign/scripts/dev/waypoints_unlock.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..f165e2f63a1571c663da2a49b8ba60767c4bfc82
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/dev/waypoints_unlock.txt
+@@ -0,0 +1,15 @@
++[event]
++set_status=emp_waypoint_0
++set_status=emp_waypoint_1
++set_status=emp_waypoint_2
++set_status=emp_waypoint_3
++set_status=emp_waypoint_4
++set_status=emp_waypoint_5
++set_status=emp_waypoint_6
++set_status=emp_waypoint_7
++set_status=emp_waypoint_8
++set_status=emp_waypoint_9
++set_status=emp_waypoint_10
++set_status=emp_waypoint_11
++msg=Unlocked all waypoints
++intermap=maps/hyperspace.txt
+diff --git a/mods/empyrean_campaign/scripts/give_unique_items.txt b/mods/empyrean_campaign/scripts/give_unique_items.txt
+deleted file mode 100644
+index ed2b278bc883696e98e0d84e8a073013bf31fe6d..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/give_unique_items.txt
++++ /dev/null
+@@ -1,19 +0,0 @@
+-[event]
+-reward_item=90
+-reward_item=91
+-reward_item=92
+-reward_item=93
+-reward_item=94
+-reward_item=95
+-reward_item=197
+-reward_item=198
+-reward_item=199
+-reward_item=200
+-reward_item=201
+-reward_item=202
+-reward_item=305
+-reward_item=306
+-reward_item=307
+-reward_item=308
+-reward_item=309
+-reward_item=310
+diff --git a/mods/empyrean_campaign/scripts/powers/dev_tome.txt b/mods/empyrean_campaign/scripts/powers/dev_tome.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..c85d51bd7ede314dc35833322d0f866cf921eb5b
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/dev_tome.txt
+@@ -0,0 +1,3 @@
++[event]
++npc=npcs/dev_tome.txt
++
+diff --git a/mods/empyrean_campaign/scripts/reset_alchemy.txt b/mods/empyrean_campaign/scripts/reset_alchemy.txt
+deleted file mode 100644
+index ad46bf9cb5e530b6389e21c910fedb1212440af8..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/reset_alchemy.txt
++++ /dev/null
+@@ -1,9 +0,0 @@
+-[event]
+-unset_status=emp_alchemy_init
+-unset_status=emp_alchemy_finish
+-msg=Reset quest: "Alchemy"
+-
+-[event]
+-requires_not_status=disable_reset_teleport
+-intermap=maps/perdition_harbor.txt
+-
+diff --git a/mods/empyrean_campaign/scripts/reset_amir.txt b/mods/empyrean_campaign/scripts/reset_amir.txt
+deleted file mode 100644
+index bb38935a0db5b9fc590e4bf3a50bf7595646e7cf..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/reset_amir.txt
++++ /dev/null
+@@ -1,15 +0,0 @@
+-[event]
+-unset_status=emp_amir_init
+-unset_status=emp_amir_gem_a
+-unset_status=emp_amir_gem_b
+-unset_status=emp_amir_statue_a
+-unset_status=emp_amir_statue_b
+-unset_status=emp_amir_bookcase
+-unset_status=emp_amir_finish
+-remove_item=1006
+-remove_item=1007
+-msg=Reset quest: "The One-Eyed Guardians"
+-
+-[event]
+-requires_not_status=disable_reset_teleport
+-intermap=maps/fort_amir.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_ardwen.txt b/mods/empyrean_campaign/scripts/reset_ardwen.txt
+deleted file mode 100644
+index cd020ee3ef4910903bde03a8b015ab4c9fb7c0ed..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/reset_ardwen.txt
++++ /dev/null
+@@ -1,13 +0,0 @@
+-[event]
+-unset_status=emp_ardwen_init
+-unset_status=emp_ardwen_ring
+-unset_status=emp_ardwen_chest
+-unset_status=emp_ardwen_summoned
+-unset_status=emp_ardwen_defeated
+-unset_status=emp_ardwen_finish
+-remove_item=1003
+-msg=Reset quest: "Trapped in the Crypt"
+-
+-[event]
+-requires_not_status=disable_reset_teleport
+-intermap=maps/family_crypt.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_journal.txt b/mods/empyrean_campaign/scripts/reset_journal.txt
+deleted file mode 100644
+index 3dd7732c52ce60abd9331de645fb7de6a7bfceed..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/reset_journal.txt
++++ /dev/null
+@@ -1,13 +0,0 @@
+-[event]
+-unset_status=emp_journal_init
+-unset_status=emp_journal_found
+-unset_status=emp_journal_later
+-unset_status=emp_journal_finish
+-unset_status=emp_abasi_2
+-unset_status=emp_abasi_3
+-remove_item=1002
+-msg=Reset quest: "The Merchant's Journal"
+-
+-[event]
+-requires_not_status=disable_reset_teleport
+-intermap=maps/goblin_camp.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_krolan.txt b/mods/empyrean_campaign/scripts/reset_krolan.txt
+deleted file mode 100644
+index 3c610a14b682ecc569bab24ad1850904c1194f65..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/reset_krolan.txt
++++ /dev/null
+@@ -1,12 +0,0 @@
+-[event]
+-unset_status=emp_krolan_init
+-unset_status=emp_krolan_key
+-unset_status=emp_krolan_emerald
+-unset_status=emp_krolan_finish
+-remove_item=1000
+-remove_item=1001
+-msg=Reset quest: "Krolan's Missing"
+-
+-[event]
+-requires_not_status=disable_reset_teleport
+-intermap=maps/perdition_harbor.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_main.txt b/mods/empyrean_campaign/scripts/reset_main.txt
+deleted file mode 100644
+index 68773b25bd8da1e0e25b6493eac71231ccf8869c..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/reset_main.txt
++++ /dev/null
+@@ -1,63 +0,0 @@
+-[event]
+-unset_status=emp_main_init
+-unset_status=emp_main_info1,emp_main_info2,emp_main_info3
+-unset_status=emp_main_reward1,emp_main_reward2,emp_main_reward3
+-unset_status=emp_main_finish
+-# unset_status=empyrean_backstory
+-unset_status=empyrean_ending
+-
+-unset_status=emp_main_gravebloom
+-unset_status=emp_main_quill
+-unset_status=emp_main_knife
+-unset_status=emp_main_bloodvial
+-unset_status=emp_main_bloodinkwell
+-unset_status=emp_main_underworld
+-unset_status=emp_main_stronghold
+-unset_status=emp_main_pit
+-
+-unset_status=emp_stmaria1_init,emp_stmaria1_key,emp_stmaria1_door
+-unset_status=emp_stmaria2_init,emp_stmaria2_key,emp_stmaria2_door
+-unset_status=emp_seagate_defeated,emp_seagate_torches,emp_seagate_respawn
+-#old statuses
+-unset_status=emp_seagate_teleport,emp_seagate_door
+-
+-unset_status=emp_mez1_init,emp_mez1_key,emp_mez1_door
+-unset_status=emp_mez2_init,emp_mez2_key,emp_mez2_door
+-unset_status=emp_mez_trap,emp_mez_defeated
+-
+-unset_status=emp_wizard1_init,emp_wizard1_key,emp_wizard1_door
+-unset_status=emp_wizard2_init,emp_wizard2_key,emp_wizard2_door
+-unset_status=emp_metzger_defeated,emp_metzger_respawn,emp_metzger_switch1,emp_metzger_switch2,emp_metzger_switch3,emp_metzger_switch4
+-
+-unset_status=emp_stronghold1_init,emp_stronghold1_key,emp_stronghold1_door
+-unset_status=emp_stronghold2_init,emp_stronghold2_key,emp_stronghold2_door
+-unset_status=emp_stronghold2_bypass
+-unset_status=emp_pit_init,emp_pit_key,emp_pit_chest,emp_pit_fall
+-unset_status=emp_lezaith_respawn,emp_lezaith_defeated
+-
+-remove_item=1100
+-remove_item=1101
+-remove_item=1102
+-remove_item=1103
+-remove_item=1104
+-
+-remove_item=1004
+-remove_item=1005
+-remove_item=1006
+-
+-remove_item=1014
+-remove_item=1015
+-remove_item=1016
+-
+-remove_item=1022
+-remove_item=1023
+-
+-remove_item=1028
+-remove_item=1029
+-remove_item=1030
+-
+-msg=Reset quest: "Return to Empyrean"
+-
+-[event]
+-requires_not_status=disable_reset_teleport
+-intermap=maps/perdition_harbor.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_martigan.txt b/mods/empyrean_campaign/scripts/reset_martigan.txt
+deleted file mode 100644
+index 521ea6ecaed7842231fa18df041f0cc172221644..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/reset_martigan.txt
++++ /dev/null
+@@ -1,14 +0,0 @@
+-[event]
+-unset_status=emp_martigan_init
+-unset_status=emp_martigan_trade
+-unset_status=emp_martigan_sword
+-unset_status=emp_martigan_bow
+-unset_status=emp_martigan_staff
+-unset_status=emp_martigan_finish
+-unset_status=emp_oasis_shortcut
+-remove_item=1025,1026,1027
+-msg=Reset quest: "Fallen Comrades"
+-
+-[event]
+-requires_not_status=disable_reset_teleport
+-intermap=maps/oasis.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_mog.txt b/mods/empyrean_campaign/scripts/reset_mog.txt
+deleted file mode 100644
+index 783d861822761bc09ab55ac9b545ec68a645b9e0..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/reset_mog.txt
++++ /dev/null
+@@ -1,19 +0,0 @@
+-[event]
+-unset_status=emp_mog_init
+-unset_status=emp_mog_note2
+-unset_status=emp_mog_note3
+-unset_status=emp_mog_note4
+-unset_status=emp_mog_note5
+-unset_status=emp_mog_door1
+-unset_status=emp_mog_door2
+-unset_status=emp_mog_finish
+-remove_item=1017
+-remove_item=1018
+-remove_item=1019
+-remove_item=1020
+-remove_item=1021
+-msg=Reset quest: "The Lost Soul of the Mog Caverns"
+-
+-[event]
+-requires_not_status=disable_reset_teleport
+-intermap=maps/mog_caverns.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_nasu.txt b/mods/empyrean_campaign/scripts/reset_nasu.txt
+deleted file mode 100644
+index 8b66e58b34ef9ecaa30884ab8954f9dd1e5aa4ed..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/reset_nasu.txt
++++ /dev/null
+@@ -1,15 +0,0 @@
+-[event]
+-unset_status=emp_nasu_door1
+-unset_status=emp_nasu_door2
+-unset_status=emp_nasu_door3
+-unset_status=emp_nasu_door4
+-unset_status=emp_nasu_door5
+-unset_status=emp_nasu_init
+-unset_status=emp_nasu_buchi
+-unset_status=emp_nasu_teleporter
+-unset_status=emp_nasu_finish
+-msg=Reset quest: "An Unusual Name..."
+-
+-[event]
+-requires_not_status=disable_reset_teleport
+-intermap=maps/fort_nasu.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_naziamines.txt b/mods/empyrean_campaign/scripts/reset_naziamines.txt
+deleted file mode 100644
+index 4e763ecb06280027907e3563c3b007e8068e61da..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/reset_naziamines.txt
++++ /dev/null
+@@ -1,14 +0,0 @@
+-[event]
+-unset_status=emp_naziamines_init
+-unset_status=emp_naziamines_dynamite
+-unset_status=emp_naziamines_chest
+-unset_status=emp_naziamines_cleared
+-unset_status=emp_naziamines_finish
+-remove_item=1016
+-remove_item=1010
+-msg=Reset quest: "Trapped!"
+-# TODO reset figurine quest
+-
+-[event]
+-requires_not_status=disable_reset_teleport
+-intermap=maps/nazia_mines.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_ort.txt b/mods/empyrean_campaign/scripts/reset_ort.txt
+deleted file mode 100644
+index 84d5c38014a9103d956e53b8404f6a893fc1e4c3..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/reset_ort.txt
++++ /dev/null
+@@ -1,11 +0,0 @@
+-[event]
+-unset_status=emp_ort_init
+-unset_status=emp_ort_finish
+-remove_item=1008
+-remove_item=1009
+-msg=Reset quest: "Brother?"
+-# TODO reset figurine quest
+-
+-[event]
+-requires_not_status=disable_reset_teleport
+-intermap=maps/grot_lagoon.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_stormrock.txt b/mods/empyrean_campaign/scripts/reset_stormrock.txt
+deleted file mode 100644
+index 140b9de6c80fdc7d5dece59a7d0c8d1a119ec448..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/reset_stormrock.txt
++++ /dev/null
+@@ -1,11 +0,0 @@
+-[event]
+-unset_status=emp_stormrock_init
+-unset_status=emp_stormrock_search
+-unset_status=emp_stormrock_key
+-unset_status=emp_stormrock_door
+-remove_item=1013
+-msg=Reset quest: "Locked Out"
+-
+-[event]
+-requires_not_status=disable_reset_teleport
+-intermap=maps/stormrock_ruins.txt
+diff --git a/mods/empyrean_campaign/scripts/reset_torture.txt b/mods/empyrean_campaign/scripts/reset_torture.txt
+deleted file mode 100644
+index d71c6a985eef6422ed253e6a91031a96e40792f4..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/reset_torture.txt
++++ /dev/null
+@@ -1,17 +0,0 @@
+-[event]
+-unset_status=emp_torture_init
+-unset_status=emp_torture_notes
+-unset_status=emp_torture_traps
+-unset_status=emp_torture_barriers
+-unset_status=emp_torture_finish
+-unset_status=emp_torture_door
+-unset_status=emp_torture_save
+-unset_status=emp_torture_chest1
+-unset_status=emp_torture_chest2
+-unset_status=emp_vohn_defeated
+-remove_item=1024
+-msg=Reset quest: "Warden's Notes"
+-
+-[event]
+-requires_not_status=disable_reset_teleport
+-intermap=maps/torture_chambers.txt
+diff --git a/mods/empyrean_campaign/scripts/unlock_waypoints.txt b/mods/empyrean_campaign/scripts/unlock_waypoints.txt
+deleted file mode 100644
+index f2957151e596e9e9d175df6876a26286f8dd11dc..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/unlock_waypoints.txt
++++ /dev/null
+@@ -1,14 +0,0 @@
+-[event]
+-set_status=emp_waypoint_0
+-set_status=emp_waypoint_1
+-set_status=emp_waypoint_2
+-set_status=emp_waypoint_3
+-set_status=emp_waypoint_4
+-set_status=emp_waypoint_5
+-set_status=emp_waypoint_6
+-set_status=emp_waypoint_7
+-set_status=emp_waypoint_8
+-set_status=emp_waypoint_9
+-set_status=emp_waypoint_10
+-set_status=emp_waypoint_11
+-msg=Unlocked all waypoints

@@ -1,0 +1,234 @@
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+index 919a142b200b4438026e08a128856432fe4f2e3a..74180cdde36382e7e5b8f10d410ef0e1e6706f98 100644
+--- a/mods/empyrean_campaign/items/categories/quest.txt
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -340,6 +340,7 @@ flavor=An odor of iron and its abrasive petals make this rare plant easy to iden
+ icon=256
+ quality=unique
+ pickup_status=emp_main_gravebloom
++no_stash=shared
+ 
+ [item]
+ id=1101
+@@ -350,6 +351,7 @@ flavor=This mysterious black feather has a very sharp follicle, making it a suit
+ icon=257
+ quality=unique
+ pickup_status=emp_main_quill
++no_stash=shared
+ 
+ [item]
+ id=1102
+@@ -360,6 +362,7 @@ flavor=A dark, magical energy flows through the tip of this small blade.
+ icon=258
+ quality=unique
+ pickup_status=emp_main_knife
++no_stash=shared
+ 
+ [item]
+ id=1103
+@@ -370,6 +373,7 @@ flavor=Spoils of the Red Altar ritual.
+ icon=259
+ quality=unique
+ pickup_status=emp_main_bloodvial
++no_stash=shared
+ 
+ [item]
+ id=1104
+@@ -380,4 +384,5 @@ flavor=According to Florin, this is the only ink capable of being used in the Bo
+ icon=260
+ quality=unique
+ pickup_status=emp_main_bloodinkwell
++no_stash=shared
+ 
+diff --git a/mods/empyrean_campaign/maps/book_of_the_dead.txt b/mods/empyrean_campaign/maps/book_of_the_dead.txt
+index e4070342eb2eef150a958dcf907e0803d2cb3d01..6acb7c4b4507c2c523d18268b12c46a1ccc83248 100644
+--- a/mods/empyrean_campaign/maps/book_of_the_dead.txt
++++ b/mods/empyrean_campaign/maps/book_of_the_dead.txt
+@@ -347,10 +347,22 @@ activate=on_trigger
+ hotspot=4,25,1,1
+ msg=You sign your name in the Book of the Dead. The Black Quill vanishes and the inkwell is dry. You hope this worked.
+ remove_item=1101,1104
+-requires_item=1104
++requires_item=1101,1104
+ requires_status=emp_main_bloodinkwell
+ set_status=emp_main_underworld
+ shakycam=2s
+ soundfx=soundfx/powers/thunder.ogg
+ tooltip=Book of the Dead
+ 
++[event]
++# book of the dead (have inkwell, but not quill)
++type=event
++location=6,20,1,1
++activate=on_trigger
++book=books/book_of_the_dead.txt
++hotspot=4,25,1,1
++requires_item=1104
++requires_not_item=1101
++requires_status=emp_main_init
++tooltip=Book of the Dead
++
+diff --git a/mods/empyrean_campaign/maps/temple_of_mez_2.txt b/mods/empyrean_campaign/maps/temple_of_mez_2.txt
+index cf1048d7e84f083b86705edfc32a87bd87fc2074..2530a69326e850f1b504bedfa8b718864b332fdf 100644
+--- a/mods/empyrean_campaign/maps/temple_of_mez_2.txt
++++ b/mods/empyrean_campaign/maps/temple_of_mez_2.txt
+@@ -528,6 +528,7 @@ requires_not_status=emp_mez2_init
+ set_status=emp_mez2_init
+ 
+ [event]
++# Plaque
+ type=event
+ location=46,56,1,1
+ activate=on_trigger
+@@ -546,6 +547,7 @@ soundfx=soundfx/environment/stairs.ogg,0,0
+ tooltip=Temple of Mez: Entrance
+ 
+ [event]
++# Main quest: Red Altar
+ type=event
+ location=45,51,2,1
+ activate=on_trigger
+@@ -553,6 +555,7 @@ hotspot=location
+ msg=You cut into your arm with the Knife of Sacrifices. The pain is excruciating. Shaking, you manage to collect some of your blood in a small vial. The knife quickly raises in temperature until it disintegrates. Your wound then begins to close itself, leaving no trace at all besides a warm feeling throughout your body.
+ remove_item=1102
+ repeat=false
++requires_item=1102
+ requires_not_status=emp_main_bloodvial
+ requires_status=emp_main_knife
+ reward_item=1103
+@@ -560,6 +563,19 @@ set_status=emp_main_bloodvial
+ soundfx=soundfx/enemies/zombie_hit.ogg
+ tooltip=Red Altar
+ 
++[event]
++# Main quest: Red Altar (no knife)
++type=event
++location=45,51,2,1
++activate=on_trigger
++cooldown=1s
++hotspot=location
++msg=Nothing happens.
++repeat=true
++requires_not_item=1102
++requires_not_status=emp_main_bloodvial
++tooltip=Red Altar
++
+ [enemy]
+ type=enemy
+ location=40,8,12,4
+diff --git a/mods/empyrean_campaign/npcs/florin.txt b/mods/empyrean_campaign/npcs/florin.txt
+index 1213e16bfa27d721f6956ddb3ccdee6ee6e6dcdc..d8e3d5d9dfb9cfb07b150744c5a708754a89e19f 100644
+--- a/mods/empyrean_campaign/npcs/florin.txt
++++ b/mods/empyrean_campaign/npcs/florin.txt
+@@ -61,6 +61,16 @@ him=I don't know why this blade in particular is required to make the ink. Once
+ topic=Vial of Blood
+ requires_status=emp_main_bloodvial
+ requires_not_status=emp_main_bloodinkwell
++requires_item=1103:1
++requires_not_item=1100:1
++you=I completed the ritual at the Red Altar. What now?
++him=I can create a small amount of gravebloom ink for you, but I require a Gravebloom flower accomplish this. Return to me with both the flower and the blood.
++
++[dialog]
++topic=Vial of Blood
++requires_status=emp_main_bloodvial
++requires_not_status=emp_main_bloodinkwell
++requires_item=1100:1,1103:1
+ you=I completed the ritual at the Red Altar. What now?
+ him=We are ready to create a small amount of gravebloom ink. Allow me to perform the mixing.
+ him=The correct ratio of Gravebloom to blood is important. Too much Gravebloom will cause the ink to eat through the paper. Too little Gravebloom and the ink won't adhere to the quill.
+diff --git a/tiled/empyrean_campaign/book_of_the_dead.tmx b/tiled/empyrean_campaign/book_of_the_dead.tmx
+index 7fde9cb36355e3e530f5a0a3c4fa25c346ca4c0c..31b71fdb51f687b3101e054e43df84e7f1a3506c 100644
+--- a/tiled/empyrean_campaign/book_of_the_dead.tmx
++++ b/tiled/empyrean_campaign/book_of_the_dead.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.2" tiledversion="1.2.1" orientation="isometric" renderorder="right-down" width="32" height="50" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextlayerid="5" nextobjectid="26">
++<map version="1.4" tiledversion="1.4.3" orientation="isometric" renderorder="right-down" width="32" height="50" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextlayerid="5" nextobjectid="27">
+  <properties>
+   <property name="hero_pos" value="17,46"/>
+   <property name="music" value="music/unrest_theme.ogg"/>
+@@ -341,7 +341,7 @@
+     <property name="hotspot" value="4,25,1,1"/>
+     <property name="msg" value="You sign your name in the Book of the Dead. The Black Quill vanishes and the inkwell is dry. You hope this worked."/>
+     <property name="remove_item" value="1101,1104"/>
+-    <property name="requires_item" value="1104"/>
++    <property name="requires_item" value="1101,1104"/>
+     <property name="requires_status" value="emp_main_bloodinkwell"/>
+     <property name="set_status" value="emp_main_underworld"/>
+     <property name="shakycam" value="2s"/>
+@@ -349,5 +349,16 @@
+     <property name="tooltip" value="Book of the Dead"/>
+    </properties>
+   </object>
++  <object id="26" name="book of the dead (have inkwell, but not quill)" type="event" x="192" y="640" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_trigger"/>
++    <property name="book" value="books/book_of_the_dead.txt"/>
++    <property name="hotspot" value="4,25,1,1"/>
++    <property name="requires_item" value="1104"/>
++    <property name="requires_not_item" value="1101"/>
++    <property name="requires_status" value="emp_main_init"/>
++    <property name="tooltip" value="Book of the Dead"/>
++   </properties>
++  </object>
+  </objectgroup>
+ </map>
+diff --git a/tiled/empyrean_campaign/temple_of_mez_2.tmx b/tiled/empyrean_campaign/temple_of_mez_2.tmx
+index 0917d6b1b4971231c34827dec2d4e6da1b763920..f44e34b8f069910bfb63d8556b703178a7f4a297 100644
+--- a/tiled/empyrean_campaign/temple_of_mez_2.tmx
++++ b/tiled/empyrean_campaign/temple_of_mez_2.tmx
+@@ -1,5 +1,8 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.4" tiledversion="1.4.2" orientation="isometric" renderorder="right-down" width="100" height="100" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextlayerid="6" nextobjectid="55">
++<map version="1.4" tiledversion="1.4.3" orientation="isometric" renderorder="right-down" width="100" height="100" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextlayerid="6" nextobjectid="56">
++ <editorsettings>
++  <export target="../../mods/empyrean_campaign/maps/temple_of_mez_2.txt" format="flare"/>
++ </editorsettings>
+  <properties>
+   <property name="hero_pos" value="70,10"/>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+@@ -521,7 +524,7 @@
+     <property name="set_status" value="emp_mez2_init"/>
+    </properties>
+   </object>
+-  <object id="52" type="event" x="1472" y="1792" width="32" height="32">
++  <object id="52" name="Plaque" type="event" x="1472" y="1792" width="32" height="32">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+@@ -538,13 +541,14 @@
+     <property name="tooltip" value="Temple of Mez: Entrance"/>
+    </properties>
+   </object>
+-  <object id="54" type="event" x="1440" y="1632" width="64" height="32">
++  <object id="54" name="Main quest: Red Altar" type="event" x="1440" y="1632" width="64" height="32">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="msg" value="You cut into your arm with the Knife of Sacrifices. The pain is excruciating. Shaking, you manage to collect some of your blood in a small vial. The knife quickly raises in temperature until it disintegrates. Your wound then begins to close itself, leaving no trace at all besides a warm feeling throughout your body."/>
+     <property name="remove_item" value="1102"/>
+     <property name="repeat" value="false"/>
++    <property name="requires_item" value="1102"/>
+     <property name="requires_not_status" value="emp_main_bloodvial"/>
+     <property name="requires_status" value="emp_main_knife"/>
+     <property name="reward_item" value="1103"/>
+@@ -553,6 +557,18 @@
+     <property name="tooltip" value="Red Altar"/>
+    </properties>
+   </object>
++  <object id="55" name="Main quest: Red Altar (no knife)" type="event" x="1440" y="1632" width="64" height="32">
++   <properties>
++    <property name="activate" value="on_trigger"/>
++    <property name="cooldown" value="1s"/>
++    <property name="hotspot" value="location"/>
++    <property name="msg" value="Nothing happens."/>
++    <property name="repeat" value="true"/>
++    <property name="requires_not_item" value="1102"/>
++    <property name="requires_not_status" value="emp_main_bloodvial"/>
++    <property name="tooltip" value="Red Altar"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup id="5" name="enemy" visible="0">
+   <object id="25" type="enemy" x="1280" y="256" width="384" height="128">

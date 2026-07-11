@@ -1,0 +1,906 @@
+diff --git a/mods/alpha_demo/enemies/grisbon.txt b/mods/alpha_demo/enemies/grisbon.txt
+index c4689ffc19266d7c2810fec87948f91e89148f1a..ac56be5a106091e6aa2c7be49f44fb1890dd851d 100644
+--- a/mods/alpha_demo/enemies/grisbon.txt
++++ b/mods/alpha_demo/enemies/grisbon.txt
+@@ -43,9 +43,9 @@ vulnerable_ice=75
+ cooldown=666ms
+ 
+ # loot
+-loot=currency,33,8,32
++loot=loot/leveled_high.txt
+ 
+-# long sword, plate armor, crest shield, health pot
++# long sword, plate armor, crest shield
+ loot=34,5
+ loot=96,5
+ loot=96,5
+diff --git a/mods/alpha_demo/enemies/krakatoa.txt b/mods/alpha_demo/enemies/krakatoa.txt
+index 5547df5f46c641961d19f7f863869d3fba0c0356..d8bdb990e83958303d59ec5a299a8d50691c6b89 100644
+--- a/mods/alpha_demo/enemies/krakatoa.txt
++++ b/mods/alpha_demo/enemies/krakatoa.txt
+@@ -38,11 +38,8 @@ vulnerable_ice=200
+ cooldown=833ms
+ 
+ # loot
+-loot=currency,15,8,32
+-
+-# healing pot, mana pot, ring of fire, ruby
+-loot=1,3
+-loot=2,3
++loot=loot/leveled_high.txt
+ 
++# ring of fire, ruby
+ loot=109,1
+ loot=5,1
+diff --git a/mods/alpha_demo/enemies/miner.txt b/mods/alpha_demo/enemies/miner.txt
+index 9d280ceb28ff0d3b6964b820d81a8a728a741332..fe1e6ebc78e25677b169b3c8ee372545b0e5e480 100644
+--- a/mods/alpha_demo/enemies/miner.txt
++++ b/mods/alpha_demo/enemies/miner.txt
+@@ -33,12 +33,11 @@ dmg_ment_max=20
+ cooldown=3s
+ 
+ # loot
+-loot=currency,33,2,8
++loot=loot/leveled_low.txt
+ 
+-# cloth set, healing pot
++# cloth set
+ loot=64,5
+ loot=65,5
+ loot=66,5
+ loot=67,5
+-loot=1,5
+ 
+diff --git a/mods/alpha_demo/enemies/necromancer_apprentice.txt b/mods/alpha_demo/enemies/necromancer_apprentice.txt
+index ef4d6977afbbb6e03c7d69e2055a7ceffd4c8b48..abf2b4a7a66ce1548f48eebb8b1b7bed0c5164a8 100644
+--- a/mods/alpha_demo/enemies/necromancer_apprentice.txt
++++ b/mods/alpha_demo/enemies/necromancer_apprentice.txt
+@@ -40,10 +40,7 @@ vulnerable_ice=50
+ cooldown=1s
+ 
+ # loot
+-loot=currency,33,5,20
+-
+-# health pot
+-loot=1,5
++loot=loot/leveled_high.txt
+ 
+ # blood gear, ring of regen
+ loot=116,1
+diff --git a/mods/alpha_demo/enemies/professor_langlier.txt b/mods/alpha_demo/enemies/professor_langlier.txt
+index 7a953d398814382db543773b0d2711d20d2fb53a..ee96073da95975657e6e3fbcc1a94d0080855293 100644
+--- a/mods/alpha_demo/enemies/professor_langlier.txt
++++ b/mods/alpha_demo/enemies/professor_langlier.txt
+@@ -44,11 +44,10 @@ vulnerable_ice=50
+ cooldown=1s
+ 
+ # loot
+-loot=currency,33,4,16
++loot=loot/leveled_high.txt
+ 
+-# rod, mana pot
++# rod
+ loot=41,5
+-loot=2,5
+ 
+ # mage set
+ loot=72,1
+diff --git a/mods/alpha_demo/enemies/reanimated_skeleton.txt b/mods/alpha_demo/enemies/reanimated_skeleton.txt
+index cba3386229ef347a8dbe755529950de1e0d5e5d8..96fca2640aabcfab2a363844fa6c8fa86254bd78 100644
+--- a/mods/alpha_demo/enemies/reanimated_skeleton.txt
++++ b/mods/alpha_demo/enemies/reanimated_skeleton.txt
+@@ -36,6 +36,9 @@ cooldown=833ms
+ absorb_min=5
+ absorb_max=15
+ 
++# loot
++loot=loot/leveled_low.txt
++
+ # Miner's gloves
+-loot=129,100
++loot=129,fixed
+ 
+diff --git a/mods/alpha_demo/enemies/rilrak.txt b/mods/alpha_demo/enemies/rilrak.txt
+index 07afd6755e658653ea4330dc8528907b5e07d625..959e53374a665a11487503ef64629288fb9c4e56 100644
+--- a/mods/alpha_demo/enemies/rilrak.txt
++++ b/mods/alpha_demo/enemies/rilrak.txt
+@@ -41,11 +41,10 @@ cooldown=833ms
+ cooldown_ranged_phys=3s
+ 
+ # loot
+-loot=currency,33,4,16
++loot=loot/leveled_mid.txt
+ 
+-# wand, mana potion
++# wand
+ loot=40,5
+-loot=2,5
+ 
+ # rod, mage gloves, mage boots
+ loot=41,1
+diff --git a/mods/alpha_demo/enemies/scathelocke.txt b/mods/alpha_demo/enemies/scathelocke.txt
+index 3df54897fa297d6f8feb476b05d59145be4ddc6f..25ba6833bb92a726bcfa6ffec628f91905faf873 100644
+--- a/mods/alpha_demo/enemies/scathelocke.txt
++++ b/mods/alpha_demo/enemies/scathelocke.txt
+@@ -44,9 +44,9 @@ vulnerable_ice=0
+ cooldown=1s
+ 
+ # loot
+-loot=currency,33,8,32
++loot=loot/leveled_high.txt
+ 
+-# long sword, plate armor, crest shield, health pot
++# long sword, plate armor, crest shield
+ loot=34,5
+ loot=96,5
+ loot=96,5
+diff --git a/mods/alpha_demo/enemies/sir_evan_maddox.txt b/mods/alpha_demo/enemies/sir_evan_maddox.txt
+index 54367b96be76005b42f635fc4646f9c428bf0b13..2f2966968b06d63016949c6dbfbd87f666780d45 100644
+--- a/mods/alpha_demo/enemies/sir_evan_maddox.txt
++++ b/mods/alpha_demo/enemies/sir_evan_maddox.txt
+@@ -41,9 +41,9 @@ vulnerable_ice=75
+ cooldown=833ms
+ 
+ # loot
+-loot=currency,33,8,32
++loot=loot/leveled_high.txt
+ 
+-# long sword, plate armor, crest shield, health pot
++# long sword, plate armor, crest shield
+ loot=34,5
+ loot=96,5
+ loot=96,5
+diff --git a/mods/alpha_demo/enemies/skeletal_prophet.txt b/mods/alpha_demo/enemies/skeletal_prophet.txt
+index ec8c995b6310cd171c8db73e9ddac55263ec777f..dc85e78a91f69eabd371276e16a24aef2744745f 100644
+--- a/mods/alpha_demo/enemies/skeletal_prophet.txt
++++ b/mods/alpha_demo/enemies/skeletal_prophet.txt
+@@ -42,11 +42,10 @@ vulnerable_ice=50
+ cooldown=500ms
+ 
+ # loot
+-loot=currency,33,7,28
++loot=loot/leveled_high.txt
+ 
+-# staff, mana pot
++# staff
+ loot=42,5
+-loot=2,5
+ 
+ # ring of concentration, owl figurine, sapphire, sage mantle, sage frock
+ loot=108,1
+diff --git a/mods/alpha_demo/enemies/skeletal_thundersword.txt b/mods/alpha_demo/enemies/skeletal_thundersword.txt
+index b334a79ace2ef1cc787e8dcc76f7703199d73973..ed38140c1dcce35d5c970c8b30192dc0852cc880 100644
+--- a/mods/alpha_demo/enemies/skeletal_thundersword.txt
++++ b/mods/alpha_demo/enemies/skeletal_thundersword.txt
+@@ -49,9 +49,9 @@ vulnerable_ice=75
+ cooldown=333ms
+ 
+ # loot
+-loot=currency,33,8,32
++loot=loot/leveled_high.txt
+ 
+-# long sword, plate armor, crest shield, health pot
++# long sword, plate armor, crest shield
+ loot=34,5
+ loot=96,5
+ loot=96,5
+diff --git a/mods/alpha_demo/enemies/the_warden.txt b/mods/alpha_demo/enemies/the_warden.txt
+index 0e285c93c93416d07df819300d004b28faf7b509..b2b0c06e70936fb17a8f56dd8a945721eb9f0954 100644
+--- a/mods/alpha_demo/enemies/the_warden.txt
++++ b/mods/alpha_demo/enemies/the_warden.txt
+@@ -39,10 +39,9 @@ dmg_ment_max=55
+ cooldown=833ms
+ 
+ # loot
+-loot=currency,33,3,12
++loot=loot/leveled_mid.txt
+ 
+-# leather chest, pants, healing pot
++# leather chest, pants
+ loot=81,5
+ loot=83,5
+-loot=1,5
+ 
+diff --git a/mods/alpha_demo/enemies/ukkonen.txt b/mods/alpha_demo/enemies/ukkonen.txt
+index 0ae387863d2c0387172711664ce989fa1abd500a..58512374d6ead7acd225a8af47238c32b7577b18 100644
+--- a/mods/alpha_demo/enemies/ukkonen.txt
++++ b/mods/alpha_demo/enemies/ukkonen.txt
+@@ -32,11 +32,10 @@ dmg_melee_max=30
+ cooldown=133ms
+ 
+ # loot
+-loot=currency,33,2,8
+-# dagger, leather gloves, leather boots, healing pot
++loot=loot/leveled_mid.txt
++
++# dagger, leather gloves, leather boots
+ loot=32,5
+ loot=82,5
+ loot=84,5
+-loot=1,5
+-
+ 
+diff --git a/mods/alpha_demo/enemies/vesuvvio.txt b/mods/alpha_demo/enemies/vesuvvio.txt
+index 5664f23252688f4be6ff9fb8e9b048258b9e1b29..0a871a680fbf8f3a6ef1fabe18e984179d1452ad 100644
+--- a/mods/alpha_demo/enemies/vesuvvio.txt
++++ b/mods/alpha_demo/enemies/vesuvvio.txt
+@@ -44,9 +44,9 @@ vulnerable_ice=100
+ cooldown=1s
+ 
+ # loot
+-loot=currency,33,8,32
++loot=loot/leveled_high.txt
+ 
+-# long sword, plate armor, crest shield, health pot
++# long sword, plate armor, crest shield
+ loot=34,5
+ loot=96,5
+ loot=96,5
+diff --git a/mods/fantasycore/enemies/antlion.txt b/mods/fantasycore/enemies/antlion.txt
+index 643fa1e3ef093f78e86c487df0527a1209cf30b2..7da4ad8908b561b55525d1d068666e966212eadb 100644
+--- a/mods/fantasycore/enemies/antlion.txt
++++ b/mods/fantasycore/enemies/antlion.txt
+@@ -33,10 +33,5 @@ dmg_melee_max=35
+ cooldown=333ms
+ 
+ # loot
+-loot=currency,15,4,16
+-
+-# healing pot, mana pot
+-loot=1,3
+-loot=2,3
+-
++loot=loot/leveled_mid.txt
+ 
+diff --git a/mods/fantasycore/enemies/antlion_blinker.txt b/mods/fantasycore/enemies/antlion_blinker.txt
+index 7ca47e66c369364255026188f12ad13c127f6f5a..f005996766811c9a174f4447731dd04432629728 100644
+--- a/mods/fantasycore/enemies/antlion_blinker.txt
++++ b/mods/fantasycore/enemies/antlion_blinker.txt
+@@ -45,9 +45,5 @@ cooldown=333ms
+ cooldown_melee_ment=1500ms
+ 
+ # loot
+-loot=currency,15,5,20
+-
+-# healing pot, mana pot
+-loot=1,3
+-loot=2,3
++loot=loot/leveled_mid.txt
+ 
+diff --git a/mods/fantasycore/enemies/antlion_burster.txt b/mods/fantasycore/enemies/antlion_burster.txt
+index 25219cc8bcbb7c8ed7d23cbf8db7f817cf8d7fd4..d752cc6074cd53b78c72434b44f7afdc6b9101f7 100644
+--- a/mods/fantasycore/enemies/antlion_burster.txt
++++ b/mods/fantasycore/enemies/antlion_burster.txt
+@@ -38,11 +38,8 @@ vulnerable_ice=200
+ cooldown=833ms
+ 
+ # loot
+-loot=currency,15,8,32
+-
+-# healing pot, mana pot, ring of fire, ruby
+-loot=1,3
+-loot=2,3
++loot=loot/leveled_high.txt
+ 
++# ring of fire, ruby
+ loot=109,1
+ loot=5,1
+diff --git a/mods/fantasycore/enemies/antlion_freezer.txt b/mods/fantasycore/enemies/antlion_freezer.txt
+index 29a8ba85548273c17a1cf792b445bee6411a173c..9fa4fa8f1579bd7d2468870a59b1bd2725ed4a28 100644
+--- a/mods/fantasycore/enemies/antlion_freezer.txt
++++ b/mods/fantasycore/enemies/antlion_freezer.txt
+@@ -40,11 +40,8 @@ vulnerable_ice=50
+ cooldown=833ms
+ 
+ # loot
+-loot=currency,15,7,28
+-
+-# healing pot, mana pot, ring of ice, emerald
+-loot=1,3
+-loot=2,3
++loot=loot/leveled_high.txt
+ 
++# ring of ice, emerald
+ loot=109,1
+ loot=4,1
+diff --git a/mods/fantasycore/enemies/antlion_hatchling.txt b/mods/fantasycore/enemies/antlion_hatchling.txt
+index 840eadb452c6c39a8dc969d5cd311d73a14cb8c3..22416cd01feb09f1e4762d4750272c263d748231 100644
+--- a/mods/fantasycore/enemies/antlion_hatchling.txt
++++ b/mods/fantasycore/enemies/antlion_hatchling.txt
+@@ -32,4 +32,4 @@ absorb_min=9
+ absorb_max=9
+ 
+ # loot
+-loot=currency,10,3,12
++loot=loot/leveled_low.txt
+diff --git a/mods/fantasycore/enemies/antlion_slasher.txt b/mods/fantasycore/enemies/antlion_slasher.txt
+index 984916248a5d4bfc3d288ad2c81dbfd5d65a8540..9078c44452f77c794b81b9d6276f84d9d4798ac3 100644
+--- a/mods/fantasycore/enemies/antlion_slasher.txt
++++ b/mods/fantasycore/enemies/antlion_slasher.txt
+@@ -33,10 +33,8 @@ absorb_max=18
+ cooldown=333ms
+ 
+ # loot
+-loot=currency,15,6,24
++loot=loot/leveled_mid.txt
+ 
+-# healing pot, mana pot, sapphire
+-loot=1,3
+-loot=2,3
++# sapphire
+ loot=3,1
+ 
+diff --git a/mods/fantasycore/enemies/antlion_spitter.txt b/mods/fantasycore/enemies/antlion_spitter.txt
+index 0e06d6fa3c6947fda8c945235ec3da09ac301a73..ceee7bae85ffeb33a807abc1504c4182ace294d9 100644
+--- a/mods/fantasycore/enemies/antlion_spitter.txt
++++ b/mods/fantasycore/enemies/antlion_spitter.txt
+@@ -39,11 +39,9 @@ vulnerable_ice=200
+ cooldown=833ms
+ 
+ # loot
+-loot=currency,15,7,28
++loot=loot/leveled_high.txt
+ 
+-# healing pot, mana pot, ring of fire, emerald
+-loot=1,3
+-loot=2,3
++# ring of fire, emerald
+ loot=109,1
+ loot=4,1
+ 
+diff --git a/mods/fantasycore/enemies/cursed_grave.txt b/mods/fantasycore/enemies/cursed_grave.txt
+index 69f57aa581ca8fdd20daf8cd3d346447e73a9f41..036f8428b3f2071ef6a327c1df747e5332017097 100644
+--- a/mods/fantasycore/enemies/cursed_grave.txt
++++ b/mods/fantasycore/enemies/cursed_grave.txt
+@@ -25,25 +25,6 @@ avoidance=0
+ cooldown=3s
+ 
+ # loot
+-loot=currency,75,6,24
+-
+-# lots of random base gear
+-loot=1,20
+-loot=2,20
+-loot=32,20
+-loot=40,20
+-loot=48,20
+-loot=64,20
+-loot=65,20
+-loot=66,20
+-loot=67,20
+-
+-loot=33,3
+-loot=41,3
+-loot=49,3
+-loot=57,3
+-loot=80,3
+-loot=81,3
+-loot=82,3
+-loot=83,3
+-loot=84,3
++loot=loot/leveled_low.txt
++loot=loot/base_gear.txt
++
+diff --git a/mods/fantasycore/enemies/goblin.txt b/mods/fantasycore/enemies/goblin.txt
+index cf87094aa13c24efaafa7593a31e397b65fbf1ae..d90b296422aedecd455861ee6a0c23f9df232947 100644
+--- a/mods/fantasycore/enemies/goblin.txt
++++ b/mods/fantasycore/enemies/goblin.txt
+@@ -32,7 +32,8 @@ dmg_melee_max=15
+ cooldown=1s
+ 
+ # loot
+-loot=currency,33,1,4
++loot=loot/leveled_low.txt
++
+ # dagger
+ loot=32,5
+ 
+diff --git a/mods/fantasycore/enemies/goblin_charger.txt b/mods/fantasycore/enemies/goblin_charger.txt
+index 840df60feca4f97ffa752e844c1cf295fb0cd81c..055c145bf1aedd56464acf4bc2327cf17beef57c 100644
+--- a/mods/fantasycore/enemies/goblin_charger.txt
++++ b/mods/fantasycore/enemies/goblin_charger.txt
+@@ -39,11 +39,10 @@ absorb_min=3
+ absorb_max=3
+ 
+ # loot
+-loot=currency,33,2,8
+-# dagger, leather gloves, leather boots, healing pot
++loot=loot/leveled_low.txt
++
++# dagger, leather gloves, leather boots
+ loot=32,5
+ loot=82,5
+ loot=84,5
+-loot=1,5
+-
+ 
+diff --git a/mods/fantasycore/enemies/goblin_charger_elite.txt b/mods/fantasycore/enemies/goblin_charger_elite.txt
+index 9b9257e6bdefce9863a38ae3dfe07a7992dcdbd8..2f227ff91fe59e2dec7cfcb2a16626617feab0f0 100644
+--- a/mods/fantasycore/enemies/goblin_charger_elite.txt
++++ b/mods/fantasycore/enemies/goblin_charger_elite.txt
+@@ -1,6 +1,6 @@
+ name=Goblin Charger Elite
+ humanoid=true
+-level=2
++level=3
+ categories=goblin_charger_elite,goblin_elite
+ rarity=rare
+ xp=10
+@@ -39,14 +39,12 @@ absorb_max=9
+ cooldown=500ms
+ 
+ # loot
+-loot=currency,75,4,16
++loot=loot/leveled_mid.txt
+ 
+-# dagger, leather gloves, leather boots, healing pot, mana pot
++# dagger, leather gloves, leather boots
+ loot=32,20
+ loot=82,20
+ loot=84,20
+-loot=1,20
+-loot=2,20
+ 
+ # shortsword, boots of speed, fencing gloves
+ loot=33,1
+diff --git a/mods/fantasycore/enemies/goblin_shaman.txt b/mods/fantasycore/enemies/goblin_shaman.txt
+index 49f04bb1377be4ac09c73dc3ad4d646b8440166d..1d0f49a4fc137d7251550504c3854a0a6d28171e 100644
+--- a/mods/fantasycore/enemies/goblin_shaman.txt
++++ b/mods/fantasycore/enemies/goblin_shaman.txt
+@@ -41,11 +41,10 @@ cooldown=833ms
+ cooldown_ranged_phys=3s
+ 
+ # loot
+-loot=currency,33,4,16
++loot=loot/leveled_mid.txt
+ 
+-# wand, mana potion
++# wand
+ loot=40,5
+-loot=2,5
+ 
+ # rod, mage gloves, mage boots
+ loot=41,1
+diff --git a/mods/fantasycore/enemies/goblin_spearman.txt b/mods/fantasycore/enemies/goblin_spearman.txt
+index 1f666d6e497540d2453b57f8b7f5d8e6a82b3057..25b9ae8bc6ccb16c34b0e0770a1a94c170c29d7e 100644
+--- a/mods/fantasycore/enemies/goblin_spearman.txt
++++ b/mods/fantasycore/enemies/goblin_spearman.txt
+@@ -39,13 +39,12 @@ absorb_max=6
+ cooldown=833ms
+ 
+ # loot
+-loot=currency,33,3,12
++loot=loot/leveled_low.txt
+ 
+-# slingshot, leather chest, leather pants, health pot
++# slingshot, leather chest, leather pants
+ loot=48,5
+ loot=81,5
+ loot=83,5
+-loot=1,5
+ 
+ # short bow
+ loot=49,1
+diff --git a/mods/fantasycore/enemies/goblin_spearman_elite.txt b/mods/fantasycore/enemies/goblin_spearman_elite.txt
+index e1ffa8cf8fea357c031ded4feebee1e0019e17ec..16b732e949e2a557d834af34c8808deef7658c82 100644
+--- a/mods/fantasycore/enemies/goblin_spearman_elite.txt
++++ b/mods/fantasycore/enemies/goblin_spearman_elite.txt
+@@ -39,14 +39,12 @@ absorb_max=12
+ cooldown=833ms
+ 
+ # loot
+-loot=currency,75,6,12
++loot=loot/leveled_low.txt
+ 
+-# slingshot, leather chest, leather pants, health pot, mana pot
++# slingshot, leather chest, leather pants
+ loot=48,20
+ loot=81,20
+ loot=83,20
+-loot=1,20
+-loot=2,20
+ 
+ # short bow, silent tabi, thief gloves,
+ loot=49,1
+diff --git a/mods/fantasycore/enemies/minotaur.txt b/mods/fantasycore/enemies/minotaur.txt
+index a6529f551541bcef1fcc9b811e46d2c6f14f1210..21e39ea3ac4f1c7d11f585333fd1d8380a9144de 100644
+--- a/mods/fantasycore/enemies/minotaur.txt
++++ b/mods/fantasycore/enemies/minotaur.txt
+@@ -41,10 +41,7 @@ absorb_max=21
+ cooldown=666ms
+ 
+ # loot
+-loot=currency,33,8,32
+-
+-# healing potion
+-loot=1,5
++loot=loot/leveled_high.txt
+ 
+ # Bear Figurine, Ouroboros Ring
+ loot=119,1
+diff --git a/mods/fantasycore/enemies/skeletal_archer.txt b/mods/fantasycore/enemies/skeletal_archer.txt
+index 832d1130807890b2388b3b7b3a7525c0d47b503d..baae26e9e60fbaa1be1cd3d1990db12c50ddddec 100644
+--- a/mods/fantasycore/enemies/skeletal_archer.txt
++++ b/mods/fantasycore/enemies/skeletal_archer.txt
+@@ -41,11 +41,10 @@ absorb_max=6
+ cooldown=1s
+ 
+ # loot
+-loot=currency,33,3,12
++loot=loot/leveled_low.txt
+ 
+-# short bow, leather hood, health pot
++# short bow, leather hood
+ loot=49,5
+ loot=80,5
+-loot=1,5
+ 
+ 
+diff --git a/mods/fantasycore/enemies/skeletal_knight.txt b/mods/fantasycore/enemies/skeletal_knight.txt
+index 67e078e0429ad7c7753309af13b3775b1c93774b..0d868b414ef7c4069b77b457db18519d5a61dcfc 100644
+--- a/mods/fantasycore/enemies/skeletal_knight.txt
++++ b/mods/fantasycore/enemies/skeletal_knight.txt
+@@ -48,9 +48,9 @@ vulnerable_ice=75
+ cooldown=333ms
+ 
+ # loot
+-loot=currency,33,8,32
++loot=loot/leveled_high.txt
+ 
+-# long sword, plate armor, crest shield, health pot
++# long sword, plate armor, crest shield
+ loot=34,5
+ loot=96,5
+ loot=96,5
+diff --git a/mods/fantasycore/enemies/skeletal_mage.txt b/mods/fantasycore/enemies/skeletal_mage.txt
+index 3a97f3ded746bdccd2765360d3c2b1aabacb1b9d..77fcdb2b9d367d7dd02a99b73108fe939f1aff68 100644
+--- a/mods/fantasycore/enemies/skeletal_mage.txt
++++ b/mods/fantasycore/enemies/skeletal_mage.txt
+@@ -44,11 +44,10 @@ vulnerable_ice=50
+ cooldown=1s
+ 
+ # loot
+-loot=currency,33,4,16
++loot=loot/leveled_mid.txt
+ 
+-# rod, mana pot
++# rod
+ loot=41,5
+-loot=2,5
+ 
+ # mage set
+ loot=72,1
+diff --git a/mods/fantasycore/enemies/skeletal_occultist.txt b/mods/fantasycore/enemies/skeletal_occultist.txt
+index bf9d1bad5179da9ebfc937e07372a2075061fb1d..7c14f02b7f14219563ca599a306f08684adf93cb 100644
+--- a/mods/fantasycore/enemies/skeletal_occultist.txt
++++ b/mods/fantasycore/enemies/skeletal_occultist.txt
+@@ -46,11 +46,10 @@ vulnerable_ice=50
+ cooldown=500ms
+ 
+ # loot
+-loot=currency,33,7,28
++loot=loot/leveled_high.txt
+ 
+-# staff, mana pot
++# staff
+ loot=42,5
+-loot=2,5
+ 
+ # ring of concentration, owl figurine, sapphire, sage mantle, sage frock
+ loot=108,1
+diff --git a/mods/fantasycore/enemies/skeletal_sniper.txt b/mods/fantasycore/enemies/skeletal_sniper.txt
+index 0cccecd82756a741d9d8c4bbd3cd9e9e55407166..04388f42fefc1df01209b41d7af222063c65cb40 100644
+--- a/mods/fantasycore/enemies/skeletal_sniper.txt
++++ b/mods/fantasycore/enemies/skeletal_sniper.txt
+@@ -46,12 +46,11 @@ cooldown=500ms
+ cooldown_ranged_ment=1500ms
+ 
+ # loot
+-loot=currency,33,6,24
++loot=loot/leveled_mid.txt
+ 
+-# long bow, chain coif, health pot
++# long bow, chain coif
+ loot=50,5
+ loot=88,5
+-loot=1,5
+ 
+ # cat figurine, relic hunter's ring
+ loot=121,1
+diff --git a/mods/fantasycore/enemies/skeletal_warrior.txt b/mods/fantasycore/enemies/skeletal_warrior.txt
+index 4840298c1c8acdb5b12323c8e3b15a96f4b1eddd..37dd9ea7b348ff2e9adbfe5c82deb5bd45344da4 100644
+--- a/mods/fantasycore/enemies/skeletal_warrior.txt
++++ b/mods/fantasycore/enemies/skeletal_warrior.txt
+@@ -50,16 +50,15 @@ vulnerable_ice=75
+ cooldown=666ms
+ 
+ # loot
+-loot=currency,33,5,20
++loot=loot/leveled_mid.txt
+ 
+-# shortsword, chain armor, iron buckler, health pot
++# shortsword, chain armor, iron buckler
+ loot=33,5
+ loot=89,5
+ loot=90,5
+ loot=91,5
+ loot=92,5
+ loot=57,5
+-loot=1,5
+ 
+ # blood gear, long sword, crest shield, duelist guants
+ loot=116,1
+diff --git a/mods/fantasycore/enemies/skeleton.txt b/mods/fantasycore/enemies/skeleton.txt
+index 4bc43eb2fcb0171da025b1c2e24fd83ae1f558e4..6dd12eec84fedd69c1f0b23dcc02bc02a0968d14 100644
+--- a/mods/fantasycore/enemies/skeleton.txt
++++ b/mods/fantasycore/enemies/skeleton.txt
+@@ -35,10 +35,9 @@ absorb_min=3
+ absorb_max=3
+ 
+ # loot
+-loot=currency,33,2,8
++loot=loot/leveled_low.txt
+ 
+-# dagger, wood buckler, health pot
++# dagger, wood buckler
+ loot=32,5
+ loot=56,5
+-loot=1,5
+ 
+diff --git a/mods/fantasycore/enemies/wyvern.txt b/mods/fantasycore/enemies/wyvern.txt
+index 6da12e5da49afa8bb432ce7679ae8630e9e79ef4..f84076d6fd9682e93f009502a228946cbfbecc09 100644
+--- a/mods/fantasycore/enemies/wyvern.txt
++++ b/mods/fantasycore/enemies/wyvern.txt
+@@ -46,5 +46,5 @@ cooldown=1s
+ cooldown_ranged_ment=3s
+ 
+ # loot
+-loot=currency,33,3,12
++loot=loot/leveled_low.txt
+ 
+diff --git a/mods/fantasycore/enemies/wyvern_adult.txt b/mods/fantasycore/enemies/wyvern_adult.txt
+index ec8723c4d9c255aa08ca0544c94337384908440d..ad389f641439d066c66d3547721d4ad8fb28a079 100644
+--- a/mods/fantasycore/enemies/wyvern_adult.txt
++++ b/mods/fantasycore/enemies/wyvern_adult.txt
+@@ -46,5 +46,5 @@ cooldown=1s
+ cooldown_ranged_ment=3s
+ 
+ # loot
+-loot=currency,33,6,24
++loot=loot/leveled_mid.txt
+ 
+diff --git a/mods/fantasycore/enemies/zombie.txt b/mods/fantasycore/enemies/zombie.txt
+index 5342f4b4a7a3b3fb3b91803866107025594ecda8..fadef200512a2bdd00670af531bbbb0a16abe33a 100644
+--- a/mods/fantasycore/enemies/zombie.txt
++++ b/mods/fantasycore/enemies/zombie.txt
+@@ -40,12 +40,11 @@ absorb_max=3
+ cooldown=666ms
+ 
+ # loot
+-loot=currency,33,2,8
++loot=loot/leveled_low.txt
+ 
+-# cloth set, healing pot
++# cloth set
+ loot=64,5
+ loot=65,5
+ loot=66,5
+ loot=67,5
+-loot=1,5
+ 
+diff --git a/mods/fantasycore/enemies/zombie_bloodthirsty.txt b/mods/fantasycore/enemies/zombie_bloodthirsty.txt
+index b27130ccec3f056d31528d85061d452dc6e8a165..6210b074b3adf046b09f809ce786b2c716516a3e 100644
+--- a/mods/fantasycore/enemies/zombie_bloodthirsty.txt
++++ b/mods/fantasycore/enemies/zombie_bloodthirsty.txt
+@@ -40,10 +40,7 @@ absorb_max=12
+ cooldown=500ms
+ 
+ # loot
+-loot=currency,33,5,20
+-
+-# health pot
+-loot=1,5
++loot=loot/leveled_mid.txt
+ 
+ # blood gear, ring of regen
+ loot=116,1
+diff --git a/mods/fantasycore/enemies/zombie_brute.txt b/mods/fantasycore/enemies/zombie_brute.txt
+index 7a6be2988f05c65f17f580f2460ab4a01728eccf..b959c901d0f522c5ff535019aa0fa05438da3205 100644
+--- a/mods/fantasycore/enemies/zombie_brute.txt
++++ b/mods/fantasycore/enemies/zombie_brute.txt
+@@ -39,10 +39,9 @@ absorb_max=6
+ cooldown=400ms
+ 
+ # loot
+-loot=currency,33,3,12
++loot=loot/leveled_low.txt
+ 
+-# leather chest, pants, healing pot
++# leather chest, pants
+ loot=81,5
+ loot=83,5
+-loot=1,5
+ 
+diff --git a/mods/fantasycore/enemies/zombie_iceclaw.txt b/mods/fantasycore/enemies/zombie_iceclaw.txt
+index d3a2ab4984a0e695b5eefaa11eed3652b353a2be..1f63be896fe09b8cc51be7c498e9e263e52cca0e 100644
+--- a/mods/fantasycore/enemies/zombie_iceclaw.txt
++++ b/mods/fantasycore/enemies/zombie_iceclaw.txt
+@@ -41,10 +41,7 @@ absorb_max=9
+ cooldown=666ms
+ 
+ # loot
+-loot=currency,33,4,16
+-
+-# mana pot
+-loot=2,5
++loot=loot/leveled_mid.txt
+ 
+ # mage boots, ring of ice
+ loot=76,1
+diff --git a/mods/fantasycore/enemies/zombie_rotting.txt b/mods/fantasycore/enemies/zombie_rotting.txt
+index 5fd9f831d73c7c55024aeace19e9babcccb77a3d..9d5ca4f886dbdeea6379bc7af6d86cb12f0041c5 100644
+--- a/mods/fantasycore/enemies/zombie_rotting.txt
++++ b/mods/fantasycore/enemies/zombie_rotting.txt
+@@ -36,7 +36,7 @@ dmg_ment_max=20
+ cooldown=833ms
+ 
+ # loot
+-loot=currency,33,1,4
++loot=loot/leveled_low.txt
+ 
+ # cloth set
+ loot=64,5
+@@ -44,5 +44,3 @@ loot=65,5
+ loot=66,5
+ loot=67,5
+ 
+-
+-
+diff --git a/mods/fantasycore/engine/loot.txt b/mods/fantasycore/engine/loot.txt
+index 1fc6bcb6bf9617755ac7e87c493c21bca8bcb5b8..e2bec6d47d7ae3ef863fc3bf344641e138a4b1b3 100644
+--- a/mods/fantasycore/engine/loot.txt
++++ b/mods/fantasycore/engine/loot.txt
+@@ -13,3 +13,6 @@ autopickup_currency=1
+ currency_name=Gold
+ vendor_ratio=25
+ 
++# Drops
++drop_max=3
++drop_radius=1
+diff --git a/mods/fantasycore/loot/base_gear.txt b/mods/fantasycore/loot/base_gear.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d134d955e8e90b0bc1395cf69e99922bdd62a740
+--- /dev/null
++++ b/mods/fantasycore/loot/base_gear.txt
+@@ -0,0 +1,20 @@
++# lots of random base gear
++loot=1,20
++loot=2,20
++loot=32,20
++loot=40,20
++loot=48,20
++loot=64,20
++loot=65,20
++loot=66,20
++loot=67,20
++
++loot=33,3
++loot=41,3
++loot=49,3
++loot=57,3
++loot=80,3
++loot=81,3
++loot=82,3
++loot=83,3
++loot=84,3
+diff --git a/mods/fantasycore/loot/leveled_high.txt b/mods/fantasycore/loot/leveled_high.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..8fa97ff3ec296f1fcee7ad0c1ff105cbebe26019
+--- /dev/null
++++ b/mods/fantasycore/loot/leveled_high.txt
+@@ -0,0 +1,37 @@
++# high-level loot
++
++# gold
++[loot]
++id=currency
++chance=25
++quantity=20,60
++
++# hp potion
++[loot]
++id=1
++chance=5
++quantity=1
++
++# mp potion
++[loot]
++id=2
++chance=5
++quantity=1
++
++# sapphire
++[loot]
++id=3
++chance=3
++quantity=1
++
++# emerald
++[loot]
++id=4
++chance=1
++quantity=1
++
++# ruby
++[loot]
++id=5
++chance=1
++quantity=1
+diff --git a/mods/fantasycore/loot/leveled_low.txt b/mods/fantasycore/loot/leveled_low.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..9e3728617af3b1aef630145dda0890337c2e86d8
+--- /dev/null
++++ b/mods/fantasycore/loot/leveled_low.txt
+@@ -0,0 +1,25 @@
++# low-level loot
++
++# gold
++[loot]
++id=currency
++chance=25
++quantity=2,15
++
++# hp potion
++[loot]
++id=1
++chance=5
++quantity=1
++
++# mp potion
++[loot]
++id=2
++chance=5
++quantity=1
++
++# sapphire
++[loot]
++id=3
++chance=1
++quantity=1
+diff --git a/mods/fantasycore/loot/leveled_mid.txt b/mods/fantasycore/loot/leveled_mid.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..409a5e0fc16ff81e57da11772d863376463981c4
+--- /dev/null
++++ b/mods/fantasycore/loot/leveled_mid.txt
+@@ -0,0 +1,31 @@
++# medium-level loot
++
++# gold
++[loot]
++id=currency
++chance=25
++quantity=10,30
++
++# hp potion
++[loot]
++id=1
++chance=5
++quantity=1
++
++# mp potion
++[loot]
++id=2
++chance=5
++quantity=1
++
++# sapphire
++[loot]
++id=3
++chance=1
++quantity=1
++
++# emerald
++[loot]
++id=4
++chance=1
++quantity=1

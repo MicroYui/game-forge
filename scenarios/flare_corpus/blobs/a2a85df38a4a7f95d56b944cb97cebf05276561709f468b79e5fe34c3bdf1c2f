@@ -1,0 +1,419 @@
+diff --git a/mods/empyrean_campaign/enemies/docs/ranged_behavior.txt b/mods/empyrean_campaign/enemies/docs/ranged_behavior.txt
+index b58e3efd726f960dc7d3d8c48225cb80e61a8437..081e6239118966a855912a822fb1e6195c87fff6 100644
+--- a/mods/empyrean_campaign/enemies/docs/ranged_behavior.txt
++++ b/mods/empyrean_campaign/enemies/docs/ranged_behavior.txt
+@@ -1,27 +1,45 @@
+-### Ranged unit behavior
++#
++### Ranged units behavior
++# The docs and smart-ranged-behavior settings are provided by @DoKel
++#
+ 
+ # It cause shooter to come closer, sometimes.
+ # Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
+-# chance_pursue=1
++# Less value is, more careful creature is. Even 1% is enough.
++	# chance_pursue= %chance%
+ 
+-# That chance is enough. It can vary, but works nice, as for me
+-# chance_flee= 20
++# It's common to use value "20" here. I tryed to play with it a bit, but don't have strong recommendations. NecroMinotaur uses 25 chance, for comparsion.
++	# chance_flee= %chance%
+ 
+ # Just copied that stats from necro-minotaur, assuming they are default
+-# flee_duration=3s
+-# flee_cooldown=1s
+-
+-# With this setting enemy do shooting from visible area.
+-# Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-# I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-# and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+-# threat_range = 17
+-
+-# However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-# That values are default, so I assume, we do not need them here (but keep in mind -- final config needs that stats)
+-# melee_range = 1.125
+-# power=melee,164,5
+-
+-# Following is maximised to let shooter not only flee from one side to another.
+-# Did not tested lower values, maybe it can be decreased
+-# power=ranged,196,80
++# However, 2s duration looks nice on antlions, which are not supposed to be very smart.
++	# flee_duration=3s
++	# flee_cooldown=1s
++
++# Default %radius_see_hero% is 8. It's too close for ranged enemies, so I recommend values betweeen 10 and 17. Higher values will allow enemies from all the map run to you immediately.
++# Default %radius_miss_hero% is 8*2=16, so I do not recommend use values higher than, let's say, 20. That's not cool, when after 10-20 or even 30 seconds U meet some goblins finally coming to you.
++	# threat_range = %radius_see_her%, %radius_miss_hero%
++
++# If player came close enough to skeleton, he will not run forever, but will take a fight as a man
++# (However, long fleeing is also balanced by flee_duration and flee_cooldown stats)
++# That value is set by "enemies/base/*.txt" templates, so I assume, we do not need them in "enemies/*.txt" directly.
++# But keep in mind -- it's highly recommended final config to have that stat to at non-zero value (and also to have melee power at all).
++	# melee_range = %range%
++
++# With increasing %chance% increases chances (Captain Obvious ._.) to ignore flee and switch to melee fight , so it's better to use low chances, like smth in range (1, 5)
++# Nice feature! Using low (like 1 or 2) %chance% and low chance of pursue in combo with other described here stats allows enemies to walk over player and attack him from another side.
++# I mean, form | ENEMY SPACE HERO | to |HERO SPACE ENEMY|
++	# power=melee, %power%, %chance%
++
++# With increasing %chance%, creature gets more agressive. Also it decreases chances to get closer and waste time switching from threat-walking to flee-walking again and again.
++# Recommended to use values higher than 50%, unless you want creature to act stupid.
++	# power=ranged, %power%, %chance%
++
++#Some additional notes, how ranged behavior balanced in empyrean (as of DoKel's commits):
++# 1. Higher-level creatures becomes more and more careful and effective. So, with game progress there is not only grow of HP or damage (static values), but also smartness of enemy. It's cool, imho.
++# 2. Goblins and antlions are made stupid. They have higher chances of switching to melee attack or coming closer.
++#     Choosing from the two, goblins are smarter. There are *really* many ranged antlions on some maps. Running towards each and trying to do a single hit would be crazy.
++#     Assuming the result I get, goblins prefer to attack from short distance with lower chance of switching to melee, and antlions just switch to melee pretty fast (with chance of flee, don't forget).
++# 3. Ice creatures are a bit less careful, than fire. That made for a little balance -- ice guys already have "freeze" attack effect, and fire mages had nothing cool until that.
++# 4. 
++#
+\ No newline at end of file
+diff --git a/mods/empyrean_campaign/enemies/lvl10_skeleton_sharpshooter.txt b/mods/empyrean_campaign/enemies/lvl10_skeleton_sharpshooter.txt
+index b796c8202d4eeccf81c0d31f467b9b74fa7c14ec..9bbaed3725b4e623cacffefc3fbffb592054889a 100644
+--- a/mods/empyrean_campaign/enemies/lvl10_skeleton_sharpshooter.txt
++++ b/mods/empyrean_campaign/enemies/lvl10_skeleton_sharpshooter.txt
+@@ -34,6 +34,7 @@ chance_pursue=1
+ chance_flee= 20
+ flee_duration=3s
+ flee_cooldown=1s
+-threat_range = 17
++flee_range=8
++threat_range = 15, 20
+ power=melee,164,1
+ power=ranged,196,80
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
+index 34c75059758814fcc64e378f7b1237dc9c013ba3..bdad857295e73e94174b6c15e5e565fdac1d59b1 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
+@@ -27,10 +27,11 @@ stat=absorb_max,2
+ loot=loot/level_2.txt
+ 
+ # Ranged units behaviour, see docs/ranged_behavior.txt
+-chance_pursue=7
++chance_pursue=2
+ chance_flee= 20
+ flee_duration=3s
+ flee_cooldown=1s
+-threat_range = 12
+-power=melee,164,10
+-power=ranged,165,30
++flee_range=6
++threat_range = 10
++power=melee,164,5
++power=ranged,165,40
+diff --git a/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt b/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt
+index 0a0f45fece48db5be841714bbe568179c2738c13..b0e2a5ecb89027734cc3a5906fe112f12ab2eb4e 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt
+@@ -30,10 +30,11 @@ cooldown=1775ms
+ loot=loot/level_2.txt
+ 
+ # Ranged units behaviour, see docs/ranged_behavior.txt
+-chance_pursue=5
++chance_pursue=4
+ chance_flee= 20
+ flee_duration=3s
+ flee_cooldown=1s
+-threat_range = 15
+-power=melee,164,10
+-power=ranged,171,34
++flee_range = 8;
++threat_range = 15, 20
++power=melee,164,5
++power=ranged,171,50s
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt
+index 75918071bb59bf5730558e6a802b1268545a289f..6a6910c7657b3f7cfb90b38fad139746f4866ef4 100644
+--- a/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt
+@@ -38,6 +38,7 @@ chance_pursue=3
+ chance_flee= 20
+ flee_duration=3s
+ flee_cooldown=1s
+-threat_range = 15
++flee_range = 8	
++threat_range = 10, 20
+ power=melee,164,1
+-power=ranged,173,30
++power=ranged,173, 50
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt
+index 417c8785bc3172262f4452591601ee2105e1f297..23a64e264d2652fbb7a9647d62aecc1493eaa936 100644
+--- a/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt
+@@ -34,10 +34,11 @@ cooldown=1550ms
+ loot=loot/level_3.txt
+ 
+ # Ranged units behaviour, see docs/ranged_behavior.txt
+-chance_pursue=5
++chance_pursue=7
+ chance_flee= 20
+ flee_duration=3s
+ flee_cooldown=1s
+-threat_range = 12
+-power=melee,164,2
+-power=ranged,172, 30
++flee_range = 7
++threat_range = 9, 20
++power=melee,164,5
++power=ranged,172, 25
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt
+index aa323fbc057f310caf2cefe51b9258a5da998de4..90803b57c1a624fdcf18ac130d5ca0a4634460a7 100644
+--- a/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt
+@@ -34,6 +34,7 @@ chance_pursue=3
+ chance_flee= 20
+ flee_duration=3s
+ flee_cooldown=1s
+-threat_range = 15
++flee_range = 8;
++threat_range = 15, 20
+ power=melee,164,5
+ power=ranged,171,50
+diff --git a/mods/empyrean_campaign/enemies/lvl4_cid.txt b/mods/empyrean_campaign/enemies/lvl4_cid.txt
+index d7e88a5fccb505aa8d8d48d74309680d38a2a30f..0b7dacd0f585ea725bfb50db50d73cbca29fbd83 100644
+--- a/mods/empyrean_campaign/enemies/lvl4_cid.txt
++++ b/mods/empyrean_campaign/enemies/lvl4_cid.txt
+@@ -38,10 +38,11 @@ loot=loot/level_4.txt
+ loot=94,1
+ 
+ # Ranged units behaviour, see docs/ranged_behavior.txt
+-chance_pursue=15
+-chance_flee= 25
++chance_pursue=2
++chance_flee= 18	
+ flee_duration=3s
+ flee_cooldown=1s
+-threat_range = 12
+-power=melee,164,5
+-power=ranged,176,50
++flee_range = 8
++threat_range = 12, 25
++power=melee,164,1
++power=ranged,176,70
+diff --git a/mods/empyrean_campaign/enemies/lvl4_geno.txt b/mods/empyrean_campaign/enemies/lvl4_geno.txt
+index bce9686febb209a5f18dae0b9f85a312283f41c9..35b889dd42d4ff838c7caf8d34aaa89b77975497 100644
+--- a/mods/empyrean_campaign/enemies/lvl4_geno.txt
++++ b/mods/empyrean_campaign/enemies/lvl4_geno.txt
+@@ -38,10 +38,11 @@ loot=loot/level_4.txt
+ loot=93,1
+ 
+ # Ranged units behaviour, see docs/ranged_behavior.txt
+-chance_pursue=15
+-chance_flee= 25
++chance_pursue=3
++chance_flee= 50
+ flee_duration=3s
+ flee_cooldown=1s
+-threat_range = 12
+-power=melee,164,5
+-power=ranged,174,50
++flee_range = 10
++threat_range = 12, 20
++power=melee,164,1
++power=ranged,176,70
+diff --git a/mods/empyrean_campaign/enemies/lvl5_antlion_freezer.txt b/mods/empyrean_campaign/enemies/lvl5_antlion_freezer.txt
+index 44ae62e296a8e233c1f21982d79ff3167053f881..9d626af63f5a9b5e0be757d4abfbfbe7dacf1b23 100644
+--- a/mods/empyrean_campaign/enemies/lvl5_antlion_freezer.txt
++++ b/mods/empyrean_campaign/enemies/lvl5_antlion_freezer.txt
+@@ -32,10 +32,11 @@ cooldown=1500ms
+ loot=loot/level_5.txt
+ 
+ # Ranged units behaviour, see docs/ranged_behavior.txt
+-chance_pursue=5
++chance_pursue=6
+ chance_flee= 13
+-flee_duration=3s
++flee_duration=2s
+ flee_cooldown=1s
+-threat_range = 10
+-power=melee,164,30
++flee_range = 5
++threat_range = 8, 16 #defaults, but adding them here makes thing clearer
++power=melee,164,10
+ power=ranged,172,50
+diff --git a/mods/empyrean_campaign/enemies/lvl5_goblin_hurler.txt b/mods/empyrean_campaign/enemies/lvl5_goblin_hurler.txt
+index 2d2b9bb221188d4eed71799708294a5d1be436e4..cc6fff50f3ba1660aefc1fa53d3c678ffd523823 100644
+--- a/mods/empyrean_campaign/enemies/lvl5_goblin_hurler.txt
++++ b/mods/empyrean_campaign/enemies/lvl5_goblin_hurler.txt
+@@ -27,10 +27,11 @@ stat=absorb_max,5
+ loot=loot/level_5.txt
+ 
+ # Ranged units behaviour, see docs/ranged_behavior.txt
+-chance_pursue=7
++chance_pursue=2
+ chance_flee= 20
+ flee_duration=3s
+ flee_cooldown=1s
+-threat_range = 12
++flee_range =  6 #default, but adding it here makes thing clearer
++threat_range = 12, 20
+ power=melee,164,10
+-power=ranged,165,30
++power=ranged,165,50
+diff --git a/mods/empyrean_campaign/enemies/lvl6_antlion_frostbite.txt b/mods/empyrean_campaign/enemies/lvl6_antlion_frostbite.txt
+index e846bdf4e0cb71f10cf8b899beb4a00c6d98ab78..8048c56a1587f004851d5281feee1e86f983fa4f 100644
+--- a/mods/empyrean_campaign/enemies/lvl6_antlion_frostbite.txt
++++ b/mods/empyrean_campaign/enemies/lvl6_antlion_frostbite.txt
+@@ -33,9 +33,10 @@ loot=loot/level_6.txt
+ 
+ # Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=5
+-chance_flee= 13
+-flee_duration=3s
++chance_flee= 16
++flee_duration=2s
+ flee_cooldown=1s
+-threat_range = 10
+-power=melee,164,30
++flee_range = 5
++threat_range = 8, 16 #defaults, but adding them here makes thing clearer
++power=melee,164,10
+ power=ranged,172,50
+diff --git a/mods/empyrean_campaign/enemies/lvl6_antlion_spitter.txt b/mods/empyrean_campaign/enemies/lvl6_antlion_spitter.txt
+index 08324e6f3c0e1c65108a874ab5ae50166cee5606..50b9620f21b649fc7a27ed012244a6a313ea4923 100644
+--- a/mods/empyrean_campaign/enemies/lvl6_antlion_spitter.txt
++++ b/mods/empyrean_campaign/enemies/lvl6_antlion_spitter.txt
+@@ -32,10 +32,11 @@ cooldown=1475ms
+ loot=loot/level_6.txt
+ 
+ # Ranged units behaviour, see docs/ranged_behavior.txt
+-chance_pursue=5
+-chance_flee= 13
+-flee_duration=3s
++chance_pursue=4
++chance_flee= 16
++flee_duration=2s
+ flee_cooldown=1s
+-threat_range = 10
+-power=melee,164,30
+-power=ranged,172,50
++flee_range = 6
++threat_range = 8, 16 #defaults, but adding them here makes thing clearer
++power=melee,164,10
++power=ranged,173,50
+\ No newline at end of file
+diff --git a/mods/empyrean_campaign/enemies/lvl6_skeleton_assassin.txt b/mods/empyrean_campaign/enemies/lvl6_skeleton_assassin.txt
+index fc041c2b023b127ba596f988503d01105a43d56c..af6ebd8088d9b8ff5ae97044719b3d00f6127c11 100644
+--- a/mods/empyrean_campaign/enemies/lvl6_skeleton_assassin.txt
++++ b/mods/empyrean_campaign/enemies/lvl6_skeleton_assassin.txt
+@@ -12,8 +12,6 @@ speed=4
+ turn_delay=200ms
+ chance_pursue=5
+ 
+-power=melee,164,5
+-power=ranged,171,3
+ passive_powers=185
+ 
+ stat=accuracy,120
+@@ -32,4 +30,12 @@ cooldown=1675ms
+ # loot
+ loot=loot/level_6.txt
+ 
+-
++# Ranged units behaviour, see docs/ranged_behavior.txt
++chance_pursue=1
++chance_flee= 20
++flee_duration=3s
++flee_cooldown=1s
++flee_range = 8
++threat_range = 13, 20
++power=melee,164,3
++power=ranged,171,50
+\ No newline at end of file
+diff --git a/mods/empyrean_campaign/enemies/lvl6_skeleton_frost_mage.txt b/mods/empyrean_campaign/enemies/lvl6_skeleton_frost_mage.txt
+index 3c157d349bf90cfe9a78bab192262d0b2e2aa020..f87655953216f841456e49817376c8b8de10970b 100644
+--- a/mods/empyrean_campaign/enemies/lvl6_skeleton_frost_mage.txt
++++ b/mods/empyrean_campaign/enemies/lvl6_skeleton_frost_mage.txt
+@@ -34,11 +34,12 @@ cooldown=1475ms
+ loot=loot/level_6.txt
+ 
+ # Ranged units behaviour, see docs/ranged_behavior.txt
+-chance_pursue=1
++chance_pursue=2
+ chance_flee= 20
+ flee_duration=3s
+ flee_cooldown=1s
+-threat_range = 13
+-power=melee,164,1
+-power=melee,183,10
++flee_range = 8
++threat_range = 13, 20
++power=melee,164,3
++power=melee,183,7
+ power=ranged,172,50
+diff --git a/mods/empyrean_campaign/enemies/lvl7_wyvern_fire.txt b/mods/empyrean_campaign/enemies/lvl7_wyvern_fire.txt
+index 52f6d1f4767c68fce1352f3c0c94dc62fb8e6977..9ebadea7e322bd6c4cc39ef7509585f49fd3b806 100644
+--- a/mods/empyrean_campaign/enemies/lvl7_wyvern_fire.txt
++++ b/mods/empyrean_campaign/enemies/lvl7_wyvern_fire.txt
+@@ -35,6 +35,7 @@ chance_pursue=1
+ chance_flee= 20
+ flee_duration=3s
+ flee_cooldown=1s
+-threat_range = 15
++flee_range = 10
++threat_range = 15, 20
+ power=melee,164, 5
+-power=ranged,173,50
++power=ranged,173,60
+diff --git a/mods/empyrean_campaign/enemies/lvl7_wyvern_ice.txt b/mods/empyrean_campaign/enemies/lvl7_wyvern_ice.txt
+index 8f5b9ace5d38a9181ae40a32a58198182870ef96..54dd85fd351660ce68c69d879d6a895a5e3f106e 100644
+--- a/mods/empyrean_campaign/enemies/lvl7_wyvern_ice.txt
++++ b/mods/empyrean_campaign/enemies/lvl7_wyvern_ice.txt
+@@ -31,10 +31,11 @@ cooldown=1650ms
+ loot=loot/level_7.txt
+ 
+ # Ranged units behaviour, see docs/ranged_behavior.txt
+-chance_pursue=1
++chance_pursue=2
+ chance_flee= 20
+ flee_duration=3s
+ flee_cooldown=1s
+-threat_range = 15
++flee_range = 9
++threat_range = 15, 20
+ power=melee,164, 5
+-power=ranged,172,50
++power=ranged,172,60
+diff --git a/mods/empyrean_campaign/enemies/lvl9_antlion_sprayer.txt b/mods/empyrean_campaign/enemies/lvl9_antlion_sprayer.txt
+index 76a4a387b34a3bbe06f93e05adc078fc1eb0ffcf..fe0b990566d06064a8e866975e390086bfb8db4f 100644
+--- a/mods/empyrean_campaign/enemies/lvl9_antlion_sprayer.txt
++++ b/mods/empyrean_campaign/enemies/lvl9_antlion_sprayer.txt
+@@ -30,11 +30,12 @@ cooldown=1400ms
+ loot=loot/level_9.txt
+ 
+ # Ranged units behaviour, see docs/ranged_behavior.txt
+-chance_pursue=7
+-chance_flee= 13
+-flee_duration=3s
++chance_pursue=4
++chance_flee= 18
++flee_duration=2s
+ flee_cooldown=1s
+-threat_range = 10
++flee_range = 6
++threat_range = 8, 16 #defaults, but adding them here makes thing clearer
+ power=melee,191,15
+ power=ranged,191,60
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl9_goblin_hunter.txt b/mods/empyrean_campaign/enemies/lvl9_goblin_hunter.txt
+index 19d15f0feab5b5d3cb6e155274c91772bb966a48..8a25e63e3bb0b1afd9df034fdbf1517772e1e5e2 100644
+--- a/mods/empyrean_campaign/enemies/lvl9_goblin_hunter.txt
++++ b/mods/empyrean_campaign/enemies/lvl9_goblin_hunter.txt
+@@ -27,9 +27,11 @@ stat=absorb_max,9
+ loot=loot/level_9.txt
+ 
+ # Ranged units behaviour, see docs/ranged_behavior.txt
+-chance_pursue=7
+-chance_flee= 20
++chance_pursue=2
++chance_flee= 30
+ flee_duration=3s
+ flee_cooldown=1s
+-threat_range = 14
+-power=ranged,165,80
++flee_range = 6
++threat_range = 14, 20
++power=melee,164,7
++power=ranged,165,60
+\ No newline at end of file

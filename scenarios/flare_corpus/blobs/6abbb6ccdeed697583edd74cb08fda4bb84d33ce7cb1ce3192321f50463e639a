@@ -1,0 +1,91 @@
+diff --git a/mods/fantasycore/enemies/goblin.txt b/mods/fantasycore/enemies/goblin.txt
+index 9775badf951061b63704da45d675f15ffdab58ff..eabef7fb74da53380e86a671bb594322490472b6 100644
+--- a/mods/fantasycore/enemies/goblin.txt
++++ b/mods/fantasycore/enemies/goblin.txt
+@@ -10,7 +10,7 @@ gfx_prefix=goblin
+ animations=goblin
+ animation_speed=75
+ 
+-loot_chance=100
++loot_chance=15
+ 
+ # The item_class is a list of strings, which describe which kind of loot
+ # is being dropped. The strings should match the "class" entry in the item
+@@ -22,7 +22,7 @@ loot_chance=100
+ # the distribution is steps of 10 percents.
+ # Gold will be dropped in 10 percent of the cases. In 90 percent there
+ # will be items, which belong to the goblindrop class.
+-item_class=gold,1,goblindrop,9
++#item_class=gold,1,goblindrop,9
+ 
+ # combat stats
+ hp=6
+diff --git a/mods/fantasycore/engine/combat_text.txt b/mods/fantasycore/engine/combat_text.txt
+index 33de28a01d315a37835fb4b3f92d104c7f43572b..1c31cab5c7b1ed85678ac400d729b0c52163dac4 100644
+--- a/mods/fantasycore/engine/combat_text.txt
++++ b/mods/fantasycore/engine/combat_text.txt
+@@ -1,5 +1,5 @@
+ # duration, in frames
+-#duration=30
++duration=30
+ 
+ # speed, in pixels per frame
+-#speed=1
++speed=2
+diff --git a/mods/fantasycore/engine/stats.txt b/mods/fantasycore/engine/stats.txt
+index a8695b507f6932c2e90a8c5ce207aa7bc9bc3260..ff1ccae1315c55d6a5d9fd7c1eb579308ceb48fe 100644
+--- a/mods/fantasycore/engine/stats.txt
++++ b/mods/fantasycore/engine/stats.txt
+@@ -2,13 +2,13 @@
+ # Values should be integer
+ 
+ max_points_per_stat=5
+-hp_base=50
++hp_base=10
+ hp_per_level=2
+ hp_per_physical=8
+ hp_regen_base=10
+ hp_regen_per_level=1
+ hp_regen_per_physical=4
+-mp_base=50
++mp_base=10
+ mp_per_level=2
+ mp_per_mental=8
+ mp_regen_base=10
+diff --git a/mods/frontier/npcs/kenrik.txt b/mods/frontier/npcs/kenrik.txt
+index 56d393f908dd0b62b698e97fdb8853223dc704ad..b9e983bf506159c203dc32682ef1190cf42a43d8 100644
+--- a/mods/frontier/npcs/kenrik.txt
++++ b/mods/frontier/npcs/kenrik.txt
+@@ -20,8 +20,8 @@ vox_intro=male_merchant_03.ogg
+ vox_intro=male_merchant_04.ogg
+ 
+ # chat info
+-talker=true
+-portrait=male11
++#talker=true
++#portrait=male11
+ 
+-[dialog]
+-him=Looking to buy something?
++#[dialog]
++#him=Looking to buy something?
+diff --git a/mods/frontier/npcs/martigan.txt b/mods/frontier/npcs/martigan.txt
+index 0bb15d623f4f8a779d55cf3acc6630217428b0f7..9d79e98c1bc7c64f1595c7ed066106fa18e4468e 100644
+--- a/mods/frontier/npcs/martigan.txt
++++ b/mods/frontier/npcs/martigan.txt
+@@ -13,14 +13,10 @@ anim_frames=12
+ anim_duration=10
+ 
+ [dialog]
+-set_status=fr_welcome
++requires_not=fr_rilrak_search
+ him=Welcome to my mines, stranger. If you have the back for it, I've got the work.
+ you=I heard you might have something more interesting.
+ him=Ah, you're the adventurer? If you seek out danger you're in the right place. We had two guards stationed here; both were recalled to Ancelot. Now we're vulnerable.
+-
+-[dialog]
+-requires_status=fr_welcome
+-requires_not=fr_rilrak_search
+ him=We're having problems. Goblins. All the noise from our mining is drawing their attention. We can't have them thinking we're easy prey.
+ set_status=fr_rilrak_search
+ unset_status=fr_rilrak_defeated

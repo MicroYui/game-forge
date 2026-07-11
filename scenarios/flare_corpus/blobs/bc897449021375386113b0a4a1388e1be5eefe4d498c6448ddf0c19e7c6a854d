@@ -1,0 +1,143 @@
+diff --git a/mods/empyrean_campaign/maps/st_maria_3.txt b/mods/empyrean_campaign/maps/st_maria_3.txt
+index defec2d02486f10b206032ea76927b21089afbca..1d31d377794c56d63cd2c3898bf908a186d2a636 100644
+--- a/mods/empyrean_campaign/maps/st_maria_3.txt
++++ b/mods/empyrean_campaign/maps/st_maria_3.txt
+@@ -86,7 +86,7 @@ type=object
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,0,0,0,145,0,0,110,244,245,110,0,0,145,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,145,0,0,167,183,0,167,0,0,145,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,121,0,0,0,0,0,0,0,0,0,0,121,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,167,0,193,0,0,193,0,0,126,123,123,123,123,123,123,123,123,123,123,125,0,0,193,0,0,193,0,167,0,0,0,0,0,0,0,0,0,
+@@ -150,7 +150,7 @@ type=collision
+ data=
+ 4,4,4,4,4,4,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,4,4,4,4,4,4,4,4,4,4,4,4,
+ 4,4,4,4,4,4,0,4,4,4,2,0,0,0,0,0,0,0,0,0,0,0,0,2,4,4,4,0,4,4,4,4,4,4,4,4,4,4,4,4,
+-4,4,4,4,4,4,0,4,4,4,2,0,4,0,0,1,0,0,1,0,0,4,0,2,4,4,4,0,4,4,4,4,4,4,4,4,4,4,4,4,
++4,4,4,4,4,4,0,4,4,4,2,0,4,0,0,4,0,3,4,0,0,4,0,2,4,4,4,0,4,4,4,4,4,4,4,4,4,4,4,4,
+ 4,4,4,4,4,4,0,4,4,4,2,0,0,0,0,0,0,0,0,0,0,0,0,2,4,4,4,0,4,4,4,4,4,4,4,4,4,4,4,4,
+ 4,4,2,2,2,2,4,2,2,2,2,4,0,0,0,0,0,0,0,0,0,0,4,2,2,2,2,4,2,2,2,2,4,4,4,4,4,4,4,4,
+ 4,4,2,4,0,0,0,0,0,0,0,4,4,4,4,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,4,2,4,4,4,4,4,4,4,4,
+@@ -298,16 +298,6 @@ repeat=false
+ requires_status=emp_seagate_defeated
+ 
+ [event]
+-# to Lake Kuuma
+-type=on_trigger
+-location=16,2,2,1
+-hotspot=location
+-intermap=maps/lake_kuuma.txt,26,28
+-soundfx=soundfx/environment/teleporter.ogg,0,0
+-tooltip=Lake Kuuma
+-unset_status=emp_seagate_door
+-
+-[event]
+ # kill seagate's tombstones (on_load)
+ type=on_load
+ location=12,5,1,1
+@@ -492,6 +482,12 @@ location=1,38,1,1
+ requires_not_status=emp_main_init
+ set_status=emp_main_init
+ 
++[event]
++# brazier sound effect
++type=on_load
++location=16,2,1,1
++soundfx=soundfx/environment/open_fire_loop.ogg
++
+ [enemy]
+ type=seagate_tombstone
+ location=6,5,1,1
+@@ -539,3 +535,7 @@ level=3
+ number=1
+ wander_radius=0
+ 
++[npc]
++type=npcs/glowing_obelisk_1.txt
++location=17,2,1,1
++
+diff --git a/mods/empyrean_campaign/npcs/glowing_obelisk_1.txt b/mods/empyrean_campaign/npcs/glowing_obelisk_1.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..a5262ed5f3b4239d01f4343a10202a2cf0b9d4ac
+--- /dev/null
++++ b/mods/empyrean_campaign/npcs/glowing_obelisk_1.txt
+@@ -0,0 +1,12 @@
++name=Glowing Obelisk
++
++# animation info
++gfx=animations/npcs/return_obelisk2.txt
++
++talker=true
++
++[dialog]
++topic=Teleport
++soundfx=soundfx/environment/teleporter.ogg,0,0
++intermap=maps/lake_kuuma.txt,26,28
++unset_status=emp_seagate_door
+diff --git a/tiled/empyrean_campaign/st_maria_3.tmx b/tiled/empyrean_campaign/st_maria_3.tmx
+index f9f4ef56fea8476bdc887517531f08e34d1ed58b..08892d1e873fc2cc53dec938fb0209d35f06abfb 100644
+--- a/tiled/empyrean_campaign/st_maria_3.tmx
++++ b/tiled/empyrean_campaign/st_maria_3.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="40" height="60" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="61">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="40" height="60" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="63">
+  <properties>
+   <property name="music" value="music/boss_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_dungeon.txt"/>
+@@ -98,7 +98,7 @@
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,0,0,0,145,0,0,110,244,245,110,0,0,145,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,145,0,0,167,183,0,167,0,0,145,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,121,0,0,0,0,0,0,0,0,0,0,121,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,167,0,193,0,0,193,0,0,126,123,123,123,123,123,123,123,123,123,123,125,0,0,193,0,0,193,0,167,0,0,0,0,0,0,0,0,0,
+@@ -162,7 +162,7 @@
+   <data encoding="csv">
+ 4,4,4,4,4,4,0,0,0,0,0,0,0,2,2,2,2,2,2,2,2,0,0,0,0,0,0,0,4,4,4,4,4,4,4,4,4,4,4,4,
+ 4,4,4,4,4,4,0,4,4,4,2,0,0,0,0,0,0,0,0,0,0,0,0,2,4,4,4,0,4,4,4,4,4,4,4,4,4,4,4,4,
+-4,4,4,4,4,4,0,4,4,4,2,0,4,0,0,1,0,0,1,0,0,4,0,2,4,4,4,0,4,4,4,4,4,4,4,4,4,4,4,4,
++4,4,4,4,4,4,0,4,4,4,2,0,4,0,0,4,0,3,4,0,0,4,0,2,4,4,4,0,4,4,4,4,4,4,4,4,4,4,4,4,
+ 4,4,4,4,4,4,0,4,4,4,2,0,0,0,0,0,0,0,0,0,0,0,0,2,4,4,4,0,4,4,4,4,4,4,4,4,4,4,4,4,
+ 4,4,2,2,2,2,4,2,2,2,2,4,0,0,0,0,0,0,0,0,0,0,4,2,2,2,2,4,2,2,2,2,4,4,4,4,4,4,4,4,
+ 4,4,2,4,0,0,0,0,0,0,0,4,4,4,4,4,4,4,4,4,4,4,4,0,0,0,0,0,0,0,4,2,4,4,4,4,4,4,4,4,
+@@ -300,15 +300,6 @@
+     <property name="requires_status" value="emp_seagate_defeated"/>
+    </properties>
+   </object>
+-  <object id="19" name="to Lake Kuuma" type="on_trigger" x="512" y="64" width="64" height="32">
+-   <properties>
+-    <property name="hotspot" value="location"/>
+-    <property name="intermap" value="maps/lake_kuuma.txt,26,28"/>
+-    <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+-    <property name="tooltip" value="Lake Kuuma"/>
+-    <property name="unset_status" value="emp_seagate_door"/>
+-   </properties>
+-  </object>
+   <object id="20" name="kill seagate's tombstones (on_load)" type="on_load" x="384" y="160" width="32" height="32">
+    <properties>
+     <property name="mapmod" value="collision,6,4,0;collision,27,4,0"/>
+@@ -474,6 +465,11 @@
+     <property name="set_status" value="emp_main_init"/>
+    </properties>
+   </object>
++  <object id="62" name="brazier sound effect" type="on_load" x="512" y="64" width="32" height="32">
++   <properties>
++    <property name="soundfx" value="soundfx/environment/open_fire_loop.ogg"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="enemy">
+   <object id="15" type="seagate_tombstone" x="192" y="160" width="32" height="32">
+@@ -524,4 +520,7 @@
+    </properties>
+   </object>
+  </objectgroup>
++ <objectgroup name="npc">
++  <object id="61" type="npcs/glowing_obelisk_1.txt" x="544" y="64" width="32" height="32"/>
++ </objectgroup>
+ </map>

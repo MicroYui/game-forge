@@ -1,0 +1,47 @@
+diff --git a/mods/empyrean_campaign/maps/abandoned_mines.txt b/mods/empyrean_campaign/maps/abandoned_mines.txt
+index 548095982411654feb813c258368e08804a236e6..fb50de0ee6e769a1598cf41f3441ced2714c8531 100644
+--- a/mods/empyrean_campaign/maps/abandoned_mines.txt
++++ b/mods/empyrean_campaign/maps/abandoned_mines.txt
+@@ -508,7 +508,7 @@ type=event
+ location=57,80,1,1
+ activate=on_trigger
+ hotspot=location
+-loot=loot/level_5.txt
++loot=loot/chest_level_5.txt
+ mapmod=object,57,80,176
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 4c528978e6aa846dd9db7c2f7a3582383e2a5128..c177985c8f7cba4d95f75f568fa6bc6cc1126bb3 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.14
+ game=flare-game
+-version=1.14.13
++version=1.14.14
+ engine_version_min=1.14.90
+diff --git a/tiled/empyrean_campaign/abandoned_mines.tmx b/tiled/empyrean_campaign/abandoned_mines.tmx
+index 98b7de8d0a021a9b132e703ff89a752927c151f7..475edfacdc1f42c67af050544b7a1198cfdf3c7a 100644
+--- a/tiled/empyrean_campaign/abandoned_mines.tmx
++++ b/tiled/empyrean_campaign/abandoned_mines.tmx
+@@ -1,5 +1,8 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.11" tiledversion="1.11.0" orientation="isometric" renderorder="right-down" width="80" height="100" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextlayerid="6" nextobjectid="48">
++<map version="1.11" tiledversion="1.11.2" orientation="isometric" renderorder="right-down" width="80" height="100" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextlayerid="6" nextobjectid="48">
++ <editorsettings>
++  <export target="../../mods/empyrean_campaign/maps/abandoned_mines.txt" format="flare"/>
++ </editorsettings>
+  <properties>
+   <property name="hero_pos" value="76,71"/>
+   <property name="music" value="music/cave_theme.ogg"/>
+@@ -489,7 +492,7 @@
+    <properties>
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/level_5.txt"/>
++    <property name="loot" value="loot/chest_level_5.txt"/>
+     <property name="mapmod" value="object,57,80,176"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>

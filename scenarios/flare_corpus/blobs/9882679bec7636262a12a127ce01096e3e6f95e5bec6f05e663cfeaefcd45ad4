@@ -1,0 +1,1200 @@
+diff --git a/mods/empyrean_campaign/enemies/base/ardwen.txt b/mods/empyrean_campaign/enemies/base/ardwen.txt
+index 24ef4e8801e1c14800f62a895f5fe9795c456e8a..38c9259ff1dff5d0a848cf6cb6780558cff98469 100644
+--- a/mods/empyrean_campaign/enemies/base/ardwen.txt
++++ b/mods/empyrean_campaign/enemies/base/ardwen.txt
+@@ -3,6 +3,7 @@ INCLUDE enemies/base/zombie.txt
+ name=Ardwen
+ level=3
+ xp=16
++defeat_status=emp_ardwen_defeated
+ 
+ # combat stats
+ stat=hp,440
+diff --git a/mods/empyrean_campaign/enemies/lvl3_ardwen_quest.txt b/mods/empyrean_campaign/enemies/lvl3_ardwen_quest.txt
+index 666bb62fdc9d8e2049240563e096a04ea967b69b..a4ee03f9ce5c78d8340a59f5d5edebe8df3c7d84 100644
+--- a/mods/empyrean_campaign/enemies/lvl3_ardwen_quest.txt
++++ b/mods/empyrean_campaign/enemies/lvl3_ardwen_quest.txt
+@@ -1,5 +1,4 @@
+ INCLUDE enemies/base/ardwen.txt
+ 
+-name=Ardwen
+ categories=ardwen_quest
+-defeat_status=emp_ardwen_defeated
++loot=1032,fixed,1,1
+diff --git a/mods/empyrean_campaign/items/categories/level_4_unique.txt b/mods/empyrean_campaign/items/categories/level_4_unique.txt
+index f28d7dacf4c6fe5eaadce92c24d45061329c54d6..ed6465e2b64bd3796618b488ba1918b3cec6e971 100644
+--- a/mods/empyrean_campaign/items/categories/level_4_unique.txt
++++ b/mods/empyrean_campaign/items/categories/level_4_unique.txt
+@@ -90,3 +90,14 @@ bonus=ice_resist,25
+ bonus=lightning_resist,25
+ bonus_power_level=95,1
+ 
++[item]
++id=430
++name=Ardwen's Ring
++flavor=Lochport's finest.
++INCLUDE items/base/rings/silver_3.txt
++quality=unique
++price=500
++item_type=ring
++bonus=hp,50
++bonus=mp,6
++
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+index 74180cdde36382e7e5b8f10d410ef0e1e6706f98..7ff2b15b6340e1803bf094d1d9793c228d20477e 100644
+--- a/mods/empyrean_campaign/items/categories/quest.txt
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -31,12 +31,14 @@ no_stash=shared
+ 
+ [item]
+ id=1003
+-name=Ardwen's Ring
+-INCLUDE items/base/rings/silver_3.txt
++name=Gold Family Ring
++INCLUDE items/base/rings/gold_1.txt
+ quest_item=true
+ quality=unique
+ item_type=ring
+-pickup_status=emp_ardwen_ring
++pickup_status=emp_ardwen_ring_1
++bonus=hp,25
++no_stash=shared
+ 
+ [item]
+ id=1004
+@@ -330,6 +332,17 @@ quality=unique
+ item_type=key
+ pickup_status=emp_pit_key
+ 
++[item]
++id=1031
++name=Silver Family Ring
++INCLUDE items/base/rings/silver_1.txt
++quest_item=true
++quality=unique
++item_type=ring
++pickup_status=emp_ardwen_ring_2
++bonus=mp,3
++no_stash=shared
++
+ ### Main quest items
+ [item]
+ id=1100
+diff --git a/mods/empyrean_campaign/maps/family_crypt.txt b/mods/empyrean_campaign/maps/family_crypt.txt
+index 3c4abe7ad3a1aa908d1e86e16c2d4fcf61298ada..990631b390c7e3d5dc31a86b8970ca2cf42c6928 100644
+--- a/mods/empyrean_campaign/maps/family_crypt.txt
++++ b/mods/empyrean_campaign/maps/family_crypt.txt
+@@ -1,9 +1,10 @@
+ [header]
+ width=38
+-height=56
++height=65
+ tilewidth=64
+ tileheight=32
+ orientation=isometric
++background_color=0,0,0,255
+ hero_pos=31,39
+ music=music/dungeon_theme.ogg
+ tileset=tilesetdefs/tileset_dungeon.txt
+@@ -70,12 +71,21 @@ data=
+ 0,0,0,0,0,0,0,0,0,0,0,51,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,51,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,51,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,16,17,41,18,38,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,39,19,40,47,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,42,19,16,18,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,47,39,16,47,37,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,16,37,36,44,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,51,51,51,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,0,0,0,0,0,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,0,0,0,0,0,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,0,0,0,0,0,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,0,0,0,0,0,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,0,0,0,0,0,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ 
+ [layer]
+@@ -94,9 +104,9 @@ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,77,65,65,69,105,69,69,0,0,0,0,0,0,0,0,65,65,107,115,107,69,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,64,147,146,0,0,180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,64,163,162,0,0,180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,104,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,108,146,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,108,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,68,0,0,0,0,0,0,0,0,0,180,0,0,0,0,0,178,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -116,7 +126,7 @@ data=
+ 0,68,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,68,0,0,75,72,0,0,0,0,0,0,0,0,0,0,0,0,75,72,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,102,0,0,74,73,0,0,0,0,0,0,0,0,0,0,0,0,74,73,0,0,82,0,0,0,0,77,105,65,69,69,65,65,101,97,78,0,
+-0,68,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,176,0,0,0,82,0,0,0,0,106,0,0,0,0,0,0,146,147,70,0,
++0,68,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,176,0,0,0,82,0,0,0,0,106,0,0,0,0,0,0,0,151,70,0,
+ 0,108,0,0,0,0,0,0,0,0,0,0,178,0,0,0,0,0,0,0,0,0,90,81,103,101,103,73,0,0,0,0,0,0,0,0,82,0,
+ 0,68,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,149,0,0,0,0,0,0,0,0,181,0,82,0,
+ 0,68,0,0,0,0,0,0,0,180,0,0,0,0,0,0,0,0,0,0,177,0,0,0,0,0,0,0,0,0,284,0,0,0,0,0,82,0,
+@@ -130,12 +140,21 @@ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,77,73,0,0,90,94,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,98,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,100,144,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,98,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,68,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,76,71,83,83,83,95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,77,65,103,65,78,0,0,0,77,73,0,0,90,81,65,99,65,103,65,99,65,65,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,64,128,0,0,70,0,0,0,64,0,0,0,0,0,0,0,181,135,136,0,0,151,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,106,144,0,0,0,0,0,0,114,0,0,0,178,0,0,0,0,0,0,0,0,147,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,64,128,0,0,82,0,0,0,64,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,100,180,0,0,82,0,0,0,76,71,83,83,83,88,0,0,0,91,83,83,83,83,95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,100,0,0,0,82,0,0,0,0,0,0,0,0,80,180,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,102,0,178,0,82,0,0,0,0,0,0,0,0,64,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,64,0,0,0,82,0,0,0,0,0,0,0,0,102,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,104,0,0,0,82,0,0,0,0,0,0,0,0,108,0,0,181,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,76,71,83,83,95,0,0,0,0,0,0,0,0,114,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,0,0,0,90,81,65,107,103,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,102,181,0,0,0,0,0,145,129,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,201,0,0,0,0,0,0,181,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,200,178,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,76,71,83,83,83,83,83,83,83,95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ 
+ [layer]
+@@ -156,7 +175,7 @@ data=
+ 3,1,1,1,1,1,1,1,2,2,0,0,0,0,2,2,1,1,1,2,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,4,4,0,0,0,0,2,2,0,0,0,0,2,2,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,1,4,0,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,0,0,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -176,9 +195,9 @@ data=
+ 3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,1,1,2,2,2,2,0,0,0,0,2,2,2,2,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,1,1,2,2,2,2,0,0,0,0,2,2,2,2,1,1,0,0,1,3,3,3,3,1,1,1,1,1,1,1,1,1,1,3,
+-3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,1,0,0,1,1,1,1,4,4,1,3,
++3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,1,0,0,1,1,1,1,0,4,1,3,
+ 3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,3,
+-3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,2,0,0,0,0,1,1,1,1,0,0,1,3,
++3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,4,0,0,0,0,1,1,1,1,0,0,1,3,
+ 3,1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,3,
+ 3,1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,
+ 3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,
+@@ -190,177 +209,154 @@ data=
+ 3,3,3,3,3,3,3,3,2,2,2,0,0,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,2,2,2,0,0,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,2,2,2,0,0,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,1,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,4,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,1,1,1,1,3,3,3,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,1,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,4,4,0,0,4,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,4,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,4,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,1,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,0,0,0,1,3,3,3,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,1,1,1,1,3,3,3,3,3,3,3,3,1,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,4,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,4,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,4,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ 
+ [event]
+-# rune teleport
++# reset statuses
+ type=event
+-location=15,14,1,2
+-activate=on_trigger
+-intramap=7,14
+-soundfx=soundfx/environment/teleporter.ogg
++location=4,0,1,1
++activate=on_load
++unset_status=emp_ardwen_spawn,emp_ardwen_defeated,emp_ardwen_exit
+ 
+ [event]
+-# start Ardwen quest
++# end quest
+ type=event
+-location=7,14,1,1
+-activate=on_trigger
+-msg=Quest added.
+-repeat=false
+-requires_not_status=emp_ardwen_init,emp_ardwen_finish
+-set_status=emp_ardwen_init
++location=3,0,1,1
++activate=static
++requires_not_status=emp_ardwen_finish
++requires_status=emp_ardwen_init,emp_ardwen_defeated
++reward_xp=200
++set_status=emp_ardwen_finish
++unset_status=emp_ardwen_init,emp_ardwen_ring_2_used,emp_ardwen_spawn
+ 
+ [event]
+-# open door
++# exit door switch
+ type=event
+ location=12,3,1,1
+ activate=on_trigger
++cooldown=1s
+ hotspot=location
+-mapmod=object,12,3,166;object,19,12,113;collision,19,12,0
+-repeat=false
+-requires_not_status=emp_ardwen_init
+-soundfx=soundfx/door_open.ogg
++repeat=true
++requires_not_status=emp_ardwen_exit
++script=scripts/maps/family_crypt/open_exit.txt
+ tooltip=Switch
+ 
+ [event]
+-# Ardwen's key
+-type=event
+-location=8,51,1,1
+-activate=on_trigger
+-hotspot=10,51,1,1
+-loot=loot/level_2.txt;1003,fixed,1
+-loot_count=1,2
+-mapmod=object,10,51,160
+-repeat=false
+-requires_not_status=emp_ardwen_ring
+-requires_status=emp_ardwen_init
+-set_status=emp_ardwen_chest
+-soundfx=soundfx/wood_open.ogg
+-tooltip=Treasure Chest
+-
+-[event]
+-# In Memoriam
++# Ardwen's Coffin
+ type=event
+-location=25,37,1,1
++location=11,3,1,2
+ activate=on_trigger
++cooldown=1s
+ hotspot=location
+-mapmod=object,25,37,165
+-msg=Ardwen (1308-1364), founder of Lochport
+-repeat=false
+-soundfx=soundfx/inventory/inventory_page.ogg
+-tooltip=In Memoriam
++npc=npcs/ardwens_coffin.txt
++repeat=true
++requires_not_status=emp_ardwen_spawn,emp_ardwen_defeated
++tooltip=Ardwen's Coffin
+ 
+ [event]
+-# to Lochport Cemetery
++# open chest room (on_load)
+ type=event
+-location=31,38,2,1
+-activate=on_trigger
+-hotspot=location
+-intermap=maps/lochport_cemetery.txt,48,46
+-soundfx=soundfx/environment/stairs.ogg,0,0
+-tooltip=Lochport Cemetery
+-unset_status=emp_ardwen_chest
++location=2,0,1,1
++activate=on_load
++requires_status=emp_ardwen_chest_room
++script=scripts/maps/family_crypt/open_chest_room.txt
+ 
+ [event]
+-# treasure
++# Chest 2
+ type=event
+-location=10,51,1,1
++location=2,51,1,1
+ activate=on_trigger
+ hotspot=location
+ loot=loot/level_2.txt
+ loot_count=1,2
+-mapmod=object,10,51,160
++mapmod=object,2,51,160
+ repeat=false
+-requires_not_status=emp_ardwen_init;emp_ardwen_chest
++script=scripts/maps/family_crypt/chest_2.txt
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+ 
+ [event]
+-# Ardwen's key (on_load)
++# Chest 1
+ type=event
+-location=8,49,1,1
+-activate=on_load
+-mapmod=object,10,51,160
++location=21,60,1,1
++activate=on_trigger
++hotspot=location
++loot=loot/level_2.txt
++loot_count=1,2
++mapmod=object,21,60,161
+ repeat=false
+-requires_status=emp_ardwen_ring
+-set_status=emp_ardwen_chest
++script=scripts/maps/family_crypt/chest_1.txt
++soundfx=soundfx/wood_open.ogg
++tooltip=Treasure Chest
+ 
+ [event]
+-# Spawn Ardwen
++# Crate
+ type=event
+-location=11,3,1,2
++location=22,51,1,1
+ activate=on_trigger
+ hotspot=location
+-mapmod=collision,12,4,0
+-msg=The coffin has a small slot the size of Ardwen's ring. You place the ring in the slot.
+-remove_item=1003
++loot=loot/level_2.txt
++loot_count=1,2
++mapmod=object,22,51,163
+ repeat=false
+-requires_not_status=emp_ardwen_summoned
+-requires_status=emp_ardwen_ring
+-set_status=emp_ardwen_summoned
+-shakycam=1s
+-soundfx=soundfx/environment/stone_open.ogg,11,4
+-spawn=ardwen_quest,12,4
+-tooltip=Ardwen's Coffin
++soundfx=soundfx/wood_open.ogg
++tooltip=Crate
+ 
+ [event]
+-# open door (ardwen defeated)
++# start Ardwen quest
+ type=event
+-location=12,1,1,1
++location=7,14,1,1
+ activate=on_trigger
+-hotspot=12,3,1,1
+-mapmod=object,12,3,166;object,19,12,113;collision,19,12,0
++msg=Quest added.
+ repeat=false
+-requires_status=emp_ardwen_defeated
+-reward_xp=200
+-set_status=emp_ardwen_finish
+-soundfx=soundfx/door_open.ogg
+-tooltip=Switch
+-unset_status=emp_ardwen_init;emp_ardwen_ring;emp_ardwen_summoned;emp_ardwen_defeated
++requires_not_status=emp_ardwen_init,emp_ardwen_finish
++set_status=emp_ardwen_init
+ 
+ [event]
+-# locked door
++# rune teleport
+ type=event
+-location=14,1,1,1
++location=15,14,1,2
+ activate=on_trigger
+-hotspot=12,3,1,1
+-msg=The switch won't budge.
+-requires_not_status=emp_ardwen_defeated
+-requires_status=emp_ardwen_init
+-tooltip=Switch
+-
+-[event]
+-# clear Ardwen quest collision tile
+-type=event
+-location=10,1,1,1
+-activate=on_load
+-mapmod=collision,12,4,0
+-requires_not_status=emp_ardwen_init
++intramap=7,14
++soundfx=soundfx/environment/teleporter.ogg
+ 
+ [event]
+-# Spawn Ardwen (on_load)
++# In Memoriam
+ type=event
+-location=8,1,1,1
+-activate=on_load
+-mapmod=collision,12,4,0
+-repeat=false
+-requires_status=emp_ardwen_summoned
+-spawn=ardwen_quest,12,4
++location=25,37,1,1
++activate=on_trigger
++cooldown=1s
++hotspot=location
++mapmod=object,25,37,165
++msg=Ardwen (1308-1364), founder of Lochport
++repeat=true
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=In Memoriam
+ 
+ [event]
+-# remove chest status
++# to Lochport Cemetery
+ type=event
+-location=6,49,1,1
+-activate=on_load
+-repeat=false
+-requires_not_status=emp_ardwen_init
+-requires_status=emp_ardwen_chest
++location=31,38,2,1
++activate=on_trigger
++hotspot=location
++intermap=maps/lochport_cemetery.txt,48,46
++soundfx=soundfx/environment/stairs.ogg,0,0
++tooltip=Lochport Cemetery
+ unset_status=emp_ardwen_chest
+ 
+ [event]
+@@ -370,25 +366,6 @@ location=0,0,1,1
+ activate=on_load
+ soundfx=soundfx/environment/cave_wind_loop.ogg
+ 
+-[event]
+-# post-quest Ardwen spawn
+-type=event
+-location=6,1,1,1
+-activate=on_load
+-mapmod=collision,12,4,0
+-requires_status=emp_ardwen_finish
+-spawn=ardwen,12,4
+-
+-[event]
+-# reset quest
+-type=event
+-location=2,0,1,1
+-activate=on_load
+-msg=Reset quest: "Trapped in the Crypt"
+-requires_not_status=emp_ardwen_finish
+-requires_status=emp_ardwen_init
+-script=scripts/maps/family_crypt/reset_quest.txt
+-
+ [enemy]
+ type=enemy
+ location=12,34,1,1
+@@ -439,8 +416,31 @@ wander_radius=2
+ 
+ [enemy]
+ type=enemy
+-location=11,49,3,5
++location=11,49,4,4
+ category=undead
+ level=2
+ number=2,3
+ 
++[enemy]
++type=enemy
++location=15,59,4,4
++category=undead
++level=2
++number=2,3
++
++[enemy]
++type=enemy
++location=19,50,4,3
++category=undead
++level=2
++number=1,2
++
++[enemy]
++type=enemy
++location=2,54,1,1
++category=undead
++direction=W
++level=2
++number=1
++wander_radius=0
++
+diff --git a/mods/empyrean_campaign/npcs/ardwens_coffin.txt b/mods/empyrean_campaign/npcs/ardwens_coffin.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..8b1e99ce9e310b15f3bc605bdfdae7a996aa392a
+--- /dev/null
++++ b/mods/empyrean_campaign/npcs/ardwens_coffin.txt
+@@ -0,0 +1,56 @@
++name=Ardwen's Coffin
++
++talker=true
++
++# quest not complete; second ring not yet inserted
++[dialog]
++requires_not_status=emp_ardwen_ring_2_used,emp_ardwen_spawn,emp_ardwen_finish
++response=emp_ardwen_ring_1
++response=emp_ardwen_ring_2
++response=emp_ardwen_cancel
++him=A finger-sized post is protruding from the lid of the coffin. It looks as though something is missing.
++
++[dialog]
++id=emp_ardwen_ring_1
++response_only=true
++topic=Place the Gold Family Ring on the coffin
++requires_item=1003:1
++remove_item=1003:1
++unset_status=emp_ardwen_ring_1
++script=scripts/maps/family_crypt/open_chest_room.txt
++msg=The ring dissolved into nothing!
++shakycam=1s
++intramap=3,56
++soundfx=soundfx/powers/teleport.ogg
++
++[dialog]
++id=emp_ardwen_ring_2
++response_only=true
++topic=Place the Silver Family Ring on the coffin
++requires_item=1031:1
++remove_item=1031:1
++unset_status=emp_ardwen_ring_2
++msg=The ring dissolved into nothing!
++set_status=emp_ardwen_ring_2_used
++script=scripts/maps/family_crypt/spawn_ardwen.txt
++spawn=ardwen_quest,12,4
++
++[dialog]
++id=emp_ardwen_cancel
++response_only=true
++topic=Cancel
++
++# quest not complete; second ring has been inserted
++[dialog]
++requires_status=emp_ardwen_ring_2_used
++requires_not_status=emp_ardwen_spawn,emp_ardwen_defeated,emp_ardwen_finish
++script=scripts/maps/family_crypt/spawn_ardwen.txt
++spawn=ardwen_quest,12,4
++
++# quest complete
++[dialog]
++requires_status=emp_ardwen_finish
++requires_not_status=emp_ardwen_spawn,emp_ardwen_defeated
++script=scripts/maps/family_crypt/spawn_ardwen.txt
++spawn=ardwen,12,4
++
+diff --git a/mods/empyrean_campaign/quests/0030_ardwen.txt b/mods/empyrean_campaign/quests/0030_ardwen.txt
+index 8f146ec855a84f165265eb35688f7fa4a42815f6..5a8c3a3f2b0198e1570d6f2b1f7d78031f4ef97b 100644
+--- a/mods/empyrean_campaign/quests/0030_ardwen.txt
++++ b/mods/empyrean_campaign/quests/0030_ardwen.txt
+@@ -3,20 +3,18 @@ complete_status=emp_ardwen_finish
+ 
+ [quest]
+ requires_status=emp_ardwen_init
+-requires_not_status=emp_ardwen_ring
+-quest_text=Find a way to escape the Family Crypt.
++quest_text=Investigate the Family Crypt.
+ 
+ [quest]
+-requires_status=emp_ardwen_ring
+-requires_not_status=emp_ardwen_summoned
+-quest_text=You found a strange ring. Maybe it will aid in escaping the Family Crypt.
++requires_status=emp_ardwen_ring_1
++quest_text=You found a strange ring. It might have a use beyond its mundane magical properties.
+ 
+ [quest]
+-requires_status=emp_ardwen_summoned
++requires_status=emp_ardwen_ring_2
++quest_text=You found another strange ring. Maybe this one will have a different effect.
++
++[quest]
++requires_status=emp_ardwen_spawn
+ requires_not_status=emp_ardwen_defeated
+ quest_text=Defeat Ardwen.
+ 
+-[quest]
+-requires_status=emp_ardwen_defeated
+-requires_not_status=emp_ardwen_finish
+-quest_text=Ardwen has been defeated. The lever near his coffin will likely open the nearby gate.
+diff --git a/mods/empyrean_campaign/scripts/dev/quests/reset_ardwen.txt b/mods/empyrean_campaign/scripts/dev/quests/reset_ardwen.txt
+index cd020ee3ef4910903bde03a8b015ab4c9fb7c0ed..d2c61439c99352b547ea731b6682f0e09c74bdc8 100644
+--- a/mods/empyrean_campaign/scripts/dev/quests/reset_ardwen.txt
++++ b/mods/empyrean_campaign/scripts/dev/quests/reset_ardwen.txt
+@@ -1,11 +1,22 @@
+ [event]
+ unset_status=emp_ardwen_init
+-unset_status=emp_ardwen_ring
+-unset_status=emp_ardwen_chest
+-unset_status=emp_ardwen_summoned
++unset_status=emp_ardwen_ring_1
++unset_status=emp_ardwen_ring_2
++unset_status=emp_ardwen_ring_2_used
++unset_status=emp_ardwen_spawn
+ unset_status=emp_ardwen_defeated
+ unset_status=emp_ardwen_finish
++unset_status=emp_ardwen_chest_room
++unset_status=emp_ardwen_exit
++
+ remove_item=1003
++remove_item=1031
++
++# old statuses
++unset_status=emp_ardwen_ring
++unset_status=emp_ardwen_chest
++unset_status=emp_ardwen_summoned
++
+ msg=Reset quest: "Trapped in the Crypt"
+ 
+ [event]
+diff --git a/mods/empyrean_campaign/scripts/maps/family_crypt/chest_1.txt b/mods/empyrean_campaign/scripts/maps/family_crypt/chest_1.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..3304107c779696a7f90a69859093c7f52d1f6b5b
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/maps/family_crypt/chest_1.txt
+@@ -0,0 +1,5 @@
++[event]
++requires_status=emp_ardwen_init
++requires_not_status=emp_ardwen_ring_1
++loot=1003,fixed,1
++
+diff --git a/mods/empyrean_campaign/scripts/maps/family_crypt/chest_2.txt b/mods/empyrean_campaign/scripts/maps/family_crypt/chest_2.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..f768e9168c5ff2c67eabac8f585cc51d52353645
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/maps/family_crypt/chest_2.txt
+@@ -0,0 +1,4 @@
++[event]
++requires_status=emp_ardwen_init
++requires_not_status=emp_ardwen_ring_2
++loot=1031,fixed,1
+diff --git a/mods/empyrean_campaign/scripts/maps/family_crypt/lock_exit.txt b/mods/empyrean_campaign/scripts/maps/family_crypt/lock_exit.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..83083e3bd2c16439c4fc5692ad4af174c27ff3fe
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/maps/family_crypt/lock_exit.txt
+@@ -0,0 +1,7 @@
++[event]
++requires_status=emp_ardwen_exit
++soundfx=soundfx/door_open.ogg
++
++[event]
++mapmod=object,12,3,150;object,19,12,115;collision,19,12,1
++unset_status=emp_ardwen_exit
+diff --git a/mods/empyrean_campaign/scripts/maps/family_crypt/open_chest_room.txt b/mods/empyrean_campaign/scripts/maps/family_crypt/open_chest_room.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..fd4c564cdafae27a2a190420eaf4ae66387a28e1
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/maps/family_crypt/open_chest_room.txt
+@@ -0,0 +1,8 @@
++[event]
++requires_not_status=emp_ardwen_chest_room
++soundfx=soundfx/door_open.ogg,9,51
++set_status=emp_ardwen_chest_room
++
++[event]
++mapmod=collision,9,51,0;object,9,51,112
++
+diff --git a/mods/empyrean_campaign/scripts/maps/family_crypt/open_exit.txt b/mods/empyrean_campaign/scripts/maps/family_crypt/open_exit.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..9db3752dafdc4b4c21eb0f90d7069a7d500fdc1c
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/maps/family_crypt/open_exit.txt
+@@ -0,0 +1,18 @@
++[event]
++requires_status=emp_ardwen_spawn
++requires_not_status=emp_ardwen_defeated
++msg=The switch won't budge.
++
++[event]
++requires_not_status=emp_ardwen_spawn,emp_ardwen_exit
++soundfx=soundfx/door_open.ogg
++mapmod=object,12,3,166;object,19,12,113;collision,19,12,0
++set_status=emp_ardwen_exit
++
++[event]
++requires_status=emp_ardwen_defeated
++requires_not_status=emp_ardwen_exit
++soundfx=soundfx/door_open.ogg
++mapmod=object,12,3,166;object,19,12,113;collision,19,12,0
++set_status=emp_ardwen_exit
++
+diff --git a/mods/empyrean_campaign/scripts/maps/family_crypt/reset_quest.txt b/mods/empyrean_campaign/scripts/maps/family_crypt/reset_quest.txt
+deleted file mode 100644
+index 550c5d22b1bf6d1837f754707b552464a99befde..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/maps/family_crypt/reset_quest.txt
++++ /dev/null
+@@ -1,8 +0,0 @@
+-[event]
+-unset_status=emp_ardwen_init
+-unset_status=emp_ardwen_ring
+-unset_status=emp_ardwen_chest
+-unset_status=emp_ardwen_summoned
+-unset_status=emp_ardwen_defeated
+-unset_status=emp_ardwen_finish
+-remove_item=1003
+diff --git a/mods/empyrean_campaign/scripts/maps/family_crypt/spawn_ardwen.txt b/mods/empyrean_campaign/scripts/maps/family_crypt/spawn_ardwen.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d753981cdf81e056f90a1f6e8c7170205a018875
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/maps/family_crypt/spawn_ardwen.txt
+@@ -0,0 +1,7 @@
++# this script doesn't contain the actual "spawn" attribute because it's used for spawning both the quest and non-quest enemies
++[event]
++mapmod=collision,12,4,0
++set_status=emp_ardwen_spawn
++shakycam=1s
++soundfx=soundfx/environment/stone_open.ogg,11,4
++script=scripts/maps/family_crypt/lock_exit.txt
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 0a7e769363f2d573143f3902774d2cacdb17be16..866ffb5bb53222cf819a3f02f152d7f2f6b5b914 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.06.03:0
+ game=flare-game
+-version=1.11.18
++version=1.11.19
+ engine_version_min=1.11.85
+diff --git a/tiled/empyrean_campaign/family_crypt.tmx b/tiled/empyrean_campaign/family_crypt.tmx
+index 4531246832762190a7c4e2ed3c086ce3f3a5ed6e..81da114da409370cfc6dffa310f65192eb93244c 100644
+--- a/tiled/empyrean_campaign/family_crypt.tmx
++++ b/tiled/empyrean_campaign/family_crypt.tmx
+@@ -1,5 +1,8 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.0.1" orientation="isometric" renderorder="right-down" width="38" height="56" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="44">
++<map version="1.5" tiledversion="1.6.0" orientation="isometric" renderorder="right-down" width="38" height="65" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextlayerid="6" nextobjectid="53">
++ <editorsettings>
++  <export target="../../mods/empyrean_campaign/maps/family_crypt.txt" format="flare"/>
++ </editorsettings>
+  <properties>
+   <property name="hero_pos" value="31,39"/>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+@@ -31,7 +34,7 @@
+   <tileoffset x="0" y="48"/>
+   <image source="../dungeon/stairs.png" width="1024" height="256"/>
+  </tileset>
+- <layer name="background" width="38" height="56">
++ <layer id="1" name="background" width="38" height="65">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,40,36,42,42,46,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -82,16 +85,25 @@
+ 0,0,0,0,0,0,0,0,0,0,0,51,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,51,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,51,51,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,16,17,41,18,38,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,39,19,40,47,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,42,19,16,18,19,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,47,39,16,47,37,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,16,37,36,44,17,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,51,51,51,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,0,0,0,0,0,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,0,0,0,0,0,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,0,0,0,0,0,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,0,0,0,0,0,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,16,16,16,16,16,0,0,0,0,0,0,0,0,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,16,16,16,16,16,16,16,16,16,16,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="object" width="38" height="56">
++ <layer id="2" name="object" width="38" height="65">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,77,99,107,99,65,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -106,9 +118,9 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,77,65,65,69,105,69,69,0,0,0,0,0,0,0,0,65,65,107,115,107,69,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,64,147,146,0,0,180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,64,163,162,0,0,180,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,104,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,108,146,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,108,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,68,0,0,0,0,0,0,0,0,0,180,0,0,0,0,0,178,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,64,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -128,7 +140,7 @@
+ 0,68,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,68,0,0,75,72,0,0,0,0,0,0,0,0,0,0,0,0,75,72,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,102,0,0,74,73,0,0,0,0,0,0,0,0,0,0,0,0,74,73,0,0,82,0,0,0,0,77,105,65,69,69,65,65,101,97,78,0,
+-0,68,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,176,0,0,0,82,0,0,0,0,106,0,0,0,0,0,0,146,147,70,0,
++0,68,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,176,0,0,0,82,0,0,0,0,106,0,0,0,0,0,0,0,151,70,0,
+ 0,108,0,0,0,0,0,0,0,0,0,0,178,0,0,0,0,0,0,0,0,0,90,81,103,101,103,73,0,0,0,0,0,0,0,0,82,0,
+ 0,68,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,149,0,0,0,0,0,0,0,0,181,0,82,0,
+ 0,68,0,0,0,0,0,0,0,180,0,0,0,0,0,0,0,0,0,0,177,0,0,0,0,0,0,0,0,0,284,0,0,0,0,0,82,0,
+@@ -142,16 +154,25 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,77,73,0,0,90,94,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,98,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,100,144,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,98,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,68,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,76,71,83,83,83,95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,77,65,103,65,78,0,0,0,77,73,0,0,90,81,65,99,65,103,65,99,65,65,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,64,128,0,0,70,0,0,0,64,0,0,0,0,0,0,0,181,135,136,0,0,151,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,106,144,0,0,0,0,0,0,114,0,0,0,178,0,0,0,0,0,0,0,0,147,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,64,128,0,0,82,0,0,0,64,0,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,100,180,0,0,82,0,0,0,76,71,83,83,83,88,0,0,0,91,83,83,83,83,95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,100,0,0,0,82,0,0,0,0,0,0,0,0,80,180,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,102,0,178,0,82,0,0,0,0,0,0,0,0,64,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,64,0,0,0,82,0,0,0,0,0,0,0,0,102,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,104,0,0,0,82,0,0,0,0,0,0,0,0,108,0,0,181,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,76,71,83,83,95,0,0,0,0,0,0,0,0,114,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,0,0,0,90,81,65,107,103,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,102,181,0,0,0,0,0,145,129,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,64,201,0,0,0,0,0,0,181,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,100,200,178,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,76,71,83,83,83,83,83,83,83,95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="38" height="56">
++ <layer id="3" name="collision" width="38" height="65">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -168,7 +189,7 @@
+ 3,1,1,1,1,1,1,1,2,2,0,0,0,0,2,2,1,1,1,2,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,4,4,0,0,0,0,2,2,0,0,0,0,2,2,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,1,4,0,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,0,0,0,0,0,0,0,2,0,0,0,0,2,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -188,9 +209,9 @@
+ 3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,1,1,2,2,2,2,0,0,0,0,2,2,2,2,1,1,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,1,0,0,1,1,2,2,2,2,0,0,0,0,2,2,2,2,1,1,0,0,1,3,3,3,3,1,1,1,1,1,1,1,1,1,1,3,
+-3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,1,0,0,1,1,1,1,4,4,1,3,
++3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,3,3,3,3,1,0,0,1,1,1,1,0,4,1,3,
+ 3,1,0,0,0,0,2,2,2,2,0,0,0,0,2,2,2,2,0,0,0,0,1,1,1,1,1,1,0,0,1,1,1,1,0,0,1,3,
+-3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,2,0,0,0,0,1,1,1,1,0,0,1,3,
++3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,4,0,0,0,0,1,1,1,1,0,0,1,3,
+ 3,1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0,1,0,0,1,3,
+ 3,1,0,0,0,0,0,0,0,0,0,0,0,0,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,
+ 3,1,0,0,0,0,0,0,2,2,0,0,0,0,2,2,2,2,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,
+@@ -202,164 +223,143 @@
+ 3,3,3,3,3,3,3,3,2,2,2,0,0,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,2,2,2,0,0,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,2,2,2,0,0,2,2,2,2,2,2,2,2,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,1,0,0,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,4,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,1,1,1,1,3,3,3,1,1,0,0,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,1,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,4,4,0,0,4,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,4,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0,0,0,0,0,4,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,1,0,0,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,0,0,0,1,3,3,3,1,1,1,1,1,1,0,0,0,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,0,0,0,1,3,3,3,3,3,3,3,3,1,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,1,1,1,1,1,3,3,3,3,3,3,3,3,1,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,4,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,4,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,4,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ </data>
+  </layer>
+- <objectgroup name="event">
+-  <object id="4" name="rune teleport" type="event" x="480" y="448" width="32" height="64">
++ <objectgroup id="4" name="event">
++  <object id="49" name="reset statuses" type="event" x="128" y="0" width="32" height="32">
+    <properties>
+-    <property name="activate" value="on_trigger"/>
+-    <property name="intramap" value="7,14"/>
+-    <property name="soundfx" value="soundfx/environment/teleporter.ogg"/>
++    <property name="activate" value="on_load"/>
++    <property name="unset_status" value="emp_ardwen_spawn,emp_ardwen_defeated,emp_ardwen_exit"/>
+    </properties>
+   </object>
+-  <object id="5" name="start Ardwen quest" type="event" x="224" y="448" width="32" height="32">
++  <object id="46" name="end quest" type="event" x="96" y="0" width="32" height="32">
+    <properties>
+-    <property name="activate" value="on_trigger"/>
+-    <property name="msg" value="Quest added."/>
+-    <property name="repeat" value="false"/>
+-    <property name="requires_not_status" value="emp_ardwen_init,emp_ardwen_finish"/>
+-    <property name="set_status" value="emp_ardwen_init"/>
++    <property name="activate" value="static"/>
++    <property name="requires_not_status" value="emp_ardwen_finish"/>
++    <property name="requires_status" value="emp_ardwen_init,emp_ardwen_defeated"/>
++    <property name="reward_xp" value="200"/>
++    <property name="set_status" value="emp_ardwen_finish"/>
++    <property name="unset_status" value="emp_ardwen_init,emp_ardwen_ring_2_used,emp_ardwen_spawn"/>
+    </properties>
+   </object>
+-  <object id="12" name="open door" type="event" x="384" y="96" width="32" height="32">
++  <object id="12" name="exit door switch" type="event" x="384" y="96" width="32" height="32">
+    <properties>
+     <property name="activate" value="on_trigger"/>
++    <property name="cooldown" value="1s"/>
+     <property name="hotspot" value="location"/>
+-    <property name="mapmod" value="object,12,3,166;object,19,12,113;collision,19,12,0"/>
+-    <property name="repeat" value="false"/>
+-    <property name="requires_not_status" value="emp_ardwen_init"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
++    <property name="repeat" value="true"/>
++    <property name="requires_not_status" value="emp_ardwen_exit"/>
++    <property name="script" value="scripts/maps/family_crypt/open_exit.txt"/>
+     <property name="tooltip" value="Switch"/>
+    </properties>
+   </object>
+-  <object id="13" name="Ardwen's key" type="event" x="256" y="1632" width="32" height="32">
+-   <properties>
+-    <property name="activate" value="on_trigger"/>
+-    <property name="hotspot" value="10,51,1,1"/>
+-    <property name="loot" value="loot/level_2.txt;1003,fixed,1"/>
+-    <property name="loot_count" value="1,2"/>
+-    <property name="mapmod" value="object,10,51,160"/>
+-    <property name="repeat" value="false"/>
+-    <property name="requires_not_status" value="emp_ardwen_ring"/>
+-    <property name="requires_status" value="emp_ardwen_init"/>
+-    <property name="set_status" value="emp_ardwen_chest"/>
+-    <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Treasure Chest"/>
+-   </properties>
+-  </object>
+-  <object id="15" name="In Memoriam" type="event" x="800" y="1184" width="32" height="32">
++  <object id="26" name="Ardwen's Coffin" type="event" x="352" y="96" width="32" height="64">
+    <properties>
+     <property name="activate" value="on_trigger"/>
++    <property name="cooldown" value="1s"/>
+     <property name="hotspot" value="location"/>
+-    <property name="mapmod" value="object,25,37,165"/>
+-    <property name="msg" value="Ardwen (1308-1364), founder of Lochport"/>
+-    <property name="repeat" value="false"/>
+-    <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
+-    <property name="tooltip" value="In Memoriam"/>
++    <property name="npc" value="npcs/ardwens_coffin.txt"/>
++    <property name="repeat" value="true"/>
++    <property name="requires_not_status" value="emp_ardwen_spawn,emp_ardwen_defeated"/>
++    <property name="tooltip" value="Ardwen's Coffin"/>
+    </properties>
+   </object>
+-  <object id="23" name="to Lochport Cemetery" type="event" x="992" y="1216" width="64" height="32">
++  <object id="47" name="open chest room (on_load)" type="event" x="64" y="0" width="32" height="32">
+    <properties>
+-    <property name="activate" value="on_trigger"/>
+-    <property name="hotspot" value="location"/>
+-    <property name="intermap" value="maps/lochport_cemetery.txt,48,46"/>
+-    <property name="soundfx" value="soundfx/environment/stairs.ogg,0,0"/>
+-    <property name="tooltip" value="Lochport Cemetery"/>
+-    <property name="unset_status" value="emp_ardwen_chest"/>
++    <property name="activate" value="on_load"/>
++    <property name="requires_status" value="emp_ardwen_chest_room"/>
++    <property name="script" value="scripts/maps/family_crypt/open_chest_room.txt"/>
+    </properties>
+   </object>
+-  <object id="24" name="treasure" type="event" x="320" y="1632" width="32" height="32">
++  <object id="45" name="Chest 2" type="event" x="64" y="1632" width="32" height="32">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+     <property name="loot" value="loot/level_2.txt"/>
+     <property name="loot_count" value="1,2"/>
+-    <property name="mapmod" value="object,10,51,160"/>
++    <property name="mapmod" value="object,2,51,160"/>
+     <property name="repeat" value="false"/>
+-    <property name="requires_not_status" value="emp_ardwen_init;emp_ardwen_chest"/>
++    <property name="script" value="scripts/maps/family_crypt/chest_2.txt"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+    </properties>
+   </object>
+-  <object id="25" name="Ardwen's key (on_load)" type="event" x="256" y="1568" width="32" height="32">
++  <object id="13" name="Chest 1" type="event" x="672" y="1920" width="32" height="32">
+    <properties>
+-    <property name="activate" value="on_load"/>
+-    <property name="mapmod" value="object,10,51,160"/>
++    <property name="activate" value="on_trigger"/>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="loot/level_2.txt"/>
++    <property name="loot_count" value="1,2"/>
++    <property name="mapmod" value="object,21,60,161"/>
+     <property name="repeat" value="false"/>
+-    <property name="requires_status" value="emp_ardwen_ring"/>
+-    <property name="set_status" value="emp_ardwen_chest"/>
++    <property name="script" value="scripts/maps/family_crypt/chest_1.txt"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Treasure Chest"/>
+    </properties>
+   </object>
+-  <object id="26" name="Spawn Ardwen" type="event" x="352" y="96" width="32" height="64">
++  <object id="44" name="Crate" type="event" x="704" y="1632" width="32" height="32">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+     <property name="hotspot" value="location"/>
+-    <property name="mapmod" value="collision,12,4,0"/>
+-    <property name="msg" value="The coffin has a small slot the size of Ardwen's ring. You place the ring in the slot."/>
+-    <property name="remove_item" value="1003"/>
++    <property name="loot" value="loot/level_2.txt"/>
++    <property name="loot_count" value="1,2"/>
++    <property name="mapmod" value="object,22,51,163"/>
+     <property name="repeat" value="false"/>
+-    <property name="requires_not_status" value="emp_ardwen_summoned"/>
+-    <property name="requires_status" value="emp_ardwen_ring"/>
+-    <property name="set_status" value="emp_ardwen_summoned"/>
+-    <property name="shakycam" value="1s"/>
+-    <property name="soundfx" value="soundfx/environment/stone_open.ogg,11,4"/>
+-    <property name="spawn" value="ardwen_quest,12,4"/>
+-    <property name="tooltip" value="Ardwen's Coffin"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Crate"/>
+    </properties>
+   </object>
+-  <object id="28" name="open door (ardwen defeated)" type="event" x="384" y="32" width="32" height="32">
++  <object id="5" name="start Ardwen quest" type="event" x="224" y="448" width="32" height="32">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+-    <property name="hotspot" value="12,3,1,1"/>
+-    <property name="mapmod" value="object,12,3,166;object,19,12,113;collision,19,12,0"/>
++    <property name="msg" value="Quest added."/>
+     <property name="repeat" value="false"/>
+-    <property name="requires_status" value="emp_ardwen_defeated"/>
+-    <property name="reward_xp" value="200"/>
+-    <property name="set_status" value="emp_ardwen_finish"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
+-    <property name="tooltip" value="Switch"/>
+-    <property name="unset_status" value="emp_ardwen_init;emp_ardwen_ring;emp_ardwen_summoned;emp_ardwen_defeated"/>
++    <property name="requires_not_status" value="emp_ardwen_init,emp_ardwen_finish"/>
++    <property name="set_status" value="emp_ardwen_init"/>
+    </properties>
+   </object>
+-  <object id="29" name="locked door" type="event" x="448" y="32" width="32" height="32">
++  <object id="4" name="rune teleport" type="event" x="480" y="448" width="32" height="64">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+-    <property name="hotspot" value="12,3,1,1"/>
+-    <property name="msg" value="The switch won't budge."/>
+-    <property name="requires_not_status" value="emp_ardwen_defeated"/>
+-    <property name="requires_status" value="emp_ardwen_init"/>
+-    <property name="tooltip" value="Switch"/>
+-   </properties>
+-  </object>
+-  <object id="30" name="clear Ardwen quest collision tile" type="event" x="320" y="32" width="32" height="32">
+-   <properties>
+-    <property name="activate" value="on_load"/>
+-    <property name="mapmod" value="collision,12,4,0"/>
+-    <property name="requires_not_status" value="emp_ardwen_init"/>
++    <property name="intramap" value="7,14"/>
++    <property name="soundfx" value="soundfx/environment/teleporter.ogg"/>
+    </properties>
+   </object>
+-  <object id="31" name="Spawn Ardwen (on_load)" type="event" x="256" y="32" width="32" height="32">
++  <object id="15" name="In Memoriam" type="event" x="800" y="1184" width="32" height="32">
+    <properties>
+-    <property name="activate" value="on_load"/>
+-    <property name="mapmod" value="collision,12,4,0"/>
+-    <property name="repeat" value="false"/>
+-    <property name="requires_status" value="emp_ardwen_summoned"/>
+-    <property name="spawn" value="ardwen_quest,12,4"/>
++    <property name="activate" value="on_trigger"/>
++    <property name="cooldown" value="1s"/>
++    <property name="hotspot" value="location"/>
++    <property name="mapmod" value="object,25,37,165"/>
++    <property name="msg" value="Ardwen (1308-1364), founder of Lochport"/>
++    <property name="repeat" value="true"/>
++    <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
++    <property name="tooltip" value="In Memoriam"/>
+    </properties>
+   </object>
+-  <object id="32" name="remove chest status" type="event" x="192" y="1568" width="32" height="32">
++  <object id="23" name="to Lochport Cemetery" type="event" x="992" y="1216" width="64" height="32">
+    <properties>
+-    <property name="activate" value="on_load"/>
+-    <property name="repeat" value="false"/>
+-    <property name="requires_not_status" value="emp_ardwen_init"/>
+-    <property name="requires_status" value="emp_ardwen_chest"/>
++    <property name="activate" value="on_trigger"/>
++    <property name="hotspot" value="location"/>
++    <property name="intermap" value="maps/lochport_cemetery.txt,48,46"/>
++    <property name="soundfx" value="soundfx/environment/stairs.ogg,0,0"/>
++    <property name="tooltip" value="Lochport Cemetery"/>
+     <property name="unset_status" value="emp_ardwen_chest"/>
+    </properties>
+   </object>
+@@ -369,25 +369,8 @@
+     <property name="soundfx" value="soundfx/environment/cave_wind_loop.ogg"/>
+    </properties>
+   </object>
+-  <object id="42" name="post-quest Ardwen spawn" type="event" x="192" y="32" width="32" height="32">
+-   <properties>
+-    <property name="activate" value="on_load"/>
+-    <property name="mapmod" value="collision,12,4,0"/>
+-    <property name="requires_status" value="emp_ardwen_finish"/>
+-    <property name="spawn" value="ardwen,12,4"/>
+-   </properties>
+-  </object>
+-  <object id="43" name="reset quest" type="event" x="64" y="0" width="32" height="32">
+-   <properties>
+-    <property name="activate" value="on_load"/>
+-    <property name="msg" value="Reset quest: &quot;Trapped in the Crypt&quot;"/>
+-    <property name="requires_not_status" value="emp_ardwen_finish"/>
+-    <property name="requires_status" value="emp_ardwen_init"/>
+-    <property name="script" value="scripts/maps/family_crypt/reset_quest.txt"/>
+-   </properties>
+-  </object>
+  </objectgroup>
+- <objectgroup name="enemy">
++ <objectgroup id="5" name="enemy">
+   <object id="16" type="enemy" x="384" y="1088" width="32" height="32">
+    <properties>
+     <property name="category" value="skeleton_archer"/>
+@@ -436,12 +419,35 @@
+     <property name="wander_radius" value="2"/>
+    </properties>
+   </object>
+-  <object id="35" type="enemy" x="352" y="1568" width="96" height="160">
++  <object id="35" type="enemy" x="352" y="1568" width="128" height="128">
++   <properties>
++    <property name="category" value="undead"/>
++    <property name="level" value="2"/>
++    <property name="number" value="2,3"/>
++   </properties>
++  </object>
++  <object id="50" type="enemy" x="480" y="1888" width="128" height="128">
+    <properties>
+     <property name="category" value="undead"/>
+     <property name="level" value="2"/>
+     <property name="number" value="2,3"/>
+    </properties>
+   </object>
++  <object id="51" type="enemy" x="608" y="1600" width="128" height="96">
++   <properties>
++    <property name="category" value="undead"/>
++    <property name="level" value="2"/>
++    <property name="number" value="1,2"/>
++   </properties>
++  </object>
++  <object id="52" type="enemy" x="64" y="1728" width="32" height="32">
++   <properties>
++    <property name="category" value="undead"/>
++    <property name="direction" value="W"/>
++    <property name="level" value="2"/>
++    <property name="number" value="1"/>
++    <property name="wander_radius" value="0"/>
++   </properties>
++  </object>
+  </objectgroup>
+ </map>

@@ -1,0 +1,59 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl1_goblin_runner.txt b/mods/empyrean_campaign/enemies/lvl1_goblin_runner.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d3425ea841510546523e7c8dec49bd1b52f7140d
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl1_goblin_runner.txt
+@@ -0,0 +1,30 @@
++INCLUDE enemies/base/goblin_runner.txt
++
++name=Goblin Charger
++level=1
++categories=goblin_charger,goblin,dungeon,grassland
++rarity=uncommon
++xp=1
++
++# combat stats
++hp=90
++speed=5
++turn_delay=200ms
++chance_pursue=10
++
++power=melee,164,20
++power=melee,168,10
++
++accuracy=90
++avoidance=10
++poise=60
++
++dmg_melee_min=10
++dmg_melee_max=15
++cooldown=1000ms
++absorb_min=2
++absorb_max=2
++
++# loot
++loot=loot/level_1.txt
++
+diff --git a/mods/empyrean_campaign/powers/categories/enemy.txt b/mods/empyrean_campaign/powers/categories/enemy.txt
+index 1c6a37eac30039ecca6006677f70741a796ddc3c..7593c500ecd5ca31841a2d9de54966ccff4987ee 100644
+--- a/mods/empyrean_campaign/powers/categories/enemy.txt
++++ b/mods/empyrean_campaign/powers/categories/enemy.txt
+@@ -61,3 +61,18 @@ post_effect=shield,0,0
+ cooldown=10s
+ modifier_damage=multiply,50,0
+ 
++# blood strike
++[power]
++id=168
++type=fixed
++new_state=swing
++face=true
++use_hazard=true
++base_damage=melee
++lifespan=33ms
++radius=1.0
++starting_pos=melee
++post_power=160
++cooldown=400ms
++post_effect=bleeding,4,5s
++

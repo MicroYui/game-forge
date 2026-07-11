@@ -1,0 +1,25 @@
+diff --git a/mods/alpha_demo/npcs/guill.txt b/mods/alpha_demo/npcs/guill.txt
+index b8875b577fde4312a6acd127482b407f043bd585..79678c38a859f34a398aceb8946f4e8dff67153c 100644
+--- a/mods/alpha_demo/npcs/guill.txt
++++ b/mods/alpha_demo/npcs/guill.txt
+@@ -116,6 +116,7 @@ him=My worst fear is come alive. Just as with the Warden and with Professor Lang
+ [dialog]
+ topic=Maddox defated
+ requires_status=ak_maddox_defeated
++requires_not=ak_maddox_reward
+ set_status=ak_maddox_reward
+ remove_item=9001
+ remove_item=9002
+diff --git a/mods/default/menus/menus.txt b/mods/default/menus/menus.txt
+index 1a2224b8c52ab6222614401c54c1714d22c528f4..0e89f14839efa12b07bbf593408922f39a779bff 100644
+--- a/mods/default/menus/menus.txt
++++ b/mods/default/menus/menus.txt
+@@ -57,7 +57,7 @@ align=center
+ 
+ [menu]
+ id=minimap
+-layout=0,16,128,128
++layout=0,0,128,128
+ align=topright
+ 
+ [menu]

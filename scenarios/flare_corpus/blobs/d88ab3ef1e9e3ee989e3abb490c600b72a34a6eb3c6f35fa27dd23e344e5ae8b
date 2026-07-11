@@ -1,0 +1,231 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl10_minotaur.txt b/mods/empyrean_campaign/enemies/lvl10_minotaur.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..0d773703ae80052ad2a3213df42f45dcc6875fd6
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl10_minotaur.txt
+@@ -0,0 +1,32 @@
++INCLUDE enemies/base/minotaur.txt
++
++name=Minotaur
++level=10
++categories=minotaur,dungeon,grassland
++rarity=common
++xp=1024
++
++# combat stats
++hp=305
++speed=4.8
++turn_delay=166ms
++chance_pursue=25
++
++power=melee,164,5
++power=ranged,192,10
++
++accuracy=135
++avoidance=55
++poise=52
++
++dmg_melee_min=150
++dmg_melee_max=180
++dmg_ranged_min=145
++dmg_ranged_max=155
++absorb_min=10
++absorb_max=11
++cooldown=1575ms
++
++# loot
++loot=loot/level_10.txt
++
+diff --git a/mods/empyrean_campaign/enemies/lvl10_minotaur_necromancer.txt b/mods/empyrean_campaign/enemies/lvl10_minotaur_necromancer.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..648f41dfb83e1b697df57a1f987a250919d84a66
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl10_minotaur_necromancer.txt
+@@ -0,0 +1,33 @@
++INCLUDE enemies/base/minotaur.txt
++
++name=Minotaur Necromancer
++level=10
++categories=minotaur,minotaur_necromancer,dungeon,grassland
++rarity=rare
++xp=1024
++
++# combat stats
++hp=305
++speed=7
++turn_delay=166ms
++chance_pursue=0
++chance_flee=100
++threat_range=8
++
++power=ranged,193,100
++
++accuracy=135
++avoidance=55
++poise=52
++
++dmg_melee_min=150
++dmg_melee_max=180
++dmg_ranged_min=145
++dmg_ranged_max=155
++absorb_min=10
++absorb_max=11
++cooldown=1575ms
++
++# loot
++loot=loot/level_10.txt
++
+diff --git a/mods/empyrean_campaign/enemies/lvl10_skeleton_minion.txt b/mods/empyrean_campaign/enemies/lvl10_skeleton_minion.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..3ffe8306edb35fd5031c89dd1bdee6bfdae4c598
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl10_skeleton_minion.txt
+@@ -0,0 +1,26 @@
++INCLUDE enemies/base/skeleton_weak.txt
++
++name=Skeleton Minion
++level=10
++categories=lvl10_skeleton_minion
++
++# combat stats
++hp=160
++speed=5.3
++turn_delay=400ms
++chance_pursue=20
++
++power=melee,164,5
++passive_powers=185,194
++
++accuracy=135
++avoidance=55
++poise=42
++
++dmg_melee_min=145
++dmg_melee_max=155
++cooldown=1375ms
++
++absorb_min=5
++absorb_max=5
++
+diff --git a/mods/empyrean_campaign/powers/categories/enemy.txt b/mods/empyrean_campaign/powers/categories/enemy.txt
+index 60cf50053631d68bc1be4aae8daf13440bdbb9b5..83f633065f231c9ced9510cfd65dfc92978956af 100644
+--- a/mods/empyrean_campaign/powers/categories/enemy.txt
++++ b/mods/empyrean_campaign/powers/categories/enemy.txt
+@@ -466,3 +466,49 @@ post_power=158
+ trait_elemental=fire
+ modifier_damage=multiply,20,0
+ 
++# minotaur axe throw
++[power]
++id=192
++type=missile
++new_state=shoot
++face=true
++directional=true
++animation=animations/powers/throw_axe.txt
++use_hazard=true
++aim_assist=true
++base_damage=melee
++lifespan=766ms
++radius=1.0
++speed=12
++modifier_damage=multiply,155,0
++
++# summon skeleton minion
++[power]
++id=193
++type=spawn
++new_state=cast
++soundfx=soundfx/powers/teleport.ogg
++spawn_type=lvl10_skeleton_minion
++spawn_limit=fixed,3
++starting_pos=source
++target_neighbor=2
++requires_los=true
++requires_empty_target=true
++
++# Spawn effect (for enemies without spawn animations)
++[power]
++id=194
++type=fixed
++passive=true
++buff=true
++post_effect=spawn_runes,0,533ms
++
++# Heal minions
++# FIXME: does not work
++# [power]
++# id=195
++# type=fixed
++# new_state=shoot
++# buff_party=true
++# soundfx=soundfx/powers/heal.ogg
++# post_effect=hp_restore,25,33ms
+diff --git a/mods/empyrean_campaign/powers/categories/visual_effects.txt b/mods/empyrean_campaign/powers/categories/visual_effects.txt
+index a7315ec62b4118ee7e088ba128343f11cc37f075..25ba1334dbf4d1e15e11168b3a9d39561688f802 100644
+--- a/mods/empyrean_campaign/powers/categories/visual_effects.txt
++++ b/mods/empyrean_campaign/powers/categories/visual_effects.txt
+@@ -1,8 +1,7 @@
++# Arrow Wall Strike
+ [power]
+ id=157
+-name=Arrow Wall Strike
+ type=fixed
+-icon=0
+ animation=animations/powers/arrow_stuck.txt
+ use_hazard=true
+ no_attack=true
+@@ -11,11 +10,10 @@ lifespan=3s
+ starting_pos=target
+ soundfx=soundfx/powers/arrow_wall.ogg
+ 
++# Orange Spark
+ [power]
+ id=158
+-name=Orange Spark
+ type=fixed
+-icon=0
+ animation=animations/powers/spark_orange.txt
+ use_hazard=true
+ no_attack=true
+@@ -23,11 +21,10 @@ lifespan=400ms
+ starting_pos=target
+ visual_random=2
+ 
++# Blue Spark
+ [power]
+ id=159
+-name=Blue Spark
+ type=fixed
+-icon=0
+ animation=animations/powers/spark_blue.txt
+ use_hazard=true
+ no_attack=true
+@@ -35,11 +32,10 @@ lifespan=400ms
+ starting_pos=target
+ visual_random=2
+ 
++# Red Spark
+ [power]
+ id=160
+-name=Red Spark
+ type=fixed
+-icon=0
+ animation=animations/powers/spark_red.txt
+ use_hazard=true
+ no_attack=true
+diff --git a/mods/empyrean_campaign/powers/effects.txt b/mods/empyrean_campaign/powers/effects.txt
+index 017c2ba3314b513d13d12556e2a57fc091989508..0caed8a9ecfcbc96eef4e47ee9098529a3d90e27 100644
+--- a/mods/empyrean_campaign/powers/effects.txt
++++ b/mods/empyrean_campaign/powers/effects.txt
+@@ -63,3 +63,10 @@ can_stack=false
+ id=immunity_bleed
+ type=immunity_damage
+ can_stack=false
++
++[effect]
++id=spawn_runes
++can_stack=false
++animation=animations/powers/runes.txt
++render_above=false
++

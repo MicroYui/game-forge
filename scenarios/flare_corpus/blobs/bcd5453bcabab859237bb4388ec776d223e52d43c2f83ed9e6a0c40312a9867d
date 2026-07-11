@@ -1,0 +1,58 @@
+diff --git a/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt b/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
+index 433cd7a68cb7deb4b174217c191d68c04001d35b..a0ea46c4faa26e184eefe6958eb1fee382d535b1 100644
+--- a/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
++++ b/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
+@@ -179,20 +179,20 @@ location=9,43,2,2
+ intermap=brothers_lair_atrium.txt,15,16
+ 
+ [event]
+-type=on_load
+-location=0,0,1,1
++type=run_once
++location=0,0,18,45
+ mapmod=collision,9,23,0;object,9,23,113
+ requires_status=lb_wind_unlocked
+ 
+ [event]
+-type=on_load
+-location=0,0,1,1
++type=run_once
++location=0,0,18,45
+ mapmod=collision,9,26,0;object,9,26,113
+ requires_status=lb_fire_unlocked
+ 
+ [event]
+-type=on_load
+-location=0,0,1,1
++type=run_once
++location=0,0,18,45
+ mapmod=collision,9,29,0;object,9,29,113
+ requires_status=lb_ice_unlocked
+ 
+diff --git a/tiled/living_bones/brothers_lair_sacrifice_room.tmx b/tiled/living_bones/brothers_lair_sacrifice_room.tmx
+index 3491ca049ccc2d2d99c7dde28dca5ae306fc1da7..9487cbe1827c73f70d48b5515c0469f6563a51aa 100644
+--- a/tiled/living_bones/brothers_lair_sacrifice_room.tmx
++++ b/tiled/living_bones/brothers_lair_sacrifice_room.tmx
+@@ -199,19 +199,19 @@
+     <property name="set_status" value="lb_necromancers_defeated"/>
+    </properties>
+   </object>
+-  <object type="on_load" x="0" y="0" width="32" height="32">
++  <object type="run_once" x="0" y="0" width="576" height="1440">
+    <properties>
+     <property name="mapmod" value="collision,9,23,0;object,9,23,113"/>
+     <property name="requires_status" value="lb_wind_unlocked"/>
+    </properties>
+   </object>
+-  <object type="on_load" x="0" y="0" width="32" height="32">
++  <object type="run_once" x="0" y="0" width="576" height="1440">
+    <properties>
+     <property name="mapmod" value="collision,9,26,0;object,9,26,113"/>
+     <property name="requires_status" value="lb_fire_unlocked"/>
+    </properties>
+   </object>
+-  <object type="on_load" x="0" y="0" width="32" height="32">
++  <object type="run_once" x="0" y="0" width="576" height="1440">
+    <properties>
+     <property name="mapmod" value="collision,9,29,0;object,9,29,113"/>
+     <property name="requires_status" value="lb_ice_unlocked"/>

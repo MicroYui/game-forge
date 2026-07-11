@@ -1,0 +1,195 @@
+diff --git a/mods/devlab/maps/lab_mapping.txt b/mods/devlab/maps/lab_mapping.txt
+index 595688e45a107ae49bc6560ee7b937744fc9de11..9a14f7120e965d84788bc6a6898297ba3c9988bd 100644
+--- a/mods/devlab/maps/lab_mapping.txt
++++ b/mods/devlab/maps/lab_mapping.txt
+@@ -3,8 +3,8 @@ width=100
+ height=100
+ tilewidth=64
+ tileheight=32
+-music=title_theme.ogg
+-tileset=tileset_dungeon.txt
++music=music/title_theme.ogg
++tileset=tilesetdefs/tileset_dungeon.txt
+ title=Dev Lab - Basic Lessons
+ 
+ [tilesets]
+@@ -330,7 +330,7 @@ data=
+ 
+ [event]
+ # Basic lab
+-type=teleport
++type=on_trigger
+ location=83,52,2,2
+ hotspot=location
+ intermap=maps/lab_basic.txt,3,21
+@@ -338,7 +338,7 @@ tooltip=Basic lab
+ 
+ [event]
+ # Book Stand
+-type=run_once
++type=on_trigger
+ location=8,38,1,1
+ hotspot=location
+ mapmod=object,8,38,164
+@@ -348,7 +348,7 @@ tooltip=Book stand
+ 
+ [event]
+ # Book Stand
+-type=run_once
++type=on_trigger
+ location=4,75,1,1
+ hotspot=location
+ mapmod=object,8,38,164
+@@ -357,12 +357,24 @@ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Book stand
+ 
+ [event]
+-type=teleport
++type=on_trigger
+ location=7,67,2,1
+ hotspot=location
+-intermap=lab_mapping.txt,7,75
++intermap=maps/lab_mapping.txt,7,75
+ tooltip=Runes on the ground.
+ 
++[event]
++# brazier sound effect
++type=on_load
++location=20,40,1,1
++soundfx=soundfx/environment/open_fire_loop.ogg
++
++[event]
++# brazier sound effect
++type=on_load
++location=4,49,1,1
++soundfx=soundfx/environment/open_fire_loop.ogg
++
+ [npc]
+ type=mapping_welcome
+ location=59,50,1,1
+@@ -384,18 +396,6 @@ type=mapping_structure
+ location=19,41,1,1
+ 
+ [npc]
+-# brazier sound effect
+-type=on_load
+-location=20,40,1,1
+-soundfx=soundfx/environment/open_fire_loop.ogg
+-
+-[npc]
+ type=mapping_collision
+ location=6,49,1,1
+ 
+-[npc]
+-# brazier sound effect
+-type=on_load
+-location=4,49,1,1
+-soundfx=soundfx/environment/open_fire_loop.ogg
+-
+diff --git a/mods/devlab/npcs/mapping_collision.txt b/mods/devlab/npcs/mapping_collision.txt
+index a6925b2088a30576dd870e23f17c8aeb2adf9a7f..a875e06ad13b4f5bd9f4b2caa11c2615806aa16b 100644
+--- a/mods/devlab/npcs/mapping_collision.txt
++++ b/mods/devlab/npcs/mapping_collision.txt
+@@ -1,6 +1,6 @@
+ name=Programmer
+ 
+-portrait=bjorn
++portrait=bjorn2
+ 
+ talker=true
+ 
+diff --git a/mods/devlab/npcs/mapping_structure.txt b/mods/devlab/npcs/mapping_structure.txt
+index ddfde7c733226a5e510d389ab8295ea26bb58e2a..e5e907ca94f9154a97a326094e7874d1146213c9 100644
+--- a/mods/devlab/npcs/mapping_structure.txt
++++ b/mods/devlab/npcs/mapping_structure.txt
+@@ -13,7 +13,7 @@ him=Did you notice the last room?
+ you=It is very boring, I hasted through it, glad I made it here.
+ him=Better go back again to perceive the mood there.
+ you=Why?
+-him=So you'll never make the mistake to make boring maps. Remeber to bring in some random elements.
++him=So you'll never make the mistake to make boring maps. Remember to bring in some random elements.
+ 
+ [dialog]
+ topic=This Room
+diff --git a/tiled/devlab/lab_mapping.tmx b/tiled/devlab/lab_mapping.tmx
+index a91d2acb5593a2274324be0d6938dea07691faf6..700dec3c2ea149897380bdebf3de385fa5fb7454 100644
+--- a/tiled/devlab/lab_mapping.tmx
++++ b/tiled/devlab/lab_mapping.tmx
+@@ -2,8 +2,8 @@
+ <!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+ <map version="1.0" orientation="isometric" width="100" height="100" tilewidth="64" tileheight="32">
+  <properties>
+-  <property name="music" value="title_theme.ogg"/>
+-  <property name="tileset" value="tileset_dungeon.txt"/>
++  <property name="music" value="music/title_theme.ogg"/>
++  <property name="tileset" value="tilesetdefs/tileset_dungeon.txt"/>
+   <property name="title" value="Dev Lab - Basic Lessons"/>
+  </properties>
+  <tileset firstgid="1" name="collision" tilewidth="64" tileheight="32">
+@@ -344,14 +344,14 @@
+ </data>
+  </layer>
+  <objectgroup name="event" width="100" height="100">
+-  <object name="Basic lab" type="teleport" x="2656" y="1664" width="64" height="64">
++  <object name="Basic lab" type="on_trigger" x="2656" y="1664" width="64" height="64">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/lab_basic.txt,3,21"/>
+     <property name="tooltip" value="Basic lab"/>
+    </properties>
+   </object>
+-  <object name="Book Stand" type="run_once" x="256" y="1216" width="32" height="32">
++  <object name="Book Stand" type="on_trigger" x="256" y="1216" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,8,38,164"/>
+@@ -360,7 +360,7 @@
+     <property name="tooltip" value="Book stand"/>
+    </properties>
+   </object>
+-  <object name="Book Stand" type="run_once" x="128" y="2400" width="32" height="32">
++  <object name="Book Stand" type="on_trigger" x="128" y="2400" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,8,38,164"/>
+@@ -369,30 +369,30 @@
+     <property name="tooltip" value="Book stand"/>
+    </properties>
+   </object>
+-  <object type="teleport" x="224" y="2144" width="64" height="32">
++  <object type="on_trigger" x="224" y="2144" width="64" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="intermap" value="lab_mapping.txt,7,75"/>
++    <property name="intermap" value="maps/lab_mapping.txt,7,75"/>
+     <property name="tooltip" value="Runes on the ground."/>
+    </properties>
+   </object>
+- </objectgroup>
+- <objectgroup name="npc" width="100" height="100">
+-  <object type="mapping_welcome" x="1888" y="1600" width="32" height="32"/>
+-  <object type="mapping_tiles" x="1472" y="1152" width="32" height="32"/>
+-  <object type="mapping_basics" x="1856" y="1184" width="32" height="32"/>
+-  <object type="mapping_tilesets" x="1376" y="1600" width="32" height="32"/>
+-  <object type="mapping_structure" x="608" y="1312" width="32" height="32"/>
+   <object name="brazier sound effect" type="on_load" x="640" y="1280" width="32" height="32">
+    <properties>
+     <property name="soundfx" value="soundfx/environment/open_fire_loop.ogg"/>
+    </properties>
+   </object>
+-  <object type="mapping_collision" x="192" y="1568" width="32" height="32"/>
+   <object name="brazier sound effect" type="on_load" x="128" y="1568" width="32" height="32">
+    <properties>
+     <property name="soundfx" value="soundfx/environment/open_fire_loop.ogg"/>
+    </properties>
+   </object>
+  </objectgroup>
++ <objectgroup name="npc" width="100" height="100" visible="0">
++  <object type="mapping_welcome" x="1888" y="1600" width="32" height="32"/>
++  <object type="mapping_tiles" x="1472" y="1152" width="32" height="32"/>
++  <object type="mapping_basics" x="1856" y="1184" width="32" height="32"/>
++  <object type="mapping_tilesets" x="1376" y="1600" width="32" height="32"/>
++  <object type="mapping_structure" x="608" y="1312" width="32" height="32"/>
++  <object type="mapping_collision" x="192" y="1568" width="32" height="32"/>
++ </objectgroup>
+ </map>

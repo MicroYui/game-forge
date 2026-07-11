@@ -1,0 +1,126 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..8416241ee93c9d2ccc9fd76eff9fd6e6d080ceec
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
+@@ -0,0 +1,34 @@
++INCLUDE enemies/base/goblin_elite.txt
++
++name=Goblin Chief
++level=2
++categories=goblin_chief
++rarity=rare
++xp=5
++
++# combat stats
++hp=300
++speed=2
++melee_range=2.375
++turn_delay=200ms
++chance_pursue=10
++chance_melee_ment=5
++chance_ranged_phys=5
++chance_ranged_ment=10
++power_melee_ment=166
++power_ranged_phys=167
++power_ranged_ment=166
++
++accuracy=90
++avoidance=35
++poise=50
++
++dmg_ment_min=30
++dmg_ment_max=65
++absorb_min=5
++absorb_max=5
++cooldown=1800ms
++
++# loot
++loot=loot/level_2.txt
++
+diff --git a/mods/empyrean_campaign/maps/goblin_cave.txt b/mods/empyrean_campaign/maps/goblin_cave.txt
+index b02ae039855c8d3679efdf7b4737c9c31e78b399..86044d4b8f10fe2c4a8af21f7258154ea9fe0c02 100644
+--- a/mods/empyrean_campaign/maps/goblin_cave.txt
++++ b/mods/empyrean_campaign/maps/goblin_cave.txt
+@@ -335,3 +335,9 @@ location=32,9,1,1
+ level=2
+ number=1
+ 
++[enemy]
++type=goblin_chief
++location=5,5,1,1
++level=2
++number=1
++
+diff --git a/mods/empyrean_campaign/powers/categories/enemy.txt b/mods/empyrean_campaign/powers/categories/enemy.txt
+index f19ef34ac76f5f962ad4c3f6ed7bad1e44732ff4..1c6a37eac30039ecca6006677f70741a796ddc3c 100644
+--- a/mods/empyrean_campaign/powers/categories/enemy.txt
++++ b/mods/empyrean_campaign/powers/categories/enemy.txt
+@@ -29,3 +29,35 @@ radius=1.0
+ speed=16
+ angle_variance=10
+ 
++# goblin shaman shock
++[power]
++id=166
++type=missile
++new_state=cast
++face=true
++directional=false
++animation=animations/powers/lightning.txt
++soundfx=soundfx/powers/shock.ogg
++use_hazard=true
++aim_assist=true
++base_damage=ment
++lifespan=800ms
++radius=1.0
++speed=16
++trait_elemental=lightning
++trait_crits_impaired=25
++post_power=159
++wall_power=159
++cooldown=800ms
++
++# goblin shaman shield
++[power]
++id=167
++type=fixed
++new_state=cast
++soundfx=soundfx/powers/shield.ogg
++buff=true
++post_effect=shield,0,0
++cooldown=10s
++modifier_damage=multiply,50,0
++
+diff --git a/tiled/empyrean_campaign/goblin_cave.tmx b/tiled/empyrean_campaign/goblin_cave.tmx
+index d19ff5f40fe8f365d3075ab9a9980336500f41d7..d2d05d12e5cb528c42ca49f8e1ffc0f168c37021 100644
+--- a/tiled/empyrean_campaign/goblin_cave.tmx
++++ b/tiled/empyrean_campaign/goblin_cave.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="48" height="48" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="32">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="48" height="48" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="33">
+  <properties>
+   <property name="music" value="music/cave_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_cave.txt"/>
+@@ -259,7 +259,7 @@
+    </properties>
+   </object>
+  </objectgroup>
+- <objectgroup name="enemy" visible="0">
++ <objectgroup name="enemy">
+   <object id="4" type="goblin" x="96" y="992" width="160" height="320">
+    <properties>
+     <property name="level" value="1"/>
+@@ -326,5 +326,11 @@
+     <property name="number" value="1"/>
+    </properties>
+   </object>
++  <object id="32" type="goblin_chief" x="160" y="160" width="32" height="32">
++   <properties>
++    <property name="level" value="2"/>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
+  </objectgroup>
+ </map>

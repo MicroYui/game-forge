@@ -1,0 +1,3527 @@
+diff --git a/mods/alpha_demo/maps/averguard_academy.txt b/mods/alpha_demo/maps/averguard_academy.txt
+index 880c49363c134f002ea8c4aee7c0e72410b11a25..5385881fb4fe363fef5c8f14df10ec4e1f03a0dc 100644
+--- a/mods/alpha_demo/maps/averguard_academy.txt
++++ b/mods/alpha_demo/maps/averguard_academy.txt
+@@ -1,9 +1,9 @@
+ [header]
+ width=70
+ height=100
+-location=62,3,7
+ tilewidth=64
+ tileheight=32
++location=62,3,7
+ music=dungeon_theme.ogg
+ tileset=tileset_dungeon.txt
+ title=Averguard Academy
+@@ -336,6 +336,7 @@ intermap=averguard_atrium.txt,9,57
+ 
+ [event]
+ # bookstand
++type=run_once
+ location=31,22,1,1
+ hotspot=location
+ mapmod=object,31,22,165
+@@ -345,6 +346,7 @@ tooltip=Book Stand
+ 
+ [event]
+ # bookstand
++type=run_once
+ location=28,22,1,1
+ hotspot=location
+ mapmod=object,28,22,165
+@@ -354,6 +356,7 @@ tooltip=Book Stand
+ 
+ [event]
+ # bookstand
++type=run_once
+ location=25,22,1,1
+ hotspot=location
+ mapmod=object,25,22,165
+@@ -363,6 +366,7 @@ tooltip=Book Stand
+ 
+ [event]
+ # bookstand
++type=run_once
+ location=22,31,1,1
+ hotspot=location
+ mapmod=object,22,31,164
+@@ -373,7 +377,7 @@ tooltip=Book Stand
+ [event]
+ # bookstand
+ type=run_once
+-location=20,75,2,1
++location=20,75,1,1
+ hotspot=location
+ loot=id,21,75,2
+ mapmod=object,20,75,164
+@@ -458,8 +462,7 @@ msg=This tomb glows with magical runes.
+ type=run_once
+ location=4,90,1,2
+ hotspot=location
+-loot=random,5,90,5
+-loot=random,5,91,6
++loot=random,5,90,5;random,5,91,6
+ tooltip=Langlier's Tomb
+ 
+ [event]
+@@ -474,30 +477,30 @@ tooltip=Treasure Chest
+ [enemy]
+ # entrance guards
+ type=skeletal_mage
+-location=60,14
++location=60,14,1,1
+ direction=3
+ 
+ [enemy]
+ type=skeletal_mage
+-location=65,14
++location=65,14,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_rotting
+-location=50,25
++location=50,25,1,1
+ 
+ [enemy]
+ type=zombie
+-location=50,30
++location=50,30,1,1
+ 
+ [enemy]
+ # guards teleport chest
+ type=zombie
+-location=45,85
++location=45,85,1,1
+ 
+ [enemy]
+ type=professor_langlier
+-location=5,91
++location=5,91,1,1
+ direction=1
+ 
+ [enemygroup]
+diff --git a/mods/alpha_demo/maps/averguard_atrium.txt b/mods/alpha_demo/maps/averguard_atrium.txt
+index d05f0ea1a102f4b411bb9965c1f5452daaec2a45..44789af6ae694c6404b889775db195f18a8ca214 100644
+--- a/mods/alpha_demo/maps/averguard_atrium.txt
++++ b/mods/alpha_demo/maps/averguard_atrium.txt
+@@ -1,9 +1,9 @@
+ [header]
+ width=20
+ height=60
+-location=16,11,1
+ tilewidth=64
+ tileheight=32
++location=16,11,1
+ music=dungeon_theme.ogg
+ tileset=tileset_dungeon.txt
+ title=Averguard Atrium
+@@ -257,25 +257,25 @@ set_status=waypoint_averguard_atrium
+ 
+ [enemy]
+ type=goblin_charger
+-location=8,22
++location=8,22,1,1
+ 
+ [enemy]
+ type=goblin_spearman
+-location=4,5
++location=4,5,1,1
+ 
+ [enemy]
+ type=goblin_spearman
+-location=8,16
++location=8,16,1,1
+ 
+ [enemy]
+ type=skeleton
+-location=5,32
++location=5,32,1,1
+ 
+ [enemy]
+ type=skeleton
+-location=11,32
++location=11,32,1,1
+ 
+ [enemy]
+ type=skeleton
+-location=4,37
++location=4,37,1,1
+ 
+diff --git a/mods/alpha_demo/maps/averguard_complex.txt b/mods/alpha_demo/maps/averguard_complex.txt
+index 21b862ed9d6376ae2a95710317a86e07b446b9f4..526c00a91b7868843d65415cf456dfb91819a25a 100644
+--- a/mods/alpha_demo/maps/averguard_complex.txt
++++ b/mods/alpha_demo/maps/averguard_complex.txt
+@@ -3,9 +3,9 @@ width=101
+ height=120
+ tilewidth=64
+ tileheight=32
++location=98,70,1
+ music=dungeon_theme.ogg
+ tileset=tileset_dungeon.txt
+-location=98,70,1
+ title=Averguard Complex
+ 
+ [tilesets]
+@@ -463,6 +463,7 @@ tooltip=Crate
+ 
+ [event]
+ # conference room book
++type=run_once
+ location=50,90,1,1
+ hotspot=location
+ mapmod=object,50,90,164
+@@ -584,418 +585,414 @@ tooltip=Switch System
+ 
+ [event]
+ # brazier sound effect
+-location=56,17,7,6
++type=run_always
++location=44,16,20,8
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [event]
+ # brazier sound effect
+-location=44,17,7,6
+-cooldown=120
+-soundfx=soundfx/environment/open_fire.ogg
+-
+-[event]
+-#brazier sound effect
+-location=72,91,6,6
++type=run_always
++location=72,91,7,7
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [enemy]
+ type=skeletal_sniper
+-location=85,69
++location=85,69,1,1
+ direction=5
+ 
+ [enemy]
+ type=skeletal_sniper
+-location=85,72
++location=85,72,1,1
+ direction=5
+ 
+ [enemy]
+ type=zombie_bloodthirsty
+-location=71,62
++location=71,62,1,1
+ 
+ [enemy]
+ type=zombie_bloodthirsty
+-location=73,63
++location=73,63,1,1
+ 
+ [enemy]
+ type=zombie_bloodthirsty
+-location=73,72
++location=73,72,1,1
+ 
+ [enemy]
+ type=zombie_bloodthirsty
+-location=68,69
++location=68,69,1,1
+ 
+ [enemy]
+ type=skeletal_archer
+-location=69,81
++location=69,81,1,1
+ 
+ [enemy]
+ type=skeletal_archer
+-location=70,84
++location=70,84,1,1
+ 
+ [enemy]
+ type=skeletal_mage
+-location=73,83
++location=73,83,1,1
+ 
+ [enemy]
+ type=goblin_charger_elite
+-location=74,94
++location=74,94,1,1
+ direction=5
+ 
+ [enemy]
+ type=goblin_charger_elite
+-location=76,94
++location=76,94,1,1
+ direction=1
+ 
+ [enemy]
+ type=goblin_spearman_elite
+-location=75,93
++location=75,93,1,1
+ direction=7
+ 
+ [enemy]
+ type=goblin_spearman_elite
+-location=75,95
++location=75,95,1,1
+ direction=3
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=66,92
++location=66,92,1,1
+ 
+ [enemy]
+ type=skeletal_sniper
+-location=61,87
++location=61,87,1,1
+ 
+ [enemy]
+ type=zombie_iceclaw
+-location=61,89
++location=61,89,1,1
+ 
+ [enemy]
+ type=zombie_iceclaw
+-location=62,91
++location=62,91,1,1
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=51,90
++location=51,90,1,1
+ direction=1
+ 
+ [enemy]
+ type=zombie_brute
+-location=46,87
++location=46,87,1,1
+ 
+ [enemy]
+ type=zombie_brute
+-location=46,94
++location=46,94,1,1
+ 
+ [enemy]
+ type=antlion
+-location=49,89
++location=49,89,1,1
+ 
+ [enemy]
+ type=antlion
+-location=48,89
++location=48,89,1,1
+ 
+ [enemy]
+ type=antlion
+-location=48,90
++location=48,90,1,1
+ 
+ [enemy]
+ type=antlion
+-location=48,91
++location=48,91,1,1
+ 
+ [enemy]
+ type=antlion
+-location=49,91
++location=49,91,1,1
+ 
+ [enemy]
+ type=zombie_brute
+-location=42,110
++location=42,110,1,1
+ 
+ [enemy]
+ type=zombie_iceclaw
+-location=47,115
++location=47,115,1,1
+ 
+ [enemy]
+ type=zombie_bloodthirsty
+-location=52,110
++location=52,110,1,1
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=47,112
++location=47,112,1,1
+ 
+ [enemy]
+ type=antlion
+-location=48,118
++location=48,118,1,1
+ 
+ [enemy]
+ type=antlion
+-location=39,109
++location=39,109,1,1
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=56,80
++location=56,80,1,1
+ direction=7
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=55,73
++location=55,73,1,1
+ direction=3
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=39,76
++location=39,76,1,1
+ direction=1
+ 
+ [enemy]
+ type=skeleton
+-location=36,75
++location=36,75,1,1
+ direction=5
+ 
+ [enemy]
+ type=skeleton
+-location=36,76
++location=36,76,1,1
+ direction=5
+ 
+ [enemy]
+ type=skeleton
+-location=36,77
++location=36,77,1,1
+ direction=5
+ 
+ [enemy]
+ type=skeleton
+-location=36,78
++location=36,78,1,1
+ direction=5
+ 
+ [enemy]
+ type=skeleton
+-location=37,75
++location=37,75,1,1
+ direction=5
+ 
+ [enemy]
+ type=skeleton
+-location=37,76
++location=37,76,1,1
+ direction=5
+ 
+ [enemy]
+ type=skeleton
+-location=37,77
++location=37,77,1,1
+ direction=5
+ 
+ [enemy]
+ type=skeleton
+-location=37,78
++location=37,78,1,1
+ direction=5
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=42,69
++location=42,69,1,1
+ direction=7
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=45,69
++location=45,69,1,1
+ direction=7
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=40,60
++location=40,60,1,1
+ 
+ [enemy]
+ type=skeletal_sniper
+-location=42,53
++location=42,53,1,1
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=44,54
++location=44,54,1,1
+ 
+ [enemy]
+ type=skeletal_mage
+-location=44,56
++location=44,56,1,1
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=42,49
++location=42,49,1,1
+ 
+ [enemy]
+ type=zombie_brute
+-location=72,42
++location=72,42,1,1
+ 
+ [enemy]
+ type=zombie_brute
+-location=68,47
++location=68,47,1,1
+ 
+ [enemy]
+ type=zombie_brute
+-location=64,43
++location=64,43,1,1
+ 
+ [enemy]
+ type=zombie_iceclaw
+-location=58,41
++location=58,41,1,1
+ 
+ [enemy]
+ type=zombie_iceclaw
+-location=56,47
++location=56,47,1,1
+ 
+ [enemy]
+ type=zombie_iceclaw
+-location=64,48
++location=64,48,1,1
+ 
+ [enemy]
+ type=zombie_bloodthirsty
+-location=57,44
++location=57,44,1,1
+ 
+ [enemy]
+ type=zombie_bloodthirsty
+-location=54,42
++location=54,42,1,1
+ 
+ [enemy]
+ type=zombie_bloodthirsty
+-location=74,44
++location=74,44,1,1
+ 
+ [enemy]
+ type=zombie_bloodthirsty
+-location=67,41
++location=67,41,1,1
+ 
+ [enemy]
+ type=skeletal_sniper
+-location=55,63
++location=55,63,1,1
+ 
+ [enemy]
+ type=antlion
+-location=55,62
++location=55,62,1,1
+ 
+ [enemy]
+ type=antlion
+-location=56,63
++location=56,63,1,1
+ 
+ [enemy]
+ type=skeletal_sniper
+-location=59,54
++location=59,54,1,1
+ 
+ [enemy]
+ type=antlion
+-location=59,53
++location=59,53,1,1
+ 
+ [enemy]
+ type=antlion
+-location=59,55
++location=59,55,1,1
+ 
+ [enemy]
+ type=antlion_blinker
+-location=43,35
++location=43,35,1,1
+ 
+ [enemy]
+ type=antlion_blinker
+-location=44,36
++location=44,36,1,1
+ 
+ [enemy]
+ type=antlion
+-location=69,23
++location=69,23,1,1
+ 
+ [enemy]
+ type=antlion
+-location=70,26
++location=70,26,1,1
+ 
+ [enemy]
+ type=antlion
+-location=72,24
++location=72,24,1,1
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=51,28
++location=51,28,1,1
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=54,29
++location=54,29,1,1
+ 
+ [enemy]
+ type=skeletal_mage
+-location=58,18
++location=58,18,1,1
+ direction=6
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=61,18
++location=61,18,1,1
+ direction=0
+ 
+ [enemy]
+ type=antlion
+-location=61,21
++location=61,21,1,1
+ direction=2
+ 
+ [enemy]
+ type=skeletal_sniper
+-location=58,21
++location=58,21,1,1
+ direction=4
+ 
+ [enemy]
+ type=skeletal_mage
+-location=46,18
++location=46,18,1,1
+ direction=6
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=49,18
++location=49,18,1,1
+ direction=0
+ 
+ [enemy]
+ type=antlion
+-location=46,21
++location=46,21,1,1
+ direction=2
+ 
+ [enemy]
+ type=skeletal_sniper
+-location=49,21
++location=49,21,1,1
+ direction=4
+ 
+ # kill room creatures
+ [enemy]
+ type=antlion
+-location=11,20
++location=11,20,1,1
+ direction=7
+ 
+ [enemy]
+ type=zombie_bloodthirsty
+-location=13,20
++location=13,20,1,1
+ direction=7
+ 
+ [enemy]
+ type=antlion
+-location=15,20
++location=15,20,1,1
+ direction=7
+ 
+ [enemy]
+ type=zombie_bloodthirsty
+-location=17,20
++location=17,20,1,1
+ direction=7
+ 
+ [enemy]
+ type=antlion
+-location=11,29
++location=11,29,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_iceclaw
+-location=13,29
++location=13,29,1,1
+ direction=3
+ 
+ [enemy]
+ type=antlion
+-location=15,29
++location=15,29,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_iceclaw
+-location=17,29
++location=17,29,1,1
+ direction=3
+ 
+ [enemy]
+ type=skeletal_occultist
+-location=9,23
++location=9,23,1,1
+ direction=5
+ 
+ [enemy]
+ type=skeletal_sniper
+-location=9,26
++location=9,26,1,1
+ direction=5
+ 
+diff --git a/mods/alpha_demo/maps/averguard_prison.txt b/mods/alpha_demo/maps/averguard_prison.txt
+index d8acf2e432959f7ccc6e3e2db8daf120e8f3016e..f22def651fd7d4a9e900c8a83811f8be1e73acf5 100644
+--- a/mods/alpha_demo/maps/averguard_prison.txt
++++ b/mods/alpha_demo/maps/averguard_prison.txt
+@@ -365,11 +365,12 @@ tooltip=Switch
+ 
+ [event]
+ # hidden room book
++type=run_once
+ location=23,29,1,1
+ hotspot=location
+ mapmod=object,23,29,165
+-soundfx=soundfx/inventory/inventory_page.ogg
+ msg=The last entry of this well-preserved journal reads: "I feared it would come to this.  I knew the Warden's secrets but they would not be contained forever."
++soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Book Stand
+ 
+ [event]
+@@ -400,19 +401,15 @@ soundfx=soundfx/door_open.ogg
+ 
+ [event]
+ # brazier sound effect
+-location=9,82,6,5
+-cooldown=120
+-soundfx=soundfx/environment/open_fire.ogg
+-
+-[event]
+-# brazier sound effect
+-location=86,41,3,3
++type=run_always
++location=8,82,9,6
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [event]
+ # brazier sound effect
+-location=91,41,3,3
++type=run_always
++location=86,38,8,7
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+diff --git a/mods/alpha_demo/maps/averguard_temple.txt b/mods/alpha_demo/maps/averguard_temple.txt
+index f1c2778db301eb15a85ab691e365b48973bdb795..a839c1daabe1529696d49dc6200553c8c2411a3f 100644
+--- a/mods/alpha_demo/maps/averguard_temple.txt
++++ b/mods/alpha_demo/maps/averguard_temple.txt
+@@ -280,7 +280,6 @@ data=
+ 0,0,0,0,0,0,0,0,0,0,68,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,76,71,83,88,244,245,91,83,83,83,95,0,0,0,0,0,0,0
+ 
+-
+ [layer]
+ type=collision
+ data=
+@@ -429,10 +428,11 @@ tooltip=Switch
+ 
+ [event]
+ # fire statue trap
++type=run_always
+ location=6,51,19,14
++cooldown=30
+ power=31
+ power_damage=2,3
+-cooldown=30
+ power_path=15,58,hero
+ 
+ [event]
+@@ -450,7 +450,7 @@ tooltip=Sealed Temple Door
+ [event]
+ # the first time you use the talisman
+ type=run_once
+-location=15,88,1,1
++location=13,89,1,1
+ hotspot=location
+ msg=You read aloud the runes on Langlier's Talisman. The Avergard Key begins to glow!
+ requires_not=ak_talisman_used
+@@ -462,7 +462,7 @@ tooltip=Activate Talisman
+ 
+ [event]
+ type=run_once
+-location=15,88,1,1
++location=17,91,1,1
+ hotspot=location
+ mapmod=object,15,88,113;collision,15,88,0
+ requires_status=ak_talisman_used
+@@ -470,6 +470,7 @@ soundfx=soundfx/door_open.ogg
+ tooltip=Temple Door
+ 
+ [event]
++type=run_once
+ location=2,117,1,1
+ hotspot=location
+ mapmod=object,2,117,164
+@@ -478,6 +479,7 @@ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Book Stand
+ 
+ [event]
++type=run_once
+ location=2,121,1,1
+ hotspot=location
+ mapmod=object,2,121,164
+@@ -525,120 +527,121 @@ tooltip=Maddox's Tomb
+ 
+ [event]
+ # brazier sound effect
+-location=11,95,8,7
++type=run_always
++location=11,95,9,7
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [enemy]
+ type=zombie_rotting
+-location=12,115
++location=12,115,1,1
+ 
+ [enemy]
+ type=zombie
+-location=16,118
++location=16,118,1,1
+ 
+ [enemy]
+ type=zombie_rotting
+-location=13,109
++location=13,109,1,1
+ 
+ [enemy]
+ type=zombie_rotting
+-location=10,106
++location=10,106,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_rotting
+-location=9,104
++location=9,104,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_rotting
+-location=10,104
++location=10,104,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie
+-location=9,102
++location=9,102,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_rotting
+-location=10,100
++location=10,100,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_rotting
+-location=12,106
++location=12,106,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_rotting
+-location=13,102
++location=13,102,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_brute
+-location=12,100
++location=12,100,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_rotting
+-location=13,100
++location=13,100,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_rotting
+-location=17,106
++location=17,106,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie
+-location=17,104
++location=17,104,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_rotting
+-location=18,100
++location=18,100,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_rotting
+-location=20,102
++location=20,102,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_rotting
+-location=21,102
++location=21,102,1,1
+ direction=3
+ 
+ [enemy]
+ type=zombie_iceclaw
+-location=21,104
++location=21,104,1,1
+ direction=3
+ 
+ [enemy]
+ type=skeletal_mage
+-location=15,99
++location=15,99,1,1
+ direction=3
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=15,95
++location=15,95,1,1
+ direction=7
+ 
+ [enemy]
+ type=skeletal_sniper
+-location=14,27
++location=14,27,1,1
+ direction=7
+ 
+ [enemy]
+ type=skeletal_sniper
+-location=16,27
++location=16,27,1,1
+ direction=7
+ 
+ [enemy]
+ type=sir_evan_maddox
+-location=16,8
++location=16,8,1,1
+ direction=7
+ 
+ [enemygroup]
+diff --git a/mods/alpha_demo/maps/brothers_lair_atrium.txt b/mods/alpha_demo/maps/brothers_lair_atrium.txt
+index 4f32d76857334e7a123cf497919bca32860e1c07..730c2324bce671cc4eae103b20f5104ae6cd1cfa 100644
+--- a/mods/alpha_demo/maps/brothers_lair_atrium.txt
++++ b/mods/alpha_demo/maps/brothers_lair_atrium.txt
+@@ -215,17 +215,12 @@ location=0,0,30,50
+ unset_status=lb_ice_attack,lb_fire_attack,lb_wind_attack,lb_ice_looted,lb_fire_looted,lb_wind_looted
+ 
+ [event]
+-#brazier sound effect
++# brazier sound effect
++type=run_always
+ location=8,2,10,5
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+-[enemy]
+-# Patrolling undead
+-type=skeletal_warrior
+-location=9,8,0
+-waypoints=9,8;20,8;20,19;9,19
+-
+ [event]
+ type=on_load
+ location=1,1,1,1
+@@ -247,3 +242,9 @@ msg=Brothers Lair Atrium waypoint discovered
+ requires_not=waypoint_brothers_lair_atrium
+ set_status=waypoint_brothers_lair_atrium
+ 
++[enemy]
++# Patrolling undead
++type=skeletal_warrior
++location=9,8,1,1
++waypoints=9,8;20,8;20,19;9,19
++
+diff --git a/mods/alpha_demo/maps/brothers_lair_fire_hall.txt b/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
+index 876af8bd40cfaa781288c6f7f9c88429219bddd3..afb68450f038b58e37d71025944582b535dbcc88 100644
+--- a/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
+@@ -367,49 +367,57 @@ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Book Stand
+ 
+ [event]
+-#brazier sound effect
++# brazier sound effect
++type=run_always
+ location=14,13,5,7
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [event]
+-#brazier sound effect
++# brazier sound effect
++type=run_always
+ location=9,26,13,7
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [event]
+-#brazier sound effect
+-location=4,6,8,5
++# brazier sound effect
++type=run_always
++location=9,33,8,5
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [event]
+-#brazier sound effect
++# brazier sound effect
++type=run_always
+ location=27,26,10,7
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [event]
+-#brazier sound effect
++# brazier sound effect
++type=run_always
+ location=8,43,5,7
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [event]
+-#brazier sound effect
++# brazier sound effect
++type=run_always
+ location=11,52,8,5
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [event]
+-#brazier sound effect
++# brazier sound effect
++type=run_always
+ location=34,45,5,5
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [event]
+-#brazier sound effect
++# brazier sound effect
++type=run_always
+ location=31,49,10,7
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+@@ -444,5 +452,5 @@ number=1,3
+ 
+ [enemy]
+ type=krakatoa
+-location=22,18,8
++location=22,18,1,1
+ 
+diff --git a/mods/alpha_demo/maps/brothers_lair_ice_hall.txt b/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
+index 8d645c0b0a1b2b9aa366621b18a5cbab9e27d536..8b4e6732e43e23726e2ad46af38f96cbcbe9d2ba 100644
+--- a/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
+@@ -279,8 +279,7 @@ intermap=brothers_lair_atrium.txt,3,13
+ type=run_once
+ location=17,45,1,1
+ hotspot=location
+-mapmod=collision,17,45,0
+-mapmod=object,17,45,0
++mapmod=object,17,45,0;collision,17,45,0
+ shakycam=20
+ sound=soundfx/powers/quake.ogg
+ tooltip=Suspicious Bookcase
+@@ -474,22 +473,14 @@ hotspot=location
+ power=14
+ power_damage=20,25
+ power_path=14,10,hero
+-requires_not=lb_ice_key
+-requires_not=lb_ice_looted
++requires_not=lb_ice_looted;lb_ice_key
+ tooltip=Runed Chest
+ 
+ [event]
+ # Trapped Tile
+ type=run_once
+ location=17,34,1,2
+-mapmod=object,13,31,0
+-mapmod=collision,13,31,0
+-mapmod=object,21,31,0
+-mapmod=collision,21,31,0
+-mapmod=object,13,38,0
+-mapmod=collision,13,38,0
+-mapmod=object,21,38,0
+-mapmod=collision,21,38,0
++mapmod=object,13,31,0;collision,13,31,0;object,21,31,0;collision,21,31,0;object,13,38,0;collision,13,38,0;object,21,38,0;collision,21,38,0
+ soundfx=soundfx/door_open.ogg
+ 
+ [event]
+@@ -582,5 +573,5 @@ direction=5
+ 
+ [enemy]
+ type=skeletal_prophet
+-location=20,14,8
++location=20,14,1,1
+ 
+diff --git a/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt b/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
+index fbb92bd4d5a783c1faa986ac68d7caf896147cf4..bbd522196d04b2b8416d9443ca6e478e1ed00c43 100644
+--- a/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
++++ b/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
+@@ -154,87 +154,85 @@ type=teleport
+ location=8,39,3,1
+ intermap=brothers_lair_atrium.txt,15,17
+ 
+-[npc]
+-type=statue_guardian_ice
+-location=7,34
+-
+-[npc]
+-type=statue_guardian_fire
+-location=9,34
+-
+-[npc]
+-type=statue_guardian_wind
+-location=11,34
+-
+ [event]
+-type=run_always
++type=run_once
+ location=0,0,20,40
+-cooldown=60
+-power=123
+-power_damage=5,10
+-power_path=7,34,hero
+-requires_status=lb_ice_attack
++requires_status=lb_ice_defeated,lb_fire_defeated,lb_wind_defeated
++set_status=lb_necromancers_defeated
+ 
+ [event]
+-type=run_always
++type=run_once
+ location=0,0,20,40
+-cooldown=60
+-power=122
+-power_damage=5,10
+-power_path=9,34,hero
+-requires_status=lb_fire_attack
++mapmod=collision,9,23,0
++requires_status=lb_wind_unlocked
+ 
+ [event]
+-type=run_always
++type=run_once
+ location=0,0,20,40
+-cooldown=60
+-power=6
+-power_damage=5,10
+-power_path=11,34,hero
+-requires_status=lb_wind_attack
++mapmod=collision,9,26,0
++requires_status=lb_fire_unlocked
+ 
+ [event]
+ type=run_once
+ location=0,0,20,40
+-mapmod=object,9,29,113
+ mapmod=collision,9,29,0
+ requires_status=lb_ice_unlocked
+ 
+ [event]
+-type=run_once
++type=run_always
+ location=0,0,20,40
+-mapmod=object,9,26,113
+-mapmod=collision,9,26,0
+-requires_status=lb_fire_unlocked
++cooldown=60
++power=6
++power_damage=5,10
++power_path=11,34,hero
++requires_status=lb_wind_attack
+ 
+ [event]
+-type=run_once
++type=run_always
+ location=0,0,20,40
+-mapmod=object,9,23,113
+-mapmod=collision,9,23,0
+-requires_status=lb_wind_unlocked
++cooldown=60
++power=122
++power_damage=5,10
++power_path=9,34,hero
++requires_status=lb_fire_attack
+ 
+ [event]
+-type=run_once
++type=run_always
+ location=0,0,20,40
+-requires_status=lb_ice_defeated,lb_fire_defeated,lb_wind_defeated
+-set_status=lb_necromancers_defeated
++cooldown=60
++power=123
++power_damage=5,10
++power_path=7,34,hero
++requires_status=lb_ice_attack
+ 
+ [event]
+ # brazier sound effect
++type=run_always
+ location=4,6,8,5
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
++[npc]
++type=statue_guardian_ice
++location=7,34,1,1
++
++[npc]
++type=statue_guardian_fire
++location=9,34,1,1
++
++[npc]
++type=statue_guardian_wind
++location=11,34,1,1
++
+ [enemy]
+ type=grisbon
+-location=9,13,3
++location=9,13,1,1
+ 
+ [enemy]
+ type=scathelocke
+-location=7,10,8
++location=7,10,1,1
+ 
+ [enemy]
+ type=vesuvvio
+-location=11,10,8
++location=11,10,1,1
+ 
+diff --git a/mods/alpha_demo/maps/brothers_lair_wind_hall.txt b/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
+index 9ba77a9dd610bbc3cc3328a0f833301730b10e36..e1240706f0d9266d26c68953137357115c54759f 100644
+--- a/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
+@@ -436,6 +436,7 @@ tooltip=Runed Chest
+ 
+ [event]
+ # brazier sound effect
++type=run_always
+ location=9,30,5,5
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+@@ -463,5 +464,5 @@ number=1,3
+ 
+ [enemy]
+ type=skeletal_thundersword
+-location=34,11,1
++location=34,11,1,1
+ 
+diff --git a/mods/alpha_demo/maps/cave1.txt b/mods/alpha_demo/maps/cave1.txt
+index 46f8e8d9ba53642f5d718abb247cefd28421b8b5..a09bb602f789b03db3d6905eb015de2f66512318 100644
+--- a/mods/alpha_demo/maps/cave1.txt
++++ b/mods/alpha_demo/maps/cave1.txt
+@@ -337,20 +337,65 @@ type=teleport
+ location=15,68,2,1
+ intermap=lost_mines1.txt,53,5
+ 
+-[npc]
+-# Trader in the goblin room
+-type=captured_trader
+-location=72,31
+-
+ [event]
+ type=run_once
+-location=42,4,1,1
++location=17,48,1,1
+ hotspot=location
+-loot=random,43,5,6
+-mapmod=object,42,4,129
++loot=random,18,48,6
++mapmod=object,17,48,128
+ tooltip=Mine Cart
+ 
+ [event]
++# nest treasure
++type=run_once
++location=29,75,1,1
++hotspot=location
++loot=random,30,75,5
++mapmod=object,29,75,178
++soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
++
++[event]
++type=run_once
++location=43,92,1,1
++hotspot=location
++loot=random,45,93,8
++mapmod=object,43,92,176
++soundfx=soundfx/wood_open.ogg
++tooltip=Treasure Chest
++
++[event]
++type=run_once
++location=29,76,1,1
++hotspot=location
++loot=random,30,76,5
++mapmod=object,29,76,178
++soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
++
++[event]
++# warning message
++type=run_once
++location=19,14,3,3
++msg=The crumbling walls of the south tunnel are held up by planks of rotting wood.
++
++[event]
++type=run_once
++location=8,8,5,5
++power=134
++power_path=12,12,hero
++
++[event]
++# crate in nest hallway
++type=run_once
++location=59,61,1,1
++hotspot=location
++loot=random,60,61,5
++mapmod=object,59,61,179
++soundfx=soundfx/wood_open.ogg
++tooltip=Crate
++
++[event]
+ type=run_once
+ location=2,29,1,1
+ hotspot=location
+@@ -369,12 +414,11 @@ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+ 
+ [event]
++# two hatchlings spawn
+ type=run_once
+-location=17,48,1,1
+-hotspot=location
+-loot=random,18,48,6
+-mapmod=object,17,48,128
+-tooltip=Mine Cart
++location=8,8,5,5
++power=134
++power_path=12,9,hero
+ 
+ [event]
+ type=run_once
+@@ -404,369 +448,323 @@ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+ 
+ [event]
+-# crate in nest hallway
+-type=run_once
+-location=59,61,1,1
+-hotspot=location
+-loot=random,60,61,5
+-mapmod=object,59,61,179
+-soundfx=soundfx/wood_open.ogg
+-tooltip=Crate
+-
+-[event]
+-# nest treasure
+ type=run_once
+-location=29,75,1,1
++location=42,4,1,1
+ hotspot=location
+-loot=random,30,75,5
+-mapmod=object,29,75,178
+-soundfx=soundfx/wood_open.ogg
+-tooltip=Barrel
++loot=random,43,5,6
++mapmod=object,42,4,129
++tooltip=Mine Cart
+ 
+ [event]
++# ritual message
+ type=run_once
+-location=29,76,1,1
+-hotspot=location
+-loot=random,30,76,5
+-mapmod=object,29,76,178
+-soundfx=soundfx/wood_open.ogg
+-tooltip=Barrel
++location=65,27,3,5
++msg=These goblins have captured a human trader.  Human bones are carefully arranged around the pillar in preparation for a goblin ritual.
+ 
+ [event]
++# reward for being saved
+ type=run_once
+-location=43,92,1,1
+-hotspot=location
+-loot=random,44,92,9
+-loot=random,45,91,8
+-loot=random,45,93,8
+-mapmod=object,43,92,176
+-soundfx=soundfx/wood_open.ogg
+-tooltip=Treasure Chest
++location=71,30,3,2
++loot=random,73,32,6
++msg=Talrych says, "You arrived just in time.  Please, take this."
+ 
+ [event]
+-# two hatchlings spawn
++# cave-in event
+ type=run_once
+-location=8,8,5,5
+-power=134
+-power_path=12,9,hero
++location=19,22,2,2
++mapmod=collision,19,20,1;collision,20,20,1;collision,19,19,1;collision,20,19,1;object,19,21,151;object,18,20,72;object,19,20,65;object,20,20,69;object,21,20,73;object,18,19,75;object,19,19,67;object,20,19,71;object,21,19,74
++msg=The walls collapse inward and rubble blocks off the passage!
++shakycam=60
++soundfx=soundfx/powers/quake.ogg
+ 
+ [event]
++# release the skeletal mage
+ type=run_once
+-location=8,8,5,5
+-power=134
+-power_path=12,12,hero
++location=15,44,6,2
++mapmod=object,14,44,80;object,14,45,0;object,14,46,83;object,13,44,105;object,13,46,107;collision,14,45,0;collision,13,45,0
++soundfx=soundfx/door_open.ogg
+ 
+-[event]
+-# warning message
+-type=run_once
+-location=19,14,3,3
+-msg=The crumbling walls of the south tunnel are held up by planks of rotting wood.
++[npc]
++# Trader in the goblin room
++type=captured_trader
++location=72,31,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=36,5
++location=36,5,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=57,11
++location=57,11,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=33,10
++location=33,10,1,1
+ 
+ [enemy]
+ type=antlion_slasher
+-location=37,10
++location=37,10,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=42,7
++location=42,7,1,1
+ 
+ [enemy]
+ type=antlion_slasher
+-location=45,9
++location=45,9,1,1
+ 
+ [enemy]
+ type=antlion_spitter
+-location=46,17
++location=46,17,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=47,19
++location=47,19,1,1
+ 
+ [enemy]
+ type=antlion_slasher
+-location=49,18
++location=49,18,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=52,16
++location=52,16,1,1
+ 
+ [enemy]
+ type=antlion_spitter
+-location=53,18
++location=53,18,1,1
+ 
+ [enemy]
+ type=antlion_slasher
+-location=54,17
++location=54,17,1,1
+ 
+ [enemy]
+ type=antlion_spitter
+-location=48,26
++location=48,26,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=47,30
++location=47,30,1,1
+ 
+ [enemy]
+ type=antlion_slasher
+-location=49,33
++location=49,33,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=47,34
++location=47,34,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=46,30
++location=46,30,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=49,27
++location=49,27,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=55,33
++location=55,33,1,1
+ 
+ [enemy]
+ type=goblin_charger
+-location=67,27
++location=67,27,1,1
+ 
+ [enemy]
+ type=goblin_spearman
+-location=74,29
++location=74,29,1,1
+ 
+ [enemy]
+ type=goblin_charger
+-location=75,32
++location=75,32,1,1
+ 
+ [enemy]
+ type=goblin_shaman
+-location=73,33
++location=73,33,1,1
+ 
+ [enemy]
+ type=goblin_spearman
+-location=73,32
+-
+-[event]
+-# ritual message
+-type=run_once
+-location=65,27,3,5
+-msg=These goblins have captured a human trader.  Human bones are carefully arranged around the pillar in preparation for a goblin ritual.
+-
+-[event]
+-# reward for being saved
+-type=run_once
+-location=71,30,3,2
+-loot=random,73,32,6
+-msg=Talrych says, "You arrived just in time.  Please, take this."
++location=73,32,1,1
+ 
+ [enemy]
+ type=skeletal_archer
+-location=16,29
++location=16,29,1,1
+ 
+ [enemy]
+ type=skeletal_mage
+-location=18,30
++location=18,30,1,1
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=23,29
++location=23,29,1,1
+ 
+ [enemy]
+ type=minotaur
+-location=23,33
++location=23,33,1,1
+ 
+ [enemy]
+ type=skeletal_warrior
+-location=10,30
+-
+-[event]
+-# cave-in event
+-type=run_once
+-location=19,22,2,2
+-mapmod=collision,19,20,1;collision,20,20,1;collision,19,19,1;collision,20,19,1;object,19,21,151;object,18,20,72;object,19,20,65;object,20,20,69;object,21,20,73;object,18,19,75;object,19,19,67;object,20,19,71;object,21,19,74
+-msg=The walls collapse inward and rubble blocks off the passage!
+-shakycam=60
+-soundfx=soundfx/powers/quake.ogg
++location=10,30,1,1
+ 
+ [enemy]
+ type=skeletal_archer
+-location=17,50
++location=17,50,1,1
+ 
+ [enemy]
+ type=skeletal_archer
+-location=16,49
++location=16,49,1,1
+ 
+ [enemy]
+ type=minotaur
+-location=24,52
++location=24,52,1,1
+ 
+ [enemy]
+ type=skeletal_mage
+-location=13,45
+-
+-[event]
+-# release the skeletal mage
+-type=run_once
+-location=15,44,6,2
+-mapmod=object,14,44,80;object,14,45,0;object,14,46,83;object,13,44,105;object,13,46,107;collision,14,45,0;collision,13,45,0
+-soundfx=soundfx/door_open.ogg
++location=13,45,1,1
+ 
+ [enemy]
+ # misc tunnels
+ type=antlion_blinker
+-location=39,39
++location=39,39,1,1
+ 
+ [enemy]
+ type=antlion_burster
+-location=43,43
++location=43,43,1,1
+ 
+ [enemy]
+ type=antlion_blinker
+-location=45,48
++location=45,48,1,1
+ 
+ [enemy]
+ type=antlion_spitter
+-location=74,53
++location=74,53,1,1
+ 
+ [enemy]
+ type=antlion_slasher
+-location=70,56
++location=70,56,1,1
+ 
+ [enemy]
+ type=antlion_blinker
+-location=85,68
++location=85,68,1,1
+ 
+ [enemy]
+ # pathway to antlion nest
+ type=antlion_spitter
+-location=63,64
++location=63,64,1,1
+ 
+ [enemy]
+ type=antlion_spitter
+-location=63,66
++location=63,66,1,1
+ 
+ [enemy]
+ type=antlion_slasher
+-location=68,68
++location=68,68,1,1
+ 
+ [enemy]
+ type=antlion_blinker
+-location=67,71
++location=67,71,1,1
+ 
+ [enemy]
+ type=antlion_burster
+-location=60,72
++location=60,72,1,1
+ 
+ [enemy]
+ type=antlion_blinker
+-location=52,69
++location=52,69,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=58,76
++location=58,76,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=59,76
++location=59,76,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=60,76
++location=60,76,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=61,76
++location=61,76,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=62,75
++location=62,75,1,1
+ 
+ [enemy]
+ # antlion nest
+ type=antlion_burster
+-location=38,63
++location=38,63,1,1
+ 
+ [enemy]
+ type=antlion_burster
+-location=36,65
++location=36,65,1,1
+ 
+ [enemy]
+ type=antlion_burster
+-location=42,66
++location=42,66,1,1
+ 
+ [enemy]
+ type=antlion_blinker
+-location=38,70
++location=38,70,1,1
+ 
+ [enemy]
+ type=antlion_burster
+-location=42,73
++location=42,73,1,1
+ 
+ [enemy]
+ type=antlion_spitter
+-location=37,77
++location=37,77,1,1
+ 
+ [enemy]
+ type=antlion_blinker
+-location=39,79
++location=39,79,1,1
+ 
+ [enemy]
+ type=antlion_spitter
+-location=42,79
++location=42,79,1,1
+ 
+ [enemy]
+ type=antlion_slasher
+-location=46,80
++location=46,80,1,1
+ 
+ [enemy]
+ type=antlion_slasher
+-location=32,76
++location=32,76,1,1
+ 
+ [enemy]
+ type=antlion_slasher
+-location=35,79
++location=35,79,1,1
+ 
+ [enemy]
+ type=antlion_slasher
+-location=37,83
++location=37,83,1,1
+ 
+ [enemy]
+ type=antlion_burster
+-location=44,86
++location=44,86,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=36,72
++location=36,72,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=37,71
++location=37,71,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=39,71
++location=39,71,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=44,74
++location=44,74,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=43,75
++location=43,75,1,1
+ 
+ [enemy]
+ type=antlion_hatchling
+-location=46,77
++location=46,77,1,1
+ 
+diff --git a/mods/alpha_demo/maps/cave_of_living_bones2.txt b/mods/alpha_demo/maps/cave_of_living_bones2.txt
+index 9c879c891e5baa1e11e61ec17d6f2147d8d52e6b..73fb2f352fd817358226ccd503b0b9d1655585ca 100644
+--- a/mods/alpha_demo/maps/cave_of_living_bones2.txt
++++ b/mods/alpha_demo/maps/cave_of_living_bones2.txt
+@@ -334,7 +334,6 @@ tooltip=Place Explosive
+ 
+ [event]
+ # Trigger Explosive Bottom
+-# mapmod=collision,45,43,1
+ type=run_once
+ location=41,50,13,1
+ mapmod=object,47,44,0;object,47,43,0;collision,47,43,2;object,47,42,0;collision,47,42,2;object,46,43,0;collision,46,43,2;object,46,44,0;collision,46,44,2;object,45,44,0;collision,45,44,2;object,46,42,0;collision,46,42,2;object,45,43,80;collision,45,43,1;object,47,41,80;object,45,42,68;collison,45,42,1;object,46,41,69;collison,46,41,1;object,45,41,76;collison,45,41,1;object,48,43,0;collision,48,43,0;object,48,44,0;collision,48,44,0;object,46,45,0;collision,46,45,0;object,49,40,0;collision,49,40,2;object,46,39,0;collision,46,39,2;object,48,40,150;collision,48,40,0;object,48,39,151;collision,48,39,0;collision,49,39,0;object,48,38,151;collision,48,38,0;object,49,37,152;collision,49,37,0;object,48,36,151;collision,48,36,0;object,49,35,152;collision,49,35,0;object,47,38,150;collision,47,38,0;object,45,46,150;collision,45,46,2;object,48,45,152;collision,48,45,2;object,49,44,150;collision,49,44,2;object,49,43,151;collision,49,43,2;object,51,42,152
+@@ -347,7 +346,6 @@ shakycam=60
+ 
+ [event]
+ # Trigger Explosive Left Side
+-# mapmod=collision,45,43,1
+ type=run_once
+ location=41,44,1,6
+ mapmod=object,47,44,0;object,47,43,0;collision,47,43,2;object,47,42,0;collision,47,42,2;object,46,43,0;collision,46,43,2;object,46,44,0;collision,46,44,2;object,45,44,0;collision,45,44,2;object,46,42,0;collision,46,42,2;object,45,43,80;collision,45,43,1;object,47,41,80;object,45,42,68;collison,45,42,1;object,46,41,69;collison,46,41,1;object,45,41,76;collison,45,41,1;object,48,43,0;collision,48,43,0;object,48,44,0;collision,48,44,0;object,46,45,0;collision,46,45,0;object,49,40,0;collision,49,40,2;object,46,39,0;collision,46,39,2;object,48,40,150;collision,48,40,0;object,48,39,151;collision,48,39,0;collision,49,39,0;object,48,38,151;collision,48,38,0;object,49,37,152;collision,49,37,0;object,48,36,151;collision,48,36,0;object,49,35,152;collision,49,35,0;object,47,38,150;collision,47,38,0;object,45,46,150;collision,45,46,2;object,48,45,152;collision,48,45,2;object,49,44,150;collision,49,44,2;object,49,43,151;collision,49,43,2;object,51,42,152
+@@ -360,7 +358,6 @@ shakycam=60
+ 
+ [event]
+ # Trigger Explosive Right Side
+-# mapmod=collision,45,43,1
+ type=run_once
+ location=53,40,1,10
+ mapmod=object,47,44,0;object,47,43,0;collision,47,43,2;object,47,42,0;collision,47,42,2;object,46,43,0;collision,46,43,2;object,46,44,0;collision,46,44,2;object,45,44,0;collision,45,44,2;object,46,42,0;collision,46,42,2;object,45,43,80;collision,45,43,1;object,47,41,80;object,45,42,68;collison,45,42,1;object,46,41,69;collison,46,41,1;object,45,41,76;collison,45,41,1;object,48,43,0;collision,48,43,0;object,48,44,0;collision,48,44,0;object,46,45,0;collision,46,45,0;object,49,40,0;collision,49,40,2;object,46,39,0;collision,46,39,2;object,48,40,150;collision,48,40,0;object,48,39,151;collision,48,39,0;collision,49,39,0;object,48,38,151;collision,48,38,0;object,49,37,152;collision,49,37,0;object,48,36,151;collision,48,36,0;object,49,35,152;collision,49,35,0;object,47,38,150;collision,47,38,0;object,45,46,150;collision,45,46,2;object,48,45,152;collision,48,45,2;object,49,44,150;collision,49,44,2;object,49,43,151;collision,49,43,2;object,51,42,152
+@@ -373,7 +370,6 @@ shakycam=60
+ 
+ [event]
+ # Persist Explosion
+-# mapmod=collision,45,43,1
+ type=on_load
+ location=35,70,4,5
+ mapmod=object,47,44,0;object,47,43,0;collision,47,43,2;object,47,42,0;collision,47,42,2;object,46,43,0;collision,46,43,2;object,46,44,0;collision,46,44,2;object,45,44,0;collision,45,44,2;object,46,42,0;collision,46,42,2;object,45,43,80;collision,45,43,1;object,47,41,80;object,45,42,68;collison,45,42,1;object,46,41,69;collison,46,41,1;object,45,41,76;collison,45,41,1;object,48,43,0;collision,48,43,0;object,48,44,0;collision,48,44,0;object,46,45,0;collision,46,45,0;object,49,40,0;collision,49,40,2;object,46,39,0;collision,46,39,2;object,48,40,150;collision,48,40,0;object,48,39,151;collision,48,39,0;collision,49,39,0;object,48,38,151;collision,48,38,0;object,49,37,152;collision,49,37,0;object,48,36,151;collision,48,36,0;object,49,35,152;collision,49,35,0;object,47,38,150;collision,47,38,0;object,45,46,150;collision,45,46,2;object,48,45,152;collision,48,45,2;object,49,44,150;collision,49,44,2;object,49,43,151;collision,49,43,2;object,51,42,152
+diff --git a/mods/alpha_demo/maps/goblin_warrens.txt b/mods/alpha_demo/maps/goblin_warrens.txt
+index d5f24d9fef9f7a682f2a80bf9b265c1eee666180..039589127e7f547cbad8c5353f564961102f9e9a 100644
+--- a/mods/alpha_demo/maps/goblin_warrens.txt
++++ b/mods/alpha_demo/maps/goblin_warrens.txt
+@@ -325,6 +325,7 @@ tooltip=Book Stand
+ 
+ [event]
+ # overlook book 1
++type=run_once
+ location=38,51,1,1
+ hotspot=location
+ mapmod=object,38,51,164
+@@ -334,6 +335,7 @@ tooltip=Book Stand
+ 
+ [event]
+ # overlook book 2
++type=run_once
+ location=38,46,1,1
+ hotspot=location
+ mapmod=object,38,46,164
+@@ -343,29 +345,31 @@ tooltip=Book Stand
+ 
+ [event]
+ # brazier sound effect
+-location=40,41,4,16
++type=run_always
++location=41,44,5,9
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [event]
+ # brazier sound effect
+-location=4,29,5,9
++type=run_always
++location=4,29,6,9
+ cooldown=120
+ soundfx=soundfx/environment/open_fire.ogg
+ 
+ [enemy]
+ type=skeleton
+-location=15,18
++location=15,18,1,1
+ direction=5
+ 
+ [enemy]
+ type=skeleton
+-location=22,18
++location=22,18,1,1
+ direction=1
+ 
+ [enemy]
+ type=ukkonen
+-location=4,33
++location=4,33,1,1
+ direction=2
+ 
+ [enemygroup]
+@@ -442,5 +446,5 @@ number=0,3
+ 
+ [npc]
+ type=guill
+-location=28,74
++location=28,74,1,1
+ 
+diff --git a/mods/alpha_demo/maps/lost_mines1.txt b/mods/alpha_demo/maps/lost_mines1.txt
+index f3a6449c4ef95bec11db5e6371d5b0ba4d7f59ef..9dccf731ebabd712ba7c37c3abf15732829cc21a 100644
+--- a/mods/alpha_demo/maps/lost_mines1.txt
++++ b/mods/alpha_demo/maps/lost_mines1.txt
+@@ -331,57 +331,23 @@ type=teleport
+ location=53,4,2,1
+ intermap=cave1.txt,15,67
+ 
+-[enemy]
+-type=skeletal_warrior
+-location=49,21
+-
+-[enemy]
+-type=skeletal_warrior
+-location=57,20
+-
+-[enemy]
+-type=goblin_spearman
+-location=48,25
+-
+-[enemy]
+-type=minotaur
+-location=55,31
+-
+-[enemy]
+-type=skeletal_archer
+-location=56,32
+-
+-[enemy]
+-type=skeletal_archer
+-location=53,32
+-
+-[enemy]
+-type=minotaur
+-location=56,62
+-
+ [event]
+ type=run_once
+-location=47,32,1,1
++location=13,22,1,1
+ hotspot=location
+-loot=random,48,32,6
+-mapmod=object,47,32,178
++loot=random,13,23,6
++mapmod=object,13,22,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+ 
+ [event]
+ type=run_once
+-location=46,29,1,1
++location=11,21,1,1
+ hotspot=location
+-loot=random,47,29,6
+-mapmod=object,46,29,179
++loot=random,11,22,8
++mapmod=object,11,21,177
+ soundfx=soundfx/wood_open.ogg
+-tooltip=Crate
+-
+-[event]
+-# miners message
+-type=run_once
+-location=16,47,3,3
+-msg=The undead in this room are dressed in the remnants of shredded mining clothes.
++tooltip=Treasure Chest
+ 
+ [event]
+ # necromancer message
+@@ -389,63 +355,41 @@ type=run_once
+ location=18,28,5,5
+ msg=It looks like the necromancer has been raising the corpses of dead miners as his minions.
+ 
+-[enemy]
+-type=necromancer_apprentice
+-location=18,28
+-
+-[enemygroup]
+-type=undead
+-location=6,11,21,35
+-level=3,3
+-number=10
+-
+-[enemygroup]
+-type=undead
+-location=6,11,21,35
+-level=4,5
+-number=5
+-
+-[enemygroup]
+-type=undead
+-location=15,49,33,12
+-level=3,5
+-number=6
+-
+ [event]
+ type=run_once
+-location=11,21,1,1
++location=25,24,1,1
+ hotspot=location
+-loot=random,11,22,8
+-mapmod=object,11,21,177
++loot=random,25,26,7
++mapmod=object,26,25,179
+ soundfx=soundfx/wood_open.ogg
+-tooltip=Treasure Chest
++tooltip=Crate
+ 
+ [event]
+ type=run_once
+-location=13,22,1,1
++location=26,32,1,1
+ hotspot=location
+-loot=random,13,23,6
+-mapmod=object,13,22,178
++loot=random,26,33,7
++mapmod=object,26,32,179
+ soundfx=soundfx/wood_open.ogg
+-tooltip=Barrel
++tooltip=Crate
+ 
+ [event]
+ type=run_once
+-location=6,33,1,1
++location=28,33,1,1
+ hotspot=location
+-loot=random,7,33,6
+-mapmod=object,6,33,179
++loot=random,27,33,6
++mapmod=object,28,33,178
+ soundfx=soundfx/wood_open.ogg
+-tooltip=Crate
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+-location=5,34,1,1
++location=25,24,1,1
+ hotspot=location
+-loot=random,6,34,6
+-mapmod=object,5,34,178
++loot=random,25,25,6
++mapmod=object,26,24,179
+ soundfx=soundfx/wood_open.ogg
+-tooltip=Barrel
++tooltip=Crate
+ 
+ [event]
+ type=run_once
+@@ -458,37 +402,34 @@ tooltip=Barrel
+ 
+ [event]
+ type=run_once
+-location=25,24,1,1
++location=56,95,1,1
+ hotspot=location
+-loot=random,25,25,6
+-mapmod=object,26,24,179
++loot=random,57,95,8
++mapmod=object,56,95,176
+ soundfx=soundfx/wood_open.ogg
+-tooltip=Crate
++tooltip=Treasure Chest
+ 
+ [event]
++# river message
+ type=run_once
+-location=25,24,1,1
+-hotspot=location
+-loot=random,25,26,7
+-mapmod=object,26,25,179
+-soundfx=soundfx/wood_open.ogg
+-tooltip=Crate
++location=67,62,4,4
++msg=A natural underground river flows through this room.
+ 
+ [event]
+ type=run_once
+-location=26,32,1,1
++location=63,70,1,1
+ hotspot=location
+-loot=random,26,33,7
+-mapmod=object,26,32,179
++loot=random,64,70,6
++mapmod=object,63,70,178
+ soundfx=soundfx/wood_open.ogg
+-tooltip=Crate
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+-location=28,33,1,1
++location=71,73,1,1
+ hotspot=location
+-loot=random,27,33,6
+-mapmod=object,28,33,178
++loot=random,71,72,6
++mapmod=object,71,73,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+ 
+@@ -501,28 +442,15 @@ mapmod=object,50,52,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+ 
+-[enemy]
+-type=skeletal_warrior
+-location=55,80
+-
+-[enemy]
+-type=skeletal_warrior
+-location=56,80
+-
+ [event]
++# falling pillar/bridge event
+ type=run_once
+-location=56,95,1,1
++location=80,60,1,1
+ hotspot=location
+-loot=random,57,95,8
+-mapmod=object,56,95,176
+-soundfx=soundfx/wood_open.ogg
+-tooltip=Treasure Chest
+-
+-[event]
+-# river message
+-type=run_once
+-location=67,62,4,4
+-msg=A natural underground river flows through this room.
++mapmod=object,80,63,152
++shakycam=20
++soundfx=soundfx/powers/quake.ogg
++tooltip=Stalagmite Pillar
+ 
+ [event]
+ # river message 2
+@@ -531,56 +459,37 @@ location=88,66,3,3
+ msg=The river appears to have swollen recently, covering the location where the tracks once were.
+ 
+ [event]
+-# falling pillar/bridge event
+ type=run_once
+-location=80,60,1,1
++location=46,29,1,1
+ hotspot=location
+-mapmod=collision,80,60,0;collision,80,61,0;collision,80,62,0;collision,80,63,0;object,80,60,151;object,80,61,152;object,80,62,151;object,80,63,152
+-shakycam=20
+-soundfx=soundfx/powers/quake.ogg
+-tooltip=Stalagmite Pillar
+-
+-[enemy]
+-type=antlion_spitter
+-location=71,71
+-
+-[enemy]
+-type=antlion_freezer
+-location=78,66
+-
+-[enemy]
+-type=antlion_freezer
+-location=81,66
+-
+-[enemygroup]
+-type=antlion_hatchling
+-location=91,57,2,4
+-level=2,6
+-number=5
+-
+-[enemygroup]
+-type=antlion
+-location=66,55,24,18
+-level=4,6
+-number=6
++loot=random,47,29,6
++mapmod=object,46,29,179
++soundfx=soundfx/wood_open.ogg
++tooltip=Crate
+ 
+ [event]
+ type=run_once
+-location=63,70,1,1
++location=47,32,1,1
+ hotspot=location
+-loot=random,64,70,6
+-mapmod=object,63,70,178
++loot=random,48,32,6
++mapmod=object,47,32,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+ 
+ [event]
++# miners message
+ type=run_once
+-location=71,73,1,1
++location=16,47,3,3
++msg=The undead in this room are dressed in the remnants of shredded mining clothes.
++
++[event]
++type=run_once
++location=81,67,1,1
+ hotspot=location
+-loot=random,71,72,6
+-mapmod=object,71,73,178
++loot=random,81,66,6
++mapmod=object,81,67,179
+ soundfx=soundfx/wood_open.ogg
+-tooltip=Barrel
++tooltip=Crate
+ 
+ [event]
+ type=run_once
+@@ -593,28 +502,119 @@ tooltip=Barrel
+ 
+ [event]
+ type=run_once
+-location=80,67,1,1
++location=98,60,1,1
+ hotspot=location
+-loot=random,80,66,6
+-mapmod=object,80,67,178
++loot=random,98,61,9
++mapmod=object,98,60,177
++soundfx=soundfx/wood_open.ogg
++tooltip=Treasure Chest
++
++[event]
++type=run_once
++location=5,34,1,1
++hotspot=location
++loot=random,6,34,6
++mapmod=object,5,34,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+ 
+ [event]
+ type=run_once
+-location=81,67,1,1
++location=6,33,1,1
+ hotspot=location
+-loot=random,81,66,6
+-mapmod=object,81,67,179
++loot=random,7,33,6
++mapmod=object,6,33,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+ 
+-[event]
++[enemy]
++type=skeletal_warrior
++location=49,21,1,1
++
++[enemy]
++type=skeletal_warrior
++location=57,20,1,1
++
++[enemy]
++type=goblin_spearman
++location=48,25,1,1
++
++[enemy]
++type=minotaur
++location=55,31,1,1
++
++[enemy]
++type=skeletal_archer
++location=56,32,1,1
++
++[enemy]
++type=skeletal_archer
++location=53,32,1,1
++
++[enemy]
++type=antlion_freezer
++location=78,66,1,1
++
++[enemy]
++type=antlion_freezer
++location=81,66,1,1
++
++[enemy]
+ type=run_once
+-location=98,60,1,1
++location=80,67,1,1
+ hotspot=location
+-loot=random,98,61,9
+-mapmod=object,98,60,177
++loot=random,80,66,6
++mapmod=object,80,67,178
+ soundfx=soundfx/wood_open.ogg
+-tooltip=Treasure Chest
++tooltip=Barrel
++
++[enemy]
++type=necromancer_apprentice
++location=18,28,1,1
++
++[enemy]
++type=skeletal_warrior
++location=55,80,1,1
++
++[enemy]
++type=skeletal_warrior
++location=56,80,1,1
++
++[enemy]
++type=antlion_spitter
++location=71,71,1,1
++
++[enemy]
++type=minotaur
++location=56,62,1,1
++
++[enemygroup]
++type=undead
++location=6,11,21,35
++level=3,3
++number=10
++
++[enemygroup]
++type=undead
++location=6,11,21,35
++level=4,5
++number=5
++
++[enemygroup]
++type=undead
++location=15,49,33,12
++level=3,5
++number=6
++
++[enemygroup]
++type=antlion
++location=66,55,24,18
++level=4,6
++number=6
++
++[enemygroup]
++type=antlion_hatchling
++location=91,57,2,4
++level=2,6
++number=5
+ 
+diff --git a/tiled/averguard/averguard_academy.tmx b/tiled/averguard/averguard_academy.tmx
+index e952c0ee4834f2686f956d909964ac8f5aa71a19..448d6668ce617a32451221c9cf9cead41837d646 100644
+--- a/tiled/averguard/averguard_academy.tmx
++++ b/tiled/averguard/averguard_academy.tmx
+@@ -1,6 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <map version="1.0" orientation="isometric" width="70" height="100" tilewidth="64" tileheight="32" backgroundcolor="#000000">
+  <properties>
++  <property name="location" value="62,3,7"/>
+   <property name="music" value="dungeon_theme.ogg"/>
+   <property name="tileset" value="tileset_dungeon.txt"/>
+   <property name="title" value="Averguard Academy"/>
+@@ -30,7 +31,7 @@
+   <tileoffset x="0" y="48"/>
+   <image source="../dungeon/stairs.png" width="1024" height="256"/>
+  </tileset>
+- <layer name="background" width="70" height="100">
++ <layer name="background" width="70" height="100" visible="0">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -134,7 +135,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,50,50,50,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="object" width="70" height="100">
++ <layer name="object" width="70" height="100" visible="0">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -461,7 +462,7 @@
+   <object name="boss tomb" type="run_once" x="128" y="2880" width="32" height="64">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,5,91,6"/>
++    <property name="loot" value="random,5,90,5;random,5,91,6"/>
+     <property name="tooltip" value="Langlier's Tomb"/>
+    </properties>
+   </object>
+diff --git a/tiled/averguard/averguard_atrium.tmx b/tiled/averguard/averguard_atrium.tmx
+index 37c6a9a009310a59a81fc664a6ae2d675d4285fc..3bad6cbc90a3c93126b7cdcd23770d00e5df0a09 100644
+--- a/tiled/averguard/averguard_atrium.tmx
++++ b/tiled/averguard/averguard_atrium.tmx
+@@ -1,6 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <map version="1.0" orientation="isometric" width="20" height="60" tilewidth="64" tileheight="32" backgroundcolor="#000000">
+  <properties>
++  <property name="location" value="16,11,1"/>
+   <property name="music" value="dungeon_theme.ogg"/>
+   <property name="tileset" value="tileset_dungeon.txt"/>
+   <property name="title" value="Averguard Atrium"/>
+diff --git a/tiled/averguard/averguard_complex.tmx b/tiled/averguard/averguard_complex.tmx
+index ac027f9ea510dbffa7ae067df56363e46c01c178..fd8d77e8ff3274aea9303f5c61c060eded8d9ef9 100644
+--- a/tiled/averguard/averguard_complex.tmx
++++ b/tiled/averguard/averguard_complex.tmx
+@@ -1,6 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <map version="1.0" orientation="isometric" width="101" height="120" tilewidth="64" tileheight="32" backgroundcolor="#000000">
+  <properties>
++  <property name="location" value="98,70,1"/>
+   <property name="music" value="dungeon_theme.ogg"/>
+   <property name="tileset" value="tileset_dungeon.txt"/>
+   <property name="title" value="Averguard Complex"/>
+diff --git a/tiled/averguard/averguard_prison.tmx b/tiled/averguard/averguard_prison.tmx
+index a5043430df6f21bef021dd5e72e61e714535179e..b3b5462e2f0abe73349977175d8e32b248c69051 100644
+--- a/tiled/averguard/averguard_prison.tmx
++++ b/tiled/averguard/averguard_prison.tmx
+@@ -1,6 +1,7 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <map version="1.0" orientation="isometric" width="100" height="100" tilewidth="64" tileheight="32" backgroundcolor="#000000">
+  <properties>
++  <property name="location" value="1,54,4"/>
+   <property name="music" value="dungeon_theme.ogg"/>
+   <property name="tileset" value="tileset_dungeon.txt"/>
+   <property name="title" value="Averguard Prison"/>
+@@ -238,7 +239,7 @@
+ 76,71,83,83,83,83,83,83,83,83,83,83,83,83,83,83,83,83,83,83,83,83,83,83,83,95,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="100" height="100" visible="0">
++ <layer name="collision" width="100" height="100">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -374,7 +375,7 @@
+     <property name="tooltip" value="Switch"/>
+    </properties>
+   </object>
+-  <object name="hidden room book" x="736" y="928" width="32" height="32">
++  <object name="hidden room book" type="run_once" x="736" y="928" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,23,29,165"/>
+@@ -402,7 +403,7 @@
+   </object>
+   <object name="trap tile that opens three cells" type="run_once" x="2112" y="1568" width="32" height="64">
+    <properties>
+-    <property name="mapmod" value="collision,69,48,0"/>
++    <property name="mapmod" value="object,63,48,113;object,66,48,113;object,69,48,113;collision,63,48,0;collision,66,48,0;collision,69,48,0"/>
+     <property name="soundfx" value="soundfx/door_open.ogg"/>
+    </properties>
+   </object>
+diff --git a/tiled/averguard/averguard_temple.tmx b/tiled/averguard/averguard_temple.tmx
+index 4c72d152e76f9304896b6cb0e70b68b2ab95b6ce..76b4784f97ce56a53faff5c6d0d790e1b52b9fcc 100644
+--- a/tiled/averguard/averguard_temple.tmx
++++ b/tiled/averguard/averguard_temple.tmx
+@@ -443,7 +443,7 @@
+     <property name="tooltip" value="Switch"/>
+    </properties>
+   </object>
+-  <object name="fire statue trap" x="192" y="1632" width="608" height="448">
++  <object name="fire statue trap" type="run_always" x="192" y="1632" width="608" height="448">
+    <properties>
+     <property name="cooldown" value="30"/>
+     <property name="power" value="31"/>
+diff --git a/tiled/averguard/cave_level1.tmx b/tiled/averguard/cave_level1.tmx
+index eb00b80508b21dbf995b5f4f7b660465632bc7e6..76d268d4f3d2dd495b9bdc1c6c9d0603fce2d9b1 100644
+--- a/tiled/averguard/cave_level1.tmx
++++ b/tiled/averguard/cave_level1.tmx
+@@ -119,7 +119,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="object" width="100" height="100">
++ <layer name="object" width="100" height="100" visible="0">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -223,7 +223,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="100" height="100">
++ <layer name="collision" width="100" height="100" visible="0">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -327,7 +327,7 @@
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ </data>
+  </layer>
+- <objectgroup name="event" width="100" height="100">
++ <objectgroup name="event" width="100" height="100" visible="0">
+   <object name="exit to goblin warrens" type="teleport" x="64" y="384" width="32" height="64">
+    <properties>
+     <property name="intermap" value="goblin_warrens.txt,51,14"/>
+@@ -338,17 +338,61 @@
+     <property name="intermap" value="lost_mines1.txt,53,5"/>
+    </properties>
+   </object>
+- </objectgroup>
+- <objectgroup name="npc" width="100" height="100">
+-  <object name="Trader in the goblin room" type="captured_trader" x="2304" y="992" width="32" height="32"/>
+-  <object type="run_once" x="1344" y="128" width="32" height="32">
++  <object type="run_once" x="544" y="1536" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,43,5,6"/>
+-    <property name="mapmod" value="object,42,4,129"/>
++    <property name="loot" value="random,18,48,6"/>
++    <property name="mapmod" value="object,17,48,128"/>
+     <property name="tooltip" value="Mine Cart"/>
+    </properties>
+   </object>
++  <object name="nest treasure" type="run_once" x="928" y="2400" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,30,75,5"/>
++    <property name="mapmod" value="object,29,75,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="run_once" x="1376" y="2944" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,45,93,8"/>
++    <property name="mapmod" value="object,43,92,176"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Treasure Chest"/>
++   </properties>
++  </object>
++  <object type="run_once" x="928" y="2432" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,30,76,5"/>
++    <property name="mapmod" value="object,29,76,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object name="warning message" type="run_once" x="608" y="448" width="96" height="96">
++   <properties>
++    <property name="msg" value="The crumbling walls of the south tunnel are held up by planks of rotting wood."/>
++   </properties>
++  </object>
++  <object type="run_once" x="256" y="256" width="160" height="160">
++   <properties>
++    <property name="power" value="134"/>
++    <property name="power_path" value="12,12,hero"/>
++   </properties>
++  </object>
++  <object name="crate in nest hallway" type="run_once" x="1888" y="1952" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,60,61,5"/>
++    <property name="mapmod" value="object,59,61,179"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Crate"/>
++   </properties>
++  </object>
+   <object type="run_once" x="64" y="928" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+@@ -367,12 +411,10 @@
+     <property name="tooltip" value="Barrel"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="544" y="1536" width="32" height="32">
++  <object name="two hatchlings spawn" type="run_once" x="256" y="256" width="160" height="160">
+    <properties>
+-    <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,18,48,6"/>
+-    <property name="mapmod" value="object,17,48,128"/>
+-    <property name="tooltip" value="Mine Cart"/>
++    <property name="power" value="134"/>
++    <property name="power_path" value="12,9,hero"/>
+    </properties>
+   </object>
+   <object type="run_once" x="1088" y="800" width="32" height="32">
+@@ -402,60 +444,43 @@
+     <property name="tooltip" value="Barrel"/>
+    </properties>
+   </object>
+-  <object name="crate in nest hallway" type="run_once" x="1888" y="1952" width="32" height="32">
+-   <properties>
+-    <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,60,61,5"/>
+-    <property name="mapmod" value="object,59,61,179"/>
+-    <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Crate"/>
+-   </properties>
+-  </object>
+-  <object name="nest treasure" type="run_once" x="928" y="2400" width="32" height="32">
+-   <properties>
+-    <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,30,75,5"/>
+-    <property name="mapmod" value="object,29,75,178"/>
+-    <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Barrel"/>
+-   </properties>
+-  </object>
+-  <object type="run_once" x="928" y="2432" width="32" height="32">
++  <object type="run_once" x="1344" y="128" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,30,76,5"/>
+-    <property name="mapmod" value="object,29,76,178"/>
+-    <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Barrel"/>
++    <property name="loot" value="random,43,5,6"/>
++    <property name="mapmod" value="object,42,4,129"/>
++    <property name="tooltip" value="Mine Cart"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="1376" y="2944" width="32" height="32">
++  <object name="ritual message" type="run_once" x="2080" y="864" width="96" height="160">
+    <properties>
+-    <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,45,93,8"/>
+-    <property name="mapmod" value="object,43,92,176"/>
+-    <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Treasure Chest"/>
++    <property name="msg" value="These goblins have captured a human trader.  Human bones are carefully arranged around the pillar in preparation for a goblin ritual."/>
+    </properties>
+   </object>
+-  <object name="two hatchlings spawn" type="run_once" x="256" y="256" width="160" height="160">
++  <object name="reward for being saved" type="run_once" x="2272" y="960" width="96" height="64">
+    <properties>
+-    <property name="power" value="134"/>
+-    <property name="power_path" value="12,9,hero"/>
++    <property name="loot" value="random,73,32,6"/>
++    <property name="msg" value="Talrych says, &quot;You arrived just in time.  Please, take this.&quot;"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="256" y="256" width="160" height="160">
++  <object name="cave-in event" type="run_once" x="608" y="704" width="64" height="64">
+    <properties>
+-    <property name="power" value="134"/>
+-    <property name="power_path" value="12,12,hero"/>
++    <property name="mapmod" value="collision,19,20,1;collision,20,20,1;collision,19,19,1;collision,20,19,1;object,19,21,151;object,18,20,72;object,19,20,65;object,20,20,69;object,21,20,73;object,18,19,75;object,19,19,67;object,20,19,71;object,21,19,74"/>
++    <property name="msg" value="The walls collapse inward and rubble blocks off the passage!"/>
++    <property name="shakycam" value="60"/>
++    <property name="soundfx" value="soundfx/powers/quake.ogg"/>
+    </properties>
+   </object>
+-  <object name="warning message" type="run_once" x="608" y="448" width="96" height="96">
++  <object name="release the skeletal mage" type="run_once" x="480" y="1408" width="192" height="64">
+    <properties>
+-    <property name="msg" value="The crumbling walls of the south tunnel are held up by planks of rotting wood."/>
++    <property name="mapmod" value="object,14,44,80;object,14,45,0;object,14,46,83;object,13,44,105;object,13,46,107;collision,14,45,0;collision,13,45,0"/>
++    <property name="soundfx" value="soundfx/door_open.ogg"/>
+    </properties>
+   </object>
+  </objectgroup>
++ <objectgroup name="npc" width="100" height="100" visible="0">
++  <object name="Trader in the goblin room" type="captured_trader" x="2304" y="992" width="32" height="32"/>
++ </objectgroup>
+  <objectgroup name="enemy" width="100" height="100">
+   <object type="antlion_hatchling" x="1152" y="160" width="32" height="32"/>
+   <object type="antlion_hatchling" x="1824" y="352" width="32" height="32"/>
+@@ -481,40 +506,15 @@
+   <object type="goblin_charger" x="2400" y="1024" width="32" height="32"/>
+   <object type="goblin_shaman" x="2336" y="1056" width="32" height="32"/>
+   <object type="goblin_spearman" x="2336" y="1024" width="32" height="32"/>
+-  <object name="ritual message" type="run_once" x="2080" y="864" width="96" height="160">
+-   <properties>
+-    <property name="msg" value="These goblins have captured a human trader.  Human bones are carefully arranged around the pillar in preparation for a goblin ritual."/>
+-   </properties>
+-  </object>
+-  <object name="reward for being saved" type="run_once" x="2272" y="960" width="96" height="64">
+-   <properties>
+-    <property name="loot" value="random,73,32,6"/>
+-    <property name="msg" value="Talrych says, &quot;You arrived just in time.  Please, take this.&quot;"/>
+-   </properties>
+-  </object>
+   <object type="skeletal_archer" x="512" y="928" width="32" height="32"/>
+   <object type="skeletal_mage" x="576" y="960" width="32" height="32"/>
+   <object type="skeletal_warrior" x="736" y="928" width="32" height="32"/>
+   <object type="minotaur" x="736" y="1056" width="32" height="32"/>
+   <object type="skeletal_warrior" x="320" y="960" width="32" height="32"/>
+-  <object name="cave-in event" type="run_once" x="608" y="704" width="64" height="64">
+-   <properties>
+-    <property name="mapmod" value="object,21,19,74"/>
+-    <property name="msg" value="The walls collapse inward and rubble blocks off the passage!"/>
+-    <property name="shakycam" value="60"/>
+-    <property name="soundfx" value="soundfx/powers/quake.ogg"/>
+-   </properties>
+-  </object>
+   <object type="skeletal_archer" x="544" y="1600" width="32" height="32"/>
+   <object type="skeletal_archer" x="512" y="1568" width="32" height="32"/>
+   <object type="minotaur" x="768" y="1664" width="32" height="32"/>
+   <object type="skeletal_mage" x="416" y="1440" width="32" height="32"/>
+-  <object name="release the skeletal mage" type="run_once" x="480" y="1408" width="192" height="64">
+-   <properties>
+-    <property name="mapmod" value="collision,13,45,0"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
+-   </properties>
+-  </object>
+   <object name="misc tunnels" type="antlion_blinker" x="1248" y="1248" width="32" height="32"/>
+   <object type="antlion_burster" x="1376" y="1376" width="32" height="32"/>
+   <object type="antlion_blinker" x="1440" y="1536" width="32" height="32"/>
+diff --git a/tiled/averguard/lost_mine.tmx b/tiled/averguard/lost_mine.tmx
+index be628fc066c64aedb93ff7d338e015b0e874dd45..1b584e3f70d575ef76660af656faa36f5c668c91 100644
+--- a/tiled/averguard/lost_mine.tmx
++++ b/tiled/averguard/lost_mine.tmx
+@@ -223,7 +223,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,96,153,150,146,66,0,0,0,0,0,0,0,0,0,64,134,0,0,0,132,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="100" height="100">
++ <layer name="collision" width="100" height="100" visible="0">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -333,36 +333,22 @@
+     <property name="intermap" value="cave1.txt,15,67"/>
+    </properties>
+   </object>
+- </objectgroup>
+- <objectgroup name="enemy" width="100" height="100">
+-  <object type="skeletal_warrior" x="1568" y="672" width="32" height="32"/>
+-  <object type="skeletal_warrior" x="1824" y="640" width="32" height="32"/>
+-  <object type="goblin_spearman" x="1536" y="800" width="32" height="32"/>
+-  <object type="minotaur" x="1760" y="992" width="32" height="32"/>
+-  <object type="skeletal_archer" x="1792" y="1024" width="32" height="32"/>
+-  <object type="skeletal_archer" x="1696" y="1024" width="32" height="32"/>
+-  <object type="minotaur" x="1792" y="1984" width="32" height="32"/>
+-  <object type="run_once" x="1504" y="1024" width="32" height="32">
++  <object type="run_once" x="416" y="704" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,48,32,6"/>
+-    <property name="mapmod" value="object,47,32,178"/>
++    <property name="loot" value="random,13,23,6"/>
++    <property name="mapmod" value="object,13,22,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="1472" y="928" width="32" height="32">
++  <object type="run_once" x="352" y="672" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,47,29,6"/>
+-    <property name="mapmod" value="object,46,29,179"/>
++    <property name="loot" value="random,11,22,8"/>
++    <property name="mapmod" value="object,11,21,177"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Crate"/>
+-   </properties>
+-  </object>
+-  <object name="miners message" type="run_once" x="512" y="1504" width="96" height="96">
+-   <properties>
+-    <property name="msg" value="The undead in this room are dressed in the remnants of shredded mining clothes."/>
++    <property name="tooltip" value="Treasure Chest"/>
+    </properties>
+   </object>
+   <object name="necromancer message" type="run_once" x="576" y="896" width="160" height="160">
+@@ -370,61 +356,40 @@
+     <property name="msg" value="It looks like the necromancer has been raising the corpses of dead miners as his minions."/>
+    </properties>
+   </object>
+-  <object type="necromancer_apprentice" x="576" y="896" width="32" height="32"/>
+- </objectgroup>
+- <objectgroup name="enemygroup" width="100" height="100">
+-  <object type="undead" x="192" y="352" width="672" height="1120">
+-   <properties>
+-    <property name="level" value="3,3"/>
+-    <property name="number" value="10"/>
+-   </properties>
+-  </object>
+-  <object type="undead" x="192" y="352" width="672" height="1120">
+-   <properties>
+-    <property name="level" value="4,5"/>
+-    <property name="number" value="5"/>
+-   </properties>
+-  </object>
+-  <object type="undead" x="480" y="1568" width="1056" height="384">
+-   <properties>
+-    <property name="level" value="3,5"/>
+-    <property name="number" value="6"/>
+-   </properties>
+-  </object>
+-  <object type="run_once" x="352" y="672" width="32" height="32">
++  <object type="run_once" x="800" y="768" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,11,22,8"/>
+-    <property name="mapmod" value="object,11,21,177"/>
++    <property name="loot" value="random,25,26,7"/>
++    <property name="mapmod" value="object,26,25,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Treasure Chest"/>
++    <property name="tooltip" value="Crate"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="416" y="704" width="32" height="32">
++  <object type="run_once" x="832" y="1024" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,13,23,6"/>
+-    <property name="mapmod" value="object,13,22,178"/>
++    <property name="loot" value="random,26,33,7"/>
++    <property name="mapmod" value="object,26,32,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Barrel"/>
++    <property name="tooltip" value="Crate"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="192" y="1056" width="32" height="32">
++  <object type="run_once" x="896" y="1056" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,7,33,6"/>
+-    <property name="mapmod" value="object,6,33,179"/>
++    <property name="loot" value="random,27,33,6"/>
++    <property name="mapmod" value="object,28,33,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Crate"/>
++    <property name="tooltip" value="Barrel"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="160" y="1088" width="32" height="32">
++  <object type="run_once" x="800" y="768" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,6,34,6"/>
+-    <property name="mapmod" value="object,5,34,178"/>
++    <property name="loot" value="random,25,25,6"/>
++    <property name="mapmod" value="object,26,24,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Barrel"/>
++    <property name="tooltip" value="Crate"/>
+    </properties>
+   </object>
+   <object type="run_once" x="800" y="768" width="32" height="32">
+@@ -436,38 +401,34 @@
+     <property name="tooltip" value="Barrel"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="800" y="768" width="32" height="32">
++  <object type="run_once" x="1792" y="3040" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,25,25,6"/>
+-    <property name="mapmod" value="object,26,24,179"/>
++    <property name="loot" value="random,57,95,8"/>
++    <property name="mapmod" value="object,56,95,176"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Crate"/>
++    <property name="tooltip" value="Treasure Chest"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="800" y="768" width="32" height="32">
++  <object name="river message" type="run_once" x="2144" y="1984" width="128" height="128">
+    <properties>
+-    <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,25,26,7"/>
+-    <property name="mapmod" value="object,26,25,179"/>
+-    <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Crate"/>
++    <property name="msg" value="A natural underground river flows through this room."/>
+    </properties>
+   </object>
+-  <object type="run_once" x="832" y="1024" width="32" height="32">
++  <object type="run_once" x="2016" y="2240" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,26,33,7"/>
+-    <property name="mapmod" value="object,26,32,179"/>
++    <property name="loot" value="random,64,70,6"/>
++    <property name="mapmod" value="object,63,70,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Crate"/>
++    <property name="tooltip" value="Barrel"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="896" y="1056" width="32" height="32">
++  <object type="run_once" x="2272" y="2336" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,27,33,6"/>
+-    <property name="mapmod" value="object,28,33,178"/>
++    <property name="loot" value="random,71,72,6"/>
++    <property name="mapmod" value="object,71,73,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+    </properties>
+@@ -481,27 +442,6 @@
+     <property name="tooltip" value="Barrel"/>
+    </properties>
+   </object>
+-  <object type="skeletal_warrior" x="1760" y="2560" width="32" height="32"/>
+-  <object type="skeletal_warrior" x="1792" y="2560" width="32" height="32"/>
+-  <object type="run_once" x="1792" y="3040" width="32" height="32">
+-   <properties>
+-    <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,57,95,8"/>
+-    <property name="mapmod" value="object,56,95,176"/>
+-    <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Treasure Chest"/>
+-   </properties>
+-  </object>
+-  <object name="river message" type="run_once" x="2144" y="1984" width="128" height="128">
+-   <properties>
+-    <property name="msg" value="A natural underground river flows through this room."/>
+-   </properties>
+-  </object>
+-  <object name="river message 2" type="run_once" x="2816" y="2112" width="96" height="96">
+-   <properties>
+-    <property name="msg" value="The river appears to have swollen recently, covering the location where the tracks once were."/>
+-   </properties>
+-  </object>
+   <object name="falling pillar/bridge event" type="run_once" x="2560" y="1920" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+@@ -511,37 +451,41 @@
+     <property name="tooltip" value="Stalagmite Pillar"/>
+    </properties>
+   </object>
+-  <object type="antlion_spitter" x="2272" y="2272" width="32" height="32"/>
+-  <object type="antlion_freezer" x="2496" y="2112" width="32" height="32"/>
+-  <object type="antlion_freezer" x="2592" y="2112" width="32" height="32"/>
+-  <object type="antlion_hatchling" x="2912" y="1824" width="64" height="128">
++  <object name="river message 2" type="run_once" x="2816" y="2112" width="96" height="96">
+    <properties>
+-    <property name="level" value="2,6"/>
+-    <property name="number" value="5"/>
++    <property name="msg" value="The river appears to have swollen recently, covering the location where the tracks once were."/>
+    </properties>
+   </object>
+-  <object type="antlion" x="2112" y="1760" width="768" height="576">
++  <object type="run_once" x="1472" y="928" width="32" height="32">
+    <properties>
+-    <property name="level" value="4,6"/>
+-    <property name="number" value="6"/>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,47,29,6"/>
++    <property name="mapmod" value="object,46,29,179"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Crate"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="2016" y="2240" width="32" height="32">
++  <object type="run_once" x="1504" y="1024" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,64,70,6"/>
+-    <property name="mapmod" value="object,63,70,178"/>
++    <property name="loot" value="random,48,32,6"/>
++    <property name="mapmod" value="object,47,32,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="2272" y="2336" width="32" height="32">
++  <object name="miners message" type="run_once" x="512" y="1504" width="96" height="96">
++   <properties>
++    <property name="msg" value="The undead in this room are dressed in the remnants of shredded mining clothes."/>
++   </properties>
++  </object>
++  <object type="run_once" x="2592" y="2144" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,71,72,6"/>
+-    <property name="mapmod" value="object,71,73,178"/>
++    <property name="loot" value="random,81,66,6"/>
++    <property name="mapmod" value="object,81,67,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Barrel"/>
++    <property name="tooltip" value="Crate"/>
+    </properties>
+   </object>
+   <object type="run_once" x="2528" y="2176" width="32" height="32">
+@@ -553,31 +497,87 @@
+     <property name="tooltip" value="Barrel"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="2560" y="2144" width="32" height="32">
++  <object type="run_once" x="3136" y="1920" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,80,66,6"/>
+-    <property name="mapmod" value="object,80,67,178"/>
++    <property name="loot" value="random,98,61,9"/>
++    <property name="mapmod" value="object,98,60,177"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Treasure Chest"/>
++   </properties>
++  </object>
++  <object type="run_once" x="160" y="1088" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,6,34,6"/>
++    <property name="mapmod" value="object,5,34,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="2592" y="2144" width="32" height="32">
++  <object type="run_once" x="192" y="1056" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,81,66,6"/>
+-    <property name="mapmod" value="object,81,67,179"/>
++    <property name="loot" value="random,7,33,6"/>
++    <property name="mapmod" value="object,6,33,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="3136" y="1920" width="32" height="32">
++ </objectgroup>
++ <objectgroup name="enemy" width="100" height="100">
++  <object type="skeletal_warrior" x="1568" y="672" width="32" height="32"/>
++  <object type="skeletal_warrior" x="1824" y="640" width="32" height="32"/>
++  <object type="goblin_spearman" x="1536" y="800" width="32" height="32"/>
++  <object type="minotaur" x="1760" y="992" width="32" height="32"/>
++  <object type="skeletal_archer" x="1792" y="1024" width="32" height="32"/>
++  <object type="skeletal_archer" x="1696" y="1024" width="32" height="32"/>
++  <object type="antlion_freezer" x="2496" y="2112" width="32" height="32"/>
++  <object type="antlion_freezer" x="2592" y="2112" width="32" height="32"/>
++  <object type="run_once" x="2560" y="2144" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,98,61,9"/>
+-    <property name="mapmod" value="object,98,60,177"/>
++    <property name="loot" value="random,80,66,6"/>
++    <property name="mapmod" value="object,80,67,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Treasure Chest"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="necromancer_apprentice" x="576" y="896" width="32" height="32"/>
++  <object type="skeletal_warrior" x="1760" y="2560" width="32" height="32"/>
++  <object type="skeletal_warrior" x="1792" y="2560" width="32" height="32"/>
++  <object type="antlion_spitter" x="2272" y="2272" width="32" height="32"/>
++  <object type="minotaur" x="1792" y="1984" width="32" height="32"/>
++ </objectgroup>
++ <objectgroup name="enemygroup" width="100" height="100">
++  <object type="undead" x="192" y="352" width="672" height="1120">
++   <properties>
++    <property name="level" value="3,3"/>
++    <property name="number" value="10"/>
++   </properties>
++  </object>
++  <object type="undead" x="192" y="352" width="672" height="1120">
++   <properties>
++    <property name="level" value="4,5"/>
++    <property name="number" value="5"/>
++   </properties>
++  </object>
++  <object type="undead" x="480" y="1568" width="1056" height="384">
++   <properties>
++    <property name="level" value="3,5"/>
++    <property name="number" value="6"/>
++   </properties>
++  </object>
++  <object type="antlion" x="2112" y="1760" width="768" height="576">
++   <properties>
++    <property name="level" value="4,6"/>
++    <property name="number" value="6"/>
++   </properties>
++  </object>
++  <object type="antlion_hatchling" x="2912" y="1824" width="64" height="128">
++   <properties>
++    <property name="level" value="2,6"/>
++    <property name="number" value="5"/>
+    </properties>
+   </object>
+  </objectgroup>
+diff --git a/tiled/living_bones/brothers_lair_atrium.tmx b/tiled/living_bones/brothers_lair_atrium.tmx
+index 86816a1e043fe8e6333291d1b16a26ed5402c9f0..96fc4a282df2fb84b40e1dae7716a48b5584bd09 100644
+--- a/tiled/living_bones/brothers_lair_atrium.tmx
++++ b/tiled/living_bones/brothers_lair_atrium.tmx
+@@ -1,5 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+ <map version="1.0" orientation="isometric" width="30" height="50" tilewidth="64" tileheight="32">
+  <properties>
+   <property name="music" value="magical_theme.ogg"/>
+@@ -31,7 +30,7 @@
+   <tileoffset x="0" y="48"/>
+   <image source="../dungeon/stairs.png" width="1024" height="256"/>
+  </tileset>
+- <layer name="background" width="30" height="50">
++ <layer name="background" width="30" height="50" visible="0">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,16,32,35,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -85,7 +84,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="object" width="30" height="50">
++ <layer name="object" width="30" height="50" visible="0">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,64,244,245,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -139,7 +138,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="30" height="50">
++ <layer name="collision" width="30" height="50" visible="0">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -224,19 +223,12 @@
+     <property name="unset_status" value="lb_ice_attack,lb_fire_attack,lb_wind_attack,lb_ice_looted,lb_fire_looted,lb_wind_looted"/>
+    </properties>
+   </object>
+-  <object name="brazier sound effect" x="256" y="64" width="320" height="160">
++  <object name="brazier sound effect" type="run_always" x="256" y="64" width="320" height="160">
+    <properties>
+     <property name="cooldown" value="120"/>
+     <property name="soundfx" value="soundfx/environment/open_fire.ogg"/>
+    </properties>
+   </object>
+- </objectgroup>
+- <objectgroup name="enemy" width="30" height="50">
+-  <object name="Patrolling undead" type="skeletal_warrior" x="288" y="256" width="32" height="32">
+-   <properties>
+-    <property name="waypoints" value="9,8;20,8;20,19;9,19"/>
+-   </properties>
+-  </object>
+   <object type="on_load" x="32" y="32" width="32" height="32">
+    <properties>
+     <property name="mapmod" value="background,14,20,265"/>
+@@ -259,4 +251,11 @@
+    </properties>
+   </object>
+  </objectgroup>
++ <objectgroup name="enemy" width="30" height="50">
++  <object name="Patrolling undead" type="skeletal_warrior" x="288" y="256" width="32" height="32">
++   <properties>
++    <property name="waypoints" value="9,8;20,8;20,19;9,19"/>
++   </properties>
++  </object>
++ </objectgroup>
+ </map>
+diff --git a/tiled/living_bones/brothers_lair_fire_hall.tmx b/tiled/living_bones/brothers_lair_fire_hall.tmx
+index fa8f09a2d84504aad74d70aaae5c56bb702e573d..a0aaa58fe3a64ecd80c60df95c939bcce7d4f793 100644
+--- a/tiled/living_bones/brothers_lair_fire_hall.tmx
++++ b/tiled/living_bones/brothers_lair_fire_hall.tmx
+@@ -1,5 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+ <map version="1.0" orientation="isometric" width="50" height="80" tilewidth="64" tileheight="32">
+  <properties>
+   <property name="music" value="magical_theme.ogg"/>
+@@ -372,56 +371,56 @@
+     <property name="tooltip" value="Book Stand"/>
+    </properties>
+   </object>
+-  <object name="brazier sound effect" x="448" y="416" width="160" height="224">
++  <object name="brazier sound effect" type="run_always" x="448" y="416" width="160" height="224">
+    <properties>
+     <property name="cooldown" value="120"/>
+     <property name="soundfx" value="soundfx/environment/open_fire.ogg"/>
+    </properties>
+   </object>
+-  <object name="brazier sound effect" x="288" y="832" width="416" height="224">
++  <object name="brazier sound effect" type="run_always" x="288" y="832" width="416" height="224">
+    <properties>
+     <property name="cooldown" value="120"/>
+     <property name="soundfx" value="soundfx/environment/open_fire.ogg"/>
+    </properties>
+   </object>
+-  <object name="brazier sound effect" x="128" y="192" width="256" height="160">
++  <object name="brazier sound effect" type="run_always" x="288" y="1056" width="256" height="160">
+    <properties>
+     <property name="cooldown" value="120"/>
+     <property name="soundfx" value="soundfx/environment/open_fire.ogg"/>
+    </properties>
+   </object>
+-  <object name="brazier sound effect" x="864" y="832" width="320" height="224">
++  <object name="brazier sound effect" type="run_always" x="864" y="832" width="320" height="224">
+    <properties>
+     <property name="cooldown" value="120"/>
+     <property name="soundfx" value="soundfx/environment/open_fire.ogg"/>
+    </properties>
+   </object>
+-  <object name="brazier sound effect" x="256" y="1376" width="160" height="224">
++  <object name="brazier sound effect" type="run_always" x="256" y="1376" width="160" height="224">
+    <properties>
+     <property name="cooldown" value="120"/>
+     <property name="soundfx" value="soundfx/environment/open_fire.ogg"/>
+    </properties>
+   </object>
+-  <object name="brazier sound effect" x="352" y="1664" width="256" height="160">
++  <object name="brazier sound effect" type="run_always" x="352" y="1664" width="256" height="160">
+    <properties>
+     <property name="cooldown" value="120"/>
+     <property name="soundfx" value="soundfx/environment/open_fire.ogg"/>
+    </properties>
+   </object>
+-  <object name="brazier sound effect" x="1088" y="1440" width="160" height="160">
++  <object name="brazier sound effect" type="run_always" x="1088" y="1440" width="160" height="160">
+    <properties>
+     <property name="cooldown" value="120"/>
+     <property name="soundfx" value="soundfx/environment/open_fire.ogg"/>
+    </properties>
+   </object>
+-  <object name="brazier sound effect" x="992" y="1568" width="320" height="224">
++  <object name="brazier sound effect" type="run_always" x="992" y="1568" width="320" height="224">
+    <properties>
+     <property name="cooldown" value="120"/>
+     <property name="soundfx" value="soundfx/environment/open_fire.ogg"/>
+    </properties>
+   </object>
+  </objectgroup>
+- <objectgroup name="enemygroup" width="50" height="80">
++ <objectgroup name="enemygroup" width="50" height="80" visible="0">
+   <object name="4-6 Undead" type="undead" x="672" y="1824" width="256" height="256">
+    <properties>
+     <property name="level" value="5,8"/>
+@@ -447,7 +446,7 @@
+    </properties>
+   </object>
+  </objectgroup>
+- <objectgroup name="enemy" width="50" height="80">
++ <objectgroup name="enemy" width="50" height="80" visible="0">
+   <object type="krakatoa" x="704" y="576" width="32" height="32"/>
+  </objectgroup>
+ </map>
+diff --git a/tiled/living_bones/brothers_lair_ice_hall.tmx b/tiled/living_bones/brothers_lair_ice_hall.tmx
+index b446b0ce7f8720faa3a3682e7532dc4944268f9d..26efc1b9832378bd3ff465f7223af6c88aa31095 100644
+--- a/tiled/living_bones/brothers_lair_ice_hall.tmx
++++ b/tiled/living_bones/brothers_lair_ice_hall.tmx
+@@ -1,5 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+ <map version="1.0" orientation="isometric" width="50" height="80" tilewidth="64" tileheight="32">
+  <properties>
+   <property name="music" value="magical_theme.ogg"/>
+@@ -31,7 +30,7 @@
+   <tileoffset x="0" y="48"/>
+   <image source="../dungeon/stairs.png" width="1024" height="256"/>
+  </tileset>
+- <layer name="background" width="50" height="80">
++ <layer name="background" width="50" height="80" visible="0">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -115,7 +114,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="object" width="50" height="80">
++ <layer name="object" width="50" height="80" visible="0">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -199,7 +198,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="50" height="80">
++ <layer name="collision" width="50" height="80" visible="0">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -292,7 +291,7 @@
+   <object name="Bookcase Door" type="run_once" x="544" y="1440" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="mapmod" value="object,17,45,0"/>
++    <property name="mapmod" value="object,17,45,0;collision,17,45,0"/>
+     <property name="shakycam" value="20"/>
+     <property name="sound" value="soundfx/powers/quake.ogg"/>
+     <property name="tooltip" value="Suspicious Bookcase"/>
+@@ -467,13 +466,13 @@
+     <property name="power" value="14"/>
+     <property name="power_damage" value="20,25"/>
+     <property name="power_path" value="14,10,hero"/>
+-    <property name="requires_not" value="lb_ice_looted"/>
++    <property name="requires_not" value="lb_ice_looted;lb_ice_key"/>
+     <property name="tooltip" value="Runed Chest"/>
+    </properties>
+   </object>
+   <object name="Trapped Tile" type="run_once" x="544" y="1088" width="32" height="64">
+    <properties>
+-    <property name="mapmod" value="collision,21,38,0"/>
++    <property name="mapmod" value="object,13,31,0;collision,13,31,0;object,21,31,0;collision,21,31,0;object,13,38,0;collision,13,38,0;object,21,38,0;collision,21,38,0"/>
+     <property name="soundfx" value="soundfx/door_open.ogg"/>
+    </properties>
+   </object>
+diff --git a/tiled/living_bones/brothers_lair_sacrifice_room.tmx b/tiled/living_bones/brothers_lair_sacrifice_room.tmx
+index ed3845413dcfcf4a50e5656c3d3cec3a2c3e4a3d..be48e861e089e020f35f6f29a0cc0c40813fe945 100644
+--- a/tiled/living_bones/brothers_lair_sacrifice_room.tmx
++++ b/tiled/living_bones/brothers_lair_sacrifice_room.tmx
+@@ -1,5 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+ <map version="1.0" orientation="isometric" width="20" height="40" tilewidth="64" tileheight="32">
+  <properties>
+   <property name="location" value="28,76,3"/>
+@@ -32,7 +31,7 @@
+   <tileoffset x="0" y="48"/>
+   <image source="../dungeon/stairs.png" width="1024" height="256"/>
+  </tileset>
+- <layer name="background" width="20" height="40">
++ <layer name="background" width="20" height="40" visible="0">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -120,7 +119,7 @@
+ 0,0,0,0,0,0,0,64,244,243,245,66,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="20" height="40">
++ <layer name="collision" width="20" height="40" visible="0">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -164,42 +163,28 @@
+ 3,3,3,3,3,3,3,1,0,0,0,1,3,3,3,3,3,3,3,3
+ </data>
+  </layer>
+- <objectgroup name="event" width="20" height="40">
++ <objectgroup name="event" width="20" height="40" visible="0">
+   <object type="teleport" x="256" y="1248" width="96" height="32">
+    <properties>
+     <property name="intermap" value="brothers_lair_atrium.txt,15,17"/>
+    </properties>
+   </object>
+- </objectgroup>
+- <objectgroup name="npc" width="20" height="40">
+-  <object type="statue_guardian_ice" x="224" y="1088" width="32" height="32"/>
+-  <object type="statue_guardian_fire" x="288" y="1088" width="32" height="32"/>
+-  <object type="statue_guardian_wind" x="352" y="1088" width="32" height="32"/>
+-  <object type="run_always" x="0" y="0" width="640" height="1280">
++  <object type="run_once" x="0" y="0" width="640" height="1280">
+    <properties>
+-    <property name="cooldown" value="60"/>
+-    <property name="power" value="123"/>
+-    <property name="power_damage" value="5,10"/>
+-    <property name="power_path" value="7,34,hero"/>
+-    <property name="requires_status" value="lb_ice_attack"/>
++    <property name="requires_status" value="lb_ice_defeated,lb_fire_defeated,lb_wind_defeated"/>
++    <property name="set_status" value="lb_necromancers_defeated"/>
+    </properties>
+   </object>
+-  <object type="run_always" x="0" y="0" width="640" height="1280">
++  <object type="run_once" x="0" y="0" width="640" height="1280">
+    <properties>
+-    <property name="cooldown" value="60"/>
+-    <property name="power" value="122"/>
+-    <property name="power_damage" value="5,10"/>
+-    <property name="power_path" value="9,34,hero"/>
+-    <property name="requires_status" value="lb_fire_attack"/>
++    <property name="mapmod" value="collision,9,23,0"/>
++    <property name="requires_status" value="lb_wind_unlocked"/>
+    </properties>
+   </object>
+-  <object type="run_always" x="0" y="0" width="640" height="1280">
++  <object type="run_once" x="0" y="0" width="640" height="1280">
+    <properties>
+-    <property name="cooldown" value="60"/>
+-    <property name="power" value="6"/>
+-    <property name="power_damage" value="5,10"/>
+-    <property name="power_path" value="11,34,hero"/>
+-    <property name="requires_status" value="lb_wind_attack"/>
++    <property name="mapmod" value="collision,9,26,0"/>
++    <property name="requires_status" value="lb_fire_unlocked"/>
+    </properties>
+   </object>
+   <object type="run_once" x="0" y="0" width="640" height="1280">
+@@ -208,31 +193,45 @@
+     <property name="requires_status" value="lb_ice_unlocked"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="0" y="0" width="640" height="1280">
++  <object type="run_always" x="0" y="0" width="640" height="1280">
+    <properties>
+-    <property name="mapmod" value="collision,9,26,0"/>
+-    <property name="requires_status" value="lb_fire_unlocked"/>
++    <property name="cooldown" value="60"/>
++    <property name="power" value="6"/>
++    <property name="power_damage" value="5,10"/>
++    <property name="power_path" value="11,34,hero"/>
++    <property name="requires_status" value="lb_wind_attack"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="0" y="0" width="640" height="1280">
++  <object type="run_always" x="0" y="0" width="640" height="1280">
+    <properties>
+-    <property name="mapmod" value="collision,9,23,0"/>
+-    <property name="requires_status" value="lb_wind_unlocked"/>
++    <property name="cooldown" value="60"/>
++    <property name="power" value="122"/>
++    <property name="power_damage" value="5,10"/>
++    <property name="power_path" value="9,34,hero"/>
++    <property name="requires_status" value="lb_fire_attack"/>
+    </properties>
+   </object>
+-  <object type="run_once" x="0" y="0" width="640" height="1280">
++  <object type="run_always" x="0" y="0" width="640" height="1280">
+    <properties>
+-    <property name="requires_status" value="lb_ice_defeated,lb_fire_defeated,lb_wind_defeated"/>
+-    <property name="set_status" value="lb_necromancers_defeated"/>
++    <property name="cooldown" value="60"/>
++    <property name="power" value="123"/>
++    <property name="power_damage" value="5,10"/>
++    <property name="power_path" value="7,34,hero"/>
++    <property name="requires_status" value="lb_ice_attack"/>
+    </properties>
+   </object>
+-  <object name="brazier sound effect" x="128" y="192" width="256" height="160">
++  <object name="brazier sound effect" type="run_always" x="128" y="192" width="256" height="160">
+    <properties>
+     <property name="cooldown" value="120"/>
+     <property name="soundfx" value="soundfx/environment/open_fire.ogg"/>
+    </properties>
+   </object>
+  </objectgroup>
++ <objectgroup name="npc" width="20" height="40">
++  <object type="statue_guardian_ice" x="224" y="1088" width="32" height="32"/>
++  <object type="statue_guardian_fire" x="288" y="1088" width="32" height="32"/>
++  <object type="statue_guardian_wind" x="352" y="1088" width="32" height="32"/>
++ </objectgroup>
+  <objectgroup name="enemy" width="20" height="40">
+   <object type="grisbon" x="288" y="416" width="32" height="32"/>
+   <object type="scathelocke" x="224" y="320" width="32" height="32"/>
+diff --git a/tiled/living_bones/brothers_lair_wind_hall.tmx b/tiled/living_bones/brothers_lair_wind_hall.tmx
+index 9e81777e0350f2755e83fcab590339b43e785423..d8455594ac7bac405d25fead3dd3a3f501aaf6b0 100644
+--- a/tiled/living_bones/brothers_lair_wind_hall.tmx
++++ b/tiled/living_bones/brothers_lair_wind_hall.tmx
+@@ -1,5 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+ <map version="1.0" orientation="isometric" width="40" height="50" tilewidth="64" tileheight="32">
+  <properties>
+   <property name="music" value="magical_theme.ogg"/>
+@@ -422,7 +421,7 @@
+     <property name="tooltip" value="Runed Chest"/>
+    </properties>
+   </object>
+-  <object name="brazier sound effect" x="288" y="960" width="160" height="160">
++  <object name="brazier sound effect" type="run_always" x="288" y="960" width="160" height="160">
+    <properties>
+     <property name="cooldown" value="120"/>
+     <property name="soundfx" value="soundfx/environment/open_fire.ogg"/>
+diff --git a/tiled/living_bones/cave_of_living_bones2.tmx b/tiled/living_bones/cave_of_living_bones2.tmx
+index 94829cb82c70a85b4093392332a7d00b4134bc66..12a1c4170b16f16ee6beaf1a612e3e397f162582 100644
+--- a/tiled/living_bones/cave_of_living_bones2.tmx
++++ b/tiled/living_bones/cave_of_living_bones2.tmx
+@@ -1,5 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+ <map version="1.0" orientation="isometric" width="80" height="80" tilewidth="64" tileheight="32">
+  <properties>
+   <property name="music" value="cave_theme.ogg"/>
+@@ -326,11 +325,9 @@
+     <property name="tooltip" value="Place Explosive"/>
+    </properties>
+   </object>
+-  <object name="mapmod=collision,45,43,1" type="run_once" x="1312" y="1600" width="416" height="32">
++  <object name="Trigger Explosive Bottom" type="run_once" x="1312" y="1600" width="416" height="32">
+    <properties>
+-    <property name="# mapmod" value="collision,45,43,1"/>
+-    <property name="#mapmod" value="collision,45,43,1"/>
+-    <property name="mapmod" value="object,51,42,152"/>
++    <property name="mapmod" value="object,47,44,0;object,47,43,0;collision,47,43,2;object,47,42,0;collision,47,42,2;object,46,43,0;collision,46,43,2;object,46,44,0;collision,46,44,2;object,45,44,0;collision,45,44,2;object,46,42,0;collision,46,42,2;object,45,43,80;collision,45,43,1;object,47,41,80;object,45,42,68;collison,45,42,1;object,46,41,69;collison,46,41,1;object,45,41,76;collison,45,41,1;object,48,43,0;collision,48,43,0;object,48,44,0;collision,48,44,0;object,46,45,0;collision,46,45,0;object,49,40,0;collision,49,40,2;object,46,39,0;collision,46,39,2;object,48,40,150;collision,48,40,0;object,48,39,151;collision,48,39,0;collision,49,39,0;object,48,38,151;collision,48,38,0;object,49,37,152;collision,49,37,0;object,48,36,151;collision,48,36,0;object,49,35,152;collision,49,35,0;object,47,38,150;collision,47,38,0;object,45,46,150;collision,45,46,2;object,48,45,152;collision,48,45,2;object,49,44,150;collision,49,44,2;object,49,43,151;collision,49,43,2;object,51,42,152"/>
+     <property name="power" value="18"/>
+     <property name="power_path" value="47,44,47,44"/>
+     <property name="requires_not" value="lb_explosive_detonated"/>
+@@ -339,11 +336,9 @@
+     <property name="shakycam" value="60"/>
+    </properties>
+   </object>
+-  <object name="mapmod=collision,45,43,1" type="run_once" x="1312" y="1408" width="32" height="192">
++  <object name="Trigger Explosive Left Side" type="run_once" x="1312" y="1408" width="32" height="192">
+    <properties>
+-    <property name="# mapmod" value="collision,45,43,1"/>
+-    <property name="#mapmod" value="collision,45,43,1"/>
+-    <property name="mapmod" value="object,51,42,152"/>
++    <property name="mapmod" value="object,47,44,0;object,47,43,0;collision,47,43,2;object,47,42,0;collision,47,42,2;object,46,43,0;collision,46,43,2;object,46,44,0;collision,46,44,2;object,45,44,0;collision,45,44,2;object,46,42,0;collision,46,42,2;object,45,43,80;collision,45,43,1;object,47,41,80;object,45,42,68;collison,45,42,1;object,46,41,69;collison,46,41,1;object,45,41,76;collison,45,41,1;object,48,43,0;collision,48,43,0;object,48,44,0;collision,48,44,0;object,46,45,0;collision,46,45,0;object,49,40,0;collision,49,40,2;object,46,39,0;collision,46,39,2;object,48,40,150;collision,48,40,0;object,48,39,151;collision,48,39,0;collision,49,39,0;object,48,38,151;collision,48,38,0;object,49,37,152;collision,49,37,0;object,48,36,151;collision,48,36,0;object,49,35,152;collision,49,35,0;object,47,38,150;collision,47,38,0;object,45,46,150;collision,45,46,2;object,48,45,152;collision,48,45,2;object,49,44,150;collision,49,44,2;object,49,43,151;collision,49,43,2;object,51,42,152"/>
+     <property name="power" value="18"/>
+     <property name="power_path" value="47,44,47,44"/>
+     <property name="requires_not" value="lb_explosive_detonated"/>
+@@ -352,11 +347,9 @@
+     <property name="shakycam" value="60"/>
+    </properties>
+   </object>
+-  <object name="mapmod=collision,45,43,1" type="run_once" x="1696" y="1280" width="32" height="320">
++  <object name="Trigger Explosive Right Side" type="run_once" x="1696" y="1280" width="32" height="320">
+    <properties>
+-    <property name="# mapmod" value="collision,45,43,1"/>
+-    <property name="#mapmod" value="collision,45,43,1"/>
+-    <property name="mapmod" value="object,51,42,152"/>
++    <property name="mapmod" value="object,47,44,0;object,47,43,0;collision,47,43,2;object,47,42,0;collision,47,42,2;object,46,43,0;collision,46,43,2;object,46,44,0;collision,46,44,2;object,45,44,0;collision,45,44,2;object,46,42,0;collision,46,42,2;object,45,43,80;collision,45,43,1;object,47,41,80;object,45,42,68;collison,45,42,1;object,46,41,69;collison,46,41,1;object,45,41,76;collison,45,41,1;object,48,43,0;collision,48,43,0;object,48,44,0;collision,48,44,0;object,46,45,0;collision,46,45,0;object,49,40,0;collision,49,40,2;object,46,39,0;collision,46,39,2;object,48,40,150;collision,48,40,0;object,48,39,151;collision,48,39,0;collision,49,39,0;object,48,38,151;collision,48,38,0;object,49,37,152;collision,49,37,0;object,48,36,151;collision,48,36,0;object,49,35,152;collision,49,35,0;object,47,38,150;collision,47,38,0;object,45,46,150;collision,45,46,2;object,48,45,152;collision,48,45,2;object,49,44,150;collision,49,44,2;object,49,43,151;collision,49,43,2;object,51,42,152"/>
+     <property name="power" value="18"/>
+     <property name="power_path" value="47,44,47,44"/>
+     <property name="requires_not" value="lb_explosive_detonated"/>
+@@ -365,11 +358,9 @@
+     <property name="shakycam" value="60"/>
+    </properties>
+   </object>
+-  <object name="mapmod=collision,45,43,1" type="on_load" x="1120" y="2240" width="128" height="160">
++  <object name="Persist Explosion" type="on_load" x="1120" y="2240" width="128" height="160">
+    <properties>
+-    <property name="# mapmod" value="collision,45,43,1"/>
+-    <property name="#mapmod" value="collision,45,43,1"/>
+-    <property name="mapmod" value="object,51,42,152"/>
++    <property name="mapmod" value="object,47,44,0;object,47,43,0;collision,47,43,2;object,47,42,0;collision,47,42,2;object,46,43,0;collision,46,43,2;object,46,44,0;collision,46,44,2;object,45,44,0;collision,45,44,2;object,46,42,0;collision,46,42,2;object,45,43,80;collision,45,43,1;object,47,41,80;object,45,42,68;collison,45,42,1;object,46,41,69;collison,46,41,1;object,45,41,76;collison,45,41,1;object,48,43,0;collision,48,43,0;object,48,44,0;collision,48,44,0;object,46,45,0;collision,46,45,0;object,49,40,0;collision,49,40,2;object,46,39,0;collision,46,39,2;object,48,40,150;collision,48,40,0;object,48,39,151;collision,48,39,0;collision,49,39,0;object,48,38,151;collision,48,38,0;object,49,37,152;collision,49,37,0;object,48,36,151;collision,48,36,0;object,49,35,152;collision,49,35,0;object,47,38,150;collision,47,38,0;object,45,46,150;collision,45,46,2;object,48,45,152;collision,48,45,2;object,49,44,150;collision,49,44,2;object,49,43,151;collision,49,43,2;object,51,42,152"/>
+     <property name="requires_status" value="lb_explosive_detonated"/>
+    </properties>
+   </object>
+diff --git a/tiled/living_bones/cave_of_living_bones3.tmx b/tiled/living_bones/cave_of_living_bones3.tmx
+index ef409b2718d0fab1a5bb6fb4416fc785e6c04a85..007821177e7cb5cca50f0739c6a04e318acb1406 100644
+--- a/tiled/living_bones/cave_of_living_bones3.tmx
++++ b/tiled/living_bones/cave_of_living_bones3.tmx
+@@ -1,5 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+ <map version="1.0" orientation="isometric" width="50" height="30" tilewidth="64" tileheight="32">
+  <properties>
+   <property name="music" value="cave_theme.ogg"/>
+@@ -123,7 +122,7 @@
+   <object name="Crate of Blasting Powder" type="run_once" x="192" y="192" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="mapmod" value="collision,6,6,0"/>
++    <property name="mapmod" value="collision,6,6,0;object,6,6,0"/>
+     <property name="set_status" value="lb_has_explosive"/>
+     <property name="tooltip" value="Crate of Blasting Powder"/>
+    </properties>

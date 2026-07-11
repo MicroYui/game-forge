@@ -1,0 +1,78 @@
+diff --git a/mods/living_bones/maps/brothers_lair_atrium.txt b/mods/living_bones/maps/brothers_lair_atrium.txt
+index 10c4ddbd4ecb3b62ce65b9320b31e185a6d62082..b57731aea5b617ec405b148fe9a59111cb110cb9 100644
+--- a/mods/living_bones/maps/brothers_lair_atrium.txt
++++ b/mods/living_bones/maps/brothers_lair_atrium.txt
+@@ -201,12 +201,7 @@ intermap=brothers_lair_wind_hall.txt,3,19
+ # Unset a lot of event variables
+ type=run_once
+ location=0,0,30,50
+-unset_status=lb_ice_attack
+-unset_status=lb_fire_attack
+-unset_status=lb_wind_attack
+-unset_status=lb_ice_looted
+-unset_status=lb_fire_looted
+-unset_status=lb_wind_looted
++unset_status=lb_ice_attack,lb_fire_attack,lb_wind_attack,lb_ice_looted,lb_fire_looted,lb_wind_looted
+ 
+ [enemy]
+ # Patrolling undead
+diff --git a/mods/living_bones/maps/brothers_lair_fire_hall.txt b/mods/living_bones/maps/brothers_lair_fire_hall.txt
+index bf6d46923367d9c213585ebb9ac53f681a1eded8..ec6ba79a731dbc6f5cdcbdcfe5957afda7126d20 100644
+--- a/mods/living_bones/maps/brothers_lair_fire_hall.txt
++++ b/mods/living_bones/maps/brothers_lair_fire_hall.txt
+@@ -341,8 +341,7 @@ hotspot=-16,-36,32,44
+ power=18
+ power_damage=20,25
+ power_path=21,60,21,60
+-requires_not=lb_fire_key
+-requires_not=lb_fire_looted
++requires_not=lb_fire_key,lb_fire_looted
+ tooltip=Runed Chest
+ 
+ [event]
+diff --git a/mods/living_bones/maps/brothers_lair_ice_hall.txt b/mods/living_bones/maps/brothers_lair_ice_hall.txt
+index 9d60350870c9ccaeab1910c6135ee5d1b7ea13ea..e0948b4b3f27ad2cae3b44eca8a9270d2d7dcdf7 100644
+--- a/mods/living_bones/maps/brothers_lair_ice_hall.txt
++++ b/mods/living_bones/maps/brothers_lair_ice_hall.txt
+@@ -434,10 +434,8 @@ loot=id,15,10,9100
+ mapmod=object,14,10,160
+ requires_item=9101
+ remove_item=9101
+-requires_not=lb_ice_spellbook
+-requires_not=lb_ice_looted
+-set_status=lb_ice_looted
+-set_status=lb_ice_spellbook
++requires_not=lb_ice_spellbook,lb_ice_looted
++set_status=lb_ice_looted,lb_ice_spellbook
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Runed Chest
+ unset_status=lb_ice_key
+diff --git a/mods/living_bones/maps/brothers_lair_sacrifice_room.txt b/mods/living_bones/maps/brothers_lair_sacrifice_room.txt
+index bf7c3bbe087575ae235ca0d9726be56674b8d46e..8488231c7666357657cf2bdc1d685d46fedff4fd 100644
+--- a/mods/living_bones/maps/brothers_lair_sacrifice_room.txt
++++ b/mods/living_bones/maps/brothers_lair_sacrifice_room.txt
+@@ -209,9 +209,7 @@ mapmod=collision,9,23,0
+ [event]
+ type=run_once
+ location=0,0,20,40
+-requires_status=lb_ice_defeated
+-requires_status=lb_fire_defeated
+-requires_status=lb_wind_defeated
++requires_status=lb_ice_defeated,lb_fire_defeated,lb_wind_defeated
+ set_status=lb_necromancers_defeated
+ 
+ [enemy]
+diff --git a/mods/living_bones/maps/brothers_lair_wind_hall.txt b/mods/living_bones/maps/brothers_lair_wind_hall.txt
+index ab08a5e866b68c770c16a955909556f5eec3ff5a..e0bd80c20dac4ad0bedc31d81ad57ecb4fa4dea0 100644
+--- a/mods/living_bones/maps/brothers_lair_wind_hall.txt
++++ b/mods/living_bones/maps/brothers_lair_wind_hall.txt
+@@ -422,8 +422,7 @@ hotspot=-16,-36,32,44
+ power=6
+ power_damage=20,25
+ power_path=31,7,hero
+-requires_not=lb_wind_key
+-requires_not=lb_wind_looted
++requires_not=lb_wind_key,lb_wind_looted
+ tooltip=Runed Chest
+ 
+ [enemygroup]

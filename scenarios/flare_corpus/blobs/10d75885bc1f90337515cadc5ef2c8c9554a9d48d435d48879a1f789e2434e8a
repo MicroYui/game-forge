@@ -1,0 +1,57 @@
+diff --git a/mods/alpha_demo/engine/elements.txt b/mods/alpha_demo/engine/elements.txt
+index 201214172eb735c1d89c4367665588f00eb49d77..85dbe92b772653b3612e3d36948681d3f756bcf2 100644
+--- a/mods/alpha_demo/engine/elements.txt
++++ b/mods/alpha_demo/engine/elements.txt
+@@ -1,7 +1,24 @@
+ [element]
+ id=fire
+-name=Fire Resistance
++name=Fire
+ 
+ [element]
+ id=ice
+-name=Ice Resistance
++name=Ice
++
++[element]
++id=air
++name=Air
++
++[element]
++id=earth
++name=Earth
++
++[element]
++id=light
++name=Light
++
++[element]
++id=shadow
++name=Shadow
++
+diff --git a/mods/alpha_demo/powers/categories/enemy.txt b/mods/alpha_demo/powers/categories/enemy.txt
+index 136359d66555a8e3a93a8266da324304fafe693e..eb2b7b7cc14624a7b07a687ac00007ec68074935 100644
+--- a/mods/alpha_demo/powers/categories/enemy.txt
++++ b/mods/alpha_demo/powers/categories/enemy.txt
+@@ -270,7 +270,7 @@ base_damage=ment
+ lifespan=800ms
+ radius=1.0
+ speed=16
+-trait_elemental=wind
++trait_elemental=air
+ trait_crits_impaired=50
+ post_power=126
+ wall_power=126
+diff --git a/mods/alpha_demo/powers/categories/magician.txt b/mods/alpha_demo/powers/categories/magician.txt
+index 1fabdfb2881f441c036cfcf92b65754cd05816fb..7511564fe25ac5c831709ad8283fd07be498f112 100644
+--- a/mods/alpha_demo/powers/categories/magician.txt
++++ b/mods/alpha_demo/powers/categories/magician.txt
+@@ -35,7 +35,7 @@ base_damage=ment
+ lifespan=800ms
+ radius=1.0
+ speed=16
+-trait_elemental=wind
++trait_elemental=air
+ trait_crits_impaired=50
+ post_power=126
+ wall_power=126

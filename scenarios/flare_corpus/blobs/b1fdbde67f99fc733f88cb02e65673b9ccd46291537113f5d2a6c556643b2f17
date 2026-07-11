@@ -1,0 +1,88 @@
+diff --git a/mods/empyrean_campaign/maps/family_crypt.txt b/mods/empyrean_campaign/maps/family_crypt.txt
+index 0e67f69f061b59a1ee2393da41b99ac926aaca6b..c577e91f8faab3eb07d01840b747ffeb4d1da959 100644
+--- a/mods/empyrean_campaign/maps/family_crypt.txt
++++ b/mods/empyrean_campaign/maps/family_crypt.txt
+@@ -256,6 +256,7 @@ type=on_trigger
+ location=31,38,2,1
+ hotspot=location
+ intermap=maps/lochport_cemetery.txt,48,46
++soundfx=soundfx/environment/stairs.ogg,0,0
+ tooltip=Lochport Cemetery
+ unset_status=emp_ardwen_chest
+ 
+diff --git a/mods/empyrean_campaign/maps/st_maria_1.txt b/mods/empyrean_campaign/maps/st_maria_1.txt
+index 1d9f147a810d29e9504c6ebe4ec418528c44ca79..00f8270f28909d7b0c86fe9968b914900d8ed043 100644
+--- a/mods/empyrean_campaign/maps/st_maria_1.txt
++++ b/mods/empyrean_campaign/maps/st_maria_1.txt
+@@ -245,6 +245,7 @@ type=on_trigger
+ location=38,68,2,2
+ hotspot=location
+ intermap=maps/lochport.txt,7,43
++soundfx=soundfx/door_open.ogg,0,0
+ tooltip=Lochport
+ 
+ [event]
+@@ -263,6 +264,7 @@ type=on_trigger
+ location=37,15,4,4
+ hotspot=location
+ intermap=maps/st_maria_2.txt,33,7
++soundfx=soundfx/environment/stairs.ogg,0,0
+ tooltip=St. Maria: Prison
+ 
+ [event]
+diff --git a/mods/empyrean_campaign/maps/st_maria_2.txt b/mods/empyrean_campaign/maps/st_maria_2.txt
+index d2f87033f7f3440c509ab202fc6d944ff9aca882..56d14d9a9324caf072065e642adfc6cc388252a3 100644
+--- a/mods/empyrean_campaign/maps/st_maria_2.txt
++++ b/mods/empyrean_campaign/maps/st_maria_2.txt
+@@ -245,6 +245,7 @@ type=on_trigger
+ location=32,6,2,1
+ hotspot=location
+ intermap=maps/st_maria_1.txt,39,14
++soundfx=soundfx/environment/stairs.ogg,0,0
+ tooltip=St. Maria: Mausoleum
+ 
+ [event]
+diff --git a/tiled/empyrean_campaign/family_crypt.tmx b/tiled/empyrean_campaign/family_crypt.tmx
+index de0c013a80494ce589316a8d611930af72973b21..70f63851352754a119b23d403dcd692f3d8145bd 100644
+--- a/tiled/empyrean_campaign/family_crypt.tmx
++++ b/tiled/empyrean_campaign/family_crypt.tmx
+@@ -263,6 +263,7 @@
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/lochport_cemetery.txt,48,46"/>
++    <property name="soundfx" value="soundfx/environment/stairs.ogg,0,0"/>
+     <property name="tooltip" value="Lochport Cemetery"/>
+     <property name="unset_status" value="emp_ardwen_chest"/>
+    </properties>
+diff --git a/tiled/empyrean_campaign/st_maria_1.tmx b/tiled/empyrean_campaign/st_maria_1.tmx
+index e3e8f901f73b824cd43baa0c541e25695f7be493..930d79b9b4c68fc5eac21e8d06947f0ab652031e 100644
+--- a/tiled/empyrean_campaign/st_maria_1.tmx
++++ b/tiled/empyrean_campaign/st_maria_1.tmx
+@@ -257,6 +257,7 @@
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/lochport.txt,7,43"/>
++    <property name="soundfx" value="soundfx/door_open.ogg,0,0"/>
+     <property name="tooltip" value="Lochport"/>
+    </properties>
+   </object>
+@@ -273,6 +274,7 @@
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/st_maria_2.txt,33,7"/>
++    <property name="soundfx" value="soundfx/environment/stairs.ogg,0,0"/>
+     <property name="tooltip" value="St. Maria: Prison"/>
+    </properties>
+   </object>
+diff --git a/tiled/empyrean_campaign/st_maria_2.tmx b/tiled/empyrean_campaign/st_maria_2.tmx
+index 9574808473ca1b3e18209a2f323d64968e5b0f3f..f45fe9742d4dba50b535f17eac7ec7c86442c7d7 100644
+--- a/tiled/empyrean_campaign/st_maria_2.tmx
++++ b/tiled/empyrean_campaign/st_maria_2.tmx
+@@ -257,6 +257,7 @@
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="intermap" value="maps/st_maria_1.txt,39,14"/>
++    <property name="soundfx" value="soundfx/environment/stairs.ogg,0,0"/>
+     <property name="tooltip" value="St. Maria: Mausoleum"/>
+    </properties>
+   </object>

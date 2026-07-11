@@ -1,0 +1,153 @@
+diff --git a/mods/empyrean_campaign/maps/hyperspace.txt b/mods/empyrean_campaign/maps/hyperspace.txt
+index 07807e017ef0c39df7eb50ff524153777b20c805..0f618f37b622252419f70bd1a0788eb204b0cb15 100644
+--- a/mods/empyrean_campaign/maps/hyperspace.txt
++++ b/mods/empyrean_campaign/maps/hyperspace.txt
+@@ -169,14 +169,14 @@ soundfx=soundfx/environment/teleporter.ogg,0,0
+ tooltip=Stonewood
+ 
+ [event]
+-# to Valverde Cemetery
++# to Lochport Cemetery
+ type=on_trigger
+ location=22,7,2,2
+ hotspot=location
+-intermap=maps/valverde_cemetery.txt,44,13
++intermap=maps/lochport_cemetery.txt,44,13
+ requires_status=emp_waypoint_2
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+-tooltip=Valverde Cemetery
++tooltip=Lochport Cemetery
+ 
+ [event]
+ # Wind sound
+diff --git a/mods/empyrean_campaign/maps/merrimead_swamp.txt b/mods/empyrean_campaign/maps/merrimead_swamp.txt
+index 616b8f93db10610ee7f753576f6e238e0d6250e2..f58981959b1f52fc122e0c249d2e352eeb1b73db 100644
+--- a/mods/empyrean_campaign/maps/merrimead_swamp.txt
++++ b/mods/empyrean_campaign/maps/merrimead_swamp.txt
+@@ -455,12 +455,12 @@ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+ 
+ [event]
+-# to Valverde Cemetery
++# to Lochport Cemetery
+ type=on_trigger
+ location=79,11,1,4
+ hotspot=location
+-intermap=maps/valverde_cemetery.txt,2,7
+-tooltip=Valverde Cemetery
++intermap=maps/lochport_cemetery.txt,2,7
++tooltip=Lochport Cemetery
+ 
+ [enemy]
+ type=dungeon
+diff --git a/tiled/empyrean_campaign/hyperspace.tmx b/tiled/empyrean_campaign/hyperspace.tmx
+index 801d337dca9633164a37fd110e4cc59d176125f6..aebf9ca5f1830dae31f9e8920ce7b9c023ab9478 100644
+--- a/tiled/empyrean_campaign/hyperspace.tmx
++++ b/tiled/empyrean_campaign/hyperspace.tmx
+@@ -5,28 +5,28 @@
+   <property name="tileset" value="tilesetdefs/tileset_dungeon.txt"/>
+   <property name="title" value="Hyperspace"/>
+  </properties>
+- <tileset firstgid="1" name="collision" tilewidth="64" tileheight="32">
++ <tileset firstgid="1" name="collision" tilewidth="64" tileheight="32" tilecount="15">
+   <image source="../dungeon/tiled_collision.png" width="960" height="32"/>
+  </tileset>
+- <tileset firstgid="16" name="dungeon" tilewidth="64" tileheight="128">
++ <tileset firstgid="16" name="dungeon" tilewidth="64" tileheight="128" tilecount="240">
+   <image source="../dungeon/tiled_dungeon.png" width="1024" height="1920"/>
+  </tileset>
+- <tileset firstgid="256" name="set_rules" tilewidth="64" tileheight="32">
++ <tileset firstgid="256" name="set_rules" tilewidth="64" tileheight="32" tilecount="8">
+   <image source="../dungeon/set_rules.png" width="128" height="128"/>
+  </tileset>
+- <tileset firstgid="264" name="tiled_dungeon_2x2" tilewidth="128" tileheight="64">
++ <tileset firstgid="264" name="tiled_dungeon_2x2" tilewidth="128" tileheight="64" tilecount="16">
+   <tileoffset x="0" y="16"/>
+   <image source="../dungeon/tiled_dungeon_2x2.png" width="512" height="256"/>
+  </tileset>
+- <tileset firstgid="280" name="door_left" tilewidth="64" tileheight="128">
++ <tileset firstgid="280" name="door_left" tilewidth="64" tileheight="128" tilecount="2">
+   <tileoffset x="-16" y="-8"/>
+   <image source="../dungeon/door_left.png" width="128" height="128"/>
+  </tileset>
+- <tileset firstgid="282" name="door_right" tilewidth="64" tileheight="128">
++ <tileset firstgid="282" name="door_right" tilewidth="64" tileheight="128" tilecount="2">
+   <tileoffset x="16" y="-8"/>
+   <image source="../dungeon/door_right.png" width="128" height="128"/>
+  </tileset>
+- <tileset firstgid="284" name="stairs" tilewidth="256" tileheight="256">
++ <tileset firstgid="284" name="stairs" tilewidth="256" tileheight="256" tilecount="4">
+   <tileoffset x="0" y="48"/>
+   <image source="../dungeon/stairs.png" width="1024" height="256"/>
+  </tileset>
+@@ -180,13 +180,13 @@
+     <property name="tooltip" value="Stonewood"/>
+    </properties>
+   </object>
+-  <object id="3" name="to Valverde Cemetery" type="on_trigger" x="704" y="224" width="64" height="64">
++  <object id="3" name="to Lochport Cemetery" type="on_trigger" x="704" y="224" width="64" height="64">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="intermap" value="maps/valverde_cemetery.txt,44,13"/>
++    <property name="intermap" value="maps/lochport_cemetery.txt,44,13"/>
+     <property name="requires_status" value="emp_waypoint_2"/>
+     <property name="soundfx" value="soundfx/environment/teleporter.ogg,0,0"/>
+-    <property name="tooltip" value="Valverde Cemetery"/>
++    <property name="tooltip" value="Lochport Cemetery"/>
+    </properties>
+   </object>
+   <object id="4" x="928" y="288" width="64" height="64"/>
+diff --git a/tiled/empyrean_campaign/merrimead_swamp.tmx b/tiled/empyrean_campaign/merrimead_swamp.tmx
+index e5d6e240452ac37a47d212da8147163e0a67edd4..ac6b3d99782869ba8f533ef4dd2fc7e48a28455a 100644
+--- a/tiled/empyrean_campaign/merrimead_swamp.tmx
++++ b/tiled/empyrean_campaign/merrimead_swamp.tmx
+@@ -5,27 +5,27 @@
+   <property name="tileset" value="tilesetdefs/tileset_grassland.txt"/>
+   <property name="title" value="Merrimead Swamp"/>
+  </properties>
+- <tileset firstgid="1" name="collision" tilewidth="64" tileheight="32">
++ <tileset firstgid="1" name="collision" tilewidth="64" tileheight="32" tilecount="15">
+   <image source="../grassland/tiled_collision.png" width="960" height="32"/>
+  </tileset>
+- <tileset firstgid="16" name="grassland" tilewidth="64" tileheight="128">
++ <tileset firstgid="16" name="grassland" tilewidth="64" tileheight="128" tilecount="128">
+   <image source="../grassland/grassland.png" width="1024" height="1024"/>
+  </tileset>
+- <tileset firstgid="144" name="water" tilewidth="64" tileheight="64">
++ <tileset firstgid="144" name="water" tilewidth="64" tileheight="64" tilecount="64">
+   <tileoffset x="0" y="32"/>
+   <image source="../grassland/grassland_water.png" width="1024" height="256"/>
+  </tileset>
+- <tileset firstgid="208" name="tall structures" tilewidth="64" tileheight="256">
++ <tileset firstgid="208" name="tall structures" tilewidth="64" tileheight="256" tilecount="32">
+   <image source="../grassland/grassland_structures.png" width="1024" height="512"/>
+  </tileset>
+- <tileset firstgid="240" name="trees" tilewidth="128" tileheight="256">
++ <tileset firstgid="240" name="trees" tilewidth="128" tileheight="256" tilecount="16">
+   <tileoffset x="-32" y="0"/>
+   <image source="../grassland/grassland_trees.png" width="1024" height="512"/>
+  </tileset>
+- <tileset firstgid="256" name="set_rules" tilewidth="64" tileheight="32">
++ <tileset firstgid="256" name="set_rules" tilewidth="64" tileheight="32" tilecount="8">
+   <image source="../grassland/set_rules.png" width="128" height="128"/>
+  </tileset>
+- <tileset firstgid="264" name="tiled_grassland_2x2" tilewidth="128" tileheight="64">
++ <tileset firstgid="264" name="tiled_grassland_2x2" tilewidth="128" tileheight="64" tilecount="32">
+   <tileoffset x="0" y="16"/>
+   <image source="../grassland/tiled_grassland_2x2.png" width="512" height="512"/>
+  </tileset>
+@@ -439,11 +439,11 @@
+     <property name="tooltip" value="Supplies"/>
+    </properties>
+   </object>
+-  <object id="47" name="to Valverde Cemetery" type="on_trigger" x="2528" y="352" width="32" height="128">
++  <object id="47" name="to Lochport Cemetery" type="on_trigger" x="2528" y="352" width="32" height="128">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="intermap" value="maps/valverde_cemetery.txt,2,7"/>
+-    <property name="tooltip" value="Valverde Cemetery"/>
++    <property name="intermap" value="maps/lochport_cemetery.txt,2,7"/>
++    <property name="tooltip" value="Lochport Cemetery"/>
+    </properties>
+   </object>
+  </objectgroup>

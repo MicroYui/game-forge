@@ -1,0 +1,288 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl2_krolan.txt b/mods/empyrean_campaign/enemies/lvl2_krolan.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d0f7bfe19c77d7d0a6eb66beabe8bfce04b126a5
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl2_krolan.txt
+@@ -0,0 +1,34 @@
++INCLUDE enemies/base/skeleton_weak.txt
++
++name=Krolan
++level=2
++categories=skeleton,undead,dungeon,krolan
++rarity=rare
++xp=5
++
++# combat stats
++hp=280
++speed=3
++turn_delay=400ms
++chance_pursue=10
++chance_melee_phys=10
++power_melee_phys=164
++
++accuracy=90
++avoidance=10
++poise=45
++
++dmg_melee_min=35
++dmg_melee_max=75
++cooldown=2200ms
++
++absorb_min=5
++absorb_max=10
++
++# quest key
++quest_loot=emp_krolan_init,emp_krolan_key,1000
++
++# loot
++loot=loot/level_2.txt
++
++
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..aecc1eda5b0100753c1ecd69bfd653911f67c2b4
+--- /dev/null
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -0,0 +1,16 @@
++[item]
++id=1000
++name=Krolan's Key
++INCLUDE items/base/misc/key.txt
++quality=unique
++item_type=quest
++pickup_status=emp_krolan_key
++
++[item]
++id=1001
++name=Krolan's Emerald
++INCLUDE items/base/gems/emerald.txt
++quality=unique
++item_type=quest
++pickup_status=emp_krolan_emerald
++
+diff --git a/mods/empyrean_campaign/items/items.txt b/mods/empyrean_campaign/items/items.txt
+index cfa01264ed5b97dbf6bb435be96b1245ee094287..b8f98ad9285001c7189fecd318c891f24fe13533 100644
+--- a/mods/empyrean_campaign/items/items.txt
++++ b/mods/empyrean_campaign/items/items.txt
+@@ -26,3 +26,5 @@ INCLUDE items/categories/level_2.txt
+ INCLUDE items/categories/level_3.txt
+ INCLUDE items/categories/level_4.txt
+ 
++# Quest items (starts at 1000)
++INCLUDE items/categories/quest.txt
+diff --git a/mods/empyrean_campaign/maps/perdition_mines.txt b/mods/empyrean_campaign/maps/perdition_mines.txt
+index caa9850409c5045a236013ddc1289d7125471592..6c2aaae487e2f7ecca98b9554758019dee647f51 100644
+--- a/mods/empyrean_campaign/maps/perdition_mines.txt
++++ b/mods/empyrean_campaign/maps/perdition_mines.txt
+@@ -147,6 +147,45 @@ hotspot=location
+ intermap=maps/salted_field.txt,7,13
+ tooltip=Salted Field
+ 
++[event]
++# Krolan chest (no key)
++type=on_trigger
++location=1,12,1,1
++hotspot=4,16,1,1
++requires_not_status=emp_krolan_key
++requires_status=emp_krolan_init
++tooltip=Krolan's Chest
++
++[event]
++# Krolan chest (ready to unlock)
++type=on_trigger
++location=1,14,1,1
++hotspot=4,16,1,1
++loot=1001,fixed,1
++mapmod=object,4,16,176
++repeat=false
++requires_not_status=emp_krolan_emerald
++requires_status=emp_krolan_init,emp_krolan_key
++tooltip=Krolan's Chest
++
++[event]
++# Treasure chest (no quest)
++type=on_trigger
++location=4,16,1,1
++hotspot=location
++loot=loot/level_2.txt
++mapmod=object,4,16,176
++repeat=false
++requires_not_status=emp_krolan_init
++tooltip=Treasure Chest
++
++[event]
++# Krolan chest (opened)
++type=on_load
++location=1,10,1,1
++mapmod=object,4,16,176
++requires_status=emp_krolan_init,emp_krolan_key,emp_krolan_emerald
++
+ [enemy]
+ type=undead
+ location=34,5,9,9
+@@ -177,3 +216,14 @@ location=20,14,17,7
+ level=1
+ number=4,5
+ 
++[enemy]
++type=krolan
++location=5,15,1,1
++number=1
++
++[enemy]
++type=undead
++location=10,12,6,5
++level=1
++number=2,3
++
+diff --git a/mods/empyrean_campaign/npcs/udana.txt b/mods/empyrean_campaign/npcs/udana.txt
+index 0d5def4274d18e1b8061aba4abe4439cc4dbcf12..520779d8481c991d1d6b48defd5d76d385402793 100644
+--- a/mods/empyrean_campaign/npcs/udana.txt
++++ b/mods/empyrean_campaign/npcs/udana.txt
+@@ -15,4 +15,45 @@ vox_intro=soundfx/npcs/female_merchant_02.ogg
+ vox_intro=soundfx/npcs/female_merchant_03.ogg
+ vox_intro=soundfx/npcs/female_merchant_04.ogg
+ 
+-#talker=true
++talker=true
++
++[dialog]
++topic=Talk
++requires_not_status=emp_krolan_init
++requires_not_status=emp_krolan_finish
++her=Greetings stranger. It's not often that we have people come here from the west.
++her=I see that you're carrying a weapon. Would you be interested in helping us?
++you=Go on.
++her=One of our encampment's residents, Krolan, works in the nearby mines. He supplies me with various gems that I craft into jewelery.
++her=Krolan has not returned in some time, and I am starting to think the worst.
++her=Could you please travel to the mines and look for Krolan? I will find some way to reward you for your trouble.
++set_status=emp_krolan_init
++
++[dialog]
++topic=Krolan
++requires_status=emp_krolan_init
++requires_not_status=emp_krolan_emerald
++her=Please hurry to find Krolan. The Perdition Mines are located near the Salted Field.
++
++[dialog]
++topic=Krolan
++requires_status=emp_krolan_init
++requires_status=emp_krolan_emerald
++you=I have found Krolan, but he was no longer of this world.
++her=This is terrible news. Our camp is already small, so this is a devastating loss.
++you=If it's any solace, I have his key and this emerald. Mementos to remember him by.
++her=The key is enough of a memento. For your invaluable help, I can at least make you a ring with this emerald.
++remove_item=1000
++remove_item=1001
++reward_xp=30
++reward_item=51,1
++set_status=emp_krolan_finish
++unset_status=emp_krolan_init
++unset_status=emp_krolan_key
++unset_status=emp_krolan_emerald
++
++[dialog]
++topic=Talk
++requires_status=emp_krolan_finish
++her=Thank you again for your help.
++
+diff --git a/mods/empyrean_campaign/quests/exile.txt b/mods/empyrean_campaign/quests/exile.txt
+deleted file mode 100644
+index 93adb6bc812a0abe636828f2386af69255b870ab..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/quests/exile.txt
++++ /dev/null
+@@ -1,4 +0,0 @@
+-[quest]
+-requires_status=ore_search
+-requires_not_status=ore_found
+-quest_text=Search The Breach beyond the Abandoned Mineshaft for ore. Udana in Exile can use it to craft better equipment.
+diff --git a/mods/empyrean_campaign/quests/krolan.txt b/mods/empyrean_campaign/quests/krolan.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..ed070f4d17f28e998079ab1300eba635657016a9
+--- /dev/null
++++ b/mods/empyrean_campaign/quests/krolan.txt
+@@ -0,0 +1,14 @@
++[quest]
++requires_status=emp_krolan_init
++requires_not_status=emp_krolan_key
++quest_text=Travel to the Perdition Mines and look for Krolan.
++
++[quest]
++requires_status=emp_krolan_key
++requires_not_status=emp_krolan_emerald
++quest_text=Use Krolan's key to search his chest.
++
++[quest]
++requires_status=emp_krolan_emerald
++requires_not_status=emp_krolan_finish
++quest_text=Return to Udana and inform her of Krolan's death.
+diff --git a/tiled/empyrean_campaign/perdition_mines.tmx b/tiled/empyrean_campaign/perdition_mines.tmx
+index e0cd15b69b33c9c1f65de7a02ba4d38df42f9ba0..e25bf8143eeb79161be1b4fa6ec99ec1b8dd3152 100644
+--- a/tiled/empyrean_campaign/perdition_mines.tmx
++++ b/tiled/empyrean_campaign/perdition_mines.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="56" height="38" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="7">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="56" height="38" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="14">
+  <properties>
+   <property name="music" value="music/cave_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_cave.txt"/>
+@@ -148,6 +148,41 @@
+     <property name="tooltip" value="Salted Field"/>
+    </properties>
+   </object>
++  <object id="9" name="Krolan chest (no key)" type="on_trigger" x="32" y="384" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="4,16,1,1"/>
++    <property name="requires_not_status" value="emp_krolan_key"/>
++    <property name="requires_status" value="emp_krolan_init"/>
++    <property name="tooltip" value="Krolan's Chest"/>
++   </properties>
++  </object>
++  <object id="10" name="Krolan chest (ready to unlock)" type="on_trigger" x="32" y="448" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="4,16,1,1"/>
++    <property name="loot" value="1001,fixed,1"/>
++    <property name="mapmod" value="object,4,16,176"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_krolan_emerald"/>
++    <property name="requires_status" value="emp_krolan_init,emp_krolan_key"/>
++    <property name="tooltip" value="Krolan's Chest"/>
++   </properties>
++  </object>
++  <object id="11" name="Treasure chest (no quest)" type="on_trigger" x="128" y="512" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="loot/level_2.txt"/>
++    <property name="mapmod" value="object,4,16,176"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_krolan_init"/>
++    <property name="tooltip" value="Treasure Chest"/>
++   </properties>
++  </object>
++  <object id="13" name="Krolan chest (opened)" type="on_load" x="32" y="320" width="32" height="32">
++   <properties>
++    <property name="mapmod" value="object,4,16,176"/>
++    <property name="requires_status" value="emp_krolan_init,emp_krolan_key,emp_krolan_emerald"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="enemy">
+   <object id="2" type="undead" x="1088" y="160" width="288" height="288">
+@@ -180,5 +215,16 @@
+     <property name="number" value="4,5"/>
+    </properties>
+   </object>
++  <object id="7" type="krolan" x="160" y="480" width="32" height="32">
++   <properties>
++    <property name="number" value="1"/>
++   </properties>
++  </object>
++  <object id="8" type="undead" x="320" y="384" width="192" height="160">
++   <properties>
++    <property name="level" value="1"/>
++    <property name="number" value="2,3"/>
++   </properties>
++  </object>
+  </objectgroup>
+ </map>

@@ -1,0 +1,741 @@
+diff --git a/mods/fantasycore/enemies/antlion.txt b/mods/fantasycore/enemies/antlion.txt
+index 2eaf0e2b14d220b084b9c30ce4bc7524b729b37b..866d372572eb18a896281ecb64d945450f32ee60 100644
+--- a/mods/fantasycore/enemies/antlion.txt
++++ b/mods/fantasycore/enemies/antlion.txt
+@@ -22,14 +22,18 @@ power_beacon=132
+ 
+ accuracy=72
+ avoidance=22
+-absorb_min=10
+-absorb_max=10
++absorb_min=12
++absorb_max=12
+ 
+ dmg_melee_min=10
+ dmg_melee_max=35
+ cooldown=10
+ 
+ # loot
+-loot=currency,33
++loot=currency,15,4,16
++
++# healing pot, mana pot
++loot=1,3
++loot=2,3
+ 
+ 
+diff --git a/mods/fantasycore/enemies/antlion_blinker.txt b/mods/fantasycore/enemies/antlion_blinker.txt
+index 627e061e080017f690236147c0afc2ccbd02db5e..3756b88d00687bc470dc603c0fae8cc1bce969a2 100644
+--- a/mods/fantasycore/enemies/antlion_blinker.txt
++++ b/mods/fantasycore/enemies/antlion_blinker.txt
+@@ -35,11 +35,16 @@ dmg_melee_min=5
+ dmg_melee_max=40
+ dmg_ment_min=10
+ dmg_ment_max=30
+-absorb_min=10
++absorb_min=15
+ absorb_max=15
+ 
+ cooldown=10
+ cooldown_melee_ment=45
+ 
+ # loot
+-loot=currency,33
++loot=currency,15,5,20
++
++# healing pot, mana pot
++loot=1,3
++loot=2,3
++
+diff --git a/mods/fantasycore/enemies/antlion_burster.txt b/mods/fantasycore/enemies/antlion_burster.txt
+index 7d0e5cbcdc4fc8badc0aa68abefd83301541d113..12e49db08dbd2a5ed6737fbc3743b6908b3c0852 100644
+--- a/mods/fantasycore/enemies/antlion_burster.txt
++++ b/mods/fantasycore/enemies/antlion_burster.txt
+@@ -11,7 +11,7 @@ animations=fire_ant
+ # antlions have low HP and high armor for their level
+ hp=130
+ speed=16
+-dspeed=9
++dspeed=11
+ melee_range=76
+ threat_range=512
+ turn_delay=4
+@@ -27,12 +27,19 @@ avoidance=25
+ 
+ dmg_ment_min=150
+ dmg_ment_max=200
+-absorb_min=25
+-absorb_max=25
++absorb_min=24
++absorb_max=24
+ vulnerable_fire=100
+ vulnerable_ice=200
+ 
+ cooldown=25
+ 
+ # loot
+-loot=currency,33
++loot=currency,15,8,32
++
++# healing pot, mana pot, ring of fire, ruby
++loot=1,3
++loot=2,3
++
++loot=109,1
++loot=5,1
+diff --git a/mods/fantasycore/enemies/antlion_freezer.txt b/mods/fantasycore/enemies/antlion_freezer.txt
+index ba63a203de9affd4dfda3723d833e9a3466cc234..4b8bb7cd62261f4ecb573de42df5964467edd5ba 100644
+--- a/mods/fantasycore/enemies/antlion_freezer.txt
++++ b/mods/fantasycore/enemies/antlion_freezer.txt
+@@ -29,12 +29,19 @@ dmg_melee_min=5
+ dmg_melee_max=30
+ dmg_ment_min=20
+ dmg_ment_max=50
+-absorb_min=5
+-absorb_max=10
++absorb_min=18
++absorb_max=18
+ vulnerable_fire=200
+ vulnerable_ice=50
+ 
+ cooldown=25
+ 
+ # loot
+-loot=currency,33
++loot=currency,15,7,28
++
++# healing pot, mana pot, ring of ice, emerald
++loot=1,3
++loot=2,3
++
++loot=109,1
++loot=4,1
+diff --git a/mods/fantasycore/enemies/antlion_hatchling.txt b/mods/fantasycore/enemies/antlion_hatchling.txt
+index c3d02dd7e0360168a50d0e7976b6e31bf7fde5aa..e5a9191ffe096eebe194d604e619ab2061d779cd 100644
+--- a/mods/fantasycore/enemies/antlion_hatchling.txt
++++ b/mods/fantasycore/enemies/antlion_hatchling.txt
+@@ -25,6 +25,8 @@ avoidance=25
+ dmg_melee_min=5
+ dmg_melee_max=20
+ cooldown=25
++absorb_min=9
++absorb_max=9
+ 
+ # loot
+-loot=currency,33
++loot=currency,10,3,12
+diff --git a/mods/fantasycore/enemies/antlion_slasher.txt b/mods/fantasycore/enemies/antlion_slasher.txt
+index 7d447cf1456b831a5201d0a75372b589a2589089..50758792b9f7b82581accb9409142e1124e787e2 100644
+--- a/mods/fantasycore/enemies/antlion_slasher.txt
++++ b/mods/fantasycore/enemies/antlion_slasher.txt
+@@ -24,11 +24,16 @@ avoidance=34
+ 
+ dmg_melee_min=15
+ dmg_melee_max=45
+-absorb_min=5
+-absorb_max=10
++absorb_min=18
++absorb_max=18
+ 
+ cooldown=10
+ 
+ # loot
+-loot=currency,33
++loot=currency,15,6,24
++
++# healing pot, mana pot, sapphire
++loot=1,3
++loot=2,3
++loot=3,1
+ 
+diff --git a/mods/fantasycore/enemies/antlion_spitter.txt b/mods/fantasycore/enemies/antlion_spitter.txt
+index 1e1889d2c0b927e3085ae80bcb73ad9188f2c22a..ab9859df7253bab740e110aab047b4522875ee4e 100644
+--- a/mods/fantasycore/enemies/antlion_spitter.txt
++++ b/mods/fantasycore/enemies/antlion_spitter.txt
+@@ -28,13 +28,19 @@ dmg_melee_min=10
+ dmg_melee_max=30
+ dmg_ment_min=20
+ dmg_ment_max=50
+-absorb_min=5
+-absorb_max=10
++absorb_min=21
++absorb_max=21
+ vulnerable_fire=50
+ vulnerable_ice=200
+ 
+ cooldown=25
+ 
+ # loot
+-loot=currency,33
++loot=currency,15,7,28
++
++# healing pot, mana pot, ring of fire, emerald
++loot=1,3
++loot=2,3
++loot=109,1
++loot=4,1
+ 
+diff --git a/mods/fantasycore/enemies/cursed_grave.txt b/mods/fantasycore/enemies/cursed_grave.txt
+index 35645f9badb8f8a672d6ea242d2a6108295ed0c9..12e59fdd6a80de10c3b9f3cef1bfd3b98f54aa45 100644
+--- a/mods/fantasycore/enemies/cursed_grave.txt
++++ b/mods/fantasycore/enemies/cursed_grave.txt
+@@ -26,7 +26,25 @@ avoidance=0
+ cooldown=90
+ 
+ # loot
+-loot=currency,33
+-
+-
+-
++loot=currency,75,6,24
++
++# lots of random base gear
++loot=1,20
++loot=2,20
++loot=32,20
++loot=40,20
++loot=48,20
++loot=64,20
++loot=65,20
++loot=66,20
++loot=67,20
++
++loot=33,3
++loot=41,3
++loot=49,3
++loot=57,3
++loot=80,3
++loot=81,3
++loot=82,3
++loot=83,3
++loot=84,3
+diff --git a/mods/fantasycore/enemies/goblin.txt b/mods/fantasycore/enemies/goblin.txt
+index 8234a9f6f2760ebbaf598c086064f137a72a6d50..e33cf14cbfac8f822eaf1010c88e7b128ea482ce 100644
+--- a/mods/fantasycore/enemies/goblin.txt
++++ b/mods/fantasycore/enemies/goblin.txt
+@@ -28,5 +28,8 @@ dmg_melee_max=15
+ cooldown=30
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,1,4
++# dagger
++loot=32,5
++
+ 
+diff --git a/mods/fantasycore/enemies/goblin_charger.txt b/mods/fantasycore/enemies/goblin_charger.txt
+index 28d3b9ca8d69a9880210fdf1a2e1c68d61057974..3aefb17c6e47b492730a84a029ed152b1bcf670f 100644
+--- a/mods/fantasycore/enemies/goblin_charger.txt
++++ b/mods/fantasycore/enemies/goblin_charger.txt
+@@ -31,8 +31,15 @@ dmg_melee_max=20
+ dmg_ment_min=5
+ dmg_ment_max=15
+ cooldown=20
++absorb_min=3
++absorb_max=3
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,2,8
++# dagger, leather gloves, leather boots, healing pot
++loot=32,5
++loot=82,5
++loot=84,5
++loot,1,5
+ 
+ 
+diff --git a/mods/fantasycore/enemies/goblin_charger_elite.txt b/mods/fantasycore/enemies/goblin_charger_elite.txt
+index af6eb63f54e8734e9ca978620b8ff196478e789c..41ad0db3c8d9a1eba352910adb10b368392d5560 100644
+--- a/mods/fantasycore/enemies/goblin_charger_elite.txt
++++ b/mods/fantasycore/enemies/goblin_charger_elite.txt
+@@ -30,13 +30,23 @@ dmg_melee_min=10
+ dmg_melee_max=30
+ dmg_ment_min=10
+ dmg_ment_max=30
+-absorb_min=5
+-absorb_max=10
++absorb_min=9
++absorb_max=9
+ cooldown=15
+ 
+ # loot
+-loot=currency,75
+-
+-
++loot=currency,75,4,16
++
++# dagger, leather gloves, leather boots, healing pot, mana pot
++loot=32,20
++loot=82,20
++loot=84,20
++loot,1,20
++loot,2,20
++
++# shortsword, boots of speed, fencing gloves
++loot,33,1
++loot=104,1
++loot=118,1
+ 
+ 
+diff --git a/mods/fantasycore/enemies/goblin_shaman.txt b/mods/fantasycore/enemies/goblin_shaman.txt
+index a1f49cf56f2c71deb9514936276c70b5e7a88ef5..ec5adf76de2550ffa5a5ae6da4a813475f7973a2 100644
+--- a/mods/fantasycore/enemies/goblin_shaman.txt
++++ b/mods/fantasycore/enemies/goblin_shaman.txt
+@@ -31,12 +31,20 @@ avoidance=34
+ 
+ dmg_ment_min=15
+ dmg_ment_max=40
+-absorb_min=5
+-absorb_max=5
++absorb_min=9
++absorb_max=9
+ cooldown=25
+ cooldown_ranged_phys=90
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,4,16
+ 
++# wand, mana potion
++loot=40,5
++loot=2,5
++
++# rod, mage gloves, mage boots
++loot=41,1
++loot=74,1
++loot=76,1
+ 
+diff --git a/mods/fantasycore/enemies/goblin_spearman.txt b/mods/fantasycore/enemies/goblin_spearman.txt
+index c3337984f6935dcc720ad666054576f6d6f1013b..44ddf179904497056daf38b44e7aea98ac557e49 100644
+--- a/mods/fantasycore/enemies/goblin_spearman.txt
++++ b/mods/fantasycore/enemies/goblin_spearman.txt
+@@ -30,11 +30,20 @@ dmg_melee_min=5
+ dmg_melee_max=25
+ dmg_ranged_min=10
+ dmg_ranged_max=35
+-absorb_min=0
+-absorb_max=5
++absorb_min=6
++absorb_max=6
+ cooldown=25
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,3,12
++
++# slingshot, leather chest, leather pants, health pot
++loot=48,5
++loot=81,5
++loot=83,5
++loot,1,5
++
++# short bow
++loot=49,1
+ 
+ 
+diff --git a/mods/fantasycore/enemies/goblin_spearman_elite.txt b/mods/fantasycore/enemies/goblin_spearman_elite.txt
+index 0d07c548df965d0eaadb2178020b85c2d544ab1d..a0327af759f0a3aa1e09222ba8ebcb944893f53e 100644
+--- a/mods/fantasycore/enemies/goblin_spearman_elite.txt
++++ b/mods/fantasycore/enemies/goblin_spearman_elite.txt
+@@ -30,10 +30,21 @@ dmg_melee_min=5
+ dmg_melee_max=25
+ dmg_ranged_min=15
+ dmg_ranged_max=40
+-absorb_min=5
+-absorb_max=5
++absorb_min=12
++absorb_max=12
+ cooldown=25
+ 
+ # loot
+-loot=currency,75
++loot=currency,75,6,12
+ 
++# slingshot, leather chest, leather pants, health pot, mana pot
++loot=48,20
++loot=81,20
++loot=83,20
++loot,1,20
++loot=2,20
++
++# short bow, silent tabi, thief gloves, 
++loot=49,1
++loot=114,1
++loot=105,1
+diff --git a/mods/fantasycore/enemies/minotaur.txt b/mods/fantasycore/enemies/minotaur.txt
+index e22aa1543278bab1887c0ed1e619a3c6fd3a6f42..3a5060cb72c518b89003c29fe1f181fa06de3234 100644
+--- a/mods/fantasycore/enemies/minotaur.txt
++++ b/mods/fantasycore/enemies/minotaur.txt
+@@ -33,10 +33,16 @@ dmg_melee_min=20
+ dmg_melee_max=55
+ dmg_ment_min=10
+ dmg_ment_max=30
+-absorb_min=5
+-absorb_max=10
++absorb_min=21
++absorb_max=21
+ cooldown=20
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,8,32
+ 
++# healing potion
++loot=1,5
++
++# Bear Figurine, Ouroboros Ring
++loot=119,1
++loot=112,1
+diff --git a/mods/fantasycore/enemies/skeletal_archer.txt b/mods/fantasycore/enemies/skeletal_archer.txt
+index 6ab1462d6b888bfcdb31283e72373909a607daa5..af7de3a82ab2a52c314fc90d87d7167ca1ec4a40 100644
+--- a/mods/fantasycore/enemies/skeletal_archer.txt
++++ b/mods/fantasycore/enemies/skeletal_archer.txt
+@@ -31,9 +31,17 @@ dmg_melee_min=5
+ dmg_melee_max=25
+ dmg_ranged_min=10
+ dmg_ranged_max=30
++absorb_min=6
++absorb_max=6
+ 
+ cooldown=30
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,3,12
++
++# short bow, leather hood, health pot
++loot=49,5
++loot=80,5
++loot=1,5
++
+ 
+diff --git a/mods/fantasycore/enemies/skeletal_knight.txt b/mods/fantasycore/enemies/skeletal_knight.txt
+index 94c88a1eddd1a4174919c8c0e10939869f630f30..c733c588b0ca206621b938597901a31a14783211 100644
+--- a/mods/fantasycore/enemies/skeletal_knight.txt
++++ b/mods/fantasycore/enemies/skeletal_knight.txt
+@@ -36,13 +36,28 @@ dmg_melee_max=65
+ dmg_ment_min=30
+ dmg_ment_max=45
+ 
+-absorb_min=15
+-absorb_max=15
++absorb_min=21
++absorb_max=21
+ 
+ vulnerable_fire=150
+ vulnerable_ice=75
+ cooldown=10
+ 
+ # loot
+-loot=currency,33
+-
++loot=currency,33,8,32
++
++# long sword, plate armor, crest shield, health pot
++loot=34,5
++loot=96,5
++loot=96,5
++loot=98,5
++loot=99,5
++loot=100,5
++loot=58,5
++
++# turtle figurine, ring of regen, great sword, tower shield, emerald
++loot=112,1
++loot=107,1
++loot=35,1
++loot=59,1
++loot=4,1
+diff --git a/mods/fantasycore/enemies/skeletal_mage.txt b/mods/fantasycore/enemies/skeletal_mage.txt
+index 2521b87f735371b4cd2f50ea0fa733300bef89cf..c8bf779b9bb899308dd6cbf9d2816edabb028140 100644
+--- a/mods/fantasycore/enemies/skeletal_mage.txt
++++ b/mods/fantasycore/enemies/skeletal_mage.txt
+@@ -27,6 +27,8 @@ power_beacon=132
+ 
+ accuracy=78
+ avoidance=28
++absorb_min=9
++absorb_max=9
+ 
+ dmg_melee_min=5
+ dmg_melee_max=25
+@@ -38,5 +40,16 @@ vulnerable_ice=50
+ cooldown=30
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,4,16
++
++# rod, mana pot
++loot=41,5
++loot=2,5
++
++# mage set
++loot=72,1
++loot=73,1
++loot=74,1
++loot=75,1
++loot=76,1
+ 
+diff --git a/mods/fantasycore/enemies/skeletal_occultist.txt b/mods/fantasycore/enemies/skeletal_occultist.txt
+index bcf9eb94c2ba2809731441dc63695d0507dbdf6c..d1b3f8bac0ca4793aa156a4c9d87e53871ac43e9 100644
+--- a/mods/fantasycore/enemies/skeletal_occultist.txt
++++ b/mods/fantasycore/enemies/skeletal_occultist.txt
+@@ -34,11 +34,24 @@ dmg_melee_min=15
+ dmg_melee_max=45
+ dmg_ment_min=20
+ dmg_ment_max=50
++absorb_min=18
++absorb_max=18
+ 
+ vulnerable_fire=200
+ vulnerable_ice=50
+ cooldown=15
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,7,28
++
++# staff, mana pot
++loot=42,5
++loot=2,5
++
++# ring of concentration, owl figurine, sapphire, sage mantle, sage frock
++loot=108,1
++loot=120,1
++loot=3,1
++loot=123,1
++loot=124,1
+ 
+diff --git a/mods/fantasycore/enemies/skeletal_sniper.txt b/mods/fantasycore/enemies/skeletal_sniper.txt
+index a37dcaba7c89d321c0e10d8249efd8a04665fc82..67bf5f90a7f2ba5891e9aed785683f4e979082a7 100644
+--- a/mods/fantasycore/enemies/skeletal_sniper.txt
++++ b/mods/fantasycore/enemies/skeletal_sniper.txt
+@@ -35,9 +35,21 @@ dmg_melee_min=5
+ dmg_melee_max=25
+ dmg_ranged_min=15
+ dmg_ranged_max=45
++absorb_min=15
++absorb_max=15
+ 
+ cooldown=15
+ cooldown_ranged_ment=45
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,6,24
++
++# long bow, chain coif, health pot
++loot=50,5
++loot=88,5
++loot=1,5
++
++# cat figurine, relic hunter's ring
++loot=121,1
++loot=113,1
++
+diff --git a/mods/fantasycore/enemies/skeletal_warrior.txt b/mods/fantasycore/enemies/skeletal_warrior.txt
+index 32c1c3e65f642aeff416b672f17949ce06f4f7f8..5184e690b9cb524d35216406499520ec9019d0ff 100644
+--- a/mods/fantasycore/enemies/skeletal_warrior.txt
++++ b/mods/fantasycore/enemies/skeletal_warrior.txt
+@@ -38,12 +38,28 @@ dmg_melee_max=40
+ dmg_ment_min=25
+ dmg_ment_max=60
+ 
+-absorb_min=10
+-absorb_max=10
++absorb_min=12
++absorb_max=12
+ 
+ vulnerable_fire=150
+ vulnerable_ice=75
+ cooldown=20
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,5,20
++
++# shortsword, chain armor, iron buckler, health pot
++loot=33,5
++loot=89,5
++loot=90,5
++loot=91,5
++loot=92,5
++loot=57,5
++loot=1,5
++
++# blood gear, long sword, crest shield, duelist guants
++loot=116,1
++loot=117,1
++loot=34,1
++loot=58,1
++loot=115,1
+diff --git a/mods/fantasycore/enemies/skeleton.txt b/mods/fantasycore/enemies/skeleton.txt
+index 2341006a33dcae0cd9e522231e8fb2ee435f8f60..f86e25938c02d685eb5d9bf4897354349525cb57 100644
+--- a/mods/fantasycore/enemies/skeleton.txt
++++ b/mods/fantasycore/enemies/skeleton.txt
+@@ -27,7 +27,14 @@ avoidance=25
+ dmg_melee_min=5
+ dmg_melee_max=25
+ cooldown=25
++absorb_min=3
++absorb_max=3
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,2,8
++
++# dagger, wood buckler, health pot
++loot=32,5
++loot=56,5
++loot,1,5
+ 
+diff --git a/mods/fantasycore/enemies/wyvern.txt b/mods/fantasycore/enemies/wyvern.txt
+index 30136438a8c6dce98061657dc7e242ff83cdb75b..ace5853a87d15f0992a7fb3c3c63b6ee514f2a26 100644
+--- a/mods/fantasycore/enemies/wyvern.txt
++++ b/mods/fantasycore/enemies/wyvern.txt
+@@ -35,9 +35,12 @@ dmg_melee_min=5
+ dmg_melee_max=25
+ dmg_ment_min=10
+ dmg_ment_max=30
++absorb_min=6
++absorb_max=6
++
+ cooldown=30
+ cooldown_ranged_ment=90
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,3,12
+ 
+diff --git a/mods/fantasycore/enemies/wyvern_adult.txt b/mods/fantasycore/enemies/wyvern_adult.txt
+index c33ffc63156491bceca8636b627754a97ad89ae7..a3880a06a5a5ab9eb736173929979de79d1ebae5 100644
+--- a/mods/fantasycore/enemies/wyvern_adult.txt
++++ b/mods/fantasycore/enemies/wyvern_adult.txt
+@@ -35,9 +35,12 @@ dmg_melee_min=20
+ dmg_melee_max=40
+ dmg_ment_min=30
+ dmg_ment_max=60
++absorb_min=15
++absorb_max=15
++
+ cooldown=30
+ cooldown_ranged_ment=90
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,6,24
+ 
+diff --git a/mods/fantasycore/enemies/zombie.txt b/mods/fantasycore/enemies/zombie.txt
+index 284ec5700a9e78d45988f55fc9029cad08309e4f..d04ce4544436892d0185eb5d1d2bedc64cc4be66 100644
+--- a/mods/fantasycore/enemies/zombie.txt
++++ b/mods/fantasycore/enemies/zombie.txt
+@@ -30,9 +30,18 @@ dmg_melee_min=5
+ dmg_melee_max=25
+ dmg_ment_min=15
+ dmg_ment_max=30
++absorb_min=3
++absorb_max=3
++
+ cooldown=20
+ 
+ # loot
+-loot=currency,33
+-
++loot=currency,33,2,8
++
++# cloth set, healing pot
++loot=64,5
++loot=65,5
++loot=66,5
++loot=67,5
++loot,1,5
+ 
+diff --git a/mods/fantasycore/enemies/zombie_bloodthirsty.txt b/mods/fantasycore/enemies/zombie_bloodthirsty.txt
+index b0445f577e522bfd64f6cc664b3bdbef245844e5..7d0bfef19f65ec167c2913b302f3a2d3a76e98c5 100644
+--- a/mods/fantasycore/enemies/zombie_bloodthirsty.txt
++++ b/mods/fantasycore/enemies/zombie_bloodthirsty.txt
+@@ -30,7 +30,19 @@ dmg_melee_min=20
+ dmg_melee_max=50
+ dmg_ment_min=20
+ dmg_ment_max=50
++absorb_min=12
++absorb_max=12
++
+ cooldown=15
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,5,20
++
++# health pot
++loot=1,5
++
++# blood gear, ring of regen
++loot=116,1
++loot=117,1
++loot=107,1
++
+diff --git a/mods/fantasycore/enemies/zombie_brute.txt b/mods/fantasycore/enemies/zombie_brute.txt
+index f92bc99e1efe9bbdf9fa9bf9e409e02f9d33a59c..3b2d8903de61fe4a99dfb92b0b43db0f255b26a2 100644
+--- a/mods/fantasycore/enemies/zombie_brute.txt
++++ b/mods/fantasycore/enemies/zombie_brute.txt
+@@ -30,9 +30,15 @@ dmg_melee_min=20
+ dmg_melee_max=30
+ dmg_ment_min=25
+ dmg_ment_max=60
++absorb_min=6
++absorb_max=6
+ cooldown=12
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,3,12
+ 
++# leather chest, pants, healing pot
++loot=81,5
++loot=83,5
++loot=1,5
+ 
+diff --git a/mods/fantasycore/enemies/zombie_iceclaw.txt b/mods/fantasycore/enemies/zombie_iceclaw.txt
+index d0bdaf2c968d756e715c00c223fd7cc9cd40c2f3..2177550090e2e124d48e4754b150db5be660317f 100644
+--- a/mods/fantasycore/enemies/zombie_iceclaw.txt
++++ b/mods/fantasycore/enemies/zombie_iceclaw.txt
+@@ -32,9 +32,17 @@ dmg_melee_min=15
+ dmg_melee_max=40
+ dmg_ment_min=20
+ dmg_ment_max=50
++absorb_min=9
++absorb_max=9
+ cooldown=20
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,4,16
+ 
++# mana pot
++loot=2,5
++
++# mage boots, ring of ice
++loot=76,1
++loot=110,1
+ 
+diff --git a/mods/fantasycore/enemies/zombie_rotting.txt b/mods/fantasycore/enemies/zombie_rotting.txt
+index 106b92afaa4ec2c5d4e8e86de6505dac4f953486..58ef89a3f807da5dba3904a15a47cfd908d1fe95 100644
+--- a/mods/fantasycore/enemies/zombie_rotting.txt
++++ b/mods/fantasycore/enemies/zombie_rotting.txt
+@@ -32,6 +32,13 @@ dmg_ment_max=20
+ cooldown=25
+ 
+ # loot
+-loot=currency,33
++loot=currency,33,1,4
++
++# cloth set
++loot=64,5
++loot=65,5
++loot=66,5
++loot=67,5
++
+ 
+ 

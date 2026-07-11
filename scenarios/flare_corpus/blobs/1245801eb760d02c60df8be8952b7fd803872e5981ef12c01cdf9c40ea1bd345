@@ -1,0 +1,113 @@
+diff --git a/mods/empyrean_campaign/maps/halls_of_infinity.txt b/mods/empyrean_campaign/maps/halls_of_infinity.txt
+index 820989c477b0edf26314b18798d1da1c86fd7095..20447a241e7858681b639ea5ea5d12185172fe27 100644
+--- a/mods/empyrean_campaign/maps/halls_of_infinity.txt
++++ b/mods/empyrean_campaign/maps/halls_of_infinity.txt
+@@ -511,8 +511,21 @@ requires_not_status=emp_fig_all_placed
+ requires_status=emp_fig_1_placed,emp_fig_2_placed,emp_fig_3_placed,emp_fig_4_placed
+ set_status=emp_fig_all_placed
+ 
++[event]
++# move abasi to this map
++type=event
++location=2,0,1,1
++activate=on_load
++requires_not_status=emp_abasi_3
++set_status=emp_abasi_3
++
+ [npc]
+ type=npc
+ location=11,11,1,1
+ filename=npcs/infinity_obelisk_2.txt
+ 
++[npc]
++type=npc
++location=12,4,1,1
++filename=npcs/abasi_3.txt
++
+diff --git a/mods/empyrean_campaign/maps/nazia_highlands.txt b/mods/empyrean_campaign/maps/nazia_highlands.txt
+index e9e02b0ab5230d2f866925a0613de8511efc41de..6a34bbc73b5e4f2d5e6df833de6a295ceb47ee0a 100644
+--- a/mods/empyrean_campaign/maps/nazia_highlands.txt
++++ b/mods/empyrean_campaign/maps/nazia_highlands.txt
+@@ -428,4 +428,5 @@ number=3,4
+ type=npc
+ location=62,72,1,1
+ filename=npcs/abasi_2.txt
++requires_not_status=emp_abasi_3
+ 
+diff --git a/mods/empyrean_campaign/npcs/abasi_3.txt b/mods/empyrean_campaign/npcs/abasi_3.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..4368976723ed2e995c8f04c2db221597960a2fe3
+--- /dev/null
++++ b/mods/empyrean_campaign/npcs/abasi_3.txt
+@@ -0,0 +1,23 @@
++name=Abasi, Traveling Merchant
++
++portrait=images/portraits/male11.png
++
++# animation info
++gfx=animations/npcs/wandering_trader1.txt
++
++# shop info
++vendor=true
++constant_stock=2:20,3:20,203:10,412:10,413:10,414:10,415:10,416:10,417:10,418:10
++# martigan also stocks level 16 items, so we'll just use his loot table
++random_stock=loot/trader_martigan.txt
++random_stock_count=15,20
++
++# voiceover files
++vox_intro=soundfx/npcs/male_merchant_01.ogg
++vox_intro=soundfx/npcs/male_merchant_02.ogg
++vox_intro=soundfx/npcs/male_merchant_03.ogg
++vox_intro=soundfx/npcs/male_merchant_04.ogg
++
++# TODO add some dialog?
++talker=false
++
+diff --git a/tiled/empyrean_campaign/halls_of_infinity.tmx b/tiled/empyrean_campaign/halls_of_infinity.tmx
+index 5c5774e4fbc2bbd1a778c362bec1f9980b4fe732..16e14a288cc9980bbdd818b243d85050900d4c07 100644
+--- a/tiled/empyrean_campaign/halls_of_infinity.tmx
++++ b/tiled/empyrean_campaign/halls_of_infinity.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="24" height="60" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="32">
++<map version="1.0" tiledversion="1.1.2" orientation="isometric" renderorder="right-down" width="24" height="60" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="35">
+  <properties>
+   <property name="hero_pos" value="12,55"/>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+@@ -497,6 +497,13 @@
+     <property name="set_status" value="emp_fig_all_placed"/>
+    </properties>
+   </object>
++  <object id="34" name="move abasi to this map" type="event" x="64" y="0" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="requires_not_status" value="emp_abasi_3"/>
++    <property name="set_status" value="emp_abasi_3"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="npc">
+   <object id="30" type="npc" x="352" y="352" width="32" height="32">
+@@ -504,5 +511,10 @@
+     <property name="filename" value="npcs/infinity_obelisk_2.txt"/>
+    </properties>
+   </object>
++  <object id="32" type="npc" x="384" y="128" width="32" height="32">
++   <properties>
++    <property name="filename" value="npcs/abasi_3.txt"/>
++   </properties>
++  </object>
+  </objectgroup>
+ </map>
+diff --git a/tiled/empyrean_campaign/nazia_highlands.tmx b/tiled/empyrean_campaign/nazia_highlands.tmx
+index d8b5ebc67727876ca4d08beaefe759fe61b864f5..703d5da7584698ed9c17f881934337a39620ba5d 100644
+--- a/tiled/empyrean_campaign/nazia_highlands.tmx
++++ b/tiled/empyrean_campaign/nazia_highlands.tmx
+@@ -430,6 +430,7 @@
+   <object id="18" type="npc" x="1984" y="2304" width="32" height="32">
+    <properties>
+     <property name="filename" value="npcs/abasi_2.txt"/>
++    <property name="requires_not_status" value="emp_abasi_3"/>
+    </properties>
+   </object>
+  </objectgroup>

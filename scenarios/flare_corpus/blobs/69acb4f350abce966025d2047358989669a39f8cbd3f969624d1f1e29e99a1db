@@ -1,0 +1,170 @@
+diff --git a/mods/empyrean_campaign/maps/perdition_mines.txt b/mods/empyrean_campaign/maps/perdition_mines.txt
+index 64795d1f9589da781b04b5a6c55a7976b7a9f147..66196d74016fc4ad8d9d3edec9ef6631bbd25636 100644
+--- a/mods/empyrean_campaign/maps/perdition_mines.txt
++++ b/mods/empyrean_campaign/maps/perdition_mines.txt
+@@ -258,64 +258,54 @@ tooltip=Crate
+ type=undead
+ location=34,5,9,7
+ level=1
+-number=3
++number=2
+ wander_radius=1
+ 
+ [enemy]
+ type=undead
+-location=35,24,9,9
++location=35,26,9,7
+ level=1
+-number=2,3
++number=2
+ wander_radius=1
+ 
+ [enemy]
+ type=undead
+-location=14,25,11,8
++location=16,27,7,6
+ level=1
+-number=3
++number=2,3
+ wander_radius=1
+ 
+ [enemy]
+ type=undead
+-location=15,3,9,6
++location=15,3,9,5
+ level=1
+-number=2
++number=2,3
+ wander_radius=1
+ 
+ [enemy]
+ type=undead
+-location=20,12,12,11
++location=23,13,6,10
+ level=1
+-number=4
++number=3,4
+ wander_radius=2
+ 
+ [enemy]
+ type=krolan
+ location=5,15,1,1
+ number=1
+-requires_not_status=emp_krolan_key
+-requires_status=emp_krolan_init
+ wander_radius=1
+ 
+ [enemy]
+ type=undead
+ location=9,17,4,2
+ level=1
+-number=1,2
+-wander_radius=1
+-
+-[enemy]
+-type=skeleton
+-location=3,13,4,6
+-level=2
+-number=2
+-requires_not_status=emp_krolan_init
++number=1
+ wander_radius=1
+ 
+ [enemy]
+ type=undead
+-location=10,13,5,2
++location=6,13,5,2
+ level=1
+-number=2
++number=1
+ wander_radius=1
+ 
+diff --git a/tiled/empyrean_campaign/perdition_mines.tmx b/tiled/empyrean_campaign/perdition_mines.tmx
+index 6c029151f59e57726248babbc75fb7867f150bd6..eb4a3c56bf2c9094970a834af94afeaed1068e3c 100644
+--- a/tiled/empyrean_campaign/perdition_mines.tmx
++++ b/tiled/empyrean_campaign/perdition_mines.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="56" height="38" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="25">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="56" height="38" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="26">
+  <properties>
+   <property name="music" value="music/cave_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_cave.txt"/>
+@@ -247,65 +247,55 @@
+   <object id="2" type="undead" x="1088" y="160" width="288" height="224">
+    <properties>
+     <property name="level" value="1"/>
+-    <property name="number" value="3"/>
++    <property name="number" value="2"/>
+     <property name="wander_radius" value="1"/>
+    </properties>
+   </object>
+-  <object id="3" type="undead" x="1120" y="768" width="288" height="288">
++  <object id="3" type="undead" x="1120" y="832" width="288" height="224">
+    <properties>
+     <property name="level" value="1"/>
+-    <property name="number" value="2,3"/>
++    <property name="number" value="2"/>
+     <property name="wander_radius" value="1"/>
+    </properties>
+   </object>
+-  <object id="4" type="undead" x="448" y="800" width="352" height="256">
++  <object id="4" type="undead" x="512" y="864" width="224" height="192">
+    <properties>
+     <property name="level" value="1"/>
+-    <property name="number" value="3"/>
++    <property name="number" value="2,3"/>
+     <property name="wander_radius" value="1"/>
+    </properties>
+   </object>
+-  <object id="5" type="undead" x="480" y="96" width="288" height="192">
++  <object id="5" type="undead" x="480" y="96" width="288" height="160">
+    <properties>
+     <property name="level" value="1"/>
+-    <property name="number" value="2"/>
++    <property name="number" value="2,3"/>
+     <property name="wander_radius" value="1"/>
+    </properties>
+   </object>
+-  <object id="6" type="undead" x="640" y="384" width="384" height="352">
++  <object id="6" type="undead" x="736" y="416" width="192" height="320">
+    <properties>
+     <property name="level" value="1"/>
+-    <property name="number" value="4"/>
++    <property name="number" value="3,4"/>
+     <property name="wander_radius" value="2"/>
+    </properties>
+   </object>
+   <object id="7" type="krolan" x="160" y="480" width="32" height="32">
+    <properties>
+     <property name="number" value="1"/>
+-    <property name="requires_not_status" value="emp_krolan_key"/>
+-    <property name="requires_status" value="emp_krolan_init"/>
+     <property name="wander_radius" value="1"/>
+    </properties>
+   </object>
+   <object id="8" type="undead" x="288" y="544" width="128" height="64">
+    <properties>
+     <property name="level" value="1"/>
+-    <property name="number" value="1,2"/>
+-    <property name="wander_radius" value="1"/>
+-   </properties>
+-  </object>
+-  <object id="23" type="skeleton" x="96" y="416" width="128" height="192">
+-   <properties>
+-    <property name="level" value="2"/>
+-    <property name="number" value="2"/>
+-    <property name="requires_not_status" value="emp_krolan_init"/>
++    <property name="number" value="1"/>
+     <property name="wander_radius" value="1"/>
+    </properties>
+   </object>
+-  <object id="24" type="undead" x="320" y="416" width="160" height="64">
++  <object id="24" type="undead" x="192" y="416" width="160" height="64">
+    <properties>
+     <property name="level" value="1"/>
+-    <property name="number" value="2"/>
++    <property name="number" value="1"/>
+     <property name="wander_radius" value="1"/>
+    </properties>
+   </object>

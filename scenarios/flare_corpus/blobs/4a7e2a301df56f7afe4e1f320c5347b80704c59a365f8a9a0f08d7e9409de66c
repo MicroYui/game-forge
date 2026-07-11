@@ -1,0 +1,49 @@
+diff --git a/mods/fantasycore/animations/powers/blast.txt b/mods/fantasycore/animations/powers/blast.txt
+index 4be0ffcc18ac7523ee011ee19943d158bfcfba9c..a2ef5fd389c4a510873fb64f7f2104b223161d8b 100644
+--- a/mods/fantasycore/animations/powers/blast.txt
++++ b/mods/fantasycore/animations/powers/blast.txt
+@@ -5,7 +5,7 @@ image=images/powers/blast.png
+ frames=6
+ duration=600ms
+ type=play_once
+-active_frame=4
++active_frame=all
+ frame=0,0,2036,0,107,82,52,45
+ frame=0,1,2143,0,107,82,52,45
+ frame=1,0,1728,0,154,108,75,58
+diff --git a/mods/fantasycore/animations/powers/quake.txt b/mods/fantasycore/animations/powers/quake.txt
+index 5fe9e1f89d58e314addfccf1784b18a00c24e0af..89ba97879684476949a6062063dcda5bac980637 100644
+--- a/mods/fantasycore/animations/powers/quake.txt
++++ b/mods/fantasycore/animations/powers/quake.txt
+@@ -5,7 +5,7 @@ image=images/powers/quake.png
+ frames=4
+ duration=400ms
+ type=play_once
+-active_frame=4
++active_frame=all
+ frame=0,0,740,0,80,52,39,28
+ frame=0,1,740,52,80,52,39,28
+ frame=0,2,650,78,80,52,39,28
+diff --git a/mods/fantasycore/animations/powers/spikes.txt b/mods/fantasycore/animations/powers/spikes.txt
+index 4d4912910bb75eaa3d9012f31165e63e70378b6e..c3e729de2f500fbc09d1e937e9848cefcfd60924 100644
+--- a/mods/fantasycore/animations/powers/spikes.txt
++++ b/mods/fantasycore/animations/powers/spikes.txt
+@@ -5,7 +5,7 @@ image=images/powers/spikes.png
+ frames=4
+ duration=266ms
+ type=back_forth
+-active_frame=5
++active_frame=1
+ frame=0,0,0,1024,40,37,17,28
+ frame=0,1,0,1098,40,36,17,27
+ frame=0,2,0,1061,40,37,17,28
+diff --git a/mods/fantasycore/powers/categories/map_hazards.txt b/mods/fantasycore/powers/categories/map_hazards.txt
+index 985c668301b950eb71310d430efc6d94ca331645..1ddb15e99508157e778a7b45c629ae316048c57b 100644
+--- a/mods/fantasycore/powers/categories/map_hazards.txt
++++ b/mods/fantasycore/powers/categories/map_hazards.txt
+@@ -62,4 +62,5 @@ complete_animation=true
+ base_damage=melee
+ visual_random=4
+ soundfx=soundfx/powers/spikes.ogg
++modifier_accuracy=absolute,1000,0
+ 

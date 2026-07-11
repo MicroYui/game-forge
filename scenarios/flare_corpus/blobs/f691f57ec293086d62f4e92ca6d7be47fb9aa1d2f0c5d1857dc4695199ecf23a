@@ -1,0 +1,88 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl3_zombie_bloodthirsty.txt b/mods/empyrean_campaign/enemies/lvl3_zombie_bloodthirsty.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..e82611df91d97efcfef87fe5a61303e0e5d1c63c
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl3_zombie_bloodthirsty.txt
+@@ -0,0 +1,27 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Bloodthirsty Zombie
++level=3
++categories=zombie,undead,dungeon,grassland
++rarity=uncommon
++xp=8
++
++# combat stats
++hp=180
++speed=2.5
++turn_delay=400ms
++chance_pursue=10
++
++power=melee,164,2
++power=melee,168,5
++
++accuracy=90
++avoidance=20
++poise=26
++
++dmg_melee_min=60
++dmg_melee_max=65
++cooldown=2400ms
++
++#loot
++loot=loot/level_3.txt
+diff --git a/mods/empyrean_campaign/enemies/lvl3_zombie_iceclaw.txt b/mods/empyrean_campaign/enemies/lvl3_zombie_iceclaw.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..e50fbb4bdca9983e1fe418822b10b418ce56b95c
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl3_zombie_iceclaw.txt
+@@ -0,0 +1,27 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Iceclaw Zombie
++level=3
++categories=zombie,undead,dungeon,grassland
++rarity=uncommon
++xp=8
++
++# combat stats
++hp=140
++speed=2.5
++turn_delay=400ms
++chance_pursue=10
++
++power=melee,164,2
++power=melee,175,10
++
++accuracy=90
++avoidance=20
++poise=26
++
++dmg_melee_min=60
++dmg_melee_max=65
++cooldown=2400ms
++
++#loot
++loot=loot/level_3.txt
+diff --git a/mods/empyrean_campaign/powers/categories/enemy.txt b/mods/empyrean_campaign/powers/categories/enemy.txt
+index 4f81f19f295d6128cdc4f7a6a6925b40d7dc2f16..bbd5695266a6f30040d12b3b4ae7015ef14b343f 100644
+--- a/mods/empyrean_campaign/powers/categories/enemy.txt
++++ b/mods/empyrean_campaign/powers/categories/enemy.txt
+@@ -173,3 +173,17 @@ trait_crits_impaired=50
+ post_power=159
+ wall_power=159
+ 
++# chill touch
++[power]
++id=175
++type=fixed
++new_state=swing
++face=true
++use_hazard=true
++base_damage=melee
++lifespan=33ms
++radius=1.0
++starting_pos=melee
++post_effect=slow,0,5s
++cooldown=5s
++

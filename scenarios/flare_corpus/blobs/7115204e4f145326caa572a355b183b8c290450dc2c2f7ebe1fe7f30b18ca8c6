@@ -1,0 +1,170 @@
+diff --git a/mods/empyrean_campaign/enemies/base/beacon.txt b/mods/empyrean_campaign/enemies/base/beacon.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d0c6568000e4364a78c02595278b4a6dee7e8738
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/base/beacon.txt
+@@ -0,0 +1,2 @@
++# id of the "beacon" power used to call other enemies to the fight
++power_beacon=205
+diff --git a/mods/empyrean_campaign/enemies/zombie_rotting.txt b/mods/empyrean_campaign/enemies/zombie_rotting.txt
+index 1add1b893ba92805653452ed9af9a93b026a3da6..564010deec341c599116147399959a80721b7361 100644
+--- a/mods/empyrean_campaign/enemies/zombie_rotting.txt
++++ b/mods/empyrean_campaign/enemies/zombie_rotting.txt
+@@ -12,7 +12,6 @@ turn_delay=400ms
+ chance_pursue=5
+ chance_melee_phys=5
+ power_melee_phys=1
+-power_beacon=205
+ 
+ accuracy=70
+ avoidance=20
+@@ -22,12 +21,3 @@ dmg_melee_min=10
+ dmg_melee_max=30
+ cooldown=833ms
+ 
+-# loot
+-loot=loot/leveled_low.txt
+-
+-# cloth set
+-loot=64,5
+-loot=65,5
+-loot=66,5
+-loot=67,5
+-
+diff --git a/mods/fantasycore/enemies/base/antlion.txt b/mods/fantasycore/enemies/base/antlion.txt
+index 71f86b2138972a4d9833f0ce2821e153003fc65a..83c50ccf7e8b773e7eac350b14d0f75ec0edd90e 100644
+--- a/mods/fantasycore/enemies/base/antlion.txt
++++ b/mods/fantasycore/enemies/base/antlion.txt
+@@ -1,3 +1,5 @@
++INCLUDE enemies/base/beacon.txt
++
+ sfx_phys=soundfx/enemies/antlion_phys.ogg
+ sfx_hit=soundfx/enemies/antlion_hit.ogg
+ sfx_die=soundfx/enemies/antlion_die.ogg
+@@ -7,7 +9,3 @@ animations=animations/enemies/antlion.txt
+ 
+ melee_range=1.1875
+ threat_range=8.0
+-
+-power_beacon=132
+-
+-
+diff --git a/mods/fantasycore/enemies/base/beacon.txt b/mods/fantasycore/enemies/base/beacon.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..80c875ee7a09a369b877189ae119e19185724fb8
+--- /dev/null
++++ b/mods/fantasycore/enemies/base/beacon.txt
+@@ -0,0 +1,2 @@
++# id of the "beacon" power used to call other enemies to the fight
++power_beacon=132
+diff --git a/mods/fantasycore/enemies/base/goblin.txt b/mods/fantasycore/enemies/base/goblin.txt
+index 160e1717d5de2bd46797b0c71597d1479e9698ca..bc43678784015d2cc7abdf96654222734676ac84 100644
+--- a/mods/fantasycore/enemies/base/goblin.txt
++++ b/mods/fantasycore/enemies/base/goblin.txt
+@@ -1,3 +1,5 @@
++INCLUDE enemies/base/beacon.txt
++
+ humanoid=true
+ 
+ sfx_phys=soundfx/enemies/goblin_phys.ogg
+@@ -10,6 +12,3 @@ animations=animations/enemies/goblin.txt
+ 
+ melee_range=1.1875
+ threat_range=8.0
+-
+-power_beacon=132
+-
+diff --git a/mods/fantasycore/enemies/base/goblin_elite.txt b/mods/fantasycore/enemies/base/goblin_elite.txt
+index ad11da5802e65fb5bde984f0f5df1564a41f0483..53c7c602509587205f4f88b901680faf6c3be4da 100644
+--- a/mods/fantasycore/enemies/base/goblin_elite.txt
++++ b/mods/fantasycore/enemies/base/goblin_elite.txt
+@@ -1,3 +1,5 @@
++INCLUDE enemies/base/beacon.txt
++
+ humanoid=true
+ 
+ sfx_phys=soundfx/enemies/goblin_phys.ogg
+@@ -10,5 +12,3 @@ animations=animations/enemies/goblin_elite.txt
+ 
+ melee_range=1.1875
+ threat_range=8.0
+-
+-power_beacon=132
+diff --git a/mods/fantasycore/enemies/base/minotaur.txt b/mods/fantasycore/enemies/base/minotaur.txt
+index e7c9e010001372a678f078a55382faff45a2fbb6..f3ad268bb81207decb934b2924c7341736eb9a39 100644
+--- a/mods/fantasycore/enemies/base/minotaur.txt
++++ b/mods/fantasycore/enemies/base/minotaur.txt
+@@ -1,3 +1,5 @@
++INCLUDE enemies/base/beacon.txt
++
+ humanoid=true
+ 
+ sfx_phys=soundfx/enemies/minotaur_phys.ogg
+@@ -9,5 +11,3 @@ animations=animations/enemies/minotaur.txt
+ 
+ melee_range=1.1875
+ threat_range=8.0
+-
+-power_beacon=132
+diff --git a/mods/fantasycore/enemies/base/skeleton.txt b/mods/fantasycore/enemies/base/skeleton.txt
+index 7a05d8d946a66a3e7054f7d96473935813dd3dfd..89a8e53d6335c1183ba480f0e2d041c0eed97413 100644
+--- a/mods/fantasycore/enemies/base/skeleton.txt
++++ b/mods/fantasycore/enemies/base/skeleton.txt
+@@ -1,3 +1,5 @@
++INCLUDE enemies/base/beacon.txt
++
+ humanoid=true
+ 
+ sfx_phys=soundfx/enemies/skeleton_phys.ogg
+@@ -10,5 +12,3 @@ animations=animations/enemies/skeleton.txt
+ 
+ melee_range=1.1875
+ threat_range=8.0
+-power_beacon=132
+-
+diff --git a/mods/fantasycore/enemies/base/wyvern.txt b/mods/fantasycore/enemies/base/wyvern.txt
+index 849ab54e9b0ad291d581ad0f62a7f32232c5772b..e7af7d96ccf1c30e6b04a5d4c0ff7500dcb5d439 100644
+--- a/mods/fantasycore/enemies/base/wyvern.txt
++++ b/mods/fantasycore/enemies/base/wyvern.txt
+@@ -1,3 +1,5 @@
++INCLUDE enemies/base/beacon.txt
++
+ sfx_phys=soundfx/enemies/wyvern_phys.ogg
+ sfx_ment=soundfx/enemies/wyvern_ment.ogg
+ sfx_hit=soundfx/enemies/wyvern_hit.ogg
+@@ -9,6 +11,3 @@ animations=animations/enemies/wyvern.txt
+ flying=1
+ melee_range=1.125
+ threat_range=8.0
+-
+-power_beacon=132
+-
+diff --git a/mods/fantasycore/enemies/base/zombie.txt b/mods/fantasycore/enemies/base/zombie.txt
+index f811335aedd868f9d6a1422b4a6e34908eb792e4..b07f0b1a9babf46043e2a94d7010af96dca525f8 100644
+--- a/mods/fantasycore/enemies/base/zombie.txt
++++ b/mods/fantasycore/enemies/base/zombie.txt
+@@ -1,3 +1,5 @@
++INCLUDE enemies/base/beacon.txt
++
+ sfx_phys=soundfx/enemies/zombie_phys.ogg
+ sfx_ment=soundfx/enemies/zombie_ment.ogg
+ sfx_hit=soundfx/enemies/zombie_hit.ogg
+@@ -8,6 +10,3 @@ animations=animations/enemies/zombie.txt
+ 
+ melee_range=1.125
+ threat_range=8.0
+-
+-power_beacon=132
+-
+diff --git a/mods/fantasycore/enemies/skeletal_mage.txt b/mods/fantasycore/enemies/skeletal_mage.txt
+index 0e76be833d875a73ef483c252d7480db3fe60279..3939dbdbc30f247e2eb4f9469394aa64250f656e 100644
+--- a/mods/fantasycore/enemies/skeletal_mage.txt
++++ b/mods/fantasycore/enemies/skeletal_mage.txt
+@@ -17,7 +17,6 @@ chance_ranged_phys=0
+ chance_ranged_ment=4
+ power_melee_phys=1
+ power_ranged_ment=30
+-power_beacon=132
+ 
+ accuracy=78
+ avoidance=28

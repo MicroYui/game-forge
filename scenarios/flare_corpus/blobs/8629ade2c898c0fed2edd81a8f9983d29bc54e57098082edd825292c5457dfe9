@@ -1,0 +1,57 @@
+diff --git a/mods/empyrean_campaign/npcs/abasi_3.txt b/mods/empyrean_campaign/npcs/abasi_3.txt
+index 4368976723ed2e995c8f04c2db221597960a2fe3..c1b8e12a7eddf693f89190e7efa7b2485e0121c7 100644
+--- a/mods/empyrean_campaign/npcs/abasi_3.txt
++++ b/mods/empyrean_campaign/npcs/abasi_3.txt
+@@ -18,6 +18,39 @@ vox_intro=soundfx/npcs/male_merchant_02.ogg
+ vox_intro=soundfx/npcs/male_merchant_03.ogg
+ vox_intro=soundfx/npcs/male_merchant_04.ogg
+ 
+-# TODO add some dialog?
+-talker=false
++talker=true
++
++[dialog]
++topic=Talk
++requires_not_status=emp_journal_init
++requires_not_status=emp_journal_finish
++him=Greetings, wanderer.
++him=Judging from your appearance, you're no stranger to a long journey. For that reason, I ask that you keep an eye out for my missing journal.
++him=I first noticed it was missing after a night of camping near the Goblin Cave. I searched for a while, but ultimately decided it was best to move on.
++him=If you come across my journal in your travels, please return it to me.
++set_status=emp_journal_init
++set_status=emp_journal_later
++msg=Quest added.
++
++[dialog]
++topic=Journal
++requires_status=emp_journal_init
++requires_not_status=emp_journal_found
++him=Any luck finding my journal?
++you=Not yet.
++
++[dialog]
++topic=Journal
++requires_status=emp_journal_init
++requires_status=emp_journal_found
++you=Here is your journal.
++him=Wonderful! I had considered it forever lost at this point.
++him=I am in your debt. Please take this as a reward for your trouble.
++remove_item=1002
++reward_currency=300
++reward_xp=100
++set_status=emp_journal_finish
++unset_status=emp_journal_init
++unset_status=emp_journal_found
++unset_status=emp_journal_later
+ 
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 85c76a075fa8f92e2ab7176138d9c31d1ba9ee21..be8d968484c940bd48ce1cc2b9616125ffbc7000 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:0.90:0
+ game=flare-game
+-version=1.06.08
++version=1.06.09
+ engine_version_min=1.06.22

@@ -1,0 +1,2322 @@
+diff --git a/mods/alpha_demo/maps/ancient_temple.txt b/mods/alpha_demo/maps/ancient_temple.txt
+index 8f9de1bc81f99fc4406196f4d5037a8303b1ecb2..9a0a7c7a82078f89666ae9a840aa57d9d208a220 100644
+--- a/mods/alpha_demo/maps/ancient_temple.txt
++++ b/mods/alpha_demo/maps/ancient_temple.txt
+@@ -647,7 +647,7 @@ soundfx=soundfx/door_open.ogg
+ type=run_once
+ location=15,71,1,1
+ hotspot=location
+-loot=currency,15,72,fixed,1,10
++loot=currency,15,72,fixed,5,10
+ mapmod=object,15,71,183
+ 
+ [event]
+diff --git a/mods/alpha_demo/maps/averguard_academy.txt b/mods/alpha_demo/maps/averguard_academy.txt
+index 4e8a61f2470075e14cb7e45993dda0843b6eee9b..138c76b916d66737648a37e9a23c93363816c3a6 100644
+--- a/mods/alpha_demo/maps/averguard_academy.txt
++++ b/mods/alpha_demo/maps/averguard_academy.txt
+@@ -403,7 +403,7 @@ tooltip=Barrel
+ type=run_once
+ location=10,48,1,1
+ hotspot=location
+-loot=currency,11,48,fixed,1,5
++loot=currency,11,48,fixed,5,20
+ mapmod=object,10,48,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -431,7 +431,7 @@ tooltip=Barrel
+ type=run_once
+ location=11,46,1,1
+ hotspot=location
+-loot=currency,12,46,fixed,1,5
++loot=currency,12,46,fixed,5,20
+ mapmod=object,11,46,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -450,7 +450,7 @@ tooltip=Crate
+ type=run_once
+ location=15,49,1,1
+ hotspot=location
+-loot=currency,14,48,fixed,1,5
++loot=currency,14,48,fixed,5,20
+ mapmod=object,15,49,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -466,7 +466,7 @@ msg=This tomb glows with magical runes.
+ type=run_once
+ location=4,90,1,2
+ hotspot=location
+-loot=currency,5,90,fixed,1,25;currency,5,91,fixed,1,30
++loot=currency,5,90,fixed,10,25;currency,5,91,fixed,10,30
+ tooltip=Langlier's Tomb
+ 
+ [event]
+@@ -474,7 +474,7 @@ tooltip=Langlier's Tomb
+ type=run_once
+ location=45,97,1,1
+ hotspot=location
+-loot=currency,45,98,15,80
++loot=currency,45,98,15,50
+ mapmod=object,45,97,161
+ tooltip=Treasure Chest
+ 
+diff --git a/mods/alpha_demo/maps/averguard_complex.txt b/mods/alpha_demo/maps/averguard_complex.txt
+index aa253001fbb672c4ce299beec2cdbc68a6ee9b2a..04d50e22863b125b71d1db984a6de28135d20cbb 100644
+--- a/mods/alpha_demo/maps/averguard_complex.txt
++++ b/mods/alpha_demo/maps/averguard_complex.txt
+@@ -401,7 +401,7 @@ soundfx=soundfx/door_open.ogg,0,0
+ type=run_once
+ location=85,74,1,1
+ hotspot=location
+-loot=currency,86,74,fixed,1,5
++loot=currency,86,74,fixed,5,20
+ mapmod=object,85,74,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -411,7 +411,7 @@ tooltip=Crate
+ type=run_once
+ location=74,63,1,1
+ hotspot=location
+-loot=currency,74,64,fixed,1,5
++loot=currency,74,64,fixed,5,15
+ mapmod=object,74,63,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -420,7 +420,7 @@ tooltip=Barrel
+ type=run_once
+ location=73,62,1,1
+ hotspot=location
+-loot=currency,72,62,fixed,1,5
++loot=currency,72,62,fixed,5,15
+ mapmod=object,73,62,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -429,7 +429,7 @@ tooltip=Barrel
+ type=run_once
+ location=74,62,1,1
+ hotspot=location
+-loot=currency,74,61,fixed,1,10
++loot=currency,74,61,fixed,5,20
+ mapmod=object,74,62,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -439,7 +439,7 @@ tooltip=Barrel
+ type=run_once
+ location=72,96,1,1
+ hotspot=location
+-loot=currency,73,96,fixed,1,5
++loot=currency,73,96,fixed,5,15
+ mapmod=object,72,96,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -448,7 +448,7 @@ tooltip=Barrel
+ type=run_once
+ location=72,97,1,1
+ hotspot=location
+-loot=currency,73,97,fixed,1,5
++loot=currency,73,97,fixed,5,15
+ mapmod=object,72,97,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -458,7 +458,7 @@ tooltip=Crate
+ type=run_once
+ location=73,110,1,1
+ hotspot=location
+-loot=currency,72,109,fixed,1,10
++loot=currency,72,109,fixed,5,15
+ mapmod=object,73,110,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -478,7 +478,7 @@ tooltip=Book Stand
+ type=run_once
+ location=41,59,1,1
+ hotspot=location
+-loot=currency,42,59,fixed,1,5
++loot=currency,42,59,fixed,5,10
+ mapmod=object,41,59,160
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -487,7 +487,7 @@ tooltip=Treasure Chest
+ type=run_once
+ location=41,57,1,1
+ hotspot=location
+-loot=currency,42,57,fixed,1,10
++loot=currency,42,57,fixed,5,15
+ mapmod=object,41,57,160
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -496,7 +496,7 @@ tooltip=Treasure Chest
+ type=run_once
+ location=41,55,1,1
+ hotspot=location
+-loot=currency,42,55,fixed,1,15
++loot=currency,42,55,fixed,10,25
+ mapmod=object,41,55,160
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -505,7 +505,7 @@ tooltip=Treasure Chest
+ type=run_once
+ location=41,53,1,1
+ hotspot=location
+-loot=currency,42,53,fixed,1,10
++loot=currency,42,53,fixed,5,10
+ mapmod=object,41,53,160
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -514,7 +514,7 @@ tooltip=Treasure Chest
+ type=run_once
+ location=41,51,1,1
+ hotspot=location
+-loot=currency,42,51,fixed,1,5
++loot=currency,42,51,fixed,5,10
+ mapmod=object,41,51,160
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -524,7 +524,7 @@ tooltip=Treasure Chest
+ type=run_once
+ location=50,28,1,1
+ hotspot=location
+-loot=currency,51,28,fixed,1,5
++loot=currency,51,28,fixed,5,15
+ mapmod=object,50,28,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -533,7 +533,7 @@ tooltip=Barrel
+ type=run_once
+ location=50,29,1,1
+ hotspot=location
+-loot=currency,51,29,fixed,1,5
++loot=currency,51,29,fixed,5,15
+ mapmod=object,50,29,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -542,7 +542,7 @@ tooltip=Crate
+ type=run_once
+ location=55,28,1,1
+ hotspot=location
+-loot=currency,54,28,fixed,1,5
++loot=currency,54,28,fixed,5,10
+ mapmod=object,55,28,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -551,7 +551,7 @@ tooltip=Crate
+ type=run_once
+ location=55,29,1,1
+ hotspot=location
+-loot=currency,54,29,fixed,1,5
++loot=currency,54,29,fixed,5,10
+ mapmod=object,55,29,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -561,7 +561,7 @@ tooltip=Barrel
+ type=run_once
+ location=9,20,1,1
+ hotspot=location
+-loot=currency,10,20,fixed,1,35;currency,9,21,fixed,1,35
++loot=currency,10,20,fixed,15,35;currency,9,21,fixed,15,35
+ mapmod=object,9,20,160
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -571,7 +571,7 @@ tooltip=Treasure Chest
+ type=run_once
+ location=9,29,1,1
+ hotspot=location
+-loot=currency,10,29,fixed,1,30;currency,9,28,fixed,1,40
++loot=currency,10,29,fixed,15,30;currency,9,28,fixed,15,40
+ mapmod=object,9,29,160
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+diff --git a/mods/alpha_demo/maps/averguard_prison.txt b/mods/alpha_demo/maps/averguard_prison.txt
+index 0bf428884a9ce928331828961516c9d0499a06b9..7972835d215217a596c8f1938bf6bdfb7f9de1e8 100644
+--- a/mods/alpha_demo/maps/averguard_prison.txt
++++ b/mods/alpha_demo/maps/averguard_prison.txt
+@@ -341,7 +341,7 @@ soundfx=soundfx/door_open.ogg,0,0
+ type=run_once
+ location=2,47,1,1
+ hotspot=location
+-loot=currency,2,46,fixed,1,5
++loot=currency,2,46,fixed,5,15
+ mapmod=object,2,47,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -351,7 +351,7 @@ tooltip=Crate
+ type=run_once
+ location=12,84,1,1
+ hotspot=location
+-loot=currency,12,85,fixed,1,10
++loot=currency,12,85,fixed,10,25
+ mapmod=object,12,84,161
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -413,7 +413,7 @@ soundfx=soundfx/environment/open_fire_loop.ogg
+ type=run_once
+ location=89,12,1,1
+ hotspot=location
+-loot=currency,89,13,fixed,1,10
++loot=currency,89,13,fixed,15,40
+ mapmod=object,89,12,183
+ 
+ [event]
+diff --git a/mods/alpha_demo/maps/averguard_temple.txt b/mods/alpha_demo/maps/averguard_temple.txt
+index fd7802189a70404bc6efe4f7b0b121dab595d828..641f3d1e51b98512b3d54f9aef32d38389301978 100644
+--- a/mods/alpha_demo/maps/averguard_temple.txt
++++ b/mods/alpha_demo/maps/averguard_temple.txt
+@@ -437,7 +437,7 @@ type=run_always
+ location=6,51,19,14
+ cooldown=30
+ power=31
+-power_damage=50,75
++power_damage=25,50
+ power_path=15,58,hero
+ 
+ [event]
+@@ -505,7 +505,7 @@ tooltip=Treasure Chest
+ type=run_once
+ location=15,1,1,1
+ hotspot=location
+-loot=currency,14,2,fixed,1,30;currency,15,2,fixed,1,35;currency,16,2,fixed,1,25
++loot=currency,14,2,fixed,15,30;currency,15,2,fixed,15,35;currency,16,2,fixed,10,25
+ mapmod=object,15,1,161
+ requires_status=ak_maddox_defeated
+ soundfx=soundfx/wood_open.ogg
+@@ -526,7 +526,7 @@ msg=A ghastly voice reverberates from the next chamber.  "What fool disturbs my
+ type=run_once
+ location=15,9,1,2
+ hotspot=location
+-loot=currency,16,9,fixed,1,25
++loot=currency,16,9,fixed,10,25
+ msg=You wipe dust away from the tomb lid, revealing an inscription: "Here lies Sir Evan Maddox"
+ tooltip=Maddox's Tomb
+ 
+diff --git a/mods/alpha_demo/maps/brothers_lair_fire_hall.txt b/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
+index ffbbd84bbaa85290e7618e3d4f3d31b93396e163..1c7d05bda181185bee0129f6b2b5db8440743df7 100644
+--- a/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
+@@ -281,7 +281,7 @@ soundfx=soundfx/door_open.ogg,0,0
+ type=run_once
+ location=23,64,1,1
+ hotspot=location
+-loot=currency,24,63,fixed,1,10
++loot=currency,24,63,fixed,10,30
+ mapmod=object,23,64,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -291,7 +291,7 @@ tooltip=Barrel
+ type=run_once
+ location=22,64,1,1
+ hotspot=location
+-loot=currency,22,63,fixed,1,20
++loot=currency,22,63,fixed,10,30
+ mapmod=object,22,64,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -301,7 +301,7 @@ tooltip=Barrel
+ type=run_once
+ location=21,64,1,1
+ hotspot=location
+-loot=currency,21,63,fixed,1,15
++loot=currency,21,63,fixed,10,35
+ mapmod=object,21,64,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -311,7 +311,7 @@ tooltip=Crate
+ type=run_once
+ location=23,63,1,1
+ hotspot=location
+-loot=currency,23,62,fixed,1,25
++loot=currency,23,62,fixed,10,35
+ mapmod=object,23,63,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -337,7 +337,7 @@ power_path=0,0,24,20
+ type=run_once
+ location=21,60,1,1
+ hotspot=location
+-loot=currency,22,60,fixed,100
++loot=currency,22,60,fixed,100,200
+ mapmod=object,21,60,160
+ remove_item=9102
+ requires_item=9102
+diff --git a/mods/alpha_demo/maps/brothers_lair_ice_hall.txt b/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
+index 67e8ff08f5e169dd0d273dacb333148386d7471b..0a37929a41c37c8b5f06a2d05003f4dca3ecc878 100644
+--- a/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
+@@ -371,7 +371,7 @@ tooltip=Book Stand
+ type=run_once
+ location=11,13,1,1
+ hotspot=location
+-loot=currency,12,13,fixed,1,20
++loot=currency,12,13,fixed,15,30
+ mapmod=object,11,13,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -381,7 +381,7 @@ tooltip=Crate
+ type=run_once
+ location=22,13,1,1
+ hotspot=location
+-loot=currency,22,14,fixed,1,15
++loot=currency,22,14,fixed,10,30
+ mapmod=object,22,13,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -391,7 +391,7 @@ tooltip=Crate
+ type=run_once
+ location=29,48,1,1
+ hotspot=location
+-loot=currency,29,49,fixed,1,15
++loot=currency,29,49,fixed,15,30
+ mapmod=object,29,48,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -401,7 +401,7 @@ tooltip=Crate
+ type=run_once
+ location=11,14,1,1
+ hotspot=location
+-loot=currency,11,15,fixed,1,15
++loot=currency,11,15,fixed,10,30
+ mapmod=object,11,14,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -411,7 +411,7 @@ tooltip=Barrel
+ type=run_once
+ location=12,14,1,1
+ hotspot=location
+-loot=currency,12,15,fixed,1,15
++loot=currency,12,15,fixed,15,30
+ mapmod=object,12,14,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -421,7 +421,7 @@ tooltip=Barrel
+ type=run_once
+ location=23,13,1,1
+ hotspot=location
+-loot=currency,23,14,fixed,1,15
++loot=currency,23,14,fixed,10,30
+ mapmod=object,23,13,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -431,7 +431,7 @@ tooltip=Barrel
+ type=run_once
+ location=7,50,1,1
+ hotspot=location
+-loot=currency,8,50,fixed,1,20
++loot=currency,8,50,fixed,15,40
+ mapmod=object,7,50,160
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -456,7 +456,7 @@ unset_status=lb_ice_key
+ type=run_once
+ location=14,10,1,1
+ hotspot=location
+-loot=currency,15,10,fixed,100
++loot=currency,15,10,fixed,100,200
+ mapmod=object,14,10,160
+ remove_item=9101
+ requires_item=9101
+@@ -489,7 +489,7 @@ soundfx=soundfx/door_open.ogg
+ type=run_once
+ location=30,57,1,1
+ hotspot=location
+-loot=currency,31,57,15,80
++loot=currency,31,57,fixed,15,40
+ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Bookcase
+ 
+@@ -498,7 +498,7 @@ tooltip=Bookcase
+ type=run_once
+ location=6,61,1,1
+ hotspot=location
+-loot=currency,7,61,15,80
++loot=currency,7,61,fixed,15,40
+ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Bookcase
+ 
+diff --git a/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt b/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
+index cf0614c97f13bc8d37a1cb3903e51303210064da..4718954f1009b5755f92cc409921c35224a8e6c6 100644
+--- a/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
++++ b/mods/alpha_demo/maps/brothers_lair_sacrifice_room.txt
+@@ -9,13 +9,13 @@ tileset=tileset_dungeon.txt
+ title=Brothers' Sacrifice Room
+ 
+ [tilesets]
+-tileset=../../../../flare-game/tiled/dungeon/tiled_collision.png,64,32,0,0
+-tileset=../../../../flare-game/tiled/dungeon/tiled_dungeon.png,64,128,0,0
+-tileset=../../../../flare-game/tiled/dungeon/set_rules.png,64,32,0,0
+-tileset=../../../../flare-game/tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
+-tileset=../../../../flare-game/tiled/dungeon/door_left.png,64,128,-16,-8
+-tileset=../../../../flare-game/tiled/dungeon/door_right.png,64,128,16,-8
+-tileset=../../../../flare-game/tiled/dungeon/stairs.png,256,256,0,48
++tileset=../../../tiled/dungeon/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon.png,64,128,0,0
++tileset=../../../tiled/dungeon/set_rules.png,64,32,0,0
++tileset=../../../tiled/dungeon/tiled_dungeon_2x2.png,128,64,0,16
++tileset=../../../tiled/dungeon/door_left.png,64,128,-16,-8
++tileset=../../../tiled/dungeon/door_right.png,64,128,16,-8
++tileset=../../../tiled/dungeon/stairs.png,256,256,0,48
+ 
+ [layer]
+ type=background
+@@ -214,7 +214,7 @@ type=run_always
+ location=3,32,13,6
+ cooldown=60
+ power=6
+-power_damage=5,10
++power_damage=25,50
+ power_path=11,34,hero
+ requires_status=lb_wind_attack
+ 
+@@ -223,7 +223,7 @@ type=run_always
+ location=3,32,13,6
+ cooldown=60
+ power=122
+-power_damage=5,10
++power_damage=25,50
+ power_path=9,34,hero
+ requires_status=lb_fire_attack
+ 
+@@ -232,7 +232,7 @@ type=run_always
+ location=3,32,13,6
+ cooldown=60
+ power=123
+-power_damage=5,10
++power_damage=25,50
+ power_path=7,34,hero
+ requires_status=lb_ice_attack
+ 
+diff --git a/mods/alpha_demo/maps/brothers_lair_wind_hall.txt b/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
+index 9b5ee19cff5f034610ca6f44fb6a3792c2fef47d..e3b7774196ee6103a5c23c235b2b4245e5ea51b0 100644
+--- a/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
+@@ -261,7 +261,7 @@ tooltip=Waiting Wind Switch
+ type=run_once
+ location=25,33,1,1
+ hotspot=location
+-loot=currency,25,34,fixed,1,20
++loot=currency,25,34,fixed,10,50
+ mapmod=object,25,33,166
+ soundfx=soundfx/door_open.ogg
+ tooltip=Waiting Fire Switch
+@@ -322,7 +322,7 @@ tooltip=Book Stand
+ type=run_once
+ location=31,15,1,1
+ hotspot=location
+-loot=currency,31,14,fixed,1,15
++loot=currency,31,14,fixed,15,30
+ mapmod=object,31,15,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -332,7 +332,7 @@ tooltip=Crate
+ type=run_once
+ location=36,14,1,1
+ hotspot=location
+-loot=currency,35,13,fixed,1,15
++loot=currency,35,13,fixed,15,30
+ mapmod=object,36,14,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -342,7 +342,7 @@ tooltip=Crate
+ type=run_once
+ location=11,46,1,1
+ hotspot=location
+-loot=currency,11,45,fixed,1,20
++loot=currency,11,45,fixed,15,30
+ mapmod=object,11,46,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -352,7 +352,7 @@ tooltip=Crate
+ type=run_once
+ location=3,46,1,1
+ hotspot=location
+-loot=currency,4,45,fixed,1,15
++loot=currency,4,45,fixed,15,30
+ mapmod=object,3,46,163
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -362,7 +362,7 @@ tooltip=Crate
+ type=run_once
+ location=3,45,1,1
+ hotspot=location
+-loot=currency,3,44,fixed,1,15
++loot=currency,3,44,fixed,15,30
+ mapmod=object,3,45,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -372,7 +372,7 @@ tooltip=Barrel
+ type=run_once
+ location=4,46,1,1
+ hotspot=location
+-loot=currency,5,46,fixed,1,15
++loot=currency,5,46,fixed,15,30
+ mapmod=object,4,46,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -382,7 +382,7 @@ tooltip=Barrel
+ type=run_once
+ location=10,46,1,1
+ hotspot=location
+-loot=currency,9,46,fixed,1,15
++loot=currency,9,46,fixed,15,30
+ mapmod=object,10,46,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -392,7 +392,7 @@ tooltip=Barrel
+ type=run_once
+ location=11,44,1,1
+ hotspot=location
+-loot=currency,10,44,fixed,1,20
++loot=currency,10,44,fixed,15,30
+ mapmod=object,11,44,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -402,7 +402,7 @@ tooltip=Barrel
+ type=run_once
+ location=36,15,1,1
+ hotspot=location
+-loot=currency,35,14,fixed,1,15
++loot=currency,35,14,fixed,15,30
+ mapmod=object,36,15,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -412,7 +412,7 @@ tooltip=Barrel
+ type=run_once
+ location=31,7,1,1
+ hotspot=location
+-loot=currency,32,7,fixed,100
++loot=currency,32,7,fixed,100,200
+ mapmod=object,31,7,160
+ remove_item=9103
+ requires_item=9103
+diff --git a/mods/alpha_demo/maps/cave1.txt b/mods/alpha_demo/maps/cave1.txt
+index a11ca7749cad8abefb7f7e42529eb4afc296ddf9..8943d3001f37631a8cdb7519d824fb7cc0eed2e3 100644
+--- a/mods/alpha_demo/maps/cave1.txt
++++ b/mods/alpha_demo/maps/cave1.txt
+@@ -341,7 +341,7 @@ intermap=lost_mines1.txt,53,5
+ type=run_once
+ location=17,48,1,1
+ hotspot=location
+-loot=currency,18,48,15,80
++loot=currency,18,48,fixed,15,30
+ mapmod=object,17,48,128
+ tooltip=Mine Cart
+ 
+@@ -350,7 +350,7 @@ tooltip=Mine Cart
+ type=run_once
+ location=29,75,1,1
+ hotspot=location
+-loot=currency,30,75,fixed,1,10
++loot=currency,30,75,fixed,15,40
+ mapmod=object,29,75,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -359,7 +359,7 @@ tooltip=Barrel
+ type=run_once
+ location=43,92,1,1
+ hotspot=location
+-loot=currency,45,93,fixed,1,20
++loot=currency,45,93,fixed,20,50
+ mapmod=object,43,92,176
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -368,7 +368,7 @@ tooltip=Treasure Chest
+ type=run_once
+ location=29,76,1,1
+ hotspot=location
+-loot=currency,30,76,fixed,1,10
++loot=currency,30,76,fixed,10,40
+ mapmod=object,29,76,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -390,7 +390,7 @@ power_path=12,12,hero
+ type=run_once
+ location=59,61,1,1
+ hotspot=location
+-loot=currency,60,61,fixed,1,10
++loot=currency,60,61,fixed,10,30
+ mapmod=object,59,61,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -399,7 +399,7 @@ tooltip=Crate
+ type=run_once
+ location=2,29,1,1
+ hotspot=location
+-loot=currency,3,29,fixed,1,10
++loot=currency,3,29,fixed,10,30
+ mapmod=object,2,29,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -408,7 +408,7 @@ tooltip=Barrel
+ type=run_once
+ location=2,30,1,1
+ hotspot=location
+-loot=currency,3,30,fixed,1,10
++loot=currency,3,30,fixed,10,30
+ mapmod=object,2,30,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -424,7 +424,7 @@ power_path=12,9,hero
+ type=run_once
+ location=34,25,1,1
+ hotspot=location
+-loot=currency,34,26,fixed,1,15
++loot=currency,34,26,fixed,10,25
+ mapmod=object,34,25,177
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -433,7 +433,7 @@ tooltip=Treasure Chest
+ type=run_once
+ location=87,53,1,1
+ hotspot=location
+-loot=currency,87,54,fixed,1,15
++loot=currency,87,54,fixed,10,25
+ mapmod=object,87,53,177
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -442,7 +442,7 @@ tooltip=Treasure Chest
+ type=run_once
+ location=90,53,1,1
+ hotspot=location
+-loot=currency,90,54,fixed,1,10
++loot=currency,90,54,fixed,5,25
+ mapmod=object,90,53,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -451,7 +451,7 @@ tooltip=Barrel
+ type=run_once
+ location=42,4,1,1
+ hotspot=location
+-loot=currency,43,5,fixed,1,15
++loot=currency,43,5,fixed,10,25
+ mapmod=object,42,4,129
+ tooltip=Mine Cart
+ 
+@@ -465,7 +465,7 @@ msg=These goblins have captured a human trader.  Human bones are carefully arran
+ # reward for being saved
+ type=run_once
+ location=71,30,3,2
+-loot=currency,73,32,fixed,1,15
++loot=currency,73,32,fixed,15,30
+ msg=Talrych says, "You arrived just in time.  Please, take this."
+ 
+ [event]
+diff --git a/mods/alpha_demo/maps/cave_of_living_bones1.txt b/mods/alpha_demo/maps/cave_of_living_bones1.txt
+index 21fe6f0e58c2bbf4eeef9d02ec8e82f8f5051208..3eb5870ca70b46d14d430560575df4e95f89739d 100644
+--- a/mods/alpha_demo/maps/cave_of_living_bones1.txt
++++ b/mods/alpha_demo/maps/cave_of_living_bones1.txt
+@@ -340,7 +340,7 @@ intermap=cave_of_living_bones2.txt,37,74
+ type=run_once
+ location=69,66,1,1
+ hotspot=location
+-loot=currency,69,67,fixed,1,10
++loot=currency,69,67,fixed,10,30
+ mapmod=object,69,66,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -350,7 +350,7 @@ tooltip=Crate
+ type=run_once
+ location=83,83,1,1
+ hotspot=location
+-loot=currency,84,82,fixed,1,10
++loot=currency,84,82,fixed,10,30
+ mapmod=object,83,83,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -360,7 +360,7 @@ tooltip=Crate
+ type=run_once
+ location=88,76,1,1
+ hotspot=location
+-loot=currency,87,76,fixed,1,10
++loot=currency,87,76,fixed,10,30
+ mapmod=object,88,76,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -370,7 +370,7 @@ tooltip=Crate
+ type=run_once
+ location=30,71,1,1
+ hotspot=location
+-loot=currency,29,71,fixed,1,15
++loot=currency,29,71,fixed,10,30
+ mapmod=object,30,71,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -380,7 +380,7 @@ tooltip=Crate
+ type=run_once
+ location=33,37,1,1
+ hotspot=location
+-loot=currency,34,37,fixed,1,15
++loot=currency,34,37,fixed,10,30
+ mapmod=object,33,37,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -390,7 +390,7 @@ tooltip=Crate
+ type=run_once
+ location=23,39,1,1
+ hotspot=location
+-loot=currency,23,40,fixed,1,10
++loot=currency,23,40,fixed,10,30
+ mapmod=object,23,39,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -400,7 +400,7 @@ tooltip=Crate
+ type=run_once
+ location=29,70,1,1
+ hotspot=location
+-loot=currency,28,70,fixed,1,10
++loot=currency,28,70,fixed,10,30
+ mapmod=object,29,70,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -410,7 +410,7 @@ tooltip=Barrel
+ type=run_once
+ location=68,65,1,1
+ hotspot=location
+-loot=currency,67,65,fixed,1,10
++loot=currency,67,65,fixed,10,30
+ mapmod=object,68,65,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -420,7 +420,7 @@ tooltip=Barrel
+ type=run_once
+ location=85,74,1,1
+ hotspot=location
+-loot=currency,85,75,fixed,1,10
++loot=currency,85,75,fixed,10,30
+ mapmod=object,85,74,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -430,7 +430,7 @@ tooltip=Barrel
+ type=run_once
+ location=83,84,1,1
+ hotspot=location
+-loot=currency,84,83,fixed,1,10
++loot=currency,84,83,fixed,10,30
+ mapmod=object,83,84,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -440,7 +440,7 @@ tooltip=Barrel
+ type=run_once
+ location=73,35,1,1
+ hotspot=location
+-loot=currency,73,36,fixed,1,15
++loot=currency,73,36,fixed,10,30
+ mapmod=object,73,35,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -450,7 +450,7 @@ tooltip=Barrel
+ type=run_once
+ location=21,38,1,1
+ hotspot=location
+-loot=currency,21,39,fixed,1,20
++loot=currency,21,39,fixed,15,35
+ mapmod=object,21,38,177
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -460,7 +460,7 @@ tooltip=Treasure Chest
+ type=run_once
+ location=29,53,1,1
+ hotspot=location
+-loot=currency,29,54,fixed,1,20
++loot=currency,29,54,fixed,15,35
+ mapmod=object,29,53,177
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+diff --git a/mods/alpha_demo/maps/cave_of_living_bones2.txt b/mods/alpha_demo/maps/cave_of_living_bones2.txt
+index cde7eb4205bcf0e2aac143bccdec91aef43173de..2eb71afe790ff169baf73fc16ad9418d375a81b5 100644
+--- a/mods/alpha_demo/maps/cave_of_living_bones2.txt
++++ b/mods/alpha_demo/maps/cave_of_living_bones2.txt
+@@ -286,7 +286,7 @@ intermap=brothers_lair_atrium.txt,15,46
+ type=run_once
+ location=46,4,1,1
+ hotspot=location
+-loot=currency,46,5,fixed,1,20
++loot=currency,46,5,fixed,10,30
+ mapmod=object,46,4,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -296,7 +296,7 @@ tooltip=Barrel
+ type=run_once
+ location=48,5,1,1
+ hotspot=location
+-loot=currency,48,6,fixed,1,15
++loot=currency,48,6,fixed,10,30
+ mapmod=object,48,5,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -306,7 +306,7 @@ tooltip=Crate
+ type=run_once
+ location=19,44,1,1
+ hotspot=location
+-loot=currency,20,44,fixed,1,15
++loot=currency,20,44,fixed,10,30
+ mapmod=object,19,44,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+diff --git a/mods/alpha_demo/maps/cave_of_living_bones3.txt b/mods/alpha_demo/maps/cave_of_living_bones3.txt
+index daca356bcde152754a2d2b5e8efc882aa621ebd4..3908bf556b2ee89f4ac8451b23933a58bfbd1849 100644
+--- a/mods/alpha_demo/maps/cave_of_living_bones3.txt
++++ b/mods/alpha_demo/maps/cave_of_living_bones3.txt
+@@ -133,7 +133,7 @@ tooltip=Crate of Blasting Powder
+ type=run_once
+ location=5,6,1,1
+ hotspot=location
+-loot=currency,6,7,fixed,1,15
++loot=currency,6,7,fixed,20,40
+ mapmod=object,5,6,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -143,7 +143,7 @@ tooltip=Barrel
+ type=run_once
+ location=3,18,1,1
+ hotspot=location
+-loot=currency,4,19,fixed,1,15
++loot=currency,4,19,fixed,20,40
+ mapmod=object,3,18,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+diff --git a/mods/alpha_demo/maps/frontier_plains.txt b/mods/alpha_demo/maps/frontier_plains.txt
+index 563e10396752ba0e4f4daa4e6ccac7dbd53dbb51..b8e6cd67566566088bc2116408eea2fcb8ebfd9e 100644
+--- a/mods/alpha_demo/maps/frontier_plains.txt
++++ b/mods/alpha_demo/maps/frontier_plains.txt
+@@ -854,7 +854,7 @@ tooltip=Supplies
+ type=run_once
+ location=125,43,1,1
+ hotspot=location
+-loot=currency,124,43,fixed,1,10
++loot=currency,124,43,fixed,5,10
+ mapmod=object,125,43,97
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+@@ -864,7 +864,7 @@ tooltip=Supplies
+ type=run_once
+ location=114,97,1,1
+ hotspot=location
+-loot=currency,114,98,fixed,1,5
++loot=currency,114,98,fixed,5,10
+ mapmod=object,114,97,99
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+diff --git a/mods/alpha_demo/maps/goblin_warrens.txt b/mods/alpha_demo/maps/goblin_warrens.txt
+index 220dea68d3142dbe4419adbeec93f18bab592b82..36b1015f5e62147c7eac74919c56c8d6ae873e7f 100644
+--- a/mods/alpha_demo/maps/goblin_warrens.txt
++++ b/mods/alpha_demo/maps/goblin_warrens.txt
+@@ -301,7 +301,7 @@ soundfx=soundfx/door_open.ogg,0,0
+ type=run_once
+ location=3,36,1,1
+ hotspot=location
+-loot=currency,4,36,fixed,1,10
++loot=currency,4,36,fixed,10,30
+ mapmod=object,3,36,160
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -311,7 +311,7 @@ tooltip=Treasure Chest
+ type=run_once
+ location=1,32,1,1
+ hotspot=location
+-loot=currency,2,32,fixed,1,5
++loot=currency,2,32,fixed,10,20
+ mapmod=object,1,32,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+diff --git a/mods/alpha_demo/maps/lost_mines1.txt b/mods/alpha_demo/maps/lost_mines1.txt
+index 641b7372c0519eb899315431d400f399b29709b9..90057efe4aaad1b652c5fcafc447b3343e65a4fc 100644
+--- a/mods/alpha_demo/maps/lost_mines1.txt
++++ b/mods/alpha_demo/maps/lost_mines1.txt
+@@ -335,7 +335,7 @@ intermap=cave1.txt,15,67
+ type=run_once
+ location=13,22,1,1
+ hotspot=location
+-loot=currency,13,23,fixed,1,15
++loot=currency,13,23,fixed,5,15
+ mapmod=object,13,22,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -344,7 +344,7 @@ tooltip=Barrel
+ type=run_once
+ location=11,21,1,1
+ hotspot=location
+-loot=currency,11,22,fixed,1,20
++loot=currency,11,22,fixed,10,25
+ mapmod=object,11,21,177
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -359,7 +359,7 @@ msg=It looks like the necromancer has been raising the corpses of dead miners as
+ type=run_once
+ location=25,24,1,1
+ hotspot=location
+-loot=currency,25,26,fixed,1,15
++loot=currency,25,26,fixed,5,15
+ mapmod=object,26,25,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -368,7 +368,7 @@ tooltip=Crate
+ type=run_once
+ location=26,32,1,1
+ hotspot=location
+-loot=currency,26,33,fixed,1,15
++loot=currency,26,33,fixed,5,15
+ mapmod=object,26,32,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -377,7 +377,7 @@ tooltip=Crate
+ type=run_once
+ location=28,33,1,1
+ hotspot=location
+-loot=currency,27,33,fixed,1,15
++loot=currency,27,33,fixed,5,15
+ mapmod=object,28,33,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -386,7 +386,7 @@ tooltip=Barrel
+ type=run_once
+ location=25,24,1,1
+ hotspot=location
+-loot=currency,25,25,fixed,1,15
++loot=currency,25,25,fixed,5,15
+ mapmod=object,26,24,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -395,7 +395,7 @@ tooltip=Crate
+ type=run_once
+ location=25,24,1,1
+ hotspot=location
+-loot=currency,25,25,fixed,1,10
++loot=currency,25,25,fixed,5,15
+ mapmod=object,25,24,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -404,7 +404,7 @@ tooltip=Barrel
+ type=run_once
+ location=56,95,1,1
+ hotspot=location
+-loot=currency,57,95,fixed,1,20
++loot=currency,57,95,fixed,10,25
+ mapmod=object,56,95,176
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -419,7 +419,7 @@ msg=A natural underground river flows through this room.
+ type=run_once
+ location=63,70,1,1
+ hotspot=location
+-loot=currency,64,70,fixed,1,15
++loot=currency,64,70,fixed,5,15
+ mapmod=object,63,70,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -428,7 +428,7 @@ tooltip=Barrel
+ type=run_once
+ location=71,73,1,1
+ hotspot=location
+-loot=currency,71,72,fixed,1,15
++loot=currency,71,72,fixed,5,15
+ mapmod=object,71,73,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -437,7 +437,7 @@ tooltip=Barrel
+ type=run_once
+ location=50,52,1,1
+ hotspot=location
+-loot=currency,50,53,fixed,1,10
++loot=currency,50,53,fixed,5,15
+ mapmod=object,50,52,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -462,7 +462,7 @@ msg=The river appears to have swollen recently, covering the location where the
+ type=run_once
+ location=46,29,1,1
+ hotspot=location
+-loot=currency,47,29,fixed,1,15
++loot=currency,47,29,fixed,5,15
+ mapmod=object,46,29,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -471,7 +471,7 @@ tooltip=Crate
+ type=run_once
+ location=47,32,1,1
+ hotspot=location
+-loot=currency,48,32,fixed,1,15
++loot=currency,48,32,fixed,5,15
+ mapmod=object,47,32,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -486,7 +486,7 @@ msg=The undead in this room are dressed in the remnants of shredded mining cloth
+ type=run_once
+ location=80,67,1,1
+ hotspot=location
+-loot=currency,80,66,fixed,1,15
++loot=currency,80,66,fixed,5,15
+ mapmod=object,80,67,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -495,7 +495,7 @@ tooltip=Barrel
+ type=run_once
+ location=81,67,1,1
+ hotspot=location
+-loot=currency,81,66,fixed,1,15
++loot=currency,81,66,fixed,5,15
+ mapmod=object,81,67,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -504,7 +504,7 @@ tooltip=Crate
+ type=run_once
+ location=79,68,1,1
+ hotspot=location
+-loot=currency,79,67,fixed,1,15
++loot=currency,79,67,fixed,5,15
+ mapmod=object,79,68,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -513,7 +513,7 @@ tooltip=Barrel
+ type=run_once
+ location=98,60,1,1
+ hotspot=location
+-loot=currency,98,61,fixed,1,20
++loot=currency,98,61,fixed,10,25
+ mapmod=object,98,60,177
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -522,7 +522,7 @@ tooltip=Treasure Chest
+ type=run_once
+ location=5,34,1,1
+ hotspot=location
+-loot=currency,6,34,fixed,1,15
++loot=currency,6,34,fixed,5,15
+ mapmod=object,5,34,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+@@ -531,7 +531,7 @@ tooltip=Barrel
+ type=run_once
+ location=6,33,1,1
+ hotspot=location
+-loot=currency,7,33,fixed,1,15
++loot=currency,7,33,fixed,5,15
+ mapmod=object,6,33,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+diff --git a/mods/alpha_demo/maps/mineshaft_longsword.txt b/mods/alpha_demo/maps/mineshaft_longsword.txt
+index df9929c99a03e065b4d5b72b8cdde4ff48be2d97..2e520deab60d54d8d5c30870363efca6e6643791 100644
+--- a/mods/alpha_demo/maps/mineshaft_longsword.txt
++++ b/mods/alpha_demo/maps/mineshaft_longsword.txt
+@@ -226,7 +226,7 @@ intermap=frontier_outpost.txt,20,13
+ type=run_once
+ location=47,37,1,1
+ hotspot=location
+-loot=currency,46,38,fixed,1,5
++loot=currency,46,38,fixed,3,8
+ mapmod=object,47,37,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -236,7 +236,7 @@ tooltip=Crate
+ type=run_once
+ location=28,15,1,1
+ hotspot=location
+-loot=currency,27,14,fixed,1,5
++loot=currency,27,14,fixed,5,10
+ mapmod=object,28,15,179
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Crate
+@@ -246,7 +246,7 @@ tooltip=Crate
+ type=run_once
+ location=15,12,1,1
+ hotspot=location
+-loot=currency,16,13,fixed,1,5
++loot=currency,16,13,fixed,3,8
+ mapmod=object,15,12,178
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+diff --git a/mods/alpha_demo/maps/river_encampment.txt b/mods/alpha_demo/maps/river_encampment.txt
+index 758540b57ebebf681efbbda53d6c2cd792e35aa4..0f5e9797713de9b9bea6228ab94683e94697a183 100644
+--- a/mods/alpha_demo/maps/river_encampment.txt
++++ b/mods/alpha_demo/maps/river_encampment.txt
+@@ -354,7 +354,7 @@ location=41,18,1,1
+ type=run_once
+ location=20,43,1,1
+ hotspot=location
+-loot=currency,21,44,fixed,1,15
++loot=currency,21,44,fixed,5,15
+ mapmod=object,20,43,99
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+diff --git a/mods/alpha_demo/maps/white_wind.txt b/mods/alpha_demo/maps/white_wind.txt
+index f02682fd8568fa4ca5308b1bf573982ea51049c1..1a15b16b2c4ed30c2f6b66f39b13af85d79bcea8 100644
+--- a/mods/alpha_demo/maps/white_wind.txt
++++ b/mods/alpha_demo/maps/white_wind.txt
+@@ -424,7 +424,7 @@ intermap=frontier_plains.txt,162,233
+ type=run_once
+ location=54,6,1,1
+ hotspot=location
+-loot=currency,114,55,fixed,1,25
++loot=currency,114,55,fixed,15,30
+ mapmod=object,114,54,6
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+@@ -434,7 +434,7 @@ tooltip=Supplies
+ type=run_once
+ location=4,28,1,1
+ hotspot=location
+-loot=currency,5,28,fixed,1,15
++loot=currency,5,28,fixed,10,25
+ mapmod=object,4,28,99
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+diff --git a/mods/alpha_demo/maps/ydrakka_pass.txt b/mods/alpha_demo/maps/ydrakka_pass.txt
+index 4f00ba1c5cb8cafa655133337a87ab2de2b20551..b34b66f245b9273e2e1f03b4f3132c147651adec 100644
+--- a/mods/alpha_demo/maps/ydrakka_pass.txt
++++ b/mods/alpha_demo/maps/ydrakka_pass.txt
+@@ -363,7 +363,7 @@ intermap=cave_of_living_bones1.txt,53,94
+ type=run_once
+ location=125,55,1,1
+ hotspot=location
+-loot=currency,126,55,fixed,1,10
++loot=currency,126,55,fixed,10,20
+ mapmod=object,125,55,99
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+diff --git a/tiled/averguard/averguard_academy.tmx b/tiled/averguard/averguard_academy.tmx
+index 5a6e38899a3f29aedc09c024bb416d775fdfcdc9..46b594203d1de41f705de9b9bd51ee6c7fee8a39 100644
+--- a/tiled/averguard/averguard_academy.tmx
++++ b/tiled/averguard/averguard_academy.tmx
+@@ -410,7 +410,7 @@
+   <object name="barrel" type="run_once" x="320" y="1536" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,11,48,fixed,1,5"/>
++    <property name="loot" value="currency,11,48,fixed,5,20"/>
+     <property name="mapmod" value="object,10,48,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -435,7 +435,7 @@
+   <object name="crate" type="run_once" x="352" y="1472" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,12,46,fixed,1,5"/>
++    <property name="loot" value="currency,12,46,fixed,5,20"/>
+     <property name="mapmod" value="object,11,46,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -452,7 +452,7 @@
+   <object name="crate" type="run_once" x="480" y="1568" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,14,48,fixed,1,5"/>
++    <property name="loot" value="currency,14,48,fixed,5,20"/>
+     <property name="mapmod" value="object,15,49,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -466,14 +466,14 @@
+   <object name="boss tomb" type="run_once" x="128" y="2880" width="32" height="64">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,5,90,fixed,1,25;currency,5,91,fixed,1,30"/>
++    <property name="loot" value="currency,5,90,fixed,10,25;currency,5,91,fixed,10,30"/>
+     <property name="tooltip" value="Langlier's Tomb"/>
+    </properties>
+   </object>
+   <object name="teleport chest" type="run_once" x="1440" y="3104" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,45,98,15,80"/>
++    <property name="loot" value="currency,45,98,15,50"/>
+     <property name="mapmod" value="object,45,97,161"/>
+     <property name="tooltip" value="Treasure Chest"/>
+    </properties>
+diff --git a/tiled/averguard/averguard_complex.tmx b/tiled/averguard/averguard_complex.tmx
+index ccb30162e75b9992d0c21e8af9749d4f07a1f143..3ec9e674b9e088092afc2afbbb301b31edd0ea18 100644
+--- a/tiled/averguard/averguard_complex.tmx
++++ b/tiled/averguard/averguard_complex.tmx
+@@ -414,7 +414,7 @@
+   <object name="intro crate" type="run_once" x="2720" y="2368" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,86,74,fixed,1,5"/>
++    <property name="loot" value="currency,86,74,fixed,5,20"/>
+     <property name="mapmod" value="object,85,74,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -423,7 +423,7 @@
+   <object name="zombie barrels" type="run_once" x="2368" y="2016" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,74,64,fixed,1,5"/>
++    <property name="loot" value="currency,74,64,fixed,5,15"/>
+     <property name="mapmod" value="object,74,63,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -432,7 +432,7 @@
+   <object type="run_once" x="2336" y="1984" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,72,62,fixed,1,5"/>
++    <property name="loot" value="currency,72,62,fixed,5,15"/>
+     <property name="mapmod" value="object,73,62,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -441,7 +441,7 @@
+   <object type="run_once" x="2368" y="1984" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,74,61,fixed,1,10"/>
++    <property name="loot" value="currency,74,61,fixed,5,20"/>
+     <property name="mapmod" value="object,74,62,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -450,7 +450,7 @@
+   <object name="goblin firepit barrel/crate" type="run_once" x="2304" y="3072" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,73,96,fixed,1,5"/>
++    <property name="loot" value="currency,73,96,fixed,5,15"/>
+     <property name="mapmod" value="object,72,96,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -459,7 +459,7 @@
+   <object type="run_once" x="2304" y="3104" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,73,97,fixed,1,5"/>
++    <property name="loot" value="currency,73,97,fixed,5,15"/>
+     <property name="mapmod" value="object,72,97,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -468,7 +468,7 @@
+   <object name="secret room crate" type="run_once" x="2336" y="3520" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,72,109,fixed,1,10"/>
++    <property name="loot" value="currency,72,109,fixed,5,15"/>
+     <property name="mapmod" value="object,73,110,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -486,7 +486,7 @@
+   <object name="barracks chests" type="run_once" x="1312" y="1888" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,42,59,fixed,1,5"/>
++    <property name="loot" value="currency,42,59,fixed,5,10"/>
+     <property name="mapmod" value="object,41,59,160"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -495,7 +495,7 @@
+   <object type="run_once" x="1312" y="1824" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,42,57,fixed,1,10"/>
++    <property name="loot" value="currency,42,57,fixed,5,15"/>
+     <property name="mapmod" value="object,41,57,160"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -504,7 +504,7 @@
+   <object type="run_once" x="1312" y="1760" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,42,55,fixed,1,15"/>
++    <property name="loot" value="currency,42,55,fixed,10,25"/>
+     <property name="mapmod" value="object,41,55,160"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -513,7 +513,7 @@
+   <object type="run_once" x="1312" y="1696" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,42,53,fixed,1,10"/>
++    <property name="loot" value="currency,42,53,fixed,5,10"/>
+     <property name="mapmod" value="object,41,53,160"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -522,7 +522,7 @@
+   <object type="run_once" x="1312" y="1632" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,42,51,fixed,1,5"/>
++    <property name="loot" value="currency,42,51,fixed,5,10"/>
+     <property name="mapmod" value="object,41,51,160"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -531,7 +531,7 @@
+   <object name="large room storage" type="run_once" x="1600" y="896" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,51,28,fixed,1,5"/>
++    <property name="loot" value="currency,51,28,fixed,5,15"/>
+     <property name="mapmod" value="object,50,28,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -540,7 +540,7 @@
+   <object type="run_once" x="1600" y="928" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,51,29,fixed,1,5"/>
++    <property name="loot" value="currency,51,29,fixed,5,15"/>
+     <property name="mapmod" value="object,50,29,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -549,7 +549,7 @@
+   <object type="run_once" x="1760" y="896" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,54,28,fixed,1,5"/>
++    <property name="loot" value="currency,54,28,fixed,5,10"/>
+     <property name="mapmod" value="object,55,28,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -558,7 +558,7 @@
+   <object type="run_once" x="1760" y="928" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,54,29,fixed,1,5"/>
++    <property name="loot" value="currency,54,29,fixed,5,10"/>
+     <property name="mapmod" value="object,55,29,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -567,7 +567,7 @@
+   <object name="kill room chest" type="run_once" x="288" y="640" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,10,20,fixed,1,35;currency,9,21,fixed,1,35"/>
++    <property name="loot" value="currency,10,20,fixed,15,35;currency,9,21,fixed,15,35"/>
+     <property name="mapmod" value="object,9,20,160"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -576,7 +576,7 @@
+   <object name="kill room chest" type="run_once" x="288" y="928" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,10,29,fixed,1,30;currency,9,28,fixed,1,40"/>
++    <property name="loot" value="currency,10,29,fixed,15,30;currency,9,28,fixed,15,40"/>
+     <property name="mapmod" value="object,9,29,160"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+diff --git a/tiled/averguard/averguard_prison.tmx b/tiled/averguard/averguard_prison.tmx
+index 8e0a273460abc43ebac081fd33c4479d84ccb8b3..830e6124cd80e411d8da619ddf462a23ba929378 100644
+--- a/tiled/averguard/averguard_prison.tmx
++++ b/tiled/averguard/averguard_prison.tmx
+@@ -354,7 +354,7 @@
+   <object name="control room crate" type="run_once" x="64" y="1504" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,2,46,fixed,1,5"/>
++    <property name="loot" value="currency,2,46,fixed,5,15"/>
+     <property name="mapmod" value="object,2,47,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -363,7 +363,7 @@
+   <object name="torture room chest" type="run_once" x="384" y="2688" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,12,85,fixed,1,10"/>
++    <property name="loot" value="currency,12,85,fixed,10,25"/>
+     <property name="mapmod" value="object,12,84,161"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -419,7 +419,7 @@
+   <object type="run_once" x="2848" y="384" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,89,13,fixed,1,10"/>
++    <property name="loot" value="currency,89,13,fixed,15,40"/>
+     <property name="mapmod" value="object,89,12,183"/>
+    </properties>
+   </object>
+diff --git a/tiled/averguard/averguard_temple.tmx b/tiled/averguard/averguard_temple.tmx
+index b4e0f531fa0749a522575f65157f2f8ef3dd094a..4cd6ea14f90368207f7d707ff7f47b575982ae05 100644
+--- a/tiled/averguard/averguard_temple.tmx
++++ b/tiled/averguard/averguard_temple.tmx
+@@ -449,7 +449,7 @@
+    <properties>
+     <property name="cooldown" value="30"/>
+     <property name="power" value="31"/>
+-    <property name="power_damage" value="50,75"/>
++    <property name="power_damage" value="25,50"/>
+     <property name="power_path" value="15,58,hero"/>
+    </properties>
+   </object>
+@@ -514,7 +514,7 @@
+   <object type="run_once" x="480" y="32" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,14,2,fixed,1,30;currency,15,2,fixed,1,35;currency,16,2,fixed,1,25"/>
++    <property name="loot" value="currency,14,2,fixed,15,30;currency,15,2,fixed,15,35;currency,16,2,fixed,10,25"/>
+     <property name="mapmod" value="object,15,1,161"/>
+     <property name="requires_status" value="ak_maddox_defeated"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+@@ -534,7 +534,7 @@
+   <object type="run_once" x="480" y="288" width="32" height="64">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,16,9,fixed,1,25"/>
++    <property name="loot" value="currency,16,9,fixed,10,25"/>
+     <property name="msg" value="You wipe dust away from the tomb lid, revealing an inscription: &quot;Here lies Sir Evan Maddox&quot;"/>
+     <property name="tooltip" value="Maddox's Tomb"/>
+    </properties>
+diff --git a/tiled/averguard/cave1.tmx b/tiled/averguard/cave1.tmx
+index 78e931e24f139c9e82e9a1bf163e8970b9bbeb1d..f7a6596b6e4033a3de884b334f7771f803898415 100644
+--- a/tiled/averguard/cave1.tmx
++++ b/tiled/averguard/cave1.tmx
+@@ -341,7 +341,7 @@
+   <object type="run_once" x="544" y="1536" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,18,48,15,80"/>
++    <property name="loot" value="currency,18,48,fixed,15,30"/>
+     <property name="mapmod" value="object,17,48,128"/>
+     <property name="tooltip" value="Mine Cart"/>
+    </properties>
+@@ -349,7 +349,7 @@
+   <object name="nest treasure" type="run_once" x="928" y="2400" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,30,75,fixed,1,10"/>
++    <property name="loot" value="currency,30,75,fixed,15,40"/>
+     <property name="mapmod" value="object,29,75,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -358,7 +358,7 @@
+   <object type="run_once" x="1376" y="2944" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,45,93,fixed,1,20"/>
++    <property name="loot" value="currency,45,93,fixed,20,50"/>
+     <property name="mapmod" value="object,43,92,176"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -367,7 +367,7 @@
+   <object type="run_once" x="928" y="2432" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,30,76,fixed,1,10"/>
++    <property name="loot" value="currency,30,76,fixed,10,40"/>
+     <property name="mapmod" value="object,29,76,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -387,7 +387,7 @@
+   <object name="crate in nest hallway" type="run_once" x="1888" y="1952" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,60,61,fixed,1,10"/>
++    <property name="loot" value="currency,60,61,fixed,10,30"/>
+     <property name="mapmod" value="object,59,61,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -396,7 +396,7 @@
+   <object type="run_once" x="64" y="928" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,3,29,fixed,1,10"/>
++    <property name="loot" value="currency,3,29,fixed,10,30"/>
+     <property name="mapmod" value="object,2,29,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -405,7 +405,7 @@
+   <object type="run_once" x="64" y="960" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,3,30,fixed,1,10"/>
++    <property name="loot" value="currency,3,30,fixed,10,30"/>
+     <property name="mapmod" value="object,2,30,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -420,7 +420,7 @@
+   <object type="run_once" x="1088" y="800" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,34,26,fixed,1,15"/>
++    <property name="loot" value="currency,34,26,fixed,10,25"/>
+     <property name="mapmod" value="object,34,25,177"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -429,7 +429,7 @@
+   <object type="run_once" x="2784" y="1696" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,87,54,fixed,1,15"/>
++    <property name="loot" value="currency,87,54,fixed,10,25"/>
+     <property name="mapmod" value="object,87,53,177"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -438,7 +438,7 @@
+   <object type="run_once" x="2880" y="1696" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,90,54,fixed,1,10"/>
++    <property name="loot" value="currency,90,54,fixed,5,25"/>
+     <property name="mapmod" value="object,90,53,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -447,7 +447,7 @@
+   <object type="run_once" x="1344" y="128" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,43,5,fixed,1,15"/>
++    <property name="loot" value="currency,43,5,fixed,10,25"/>
+     <property name="mapmod" value="object,42,4,129"/>
+     <property name="tooltip" value="Mine Cart"/>
+    </properties>
+@@ -459,7 +459,7 @@
+   </object>
+   <object name="reward for being saved" type="run_once" x="2272" y="960" width="96" height="64">
+    <properties>
+-    <property name="loot" value="currency,73,32,fixed,1,15"/>
++    <property name="loot" value="currency,73,32,fixed,15,30"/>
+     <property name="msg" value="Talrych says, &quot;You arrived just in time.  Please, take this.&quot;"/>
+    </properties>
+   </object>
+diff --git a/tiled/averguard/goblin_warrens.tmx b/tiled/averguard/goblin_warrens.tmx
+index 0ae723d25e058f564f79fbed4e78b9d18f1828fa..3674ce0d71edc98fb6bfe3ce429f39934db33925 100644
+--- a/tiled/averguard/goblin_warrens.tmx
++++ b/tiled/averguard/goblin_warrens.tmx
+@@ -314,7 +314,7 @@
+   <object name="dorm room chest" type="run_once" x="96" y="1152" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,4,36,fixed,1,10"/>
++    <property name="loot" value="currency,4,36,fixed,10,30"/>
+     <property name="mapmod" value="object,3,36,160"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -323,7 +323,7 @@
+   <object name="dorm room barrel" type="run_once" x="32" y="1024" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,2,32,fixed,1,5"/>
++    <property name="loot" value="currency,2,32,fixed,10,20"/>
+     <property name="mapmod" value="object,1,32,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+diff --git a/tiled/averguard/lost_mines1.tmx b/tiled/averguard/lost_mines1.tmx
+index 170a32401a235ff367d28aa762975aa59b1ee055..e5d70295e1728d8526d9c960a5834edac43fd962 100644
+--- a/tiled/averguard/lost_mines1.tmx
++++ b/tiled/averguard/lost_mines1.tmx
+@@ -336,7 +336,7 @@
+   <object type="run_once" x="416" y="704" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,13,23,fixed,1,15"/>
++    <property name="loot" value="currency,13,23,fixed,5,15"/>
+     <property name="mapmod" value="object,13,22,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -345,7 +345,7 @@
+   <object type="run_once" x="352" y="672" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,11,22,fixed,1,20"/>
++    <property name="loot" value="currency,11,22,fixed,10,25"/>
+     <property name="mapmod" value="object,11,21,177"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -359,7 +359,7 @@
+   <object type="run_once" x="800" y="768" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,25,26,fixed,1,15"/>
++    <property name="loot" value="currency,25,26,fixed,5,15"/>
+     <property name="mapmod" value="object,26,25,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -368,7 +368,7 @@
+   <object type="run_once" x="832" y="1024" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,26,33,fixed,1,15"/>
++    <property name="loot" value="currency,26,33,fixed,5,15"/>
+     <property name="mapmod" value="object,26,32,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -377,7 +377,7 @@
+   <object type="run_once" x="896" y="1056" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,27,33,fixed,1,15"/>
++    <property name="loot" value="currency,27,33,fixed,5,15"/>
+     <property name="mapmod" value="object,28,33,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -386,7 +386,7 @@
+   <object type="run_once" x="800" y="768" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,25,25,fixed,1,15"/>
++    <property name="loot" value="currency,25,25,fixed,5,15"/>
+     <property name="mapmod" value="object,26,24,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -395,7 +395,7 @@
+   <object type="run_once" x="800" y="768" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,25,25,fixed,1,10"/>
++    <property name="loot" value="currency,25,25,fixed,5,15"/>
+     <property name="mapmod" value="object,25,24,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -404,7 +404,7 @@
+   <object type="run_once" x="1792" y="3040" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,57,95,fixed,1,20"/>
++    <property name="loot" value="currency,57,95,fixed,10,25"/>
+     <property name="mapmod" value="object,56,95,176"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -418,7 +418,7 @@
+   <object type="run_once" x="2016" y="2240" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,64,70,fixed,1,15"/>
++    <property name="loot" value="currency,64,70,fixed,5,15"/>
+     <property name="mapmod" value="object,63,70,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -427,7 +427,7 @@
+   <object type="run_once" x="2272" y="2336" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,71,72,fixed,1,15"/>
++    <property name="loot" value="currency,71,72,fixed,5,15"/>
+     <property name="mapmod" value="object,71,73,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -436,7 +436,7 @@
+   <object type="run_once" x="1600" y="1664" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,50,53,fixed,1,10"/>
++    <property name="loot" value="currency,50,53,fixed,5,15"/>
+     <property name="mapmod" value="object,50,52,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -459,7 +459,7 @@
+   <object type="run_once" x="1472" y="928" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,47,29,fixed,1,15"/>
++    <property name="loot" value="currency,47,29,fixed,5,15"/>
+     <property name="mapmod" value="object,46,29,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -468,7 +468,7 @@
+   <object type="run_once" x="1504" y="1024" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,48,32,fixed,1,15"/>
++    <property name="loot" value="currency,48,32,fixed,5,15"/>
+     <property name="mapmod" value="object,47,32,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -482,7 +482,7 @@
+   <object type="run_once" x="2560" y="2144" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,80,66,fixed,1,15"/>
++    <property name="loot" value="currency,80,66,fixed,5,15"/>
+     <property name="mapmod" value="object,80,67,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -491,7 +491,7 @@
+   <object type="run_once" x="2592" y="2144" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,81,66,fixed,1,15"/>
++    <property name="loot" value="currency,81,66,fixed,5,15"/>
+     <property name="mapmod" value="object,81,67,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -500,7 +500,7 @@
+   <object type="run_once" x="2528" y="2176" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,79,67,fixed,1,15"/>
++    <property name="loot" value="currency,79,67,fixed,5,15"/>
+     <property name="mapmod" value="object,79,68,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -509,7 +509,7 @@
+   <object type="run_once" x="3136" y="1920" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,98,61,fixed,1,20"/>
++    <property name="loot" value="currency,98,61,fixed,10,25"/>
+     <property name="mapmod" value="object,98,60,177"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -518,7 +518,7 @@
+   <object type="run_once" x="160" y="1088" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,6,34,fixed,1,15"/>
++    <property name="loot" value="currency,6,34,fixed,5,15"/>
+     <property name="mapmod" value="object,5,34,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -527,7 +527,7 @@
+   <object type="run_once" x="192" y="1056" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,7,33,fixed,1,15"/>
++    <property name="loot" value="currency,7,33,fixed,5,15"/>
+     <property name="mapmod" value="object,6,33,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+diff --git a/tiled/frontier/ancient_temple.tmx b/tiled/frontier/ancient_temple.tmx
+index 07be57ae27261a0cfe3321b1499dd65d24666e5c..57332bd23204b12df3169bcc2e37b48c73ca79b8 100644
+--- a/tiled/frontier/ancient_temple.tmx
++++ b/tiled/frontier/ancient_temple.tmx
+@@ -637,7 +637,7 @@
+   <object type="run_once" x="480" y="2272" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,15,72,fixed,1,10"/>
++    <property name="loot" value="currency,15,72,fixed,5,10"/>
+     <property name="mapmod" value="object,15,71,183"/>
+    </properties>
+   </object>
+diff --git a/tiled/frontier/frontier_plains.tmx b/tiled/frontier/frontier_plains.tmx
+index 9fdd23e45cfb8561d8d0ec84d7e73dc36efa6683..e9d3cf02872847aec7a39c37062cef1c7f1a089e 100644
+--- a/tiled/frontier/frontier_plains.tmx
++++ b/tiled/frontier/frontier_plains.tmx
+@@ -857,7 +857,7 @@
+   <object name="camp supply" type="run_once" x="4000" y="1376" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,124,43,fixed,1,10"/>
++    <property name="loot" value="currency,124,43,fixed,5,10"/>
+     <property name="mapmod" value="object,125,43,97"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+@@ -866,7 +866,7 @@
+   <object name="camp supply" type="run_once" x="3648" y="3104" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,114,98,fixed,1,5"/>
++    <property name="loot" value="currency,114,98,fixed,5,10"/>
+     <property name="mapmod" value="object,114,97,99"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+diff --git a/tiled/frontier/mineshaft_longsword.tmx b/tiled/frontier/mineshaft_longsword.tmx
+index 9c50675044fd625624573fe6f2c1d76023813c60..4813107b5fc64b293364f5810e6bc9f5d4a1da52 100644
+--- a/tiled/frontier/mineshaft_longsword.tmx
++++ b/tiled/frontier/mineshaft_longsword.tmx
+@@ -224,7 +224,7 @@
+   <object name="fork_crate" type="run_once" x="1504" y="1184" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,46,38,fixed,1,5"/>
++    <property name="loot" value="currency,46,38,fixed,3,8"/>
+     <property name="mapmod" value="object,47,37,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -233,7 +233,7 @@
+   <object name="backside_crate" type="run_once" x="896" y="480" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,27,14,fixed,1,5"/>
++    <property name="loot" value="currency,27,14,fixed,5,10"/>
+     <property name="mapmod" value="object,28,15,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -242,7 +242,7 @@
+   <object name="backside_barrel" type="run_once" x="480" y="384" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,16,13,fixed,1,5"/>
++    <property name="loot" value="currency,16,13,fixed,3,8"/>
+     <property name="mapmod" value="object,15,12,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+diff --git a/tiled/frontier/river_encampment.tmx b/tiled/frontier/river_encampment.tmx
+index b36f5db67c995edbb76b3e8fb8f52453d55ea0f6..e93f644043c2652a72eb4ab38b672af6e92d2863 100644
+--- a/tiled/frontier/river_encampment.tmx
++++ b/tiled/frontier/river_encampment.tmx
+@@ -278,7 +278,7 @@
+   <object name="cliff passage container" type="run_once" x="640" y="1376" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,21,44,fixed,1,15"/>
++    <property name="loot" value="currency,21,44,fixed,5,15"/>
+     <property name="mapmod" value="object,20,43,99"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+diff --git a/tiled/frontier/white_wind.tmx b/tiled/frontier/white_wind.tmx
+index da10615d3640bd2d38800be0550917a7f9cb2919..daf34aab0ef36811a5373fa3fa61552be5df5217 100644
+--- a/tiled/frontier/white_wind.tmx
++++ b/tiled/frontier/white_wind.tmx
+@@ -438,7 +438,7 @@
+   <object name="secret box" type="run_once" x="1728" y="192" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,114,55,fixed,1,25"/>
++    <property name="loot" value="currency,114,55,fixed,15,30"/>
+     <property name="mapmod" value="object,114,54,6"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+@@ -447,7 +447,7 @@
+   <object name="camp supply" type="run_once" x="128" y="896" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,5,28,fixed,1,15"/>
++    <property name="loot" value="currency,5,28,fixed,10,25"/>
+     <property name="mapmod" value="object,4,28,99"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+diff --git a/tiled/frontier/ydrakka_pass.tmx b/tiled/frontier/ydrakka_pass.tmx
+index 9b2b6bc759d4eb7b2c1505801f98c5c1e704be36..1946fdf3c9367fc49b6a7955618391ba48ba587c 100644
+--- a/tiled/frontier/ydrakka_pass.tmx
++++ b/tiled/frontier/ydrakka_pass.tmx
+@@ -370,7 +370,7 @@
+   <object name="camp supply" type="run_once" x="4000" y="1760" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,126,55,fixed,1,10"/>
++    <property name="loot" value="currency,126,55,fixed,10,20"/>
+     <property name="mapmod" value="object,125,55,99"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+diff --git a/tiled/living_bones/brothers_lair_fire_hall.tmx b/tiled/living_bones/brothers_lair_fire_hall.tmx
+index b86dcffaa3bf7fa87ecf3e3b8c5432f750080d83..a51bf19e3e33a780282749f10f07d96c49d87037 100644
+--- a/tiled/living_bones/brothers_lair_fire_hall.tmx
++++ b/tiled/living_bones/brothers_lair_fire_hall.tmx
+@@ -293,7 +293,7 @@
+   <object name="Barrel" type="run_once" x="736" y="2048" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,24,63,fixed,1,10"/>
++    <property name="loot" value="currency,24,63,fixed,10,30"/>
+     <property name="mapmod" value="object,23,64,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -302,7 +302,7 @@
+   <object name="Barrel" type="run_once" x="704" y="2048" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,22,63,fixed,1,20"/>
++    <property name="loot" value="currency,22,63,fixed,10,30"/>
+     <property name="mapmod" value="object,22,64,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -311,7 +311,7 @@
+   <object name="Crate" type="run_once" x="672" y="2048" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,21,63,fixed,1,15"/>
++    <property name="loot" value="currency,21,63,fixed,10,35"/>
+     <property name="mapmod" value="object,21,64,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -320,7 +320,7 @@
+   <object name="Crate" type="run_once" x="736" y="2016" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,23,62,fixed,1,25"/>
++    <property name="loot" value="currency,23,62,fixed,10,35"/>
+     <property name="mapmod" value="object,23,63,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -343,7 +343,7 @@
+   <object name="Vesuvvio's Chest" type="run_once" x="672" y="1920" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,22,60,fixed,100"/>
++    <property name="loot" value="currency,22,60,fixed,100,200"/>
+     <property name="mapmod" value="object,21,60,160"/>
+     <property name="remove_item" value="9102"/>
+     <property name="requires_item" value="9102"/>
+diff --git a/tiled/living_bones/brothers_lair_ice_hall.tmx b/tiled/living_bones/brothers_lair_ice_hall.tmx
+index ead27a2be72fdab48994a48217bb53e01d75e565..9af093e5037d24d1890789dc0894b95bfd157c1a 100644
+--- a/tiled/living_bones/brothers_lair_ice_hall.tmx
++++ b/tiled/living_bones/brothers_lair_ice_hall.tmx
+@@ -374,7 +374,7 @@
+   <object name="Crate" type="run_once" x="352" y="416" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,12,13,fixed,1,20"/>
++    <property name="loot" value="currency,12,13,fixed,15,30"/>
+     <property name="mapmod" value="object,11,13,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -383,7 +383,7 @@
+   <object name="Crate" type="run_once" x="704" y="416" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,22,14,fixed,1,15"/>
++    <property name="loot" value="currency,22,14,fixed,10,30"/>
+     <property name="mapmod" value="object,22,13,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -392,7 +392,7 @@
+   <object name="Crate" type="run_once" x="928" y="1536" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,29,49,fixed,1,15"/>
++    <property name="loot" value="currency,29,49,fixed,15,30"/>
+     <property name="mapmod" value="object,29,48,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -401,7 +401,7 @@
+   <object name="Barrel" type="run_once" x="352" y="448" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,11,15,fixed,1,15"/>
++    <property name="loot" value="currency,11,15,fixed,10,30"/>
+     <property name="mapmod" value="object,11,14,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -410,7 +410,7 @@
+   <object name="Barrel" type="run_once" x="384" y="448" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,12,15,fixed,1,15"/>
++    <property name="loot" value="currency,12,15,fixed,15,30"/>
+     <property name="mapmod" value="object,12,14,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -419,7 +419,7 @@
+   <object name="Barrel" type="run_once" x="736" y="416" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,23,14,fixed,1,15"/>
++    <property name="loot" value="currency,23,14,fixed,10,30"/>
+     <property name="mapmod" value="object,23,13,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -428,7 +428,7 @@
+   <object name="Treasure Chest" type="run_once" x="224" y="1600" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,8,50,fixed,1,20"/>
++    <property name="loot" value="currency,8,50,fixed,15,40"/>
+     <property name="mapmod" value="object,7,50,160"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -451,7 +451,7 @@
+   <object name="Scathelocke's Chest" type="run_once" x="448" y="320" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,15,10,fixed,100"/>
++    <property name="loot" value="currency,15,10,fixed,100,200"/>
+     <property name="mapmod" value="object,14,10,160"/>
+     <property name="remove_item" value="9101"/>
+     <property name="requires_item" value="9101"/>
+@@ -481,7 +481,7 @@
+   <object name="Treasure" type="run_once" x="960" y="1824" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,31,57,15,80"/>
++    <property name="loot" value="currency,31,57,fixed,15,40"/>
+     <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
+     <property name="tooltip" value="Bookcase"/>
+    </properties>
+@@ -489,7 +489,7 @@
+   <object name="Treasure" type="run_once" x="192" y="1952" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,7,61,15,80"/>
++    <property name="loot" value="currency,7,61,fixed,15,40"/>
+     <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
+     <property name="tooltip" value="Bookcase"/>
+    </properties>
+diff --git a/tiled/living_bones/brothers_lair_sacrifice_room.tmx b/tiled/living_bones/brothers_lair_sacrifice_room.tmx
+index fd2aa4a6e1c6cf94dc4061bd7c7f0545c1aa088d..f8838c42a8e9eb170d3e8fcadab13eec59bef1b6 100644
+--- a/tiled/living_bones/brothers_lair_sacrifice_room.tmx
++++ b/tiled/living_bones/brothers_lair_sacrifice_room.tmx
+@@ -227,7 +227,7 @@
+    <properties>
+     <property name="cooldown" value="60"/>
+     <property name="power" value="6"/>
+-    <property name="power_damage" value="5,10"/>
++    <property name="power_damage" value="25,50"/>
+     <property name="power_path" value="11,34,hero"/>
+     <property name="requires_status" value="lb_wind_attack"/>
+    </properties>
+@@ -236,7 +236,7 @@
+    <properties>
+     <property name="cooldown" value="60"/>
+     <property name="power" value="122"/>
+-    <property name="power_damage" value="5,10"/>
++    <property name="power_damage" value="25,50"/>
+     <property name="power_path" value="9,34,hero"/>
+     <property name="requires_status" value="lb_fire_attack"/>
+    </properties>
+@@ -245,7 +245,7 @@
+    <properties>
+     <property name="cooldown" value="60"/>
+     <property name="power" value="123"/>
+-    <property name="power_damage" value="5,10"/>
++    <property name="power_damage" value="25,50"/>
+     <property name="power_path" value="7,34,hero"/>
+     <property name="requires_status" value="lb_ice_attack"/>
+    </properties>
+diff --git a/tiled/living_bones/brothers_lair_wind_hall.tmx b/tiled/living_bones/brothers_lair_wind_hall.tmx
+index 5b84cd52ba1c1617ed6b3e4be415988f822223d5..3f4176b2a1cacf04b8a61ad43eb30f0e1363daeb 100644
+--- a/tiled/living_bones/brothers_lair_wind_hall.tmx
++++ b/tiled/living_bones/brothers_lair_wind_hall.tmx
+@@ -267,7 +267,7 @@
+   <object name="Waiting Fire Switch (Treasure)" type="run_once" x="800" y="1056" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,25,34,fixed,1,20"/>
++    <property name="loot" value="currency,25,34,fixed,10,50"/>
+     <property name="mapmod" value="object,25,33,166"/>
+     <property name="soundfx" value="soundfx/door_open.ogg"/>
+     <property name="tooltip" value="Waiting Fire Switch"/>
+@@ -322,7 +322,7 @@
+   <object name="Crate" type="run_once" x="992" y="480" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,31,14,fixed,1,15"/>
++    <property name="loot" value="currency,31,14,fixed,15,30"/>
+     <property name="mapmod" value="object,31,15,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -331,7 +331,7 @@
+   <object name="Crate" type="run_once" x="1152" y="448" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,35,13,fixed,1,15"/>
++    <property name="loot" value="currency,35,13,fixed,15,30"/>
+     <property name="mapmod" value="object,36,14,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -340,7 +340,7 @@
+   <object name="Crate" type="run_once" x="352" y="1472" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,11,45,fixed,1,20"/>
++    <property name="loot" value="currency,11,45,fixed,15,30"/>
+     <property name="mapmod" value="object,11,46,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -349,7 +349,7 @@
+   <object name="Crate" type="run_once" x="96" y="1472" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,4,45,fixed,1,15"/>
++    <property name="loot" value="currency,4,45,fixed,15,30"/>
+     <property name="mapmod" value="object,3,46,163"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -358,7 +358,7 @@
+   <object name="Barrel" type="run_once" x="96" y="1440" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,3,44,fixed,1,15"/>
++    <property name="loot" value="currency,3,44,fixed,15,30"/>
+     <property name="mapmod" value="object,3,45,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -367,7 +367,7 @@
+   <object name="Barrel" type="run_once" x="128" y="1472" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,5,46,fixed,1,15"/>
++    <property name="loot" value="currency,5,46,fixed,15,30"/>
+     <property name="mapmod" value="object,4,46,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -376,7 +376,7 @@
+   <object name="Barrel" type="run_once" x="320" y="1472" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,9,46,fixed,1,15"/>
++    <property name="loot" value="currency,9,46,fixed,15,30"/>
+     <property name="mapmod" value="object,10,46,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -385,7 +385,7 @@
+   <object name="Barrel" type="run_once" x="352" y="1408" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,10,44,fixed,1,20"/>
++    <property name="loot" value="currency,10,44,fixed,15,30"/>
+     <property name="mapmod" value="object,11,44,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -394,7 +394,7 @@
+   <object name="Barrel" type="run_once" x="1152" y="480" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,35,14,fixed,1,15"/>
++    <property name="loot" value="currency,35,14,fixed,15,30"/>
+     <property name="mapmod" value="object,36,15,162"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -403,7 +403,7 @@
+   <object name="Grisbon's Chest" type="run_once" x="992" y="224" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,32,7,fixed,100"/>
++    <property name="loot" value="currency,32,7,fixed,100,200"/>
+     <property name="mapmod" value="object,31,7,160"/>
+     <property name="remove_item" value="9103"/>
+     <property name="requires_item" value="9103"/>
+diff --git a/tiled/living_bones/cave_of_living_bones1.tmx b/tiled/living_bones/cave_of_living_bones1.tmx
+index 6bb6f4058c98143c9a62ba4a03e86e6811a44ace..d305e816674f6ce86f4b6dde32bdb667f69dcf6a 100644
+--- a/tiled/living_bones/cave_of_living_bones1.tmx
++++ b/tiled/living_bones/cave_of_living_bones1.tmx
+@@ -337,7 +337,7 @@
+   <object name="Crate" type="run_once" x="2208" y="2112" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,69,67,fixed,1,10"/>
++    <property name="loot" value="currency,69,67,fixed,10,30"/>
+     <property name="mapmod" value="object,69,66,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -346,7 +346,7 @@
+   <object name="Crate" type="run_once" x="2656" y="2656" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,84,82,fixed,1,10"/>
++    <property name="loot" value="currency,84,82,fixed,10,30"/>
+     <property name="mapmod" value="object,83,83,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -355,7 +355,7 @@
+   <object name="Crate" type="run_once" x="2816" y="2432" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,87,76,fixed,1,10"/>
++    <property name="loot" value="currency,87,76,fixed,10,30"/>
+     <property name="mapmod" value="object,88,76,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -364,7 +364,7 @@
+   <object name="Crate" type="run_once" x="960" y="2272" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,29,71,fixed,1,15"/>
++    <property name="loot" value="currency,29,71,fixed,10,30"/>
+     <property name="mapmod" value="object,30,71,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -373,7 +373,7 @@
+   <object name="Crate" type="run_once" x="1056" y="1184" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,34,37,fixed,1,15"/>
++    <property name="loot" value="currency,34,37,fixed,10,30"/>
+     <property name="mapmod" value="object,33,37,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -382,7 +382,7 @@
+   <object name="Crate" type="run_once" x="736" y="1248" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,23,40,fixed,1,10"/>
++    <property name="loot" value="currency,23,40,fixed,10,30"/>
+     <property name="mapmod" value="object,23,39,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -391,7 +391,7 @@
+   <object name="Barrel" type="run_once" x="928" y="2240" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,28,70,fixed,1,10"/>
++    <property name="loot" value="currency,28,70,fixed,10,30"/>
+     <property name="mapmod" value="object,29,70,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -400,7 +400,7 @@
+   <object name="Barrel" type="run_once" x="2176" y="2080" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,67,65,fixed,1,10"/>
++    <property name="loot" value="currency,67,65,fixed,10,30"/>
+     <property name="mapmod" value="object,68,65,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -409,7 +409,7 @@
+   <object name="Barrel" type="run_once" x="2720" y="2368" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,85,75,fixed,1,10"/>
++    <property name="loot" value="currency,85,75,fixed,10,30"/>
+     <property name="mapmod" value="object,85,74,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -418,7 +418,7 @@
+   <object name="Barrel" type="run_once" x="2656" y="2688" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,84,83,fixed,1,10"/>
++    <property name="loot" value="currency,84,83,fixed,10,30"/>
+     <property name="mapmod" value="object,83,84,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -427,7 +427,7 @@
+   <object name="Barrel" type="run_once" x="2336" y="1120" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,73,36,fixed,1,15"/>
++    <property name="loot" value="currency,73,36,fixed,10,30"/>
+     <property name="mapmod" value="object,73,35,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -436,7 +436,7 @@
+   <object name="Treasure Chest" type="run_once" x="672" y="1216" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,21,39,fixed,1,20"/>
++    <property name="loot" value="currency,21,39,fixed,15,35"/>
+     <property name="mapmod" value="object,21,38,177"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -445,7 +445,7 @@
+   <object name="Treasure Chest" type="run_once" x="928" y="1696" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,29,54,fixed,1,20"/>
++    <property name="loot" value="currency,29,54,fixed,15,35"/>
+     <property name="mapmod" value="object,29,53,177"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+diff --git a/tiled/living_bones/cave_of_living_bones2.tmx b/tiled/living_bones/cave_of_living_bones2.tmx
+index 438f3eeb4c226521b12440f57c4d40908a0430c0..dca69ffaec91ec90af96da6defc6d80a86e0db50 100644
+--- a/tiled/living_bones/cave_of_living_bones2.tmx
++++ b/tiled/living_bones/cave_of_living_bones2.tmx
+@@ -282,7 +282,7 @@
+   <object name="Barrel" type="run_once" x="1472" y="128" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,46,5,fixed,1,20"/>
++    <property name="loot" value="currency,46,5,fixed,10,30"/>
+     <property name="mapmod" value="object,46,4,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -291,7 +291,7 @@
+   <object name="Crate" type="run_once" x="1536" y="160" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,48,6,fixed,1,15"/>
++    <property name="loot" value="currency,48,6,fixed,10,30"/>
+     <property name="mapmod" value="object,48,5,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+@@ -300,7 +300,7 @@
+   <object name="Crate" type="run_once" x="608" y="1408" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,20,44,fixed,1,15"/>
++    <property name="loot" value="currency,20,44,fixed,10,30"/>
+     <property name="mapmod" value="object,19,44,179"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Crate"/>
+diff --git a/tiled/living_bones/cave_of_living_bones3.tmx b/tiled/living_bones/cave_of_living_bones3.tmx
+index a48cd066c762e2fc7d62115613190c20411ffc10..c2ac135188ad23a71c992e7cfdb6bb14f523dbc8 100644
+--- a/tiled/living_bones/cave_of_living_bones3.tmx
++++ b/tiled/living_bones/cave_of_living_bones3.tmx
+@@ -130,7 +130,7 @@
+   <object name="Barrel" type="run_once" x="160" y="192" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,6,7,fixed,1,15"/>
++    <property name="loot" value="currency,6,7,fixed,20,40"/>
+     <property name="mapmod" value="object,5,6,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>
+@@ -139,7 +139,7 @@
+   <object name="Barrel" type="run_once" x="96" y="576" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="currency,4,19,fixed,1,15"/>
++    <property name="loot" value="currency,4,19,fixed,20,40"/>
+     <property name="mapmod" value="object,3,18,178"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Barrel"/>

@@ -1,0 +1,1174 @@
+diff --git a/mods/alpha_demo/maps/cave1.txt b/mods/alpha_demo/maps/cave1.txt
+index 4700c6416882d32f93019f2927c1c97bd73bc85c..46f8e8d9ba53642f5d718abb247cefd28421b8b5 100644
+--- a/mods/alpha_demo/maps/cave1.txt
++++ b/mods/alpha_demo/maps/cave1.txt
+@@ -1,18 +1,20 @@
+ [header]
+-title=Caves Level 1
+ width=100
+ height=100
+-tileset=tileset_cave.txt
++tilewidth=64
++tileheight=32
+ location=4,12,5
+ music=cave_theme.ogg
++tileset=tileset_cave.txt
++title=Caves Level 1
+ 
+ [tilesets]
+-tileset=../../../tiled/tiled_collision.png,64,32
+-tileset=../../../tiled/tiled_dungeon.png,64,128
++tileset=../../../tiled/cave/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/cave/tiled_cave.png,64,128,0,0
++tileset=../../../tiled/cave/set_rules.png,64,32,0,0
+ 
+ [layer]
+ type=background
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -117,7 +119,6 @@ data=
+ 
+ [layer]
+ type=object
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -222,7 +223,6 @@ data=
+ 
+ [layer]
+ type=collision
+-format=dec
+ data=
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -331,14 +331,12 @@ type=teleport
+ location=2,12,1,2
+ intermap=goblin_warrens.txt,51,14
+ 
+-
+ [event]
+ # exit to lost mines level 1
+ type=teleport
+ location=15,68,2,1
+ intermap=lost_mines1.txt,53,5
+ 
+-
+ [npc]
+ # Trader in the goblin room
+ type=captured_trader
+@@ -348,103 +346,102 @@ location=72,31
+ type=run_once
+ location=42,4,1,1
+ hotspot=location
+-tooltip=Mine Cart
+-mapmod=object,42,4,129
+ loot=random,43,5,6
++mapmod=object,42,4,129
++tooltip=Mine Cart
+ 
+ [event]
+ type=run_once
+ location=2,29,1,1
+ hotspot=location
+-tooltip=Barrel
+-soundfx=soundfx/wood_open.ogg
+-mapmod=object,2,29,178
+ loot=random,3,29,5
++mapmod=object,2,29,178
++soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=2,30,1,1
+ hotspot=location
+-tooltip=Barrel
+-soundfx=soundfx/wood_open.ogg
+-mapmod=object,2,30,178
+ loot=random,3,30,5
++mapmod=object,2,30,178
++soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=17,48,1,1
+ hotspot=location
+-tooltip=Mine Cart
+-mapmod=object,17,48,128
+ loot=random,18,48,6
++mapmod=object,17,48,128
++tooltip=Mine Cart
+ 
+ [event]
+ type=run_once
+ location=34,25,1,1
+ hotspot=location
+-tooltip=Treasure Chest
+-soundfx=soundfx/wood_open.ogg
+-mapmod=object,34,25,177
+ loot=random,34,26,7
++mapmod=object,34,25,177
++soundfx=soundfx/wood_open.ogg
++tooltip=Treasure Chest
+ 
+ [event]
+ type=run_once
+ location=87,53,1,1
+ hotspot=location
+-tooltip=Treasure Chest
+-soundfx=soundfx/wood_open.ogg
+-mapmod=object,87,53,177
+ loot=random,87,54,7
++mapmod=object,87,53,177
++soundfx=soundfx/wood_open.ogg
++tooltip=Treasure Chest
+ 
+ [event]
+ type=run_once
+ location=90,53,1,1
+ hotspot=location
+-tooltip=Barrel
+-soundfx=soundfx/wood_open.ogg
+-mapmod=object,90,53,178
+ loot=random,90,54,5
++mapmod=object,90,53,178
++soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
+ 
+ [event]
+ # crate in nest hallway
+ type=run_once
+ location=59,61,1,1
+ hotspot=location
+-tooltip=Crate
+-soundfx=soundfx/wood_open.ogg
+-mapmod=object,59,61,179
+ loot=random,60,61,5
+-
++mapmod=object,59,61,179
++soundfx=soundfx/wood_open.ogg
++tooltip=Crate
+ 
+ [event]
+ # nest treasure
+ type=run_once
+ location=29,75,1,1
+ hotspot=location
+-tooltip=Barrel
+-soundfx=soundfx/wood_open.ogg
+-mapmod=object,29,75,178
+ loot=random,30,75,5
++mapmod=object,29,75,178
++soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=29,76,1,1
+ hotspot=location
+-tooltip=Barrel
+-soundfx=soundfx/wood_open.ogg
+-mapmod=object,29,76,178
+ loot=random,30,76,5
++mapmod=object,29,76,178
++soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=43,92,1,1
+ hotspot=location
+-tooltip=Treasure Chest
+-soundfx=soundfx/wood_open.ogg
+-mapmod=object,43,92,176
+ loot=random,44,92,9
+ loot=random,45,91,8
+ loot=random,45,93,8
++mapmod=object,43,92,176
++soundfx=soundfx/wood_open.ogg
++tooltip=Treasure Chest
+ 
+ [event]
+ # two hatchlings spawn
+@@ -571,8 +568,8 @@ msg=These goblins have captured a human trader.  Human bones are carefully arran
+ # reward for being saved
+ type=run_once
+ location=71,30,3,2
+-msg=Talrych says, "You arrived just in time.  Please, take this."
+ loot=random,73,32,6
++msg=Talrych says, "You arrived just in time.  Please, take this."
+ 
+ [enemy]
+ type=skeletal_archer
+@@ -598,22 +595,10 @@ location=10,30
+ # cave-in event
+ type=run_once
+ location=19,22,2,2
+-mapmod=collision,19,20,1
+-mapmod=collision,20,20,1
+-mapmod=collision,19,19,1
+-mapmod=collision,20,19,1
+-mapmod=object,19,21,151
+-mapmod=object,18,20,72
+-mapmod=object,19,20,65
+-mapmod=object,20,20,69
+-mapmod=object,21,20,73
+-mapmod=object,18,19,75
+-mapmod=object,19,19,67
+-mapmod=object,20,19,71
+-mapmod=object,21,19,74
+-soundfx=soundfx/powers/quake.ogg
++mapmod=collision,19,20,1;collision,20,20,1;collision,19,19,1;collision,20,19,1;object,19,21,151;object,18,20,72;object,19,20,65;object,20,20,69;object,21,20,73;object,18,19,75;object,19,19,67;object,20,19,71;object,21,19,74
+ msg=The walls collapse inward and rubble blocks off the passage!
+ shakycam=60
++soundfx=soundfx/powers/quake.ogg
+ 
+ [enemy]
+ type=skeletal_archer
+@@ -635,13 +620,7 @@ location=13,45
+ # release the skeletal mage
+ type=run_once
+ location=15,44,6,2
+-mapmod=object,14,44,80
+-mapmod=object,14,45,0
+-mapmod=object,14,46,83
+-mapmod=object,13,44,105
+-mapmod=object,13,46,107
+-mapmod=collision,14,45,0
+-mapmod=collision,13,45,0
++mapmod=object,14,44,80;object,14,45,0;object,14,46,83;object,13,44,105;object,13,46,107;collision,14,45,0;collision,13,45,0
+ soundfx=soundfx/door_open.ogg
+ 
+ [enemy]
+@@ -669,7 +648,6 @@ location=70,56
+ type=antlion_blinker
+ location=85,68
+ 
+-
+ [enemy]
+ # pathway to antlion nest
+ type=antlion_spitter
+@@ -698,20 +676,23 @@ location=52,69
+ [enemy]
+ type=antlion_hatchling
+ location=58,76
++
+ [enemy]
+ type=antlion_hatchling
+ location=59,76
++
+ [enemy]
+ type=antlion_hatchling
+ location=60,76
++
+ [enemy]
+ type=antlion_hatchling
+ location=61,76
++
+ [enemy]
+ type=antlion_hatchling
+ location=62,75
+ 
+-
+ [enemy]
+ # antlion nest
+ type=antlion_burster
+@@ -768,9 +749,11 @@ location=44,86
+ [enemy]
+ type=antlion_hatchling
+ location=36,72
++
+ [enemy]
+ type=antlion_hatchling
+ location=37,71
++
+ [enemy]
+ type=antlion_hatchling
+ location=39,71
+@@ -787,4 +770,3 @@ location=43,75
+ type=antlion_hatchling
+ location=46,77
+ 
+-
+diff --git a/mods/alpha_demo/maps/lost_mines1.txt b/mods/alpha_demo/maps/lost_mines1.txt
+index 62b26799bec32c2f8c6b53cc3f71676d8bead409..f3a6449c4ef95bec11db5e6371d5b0ba4d7f59ef 100644
+--- a/mods/alpha_demo/maps/lost_mines1.txt
++++ b/mods/alpha_demo/maps/lost_mines1.txt
+@@ -1,18 +1,20 @@
+ [header]
+-title=Lost Mines Level 1
+ width=100
+ height=100
+-tileset=tileset_cave.txt
++tilewidth=64
++tileheight=32
+ location=56,69,4
+ music=cave_theme.ogg
++tileset=tileset_cave.txt
++title=Lost Mines Level 1
+ 
+ [tilesets]
+-tileset=../../../tiled/tiled_collision.png,64,32
+-tileset=../../../tiled/tiled_dungeon.png,64,128
++tileset=../../../tiled/cave/tiled_collision.png,64,32,0,0
++tileset=../../../tiled/cave/tiled_cave.png,64,128,0,0
++tileset=../../../tiled/cave/set_rules.png,64,32,0,0
+ 
+ [layer]
+ type=background
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -117,7 +119,6 @@ data=
+ 
+ [layer]
+ type=object
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -222,7 +223,6 @@ data=
+ 
+ [layer]
+ type=collision
+-format=dec
+ data=
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -363,19 +363,19 @@ location=56,62
+ type=run_once
+ location=47,32,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,48,32,6
+ mapmod=object,47,32,178
+ soundfx=soundfx/wood_open.ogg
+-loot=random,48,32,6
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=46,29,1,1
+-mapmod=object,46,29,179
+ hotspot=location
+-tooltip=Crate
+-soundfx=soundfx/wood_open.ogg
+ loot=random,47,29,6
++mapmod=object,46,29,179
++soundfx=soundfx/wood_open.ogg
++tooltip=Crate
+ 
+ [event]
+ # miners message
+@@ -395,111 +395,111 @@ location=18,28
+ 
+ [enemygroup]
+ type=undead
++location=6,11,21,35
+ level=3,3
+ number=10
+-location=6,11,21,35
+ 
+ [enemygroup]
+ type=undead
++location=6,11,21,35
+ level=4,5
+ number=5
+-location=6,11,21,35
+ 
+ [enemygroup]
+ type=undead
++location=15,49,33,12
+ level=3,5
+ number=6
+-location=15,49,33,12
+ 
+ [event]
+ type=run_once
+ location=11,21,1,1
+ hotspot=location
+-tooltip=Treasure Chest
++loot=random,11,22,8
+ mapmod=object,11,21,177
+ soundfx=soundfx/wood_open.ogg
+-loot=random,11,22,8
++tooltip=Treasure Chest
+ 
+ [event]
+ type=run_once
+ location=13,22,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,13,23,6
+ mapmod=object,13,22,178
+ soundfx=soundfx/wood_open.ogg
+-loot=random,13,23,6
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=6,33,1,1
+ hotspot=location
+-tooltip=Crate
++loot=random,7,33,6
+ mapmod=object,6,33,179
+ soundfx=soundfx/wood_open.ogg
+-loot=random,7,33,6
++tooltip=Crate
+ 
+ [event]
+ type=run_once
+ location=5,34,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,6,34,6
+ mapmod=object,5,34,178
+ soundfx=soundfx/wood_open.ogg
+-loot=random,6,34,6
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=25,24,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,25,25,5
+ mapmod=object,25,24,178
+ soundfx=soundfx/wood_open.ogg
+-loot=random,25,25,5
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=25,24,1,1
+ hotspot=location
+-tooltip=Crate
++loot=random,25,25,6
+ mapmod=object,26,24,179
+ soundfx=soundfx/wood_open.ogg
+-loot=random,25,25,6
++tooltip=Crate
+ 
+ [event]
+ type=run_once
+ location=25,24,1,1
+ hotspot=location
+-tooltip=Crate
++loot=random,25,26,7
+ mapmod=object,26,25,179
+ soundfx=soundfx/wood_open.ogg
+-loot=random,25,26,7
++tooltip=Crate
+ 
+ [event]
+ type=run_once
+ location=26,32,1,1
+-mapmod=object,26,32,179
+ hotspot=location
+-tooltip=Crate
+-soundfx=soundfx/wood_open.ogg
+ loot=random,26,33,7
++mapmod=object,26,32,179
++soundfx=soundfx/wood_open.ogg
++tooltip=Crate
+ 
+ [event]
+ type=run_once
+ location=28,33,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,27,33,6
+ mapmod=object,28,33,178
+ soundfx=soundfx/wood_open.ogg
+-loot=random,27,33,6
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=50,52,1,1
+-mapmod=object,50,52,178
+ hotspot=location
+-tooltip=Barrel
+-soundfx=soundfx/wood_open.ogg
+ loot=random,50,53,5
++mapmod=object,50,52,178
++soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
+ 
+ [enemy]
+ type=skeletal_warrior
+@@ -512,11 +512,11 @@ location=56,80
+ [event]
+ type=run_once
+ location=56,95,1,1
+-mapmod=object,56,95,176
+ hotspot=location
+-tooltip=Treasure Chest
+-soundfx=soundfx/wood_open.ogg
+ loot=random,57,95,8
++mapmod=object,56,95,176
++soundfx=soundfx/wood_open.ogg
++tooltip=Treasure Chest
+ 
+ [event]
+ # river message
+@@ -535,17 +535,10 @@ msg=The river appears to have swollen recently, covering the location where the
+ type=run_once
+ location=80,60,1,1
+ hotspot=location
+-tooltip=Stalagmite Pillar
+-mapmod=collision,80,60,0
+-mapmod=collision,80,61,0
+-mapmod=collision,80,62,0
+-mapmod=collision,80,63,0
+-mapmod=object,80,60,151
+-mapmod=object,80,61,152
+-mapmod=object,80,62,151
+-mapmod=object,80,63,152
+-soundfx=soundfx/powers/quake.ogg
++mapmod=collision,80,60,0;collision,80,61,0;collision,80,62,0;collision,80,63,0;object,80,60,151;object,80,61,152;object,80,62,151;object,80,63,152
+ shakycam=20
++soundfx=soundfx/powers/quake.ogg
++tooltip=Stalagmite Pillar
+ 
+ [enemy]
+ type=antlion_spitter
+@@ -562,66 +555,66 @@ location=81,66
+ [enemygroup]
+ type=antlion_hatchling
+ location=91,57,2,4
+-number=5
+ level=2,6
++number=5
+ 
+ [enemygroup]
+ type=antlion
++location=66,55,24,18
+ level=4,6
+ number=6
+-location=66,55,24,18
+ 
+ [event]
+ type=run_once
+ location=63,70,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,64,70,6
+ mapmod=object,63,70,178
+ soundfx=soundfx/wood_open.ogg
+-loot=random,64,70,6
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=71,73,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,71,72,6
+ mapmod=object,71,73,178
+ soundfx=soundfx/wood_open.ogg
+-loot=random,71,72,6
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=79,68,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,79,67,6
+ mapmod=object,79,68,178
+ soundfx=soundfx/wood_open.ogg
+-loot=random,79,67,6
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=80,67,1,1
+ hotspot=location
+-tooltip=Barrel
++loot=random,80,66,6
+ mapmod=object,80,67,178
+ soundfx=soundfx/wood_open.ogg
+-loot=random,80,66,6
++tooltip=Barrel
+ 
+ [event]
+ type=run_once
+ location=81,67,1,1
+ hotspot=location
+-tooltip=Crate
++loot=random,81,66,6
+ mapmod=object,81,67,179
+ soundfx=soundfx/wood_open.ogg
+-loot=random,81,66,6
++tooltip=Crate
+ 
+ [event]
+ type=run_once
+ location=98,60,1,1
+ hotspot=location
+-tooltip=Treasure Chest
++loot=random,98,61,9
+ mapmod=object,98,60,177
+ soundfx=soundfx/wood_open.ogg
+-loot=random,98,61,9
++tooltip=Treasure Chest
+ 
+diff --git a/tiled/averguard/cave_level1.tmx b/tiled/averguard/cave_level1.tmx
+index 88b411b9bae41e4b2edf27db564eae4efe8f6091..eb00b80508b21dbf995b5f4f7b660465632bc7e6 100644
+--- a/tiled/averguard/cave_level1.tmx
++++ b/tiled/averguard/cave_level1.tmx
+@@ -1,10 +1,19 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <map version="1.0" orientation="isometric" width="100" height="100" tilewidth="64" tileheight="32">
+- <tileset firstgid="1" name="tiled_collision" tilewidth="64" tileheight="32">
+-  <image source="tiled_collision.png" width="960" height="32"/>
++ <properties>
++  <property name="location" value="4,12,5"/>
++  <property name="music" value="cave_theme.ogg"/>
++  <property name="tileset" value="tileset_cave.txt"/>
++  <property name="title" value="Caves Level 1"/>
++ </properties>
++ <tileset firstgid="1" name="tiled_collision.png" tilewidth="64" tileheight="32">
++  <image source="../cave/tiled_collision.png" width="960" height="32"/>
+  </tileset>
+- <tileset firstgid="16" name="cave" tilewidth="64" tileheight="128">
+-  <image source="tiled_cave.png" width="1024" height="1920"/>
++ <tileset firstgid="16" name="tiled_cave.png" tilewidth="64" tileheight="128">
++  <image source="../cave/tiled_cave.png" width="1024" height="1920"/>
++ </tileset>
++ <tileset firstgid="256" name="set_rules.png" tilewidth="64" tileheight="32">
++  <image source="../cave/set_rules.png" width="128" height="128"/>
+  </tileset>
+  <layer name="background" width="100" height="100">
+   <data encoding="csv">
+@@ -214,7 +223,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="100" height="100" opacity="0.49">
++ <layer name="collision" width="100" height="100">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -318,4 +327,229 @@
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ </data>
+  </layer>
++ <objectgroup name="event" width="100" height="100">
++  <object name="exit to goblin warrens" type="teleport" x="64" y="384" width="32" height="64">
++   <properties>
++    <property name="intermap" value="goblin_warrens.txt,51,14"/>
++   </properties>
++  </object>
++  <object name="exit to lost mines level 1" type="teleport" x="480" y="2176" width="64" height="32">
++   <properties>
++    <property name="intermap" value="lost_mines1.txt,53,5"/>
++   </properties>
++  </object>
++ </objectgroup>
++ <objectgroup name="npc" width="100" height="100">
++  <object name="Trader in the goblin room" type="captured_trader" x="2304" y="992" width="32" height="32"/>
++  <object type="run_once" x="1344" y="128" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,43,5,6"/>
++    <property name="mapmod" value="object,42,4,129"/>
++    <property name="tooltip" value="Mine Cart"/>
++   </properties>
++  </object>
++  <object type="run_once" x="64" y="928" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,3,29,5"/>
++    <property name="mapmod" value="object,2,29,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="run_once" x="64" y="960" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,3,30,5"/>
++    <property name="mapmod" value="object,2,30,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="run_once" x="544" y="1536" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,18,48,6"/>
++    <property name="mapmod" value="object,17,48,128"/>
++    <property name="tooltip" value="Mine Cart"/>
++   </properties>
++  </object>
++  <object type="run_once" x="1088" y="800" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,34,26,7"/>
++    <property name="mapmod" value="object,34,25,177"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Treasure Chest"/>
++   </properties>
++  </object>
++  <object type="run_once" x="2784" y="1696" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,87,54,7"/>
++    <property name="mapmod" value="object,87,53,177"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Treasure Chest"/>
++   </properties>
++  </object>
++  <object type="run_once" x="2880" y="1696" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,90,54,5"/>
++    <property name="mapmod" value="object,90,53,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object name="crate in nest hallway" type="run_once" x="1888" y="1952" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,60,61,5"/>
++    <property name="mapmod" value="object,59,61,179"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Crate"/>
++   </properties>
++  </object>
++  <object name="nest treasure" type="run_once" x="928" y="2400" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,30,75,5"/>
++    <property name="mapmod" value="object,29,75,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="run_once" x="928" y="2432" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,30,76,5"/>
++    <property name="mapmod" value="object,29,76,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="run_once" x="1376" y="2944" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,45,93,8"/>
++    <property name="mapmod" value="object,43,92,176"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Treasure Chest"/>
++   </properties>
++  </object>
++  <object name="two hatchlings spawn" type="run_once" x="256" y="256" width="160" height="160">
++   <properties>
++    <property name="power" value="134"/>
++    <property name="power_path" value="12,9,hero"/>
++   </properties>
++  </object>
++  <object type="run_once" x="256" y="256" width="160" height="160">
++   <properties>
++    <property name="power" value="134"/>
++    <property name="power_path" value="12,12,hero"/>
++   </properties>
++  </object>
++  <object name="warning message" type="run_once" x="608" y="448" width="96" height="96">
++   <properties>
++    <property name="msg" value="The crumbling walls of the south tunnel are held up by planks of rotting wood."/>
++   </properties>
++  </object>
++ </objectgroup>
++ <objectgroup name="enemy" width="100" height="100">
++  <object type="antlion_hatchling" x="1152" y="160" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1824" y="352" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1056" y="320" width="32" height="32"/>
++  <object type="antlion_slasher" x="1184" y="320" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1344" y="224" width="32" height="32"/>
++  <object type="antlion_slasher" x="1440" y="288" width="32" height="32"/>
++  <object type="antlion_spitter" x="1472" y="544" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1504" y="608" width="32" height="32"/>
++  <object type="antlion_slasher" x="1568" y="576" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1664" y="512" width="32" height="32"/>
++  <object type="antlion_spitter" x="1696" y="576" width="32" height="32"/>
++  <object type="antlion_slasher" x="1728" y="544" width="32" height="32"/>
++  <object type="antlion_spitter" x="1536" y="832" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1504" y="960" width="32" height="32"/>
++  <object type="antlion_slasher" x="1568" y="1056" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1504" y="1088" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1472" y="960" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1568" y="864" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1760" y="1056" width="32" height="32"/>
++  <object type="goblin_charger" x="2144" y="864" width="32" height="32"/>
++  <object type="goblin_spearman" x="2368" y="928" width="32" height="32"/>
++  <object type="goblin_charger" x="2400" y="1024" width="32" height="32"/>
++  <object type="goblin_shaman" x="2336" y="1056" width="32" height="32"/>
++  <object type="goblin_spearman" x="2336" y="1024" width="32" height="32"/>
++  <object name="ritual message" type="run_once" x="2080" y="864" width="96" height="160">
++   <properties>
++    <property name="msg" value="These goblins have captured a human trader.  Human bones are carefully arranged around the pillar in preparation for a goblin ritual."/>
++   </properties>
++  </object>
++  <object name="reward for being saved" type="run_once" x="2272" y="960" width="96" height="64">
++   <properties>
++    <property name="loot" value="random,73,32,6"/>
++    <property name="msg" value="Talrych says, &quot;You arrived just in time.  Please, take this.&quot;"/>
++   </properties>
++  </object>
++  <object type="skeletal_archer" x="512" y="928" width="32" height="32"/>
++  <object type="skeletal_mage" x="576" y="960" width="32" height="32"/>
++  <object type="skeletal_warrior" x="736" y="928" width="32" height="32"/>
++  <object type="minotaur" x="736" y="1056" width="32" height="32"/>
++  <object type="skeletal_warrior" x="320" y="960" width="32" height="32"/>
++  <object name="cave-in event" type="run_once" x="608" y="704" width="64" height="64">
++   <properties>
++    <property name="mapmod" value="object,21,19,74"/>
++    <property name="msg" value="The walls collapse inward and rubble blocks off the passage!"/>
++    <property name="shakycam" value="60"/>
++    <property name="soundfx" value="soundfx/powers/quake.ogg"/>
++   </properties>
++  </object>
++  <object type="skeletal_archer" x="544" y="1600" width="32" height="32"/>
++  <object type="skeletal_archer" x="512" y="1568" width="32" height="32"/>
++  <object type="minotaur" x="768" y="1664" width="32" height="32"/>
++  <object type="skeletal_mage" x="416" y="1440" width="32" height="32"/>
++  <object name="release the skeletal mage" type="run_once" x="480" y="1408" width="192" height="64">
++   <properties>
++    <property name="mapmod" value="collision,13,45,0"/>
++    <property name="soundfx" value="soundfx/door_open.ogg"/>
++   </properties>
++  </object>
++  <object name="misc tunnels" type="antlion_blinker" x="1248" y="1248" width="32" height="32"/>
++  <object type="antlion_burster" x="1376" y="1376" width="32" height="32"/>
++  <object type="antlion_blinker" x="1440" y="1536" width="32" height="32"/>
++  <object type="antlion_spitter" x="2368" y="1696" width="32" height="32"/>
++  <object type="antlion_slasher" x="2240" y="1792" width="32" height="32"/>
++  <object type="antlion_blinker" x="2720" y="2176" width="32" height="32"/>
++  <object name="pathway to antlion nest" type="antlion_spitter" x="2016" y="2048" width="32" height="32"/>
++  <object type="antlion_spitter" x="2016" y="2112" width="32" height="32"/>
++  <object type="antlion_slasher" x="2176" y="2176" width="32" height="32"/>
++  <object type="antlion_blinker" x="2144" y="2272" width="32" height="32"/>
++  <object type="antlion_burster" x="1920" y="2304" width="32" height="32"/>
++  <object type="antlion_blinker" x="1664" y="2208" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1856" y="2432" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1888" y="2432" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1920" y="2432" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1952" y="2432" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1984" y="2400" width="32" height="32"/>
++  <object name="antlion nest" type="antlion_burster" x="1216" y="2016" width="32" height="32"/>
++  <object type="antlion_burster" x="1152" y="2080" width="32" height="32"/>
++  <object type="antlion_burster" x="1344" y="2112" width="32" height="32"/>
++  <object type="antlion_blinker" x="1216" y="2240" width="32" height="32"/>
++  <object type="antlion_burster" x="1344" y="2336" width="32" height="32"/>
++  <object type="antlion_spitter" x="1184" y="2464" width="32" height="32"/>
++  <object type="antlion_blinker" x="1248" y="2528" width="32" height="32"/>
++  <object type="antlion_spitter" x="1344" y="2528" width="32" height="32"/>
++  <object type="antlion_slasher" x="1472" y="2560" width="32" height="32"/>
++  <object type="antlion_slasher" x="1024" y="2432" width="32" height="32"/>
++  <object type="antlion_slasher" x="1120" y="2528" width="32" height="32"/>
++  <object type="antlion_slasher" x="1184" y="2656" width="32" height="32"/>
++  <object type="antlion_burster" x="1408" y="2752" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1152" y="2304" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1184" y="2272" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1248" y="2272" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1408" y="2368" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1376" y="2400" width="32" height="32"/>
++  <object type="antlion_hatchling" x="1472" y="2464" width="32" height="32"/>
++ </objectgroup>
+ </map>
+diff --git a/tiled/averguard/lost_mine.tmx b/tiled/averguard/lost_mine.tmx
+index cfc56db529f8fc38242a30cb3e5bb8ea226beee3..be628fc066c64aedb93ff7d338e015b0e874dd45 100644
+--- a/tiled/averguard/lost_mine.tmx
++++ b/tiled/averguard/lost_mine.tmx
+@@ -1,11 +1,20 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <map version="1.0" orientation="isometric" width="100" height="100" tilewidth="64" tileheight="32">
+- <tileset firstgid="1" name="Collision" tilewidth="64" tileheight="32">
++ <properties>
++  <property name="location" value="56,69,4"/>
++  <property name="music" value="cave_theme.ogg"/>
++  <property name="tileset" value="tileset_cave.txt"/>
++  <property name="title" value="Lost Mines Level 1"/>
++ </properties>
++ <tileset firstgid="1" name="tiled_collision.png" tilewidth="64" tileheight="32">
+   <image source="../cave/tiled_collision.png" width="960" height="32"/>
+  </tileset>
+- <tileset firstgid="16" name="Caves" tilewidth="64" tileheight="128">
++ <tileset firstgid="16" name="tiled_cave.png" tilewidth="64" tileheight="128">
+   <image source="../cave/tiled_cave.png" width="1024" height="1920"/>
+  </tileset>
++ <tileset firstgid="256" name="set_rules.png" tilewidth="64" tileheight="32">
++  <image source="../cave/set_rules.png" width="128" height="128"/>
++ </tileset>
+  <layer name="background" width="100" height="100">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -318,4 +327,258 @@
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,2,2,1,3,3,3,3,3,3,3,3,3,1,2,2,2,2,2,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ </data>
+  </layer>
++ <objectgroup name="event" width="100" height="100">
++  <object name="exit to cave level 1" type="teleport" x="1696" y="128" width="64" height="32">
++   <properties>
++    <property name="intermap" value="cave1.txt,15,67"/>
++   </properties>
++  </object>
++ </objectgroup>
++ <objectgroup name="enemy" width="100" height="100">
++  <object type="skeletal_warrior" x="1568" y="672" width="32" height="32"/>
++  <object type="skeletal_warrior" x="1824" y="640" width="32" height="32"/>
++  <object type="goblin_spearman" x="1536" y="800" width="32" height="32"/>
++  <object type="minotaur" x="1760" y="992" width="32" height="32"/>
++  <object type="skeletal_archer" x="1792" y="1024" width="32" height="32"/>
++  <object type="skeletal_archer" x="1696" y="1024" width="32" height="32"/>
++  <object type="minotaur" x="1792" y="1984" width="32" height="32"/>
++  <object type="run_once" x="1504" y="1024" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,48,32,6"/>
++    <property name="mapmod" value="object,47,32,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="run_once" x="1472" y="928" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,47,29,6"/>
++    <property name="mapmod" value="object,46,29,179"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Crate"/>
++   </properties>
++  </object>
++  <object name="miners message" type="run_once" x="512" y="1504" width="96" height="96">
++   <properties>
++    <property name="msg" value="The undead in this room are dressed in the remnants of shredded mining clothes."/>
++   </properties>
++  </object>
++  <object name="necromancer message" type="run_once" x="576" y="896" width="160" height="160">
++   <properties>
++    <property name="msg" value="It looks like the necromancer has been raising the corpses of dead miners as his minions."/>
++   </properties>
++  </object>
++  <object type="necromancer_apprentice" x="576" y="896" width="32" height="32"/>
++ </objectgroup>
++ <objectgroup name="enemygroup" width="100" height="100">
++  <object type="undead" x="192" y="352" width="672" height="1120">
++   <properties>
++    <property name="level" value="3,3"/>
++    <property name="number" value="10"/>
++   </properties>
++  </object>
++  <object type="undead" x="192" y="352" width="672" height="1120">
++   <properties>
++    <property name="level" value="4,5"/>
++    <property name="number" value="5"/>
++   </properties>
++  </object>
++  <object type="undead" x="480" y="1568" width="1056" height="384">
++   <properties>
++    <property name="level" value="3,5"/>
++    <property name="number" value="6"/>
++   </properties>
++  </object>
++  <object type="run_once" x="352" y="672" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,11,22,8"/>
++    <property name="mapmod" value="object,11,21,177"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Treasure Chest"/>
++   </properties>
++  </object>
++  <object type="run_once" x="416" y="704" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,13,23,6"/>
++    <property name="mapmod" value="object,13,22,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="run_once" x="192" y="1056" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,7,33,6"/>
++    <property name="mapmod" value="object,6,33,179"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Crate"/>
++   </properties>
++  </object>
++  <object type="run_once" x="160" y="1088" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,6,34,6"/>
++    <property name="mapmod" value="object,5,34,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="run_once" x="800" y="768" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,25,25,5"/>
++    <property name="mapmod" value="object,25,24,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="run_once" x="800" y="768" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,25,25,6"/>
++    <property name="mapmod" value="object,26,24,179"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Crate"/>
++   </properties>
++  </object>
++  <object type="run_once" x="800" y="768" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,25,26,7"/>
++    <property name="mapmod" value="object,26,25,179"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Crate"/>
++   </properties>
++  </object>
++  <object type="run_once" x="832" y="1024" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,26,33,7"/>
++    <property name="mapmod" value="object,26,32,179"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Crate"/>
++   </properties>
++  </object>
++  <object type="run_once" x="896" y="1056" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,27,33,6"/>
++    <property name="mapmod" value="object,28,33,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="run_once" x="1600" y="1664" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,50,53,5"/>
++    <property name="mapmod" value="object,50,52,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="skeletal_warrior" x="1760" y="2560" width="32" height="32"/>
++  <object type="skeletal_warrior" x="1792" y="2560" width="32" height="32"/>
++  <object type="run_once" x="1792" y="3040" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,57,95,8"/>
++    <property name="mapmod" value="object,56,95,176"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Treasure Chest"/>
++   </properties>
++  </object>
++  <object name="river message" type="run_once" x="2144" y="1984" width="128" height="128">
++   <properties>
++    <property name="msg" value="A natural underground river flows through this room."/>
++   </properties>
++  </object>
++  <object name="river message 2" type="run_once" x="2816" y="2112" width="96" height="96">
++   <properties>
++    <property name="msg" value="The river appears to have swollen recently, covering the location where the tracks once were."/>
++   </properties>
++  </object>
++  <object name="falling pillar/bridge event" type="run_once" x="2560" y="1920" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="mapmod" value="object,80,63,152"/>
++    <property name="shakycam" value="20"/>
++    <property name="soundfx" value="soundfx/powers/quake.ogg"/>
++    <property name="tooltip" value="Stalagmite Pillar"/>
++   </properties>
++  </object>
++  <object type="antlion_spitter" x="2272" y="2272" width="32" height="32"/>
++  <object type="antlion_freezer" x="2496" y="2112" width="32" height="32"/>
++  <object type="antlion_freezer" x="2592" y="2112" width="32" height="32"/>
++  <object type="antlion_hatchling" x="2912" y="1824" width="64" height="128">
++   <properties>
++    <property name="level" value="2,6"/>
++    <property name="number" value="5"/>
++   </properties>
++  </object>
++  <object type="antlion" x="2112" y="1760" width="768" height="576">
++   <properties>
++    <property name="level" value="4,6"/>
++    <property name="number" value="6"/>
++   </properties>
++  </object>
++  <object type="run_once" x="2016" y="2240" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,64,70,6"/>
++    <property name="mapmod" value="object,63,70,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="run_once" x="2272" y="2336" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,71,72,6"/>
++    <property name="mapmod" value="object,71,73,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="run_once" x="2528" y="2176" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,79,67,6"/>
++    <property name="mapmod" value="object,79,68,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="run_once" x="2560" y="2144" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,80,66,6"/>
++    <property name="mapmod" value="object,80,67,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
++  <object type="run_once" x="2592" y="2144" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,81,66,6"/>
++    <property name="mapmod" value="object,81,67,179"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Crate"/>
++   </properties>
++  </object>
++  <object type="run_once" x="3136" y="1920" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,98,61,9"/>
++    <property name="mapmod" value="object,98,60,177"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Treasure Chest"/>
++   </properties>
++  </object>
++ </objectgroup>
+ </map>

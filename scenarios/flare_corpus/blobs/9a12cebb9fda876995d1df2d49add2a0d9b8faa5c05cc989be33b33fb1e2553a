@@ -1,0 +1,194 @@
+diff --git a/mods/alpha_demo/animations/brothers.txt b/mods/alpha_demo/animations/brothers.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..0593452481750550fc0fd68ec8798504a0d0da66
+--- /dev/null
++++ b/mods/alpha_demo/animations/brothers.txt
+@@ -0,0 +1,59 @@
++render_size_x=128
++render_size_y=128
++render_offset_x=64
++render_offset_y=96
++
++[stance]
++position=0
++frames=4
++duration=180
++type=back_forth
++
++[run]
++position=4
++frames=8
++duration=60
++type=looped
++
++[melee]
++position=12
++frames=4
++duration=90
++type=play_once
++
++[ment]
++position=24
++frames=4
++duration=90
++type=play_once
++
++[ranged]
++position=28
++frames=4
++duration=90
++type=play_once
++
++[block]
++position=16
++frames=2
++duration=30
++type=play_once
++
++[hit]
++position=18
++frames=2
++duration=60
++type=play_once
++
++[die]
++position=18
++frames=6
++duration=120
++type=play_once
++
++[critdie]
++position=18
++frames=6
++duration=120
++type=play_once
++
+diff --git a/mods/alpha_demo/animations/necromancer.txt b/mods/alpha_demo/animations/necromancer.txt
+index 0593452481750550fc0fd68ec8798504a0d0da66..b21778c7ba1342fd96338a2d66cc43fa5b7031ca 100644
+--- a/mods/alpha_demo/animations/necromancer.txt
++++ b/mods/alpha_demo/animations/necromancer.txt
+@@ -6,54 +6,59 @@ render_offset_y=96
+ [stance]
+ position=0
+ frames=4
+-duration=180
++duration=300
+ type=back_forth
+ 
+ [run]
+ position=4
+ frames=8
+-duration=60
++duration=90
+ type=looped
+ 
+ [melee]
+ position=12
+ frames=4
+-duration=90
++duration=120
+ type=play_once
+ 
+ [ment]
+-position=24
++position=16
+ frames=4
+ duration=90
+ type=play_once
+ 
+ [ranged]
+-position=28
++position=16
+ frames=4
+ duration=90
+ type=play_once
+ 
+ [block]
+-position=16
++position=20
+ frames=2
+-duration=30
++duration=90
+ type=play_once
+ 
+ [hit]
+-position=18
++position=22
+ frames=2
+ duration=60
+ type=play_once
+ 
+ [die]
+-position=18
++position=22
+ frames=6
+-duration=120
++duration=60
+ type=play_once
+ 
+ [critdie]
+-position=18
+-frames=6
+-duration=120
++position=28
++frames=8
++duration=90
+ type=play_once
+ 
++[spawn]
++position=36
++frames=8
++duration=133
++type=play_once
+diff --git a/mods/alpha_demo/enemies/grisbon.txt b/mods/alpha_demo/enemies/grisbon.txt
+index 3aed9eecbf939d37bb1dca540428db351b6894a3..14c6fcb3244c5f96f012d7ea144cecd95db3a26c 100644
+--- a/mods/alpha_demo/enemies/grisbon.txt
++++ b/mods/alpha_demo/enemies/grisbon.txt
+@@ -4,7 +4,7 @@ xp=11
+ 
+ sfx_prefix=human_male
+ gfx_prefix=grisbon
+-animations=necromancer
++animations=brothers
+ animation_speed=100
+ 
+ loot_chance=0
+diff --git a/mods/alpha_demo/enemies/necromancer_apprentice.txt b/mods/alpha_demo/enemies/necromancer_apprentice.txt
+index 472bfebcc13cdb998d875f3caed1ea0de9cbf3b1..794460fdb14dda74c2ca92b6e806daa2665efc8b 100644
+--- a/mods/alpha_demo/enemies/necromancer_apprentice.txt
++++ b/mods/alpha_demo/enemies/necromancer_apprentice.txt
+@@ -5,7 +5,7 @@ xp=50
+ 
+ sfx_prefix=human_male
+ gfx_prefix=necromancer
+-animations=zombie
++animations=necromancer
+ animation_speed=150
+ 
+ loot_chance=100
+diff --git a/mods/alpha_demo/enemies/scathelocke.txt b/mods/alpha_demo/enemies/scathelocke.txt
+index 9eb8f6d5ab0aa9d6015767c6bb6b95485219a9d8..1e94a6906ee813ee90206407add13c550896c16d 100644
+--- a/mods/alpha_demo/enemies/scathelocke.txt
++++ b/mods/alpha_demo/enemies/scathelocke.txt
+@@ -4,7 +4,7 @@ xp=11
+ 
+ sfx_prefix=human_male
+ gfx_prefix=scathelocke
+-animations=necromancer
++animations=brothers
+ animation_speed=100
+ 
+ loot_chance=0
+diff --git a/mods/alpha_demo/enemies/vesuvvio.txt b/mods/alpha_demo/enemies/vesuvvio.txt
+index df9b66092db328c2d611f178f9d4493a11487942..586b23aa8083c9f55fd40c49fdfdbabaf969ec41 100644
+--- a/mods/alpha_demo/enemies/vesuvvio.txt
++++ b/mods/alpha_demo/enemies/vesuvvio.txt
+@@ -4,7 +4,7 @@ xp=11
+ 
+ sfx_prefix=human_male
+ gfx_prefix=vesuvvio
+-animations=necromancer
++animations=brothers
+ animation_speed=100
+ 
+ loot_chance=0

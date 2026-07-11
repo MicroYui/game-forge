@@ -1,0 +1,1155 @@
+diff --git a/mods/alpha_demo/maps/ancient_temple.txt b/mods/alpha_demo/maps/ancient_temple.txt
+index d03180c6fa0a6eaec01d981f60523e358ed24c5c..d2d39f98c6169ac716fdca7fd6a6f7322b6531b7 100644
+--- a/mods/alpha_demo/maps/ancient_temple.txt
++++ b/mods/alpha_demo/maps/ancient_temple.txt
+@@ -440,7 +440,7 @@ hotspot=location
+ loot=128,23,13,fixed,1
+ mapmod=object,23,12,161
+ repeat=false
+-requires_not=at_chest1
++requires_not_status=at_chest1
+ set_status=at_chest1
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -453,7 +453,7 @@ hotspot=location
+ loot=57,25,11,fixed,1
+ mapmod=object,24,11,160
+ repeat=false
+-requires_not=at_chest2
++requires_not_status=at_chest2
+ set_status=at_chest2
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+@@ -616,7 +616,7 @@ location=44,92,4,5
+ mapmod=background,44,94,265
+ msg=Ancient Temple waypoint discovered.
+ repeat=false
+-requires_not=waypoint_ancient_temple
++requires_not_status=waypoint_ancient_temple
+ set_status=waypoint_ancient_temple
+ 
+ [event]
+diff --git a/mods/alpha_demo/maps/averguard_academy.txt b/mods/alpha_demo/maps/averguard_academy.txt
+index ca60a49d484bf8e49404c6c2ed95647f08cc21b8..e2bdbc6b5b5cc362444362bf044a8f064a960fde 100644
+--- a/mods/alpha_demo/maps/averguard_academy.txt
++++ b/mods/alpha_demo/maps/averguard_academy.txt
+@@ -389,7 +389,7 @@ loot=2,21,75,fixed,1
+ mapmod=object,20,75,164
+ msg=This false book has a secret compartment.
+ repeat=false
+-requires_not=av_academy_bookstand1
++requires_not_status=av_academy_bookstand1
+ set_status=av_academy_bookstand1
+ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Book Stand
+diff --git a/mods/alpha_demo/maps/averguard_atrium.txt b/mods/alpha_demo/maps/averguard_atrium.txt
+index e2ef0450905d2089168fe489b6d751aaedc6d976..95ac4cd8ca15db07337924e25dd4080311bb37c3 100644
+--- a/mods/alpha_demo/maps/averguard_atrium.txt
++++ b/mods/alpha_demo/maps/averguard_atrium.txt
+@@ -263,7 +263,7 @@ location=6,47,6,6
+ mapmod=background,8,50,265
+ msg=Averguard Atrium waypoint discovered
+ repeat=false
+-requires_not=waypoint_averguard_atrium
++requires_not_status=waypoint_averguard_atrium
+ set_status=waypoint_averguard_atrium
+ 
+ [enemy]
+diff --git a/mods/alpha_demo/maps/averguard_prison.txt b/mods/alpha_demo/maps/averguard_prison.txt
+index 0bfc60e7dd20f8aa94cb791ce39ff172fe769dcd..bf79225e6a02b6595543f45363098df245bea752 100644
+--- a/mods/alpha_demo/maps/averguard_prison.txt
++++ b/mods/alpha_demo/maps/averguard_prison.txt
+@@ -387,7 +387,7 @@ hotspot=location
+ loot=1,21,31,fixed,1
+ mapmod=object,21,30,161
+ repeat=false
+-requires_not=av_prison_chest1
++requires_not_status=av_prison_chest1
+ set_status=av_prison_chest1
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Treasure Chest
+diff --git a/mods/alpha_demo/maps/averguard_temple.txt b/mods/alpha_demo/maps/averguard_temple.txt
+index 355dad4f9a99a4b3e33dd147b29eca09641c1a51..01d060a0209f3a284fbf850dbb57f1971fd18d18 100644
+--- a/mods/alpha_demo/maps/averguard_temple.txt
++++ b/mods/alpha_demo/maps/averguard_temple.txt
+@@ -449,7 +449,7 @@ hotspot=location
+ msg=You insert the Averguard Key. Runes glow around the door, then fade. The door is still sealed.
+ repeat=false
+ requires_item=9001
+-requires_not=ak_talisman_found
++requires_not_status=ak_talisman_found
+ requires_status=ak_key_found
+ set_status=ak_temple_sealed
+ tooltip=Sealed Temple Door
+@@ -461,7 +461,7 @@ location=13,89,1,1
+ hotspot=15,88,1,1
+ msg=You read aloud the runes on Langlier's Talisman. The Avergard Key begins to glow!
+ repeat=false
+-requires_not=ak_talisman_used
++requires_not_status=ak_talisman_used
+ requires_status=ak_key_found,ak_talisman_found
+ set_status=ak_talisman_used
+ shakycam=60
+@@ -505,7 +505,7 @@ location=15,1,1,1
+ hotspot=location
+ msg=This chest is locked.
+ repeat=false
+-requires_not=ak_maddox_defeated
++requires_not_status=ak_maddox_defeated
+ tooltip=Treasure Chest
+ 
+ [event]
+diff --git a/mods/alpha_demo/maps/brothers_lair_atrium.txt b/mods/alpha_demo/maps/brothers_lair_atrium.txt
+index 58be4d3aefe7cf17fd0b6f86d5ddd8f664033bc9..55a31598ff4bf4e21bf9bc9e2caa5affe4c55c8f 100644
+--- a/mods/alpha_demo/maps/brothers_lair_atrium.txt
++++ b/mods/alpha_demo/maps/brothers_lair_atrium.txt
+@@ -246,7 +246,7 @@ type=on_trigger
+ location=12,17,6,6
+ mapmod=background,14,20,265
+ msg=Brothers Lair Atrium waypoint discovered
+-requires_not=waypoint_brothers_lair_atrium
++requires_not_status=waypoint_brothers_lair_atrium
+ set_status=waypoint_brothers_lair_atrium
+ repeat=false
+ 
+diff --git a/mods/alpha_demo/maps/brothers_lair_fire_hall.txt b/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
+index aa490b46fe9a0f1929a1b81ca659616cbe149829..72dac05bf66965ee1410d49daa502c8b59a75814 100644
+--- a/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_fire_hall.txt
+@@ -361,7 +361,7 @@ hotspot=location
+ power=18
+ power_damage=100,150
+ power_path=21,60,21,60
+-requires_not=lb_fire_key,lb_fire_looted
++requires_not_status=lb_fire_key,lb_fire_looted
+ tooltip=Runed Chest
+ 
+ [event]
+diff --git a/mods/alpha_demo/maps/brothers_lair_ice_hall.txt b/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
+index 5c90b13078484fda36ae7382125bae5cdb83f248..7dd89da85e9bd99650921c09d55051de447500ae 100644
+--- a/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_ice_hall.txt
+@@ -462,7 +462,7 @@ mapmod=object,14,10,160
+ remove_item=9101
+ repeat=false
+ requires_item=9101
+-requires_not=lb_ice_spellbook,lb_ice_looted
++requires_not_status=lb_ice_spellbook,lb_ice_looted
+ set_status=lb_ice_looted,lb_ice_spellbook
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Runed Chest
+@@ -478,7 +478,7 @@ mapmod=object,14,10,160
+ remove_item=9101
+ repeat=false
+ requires_item=9101
+-requires_not=lb_ice_looted
++requires_not_status=lb_ice_looted
+ set_status=lb_ice_looted
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Runed Chest
+@@ -492,7 +492,7 @@ hotspot=location
+ power=14
+ power_damage=100,150
+ power_path=14,10,hero
+-requires_not=lb_ice_looted;lb_ice_key
++requires_not_status=lb_ice_looted;lb_ice_key
+ tooltip=Runed Chest
+ 
+ [event]
+diff --git a/mods/alpha_demo/maps/brothers_lair_wind_hall.txt b/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
+index 544b9552da6e9a2bcb99e0c00df5e3848493f790..22157ef3558d54674cafaa6a0ba913a5d2ecbb78 100644
+--- a/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
++++ b/mods/alpha_demo/maps/brothers_lair_wind_hall.txt
+@@ -451,7 +451,7 @@ hotspot=location
+ power=6
+ power_damage=100,150
+ power_path=31,7,hero
+-requires_not=lb_wind_key,lb_wind_looted
++requires_not_status=lb_wind_key,lb_wind_looted
+ tooltip=Runed Chest
+ 
+ [event]
+diff --git a/mods/alpha_demo/maps/cave_of_living_bones2.txt b/mods/alpha_demo/maps/cave_of_living_bones2.txt
+index e3a7513a3dd2404f68581f1b8892ee9defb5ff3d..7fc89c4979c62919a9be34886bde73806a604ec2 100644
+--- a/mods/alpha_demo/maps/cave_of_living_bones2.txt
++++ b/mods/alpha_demo/maps/cave_of_living_bones2.txt
+@@ -320,7 +320,7 @@ type=on_trigger
+ location=47,44,1,1
+ hotspot=45,42,3,3
+ msg=This pillar is laced with cracks and crevices. Maybe with enough force it can be knocked down.
+-requires_not=lb_has_explosive
++requires_not_status=lb_has_explosive
+ set_status=lb_destroy_pillar
+ tooltip=Giant Pillar
+ 
+@@ -330,7 +330,7 @@ type=on_trigger
+ location=47,44,1,1
+ hotspot=45,42,3,3
+ mapmod=object,47,44,163
+-requires_not=lb_explosive_set
++requires_not_status=lb_explosive_set
+ requires_status=lb_has_explosive
+ set_status=lb_explosive_set
+ tooltip=Place Explosive
+@@ -343,7 +343,7 @@ mapmod=object,47,44,0;object,47,43,0;collision,47,43,2;object,47,42,0;collision,
+ power=18
+ power_path=47,44,47,44
+ repeat=false
+-requires_not=lb_explosive_detonated
++requires_not_status=lb_explosive_detonated
+ requires_status=lb_explosive_set
+ set_status=lb_explosive_detonated
+ shakycam=60
+@@ -356,7 +356,7 @@ mapmod=object,47,44,0;object,47,43,0;collision,47,43,2;object,47,42,0;collision,
+ power=18
+ power_path=47,44,47,44
+ repeat=false
+-requires_not=lb_explosive_detonated
++requires_not_status=lb_explosive_detonated
+ requires_status=lb_explosive_set
+ set_status=lb_explosive_detonated
+ shakycam=60
+@@ -369,7 +369,7 @@ mapmod=object,47,44,0;object,47,43,0;collision,47,43,2;object,47,42,0;collision,
+ power=18
+ power_path=47,44,47,44
+ repeat=false
+-requires_not=lb_explosive_detonated
++requires_not_status=lb_explosive_detonated
+ requires_status=lb_explosive_set
+ set_status=lb_explosive_detonated
+ shakycam=60
+diff --git a/mods/alpha_demo/maps/frontier_outpost.txt b/mods/alpha_demo/maps/frontier_outpost.txt
+index d2214f18e733a5b49afe87d717c09415ac0f5761..2237d4725a03d69ec822655272a7ec1ec3f6b82b 100644
+--- a/mods/alpha_demo/maps/frontier_outpost.txt
++++ b/mods/alpha_demo/maps/frontier_outpost.txt
+@@ -279,7 +279,7 @@ location=32,8,5,5
+ mapmod=background,33,10,265
+ msg=Frontier Outpost waypoint discovered.
+ repeat=false
+-requires_not=waypoint_frontier_outpost
++requires_not_status=waypoint_frontier_outpost
+ set_status=waypoint_frontier_outpost
+ 
+ [event]
+diff --git a/mods/alpha_demo/maps/frontier_plains.txt b/mods/alpha_demo/maps/frontier_plains.txt
+index 941a3f5cfd2db9edc35a973972d9328289cf826a..3b3fa1e190f7e12bc2daa4f2c869cbf8e691039b 100644
+--- a/mods/alpha_demo/maps/frontier_plains.txt
++++ b/mods/alpha_demo/maps/frontier_plains.txt
+@@ -833,7 +833,7 @@ hotspot=location
+ loot=65,117,36,fixed,1
+ mapmod=object,117,35,99
+ repeat=false
+-requires_not=fp_crate3
++requires_not_status=fp_crate3
+ set_status=fp_crate3
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+@@ -846,7 +846,7 @@ hotspot=location
+ loot=1,50,31,fixed,1
+ mapmod=object,50,30,97
+ repeat=false
+-requires_not=fp_crate1
++requires_not_status=fp_crate1
+ set_status=fp_crate1
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+@@ -1106,7 +1106,7 @@ soundfx=soundfx/environment/raven_loop.ogg
+ type=on_load
+ location=246,182,2,2
+ cutscene=frontier_plains_cutscene.txt
+-requires_not=been_on_plains
++requires_not_status=been_on_plains
+ set_status=been_on_plains
+ 
+ [enemygroup]
+diff --git a/mods/alpha_demo/maps/goblin_warrens.txt b/mods/alpha_demo/maps/goblin_warrens.txt
+index dabd189ce51c769b80a3efc8a8e8c83dbf712856..38c59659314b2bc134728a37bae902e94206586b 100644
+--- a/mods/alpha_demo/maps/goblin_warrens.txt
++++ b/mods/alpha_demo/maps/goblin_warrens.txt
+@@ -327,7 +327,7 @@ loot=9000,2,29,fixed,1
+ mapmod=object,2,28,165
+ msg=This book bears the seal of the Averguard
+ repeat=false
+-requires_not=ak_tome_found
++requires_not_status=ak_tome_found
+ requires_status=ak_tome_search
+ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Book Stand
+diff --git a/mods/alpha_demo/maps/mineshaft_longsword.txt b/mods/alpha_demo/maps/mineshaft_longsword.txt
+index 58fdde68fe1ba26d8b532988a0bb29a4881f1e2c..698db5d33fdf103ac20fd771505782d9f932efd5 100644
+--- a/mods/alpha_demo/maps/mineshaft_longsword.txt
++++ b/mods/alpha_demo/maps/mineshaft_longsword.txt
+@@ -270,7 +270,7 @@ soundfx=soundfx/environment/cave_droplets_loop.ogg
+ # spawn_reanimated_skeleton
+ type=on_load
+ location=22,46,4,4
+-requires_not=ml_skeleton_defeated
++requires_not_status=ml_skeleton_defeated
+ requires_status=ml_skeleton_search
+ spawn=reanimated_skeleton,6,28
+ 
+diff --git a/mods/alpha_demo/maps/river_encampment.txt b/mods/alpha_demo/maps/river_encampment.txt
+index ddce70424506aa62d557d9961ce75082a8c93f96..7615d3e996fa5058396fbde79c3bc26a64ed6007 100644
+--- a/mods/alpha_demo/maps/river_encampment.txt
++++ b/mods/alpha_demo/maps/river_encampment.txt
+@@ -368,7 +368,7 @@ hotspot=location
+ loot=127,11,13,fixed,1
+ mapmod=object,10,13,99
+ repeat=false
+-requires_not=re_crate4
++requires_not_status=re_crate4
+ set_status=re_crate4
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+@@ -381,7 +381,7 @@ hotspot=location
+ loot=2,10,15,fixed,1
+ mapmod=object,9,15,97
+ repeat=false
+-requires_not=re_crate3
++requires_not_status=re_crate3
+ set_status=re_crate3
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+@@ -394,7 +394,7 @@ hotspot=location
+ loot=1,38,26,fixed,1
+ mapmod=object,38,27,97
+ repeat=false
+-requires_not=re_crate1
++requires_not_status=re_crate1
+ set_status=re_crate1
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+diff --git a/mods/alpha_demo/maps/ydrakka_pass.txt b/mods/alpha_demo/maps/ydrakka_pass.txt
+index c60618d531d864cc1c43526ced58b4376ddce121..58d6ede634ead8727e4da1b725588d9b52e75204 100644
+--- a/mods/alpha_demo/maps/ydrakka_pass.txt
++++ b/mods/alpha_demo/maps/ydrakka_pass.txt
+@@ -384,7 +384,7 @@ location=99,44,6,6
+ mapmod=background,101,47,265
+ msg=Ydrakka Pass waypoint discovered.
+ repeat=false
+-requires_not=waypoint_ydrakka_pass
++requires_not_status=waypoint_ydrakka_pass
+ set_status=waypoint_ydrakka_pass
+ 
+ [event]
+diff --git a/mods/alpha_demo/npcs/guill.txt b/mods/alpha_demo/npcs/guill.txt
+index b1207225c37dd37be2a2ae244c6f8c2403f44ecb..ff8292faa6d35c53ee0003227e8e26dad610cbe1 100644
+--- a/mods/alpha_demo/npcs/guill.txt
++++ b/mods/alpha_demo/npcs/guill.txt
+@@ -14,7 +14,7 @@ gfx=wandering_trader2
+ [dialog]
+ topic=Chat
+ set_status=ak_intro
+-requires_not=ak_maddox_reward
++requires_not_status=ak_maddox_reward
+ him=I am Guill, a scribe with the Order. I am grateful you've come -- we are short on trained warriors due to the call-to-arms in Ancelot.
+ you=Why is the Order interested in these ruins?
+ him=What the locals call the Goblin Warrens is actually the entrance to a grand underground fortress known as Averguard Keep. This site is sacred to our order. Our primary mission is to cleanse the evil from this place.
+@@ -22,7 +22,7 @@ him=What the locals call the Goblin Warrens is actually the entrance to a grand
+ [dialog]
+ topic=Goblins Warrens
+ requires_status=ak_intro
+-requires_not=ak_ukkonen_search
++requires_not_status=ak_ukkonen_search
+ set_status=ak_ukkonen_search
+ unset_status=ak_ukkonen_defeated
+ him=The goblins in the Warrens answer to a warlord named Ukkonen. Most goblins are merely curious; this Ukkonen is bloodthirsty. Punish him for desecrating this place. His lair is here in the Warrens.
+@@ -30,14 +30,14 @@ him=The goblins in the Warrens answer to a warlord named Ukkonen. Most goblins a
+ [dialog]
+ topic=Ukkonen Search
+ requires_status=ak_ukkonen_search
+-requires_not=ak_ukkonen_defeated
++requires_not_status=ak_ukkonen_defeated
+ him=Ukkonen's lair is somewhere here in the Goblin Warrens.
+ 
+ [dialog]
+ topic=Ukkonen Defeated
+ requires_status=ak_ukkonen_search
+ requires_status=ak_ukkonen_defeated
+-requires_not=ak_ukkonen_reward
++requires_not_status=ak_ukkonen_reward
+ set_status=ak_ukkonen_reward
+ reward_currency=50
+ reward_xp=100
+@@ -46,7 +46,7 @@ him=Ukkonen is defeated -- I sensed a calm in this place the moment you ended hi
+ [dialog]
+ topic=Averguard Chronicles
+ requires_status=ak_intro
+-requires_not=ak_tome_found
++requires_not_status=ak_tome_found
+ set_status=ak_tome_search
+ him=The Averguard left a set of Chronicles detailing their final era. One volume is missing. I've searched this entire area except for Ukkonen's lair. If you find the book please return to me.
+ you=I'll keep an eye out for it.
+@@ -65,7 +65,7 @@ him=You found this tome in Ukkonen's lair? Most excellent -- I feared this volum
+ [dialog]
+ topic=Averguard Keep
+ requires_status=ak_tome_reward
+-requires_not=ak_key_found
++requires_not_status=ak_key_found
+ set_status=ak_key_search
+ him=This tome confirms what we know of Averguard Keep -- it crumbled against the plague many centuries ago. But not all of the infected were destroyed. It appears many undead where locked away in hopes that a cure would be found.
+ you=Why were the undead spared?
+@@ -73,7 +73,7 @@ him=I don't know, but we should investigate. Head into the Atrium, then the Aver
+ 
+ [dialog]
+ topic=Averguard Key
+-requires_not=ak_key_reward
++requires_not_status=ak_key_reward
+ requires_status=ak_key_found
+ requires_item=9001
+ you=I have the prison key. The old prison warden carried it on his person -- he was infected, haunting the depths of the Prison.
+@@ -87,8 +87,8 @@ him=A true shame that he was infected.  Well, now that we have the Averguard Key
+ [dialog]
+ topic=Burial Chamber
+ requires_status=ak_key_reward
+-requires_not=ak_temple_sealed
+-requires_not=ak_talisman_used
++requires_not_status=ak_temple_sealed
++requires_not_status=ak_talisman_used
+ set_status=ak_temple_search
+ him=There is one place within the Keep that no living being has seen for centuries: the burial chamber behind Averguard Temple. From the Atrium you can access the Temple. Use your key to enter the Burial Chamber.
+ you=Who is buried there?
+@@ -98,7 +98,7 @@ him=The powerful leader of the Averguard -- Sir Evan Maddox.
+ 
+ [dialog]
+ topic=Key to Burial Chamber
+-requires_not=ak_talisman_found
++requires_not_status=ak_talisman_found
+ requires_status=ak_temple_sealed
+ set_status=ak_talisman_search
+ you=I tried the key on the Burial Chamber door but it would not open.
+@@ -111,7 +111,7 @@ him=I must admit jealousy -- I have dreamed many years of seeing the old volumes
+ [dialog]
+ topic=Langlier's Talisman
+ requires_status=ak_talisman_found
+-requires_not=ak_talisman_reward
++requires_not_status=ak_talisman_reward
+ requires_item=9002
+ you=I am back from the Academy. Langlier was rags and bones, yet still a powerful mage. He wore this symbol.
+ set_status=ak_talisman_reward
+@@ -121,7 +121,7 @@ him=Fate has delivered this talisman to you. With it and the Averguard Key, you
+ 
+ [dialog]
+ topic=Sir Evan Maddox
+-requires_not=ak_maddox_defeated
++requires_not_status=ak_maddox_defeated
+ requires_status=ak_key_found
+ requires_status=ak_talisman_found
+ set_status=ak_maddox_search
+@@ -132,7 +132,7 @@ topic=Maddox Defeated
+ requires_status=ak_maddox_defeated
+ requires_status=ak_key_reward
+ requires_status=ak_talisman_reward
+-requires_not=ak_maddox_reward
++requires_not_status=ak_maddox_reward
+ set_status=ak_maddox_reward
+ remove_item=9001
+ remove_item=9002
+diff --git a/mods/alpha_demo/npcs/martigan.txt b/mods/alpha_demo/npcs/martigan.txt
+index 5c83ea19834238b74d4a26dfa7105f62c3798070..5c89c0372da0abf420fa23422758f16c1f2368af 100644
+--- a/mods/alpha_demo/npcs/martigan.txt
++++ b/mods/alpha_demo/npcs/martigan.txt
+@@ -9,7 +9,7 @@ talker=true
+ gfx=guild_man1
+ 
+ [dialog]
+-requires_not=martigan_init
++requires_not_status=martigan_init
+ him=Welcome to my mines, stranger. If you have the back for it, I've got the work.
+ you=I heard you might have something more interesting.
+ him=Ah, you're the adventurer? If you seek out danger you're in the right place. We had two guards stationed here; both were recalled to Ancelot. Now we're vulnerable.
+@@ -18,7 +18,7 @@ set_status=martigan_init
+ [dialog]
+ topic=Goblin Camp
+ requires_status=ml_skeleton_reward
+-requires_not=fr_rilrak_search
++requires_not_status=fr_rilrak_search
+ him=We're having problems. Goblins. All the noise from our mining is drawing their attention. We can't have them thinking we're easy prey.
+ set_status=fr_rilrak_search
+ unset_status=fr_rilrak_defeated
+@@ -28,14 +28,14 @@ him=Attack their encampment up river from here. 20 gold now, 80 more when you re
+ [dialog]
+ topic=Goblin Camp Search
+ requires_status=fr_rilrak_search
+-requires_not=fr_rilrak_defeated
++requires_not_status=fr_rilrak_defeated
+ him=The goblins have an encampment up the river from here on the west side. Clear them out and I'll pay you 80 gold.
+ 
+ [dialog]
+ topic=Rilrak Defeated
+ requires_status=fr_rilrak_search
+ requires_status=fr_rilrak_defeated
+-requires_not=fr_rilrak_reward
++requires_not_status=fr_rilrak_reward
+ set_status=fr_rilrak_reward
+ reward_currency=80
+ reward_xp=50
+@@ -49,7 +49,7 @@ him=A member of the Order passed through our camp a few days ago. He left for th
+ [dialog]
+ topic=Rotten Tower
+ requires_status=ml_skeleton_reward
+-requires_not=rotten_tower_search
++requires_not_status=rotten_tower_search
+ him=This region was once well guarded. There are watch towers positioned throughout these plains, but most are abandoned and crumbling now.
+ him=I need someone to inspect the outpost tower in White Winds, south west of the Frontier Plains. Let me know if goblins have found their way inside.
+ set_status=rotten_tower_search
+@@ -57,13 +57,13 @@ set_status=rotten_tower_search
+ [dialog]
+ topic=Rotten Tower Search
+ requires_status=rotten_tower_search
+-requires_not=rotten_tower_found
++requires_not_status=rotten_tower_found
+ him=Search for the abandoned tower southwest of the Frontier plains. The lands around there are called White Wind.
+ 
+ [dialog]
+ topic=Rotten Tower Found
+ requires_status=rotten_tower_found
+-requires_not=rotten_tower_inspected
++requires_not_status=rotten_tower_inspected
+ you=There are plenty of goblins in the White Winds area, but not near the tower.
+ him=Are you sure? Did you look inside the tower?
+ you=Well...
+@@ -71,7 +71,7 @@ you=Well...
+ [dialog]
+ topic=Rotten Tower Found
+ requires_status=rotten_tower_inspected
+-requires_not=rotten_tower_reward
++requires_not_status=rotten_tower_reward
+ you=There are plenty of goblins in the white winds area, but not near the tower.
+ him=Are you sure? Did you look inside the tower?
+ you=I saw no signs of goblins through the locked iron grate door.
+@@ -83,7 +83,7 @@ reward_xp=20
+ [dialog]
+ topic=Mineshaft
+ requires_status=martigan_init
+-requires_not=ml_skeleton_search
++requires_not_status=ml_skeleton_search
+ you=So how's the mining business?
+ him=Not good at all. While I was digging, my pickaxe scraped a skull that was wedged in the rock wall. Before I knew it, the nasty thing started moving and a whole body emerged. Now that thing is in there, preventing any more mining.
+ him=Kill that skeleton for me, and I'll make it worth your while.
+@@ -93,14 +93,14 @@ unset_status=ml_skeleton_defeated
+ [dialog]
+ topic=Reanimated Skeleton
+ requires_status=ml_skeleton_search
+-requires_not=ml_skeleton_defeated
++requires_not_status=ml_skeleton_defeated
+ him=Please take care of that skeleton. Work in the mine can't continue otherwise.
+ 
+ [dialog]
+ topic=Skeleton Defeated
+ requires_status=ml_skeleton_search
+ requires_status=ml_skeleton_defeated
+-requires_not=ml_skeleton_reward
++requires_not_status=ml_skeleton_reward
+ you=I've defeated the Reanimated Skeleton.
+ him=Excellent work! As promised, here's a little something for your troubles.
+ set_status=ml_skeleton_reward
+diff --git a/mods/alpha_demo/npcs/statue_guardian_fire.txt b/mods/alpha_demo/npcs/statue_guardian_fire.txt
+index e654ab1012d14f9c493c259c090b6d4d1d287e9c..4158d9ec5f4c9d70ddb2bee48763d0d07fd82af8 100644
+--- a/mods/alpha_demo/npcs/statue_guardian_fire.txt
++++ b/mods/alpha_demo/npcs/statue_guardian_fire.txt
+@@ -7,7 +7,7 @@ talker=true
+ gfx=statue_guardian_fire
+ 
+ [dialog]
+-requires_not=lb_fire_password
++requires_not_status=lb_fire_password
+ him=Who goes there?
+ you=I came here to kill lots of monsters.
+ set_status=lb_fire_locked
+@@ -16,7 +16,7 @@ him=Intruder! You shall not interrupt the masters' work!
+ 
+ [dialog]
+ requires_status=lb_fire_password
+-requires_not=lb_fire_unlocked
++requires_not_status=lb_fire_unlocked
+ him=Who goes there?
+ you=Vesuvvio.
+ him=...Are you feeling alright, Master Vesuvvio? You did not refer to yourself as "the Destroyer."
+diff --git a/mods/alpha_demo/npcs/statue_guardian_ice.txt b/mods/alpha_demo/npcs/statue_guardian_ice.txt
+index 1e81ce0d286a1c843592a990028151893050e979..657dfab40f877020c42c3f85f29f17dbf9d1a6bc 100644
+--- a/mods/alpha_demo/npcs/statue_guardian_ice.txt
++++ b/mods/alpha_demo/npcs/statue_guardian_ice.txt
+@@ -7,7 +7,7 @@ talker=true
+ gfx=statue_guardian_ice
+ 
+ [dialog]
+-requires_not=lb_ice_password
++requires_not_status=lb_ice_password
+ him=Who goes there?
+ you=Uh... a lone adventurer?
+ set_status=lb_ice_locked
+@@ -16,7 +16,7 @@ him=Intruder! You shall not interrupt the masters' work!
+ 
+ [dialog]
+ requires_status=lb_ice_password
+-requires_not=lb_ice_unlocked
++requires_not_status=lb_ice_unlocked
+ him=Who goes there?
+ you=Scathelocke.
+ set_status=lb_ice_unlocked
+diff --git a/mods/alpha_demo/npcs/statue_guardian_wind.txt b/mods/alpha_demo/npcs/statue_guardian_wind.txt
+index 3c9b94680665074a0a7346362be9a229e9bcefe9..5ed971dd539c1ccf2aa11ee97b2928c980d5c231 100644
+--- a/mods/alpha_demo/npcs/statue_guardian_wind.txt
++++ b/mods/alpha_demo/npcs/statue_guardian_wind.txt
+@@ -7,7 +7,7 @@ talker=true
+ gfx=statue_guardian_wind
+ 
+ [dialog]
+-requires_not=lb_wind_password
++requires_not_status=lb_wind_password
+ him=Who goes there?
+ you=A friend of the masters.
+ set_status=lb_wind_locked
+@@ -16,7 +16,7 @@ him=Intruder! You shall not interrupt the masters' work!
+ 
+ [dialog]
+ requires_status=lb_wind_password
+-requires_not=lb_wind_unlocked
++requires_not_status=lb_wind_unlocked
+ him=Who goes there?
+ you=Grisbon.
+ set_status=lb_wind_unlocked
+diff --git a/mods/alpha_demo/quests/averguard_keep.txt b/mods/alpha_demo/quests/averguard_keep.txt
+index 48160c6fe6077a2b3085f44e72b3f5a1a3b9003a..4cbf0371ec1c8fdd012dfc447a863edf32492a68 100644
+--- a/mods/alpha_demo/quests/averguard_keep.txt
++++ b/mods/alpha_demo/quests/averguard_keep.txt
+@@ -4,63 +4,63 @@
+ 
+ [quest]
+ requires_status=ak_ukkonen_search
+-requires_not=ak_ukkonen_defeated
++requires_not_status=ak_ukkonen_defeated
+ quest_text=Defeat Ukkonen in the Goblin Warrens.
+ 
+ [quest]
+ requires_status=ak_ukkonen_search
+ requires_status=ak_ukkonen_defeated
+-requires_not=ak_ukkonen_reward
++requires_not_status=ak_ukkonen_reward
+ quest_text=Report your victory over Ukkonen to Guill in the Goblin Warrens.
+ 
+ [quest]
+ requires_status=ak_tome_search
+-requires_not=ak_tome_found
++requires_not_status=ak_tome_found
+ quest_text=Search Ukkonen's lair in the Goblin Warrens for a missing Averguard Tome.
+ 
+ [quest]
+ requires_status=ak_tome_found
+-requires_not=ak_tome_reward
++requires_not_status=ak_tome_reward
+ quest_text=Deliver the Averguard Tome to Guill in the Goblin Warrens.
+ 
+ [quest]
+ requires_status=ak_key_search
+-requires_not=ak_key_found
++requires_not_status=ak_key_found
+ quest_text=Find the Averguard Key. It is held in Averguard Prison.
+ 
+ [quest]
+ requires_status=ak_key_found
+-requires_not=ak_key_reward
++requires_not_status=ak_key_reward
+ quest_text=Tell Guill that you have found the Averguard Key.
+ 
+ [quest]
+ requires_status=ak_temple_search
+-requires_not=ak_temple_sealed
+-requires_not=ak_talisman_used
++requires_not_status=ak_temple_sealed
++requires_not_status=ak_talisman_used
+ quest_text=Use the Averguard Key to enter the burial chamber deep within Averguard Temple.
+ 
+ [quest]
+ requires_status=ak_temple_sealed
+-requires_not=ak_talisman_search
++requires_not_status=ak_talisman_search
+ quest_text=The Averguard Key did not open the burial chamber door. Speak to Guill for help.
+ 
+ [quest]
+ requires_status=ak_talisman_search
+-requires_not=ak_talisman_found
++requires_not_status=ak_talisman_found
+ quest_text=Search the Averguard Academy for Professor Langlier's secret to breaking the Burial Chamber seal.
+ 
+ [quest]
+ requires_status=ak_talisman_found
+-requires_not=ak_talisman_reward
++requires_not_status=ak_talisman_reward
+ quest_text=Show Langlier's Talisman to Guill.
+ 
+ [quest]
+ requires_status=ak_maddox_search
+-requires_not=ak_maddox_defeated
++requires_not_status=ak_maddox_defeated
+ quest_text=Enter the Averguard Temple burial chamber and defeat Sir Evan Maddox.
+ 
+ [quest]
+ requires_status=ak_maddox_defeated
+-requires_not=ak_maddox_reward
++requires_not_status=ak_maddox_reward
+ quest_text=Report Maddox's defeat to Guill
+ 
+diff --git a/mods/alpha_demo/quests/frontier.txt b/mods/alpha_demo/quests/frontier.txt
+index b976c5d780a857314c4fc9307a14260282678823..0c68b5dabbda3d69674d0226eaef0f9a32f62e74 100644
+--- a/mods/alpha_demo/quests/frontier.txt
++++ b/mods/alpha_demo/quests/frontier.txt
+@@ -1,11 +1,11 @@
+ [quest]
+ requires_status=fr_rilrak_search
+-requires_not=fr_rilrak_defeated
++requires_not_status=fr_rilrak_defeated
+ quest_text=Defeat the goblins at the River Encampment
+ 
+ [quest]
+ requires_status=fr_rilrak_search
+ requires_status=fr_rilrak_defeated
+-requires_not=fr_rilrak_reward
++requires_not_status=fr_rilrak_reward
+ quest_text=River Encampment cleared. Return to Martigan for your reward.
+ 
+diff --git a/mods/alpha_demo/quests/living_bones.txt b/mods/alpha_demo/quests/living_bones.txt
+index fdd48b23055b39baf89e249b9314ec9fda849d69..31aaa6c1e062869517a9b3a6e78da37cd6d709d6 100644
+--- a/mods/alpha_demo/quests/living_bones.txt
++++ b/mods/alpha_demo/quests/living_bones.txt
+@@ -5,55 +5,55 @@
+ # THE CAVES
+ [quest]
+ requires_status=lb_destroy_pillar
+-requires_not=lb_has_explosive
++requires_not_status=lb_has_explosive
+ quest_text=Find a way to destroy the large pillar near the lake.
+ 
+ [quest]
+ requires_status=lb_has_explosive
+-requires_not=lb_explosive_set
++requires_not_status=lb_explosive_set
+ quest_text=Use the blasting powder you found to destroy the large pillar.
+ 
+ [quest]
+ requires_status=lb_explosive_set
+-requires_not=lb_explosive_detonated
++requires_not_status=lb_explosive_detonated
+ quest_text=Run! You don't want to be caught in the blast of your own explosion!
+ 
+ # THE LAIR
+ [quest]
+ requires_status=lb_ice_locked
+-requires_not=lb_ice_password
++requires_not_status=lb_ice_password
+ quest_text=Search for the name of the ice wizard to pass the statue guardian.
+ 
+ [quest]
+ requires_status=lb_fire_locked
+-requires_not=lb_fire_password
++requires_not_status=lb_fire_password
+ quest_text=Search for the name of the fire wizard to pass the statue guardian.
+ 
+ [quest]
+ requires_status=lb_wind_locked
+-requires_not=lb_wind_password
++requires_not_status=lb_wind_password
+ quest_text=Search for the name of the wind wizard to pass the statue guardian.
+ 
+ [quest]
+ requires_status=lb_ice_password
+-requires_not=lb_ice_unlocked
++requires_not_status=lb_ice_unlocked
+ quest_text=Pass the ice statue guardian by using the name "Scathelocke".
+ 
+ [quest]
+ requires_status=lb_fire_password
+-requires_not=lb_fire_unlocked
++requires_not_status=lb_fire_unlocked
+ quest_text=Pass the fire statue guardian by using the name "Vesuvvio".
+ 
+ [quest]
+ requires_status=lb_wind_password
+-requires_not=lb_wind_unlocked
++requires_not_status=lb_wind_unlocked
+ quest_text=Pass the wind statue guardian by using the name "Grisbon".
+ 
+ [quest]
+ requires_status=lb_ice_unlocked
+ requires_status=lb_fire_unlocked
+ requires_status=lb_wind_unlocked
+-requires_not=lb_necromancers_defeated
++requires_not_status=lb_necromancers_defeated
+ quest_text=Kill the three necromancer brothers: Scathelocke, Grisbon and Vesuvvio.
+ 
+ [quest]
+diff --git a/mods/alpha_demo/quests/mineshaft_longsword.txt b/mods/alpha_demo/quests/mineshaft_longsword.txt
+index f241cbbc4ad07cb7a1cdef3e4349c2816bbc3a0b..9dff34d548d4c001e3ed867cdd722995cc0ce6a0 100644
+--- a/mods/alpha_demo/quests/mineshaft_longsword.txt
++++ b/mods/alpha_demo/quests/mineshaft_longsword.txt
+@@ -1,10 +1,10 @@
+ [quest]
+ requires_status=ml_skeleton_search
+-requires_not=ml_skeleton_defeated
++requires_not_status=ml_skeleton_defeated
+ quest_text=Find and defeat the Reanimated Skeleton in Mineshaft Longsword.
+ 
+ [quest]
+ requires_status=ml_skeleton_search
+ requires_status=ml_skeleton_defeated
+-requires_not=ml_skeleton_reward
++requires_not_status=ml_skeleton_reward
+ quest_text=Report the defeat of the Reanimated Skeleton to Martigan.
+diff --git a/mods/alpha_demo/quests/rotten_tower.txt b/mods/alpha_demo/quests/rotten_tower.txt
+index 2f3d177cff12c01161b7f2a35aa4a8bd25e3e2a1..bfbe9fa910ae589b33774b2eecb15263e823fc0d 100644
+--- a/mods/alpha_demo/quests/rotten_tower.txt
++++ b/mods/alpha_demo/quests/rotten_tower.txt
+@@ -1,15 +1,15 @@
+ 
+ [quest]
+ requires_status=rotten_tower_search
+-requires_not=rotten_tower_found
++requires_not_status=rotten_tower_found
+ quest_text=Search the rotten tower south west of the Frontier Plains.
+ 
+ [quest]
+ requires_status=rotten_tower_found
+-requires_not=rotten_tower_inspected
++requires_not_status=rotten_tower_inspected
+ quest_text=Inspect the tower more closely.
+ 
+ [quest]
+ requires_status=rotten_tower_inspected
+-requires_not=rotten_tower_reward
++requires_not_status=rotten_tower_reward
+ quest_text=Return to Martigan and tell him about the abandoned tower.
+diff --git a/tiled/averguard/averguard_academy.tmx b/tiled/averguard/averguard_academy.tmx
+index 16999000f14329f0222cca20ec7bdf8c0ad0022a..6677bc89dc448c7044507f5af5e28474faddcfd8 100644
+--- a/tiled/averguard/averguard_academy.tmx
++++ b/tiled/averguard/averguard_academy.tmx
+@@ -397,7 +397,7 @@
+     <property name="loot" value="2,21,75,fixed,1"/>
+     <property name="mapmod" value="object,20,75,164"/>
+     <property name="msg" value="This false book has a secret compartment."/>
+-    <property name="requires_not" value="av_academy_bookstand1"/>
++    <property name="requires_not_status" value="av_academy_bookstand1"/>
+     <property name="set_status" value="av_academy_bookstand1"/>
+     <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
+     <property name="tooltip" value="Book Stand"/>
+diff --git a/tiled/averguard/averguard_atrium.tmx b/tiled/averguard/averguard_atrium.tmx
+index 4a437801d2cefde5fac97dbb1951cfd6a61ea7e5..2bb4a680b98382e81b165bd08439df6187b597c3 100644
+--- a/tiled/averguard/averguard_atrium.tmx
++++ b/tiled/averguard/averguard_atrium.tmx
+@@ -276,7 +276,7 @@
+    <properties>
+     <property name="mapmod" value="background,8,50,265"/>
+     <property name="msg" value="Averguard Atrium waypoint discovered"/>
+-    <property name="requires_not" value="waypoint_averguard_atrium"/>
++    <property name="requires_not_status" value="waypoint_averguard_atrium"/>
+     <property name="set_status" value="waypoint_averguard_atrium"/>
+     <property name="repeat" value="false"/>
+    </properties>
+diff --git a/tiled/averguard/averguard_prison.tmx b/tiled/averguard/averguard_prison.tmx
+index f630ebbc9125ef37feeced17c760165b9af7c1ad..fa4f0d7a56f52306419ea86deab4fa664ee37713 100644
+--- a/tiled/averguard/averguard_prison.tmx
++++ b/tiled/averguard/averguard_prison.tmx
+@@ -395,7 +395,7 @@
+     <property name="hotspot" value="location"/>
+     <property name="loot" value="1,21,31,fixed,1"/>
+     <property name="mapmod" value="object,21,30,161"/>
+-    <property name="requires_not" value="av_prison_chest1"/>
++    <property name="requires_not_status" value="av_prison_chest1"/>
+     <property name="set_status" value="av_prison_chest1"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+diff --git a/tiled/averguard/averguard_temple.tmx b/tiled/averguard/averguard_temple.tmx
+index 0943d377767dcda24a2b63f9e1ddbd55a11fb0e4..3a02176545286654f275677b3e8f199b04b743be 100644
+--- a/tiled/averguard/averguard_temple.tmx
++++ b/tiled/averguard/averguard_temple.tmx
+@@ -459,7 +459,7 @@
+     <property name="hotspot" value="location"/>
+     <property name="msg" value="You insert the Averguard Key. Runes glow around the door, then fade. The door is still sealed."/>
+     <property name="requires_item" value="9001"/>
+-    <property name="requires_not" value="ak_talisman_found"/>
++    <property name="requires_not_status" value="ak_talisman_found"/>
+     <property name="requires_status" value="ak_key_found"/>
+     <property name="set_status" value="ak_temple_sealed"/>
+     <property name="tooltip" value="Sealed Temple Door"/>
+@@ -470,7 +470,7 @@
+    <properties>
+     <property name="hotspot" value="15,88,1,1"/>
+     <property name="msg" value="You read aloud the runes on Langlier's Talisman. The Avergard Key begins to glow!"/>
+-    <property name="requires_not" value="ak_talisman_used"/>
++    <property name="requires_not_status" value="ak_talisman_used"/>
+     <property name="requires_status" value="ak_key_found,ak_talisman_found"/>
+     <property name="set_status" value="ak_talisman_used"/>
+     <property name="shakycam" value="60"/>
+@@ -513,7 +513,7 @@
+    <properties>
+     <property name="hotspot" value="location"/>
+     <property name="msg" value="This chest is locked."/>
+-    <property name="requires_not" value="ak_maddox_defeated"/>
++    <property name="requires_not_status" value="ak_maddox_defeated"/>
+     <property name="tooltip" value="Treasure Chest"/>
+     <property name="repeat" value="false"/>
+    </properties>
+diff --git a/tiled/averguard/goblin_warrens.tmx b/tiled/averguard/goblin_warrens.tmx
+index 9d38df793a7f74f51ab3ce6c6503edb03e566808..1f61a4ea8dc7f6e11d1479ee1fdaa54b3b711c34 100644
+--- a/tiled/averguard/goblin_warrens.tmx
++++ b/tiled/averguard/goblin_warrens.tmx
+@@ -337,7 +337,7 @@
+     <property name="loot" value="9000,2,29,fixed,1"/>
+     <property name="mapmod" value="object,2,28,165"/>
+     <property name="msg" value="This book bears the seal of the Averguard"/>
+-    <property name="requires_not" value="ak_tome_found"/>
++    <property name="requires_not_status" value="ak_tome_found"/>
+     <property name="requires_status" value="ak_tome_search"/>
+     <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
+     <property name="tooltip" value="Book Stand"/>
+diff --git a/tiled/frontier/ancient_temple.tmx b/tiled/frontier/ancient_temple.tmx
+index 6eb42456c7ebb140432cce370300f6b2f0ff8775..883222a6573c54e1c79023781eb0afebf36f6371 100644
+--- a/tiled/frontier/ancient_temple.tmx
++++ b/tiled/frontier/ancient_temple.tmx
+@@ -451,7 +451,7 @@
+     <property name="hotspot" value="location"/>
+     <property name="loot" value="128,23,13,fixed,1"/>
+     <property name="mapmod" value="object,23,12,161"/>
+-    <property name="requires_not" value="at_chest1"/>
++    <property name="requires_not_status" value="at_chest1"/>
+     <property name="set_status" value="at_chest1"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -463,7 +463,7 @@
+     <property name="hotspot" value="location"/>
+     <property name="loot" value="57,25,11,fixed,1"/>
+     <property name="mapmod" value="object,24,11,160"/>
+-    <property name="requires_not" value="at_chest2"/>
++    <property name="requires_not_status" value="at_chest2"/>
+     <property name="set_status" value="at_chest2"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Treasure Chest"/>
+@@ -608,7 +608,7 @@
+    <properties>
+     <property name="mapmod" value="background,44,94,265"/>
+     <property name="msg" value="Ancient Temple waypoint discovered."/>
+-    <property name="requires_not" value="waypoint_ancient_temple"/>
++    <property name="requires_not_status" value="waypoint_ancient_temple"/>
+     <property name="set_status" value="waypoint_ancient_temple"/>
+     <property name="repeat" value="false"/>
+    </properties>
+diff --git a/tiled/frontier/frontier_outpost.tmx b/tiled/frontier/frontier_outpost.tmx
+index 42e212ed59b453ac4eba995469a9aa0f2e07373d..fee7ff2e73313ff41f9df2223730c843636dd5aa 100644
+--- a/tiled/frontier/frontier_outpost.tmx
++++ b/tiled/frontier/frontier_outpost.tmx
+@@ -270,7 +270,7 @@
+    <properties>
+     <property name="mapmod" value="background,33,10,265"/>
+     <property name="msg" value="Frontier Outpost waypoint discovered."/>
+-    <property name="requires_not" value="waypoint_frontier_outpost"/>
++    <property name="requires_not_status" value="waypoint_frontier_outpost"/>
+     <property name="set_status" value="waypoint_frontier_outpost"/>
+     <property name="repeat" value="false"/>
+    </properties>
+diff --git a/tiled/frontier/frontier_plains.tmx b/tiled/frontier/frontier_plains.tmx
+index 7f43e35e0d8b6c0606b6e4d75a110540f3daf141..b34469e354a7511452c7c461e768f0a4e0013d8f 100644
+--- a/tiled/frontier/frontier_plains.tmx
++++ b/tiled/frontier/frontier_plains.tmx
+@@ -839,7 +839,7 @@
+     <property name="loot" value="65,117,36,fixed,1"/>
+     <property name="mapmod" value="object,117,35,99"/>
+     <property name="repeat" value="false"/>
+-    <property name="requires_not" value="fp_crate3"/>
++    <property name="requires_not_status" value="fp_crate3"/>
+     <property name="set_status" value="fp_crate3"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+@@ -851,7 +851,7 @@
+     <property name="loot" value="1,50,31,fixed,1"/>
+     <property name="mapmod" value="object,50,30,97"/>
+     <property name="repeat" value="false"/>
+-    <property name="requires_not" value="fp_crate1"/>
++    <property name="requires_not_status" value="fp_crate1"/>
+     <property name="set_status" value="fp_crate1"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+@@ -1073,7 +1073,7 @@
+   <object name="Cutscene" type="on_load" x="7872" y="5824" width="64" height="64">
+    <properties>
+     <property name="cutscene" value="frontier_plains_cutscene.txt"/>
+-    <property name="requires_not" value="been_on_plains"/>
++    <property name="requires_not_status" value="been_on_plains"/>
+     <property name="set_status" value="been_on_plains"/>
+    </properties>
+   </object>
+diff --git a/tiled/frontier/mineshaft_longsword.tmx b/tiled/frontier/mineshaft_longsword.tmx
+index 0e83450ca0c0b7991857620adfc812f8aa5d6094..9ad7272d9db536e7dec07778d9912ca443a4a8ca 100644
+--- a/tiled/frontier/mineshaft_longsword.tmx
++++ b/tiled/frontier/mineshaft_longsword.tmx
+@@ -264,7 +264,7 @@
+   </object>
+   <object name="spawn_reanimated_skeleton" type="on_load" x="704" y="1472" width="128" height="128">
+    <properties>
+-    <property name="requires_not" value="ml_skeleton_defeated"/>
++    <property name="requires_not_status" value="ml_skeleton_defeated"/>
+     <property name="requires_status" value="ml_skeleton_search"/>
+     <property name="spawn" value="reanimated_skeleton,6,28"/>
+    </properties>
+diff --git a/tiled/frontier/river_encampment.tmx b/tiled/frontier/river_encampment.tmx
+index 3ee61de67e6ce8f5347880fb6a1c02d861442efe..c773cd08d14dd752a4baa02f2fc3d70ce4c8dcba 100644
+--- a/tiled/frontier/river_encampment.tmx
++++ b/tiled/frontier/river_encampment.tmx
+@@ -290,7 +290,7 @@
+     <property name="hotspot" value="location"/>
+     <property name="loot" value="127,11,13,fixed,1"/>
+     <property name="mapmod" value="object,10,13,99"/>
+-    <property name="requires_not" value="re_crate4"/>
++    <property name="requires_not_status" value="re_crate4"/>
+     <property name="set_status" value="re_crate4"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+@@ -302,7 +302,7 @@
+     <property name="hotspot" value="location"/>
+     <property name="loot" value="2,10,15,fixed,1"/>
+     <property name="mapmod" value="object,9,15,97"/>
+-    <property name="requires_not" value="re_crate3"/>
++    <property name="requires_not_status" value="re_crate3"/>
+     <property name="set_status" value="re_crate3"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+@@ -314,7 +314,7 @@
+     <property name="hotspot" value="location"/>
+     <property name="loot" value="1,38,26,fixed,1"/>
+     <property name="mapmod" value="object,38,27,97"/>
+-    <property name="requires_not" value="re_crate1"/>
++    <property name="requires_not_status" value="re_crate1"/>
+     <property name="set_status" value="re_crate1"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+diff --git a/tiled/frontier/ydrakka_pass.tmx b/tiled/frontier/ydrakka_pass.tmx
+index bf541b916ec7c8498944c0852ee7e6831c62cba6..3d22c9da8867d03192a403c1f5159c2240bcf081 100644
+--- a/tiled/frontier/ydrakka_pass.tmx
++++ b/tiled/frontier/ydrakka_pass.tmx
+@@ -388,7 +388,7 @@
+    <properties>
+     <property name="mapmod" value="background,101,47,265"/>
+     <property name="msg" value="Ydrakka Pass waypoint discovered."/>
+-    <property name="requires_not" value="waypoint_ydrakka_pass"/>
++    <property name="requires_not_status" value="waypoint_ydrakka_pass"/>
+     <property name="set_status" value="waypoint_ydrakka_pass"/>
+     <property name="repeat" value="false"/>
+    </properties>
+diff --git a/tiled/living_bones/brothers_lair_atrium.tmx b/tiled/living_bones/brothers_lair_atrium.tmx
+index 6d501e2f1b2c4d7603b9239d361d506be525f6ee..0c6a3b77f851d807755a0787988b39dcd451661e 100644
+--- a/tiled/living_bones/brothers_lair_atrium.tmx
++++ b/tiled/living_bones/brothers_lair_atrium.tmx
+@@ -253,7 +253,7 @@
+    <properties>
+     <property name="mapmod" value="background,14,20,265"/>
+     <property name="msg" value="Brothers Lair Atrium waypoint discovered"/>
+-    <property name="requires_not" value="waypoint_brothers_lair_atrium"/>
++    <property name="requires_not_status" value="waypoint_brothers_lair_atrium"/>
+     <property name="set_status" value="waypoint_brothers_lair_atrium"/>
+     <property name="repeat" value="false"/>
+    </properties>
+diff --git a/tiled/living_bones/brothers_lair_fire_hall.tmx b/tiled/living_bones/brothers_lair_fire_hall.tmx
+index 565439cc83e52774cdbd8c80346bb265e81ccec4..5a0bdcefa331c77bd61ad978c66e8252130410c4 100644
+--- a/tiled/living_bones/brothers_lair_fire_hall.tmx
++++ b/tiled/living_bones/brothers_lair_fire_hall.tmx
+@@ -366,7 +366,7 @@
+     <property name="power" value="18"/>
+     <property name="power_damage" value="100,150"/>
+     <property name="power_path" value="21,60,21,60"/>
+-    <property name="requires_not" value="lb_fire_key,lb_fire_looted"/>
++    <property name="requires_not_status" value="lb_fire_key,lb_fire_looted"/>
+     <property name="tooltip" value="Runed Chest"/>
+    </properties>
+   </object>
+diff --git a/tiled/living_bones/brothers_lair_ice_hall.tmx b/tiled/living_bones/brothers_lair_ice_hall.tmx
+index 5ad1fe19e99a2adfe5e252789bc42dfdf619c90e..61e56c35412a9313280b3781246d2444effacdde 100644
+--- a/tiled/living_bones/brothers_lair_ice_hall.tmx
++++ b/tiled/living_bones/brothers_lair_ice_hall.tmx
+@@ -458,7 +458,7 @@
+     <property name="remove_item" value="9101"/>
+     <property name="repeat" value="false"/>
+     <property name="requires_item" value="9101"/>
+-    <property name="requires_not" value="lb_ice_spellbook,lb_ice_looted"/>
++    <property name="requires_not_status" value="lb_ice_spellbook,lb_ice_looted"/>
+     <property name="set_status" value="lb_ice_looted,lb_ice_spellbook"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Runed Chest"/>
+@@ -473,7 +473,7 @@
+     <property name="remove_item" value="9101"/>
+     <property name="repeat" value="false"/>
+     <property name="requires_item" value="9101"/>
+-    <property name="requires_not" value="lb_ice_looted"/>
++    <property name="requires_not_status" value="lb_ice_looted"/>
+     <property name="set_status" value="lb_ice_looted"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Runed Chest"/>
+@@ -486,7 +486,7 @@
+     <property name="power" value="14"/>
+     <property name="power_damage" value="100,150"/>
+     <property name="power_path" value="14,10,hero"/>
+-    <property name="requires_not" value="lb_ice_looted;lb_ice_key"/>
++    <property name="requires_not_status" value="lb_ice_looted;lb_ice_key"/>
+     <property name="tooltip" value="Runed Chest"/>
+    </properties>
+   </object>
+diff --git a/tiled/living_bones/brothers_lair_wind_hall.tmx b/tiled/living_bones/brothers_lair_wind_hall.tmx
+index 2b154c08e05948c5ba2177b083e1fbc3d489052d..bc9e0c573f161038f8ed6c00493268b578857d41 100644
+--- a/tiled/living_bones/brothers_lair_wind_hall.tmx
++++ b/tiled/living_bones/brothers_lair_wind_hall.tmx
+@@ -441,7 +441,7 @@
+     <property name="power" value="6"/>
+     <property name="power_damage" value="100,150"/>
+     <property name="power_path" value="31,7,hero"/>
+-    <property name="requires_not" value="lb_wind_key,lb_wind_looted"/>
++    <property name="requires_not_status" value="lb_wind_key,lb_wind_looted"/>
+     <property name="tooltip" value="Runed Chest"/>
+    </properties>
+   </object>
+diff --git a/tiled/living_bones/cave_of_living_bones2.tmx b/tiled/living_bones/cave_of_living_bones2.tmx
+index 508c5ea91b65ed84459f30370555f2b419d38ee3..ddc563e8c5af7c0f2f9c801561a1e3aa14d8921e 100644
+--- a/tiled/living_bones/cave_of_living_bones2.tmx
++++ b/tiled/living_bones/cave_of_living_bones2.tmx
+@@ -313,7 +313,7 @@
+    <properties>
+     <property name="hotspot" value="45,42,3,3"/>
+     <property name="msg" value="This pillar is laced with cracks and crevices. Maybe with enough force it can be knocked down."/>
+-    <property name="requires_not" value="lb_has_explosive"/>
++    <property name="requires_not_status" value="lb_has_explosive"/>
+     <property name="set_status" value="lb_destroy_pillar"/>
+     <property name="tooltip" value="Giant Pillar"/>
+    </properties>
+@@ -322,7 +322,7 @@
+    <properties>
+     <property name="hotspot" value="45,42,3,3"/>
+     <property name="mapmod" value="object,47,44,163"/>
+-    <property name="requires_not" value="lb_explosive_set"/>
++    <property name="requires_not_status" value="lb_explosive_set"/>
+     <property name="requires_status" value="lb_has_explosive"/>
+     <property name="set_status" value="lb_explosive_set"/>
+     <property name="tooltip" value="Place Explosive"/>
+@@ -333,7 +333,7 @@
+     <property name="mapmod" value="object,47,44,0;object,47,43,0;collision,47,43,2;object,47,42,0;collision,47,42,2;object,46,43,0;collision,46,43,2;object,46,44,0;collision,46,44,2;object,45,44,0;collision,45,44,2;object,46,42,0;collision,46,42,2;object,45,43,80;collision,45,43,1;object,47,41,80;object,45,42,68;collison,45,42,1;object,46,41,69;collison,46,41,1;object,45,41,76;collison,45,41,1;object,48,43,0;collision,48,43,0;object,48,44,0;collision,48,44,0;object,46,45,0;collision,46,45,0;object,49,40,0;collision,49,40,2;object,46,39,0;collision,46,39,2;object,48,40,150;collision,48,40,0;object,48,39,151;collision,48,39,0;collision,49,39,0;object,48,38,151;collision,48,38,0;object,49,37,152;collision,49,37,0;object,48,36,151;collision,48,36,0;object,49,35,152;collision,49,35,0;object,47,38,150;collision,47,38,0;object,45,46,150;collision,45,46,2;object,48,45,152;collision,48,45,2;object,49,44,150;collision,49,44,2;object,49,43,151;collision,49,43,2;object,51,42,152"/>
+     <property name="power" value="18"/>
+     <property name="power_path" value="47,44,47,44"/>
+-    <property name="requires_not" value="lb_explosive_detonated"/>
++    <property name="requires_not_status" value="lb_explosive_detonated"/>
+     <property name="requires_status" value="lb_explosive_set"/>
+     <property name="set_status" value="lb_explosive_detonated"/>
+     <property name="shakycam" value="60"/>
+@@ -345,7 +345,7 @@
+     <property name="mapmod" value="object,47,44,0;object,47,43,0;collision,47,43,2;object,47,42,0;collision,47,42,2;object,46,43,0;collision,46,43,2;object,46,44,0;collision,46,44,2;object,45,44,0;collision,45,44,2;object,46,42,0;collision,46,42,2;object,45,43,80;collision,45,43,1;object,47,41,80;object,45,42,68;collison,45,42,1;object,46,41,69;collison,46,41,1;object,45,41,76;collison,45,41,1;object,48,43,0;collision,48,43,0;object,48,44,0;collision,48,44,0;object,46,45,0;collision,46,45,0;object,49,40,0;collision,49,40,2;object,46,39,0;collision,46,39,2;object,48,40,150;collision,48,40,0;object,48,39,151;collision,48,39,0;collision,49,39,0;object,48,38,151;collision,48,38,0;object,49,37,152;collision,49,37,0;object,48,36,151;collision,48,36,0;object,49,35,152;collision,49,35,0;object,47,38,150;collision,47,38,0;object,45,46,150;collision,45,46,2;object,48,45,152;collision,48,45,2;object,49,44,150;collision,49,44,2;object,49,43,151;collision,49,43,2;object,51,42,152"/>
+     <property name="power" value="18"/>
+     <property name="power_path" value="47,44,47,44"/>
+-    <property name="requires_not" value="lb_explosive_detonated"/>
++    <property name="requires_not_status" value="lb_explosive_detonated"/>
+     <property name="requires_status" value="lb_explosive_set"/>
+     <property name="set_status" value="lb_explosive_detonated"/>
+     <property name="shakycam" value="60"/>
+@@ -357,7 +357,7 @@
+     <property name="mapmod" value="object,47,44,0;object,47,43,0;collision,47,43,2;object,47,42,0;collision,47,42,2;object,46,43,0;collision,46,43,2;object,46,44,0;collision,46,44,2;object,45,44,0;collision,45,44,2;object,46,42,0;collision,46,42,2;object,45,43,80;collision,45,43,1;object,47,41,80;object,45,42,68;collison,45,42,1;object,46,41,69;collison,46,41,1;object,45,41,76;collison,45,41,1;object,48,43,0;collision,48,43,0;object,48,44,0;collision,48,44,0;object,46,45,0;collision,46,45,0;object,49,40,0;collision,49,40,2;object,46,39,0;collision,46,39,2;object,48,40,150;collision,48,40,0;object,48,39,151;collision,48,39,0;collision,49,39,0;object,48,38,151;collision,48,38,0;object,49,37,152;collision,49,37,0;object,48,36,151;collision,48,36,0;object,49,35,152;collision,49,35,0;object,47,38,150;collision,47,38,0;object,45,46,150;collision,45,46,2;object,48,45,152;collision,48,45,2;object,49,44,150;collision,49,44,2;object,49,43,151;collision,49,43,2;object,51,42,152"/>
+     <property name="power" value="18"/>
+     <property name="power_path" value="47,44,47,44"/>
+-    <property name="requires_not" value="lb_explosive_detonated"/>
++    <property name="requires_not_status" value="lb_explosive_detonated"/>
+     <property name="requires_status" value="lb_explosive_set"/>
+     <property name="set_status" value="lb_explosive_detonated"/>
+     <property name="shakycam" value="60"/>

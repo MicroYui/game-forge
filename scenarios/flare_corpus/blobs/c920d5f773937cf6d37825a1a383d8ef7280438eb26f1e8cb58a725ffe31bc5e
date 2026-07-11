@@ -1,0 +1,142 @@
+diff --git a/mods/alpha_demo/maps/averguard_temple.txt b/mods/alpha_demo/maps/averguard_temple.txt
+index 2aaf3b5256af52e1432fb8c4ae4520c6190664ba..2c99039d3ebd83d773bd4a34b315e60aafc65f04 100644
+--- a/mods/alpha_demo/maps/averguard_temple.txt
++++ b/mods/alpha_demo/maps/averguard_temple.txt
+@@ -442,10 +442,10 @@ power_damage=25,50
+ power_path=15,58,hero
+ 
+ [event]
+-# if the player doesn't have the talisman and key, the door is sealed
++# have key, but no talisman
+ type=on_trigger
+-location=15,88,1,1
+-hotspot=location
++location=10,82,1,1
++hotspot=15,88,1,1
+ msg=You insert the Averguard Key. Runes glow around the door, then fade. The door is still sealed.
+ repeat=false
+ requires_item=9001
+@@ -455,10 +455,11 @@ set_status=ak_temple_sealed
+ tooltip=Sealed Temple Door
+ 
+ [event]
+-# the first time you use the talisman
++# have key and talisman
+ type=on_trigger
+-location=13,89,1,1
++location=10,80,1,1
+ hotspot=15,88,1,1
++mapmod=object,15,88,113;collision,15,88,0
+ msg=You read aloud the runes on Langlier's Talisman. The Avergard Key begins to glow!
+ repeat=false
+ requires_not_status=ak_talisman_used
+@@ -467,16 +468,15 @@ set_status=ak_talisman_used
+ shakycam=2s
+ soundfx=soundfx/powers/quake.ogg
+ tooltip=Activate Talisman
++unset_status=ak_temple_sealed
+ 
+ [event]
+-type=on_trigger
+-location=17,91,1,1
+-hotspot=15,88,1,1
++# door is already open
++type=on_load
++location=10,78,1,1
+ mapmod=object,15,88,113;collision,15,88,0
+ repeat=false
+ requires_status=ak_talisman_used
+-soundfx=soundfx/door_open.ogg
+-tooltip=Temple Door
+ 
+ [event]
+ type=on_trigger
+@@ -553,6 +553,16 @@ type=on_load
+ location=16,98,1,1
+ soundfx=soundfx/environment/open_fire_loop.ogg
+ 
++[event]
++# don't have key
++type=on_trigger
++location=10,84,1,1
++hotspot=15,88,1,1
++msg=A locked gate is here, with a small keyhole in the center.
++repeat=false
++requires_not_status=ak_key_found
++tooltip=Sealed Temple Door
++
+ [enemy]
+ type=zombie_rotting
+ location=12,115,1,1
+diff --git a/tiled/averguard/averguard_temple.tmx b/tiled/averguard/averguard_temple.tmx
+index 395195a2fa6e268af6c52c8845d2ac54cd442fe8..b33d09465a69245e82595bbde2d8b7fa181122d5 100644
+--- a/tiled/averguard/averguard_temple.tmx
++++ b/tiled/averguard/averguard_temple.tmx
+@@ -429,7 +429,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <objectgroup name="event" width="28" height="129" visible="0">
++ <objectgroup name="event" width="28" height="129">
+   <object type="on_trigger" x="448" y="4064" width="64" height="32">
+    <properties>
+     <property name="hotspot" value="14,128,2,1"/>
+@@ -454,9 +454,9 @@
+     <property name="power_path" value="15,58,hero"/>
+    </properties>
+   </object>
+-  <object name="if the player doesn't have the talisman and key, the door is sealed" type="on_trigger" x="480" y="2816" width="32" height="32">
++  <object name="have key, but no talisman" type="on_trigger" x="320" y="2624" width="32" height="32">
+    <properties>
+-    <property name="hotspot" value="location"/>
++    <property name="hotspot" value="15,88,1,1"/>
+     <property name="msg" value="You insert the Averguard Key. Runes glow around the door, then fade. The door is still sealed."/>
+     <property name="repeat" value="false"/>
+     <property name="requires_item" value="9001"/>
+@@ -466,9 +466,10 @@
+     <property name="tooltip" value="Sealed Temple Door"/>
+    </properties>
+   </object>
+-  <object name="the first time you use the talisman" type="on_trigger" x="416" y="2848" width="32" height="32">
++  <object name="have key and talisman" type="on_trigger" x="320" y="2560" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="15,88,1,1"/>
++    <property name="mapmod" value="object,15,88,113;collision,15,88,0"/>
+     <property name="msg" value="You read aloud the runes on Langlier's Talisman. The Avergard Key begins to glow!"/>
+     <property name="repeat" value="false"/>
+     <property name="requires_not_status" value="ak_talisman_used"/>
+@@ -477,16 +478,14 @@
+     <property name="shakycam" value="2s"/>
+     <property name="soundfx" value="soundfx/powers/quake.ogg"/>
+     <property name="tooltip" value="Activate Talisman"/>
++    <property name="unset_status" value="ak_temple_sealed"/>
+    </properties>
+   </object>
+-  <object type="on_trigger" x="544" y="2912" width="32" height="32">
++  <object name="door is already open" type="on_load" x="320" y="2496" width="32" height="32">
+    <properties>
+-    <property name="hotspot" value="15,88,1,1"/>
+     <property name="mapmod" value="object,15,88,113;collision,15,88,0"/>
+     <property name="repeat" value="false"/>
+     <property name="requires_status" value="ak_talisman_used"/>
+-    <property name="soundfx" value="soundfx/door_open.ogg"/>
+-    <property name="tooltip" value="Temple Door"/>
+    </properties>
+   </object>
+   <object type="on_trigger" x="64" y="3744" width="32" height="32">
+@@ -560,6 +559,15 @@
+     <property name="soundfx" value="soundfx/environment/open_fire_loop.ogg"/>
+    </properties>
+   </object>
++  <object name="don't have key" type="on_trigger" x="320" y="2688" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="15,88,1,1"/>
++    <property name="msg" value="A locked gate is here, with a small keyhole in the center."/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="ak_key_found"/>
++    <property name="tooltip" value="Sealed Temple Door"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="enemy" width="28" height="129">
+   <object type="zombie_rotting" x="384" y="3680" width="32" height="32"/>

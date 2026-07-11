@@ -1,0 +1,690 @@
+diff --git a/mods/empyrean_campaign/enemies/docs/ranged_behavior.txt b/mods/empyrean_campaign/enemies/docs/ranged_behavior.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..b58e3efd726f960dc7d3d8c48225cb80e61a8437
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/docs/ranged_behavior.txt
+@@ -0,0 +1,27 @@
++### Ranged unit behavior
++
++# It cause shooter to come closer, sometimes.
++# Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# chance_pursue=1
++
++# That chance is enough. It can vary, but works nice, as for me
++# chance_flee= 20
++
++# Just copied that stats from necro-minotaur, assuming they are default
++# flee_duration=3s
++# flee_cooldown=1s
++
++# With this setting enemy do shooting from visible area.
++# Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
++# I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
++# and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
++# threat_range = 17
++
++# However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
++# That values are default, so I assume, we do not need them here (but keep in mind -- final config needs that stats)
++# melee_range = 1.125
++# power=melee,164,5
++
++# Following is maximised to let shooter not only flee from one side to another.
++# Did not tested lower values, maybe it can be decreased
++# power=ranged,196,80
+diff --git a/mods/empyrean_campaign/enemies/lvl10_skeleton_sharpshooter.txt b/mods/empyrean_campaign/enemies/lvl10_skeleton_sharpshooter.txt
+index 75877c87c84da65192ef8c243125e3ca552931ac..b796c8202d4eeccf81c0d31f467b9b74fa7c14ec 100644
+--- a/mods/empyrean_campaign/enemies/lvl10_skeleton_sharpshooter.txt
++++ b/mods/empyrean_campaign/enemies/lvl10_skeleton_sharpshooter.txt
+@@ -10,10 +10,7 @@ xp=1024
+ stat=hp,275
+ speed=4.8
+ turn_delay=200ms
+-chance_pursue=5
+ 
+-power=melee,164,1
+-power=ranged,196,5
+ passive_powers=185
+ 
+ stat=accuracy,140
+@@ -32,30 +29,11 @@ cooldown=1575ms
+ # loot
+ loot=loot/level_10.txt
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=1
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 20
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+ threat_range = 17
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#That values are default, so I assume, we do not need them here (but keep in mind -- final config needs that stats)
+-#melee_range = 1.125
+-#power=melee,164,5
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,196,80
+\ No newline at end of file
++power=melee,164,1
++power=ranged,196,80
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
+index 20a366898e4bb30a1c7115ca873cb8c36fff4298..34c75059758814fcc64e378f7b1237dc9c013ba3 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
+@@ -26,29 +26,11 @@ stat=absorb_max,2
+ # loot
+ loot=loot/level_2.txt
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=7
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 20
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+-threat_range = 12	
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#melee_range = 1.125 #it's set in fantasycore files
++threat_range = 12
+ power=melee,164,10
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,165,30
+\ No newline at end of file
++power=ranged,165,30
+diff --git a/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt b/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt
+index c3da5eaa3b30611fe25751147bb7243941128f44..0a0f45fece48db5be841714bbe568179c2738c13 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_skeleton_archer.txt
+@@ -29,29 +29,11 @@ cooldown=1775ms
+ # loot
+ loot=loot/level_2.txt
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=5
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 20
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+-threat_range = 15	
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#melee_range = 1.125 #it's set in fantasycore files
++threat_range = 15
+ power=melee,164,10
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,171,34
+\ No newline at end of file
++power=ranged,171,34
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt
+index 6bc340d10b1cdb27248685eedbe94f1213d4c6f6..75918071bb59bf5730558e6a802b1268545a289f 100644
+--- a/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_fire_mage.txt
+@@ -33,29 +33,11 @@ cooldown=1550ms
+ # loot
+ loot=loot/level_3.txt
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=3
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 20
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+-threat_range = 15	
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#melee_range = 1.125 #it's set in fantasycore files
++threat_range = 15
+ power=melee,164,1
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,173,30
+\ No newline at end of file
++power=ranged,173,30
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt
+index fe9396dae8974f22877c41a2fb45c51a131178c5..417c8785bc3172262f4452591601ee2105e1f297 100644
+--- a/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_ice_mage.txt
+@@ -33,29 +33,11 @@ cooldown=1550ms
+ # loot
+ loot=loot/level_3.txt
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=5
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 20
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+-threat_range = 12	
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#melee_range = 1.125 #it's set in fantasycore files
++threat_range = 12
+ power=melee,164,2
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,172, 30
+\ No newline at end of file
++power=ranged,172, 30
+diff --git a/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt b/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt
+index af9459ab2ecfad93a362541cf0c07138370ea2d4..aa323fbc057f310caf2cefe51b9258a5da998de4 100644
+--- a/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt
++++ b/mods/empyrean_campaign/enemies/lvl3_skeleton_sniper.txt
+@@ -29,30 +29,11 @@ cooldown=1750ms
+ # loot
+ loot=loot/level_3.txt
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=3
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 20
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+ threat_range = 15
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#That values are default, so I assume, we do not need them here (but keep in mind -- final config needs that stats)
+-#melee_range = 1.125
+ power=melee,164,5
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,171,50
+\ No newline at end of file
++power=ranged,171,50
+diff --git a/mods/empyrean_campaign/enemies/lvl4_cid.txt b/mods/empyrean_campaign/enemies/lvl4_cid.txt
+index 08b9606ad5abba72c34fa3909851d27a201851e3..d7e88a5fccb505aa8d8d48d74309680d38a2a30f 100644
+--- a/mods/empyrean_campaign/enemies/lvl4_cid.txt
++++ b/mods/empyrean_campaign/enemies/lvl4_cid.txt
+@@ -37,30 +37,11 @@ loot=loot/level_4.txt
+ # Dark Steppers
+ loot=94,1
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=15
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 25
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+ threat_range = 12
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#That values are default, so I assume, we do not need them here (but keep in mind -- final config needs that stats)
+-#melee_range = 1.125
+ power=melee,164,5
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,176,50
+\ No newline at end of file
++power=ranged,176,50
+diff --git a/mods/empyrean_campaign/enemies/lvl4_geno.txt b/mods/empyrean_campaign/enemies/lvl4_geno.txt
+index 2023c73d3ca47f4b9f005591afd9dcc2925d8eaf..bce9686febb209a5f18dae0b9f85a312283f41c9 100644
+--- a/mods/empyrean_campaign/enemies/lvl4_geno.txt
++++ b/mods/empyrean_campaign/enemies/lvl4_geno.txt
+@@ -37,30 +37,11 @@ loot=loot/level_4.txt
+ # Blood Tunic
+ loot=93,1
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=15
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 25
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+ threat_range = 12
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#That values are default, so I assume, we do not need them here (but keep in mind -- final config needs that stats)
+-#melee_range = 1.125
+ power=melee,164,5
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+ power=ranged,174,50
+diff --git a/mods/empyrean_campaign/enemies/lvl5_antlion_freezer.txt b/mods/empyrean_campaign/enemies/lvl5_antlion_freezer.txt
+index 55f9052dfd7b5f7f5f43fd3a439d124b1bd13cf6..44ae62e296a8e233c1f21982d79ff3167053f881 100644
+--- a/mods/empyrean_campaign/enemies/lvl5_antlion_freezer.txt
++++ b/mods/empyrean_campaign/enemies/lvl5_antlion_freezer.txt
+@@ -31,30 +31,11 @@ cooldown=1500ms
+ # loot
+ loot=loot/level_5.txt
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=5
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 13
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+ threat_range = 10
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#That values are default, so I assume, we do not need them here (but keep in mind -- final config needs that stats)
+-#melee_range = 1.125
+ power=melee,164,30
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,172,50
+\ No newline at end of file
++power=ranged,172,50
+diff --git a/mods/empyrean_campaign/enemies/lvl5_goblin_hurler.txt b/mods/empyrean_campaign/enemies/lvl5_goblin_hurler.txt
+index 27681af0fd97668e423335a493b6c3d8fe2073b4..2d2b9bb221188d4eed71799708294a5d1be436e4 100644
+--- a/mods/empyrean_campaign/enemies/lvl5_goblin_hurler.txt
++++ b/mods/empyrean_campaign/enemies/lvl5_goblin_hurler.txt
+@@ -26,30 +26,11 @@ stat=absorb_max,5
+ # loot
+ loot=loot/level_5.txt
+ 
+-
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=7
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 20
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+-threat_range = 12	
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#melee_range = 1.125 #it's set in fantasycore files
++threat_range = 12
+ power=melee,164,10
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,165,30
+\ No newline at end of file
++power=ranged,165,30
+diff --git a/mods/empyrean_campaign/enemies/lvl6_antlion_frostbite.txt b/mods/empyrean_campaign/enemies/lvl6_antlion_frostbite.txt
+index dcca2dd99139b0a0e3c21ee46a51883fabe423de..a998dc8a631343593943b7bdce9c1db234cd9818 100644
+--- a/mods/empyrean_campaign/enemies/lvl6_antlion_frostbite.txt
++++ b/mods/empyrean_campaign/enemies/lvl6_antlion_frostbite.txt
+@@ -32,30 +32,11 @@ cooldown=1475ms
+ # loot
+ loot=loot/level_6.txt
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=5
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 13
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+ threat_range = 10
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#That values are default, so I assume, we do not need them here (but keep in mind -- final config needs that stats)
+-#melee_range = 1.125
+ power=melee,164,30
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,172,50
+\ No newline at end of file
++power=ranged,172,50
+diff --git a/mods/empyrean_campaign/enemies/lvl6_antlion_spitter.txt b/mods/empyrean_campaign/enemies/lvl6_antlion_spitter.txt
+index 799b6200bca0c0521abc8a6dd572978fd7024e09..08324e6f3c0e1c65108a874ab5ae50166cee5606 100644
+--- a/mods/empyrean_campaign/enemies/lvl6_antlion_spitter.txt
++++ b/mods/empyrean_campaign/enemies/lvl6_antlion_spitter.txt
+@@ -31,30 +31,11 @@ cooldown=1475ms
+ # loot
+ loot=loot/level_6.txt
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=5
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 13
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+ threat_range = 10
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#That values are default, so I assume, we do not need them here (but keep in mind -- final config needs that stats)
+-#melee_range = 1.125
+ power=melee,164,30
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,172,50
+\ No newline at end of file
++power=ranged,172,50
+diff --git a/mods/empyrean_campaign/enemies/lvl6_skeleton_frost_mage.txt b/mods/empyrean_campaign/enemies/lvl6_skeleton_frost_mage.txt
+index f6acbf169c455354c488e8d966eeddfde94845b8..3c157d349bf90cfe9a78bab192262d0b2e2aa020 100644
+--- a/mods/empyrean_campaign/enemies/lvl6_skeleton_frost_mage.txt
++++ b/mods/empyrean_campaign/enemies/lvl6_skeleton_frost_mage.txt
+@@ -33,31 +33,12 @@ cooldown=1475ms
+ # loot
+ loot=loot/level_6.txt
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=1
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 20
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+ threat_range = 13
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#That values are default, so I assume, we do not need them here (but keep in mind -- final config needs that stats)
+-#melee_range = 1.125
+ power=melee,164,1
+ power=melee,183,10
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,172,50
+\ No newline at end of file
++power=ranged,172,50
+diff --git a/mods/empyrean_campaign/enemies/lvl7_wyvern_fire.txt b/mods/empyrean_campaign/enemies/lvl7_wyvern_fire.txt
+index 25dcad79cac2b0bb66eb01b2760948cf0d32ec1c..52f6d1f4767c68fce1352f3c0c94dc62fb8e6977 100644
+--- a/mods/empyrean_campaign/enemies/lvl7_wyvern_fire.txt
++++ b/mods/empyrean_campaign/enemies/lvl7_wyvern_fire.txt
+@@ -30,30 +30,11 @@ cooldown=1650ms
+ # loot
+ loot=loot/level_7.txt
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=1
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 20
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+ threat_range = 15
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#That values are default, so I assume, we do not need them here (but keep in mind -- final config needs that stats)
+-#melee_range = 1.125
+ power=melee,164, 5
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,173,50
+\ No newline at end of file
++power=ranged,173,50
+diff --git a/mods/empyrean_campaign/enemies/lvl7_wyvern_ice.txt b/mods/empyrean_campaign/enemies/lvl7_wyvern_ice.txt
+index c93fb265fd3b500ab0e7fe45bf03c83cdef8d538..8f5b9ace5d38a9181ae40a32a58198182870ef96 100644
+--- a/mods/empyrean_campaign/enemies/lvl7_wyvern_ice.txt
++++ b/mods/empyrean_campaign/enemies/lvl7_wyvern_ice.txt
+@@ -30,30 +30,11 @@ cooldown=1650ms
+ # loot
+ loot=loot/level_7.txt
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=1
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 20
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+ threat_range = 15
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#That values are default, so I assume, we do not need them here (but keep in mind -- final config needs that stats)
+-#melee_range = 1.125
+ power=melee,164, 5
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,172,50
+\ No newline at end of file
++power=ranged,172,50
+diff --git a/mods/empyrean_campaign/enemies/lvl9_antlion_sprayer.txt b/mods/empyrean_campaign/enemies/lvl9_antlion_sprayer.txt
+index 33a6e3ec89edb16ffc2bbfebf528f1482c7e00fe..76a4a387b34a3bbe06f93e05adc078fc1eb0ffcf 100644
+--- a/mods/empyrean_campaign/enemies/lvl9_antlion_sprayer.txt
++++ b/mods/empyrean_campaign/enemies/lvl9_antlion_sprayer.txt
+@@ -29,31 +29,12 @@ cooldown=1400ms
+ # loot
+ loot=loot/level_9.txt
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=7
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 13
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+ threat_range = 10
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#That values are default, so I assume, we do not need them here (but keep in mind -- final config needs that stats)
+-#melee_range = 1.125
+ power=melee,191,15
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+ power=ranged,191,60
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl9_goblin_hunter.txt b/mods/empyrean_campaign/enemies/lvl9_goblin_hunter.txt
+index bde173650a8b193b95b008b2f050936434cf5f82..19d15f0feab5b5d3cb6e155274c91772bb966a48 100644
+--- a/mods/empyrean_campaign/enemies/lvl9_goblin_hunter.txt
++++ b/mods/empyrean_campaign/enemies/lvl9_goblin_hunter.txt
+@@ -26,30 +26,10 @@ stat=absorb_max,9
+ # loot
+ loot=loot/level_9.txt
+ 
+-### Section of ranged units behaviour
+-
+-#It cause shooter to come closer, sometimes.
+-#Not only if player is out of range, but it's realistic enough --- real shooter would like to come closer, to aim better ;)
++# Ranged units behaviour, see docs/ranged_behavior.txt
+ chance_pursue=7
+-
+-#That chance is enough. It can vary, but works nice, as for me
+ chance_flee= 20
+-
+-#Just copied that stats from necro-minotaur, assuming they are default
+ flee_duration=3s
+ flee_cooldown=1s
+-
+-#With this setting enemy do shooting from visible area.
+-#Remember: (threat_range / 2) is hardcoded in standart-behaviour (as for 15.09.2016) as range, closer than which fleeng enemies can't come to hero.
+-#I was trying different values, and can say, that 10 is surely less than needed (10/2=5 -- very small range)
+-#and 20 is surely more than needed (skeletons starts shooting even if u do not see them. also it's hard to catch them. really hard)
+ threat_range = 14
+-
+-#However, if player came close enough to skeleton, he will not run forever, but will take a fight as a man
+-#That values are default, so I assume, we do not need them here (but keep in mind -- final config needs that stats)
+-#melee_range = 1.125
+-#power=melee,164,5
+-
+-#Following is maximised to let shooter not only flee from one side to another.
+-#Did not tested lower values, maybe it can be decreased
+-power=ranged,165,80
+\ No newline at end of file
++power=ranged,165,80

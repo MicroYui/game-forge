@@ -1,0 +1,154 @@
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+index cc6a7c9f672a4a7e4c1dbde02b38956e89eb4506..f9100c6d1d87f3f8fea80ba6ab0793cd280cc3eb 100644
+--- a/mods/empyrean_campaign/items/categories/quest.txt
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -175,6 +175,7 @@ INCLUDE items/base/misc/generic.txt
+ icon=261
+ quest_item=true
+ quality=unique
++item_type=relic
+ pickup_status=emp_naziamines_dynamite
+ no_stash=shared
+ 
+@@ -361,6 +362,7 @@ quest_item=true
+ flavor=An odor of iron and its abrasive petals make this rare plant easy to identify.
+ icon=256
+ quality=unique
++item_type=relic
+ pickup_status=emp_main_gravebloom
+ no_stash=shared
+ 
+@@ -372,6 +374,7 @@ quest_item=true
+ flavor=This mysterious black feather has a very sharp follicle, making it a suitable writing utensil.
+ icon=257
+ quality=unique
++item_type=relic
+ pickup_status=emp_main_quill
+ no_stash=shared
+ 
+@@ -383,6 +386,7 @@ quest_item=true
+ flavor=A dark, magical energy flows through the tip of this small blade.
+ icon=258
+ quality=unique
++item_type=relic
+ pickup_status=emp_main_knife
+ no_stash=shared
+ 
+@@ -394,6 +398,7 @@ quest_item=true
+ flavor=Spoils of the Red Altar ritual.
+ icon=259
+ quality=unique
++item_type=relic
+ pickup_status=emp_main_bloodvial
+ no_stash=shared
+ 
+@@ -405,6 +410,7 @@ quest_item=true
+ flavor=According to Florin, this is the only ink capable of being used in the Book of the Dead.
+ icon=260
+ quality=unique
++item_type=relic
+ pickup_status=emp_main_bloodinkwell
+ no_stash=shared
+ 
+diff --git a/mods/empyrean_campaign/items/items.txt b/mods/empyrean_campaign/items/items.txt
+index 68ec12bd32e5d3af5654923b1ed84f3d15142be6..fd5a922fc212864d3a2deb4d7c9c4ba58fa36e92 100644
+--- a/mods/empyrean_campaign/items/items.txt
++++ b/mods/empyrean_campaign/items/items.txt
+@@ -61,6 +61,7 @@ id=2000
+ name=DEV Boots
+ INCLUDE items/base/armor/magic_boots.txt
+ quality=unique
++item_type=relic
+ bonus=stealth,100
+ power=500
+ power_desc=Use: Teleport to target position.
+@@ -70,6 +71,7 @@ id=2001
+ name=DEV Invisibility Boots
+ INCLUDE items/base/armor/magic_boots.txt
+ quality=unique
++item_type=relic
+ bonus=stealth,100
+ power=501
+ power_desc=Use: Turn Invisible
+@@ -79,5 +81,6 @@ id=2002
+ name=DEV Tome
+ INCLUDE items/base/misc/book.txt
+ quality=unique
++item_type=relic
+ power=503
+ power_desc=Use: Open DEV Tome
+diff --git a/mods/empyrean_campaign/items/types.txt b/mods/empyrean_campaign/items/types.txt
+index b85a68272e90625207263725f20d8a31a68649ca..a074ea7d099373ef09a701e3d90db7ce188ca431 100644
+--- a/mods/empyrean_campaign/items/types.txt
++++ b/mods/empyrean_campaign/items/types.txt
+@@ -25,3 +25,6 @@ auto_pickup=true
+ id=scroll
+ auto_pickup=true
+ 
++[settings]
++sort_order=main,off,head,chest,hands,legs,feet,artifact,ring,potion,scroll,consumable,crafting,crafting_tool,gem,book,key
++
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 85110014ff1d00ed5c9fb4be551c796654e97ed8..a882cb9ef95dd564eff15d79e80f30f135ae07eb 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.14.06
+ game=flare-game
+-version=1.14.40
++version=1.14.41
+ engine_version_min=1.14.280
+diff --git a/mods/fantasycore/items/base/misc/book.txt b/mods/fantasycore/items/base/misc/book.txt
+index 5fee7d91ceaec754c5637af0411dc09dbc6f765c..1513d31cc19425f56168dbd3c7f3892d3a14a1dd 100644
+--- a/mods/fantasycore/items/base/misc/book.txt
++++ b/mods/fantasycore/items/base/misc/book.txt
+@@ -1,4 +1,5 @@
+ icon=225
+ soundfx=soundfx/inventory/inventory_object.ogg
+ loot_animation=animations/loot/book.txt
++item_type=book
+ 
+diff --git a/mods/fantasycore/items/base/misc/key.txt b/mods/fantasycore/items/base/misc/key.txt
+index f030c147deaba84b00cf82d5e8e6df3fed92d087..fb68f48893ecd587760a948ac69deea5656539e0 100644
+--- a/mods/fantasycore/items/base/misc/key.txt
++++ b/mods/fantasycore/items/base/misc/key.txt
+@@ -1,4 +1,4 @@
+ icon=226
+ soundfx=soundfx/inventory/inventory_gem.ogg
+ loot_animation=animations/loot/pouch.txt
+-
++item_type=key
+diff --git a/mods/fantasycore/items/qualities.txt b/mods/fantasycore/items/qualities.txt
+index 29226223cf2b54168f86ced0681c84eabc53ad6c..a050e26e14ad58821ff09f01f642f898f883dbb6 100644
+--- a/mods/fantasycore/items/qualities.txt
++++ b/mods/fantasycore/items/qualities.txt
+@@ -45,3 +45,7 @@ id=currency
+ name=Currency
+ color=255,232,156
+ overlay_icon=1031
++
++[settings]
++sort_order=currency,unique,rare,epic,high,normal,low
++
+diff --git a/mods/fantasycore/items/types.txt b/mods/fantasycore/items/types.txt
+index f63e21ece344d9e6e167bc1bf8af1434931494b9..37d32029e5ec5b134b3e90c23f05b40746b7a87a 100644
+--- a/mods/fantasycore/items/types.txt
++++ b/mods/fantasycore/items/types.txt
+@@ -64,3 +64,6 @@ id=scroll
+ name=Scroll
+ auto_actionbar=true
+ 
++[settings]
++sort_order=main,off,head,chest,hands,legs,feet,artifact,ring,potion,scroll,consumable,gem,book,key
++
+diff --git a/mods/fantasycore/settings.txt b/mods/fantasycore/settings.txt
+index f005c6ac0fc4dd8e88ba9435652a151dbf4f0aba..f439ac6209c43f60442b5cee6b70eb7c42c12377 100644
+--- a/mods/fantasycore/settings.txt
++++ b/mods/fantasycore/settings.txt
+@@ -1,4 +1,4 @@
+ description=Isometric generic fantasy assets.
+ game=flare-game
+-version=1.14.16
++version=1.14.17
+ engine_version_min=1.14.280

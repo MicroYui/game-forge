@@ -1,0 +1,90 @@
+diff --git a/mods/empyrean_campaign/maps/lake_kuuma.txt b/mods/empyrean_campaign/maps/lake_kuuma.txt
+index 995a46edf9b93fd121879e60833006a69eee18a2..59ccfc0e9c1c593062cb685d84c4cafcfda30159 100644
+--- a/mods/empyrean_campaign/maps/lake_kuuma.txt
++++ b/mods/empyrean_campaign/maps/lake_kuuma.txt
+@@ -1125,6 +1125,15 @@ type=on_load
+ location=67,47,1,1
+ soundfx=soundfx/environment/river_loop.ogg
+ 
++[event]
++# award XP for aquiring Gravebloom
++type=on_load
++location=16,19,1,1
++requires_not_status=emp_main_reward1
++requires_status=emp_main_gravebloom
++reward_xp=800
++set_status=emp_main_reward1
++
+ [enemy]
+ type=antlion_ice
+ location=39,27,5,6
+diff --git a/mods/empyrean_campaign/npcs/glowing_obelisk_1.txt b/mods/empyrean_campaign/npcs/glowing_obelisk_1.txt
+index a5262ed5f3b4239d01f4343a10202a2cf0b9d4ac..cd1a2c796358dbe605cc4ddfe4516633a0f8fa78 100644
+--- a/mods/empyrean_campaign/npcs/glowing_obelisk_1.txt
++++ b/mods/empyrean_campaign/npcs/glowing_obelisk_1.txt
+@@ -7,6 +7,12 @@ talker=true
+ 
+ [dialog]
+ topic=Teleport
++requires_not_status=emp_main_gravebloom
++him=(You touch the obelisk, but nothing happens.)
++
++[dialog]
++topic=Teleport
++requires_status=emp_main_gravebloom
+ soundfx=soundfx/environment/teleporter.ogg,0,0
+ intermap=maps/lake_kuuma.txt,26,28
+ unset_status=emp_seagate_door
+diff --git a/mods/empyrean_campaign/quests/000_empyrean.txt b/mods/empyrean_campaign/quests/000_empyrean.txt
+index c0203898ace047bd549a8ed7883d6784f682ed35..fd8fa59f15b190582f5c6e1833942a713c921e1f 100644
+--- a/mods/empyrean_campaign/quests/000_empyrean.txt
++++ b/mods/empyrean_campaign/quests/000_empyrean.txt
+@@ -5,6 +5,11 @@ requires_status=emp_main_init
+ quest_text=The Book of the Dead states redemption is possible for those who sign their name in gravebloom ink. Aquiring gravebloom ink may be the key to return to the city of Empyrean.
+ 
+ [quest]
++requires_status=emp_seagate_defeated
++requires_not_status=emp_main_gravebloom
++quest_text=Before leaving St. Maria's Crypt, it would be wise to look for anything useful.
++
++[quest]
+ requires_status=emp_main_gravebloom
+ quest_text=You've found a gravebloom flower. It's likely to be used as a component in the creation of gravebloom ink.
+ 
+diff --git a/tiled/empyrean_campaign/lake_kuuma.tmx b/tiled/empyrean_campaign/lake_kuuma.tmx
+index ca9e765c464f556ca839078a44edea0c958090e5..95fdc73807360dfdf628675a7b184830170e6c2b 100644
+--- a/tiled/empyrean_campaign/lake_kuuma.tmx
++++ b/tiled/empyrean_campaign/lake_kuuma.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="132" height="132" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="81">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="132" height="132" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="82">
+  <properties>
+   <property name="music" value="music/overworld_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_snowplains.txt"/>
+@@ -1109,6 +1109,14 @@
+     <property name="soundfx" value="soundfx/environment/river_loop.ogg"/>
+    </properties>
+   </object>
++  <object id="81" name="award XP for aquiring Gravebloom" type="on_load" x="512" y="608" width="32" height="32">
++   <properties>
++    <property name="requires_not_status" value="emp_main_reward1"/>
++    <property name="requires_status" value="emp_main_gravebloom"/>
++    <property name="reward_xp" value="800"/>
++    <property name="set_status" value="emp_main_reward1"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="enemy" visible="0">
+   <object id="5" type="antlion_ice" x="1248" y="864" width="160" height="192">
+diff --git a/tiled/empyrean_campaign/st_maria_3.tmx b/tiled/empyrean_campaign/st_maria_3.tmx
+index 51e5bba6f098d4ed9ff45fd3d27c1313b94506aa..f659bb249cd4ced31cf19f2e289c1d3c4d2362cf 100644
+--- a/tiled/empyrean_campaign/st_maria_3.tmx
++++ b/tiled/empyrean_campaign/st_maria_3.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="40" height="60" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="63">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="40" height="60" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="64">
+  <properties>
+   <property name="music" value="music/boss_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_dungeon.txt"/>

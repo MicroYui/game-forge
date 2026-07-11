@@ -1,0 +1,192 @@
+diff --git a/mods/alpha_demo/maps/frontier_plains.txt b/mods/alpha_demo/maps/frontier_plains.txt
+index bbc1918f5edc76e875e69389a1c85bf3923aa5e3..5c8f81d24a0b1b6cfa9f1ffa3653a05cb90d96ca 100644
+--- a/mods/alpha_demo/maps/frontier_plains.txt
++++ b/mods/alpha_demo/maps/frontier_plains.txt
+@@ -8,12 +8,12 @@ tileset=tileset_grassland.txt
+ title=Frontier Plains
+ 
+ [tilesets]
+-tileset=../../../tiled/grassland/tiled_collision.png,64,32,0,0
+-tileset=../../../tiled/grassland/grassland.png,64,128,0,0
+-tileset=../../../tiled/grassland/grassland_water.png,64,64,0,32
+-tileset=../../../tiled/grassland/grassland_structures.png,64,256,0,0
+-tileset=../../../tiled/grassland/grassland_trees.png,128,256,-32,0
+-tileset=../../../tiled/grassland/tiled_grassland_2x2.png,128,64,0,16
++tileset=../../../../flare-game/tiled/grassland/tiled_collision.png,64,32,0,0
++tileset=../../../../flare-game/tiled/grassland/grassland.png,64,128,0,0
++tileset=../../../../flare-game/tiled/grassland/grassland_water.png,64,64,0,32
++tileset=../../../../flare-game/tiled/grassland/grassland_structures.png,64,256,0,0
++tileset=../../../../flare-game/tiled/grassland/grassland_trees.png,128,256,-32,0
++tileset=../../../../flare-game/tiled/grassland/tiled_grassland_2x2.png,128,64,0,16
+ 
+ [layer]
+ type=background
+@@ -830,8 +830,10 @@ intermap=ancient_temple.txt,49,99
+ type=run_once
+ location=117,35,1,1
+ hotspot=location
+-loot=random,117,36,2
++loot=id,117,36,65
+ mapmod=object,117,35,99
++requires_not=fp_crate3
++set_status=fp_crate3
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+ 
+@@ -840,8 +842,10 @@ tooltip=Supplies
+ type=run_once
+ location=50,30,1,1
+ hotspot=location
+-loot=random,50,31,2
++loot=id,50,31,1
+ mapmod=object,50,30,97
++requires_not=fp_crate1
++set_status=fp_crate1
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+ 
+@@ -850,8 +854,10 @@ tooltip=Supplies
+ type=run_once
+ location=125,43,1,1
+ hotspot=location
+-loot=random,124,43,2
++loot=currency,124,43,15
+ mapmod=object,125,43,97
++requires_not=fp_crate4
++set_status=fp_crate4
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+ 
+@@ -860,8 +866,10 @@ tooltip=Supplies
+ type=run_once
+ location=114,97,1,1
+ hotspot=location
+-loot=random,114,98,1
++loot=currency,114,98,10
+ mapmod=object,114,97,99
++requires_not=fp_crate2
++set_status=fp_crate2
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Supplies
+ 
+@@ -876,6 +884,30 @@ type=run_once
+ location=48,155,5,5
+ spawn=zombie_rotting,45,155;zombie_rotting,46,160;zombie_rotting,50,153;zombie_rotting,52,161;zombie_rotting,54,157
+ 
++[event]
++type=on_load
++location=51,29,1,1
++mapmod=object,50,30,97
++requires_status=fp_crate1
++
++[event]
++type=on_load
++location=115,96,1,1
++mapmod=object,114,97,99
++requires_status=fp_crate2
++
++[event]
++type=on_load
++location=118,34,1,1
++mapmod=object,117,35,99
++requires_status=fp_crate3
++
++[event]
++type=on_load
++location=126,42,1,1
++mapmod=object,125,43,97
++requires_status=fp_crate4
++
+ [enemygroup]
+ # goblin camp
+ type=goblin
+diff --git a/tiled/frontier/frontier_plains.tmx b/tiled/frontier/frontier_plains.tmx
+index b15fc93f95a1e1e7249e37cc794af42544b12139..95d2f9a22b198dfe9ffcb36eb8f85fe700f2c344 100644
+--- a/tiled/frontier/frontier_plains.tmx
++++ b/tiled/frontier/frontier_plains.tmx
+@@ -1,5 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+ <map version="1.0" orientation="isometric" width="256" height="256" tilewidth="64" tileheight="32">
+  <properties>
+   <property name="music" value="overworld_theme.ogg"/>
+@@ -836,8 +835,10 @@
+   <object name="camp supply" type="run_once" x="3744" y="1120" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,117,36,2"/>
++    <property name="loot" value="id,117,36,65"/>
+     <property name="mapmod" value="object,117,35,99"/>
++    <property name="requires_not" value="fp_crate3"/>
++    <property name="set_status" value="fp_crate3"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+    </properties>
+@@ -845,8 +846,10 @@
+   <object name="camp supply" type="run_once" x="1600" y="960" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,50,31,2"/>
++    <property name="loot" value="id,50,31,1"/>
+     <property name="mapmod" value="object,50,30,97"/>
++    <property name="requires_not" value="fp_crate1"/>
++    <property name="set_status" value="fp_crate1"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+    </properties>
+@@ -854,8 +857,10 @@
+   <object name="camp supply" type="run_once" x="4000" y="1376" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,124,43,2"/>
++    <property name="loot" value="currency,124,43,15"/>
+     <property name="mapmod" value="object,125,43,97"/>
++    <property name="requires_not" value="fp_crate4"/>
++    <property name="set_status" value="fp_crate4"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+    </properties>
+@@ -863,8 +868,10 @@
+   <object name="camp supply" type="run_once" x="3648" y="3104" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,114,98,1"/>
++    <property name="loot" value="currency,114,98,10"/>
+     <property name="mapmod" value="object,114,97,99"/>
++    <property name="requires_not" value="fp_crate2"/>
++    <property name="set_status" value="fp_crate2"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+     <property name="tooltip" value="Supplies"/>
+    </properties>
+@@ -879,6 +886,31 @@
+     <property name="spawn" value="zombie_rotting,45,155;zombie_rotting,46,160;zombie_rotting,50,153;zombie_rotting,52,161;zombie_rotting,54,157"/>
+    </properties>
+   </object>
++  <object type="on_load" x="1632" y="928" width="32" height="32">
++   <properties>
++    <property name="mapmod" value="object,50,30,97"/>
++    <property name="requires_status" value="fp_crate1"/>
++   </properties>
++  </object>
++  <object x="1472" y="864"/>
++  <object type="on_load" x="3680" y="3072" width="32" height="32">
++   <properties>
++    <property name="mapmod" value="object,114,97,99"/>
++    <property name="requires_status" value="fp_crate2"/>
++   </properties>
++  </object>
++  <object type="on_load" x="3776" y="1088" width="32" height="32">
++   <properties>
++    <property name="mapmod" value="object,117,35,99"/>
++    <property name="requires_status" value="fp_crate3"/>
++   </properties>
++  </object>
++  <object type="on_load" x="4032" y="1344" width="32" height="32">
++   <properties>
++    <property name="mapmod" value="object,125,43,97"/>
++    <property name="requires_status" value="fp_crate4"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="enemygroup" width="256" height="256" visible="0">
+   <object name="goblin camp" type="goblin" x="1568" y="960" width="192" height="192">

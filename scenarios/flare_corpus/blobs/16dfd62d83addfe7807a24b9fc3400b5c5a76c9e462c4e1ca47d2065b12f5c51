@@ -1,0 +1,123 @@
+diff --git a/mods/empyrean_campaign/maps/nazia_mines.txt b/mods/empyrean_campaign/maps/nazia_mines.txt
+index 8b7b98a55712b6ac865ee8e77649f93948d88f55..8ef01b2abd1d05ae5823cbee7064a0f1a57a6df0 100644
+--- a/mods/empyrean_campaign/maps/nazia_mines.txt
++++ b/mods/empyrean_campaign/maps/nazia_mines.txt
+@@ -225,7 +225,6 @@ activate=on_trigger
+ msg=Quest added.
+ repeat=false
+ requires_not_status=emp_naziamines_init,emp_naziamines_finish
+-save_game=true
+ set_status=emp_naziamines_init
+ shakycam=1s
+ soundfx=soundfx/environment/falling_rocks.ogg
+@@ -400,14 +399,33 @@ requires_item=1010
+ requires_not_status=emp_fig_2
+ set_status=emp_fig_2
+ 
+-[enemy]
+-type=enemy
++[event]
++# Wind sound
++type=event
++location=0,0,1,1
++activate=on_load
++soundfx=soundfx/environment/cave_wind_loop.ogg
++
++[event]
++# spawn boulder
++type=event
+ location=29,40,1,1
+-category=nazia_boulder
+-level=9
+-number=1
++activate=on_load
++repeat=false
+ requires_not_status=emp_naziamines_cleared
+ requires_status=emp_naziamines_init
++spawn=nazia_boulder,29,40
++
++[event]
++# reset quest
++type=event
++location=2,0,1,1
++activate=on_load
++msg=Reset Quest: "Trapped!"
++repeat=false
++requires_not_status=emp_naziamines_finish
++requires_status=emp_naziamines_init
++script=scripts/maps/nazia_mines/reset_quest.txt
+ 
+ [enemy]
+ type=enemy
+diff --git a/mods/empyrean_campaign/scripts/maps/nazia_mines/reset_quest.txt b/mods/empyrean_campaign/scripts/maps/nazia_mines/reset_quest.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d8d6de75caa5fe9a7198ee0835e0be919f6336af
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/maps/nazia_mines/reset_quest.txt
+@@ -0,0 +1,7 @@
++[event]
++unset_status=emp_naziamines_init
++unset_status=emp_naziamines_dynamite
++unset_status=emp_naziamines_chest
++unset_status=emp_naziamines_cleared
++unset_status=emp_naziamines_finish
++remove_item=1016
+diff --git a/tiled/empyrean_campaign/nazia_mines.tmx b/tiled/empyrean_campaign/nazia_mines.tmx
+index caae258c40d49fff41b33119620fa458d663da47..18493d6fbde302e37969ae071004422c550a3281 100644
+--- a/tiled/empyrean_campaign/nazia_mines.tmx
++++ b/tiled/empyrean_campaign/nazia_mines.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="40" height="60" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="34">
++<map version="1.0" tiledversion="1.0.1" orientation="isometric" renderorder="right-down" width="40" height="60" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="37">
+  <properties>
+   <property name="hero_pos" value="33,57"/>
+   <property name="music" value="music/cave_theme.ogg"/>
+@@ -227,7 +227,6 @@
+     <property name="msg" value="Quest added."/>
+     <property name="repeat" value="false"/>
+     <property name="requires_not_status" value="emp_naziamines_init,emp_naziamines_finish"/>
+-    <property name="save_game" value="true"/>
+     <property name="set_status" value="emp_naziamines_init"/>
+     <property name="shakycam" value="1s"/>
+     <property name="soundfx" value="soundfx/environment/falling_rocks.ogg"/>
+@@ -389,17 +388,33 @@
+     <property name="set_status" value="emp_fig_2"/>
+    </properties>
+   </object>
+- </objectgroup>
+- <objectgroup name="enemy">
+-  <object id="9" type="enemy" x="928" y="1280" width="32" height="32">
++  <object id="34" name="Wind sound" type="event" x="0" y="0" width="32" height="32">
+    <properties>
+-    <property name="category" value="nazia_boulder"/>
+-    <property name="level" value="9"/>
+-    <property name="number" value="1"/>
++    <property name="activate" value="on_load"/>
++    <property name="soundfx" value="soundfx/environment/cave_wind_loop.ogg"/>
++   </properties>
++  </object>
++  <object id="36" name="spawn boulder" type="event" x="928" y="1280" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="repeat" value="false"/>
+     <property name="requires_not_status" value="emp_naziamines_cleared"/>
+     <property name="requires_status" value="emp_naziamines_init"/>
++    <property name="spawn" value="nazia_boulder,29,40"/>
+    </properties>
+   </object>
++  <object id="35" name="reset quest" type="event" x="64" y="0" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="msg" value="Reset Quest: &quot;Trapped!&quot;"/>
++    <property name="repeat" value="false"/>
++    <property name="requires_not_status" value="emp_naziamines_finish"/>
++    <property name="requires_status" value="emp_naziamines_init"/>
++    <property name="script" value="scripts/maps/nazia_mines/reset_quest.txt"/>
++   </properties>
++  </object>
++ </objectgroup>
++ <objectgroup name="enemy">
+   <object id="20" type="enemy" x="992" y="96" width="128" height="320">
+    <properties>
+     <property name="category" value="antlion"/>

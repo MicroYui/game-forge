@@ -1,0 +1,2684 @@
+diff --git a/mods/alpha_demo/enemies/antlion.txt b/mods/alpha_demo/enemies/antlion.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..5b9a86b5be9a22d97e4df435efa0c985b516e3f6
+--- /dev/null
++++ b/mods/alpha_demo/enemies/antlion.txt
+@@ -0,0 +1,28 @@
++INCLUDE enemies/base/antlion.txt
++
++name=Antlion
++level=4
++categories=antlion_normal,antlion,dungeon,cave
++xp=10
++
++# combat stats
++# antlions have low HP and high armor for their level
++hp=70
++speed=5.5
++turn_delay=166ms
++chance_pursue=30
++chance_melee_phys=20
++power_melee_phys=1
++
++accuracy=72
++avoidance=22
++absorb_min=12
++absorb_max=12
++
++dmg_melee_min=10
++dmg_melee_max=35
++cooldown=333ms
++
++# loot
++loot=loot/leveled_mid.txt
++
+diff --git a/mods/alpha_demo/enemies/antlion_blinker.txt b/mods/alpha_demo/enemies/antlion_blinker.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..a2a76bfd09fc2446fea43be5c71139c2b160ad7b
+--- /dev/null
++++ b/mods/alpha_demo/enemies/antlion_blinker.txt
+@@ -0,0 +1,38 @@
++INCLUDE enemies/base/antlion.txt
++
++name=Antlion Blinker
++level=5
++categories=antlion_blinker,antlion,dungeon,cave
++xp=20
++
++# combat stats
++# antlions have low HP and high armor for their level
++hp=90
++speed=5
++turn_delay=266ms
++chance_pursue=40
++chance_melee_phys=16
++chance_melee_ment=8
++chance_ranged_ment=10
++
++power_melee_phys=1
++# paralysis acid in melee range
++power_melee_ment=41
++# teleports into melee range
++power_ranged_ment=15
++
++accuracy=81
++avoidance=31
++
++dmg_melee_min=5
++dmg_melee_max=40
++dmg_ment_min=10
++dmg_ment_max=30
++absorb_min=15
++absorb_max=15
++
++cooldown=333ms
++
++# loot
++loot=loot/leveled_mid.txt
++
+diff --git a/mods/alpha_demo/enemies/antlion_burster.txt b/mods/alpha_demo/enemies/antlion_burster.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..eebd247e5aa931b19ed9035d3c961e983c8b70a6
+--- /dev/null
++++ b/mods/alpha_demo/enemies/antlion_burster.txt
+@@ -0,0 +1,36 @@
++INCLUDE enemies/base/antlion_fire.txt
++
++name=Antlion Burster
++level=8
++categories=antlion_burster,antlion,dungeon,cave,fire
++xp=200
++
++# combat stats
++# antlions have low HP and high armor for their level
++hp=130
++speed=8
++turn_delay=133ms
++chance_pursue=50
++chance_melee_ment=100
++
++# explode
++power_melee_ment=40
++
++accuracy=100
++avoidance=25
++
++dmg_ment_min=150
++dmg_ment_max=200
++absorb_min=24
++absorb_max=24
++vulnerable_fire=100
++vulnerable_ice=200
++
++cooldown=833ms
++
++# loot
++loot=loot/leveled_high.txt
++
++# ring of fire, ruby
++loot=109,1
++loot=5,1
+diff --git a/mods/alpha_demo/enemies/antlion_freezer.txt b/mods/alpha_demo/enemies/antlion_freezer.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..473acb5fbef6f29baa2a29272d0cfcd2cdc0c850
+--- /dev/null
++++ b/mods/alpha_demo/enemies/antlion_freezer.txt
+@@ -0,0 +1,38 @@
++INCLUDE enemies/base/antlion_ice.txt
++
++name=Antlion Freezer
++level=7
++categories=antlion_freezer,antlion,dungeon,cave,ice
++xp=100
++
++# combat stats
++# antlions have low HP and high armor for their level
++hp=140
++speed=5
++turn_delay=200ms
++chance_pursue=10
++chance_melee_phys=5
++chance_ranged_ment=10
++power_melee_phys=1
++power_ranged_ment=30
++
++accuracy=87
++avoidance=37
++
++dmg_melee_min=5
++dmg_melee_max=30
++dmg_ment_min=20
++dmg_ment_max=50
++absorb_min=18
++absorb_max=18
++vulnerable_fire=200
++vulnerable_ice=50
++
++cooldown=833ms
++
++# loot
++loot=loot/leveled_high.txt
++
++# ring of ice, emerald
++loot=109,1
++loot=4,1
+diff --git a/mods/alpha_demo/enemies/antlion_hatchling.txt b/mods/alpha_demo/enemies/antlion_hatchling.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..297706eceaf58e96f4ab03af71cc7a2abd1c98a6
+--- /dev/null
++++ b/mods/alpha_demo/enemies/antlion_hatchling.txt
+@@ -0,0 +1,26 @@
++INCLUDE enemies/base/antlion_small.txt
++
++name=Antlion Hatchling
++level=3
++categories=antlion_hatchling,antlion,dungeon,cave
++xp=5
++
++# combat stats
++# antlions have low HP and high armor for their level
++hp=40
++speed=5
++turn_delay=200ms
++chance_pursue=10
++chance_melee_phys=5
++power_melee_phys=1
++
++accuracy=75
++avoidance=25
++dmg_melee_min=5
++dmg_melee_max=20
++cooldown=833ms
++absorb_min=9
++absorb_max=9
++
++# loot
++loot=loot/leveled_low.txt
+diff --git a/mods/alpha_demo/enemies/antlion_slasher.txt b/mods/alpha_demo/enemies/antlion_slasher.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..2c1a4ddc7a43ac5c6d21349105bf9e8f70cbdd74
+--- /dev/null
++++ b/mods/alpha_demo/enemies/antlion_slasher.txt
+@@ -0,0 +1,31 @@
++INCLUDE enemies/base/antlion.txt
++
++name=Antlion Slasher
++level=6
++categories=antlion_slasher,antlion,dungeon,cave
++xp=50
++
++# combat stats
++hp=105
++speed=6.5
++turn_delay=133ms
++chance_pursue=10
++chance_melee_phys=10
++power_melee_phys=5
++
++accuracy=84
++avoidance=34
++
++dmg_melee_min=15
++dmg_melee_max=45
++absorb_min=18
++absorb_max=18
++
++cooldown=333ms
++
++# loot
++loot=loot/leveled_mid.txt
++
++# sapphire
++loot=3,1
++
+diff --git a/mods/alpha_demo/enemies/antlion_spitter.txt b/mods/alpha_demo/enemies/antlion_spitter.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..52f9b6d2b1a03056089b2e85142b2b1f38d0a5f5
+--- /dev/null
++++ b/mods/alpha_demo/enemies/antlion_spitter.txt
+@@ -0,0 +1,38 @@
++INCLUDE enemies/base/antlion_fire.txt
++
++name=Antlion Spitter
++level=7
++categories=antlion_spitter,antlion,dungeon,cave,fire
++xp=100
++
++# combat stats
++hp=140
++speed=5
++turn_delay=200ms
++chance_pursue=10
++chance_melee_phys=5
++chance_ranged_ment=10
++power_melee_phys=1
++power_ranged_ment=31
++
++accuracy=87
++avoidance=37
++
++dmg_melee_min=10
++dmg_melee_max=30
++dmg_ment_min=20
++dmg_ment_max=50
++absorb_min=21
++absorb_max=21
++vulnerable_fire=50
++vulnerable_ice=200
++
++cooldown=833ms
++
++# loot
++loot=loot/leveled_high.txt
++
++# ring of fire, emerald
++loot=109,1
++loot=4,1
++
+diff --git a/mods/alpha_demo/enemies/cursed_grave.txt b/mods/alpha_demo/enemies/cursed_grave.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..0d54b2ac43ddc8bf593c0501fd8923ca6fdb135f
+--- /dev/null
++++ b/mods/alpha_demo/enemies/cursed_grave.txt
+@@ -0,0 +1,19 @@
++INCLUDE enemies/base/grave.txt
++
++name=Cursed Grave
++level=3
++xp=5
++categories=cursed_grave
++
++# combat stats
++hp=300
++
++power_ranged_ment=137
++power_melee_ment=137
++
++cooldown=3s
++
++# loot
++loot=loot/leveled_low.txt
++loot=loot/base_gear.txt
++
+diff --git a/mods/alpha_demo/enemies/goblin.txt b/mods/alpha_demo/enemies/goblin.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..588c339a8ca41ec239d303a59200d12bc9165c51
+--- /dev/null
++++ b/mods/alpha_demo/enemies/goblin.txt
+@@ -0,0 +1,31 @@
++INCLUDE enemies/base/goblin.txt
++
++name=Goblin
++level=1
++categories=goblin_normal,goblin,dungeon
++rarity=common
++xp=1
++
++# combat stats
++hp=30
++speed=2
++melee_range=1.125
++turn_delay=400ms
++chance_pursue=10
++chance_melee_phys=2
++power_melee_phys=1
++
++accuracy=69
++avoidance=19
++
++dmg_melee_min=5
++dmg_melee_max=15
++cooldown=1s
++
++# loot
++loot=loot/leveled_low.txt
++
++# dagger
++loot=32,5
++
++
+diff --git a/mods/alpha_demo/enemies/goblin_charger.txt b/mods/alpha_demo/enemies/goblin_charger.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..c68bedc40d7ece4e144640b532985245ff71a667
+--- /dev/null
++++ b/mods/alpha_demo/enemies/goblin_charger.txt
+@@ -0,0 +1,37 @@
++INCLUDE enemies/base/goblin_runner.txt
++
++name=Goblin Charger
++level=2
++categories=goblin_charger,goblin,dungeon
++rarity=uncommon
++xp=2
++
++# combat stats
++hp=50
++speed=5
++turn_delay=200ms
++chance_pursue=10
++chance_melee_phys=3
++chance_melee_ment=1
++power_melee_phys=1
++power_melee_ment=5
++
++accuracy=75
++avoidance=25
++
++dmg_melee_min=5
++dmg_melee_max=20
++dmg_ment_min=5
++dmg_ment_max=15
++cooldown=666ms
++absorb_min=3
++absorb_max=3
++
++# loot
++loot=loot/leveled_low.txt
++
++# dagger, leather gloves, leather boots
++loot=32,5
++loot=82,5
++loot=84,5
++
+diff --git a/mods/alpha_demo/enemies/goblin_charger_elite.txt b/mods/alpha_demo/enemies/goblin_charger_elite.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..1d0001a0ac3e5eb478843d1c252b495648ca194f
+--- /dev/null
++++ b/mods/alpha_demo/enemies/goblin_charger_elite.txt
+@@ -0,0 +1,43 @@
++INCLUDE enemies/base/goblin_elite_runner.txt
++
++name=Goblin Charger Elite
++level=3
++categories=goblin_charger_elite,goblin_elite
++rarity=rare
++xp=10
++
++# combat stats
++hp=120
++speed=6.5
++turn_delay=133ms
++chance_pursue=25
++chance_melee_phys=8
++chance_melee_ment=4
++power_melee_phys=1
++power_melee_ment=5
++
++accuracy=78
++avoidance=28
++
++dmg_melee_min=10
++dmg_melee_max=30
++dmg_ment_min=10
++dmg_ment_max=30
++absorb_min=9
++absorb_max=9
++cooldown=500ms
++
++# loot
++loot=loot/leveled_mid.txt
++
++# dagger, leather gloves, leather boots
++loot=32,20
++loot=82,20
++loot=84,20
++
++# shortsword, boots of speed, fencing gloves
++loot=33,1
++loot=104,1
++loot=118,1
++
++
+diff --git a/mods/alpha_demo/enemies/goblin_shaman.txt b/mods/alpha_demo/enemies/goblin_shaman.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..da009171a6a51a1552458af18fe29b66db78d0b5
+--- /dev/null
++++ b/mods/alpha_demo/enemies/goblin_shaman.txt
+@@ -0,0 +1,42 @@
++INCLUDE enemies/base/goblin.txt
++
++name=Goblin Shaman
++level=4
++categories=goblin_shaman,goblin,dungeon,lightning
++rarity=rare
++xp=10
++
++# combat stats
++hp=105
++speed=2
++melee_range=2.375
++turn_delay=200ms
++chance_pursue=10
++chance_melee_phys=0
++chance_melee_ment=5
++chance_ranged_phys=5
++chance_ranged_ment=10
++power_melee_ment=6
++power_ranged_phys=11
++power_ranged_ment=6
++
++accuracy=84
++avoidance=34
++
++dmg_ment_min=15
++dmg_ment_max=40
++absorb_min=9
++absorb_max=9
++cooldown=833ms
++
++# loot
++loot=loot/leveled_mid.txt
++
++# wand
++loot=40,5
++
++# rod, mage gloves, mage boots
++loot=41,1
++loot=74,1
++loot=76,1
++
+diff --git a/mods/alpha_demo/enemies/goblin_spearman.txt b/mods/alpha_demo/enemies/goblin_spearman.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6fd502e335c68bd81cf695f38f67e7a79280ddc5
+--- /dev/null
++++ b/mods/alpha_demo/enemies/goblin_spearman.txt
+@@ -0,0 +1,41 @@
++INCLUDE enemies/base/goblin.txt
++
++name=Goblin Spearman
++level=3
++categories=goblin_spearman,goblin,dungeon
++rarity=uncommon
++xp=5
++
++# combat stats
++hp=60
++speed=2
++turn_delay=400ms
++chance_pursue=15
++chance_melee_phys=6
++chance_ranged_phys=2
++power_melee_phys=1
++power_ranged_phys=32
++
++accuracy=80
++avoidance=25
++
++dmg_melee_min=5
++dmg_melee_max=25
++dmg_ranged_min=10
++dmg_ranged_max=35
++absorb_min=6
++absorb_max=6
++cooldown=833ms
++
++# loot
++loot=loot/leveled_low.txt
++
++# slingshot, leather chest, leather pants
++loot=48,5
++loot=81,5
++loot=83,5
++
++# short bow
++loot=49,1
++
++
+diff --git a/mods/alpha_demo/enemies/goblin_spearman_elite.txt b/mods/alpha_demo/enemies/goblin_spearman_elite.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..1acd4c3df91a6c03060382ebe57c31594a89fdfa
+--- /dev/null
++++ b/mods/alpha_demo/enemies/goblin_spearman_elite.txt
+@@ -0,0 +1,41 @@
++INCLUDE enemies/base/goblin_elite.txt
++
++name=Goblin Spearman Elite
++level=3
++categories=goblin_spearman_elite,goblin_elite
++rarity=rare
++xp=20
++
++# combat stats
++hp=100
++speed=3.5
++turn_delay=300ms
++chance_pursue=15
++chance_melee_phys=6
++chance_ranged_phys=30
++power_melee_phys=1
++power_ranged_phys=32
++
++accuracy=84
++avoidance=28
++
++dmg_melee_min=5
++dmg_melee_max=25
++dmg_ranged_min=15
++dmg_ranged_max=40
++absorb_min=12
++absorb_max=12
++cooldown=833ms
++
++# loot
++loot=loot/leveled_low.txt
++
++# slingshot, leather chest, leather pants
++loot=48,20
++loot=81,20
++loot=83,20
++
++# short bow, silent tabi, thief gloves,
++loot=49,1
++loot=114,1
++loot=105,1
+diff --git a/mods/alpha_demo/enemies/minotaur.txt b/mods/alpha_demo/enemies/minotaur.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..eb1139edfa79dc3cf68f38125a767446e356468d
+--- /dev/null
++++ b/mods/alpha_demo/enemies/minotaur.txt
+@@ -0,0 +1,36 @@
++INCLUDE enemies/base/minotaur.txt
++
++name=Minotaur
++level=8
++categories=minotaur,dungeon
++xp=200
++
++# combat stats
++hp=180
++speed=5.5
++turn_delay=166ms
++chance_pursue=30
++chance_melee_phys=10
++chance_melee_ment=25
++chance_ranged_phys=0
++chance_ranged_ment=0
++power_melee_phys=1
++power_melee_ment=10
++
++accuracy=90
++avoidance=40
++
++dmg_melee_min=20
++dmg_melee_max=55
++dmg_ment_min=10
++dmg_ment_max=30
++absorb_min=21
++absorb_max=21
++cooldown=666ms
++
++# loot
++loot=loot/leveled_high.txt
++
++# Bear Figurine, Ouroboros Ring
++loot=119,1
++loot=112,1
+diff --git a/mods/alpha_demo/enemies/skeletal_archer.txt b/mods/alpha_demo/enemies/skeletal_archer.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..e6a2cf167b9623887c067324037659386a88ad15
+--- /dev/null
++++ b/mods/alpha_demo/enemies/skeletal_archer.txt
+@@ -0,0 +1,39 @@
++INCLUDE enemies/base/skeleton_archer.txt
++
++name=Skeletal Archer
++level=3
++categories=skeletal_archer,skeleton,undead,dungeon
++xp=5
++
++# combat stats
++hp=75
++speed=3.5
++turn_delay=200ms
++chance_pursue=5
++chance_melee_phys=5
++chance_melee_ment=0
++chance_ranged_phys=5
++chance_ranged_ment=0
++power_melee_phys=1
++power_ranged_phys=34
++
++accuracy=83
++avoidance=28
++
++dmg_melee_min=5
++dmg_melee_max=25
++dmg_ranged_min=10
++dmg_ranged_max=30
++absorb_min=6
++absorb_max=6
++
++cooldown=1s
++
++# loot
++loot=loot/leveled_low.txt
++
++# short bow, leather hood
++loot=49,5
++loot=80,5
++
++
+diff --git a/mods/alpha_demo/enemies/skeletal_knight.txt b/mods/alpha_demo/enemies/skeletal_knight.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..610211e8c7a8d125c77c8921c52c03b67cc16c11
+--- /dev/null
++++ b/mods/alpha_demo/enemies/skeletal_knight.txt
+@@ -0,0 +1,54 @@
++INCLUDE enemies/base/skeleton.txt
++
++name=Skeletal Knight
++level=8
++categories=skeletal_knight,skeleton,undead,dungeon
++xp=200
++
++# combat stats
++hp=200
++speed=6.5
++turn_delay=133ms
++
++chance_pursue=45
++chance_melee_phys=15
++chance_melee_ment=15
++
++# blood strike
++power_melee_phys=5
++# piercing strike
++power_melee_ment=39
++
++accuracy=90
++avoidance=45
++
++dmg_melee_min=55
++dmg_melee_max=65
++dmg_ment_min=30
++dmg_ment_max=45
++
++absorb_min=21
++absorb_max=21
++
++vulnerable_fire=150
++vulnerable_ice=75
++cooldown=333ms
++
++# loot
++loot=loot/leveled_high.txt
++
++# long sword, plate armor, crest shield
++loot=34,5
++loot=96,5
++loot=96,5
++loot=98,5
++loot=99,5
++loot=100,5
++loot=58,5
++
++# turtle figurine, ring of regen, great sword, tower shield, emerald
++loot=112,1
++loot=107,1
++loot=35,1
++loot=59,1
++loot=4,1
+diff --git a/mods/alpha_demo/enemies/skeletal_mage.txt b/mods/alpha_demo/enemies/skeletal_mage.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..3939dbdbc30f247e2eb4f9469394aa64250f656e
+--- /dev/null
++++ b/mods/alpha_demo/enemies/skeletal_mage.txt
+@@ -0,0 +1,47 @@
++INCLUDE enemies/base/skeleton_mage.txt
++
++name=Skeletal Mage
++level=4
++categories=skeletal_mage,skeleton,undead,dungeon,ice
++xp=10
++
++# combat stats
++hp=90
++speed=3.5
++turn_delay=200ms
++
++chance_pursue=15
++chance_melee_phys=5
++chance_melee_ment=0
++chance_ranged_phys=0
++chance_ranged_ment=4
++power_melee_phys=1
++power_ranged_ment=30
++
++accuracy=78
++avoidance=28
++absorb_min=9
++absorb_max=9
++
++dmg_melee_min=5
++dmg_melee_max=25
++dmg_ment_min=10
++dmg_ment_max=35
++
++vulnerable_fire=200
++vulnerable_ice=50
++cooldown=1s
++
++# loot
++loot=loot/leveled_mid.txt
++
++# rod
++loot=41,5
++
++# mage set
++loot=72,1
++loot=73,1
++loot=74,1
++loot=75,1
++loot=76,1
++
+diff --git a/mods/alpha_demo/enemies/skeletal_occultist.txt b/mods/alpha_demo/enemies/skeletal_occultist.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..e0dc15e77e2520c00c8c0670bb57793bec9a05ef
+--- /dev/null
++++ b/mods/alpha_demo/enemies/skeletal_occultist.txt
+@@ -0,0 +1,48 @@
++INCLUDE enemies/base/skeleton_mage.txt
++
++name=Skeletal Occultist
++level=7
++categories=skeletal_occultist,skeleton,undead,dungeon,ice
++xp=100
++
++# combat stats
++hp=160
++speed=3.5
++turn_delay=200ms
++
++chance_pursue=15
++chance_melee_phys=10
++chance_ranged_ment=10
++
++# channel
++power_melee_phys=2
++# freeze
++power_ranged_ment=14
++
++accuracy=87
++avoidance=37
++
++dmg_melee_min=15
++dmg_melee_max=45
++dmg_ment_min=20
++dmg_ment_max=50
++absorb_min=18
++absorb_max=18
++
++vulnerable_fire=200
++vulnerable_ice=50
++cooldown=500ms
++
++# loot
++loot=loot/leveled_high.txt
++
++# staff
++loot=42,5
++
++# ring of concentration, owl figurine, sapphire, sage mantle, sage frock
++loot=108,1
++loot=120,1
++loot=3,1
++loot=123,1
++loot=124,1
++
+diff --git a/mods/alpha_demo/enemies/skeletal_sniper.txt b/mods/alpha_demo/enemies/skeletal_sniper.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..9647007a1d5ed2e6b81bdc107b5e755e307a63fd
+--- /dev/null
++++ b/mods/alpha_demo/enemies/skeletal_sniper.txt
+@@ -0,0 +1,46 @@
++INCLUDE enemies/base/skeleton_archer.txt
++
++name=Skeletal Sniper
++level=6
++categories=skeletal_sniper,skeleton,undead,dungeon
++xp=50
++
++# combat stats
++hp=150
++speed=3.5
++turn_delay=200ms
++chance_pursue=5
++chance_melee_phys=5
++chance_melee_ment=0
++chance_ranged_phys=10
++chance_ranged_ment=5
++power_melee_phys=1
++
++# shoot
++power_ranged_phys=34
++# multi-shot
++power_ranged_ment=42
++
++accuracy=89
++avoidance=34
++
++dmg_melee_min=5
++dmg_melee_max=25
++dmg_ranged_min=15
++dmg_ranged_max=45
++absorb_min=15
++absorb_max=15
++
++cooldown=500ms
++
++# loot
++loot=loot/leveled_mid.txt
++
++# long bow, chain coif
++loot=50,5
++loot=88,5
++
++# cat figurine, relic hunter's ring
++loot=121,1
++loot=113,1
++
+diff --git a/mods/alpha_demo/enemies/skeletal_warrior.txt b/mods/alpha_demo/enemies/skeletal_warrior.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..e3da16b47abd85a5ce04d9abf08026bc676cc856
+--- /dev/null
++++ b/mods/alpha_demo/enemies/skeletal_warrior.txt
+@@ -0,0 +1,55 @@
++INCLUDE enemies/base/skeleton.txt
++
++name=Skeletal Warrior
++level=5
++categories=skeletal_warrior,skeleton,undead,dungeon
++xp=20
++
++waypoint_pause=1s
++
++# combat stats
++hp=130
++speed=5
++turn_delay=200ms
++
++chance_pursue=25
++chance_melee_phys=10
++chance_melee_ment=10
++
++# blood strike
++power_melee_phys=5
++# piercing strike
++power_melee_ment=39
++
++accuracy=81
++avoidance=37
++
++dmg_melee_min=15
++dmg_melee_max=40
++dmg_ment_min=25
++dmg_ment_max=60
++
++absorb_min=12
++absorb_max=12
++
++vulnerable_fire=150
++vulnerable_ice=75
++cooldown=666ms
++
++# loot
++loot=loot/leveled_mid.txt
++
++# shortsword, chain armor, iron buckler
++loot=33,5
++loot=89,5
++loot=90,5
++loot=91,5
++loot=92,5
++loot=57,5
++
++# blood gear, long sword, crest shield, duelist guants
++loot=116,1
++loot=117,1
++loot=34,1
++loot=58,1
++loot=115,1
+diff --git a/mods/alpha_demo/enemies/skeleton.txt b/mods/alpha_demo/enemies/skeleton.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..a022344a745222024ae3396305d8711c7b38f1de
+--- /dev/null
++++ b/mods/alpha_demo/enemies/skeleton.txt
+@@ -0,0 +1,31 @@
++INCLUDE enemies/base/skeleton_weak.txt
++
++name=Skeleton
++level=2
++categories=skeleton_normal,skeleton,undead,dungeon
++xp=2
++
++# combat stats
++hp=50
++speed=4.5
++turn_delay=233ms
++chance_pursue=10
++chance_melee_phys=5
++power_melee_phys=1
++
++accuracy=75
++avoidance=25
++
++dmg_melee_min=5
++dmg_melee_max=25
++cooldown=833ms
++absorb_min=3
++absorb_max=3
++
++# loot
++loot=loot/leveled_low.txt
++
++# dagger, wood buckler
++loot=32,5
++loot=56,5
++
+diff --git a/mods/alpha_demo/enemies/stealth.txt b/mods/alpha_demo/enemies/stealth.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..5899e4ea15d15535f363855a10afb7de42d6a88f
+--- /dev/null
++++ b/mods/alpha_demo/enemies/stealth.txt
+@@ -0,0 +1,17 @@
++name=Stealth
++humanoid=false
++
++categories=stealth
++
++sfx_phys=soundfx/melee_attack.ogg
++sfx_hit=soundfx/male_hit.ogg
++sfx_die=soundfx/male_die.ogg
++sfx_critdie=soundfx/male_die.ogg
++sfx_levelup=soundfx/level_up.ogg
++
++animations=animations/enemies/stealth.txt
++
++# combat stats
++power_melee_phys=142
++passive_powers=143
++
+diff --git a/mods/alpha_demo/enemies/wyvern.txt b/mods/alpha_demo/enemies/wyvern.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..d74dfd67a797e56f3f86f392c8f001cb67746b90
+--- /dev/null
++++ b/mods/alpha_demo/enemies/wyvern.txt
+@@ -0,0 +1,38 @@
++INCLUDE enemies/base/wyvern.txt
++
++name=Venom Wyvern
++level=3
++categories=wyvern_normal,wyvern
++rarity=common
++xp=5
++
++# combat stats
++hp=70
++speed=5
++turn_delay=200ms
++chance_pursue=35
++chance_melee_phys=15
++chance_melee_ment=0
++chance_ranged_phys=0
++chance_ranged_ment=2
++
++# bleed sting
++power_melee_phys=5
++# fire spit
++power_ranged_ment=31
++
++accuracy=77
++avoidance=27
++
++dmg_melee_min=5
++dmg_melee_max=25
++dmg_ment_min=10
++dmg_ment_max=30
++absorb_min=6
++absorb_max=6
++
++cooldown=1s
++
++# loot
++loot=loot/leveled_low.txt
++
+diff --git a/mods/alpha_demo/enemies/wyvern_adult.txt b/mods/alpha_demo/enemies/wyvern_adult.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..50fcbc022793fcb20edc819ce9c7c38a79383590
+--- /dev/null
++++ b/mods/alpha_demo/enemies/wyvern_adult.txt
+@@ -0,0 +1,38 @@
++INCLUDE enemies/base/wyvern_adult.txt
++
++name=Adult Wyvern
++level=6
++categories=wyvern_adult,wyvern
++rarity=common
++xp=50
++
++# combat stats
++hp=200
++speed=9
++turn_delay=100ms
++chance_pursue=10
++chance_melee_phys=15
++chance_melee_ment=0
++chance_ranged_phys=0
++chance_ranged_ment=2
++
++# bleed sting
++power_melee_phys=5
++# fire spit
++power_ranged_ment=31
++
++accuracy=82
++avoidance=32
++
++dmg_melee_min=20
++dmg_melee_max=40
++dmg_ment_min=30
++dmg_ment_max=60
++absorb_min=15
++absorb_max=15
++
++cooldown=1s
++
++# loot
++loot=loot/leveled_mid.txt
++
+diff --git a/mods/alpha_demo/enemies/zombie.txt b/mods/alpha_demo/enemies/zombie.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..e8a5e93a9812d43718ec3a1198267e050c15d55c
+--- /dev/null
++++ b/mods/alpha_demo/enemies/zombie.txt
+@@ -0,0 +1,40 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Zombie
++level=2
++categories=zombie_normal,zombie,undead,dungeon
++xp=2
++
++# combat stats
++hp=40
++speed=3
++turn_delay=333ms
++chance_pursue=10
++chance_melee_phys=2
++chance_melee_ment=3
++chance_ranged_phys=0
++chance_ranged_ment=0
++power_melee_phys=1
++power_melee_ment=1
++
++accuracy=75
++avoidance=25
++
++dmg_melee_min=5
++dmg_melee_max=25
++dmg_ment_min=15
++dmg_ment_max=30
++absorb_min=3
++absorb_max=3
++
++cooldown=666ms
++
++# loot
++loot=loot/leveled_low.txt
++
++# cloth set
++loot=64,5
++loot=65,5
++loot=66,5
++loot=67,5
++
+diff --git a/mods/alpha_demo/enemies/zombie_bloodthirsty.txt b/mods/alpha_demo/enemies/zombie_bloodthirsty.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..298b9a0b8fdc45b8453063cce17d319833fe79b9
+--- /dev/null
++++ b/mods/alpha_demo/enemies/zombie_bloodthirsty.txt
+@@ -0,0 +1,39 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Bloodthirsty Zombie
++level=5
++categories=zombie_bloodthirsty,zombie,undead,dungeon
++xp=20
++
++# combat stats
++hp=135
++speed=5.5
++turn_delay=166ms
++chance_pursue=20
++chance_melee_phys=15
++chance_melee_ment=5
++
++# melee power vampiric
++power_melee_phys=36
++power_melee_ment=36
++
++accuracy=85
++avoidance=31
++
++dmg_melee_min=20
++dmg_melee_max=50
++dmg_ment_min=20
++dmg_ment_max=50
++absorb_min=12
++absorb_max=12
++
++cooldown=500ms
++
++# loot
++loot=loot/leveled_mid.txt
++
++# blood gear, ring of regen
++loot=116,1
++loot=117,1
++loot=107,1
++
+diff --git a/mods/alpha_demo/enemies/zombie_brute.txt b/mods/alpha_demo/enemies/zombie_brute.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..c834e0660165d88fb910cb0f7130f608c03a439a
+--- /dev/null
++++ b/mods/alpha_demo/enemies/zombie_brute.txt
+@@ -0,0 +1,37 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Zombie Brute
++level=3
++categories=zombie_brute,zombie,undead,dungeon
++xp=5
++
++# combat stats
++hp=100
++speed=5
++turn_delay=200ms
++chance_pursue=30
++chance_melee_phys=15
++chance_melee_ment=1
++chance_ranged_phys=0
++chance_ranged_ment=0
++power_melee_phys=1
++power_melee_ment=1
++
++accuracy=78
++avoidance=28
++
++dmg_melee_min=20
++dmg_melee_max=30
++dmg_ment_min=25
++dmg_ment_max=60
++absorb_min=6
++absorb_max=6
++cooldown=400ms
++
++# loot
++loot=loot/leveled_low.txt
++
++# leather chest, pants
++loot=81,5
++loot=83,5
++
+diff --git a/mods/alpha_demo/enemies/zombie_iceclaw.txt b/mods/alpha_demo/enemies/zombie_iceclaw.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..8e8a5eccf00c80aa65d4c007973a61cd46513683
+--- /dev/null
++++ b/mods/alpha_demo/enemies/zombie_iceclaw.txt
+@@ -0,0 +1,39 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Iceclaw Zombie
++level=4
++categories=zombie_iceclaw,zombie,undead,dungeon
++xp=10
++
++# combat stats
++hp=80
++speed=4.5
++turn_delay=233ms
++chance_pursue=20
++chance_melee_phys=15
++chance_melee_ment=3
++chance_ranged_phys=0
++chance_ranged_ment=0
++
++# melee power Chill Touch (5s immobilize)
++power_melee_phys=38
++power_melee_ment=1
++
++accuracy=85
++avoidance=30
++
++dmg_melee_min=15
++dmg_melee_max=40
++dmg_ment_min=20
++dmg_ment_max=50
++absorb_min=9
++absorb_max=9
++cooldown=666ms
++
++# loot
++loot=loot/leveled_mid.txt
++
++# mage boots, ring of ice
++loot=76,1
++loot=110,1
++
+diff --git a/mods/alpha_demo/enemies/zombie_rotting.txt b/mods/alpha_demo/enemies/zombie_rotting.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..89b46aa86e8732e7f23fd78876d6de5a2f225f56
+--- /dev/null
++++ b/mods/alpha_demo/enemies/zombie_rotting.txt
+@@ -0,0 +1,36 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Rotting Zombie
++level=1
++categories=zombie_rotting,zombie,undead,dungeon
++xp=1
++
++# combat stats
++hp=25
++speed=1.5
++turn_delay=400ms
++chance_pursue=5
++chance_melee_phys=1
++chance_melee_ment=2
++chance_ranged_phys=0
++chance_ranged_ment=0
++power_melee_phys=1
++
++accuracy=69
++avoidance=19
++
++dmg_melee_min=5
++dmg_melee_max=15
++dmg_ment_min=10
++dmg_ment_max=20
++cooldown=833ms
++
++# loot
++loot=loot/leveled_low.txt
++
++# cloth set
++loot=64,5
++loot=65,5
++loot=66,5
++loot=67,5
++
+diff --git a/mods/alpha_demo/enemies/zombie_rotting_spawn.txt b/mods/alpha_demo/enemies/zombie_rotting_spawn.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..4c5b60af3bc700b3c15456b28c2fdac5462ea3c3
+--- /dev/null
++++ b/mods/alpha_demo/enemies/zombie_rotting_spawn.txt
+@@ -0,0 +1,27 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Rotting Zombie
++level=1
++categories=zombie_rotting_spawn
++xp=1
++
++# combat stats
++hp=25
++speed=1.5
++turn_delay=400ms
++chance_pursue=5
++chance_melee_phys=1
++chance_melee_ment=2
++chance_ranged_phys=0
++chance_ranged_ment=0
++power_melee_phys=1
++
++accuracy=69
++avoidance=19
++
++dmg_melee_min=5
++dmg_melee_max=15
++dmg_ment_min=10
++dmg_ment_max=20
++cooldown=833ms
++
+diff --git a/mods/fantasycore/enemies/antlion.txt b/mods/fantasycore/enemies/antlion.txt
+deleted file mode 100644
+index 5b9a86b5be9a22d97e4df435efa0c985b516e3f6..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/antlion.txt
++++ /dev/null
+@@ -1,28 +0,0 @@
+-INCLUDE enemies/base/antlion.txt
+-
+-name=Antlion
+-level=4
+-categories=antlion_normal,antlion,dungeon,cave
+-xp=10
+-
+-# combat stats
+-# antlions have low HP and high armor for their level
+-hp=70
+-speed=5.5
+-turn_delay=166ms
+-chance_pursue=30
+-chance_melee_phys=20
+-power_melee_phys=1
+-
+-accuracy=72
+-avoidance=22
+-absorb_min=12
+-absorb_max=12
+-
+-dmg_melee_min=10
+-dmg_melee_max=35
+-cooldown=333ms
+-
+-# loot
+-loot=loot/leveled_mid.txt
+-
+diff --git a/mods/fantasycore/enemies/antlion_blinker.txt b/mods/fantasycore/enemies/antlion_blinker.txt
+deleted file mode 100644
+index a2a76bfd09fc2446fea43be5c71139c2b160ad7b..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/antlion_blinker.txt
++++ /dev/null
+@@ -1,38 +0,0 @@
+-INCLUDE enemies/base/antlion.txt
+-
+-name=Antlion Blinker
+-level=5
+-categories=antlion_blinker,antlion,dungeon,cave
+-xp=20
+-
+-# combat stats
+-# antlions have low HP and high armor for their level
+-hp=90
+-speed=5
+-turn_delay=266ms
+-chance_pursue=40
+-chance_melee_phys=16
+-chance_melee_ment=8
+-chance_ranged_ment=10
+-
+-power_melee_phys=1
+-# paralysis acid in melee range
+-power_melee_ment=41
+-# teleports into melee range
+-power_ranged_ment=15
+-
+-accuracy=81
+-avoidance=31
+-
+-dmg_melee_min=5
+-dmg_melee_max=40
+-dmg_ment_min=10
+-dmg_ment_max=30
+-absorb_min=15
+-absorb_max=15
+-
+-cooldown=333ms
+-
+-# loot
+-loot=loot/leveled_mid.txt
+-
+diff --git a/mods/fantasycore/enemies/antlion_burster.txt b/mods/fantasycore/enemies/antlion_burster.txt
+deleted file mode 100644
+index eebd247e5aa931b19ed9035d3c961e983c8b70a6..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/antlion_burster.txt
++++ /dev/null
+@@ -1,36 +0,0 @@
+-INCLUDE enemies/base/antlion_fire.txt
+-
+-name=Antlion Burster
+-level=8
+-categories=antlion_burster,antlion,dungeon,cave,fire
+-xp=200
+-
+-# combat stats
+-# antlions have low HP and high armor for their level
+-hp=130
+-speed=8
+-turn_delay=133ms
+-chance_pursue=50
+-chance_melee_ment=100
+-
+-# explode
+-power_melee_ment=40
+-
+-accuracy=100
+-avoidance=25
+-
+-dmg_ment_min=150
+-dmg_ment_max=200
+-absorb_min=24
+-absorb_max=24
+-vulnerable_fire=100
+-vulnerable_ice=200
+-
+-cooldown=833ms
+-
+-# loot
+-loot=loot/leveled_high.txt
+-
+-# ring of fire, ruby
+-loot=109,1
+-loot=5,1
+diff --git a/mods/fantasycore/enemies/antlion_freezer.txt b/mods/fantasycore/enemies/antlion_freezer.txt
+deleted file mode 100644
+index 473acb5fbef6f29baa2a29272d0cfcd2cdc0c850..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/antlion_freezer.txt
++++ /dev/null
+@@ -1,38 +0,0 @@
+-INCLUDE enemies/base/antlion_ice.txt
+-
+-name=Antlion Freezer
+-level=7
+-categories=antlion_freezer,antlion,dungeon,cave,ice
+-xp=100
+-
+-# combat stats
+-# antlions have low HP and high armor for their level
+-hp=140
+-speed=5
+-turn_delay=200ms
+-chance_pursue=10
+-chance_melee_phys=5
+-chance_ranged_ment=10
+-power_melee_phys=1
+-power_ranged_ment=30
+-
+-accuracy=87
+-avoidance=37
+-
+-dmg_melee_min=5
+-dmg_melee_max=30
+-dmg_ment_min=20
+-dmg_ment_max=50
+-absorb_min=18
+-absorb_max=18
+-vulnerable_fire=200
+-vulnerable_ice=50
+-
+-cooldown=833ms
+-
+-# loot
+-loot=loot/leveled_high.txt
+-
+-# ring of ice, emerald
+-loot=109,1
+-loot=4,1
+diff --git a/mods/fantasycore/enemies/antlion_hatchling.txt b/mods/fantasycore/enemies/antlion_hatchling.txt
+deleted file mode 100644
+index 297706eceaf58e96f4ab03af71cc7a2abd1c98a6..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/antlion_hatchling.txt
++++ /dev/null
+@@ -1,26 +0,0 @@
+-INCLUDE enemies/base/antlion_small.txt
+-
+-name=Antlion Hatchling
+-level=3
+-categories=antlion_hatchling,antlion,dungeon,cave
+-xp=5
+-
+-# combat stats
+-# antlions have low HP and high armor for their level
+-hp=40
+-speed=5
+-turn_delay=200ms
+-chance_pursue=10
+-chance_melee_phys=5
+-power_melee_phys=1
+-
+-accuracy=75
+-avoidance=25
+-dmg_melee_min=5
+-dmg_melee_max=20
+-cooldown=833ms
+-absorb_min=9
+-absorb_max=9
+-
+-# loot
+-loot=loot/leveled_low.txt
+diff --git a/mods/fantasycore/enemies/antlion_slasher.txt b/mods/fantasycore/enemies/antlion_slasher.txt
+deleted file mode 100644
+index 2c1a4ddc7a43ac5c6d21349105bf9e8f70cbdd74..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/antlion_slasher.txt
++++ /dev/null
+@@ -1,31 +0,0 @@
+-INCLUDE enemies/base/antlion.txt
+-
+-name=Antlion Slasher
+-level=6
+-categories=antlion_slasher,antlion,dungeon,cave
+-xp=50
+-
+-# combat stats
+-hp=105
+-speed=6.5
+-turn_delay=133ms
+-chance_pursue=10
+-chance_melee_phys=10
+-power_melee_phys=5
+-
+-accuracy=84
+-avoidance=34
+-
+-dmg_melee_min=15
+-dmg_melee_max=45
+-absorb_min=18
+-absorb_max=18
+-
+-cooldown=333ms
+-
+-# loot
+-loot=loot/leveled_mid.txt
+-
+-# sapphire
+-loot=3,1
+-
+diff --git a/mods/fantasycore/enemies/antlion_spitter.txt b/mods/fantasycore/enemies/antlion_spitter.txt
+deleted file mode 100644
+index 52f9b6d2b1a03056089b2e85142b2b1f38d0a5f5..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/antlion_spitter.txt
++++ /dev/null
+@@ -1,38 +0,0 @@
+-INCLUDE enemies/base/antlion_fire.txt
+-
+-name=Antlion Spitter
+-level=7
+-categories=antlion_spitter,antlion,dungeon,cave,fire
+-xp=100
+-
+-# combat stats
+-hp=140
+-speed=5
+-turn_delay=200ms
+-chance_pursue=10
+-chance_melee_phys=5
+-chance_ranged_ment=10
+-power_melee_phys=1
+-power_ranged_ment=31
+-
+-accuracy=87
+-avoidance=37
+-
+-dmg_melee_min=10
+-dmg_melee_max=30
+-dmg_ment_min=20
+-dmg_ment_max=50
+-absorb_min=21
+-absorb_max=21
+-vulnerable_fire=50
+-vulnerable_ice=200
+-
+-cooldown=833ms
+-
+-# loot
+-loot=loot/leveled_high.txt
+-
+-# ring of fire, emerald
+-loot=109,1
+-loot=4,1
+-
+diff --git a/mods/fantasycore/enemies/cursed_grave.txt b/mods/fantasycore/enemies/cursed_grave.txt
+deleted file mode 100644
+index 0d54b2ac43ddc8bf593c0501fd8923ca6fdb135f..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/cursed_grave.txt
++++ /dev/null
+@@ -1,19 +0,0 @@
+-INCLUDE enemies/base/grave.txt
+-
+-name=Cursed Grave
+-level=3
+-xp=5
+-categories=cursed_grave
+-
+-# combat stats
+-hp=300
+-
+-power_ranged_ment=137
+-power_melee_ment=137
+-
+-cooldown=3s
+-
+-# loot
+-loot=loot/leveled_low.txt
+-loot=loot/base_gear.txt
+-
+diff --git a/mods/fantasycore/enemies/goblin.txt b/mods/fantasycore/enemies/goblin.txt
+deleted file mode 100644
+index 588c339a8ca41ec239d303a59200d12bc9165c51..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/goblin.txt
++++ /dev/null
+@@ -1,31 +0,0 @@
+-INCLUDE enemies/base/goblin.txt
+-
+-name=Goblin
+-level=1
+-categories=goblin_normal,goblin,dungeon
+-rarity=common
+-xp=1
+-
+-# combat stats
+-hp=30
+-speed=2
+-melee_range=1.125
+-turn_delay=400ms
+-chance_pursue=10
+-chance_melee_phys=2
+-power_melee_phys=1
+-
+-accuracy=69
+-avoidance=19
+-
+-dmg_melee_min=5
+-dmg_melee_max=15
+-cooldown=1s
+-
+-# loot
+-loot=loot/leveled_low.txt
+-
+-# dagger
+-loot=32,5
+-
+-
+diff --git a/mods/fantasycore/enemies/goblin_charger.txt b/mods/fantasycore/enemies/goblin_charger.txt
+deleted file mode 100644
+index c68bedc40d7ece4e144640b532985245ff71a667..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/goblin_charger.txt
++++ /dev/null
+@@ -1,37 +0,0 @@
+-INCLUDE enemies/base/goblin_runner.txt
+-
+-name=Goblin Charger
+-level=2
+-categories=goblin_charger,goblin,dungeon
+-rarity=uncommon
+-xp=2
+-
+-# combat stats
+-hp=50
+-speed=5
+-turn_delay=200ms
+-chance_pursue=10
+-chance_melee_phys=3
+-chance_melee_ment=1
+-power_melee_phys=1
+-power_melee_ment=5
+-
+-accuracy=75
+-avoidance=25
+-
+-dmg_melee_min=5
+-dmg_melee_max=20
+-dmg_ment_min=5
+-dmg_ment_max=15
+-cooldown=666ms
+-absorb_min=3
+-absorb_max=3
+-
+-# loot
+-loot=loot/leveled_low.txt
+-
+-# dagger, leather gloves, leather boots
+-loot=32,5
+-loot=82,5
+-loot=84,5
+-
+diff --git a/mods/fantasycore/enemies/goblin_charger_elite.txt b/mods/fantasycore/enemies/goblin_charger_elite.txt
+deleted file mode 100644
+index 1d0001a0ac3e5eb478843d1c252b495648ca194f..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/goblin_charger_elite.txt
++++ /dev/null
+@@ -1,43 +0,0 @@
+-INCLUDE enemies/base/goblin_elite_runner.txt
+-
+-name=Goblin Charger Elite
+-level=3
+-categories=goblin_charger_elite,goblin_elite
+-rarity=rare
+-xp=10
+-
+-# combat stats
+-hp=120
+-speed=6.5
+-turn_delay=133ms
+-chance_pursue=25
+-chance_melee_phys=8
+-chance_melee_ment=4
+-power_melee_phys=1
+-power_melee_ment=5
+-
+-accuracy=78
+-avoidance=28
+-
+-dmg_melee_min=10
+-dmg_melee_max=30
+-dmg_ment_min=10
+-dmg_ment_max=30
+-absorb_min=9
+-absorb_max=9
+-cooldown=500ms
+-
+-# loot
+-loot=loot/leveled_mid.txt
+-
+-# dagger, leather gloves, leather boots
+-loot=32,20
+-loot=82,20
+-loot=84,20
+-
+-# shortsword, boots of speed, fencing gloves
+-loot=33,1
+-loot=104,1
+-loot=118,1
+-
+-
+diff --git a/mods/fantasycore/enemies/goblin_shaman.txt b/mods/fantasycore/enemies/goblin_shaman.txt
+deleted file mode 100644
+index da009171a6a51a1552458af18fe29b66db78d0b5..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/goblin_shaman.txt
++++ /dev/null
+@@ -1,42 +0,0 @@
+-INCLUDE enemies/base/goblin.txt
+-
+-name=Goblin Shaman
+-level=4
+-categories=goblin_shaman,goblin,dungeon,lightning
+-rarity=rare
+-xp=10
+-
+-# combat stats
+-hp=105
+-speed=2
+-melee_range=2.375
+-turn_delay=200ms
+-chance_pursue=10
+-chance_melee_phys=0
+-chance_melee_ment=5
+-chance_ranged_phys=5
+-chance_ranged_ment=10
+-power_melee_ment=6
+-power_ranged_phys=11
+-power_ranged_ment=6
+-
+-accuracy=84
+-avoidance=34
+-
+-dmg_ment_min=15
+-dmg_ment_max=40
+-absorb_min=9
+-absorb_max=9
+-cooldown=833ms
+-
+-# loot
+-loot=loot/leveled_mid.txt
+-
+-# wand
+-loot=40,5
+-
+-# rod, mage gloves, mage boots
+-loot=41,1
+-loot=74,1
+-loot=76,1
+-
+diff --git a/mods/fantasycore/enemies/goblin_spearman.txt b/mods/fantasycore/enemies/goblin_spearman.txt
+deleted file mode 100644
+index 6fd502e335c68bd81cf695f38f67e7a79280ddc5..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/goblin_spearman.txt
++++ /dev/null
+@@ -1,41 +0,0 @@
+-INCLUDE enemies/base/goblin.txt
+-
+-name=Goblin Spearman
+-level=3
+-categories=goblin_spearman,goblin,dungeon
+-rarity=uncommon
+-xp=5
+-
+-# combat stats
+-hp=60
+-speed=2
+-turn_delay=400ms
+-chance_pursue=15
+-chance_melee_phys=6
+-chance_ranged_phys=2
+-power_melee_phys=1
+-power_ranged_phys=32
+-
+-accuracy=80
+-avoidance=25
+-
+-dmg_melee_min=5
+-dmg_melee_max=25
+-dmg_ranged_min=10
+-dmg_ranged_max=35
+-absorb_min=6
+-absorb_max=6
+-cooldown=833ms
+-
+-# loot
+-loot=loot/leveled_low.txt
+-
+-# slingshot, leather chest, leather pants
+-loot=48,5
+-loot=81,5
+-loot=83,5
+-
+-# short bow
+-loot=49,1
+-
+-
+diff --git a/mods/fantasycore/enemies/goblin_spearman_elite.txt b/mods/fantasycore/enemies/goblin_spearman_elite.txt
+deleted file mode 100644
+index 1acd4c3df91a6c03060382ebe57c31594a89fdfa..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/goblin_spearman_elite.txt
++++ /dev/null
+@@ -1,41 +0,0 @@
+-INCLUDE enemies/base/goblin_elite.txt
+-
+-name=Goblin Spearman Elite
+-level=3
+-categories=goblin_spearman_elite,goblin_elite
+-rarity=rare
+-xp=20
+-
+-# combat stats
+-hp=100
+-speed=3.5
+-turn_delay=300ms
+-chance_pursue=15
+-chance_melee_phys=6
+-chance_ranged_phys=30
+-power_melee_phys=1
+-power_ranged_phys=32
+-
+-accuracy=84
+-avoidance=28
+-
+-dmg_melee_min=5
+-dmg_melee_max=25
+-dmg_ranged_min=15
+-dmg_ranged_max=40
+-absorb_min=12
+-absorb_max=12
+-cooldown=833ms
+-
+-# loot
+-loot=loot/leveled_low.txt
+-
+-# slingshot, leather chest, leather pants
+-loot=48,20
+-loot=81,20
+-loot=83,20
+-
+-# short bow, silent tabi, thief gloves,
+-loot=49,1
+-loot=114,1
+-loot=105,1
+diff --git a/mods/fantasycore/enemies/minotaur.txt b/mods/fantasycore/enemies/minotaur.txt
+deleted file mode 100644
+index eb1139edfa79dc3cf68f38125a767446e356468d..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/minotaur.txt
++++ /dev/null
+@@ -1,36 +0,0 @@
+-INCLUDE enemies/base/minotaur.txt
+-
+-name=Minotaur
+-level=8
+-categories=minotaur,dungeon
+-xp=200
+-
+-# combat stats
+-hp=180
+-speed=5.5
+-turn_delay=166ms
+-chance_pursue=30
+-chance_melee_phys=10
+-chance_melee_ment=25
+-chance_ranged_phys=0
+-chance_ranged_ment=0
+-power_melee_phys=1
+-power_melee_ment=10
+-
+-accuracy=90
+-avoidance=40
+-
+-dmg_melee_min=20
+-dmg_melee_max=55
+-dmg_ment_min=10
+-dmg_ment_max=30
+-absorb_min=21
+-absorb_max=21
+-cooldown=666ms
+-
+-# loot
+-loot=loot/leveled_high.txt
+-
+-# Bear Figurine, Ouroboros Ring
+-loot=119,1
+-loot=112,1
+diff --git a/mods/fantasycore/enemies/skeletal_archer.txt b/mods/fantasycore/enemies/skeletal_archer.txt
+deleted file mode 100644
+index e6a2cf167b9623887c067324037659386a88ad15..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/skeletal_archer.txt
++++ /dev/null
+@@ -1,39 +0,0 @@
+-INCLUDE enemies/base/skeleton_archer.txt
+-
+-name=Skeletal Archer
+-level=3
+-categories=skeletal_archer,skeleton,undead,dungeon
+-xp=5
+-
+-# combat stats
+-hp=75
+-speed=3.5
+-turn_delay=200ms
+-chance_pursue=5
+-chance_melee_phys=5
+-chance_melee_ment=0
+-chance_ranged_phys=5
+-chance_ranged_ment=0
+-power_melee_phys=1
+-power_ranged_phys=34
+-
+-accuracy=83
+-avoidance=28
+-
+-dmg_melee_min=5
+-dmg_melee_max=25
+-dmg_ranged_min=10
+-dmg_ranged_max=30
+-absorb_min=6
+-absorb_max=6
+-
+-cooldown=1s
+-
+-# loot
+-loot=loot/leveled_low.txt
+-
+-# short bow, leather hood
+-loot=49,5
+-loot=80,5
+-
+-
+diff --git a/mods/fantasycore/enemies/skeletal_knight.txt b/mods/fantasycore/enemies/skeletal_knight.txt
+deleted file mode 100644
+index 610211e8c7a8d125c77c8921c52c03b67cc16c11..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/skeletal_knight.txt
++++ /dev/null
+@@ -1,54 +0,0 @@
+-INCLUDE enemies/base/skeleton.txt
+-
+-name=Skeletal Knight
+-level=8
+-categories=skeletal_knight,skeleton,undead,dungeon
+-xp=200
+-
+-# combat stats
+-hp=200
+-speed=6.5
+-turn_delay=133ms
+-
+-chance_pursue=45
+-chance_melee_phys=15
+-chance_melee_ment=15
+-
+-# blood strike
+-power_melee_phys=5
+-# piercing strike
+-power_melee_ment=39
+-
+-accuracy=90
+-avoidance=45
+-
+-dmg_melee_min=55
+-dmg_melee_max=65
+-dmg_ment_min=30
+-dmg_ment_max=45
+-
+-absorb_min=21
+-absorb_max=21
+-
+-vulnerable_fire=150
+-vulnerable_ice=75
+-cooldown=333ms
+-
+-# loot
+-loot=loot/leveled_high.txt
+-
+-# long sword, plate armor, crest shield
+-loot=34,5
+-loot=96,5
+-loot=96,5
+-loot=98,5
+-loot=99,5
+-loot=100,5
+-loot=58,5
+-
+-# turtle figurine, ring of regen, great sword, tower shield, emerald
+-loot=112,1
+-loot=107,1
+-loot=35,1
+-loot=59,1
+-loot=4,1
+diff --git a/mods/fantasycore/enemies/skeletal_mage.txt b/mods/fantasycore/enemies/skeletal_mage.txt
+deleted file mode 100644
+index 3939dbdbc30f247e2eb4f9469394aa64250f656e..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/skeletal_mage.txt
++++ /dev/null
+@@ -1,47 +0,0 @@
+-INCLUDE enemies/base/skeleton_mage.txt
+-
+-name=Skeletal Mage
+-level=4
+-categories=skeletal_mage,skeleton,undead,dungeon,ice
+-xp=10
+-
+-# combat stats
+-hp=90
+-speed=3.5
+-turn_delay=200ms
+-
+-chance_pursue=15
+-chance_melee_phys=5
+-chance_melee_ment=0
+-chance_ranged_phys=0
+-chance_ranged_ment=4
+-power_melee_phys=1
+-power_ranged_ment=30
+-
+-accuracy=78
+-avoidance=28
+-absorb_min=9
+-absorb_max=9
+-
+-dmg_melee_min=5
+-dmg_melee_max=25
+-dmg_ment_min=10
+-dmg_ment_max=35
+-
+-vulnerable_fire=200
+-vulnerable_ice=50
+-cooldown=1s
+-
+-# loot
+-loot=loot/leveled_mid.txt
+-
+-# rod
+-loot=41,5
+-
+-# mage set
+-loot=72,1
+-loot=73,1
+-loot=74,1
+-loot=75,1
+-loot=76,1
+-
+diff --git a/mods/fantasycore/enemies/skeletal_occultist.txt b/mods/fantasycore/enemies/skeletal_occultist.txt
+deleted file mode 100644
+index e0dc15e77e2520c00c8c0670bb57793bec9a05ef..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/skeletal_occultist.txt
++++ /dev/null
+@@ -1,48 +0,0 @@
+-INCLUDE enemies/base/skeleton_mage.txt
+-
+-name=Skeletal Occultist
+-level=7
+-categories=skeletal_occultist,skeleton,undead,dungeon,ice
+-xp=100
+-
+-# combat stats
+-hp=160
+-speed=3.5
+-turn_delay=200ms
+-
+-chance_pursue=15
+-chance_melee_phys=10
+-chance_ranged_ment=10
+-
+-# channel
+-power_melee_phys=2
+-# freeze
+-power_ranged_ment=14
+-
+-accuracy=87
+-avoidance=37
+-
+-dmg_melee_min=15
+-dmg_melee_max=45
+-dmg_ment_min=20
+-dmg_ment_max=50
+-absorb_min=18
+-absorb_max=18
+-
+-vulnerable_fire=200
+-vulnerable_ice=50
+-cooldown=500ms
+-
+-# loot
+-loot=loot/leveled_high.txt
+-
+-# staff
+-loot=42,5
+-
+-# ring of concentration, owl figurine, sapphire, sage mantle, sage frock
+-loot=108,1
+-loot=120,1
+-loot=3,1
+-loot=123,1
+-loot=124,1
+-
+diff --git a/mods/fantasycore/enemies/skeletal_sniper.txt b/mods/fantasycore/enemies/skeletal_sniper.txt
+deleted file mode 100644
+index 9647007a1d5ed2e6b81bdc107b5e755e307a63fd..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/skeletal_sniper.txt
++++ /dev/null
+@@ -1,46 +0,0 @@
+-INCLUDE enemies/base/skeleton_archer.txt
+-
+-name=Skeletal Sniper
+-level=6
+-categories=skeletal_sniper,skeleton,undead,dungeon
+-xp=50
+-
+-# combat stats
+-hp=150
+-speed=3.5
+-turn_delay=200ms
+-chance_pursue=5
+-chance_melee_phys=5
+-chance_melee_ment=0
+-chance_ranged_phys=10
+-chance_ranged_ment=5
+-power_melee_phys=1
+-
+-# shoot
+-power_ranged_phys=34
+-# multi-shot
+-power_ranged_ment=42
+-
+-accuracy=89
+-avoidance=34
+-
+-dmg_melee_min=5
+-dmg_melee_max=25
+-dmg_ranged_min=15
+-dmg_ranged_max=45
+-absorb_min=15
+-absorb_max=15
+-
+-cooldown=500ms
+-
+-# loot
+-loot=loot/leveled_mid.txt
+-
+-# long bow, chain coif
+-loot=50,5
+-loot=88,5
+-
+-# cat figurine, relic hunter's ring
+-loot=121,1
+-loot=113,1
+-
+diff --git a/mods/fantasycore/enemies/skeletal_warrior.txt b/mods/fantasycore/enemies/skeletal_warrior.txt
+deleted file mode 100644
+index e3da16b47abd85a5ce04d9abf08026bc676cc856..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/skeletal_warrior.txt
++++ /dev/null
+@@ -1,55 +0,0 @@
+-INCLUDE enemies/base/skeleton.txt
+-
+-name=Skeletal Warrior
+-level=5
+-categories=skeletal_warrior,skeleton,undead,dungeon
+-xp=20
+-
+-waypoint_pause=1s
+-
+-# combat stats
+-hp=130
+-speed=5
+-turn_delay=200ms
+-
+-chance_pursue=25
+-chance_melee_phys=10
+-chance_melee_ment=10
+-
+-# blood strike
+-power_melee_phys=5
+-# piercing strike
+-power_melee_ment=39
+-
+-accuracy=81
+-avoidance=37
+-
+-dmg_melee_min=15
+-dmg_melee_max=40
+-dmg_ment_min=25
+-dmg_ment_max=60
+-
+-absorb_min=12
+-absorb_max=12
+-
+-vulnerable_fire=150
+-vulnerable_ice=75
+-cooldown=666ms
+-
+-# loot
+-loot=loot/leveled_mid.txt
+-
+-# shortsword, chain armor, iron buckler
+-loot=33,5
+-loot=89,5
+-loot=90,5
+-loot=91,5
+-loot=92,5
+-loot=57,5
+-
+-# blood gear, long sword, crest shield, duelist guants
+-loot=116,1
+-loot=117,1
+-loot=34,1
+-loot=58,1
+-loot=115,1
+diff --git a/mods/fantasycore/enemies/skeleton.txt b/mods/fantasycore/enemies/skeleton.txt
+deleted file mode 100644
+index a022344a745222024ae3396305d8711c7b38f1de..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/skeleton.txt
++++ /dev/null
+@@ -1,31 +0,0 @@
+-INCLUDE enemies/base/skeleton_weak.txt
+-
+-name=Skeleton
+-level=2
+-categories=skeleton_normal,skeleton,undead,dungeon
+-xp=2
+-
+-# combat stats
+-hp=50
+-speed=4.5
+-turn_delay=233ms
+-chance_pursue=10
+-chance_melee_phys=5
+-power_melee_phys=1
+-
+-accuracy=75
+-avoidance=25
+-
+-dmg_melee_min=5
+-dmg_melee_max=25
+-cooldown=833ms
+-absorb_min=3
+-absorb_max=3
+-
+-# loot
+-loot=loot/leveled_low.txt
+-
+-# dagger, wood buckler
+-loot=32,5
+-loot=56,5
+-
+diff --git a/mods/fantasycore/enemies/stealth.txt b/mods/fantasycore/enemies/stealth.txt
+deleted file mode 100644
+index 5899e4ea15d15535f363855a10afb7de42d6a88f..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/stealth.txt
++++ /dev/null
+@@ -1,17 +0,0 @@
+-name=Stealth
+-humanoid=false
+-
+-categories=stealth
+-
+-sfx_phys=soundfx/melee_attack.ogg
+-sfx_hit=soundfx/male_hit.ogg
+-sfx_die=soundfx/male_die.ogg
+-sfx_critdie=soundfx/male_die.ogg
+-sfx_levelup=soundfx/level_up.ogg
+-
+-animations=animations/enemies/stealth.txt
+-
+-# combat stats
+-power_melee_phys=142
+-passive_powers=143
+-
+diff --git a/mods/fantasycore/enemies/wyvern.txt b/mods/fantasycore/enemies/wyvern.txt
+deleted file mode 100644
+index d74dfd67a797e56f3f86f392c8f001cb67746b90..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/wyvern.txt
++++ /dev/null
+@@ -1,38 +0,0 @@
+-INCLUDE enemies/base/wyvern.txt
+-
+-name=Venom Wyvern
+-level=3
+-categories=wyvern_normal,wyvern
+-rarity=common
+-xp=5
+-
+-# combat stats
+-hp=70
+-speed=5
+-turn_delay=200ms
+-chance_pursue=35
+-chance_melee_phys=15
+-chance_melee_ment=0
+-chance_ranged_phys=0
+-chance_ranged_ment=2
+-
+-# bleed sting
+-power_melee_phys=5
+-# fire spit
+-power_ranged_ment=31
+-
+-accuracy=77
+-avoidance=27
+-
+-dmg_melee_min=5
+-dmg_melee_max=25
+-dmg_ment_min=10
+-dmg_ment_max=30
+-absorb_min=6
+-absorb_max=6
+-
+-cooldown=1s
+-
+-# loot
+-loot=loot/leveled_low.txt
+-
+diff --git a/mods/fantasycore/enemies/wyvern_adult.txt b/mods/fantasycore/enemies/wyvern_adult.txt
+deleted file mode 100644
+index 50fcbc022793fcb20edc819ce9c7c38a79383590..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/wyvern_adult.txt
++++ /dev/null
+@@ -1,38 +0,0 @@
+-INCLUDE enemies/base/wyvern_adult.txt
+-
+-name=Adult Wyvern
+-level=6
+-categories=wyvern_adult,wyvern
+-rarity=common
+-xp=50
+-
+-# combat stats
+-hp=200
+-speed=9
+-turn_delay=100ms
+-chance_pursue=10
+-chance_melee_phys=15
+-chance_melee_ment=0
+-chance_ranged_phys=0
+-chance_ranged_ment=2
+-
+-# bleed sting
+-power_melee_phys=5
+-# fire spit
+-power_ranged_ment=31
+-
+-accuracy=82
+-avoidance=32
+-
+-dmg_melee_min=20
+-dmg_melee_max=40
+-dmg_ment_min=30
+-dmg_ment_max=60
+-absorb_min=15
+-absorb_max=15
+-
+-cooldown=1s
+-
+-# loot
+-loot=loot/leveled_mid.txt
+-
+diff --git a/mods/fantasycore/enemies/zombie.txt b/mods/fantasycore/enemies/zombie.txt
+deleted file mode 100644
+index e8a5e93a9812d43718ec3a1198267e050c15d55c..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/zombie.txt
++++ /dev/null
+@@ -1,40 +0,0 @@
+-INCLUDE enemies/base/zombie.txt
+-
+-name=Zombie
+-level=2
+-categories=zombie_normal,zombie,undead,dungeon
+-xp=2
+-
+-# combat stats
+-hp=40
+-speed=3
+-turn_delay=333ms
+-chance_pursue=10
+-chance_melee_phys=2
+-chance_melee_ment=3
+-chance_ranged_phys=0
+-chance_ranged_ment=0
+-power_melee_phys=1
+-power_melee_ment=1
+-
+-accuracy=75
+-avoidance=25
+-
+-dmg_melee_min=5
+-dmg_melee_max=25
+-dmg_ment_min=15
+-dmg_ment_max=30
+-absorb_min=3
+-absorb_max=3
+-
+-cooldown=666ms
+-
+-# loot
+-loot=loot/leveled_low.txt
+-
+-# cloth set
+-loot=64,5
+-loot=65,5
+-loot=66,5
+-loot=67,5
+-
+diff --git a/mods/fantasycore/enemies/zombie_bloodthirsty.txt b/mods/fantasycore/enemies/zombie_bloodthirsty.txt
+deleted file mode 100644
+index 298b9a0b8fdc45b8453063cce17d319833fe79b9..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/zombie_bloodthirsty.txt
++++ /dev/null
+@@ -1,39 +0,0 @@
+-INCLUDE enemies/base/zombie.txt
+-
+-name=Bloodthirsty Zombie
+-level=5
+-categories=zombie_bloodthirsty,zombie,undead,dungeon
+-xp=20
+-
+-# combat stats
+-hp=135
+-speed=5.5
+-turn_delay=166ms
+-chance_pursue=20
+-chance_melee_phys=15
+-chance_melee_ment=5
+-
+-# melee power vampiric
+-power_melee_phys=36
+-power_melee_ment=36
+-
+-accuracy=85
+-avoidance=31
+-
+-dmg_melee_min=20
+-dmg_melee_max=50
+-dmg_ment_min=20
+-dmg_ment_max=50
+-absorb_min=12
+-absorb_max=12
+-
+-cooldown=500ms
+-
+-# loot
+-loot=loot/leveled_mid.txt
+-
+-# blood gear, ring of regen
+-loot=116,1
+-loot=117,1
+-loot=107,1
+-
+diff --git a/mods/fantasycore/enemies/zombie_brute.txt b/mods/fantasycore/enemies/zombie_brute.txt
+deleted file mode 100644
+index c834e0660165d88fb910cb0f7130f608c03a439a..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/zombie_brute.txt
++++ /dev/null
+@@ -1,37 +0,0 @@
+-INCLUDE enemies/base/zombie.txt
+-
+-name=Zombie Brute
+-level=3
+-categories=zombie_brute,zombie,undead,dungeon
+-xp=5
+-
+-# combat stats
+-hp=100
+-speed=5
+-turn_delay=200ms
+-chance_pursue=30
+-chance_melee_phys=15
+-chance_melee_ment=1
+-chance_ranged_phys=0
+-chance_ranged_ment=0
+-power_melee_phys=1
+-power_melee_ment=1
+-
+-accuracy=78
+-avoidance=28
+-
+-dmg_melee_min=20
+-dmg_melee_max=30
+-dmg_ment_min=25
+-dmg_ment_max=60
+-absorb_min=6
+-absorb_max=6
+-cooldown=400ms
+-
+-# loot
+-loot=loot/leveled_low.txt
+-
+-# leather chest, pants
+-loot=81,5
+-loot=83,5
+-
+diff --git a/mods/fantasycore/enemies/zombie_iceclaw.txt b/mods/fantasycore/enemies/zombie_iceclaw.txt
+deleted file mode 100644
+index 8e8a5eccf00c80aa65d4c007973a61cd46513683..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/zombie_iceclaw.txt
++++ /dev/null
+@@ -1,39 +0,0 @@
+-INCLUDE enemies/base/zombie.txt
+-
+-name=Iceclaw Zombie
+-level=4
+-categories=zombie_iceclaw,zombie,undead,dungeon
+-xp=10
+-
+-# combat stats
+-hp=80
+-speed=4.5
+-turn_delay=233ms
+-chance_pursue=20
+-chance_melee_phys=15
+-chance_melee_ment=3
+-chance_ranged_phys=0
+-chance_ranged_ment=0
+-
+-# melee power Chill Touch (5s immobilize)
+-power_melee_phys=38
+-power_melee_ment=1
+-
+-accuracy=85
+-avoidance=30
+-
+-dmg_melee_min=15
+-dmg_melee_max=40
+-dmg_ment_min=20
+-dmg_ment_max=50
+-absorb_min=9
+-absorb_max=9
+-cooldown=666ms
+-
+-# loot
+-loot=loot/leveled_mid.txt
+-
+-# mage boots, ring of ice
+-loot=76,1
+-loot=110,1
+-
+diff --git a/mods/fantasycore/enemies/zombie_rotting.txt b/mods/fantasycore/enemies/zombie_rotting.txt
+deleted file mode 100644
+index 89b46aa86e8732e7f23fd78876d6de5a2f225f56..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/zombie_rotting.txt
++++ /dev/null
+@@ -1,36 +0,0 @@
+-INCLUDE enemies/base/zombie.txt
+-
+-name=Rotting Zombie
+-level=1
+-categories=zombie_rotting,zombie,undead,dungeon
+-xp=1
+-
+-# combat stats
+-hp=25
+-speed=1.5
+-turn_delay=400ms
+-chance_pursue=5
+-chance_melee_phys=1
+-chance_melee_ment=2
+-chance_ranged_phys=0
+-chance_ranged_ment=0
+-power_melee_phys=1
+-
+-accuracy=69
+-avoidance=19
+-
+-dmg_melee_min=5
+-dmg_melee_max=15
+-dmg_ment_min=10
+-dmg_ment_max=20
+-cooldown=833ms
+-
+-# loot
+-loot=loot/leveled_low.txt
+-
+-# cloth set
+-loot=64,5
+-loot=65,5
+-loot=66,5
+-loot=67,5
+-
+diff --git a/mods/fantasycore/enemies/zombie_rotting_spawn.txt b/mods/fantasycore/enemies/zombie_rotting_spawn.txt
+deleted file mode 100644
+index 4c5b60af3bc700b3c15456b28c2fdac5462ea3c3..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/enemies/zombie_rotting_spawn.txt
++++ /dev/null
+@@ -1,27 +0,0 @@
+-INCLUDE enemies/base/zombie.txt
+-
+-name=Rotting Zombie
+-level=1
+-categories=zombie_rotting_spawn
+-xp=1
+-
+-# combat stats
+-hp=25
+-speed=1.5
+-turn_delay=400ms
+-chance_pursue=5
+-chance_melee_phys=1
+-chance_melee_ment=2
+-chance_ranged_phys=0
+-chance_ranged_ment=0
+-power_melee_phys=1
+-
+-accuracy=69
+-avoidance=19
+-
+-dmg_melee_min=5
+-dmg_melee_max=15
+-dmg_ment_min=10
+-dmg_ment_max=20
+-cooldown=833ms
+-

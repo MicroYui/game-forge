@@ -1,0 +1,666 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt b/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt
+index 5329d588afa95f8a0ba20fd66c36560a9b0b9739..46002cc86f8163ac64c5ed96c3cc751ad079d2f4 100644
+--- a/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt
++++ b/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt
+@@ -4,27 +4,26 @@ name=Goblin Scamp
+ level=1
+ categories=goblin_normal,goblin,dungeon
+ rarity=common
+-xp=1
++#xp=1
+ 
+ # combat stats
+ hp=150
+ speed=2
+ melee_range=1.125
+ turn_delay=400ms
+-chance_pursue=10
+-chance_melee_phys=2
++chance_pursue=100
++chance_melee_phys=100
+ power_melee_phys=164
+ 
+-accuracy=75
+-avoidance=25
++accuracy=95
++avoidance=5
+ poise=60
+ 
+-dmg_melee_min=10
+-dmg_melee_max=30
+-cooldown=500ms
++dmg_melee_min=15
++dmg_melee_max=20
++cooldown=1600ms
+ 
+ # loot
+-loot=loot/leveled_low.txt
+ loot=loot/level_1.txt
+ 
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt b/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt
+index 365ced3dcc0efcb38e7354fa03928377f2651b4b..8a958d8bb4bb4d510e1dc747e593284d4baf49bc 100644
+--- a/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt
++++ b/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt
+@@ -3,7 +3,7 @@ INCLUDE enemies/base/zombie.txt
+ name=Rotting Zombie
+ level=1
+ categories=zombie_rotting,zombie,undead,dungeon
+-xp=1
++#xp=1
+ 
+ # combat stats
+ hp=125
+@@ -13,14 +13,13 @@ chance_pursue=5
+ chance_melee_phys=5
+ power_melee_phys=164
+ 
+-accuracy=70
+-avoidance=20
+-poise=50
++accuracy=95
++avoidance=5
++poise=75
+ 
+-dmg_melee_min=10
+-dmg_melee_max=30
+-cooldown=833ms
++dmg_melee_min=15
++dmg_melee_max=20
++cooldown=2s
+ 
+ #loot
+-loot=loot/leveled_low.txt
+ loot=loot/level_1.txt
+diff --git a/mods/empyrean_campaign/engine/stats.txt b/mods/empyrean_campaign/engine/stats.txt
+index 221294e59641ca047e126c9fdb373efba798b86d..25c9a01cfd4ade5feee0dcefd8613a0592930065 100644
+--- a/mods/empyrean_campaign/engine/stats.txt
++++ b/mods/empyrean_campaign/engine/stats.txt
+@@ -2,26 +2,31 @@
+ # Values should be integer
+ 
+ stat_points_per_level=5
+-max_points_per_stat=100
++max_points_per_stat=75
++
+ hp=50
+-hp_per_level=10
+-hp_per_physical=40
++hp_per_level=20
++hp_per_physical=30
++
+ hp_regen=50
+-hp_regen_per_level=5
++hp_regen_per_level=10
+ hp_regen_per_physical=20
++
+ mp=10
+ mp_per_level=2
+ mp_per_mental=8
++
+ mp_regen=10
+ mp_regen_per_level=1
+ mp_regen_per_mental=4
+-accuracy=75
+-accuracy_per_level=1
++
++accuracy=85
+ accuracy_per_offense=1
+-avoidance=25
+-avoidance_per_level=1
++
++avoidance=15
+ avoidance_per_defense=1
+-crit=5
++
++crit=1
+ crit_per_level=1
+ 
+ dmg_melee_min=0
+@@ -39,13 +44,10 @@ dmg_ranged_max=15
+ dmg_ranged_min_per_offense=5
+ dmg_ranged_max_per_offense=5
+ 
+-#absorb_min=0
+-#absorb_max=0
+-absorb_min_per_defense=1
+-absorb_max_per_defense=1
++absorb_min_per_defense=5
++absorb_max_per_defense=5
+ 
+-poise=60
+-poise_per_defense=1
++poise=75
+ 
+ speed=6
+ 
+diff --git a/mods/empyrean_campaign/loot/level_1.txt b/mods/empyrean_campaign/loot/level_1.txt
+index 7086b38bacf5809d97f838eaeb8733207f6052a2..e7ea66f6658f2a475410b54c6c900b711784fd46 100644
+--- a/mods/empyrean_campaign/loot/level_1.txt
++++ b/mods/empyrean_campaign/loot/level_1.txt
+@@ -1,38 +1,172 @@
+ # low-level loot
+ 
+-# clothes
++# gold
++[loot]
++id=currency
++chance=40
++quantity=2,15
++
++
++# potions
++[loot]
++id=2
++chance=12
++quantity=1
++
++[loot]
++id=3
++chance=12
++quantity=1
++
++
++# normal clothes
+ [loot]
+ id=4
+-chance=15
++chance=5
+ quantity=1
+ 
+ [loot]
+ id=5
+-chance=15
++chance=5
+ quantity=1
+ 
+ [loot]
+ id=6
+-chance=15
++chance=5
+ quantity=1
+ 
+ [loot]
+ id=7
+-chance=15
++chance=5
+ quantity=1
+ 
+-# weapons
++
++# normal weapons
+ [loot]
+ id=8
+-chance=10
++chance=5
+ quantity=1
+ 
+ [loot]
+ id=9
+-chance=10
++chance=5
+ quantity=1
+ 
+ [loot]
+ id=10
+-chance=10
++chance=5
++quantity=1
++
++
++# normal misc
++[loot]
++id=11
++chance=5
++quantity=1
++
++
++# magic clothes
++[loot]
++id=12
++chance=1
++quantity=1
++
++[loot]
++id=13
++chance=1
++quantity=1
++
++[loot]
++id=14
++chance=1
++quantity=1
++
++[loot]
++id=15
++chance=1
++quantity=1
++
++[loot]
++id=16
++chance=1
++quantity=1
++
++[loot]
++id=17
++chance=1
++quantity=1
++
++[loot]
++id=18
++chance=1
++quantity=1
++
++[loot]
++id=19
++chance=1
+ quantity=1
++
++[loot]
++id=20
++chance=1
++quantity=1
++
++[loot]
++id=21
++chance=1
++quantity=1
++
++
++# magic weapons
++[loot]
++id=22
++chance=1
++quantity=1
++
++[loot]
++id=23
++chance=1
++quantity=1
++
++[loot]
++id=24
++chance=1
++quantity=1
++
++
++# magic misc
++[loot]
++id=25
++chance=1
++quantity=1
++
++[loot]
++id=26
++chance=1
++quantity=1
++
++[loot]
++id=27
++chance=1
++quantity=1
++
++[loot]
++id=28
++chance=1
++quantity=1
++
++[loot]
++id=29
++chance=1
++quantity=1
++
++[loot]
++id=30
++chance=1
++quantity=1
++
++[loot]
++id=31
++chance=1
++quantity=1
++
+diff --git a/mods/empyrean_campaign/loot/leveled_low.txt b/mods/empyrean_campaign/loot/leveled_low.txt
+deleted file mode 100644
+index b7c4a11ebf7712746554a32f628d1dacca3927db..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/loot/leveled_low.txt
++++ /dev/null
+@@ -1,20 +0,0 @@
+-# low-level loot
+-
+-# gold
+-[loot]
+-id=currency
+-chance=75
+-quantity=2,15
+-
+-# hp potion
+-[loot]
+-id=2
+-chance=50
+-quantity=1
+-
+-# mp potion
+-[loot]
+-id=3
+-chance=50
+-quantity=1
+-
+diff --git a/mods/empyrean_campaign/maps/family_crypt.txt b/mods/empyrean_campaign/maps/family_crypt.txt
+index f48ac33500207c2bdcd9405708ee2c646fb032b1..fea8cbea70d5bbd03baf075756afc767f6bc4bf6 100644
+--- a/mods/empyrean_campaign/maps/family_crypt.txt
++++ b/mods/empyrean_campaign/maps/family_crypt.txt
+@@ -214,7 +214,7 @@ intramap=16,15
+ type=on_trigger
+ location=11,3,1,2
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ repeat=false
+ tooltip=Coffin
+ 
+@@ -233,7 +233,7 @@ tooltip=Switch
+ type=on_trigger
+ location=10,51,1,1
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ mapmod=object,10,51,160
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+diff --git a/mods/empyrean_campaign/maps/goblin_camp.txt b/mods/empyrean_campaign/maps/goblin_camp.txt
+index 59ef69f1df5db3b954b47e162deffa92c461ac7d..ef6275b43ab91027ed68ffdb817810d0243e7cbd 100644
+--- a/mods/empyrean_campaign/maps/goblin_camp.txt
++++ b/mods/empyrean_campaign/maps/goblin_camp.txt
+@@ -242,7 +242,7 @@ requires_status=emp_goblincamp_shortcut
+ type=on_trigger
+ location=7,29,1,1
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ mapmod=object,7,29,97
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+@@ -253,7 +253,7 @@ tooltip=Supplies
+ type=on_trigger
+ location=31,31,1,1
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ mapmod=object,31,31,99
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+@@ -264,7 +264,7 @@ tooltip=Supplies
+ type=on_trigger
+ location=53,39,1,1
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ mapmod=object,53,39,99
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+@@ -275,7 +275,7 @@ tooltip=Supplies
+ type=on_trigger
+ location=55,38,1,1
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ mapmod=object,55,38,97
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+diff --git a/mods/empyrean_campaign/maps/merrimead_swamp.txt b/mods/empyrean_campaign/maps/merrimead_swamp.txt
+index 7c99e66006b871fb31dd6ee17f8618e68dae485d..8ea28e08a3fbf417bb8f651ae9b0e756836ae801 100644
+--- a/mods/empyrean_campaign/maps/merrimead_swamp.txt
++++ b/mods/empyrean_campaign/maps/merrimead_swamp.txt
+@@ -426,7 +426,7 @@ soundfx=soundfx/environment/forest_owl_loop.ogg
+ type=on_trigger
+ location=45,25,1,1
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ mapmod=object,45,25,99
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+@@ -437,7 +437,7 @@ tooltip=Supplies
+ type=on_trigger
+ location=16,61,1,1
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ mapmod=object,16,61,97
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+@@ -448,7 +448,7 @@ tooltip=Supplies
+ type=on_trigger
+ location=62,34,1,1
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ mapmod=object,62,34,97
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+diff --git a/mods/empyrean_campaign/maps/salted_field.txt b/mods/empyrean_campaign/maps/salted_field.txt
+index c013a8f994c354db941fa99927e26cec92003413..deb0241e80d86d0047bcaf3a500826abc68080fa 100644
+--- a/mods/empyrean_campaign/maps/salted_field.txt
++++ b/mods/empyrean_campaign/maps/salted_field.txt
+@@ -231,7 +231,7 @@ tooltip=Stonewood
+ type=on_trigger
+ location=10,10,1,1
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ mapmod=object,10,10,97
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+diff --git a/mods/empyrean_campaign/maps/stonewood.txt b/mods/empyrean_campaign/maps/stonewood.txt
+index fc6a6d8df7a7becbcbd1c50d2406621e5ee1443b..c68295686750e943ab237babb1f1e2bdc4e95d1f 100644
+--- a/mods/empyrean_campaign/maps/stonewood.txt
++++ b/mods/empyrean_campaign/maps/stonewood.txt
+@@ -299,7 +299,7 @@ tooltip=Hyperspace
+ type=on_trigger
+ location=84,17,1,1
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ mapmod=object,84,17,97
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+@@ -310,7 +310,7 @@ tooltip=Supplies
+ type=on_trigger
+ location=89,20,1,1
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ mapmod=object,89,20,99
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+@@ -321,7 +321,7 @@ tooltip=Supplies
+ type=on_trigger
+ location=10,36,1,1
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ mapmod=object,10,36,97
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+diff --git a/mods/empyrean_campaign/maps/valverde_cemetery.txt b/mods/empyrean_campaign/maps/valverde_cemetery.txt
+index f439e748768b1fb072f7a6fdc3298482e2140f59..e8ed761df60a9d9981f741934e8a9fb68a7ac19c 100644
+--- a/mods/empyrean_campaign/maps/valverde_cemetery.txt
++++ b/mods/empyrean_campaign/maps/valverde_cemetery.txt
+@@ -374,7 +374,7 @@ requires_status=emp_waypoint_2
+ type=on_trigger
+ location=24,8,1,1
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ mapmod=object,24,8,99
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+@@ -385,7 +385,7 @@ tooltip=Supplies
+ type=on_trigger
+ location=10,47,1,1
+ hotspot=location
+-loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+ mapmod=object,10,47,97
+ repeat=false
+ soundfx=soundfx/wood_open.ogg
+diff --git a/tiled/empyrean_campaign/family_crypt.tmx b/tiled/empyrean_campaign/family_crypt.tmx
+index 14f5c632069cd69f7e9f4f77dfa4fe3792324a90..69f3baefd916659e6bcef851650742b81fd00a9c 100644
+--- a/tiled/empyrean_campaign/family_crypt.tmx
++++ b/tiled/empyrean_campaign/family_crypt.tmx
+@@ -224,7 +224,7 @@
+   <object id="11" name="treasure stash" type="on_trigger" x="352" y="96" width="32" height="64">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="repeat" value="false"/>
+     <property name="tooltip" value="Coffin"/>
+    </properties>
+@@ -241,7 +241,7 @@
+   <object id="13" name="treasure" type="on_trigger" x="320" y="1632" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="mapmod" value="object,10,51,160"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+diff --git a/tiled/empyrean_campaign/goblin_camp.tmx b/tiled/empyrean_campaign/goblin_camp.tmx
+index 4f314e6ceadeddb97a35b3d14a595226573ca788..c09ca8ea000685d008d6d986034dfae3ca837b91 100644
+--- a/tiled/empyrean_campaign/goblin_camp.tmx
++++ b/tiled/empyrean_campaign/goblin_camp.tmx
+@@ -250,7 +250,7 @@
+   <object id="5" name="Supplies" type="on_trigger" x="224" y="928" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="mapmod" value="object,7,29,97"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+@@ -260,7 +260,7 @@
+   <object id="6" name="Supplies" type="on_trigger" x="992" y="992" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="mapmod" value="object,31,31,99"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+@@ -270,7 +270,7 @@
+   <object id="7" name="Supplies" type="on_trigger" x="1696" y="1248" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="mapmod" value="object,53,39,99"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+@@ -280,7 +280,7 @@
+   <object id="8" name="Supplies" type="on_trigger" x="1760" y="1216" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="mapmod" value="object,55,38,97"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+diff --git a/tiled/empyrean_campaign/merrimead_swamp.tmx b/tiled/empyrean_campaign/merrimead_swamp.tmx
+index 394d901356608c18fcc8544dfd62da6f7bb1217c..6230446a4046c43bb025009ba8a66eec06343ca4 100644
+--- a/tiled/empyrean_campaign/merrimead_swamp.tmx
++++ b/tiled/empyrean_campaign/merrimead_swamp.tmx
+@@ -412,7 +412,7 @@
+   <object id="43" name="Supplies" type="on_trigger" x="1440" y="800" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="mapmod" value="object,45,25,99"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+@@ -422,7 +422,7 @@
+   <object id="44" name="Supplies" type="on_trigger" x="512" y="1952" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="mapmod" value="object,16,61,97"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+@@ -432,7 +432,7 @@
+   <object id="46" name="Supplies" type="on_trigger" x="1984" y="1088" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="mapmod" value="object,62,34,97"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+diff --git a/tiled/empyrean_campaign/salted_field.tmx b/tiled/empyrean_campaign/salted_field.tmx
+index 702f941c6ae5cf1a0b754056ffc8226ba2ddbdc1..dbb29bdd23af4ac04c9945cdc1dc209a35e53f6e 100644
+--- a/tiled/empyrean_campaign/salted_field.tmx
++++ b/tiled/empyrean_campaign/salted_field.tmx
+@@ -240,7 +240,7 @@
+   <object id="16" name="Supplies" type="on_trigger" x="320" y="320" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="mapmod" value="object,10,10,97"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+diff --git a/tiled/empyrean_campaign/stonewood.tmx b/tiled/empyrean_campaign/stonewood.tmx
+index 803bbb5575ca771b69c7e956dda27c8d637582b5..29b9ca9177c706f5ff68341880d1beeaa5f041f4 100644
+--- a/tiled/empyrean_campaign/stonewood.tmx
++++ b/tiled/empyrean_campaign/stonewood.tmx
+@@ -307,7 +307,7 @@
+   <object id="20" name="Supplies" type="on_trigger" x="2688" y="544" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="mapmod" value="object,84,17,97"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+@@ -317,7 +317,7 @@
+   <object id="21" name="Supplies" type="on_trigger" x="2848" y="640" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="mapmod" value="object,89,20,99"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+@@ -327,7 +327,7 @@
+   <object id="22" name="Supplies" type="on_trigger" x="320" y="1152" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="mapmod" value="object,10,36,97"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+diff --git a/tiled/empyrean_campaign/valverde_cemetery.tmx b/tiled/empyrean_campaign/valverde_cemetery.tmx
+index cafb5681f77fe1eb461d75182171db22cfb777c9..586748f7cfb2d5c71cab2e60e3e9c7136a0cbb55 100644
+--- a/tiled/empyrean_campaign/valverde_cemetery.tmx
++++ b/tiled/empyrean_campaign/valverde_cemetery.tmx
+@@ -372,7 +372,7 @@
+   <object id="20" name="Supplies" type="on_trigger" x="768" y="256" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="mapmod" value="object,24,8,99"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>
+@@ -382,7 +382,7 @@
+   <object id="21" name="Supplies" type="on_trigger" x="320" y="1504" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="loot" value="loot/leveled_low.txt"/>
++    <property name="loot" value="loot/level_1.txt"/>
+     <property name="mapmod" value="object,10,47,97"/>
+     <property name="repeat" value="false"/>
+     <property name="soundfx" value="soundfx/wood_open.ogg"/>

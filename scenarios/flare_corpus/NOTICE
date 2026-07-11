@@ -1,0 +1,224 @@
+Flare B0A Evidence Package
+==========================
+
+Purpose and result
+------------------
+
+This directory preserves the preregistered Flare B0A candidate universe, human-reviewed
+assignments, deterministic adjudication outputs, and exact patch evidence needed for offline
+replay. The initial round froze 62 candidates. The expanded round froze 526 candidates and
+produced 7 independent configuration-only proposed fix groups, 10 proposed cases, and 4 proposed
+defect classes. It produced no qualified_candidate or accepted cases. The fixed 8-group/4-class
+investment gate therefore ended with status=insufficient_evidence, the sole failure reason
+"fewer than eight independent proposed groups", and next_action=stop_flare_heavy_investment.
+
+This is evidence of a completed negative investment gate, not a claim that Flare is a rich or
+validated GameForge benchmark corpus. B0B qualification, corpus freeze, the production reader,
+and checker evaluation were not entered.
+
+Upstream work and attribution
+-----------------------------
+
+Upstream work: Flare: Empyrean Campaign
+Source repository: https://github.com/flareteam/flare-game.git
+Pinned upstream commit: fe23b5ba73f99f0c3969f8b23dbabaa8f7a6b602
+Copyright (c) 2010-2013 Clint Bellanger.
+Contributors retain copyrights to their original contributions.
+
+The following exact pinned upstream files are included for offline attribution:
+
+README.flare-game
+  Source: https://github.com/flareteam/flare-game/blob/fe23b5ba73f99f0c3969f8b23dbabaa8f7a6b602/README
+  SHA-256: 81c00b17aaab60d4fe5124163b92863846d76c8c670a772b99a4de6d1b7a3808
+CREDITS.flare-game
+  Source: https://github.com/flareteam/flare-game/blob/fe23b5ba73f99f0c3969f8b23dbabaa8f7a6b602/CREDITS.txt
+  SHA-256: c82830ffec90140ad625da05d4b9cde94f15c53ce3fd7a4451bbae0463761bdb
+LICENSE.flare-game
+  Source: https://github.com/flareteam/flare-game/blob/fe23b5ba73f99f0c3969f8b23dbabaa8f7a6b602/LICENSE.txt
+  SHA-256: 3f941b3b89cf7b8370ceb83cc76d2120d471b58735d8ca60238a751a48d7f72f
+
+The following exact GitHub wiki revisions are also included so attribution can be reviewed
+offline without relying on mutable wiki pages:
+
+CREDITS.flare-game-wiki.md
+  Repository: https://github.com/flareteam/flare-game.wiki.git
+  Commit: 61939e26d397b51c0c36da8cb861f89c8bf1d6db
+  Path: Credits.md
+  SHA-256: c33ffea3a608251b1c6bbee5f73930070a2fc276bb3aa1603b285ea5dc63e22d
+CREDITS.flare-game-v0.18-wiki.md
+  Repository: https://github.com/flareteam/flare-game.wiki.git
+  Commit: 61939e26d397b51c0c36da8cb861f89c8bf1d6db
+  Path: Flare-v0.18-Credits.md
+  SHA-256: 27a9547404480f9193dd30d0ca9f9a2ecad01f471981611423a068e1d816d9e1
+CREDITS.flare-engine-wiki.md
+  Repository: https://github.com/flareteam/flare-engine.wiki.git
+  Commit: f15e755a853d28050919534118c296db6b5196e2
+  Path: Credits.md
+  SHA-256: cea8e5a576cb5dd410fce2a0d1f35f502e37bf0120a394d86d9032afec74933b
+
+Evidence provenance
+-------------------
+
+History walk: all-reachable topological order over all 7,049 commits reachable from the pinned
+upstream head, including roots, merged branch commits, and the head.
+Search registration commit: 140aa5b99e9748022d735e67014c0bb8bd67cc77
+Registered path: scenarios/flare_corpus/search-spec.json
+Canonical search-spec SHA-256: 53e841dddaf22c560bd9f6ccc297aee6379ad277bcec39174e41d0bd5f463efa
+Evidence extraction date: 2026-07-11. This is the operator-recorded date on which mining ran
+offline against an already-present pinned local mirror; it is not an upstream snapshot, clone, or
+fetch date.
+
+Discovery tool: gameforge-flare-discovery@1
+GameForge revision: 140aa5b99e9748022d735e67014c0bb8bd67cc77
+Git: git version 2.54.0
+Python: CPython 3.12.13 (main, Jun 23 2026 15:44:24)
+Unicode: Unicode 15.0.0
+uv: 0.11.25 (1fc7de7c4 2026-06-26 aarch64-apple-darwin)
+Pydantic: 2.13.4
+
+Evaluation disclosure
+---------------------
+
+The search had prior exploratory work that inspected Flare history before registration. The exact
+two-round search was committed before harness discovery and exhausted its registered rules and reachable range,
+but this is non-blind, purposive evidence search and not a blind or held-out sample. Issue and
+pull-request discovery was disabled. The candidate-selection recall is unknown. The package does not
+support population-wide claims about all Flare defects or all defects discoverable under other
+search rules.
+
+Mining commands
+---------------
+
+The commands below are the exact resolved GameForge mining invocations used for discovery and
+offline adjudication. Both human approvals were added to their evidence payloads before the
+corresponding final adjudication.
+
+uv run python -m gameforge.bench.flare_mining discover --repo /tmp/gameforge-flare-game.git --search-spec scenarios/flare_corpus/search-spec.json --registration-commit 140aa5b99e9748022d735e67014c0bb8bd67cc77 --registration-path scenarios/flare_corpus/search-spec.json --round initial --out scenarios/flare_corpus/b0a/initial/candidate-ledger.discovered.json --blob-dir scenarios/flare_corpus/blobs
+
+uv run python -m gameforge.bench.flare_mining adjudicate --ledger scenarios/flare_corpus/b0a/initial/candidate-ledger.discovered.json --evidence scenarios/flare_corpus/b0a/initial/adjudication-evidence.json --blob-dir scenarios/flare_corpus/blobs --out scenarios/flare_corpus/b0a/initial/candidate-ledger.json --decision-out scenarios/flare_corpus/b0a/initial/b0a-decision.json
+
+uv run python -m gameforge.bench.flare_mining discover --repo /tmp/gameforge-flare-game.git --search-spec scenarios/flare_corpus/search-spec.json --registration-commit 140aa5b99e9748022d735e67014c0bb8bd67cc77 --registration-path scenarios/flare_corpus/search-spec.json --round expanded --out scenarios/flare_corpus/candidate-ledger.discovered.json --blob-dir scenarios/flare_corpus/blobs
+
+uv run python -m gameforge.bench.flare_mining adjudicate --ledger scenarios/flare_corpus/candidate-ledger.discovered.json --evidence scenarios/flare_corpus/adjudication-evidence.json --blob-dir scenarios/flare_corpus/blobs --prior-discovery scenarios/flare_corpus/b0a/initial/candidate-ledger.discovered.json --prior-evidence scenarios/flare_corpus/b0a/initial/adjudication-evidence.json --prior-ledger scenarios/flare_corpus/b0a/initial/candidate-ledger.json --prior-decision scenarios/flare_corpus/b0a/initial/b0a-decision.json --out scenarios/flare_corpus/candidate-ledger.json --decision-out scenarios/flare_corpus/b0a-decision.json
+
+Mixed-license patch evidence
+----------------------------
+
+blobs/ contains 519 content-addressed, complete Git binary patches retained for all proposed,
+rejected, and ambiguous candidate assignments. Before deduplication, the 526 candidate references
+account for 332,834,369 patch bytes. Content addressing stores 306,007,216 unique bytes, saving
+26,827,153 bytes while preserving every reference. The patches include configuration and data text,
+C++ and Python source hunks, images, audio, and font binary deltas. They are not merely a set of
+configuration excerpts. Patches are retained as audit evidence, not as a checkout or runnable
+redistribution of the whole game. This limited purpose does not replace the license terms for the
+upstream material actually present in those patches.
+
+The pinned upstream README states that Flare art and data are available under CC BY-SA 3.0
+Unported, with later versions permitted. LICENSE.flare-game is the exact pinned CC BY-SA 3.0 legal
+code. LICENSE.flare-game does not license every byte in blobs/. Historical source-code hunks are
+covered by GPL version 3 or later, as stated by the historical Flare README; the corresponding
+historical COPYING bytes are included as LICENSES/GPL-3.0-or-later.txt.
+
+Font evidence has its own terms:
+
+* GNU Unifont 5.1 has composite licensing and must not be represented as a work governed by one
+  license. Paul Hardy and Luis Gonzalez Miranda portions are GPL version 2 or later. Wen Quan Yi and
+  Unibit portions are GPL version 2, without an or-later grant in the contemporaneous notice, plus
+  the font embedding exception. Roman Czyborra portions carry custom attribution terms; blanks.hex
+  is public domain; and Hangul U+AC00..U+D7A3 carries the Baekmuk copyright, permission, and
+  trademark notice. LICENSES/GNU-Unifont-5.1-debian-copyright.txt is the complete contemporaneous
+  composite notice. LICENSES/GNU-Unifont-5.1-README.txt supplies additional upstream context, and
+  LICENSES/GPL-2.0.txt supplies the neutral GPL v2 legal text. The identical legacy copy at
+  LICENSES/GPL-2.0-or-later.txt is retained for the portions whose notices grant GPL version 2 or
+  later; the composite copyright notice, rather than either filename, determines whether a
+  particular portion is GPL-2.0-only or GPL-2.0-or-later.
+* Liberation Sans 2.00.0 is covered by the SIL Open Font License, Version 1.1. The font-specific
+  notice credits Google Corporation and Red Hat, Inc. and reserves Arimo, Tinos, Cousine, and
+  Liberation. It is included as LICENSES/OFL-1.1-LiberationSans-2.00.0.txt.
+* Alex Brush 1.003 is covered by the SIL Open Font License, Version 1.1. Copyright (c) 2011
+  TypeSETit, LLC; the Reserved Font Name "Alex Brush" applies. The font-specific notice is included
+  as LICENSES/OFL-1.1-AlexBrush-1.003.txt.
+* Textura Libera 0.2.2 is Copyright (c) 2014, MihailJP and carries its M+ font license style notice,
+  included as LICENSES/TexturaLibera-0.2.2.txt. LICENSES/MPlus-font-license.txt separately preserves
+  the exact license text embedded in the font binary present in the patch.
+
+GNU Unifont binary and corresponding source provenance:
+
+The complete Git binary patch
+blobs/8dc7071c371da43b6246f0a9b9377c92db62f6322631b11988d1772791a421ee adds
+mods/fantasycore/fonts/unifont-5.1.ttf as a 16,336,376-byte literal. Its SHA-256 is
+849a59a9729c3dcd84137ebf11e6f65aebf673f8322a3adabe9f087329daa581. The exact upstream compressed
+binary is included as sources/GNU-Unifont-5.1/unifont-5.1.ttf.gz:
+
+  Source: https://unifoundry.com/pub/unifont/unifont-5.1.20080907/unifont-5.1.ttf.gz
+  Compressed SHA-256: d29898ed5f0749bb6dfe516b44f78400df885d994aa29c8cd76e3b86c488e1c8
+  Compressed size: 3,105,363 bytes
+  Decompressed SHA-256: 849a59a9729c3dcd84137ebf11e6f65aebf673f8322a3adabe9f087329daa581
+
+The decompressed upstream file is byte-for-byte identical to the TTF literal in the patch. The
+complete corresponding source inputs are included from Debian source package
+unifont 1:5.1.20080914-1.3, Format 1.0. The upstream source archive contains the component glyph
+sources, 63,446 records in font/precompiled/unifont.hex, hex2sfd, the FontForge all.pe script, and
+the Makefiles needed to build the TrueType font. The full source package three-file set is:
+
+sources/GNU-Unifont-5.1/unifont_5.1.20080914.orig.tar.gz
+  Source: https://snapshot.debian.org/file/f4c8211b877f42ae03e42f9a05bca41ee267708e/unifont_5.1.20080914.orig.tar.gz
+  SHA-256: 4d2aafedd64c48b8703f2abd4e10a5a8087d21120707cb6171c97ff0661b0edd
+  Size: 8,550,619 bytes
+sources/GNU-Unifont-5.1/unifont_5.1.20080914-1.3.diff.gz
+  Source: https://snapshot.debian.org/file/da0ea8f32361f80579c234f949fdb4a25570984f/unifont_5.1.20080914-1.3.diff.gz
+  SHA-256: 8b93cb2bb1f6123ce8bada5fd6145812913cf2bc23c0751f0ad11f807db6b06a
+  Size: 8,799 bytes
+sources/GNU-Unifont-5.1/unifont_5.1.20080914-1.3.dsc
+  Source: https://snapshot.debian.org/file/1a4f29f30e43a1b7424b4a789b051a796da6e015/unifont_5.1.20080914-1.3.dsc
+  Package index: https://snapshot.debian.org/package/unifont/1%3A5.1.20080914-1.3/
+  SHA-256: 7c748366fc1b010742b58e467057baecb1aa3b01f33fe39722ac6260f7b60900
+  Size: 1,952 bytes
+
+The exact Flare binary predates later Debian rebuild behavior. Rebuilding the unmodified upstream
+source tree preserves the full glyph inputs; applying the included Debian -1.3 packaging diff
+intentionally omits blank, private-use, and then-unallocated glyphs from Debian's default build.
+This corresponding-source record therefore does not claim a byte-identical rebuild: FontForge
+version, generation metadata, and the .notdef glyph can change without changing the mapped glyph
+source. The exact compressed upstream binary is retained separately to make the byte identity
+auditable.
+
+License text provenance:
+
+LICENSES/GPL-3.0-or-later.txt
+  Source: https://github.com/flareteam/flare-game/blob/9832fbe8fc497a0430431141c86845ce866d0af8/COPYING
+  SHA-256: 8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903
+LICENSES/GPL-2.0.txt and LICENSES/GPL-2.0-or-later.txt
+  Source: https://www.gnu.org/licenses/old-licenses/gpl-2.0.txt
+  SHA-256: edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6
+  Note: both files preserve identical legal-code bytes; the applicable component notice determines
+        whether GPL-2.0-only or GPL-2.0-or-later applies.
+LICENSES/GNU-Unifont-5.1-README.txt
+  Source: https://sources.debian.org/data/main/u/unifont/1%3A5.1.20080914-1.3/README
+  SHA-256: 7a471fc9dfd5b351ad06ea48fdf24eef5a0dd30cdbc4d5a0ed0a6958d7bcb2d4
+LICENSES/GNU-Unifont-5.1-debian-copyright.txt
+  Source: https://sources.debian.org/data/main/u/unifont/1%3A5.1.20080914-1.3/debian/copyright
+  SHA-256: da62a3a3c3e84f220221ac4555b8471bac64b2124e7e0edd0f6d66eb2fa1ec04
+LICENSES/OFL-1.1.txt
+  Source: https://raw.githubusercontent.com/spdx/license-list-data/v3.27.0/text/OFL-1.1.txt
+  SHA-256: 8eea8287e5876b539670cadb82e99f9a7afddec6f6730811be1daf25d2e9bcfd
+LICENSES/OFL-1.1-LiberationSans-2.00.0.txt
+  Source archive: https://releases.pagure.org/liberation-fonts/liberation-fonts-ttf-2.00.0.tar.gz
+  Source member: liberation-fonts-ttf-2.00.0/LICENSE
+  Source archive SHA-256: 3b7214e7352b8e4990c71018031ecb0f40d6793f140d7a956d7345997c8c5100
+  SHA-256: 93fed46019c38bbe566b479d22148e2e8a1e85ada614accb0211c37b2c61c19b
+LICENSES/OFL-1.1-AlexBrush-1.003.txt
+  Source: https://raw.githubusercontent.com/google/fonts/90abd17b4f97671435798b6147b698aa9087612f/ofl/alexbrush/OFL.txt
+  SHA-256: 513b7871a360a6eccd426bab59743fbff36764588f47381423f04ad6b3d821d9
+LICENSES/TexturaLibera-0.2.2.txt
+  Source: https://raw.githubusercontent.com/MihailJP/TexturaLibera/76d5f2a529b68da04ee1ff2d81c782862c2236ca/LICENSE
+  SHA-256: 842baac67b2f1bab31be56a7608a825f40170c6327f3c89d84038af262a6c3d4
+LICENSES/MPlus-font-license.txt
+  Source: embedded metadata in mods/empyrean_campaign/fonts/TexturaLiberaTenuisX-Bold.otf at
+          upstream commit bd53ec0d550843814bcd29fdc68196749c7a9d29
+  SHA-256: 83ca32cb858125c07a5f950ec078af6522b27ec64fedd2910d547066caf945df
+
+Historical source, fonts, and individual assets retain their applicable upstream copyright,
+license, attribution, and trademark notices. GameForge added deterministic patch encoding,
+content-addressed indexing, and adjudication metadata; it did not alter the underlying upstream
+revisions. No endorsement by Flare authors or contributors is implied.

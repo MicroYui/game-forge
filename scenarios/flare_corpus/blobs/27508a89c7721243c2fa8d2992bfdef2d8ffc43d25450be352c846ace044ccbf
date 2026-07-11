@@ -1,0 +1,83 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
+index 91c949925dd2b3b1e823f7161e523f68d716d288..17c530f57768a8d040adc50bfc40a2338704de82 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
+@@ -34,3 +34,6 @@ quest_loot=emp_journal_init,emp_journal_found,1002
+ loot_count=3,4
+ loot=loot/level_2.txt
+ 
++# Goblin Branch
++loot=68,1
++
+diff --git a/mods/empyrean_campaign/enemies/lvl2_krolan.txt b/mods/empyrean_campaign/enemies/lvl2_krolan.txt
+index 4a1b98ad2faf282ed3a6b36e608089cddcdb216f..0d0da2f37b4e29afd935322653dff6ae89262d06 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_krolan.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_krolan.txt
+@@ -32,4 +32,6 @@ quest_loot=emp_krolan_init,emp_krolan_key,1000
+ loot_count=3,4
+ loot=loot/level_2.txt
+ 
++# Krolan's Pick
++loot=67,1
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl3_ardwen.txt b/mods/empyrean_campaign/enemies/lvl3_ardwen.txt
+index 589ac8157313e7a7a30aee911f339f6413d696d6..27fe052526391e07b8d4cf0feecb5f21dd2f19fc 100644
+--- a/mods/empyrean_campaign/enemies/lvl3_ardwen.txt
++++ b/mods/empyrean_campaign/enemies/lvl3_ardwen.txt
+@@ -27,3 +27,6 @@ cooldown=1200ms
+ #loot
+ loot_count=3,4
+ loot=loot/level_3.txt
++
++# Ardwen's Gloves
++loot=69,1
+diff --git a/mods/empyrean_campaign/items/categories/level_4.txt b/mods/empyrean_campaign/items/categories/level_4.txt
+index 086765735028b3de7de40a72a3c600f2f0b55483..bc36ebde94789f71cca08e0d5483061f1c0033d7 100644
+--- a/mods/empyrean_campaign/items/categories/level_4.txt
++++ b/mods/empyrean_campaign/items/categories/level_4.txt
+@@ -143,3 +143,45 @@ quality=rare
+ price=2800
+ bonus=item_find,50
+ 
++# unique items
++[item]
++id=67
++name=Krolan's Pick
++flavor=Sharp enough to cut through stone.
++INCLUDE items/base/weapons/melee/dagger.txt
++quality=unique
++price=3200
++dmg_melee=25,30
++requires_stat=physical,10
++bonus=dmg_melee_min,20
++bonus=dmg_melee_max,20
++bonus=crit,1
++bonus=currency_find,30
++
++[item]
++id=68
++name=Goblin Branch
++flavor=Mana flows inside its primitive exterior.
++INCLUDE items/base/weapons/magic/wand.txt
++quality=unique
++price=3200
++dmg_ment=25,30
++requires_stat=mental,10
++bonus=dmg_ment_min,20
++bonus=dmg_ment_max,20
++bonus=mp_regen,30
++bonus=lightning_resist,40
++
++[item]
++id=69
++name=Ardwen's Gloves
++flavor=These hands built a village.
++INCLUDE items/base/armor/cloth/hands.txt
++quality=unique
++price=800
++requires_stat=offense,4
++requires_stat=defense,6
++bonus=absorb_min,2
++bonus=accuracy,25
++bonus=poise,5
++bonus=xp_gain,10

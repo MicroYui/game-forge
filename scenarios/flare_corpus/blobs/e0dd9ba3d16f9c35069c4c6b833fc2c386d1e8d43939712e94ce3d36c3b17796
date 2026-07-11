@@ -1,0 +1,1892 @@
+diff --git a/mods/alpha_demo/engine/misc.txt b/mods/alpha_demo/engine/misc.txt
+index 17bd0ae265f6fc3d16a57b825303c2871bc20f0f..e14681a01699c154a3b42507511232afad5ce5ba 100644
+--- a/mods/alpha_demo/engine/misc.txt
++++ b/mods/alpha_demo/engine/misc.txt
+@@ -3,4 +3,4 @@ APPEND
+ # Miscellaneous engine settings
+ 
+ save_prefix=flare0.19
+-
++currency_id=10
+diff --git a/mods/alpha_demo/items/categories/armor_chain.txt b/mods/alpha_demo/items/categories/armor_chain.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..4f6ef434289908b16905cc9b2c0abca30a036cee
+--- /dev/null
++++ b/mods/alpha_demo/items/categories/armor_chain.txt
+@@ -0,0 +1,42 @@
++# Chain Armor #########################
++
++[item]
++id=88
++name=Chain Coif
++INCLUDE items/base/armor/chain/head.txt
++abs=2
++requires_stat=defense,3
++price=75
++
++[item]
++id=89
++name=Chain Cuirass
++INCLUDE items/base/armor/chain/chest.txt
++abs=4
++requires_stat=defense,3
++price=100
++
++[item]
++id=90
++name=Chain Gloves
++INCLUDE items/base/armor/chain/hands.txt
++abs=2
++requires_stat=defense,3
++price=60
++
++[item]
++id=91
++name=Chain Greaves
++INCLUDE items/base/armor/chain/legs.txt
++abs=3
++requires_stat=defense,3
++price=90
++
++[item]
++id=92
++name=Chain Boots
++INCLUDE items/base/armor/chain/feet.txt
++abs=2
++requires_stat=defense,3
++price=80
++
+diff --git a/mods/alpha_demo/items/categories/armor_cloth.txt b/mods/alpha_demo/items/categories/armor_cloth.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..aaa20e782829b31f549a25e3e850f9a4cd0aa2e7
+--- /dev/null
++++ b/mods/alpha_demo/items/categories/armor_cloth.txt
+@@ -0,0 +1,26 @@
++# Clothes #############################
++
++[item]
++id=64
++name=Cloth Shirt
++INCLUDE items/base/armor/cloth/chest.txt
++price=6
++
++[item]
++id=65
++name=Cloth Gloves
++INCLUDE items/base/armor/cloth/hands.txt
++price=2
++
++[item]
++id=66
++name=Cloth Pants
++INCLUDE items/base/armor/cloth/legs.txt
++price=4
++
++[item]
++id=67
++name=Cloth Sandals
++INCLUDE items/base/armor/cloth/feet.txt
++price=3
++
+diff --git a/mods/alpha_demo/items/categories/armor_leather.txt b/mods/alpha_demo/items/categories/armor_leather.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..2df2db4c5dd4653bc7995472c1977248a767bef5
+--- /dev/null
++++ b/mods/alpha_demo/items/categories/armor_leather.txt
+@@ -0,0 +1,42 @@
++# Leather Armor #######################
++
++[item]
++id=80
++name=Leather Hood
++INCLUDE items/base/armor/leather/head.txt
++abs=1
++requires_stat=defense,2
++price=14
++
++[item]
++id=81
++name=Leather Chest
++INCLUDE items/base/armor/leather/chest.txt
++abs=2
++requires_stat=defense,2
++price=20
++
++[item]
++id=82
++name=Leather Gloves
++INCLUDE items/base/armor/leather/hands.txt
++abs=1
++requires_stat=defense,2
++price=12
++
++[item]
++id=83
++name=Leather Pants
++INCLUDE items/base/armor/leather/legs.txt
++abs=2
++requires_stat=defense,2
++price=18
++
++[item]
++id=84
++name=Leather Boots
++INCLUDE items/base/armor/leather/feet.txt
++abs=1
++requires_stat=defense,2
++price=16
++
+diff --git a/mods/alpha_demo/items/categories/armor_mage.txt b/mods/alpha_demo/items/categories/armor_mage.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..fa6f0ebc659f26917bb9c7f6d7c70549d3f912ae
+--- /dev/null
++++ b/mods/alpha_demo/items/categories/armor_mage.txt
+@@ -0,0 +1,50 @@
++# Robes ###############################
++
++[item]
++id=72
++name=Mage Hood
++INCLUDE items/base/armor/mage/head.txt
++flavor=The seams on this hood are designed to aid the flow of mana.
++requires_stat=mental,2
++bonus=mp_regen,10
++price=55
++
++[item]
++id=73
++name=Mage Vest
++INCLUDE items/base/armor/mage/chest.txt
++flavor=Frost resistance runes line the inside of this vest.
++abs=1
++requires_stat=mental,2
++bonus=ice_resist,10
++price=65
++
++[item]
++id=74
++name=Mage Sleeves
++INCLUDE items/base/armor/mage/hands.txt
++flavor=The fire resistance runes that hem these sleeves help protect beginner students of Pyromancy.
++bonus=fire_resist,10
++requires_stat=mental,2
++price=45
++
++[item]
++id=75
++name=Mage Skirt
++INCLUDE items/base/armor/mage/legs.txt
++flavor=Spell components are tucked into hidden pockets covering this skirt.
++abs=1
++bonus=mp,15
++requires_stat=mental,2
++price=90
++
++[item]
++id=76
++name=Mage Boots
++INCLUDE items/base/armor/mage/feet.txt
++flavor=Attunement with the elements allow mages to ice and fire walk.
++requires_stat=mental,2
++bonus=fire_resist,5
++bonus=ice_resist,5
++price=70
++
+diff --git a/mods/alpha_demo/items/categories/armor_plate.txt b/mods/alpha_demo/items/categories/armor_plate.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..b8c3061264b97f4e55eaa7b45060e90556736328
+--- /dev/null
++++ b/mods/alpha_demo/items/categories/armor_plate.txt
+@@ -0,0 +1,42 @@
++# Plate Armor #########################
++
++[item]
++id=96
++name=Plate Helmet
++INCLUDE items/base/armor/plate/head.txt
++abs=4
++requires_stat=defense,4
++price=350
++
++[item]
++id=97
++name=Plate Cuirass
++INCLUDE items/base/armor/plate/chest.txt
++abs=6
++requires_stat=defense,4
++price=500
++
++[item]
++id=98
++name=Plate Gauntlets
++INCLUDE items/base/armor/plate/hands.txt
++abs=3
++requires_stat=defense,4
++price=325
++
++[item]
++id=99
++name=Plate Greaves
++INCLUDE items/base/armor/plate/legs.txt
++abs=4
++requires_stat=defense,4
++price=425
++
++[item]
++id=100
++name=Plate Boots
++INCLUDE items/base/armor/plate/feet.txt
++abs=3
++requires_stat=defense,4
++price=375
++
+diff --git a/mods/alpha_demo/items/categories/figurines.txt b/mods/alpha_demo/items/categories/figurines.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..2316ec867ac7eb7a5c1fd210c1b0b299688bb1c6
+--- /dev/null
++++ b/mods/alpha_demo/items/categories/figurines.txt
+@@ -0,0 +1,30 @@
++# Figurines
++
++[item]
++id=119
++name=Bear Figurine
++INCLUDE items/base/figurines/bear.txt
++bonus=physical,1
++price=2500
++
++[item]
++id=120
++name=Owl Figurine
++INCLUDE items/base/figurines/owl.txt
++bonus=mental,1
++price=2500
++
++[item]
++id=121
++name=Cat Figurine
++INCLUDE items/base/figurines/cat.txt
++bonus=offense,1
++price=2500
++
++[item]
++id=122
++name=Turtle Figurine
++INCLUDE items/base/figurines/turtle.txt
++bonus=defense,1
++price=2500
++
+diff --git a/mods/alpha_demo/items/categories/gems.txt b/mods/alpha_demo/items/categories/gems.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..144fa4a26aece95f65e2fefd33350de859fa6eaa
+--- /dev/null
++++ b/mods/alpha_demo/items/categories/gems.txt
+@@ -0,0 +1,34 @@
++# Gems ################################
++
++[item]
++id=3
++name=Sapphire
++INCLUDE items/base/gems/sapphire.txt
++price=100
++price_sell=100
++max_quantity=100
++
++[item]
++id=4
++name=Emerald
++INCLUDE items/base/gems/emerald.txt
++price=200
++price_sell=200
++max_quantity=100
++
++[item]
++id=5
++name=Ruby
++INCLUDE items/base/gems/ruby.txt
++price=500
++price_sell=500
++max_quantity=100
++
++[item]
++id=6
++name=Diamond
++INCLUDE items/base/gems/diamond.txt
++price=1000
++price_sell=1000
++max_quantity=100
++
+diff --git a/mods/alpha_demo/items/categories/magic.txt b/mods/alpha_demo/items/categories/magic.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..b94a59e3bd78b759acee4bb9d81c4076a6ca03fe
+--- /dev/null
++++ b/mods/alpha_demo/items/categories/magic.txt
+@@ -0,0 +1,154 @@
++# Magic Items
++
++[item]
++id=104
++name=Seven-league boots
++INCLUDE items/base/armor/magic_boots.txt
++flavor=These enchanted boots are prized possessions of Courier guildsmen.
++abs=2
++requires_stat=defense,2
++bonus=speed,125
++price=250
++
++[item]
++id=105
++name=Thief Gloves
++INCLUDE items/base/armor/cloth/hands.txt
++flavor=In Lower Sceleris there is honor among thieves. Everyone else is a mark.
++quality=high
++abs=1
++bonus=currency_find,25
++price=333
++
++[item]
++id=114
++name=Silent Tabi
++INCLUDE items/base/armor/leather/feet.txt
++quality=epic
++abs=2
++requires_stat=defense,2
++bonus=stealth,50
++price=500
++
++[item]
++id=115
++name=Duelist Gauntlets
++INCLUDE items/base/armor/chain/hands.txt
++quality=high
++abs=3
++requires_stat=defense,3
++bonus=crit,5
++price=200
++
++[item]
++id=116
++name=Blood Cuirass
++INCLUDE items/base/armor/chain/chest.txt
++quality=high
++abs=5
++requires_stat=defense,3
++bonus=hp,50
++price=400
++
++[item]
++id=117
++name=Blood Greaves
++INCLUDE items/base/armor/chain/legs.txt
++quality=high
++abs=4
++requires_stat=defense,3
++bonus=hp_regen,25
++price=350
++
++[item]
++id=118
++name=Fencing Gloves
++INCLUDE items/base/armor/leather/hands.txt
++quality=high
++abs=2
++requires_stat=defense,2
++bonus=accuracy,15
++price=75
++
++[item]
++id=123
++name=Sage Mantle
++INCLUDE items/base/armor/mage/chest.txt
++quality=epic
++abs=3
++requires_stat=mental,3
++bonus=mp,50
++bonus=ice_resist,15
++price=500
++
++[item]
++id=124
++name=Sage Frock
++INCLUDE items/base/armor/mage/legs.txt
++quality=epic
++abs=3
++requires_stat=mental,3
++bonus=mp_regen,25
++bonus=fire_resist,15
++price=500
++
++[item]
++id=125
++name=Monastery Sandals
++INCLUDE items/base/armor/cloth/feet.txt
++quality=high
++abs=1
++bonus=avoidance,15
++price=125
++
++[item]
++id=126
++name=Æther Walkers
++INCLUDE items/base/armor/magic_boots.txt
++quality=epic
++abs=2
++requires_stat=defense,2
++power=140
++power_desc=Use: Blink to a nearby location
++price=800
++
++[item]
++id=127
++name=Ashwood Wand
++INCLUDE items/base/weapons/magic/wand.txt
++flavor=The secrets to harvesting Yggdrasil twigs are known only to traitorous dryads.
++quality=high
++dmg_ment=15,35
++bonus=mp,5
++bonus=accuracy,2
++requires_stat=mental,2
++price=80
++
++[item]
++id=128
++name=Lawman's Sidearm
++INCLUDE items/base/weapons/melee/dagger.txt
++flavor=The workmanship on this blade appears hurried, as if forged under the fever of vigilance.
++quality=high
++dmg_melee=15,35
++bonus=avoidance,5
++bonus=hp,3
++requires_stat=physical,2
++price=100
++
++[item]
++id=129
++name=Miner's Gloves
++INCLUDE items/base/armor/cloth/hands.txt
++quality=high
++bonus=hp,5
++price=50
++
++[item]
++id=130
++name=Forgotten Ring
++INCLUDE items/base/rings/silver_1.txt
++flavor=Faded memories are vivid to the wearer of this silver band.
++quality=high
++price=50
++bonus=xp_gain,10
+diff --git a/mods/alpha_demo/items/categories/potions.txt b/mods/alpha_demo/items/categories/potions.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..b5db348051f41cff3f4dd7b1bf20b3b5096b6af5
+--- /dev/null
++++ b/mods/alpha_demo/items/categories/potions.txt
+@@ -0,0 +1,20 @@
++# Potions #############################
++
++[item]
++id=1
++name=Health Potion
++INCLUDE items/base/potion/hp.txt
++power=100
++power_desc=Restore 50% of maximum HP
++price=25
++max_quantity=10
++
++[item]
++id=2
++name=Mana Potion
++INCLUDE items/base/potion/mp.txt
++power=101
++power_desc=Restore 50% of maximum MP
++price=25
++max_quantity=10
++
+diff --git a/mods/alpha_demo/items/categories/rings.txt b/mods/alpha_demo/items/categories/rings.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..0070d7ff003ef66ff31ba0df7e3d90344eb10b72
+--- /dev/null
++++ b/mods/alpha_demo/items/categories/rings.txt
+@@ -0,0 +1,59 @@
++# Rings
++
++[item]
++id=106
++name=Ring of Invisibility
++INCLUDE items/base/rings/gold_1.txt
++flavor=This nondescript ring was forged in the land where shadows lie.
++bonus=stealth,100
++price=5000
++
++[item]
++id=107
++name=Ring of Regeneration
++INCLUDE items/base/rings/gold_4.txt
++bonus=hp_regen,25
++price=750
++
++[item]
++id=108
++name=Ring of Concentration
++INCLUDE items/base/rings/silver_4.txt
++bonus=mp_regen,35
++price=850
++
++[item]
++id=109
++name=Ring of Fire
++INCLUDE items/base/rings/gold_5.txt
++bonus=fire_resist,25
++price=2000
++
++[item]
++id=110
++name=Ring of Ice
++INCLUDE items/base/rings/silver_5.txt
++bonus=ice_resist,25
++price=2000
++
++[item]
++id=111
++name=Lineage Signet Ring
++INCLUDE items/base/rings/silver_2.txt
++price=1000
++bonus=xp_gain,25
++
++[item]
++id=112
++name=Ouroboros Ring
++INCLUDE items/base/rings/gold_3.txt
++price=1000
++power=170
++power_desc=One-time protection from death
++
++[item]
++id=113
++name=Relic Hunter's Ring
++INCLUDE items/base/rings/gold_2.txt
++bonus=item_find,25
++price=4000
+diff --git a/mods/alpha_demo/items/categories/shields.txt b/mods/alpha_demo/items/categories/shields.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..86754301d37cc133b65758031eace5e69c67ac78
+--- /dev/null
++++ b/mods/alpha_demo/items/categories/shields.txt
+@@ -0,0 +1,34 @@
++# Basic Shields #######################
++
++[item]
++id=56
++name=Wood Buckler
++INCLUDE items/base/shields/wood.txt
++abs=0,10
++requires_stat=defense,2
++price=30
++
++[item]
++id=57
++name=Iron Buckler
++INCLUDE items/base/shields/iron.txt
++abs=5,15
++requires_stat=defense,3
++price=140
++
++[item]
++id=58
++name=Crest Shield
++INCLUDE items/base/shields/steel.txt
++abs=10,20
++requires_stat=defense,4
++price=560
++
++[item]
++id=59
++name=Tower Shield
++INCLUDE items/base/shields/steel.txt
++abs=15,25
++requires_stat=defense,5
++price=3000
++
+diff --git a/mods/alpha_demo/items/categories/weapons_magic.txt b/mods/alpha_demo/items/categories/weapons_magic.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..69e10a69f096cfab80f38016792c43a2eaecb0ee
+--- /dev/null
++++ b/mods/alpha_demo/items/categories/weapons_magic.txt
+@@ -0,0 +1,34 @@
++# Basic Magic Weapons #################
++
++[item]
++id=40
++name=Wand
++INCLUDE items/base/weapons/magic/wand.txt
++dmg_ment=10,30
++requires_stat=mental,2
++price=24
++
++[item]
++id=41
++name=Rod
++INCLUDE items/base/weapons/magic/rod.txt
++dmg_ment=15,40
++requires_stat=mental,3
++price=115
++
++[item]
++id=42
++name=Staff
++INCLUDE items/base/weapons/magic/staff.txt
++dmg_ment=20,50
++requires_stat=mental,4
++price=620
++
++[item]
++id=43
++name=Greatstaff
++INCLUDE items/base/weapons/magic/greatstaff.txt
++dmg_ment=25,60
++requires_stat=mental,5
++price=2240
++
+diff --git a/mods/alpha_demo/items/categories/weapons_melee.txt b/mods/alpha_demo/items/categories/weapons_melee.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..4238337d614b07e13b386aeeadcc42dd62c2e207
+--- /dev/null
++++ b/mods/alpha_demo/items/categories/weapons_melee.txt
+@@ -0,0 +1,34 @@
++# Basic Melee Weapons #################
++
++[item]
++id=32
++name=Dagger
++INCLUDE items/base/weapons/melee/dagger.txt
++dmg_melee=10,30
++requires_stat=physical,2
++price=20
++
++[item]
++id=33
++name=Shortsword
++INCLUDE items/base/weapons/melee/shortsword.txt
++dmg_melee=15,40
++requires_stat=physical,3
++price=100
++
++[item]
++id=34
++name=Longsword
++INCLUDE items/base/weapons/melee/longsword.txt
++dmg_melee=20,50
++requires_stat=physical,4
++price=500
++
++[item]
++id=35
++name=Greatsword
++INCLUDE items/base/weapons/melee/greatsword.txt
++dmg_melee=25,60
++requires_stat=physical,5
++price=2000
++
+diff --git a/mods/alpha_demo/items/categories/weapons_ranged.txt b/mods/alpha_demo/items/categories/weapons_ranged.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..35b5b445a3f6bd75e8b7e8b0dc04c58b4c174c9b
+--- /dev/null
++++ b/mods/alpha_demo/items/categories/weapons_ranged.txt
+@@ -0,0 +1,34 @@
++# Basic Ranged Weapons ################
++
++[item]
++id=48
++name=Slingshot
++INCLUDE items/base/weapons/ranged/slingshot.txt
++dmg_ranged=10,30
++requires_stat=offense,2
++price=16
++
++[item]
++id=49
++name=Shortbow
++INCLUDE items/base/weapons/ranged/shortbow.txt
++dmg_ranged=15,40
++requires_stat=offense,3
++price=88
++
++[item]
++id=50
++name=Longbow
++INCLUDE items/base/weapons/ranged/longbow.txt
++dmg_ranged=20,50
++requires_stat=offense,4
++price=450
++
++[item]
++id=51
++name=Greatbow
++INCLUDE items/base/weapons/ranged/greatbow.txt
++dmg_ranged=25,60
++requires_stat=offense,5
++price=1950
++
+diff --git a/mods/alpha_demo/items/items.txt b/mods/alpha_demo/items/items.txt
+index bec5f86a644bdd02beec82e91e9db23731e270c8..dc8fa9ac4313f4c4eb227ced28a1f8e00f082793 100644
+--- a/mods/alpha_demo/items/items.txt
++++ b/mods/alpha_demo/items/items.txt
+@@ -1,4 +1,65 @@
+-APPEND
++####################
++# Item Definitions #
++####################
++
++# Currency
++[item]
++id=10
++name=Gold
++quality=normal
++icon=88
++price=1
++price_sell=1
++max_quantity=5000
++soundfx=soundfx/inventory/inventory_coins.ogg
++loot_animation=animations/loot/coins5.txt,0,9
++loot_animation=animations/loot/coins25.txt,10,24
++loot_animation=animations/loot/coins100.txt,25,0
++
++
++# Potions: 1-2
++INCLUDE items/categories/potions.txt
++
++# Gems: 3-6
++INCLUDE items/categories/gems.txt
++
++# Melee Weapons: 32-35
++INCLUDE items/categories/weapons_melee.txt
++
++# Magic Weapons: 40-43
++INCLUDE items/categories/weapons_magic.txt
++
++# Ranged Weapons: 48-51
++INCLUDE items/categories/weapons_ranged.txt
++
++# Shields: 56-59
++INCLUDE items/categories/shields.txt
++
++# Cloth Armor: 64-67
++INCLUDE items/categories/armor_cloth.txt
++
++# Mage Robe Armor: 72-76
++INCLUDE items/categories/armor_mage.txt
++
++# Leather Armor: 80-84
++INCLUDE items/categories/armor_leather.txt
++
++# Chain Armor: 88-92
++INCLUDE items/categories/armor_chain.txt
++
++# Plate Armor: 96-100
++INCLUDE items/categories/armor_plate.txt
++
++# Rings: 106-113
++INCLUDE items/categories/rings.txt
++
++# Figurines: 119-122
++INCLUDE items/categories/figurines.txt
++
++# Magic items: 104-105, 114-118, 123-130
++INCLUDE items/categories/magic.txt
++
++
+ 
+ # Quest Items
+ 
+diff --git a/mods/alpha_demo/items/sets.txt b/mods/alpha_demo/items/sets.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..5a038f6b0f206998393b9dd8e47e4cb878aa721b
+--- /dev/null
++++ b/mods/alpha_demo/items/sets.txt
+@@ -0,0 +1,7 @@
++[set]
++id=1
++name=Sage's Wardrobe
++color=160,64,255
++items=123,124,125
++bonus=2,hp_regen,30
++bonus=3,crit,5
+diff --git a/mods/alpha_demo/loot/base_gear.txt b/mods/alpha_demo/loot/base_gear.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..a7138519d74c2e83d69c438cdfee7461e031f1fa
+--- /dev/null
++++ b/mods/alpha_demo/loot/base_gear.txt
+@@ -0,0 +1,18 @@
++# lots of random base gear
++loot=32,20
++loot=40,20
++loot=48,20
++loot=64,20
++loot=65,20
++loot=66,20
++loot=67,20
++
++loot=33,3
++loot=41,3
++loot=49,3
++loot=57,3
++loot=80,3
++loot=81,3
++loot=82,3
++loot=83,3
++loot=84,3
+diff --git a/mods/alpha_demo/loot/leveled_high.txt b/mods/alpha_demo/loot/leveled_high.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..8fa97ff3ec296f1fcee7ad0c1ff105cbebe26019
+--- /dev/null
++++ b/mods/alpha_demo/loot/leveled_high.txt
+@@ -0,0 +1,37 @@
++# high-level loot
++
++# gold
++[loot]
++id=currency
++chance=25
++quantity=20,60
++
++# hp potion
++[loot]
++id=1
++chance=5
++quantity=1
++
++# mp potion
++[loot]
++id=2
++chance=5
++quantity=1
++
++# sapphire
++[loot]
++id=3
++chance=3
++quantity=1
++
++# emerald
++[loot]
++id=4
++chance=1
++quantity=1
++
++# ruby
++[loot]
++id=5
++chance=1
++quantity=1
+diff --git a/mods/alpha_demo/loot/leveled_low.txt b/mods/alpha_demo/loot/leveled_low.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..9e3728617af3b1aef630145dda0890337c2e86d8
+--- /dev/null
++++ b/mods/alpha_demo/loot/leveled_low.txt
+@@ -0,0 +1,25 @@
++# low-level loot
++
++# gold
++[loot]
++id=currency
++chance=25
++quantity=2,15
++
++# hp potion
++[loot]
++id=1
++chance=5
++quantity=1
++
++# mp potion
++[loot]
++id=2
++chance=5
++quantity=1
++
++# sapphire
++[loot]
++id=3
++chance=1
++quantity=1
+diff --git a/mods/alpha_demo/loot/leveled_mid.txt b/mods/alpha_demo/loot/leveled_mid.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..409a5e0fc16ff81e57da11772d863376463981c4
+--- /dev/null
++++ b/mods/alpha_demo/loot/leveled_mid.txt
+@@ -0,0 +1,31 @@
++# medium-level loot
++
++# gold
++[loot]
++id=currency
++chance=25
++quantity=10,30
++
++# hp potion
++[loot]
++id=1
++chance=5
++quantity=1
++
++# mp potion
++[loot]
++id=2
++chance=5
++quantity=1
++
++# sapphire
++[loot]
++id=3
++chance=1
++quantity=1
++
++# emerald
++[loot]
++id=4
++chance=1
++quantity=1
+diff --git a/mods/fantasycore/engine/misc.txt b/mods/fantasycore/engine/misc.txt
+index d914b6215fc4d8b60a868d734acc72dd61f4a4ba..fdf8bb020622fe0e339c6385dd3bfb71e7f4e020 100644
+--- a/mods/fantasycore/engine/misc.txt
++++ b/mods/fantasycore/engine/misc.txt
+@@ -1,5 +1,3 @@
+ # Miscellaneous engine settings
+ 
+ aim_assist=32
+-currency_id=10
+-
+diff --git a/mods/fantasycore/items/categories/armor_chain.txt b/mods/fantasycore/items/categories/armor_chain.txt
+deleted file mode 100644
+index 4f6ef434289908b16905cc9b2c0abca30a036cee..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/categories/armor_chain.txt
++++ /dev/null
+@@ -1,42 +0,0 @@
+-# Chain Armor #########################
+-
+-[item]
+-id=88
+-name=Chain Coif
+-INCLUDE items/base/armor/chain/head.txt
+-abs=2
+-requires_stat=defense,3
+-price=75
+-
+-[item]
+-id=89
+-name=Chain Cuirass
+-INCLUDE items/base/armor/chain/chest.txt
+-abs=4
+-requires_stat=defense,3
+-price=100
+-
+-[item]
+-id=90
+-name=Chain Gloves
+-INCLUDE items/base/armor/chain/hands.txt
+-abs=2
+-requires_stat=defense,3
+-price=60
+-
+-[item]
+-id=91
+-name=Chain Greaves
+-INCLUDE items/base/armor/chain/legs.txt
+-abs=3
+-requires_stat=defense,3
+-price=90
+-
+-[item]
+-id=92
+-name=Chain Boots
+-INCLUDE items/base/armor/chain/feet.txt
+-abs=2
+-requires_stat=defense,3
+-price=80
+-
+diff --git a/mods/fantasycore/items/categories/armor_cloth.txt b/mods/fantasycore/items/categories/armor_cloth.txt
+deleted file mode 100644
+index aaa20e782829b31f549a25e3e850f9a4cd0aa2e7..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/categories/armor_cloth.txt
++++ /dev/null
+@@ -1,26 +0,0 @@
+-# Clothes #############################
+-
+-[item]
+-id=64
+-name=Cloth Shirt
+-INCLUDE items/base/armor/cloth/chest.txt
+-price=6
+-
+-[item]
+-id=65
+-name=Cloth Gloves
+-INCLUDE items/base/armor/cloth/hands.txt
+-price=2
+-
+-[item]
+-id=66
+-name=Cloth Pants
+-INCLUDE items/base/armor/cloth/legs.txt
+-price=4
+-
+-[item]
+-id=67
+-name=Cloth Sandals
+-INCLUDE items/base/armor/cloth/feet.txt
+-price=3
+-
+diff --git a/mods/fantasycore/items/categories/armor_leather.txt b/mods/fantasycore/items/categories/armor_leather.txt
+deleted file mode 100644
+index 2df2db4c5dd4653bc7995472c1977248a767bef5..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/categories/armor_leather.txt
++++ /dev/null
+@@ -1,42 +0,0 @@
+-# Leather Armor #######################
+-
+-[item]
+-id=80
+-name=Leather Hood
+-INCLUDE items/base/armor/leather/head.txt
+-abs=1
+-requires_stat=defense,2
+-price=14
+-
+-[item]
+-id=81
+-name=Leather Chest
+-INCLUDE items/base/armor/leather/chest.txt
+-abs=2
+-requires_stat=defense,2
+-price=20
+-
+-[item]
+-id=82
+-name=Leather Gloves
+-INCLUDE items/base/armor/leather/hands.txt
+-abs=1
+-requires_stat=defense,2
+-price=12
+-
+-[item]
+-id=83
+-name=Leather Pants
+-INCLUDE items/base/armor/leather/legs.txt
+-abs=2
+-requires_stat=defense,2
+-price=18
+-
+-[item]
+-id=84
+-name=Leather Boots
+-INCLUDE items/base/armor/leather/feet.txt
+-abs=1
+-requires_stat=defense,2
+-price=16
+-
+diff --git a/mods/fantasycore/items/categories/armor_mage.txt b/mods/fantasycore/items/categories/armor_mage.txt
+deleted file mode 100644
+index fa6f0ebc659f26917bb9c7f6d7c70549d3f912ae..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/categories/armor_mage.txt
++++ /dev/null
+@@ -1,50 +0,0 @@
+-# Robes ###############################
+-
+-[item]
+-id=72
+-name=Mage Hood
+-INCLUDE items/base/armor/mage/head.txt
+-flavor=The seams on this hood are designed to aid the flow of mana.
+-requires_stat=mental,2
+-bonus=mp_regen,10
+-price=55
+-
+-[item]
+-id=73
+-name=Mage Vest
+-INCLUDE items/base/armor/mage/chest.txt
+-flavor=Frost resistance runes line the inside of this vest.
+-abs=1
+-requires_stat=mental,2
+-bonus=ice_resist,10
+-price=65
+-
+-[item]
+-id=74
+-name=Mage Sleeves
+-INCLUDE items/base/armor/mage/hands.txt
+-flavor=The fire resistance runes that hem these sleeves help protect beginner students of Pyromancy.
+-bonus=fire_resist,10
+-requires_stat=mental,2
+-price=45
+-
+-[item]
+-id=75
+-name=Mage Skirt
+-INCLUDE items/base/armor/mage/legs.txt
+-flavor=Spell components are tucked into hidden pockets covering this skirt.
+-abs=1
+-bonus=mp,15
+-requires_stat=mental,2
+-price=90
+-
+-[item]
+-id=76
+-name=Mage Boots
+-INCLUDE items/base/armor/mage/feet.txt
+-flavor=Attunement with the elements allow mages to ice and fire walk.
+-requires_stat=mental,2
+-bonus=fire_resist,5
+-bonus=ice_resist,5
+-price=70
+-
+diff --git a/mods/fantasycore/items/categories/armor_plate.txt b/mods/fantasycore/items/categories/armor_plate.txt
+deleted file mode 100644
+index b8c3061264b97f4e55eaa7b45060e90556736328..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/categories/armor_plate.txt
++++ /dev/null
+@@ -1,42 +0,0 @@
+-# Plate Armor #########################
+-
+-[item]
+-id=96
+-name=Plate Helmet
+-INCLUDE items/base/armor/plate/head.txt
+-abs=4
+-requires_stat=defense,4
+-price=350
+-
+-[item]
+-id=97
+-name=Plate Cuirass
+-INCLUDE items/base/armor/plate/chest.txt
+-abs=6
+-requires_stat=defense,4
+-price=500
+-
+-[item]
+-id=98
+-name=Plate Gauntlets
+-INCLUDE items/base/armor/plate/hands.txt
+-abs=3
+-requires_stat=defense,4
+-price=325
+-
+-[item]
+-id=99
+-name=Plate Greaves
+-INCLUDE items/base/armor/plate/legs.txt
+-abs=4
+-requires_stat=defense,4
+-price=425
+-
+-[item]
+-id=100
+-name=Plate Boots
+-INCLUDE items/base/armor/plate/feet.txt
+-abs=3
+-requires_stat=defense,4
+-price=375
+-
+diff --git a/mods/fantasycore/items/categories/figurines.txt b/mods/fantasycore/items/categories/figurines.txt
+deleted file mode 100644
+index 2316ec867ac7eb7a5c1fd210c1b0b299688bb1c6..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/categories/figurines.txt
++++ /dev/null
+@@ -1,30 +0,0 @@
+-# Figurines
+-
+-[item]
+-id=119
+-name=Bear Figurine
+-INCLUDE items/base/figurines/bear.txt
+-bonus=physical,1
+-price=2500
+-
+-[item]
+-id=120
+-name=Owl Figurine
+-INCLUDE items/base/figurines/owl.txt
+-bonus=mental,1
+-price=2500
+-
+-[item]
+-id=121
+-name=Cat Figurine
+-INCLUDE items/base/figurines/cat.txt
+-bonus=offense,1
+-price=2500
+-
+-[item]
+-id=122
+-name=Turtle Figurine
+-INCLUDE items/base/figurines/turtle.txt
+-bonus=defense,1
+-price=2500
+-
+diff --git a/mods/fantasycore/items/categories/gems.txt b/mods/fantasycore/items/categories/gems.txt
+deleted file mode 100644
+index 144fa4a26aece95f65e2fefd33350de859fa6eaa..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/categories/gems.txt
++++ /dev/null
+@@ -1,34 +0,0 @@
+-# Gems ################################
+-
+-[item]
+-id=3
+-name=Sapphire
+-INCLUDE items/base/gems/sapphire.txt
+-price=100
+-price_sell=100
+-max_quantity=100
+-
+-[item]
+-id=4
+-name=Emerald
+-INCLUDE items/base/gems/emerald.txt
+-price=200
+-price_sell=200
+-max_quantity=100
+-
+-[item]
+-id=5
+-name=Ruby
+-INCLUDE items/base/gems/ruby.txt
+-price=500
+-price_sell=500
+-max_quantity=100
+-
+-[item]
+-id=6
+-name=Diamond
+-INCLUDE items/base/gems/diamond.txt
+-price=1000
+-price_sell=1000
+-max_quantity=100
+-
+diff --git a/mods/fantasycore/items/categories/magic.txt b/mods/fantasycore/items/categories/magic.txt
+deleted file mode 100644
+index b94a59e3bd78b759acee4bb9d81c4076a6ca03fe..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/categories/magic.txt
++++ /dev/null
+@@ -1,154 +0,0 @@
+-# Magic Items
+-
+-[item]
+-id=104
+-name=Seven-league boots
+-INCLUDE items/base/armor/magic_boots.txt
+-flavor=These enchanted boots are prized possessions of Courier guildsmen.
+-abs=2
+-requires_stat=defense,2
+-bonus=speed,125
+-price=250
+-
+-[item]
+-id=105
+-name=Thief Gloves
+-INCLUDE items/base/armor/cloth/hands.txt
+-flavor=In Lower Sceleris there is honor among thieves. Everyone else is a mark.
+-quality=high
+-abs=1
+-bonus=currency_find,25
+-price=333
+-
+-[item]
+-id=114
+-name=Silent Tabi
+-INCLUDE items/base/armor/leather/feet.txt
+-quality=epic
+-abs=2
+-requires_stat=defense,2
+-bonus=stealth,50
+-price=500
+-
+-[item]
+-id=115
+-name=Duelist Gauntlets
+-INCLUDE items/base/armor/chain/hands.txt
+-quality=high
+-abs=3
+-requires_stat=defense,3
+-bonus=crit,5
+-price=200
+-
+-[item]
+-id=116
+-name=Blood Cuirass
+-INCLUDE items/base/armor/chain/chest.txt
+-quality=high
+-abs=5
+-requires_stat=defense,3
+-bonus=hp,50
+-price=400
+-
+-[item]
+-id=117
+-name=Blood Greaves
+-INCLUDE items/base/armor/chain/legs.txt
+-quality=high
+-abs=4
+-requires_stat=defense,3
+-bonus=hp_regen,25
+-price=350
+-
+-[item]
+-id=118
+-name=Fencing Gloves
+-INCLUDE items/base/armor/leather/hands.txt
+-quality=high
+-abs=2
+-requires_stat=defense,2
+-bonus=accuracy,15
+-price=75
+-
+-[item]
+-id=123
+-name=Sage Mantle
+-INCLUDE items/base/armor/mage/chest.txt
+-quality=epic
+-abs=3
+-requires_stat=mental,3
+-bonus=mp,50
+-bonus=ice_resist,15
+-price=500
+-
+-[item]
+-id=124
+-name=Sage Frock
+-INCLUDE items/base/armor/mage/legs.txt
+-quality=epic
+-abs=3
+-requires_stat=mental,3
+-bonus=mp_regen,25
+-bonus=fire_resist,15
+-price=500
+-
+-[item]
+-id=125
+-name=Monastery Sandals
+-INCLUDE items/base/armor/cloth/feet.txt
+-quality=high
+-abs=1
+-bonus=avoidance,15
+-price=125
+-
+-[item]
+-id=126
+-name=Æther Walkers
+-INCLUDE items/base/armor/magic_boots.txt
+-quality=epic
+-abs=2
+-requires_stat=defense,2
+-power=140
+-power_desc=Use: Blink to a nearby location
+-price=800
+-
+-[item]
+-id=127
+-name=Ashwood Wand
+-INCLUDE items/base/weapons/magic/wand.txt
+-flavor=The secrets to harvesting Yggdrasil twigs are known only to traitorous dryads.
+-quality=high
+-dmg_ment=15,35
+-bonus=mp,5
+-bonus=accuracy,2
+-requires_stat=mental,2
+-price=80
+-
+-[item]
+-id=128
+-name=Lawman's Sidearm
+-INCLUDE items/base/weapons/melee/dagger.txt
+-flavor=The workmanship on this blade appears hurried, as if forged under the fever of vigilance.
+-quality=high
+-dmg_melee=15,35
+-bonus=avoidance,5
+-bonus=hp,3
+-requires_stat=physical,2
+-price=100
+-
+-[item]
+-id=129
+-name=Miner's Gloves
+-INCLUDE items/base/armor/cloth/hands.txt
+-quality=high
+-bonus=hp,5
+-price=50
+-
+-[item]
+-id=130
+-name=Forgotten Ring
+-INCLUDE items/base/rings/silver_1.txt
+-flavor=Faded memories are vivid to the wearer of this silver band.
+-quality=high
+-price=50
+-bonus=xp_gain,10
+diff --git a/mods/fantasycore/items/categories/potions.txt b/mods/fantasycore/items/categories/potions.txt
+deleted file mode 100644
+index b5db348051f41cff3f4dd7b1bf20b3b5096b6af5..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/categories/potions.txt
++++ /dev/null
+@@ -1,20 +0,0 @@
+-# Potions #############################
+-
+-[item]
+-id=1
+-name=Health Potion
+-INCLUDE items/base/potion/hp.txt
+-power=100
+-power_desc=Restore 50% of maximum HP
+-price=25
+-max_quantity=10
+-
+-[item]
+-id=2
+-name=Mana Potion
+-INCLUDE items/base/potion/mp.txt
+-power=101
+-power_desc=Restore 50% of maximum MP
+-price=25
+-max_quantity=10
+-
+diff --git a/mods/fantasycore/items/categories/rings.txt b/mods/fantasycore/items/categories/rings.txt
+deleted file mode 100644
+index 0070d7ff003ef66ff31ba0df7e3d90344eb10b72..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/categories/rings.txt
++++ /dev/null
+@@ -1,59 +0,0 @@
+-# Rings
+-
+-[item]
+-id=106
+-name=Ring of Invisibility
+-INCLUDE items/base/rings/gold_1.txt
+-flavor=This nondescript ring was forged in the land where shadows lie.
+-bonus=stealth,100
+-price=5000
+-
+-[item]
+-id=107
+-name=Ring of Regeneration
+-INCLUDE items/base/rings/gold_4.txt
+-bonus=hp_regen,25
+-price=750
+-
+-[item]
+-id=108
+-name=Ring of Concentration
+-INCLUDE items/base/rings/silver_4.txt
+-bonus=mp_regen,35
+-price=850
+-
+-[item]
+-id=109
+-name=Ring of Fire
+-INCLUDE items/base/rings/gold_5.txt
+-bonus=fire_resist,25
+-price=2000
+-
+-[item]
+-id=110
+-name=Ring of Ice
+-INCLUDE items/base/rings/silver_5.txt
+-bonus=ice_resist,25
+-price=2000
+-
+-[item]
+-id=111
+-name=Lineage Signet Ring
+-INCLUDE items/base/rings/silver_2.txt
+-price=1000
+-bonus=xp_gain,25
+-
+-[item]
+-id=112
+-name=Ouroboros Ring
+-INCLUDE items/base/rings/gold_3.txt
+-price=1000
+-power=170
+-power_desc=One-time protection from death
+-
+-[item]
+-id=113
+-name=Relic Hunter's Ring
+-INCLUDE items/base/rings/gold_2.txt
+-bonus=item_find,25
+-price=4000
+diff --git a/mods/fantasycore/items/categories/shields.txt b/mods/fantasycore/items/categories/shields.txt
+deleted file mode 100644
+index 86754301d37cc133b65758031eace5e69c67ac78..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/categories/shields.txt
++++ /dev/null
+@@ -1,34 +0,0 @@
+-# Basic Shields #######################
+-
+-[item]
+-id=56
+-name=Wood Buckler
+-INCLUDE items/base/shields/wood.txt
+-abs=0,10
+-requires_stat=defense,2
+-price=30
+-
+-[item]
+-id=57
+-name=Iron Buckler
+-INCLUDE items/base/shields/iron.txt
+-abs=5,15
+-requires_stat=defense,3
+-price=140
+-
+-[item]
+-id=58
+-name=Crest Shield
+-INCLUDE items/base/shields/steel.txt
+-abs=10,20
+-requires_stat=defense,4
+-price=560
+-
+-[item]
+-id=59
+-name=Tower Shield
+-INCLUDE items/base/shields/steel.txt
+-abs=15,25
+-requires_stat=defense,5
+-price=3000
+-
+diff --git a/mods/fantasycore/items/categories/weapons_magic.txt b/mods/fantasycore/items/categories/weapons_magic.txt
+deleted file mode 100644
+index 69e10a69f096cfab80f38016792c43a2eaecb0ee..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/categories/weapons_magic.txt
++++ /dev/null
+@@ -1,34 +0,0 @@
+-# Basic Magic Weapons #################
+-
+-[item]
+-id=40
+-name=Wand
+-INCLUDE items/base/weapons/magic/wand.txt
+-dmg_ment=10,30
+-requires_stat=mental,2
+-price=24
+-
+-[item]
+-id=41
+-name=Rod
+-INCLUDE items/base/weapons/magic/rod.txt
+-dmg_ment=15,40
+-requires_stat=mental,3
+-price=115
+-
+-[item]
+-id=42
+-name=Staff
+-INCLUDE items/base/weapons/magic/staff.txt
+-dmg_ment=20,50
+-requires_stat=mental,4
+-price=620
+-
+-[item]
+-id=43
+-name=Greatstaff
+-INCLUDE items/base/weapons/magic/greatstaff.txt
+-dmg_ment=25,60
+-requires_stat=mental,5
+-price=2240
+-
+diff --git a/mods/fantasycore/items/categories/weapons_melee.txt b/mods/fantasycore/items/categories/weapons_melee.txt
+deleted file mode 100644
+index 4238337d614b07e13b386aeeadcc42dd62c2e207..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/categories/weapons_melee.txt
++++ /dev/null
+@@ -1,34 +0,0 @@
+-# Basic Melee Weapons #################
+-
+-[item]
+-id=32
+-name=Dagger
+-INCLUDE items/base/weapons/melee/dagger.txt
+-dmg_melee=10,30
+-requires_stat=physical,2
+-price=20
+-
+-[item]
+-id=33
+-name=Shortsword
+-INCLUDE items/base/weapons/melee/shortsword.txt
+-dmg_melee=15,40
+-requires_stat=physical,3
+-price=100
+-
+-[item]
+-id=34
+-name=Longsword
+-INCLUDE items/base/weapons/melee/longsword.txt
+-dmg_melee=20,50
+-requires_stat=physical,4
+-price=500
+-
+-[item]
+-id=35
+-name=Greatsword
+-INCLUDE items/base/weapons/melee/greatsword.txt
+-dmg_melee=25,60
+-requires_stat=physical,5
+-price=2000
+-
+diff --git a/mods/fantasycore/items/categories/weapons_ranged.txt b/mods/fantasycore/items/categories/weapons_ranged.txt
+deleted file mode 100644
+index 35b5b445a3f6bd75e8b7e8b0dc04c58b4c174c9b..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/categories/weapons_ranged.txt
++++ /dev/null
+@@ -1,34 +0,0 @@
+-# Basic Ranged Weapons ################
+-
+-[item]
+-id=48
+-name=Slingshot
+-INCLUDE items/base/weapons/ranged/slingshot.txt
+-dmg_ranged=10,30
+-requires_stat=offense,2
+-price=16
+-
+-[item]
+-id=49
+-name=Shortbow
+-INCLUDE items/base/weapons/ranged/shortbow.txt
+-dmg_ranged=15,40
+-requires_stat=offense,3
+-price=88
+-
+-[item]
+-id=50
+-name=Longbow
+-INCLUDE items/base/weapons/ranged/longbow.txt
+-dmg_ranged=20,50
+-requires_stat=offense,4
+-price=450
+-
+-[item]
+-id=51
+-name=Greatbow
+-INCLUDE items/base/weapons/ranged/greatbow.txt
+-dmg_ranged=25,60
+-requires_stat=offense,5
+-price=1950
+-
+diff --git a/mods/fantasycore/items/items.txt b/mods/fantasycore/items/items.txt
+deleted file mode 100644
+index eaef3fc1c673cafd7b65bd838fdde94082cfe15a..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/items.txt
++++ /dev/null
+@@ -1,61 +0,0 @@
+-####################
+-# Item Definitions #
+-####################
+-
+-# Currency
+-[item]
+-id=10
+-name=Gold
+-quality=normal
+-icon=88
+-item_type=other
+-price=1
+-price_sell=1
+-max_quantity=5000
+-soundfx=soundfx/inventory/inventory_coins.ogg
+-loot_animation=animations/loot/coins5.txt,0,9
+-loot_animation=animations/loot/coins25.txt,10,24
+-loot_animation=animations/loot/coins100.txt,25,0
+-
+-
+-# Potions: 1-2
+-INCLUDE items/categories/potions.txt
+-
+-# Gems: 3-6
+-INCLUDE items/categories/gems.txt
+-
+-# Melee Weapons: 32-35
+-INCLUDE items/categories/weapons_melee.txt
+-
+-# Magic Weapons: 40-43
+-INCLUDE items/categories/weapons_magic.txt
+-
+-# Ranged Weapons: 48-51
+-INCLUDE items/categories/weapons_ranged.txt
+-
+-# Shields: 56-59
+-INCLUDE items/categories/shields.txt
+-
+-# Cloth Armor: 64-67
+-INCLUDE items/categories/armor_cloth.txt
+-
+-# Mage Robe Armor: 72-76
+-INCLUDE items/categories/armor_mage.txt
+-
+-# Leather Armor: 80-84
+-INCLUDE items/categories/armor_leather.txt
+-
+-# Chain Armor: 88-92
+-INCLUDE items/categories/armor_chain.txt
+-
+-# Plate Armor: 96-100
+-INCLUDE items/categories/armor_plate.txt
+-
+-# Rings: 106-113
+-INCLUDE items/categories/rings.txt
+-
+-# Figurines: 119-122
+-INCLUDE items/categories/figurines.txt
+-
+-# Magic items: 104-105, 114-118, 123-130
+-INCLUDE items/categories/magic.txt
+diff --git a/mods/fantasycore/items/sets.txt b/mods/fantasycore/items/sets.txt
+deleted file mode 100644
+index 5a038f6b0f206998393b9dd8e47e4cb878aa721b..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/items/sets.txt
++++ /dev/null
+@@ -1,7 +0,0 @@
+-[set]
+-id=1
+-name=Sage's Wardrobe
+-color=160,64,255
+-items=123,124,125
+-bonus=2,hp_regen,30
+-bonus=3,crit,5
+diff --git a/mods/fantasycore/loot/base_gear.txt b/mods/fantasycore/loot/base_gear.txt
+deleted file mode 100644
+index a7138519d74c2e83d69c438cdfee7461e031f1fa..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/loot/base_gear.txt
++++ /dev/null
+@@ -1,18 +0,0 @@
+-# lots of random base gear
+-loot=32,20
+-loot=40,20
+-loot=48,20
+-loot=64,20
+-loot=65,20
+-loot=66,20
+-loot=67,20
+-
+-loot=33,3
+-loot=41,3
+-loot=49,3
+-loot=57,3
+-loot=80,3
+-loot=81,3
+-loot=82,3
+-loot=83,3
+-loot=84,3
+diff --git a/mods/fantasycore/loot/leveled_high.txt b/mods/fantasycore/loot/leveled_high.txt
+deleted file mode 100644
+index 8fa97ff3ec296f1fcee7ad0c1ff105cbebe26019..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/loot/leveled_high.txt
++++ /dev/null
+@@ -1,37 +0,0 @@
+-# high-level loot
+-
+-# gold
+-[loot]
+-id=currency
+-chance=25
+-quantity=20,60
+-
+-# hp potion
+-[loot]
+-id=1
+-chance=5
+-quantity=1
+-
+-# mp potion
+-[loot]
+-id=2
+-chance=5
+-quantity=1
+-
+-# sapphire
+-[loot]
+-id=3
+-chance=3
+-quantity=1
+-
+-# emerald
+-[loot]
+-id=4
+-chance=1
+-quantity=1
+-
+-# ruby
+-[loot]
+-id=5
+-chance=1
+-quantity=1
+diff --git a/mods/fantasycore/loot/leveled_low.txt b/mods/fantasycore/loot/leveled_low.txt
+deleted file mode 100644
+index 9e3728617af3b1aef630145dda0890337c2e86d8..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/loot/leveled_low.txt
++++ /dev/null
+@@ -1,25 +0,0 @@
+-# low-level loot
+-
+-# gold
+-[loot]
+-id=currency
+-chance=25
+-quantity=2,15
+-
+-# hp potion
+-[loot]
+-id=1
+-chance=5
+-quantity=1
+-
+-# mp potion
+-[loot]
+-id=2
+-chance=5
+-quantity=1
+-
+-# sapphire
+-[loot]
+-id=3
+-chance=1
+-quantity=1
+diff --git a/mods/fantasycore/loot/leveled_mid.txt b/mods/fantasycore/loot/leveled_mid.txt
+deleted file mode 100644
+index 409a5e0fc16ff81e57da11772d863376463981c4..0000000000000000000000000000000000000000
+--- a/mods/fantasycore/loot/leveled_mid.txt
++++ /dev/null
+@@ -1,31 +0,0 @@
+-# medium-level loot
+-
+-# gold
+-[loot]
+-id=currency
+-chance=25
+-quantity=10,30
+-
+-# hp potion
+-[loot]
+-id=1
+-chance=5
+-quantity=1
+-
+-# mp potion
+-[loot]
+-id=2
+-chance=5
+-quantity=1
+-
+-# sapphire
+-[loot]
+-id=3
+-chance=1
+-quantity=1
+-
+-# emerald
+-[loot]
+-id=4
+-chance=1
+-quantity=1

@@ -1,0 +1,780 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt b/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt
+index 72c5e0069a89b2afdd6a14494d6393603b102dab..5ca5fb0796cf50eb3651d8a0734531dc1878a14c 100644
+--- a/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt
++++ b/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt
+@@ -7,24 +7,21 @@ rarity=common
+ xp=1
+ 
+ # combat stats
+-hp=125
++hp=80
+ speed=2
+ melee_range=1.125
+ turn_delay=400ms
+-chance_pursue=100
+-chance_melee_phys=100
++chance_pursue=10
++chance_melee_phys=5
+ power_melee_phys=164
+ 
+-accuracy=90
+-avoidance=5
+-poise=60
++accuracy=85
++avoidance=10
++poise=40
+ 
+-dmg_melee_min=15
+-dmg_melee_max=20
+-cooldown=1200ms
+-
+-absorb_min=0
+-absorb_max=5
++dmg_melee_min=10
++dmg_melee_max=25
++cooldown=2000ms
+ 
+ # loot
+ loot=loot/level_1.txt
+diff --git a/mods/empyrean_campaign/enemies/lvl1_skeleton_cracked.txt b/mods/empyrean_campaign/enemies/lvl1_skeleton_cracked.txt
+index 84eb57b42427fa1cc192adf855ade2a35287ab23..960af150a87a0d3035749649efb291b38a5bf850 100644
+--- a/mods/empyrean_campaign/enemies/lvl1_skeleton_cracked.txt
++++ b/mods/empyrean_campaign/enemies/lvl1_skeleton_cracked.txt
+@@ -3,26 +3,27 @@ INCLUDE enemies/base/skeleton_weak.txt
+ name=Cracked Skeleton
+ level=1
+ categories=skeleton,undead,dungeon
++rarity=common
+ xp=1
+ 
+ # combat stats
+-hp=150
++hp=70
+ speed=3
+ turn_delay=400ms
+-chance_pursue=100
+-chance_melee_phys=100
++chance_pursue=10
++chance_melee_phys=5
+ power_melee_phys=164
+ 
+ accuracy=90
+ avoidance=10
+-poise=65
++poise=45
+ 
+-dmg_melee_min=15
+-dmg_melee_max=25
+-cooldown=1600ms
++dmg_melee_min=10
++dmg_melee_max=35
++cooldown=2200ms
+ 
+ absorb_min=5
+-absorb_max=15
++absorb_max=5
+ 
+ # loot
+ loot=loot/level_1.txt
+diff --git a/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt b/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt
+index 9a66a11c4155d5706af880bb2f00fbfd4eeb1bf0..4f16fb8aa3596dc4a488529b7c2951b05ce31976 100644
+--- a/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt
++++ b/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt
+@@ -3,23 +3,24 @@ INCLUDE enemies/base/zombie.txt
+ name=Rotting Zombie
+ level=1
+ categories=zombie,undead,dungeon,grassland
++rarity=common
+ xp=1
+ 
+ # combat stats
+-hp=175
++hp=90
+ speed=1.5
+ turn_delay=400ms
+-chance_pursue=100
+-chance_melee_phys=100
++chance_pursue=10
++chance_melee_phys=5
+ power_melee_phys=164
+ 
+-accuracy=90
+-avoidance=5
+-poise=75
++accuracy=80
++avoidance=10
++poise=50
+ 
+ dmg_melee_min=15
+-dmg_melee_max=20
+-cooldown=2s
++dmg_melee_max=30
++cooldown=2400ms
+ 
+ #loot
+ loot=loot/level_1.txt
+diff --git a/mods/empyrean_campaign/engine/stats.txt b/mods/empyrean_campaign/engine/stats.txt
+index 25c9a01cfd4ade5feee0dcefd8613a0592930065..f880f140155efb79c04d312939081a42c213d8ab 100644
+--- a/mods/empyrean_campaign/engine/stats.txt
++++ b/mods/empyrean_campaign/engine/stats.txt
+@@ -5,11 +5,11 @@ stat_points_per_level=5
+ max_points_per_stat=75
+ 
+ hp=50
+-hp_per_level=20
+-hp_per_physical=30
++hp_per_level=10
++hp_per_physical=20
+ 
+ hp_regen=50
+-hp_regen_per_level=10
++hp_regen_per_level=5
+ hp_regen_per_physical=20
+ 
+ mp=10
+@@ -31,21 +31,21 @@ crit_per_level=1
+ 
+ dmg_melee_min=0
+ dmg_melee_max=15
+-dmg_melee_min_per_physical=5
+-dmg_melee_max_per_physical=5
++dmg_melee_min_per_physical=1
++dmg_melee_max_per_physical=1
+ 
+ dmg_ment_min=0
+ dmg_ment_max=15
+-dmg_ment_min_per_mental=5
+-dmg_ment_max_per_mental=5
++dmg_ment_min_per_mental=1
++dmg_ment_max_per_mental=1
+ 
+ dmg_ranged_min=0
+-dmg_ranged_max=15
+-dmg_ranged_min_per_offense=5
+-dmg_ranged_max_per_offense=5
++dmg_ranged_max=0
++dmg_ranged_min_per_offense=1
++dmg_ranged_max_per_offense=1
+ 
+-absorb_min_per_defense=5
+-absorb_max_per_defense=5
++absorb_min_per_defense=1
++absorb_max_per_defense=1
+ 
+ poise=75
+ 
+diff --git a/mods/empyrean_campaign/items/categories/level_1.txt b/mods/empyrean_campaign/items/categories/level_1.txt
+index f106438d62d752d5ad9b3b5e1a09e4c767d166d6..3876f28b0b95be0e97e3d594b2bd7a0b70e63da7 100644
+--- a/mods/empyrean_campaign/items/categories/level_1.txt
++++ b/mods/empyrean_campaign/items/categories/level_1.txt
+@@ -52,7 +52,7 @@ price=12
+ id=11
+ name=Wood Buckler
+ INCLUDE items/base/shields/wood.txt
+-abs=0,10
++abs=0,5
+ requires_stat=defense,2
+ price=10
+ 
+diff --git a/mods/empyrean_campaign/items/categories/level_2.txt b/mods/empyrean_campaign/items/categories/level_2.txt
+index e54e2fd32c58a8a979c5dbd104fe6bd9da08b52b..b3ee3276fcf970c3a5e50bd670b1432860a6de77 100644
+--- a/mods/empyrean_campaign/items/categories/level_2.txt
++++ b/mods/empyrean_campaign/items/categories/level_2.txt
+@@ -5,17 +5,17 @@ id=12
+ name=Cloth Shirt
+ INCLUDE items/base/armor/cloth/chest.txt
+ quality=high
+-price=70
+-abs=4
+-bonus=hp,40
++price=300
++abs=2
++bonus=hp,20
+ 
+ [item]
+ id=13
+ name=Cloth Shirt
+ INCLUDE items/base/armor/cloth/chest.txt
+ quality=high
+-price=60
+-abs=4
++price=300
++abs=2
+ bonus=hp_regen,20
+ 
+ [item]
+@@ -23,7 +23,7 @@ id=14
+ name=Cloth Pants
+ INCLUDE items/base/armor/cloth/legs.txt
+ quality=high
+-price=50
++price=200
+ abs=1
+ bonus=avoidance,4
+ 
+@@ -32,16 +32,17 @@ id=15
+ name=Cloth Pants
+ INCLUDE items/base/armor/cloth/legs.txt
+ quality=high
+-price=60
+-abs=3
+-bonus=poise,8
++price=200
++abs=1
++bonus=poise,2
+ 
+ [item]
+ id=16
+ name=Cloth Sandals
+ INCLUDE items/base/armor/cloth/feet.txt
+ quality=high
+-price=30
++price=150
++abs=0,1
+ bonus=avoidance,2
+ 
+ [item]
+@@ -49,16 +50,17 @@ id=17
+ name=Cloth Sandals
+ INCLUDE items/base/armor/cloth/feet.txt
+ quality=high
+-price=20
+-abs=2
+-bonus=poise,4
++price=150
++abs=0,1
++bonus=poise,1
+ 
+ [item]
+ id=18
+ name=Cloth Gloves
+ INCLUDE items/base/armor/cloth/hands.txt
+ quality=high
+-price=30
++price=100
++abs=0,1
+ bonus=crit,2
+ 
+ [item]
+@@ -66,7 +68,8 @@ id=19
+ name=Cloth Gloves
+ INCLUDE items/base/armor/cloth/hands.txt
+ quality=high
+-price=20
++price=100
++abs=0,1
+ bonus=accuracy,4
+ 
+ [item]
+@@ -74,16 +77,16 @@ id=20
+ name=Cloth Hood
+ INCLUDE items/base/armor/mage/head.txt
+ quality=high
+-price=40
+-abs=1
++price=200
++abs=0,1
+ bonus=mp,8
+ 
+ [item]
+ id=21
+ name=Cloth Hood
+ INCLUDE items/base/armor/mage/head.txt
+-price=30
+-abs=1
++price=200
++abs=0,1
+ bonus=mp_regen,4
+ 
+ [item]
+@@ -91,7 +94,7 @@ id=22
+ name=Dagger
+ INCLUDE items/base/weapons/melee/dagger.txt
+ quality=high
+-price=80
++price=600
+ dmg_melee=10,30
+ requires_stat=physical,4
+ bonus=dmg_melee_min,5
+@@ -102,7 +105,7 @@ id=23
+ name=Slingshot
+ INCLUDE items/base/weapons/ranged/slingshot.txt
+ quality=high
+-price=80
++price=600
+ dmg_ranged=10,30
+ requires_stat=offense,4
+ bonus=dmg_ranged_min,5
+@@ -113,7 +116,7 @@ id=24
+ name=Wand
+ INCLUDE items/base/weapons/magic/wand.txt
+ quality=high
+-price=80
++price=600
+ dmg_ment=10,30
+ requires_stat=mental,4
+ bonus=dmg_ment_min,5
+@@ -124,9 +127,9 @@ id=25
+ name=Wood Buckler
+ INCLUDE items/base/shields/wood.txt
+ quality=high
+-abs=0,10
++abs=0,5
+ requires_stat=defense,2
+-price=60
++price=400
+ bonus=absorb_min,5
+ bonus=absorb_max,5
+ 
+@@ -135,7 +138,7 @@ id=26
+ name=Fire Ring
+ INCLUDE items/base/rings/gold_5.txt
+ quality=high
+-price=100
++price=750
+ bonus=fire_resist,10
+ 
+ [item]
+@@ -143,7 +146,7 @@ id=27
+ name=Ice Ring
+ INCLUDE items/base/rings/silver_4.txt
+ quality=high
+-price=100
++price=750
+ bonus=ice_resist,10
+ 
+ [item]
+@@ -151,7 +154,7 @@ id=28
+ name=Lightning Ring
+ INCLUDE items/base/rings/silver_5.txt
+ quality=high
+-price=100
++price=750
+ bonus=lightning_resist,10
+ 
+ [item]
+@@ -159,22 +162,22 @@ id=29
+ name=Experience Ring
+ INCLUDE items/base/rings/silver_2.txt
+ quality=high
+-price=100
+-bonus=xp_gain,5
++price=750
++bonus=xp_gain,10
+ 
+ [item]
+ id=30
+ name=Wealth Ring
+ INCLUDE items/base/rings/gold_2.txt
+ quality=high
+-price=100
+-bonus=currency_find,5
++price=750
++bonus=currency_find,20
+ 
+ [item]
+ id=31
+ name=Treasure Ring
+ INCLUDE items/base/rings/gold_4.txt
+ quality=high
+-price=100
+-bonus=item_find,5
++price=750
++bonus=item_find,30
+ 
+diff --git a/mods/empyrean_campaign/items/categories/level_3.txt b/mods/empyrean_campaign/items/categories/level_3.txt
+index 8fb22ac29f010037d7edf17b4556edc645a72b6c..cf48e81ef2259a4241fbc3e8df4b7bf6614bc168 100644
+--- a/mods/empyrean_campaign/items/categories/level_3.txt
++++ b/mods/empyrean_campaign/items/categories/level_3.txt
+@@ -5,17 +5,19 @@ id=32
+ name=Cloth Shirt
+ INCLUDE items/base/armor/cloth/chest.txt
+ quality=epic
+-price=140
+-abs=5
+-bonus=hp,80
++price=600
++abs=2,3
++requires_stat=defense,3
++bonus=hp,40
+ 
+ [item]
+ id=33
+ name=Cloth Shirt
+ INCLUDE items/base/armor/cloth/chest.txt
+ quality=epic
+-price=120
+-abs=5
++price=600
++abs=2,3
++requires_stat=defense,3
+ bonus=hp_regen,40
+ 
+ [item]
+@@ -23,8 +25,9 @@ id=34
+ name=Cloth Pants
+ INCLUDE items/base/armor/cloth/legs.txt
+ quality=epic
+-price=100
+-abs=2
++price=400
++abs=1,2
++requires_stat=defense,3
+ bonus=avoidance,8
+ 
+ [item]
+@@ -32,17 +35,19 @@ id=35
+ name=Cloth Pants
+ INCLUDE items/base/armor/cloth/legs.txt
+ quality=epic
+-price=120
+-abs=4
+-bonus=poise,16
++price=400
++abs=1,2
++requires_stat=defense,3
++bonus=poise,4
+ 
+ [item]
+ id=36
+ name=Cloth Sandals
+ INCLUDE items/base/armor/cloth/feet.txt
+ quality=epic
+-price=60
++price=300
+ abs=1
++requires_stat=defense,3
+ bonus=avoidance,4
+ 
+ [item]
+@@ -50,17 +55,19 @@ id=37
+ name=Cloth Sandals
+ INCLUDE items/base/armor/cloth/feet.txt
+ quality=epic
+-price=40
+-abs=3
+-bonus=poise,8
++price=300
++abs=1
++requires_stat=defense,3
++bonus=poise,2
+ 
+ [item]
+ id=38
+ name=Cloth Gloves
+ INCLUDE items/base/armor/cloth/hands.txt
+ quality=epic
+-price=60
++price=200
+ abs=1
++requires_stat=defense,3
+ bonus=crit,4
+ 
+ [item]
+@@ -68,8 +75,9 @@ id=39
+ name=Cloth Gloves
+ INCLUDE items/base/armor/cloth/hands.txt
+ quality=epic
+-price=40
++price=200
+ abs=1
++requires_stat=defense,3
+ bonus=accuracy,8
+ 
+ [item]
+@@ -77,8 +85,9 @@ id=40
+ name=Cloth Hood
+ INCLUDE items/base/armor/mage/head.txt
+ quality=epic
+-price=80
+-abs=2
++price=400
++abs=1
++requires_stat=defense,3
+ bonus=mp,16
+ 
+ [item]
+@@ -86,8 +95,9 @@ id=41
+ name=Cloth Hood
+ INCLUDE items/base/armor/mage/head.txt
+ quality=epic
+-price=60
+-abs=2
++price=400
++abs=1
++requires_stat=defense,3
+ bonus=mp_regen,8
+ 
+ [item]
+@@ -95,9 +105,9 @@ id=42
+ name=Dagger
+ INCLUDE items/base/weapons/melee/dagger.txt
+ quality=epic
+-price=160
++price=600
+ dmg_melee=10,30
+-requires_stat=physical,8
++requires_stat=physical,7
+ bonus=dmg_melee_min,10
+ bonus=dmg_melee_max,10
+ 
+@@ -106,9 +116,9 @@ id=43
+ name=Slingshot
+ INCLUDE items/base/weapons/ranged/slingshot.txt
+ quality=epic
+-price=160
++price=600
+ dmg_ranged=10,30
+-requires_stat=offense,8
++requires_stat=offense,7
+ bonus=dmg_ranged_min,10
+ bonus=dmg_ranged_max,10
+ 
+@@ -117,9 +127,9 @@ id=44
+ name=Wand
+ INCLUDE items/base/weapons/magic/wand.txt
+ quality=epic
+-price=160
++price=600
+ dmg_ment=10,30
+-requires_stat=mental,8
++requires_stat=mental,7
+ bonus=dmg_ment_min,10
+ bonus=dmg_ment_max,10
+ 
+@@ -128,9 +138,9 @@ id=45
+ name=Wood Buckler
+ INCLUDE items/base/shields/wood.txt
+ quality=epic
+-abs=0,10
+-requires_stat=defense,6
+-price=120
++abs=0,5
++requires_stat=defense,5
++price=800
+ bonus=absorb_min,10
+ bonus=absorb_max,10
+ 
+@@ -139,7 +149,7 @@ id=46
+ name=Fire Ring
+ INCLUDE items/base/rings/gold_5.txt
+ quality=epic
+-price=200
++price=1500
+ bonus=fire_resist,15
+ 
+ [item]
+@@ -147,7 +157,7 @@ id=47
+ name=Ice Ring
+ INCLUDE items/base/rings/silver_4.txt
+ quality=epic
+-price=200
++price=1500
+ bonus=ice_resist,15
+ 
+ [item]
+@@ -155,7 +165,7 @@ id=48
+ name=Lightning Ring
+ INCLUDE items/base/rings/silver_5.txt
+ quality=epic
+-price=200
++price=1500
+ bonus=lightning_resist,15
+ 
+ [item]
+@@ -163,22 +173,22 @@ id=49
+ name=Experience Ring
+ INCLUDE items/base/rings/silver_2.txt
+ quality=epic
+-price=200
+-bonus=xp_gain,10
++price=1500
++bonus=xp_gain,15
+ 
+ [item]
+ id=50
+ name=Wealth Ring
+ INCLUDE items/base/rings/gold_2.txt
+ quality=epic
+-price=200
+-bonus=currency_find,10
++price=1500
++bonus=currency_find,30
+ 
+ [item]
+ id=51
+ name=Treasure Ring
+ INCLUDE items/base/rings/gold_4.txt
+ quality=epic
+-price=200
+-bonus=item_find,10
++price=1500
++bonus=item_find,40
+ 
+diff --git a/mods/empyrean_campaign/items/categories/level_4.txt b/mods/empyrean_campaign/items/categories/level_4.txt
+index 1927f6e9536086abc152f15ffd3f04af6cbcad4c..a585ed4978d939ac9ede9637373ce4f9f66e8dd0 100644
+--- a/mods/empyrean_campaign/items/categories/level_4.txt
++++ b/mods/empyrean_campaign/items/categories/level_4.txt
+@@ -4,35 +4,39 @@
+ id=52
+ INCLUDE items/base/armor/cloth/chest.txt
+ quality=unique
+-price=280
+-abs=6
+-bonus=hp,120
++price=1200
++abs=3
++requires_stat=defense,6
++bonus=hp,60
+ bonus=hp_regen,60
+ 
+ [item]
+ id=53
+ INCLUDE items/base/armor/cloth/legs.txt
+ quality=unique
+-price=240
+-abs=4
++price=800
++abs=2
++requires_stat=defense,6
+ bonus=avoidance,12
+-bonus=poise,24
++bonus=poise,6
+ 
+ [item]
+ id=54
+ INCLUDE items/base/armor/cloth/feet.txt
+ quality=unique
+-price=120
+-abs=3
++price=600
++abs=1,2
++requires_stat=defense,6
+ bonus=avoidance,6
+-bonus=poise,12
++bonus=poise,3
+ 
+ [item]
+ id=55
+ INCLUDE items/base/armor/cloth/hands.txt
+ quality=unique
+-price=120
+-abs=2
++price=400
++abs=1,2
++requires_stat=defense,6
+ bonus=crit,6
+ bonus=accuracy,12
+ 
+@@ -40,8 +44,9 @@ bonus=accuracy,12
+ id=56
+ INCLUDE items/base/armor/mage/head.txt
+ quality=unique
+-price=160
+-abs=3
++price=800
++abs=1,2
++requires_stat=defense,6
+ bonus=mp,24
+ bonus=mp_regen,12
+ 
+@@ -49,9 +54,9 @@ bonus=mp_regen,12
+ id=57
+ INCLUDE items/base/weapons/melee/dagger.txt
+ quality=unique
+-price=320
++price=1200
+ dmg_melee=10,30
+-requires_stat=physical,12
++requires_stat=physical,10
+ bonus=dmg_melee_min,15
+ bonus=dmg_melee_max,15
+ 
+@@ -59,9 +64,9 @@ bonus=dmg_melee_max,15
+ id=58
+ INCLUDE items/base/weapons/ranged/slingshot.txt
+ quality=unique
+-price=320
++price=1200
+ dmg_ranged=10,30
+-requires_stat=offense,12
++requires_stat=offense,10
+ bonus=dmg_ranged_min,15
+ bonus=dmg_ranged_max,15
+ 
+@@ -69,9 +74,9 @@ bonus=dmg_ranged_max,15
+ id=59
+ INCLUDE items/base/weapons/magic/wand.txt
+ quality=unique
+-price=320
++price=1200
+ dmg_ment=10,30
+-requires_stat=mental,12
++requires_stat=mental,10
+ bonus=dmg_ment_min,15
+ bonus=dmg_ment_max,15
+ 
+@@ -79,9 +84,9 @@ bonus=dmg_ment_max,15
+ id=60
+ INCLUDE items/base/shields/wood.txt
+ quality=unique
+-abs=0,10
+-requires_stat=defense,10
+-price=240
++abs=0,5
++requires_stat=defense,8
++price=1600
+ bonus=absorb_min,15
+ bonus=absorb_max,15
+ 
+@@ -89,41 +94,41 @@ bonus=absorb_max,15
+ id=61
+ INCLUDE items/base/rings/gold_5.txt
+ quality=unique
+-price=400
++price=3000
+ bonus=fire_resist,20
+ 
+ [item]
+ id=62
+ INCLUDE items/base/rings/silver_4.txt
+ quality=unique
+-price=400
++price=3000
+ bonus=ice_resist,20
+ 
+ [item]
+ id=63
+ INCLUDE items/base/rings/silver_5.txt
+ quality=unique
+-price=400
++price=3000
+ bonus=lightning_resist,20
+ 
+ [item]
+ id=64
+ INCLUDE items/base/rings/silver_2.txt
+ quality=unique
+-price=400
+-bonus=xp_gain,15
++price=3000
++bonus=xp_gain,20
+ 
+ [item]
+ id=65
+ INCLUDE items/base/rings/gold_2.txt
+ quality=unique
+-price=400
+-bonus=currency_find,15
++price=3000
++bonus=currency_find,40
+ 
+ [item]
+ id=66
+ INCLUDE items/base/rings/gold_4.txt
+ quality=unique
+-price=400
+-bonus=item_find,15
++price=3000
++bonus=item_find,50
+ 

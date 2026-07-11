@@ -1,0 +1,748 @@
+diff --git a/mods/empyrean_campaign/quests/0000_empyrean.txt b/mods/empyrean_campaign/quests/0000_empyrean.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..9c6f04f4b6829f367435ff59f781f0e04915045f
+--- /dev/null
++++ b/mods/empyrean_campaign/quests/0000_empyrean.txt
+@@ -0,0 +1,86 @@
++name=Return to Empyrean
++complete_status=emp_main_finish
++
++[quest]
++requires_status=emp_main_init
++requires_not_status=emp_main_underworld
++quest_text=You found a chamber on the east side of Perdition Harbor that contains the Book of the Dead.
++
++[quest]
++requires_status=emp_main_init
++requires_not_status=emp_main_underworld
++quest_text=The Book of the Dead states redemption is possible for those who sign their name in gravebloom ink. Florin in Perdition Harbor can tell you more.
++
++[quest]
++requires_status=emp_seagate_defeated
++requires_not_status=emp_main_gravebloom
++quest_text=Before leaving St. Maria's Crypt, it would be wise to look for anything useful.
++
++[quest]
++requires_status=emp_main_gravebloom
++requires_not_status=emp_main_info1
++quest_text=Ask Florin about the Gravebloom flower.
++
++[quest]
++requires_status=emp_main_gravebloom
++requires_status=emp_main_info1
++requires_not_status=emp_main_bloodvial
++quest_text=You've found a gravebloom flower. It is a primary component in the creation of gravebloom ink.
++
++[quest]
++requires_status=emp_mez_defeated
++requires_not_status=emp_main_quill
++quest_text=A strange black feather fell off of Mez. You should take it before leaving the Temple of Mez.
++
++[quest]
++requires_status=emp_main_quill
++requires_not_status=emp_main_info2
++quest_text=Ask Florin about the Black Quill.
++
++[quest]
++requires_status=emp_main_quill
++requires_status=emp_main_info2
++requires_not_status=emp_main_underworld
++quest_text=The Black Quill you found is the only thing capable of holding gravebloom ink. It will be the only way to write in the Book of the Dead.
++
++[quest]
++requires_status=emp_metzger_defeated
++requires_not_status=emp_main_knife
++quest_text=Before leaving the Wizard's Tower, you should take the knife that Metzger dropped.
++
++[quest]
++requires_status=emp_main_knife
++requires_not_status=emp_main_info3
++quest_text=Ask Florin about the Knife of Sacrifices.
++
++[quest]
++requires_status=emp_main_knife
++requires_status=emp_main_info3
++requires_not_status=emp_main_bloodvial
++quest_text=Gravebloom ink requires a sample of your blood to be drawn with the Knife of Sacrifices. This must take place at the Red Altar in the Temple of Mez.
++
++[quest]
++requires_status=emp_main_bloodvial
++requires_status=emp_main_gravebloom
++requires_not_status=emp_main_bloodinkwell
++quest_text=Having completed the ritual at the Red Altar, return to Florin to proceed with creating the gravebloom ink.
++
++[quest]
++requires_status=emp_main_bloodinkwell
++requires_not_status=emp_main_underworld
++quest_text=The time has come. Write your name in the Book of the Dead and gain entry to the Underworld.
++
++[quest]
++requires_status=emp_main_underworld
++requires_not_status=emp_main_stronghold
++quest_text=Make your way to the Underworld. A portal to the Underworld was located in the Wizard's Tower. Once you are there, search for a way to return to Empyrean.
++
++[quest]
++requires_status=emp_main_stronghold
++requires_not_status=emp_main_pit
++quest_text=You've found a stronghold in the Underworld. If there is a way back to Empyrean, it is through here.
++
++[quest]
++requires_status=emp_main_pit
++requires_not_status=emp_main_finish
++quest_text=Face what awaits you in The Pit.
+diff --git a/mods/empyrean_campaign/quests/000_empyrean.txt b/mods/empyrean_campaign/quests/000_empyrean.txt
+deleted file mode 100644
+index 9c6f04f4b6829f367435ff59f781f0e04915045f..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/quests/000_empyrean.txt
++++ /dev/null
+@@ -1,86 +0,0 @@
+-name=Return to Empyrean
+-complete_status=emp_main_finish
+-
+-[quest]
+-requires_status=emp_main_init
+-requires_not_status=emp_main_underworld
+-quest_text=You found a chamber on the east side of Perdition Harbor that contains the Book of the Dead.
+-
+-[quest]
+-requires_status=emp_main_init
+-requires_not_status=emp_main_underworld
+-quest_text=The Book of the Dead states redemption is possible for those who sign their name in gravebloom ink. Florin in Perdition Harbor can tell you more.
+-
+-[quest]
+-requires_status=emp_seagate_defeated
+-requires_not_status=emp_main_gravebloom
+-quest_text=Before leaving St. Maria's Crypt, it would be wise to look for anything useful.
+-
+-[quest]
+-requires_status=emp_main_gravebloom
+-requires_not_status=emp_main_info1
+-quest_text=Ask Florin about the Gravebloom flower.
+-
+-[quest]
+-requires_status=emp_main_gravebloom
+-requires_status=emp_main_info1
+-requires_not_status=emp_main_bloodvial
+-quest_text=You've found a gravebloom flower. It is a primary component in the creation of gravebloom ink.
+-
+-[quest]
+-requires_status=emp_mez_defeated
+-requires_not_status=emp_main_quill
+-quest_text=A strange black feather fell off of Mez. You should take it before leaving the Temple of Mez.
+-
+-[quest]
+-requires_status=emp_main_quill
+-requires_not_status=emp_main_info2
+-quest_text=Ask Florin about the Black Quill.
+-
+-[quest]
+-requires_status=emp_main_quill
+-requires_status=emp_main_info2
+-requires_not_status=emp_main_underworld
+-quest_text=The Black Quill you found is the only thing capable of holding gravebloom ink. It will be the only way to write in the Book of the Dead.
+-
+-[quest]
+-requires_status=emp_metzger_defeated
+-requires_not_status=emp_main_knife
+-quest_text=Before leaving the Wizard's Tower, you should take the knife that Metzger dropped.
+-
+-[quest]
+-requires_status=emp_main_knife
+-requires_not_status=emp_main_info3
+-quest_text=Ask Florin about the Knife of Sacrifices.
+-
+-[quest]
+-requires_status=emp_main_knife
+-requires_status=emp_main_info3
+-requires_not_status=emp_main_bloodvial
+-quest_text=Gravebloom ink requires a sample of your blood to be drawn with the Knife of Sacrifices. This must take place at the Red Altar in the Temple of Mez.
+-
+-[quest]
+-requires_status=emp_main_bloodvial
+-requires_status=emp_main_gravebloom
+-requires_not_status=emp_main_bloodinkwell
+-quest_text=Having completed the ritual at the Red Altar, return to Florin to proceed with creating the gravebloom ink.
+-
+-[quest]
+-requires_status=emp_main_bloodinkwell
+-requires_not_status=emp_main_underworld
+-quest_text=The time has come. Write your name in the Book of the Dead and gain entry to the Underworld.
+-
+-[quest]
+-requires_status=emp_main_underworld
+-requires_not_status=emp_main_stronghold
+-quest_text=Make your way to the Underworld. A portal to the Underworld was located in the Wizard's Tower. Once you are there, search for a way to return to Empyrean.
+-
+-[quest]
+-requires_status=emp_main_stronghold
+-requires_not_status=emp_main_pit
+-quest_text=You've found a stronghold in the Underworld. If there is a way back to Empyrean, it is through here.
+-
+-[quest]
+-requires_status=emp_main_pit
+-requires_not_status=emp_main_finish
+-quest_text=Face what awaits you in The Pit.
+diff --git a/mods/empyrean_campaign/quests/0010_krolan.txt b/mods/empyrean_campaign/quests/0010_krolan.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..3b482e4367ea06ff2fbe4fa1be480491488c38e9
+--- /dev/null
++++ b/mods/empyrean_campaign/quests/0010_krolan.txt
+@@ -0,0 +1,17 @@
++name=Krolan's Missing
++complete_status=emp_krolan_finish
++
++[quest]
++requires_status=emp_krolan_init
++requires_not_status=emp_krolan_key
++quest_text=Travel to the Perdition Mines and look for Krolan.
++
++[quest]
++requires_status=emp_krolan_key
++requires_not_status=emp_krolan_emerald
++quest_text=Use Krolan's key to search his chest.
++
++[quest]
++requires_status=emp_krolan_emerald
++requires_not_status=emp_krolan_finish
++quest_text=Return to Udana and inform her of Krolan's death.
+diff --git a/mods/empyrean_campaign/quests/001_krolan.txt b/mods/empyrean_campaign/quests/001_krolan.txt
+deleted file mode 100644
+index 3b482e4367ea06ff2fbe4fa1be480491488c38e9..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/quests/001_krolan.txt
++++ /dev/null
+@@ -1,17 +0,0 @@
+-name=Krolan's Missing
+-complete_status=emp_krolan_finish
+-
+-[quest]
+-requires_status=emp_krolan_init
+-requires_not_status=emp_krolan_key
+-quest_text=Travel to the Perdition Mines and look for Krolan.
+-
+-[quest]
+-requires_status=emp_krolan_key
+-requires_not_status=emp_krolan_emerald
+-quest_text=Use Krolan's key to search his chest.
+-
+-[quest]
+-requires_status=emp_krolan_emerald
+-requires_not_status=emp_krolan_finish
+-quest_text=Return to Udana and inform her of Krolan's death.
+diff --git a/mods/empyrean_campaign/quests/0020_journal.txt b/mods/empyrean_campaign/quests/0020_journal.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..47451812c9e7a536c77861750dac4970a94d9837
+--- /dev/null
++++ b/mods/empyrean_campaign/quests/0020_journal.txt
+@@ -0,0 +1,20 @@
++name=The Merchant's Journal
++complete_status=emp_journal_finish
++
++[quest]
++requires_status=emp_journal_init
++requires_not_status=emp_journal_found
++requires_not_status=emp_journal_later
++quest_text=Find Abasi's journal. It is likely being carried by a nearby goblin.
++
++[quest]
++requires_status=emp_journal_init
++requires_status=emp_journal_later
++requires_not_status=emp_journal_found
++quest_text=Find Abasi's journal. He said that it was last seen near the Goblin Cave.
++
++[quest]
++requires_status=emp_journal_found
++requires_not_status=emp_journal_finish
++quest_text=Return the journal to Abasi.
++
+diff --git a/mods/empyrean_campaign/quests/002_journal.txt b/mods/empyrean_campaign/quests/002_journal.txt
+deleted file mode 100644
+index 47451812c9e7a536c77861750dac4970a94d9837..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/quests/002_journal.txt
++++ /dev/null
+@@ -1,20 +0,0 @@
+-name=The Merchant's Journal
+-complete_status=emp_journal_finish
+-
+-[quest]
+-requires_status=emp_journal_init
+-requires_not_status=emp_journal_found
+-requires_not_status=emp_journal_later
+-quest_text=Find Abasi's journal. It is likely being carried by a nearby goblin.
+-
+-[quest]
+-requires_status=emp_journal_init
+-requires_status=emp_journal_later
+-requires_not_status=emp_journal_found
+-quest_text=Find Abasi's journal. He said that it was last seen near the Goblin Cave.
+-
+-[quest]
+-requires_status=emp_journal_found
+-requires_not_status=emp_journal_finish
+-quest_text=Return the journal to Abasi.
+-
+diff --git a/mods/empyrean_campaign/quests/0030_ardwen.txt b/mods/empyrean_campaign/quests/0030_ardwen.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..8f146ec855a84f165265eb35688f7fa4a42815f6
+--- /dev/null
++++ b/mods/empyrean_campaign/quests/0030_ardwen.txt
+@@ -0,0 +1,22 @@
++name=Trapped in the Crypt
++complete_status=emp_ardwen_finish
++
++[quest]
++requires_status=emp_ardwen_init
++requires_not_status=emp_ardwen_ring
++quest_text=Find a way to escape the Family Crypt.
++
++[quest]
++requires_status=emp_ardwen_ring
++requires_not_status=emp_ardwen_summoned
++quest_text=You found a strange ring. Maybe it will aid in escaping the Family Crypt.
++
++[quest]
++requires_status=emp_ardwen_summoned
++requires_not_status=emp_ardwen_defeated
++quest_text=Defeat Ardwen.
++
++[quest]
++requires_status=emp_ardwen_defeated
++requires_not_status=emp_ardwen_finish
++quest_text=Ardwen has been defeated. The lever near his coffin will likely open the nearby gate.
+diff --git a/mods/empyrean_campaign/quests/003_ardwen.txt b/mods/empyrean_campaign/quests/003_ardwen.txt
+deleted file mode 100644
+index 8f146ec855a84f165265eb35688f7fa4a42815f6..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/quests/003_ardwen.txt
++++ /dev/null
+@@ -1,22 +0,0 @@
+-name=Trapped in the Crypt
+-complete_status=emp_ardwen_finish
+-
+-[quest]
+-requires_status=emp_ardwen_init
+-requires_not_status=emp_ardwen_ring
+-quest_text=Find a way to escape the Family Crypt.
+-
+-[quest]
+-requires_status=emp_ardwen_ring
+-requires_not_status=emp_ardwen_summoned
+-quest_text=You found a strange ring. Maybe it will aid in escaping the Family Crypt.
+-
+-[quest]
+-requires_status=emp_ardwen_summoned
+-requires_not_status=emp_ardwen_defeated
+-quest_text=Defeat Ardwen.
+-
+-[quest]
+-requires_status=emp_ardwen_defeated
+-requires_not_status=emp_ardwen_finish
+-quest_text=Ardwen has been defeated. The lever near his coffin will likely open the nearby gate.
+diff --git a/mods/empyrean_campaign/quests/0040_fort_amir.txt b/mods/empyrean_campaign/quests/0040_fort_amir.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6c34d022686f7371922d14a9c707ab2c35382495
+--- /dev/null
++++ b/mods/empyrean_campaign/quests/0040_fort_amir.txt
+@@ -0,0 +1,23 @@
++name=The One-Eyed Guardians
++complete_status=emp_amir_finish
++
++[quest]
++requires_status=emp_amir_init
++requires_not_status=emp_amir_bookcase
++quest_text=Investigate the statues in the Fort Amir throne room.
++
++[quest]
++requires_status=emp_amir_gem_a
++requires_not_status=emp_amir_statue_a
++quest_text=You found a strange sapphire inside one of Fort Amir's books.
++
++[quest]
++requires_status=emp_amir_gem_b
++requires_not_status=emp_amir_statue_b
++quest_text=Gruzza dropped a strange sapphire.
++
++[quest]
++requires_status=emp_amir_bookcase
++requires_not_status=emp_amir_finish
++quest_text=The bookcase in the Fort Amir throne room opened up, revealing a secret passage.
++
+diff --git a/mods/empyrean_campaign/quests/004_fort_amir.txt b/mods/empyrean_campaign/quests/004_fort_amir.txt
+deleted file mode 100644
+index 6c34d022686f7371922d14a9c707ab2c35382495..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/quests/004_fort_amir.txt
++++ /dev/null
+@@ -1,23 +0,0 @@
+-name=The One-Eyed Guardians
+-complete_status=emp_amir_finish
+-
+-[quest]
+-requires_status=emp_amir_init
+-requires_not_status=emp_amir_bookcase
+-quest_text=Investigate the statues in the Fort Amir throne room.
+-
+-[quest]
+-requires_status=emp_amir_gem_a
+-requires_not_status=emp_amir_statue_a
+-quest_text=You found a strange sapphire inside one of Fort Amir's books.
+-
+-[quest]
+-requires_status=emp_amir_gem_b
+-requires_not_status=emp_amir_statue_b
+-quest_text=Gruzza dropped a strange sapphire.
+-
+-[quest]
+-requires_status=emp_amir_bookcase
+-requires_not_status=emp_amir_finish
+-quest_text=The bookcase in the Fort Amir throne room opened up, revealing a secret passage.
+-
+diff --git a/mods/empyrean_campaign/quests/0050_ort.txt b/mods/empyrean_campaign/quests/0050_ort.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..055253970a3a78639d69f714d806b42ab39e6943
+--- /dev/null
++++ b/mods/empyrean_campaign/quests/0050_ort.txt
+@@ -0,0 +1,8 @@
++name=Brother?
++complete_status=emp_ort_finish
++
++[quest]
++requires_status=emp_ort_init
++requires_not_status=emp_ort_finish
++quest_text=Ort gave you a ruby. It seemed like he wanted it delivered to someone he would call "brother".
++
+diff --git a/mods/empyrean_campaign/quests/005_ort.txt b/mods/empyrean_campaign/quests/005_ort.txt
+deleted file mode 100644
+index 055253970a3a78639d69f714d806b42ab39e6943..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/quests/005_ort.txt
++++ /dev/null
+@@ -1,8 +0,0 @@
+-name=Brother?
+-complete_status=emp_ort_finish
+-
+-[quest]
+-requires_status=emp_ort_init
+-requires_not_status=emp_ort_finish
+-quest_text=Ort gave you a ruby. It seemed like he wanted it delivered to someone he would call "brother".
+-
+diff --git a/mods/empyrean_campaign/quests/0060_stormrock.txt b/mods/empyrean_campaign/quests/0060_stormrock.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..2762732056c8bdb132c254b952f39dc5536636b9
+--- /dev/null
++++ b/mods/empyrean_campaign/quests/0060_stormrock.txt
+@@ -0,0 +1,17 @@
++name=Locked Out
++complete_status=emp_stormrock_door
++
++[quest]
++requires_status=emp_stormrock_init
++requires_not_status=emp_stormrock_search
++quest_text=The door to the Stormrock Ruins is locked. There must be a way to unlock it.
++
++[quest]
++requires_status=emp_stormrock_search
++requires_not_status=emp_stormrock_key
++quest_text=Aldwulf wants you to get the key to unlock the Stormrock Ruins. It should be hidden somewhere in the camp south of Stonewood.
++
++[quest]
++requires_status=emp_stormrock_key
++requires_not_status=emp_stormrock_door
++quest_text=You found the key to the Stormrock Ruins. You should return there and speak to Aldwulf.
+diff --git a/mods/empyrean_campaign/quests/006_stormrock.txt b/mods/empyrean_campaign/quests/006_stormrock.txt
+deleted file mode 100644
+index 2762732056c8bdb132c254b952f39dc5536636b9..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/quests/006_stormrock.txt
++++ /dev/null
+@@ -1,17 +0,0 @@
+-name=Locked Out
+-complete_status=emp_stormrock_door
+-
+-[quest]
+-requires_status=emp_stormrock_init
+-requires_not_status=emp_stormrock_search
+-quest_text=The door to the Stormrock Ruins is locked. There must be a way to unlock it.
+-
+-[quest]
+-requires_status=emp_stormrock_search
+-requires_not_status=emp_stormrock_key
+-quest_text=Aldwulf wants you to get the key to unlock the Stormrock Ruins. It should be hidden somewhere in the camp south of Stonewood.
+-
+-[quest]
+-requires_status=emp_stormrock_key
+-requires_not_status=emp_stormrock_door
+-quest_text=You found the key to the Stormrock Ruins. You should return there and speak to Aldwulf.
+diff --git a/mods/empyrean_campaign/quests/0070_nazia_mines.txt b/mods/empyrean_campaign/quests/0070_nazia_mines.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..08cf4500eda676ce47bf7aefb7b7a97eb7b937bc
+--- /dev/null
++++ b/mods/empyrean_campaign/quests/0070_nazia_mines.txt
+@@ -0,0 +1,17 @@
++name=Trapped!
++complete_status=emp_naziamines_finish
++
++[quest]
++requires_status=emp_naziamines_init
++requires_not_status=emp_naziamines_cleared
++quest_text=The path behind you has caved in. Find a way to escape the Nazia Mines.
++
++[quest]
++requires_status=emp_naziamines_dynamite
++requires_not_status=emp_naziamines_cleared
++quest_text=You found some sticks of dynamite. Those should be useful.
++
++[quest]
++requires_status=emp_naziamines_cleared
++quest_text=You successfully cleared the rubble and can safely escape the Nazia Mines.
++
+diff --git a/mods/empyrean_campaign/quests/007_nazia_mines.txt b/mods/empyrean_campaign/quests/007_nazia_mines.txt
+deleted file mode 100644
+index 08cf4500eda676ce47bf7aefb7b7a97eb7b937bc..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/quests/007_nazia_mines.txt
++++ /dev/null
+@@ -1,17 +0,0 @@
+-name=Trapped!
+-complete_status=emp_naziamines_finish
+-
+-[quest]
+-requires_status=emp_naziamines_init
+-requires_not_status=emp_naziamines_cleared
+-quest_text=The path behind you has caved in. Find a way to escape the Nazia Mines.
+-
+-[quest]
+-requires_status=emp_naziamines_dynamite
+-requires_not_status=emp_naziamines_cleared
+-quest_text=You found some sticks of dynamite. Those should be useful.
+-
+-[quest]
+-requires_status=emp_naziamines_cleared
+-quest_text=You successfully cleared the rubble and can safely escape the Nazia Mines.
+-
+diff --git a/mods/empyrean_campaign/quests/0080_mog.txt b/mods/empyrean_campaign/quests/0080_mog.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..8fa0b32def06f1d44800a53672a2961ec17cc6f3
+--- /dev/null
++++ b/mods/empyrean_campaign/quests/0080_mog.txt
+@@ -0,0 +1,18 @@
++name=The Lost Soul of the Mog Caverns
++complete_status=emp_mog_finish
++
++[quest]
++requires_status=emp_mog_init
++requires_not_status=emp_mog_door1,emp_mog_finish
++quest_text=You found a mysterious note in the Mog Caverns. Maybe its directions will lead to treasure?
++
++[quest]
++requires_status=emp_mog_note2
++requires_not_status=emp_mog_door1,emp_mog_finish
++quest_text=You found another note. Keep following the trail.
++
++[quest]
++requires_status=emp_mog_door1
++requires_not_status=emp_mog_finish
++quest_text=A secret passage has been unveiled.
++
+diff --git a/mods/empyrean_campaign/quests/008_mog.txt b/mods/empyrean_campaign/quests/008_mog.txt
+deleted file mode 100644
+index 8fa0b32def06f1d44800a53672a2961ec17cc6f3..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/quests/008_mog.txt
++++ /dev/null
+@@ -1,18 +0,0 @@
+-name=The Lost Soul of the Mog Caverns
+-complete_status=emp_mog_finish
+-
+-[quest]
+-requires_status=emp_mog_init
+-requires_not_status=emp_mog_door1,emp_mog_finish
+-quest_text=You found a mysterious note in the Mog Caverns. Maybe its directions will lead to treasure?
+-
+-[quest]
+-requires_status=emp_mog_note2
+-requires_not_status=emp_mog_door1,emp_mog_finish
+-quest_text=You found another note. Keep following the trail.
+-
+-[quest]
+-requires_status=emp_mog_door1
+-requires_not_status=emp_mog_finish
+-quest_text=A secret passage has been unveiled.
+-
+diff --git a/mods/empyrean_campaign/quests/0090_nasu.txt b/mods/empyrean_campaign/quests/0090_nasu.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..60de973e70574c6b5005ff801066b72f0cb9eb85
+--- /dev/null
++++ b/mods/empyrean_campaign/quests/0090_nasu.txt
+@@ -0,0 +1,27 @@
++name=An Unusual Name...
++complete_status=emp_nasu_finish
++
++[quest]
++requires_status=emp_nasu_init
++requires_not_status=emp_nasu_door1
++quest_text=Discover a way to open the entrance door in Fort Nasu.
++
++[quest]
++requires_status=emp_nasu_init,emp_nasu_door1
++requires_not_status=emp_nasu_door2
++quest_text=Discover a way to open the library door in Fort Nasu.
++
++[quest]
++requires_status=emp_nasu_init,emp_nasu_door2
++requires_not_status=emp_nasu_door3
++quest_text=Discover a way to open the pit room door in Fort Nasu.
++
++[quest]
++requires_status=emp_nasu_init,emp_nasu_door3
++requires_not_status=emp_nasu_door5
++quest_text=Discover a way to open the final door in Fort Nasu.
++
++[quest]
++requires_status=emp_nasu_init,emp_nasu_door5
++requires_not_status=emp_nasu_buchi
++quest_text=Defeat Buchi.
+diff --git a/mods/empyrean_campaign/quests/009_nasu.txt b/mods/empyrean_campaign/quests/009_nasu.txt
+deleted file mode 100644
+index 60de973e70574c6b5005ff801066b72f0cb9eb85..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/quests/009_nasu.txt
++++ /dev/null
+@@ -1,27 +0,0 @@
+-name=An Unusual Name...
+-complete_status=emp_nasu_finish
+-
+-[quest]
+-requires_status=emp_nasu_init
+-requires_not_status=emp_nasu_door1
+-quest_text=Discover a way to open the entrance door in Fort Nasu.
+-
+-[quest]
+-requires_status=emp_nasu_init,emp_nasu_door1
+-requires_not_status=emp_nasu_door2
+-quest_text=Discover a way to open the library door in Fort Nasu.
+-
+-[quest]
+-requires_status=emp_nasu_init,emp_nasu_door2
+-requires_not_status=emp_nasu_door3
+-quest_text=Discover a way to open the pit room door in Fort Nasu.
+-
+-[quest]
+-requires_status=emp_nasu_init,emp_nasu_door3
+-requires_not_status=emp_nasu_door5
+-quest_text=Discover a way to open the final door in Fort Nasu.
+-
+-[quest]
+-requires_status=emp_nasu_init,emp_nasu_door5
+-requires_not_status=emp_nasu_buchi
+-quest_text=Defeat Buchi.
+diff --git a/mods/empyrean_campaign/quests/0100_torture.txt b/mods/empyrean_campaign/quests/0100_torture.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..5c18af00e89e57dc653cf23c8dfee1f8b08cedaa
+--- /dev/null
++++ b/mods/empyrean_campaign/quests/0100_torture.txt
+@@ -0,0 +1,24 @@
++name=Warden's Notes
++complete_status=emp_torture_finish
++
++[quest]
++requires_status=emp_torture_init
++requires_not_status=emp_torture_finish
++quest_text=Find a way to get to the treasure in the Torture Chambers.
++
++[quest]
++requires_status=emp_torture_notes
++requires_not_status=emp_torture_traps
++quest_text=You found some notes belonging to the prison warden.
++
++[quest]
++requires_status=emp_torture_traps
++requires_not_status=emp_torture_barriers
++quest_text=You successfully made it through the warden's traps.
++
++[quest]
++requires_status=emp_torture_barriers
++requires_not_status=emp_torture_finish
++quest_text=You disabled the barriers in the Torture Chambers.
++
++
+diff --git a/mods/empyrean_campaign/quests/010_torture.txt b/mods/empyrean_campaign/quests/010_torture.txt
+deleted file mode 100644
+index 5c18af00e89e57dc653cf23c8dfee1f8b08cedaa..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/quests/010_torture.txt
++++ /dev/null
+@@ -1,24 +0,0 @@
+-name=Warden's Notes
+-complete_status=emp_torture_finish
+-
+-[quest]
+-requires_status=emp_torture_init
+-requires_not_status=emp_torture_finish
+-quest_text=Find a way to get to the treasure in the Torture Chambers.
+-
+-[quest]
+-requires_status=emp_torture_notes
+-requires_not_status=emp_torture_traps
+-quest_text=You found some notes belonging to the prison warden.
+-
+-[quest]
+-requires_status=emp_torture_traps
+-requires_not_status=emp_torture_barriers
+-quest_text=You successfully made it through the warden's traps.
+-
+-[quest]
+-requires_status=emp_torture_barriers
+-requires_not_status=emp_torture_finish
+-quest_text=You disabled the barriers in the Torture Chambers.
+-
+-
+diff --git a/mods/empyrean_campaign/quests/0110_martigan.txt b/mods/empyrean_campaign/quests/0110_martigan.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..efd8ca0c774a95fd02559d99e47fa0fee6bf43b6
+--- /dev/null
++++ b/mods/empyrean_campaign/quests/0110_martigan.txt
+@@ -0,0 +1,23 @@
++name=Fallen Comrades
++complete_status=emp_martigan_finish
++
++[quest]
++requires_status=emp_martigan_init
++requires_not_status=emp_martigan_finish
++quest_text=Martigan has asked you to destroy the undead corpses of his former companions. He has also asked that you return with proof that you have done so.
++
++[quest]
++requires_status=emp_martigan_init,emp_martigan_sword
++requires_not_status=emp_martigan_finish
++quest_text=You have slain Lorund and recovered his sword.
++
++[quest]
++requires_status=emp_martigan_init,emp_martigan_bow
++requires_not_status=emp_martigan_finish
++quest_text=You have slain Nerin and recovered her bow.
++
++[quest]
++requires_status=emp_martigan_init,emp_martigan_staff
++requires_not_status=emp_martigan_finish
++quest_text=You have slain Kayl and recovered her staff.
++
+diff --git a/mods/empyrean_campaign/quests/011_martigan.txt b/mods/empyrean_campaign/quests/011_martigan.txt
+deleted file mode 100644
+index efd8ca0c774a95fd02559d99e47fa0fee6bf43b6..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/quests/011_martigan.txt
++++ /dev/null
+@@ -1,23 +0,0 @@
+-name=Fallen Comrades
+-complete_status=emp_martigan_finish
+-
+-[quest]
+-requires_status=emp_martigan_init
+-requires_not_status=emp_martigan_finish
+-quest_text=Martigan has asked you to destroy the undead corpses of his former companions. He has also asked that you return with proof that you have done so.
+-
+-[quest]
+-requires_status=emp_martigan_init,emp_martigan_sword
+-requires_not_status=emp_martigan_finish
+-quest_text=You have slain Lorund and recovered his sword.
+-
+-[quest]
+-requires_status=emp_martigan_init,emp_martigan_bow
+-requires_not_status=emp_martigan_finish
+-quest_text=You have slain Nerin and recovered her bow.
+-
+-[quest]
+-requires_status=emp_martigan_init,emp_martigan_staff
+-requires_not_status=emp_martigan_finish
+-quest_text=You have slain Kayl and recovered her staff.
+-

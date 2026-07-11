@@ -1,0 +1,24 @@
+diff --git a/mods/mods.txt b/mods/mods.txt
+index 366a37de3657d9c64d2dfd1773fa170d7d6113fe..fd176edec2af130e398742161cfd78f90b9b3795 100644
+--- a/mods/mods.txt
++++ b/mods/mods.txt
+@@ -4,3 +4,4 @@ fantasycore
+ frontier
+ averguard
+ living_bones
++lpc
+diff --git a/src/Utils.cpp b/src/Utils.cpp
+index 4368e27cb80710db865e97fe460949715a36181d..43a4307d1cd191fcb494d305ff5568964b252317 100644
+--- a/src/Utils.cpp
++++ b/src/Utils.cpp
+@@ -57,8 +57,8 @@ Point map_to_screen(int x, int y, int camx, int camy) {
+ 	    r.y = VIEW_H_HALF + (x - camx + y - camy)/(float)UNITS_PER_PIXEL_Y;
+     }
+ 	else {
+-	    r.x = VIEW_W_HALF - camx + x;
+-	    r.y = VIEW_H_HALF - camy + y;
++	    r.x = VIEW_W_HALF - (camx - x)/(float)UNITS_PER_PIXEL_X;
++	    r.y = VIEW_H_HALF - (camy - y)/(float)UNITS_PER_PIXEL_Y;
+ 	}
+ 	return r;
+ }

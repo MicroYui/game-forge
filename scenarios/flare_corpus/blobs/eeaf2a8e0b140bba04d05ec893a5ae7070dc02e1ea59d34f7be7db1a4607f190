@@ -1,0 +1,79 @@
+diff --git a/mods/empyrean_campaign/enemies/zombie_rotting.txt b/mods/empyrean_campaign/enemies/zombie_rotting.txt
+index c099f71822f59c5ed670c1f48242ddb157f9c1f6..c6bad259d73ce19f9f586bab19978924228cb386 100644
+--- a/mods/empyrean_campaign/enemies/zombie_rotting.txt
++++ b/mods/empyrean_campaign/enemies/zombie_rotting.txt
+@@ -23,3 +23,4 @@ cooldown=833ms
+ 
+ #loot
+ loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+diff --git a/mods/empyrean_campaign/loot/level_1.txt b/mods/empyrean_campaign/loot/level_1.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..7086b38bacf5809d97f838eaeb8733207f6052a2
+--- /dev/null
++++ b/mods/empyrean_campaign/loot/level_1.txt
+@@ -0,0 +1,38 @@
++# low-level loot
++
++# clothes
++[loot]
++id=4
++chance=15
++quantity=1
++
++[loot]
++id=5
++chance=15
++quantity=1
++
++[loot]
++id=6
++chance=15
++quantity=1
++
++[loot]
++id=7
++chance=15
++quantity=1
++
++# weapons
++[loot]
++id=8
++chance=10
++quantity=1
++
++[loot]
++id=9
++chance=10
++quantity=1
++
++[loot]
++id=10
++chance=10
++quantity=1
+diff --git a/mods/empyrean_campaign/loot/leveled_low.txt b/mods/empyrean_campaign/loot/leveled_low.txt
+index 4a457e500de56e69efce44cfae9eb78771671620..b7c4a11ebf7712746554a32f628d1dacca3927db 100644
+--- a/mods/empyrean_campaign/loot/leveled_low.txt
++++ b/mods/empyrean_campaign/loot/leveled_low.txt
+@@ -3,18 +3,18 @@
+ # gold
+ [loot]
+ id=currency
+-chance=25
++chance=75
+ quantity=2,15
+ 
+ # hp potion
+ [loot]
+ id=2
+-chance=5
++chance=50
+ quantity=1
+ 
+ # mp potion
+ [loot]
+ id=3
+-chance=5
++chance=50
+ quantity=1
+ 

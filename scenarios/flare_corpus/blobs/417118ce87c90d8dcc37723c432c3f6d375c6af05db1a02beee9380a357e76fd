@@ -1,0 +1,167 @@
+diff --git a/mods/alpha_demo/maps/white_wind.txt b/mods/alpha_demo/maps/white_wind.txt
+index 3d86be9a252a41bc4885c485863cf3105f9a7874..753a3af9a2da7a875b26adfdb313eeb44f70c9ab 100644
+--- a/mods/alpha_demo/maps/white_wind.txt
++++ b/mods/alpha_demo/maps/white_wind.txt
+@@ -444,6 +444,7 @@ tooltip=Supplies
+ type=run_once
+ location=54,88,22,22
+ msg=So, there it is. The abandoned tower! 
++requires_status=rotten_tower_search
+ set_status=rotten_tower_found
+ 
+ [event]
+@@ -451,6 +452,7 @@ set_status=rotten_tower_found
+ type=run_once
+ location=66,103,1,1
+ msg=Looking through the grate... The tower is just empty.
++requires_status=rotten_tower_found
+ set_status=rotten_tower_inspected
+ 
+ [event]
+diff --git a/mods/alpha_demo/npcs/martigan.txt b/mods/alpha_demo/npcs/martigan.txt
+index 2515151de16f4af5319f2693c6b434bdbfa323de..7c2226eda4c3adc24469a14c9221cf112f5563d5 100644
+--- a/mods/alpha_demo/npcs/martigan.txt
++++ b/mods/alpha_demo/npcs/martigan.txt
+@@ -16,7 +16,7 @@ him=Ah, you're the adventurer? If you seek out danger you're in the right place.
+ set_status=martigan_init
+ 
+ [dialog]
+-topic=Vulnerable you say?
++topic=Goblin Camp
+ requires_status=martigan_init
+ requires_not=fr_rilrak_search
+ him=We're having problems. Goblins. All the noise from our mining is drawing their attention. We can't have them thinking we're easy prey.
+@@ -26,13 +26,13 @@ reward_currency=20
+ him=Attack their encampment up river from here. 20 gold now, 80 more when you return.
+ 
+ [dialog]
+-topic=About the goblins...
++topic=Goblin Camp Search
+ requires_status=fr_rilrak_search
+ requires_not=fr_rilrak_defeated
+ him=The goblins have an encampment up the river from here on the west side. Clear them out and I'll pay you 80 gold.
+ 
+ [dialog]
+-topic=About the goblins...
++topic=Rilrak Defeated
+ requires_status=fr_rilrak_search
+ requires_status=fr_rilrak_defeated
+ requires_not=fr_rilrak_reward
+@@ -42,29 +42,29 @@ reward_xp=50
+ him=Unfortunate work, but my workers will sleep safe tonight. Here's your reward.
+ 
+ [dialog]
+-topic=Any idea about other adventures?
++topic=Chat
+ requires_status=fr_rilrak_reward
+ him=A member of the Order passed through our camp a few days ago. He left for the tower ruins in Ydrakka Pass.
+ 
+ 
+ [dialog]
+-topic=Guards?
++topic=Rotten Tower
+ requires_status=martigan_init
+ requires_not=rotten_tower_search
+ him=These areas were guarded well. There is yet another outpost tower in the wild.
+ him=These are rough lands and... you're looking for an adventure!
+-him=Let me know out if the goblins found the way inside the abandoned tower.
++him=Let me know if the goblins found their way inside the abandoned tower.
+ set_status=rotten_tower_search
+ 
+ [dialog]
+-topic=Where is the tower?
++topic=Rotten Tower Search
+ requires_status=rotten_tower_search
+ requires_not=rotten_tower_found
+ him=Search for the abandoned tower southwest of the Frontier plains.
+ him=The lands around there are called White Wind.
+ 
+ [dialog]
+-topic=I found the tower!
++topic=Rotten Tower Found
+ requires_status=rotten_tower_found
+ requires_not=rotten_tower_inspected
+ you=So there are plenty of goblins in the white winds area, but not near the tower.
+@@ -74,7 +74,7 @@ him=Did you look inside the tower? Did you make sure there aren't goblins in the
+ you=Well...
+ 
+ [dialog]
+-topic=I found the tower!
++topic=Rotten Tower Found
+ requires_status=rotten_tower_inspected
+ requires_not=rotten_tower_reward
+ you=So there are plenty of goblins in the white winds area, but not near the tower.
+@@ -92,6 +92,7 @@ you=So how's the mining business?
+ him=Not good at all. While I was digging, my pickaxe scraped a skull that was wedged in the rock wall. Before I knew it, the nasty thing started moving and a whole body emerged. Now that thing is in there, preventing any more mining.
+ him=Kill that skeleton for me, and I'll make it worth your while.
+ set_status=ml_skeleton_search
++unset_status=ml_skeleton_defeated
+ 
+ [dialog]
+ topic=Reanimated Skeleton
+@@ -101,6 +102,7 @@ him=Please take care of that skeleton. Work in the mine can't continue otherwise
+ 
+ [dialog]
+ topic=Skeleton Defeated
++requires_status=ml_skeleton_search
+ requires_status=ml_skeleton_defeated
+ requires_not=ml_skeleton_reward
+ you=I've defeated the Reanimated Skeleton.
+diff --git a/mods/alpha_demo/quests/frontier.txt b/mods/alpha_demo/quests/frontier.txt
+index bdb8bed00cdcc1e7ab1648b551a08b7072e89ce0..b976c5d780a857314c4fc9307a14260282678823 100644
+--- a/mods/alpha_demo/quests/frontier.txt
++++ b/mods/alpha_demo/quests/frontier.txt
+@@ -4,6 +4,7 @@ requires_not=fr_rilrak_defeated
+ quest_text=Defeat the goblins at the River Encampment
+ 
+ [quest]
++requires_status=fr_rilrak_search
+ requires_status=fr_rilrak_defeated
+ requires_not=fr_rilrak_reward
+ quest_text=River Encampment cleared. Return to Martigan for your reward.
+diff --git a/mods/alpha_demo/quests/mineshaft_longsword.txt b/mods/alpha_demo/quests/mineshaft_longsword.txt
+index b7087df1da05b0f002a71a87e427ffd3a969e148..f241cbbc4ad07cb7a1cdef3e4349c2816bbc3a0b 100644
+--- a/mods/alpha_demo/quests/mineshaft_longsword.txt
++++ b/mods/alpha_demo/quests/mineshaft_longsword.txt
+@@ -4,6 +4,7 @@ requires_not=ml_skeleton_defeated
+ quest_text=Find and defeat the Reanimated Skeleton in Mineshaft Longsword.
+ 
+ [quest]
++requires_status=ml_skeleton_search
+ requires_status=ml_skeleton_defeated
+ requires_not=ml_skeleton_reward
+ quest_text=Report the defeat of the Reanimated Skeleton to Martigan.
+diff --git a/tiled/frontier/white_wind.tmx b/tiled/frontier/white_wind.tmx
+index 7d38e4bc0bf1e6e5472d8eb4619b90e692532910..420874da5ecbfbde137151283a2ccaa3d02943b6 100644
+--- a/tiled/frontier/white_wind.tmx
++++ b/tiled/frontier/white_wind.tmx
+@@ -1,5 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+ <map version="1.0" orientation="isometric" width="128" height="128" tilewidth="64" tileheight="32">
+  <properties>
+   <property name="music" value="overworld_theme.ogg"/>
+@@ -430,7 +429,7 @@
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,2,2,2,2,2,2,2,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ </data>
+  </layer>
+- <objectgroup name="event" width="128" height="128" visible="0">
++ <objectgroup name="event" width="128" height="128">
+   <object name="to Frontier Plains" type="teleport" x="1984" y="0" width="64" height="32">
+    <properties>
+     <property name="intermap" value="frontier_plains.txt,162,233"/>
+@@ -457,12 +456,14 @@
+   <object name="Rotten Tower Found Trigger" type="run_once" x="1728" y="2816" width="704" height="704">
+    <properties>
+     <property name="msg" value="So, there it is. The abandoned tower! "/>
++    <property name="requires_status" value="rotten_tower_search"/>
+     <property name="set_status" value="rotten_tower_found"/>
+    </properties>
+   </object>
+   <object name="Rotten Tower Inspected Trigger" type="run_once" x="2112" y="3296" width="32" height="32">
+    <properties>
+     <property name="msg" value="Looking through the grate... The tower is just empty."/>
++    <property name="requires_status" value="rotten_tower_found"/>
+     <property name="set_status" value="rotten_tower_inspected"/>
+    </properties>
+   </object>

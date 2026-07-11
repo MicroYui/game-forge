@@ -1,0 +1,2982 @@
+diff --git a/mods/empyrean_campaign/items/categories/level_5.txt b/mods/empyrean_campaign/items/categories/level_5.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..a10cbd51808bc89cd47cf302c7ce8096f4b42bc2
+--- /dev/null
++++ b/mods/empyrean_campaign/items/categories/level_5.txt
+@@ -0,0 +1,132 @@
++# equipment intended for players level 5
++
++### Warrior/Archer armor
++[item]
++id=96
++name=Leather Hood
++INCLUDE items/base/armor/leather/head.txt
++level=5
++price=300
++abs=1,2
++requires_stat=defense,9
++
++[item]
++id=97
++name=Leather Tunic
++INCLUDE items/base/armor/leather/chest.txt
++level=5
++price=600
++abs=2,3
++requires_stat=defense,9
++
++[item]
++id=98
++name=Leather Pants
++INCLUDE items/base/armor/leather/legs.txt
++level=5
++price=400
++abs=2
++requires_stat=defense,9
++
++[item]
++id=99
++name=Leather Boots
++INCLUDE items/base/armor/leather/feet.txt
++level=5
++price=300
++abs=1,2
++requires_stat=defense,9
++
++[item]
++id=100
++name=Leather Gloves
++INCLUDE items/base/armor/leather/hands.txt
++level=5
++price=200
++abs=1,2
++requires_stat=defense,9
++
++### Mage armor
++[item]
++id=101
++name=Wool Hood
++INCLUDE items/base/armor/mage/head.txt
++level=5
++price=300
++abs=1
++requires_stat=defense,8
++
++[item]
++id=102
++name=Wool Vest
++INCLUDE items/base/armor/mage/chest.txt
++level=5
++price=600
++abs=2
++requires_stat=defense,8
++
++[item]
++id=103
++name=Wool Skirt
++INCLUDE items/base/armor/mage/legs.txt
++level=5
++price=400
++abs=1,2
++requires_stat=defense,8
++
++[item]
++id=104
++name=Wool Boots
++INCLUDE items/base/armor/mage/feet.txt
++level=5
++price=300
++abs=1
++requires_stat=defense,8
++
++[item]
++id=105
++name=Wool Gloves
++INCLUDE items/base/armor/mage/hands.txt
++level=5
++price=200
++abs=1
++requires_stat=defense,8
++
++# weapons
++[item]
++id=106
++name=Shortsword
++INCLUDE items/base/weapons/melee/shortsword.txt
++level=5
++dmg_melee=45,50
++requires_stat=physical,13
++price=800
++
++[item]
++id=107
++name=Shortbow
++INCLUDE items/base/weapons/ranged/shortbow.txt
++level=5
++dmg_ranged=60,65
++requires_stat=offense,13
++price=800
++
++[item]
++id=108
++name=Rod
++INCLUDE items/base/weapons/magic/rod.txt
++level=5
++dmg_ment=45,50
++requires_stat=mental,13
++price=800
++
++# buckler
++[item]
++id=109
++name=Iron Buckler
++INCLUDE items/base/shields/iron.txt
++level=5
++abs=2,3
++requires_stat=defense,11
++price=600
++
+diff --git a/mods/empyrean_campaign/items/categories/level_6.txt b/mods/empyrean_campaign/items/categories/level_6.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..7dbb1a31c2e3671f464b487f7bce707fb8d0f7d8
+--- /dev/null
++++ b/mods/empyrean_campaign/items/categories/level_6.txt
+@@ -0,0 +1,325 @@
++# equipment intended for players level 6
++
++[item]
++id=110
++name=Fighting Leather Hood
++INCLUDE items/base/armor/leather/head.txt
++level=6
++quality=high
++price=600
++abs=2,3
++requires_stat=defense,10
++requires_stat=physical,7
++bonus=poise,5
++
++[item]
++id=111
++name=Recon Leather Hood
++INCLUDE items/base/armor/leather/head.txt
++level=6
++quality=high
++price=600
++abs=2
++requires_stat=defense,9
++requires_stat=offense,7
++bonus=accuracy,5
++
++[item]
++id=112
++name=Sorcerer Wool Hood
++INCLUDE items/base/armor/mage/head.txt
++level=6
++quality=high
++price=600
++abs=1,2
++requires_stat=defense,8
++requires_stat=mental,7
++bonus=mp,5
++
++[item]
++id=113
++name=Fighting Leather Tunic
++INCLUDE items/base/armor/leather/chest.txt
++level=6
++quality=high
++price=1200
++abs=3,4
++requires_stat=defense,10
++requires_stat=physical,7
++bonus=hp,100
++
++[item]
++id=114
++name=Recon Leather Tunic
++INCLUDE items/base/armor/leather/chest.txt
++level=6
++quality=high
++price=1200
++abs=3
++requires_stat=defense,9
++requires_stat=offense,7
++bonus=accuracy,12
++
++[item]
++id=115
++name=Sorcerer Wool Vest
++INCLUDE items/base/armor/mage/chest.txt
++level=6
++quality=high
++price=1200
++abs=2,3
++requires_stat=defense,8
++requires_stat=mental,7
++bonus=mp,12
++
++[item]
++id=116
++name=Fighting Leather Pants
++INCLUDE items/base/armor/leather/legs.txt
++level=6
++quality=high
++price=800
++abs=3
++requires_stat=defense,10
++requires_stat=physical,7
++bonus=poise,12
++
++[item]
++id=117
++name=Recon Leather Pants
++INCLUDE items/base/armor/leather/legs.txt
++level=6
++quality=high
++price=800
++abs=2,3
++requires_stat=defense,9
++requires_stat=offense,7
++bonus=avoidance,12
++
++[item]
++id=118
++name=Sorcerer Wool Skirt
++INCLUDE items/base/armor/mage/legs.txt
++level=6
++quality=high
++price=800
++abs=2
++requires_stat=defense,8
++requires_stat=mental,7
++bonus=mp,8
++
++[item]
++id=119
++name=Fighting Leather Boots
++INCLUDE items/base/armor/leather/feet.txt
++level=6
++quality=high
++price=600
++abs=2,3
++requires_stat=defense,10
++requires_stat=physical,7
++bonus=poise,8
++
++[item]
++id=120
++name=Recon Leather Boots
++INCLUDE items/base/armor/leather/feet.txt
++level=6
++quality=high
++price=600
++abs=2
++requires_stat=defense,9
++requires_stat=offense,7
++bonus=avoidance,16
++
++[item]
++id=121
++name=Sorcerer Wool Boots
++INCLUDE items/base/armor/mage/feet.txt
++level=6
++quality=high
++price=600
++abs=1,2
++requires_stat=defense,8
++requires_stat=mental,7
++bonus=mp_regen,4
++
++[item]
++id=122
++name=Fighting Leather Gloves
++INCLUDE items/base/armor/leather/hands.txt
++level=6
++quality=high
++price=400
++abs=2,3
++requires_stat=defense,10
++requires_stat=physical,7
++bonus=crit,4
++
++[item]
++id=123
++name=Recon Leather Gloves
++INCLUDE items/base/armor/leather/hands.txt
++level=6
++quality=high
++price=400
++abs=2
++requires_stat=defense,9
++requires_stat=offense,7
++bonus=accuracy,8
++
++[item]
++id=124
++name=Sorcerer Wool Gloves
++INCLUDE items/base/armor/mage/hands.txt
++level=6
++quality=high
++price=400
++abs=1,2
++requires_stat=defense,8
++requires_stat=mental,7
++bonus=mp_regen,8
++
++[item]
++id=125
++name=Fighting Leather Belt
++INCLUDE items/base/armor/belt.txt
++level=6
++quality=high
++price=800
++requires_stat=defense,10
++requires_stat=physical,7
++bonus=hp_regen,100
++
++[item]
++id=126
++name=Recon Leather Belt
++INCLUDE items/base/armor/belt.txt
++level=6
++quality=high
++price=800
++requires_stat=defense,9
++requires_stat=offense,7
++bonus=avoidance,12
++
++[item]
++id=127
++name=Sorcerer Leather Belt
++INCLUDE items/base/armor/belt.txt
++level=6
++quality=high
++price=800
++requires_stat=defense,8
++requires_stat=mental,7
++bonus=mp_regen,8
++
++[item]
++id=128
++name=Fighting Shortsword
++INCLUDE items/base/weapons/melee/shortsword.txt
++level=6
++quality=high
++dmg_melee=45,50
++requires_stat=physical,16
++price=1600
++bonus=dmg_melee_min,5
++bonus=dmg_melee_max,5
++
++[item]
++id=129
++name=Recon Shortbow
++INCLUDE items/base/weapons/ranged/shortbow.txt
++level=6
++quality=high
++dmg_ranged=60,65
++requires_stat=offense,16
++price=1600
++bonus=dmg_ranged_min,5
++bonus=dmg_ranged_max,5
++
++[item]
++id=130
++name=Sorcerer Rod
++INCLUDE items/base/weapons/magic/rod.txt
++level=6
++quality=high
++dmg_ment=45,50
++requires_stat=mental,16
++price=1600
++bonus=dmg_ment_min,5
++bonus=dmg_ment_max,5
++
++[item]
++id=131
++name=Keeper Iron Buckler
++INCLUDE items/base/shields/iron.txt
++level=6
++quality=high
++abs=2,3
++requires_stat=defense,14
++price=1200
++bonus=absorb_max,1
++
++[item]
++id=132
++name=Wandering Burn Ring
++INCLUDE items/base/rings/gold_5.txt
++level=6
++quality=high
++price=2800
++bonus=fire_resist,20
++
++[item]
++id=133
++name=Wandering Frost Ring
++INCLUDE items/base/rings/silver_4.txt
++level=6
++quality=high
++price=2800
++bonus=ice_resist,20
++
++[item]
++id=134
++name=Wandering Electric Ring
++INCLUDE items/base/rings/silver_5.txt
++level=6
++quality=high
++price=2800
++bonus=lightning_resist,20
++
++[item]
++id=135
++name=Wandering Shadow Ring
++INCLUDE items/base/rings/gold_3.txt
++level=6
++quality=high
++price=2800
++bonus=dark_resist,20
++
++[item]
++id=136
++name=Wandering Knowledge Ring
++INCLUDE items/base/rings/silver_2.txt
++level=6
++quality=high
++price=2800
++bonus=xp_gain,20
++
++[item]
++id=137
++name=Wandering Prosperity Ring
++INCLUDE items/base/rings/gold_2.txt
++level=6
++quality=high
++price=2800
++bonus=currency_find,20
++
++[item]
++id=138
++name=Wandering Loot Ring
++INCLUDE items/base/rings/gold_4.txt
++level=6
++quality=high
++price=2800
++bonus=item_find,20
++
+diff --git a/mods/empyrean_campaign/items/categories/level_7.txt b/mods/empyrean_campaign/items/categories/level_7.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..162dbf9c72889d180c5fa5f101e966dad8757824
+--- /dev/null
++++ b/mods/empyrean_campaign/items/categories/level_7.txt
+@@ -0,0 +1,325 @@
++# equipment intended for players level 7
++
++[item]
++id=139
++name=Warrior Leather Hood
++INCLUDE items/base/armor/leather/head.txt
++level=7
++quality=epic
++price=1200
++abs=3
++requires_stat=defense,13
++requires_stat=physical,8
++bonus=poise,10
++
++[item]
++id=140
++name=Ranger Leather Hood
++INCLUDE items/base/armor/leather/head.txt
++level=7
++quality=epic
++price=1200
++abs=2,3
++requires_stat=defense,12
++requires_stat=offense,8
++bonus=accuracy,10
++
++[item]
++id=141
++name=Wizard Wool Hood
++INCLUDE items/base/armor/mage/head.txt
++level=7
++quality=epic
++price=1200
++abs=2
++requires_stat=defense,11
++requires_stat=mental,8
++bonus=mp,10
++
++[item]
++id=142
++name=Warrior Leather Tunic
++INCLUDE items/base/armor/leather/chest.txt
++level=7
++quality=epic
++price=2400
++abs=4
++requires_stat=defense,13
++requires_stat=physical,8
++bonus=hp,125
++
++[item]
++id=143
++name=Ranger Leather Tunic
++INCLUDE items/base/armor/leather/chest.txt
++level=7
++quality=epic
++price=2400
++abs=3,4
++requires_stat=defense,12
++requires_stat=offense,8
++bonus=accuracy,15
++
++[item]
++id=144
++name=Wizard Wool Vest
++INCLUDE items/base/armor/mage/chest.txt
++level=7
++quality=epic
++price=2400
++abs=3
++requires_stat=defense,11
++requires_stat=mental,8
++bonus=mp,15
++
++[item]
++id=145
++name=Warrior Leather Pants
++INCLUDE items/base/armor/leather/legs.txt
++level=7
++quality=epic
++price=1600
++abs=3,4
++requires_stat=defense,13
++requires_stat=physical,8
++bonus=poise,15
++
++[item]
++id=146
++name=Ranger Leather Pants
++INCLUDE items/base/armor/leather/legs.txt
++level=7
++quality=epic
++price=1600
++abs=3
++requires_stat=defense,12
++requires_stat=offense,8
++bonus=avoidance,15
++
++[item]
++id=147
++name=Wizard Wool Skirt
++INCLUDE items/base/armor/mage/legs.txt
++level=7
++quality=epic
++price=1600
++abs=2,3
++requires_stat=defense,11
++requires_stat=mental,8
++bonus=mp,10
++
++[item]
++id=148
++name=Warrior Leather Boots
++INCLUDE items/base/armor/leather/feet.txt
++level=7
++quality=epic
++price=1200
++abs=3
++requires_stat=defense,13
++requires_stat=physical,7
++bonus=poise,10
++
++[item]
++id=149
++name=Ranger Leather Boots
++INCLUDE items/base/armor/leather/feet.txt
++level=7
++quality=epic
++price=1200
++abs=2,3
++requires_stat=defense,12
++requires_stat=offense,8
++bonus=avoidance,18
++
++[item]
++id=150
++name=Wizard Wool Boots
++INCLUDE items/base/armor/mage/feet.txt
++level=7
++quality=epic
++price=1200
++abs=2
++requires_stat=defense,11
++requires_stat=mental,8
++bonus=mp_regen,5
++
++[item]
++id=151
++name=Warrior Leather Gloves
++INCLUDE items/base/armor/leather/hands.txt
++level=7
++quality=epic
++price=800
++abs=3
++requires_stat=defense,13
++requires_stat=physical,8
++bonus=crit,5
++
++[item]
++id=152
++name=Ranger Leather Gloves
++INCLUDE items/base/armor/leather/hands.txt
++level=7
++quality=epic
++price=800
++abs=2,3
++requires_stat=defense,12
++requires_stat=offense,8
++bonus=accuracy,10
++
++[item]
++id=153
++name=Wizard Wool Gloves
++INCLUDE items/base/armor/mage/hands.txt
++level=7
++quality=epic
++price=800
++abs=2
++requires_stat=defense,11
++requires_stat=mental,8
++bonus=mp_regen,10
++
++[item]
++id=154
++name=Warrior Leather Belt
++INCLUDE items/base/armor/belt.txt
++level=7
++quality=epic
++price=1600
++requires_stat=defense,13
++requires_stat=physical,8
++bonus=hp_regen,125
++
++[item]
++id=155
++name=Ranger Leather Belt
++INCLUDE items/base/armor/belt.txt
++level=7
++quality=epic
++price=1600
++requires_stat=defense,12
++requires_stat=offense,8
++bonus=avoidance,15
++
++[item]
++id=156
++name=Wizard Leather Belt
++INCLUDE items/base/armor/belt.txt
++level=7
++quality=epic
++price=1600
++requires_stat=defense,11
++requires_stat=mental,8
++bonus=mp_regen,10
++
++[item]
++id=157
++name=Warrior Shortsword
++INCLUDE items/base/weapons/melee/shortsword.txt
++level=7
++quality=epic
++dmg_melee=45,50
++requires_stat=physical,19
++price=3200
++bonus=dmg_melee_min,10
++bonus=dmg_melee_max,10
++
++[item]
++id=158
++name=Ranger Shortbow
++INCLUDE items/base/weapons/ranged/shortbow.txt
++level=7
++quality=epic
++dmg_ranged=60,65
++requires_stat=offense,19
++price=3200
++bonus=dmg_ranged_min,10
++bonus=dmg_ranged_max,10
++
++[item]
++id=159
++name=Wizard Rod
++INCLUDE items/base/weapons/magic/rod.txt
++level=7
++quality=epic
++dmg_ment=45,50
++requires_stat=mental,19
++price=3200
++bonus=dmg_ment_min,10
++bonus=dmg_ment_max,10
++
++[item]
++id=160
++name=Paladin Iron Buckler
++INCLUDE items/base/shields/iron.txt
++level=7
++quality=epic
++abs=2,3
++requires_stat=defense,17
++price=2400
++bonus=absorb_max,2
++
++[item]
++id=161
++name=Adventurer Burn Ring
++INCLUDE items/base/rings/gold_5.txt
++level=7
++quality=epic
++price=5600
++bonus=fire_resist,25
++
++[item]
++id=162
++name=Adventurer Frost Ring
++INCLUDE items/base/rings/silver_4.txt
++level=7
++quality=epic
++price=5600
++bonus=ice_resist,25
++
++[item]
++id=163
++name=Adventurer Electric Ring
++INCLUDE items/base/rings/silver_5.txt
++level=7
++quality=epic
++price=5600
++bonus=lightning_resist,25
++
++[item]
++id=164
++name=Adventurer Shadow Ring
++INCLUDE items/base/rings/gold_3.txt
++level=7
++quality=epic
++price=5600
++bonus=dark_resist,25
++
++[item]
++id=165
++name=Adventurer Knowledge Ring
++INCLUDE items/base/rings/silver_2.txt
++level=7
++quality=epic
++price=5600
++bonus=xp_gain,25
++
++[item]
++id=166
++name=Adventurer Prosperity Ring
++INCLUDE items/base/rings/gold_2.txt
++level=7
++quality=epic
++price=5600
++bonus=currency_find,25
++
++[item]
++id=167
++name=Adventurer Loot Ring
++INCLUDE items/base/rings/gold_4.txt
++level=7
++quality=epic
++price=5600
++bonus=item_find,25
++
+diff --git a/mods/empyrean_campaign/items/categories/level_8.txt b/mods/empyrean_campaign/items/categories/level_8.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..ac3e9a0935eebf44d75632f28fe861e69c719e01
+--- /dev/null
++++ b/mods/empyrean_campaign/items/categories/level_8.txt
+@@ -0,0 +1,325 @@
++# equipment intended for players level 8
++
++[item]
++id=168
++name=Warlord Leather Hood
++INCLUDE items/base/armor/leather/head.txt
++level=8
++quality=rare
++price=2400
++abs=3,4
++requires_stat=defense,16
++requires_stat=physical,9
++bonus=poise,15
++
++[item]
++id=169
++name=Sniper Leather Hood
++INCLUDE items/base/armor/leather/head.txt
++level=8
++quality=rare
++price=2400
++abs=3
++requires_stat=defense,15
++requires_stat=offense,9
++bonus=accuracy,15
++
++[item]
++id=170
++name=Archwizard Wool Hood
++INCLUDE items/base/armor/mage/head.txt
++level=8
++quality=rare
++price=2400
++abs=2,3
++requires_stat=defense,14
++requires_stat=mental,9
++bonus=mp,15
++
++[item]
++id=171
++name=Warlord Leather Tunic
++INCLUDE items/base/armor/leather/chest.txt
++level=8
++quality=rare
++price=4800
++abs=4,5
++requires_stat=defense,16
++requires_stat=physical,9
++bonus=hp,150
++
++[item]
++id=172
++name=Sniper Leather Tunic
++INCLUDE items/base/armor/leather/chest.txt
++level=8
++quality=rare
++price=4800
++abs=4
++requires_stat=defense,15
++requires_stat=offense,9
++bonus=accuracy,18
++
++[item]
++id=173
++name=Archwizard Wool Vest
++INCLUDE items/base/armor/mage/chest.txt
++level=8
++quality=rare
++price=4800
++abs=3,4
++requires_stat=defense,14
++requires_stat=mental,9
++bonus=mp,18
++
++[item]
++id=174
++name=Warlord Leather Pants
++INCLUDE items/base/armor/leather/legs.txt
++level=8
++quality=rare
++price=3200
++abs=4
++requires_stat=defense,16
++requires_stat=physical,9
++bonus=poise,18
++
++[item]
++id=175
++name=Sniper Leather Pants
++INCLUDE items/base/armor/leather/legs.txt
++level=8
++quality=rare
++price=3200
++abs=3,4
++requires_stat=defense,15
++requires_stat=offense,9
++bonus=avoidance,18
++
++[item]
++id=176
++name=Archwizard Wool Skirt
++INCLUDE items/base/armor/mage/legs.txt
++level=8
++quality=rare
++price=3200
++abs=3
++requires_stat=defense,14
++requires_stat=mental,9
++bonus=mp,12
++
++[item]
++id=177
++name=Warlord Leather Boots
++INCLUDE items/base/armor/leather/feet.txt
++level=8
++quality=rare
++price=2400
++abs=3,4
++requires_stat=defense,16
++requires_stat=physical,8
++bonus=poise,12
++
++[item]
++id=178
++name=Sniper Leather Boots
++INCLUDE items/base/armor/leather/feet.txt
++level=8
++quality=rare
++price=2400
++abs=3
++requires_stat=defense,15
++requires_stat=offense,9
++bonus=avoidance,24
++
++[item]
++id=179
++name=Archwizard Wool Boots
++INCLUDE items/base/armor/mage/feet.txt
++level=8
++quality=rare
++price=2400
++abs=2,3
++requires_stat=defense,14
++requires_stat=mental,9
++bonus=mp_regen,6
++
++[item]
++id=180
++name=Warlord Leather Gloves
++INCLUDE items/base/armor/leather/hands.txt
++level=8
++quality=rare
++price=1600
++abs=3,4
++requires_stat=defense,16
++requires_stat=physical,9
++bonus=crit,6
++
++[item]
++id=181
++name=Sniper Leather Gloves
++INCLUDE items/base/armor/leather/hands.txt
++level=8
++quality=rare
++price=1600
++abs=3
++requires_stat=defense,15
++requires_stat=offense,9
++bonus=accuracy,12
++
++[item]
++id=182
++name=Archwizard Wool Gloves
++INCLUDE items/base/armor/mage/hands.txt
++level=8
++quality=rare
++price=1600
++abs=2,3
++requires_stat=defense,14
++requires_stat=mental,9
++bonus=mp_regen,12
++
++[item]
++id=183
++name=Warlord Leather Belt
++INCLUDE items/base/armor/belt.txt
++level=8
++quality=rare
++price=3200
++requires_stat=defense,16
++requires_stat=physical,9
++bonus=hp_regen,150
++
++[item]
++id=184
++name=Sniper Leather Belt
++INCLUDE items/base/armor/belt.txt
++level=8
++quality=rare
++price=3200
++requires_stat=defense,15
++requires_stat=offense,9
++bonus=avoidance,18
++
++[item]
++id=185
++name=Archwizard Leather Belt
++INCLUDE items/base/armor/belt.txt
++level=8
++quality=rare
++price=3200
++requires_stat=defense,14
++requires_stat=mental,9
++bonus=mp_regen,12
++
++[item]
++id=186
++name=Warlord Shortsword
++INCLUDE items/base/weapons/melee/shortsword.txt
++level=8
++quality=rare
++dmg_melee=45,50
++requires_stat=physical,22
++price=6400
++bonus=dmg_melee_min,15
++bonus=dmg_melee_max,15
++
++[item]
++id=187
++name=Sniper Shortbow
++INCLUDE items/base/weapons/ranged/shortbow.txt
++level=8
++quality=rare
++dmg_ranged=60,65
++requires_stat=offense,22
++price=6400
++bonus=dmg_ranged_min,15
++bonus=dmg_ranged_max,15
++
++[item]
++id=188
++name=Archwizard Rod
++INCLUDE items/base/weapons/magic/rod.txt
++level=8
++quality=rare
++dmg_ment=45,50
++requires_stat=mental,22
++price=6400
++bonus=dmg_ment_min,15
++bonus=dmg_ment_max,15
++
++[item]
++id=189
++name=Templar Iron Buckler
++INCLUDE items/base/shields/iron.txt
++level=8
++quality=rare
++abs=2,3
++requires_stat=defense,20
++price=4800
++bonus=absorb_max,3
++
++[item]
++id=190
++name=Master Burn Ring
++INCLUDE items/base/rings/gold_5.txt
++level=8
++quality=rare
++price=11200
++bonus=fire_resist,30
++
++[item]
++id=191
++name=Master Frost Ring
++INCLUDE items/base/rings/silver_4.txt
++level=8
++quality=rare
++price=11200
++bonus=ice_resist,30
++
++[item]
++id=192
++name=Master Electric Ring
++INCLUDE items/base/rings/silver_5.txt
++level=8
++quality=rare
++price=11200
++bonus=lightning_resist,30
++
++[item]
++id=193
++name=Master Shadow Ring
++INCLUDE items/base/rings/gold_3.txt
++level=8
++quality=rare
++price=11200
++bonus=dark_resist,30
++
++[item]
++id=194
++name=Master Knowledge Ring
++INCLUDE items/base/rings/silver_2.txt
++level=8
++quality=rare
++price=11200
++bonus=xp_gain,30
++
++[item]
++id=195
++name=Master Prosperity Ring
++INCLUDE items/base/rings/gold_2.txt
++level=8
++quality=rare
++price=11200
++bonus=currency_find,30
++
++[item]
++id=196
++name=Master Loot Ring
++INCLUDE items/base/rings/gold_4.txt
++level=8
++quality=rare
++price=11200
++bonus=item_find,30
++
+diff --git a/mods/empyrean_campaign/items/items.txt b/mods/empyrean_campaign/items/items.txt
+index 9caa55453fa58abdc6b96cf144cb013b76a0b652..48e52804949418903b507f5ce144f53173492be6 100644
+--- a/mods/empyrean_campaign/items/items.txt
++++ b/mods/empyrean_campaign/items/items.txt
+@@ -26,5 +26,11 @@ INCLUDE items/categories/level_2.txt
+ INCLUDE items/categories/level_3.txt
+ INCLUDE items/categories/level_4.txt
+ 
++# Levels 5-8
++INCLUDE items/categories/level_5.txt
++INCLUDE items/categories/level_6.txt
++INCLUDE items/categories/level_7.txt
++INCLUDE items/categories/level_8.txt
++
+ # Quest items (starts at 1000)
+ INCLUDE items/categories/quest.txt
+diff --git a/mods/empyrean_campaign/loot/level_5.txt b/mods/empyrean_campaign/loot/level_5.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..adfddc8c0be398e9192ae1cd4fab0ea2dea7d1ba
+--- /dev/null
++++ b/mods/empyrean_campaign/loot/level_5.txt
+@@ -0,0 +1,254 @@
++# level 5 loot
++
++# gold
++[loot]
++id=currency
++chance=50
++quantity=25,35
++
++
++# potions
++[loot]
++id=2
++chance=5
++quantity=1
++
++[loot]
++id=3
++chance=5
++quantity=1
++
++
++# normal clothes
++[loot]
++id=96
++chance=3
++quantity=1
++
++[loot]
++id=97
++chance=3
++quantity=1
++
++[loot]
++id=98
++chance=3
++quantity=1
++
++[loot]
++id=99
++chance=3
++quantity=1
++
++[loot]
++id=100
++chance=3
++quantity=1
++
++[loot]
++id=101
++chance=3
++quantity=1
++
++[loot]
++id=102
++chance=3
++quantity=1
++
++[loot]
++id=103
++chance=3
++quantity=1
++
++[loot]
++id=104
++chance=3
++quantity=1
++
++[loot]
++id=105
++chance=3
++quantity=1
++
++
++# normal weapons
++[loot]
++id=106
++chance=3
++quantity=1
++
++[loot]
++id=107
++chance=3
++quantity=1
++
++[loot]
++id=108
++chance=3
++quantity=1
++
++
++# normal misc
++[loot]
++id=109
++chance=3
++quantity=1
++
++
++# magic clothes
++[loot]
++id=110
++chance=2
++quantity=1
++
++[loot]
++id=111
++chance=2
++quantity=1
++
++[loot]
++id=112
++chance=2
++quantity=1
++
++[loot]
++id=113
++chance=2
++quantity=1
++
++[loot]
++id=114
++chance=2
++quantity=1
++
++[loot]
++id=115
++chance=2
++quantity=1
++
++[loot]
++id=116
++chance=2
++quantity=1
++
++[loot]
++id=117
++chance=2
++quantity=1
++
++[loot]
++id=118
++chance=2
++quantity=1
++
++[loot]
++id=119
++chance=2
++quantity=1
++
++[loot]
++id=120
++chance=2
++quantity=1
++
++[loot]
++id=121
++chance=2
++quantity=1
++
++[loot]
++id=122
++chance=2
++quantity=1
++
++[loot]
++id=123
++chance=2
++quantity=1
++
++[loot]
++id=124
++chance=2
++quantity=1
++
++[loot]
++id=125
++chance=2
++quantity=1
++
++[loot]
++id=126
++chance=2
++quantity=1
++
++[loot]
++id=127
++chance=2
++quantity=1
++
++
++
++# magic weapons
++[loot]
++id=128
++chance=2
++quantity=1
++
++[loot]
++id=129
++chance=2
++quantity=1
++
++[loot]
++id=130
++chance=2
++quantity=1
++
++
++
++# magic misc
++[loot]
++id=131
++chance=2
++quantity=1
++
++[loot]
++id=132
++chance=2
++quantity=1
++
++[loot]
++id=133
++chance=2
++quantity=1
++
++[loot]
++id=133
++chance=2
++quantity=1
++
++[loot]
++id=134
++chance=2
++quantity=1
++
++[loot]
++id=135
++chance=2
++quantity=1
++
++[loot]
++id=136
++chance=2
++quantity=1
++
++[loot]
++id=137
++chance=2
++quantity=1
++
++[loot]
++id=138
++chance=2
++quantity=1
++
+diff --git a/mods/empyrean_campaign/loot/level_6.txt b/mods/empyrean_campaign/loot/level_6.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..408ce0e07bcfad6c74b170afa471f2eba3813d6c
+--- /dev/null
++++ b/mods/empyrean_campaign/loot/level_6.txt
+@@ -0,0 +1,413 @@
++# level 6 loot
++
++# gold
++[loot]
++id=currency
++chance=50
++quantity=30,40
++
++
++# potions
++[loot]
++id=2
++chance=8
++quantity=1
++
++[loot]
++id=3
++chance=8
++quantity=1
++
++
++# normal clothes
++[loot]
++id=96
++chance=5
++quantity=1
++
++[loot]
++id=97
++chance=5
++quantity=1
++
++[loot]
++id=98
++chance=5
++quantity=1
++
++[loot]
++id=99
++chance=5
++quantity=1
++
++[loot]
++id=100
++chance=5
++quantity=1
++
++[loot]
++id=101
++chance=5
++quantity=1
++
++[loot]
++id=102
++chance=5
++quantity=1
++
++[loot]
++id=103
++chance=5
++quantity=1
++
++[loot]
++id=104
++chance=5
++quantity=1
++
++[loot]
++id=105
++chance=5
++quantity=1
++
++
++# normal weapons
++[loot]
++id=106
++chance=5
++quantity=1
++
++[loot]
++id=107
++chance=5
++quantity=1
++
++[loot]
++id=108
++chance=5
++quantity=1
++
++
++# normal misc
++[loot]
++id=109
++chance=5
++quantity=1
++
++
++# magic clothes
++[loot]
++id=110
++chance=3
++quantity=1
++
++[loot]
++id=111
++chance=3
++quantity=1
++
++[loot]
++id=112
++chance=3
++quantity=1
++
++[loot]
++id=113
++chance=3
++quantity=1
++
++[loot]
++id=114
++chance=3
++quantity=1
++
++[loot]
++id=115
++chance=3
++quantity=1
++
++[loot]
++id=116
++chance=3
++quantity=1
++
++[loot]
++id=117
++chance=3
++quantity=1
++
++[loot]
++id=118
++chance=3
++quantity=1
++
++[loot]
++id=119
++chance=3
++quantity=1
++
++[loot]
++id=120
++chance=3
++quantity=1
++
++[loot]
++id=121
++chance=3
++quantity=1
++
++[loot]
++id=122
++chance=3
++quantity=1
++
++[loot]
++id=123
++chance=3
++quantity=1
++
++[loot]
++id=124
++chance=3
++quantity=1
++
++[loot]
++id=125
++chance=3
++quantity=1
++
++[loot]
++id=126
++chance=3
++quantity=1
++
++[loot]
++id=127
++chance=3
++quantity=1
++
++
++
++# magic weapons
++[loot]
++id=128
++chance=3
++quantity=1
++
++[loot]
++id=129
++chance=3
++quantity=1
++
++[loot]
++id=130
++chance=3
++quantity=1
++
++
++
++# magic misc
++[loot]
++id=131
++chance=3
++quantity=1
++
++[loot]
++id=132
++chance=3
++quantity=1
++
++[loot]
++id=133
++chance=3
++quantity=1
++
++[loot]
++id=133
++chance=3
++quantity=1
++
++[loot]
++id=134
++chance=3
++quantity=1
++
++[loot]
++id=135
++chance=3
++quantity=1
++
++[loot]
++id=136
++chance=3
++quantity=1
++
++[loot]
++id=137
++chance=3
++quantity=1
++
++[loot]
++id=138
++chance=3
++quantity=1
++
++
++
++# epic clothes
++[loot]
++id=139
++chance=2
++quantity=1
++
++[loot]
++id=140
++chance=2
++quantity=1
++
++[loot]
++id=141
++chance=2
++quantity=1
++
++[loot]
++id=142
++chance=2
++quantity=1
++
++[loot]
++id=143
++chance=2
++quantity=1
++
++[loot]
++id=144
++chance=2
++quantity=1
++
++[loot]
++id=145
++chance=2
++quantity=1
++
++[loot]
++id=146
++chance=2
++quantity=1
++
++[loot]
++id=147
++chance=2
++quantity=1
++
++[loot]
++id=148
++chance=2
++quantity=1
++
++[loot]
++id=149
++chance=2
++quantity=1
++
++[loot]
++id=150
++chance=2
++quantity=1
++
++[loot]
++id=151
++chance=2
++quantity=1
++
++[loot]
++id=152
++chance=2
++quantity=1
++
++[loot]
++id=153
++chance=2
++quantity=1
++
++[loot]
++id=154
++chance=2
++quantity=1
++
++[loot]
++id=155
++chance=2
++quantity=1
++
++[loot]
++id=156
++chance=2
++quantity=1
++
++
++
++# epic weapons
++[loot]
++id=157
++chance=2
++quantity=1
++
++[loot]
++id=158
++chance=2
++quantity=1
++
++[loot]
++id=159
++chance=2
++quantity=1
++
++
++
++# epic misc
++[loot]
++id=160
++chance=2
++quantity=1
++
++[loot]
++id=161
++chance=2
++quantity=1
++
++[loot]
++id=162
++chance=2
++quantity=1
++
++[loot]
++id=162
++chance=2
++quantity=1
++
++[loot]
++id=163
++chance=2
++quantity=1
++
++[loot]
++id=164
++chance=2
++quantity=1
++
++[loot]
++id=165
++chance=2
++quantity=1
++
++[loot]
++id=166
++chance=2
++quantity=1
++
++[loot]
++id=167
++chance=2
++quantity=1
++
+diff --git a/mods/empyrean_campaign/loot/level_7.txt b/mods/empyrean_campaign/loot/level_7.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..293e2b4222d4a87ee1c0d9a893bc6edab30264ba
+--- /dev/null
++++ b/mods/empyrean_campaign/loot/level_7.txt
+@@ -0,0 +1,572 @@
++# level 7 loot
++
++# gold
++[loot]
++id=currency
++chance=80
++quantity=35,45
++
++
++# potions
++[loot]
++id=2
++chance=13
++quantity=1
++
++[loot]
++id=3
++chance=13
++quantity=1
++
++
++# normal clothes
++[loot]
++id=96
++chance=8
++quantity=1
++
++[loot]
++id=97
++chance=8
++quantity=1
++
++[loot]
++id=98
++chance=8
++quantity=1
++
++[loot]
++id=99
++chance=8
++quantity=1
++
++[loot]
++id=100
++chance=8
++quantity=1
++
++[loot]
++id=101
++chance=8
++quantity=1
++
++[loot]
++id=102
++chance=8
++quantity=1
++
++[loot]
++id=103
++chance=8
++quantity=1
++
++[loot]
++id=104
++chance=8
++quantity=1
++
++[loot]
++id=105
++chance=8
++quantity=1
++
++
++# normal weapons
++[loot]
++id=106
++chance=8
++quantity=1
++
++[loot]
++id=107
++chance=8
++quantity=1
++
++[loot]
++id=108
++chance=8
++quantity=1
++
++
++# normal misc
++[loot]
++id=109
++chance=8
++quantity=1
++
++
++# magic clothes
++[loot]
++id=110
++chance=5
++quantity=1
++
++[loot]
++id=111
++chance=5
++quantity=1
++
++[loot]
++id=112
++chance=5
++quantity=1
++
++[loot]
++id=113
++chance=5
++quantity=1
++
++[loot]
++id=114
++chance=5
++quantity=1
++
++[loot]
++id=115
++chance=5
++quantity=1
++
++[loot]
++id=116
++chance=5
++quantity=1
++
++[loot]
++id=117
++chance=5
++quantity=1
++
++[loot]
++id=118
++chance=5
++quantity=1
++
++[loot]
++id=119
++chance=5
++quantity=1
++
++[loot]
++id=120
++chance=5
++quantity=1
++
++[loot]
++id=121
++chance=5
++quantity=1
++
++[loot]
++id=122
++chance=5
++quantity=1
++
++[loot]
++id=123
++chance=5
++quantity=1
++
++[loot]
++id=124
++chance=5
++quantity=1
++
++[loot]
++id=125
++chance=5
++quantity=1
++
++[loot]
++id=126
++chance=5
++quantity=1
++
++[loot]
++id=127
++chance=5
++quantity=1
++
++
++
++# magic weapons
++[loot]
++id=128
++chance=5
++quantity=1
++
++[loot]
++id=129
++chance=5
++quantity=1
++
++[loot]
++id=130
++chance=5
++quantity=1
++
++
++
++# magic misc
++[loot]
++id=131
++chance=5
++quantity=1
++
++[loot]
++id=132
++chance=5
++quantity=1
++
++[loot]
++id=133
++chance=5
++quantity=1
++
++[loot]
++id=133
++chance=5
++quantity=1
++
++[loot]
++id=134
++chance=5
++quantity=1
++
++[loot]
++id=135
++chance=5
++quantity=1
++
++[loot]
++id=136
++chance=5
++quantity=1
++
++[loot]
++id=137
++chance=5
++quantity=1
++
++[loot]
++id=138
++chance=5
++quantity=1
++
++
++
++# epic clothes
++[loot]
++id=139
++chance=3
++quantity=1
++
++[loot]
++id=140
++chance=3
++quantity=1
++
++[loot]
++id=141
++chance=3
++quantity=1
++
++[loot]
++id=142
++chance=3
++quantity=1
++
++[loot]
++id=143
++chance=3
++quantity=1
++
++[loot]
++id=144
++chance=3
++quantity=1
++
++[loot]
++id=145
++chance=3
++quantity=1
++
++[loot]
++id=146
++chance=3
++quantity=1
++
++[loot]
++id=147
++chance=3
++quantity=1
++
++[loot]
++id=148
++chance=3
++quantity=1
++
++[loot]
++id=149
++chance=3
++quantity=1
++
++[loot]
++id=150
++chance=3
++quantity=1
++
++[loot]
++id=151
++chance=3
++quantity=1
++
++[loot]
++id=152
++chance=3
++quantity=1
++
++[loot]
++id=153
++chance=3
++quantity=1
++
++[loot]
++id=154
++chance=3
++quantity=1
++
++[loot]
++id=155
++chance=3
++quantity=1
++
++[loot]
++id=156
++chance=3
++quantity=1
++
++
++
++# epic weapons
++[loot]
++id=157
++chance=3
++quantity=1
++
++[loot]
++id=158
++chance=3
++quantity=1
++
++[loot]
++id=159
++chance=3
++quantity=1
++
++
++
++# epic misc
++[loot]
++id=160
++chance=3
++quantity=1
++
++[loot]
++id=161
++chance=3
++quantity=1
++
++[loot]
++id=162
++chance=3
++quantity=1
++
++[loot]
++id=162
++chance=3
++quantity=1
++
++[loot]
++id=163
++chance=3
++quantity=1
++
++[loot]
++id=164
++chance=3
++quantity=1
++
++[loot]
++id=165
++chance=3
++quantity=1
++
++[loot]
++id=166
++chance=3
++quantity=1
++
++[loot]
++id=167
++chance=3
++quantity=1
++
++
++
++# rare clothes
++[loot]
++id=168
++chance=2
++quantity=1
++
++[loot]
++id=169
++chance=2
++quantity=1
++
++[loot]
++id=170
++chance=2
++quantity=1
++
++[loot]
++id=171
++chance=2
++quantity=1
++
++[loot]
++id=172
++chance=2
++quantity=1
++
++[loot]
++id=173
++chance=2
++quantity=1
++
++[loot]
++id=174
++chance=2
++quantity=1
++
++[loot]
++id=175
++chance=2
++quantity=1
++
++[loot]
++id=176
++chance=2
++quantity=1
++
++[loot]
++id=177
++chance=2
++quantity=1
++
++[loot]
++id=178
++chance=2
++quantity=1
++
++[loot]
++id=179
++chance=2
++quantity=1
++
++[loot]
++id=180
++chance=2
++quantity=1
++
++[loot]
++id=181
++chance=2
++quantity=1
++
++[loot]
++id=182
++chance=2
++quantity=1
++
++[loot]
++id=183
++chance=2
++quantity=1
++
++[loot]
++id=184
++chance=2
++quantity=1
++
++[loot]
++id=185
++chance=2
++quantity=1
++
++
++
++# rare weapons
++[loot]
++id=186
++chance=2
++quantity=1
++
++[loot]
++id=187
++chance=2
++quantity=1
++
++[loot]
++id=188
++chance=2
++quantity=1
++
++
++
++# rare misc
++[loot]
++id=189
++chance=2
++quantity=1
++
++[loot]
++id=190
++chance=2
++quantity=1
++
++[loot]
++id=191
++chance=2
++quantity=1
++
++[loot]
++id=191
++chance=2
++quantity=1
++
++[loot]
++id=192
++chance=2
++quantity=1
++
++[loot]
++id=193
++chance=2
++quantity=1
++
++[loot]
++id=194
++chance=2
++quantity=1
++
++[loot]
++id=195
++chance=2
++quantity=1
++
++[loot]
++id=196
++chance=2
++quantity=1
++
+diff --git a/mods/empyrean_campaign/loot/level_8.txt b/mods/empyrean_campaign/loot/level_8.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..13d3c1614ad015ee170c00437abb9e56d52ec126
+--- /dev/null
++++ b/mods/empyrean_campaign/loot/level_8.txt
+@@ -0,0 +1,572 @@
++# level 7 loot
++
++# gold
++[loot]
++id=currency
++chance=130
++quantity=40,50
++
++
++# potions
++[loot]
++id=2
++chance=31
++quantity=1
++
++[loot]
++id=3
++chance=31
++quantity=1
++
++
++# normal clothes
++[loot]
++id=96
++chance=13
++quantity=1
++
++[loot]
++id=97
++chance=13
++quantity=1
++
++[loot]
++id=98
++chance=13
++quantity=1
++
++[loot]
++id=99
++chance=13
++quantity=1
++
++[loot]
++id=100
++chance=13
++quantity=1
++
++[loot]
++id=101
++chance=13
++quantity=1
++
++[loot]
++id=102
++chance=13
++quantity=1
++
++[loot]
++id=103
++chance=13
++quantity=1
++
++[loot]
++id=104
++chance=13
++quantity=1
++
++[loot]
++id=105
++chance=13
++quantity=1
++
++
++# normal weapons
++[loot]
++id=106
++chance=13
++quantity=1
++
++[loot]
++id=107
++chance=13
++quantity=1
++
++[loot]
++id=108
++chance=13
++quantity=1
++
++
++# normal misc
++[loot]
++id=109
++chance=13
++quantity=1
++
++
++# magic clothes
++[loot]
++id=110
++chance=8
++quantity=1
++
++[loot]
++id=111
++chance=8
++quantity=1
++
++[loot]
++id=112
++chance=8
++quantity=1
++
++[loot]
++id=113
++chance=8
++quantity=1
++
++[loot]
++id=114
++chance=8
++quantity=1
++
++[loot]
++id=115
++chance=8
++quantity=1
++
++[loot]
++id=116
++chance=8
++quantity=1
++
++[loot]
++id=117
++chance=8
++quantity=1
++
++[loot]
++id=118
++chance=8
++quantity=1
++
++[loot]
++id=119
++chance=8
++quantity=1
++
++[loot]
++id=120
++chance=8
++quantity=1
++
++[loot]
++id=121
++chance=8
++quantity=1
++
++[loot]
++id=122
++chance=8
++quantity=1
++
++[loot]
++id=123
++chance=8
++quantity=1
++
++[loot]
++id=124
++chance=8
++quantity=1
++
++[loot]
++id=125
++chance=8
++quantity=1
++
++[loot]
++id=126
++chance=8
++quantity=1
++
++[loot]
++id=127
++chance=8
++quantity=1
++
++
++
++# magic weapons
++[loot]
++id=128
++chance=8
++quantity=1
++
++[loot]
++id=129
++chance=8
++quantity=1
++
++[loot]
++id=130
++chance=8
++quantity=1
++
++
++
++# magic misc
++[loot]
++id=131
++chance=8
++quantity=1
++
++[loot]
++id=132
++chance=8
++quantity=1
++
++[loot]
++id=133
++chance=8
++quantity=1
++
++[loot]
++id=133
++chance=8
++quantity=1
++
++[loot]
++id=134
++chance=8
++quantity=1
++
++[loot]
++id=135
++chance=8
++quantity=1
++
++[loot]
++id=136
++chance=8
++quantity=1
++
++[loot]
++id=137
++chance=8
++quantity=1
++
++[loot]
++id=138
++chance=8
++quantity=1
++
++
++
++# epic clothes
++[loot]
++id=139
++chance=5
++quantity=1
++
++[loot]
++id=140
++chance=5
++quantity=1
++
++[loot]
++id=141
++chance=5
++quantity=1
++
++[loot]
++id=142
++chance=5
++quantity=1
++
++[loot]
++id=143
++chance=5
++quantity=1
++
++[loot]
++id=144
++chance=5
++quantity=1
++
++[loot]
++id=145
++chance=5
++quantity=1
++
++[loot]
++id=146
++chance=5
++quantity=1
++
++[loot]
++id=147
++chance=5
++quantity=1
++
++[loot]
++id=148
++chance=5
++quantity=1
++
++[loot]
++id=149
++chance=5
++quantity=1
++
++[loot]
++id=150
++chance=5
++quantity=1
++
++[loot]
++id=151
++chance=5
++quantity=1
++
++[loot]
++id=152
++chance=5
++quantity=1
++
++[loot]
++id=153
++chance=5
++quantity=1
++
++[loot]
++id=154
++chance=5
++quantity=1
++
++[loot]
++id=155
++chance=5
++quantity=1
++
++[loot]
++id=156
++chance=5
++quantity=1
++
++
++
++# epic weapons
++[loot]
++id=157
++chance=5
++quantity=1
++
++[loot]
++id=158
++chance=5
++quantity=1
++
++[loot]
++id=159
++chance=5
++quantity=1
++
++
++
++# epic misc
++[loot]
++id=160
++chance=5
++quantity=1
++
++[loot]
++id=161
++chance=5
++quantity=1
++
++[loot]
++id=162
++chance=5
++quantity=1
++
++[loot]
++id=162
++chance=5
++quantity=1
++
++[loot]
++id=163
++chance=5
++quantity=1
++
++[loot]
++id=164
++chance=5
++quantity=1
++
++[loot]
++id=165
++chance=5
++quantity=1
++
++[loot]
++id=166
++chance=5
++quantity=1
++
++[loot]
++id=167
++chance=5
++quantity=1
++
++
++
++# rare clothes
++[loot]
++id=168
++chance=3
++quantity=1
++
++[loot]
++id=169
++chance=3
++quantity=1
++
++[loot]
++id=170
++chance=3
++quantity=1
++
++[loot]
++id=171
++chance=3
++quantity=1
++
++[loot]
++id=172
++chance=3
++quantity=1
++
++[loot]
++id=173
++chance=3
++quantity=1
++
++[loot]
++id=174
++chance=3
++quantity=1
++
++[loot]
++id=175
++chance=3
++quantity=1
++
++[loot]
++id=176
++chance=3
++quantity=1
++
++[loot]
++id=177
++chance=3
++quantity=1
++
++[loot]
++id=178
++chance=3
++quantity=1
++
++[loot]
++id=179
++chance=3
++quantity=1
++
++[loot]
++id=180
++chance=3
++quantity=1
++
++[loot]
++id=181
++chance=3
++quantity=1
++
++[loot]
++id=182
++chance=3
++quantity=1
++
++[loot]
++id=183
++chance=3
++quantity=1
++
++[loot]
++id=184
++chance=3
++quantity=1
++
++[loot]
++id=185
++chance=3
++quantity=1
++
++
++
++# rare weapons
++[loot]
++id=186
++chance=3
++quantity=1
++
++[loot]
++id=187
++chance=3
++quantity=1
++
++[loot]
++id=188
++chance=3
++quantity=1
++
++
++
++# rare misc
++[loot]
++id=189
++chance=3
++quantity=1
++
++[loot]
++id=190
++chance=3
++quantity=1
++
++[loot]
++id=191
++chance=3
++quantity=1
++
++[loot]
++id=191
++chance=3
++quantity=1
++
++[loot]
++id=192
++chance=3
++quantity=1
++
++[loot]
++id=193
++chance=3
++quantity=1
++
++[loot]
++id=194
++chance=3
++quantity=1
++
++[loot]
++id=195
++chance=3
++quantity=1
++
++[loot]
++id=196
++chance=3
++quantity=1
++

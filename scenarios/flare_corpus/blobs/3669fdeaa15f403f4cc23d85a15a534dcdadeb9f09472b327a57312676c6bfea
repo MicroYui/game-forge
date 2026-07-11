@@ -1,0 +1,26 @@
+diff --git a/mods/empyrean_campaign/maps/family_crypt.txt b/mods/empyrean_campaign/maps/family_crypt.txt
+index 5234d968e2d57ab5d7f41255b81a05e22472ad36..93bb427b65d2908e15a03e03bdd40b11012b73f1 100644
+--- a/mods/empyrean_campaign/maps/family_crypt.txt
++++ b/mods/empyrean_campaign/maps/family_crypt.txt
+@@ -296,7 +296,7 @@ requires_not_status=emp_ardwen_summoned
+ requires_status=emp_ardwen_ring
+ set_status=emp_ardwen_summoned
+ shakycam=1s
+-soundfx=soundfx/environment/stone_open.ogg
++soundfx=soundfx/environment/stone_open.ogg,11,4
+ spawn=ardwen_quest,12,4
+ tooltip=Ardwen's Coffin
+ 
+diff --git a/tiled/empyrean_campaign/family_crypt.tmx b/tiled/empyrean_campaign/family_crypt.tmx
+index d850b7c37deb539350ea1ad4cd181c4c17fb8d0f..195c4cc83e37fd738a69d458e89fe6eb03d18f2f 100644
+--- a/tiled/empyrean_campaign/family_crypt.tmx
++++ b/tiled/empyrean_campaign/family_crypt.tmx
+@@ -300,7 +300,7 @@
+     <property name="requires_status" value="emp_ardwen_ring"/>
+     <property name="set_status" value="emp_ardwen_summoned"/>
+     <property name="shakycam" value="1s"/>
+-    <property name="soundfx" value="soundfx/environment/stone_open.ogg"/>
++    <property name="soundfx" value="soundfx/environment/stone_open.ogg,11,4"/>
+     <property name="spawn" value="ardwen_quest,12,4"/>
+     <property name="tooltip" value="Ardwen's Coffin"/>
+    </properties>

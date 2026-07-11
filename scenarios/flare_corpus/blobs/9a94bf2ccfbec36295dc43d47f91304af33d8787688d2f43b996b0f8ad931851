@@ -1,0 +1,470 @@
+diff --git a/mods/empyrean_campaign/books/crafting_alchemy.txt b/mods/empyrean_campaign/books/crafting_alchemy.txt
+index f4bd41482086cc5703da03e8d7a5c56744866868..d601f04a224620650da32192fc633881e90deef0 100644
+--- a/mods/empyrean_campaign/books/crafting_alchemy.txt
++++ b/mods/empyrean_campaign/books/crafting_alchemy.txt
+@@ -287,3 +287,55 @@ text_shadow=true
+ text=Dynamite
+ requires_status=emp_alchemy_output_6
+ 
++# output, super hp potion
++[image]
++image_pos=304,208
++image_icon=64
++requires_status=emp_alchemy_output_7
++
++[text]
++text_pos=240,248,160,center
++text_font=255,255,255,font_regular
++text_shadow=true
++text=Super Health Potion
++requires_status=emp_alchemy_output_7
++
++# output, ultra hp potion
++[image]
++image_pos=304,208
++image_icon=64
++requires_status=emp_alchemy_output_8
++
++[text]
++text_pos=240,248,160,center
++text_font=255,255,255,font_regular
++text_shadow=true
++text=Ultra Health Potion
++requires_status=emp_alchemy_output_8
++
++# output, super mp potion
++[image]
++image_pos=304,208
++image_icon=65
++requires_status=emp_alchemy_output_9
++
++[text]
++text_pos=240,248,160,center
++text_font=255,255,255,font_regular
++text_shadow=true
++text=Super Mana Potion
++requires_status=emp_alchemy_output_9
++
++# output, ultra mp potion
++[image]
++image_pos=304,208
++image_icon=65
++requires_status=emp_alchemy_output_10
++
++[text]
++text_pos=240,248,160,center
++text_font=255,255,255,font_regular
++text_shadow=true
++text=Ultra Mana Potion
++requires_status=emp_alchemy_output_10
++
+diff --git a/mods/empyrean_campaign/items/categories/potions.txt b/mods/empyrean_campaign/items/categories/potions.txt
+index df78310de8cacaba9b867400b2bead2b5adb8c72..2f16d3aa4b7cff7528eb3aefd14bfb8b15202153 100644
+--- a/mods/empyrean_campaign/items/categories/potions.txt
++++ b/mods/empyrean_campaign/items/categories/potions.txt
+@@ -76,3 +76,51 @@ price_per_level=30
+ max_quantity=20
+ no_stash=shared
+ 
++[item]
++id=779
++name=Super Health Potion
++INCLUDE items/base/potion/hp.txt
++power=275
++power_desc=Restore 50% of maximum HP
++price=40
++price_sell=30
++price_per_level=40
++max_quantity=20
++no_stash=shared
++
++[item]
++id=780
++name=Ultra Health Potion
++INCLUDE items/base/potion/hp.txt
++power=276
++power_desc=Restore 75% of maximum HP
++price=60
++price_sell=45
++price_per_level=60
++max_quantity=20
++no_stash=shared
++
++[item]
++id=781
++name=Super Mana Potion
++INCLUDE items/base/potion/mp.txt
++power=277
++power_desc=Restore 50% of maximum MP
++price=40
++price_sell=30
++price_per_level=40
++max_quantity=20
++no_stash=shared
++
++[item]
++id=782
++name=Ultra Mana Potion
++INCLUDE items/base/potion/mp.txt
++power=278
++power_desc=Restore 75% of maximum MP
++price=60
++price_sell=45
++price_per_level=60
++max_quantity=20
++no_stash=shared
++
+diff --git a/mods/empyrean_campaign/powers/base/items/health_potion.txt b/mods/empyrean_campaign/powers/base/items/health_potion.txt
+index a560590f6e81b822d4564cd0ab8cf4ddf03d208a..6e4a05045d6b17071067345ad516ced03a470a41 100644
+--- a/mods/empyrean_campaign/powers/base/items/health_potion.txt
++++ b/mods/empyrean_campaign/powers/base/items/health_potion.txt
+@@ -8,3 +8,4 @@ requires_item=2
+ cooldown=500ms
+ buff=true
+ post_effect=hp_restore,25,1s
++requires_hpmp_state=all,not_percent,100,ignore,0
+diff --git a/mods/empyrean_campaign/powers/base/items/mana_potion.txt b/mods/empyrean_campaign/powers/base/items/mana_potion.txt
+index 54a0122725726171903429d039c9b26cd200021d..2adbf1c91e737712c0e6294f4a90e31e31f8eaee 100644
+--- a/mods/empyrean_campaign/powers/base/items/mana_potion.txt
++++ b/mods/empyrean_campaign/powers/base/items/mana_potion.txt
+@@ -8,3 +8,4 @@ requires_item=3
+ cooldown=500ms
+ buff=true
+ post_effect=mp_restore,25,1s
++requires_hpmp_state=all,ignore,0,not_percent,100
+diff --git a/mods/empyrean_campaign/powers/base/items/super_health_potion.txt b/mods/empyrean_campaign/powers/base/items/super_health_potion.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..c43c3d29229baf25401b517f784134e13655db14
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/base/items/super_health_potion.txt
+@@ -0,0 +1,11 @@
++type=fixed
++icon=64
++name=Super Health Potion
++description=Restore 50% of maximum HP
++soundfx=soundfx/powers/potion.ogg
++new_state=instant
++requires_item=779
++cooldown=500ms
++buff=true
++post_effect=hp_restore,50,1s
++requires_hpmp_state=all,not_percent,100,ignore,0
+diff --git a/mods/empyrean_campaign/powers/base/items/super_mana_potion.txt b/mods/empyrean_campaign/powers/base/items/super_mana_potion.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..e2333609408354512213778bce22c5df1c7f8fec
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/base/items/super_mana_potion.txt
+@@ -0,0 +1,11 @@
++type=fixed
++icon=65
++name=Super Mana Potion
++description=Restore 50% of maximum MP
++new_state=instant
++soundfx=soundfx/powers/potion.ogg
++requires_item=781
++cooldown=500ms
++buff=true
++post_effect=mp_restore,50,1s
++requires_hpmp_state=all,ignore,0,not_percent,100
+diff --git a/mods/empyrean_campaign/powers/base/items/ultra_health_potion.txt b/mods/empyrean_campaign/powers/base/items/ultra_health_potion.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..252bb7ff8f5baf6df0e69cfdfc3fb703d7ee178b
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/base/items/ultra_health_potion.txt
+@@ -0,0 +1,11 @@
++type=fixed
++icon=64
++name=Ultra Health Potion
++description=Restore 75% of maximum HP
++soundfx=soundfx/powers/potion.ogg
++new_state=instant
++requires_item=780
++cooldown=500ms
++buff=true
++post_effect=hp_restore,75,1s
++requires_hpmp_state=all,not_percent,100,ignore,0
+diff --git a/mods/empyrean_campaign/powers/base/items/ultra_mana_potion.txt b/mods/empyrean_campaign/powers/base/items/ultra_mana_potion.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..0f917172f35f42ccd0d92f9c4f3d1c3a3b090193
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/base/items/ultra_mana_potion.txt
+@@ -0,0 +1,11 @@
++type=fixed
++icon=65
++name=Ultra Mana Potion
++description=Restore 75% of maximum MP
++new_state=instant
++soundfx=soundfx/powers/potion.ogg
++requires_item=782
++cooldown=500ms
++buff=true
++post_effect=mp_restore,75,1s
++requires_hpmp_state=all,ignore,0,not_percent,100
+diff --git a/mods/empyrean_campaign/powers/categories/items.txt b/mods/empyrean_campaign/powers/categories/items.txt
+index 1042d7d62616190d715c37d3f186a2bc90aa5422..dab282f129317ddde724bc077773747788928e00 100644
+--- a/mods/empyrean_campaign/powers/categories/items.txt
++++ b/mods/empyrean_campaign/powers/categories/items.txt
+@@ -1,12 +1,10 @@
+ [power]
+ id=162
+ INCLUDE powers/base/items/health_potion.txt
+-requires_hpmp_state=all,not_percent,100,ignore,0
+ 
+ [power]
+ id=163
+ INCLUDE powers/base/items/mana_potion.txt
+-requires_hpmp_state=all,ignore,0,not_percent,100
+ 
+ [power]
+ id=234
+@@ -226,3 +224,20 @@ description=Use empty bottles and various ingredients to create potions.
+ new_state=instant
+ requires_item=753,0
+ script=on_cast,scripts/powers/mortar_and_pestle.txt
++
++[power]
++id=275
++INCLUDE powers/base/items/super_health_potion.txt
++
++[power]
++id=276
++INCLUDE powers/base/items/ultra_health_potion.txt
++
++[power]
++id=277
++INCLUDE powers/base/items/super_mana_potion.txt
++
++[power]
++id=278
++INCLUDE powers/base/items/ultra_mana_potion.txt
++
+diff --git a/mods/empyrean_campaign/scripts/crafting/alchemy/check_resources.txt b/mods/empyrean_campaign/scripts/crafting/alchemy/check_resources.txt
+index 07069cb44ad0500e22918cf018907ee319aff135..2d4a5a76212b55f06ff650bf8402ef250f9fde1a 100644
+--- a/mods/empyrean_campaign/scripts/crafting/alchemy/check_resources.txt
++++ b/mods/empyrean_campaign/scripts/crafting/alchemy/check_resources.txt
+@@ -12,6 +12,11 @@ unset_status=emp_alchemy_output_2
+ unset_status=emp_alchemy_output_3
+ unset_status=emp_alchemy_output_4
+ unset_status=emp_alchemy_output_5
++unset_status=emp_alchemy_output_6
++unset_status=emp_alchemy_output_7
++unset_status=emp_alchemy_output_8
++unset_status=emp_alchemy_output_9
++unset_status=emp_alchemy_output_10
+ 
+ # empty bottle
+ [event]
+@@ -21,32 +26,105 @@ set_status=emp_alchemy_0
+ 
+ # aloe vera
+ [event]
++requires_item=751:3
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_1
++requires_status=emp_alchemy_slot2_1
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_1
++
++[event]
++requires_item=751:2
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_1
++requires_not_status=emp_alchemy_slot2_1
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_1
++
++[event]
++requires_item=751:2
++requires_status=emp_alchemy_slot0_0
++requires_not_status=emp_alchemy_slot1_1
++requires_status=emp_alchemy_slot2_1
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_1
++
++[event]
+ requires_item=751
+ requires_status=emp_alchemy_slot0_0
+ requires_not_status=emp_alchemy_slot1_1
+ requires_not_status=emp_alchemy_slot2_1
+-requires_not_status=emp_alchemy_slot3_1
++requires_not_status=emp_alchemy_slot3_fill
+ set_status=emp_alchemy_1
+ 
+ # mana crystals
+ [event]
++requires_item=752:3
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_2
++requires_status=emp_alchemy_slot2_2
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_2
++
++[event]
++requires_item=752:2
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_2
++requires_not_status=emp_alchemy_slot2_2
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_2
++
++[event]
++requires_item=752:2
++requires_status=emp_alchemy_slot0_0
++requires_not_status=emp_alchemy_slot1_2
++requires_status=emp_alchemy_slot2_2
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_2
++
++[event]
+ requires_item=752
+ requires_status=emp_alchemy_slot0_0
+ requires_not_status=emp_alchemy_slot1_2
+ requires_not_status=emp_alchemy_slot2_2
+-requires_not_status=emp_alchemy_slot3_2
++requires_not_status=emp_alchemy_slot3_fill
+ set_status=emp_alchemy_2
+ 
+ # mushrooms
+ [event]
++requires_item=754:3
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_3
++requires_status=emp_alchemy_slot2_3
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_3
++
++[event]
++requires_item=754:2
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_3
++requires_not_status=emp_alchemy_slot2_3
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_3
++
++[event]
++requires_item=754:2
++requires_status=emp_alchemy_slot0_0
++requires_not_status=emp_alchemy_slot1_3
++requires_status=emp_alchemy_slot2_3
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_3
++
++[event]
+ requires_item=754
+ requires_status=emp_alchemy_slot0_0
+ requires_not_status=emp_alchemy_slot1_3
+ requires_not_status=emp_alchemy_slot2_3
+-requires_not_status=emp_alchemy_slot3_3
++requires_not_status=emp_alchemy_slot3_fill
+ set_status=emp_alchemy_3
+ 
+ # blast powder
++# the player can only have one of these, so we don't bother checking quantity here
+ [event]
+ requires_item=1032
+ requires_status=emp_alchemy_slot0_0
+@@ -172,3 +250,47 @@ requires_not_status=emp_alchemy_slot3_fill
+ set_status=emp_alchemy_output_6
+ set_status=emp_alchemy_craft
+ 
++# super hp potion recipe
++[event]
++requires_item=750
++requires_item=751:2
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_1
++requires_status=emp_alchemy_slot2_1
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_output_7
++set_status=emp_alchemy_craft
++
++# ultra hp potion recipe
++[event]
++requires_item=750
++requires_item=751:3
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_1
++requires_status=emp_alchemy_slot2_1
++requires_status=emp_alchemy_slot3_1
++set_status=emp_alchemy_output_8
++set_status=emp_alchemy_craft
++
++# super mp potion recipe
++[event]
++requires_item=750
++requires_item=752:2
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_2
++requires_status=emp_alchemy_slot2_2
++requires_not_status=emp_alchemy_slot3_fill
++set_status=emp_alchemy_output_9
++set_status=emp_alchemy_craft
++
++# ultra mp potion recipe
++[event]
++requires_item=750
++requires_item=752:3
++requires_status=emp_alchemy_slot0_0
++requires_status=emp_alchemy_slot1_2
++requires_status=emp_alchemy_slot2_2
++requires_status=emp_alchemy_slot3_2
++set_status=emp_alchemy_output_10
++set_status=emp_alchemy_craft
++
+diff --git a/mods/empyrean_campaign/scripts/crafting/alchemy/clear.txt b/mods/empyrean_campaign/scripts/crafting/alchemy/clear.txt
+index 5ec81baa60acaf79e646f05a4f499d6d8f8e4409..93f0b9b50fcbaf49058e2797a729bb9ddfd486e9 100644
+--- a/mods/empyrean_campaign/scripts/crafting/alchemy/clear.txt
++++ b/mods/empyrean_campaign/scripts/crafting/alchemy/clear.txt
+@@ -32,3 +32,7 @@ unset_status=emp_alchemy_output_3
+ unset_status=emp_alchemy_output_4
+ unset_status=emp_alchemy_output_5
+ unset_status=emp_alchemy_output_6
++unset_status=emp_alchemy_output_7
++unset_status=emp_alchemy_output_8
++unset_status=emp_alchemy_output_9
++unset_status=emp_alchemy_output_10
+diff --git a/mods/empyrean_campaign/scripts/crafting/alchemy/craft.txt b/mods/empyrean_campaign/scripts/crafting/alchemy/craft.txt
+index 6c1f894bab74ad8d8db3d8cc686b56f99f2ab44d..52102763501c93ba7008a6d8ad09b4e7600d6a63 100644
+--- a/mods/empyrean_campaign/scripts/crafting/alchemy/craft.txt
++++ b/mods/empyrean_campaign/scripts/crafting/alchemy/craft.txt
+@@ -42,5 +42,29 @@ reward_item=1016,1
+ unset_status=emp_naziamines_powder
+ set_status=emp_naziamines_dynamite
+ 
++# super hp potion
++[event]
++requires_status=emp_alchemy_output_7
++remove_item=750,751:2
++reward_item=779,1
++
++# ultra hp potion
++[event]
++requires_status=emp_alchemy_output_8
++remove_item=750,751:3
++reward_item=780,1
++
++# super mp potion
++[event]
++requires_status=emp_alchemy_output_9
++remove_item=750,752:2
++reward_item=781,1
++
++# ultra mp potion
++[event]
++requires_status=emp_alchemy_output_10
++remove_item=750,752:3
++reward_item=782,1
++
+ [event]
+ script=scripts/crafting/alchemy/check_resources.txt
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index dc5fedd10f62d37848fdd5d7bd43b072d2c67f8f..5ff9324222544e73d57626647c2bf33d8019badc 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.06.03:0
+ game=flare-game
+-version=1.12.01
++version=1.12.02
+ engine_version_min=1.12.04

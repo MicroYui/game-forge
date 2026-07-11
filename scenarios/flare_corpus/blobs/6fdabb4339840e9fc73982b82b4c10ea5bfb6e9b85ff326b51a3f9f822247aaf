@@ -1,0 +1,43 @@
+diff --git a/mods/fantasycore/items/items.txt b/mods/fantasycore/items/items.txt
+index 39fd72350abbcfb6c24e8f5caeeaac3508539cfa..9b23d9f55e2f120db09b2a3625c2918eb2e8ad23 100644
+--- a/mods/fantasycore/items/items.txt
++++ b/mods/fantasycore/items/items.txt
+@@ -8906,3 +8906,17 @@ bonus=MP regen,12
+ sfx=gem
+ loot=ring
+ price=920
++
++[item]
++id=948
++name=Scroll of Revert
++level=3
++icon=53
++power=136
++power_desc=Transform back to human
++type=consumable
++sfx=page
++loot=scroll
++price=200
++max_quantity=10
++rand_vendor=3
+diff --git a/mods/fantasycore/powers/powers.txt b/mods/fantasycore/powers/powers.txt
+index 90e2f7bdac1f0733f1fb2b630fa8f473a38da269..4e6dc28631e90a8f1f8079e605d674b1656b2d47 100644
+--- a/mods/fantasycore/powers/powers.txt
++++ b/mods/fantasycore/powers/powers.txt
+@@ -1099,3 +1099,16 @@ spawn_type=zombie_rotting
+ new_state=cast
+ starting_pos=source
+ target_neighbor = true
++
++[power]
++id=138
++name=Transform into Antlion Freezer permanently
++type=transform
++icon=20
++new_state=cast
++spawn_type=antlion_freezer
++requires_mp=5
++description=Transform into Antlion Freezer permanently
++sfx=quake.ogg
++transform_duration=0
++manual_untransform=false

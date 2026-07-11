@@ -1,0 +1,51 @@
+diff --git a/mods/empyrean_campaign/npcs/ardwens_coffin.txt b/mods/empyrean_campaign/npcs/ardwens_coffin.txt
+index 8b1e99ce9e310b15f3bc605bdfdae7a996aa392a..0a11de3508ec58d109c0b5f9c7fee6c369afcd13 100644
+--- a/mods/empyrean_campaign/npcs/ardwens_coffin.txt
++++ b/mods/empyrean_campaign/npcs/ardwens_coffin.txt
+@@ -4,6 +4,7 @@ talker=true
+ 
+ # quest not complete; second ring not yet inserted
+ [dialog]
++topic=Ardwen's Coffin
+ requires_not_status=emp_ardwen_ring_2_used,emp_ardwen_spawn,emp_ardwen_finish
+ response=emp_ardwen_ring_1
+ response=emp_ardwen_ring_2
+@@ -42,6 +43,7 @@ topic=Cancel
+ 
+ # quest not complete; second ring has been inserted
+ [dialog]
++topic=Ardwen's Coffin
+ requires_status=emp_ardwen_ring_2_used
+ requires_not_status=emp_ardwen_spawn,emp_ardwen_defeated,emp_ardwen_finish
+ script=scripts/maps/family_crypt/spawn_ardwen.txt
+@@ -49,6 +51,7 @@ spawn=ardwen_quest,12,4
+ 
+ # quest complete
+ [dialog]
++topic=Ardwen's Coffin
+ requires_status=emp_ardwen_finish
+ requires_not_status=emp_ardwen_spawn,emp_ardwen_defeated
+ script=scripts/maps/family_crypt/spawn_ardwen.txt
+diff --git a/mods/empyrean_campaign/npcs/base/infinity_obelisk.txt b/mods/empyrean_campaign/npcs/base/infinity_obelisk.txt
+index fddf97025b19e464ca5a052f9853f5144666e016..3e1bf172e7d26ccd4160b0c330593c622670d077 100644
+--- a/mods/empyrean_campaign/npcs/base/infinity_obelisk.txt
++++ b/mods/empyrean_campaign/npcs/base/infinity_obelisk.txt
+@@ -3,6 +3,7 @@ name=Infinity Obelisk
+ talker=true
+ 
+ [dialog]
++topic=Teleport
+ requires_not_status=emp_fig_all_placed
+ him=(You touch the obelisk, but nothing happens.)
+ 
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index fcd260ddda9a7eb539c1b362607aaba07cfd3e50..ca8cd55ade316ffaa8722239fe0700aead2be7d8 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.06.03:0
+ game=flare-game
+-version=1.12.03
++version=1.12.04
+ engine_version_min=1.12.04

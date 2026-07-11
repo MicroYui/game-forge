@@ -1,0 +1,335 @@
+diff --git a/mods/empyrean_campaign/items/categories/level_12_unique.txt b/mods/empyrean_campaign/items/categories/level_12_unique.txt
+index cd0b6478c048d3d01a4b91f066ad9398ff03efcd..edd868ba64a7fc42ee024876d337e382f569c929 100644
+--- a/mods/empyrean_campaign/items/categories/level_12_unique.txt
++++ b/mods/empyrean_campaign/items/categories/level_12_unique.txt
+@@ -76,6 +76,14 @@ requires_stat=defense,18
+ requires_stat=mental,12
+ replace_power=162,234
+ replace_power=163,235
++replace_power=269,279
++replace_power=270,280
++replace_power=271,281
++replace_power=272,282
++replace_power=275,283
++replace_power=276,284
++replace_power=277,285
++replace_power=278,286
+ power_desc=Drinking potions may create another potion of the same type.
+ bonus=mp,20
+ bonus=avoidance,15
+diff --git a/mods/empyrean_campaign/powers/base/items/elemental_potion.txt b/mods/empyrean_campaign/powers/base/items/elemental_potion.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..a7c774124b98cbe7678e281440276c8cace5fa80
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/base/items/elemental_potion.txt
+@@ -0,0 +1,14 @@
++type=fixed
++icon=83
++name=Elemental Potion
++description=Temporarily increases the resistance to all forms of magic by 50%
++soundfx=soundfx/powers/potion.ogg
++new_state=instant
++requires_item=778
++cooldown=500ms
++buff=true
++post_effect=elemental_potion_icon,0,60s
++post_effect=fire_resist,50,60s
++post_effect=ice_resist,50,60s
++post_effect=lightning_resist,50,60s
++post_effect=dark_resist,50,60s
+diff --git a/mods/empyrean_campaign/powers/base/items/restoration_potion.txt b/mods/empyrean_campaign/powers/base/items/restoration_potion.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..a61db564d24844b8ab5f040cec45cec0e2e69118
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/base/items/restoration_potion.txt
+@@ -0,0 +1,12 @@
++type=fixed
++icon=81
++name=Restoration Potion
++description=Restore 25% of both HP and MP
++soundfx=soundfx/powers/potion.ogg
++new_state=instant
++requires_item=776
++cooldown=500ms
++buff=true
++post_effect=hp_restore,25,1s
++post_effect=mp_restore,25,1s
++requires_hpmp_state=any,not_percent,100,not_percent,100
+diff --git a/mods/empyrean_campaign/powers/base/items/stamina_potion.txt b/mods/empyrean_campaign/powers/base/items/stamina_potion.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..5bb35986137ca62b6c7b746213ede59d5884d845
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/base/items/stamina_potion.txt
+@@ -0,0 +1,13 @@
++type=fixed
++icon=80
++name=Stamina Potion
++description=Temporarily increase regeneration and movement speed
++soundfx=soundfx/powers/potion.ogg
++new_state=instant
++requires_item=775
++cooldown=500ms
++buff=true
++post_effect=stamina_potion_icon,0,60s
++post_effect=hp_regen,300,60s
++post_effect=mp_regen,30,60s
++post_effect=speed,110,60s
+diff --git a/mods/empyrean_campaign/powers/base/items/treasure_potion.txt b/mods/empyrean_campaign/powers/base/items/treasure_potion.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..3676efb46154238d0a8d12f70a80c8bb9924cfbd
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/base/items/treasure_potion.txt
+@@ -0,0 +1,12 @@
++type=fixed
++icon=82
++name=Treasure Potion
++description=Temporarily increases the ability to find items and gold
++soundfx=soundfx/powers/potion.ogg
++new_state=instant
++requires_item=777
++cooldown=500ms
++buff=true
++post_effect=treasure_potion_icon,0,60s
++post_effect=item_find,400,60s
++post_effect=currency_find,50,60s
+diff --git a/mods/empyrean_campaign/powers/categories/items.txt b/mods/empyrean_campaign/powers/categories/items.txt
+index dab282f129317ddde724bc077773747788928e00..e9508ce0821100b34abd1b8e5912ee0a4034ae3a 100644
+--- a/mods/empyrean_campaign/powers/categories/items.txt
++++ b/mods/empyrean_campaign/powers/categories/items.txt
+@@ -9,12 +9,12 @@ INCLUDE powers/base/items/mana_potion.txt
+ [power]
+ id=234
+ INCLUDE powers/base/items/health_potion.txt
+-script=on_cast,scripts/powers/alchemist_skirt_hp.txt
++script=on_cast,scripts/powers/alchemist_skirt/hp.txt
+ 
+ [power]
+ id=235
+ INCLUDE powers/base/items/mana_potion.txt
+-script=on_cast,scripts/powers/alchemist_skirt_mp.txt
++script=on_cast,scripts/powers/alchemist_skirt/mp.txt
+ 
+ [power]
+ id=181
+@@ -154,66 +154,19 @@ remove_effect=shield,0
+ 
+ [power]
+ id=269
+-type=fixed
+-icon=80
+-name=Stamina Potion
+-description=Temporarily increase regeneration and movement speed
+-soundfx=soundfx/powers/potion.ogg
+-new_state=instant
+-requires_item=775
+-cooldown=500ms
+-buff=true
+-post_effect=stamina_potion_icon,0,60s
+-post_effect=hp_regen,300,60s
+-post_effect=mp_regen,30,60s
+-post_effect=speed,110,60s
++INCLUDE powers/base/items/stamina_potion.txt
+ 
+ [power]
+ id=270
+-type=fixed
+-icon=81
+-name=Restoration Potion
+-description=Restore 25% of both HP and MP
+-soundfx=soundfx/powers/potion.ogg
+-new_state=instant
+-requires_item=776
+-cooldown=500ms
+-buff=true
+-post_effect=hp_restore,25,1s
+-post_effect=mp_restore,25,1s
+-requires_hpmp_state=any,not_percent,100,not_percent,100
++INCLUDE powers/base/items/restoration_potion.txt
+ 
+ [power]
+ id=271
+-type=fixed
+-icon=82
+-name=Treasure Potion
+-description=Temporarily increases the ability to find items and gold
+-soundfx=soundfx/powers/potion.ogg
+-new_state=instant
+-requires_item=777
+-cooldown=500ms
+-buff=true
+-post_effect=treasure_potion_icon,0,60s
+-post_effect=item_find,400,60s
+-post_effect=currency_find,50,60s
++INCLUDE powers/base/items/treasure_potion.txt
+ 
+ [power]
+ id=272
+-type=fixed
+-icon=83
+-name=Elemental Potion
+-description=Temporarily increases the resistance to all forms of magic by 50%
+-soundfx=soundfx/powers/potion.ogg
+-new_state=instant
+-requires_item=778
+-cooldown=500ms
+-buff=true
+-post_effect=elemental_potion_icon,0,60s
+-post_effect=fire_resist,50,60s
+-post_effect=ice_resist,50,60s
+-post_effect=lightning_resist,50,60s
+-post_effect=dark_resist,50,60s
++INCLUDE powers/base/items/elemental_potion.txt
+ 
+ [power]
+ id=274
+@@ -241,3 +194,43 @@ INCLUDE powers/base/items/super_mana_potion.txt
+ id=278
+ INCLUDE powers/base/items/ultra_mana_potion.txt
+ 
++[power]
++id=279
++INCLUDE powers/base/items/stamina_potion.txt
++script=on_cast,scripts/powers/alchemist_skirt/stamina.txt
++
++[power]
++id=280
++INCLUDE powers/base/items/restoration_potion.txt
++script=on_cast,scripts/powers/alchemist_skirt/restoration.txt
++
++[power]
++id=281
++INCLUDE powers/base/items/treasure_potion.txt
++script=on_cast,scripts/powers/alchemist_skirt/treasure.txt
++
++[power]
++id=282
++INCLUDE powers/base/items/elemental_potion.txt
++script=on_cast,scripts/powers/alchemist_skirt/elemental.txt
++
++[power]
++id=283
++INCLUDE powers/base/items/super_health_potion.txt
++script=on_cast,scripts/powers/alchemist_skirt/super_hp.txt
++
++[power]
++id=284
++INCLUDE powers/base/items/ultra_health_potion.txt
++script=on_cast,scripts/powers/alchemist_skirt/ultra_hp.txt
++
++[power]
++id=285
++INCLUDE powers/base/items/super_mana_potion.txt
++script=on_cast,scripts/powers/alchemist_skirt/super_mp.txt
++
++[power]
++id=286
++INCLUDE powers/base/items/ultra_mana_potion.txt
++script=on_cast,scripts/powers/alchemist_skirt/ultra_mp.txt
++
+diff --git a/mods/empyrean_campaign/scripts/powers/alchemist_skirt/elemental.txt b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/elemental.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..323649bdc73067d875f67001da712065b302623e
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/elemental.txt
+@@ -0,0 +1,2 @@
++[event]
++loot=778,25,1,1
+diff --git a/mods/empyrean_campaign/scripts/powers/alchemist_skirt/hp.txt b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/hp.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..c10bb3aab972650c7921feacdf7ad23c36296b14
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/hp.txt
+@@ -0,0 +1,2 @@
++[event]
++loot=2,25,1,1
+diff --git a/mods/empyrean_campaign/scripts/powers/alchemist_skirt/mp.txt b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/mp.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..1d451b91207e5992c119d23f7a15c27541fdf9d8
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/mp.txt
+@@ -0,0 +1,2 @@
++[event]
++loot=3,25,1,1
+diff --git a/mods/empyrean_campaign/scripts/powers/alchemist_skirt/restoration.txt b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/restoration.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..cff01f89924350ae119a1a8b1ab26c6bc7e8ebca
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/restoration.txt
+@@ -0,0 +1,2 @@
++[event]
++loot=776,25,1,1
+diff --git a/mods/empyrean_campaign/scripts/powers/alchemist_skirt/stamina.txt b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/stamina.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..1eff4402b3716c3268650e95f6cf7333ab977c36
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/stamina.txt
+@@ -0,0 +1,2 @@
++[event]
++loot=775,25,1,1
+diff --git a/mods/empyrean_campaign/scripts/powers/alchemist_skirt/super_hp.txt b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/super_hp.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..5d0f60d792d2ab3049dc2dc9b98388b1c5001035
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/super_hp.txt
+@@ -0,0 +1,2 @@
++[event]
++loot=779,25,1,1
+diff --git a/mods/empyrean_campaign/scripts/powers/alchemist_skirt/super_mp.txt b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/super_mp.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..c64cf28558e3160ab96a243947d60ceb2b8a85fa
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/super_mp.txt
+@@ -0,0 +1,2 @@
++[event]
++loot=781,25,1,1
+diff --git a/mods/empyrean_campaign/scripts/powers/alchemist_skirt/treasure.txt b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/treasure.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..463c4942eedda48e66435217c60f64026ec6228a
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/treasure.txt
+@@ -0,0 +1,2 @@
++[event]
++loot=777,25,1,1
+diff --git a/mods/empyrean_campaign/scripts/powers/alchemist_skirt/ultra_hp.txt b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/ultra_hp.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..f3b1d55fad8b804a067f1c7dfef371bc2a6bf7b8
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/ultra_hp.txt
+@@ -0,0 +1,2 @@
++[event]
++loot=780,25,1,1
+diff --git a/mods/empyrean_campaign/scripts/powers/alchemist_skirt/ultra_mp.txt b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/ultra_mp.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..037b35f29c891fdbd385a039899a89dd8179f7ba
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/alchemist_skirt/ultra_mp.txt
+@@ -0,0 +1,2 @@
++[event]
++loot=782,25,1,1
+diff --git a/mods/empyrean_campaign/scripts/powers/alchemist_skirt_hp.txt b/mods/empyrean_campaign/scripts/powers/alchemist_skirt_hp.txt
+deleted file mode 100644
+index c10bb3aab972650c7921feacdf7ad23c36296b14..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/powers/alchemist_skirt_hp.txt
++++ /dev/null
+@@ -1,2 +0,0 @@
+-[event]
+-loot=2,25,1,1
+diff --git a/mods/empyrean_campaign/scripts/powers/alchemist_skirt_mp.txt b/mods/empyrean_campaign/scripts/powers/alchemist_skirt_mp.txt
+deleted file mode 100644
+index 1d451b91207e5992c119d23f7a15c27541fdf9d8..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/scripts/powers/alchemist_skirt_mp.txt
++++ /dev/null
+@@ -1,2 +0,0 @@
+-[event]
+-loot=3,25,1,1
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index 5ff9324222544e73d57626647c2bf33d8019badc..fcd260ddda9a7eb539c1b362607aaba07cfd3e50 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+ requires=fantasycore:1.06.03:0
+ game=flare-game
+-version=1.12.02
++version=1.12.03
+ engine_version_min=1.12.04

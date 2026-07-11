@@ -1,0 +1,1220 @@
+diff --git a/mods/empyrean_campaign/animations/enemies/antlion_fossilized.txt b/mods/empyrean_campaign/animations/enemies/antlion_fossilized.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..cd247d1d9eba427e6fbffd2bf49518b1050ce19e
+--- /dev/null
++++ b/mods/empyrean_campaign/animations/enemies/antlion_fossilized.txt
+@@ -0,0 +1,2 @@
++color_mod=60,50,45
++INCLUDE animations/enemies/ice_ant.txt
+diff --git a/mods/empyrean_campaign/enemies/base/antlion_fossilized.txt b/mods/empyrean_campaign/enemies/base/antlion_fossilized.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..419681a24bb497d91b120b230dae9886bedd1fa6
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/base/antlion_fossilized.txt
+@@ -0,0 +1,2 @@
++INCLUDE enemies/base/antlion.txt
++animations=animations/enemies/antlion_fossilized.txt
+diff --git a/mods/empyrean_campaign/enemies/goblin_minecart.txt b/mods/empyrean_campaign/enemies/goblin_minecart.txt
+index ff44fb4953702fd3afe8ecfcacdef467a40d940a..4fe5651861cb7271c1cd2640b14f4244fa66f90b 100644
+--- a/mods/empyrean_campaign/enemies/goblin_minecart.txt
++++ b/mods/empyrean_campaign/enemies/goblin_minecart.txt
+@@ -5,12 +5,13 @@ name=Goblin
+ level=1
+ categories=goblin_minecart
+ xp=0
++combat_style=passive
+ 
+ # combat stats
+ stat=hp,1
+ speed=4.5
+ turn_delay=200ms
+-chance_pursue=1
++chance_pursue=100
+ threat_range=0
+ waypoint_pause=0ms
+ 
+diff --git a/mods/empyrean_campaign/enemies/lvl13_antlion_fossilized.txt b/mods/empyrean_campaign/enemies/lvl13_antlion_fossilized.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..66462769796449421417b9c75e087bae8938b1ab
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl13_antlion_fossilized.txt
+@@ -0,0 +1,44 @@
++INCLUDE enemies/base/antlion_fossilized.txt
++
++name=Fossilized Antlion
++level=13
++categories=antlion,antlion_ice,ice,dungeon,grassland
++rarity=uncommon
++xp=8192
++
++# combat stats
++stat=hp,340
++speed=5.2
++turn_delay=200ms
++
++power=on_join_combat,244,100
++
++stat=accuracy,145
++stat=avoidance,85
++stat=poise,46
++
++stat=absorb_min,13
++stat=absorb_max,14
++
++stat=dmg_melee_min,185
++stat=dmg_melee_max,190
++stat=dmg_ment_min,200
++stat=dmg_ment_max,205
++
++vulnerable=ice,75
++
++cooldown=1300ms
++
++# loot
++loot=loot/level_13.txt
++
++# Ranged units behaviour, see docs/ranged_behavior.txt
++chance_pursue=6
++chance_flee=13
++flee_duration=2s
++flee_cooldown=1s
++flee_range=5
++threat_range=8,16
++power=melee,164,10
++power=melee,179,15
++power=ranged,172,50
+diff --git a/mods/empyrean_campaign/enemies/lvl13_antlion_larva.txt b/mods/empyrean_campaign/enemies/lvl13_antlion_larva.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..6d9010b467698c220b376f291f02b45653b2e7eb
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl13_antlion_larva.txt
+@@ -0,0 +1,29 @@
++INCLUDE enemies/base/antlion_small.txt
++
++name=Antlion Larva
++level=13
++categories=antlion_larva
++rarity=common
++xp=8192
++
++# combat stats
++stat=hp,130
++speed=5.2
++turn_delay=166ms
++
++chance_pursue=30
++
++power=melee,164,2
++
++stat=accuracy,135
++stat=avoidance,95
++stat=poise,46
++
++stat=dmg_melee_min,185
++stat=dmg_melee_max,190
++
++cooldown=1300ms
++
++# loot
++loot=loot/level_13.txt
++
+diff --git a/mods/empyrean_campaign/enemies/lvl13_goblin_thief.txt b/mods/empyrean_campaign/enemies/lvl13_goblin_thief.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..c0888ee3cb7a7990ef8e2647edec8d95a5c10fa3
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl13_goblin_thief.txt
+@@ -0,0 +1,34 @@
++INCLUDE enemies/base/goblin_runner.txt
++
++name=Goblin Thief
++level=13
++categories=goblin_charger,goblin,dungeon,grassland
++rarity=uncommon
++xp=8192
++
++# combat stats
++stat=hp,360
++speed=5.7
++turn_delay=200ms
++chance_pursue=10
++
++power=melee,164,5
++power=melee,243,2
++
++stat=accuracy,150
++stat=avoidance,70
++stat=poise,51
++
++stat=dmg_melee_min,185
++stat=dmg_melee_max,190
++cooldown=1100ms
++stat=absorb_min,13
++stat=absorb_max,13
++
++# loot
++loot=loot/level_13.txt
++
++# gold & potions
++loot=currency,50,125,250
++loot=2,50,1
++loot=3,50,1
+diff --git a/mods/empyrean_campaign/enemies/lvl13_skeleton_shadowstep.txt b/mods/empyrean_campaign/enemies/lvl13_skeleton_shadowstep.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..7848541b0905efe5db9ed0896005f9714bd16205
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl13_skeleton_shadowstep.txt
+@@ -0,0 +1,43 @@
++INCLUDE enemies/base/skeleton_archer.txt
++
++name=Shadowstep Skeleton
++level=13
++categories=skeleton_archer,skeleton,undead,dungeon,grassland
++rarity=common
++xp=8192
++
++# combat stats
++stat=hp,350
++speed=4.2
++turn_delay=200ms
++
++passive_powers=185
++power=on_join_combat,242,100
++power=ranged,242,50
++
++stat=accuracy,155
++stat=avoidance,80
++stat=poise,46
++
++stat=dmg_melee_min,185
++stat=dmg_melee_max,190
++stat=dmg_ranged_min,195
++stat=dmg_ranged_max,200
++stat=absorb_min,12
++stat=absorb_max,13
++
++cooldown=1500ms
++
++# loot
++loot=loot/level_13.txt
++
++# Ranged units behaviour, see docs/ranged_behavior.txt
++chance_pursue=1
++chance_flee=20
++flee_duration=3s
++flee_cooldown=1s
++flee_range=8
++threat_range=15,20
++power=melee,164,1
++power=ranged,171,80
++power=ranged,196,80
+diff --git a/mods/empyrean_campaign/enemies/lvl13_zombie_miner.txt b/mods/empyrean_campaign/enemies/lvl13_zombie_miner.txt
+index 88fabd080d0e87ab494525e80716a849357fed50..8ac89312ca31efc476826c26de6b6b8fb0fb97bb 100644
+--- a/mods/empyrean_campaign/enemies/lvl13_zombie_miner.txt
++++ b/mods/empyrean_campaign/enemies/lvl13_zombie_miner.txt
+@@ -1,5 +1,3 @@
+-INCLUDE enemies/base/beacon.txt
+-
+ # sfx_attack=swing,soundfx/enemies/zombie_phys.ogg
+ # sfx_attack=shoot,soundfx/enemies/zombie_phys.ogg
+ # sfx_attack=cast,soundfx/enemies/zombie_ment.ogg
+diff --git a/mods/empyrean_campaign/enemies/lvl13_zombie_vomit.txt b/mods/empyrean_campaign/enemies/lvl13_zombie_vomit.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..13f4d0def11adaee3be59223702b602da37b644f
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl13_zombie_vomit.txt
+@@ -0,0 +1,30 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Vomit Zombie
++level=13
++categories=zombie,undead,dungeon,grassland
++rarity=common
++xp=8192
++
++# combat stats
++stat=hp,360
++speed=4.2
++turn_delay=400ms
++chance_pursue=10
++
++power=melee,164,2
++power=melee,168,5
++power=ranged,239,5
++
++stat=accuracy,140
++stat=avoidance,70
++stat=poise,56
++
++stat=dmg_melee_min,195
++stat=dmg_melee_max,200
++stat=dmg_ment_min,195
++stat=dmg_ment_max,200
++cooldown=1500ms
++
++#loot
++loot=loot/level_13.txt
+diff --git a/mods/empyrean_campaign/maps/underworld.txt b/mods/empyrean_campaign/maps/underworld.txt
+index 79e148bf3d0a252506fa74b96582e23bc0d9f425..e214245ef7b6218ebd9c41f0e0c1a33c9d021692 100644
+--- a/mods/empyrean_campaign/maps/underworld.txt
++++ b/mods/empyrean_campaign/maps/underworld.txt
+@@ -807,3 +807,122 @@ hotspot=location
+ intermap=maps/underworld_catacombs.txt,70,99
+ tooltip=Underworld Catacombs
+ 
++[enemy]
++type=enemy
++location=49,46,5,6
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=41,21,14,7
++category=dungeon
++level=13
++number=4,5
++
++[enemy]
++type=enemy
++location=34,41,9,11
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=26,27,12,8
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=19,42,11,17
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=30,62,20,14
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=34,82,13,13
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=53,86,13,13
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=75,93,13,13
++category=dungeon
++level=13
++number=2,3
++
++[enemy]
++type=enemy
++location=98,102,13,13
++category=dungeon
++level=13
++number=2,3
++
++[enemy]
++type=enemy
++location=100,80,13,13
++category=dungeon
++level=13
++number=2
++
++[enemy]
++type=enemy
++location=101,65,13,13
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=86,60,13,15
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=105,40,7,18
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=103,16,7,18
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=86,3,13,8
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=68,2,13,11
++category=dungeon
++level=13
++number=4
++
+diff --git a/mods/empyrean_campaign/maps/underworld_catacombs.txt b/mods/empyrean_campaign/maps/underworld_catacombs.txt
+index 1c2c36919f96f1104f065faa47b68571dc66d25a..3f3524a5fbc2b8f99e26f0081644a5e7533a7167 100644
+--- a/mods/empyrean_campaign/maps/underworld_catacombs.txt
++++ b/mods/empyrean_campaign/maps/underworld_catacombs.txt
+@@ -577,3 +577,157 @@ category=catacomb_boulder_2
+ number=1
+ requires_not_status=emp_catacomb_boulder_2
+ 
++[enemy]
++type=enemy
++location=73,57,8,8
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=55,57,6,23
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=36,56,8,20
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=19,52,8,20
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=21,38,10,7
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=37,39,8,8
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=3,54,10,14
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=2,40,11,7
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=3,18,10,13
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=20,5,6,24
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=37,5,6,23
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=55,21,7,7
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=74,39,7,7
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=90,39,6,17
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=74,74,11,6
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=91,63,6,17
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=104,53,10,14
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=103,39,11,7
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=104,17,10,13
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=90,5,6,17
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=73,21,12,7
++category=dungeon
++level=13
++number=3
++
++[enemy]
++type=enemy
++location=74,4,6,6
++category=dungeon
++level=13
++number=2
++
+diff --git a/mods/empyrean_campaign/maps/underworld_mines.txt b/mods/empyrean_campaign/maps/underworld_mines.txt
+index 359a3772ee43142a6e9d2f0182cc0dcf717c23a4..d761dcf8bc757ad6fd07cc9ac3cf3871de3ba4d8 100644
+--- a/mods/empyrean_campaign/maps/underworld_mines.txt
++++ b/mods/empyrean_campaign/maps/underworld_mines.txt
+@@ -765,3 +765,122 @@ direction=N
+ number=1
+ wander_radius=0
+ 
++[enemy]
++type=enemy
++location=19,28,8,15
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=2,17,12,15
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=6,3,16,11
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=25,3,16,11
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=18,19,11,4
++category=dungeon
++level=13
++number=2
++
++[enemy]
++type=enemy
++location=30,36,4,10
++category=dungeon
++level=13
++number=2
++
++[enemy]
++type=enemy
++location=34,19,11,13
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=40,41,14,14
++category=dungeon
++level=13
++number=6
++
++[enemy]
++type=enemy
++location=47,59,10,19
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=62,48,4,10
++category=dungeon
++level=13
++number=2
++
++[enemy]
++type=enemy
++location=63,64,16,11
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=81,47,5,18
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=81,70,5,18
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=62,80,12,10
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=26,81,27,11
++category=dungeon
++level=13
++number=4
++
++[enemy]
++type=enemy
++location=94,63,24,11
++category=dungeon
++level=13
++number=6
++
++[enemy]
++type=enemy
++location=71,16,7,5
++category=dungeon
++level=13
++number=2
++
+diff --git a/mods/empyrean_campaign/powers/categories/enemy.txt b/mods/empyrean_campaign/powers/categories/enemy.txt
+index 9a38f8ce18b691f7d059212c6f06549543f039b6..b7595b884834c0974c8d500ab08ffd139cb59dd3 100644
+--- a/mods/empyrean_campaign/powers/categories/enemy.txt
++++ b/mods/empyrean_campaign/powers/categories/enemy.txt
+@@ -826,3 +826,51 @@ new_state=swing
+ face=false
+ requires_los=false
+ 
++# shadowstep skeleton buff
++[power]
++id=242
++type=fixed
++new_state=cast
++buff=true
++post_effect=shadowstep,0,10s
++post_effect=avoidance,40,10s
++post_effect=accuracy,75,10s
++cooldown=15s
++soundfx=soundfx/powers/shield.ogg
++
++# goblin steal
++[power]
++id=243
++type=fixed
++new_state=swing
++face=true
++use_hazard=true
++base_damage=melee
++lifespan=33ms
++radius=1.0
++starting_pos=melee
++modifier_damage=multiply,50,0
++cooldown=20s
++script=on_hit,scripts/powers/goblin_steal.txt
++
++# antlion larva spawn 1
++[power]
++id=244
++type=spawn
++new_state=instant
++spawn_type=antlion_larva
++starting_pos=source
++target_neighbor=2
++requires_empty_target=true
++post_power=245
++
++# antlion larva spawn 2
++[power]
++id=245
++type=spawn
++new_state=instant
++spawn_type=antlion_larva
++starting_pos=source
++target_neighbor=2
++requires_empty_target=true
++
+diff --git a/mods/empyrean_campaign/powers/effects.txt b/mods/empyrean_campaign/powers/effects.txt
+index 8d97192e1471598bd0e01f21378f9da71cfe31a3..9d1b98ee6e423a2bc0e0d35032ccb78387008fec 100644
+--- a/mods/empyrean_campaign/powers/effects.txt
++++ b/mods/empyrean_campaign/powers/effects.txt
+@@ -121,3 +121,9 @@ id=sacrifice_icon
+ name=Sacrifice
+ icon=25
+ can_stack=false
++
++[effect]
++id=shadowstep
++can_stack=false
++color_mod=0,0,0
++alpha_mod=63
+diff --git a/mods/empyrean_campaign/scripts/powers/goblin_steal.txt b/mods/empyrean_campaign/scripts/powers/goblin_steal.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..ff0f31ee8df7d7a4560d57e169a550e45b12c2be
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/powers/goblin_steal.txt
+@@ -0,0 +1,28 @@
++# 1 Health Potion
++[event]
++requires_not_status=emp_script_goblin_steal
++chance_exec=33
++requires_item=2
++remove_item=2
++set_status=emp_script_goblin_steal
++msg=Goblin Thief stole a potion!
++
++# 1 Mana Potion
++[event]
++requires_not_status=emp_script_goblin_steal
++chance_exec=50
++requires_item=3
++remove_item=3
++set_status=emp_script_goblin_steal
++msg=Goblin Thief stole a potion!
++
++# Gold
++[event]
++requires_not_status=emp_script_goblin_steal
++requires_currency=1
++remove_currency=250
++set_status=emp_script_goblin_steal
++msg=Goblin Thief stole some Gold!
++
++[event]
++unset_status=emp_script_goblin_steal
+diff --git a/tiled/empyrean_campaign/underworld.tmx b/tiled/empyrean_campaign/underworld.tmx
+index 18e4ed114417001112b5a4b535d268385faba219..6fa1099e6004b12138e965617b80c536bcc49f12 100644
+--- a/tiled/empyrean_campaign/underworld.tmx
++++ b/tiled/empyrean_campaign/underworld.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.0" orientation="isometric" renderorder="right-down" width="120" height="120" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="43">
++<map version="1.0" tiledversion="1.1.0" orientation="isometric" renderorder="right-down" width="120" height="120" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="60">
+  <properties>
+   <property name="hero_pos" value="67,47"/>
+   <property name="music" value="music/cave_theme.ogg"/>
+@@ -774,5 +774,125 @@
+    </properties>
+   </object>
+  </objectgroup>
+- <objectgroup name="enemy"/>
++ <objectgroup name="enemy">
++  <object id="43" type="enemy" x="1568" y="1472" width="160" height="192">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="44" type="enemy" x="1312" y="672" width="448" height="224">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4,5"/>
++   </properties>
++  </object>
++  <object id="45" type="enemy" x="1088" y="1312" width="288" height="352">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="46" type="enemy" x="832" y="864" width="384" height="256">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="47" type="enemy" x="608" y="1344" width="352" height="544">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="48" type="enemy" x="960" y="1984" width="640" height="448">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="49" type="enemy" x="1088" y="2624" width="416" height="416">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="50" type="enemy" x="1696" y="2752" width="416" height="416">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="51" type="enemy" x="2400" y="2976" width="416" height="416">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="2,3"/>
++   </properties>
++  </object>
++  <object id="52" type="enemy" x="3136" y="3264" width="416" height="416">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="2,3"/>
++   </properties>
++  </object>
++  <object id="53" type="enemy" x="3200" y="2560" width="416" height="416">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="2"/>
++   </properties>
++  </object>
++  <object id="54" type="enemy" x="3232" y="2080" width="416" height="416">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="55" type="enemy" x="2752" y="1920" width="416" height="480">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="56" type="enemy" x="3360" y="1280" width="224" height="576">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="57" type="enemy" x="3296" y="512" width="224" height="576">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="58" type="enemy" x="2752" y="96" width="416" height="256">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="59" type="enemy" x="2176" y="64" width="416" height="352">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++ </objectgroup>
+ </map>
+diff --git a/tiled/empyrean_campaign/underworld_catacombs.tmx b/tiled/empyrean_campaign/underworld_catacombs.tmx
+index bda50097d6cd87d2b34bc1d187c1835e1346873f..1eb9b5a0cbf011f544230ac6afa588f602f572b0 100644
+--- a/tiled/empyrean_campaign/underworld_catacombs.tmx
++++ b/tiled/empyrean_campaign/underworld_catacombs.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.0" orientation="isometric" renderorder="right-down" width="120" height="105" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="35">
++<map version="1.0" tiledversion="1.1.0" orientation="isometric" renderorder="right-down" width="120" height="105" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="60">
+  <properties>
+   <property name="hero_pos" value="70,99"/>
+   <property name="music" value="music/cave_theme.ogg"/>
+@@ -558,5 +558,159 @@
+     <property name="requires_not_status" value="emp_catacomb_boulder_2"/>
+    </properties>
+   </object>
++  <object id="39" type="enemy" x="2336" y="1824" width="256" height="256">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="38" type="enemy" x="1760" y="1824" width="192" height="736">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="36" type="enemy" x="1152" y="1792" width="256" height="640">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="41" type="enemy" x="608" y="1664" width="256" height="640">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="42" type="enemy" x="672" y="1216" width="320" height="224">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="43" type="enemy" x="1184" y="1248" width="256" height="256">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="44" type="enemy" x="96" y="1728" width="320" height="448">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="45" type="enemy" x="64" y="1280" width="352" height="224">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="46" type="enemy" x="96" y="576" width="320" height="416">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="47" type="enemy" x="640" y="160" width="192" height="768">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="48" type="enemy" x="1184" y="160" width="192" height="736">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="49" type="enemy" x="1760" y="672" width="224" height="224">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="50" type="enemy" x="2368" y="1248" width="224" height="224">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="51" type="enemy" x="2880" y="1248" width="192" height="544">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="52" type="enemy" x="2368" y="2368" width="352" height="192">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="53" type="enemy" x="2912" y="2016" width="192" height="544">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="54" type="enemy" x="3328" y="1696" width="320" height="448">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="55" type="enemy" x="3296" y="1248" width="352" height="224">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="56" type="enemy" x="3328" y="544" width="320" height="416">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="57" type="enemy" x="2880" y="160" width="192" height="544">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="58" type="enemy" x="2336" y="672" width="384" height="224">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="3"/>
++   </properties>
++  </object>
++  <object id="59" type="enemy" x="2368" y="128" width="192" height="192">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="2"/>
++   </properties>
++  </object>
+  </objectgroup>
+ </map>
+diff --git a/tiled/empyrean_campaign/underworld_mines.tmx b/tiled/empyrean_campaign/underworld_mines.tmx
+index 5cb77907dc80c7d0257094a7573fac9ed4767ce3..4988c62cd508f0ed573f2a4fbb5d7a9e8944c89b 100644
+--- a/tiled/empyrean_campaign/underworld_mines.tmx
++++ b/tiled/empyrean_campaign/underworld_mines.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.0" orientation="isometric" renderorder="right-down" width="136" height="110" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="52">
++<map version="1.0" tiledversion="1.1.0" orientation="isometric" renderorder="right-down" width="136" height="110" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="71">
+  <properties>
+   <property name="hero_pos" value="31,63"/>
+   <property name="music" value="music/cave_theme.ogg"/>
+@@ -752,5 +752,124 @@
+     <property name="wander_radius" value="0"/>
+    </properties>
+   </object>
++  <object id="52" type="enemy" x="608" y="896" width="256" height="480">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="53" type="enemy" x="64" y="544" width="384" height="480">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="54" type="enemy" x="192" y="96" width="512" height="352">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="55" type="enemy" x="800" y="96" width="512" height="352">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="56" type="enemy" x="576" y="608" width="352" height="128">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="2"/>
++   </properties>
++  </object>
++  <object id="57" type="enemy" x="960" y="1152" width="128" height="320">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="2"/>
++   </properties>
++  </object>
++  <object id="58" type="enemy" x="1088" y="608" width="352" height="416">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="59" type="enemy" x="1280" y="1312" width="448" height="448">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="6"/>
++   </properties>
++  </object>
++  <object id="62" type="enemy" x="1504" y="1888" width="320" height="608">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="63" type="enemy" x="1984" y="1536" width="128" height="320">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="2"/>
++   </properties>
++  </object>
++  <object id="64" type="enemy" x="2016" y="2048" width="512" height="352">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="65" type="enemy" x="2592" y="1504" width="160" height="576">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="66" type="enemy" x="2592" y="2240" width="160" height="576">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="67" type="enemy" x="1984" y="2560" width="384" height="320">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="68" type="enemy" x="832" y="2592" width="864" height="352">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="4"/>
++   </properties>
++  </object>
++  <object id="69" type="enemy" x="3008" y="2016" width="768" height="352">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="6"/>
++   </properties>
++  </object>
++  <object id="70" type="enemy" x="2272" y="512" width="224" height="160">
++   <properties>
++    <property name="category" value="dungeon"/>
++    <property name="level" value="13"/>
++    <property name="number" value="2"/>
++   </properties>
++  </object>
+  </objectgroup>
+ </map>

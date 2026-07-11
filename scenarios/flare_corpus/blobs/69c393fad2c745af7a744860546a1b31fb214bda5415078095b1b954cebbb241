@@ -1,0 +1,114 @@
+diff --git a/mods/empyrean_campaign/enemies/base/beacon.txt b/mods/empyrean_campaign/enemies/base/beacon.txt
+index 461299430f9653c9ee253727e4ed04bf20aeee7e..8d1386acda88d550f50c3ef4bcb42016c0953588 100644
+--- a/mods/empyrean_campaign/enemies/base/beacon.txt
++++ b/mods/empyrean_campaign/enemies/base/beacon.txt
+@@ -1,2 +1,2 @@
+ # id of the "beacon" power used to call other enemies to the fight
+-power_beacon=161
++power=beacon,161,100
+diff --git a/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt b/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt
+index 5ca5fb0796cf50eb3651d8a0734531dc1878a14c..6a964eadc29e16d46fb49800ea1c7a56ee00a9e4 100644
+--- a/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt
++++ b/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt
+@@ -12,8 +12,8 @@ speed=2
+ melee_range=1.125
+ turn_delay=400ms
+ chance_pursue=10
+-chance_melee_phys=5
+-power_melee_phys=164
++
++power=melee,164,5
+ 
+ accuracy=85
+ avoidance=10
+@@ -26,4 +26,3 @@ cooldown=2000ms
+ # loot
+ loot=loot/level_1.txt
+ 
+-
+diff --git a/mods/empyrean_campaign/enemies/lvl1_skeleton_cracked.txt b/mods/empyrean_campaign/enemies/lvl1_skeleton_cracked.txt
+index 960af150a87a0d3035749649efb291b38a5bf850..774c7df11bba0364ae912cc2a3d0568c06b0cdd6 100644
+--- a/mods/empyrean_campaign/enemies/lvl1_skeleton_cracked.txt
++++ b/mods/empyrean_campaign/enemies/lvl1_skeleton_cracked.txt
+@@ -11,8 +11,8 @@ hp=70
+ speed=3
+ turn_delay=400ms
+ chance_pursue=10
+-chance_melee_phys=5
+-power_melee_phys=164
++
++power=melee,164,5
+ 
+ accuracy=90
+ avoidance=10
+diff --git a/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt b/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt
+index 4f16fb8aa3596dc4a488529b7c2951b05ce31976..2570c74c992436eea8a7d6ea86bc20588b1a8034 100644
+--- a/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt
++++ b/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt
+@@ -11,8 +11,8 @@ hp=90
+ speed=1.5
+ turn_delay=400ms
+ chance_pursue=10
+-chance_melee_phys=5
+-power_melee_phys=164
++
++power=melee,164,5
+ 
+ accuracy=80
+ avoidance=10
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
+index 8416241ee93c9d2ccc9fd76eff9fd6e6d080ceec..6def870adb68a7fb0c9245604210981b0eaadf6d 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_chief.txt
+@@ -11,13 +11,11 @@ hp=300
+ speed=2
+ melee_range=2.375
+ turn_delay=200ms
+-chance_pursue=10
+-chance_melee_ment=5
+-chance_ranged_phys=5
+-chance_ranged_ment=10
+-power_melee_ment=166
+-power_ranged_phys=167
+-power_ranged_ment=166
++chance_pursue=50
++
++power=melee,166,5
++power=ranged,166,10
++power=on_join_combat,167,100
+ 
+ accuracy=90
+ avoidance=35
+diff --git a/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt b/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
+index 561cebe4107f95c783f304832fa4a86723ef7712..14b6598debef58adefb66ff14dd31cb204b0d8a2 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_goblin_spearman.txt
+@@ -11,10 +11,9 @@ hp=160
+ speed=2
+ turn_delay=400ms
+ chance_pursue=15
+-chance_melee_phys=5
+-chance_ranged_phys=10
+-power_melee_phys=164
+-power_ranged_phys=165
++
++power=melee,164,5
++power=ranged,165,10
+ 
+ accuracy=85
+ avoidance=10
+diff --git a/mods/empyrean_campaign/enemies/lvl2_krolan.txt b/mods/empyrean_campaign/enemies/lvl2_krolan.txt
+index 962fe51f5407bab490fb3addea3cd573383d49d2..7ed17fb6298c93ea02087f0392921043f785436c 100644
+--- a/mods/empyrean_campaign/enemies/lvl2_krolan.txt
++++ b/mods/empyrean_campaign/enemies/lvl2_krolan.txt
+@@ -11,8 +11,8 @@ hp=280
+ speed=3
+ turn_delay=400ms
+ chance_pursue=10
+-chance_melee_phys=10
+-power_melee_phys=164
++
++power=melee,164,10
+ 
+ accuracy=90
+ avoidance=10

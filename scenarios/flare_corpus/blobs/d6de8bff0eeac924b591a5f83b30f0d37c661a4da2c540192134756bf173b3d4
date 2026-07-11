@@ -1,0 +1,90 @@
+diff --git a/mods/alpha_demo/maps/lost_mines1.txt b/mods/alpha_demo/maps/lost_mines1.txt
+index 9dccf731ebabd712ba7c37c3abf15732829cc21a..6b4717b8a3e39099bb66e7ecaf1ad6e5f92b9018 100644
+--- a/mods/alpha_demo/maps/lost_mines1.txt
++++ b/mods/alpha_demo/maps/lost_mines1.txt
+@@ -447,7 +447,7 @@ tooltip=Barrel
+ type=run_once
+ location=80,60,1,1
+ hotspot=location
+-mapmod=object,80,63,152
++mapmod=collision,80,60,0;collision,80,61,0;collision,80,62,0;collision,80,63,0;object,80,60,151;object,80,61,152;object,80,62,151;object,80,63,152
+ shakycam=20
+ soundfx=soundfx/powers/quake.ogg
+ tooltip=Stalagmite Pillar
+@@ -484,6 +484,15 @@ msg=The undead in this room are dressed in the remnants of shredded mining cloth
+ 
+ [event]
+ type=run_once
++location=80,67,1,1
++hotspot=location
++loot=random,80,66,6
++mapmod=object,80,67,178
++soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
++
++[event]
++type=run_once
+ location=81,67,1,1
+ hotspot=location
+ loot=random,81,66,6
+@@ -560,15 +569,6 @@ type=antlion_freezer
+ location=81,66,1,1
+ 
+ [enemy]
+-type=run_once
+-location=80,67,1,1
+-hotspot=location
+-loot=random,80,66,6
+-mapmod=object,80,67,178
+-soundfx=soundfx/wood_open.ogg
+-tooltip=Barrel
+-
+-[enemy]
+ type=necromancer_apprentice
+ location=18,28,1,1
+ 
+diff --git a/tiled/averguard/lost_mine.tmx b/tiled/averguard/lost_mine.tmx
+index 1b584e3f70d575ef76660af656faa36f5c668c91..9fa495ca5f13b6a8c51f8e4d65b8c725493ef93b 100644
+--- a/tiled/averguard/lost_mine.tmx
++++ b/tiled/averguard/lost_mine.tmx
+@@ -445,7 +445,7 @@
+   <object name="falling pillar/bridge event" type="run_once" x="2560" y="1920" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+-    <property name="mapmod" value="object,80,63,152"/>
++    <property name="mapmod" value="collision,80,60,0;collision,80,61,0;collision,80,62,0;collision,80,63,0;object,80,60,151;object,80,61,152;object,80,62,151;object,80,63,152"/>
+     <property name="shakycam" value="20"/>
+     <property name="soundfx" value="soundfx/powers/quake.ogg"/>
+     <property name="tooltip" value="Stalagmite Pillar"/>
+@@ -479,6 +479,15 @@
+     <property name="msg" value="The undead in this room are dressed in the remnants of shredded mining clothes."/>
+    </properties>
+   </object>
++  <object type="run_once" x="2560" y="2144" width="32" height="32">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="loot" value="random,80,66,6"/>
++    <property name="mapmod" value="object,80,67,178"/>
++    <property name="soundfx" value="soundfx/wood_open.ogg"/>
++    <property name="tooltip" value="Barrel"/>
++   </properties>
++  </object>
+   <object type="run_once" x="2592" y="2144" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+@@ -534,15 +543,6 @@
+   <object type="skeletal_archer" x="1696" y="1024" width="32" height="32"/>
+   <object type="antlion_freezer" x="2496" y="2112" width="32" height="32"/>
+   <object type="antlion_freezer" x="2592" y="2112" width="32" height="32"/>
+-  <object type="run_once" x="2560" y="2144" width="32" height="32">
+-   <properties>
+-    <property name="hotspot" value="location"/>
+-    <property name="loot" value="random,80,66,6"/>
+-    <property name="mapmod" value="object,80,67,178"/>
+-    <property name="soundfx" value="soundfx/wood_open.ogg"/>
+-    <property name="tooltip" value="Barrel"/>
+-   </properties>
+-  </object>
+   <object type="necromancer_apprentice" x="576" y="896" width="32" height="32"/>
+   <object type="skeletal_warrior" x="1760" y="2560" width="32" height="32"/>
+   <object type="skeletal_warrior" x="1792" y="2560" width="32" height="32"/>

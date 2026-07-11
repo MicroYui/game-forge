@@ -1,0 +1,78 @@
+diff --git a/mods/empyrean_campaign/maps/family_crypt.txt b/mods/empyrean_campaign/maps/family_crypt.txt
+index d722e0e9162ef664f574c1b16c64545ad1895702..3c4abe7ad3a1aa908d1e86e16c2d4fcf61298ada 100644
+--- a/mods/empyrean_campaign/maps/family_crypt.txt
++++ b/mods/empyrean_campaign/maps/family_crypt.txt
+@@ -214,7 +214,6 @@ activate=on_trigger
+ msg=Quest added.
+ repeat=false
+ requires_not_status=emp_ardwen_init,emp_ardwen_finish
+-save_game=true
+ set_status=emp_ardwen_init
+ 
+ [event]
+@@ -380,6 +379,16 @@ mapmod=collision,12,4,0
+ requires_status=emp_ardwen_finish
+ spawn=ardwen,12,4
+ 
++[event]
++# reset quest
++type=event
++location=2,0,1,1
++activate=on_load
++msg=Reset quest: "Trapped in the Crypt"
++requires_not_status=emp_ardwen_finish
++requires_status=emp_ardwen_init
++script=scripts/maps/family_crypt/reset_quest.txt
++
+ [enemy]
+ type=enemy
+ location=12,34,1,1
+diff --git a/mods/empyrean_campaign/scripts/maps/family_crypt/reset_quest.txt b/mods/empyrean_campaign/scripts/maps/family_crypt/reset_quest.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..550c5d22b1bf6d1837f754707b552464a99befde
+--- /dev/null
++++ b/mods/empyrean_campaign/scripts/maps/family_crypt/reset_quest.txt
+@@ -0,0 +1,8 @@
++[event]
++unset_status=emp_ardwen_init
++unset_status=emp_ardwen_ring
++unset_status=emp_ardwen_chest
++unset_status=emp_ardwen_summoned
++unset_status=emp_ardwen_defeated
++unset_status=emp_ardwen_finish
++remove_item=1003
+diff --git a/tiled/empyrean_campaign/family_crypt.tmx b/tiled/empyrean_campaign/family_crypt.tmx
+index c9efa9eb767c55ea6bb8da66712421b7a00954e2..4531246832762190a7c4e2ed3c086ce3f3a5ed6e 100644
+--- a/tiled/empyrean_campaign/family_crypt.tmx
++++ b/tiled/empyrean_campaign/family_crypt.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="38" height="56" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="43">
++<map version="1.0" tiledversion="1.0.1" orientation="isometric" renderorder="right-down" width="38" height="56" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="44">
+  <properties>
+   <property name="hero_pos" value="31,39"/>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+@@ -225,7 +225,6 @@
+     <property name="msg" value="Quest added."/>
+     <property name="repeat" value="false"/>
+     <property name="requires_not_status" value="emp_ardwen_init,emp_ardwen_finish"/>
+-    <property name="save_game" value="true"/>
+     <property name="set_status" value="emp_ardwen_init"/>
+    </properties>
+   </object>
+@@ -378,6 +377,15 @@
+     <property name="spawn" value="ardwen,12,4"/>
+    </properties>
+   </object>
++  <object id="43" name="reset quest" type="event" x="64" y="0" width="32" height="32">
++   <properties>
++    <property name="activate" value="on_load"/>
++    <property name="msg" value="Reset quest: &quot;Trapped in the Crypt&quot;"/>
++    <property name="requires_not_status" value="emp_ardwen_finish"/>
++    <property name="requires_status" value="emp_ardwen_init"/>
++    <property name="script" value="scripts/maps/family_crypt/reset_quest.txt"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="enemy">
+   <object id="16" type="enemy" x="384" y="1088" width="32" height="32">

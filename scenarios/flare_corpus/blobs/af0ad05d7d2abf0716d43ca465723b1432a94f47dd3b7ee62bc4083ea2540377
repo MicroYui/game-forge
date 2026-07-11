@@ -1,0 +1,325 @@
+diff --git a/mods/empyrean_campaign/enemies/base/beacon.txt b/mods/empyrean_campaign/enemies/base/beacon.txt
+index d0c6568000e4364a78c02595278b4a6dee7e8738..461299430f9653c9ee253727e4ed04bf20aeee7e 100644
+--- a/mods/empyrean_campaign/enemies/base/beacon.txt
++++ b/mods/empyrean_campaign/enemies/base/beacon.txt
+@@ -1,2 +1,2 @@
+ # id of the "beacon" power used to call other enemies to the fight
+-power_beacon=205
++power_beacon=161
+diff --git a/mods/empyrean_campaign/enemies/zombie_rotting.txt b/mods/empyrean_campaign/enemies/zombie_rotting.txt
+index 564010deec341c599116147399959a80721b7361..c099f71822f59c5ed670c1f48242ddb157f9c1f6 100644
+--- a/mods/empyrean_campaign/enemies/zombie_rotting.txt
++++ b/mods/empyrean_campaign/enemies/zombie_rotting.txt
+@@ -21,3 +21,5 @@ dmg_melee_min=10
+ dmg_melee_max=30
+ cooldown=833ms
+ 
++#loot
++loot=loot/leveled_low.txt
+diff --git a/mods/empyrean_campaign/engine/misc.txt b/mods/empyrean_campaign/engine/misc.txt
+index 855c22d74ae215dcb6dcb2db2b5f46db600bfb85..75cac45c6ae47f196294dff8116d57cabebc53e5 100644
+--- a/mods/empyrean_campaign/engine/misc.txt
++++ b/mods/empyrean_campaign/engine/misc.txt
+@@ -3,4 +3,5 @@ APPEND
+ # Miscellaneous engine settings
+ 
+ save_prefix=empyrean
++currency_id=1
+ 
+diff --git a/mods/empyrean_campaign/items/categories/potions.txt b/mods/empyrean_campaign/items/categories/potions.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..aaa4b96daf1baca8e24e8b192c6fb40f7b29ae13
+--- /dev/null
++++ b/mods/empyrean_campaign/items/categories/potions.txt
+@@ -0,0 +1,20 @@
++# Potions #############################
++
++[item]
++id=2
++name=Health Potion
++INCLUDE items/base/potion/hp.txt
++power=100
++power_desc=Restore 50% of maximum HP
++price=25
++max_quantity=10
++
++[item]
++id=3
++name=Mana Potion
++INCLUDE items/base/potion/mp.txt
++power=101
++power_desc=Restore 50% of maximum MP
++price=25
++max_quantity=10
++
+diff --git a/mods/empyrean_campaign/items/items.txt b/mods/empyrean_campaign/items/items.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..04063cb508767697240ddbfa2bd354e95d10edcf
+--- /dev/null
++++ b/mods/empyrean_campaign/items/items.txt
+@@ -0,0 +1,22 @@
++####################
++# Item Definitions #
++####################
++
++# Currency
++[item]
++id=1
++name=Gold
++quality=normal
++icon=88
++price=1
++price_sell=1
++max_quantity=5000
++soundfx=soundfx/inventory/inventory_coins.ogg
++loot_animation=animations/loot/coins5.txt,0,9
++loot_animation=animations/loot/coins25.txt,10,24
++loot_animation=animations/loot/coins100.txt,25,0
++
++
++# Potions 2-3
++INCLUDE items/categories/potions.txt
++
+diff --git a/mods/empyrean_campaign/loot/leveled_low.txt b/mods/empyrean_campaign/loot/leveled_low.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..4a457e500de56e69efce44cfae9eb78771671620
+--- /dev/null
++++ b/mods/empyrean_campaign/loot/leveled_low.txt
+@@ -0,0 +1,20 @@
++# low-level loot
++
++# gold
++[loot]
++id=currency
++chance=25
++quantity=2,15
++
++# hp potion
++[loot]
++id=2
++chance=5
++quantity=1
++
++# mp potion
++[loot]
++id=3
++chance=5
++quantity=1
++
+diff --git a/mods/empyrean_campaign/powers/base/magician/burn.txt b/mods/empyrean_campaign/powers/base/magician/burn.txt
+index 3e550e74050fb4c9f10246f11893ec84ffc5e14c..ddc47091e7d65c63387666607e79d5e9ca00cef7 100644
+--- a/mods/empyrean_campaign/powers/base/magician/burn.txt
++++ b/mods/empyrean_campaign/powers/base/magician/burn.txt
+@@ -16,7 +16,7 @@ floor=true
+ trait_elemental=fire
+ starting_pos=target
+ multitarget=true
+-post_power=201
++post_power=158
+ target_range=8.0
+ cooldown=800ms
+ 
+diff --git a/mods/empyrean_campaign/powers/base/magician/fireball.txt b/mods/empyrean_campaign/powers/base/magician/fireball.txt
+index 96b30d0bf25a3b03fa258ea4a5e1643ee05ebe37..29d1dfbffea7eeb70c60efd22ec06fec0fae7da0 100644
+--- a/mods/empyrean_campaign/powers/base/magician/fireball.txt
++++ b/mods/empyrean_campaign/powers/base/magician/fireball.txt
+@@ -14,7 +14,7 @@ lifespan=800ms
+ radius=1.0
+ speed=16
+ trait_elemental=fire
+-post_power=201
+-wall_power=201
++post_power=158
++wall_power=158
+ cooldown=600ms
+ 
+diff --git a/mods/empyrean_campaign/powers/base/magician/ice_bolt.txt b/mods/empyrean_campaign/powers/base/magician/ice_bolt.txt
+index 1c1afd3312c07c192fddcc6497c0b9ff16d144ef..19f818a0c9d383f6da76e6ef6e218fc54b586601 100644
+--- a/mods/empyrean_campaign/powers/base/magician/ice_bolt.txt
++++ b/mods/empyrean_campaign/powers/base/magician/ice_bolt.txt
+@@ -14,8 +14,8 @@ lifespan=800ms
+ radius=1.0
+ speed=16
+ trait_elemental=ice
+-post_power=202
+-wall_power=202
++post_power=159
++wall_power=159
+ cooldown=1s
+ 
+ 
+diff --git a/mods/empyrean_campaign/powers/base/magician/shock.txt b/mods/empyrean_campaign/powers/base/magician/shock.txt
+index 9b14bf633c9bd97d39a973dd3f78e20d40d71bc5..e459e102a25e92221c518d1c69ea81befaf92fc9 100644
+--- a/mods/empyrean_campaign/powers/base/magician/shock.txt
++++ b/mods/empyrean_campaign/powers/base/magician/shock.txt
+@@ -15,7 +15,7 @@ radius=1.0
+ speed=16
+ trait_elemental=air
+ trait_crits_impaired=25
+-post_power=202
+-wall_power=202
++post_power=159
++wall_power=159
+ cooldown=800ms
+ 
+diff --git a/mods/empyrean_campaign/powers/base/magician/thunderstrike.txt b/mods/empyrean_campaign/powers/base/magician/thunderstrike.txt
+index fa28545400af7d3b574ad356e51b9e28d8055433..e88b7ed767500b414833dea5cceb4537e21a3355 100644
+--- a/mods/empyrean_campaign/powers/base/magician/thunderstrike.txt
++++ b/mods/empyrean_campaign/powers/base/magician/thunderstrike.txt
+@@ -15,7 +15,7 @@ radius=1.5
+ trait_elemental=air
+ starting_pos=target
+ multitarget=true
+-post_power=202
++post_power=159
+ target_range=8.0
+ trait_crits_impaired=50
+ cooldown=1s
+diff --git a/mods/empyrean_campaign/powers/base/ranger/ember_shot.txt b/mods/empyrean_campaign/powers/base/ranger/ember_shot.txt
+index 4b1045ca9694f9e6c264ddcbaa051fe149549c3a..d2c485671c8909dedb21bc0864eade2c654970fb 100644
+--- a/mods/empyrean_campaign/powers/base/ranger/ember_shot.txt
++++ b/mods/empyrean_campaign/powers/base/ranger/ember_shot.txt
+@@ -21,7 +21,7 @@ radius=0.75
+ speed=24
+ directional=true
+ soundfx=soundfx/powers/shoot.ogg
+-post_power=201
++post_power=158
+ trait_elemental=fire
+ cooldown=600ms
+ 
+diff --git a/mods/empyrean_campaign/powers/base/warrior/blood_strike.txt b/mods/empyrean_campaign/powers/base/warrior/blood_strike.txt
+index f12c67ee886d540ff0910a341786d21b1fab48d9..f161b6dcf8c7d887616522b864ba081994657c14 100644
+--- a/mods/empyrean_campaign/powers/base/warrior/blood_strike.txt
++++ b/mods/empyrean_campaign/powers/base/warrior/blood_strike.txt
+@@ -9,6 +9,6 @@ base_damage=melee
+ lifespan=33ms
+ radius=1.0
+ starting_pos=melee
+-post_power=203
++post_power=160
+ cooldown=400ms
+ 
+diff --git a/mods/empyrean_campaign/powers/categories/beacon.txt b/mods/empyrean_campaign/powers/categories/beacon.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..682a80531464707f08e6b5ddb1a3509f92f75baf
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/categories/beacon.txt
+@@ -0,0 +1,13 @@
++[power]
++id=161
++#name=Enemy Beacon [enemy]
++#description=Bring other enemies into the fight with a dummy attack
++type=fixed
++icon=0
++use_hazard=true
++lifespan=33ms
++radius=4.0
++multitarget=true
++source_type=hero
++beacon=true
++
+diff --git a/mods/empyrean_campaign/powers/categories/enemy.txt b/mods/empyrean_campaign/powers/categories/enemy.txt
+deleted file mode 100644
+index c3b670eb1be5bd0c0932f67b47a01939a8c22426..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/powers/categories/enemy.txt
++++ /dev/null
+@@ -1,13 +0,0 @@
+-[power]
+-id=205
+-#name=Enemy Beacon [enemy]
+-#description=Bring other enemies into the fight with a dummy attack
+-type=fixed
+-icon=0
+-use_hazard=true
+-lifespan=33ms
+-radius=4.0
+-multitarget=true
+-source_type=hero
+-beacon=true
+-
+diff --git a/mods/empyrean_campaign/powers/categories/items.txt b/mods/empyrean_campaign/powers/categories/items.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..b657da049fd284f1ef65f6157663573d48ba45ba
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/categories/items.txt
+@@ -0,0 +1,24 @@
++[power]
++id=162
++type=fixed
++icon=64
++name=Health Potion
++soundfx=soundfx/powers/potion.ogg
++new_state=instant
++requires_item=2
++cooldown=500ms
++buff=true
++post_effect=hp_restore,50,33ms
++
++[power]
++id=163
++type=fixed
++icon=65
++name=Mana Potion
++new_state=instant
++soundfx=soundfx/powers/potion.ogg
++requires_item=3
++cooldown=500ms
++buff=true
++post_effect=mp_restore,50,33ms
++
+diff --git a/mods/empyrean_campaign/powers/categories/visual_effects.txt b/mods/empyrean_campaign/powers/categories/visual_effects.txt
+index d66e0b2306b85a69d5424eb778f4c483758637de..a7315ec62b4118ee7e088ba128343f11cc37f075 100644
+--- a/mods/empyrean_campaign/powers/categories/visual_effects.txt
++++ b/mods/empyrean_campaign/powers/categories/visual_effects.txt
+@@ -1,5 +1,5 @@
+ [power]
+-id=200
++id=157
+ name=Arrow Wall Strike
+ type=fixed
+ icon=0
+@@ -12,7 +12,7 @@ starting_pos=target
+ soundfx=soundfx/powers/arrow_wall.ogg
+ 
+ [power]
+-id=201
++id=158
+ name=Orange Spark
+ type=fixed
+ icon=0
+@@ -24,7 +24,7 @@ starting_pos=target
+ visual_random=2
+ 
+ [power]
+-id=202
++id=159
+ name=Blue Spark
+ type=fixed
+ icon=0
+@@ -36,7 +36,7 @@ starting_pos=target
+ visual_random=2
+ 
+ [power]
+-id=203
++id=160
+ name=Red Spark
+ type=fixed
+ icon=0
+diff --git a/mods/empyrean_campaign/powers/powers.txt b/mods/empyrean_campaign/powers/powers.txt
+index f3a5d05f3dc424fb2ff6f447b683161e3218d472..976c962b544d467a43f979ba72e302f6abf0e2f0 100644
+--- a/mods/empyrean_campaign/powers/powers.txt
++++ b/mods/empyrean_campaign/powers/powers.txt
+@@ -5,9 +5,9 @@ INCLUDE powers/categories/warrior.txt
+ INCLUDE powers/categories/ranger.txt
+ INCLUDE powers/categories/magician.txt
+ 
+-INCLUDE powers/categories/enemy.txt
+-
+-#INCLUDE powers/categories/items.txt
+ INCLUDE powers/categories/visual_effects.txt
++INCLUDE powers/categories/beacon.txt
++
++INCLUDE powers/categories/items.txt
+ #INCLUDE powers/categories/map_hazards.txt
+ 

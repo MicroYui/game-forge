@@ -1,0 +1,138 @@
+diff --git a/mods/alpha_demo/enemies/miner.txt b/mods/alpha_demo/enemies/miner.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..608593cff20a5ed904a6810c491b5f146975271a
+--- /dev/null
++++ b/mods/alpha_demo/enemies/miner.txt
+@@ -0,0 +1,34 @@
++name=Miner
++level=1
++categories=miner
++xp=1
++
++sfx_prefix=zombie
++animations=zombie
++
++
++# combat stats
++hp=20
++speed=3
++dspeed=2
++melee_range=72
++threat_range=256
++turn_delay=12
++chance_pursue=1
++chance_melee_ment=1
++power_melee_ment=37
++power_beacon=132
++
++accuracy=50
++avoidance=10
++
++dmg_melee_min=5
++dmg_melee_max=15
++dmg_ment_min=10
++dmg_ment_max=20
++cooldown=90
++
++# loot
++loot=currency,33
++
++
+diff --git a/mods/alpha_demo/maps/mineshaft_longsword.txt b/mods/alpha_demo/maps/mineshaft_longsword.txt
+index 9d6b5cc6855d71200f0e7bf6e736e5236c906641..1f2fdfe55f06b5b20dfeec60eaee69f23d0c7207 100644
+--- a/mods/alpha_demo/maps/mineshaft_longsword.txt
++++ b/mods/alpha_demo/maps/mineshaft_longsword.txt
+@@ -269,25 +269,25 @@ location=5,27,1,1
+ direction=5
+ 
+ [enemygroup]
+-type=goblin
++type=miner
+ location=25,26,15,6
+ level=1,1
+ number=1,3
+ 
+ [enemygroup]
+-type=goblin
++type=miner
+ location=11,22,4,10
+ level=1,1
+ number=2,4
+ 
+ [enemygroup]
+-type=goblin
++type=miner
+ location=15,12,19,6
+ level=1,1
+ number=2,4
+ 
+ [enemygroup]
+-type=goblin
++type=miner
+ location=36,12,15,13
+ level=1,1
+ number=2,4
+diff --git a/mods/fantasycore/powers/powers.txt b/mods/fantasycore/powers/powers.txt
+index f7ab9d7064d11e182eaebb10281e1e48c5611ca6..7f23b9a0d414fd2da2fc02bc6bb2df1d98c31611 100644
+--- a/mods/fantasycore/powers/powers.txt
++++ b/mods/fantasycore/powers/powers.txt
+@@ -521,11 +521,11 @@ hp_steal=50
+ 
+ [power]
+ id=37
+-name=Leech Strike
++name=Zombie Bite
+ type=fixed
+ icon=1
+-description=Turn 25% of damage you deal into HP
+-new_state=swing
++description=Deal melee damage and cause bleeding for 3 seconds
++new_state=cast
+ face=true
+ use_hazard=true
+ aim_assist=true
+@@ -534,7 +534,7 @@ lifespan=1
+ radius=64
+ starting_pos=melee
+ allow_power_mod=true
+-hp_steal=50
++post_effect=200,5,90
+ 
+ [power]
+ id=38
+diff --git a/tiled/frontier/mineshaft_longsword.tmx b/tiled/frontier/mineshaft_longsword.tmx
+index 82c4e662601cea9b3074281342eea0b26c1ec44c..4eeadf367fffed0fefce64a0a517e2e6d4853674 100644
+--- a/tiled/frontier/mineshaft_longsword.tmx
++++ b/tiled/frontier/mineshaft_longsword.tmx
+@@ -266,26 +266,26 @@
+    </properties>
+   </object>
+  </objectgroup>
+- <objectgroup name="enemygroup" width="64" height="64" visible="0">
+-  <object type="goblin" x="800" y="832" width="480" height="192">
++ <objectgroup name="enemygroup" width="64" height="64">
++  <object type="miner" x="800" y="832" width="480" height="192">
+    <properties>
+     <property name="level" value="1,1"/>
+     <property name="number" value="1,3"/>
+    </properties>
+   </object>
+-  <object type="goblin" x="352" y="704" width="128" height="320">
++  <object type="miner" x="352" y="704" width="128" height="320">
+    <properties>
+     <property name="level" value="1,1"/>
+     <property name="number" value="2,4"/>
+    </properties>
+   </object>
+-  <object type="goblin" x="480" y="384" width="608" height="192">
++  <object type="miner" x="480" y="384" width="608" height="192">
+    <properties>
+     <property name="level" value="1,1"/>
+     <property name="number" value="2,4"/>
+    </properties>
+   </object>
+-  <object type="goblin" x="1152" y="384" width="480" height="416">
++  <object type="miner" x="1152" y="384" width="480" height="416">
+    <properties>
+     <property name="level" value="1,1"/>
+     <property name="number" value="2,4"/>

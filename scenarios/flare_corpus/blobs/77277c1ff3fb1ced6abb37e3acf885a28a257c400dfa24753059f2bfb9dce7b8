@@ -1,0 +1,31 @@
+diff --git a/mods/fantasycore/items/items.txt b/mods/fantasycore/items/items.txt
+index 9b23d9f55e2f120db09b2a3625c2918eb2e8ad23..5b64a5f3e792baf88428c1f6040ac98443c6d7e2 100644
+--- a/mods/fantasycore/items/items.txt
++++ b/mods/fantasycore/items/items.txt
+@@ -8912,7 +8912,7 @@ id=948
+ name=Scroll of Revert
+ level=3
+ icon=53
+-power=136
++power=139
+ power_desc=Transform back to human
+ type=consumable
+ sfx=page
+diff --git a/mods/fantasycore/powers/powers.txt b/mods/fantasycore/powers/powers.txt
+index 59a35887922d2767baf4f937de0d0bf54b855d21..224ef713fa8c67f4f8919238fee0727a96422d0f 100644
+--- a/mods/fantasycore/powers/powers.txt
++++ b/mods/fantasycore/powers/powers.txt
+@@ -1112,3 +1112,13 @@ description=Transform into Antlion Freezer permanently
+ sfx=quake.ogg
+ transform_duration=0
+ manual_untransform=false
++
++[power]
++id=139
++name=Disenchant [item]
++type=transform
++icon=20
++new_state=cast
++description=Transform back to human
++requires_item=948
++sfx=quake.ogg

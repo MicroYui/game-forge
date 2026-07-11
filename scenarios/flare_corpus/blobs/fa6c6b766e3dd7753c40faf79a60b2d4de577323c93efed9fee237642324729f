@@ -1,0 +1,144 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt b/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..5329d588afa95f8a0ba20fd66c36560a9b0b9739
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl1_goblin_scamp.txt
+@@ -0,0 +1,30 @@
++INCLUDE enemies/base/goblin.txt
++
++name=Goblin Scamp
++level=1
++categories=goblin_normal,goblin,dungeon
++rarity=common
++xp=1
++
++# combat stats
++hp=150
++speed=2
++melee_range=1.125
++turn_delay=400ms
++chance_pursue=10
++chance_melee_phys=2
++power_melee_phys=164
++
++accuracy=75
++avoidance=25
++poise=60
++
++dmg_melee_min=10
++dmg_melee_max=30
++cooldown=500ms
++
++# loot
++loot=loot/leveled_low.txt
++loot=loot/level_1.txt
++
++
+diff --git a/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt b/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..365ced3dcc0efcb38e7354fa03928377f2651b4b
+--- /dev/null
++++ b/mods/empyrean_campaign/enemies/lvl1_zombie_rotting.txt
+@@ -0,0 +1,26 @@
++INCLUDE enemies/base/zombie.txt
++
++name=Rotting Zombie
++level=1
++categories=zombie_rotting,zombie,undead,dungeon
++xp=1
++
++# combat stats
++hp=125
++speed=1.5
++turn_delay=400ms
++chance_pursue=5
++chance_melee_phys=5
++power_melee_phys=164
++
++accuracy=70
++avoidance=20
++poise=50
++
++dmg_melee_min=10
++dmg_melee_max=30
++cooldown=833ms
++
++#loot
++loot=loot/leveled_low.txt
++loot=loot/level_1.txt
+diff --git a/mods/empyrean_campaign/enemies/zombie_rotting.txt b/mods/empyrean_campaign/enemies/zombie_rotting.txt
+deleted file mode 100644
+index c6bad259d73ce19f9f586bab19978924228cb386..0000000000000000000000000000000000000000
+--- a/mods/empyrean_campaign/enemies/zombie_rotting.txt
++++ /dev/null
+@@ -1,26 +0,0 @@
+-INCLUDE enemies/base/zombie.txt
+-
+-name=Rotting Zombie
+-level=1
+-categories=zombie_rotting,zombie,undead,dungeon
+-xp=1
+-
+-# combat stats
+-hp=125
+-speed=1.5
+-turn_delay=400ms
+-chance_pursue=5
+-chance_melee_phys=5
+-power_melee_phys=1
+-
+-accuracy=70
+-avoidance=20
+-poise=50
+-
+-dmg_melee_min=10
+-dmg_melee_max=30
+-cooldown=833ms
+-
+-#loot
+-loot=loot/leveled_low.txt
+-loot=loot/level_1.txt
+diff --git a/mods/empyrean_campaign/powers/categories/enemy.txt b/mods/empyrean_campaign/powers/categories/enemy.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..91a363ccac1848c91fa8ac89e754972512a321e0
+--- /dev/null
++++ b/mods/empyrean_campaign/powers/categories/enemy.txt
+@@ -0,0 +1,14 @@
++### Powers used by enemy creatures
++
++# basic melee attack
++[power]
++id=164
++type=fixed
++new_state=swing
++face=true
++use_hazard=true
++base_damage=melee
++lifespan=33ms
++radius=1.0
++starting_pos=melee
++
+diff --git a/mods/empyrean_campaign/powers/powers.txt b/mods/empyrean_campaign/powers/powers.txt
+index 976c962b544d467a43f979ba72e302f6abf0e2f0..ac9552fa00c61ced62c009bd4e0da2e1e33bbf1a 100644
+--- a/mods/empyrean_campaign/powers/powers.txt
++++ b/mods/empyrean_campaign/powers/powers.txt
+@@ -1,13 +1,19 @@
+ # Power Definitions
+ 
+ # Powers menu (aka hero powers)
++# 1-156
+ INCLUDE powers/categories/warrior.txt
+ INCLUDE powers/categories/ranger.txt
+ INCLUDE powers/categories/magician.txt
+ 
++# 157-161
+ INCLUDE powers/categories/visual_effects.txt
+ INCLUDE powers/categories/beacon.txt
+ 
++# 162-163
+ INCLUDE powers/categories/items.txt
++
++# 164
++INCLUDE powers/categories/enemy.txt
+ #INCLUDE powers/categories/map_hazards.txt
+ 

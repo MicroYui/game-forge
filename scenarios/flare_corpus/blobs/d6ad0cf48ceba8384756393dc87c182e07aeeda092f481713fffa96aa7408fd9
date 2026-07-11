@@ -1,0 +1,154 @@
+diff --git a/mods/empyrean_campaign/enemies/lvl10_mog.txt b/mods/empyrean_campaign/enemies/lvl10_mog.txt
+index 7c4dcee483a65297a3d66bfbf508eb32ef6773a1..6136c85e40f883b0860edca1b3fc3ab184309232 100644
+--- a/mods/empyrean_campaign/enemies/lvl10_mog.txt
++++ b/mods/empyrean_campaign/enemies/lvl10_mog.txt
+@@ -30,3 +30,5 @@ cooldown=1525ms
+ loot_count=3,4
+ loot=loot/level_10.txt
+ 
++# mog's axe
++loot=306,1
+diff --git a/mods/empyrean_campaign/enemies/lvl10_xonun.txt b/mods/empyrean_campaign/enemies/lvl10_xonun.txt
+index 3cec3cd478fdaa9e422ec51af273a821cc5a96e1..00ece22d45345e882728b8a71725776a2d0d365c 100644
+--- a/mods/empyrean_campaign/enemies/lvl10_xonun.txt
++++ b/mods/empyrean_campaign/enemies/lvl10_xonun.txt
+@@ -39,3 +39,5 @@ cooldown=1325ms
+ loot_count=3,4
+ loot=loot/level_10.txt
+ 
++# lost totem
++loot=305,1
+diff --git a/mods/empyrean_campaign/enemies/lvl11_buchi.txt b/mods/empyrean_campaign/enemies/lvl11_buchi.txt
+index 4ddff70cc5323deefed6d826762098174dae4a3f..83c85589319035db481100f59041af6fe46ed639 100644
+--- a/mods/empyrean_campaign/enemies/lvl11_buchi.txt
++++ b/mods/empyrean_campaign/enemies/lvl11_buchi.txt
+@@ -39,3 +39,5 @@ cooldown=1200ms
+ # loot
+ loot=loot/level_11.txt
+ 
++# guardsman's curiass
++loot=307,1
+diff --git a/mods/empyrean_campaign/enemies/lvl12_nishi.txt b/mods/empyrean_campaign/enemies/lvl12_nishi.txt
+index b5f90c8bbaf36caf1e348dd034379bb621065d72..966afe221a1d0c7f56ce42130410e205a6920eda 100644
+--- a/mods/empyrean_campaign/enemies/lvl12_nishi.txt
++++ b/mods/empyrean_campaign/enemies/lvl12_nishi.txt
+@@ -37,3 +37,5 @@ quest_loot=emp_wizard1_init,emp_wizard1_key,1022
+ loot_count=5,7
+ loot=loot/level_12.txt
+ 
++# inferno pendant
++loot=308,1
+diff --git a/mods/empyrean_campaign/items/categories/level_12_unique.txt b/mods/empyrean_campaign/items/categories/level_12_unique.txt
+index 3a54d158ddaaccac120574a876c1291c1eb4e432..2f1180b5b7b96ee4f59e7bece0a6748841c966da 100644
+--- a/mods/empyrean_campaign/items/categories/level_12_unique.txt
++++ b/mods/empyrean_campaign/items/categories/level_12_unique.txt
+@@ -3,49 +3,96 @@
+ id=305
+ INCLUDE items/base/misc/spellbook.txt
+ name=Lost Totem
++flavor=The ancient scripture contained appears to be some sort of magic.
+ level=12
+ quality=unique
++price=700
++requires_stat=mental,32
++bonus=mp,30
++bonus=mp_regen,30
++bonus=xp_gain,5
++bonus=item_find,10
+ 
+ # Mog Caverens
+ [item]
+ id=306
+ INCLUDE items/base/weapons/ranged/throwing_axe.txt
+ name=Mog's Axe
++flavor=Not as sleek as an arrow, but just as effective.
+ level=12
+ quality=unique
++price=1300
++dmg_ranged=65,70
++requires_stat=offense,32
++bonus=dmg_ranged_min,20
++bonus=dmg_ranged_max,20
++bonus=crit,5
+ 
+ # Fort Nasu
+ [item]
+ id=307
+ INCLUDE items/base/armor/chain/chest.txt
+ name=Guardsman Curiass
++flavor=A royal mail with a 'K' engraved on the breast.
+ level=12
+ quality=unique
++price=1000
++abs=7
++requires_stat=defense,28
++requires_stat=physical,10
++bonus=hp,300
++bonus=hp_regen,150
++bonus=absorb_min,5
++bonus=absorb_max,5
+ 
+ # Wizard's Tower 1
+ [item]
+ id=308
+ INCLUDE items/base/necklaces/gold_2.txt
+ name=Inferno Pendant
++flavor=Hot. Hot. Hot.
+ level=12
+ quality=unique
++price=700
++requires_stat=defense,27
++requires_stat=offense,11
++bonus=fire_resist,50
++bonus=currency_find,30
++bonus=poise,10
++bonus=speed,120
+ 
+ # Wizard's Tower 2
+ [item]
+ id=309
+ INCLUDE items/base/armor/mage_alt2/legs.txt
+ name=Alchemist's Skirt
++flavor=Knowledge of formulating many concoctions bestows its wearer.
+ level=12
+ quality=unique
++price=700
++abs=5,6
++requires_stat=defense,26
++requires_stat=mental,12
+ replace_power=162,234
+ replace_power=163,235
+ power_desc=Drinking potions may create another potion of the same type.
++bonus=mp,20
++bonus=avoidance,15
++bonus=lightning_resist,25
+ 
+ # Metzger
+ [item]
+ id=310
+ INCLUDE items/base/weapons/melee/reinforced_club.txt
+ name=Metzger's Battlemace
++flavor=Swinging this mace around leaves a clouded trail of dark smoke.
+ level=12
+ quality=unique
++price=1300
++dmg_ment=65,70
++requires_stat=physical,32
++bonus=dmg_melee_min,20
++bonus=dmg_melee_max,20
++bonus=accuracy,30
++bonus=dark_resist,25
+ 
+diff --git a/mods/empyrean_campaign/items/sets.txt b/mods/empyrean_campaign/items/sets.txt
+index 6d7c0692d3db2cd24c59243097f981289caaa27e..d64ca70f31f3d58f536e6aeba57e09b96c10a459 100644
+--- a/mods/empyrean_campaign/items/sets.txt
++++ b/mods/empyrean_campaign/items/sets.txt
+@@ -25,3 +25,8 @@ id=3
+ name=Wizard's Apparatus
+ color=255,64,255
+ items=308,309,310
++bonus=2,accuracy,10
++bonus=2,avoidance,10
++bonus=3,mp_regen,50
++bonus=3,currency_find,25
++bonus=3,item_find,30

@@ -1,0 +1,167 @@
+diff --git a/mods/empyrean_campaign/maps/book_of_the_dead.txt b/mods/empyrean_campaign/maps/book_of_the_dead.txt
+index 798b0454c97e36849baf8fc4cf9871fd31c9a331..e4070342eb2eef150a958dcf907e0803d2cb3d01 100644
+--- a/mods/empyrean_campaign/maps/book_of_the_dead.txt
++++ b/mods/empyrean_campaign/maps/book_of_the_dead.txt
+@@ -4,6 +4,7 @@ height=50
+ tilewidth=64
+ tileheight=32
+ orientation=isometric
++background_color=0,0,0,255
+ hero_pos=17,46
+ music=music/unrest_theme.ogg
+ tileset=tilesetdefs/tileset_dungeon.txt
+@@ -295,7 +296,6 @@ msg=Quest added.
+ repeat=false
+ requires_not_status=emp_main_init
+ set_status=emp_main_init
+-soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Book of the Dead
+ 
+ [event]
+@@ -307,7 +307,6 @@ book=books/book_of_the_dead.txt
+ hotspot=4,25,1,1
+ requires_not_item=1104
+ requires_status=emp_main_init
+-soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Book of the Dead
+ 
+ [event]
+diff --git a/mods/empyrean_campaign/maps/fort_nasu.txt b/mods/empyrean_campaign/maps/fort_nasu.txt
+index 7e695461fc154e24fb79cc1433ad0f0ee5d79c16..16f3df6890b83a9d649be55246354a7487ad897b 100644
+--- a/mods/empyrean_campaign/maps/fort_nasu.txt
++++ b/mods/empyrean_campaign/maps/fort_nasu.txt
+@@ -1022,7 +1022,6 @@ book=books/nasu_sketchbook.txt
+ hotspot=location
+ mapmod=object,11,4,164
+ repeat=true
+-soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Book Stand
+ 
+ [event]
+diff --git a/tiled/empyrean_campaign/book_of_the_dead.tmx b/tiled/empyrean_campaign/book_of_the_dead.tmx
+index 5c247412b9e4c803bd84e7ba28cf0292d1ace184..7fde9cb36355e3e530f5a0a3c4fa25c346ca4c0c 100644
+--- a/tiled/empyrean_campaign/book_of_the_dead.tmx
++++ b/tiled/empyrean_campaign/book_of_the_dead.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.0.3" orientation="isometric" renderorder="right-down" width="32" height="50" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="26">
++<map version="1.2" tiledversion="1.2.1" orientation="isometric" renderorder="right-down" width="32" height="50" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextlayerid="5" nextobjectid="26">
+  <properties>
+   <property name="hero_pos" value="17,46"/>
+   <property name="music" value="music/unrest_theme.ogg"/>
+@@ -31,7 +31,7 @@
+   <tileoffset x="0" y="48"/>
+   <image source="../dungeon/stairs.png" width="1024" height="256"/>
+  </tileset>
+- <layer name="background" width="32" height="50">
++ <layer id="1" name="background" width="32" height="50">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,24,21,21,21,21,21,25,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -85,7 +85,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="object" width="32" height="50">
++ <layer id="2" name="object" width="32" height="50">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,77,103,107,103,107,105,78,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -139,7 +139,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="32" height="50" visible="0">
++ <layer id="3" name="collision" width="32" height="50" visible="0">
+   <data encoding="csv">
+ 4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,
+ 4,4,4,4,4,4,4,4,4,4,4,4,1,1,1,1,1,1,1,4,4,4,4,4,4,4,4,4,4,4,4,4,
+@@ -193,7 +193,7 @@
+ 4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4,4
+ </data>
+  </layer>
+- <objectgroup name="event">
++ <objectgroup id="4" name="event">
+   <object id="1" name="to Perdition Harbor" type="event" x="512" y="1440" width="32" height="64">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+@@ -295,7 +295,6 @@
+     <property name="repeat" value="false"/>
+     <property name="requires_not_status" value="emp_main_init"/>
+     <property name="set_status" value="emp_main_init"/>
+-    <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
+     <property name="tooltip" value="Book of the Dead"/>
+    </properties>
+   </object>
+@@ -306,7 +305,6 @@
+     <property name="hotspot" value="4,25,1,1"/>
+     <property name="requires_not_item" value="1104"/>
+     <property name="requires_status" value="emp_main_init"/>
+-    <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
+     <property name="tooltip" value="Book of the Dead"/>
+    </properties>
+   </object>
+diff --git a/tiled/empyrean_campaign/fort_nasu.tmx b/tiled/empyrean_campaign/fort_nasu.tmx
+index c8034ed1b71081428557719d89ebe486dee30826..45872ec8c09e8f8725a7f4db9209d925f11d7493 100644
+--- a/tiled/empyrean_campaign/fort_nasu.tmx
++++ b/tiled/empyrean_campaign/fort_nasu.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" tiledversion="1.1.3" orientation="isometric" renderorder="right-down" width="100" height="100" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextobjectid="108">
++<map version="1.2" tiledversion="1.2.1" orientation="isometric" renderorder="right-down" width="100" height="100" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextlayerid="6" nextobjectid="108">
+  <properties>
+   <property name="hero_pos" value="96,66"/>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+@@ -31,7 +31,7 @@
+   <tileoffset x="0" y="48"/>
+   <image source="../dungeon/stairs.png" width="1024" height="256"/>
+  </tileset>
+- <layer name="background" width="100" height="100">
++ <layer id="1" name="background" width="100" height="100">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -135,7 +135,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="object" width="100" height="100">
++ <layer id="2" name="object" width="100" height="100">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -239,7 +239,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="100" height="100">
++ <layer id="3" name="collision" width="100" height="100">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -343,7 +343,7 @@
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ </data>
+  </layer>
+- <objectgroup name="event">
++ <objectgroup id="4" name="event">
+   <object id="1" name="to Dilapidated Sewers" type="event" x="3136" y="2080" width="64" height="64">
+    <properties>
+     <property name="activate" value="on_trigger"/>
+@@ -980,7 +980,6 @@
+     <property name="hotspot" value="location"/>
+     <property name="mapmod" value="object,11,4,164"/>
+     <property name="repeat" value="true"/>
+-    <property name="soundfx" value="soundfx/inventory/inventory_page.ogg"/>
+     <property name="tooltip" value="Book Stand"/>
+    </properties>
+   </object>
+@@ -1112,7 +1111,7 @@
+    </properties>
+   </object>
+  </objectgroup>
+- <objectgroup name="enemy" visible="0">
++ <objectgroup id="5" name="enemy" visible="0">
+   <object id="63" type="enemy" x="1888" y="2048" width="416" height="128">
+    <properties>
+     <property name="category" value="dungeon"/>

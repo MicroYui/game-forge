@@ -1,0 +1,994 @@
+diff --git a/mods/living_bones/maps/brothers_lair_atrium.txt b/mods/living_bones/maps/brothers_lair_atrium.txt
+index 5ef90e49dfba7da75852e54b27c716556b8de24f..4f201a14a32459bcd57974f92cd1f462f4fa3dcb 100644
+--- a/mods/living_bones/maps/brothers_lair_atrium.txt
++++ b/mods/living_bones/maps/brothers_lair_atrium.txt
+@@ -1,14 +1,12 @@
+ [header]
+-title=Brothers' Lair Atrium
+ width=30
+ height=50
+-tileset=tileset_dungeon.txt
+-location=28,76,3
+ music=unrest_theme.ogg
++tileset=tileset_dungeon.txt
++title=Brothers' Lair Atrium
+ 
+ [layer]
+ type=background
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,16,32,35,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -63,7 +61,6 @@ data=
+ 
+ [layer]
+ type=object
+-format=dec
+ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,64,244,245,66,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -118,7 +115,6 @@ data=
+ 
+ [layer]
+ type=collision
+-format=dec
+ data=
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -172,27 +168,60 @@ data=
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ 
+ [event]
++# to Ice Hall
+ type=teleport
+-location=14,47,2,1
+-intermap=cave_of_living_bones2.txt,32,4
++location=2,13,1,2
++intermap=brothers_lair_ice_hall.txt,47,71
+ 
+ [event]
++# to Sacrifice Room
+ type=teleport
+-location=2,13,1,2
+-intermap=brothers_lair_ice_hall.txt,47,71
++location=14,16,2,1
++intermap=brothers_lair_sacrifice_room.txt,9,38
+ 
+ [event]
++# to Cave 2
++type=teleport
++location=14,47,2,1
++intermap=cave_of_living_bones2.txt,32,4
++
++[event]
++# to Fire Hall
+ type=teleport
+ location=13,1,2,1
+ intermap=brothers_lair_fire_hall.txt,25,77
+ 
+ [event]
++# to Wind Hall
+ type=teleport
+ location=27,13,1,2
+ intermap=brothers_lair_wind_hall.txt,3,19
+ 
+ [event]
+-type=teleport
+-location=14,16,2,1
+-intermap=brothers_lair_sacrifice_room.txt,9,38
++# Unset "lb_ice_looted"
++type=run_once
++location=3,13,3,2
++unset_status=lb_ice_looted
++
++[event]
++# Unset "lb_ice_looted"
++type=run_once
++location=13,2,2,3
++unset_status=lb_fire_looted
++
++[event]
++# Unset "lb_ice_looted"
++type=run_once
++location=24,13,3,2
++unset_status=lb_wind_looted
++unset_status=lb_wind_rotatedleft
++unset_status=lb_wind_rotatedright
++
++[enemygroup]
++# Random Enemy (40%)
++type=undead
++location=7,6,16,16
++chance=40
++level=8,8
++number=1,1
+ 
+diff --git a/mods/living_bones/maps/brothers_lair_fire_hall.txt b/mods/living_bones/maps/brothers_lair_fire_hall.txt
+index e347134d2bb6eebd60e2c27916a967d240bd8fe1..c613c277744a4eb8dbe626e9d1b736d2e8ec8e89 100644
+--- a/mods/living_bones/maps/brothers_lair_fire_hall.txt
++++ b/mods/living_bones/maps/brothers_lair_fire_hall.txt
+@@ -108,7 +108,7 @@ data=
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,77,107,99,105,107,97,97,65,65,65,65,99,105,78,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+-0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,106,167,0,0,0,0,0,0,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
++0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,106,167,0,149,0,0,0,0,0,0,0,0,0,70,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,98,202,203,0,0,0,0,193,0,0,0,0,136,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,68,167,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,106,0,0,0,0,0,0,0,0,0,0,0,0,82,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -192,7 +192,7 @@ data=
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+-3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,2,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
++3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,2,0,2,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,2,2,0,0,0,0,2,0,0,0,0,2,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,2,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+@@ -319,6 +319,41 @@ power=18
+ power_damage=8,10
+ power_path=0,0,24,20
+ 
++[event]
++# Vesuvvio's Chest
++type=run_once
++location=21,60,1,1
++hotspot=-16,-36,32,44
++loot=random,22,60,10
++mapmod=object,21,60,160
++requires_status=lb_fire_key
++set_status=lb_fire_looted
++soundfx=soundfx/wood_open.ogg
++tooltip=Runed Chest
++unset_status=lb_fire_key
++
++[event]
++# Vesuvvio's Chest
++type=run_always
++location=21,60,1,1
++hotspot=-16,-36,32,44
++power=18
++power_damage=20,25
++power_path=21,60,21,60
++requires_not=lb_fire_key
++tooltip=Runed Chest
++
++[event]
++# Vesuvvio's Diary
++type=run_always
++location=19,16,1,1
++hotspot=-16,-48,32,56
++mapmod=object,19,16,165
++msg="Today Pompeii got a little over-excited to meet me and blew himself up. So I had to go into the caves and catch myself a NEW antlion burster. Again. I think I'm going to name this one 'Krakatoa'. ~Vesuvvio (the Destroyer)"
++set_status=lb_fire_password
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Book Stand
++
+ [enemygroup]
+ # 4-6 Undead
+ type=undead
+diff --git a/mods/living_bones/maps/brothers_lair_ice_hall.txt b/mods/living_bones/maps/brothers_lair_ice_hall.txt
+index 8f59db1e9e705330e764455d209fbda2fb483f58..18c4514c4c4e864ed87e51371936694c73e009f0 100644
+--- a/mods/living_bones/maps/brothers_lair_ice_hall.txt
++++ b/mods/living_bones/maps/brothers_lair_ice_hall.txt
+@@ -269,6 +269,7 @@ type=run_once
+ location=17,45,1,1
+ hotspot=-32,-84,64,100
+ mapmod=collision,17,45,0
++mapmod=object,17,45,0
+ shakycam=20
+ sound=soundfx/powers/quake.ogg
+ tooltip=Suspicious Bookcase
+@@ -333,29 +334,158 @@ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Book Stand
+ 
+ [event]
+-# Lore: A Step Further
++# Lore: New Residence
+ type=run_always
+ location=16,10,1,1
+ hotspot=-16,-48,32,56
+ mapmod=object,16,10,165
+-msg="It's days like today that make me wonder if I should go a step further and eliminate V. and G. too... they're getting on my nerves."
++msg="G. suggested that each of us should take one of the halls in the old necromancer's lair."
+ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Book Stand
+ 
+ [event]
+ # Scathelocke's Diary
+-type=run_once
++type=run_always
+ location=18,10,1,1
+ hotspot=-16,-48,32,56
+ mapmod=object,18,10,165
+-msg=The last entry in this diary is signed: "Scathelocke"
++msg="It's days like today that make me wonder if I should go a step further and eliminate V. and G. too... they're getting on my nerves. ~Scathelocke"
++set_status=lb_ice_password
++soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Book Stand
+ 
++[event]
++# Crate
++type=run_once
++location=11,13,1,1
++hotspot=-16,-30,32,36
++loot=random,12,13,7
++mapmod=object,11,13,163
++soundfx=soundfx/wood_open.ogg
++tooltip=Crate
++
++[event]
++# Crate
++type=run_once
++location=22,13,1,1
++hotspot=-16,-30,32,36
++loot=random,22,14,7
++mapmod=object,22,13,163
++soundfx=soundfx/wood_open.ogg
++tooltip=Crate
++
++[event]
++# Crate
++type=run_once
++location=29,48,1,1
++hotspot=-16,-30,32,36
++loot=random,29,49,7
++mapmod=object,29,48,163
++soundfx=soundfx/wood_open.ogg
++tooltip=Crate
++
++[event]
++# Barrel
++type=run_once
++location=11,14,1,1
++hotspot=-16,-36,32,44
++loot=random,11,15,7
++mapmod=object,11,14,162
++soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
++
++[event]
++# Barrel
++type=run_once
++location=12,14,1,1
++hotspot=-16,-36,32,44
++loot=random,12,15,7
++mapmod=object,12,14,162
++soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
++
++[event]
++# Barrel
++type=run_once
++location=23,13,1,1
++hotspot=-16,-36,32,44
++loot=random,23,14,7
++mapmod=object,23,13,162
++soundfx=soundfx/wood_open.ogg
++tooltip=Barrel
++
++[event]
++# Scathelocke's Chest
++type=run_once
++location=14,10,1,1
++hotspot=-16,-36,32,44
++loot=random,15,10,10
++mapmod=object,14,10,160
++requires_status=lb_ice_key
++set_status=lb_ice_looted
++soundfx=soundfx/wood_open.ogg
++tooltip=Runed Chest
++unset_status=lb_ice_key
++
++[event]
++# Treasure Chest
++type=run_once
++location=7,50,1,1
++hotspot=-16,-36,32,44
++loot=random,8,50,9
++mapmod=object,7,50,160
++soundfx=soundfx/wood_open.ogg
++tooltip=Treasure Chest
++
++[event]
++# Scathelocke's Chest Locked
++type=run_always
++location=14,10,1,1
++hotspot=-16,-36,32,44
++power=14
++power_damage=20,25
++power_path=14,10,hero
++requires_not=lb_ice_key
++requires_not=lb_ice_looted
++tooltip=Runed Chest
++
++[event]
++# Trapped Tile
++type=run_once
++location=17,34,1,2
++mapmod=object,13,31,0
++mapmod=collision,13,31,0
++mapmod=object,21,31,0
++mapmod=collision,21,31,0
++mapmod=object,13,38,0
++mapmod=collision,13,38,0
++mapmod=object,21,38,0
++mapmod=collision,21,38,0
++soundfx=soundfx/door_open.ogg
++
++[event]
++# Lore: Under the Wing
++type=run_once
++location=30,57,1,1
++hotspot=-32,-84,64,100
++loot=random,31,57,7
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Bookcase
++
++[event]
++# Lore: Under the Wing
++type=run_once
++location=6,61,1,1
++hotspot=-32,-84,64,100
++loot=random,7,61,7
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Bookcase
++
+ [enemygroup]
+ # 3-4 Undead
+ type=undead
+ location=15,52,12,13
+-level=4,7
++level=6,8
+ number=3,4
+ 
+ [enemygroup]
+@@ -363,7 +493,7 @@ number=3,4
+ type=undead
+ location=7,48,4,5
+ chance=80
+-level=4,7
++level=6,8
+ number=1,3
+ 
+ [enemygroup]
+@@ -371,7 +501,7 @@ number=1,3
+ type=undead
+ location=7,57,4,7
+ chance=80
+-level=4,7
++level=6,8
+ number=1,3
+ 
+ [enemygroup]
+@@ -379,7 +509,7 @@ number=1,3
+ type=undead
+ location=17,68,4,6
+ chance=80
+-level=4,7
++level=6,8
+ number=1,3
+ 
+ [enemygroup]
+@@ -387,37 +517,37 @@ number=1,3
+ type=undead
+ location=27,48,6,4
+ chance=80
+-level=4,7
++level=6,8
+ number=1,3
+ 
+ [enemygroup]
+ # 2 Undead
+ type=undead
+ location=31,56,4,4
+-level=4,7
++level=6,8
+ number=2,2
+ 
+ [enemy]
+-# Skeletal Warrior
+-type=skeletal_warrior
++# Skeletal Knight
++type=skeletal_knight
+ location=22,38,1,1
+ direction=1
+ 
+ [enemy]
+-# Skeletal Warrior
+-type=skeletal_warrior
++# Skeletal Knight
++type=skeletal_knight
+ location=22,31,1,1
+ direction=1
+ 
+ [enemy]
+-# Skeletal Warrior
+-type=skeletal_warrior
++# Skeletal Knight
++type=skeletal_knight
+ location=12,38,1,1
+ direction=5
+ 
+ [enemy]
+-# Skeletal Warrior
+-type=skeletal_warrior
++# Skeletal Knight
++type=skeletal_knight
+ location=12,31,1,1
+ direction=5
+ 
+diff --git a/mods/living_bones/maps/brothers_lair_wind_hall.txt b/mods/living_bones/maps/brothers_lair_wind_hall.txt
+index 2294e25cf3531ade879be4f678b4d81bbb94542c..ae287520623615578b2416063d8ff03d2353041c 100644
+--- a/mods/living_bones/maps/brothers_lair_wind_hall.txt
++++ b/mods/living_bones/maps/brothers_lair_wind_hall.txt
+@@ -167,91 +167,348 @@ data=
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ 
++# ROTATE CLUES
++
++[event]
++type=run_once
++location=0,0,40,50
++requires_not=lb_wind_left1
++requires_not=lb_wind_left2
++requires_not=lb_wind_left3
++requires_not=lb_wind_left4
++set_status=lb_wind_left1
++set_status=lb_wind_rotatedleft
++
++[event]
++type=run_once
++location=0,0,40,50
++requires_not=lb_wind_right1
++requires_not=lb_wind_right2
++requires_not=lb_wind_right3
++requires_not=lb_wind_right4
++requires_not=lb_wind_right5
++set_status=lb_wind_right1
++set_status=lb_wind_rotatedright
++
++[event]
++type=run_once
++location=0,0,40,50
++requires_not=lb_wind_rotatedleft
++requires_status=lb_wind_left1
++unset_status=lb_wind_left1
++set_status=lb_wind_left2
++set_status=lb_wind_rotatedleft
++
++[event]
++type=run_once
++location=0,0,40,50
++requires_not=lb_wind_rotatedleft
++requires_status=lb_wind_left2
++unset_status=lb_wind_left2
++set_status=lb_wind_left3
++set_status=lb_wind_rotatedleft
++
++[event]
++type=run_once
++location=0,0,40,50
++requires_not=lb_wind_rotatedleft
++requires_status=lb_wind_left3
++unset_status=lb_wind_left3
++set_status=lb_wind_left4
++set_status=lb_wind_rotatedleft
++
++[event]
++type=run_once
++location=0,0,40,50
++requires_not=lb_wind_rotatedleft
++requires_status=lb_wind_left4
++unset_status=lb_wind_left4
++set_status=lb_wind_left1
++set_status=lb_wind_rotatedleft
++
++[event]
++type=run_once
++location=0,0,40,50
++requires_not=lb_wind_rotatedright
++requires_status=lb_wind_right1
++unset_status=lb_wind_right1
++set_status=lb_wind_right2
++set_status=lb_wind_rotatedright
++
++[event]
++type=run_once
++location=0,0,40,50
++requires_not=lb_wind_rotatedright
++requires_status=lb_wind_right2
++unset_status=lb_wind_right2
++set_status=lb_wind_right3
++set_status=lb_wind_rotatedright
++
++[event]
++type=run_once
++location=0,0,40,50
++requires_not=lb_wind_rotatedright
++requires_status=lb_wind_right3
++unset_status=lb_wind_right3
++set_status=lb_wind_right4
++set_status=lb_wind_rotatedright
++
++[event]
++type=run_once
++location=0,0,40,50
++requires_not=lb_wind_rotatedright
++requires_status=lb_wind_right4
++unset_status=lb_wind_right4
++set_status=lb_wind_right5
++set_status=lb_wind_rotatedright
++
++[event]
++type=run_once
++location=0,0,40,50
++requires_not=lb_wind_rotatedright
++requires_status=lb_wind_right5
++unset_status=lb_wind_right5
++set_status=lb_wind_right1
++set_status=lb_wind_rotatedright
++
++# SWITCHES
++
+ [event]
+-# Chain-Statue Switch
++# Chain-Statue Switch (Right Door)
+ type=run_once
+ location=23,29,1,1
+ hotspot=-16,-28,32,34
++requires_status=lb_wind_right1
+ mapmod=object,23,29,166
++mapmod=object,25,16,113
++mapmod=collision,25,16,0
+ soundfx=soundfx/door_open.ogg
+ tooltip=Switch
++[event]
++type=run_once
++location=23,29,1,1
++hotspot=-16,-28,32,34
++requires_not=lb_wind_right1
++mapmod=object,23,29,166
++soundfx=soundfx/door_open.ogg
++tooltip=Switch
++power=6
++power_damage=10,15
++power_path=23,29,hero
+ 
+ [event]
+-# Chain-Grate Switch
++# Chain-Grate Switch (Left Door)
++type=run_once
++location=25,29,1,1
++requires_status=lb_wind_left1
++hotspot=-16,-28,32,34
++mapmod=object,25,29,166
++mapmod=object,10,31,112
++mapmod=collision,10,31,0
++soundfx=soundfx/door_open.ogg
++tooltip=Switch
++[event]
+ type=run_once
+ location=25,29,1,1
+ hotspot=-16,-28,32,34
++requires_not=lb_wind_left1
+ mapmod=object,25,29,166
+ soundfx=soundfx/door_open.ogg
+ tooltip=Switch
++power=6
++power_damage=10,15
++power_path=25,29,hero
+ 
+ [event]
+-# Chain-ColdUrn Switch
++# Chain-ColdUrn Switch (Left Door)
++type=run_once
++location=27,29,1,1
++mapmod=object,10,31,112
++mapmod=collision,10,31,0
++requires_status=lb_wind_left2
++hotspot=-16,-28,32,34
++mapmod=object,27,29,166
++soundfx=soundfx/door_open.ogg
++tooltip=Switch
++[event]
+ type=run_once
+ location=27,29,1,1
+ hotspot=-16,-28,32,34
++requires_not=lb_wind_left2
+ mapmod=object,27,29,166
+ soundfx=soundfx/door_open.ogg
+ tooltip=Switch
++power=6
++power_damage=10,15
++power_path=27,29,hero
+ 
+ [event]
+-# Tomb-ColdUrn Switch
++# Tomb-ColdUrn Switch (Right Door)
+ type=run_once
+ location=27,31,1,1
++requires_status=lb_wind_right2
+ hotspot=-16,-28,32,34
+ mapmod=object,27,31,166
++mapmod=object,25,16,113
++mapmod=collision,25,16,0
+ soundfx=soundfx/door_open.ogg
+ tooltip=Switch
++[event]
++type=run_once
++location=27,31,1,1
++hotspot=-16,-28,32,34
++requires_not=lb_wind_right2
++mapmod=object,27,31,166
++soundfx=soundfx/door_open.ogg
++tooltip=Switch
++power=6
++power_damage=10,15
++power_path=27,31,hero
+ 
+ [event]
+-# Tomb-Statue Switch
++# Tomb-Statue Switch (Right Door)
++type=run_once
++location=23,31,1,1
++requires_status=lb_wind_right3
++hotspot=-16,-28,32,34
++mapmod=object,23,31,166
++mapmod=object,25,16,113
++mapmod=collision,25,16,0
++soundfx=soundfx/door_open.ogg
++tooltip=Switch
++[event]
+ type=run_once
+ location=23,31,1,1
+ hotspot=-16,-28,32,34
++requires_not=lb_wind_right3
+ mapmod=object,23,31,166
+ soundfx=soundfx/door_open.ogg
+ tooltip=Switch
++power=6
++power_damage=10,15
++power_path=23,31,hero
+ 
+ [event]
+-# Tomb-Grate Switch
++# Tomb-Grate Switch (Right Door)
+ type=run_once
+ location=25,31,1,1
++requires_status=lb_wind_right4
+ hotspot=-16,-28,32,34
+ mapmod=object,25,31,166
++mapmod=object,25,16,113
++mapmod=collision,25,16,0
+ soundfx=soundfx/door_open.ogg
+ tooltip=Switch
++[event]
++type=run_once
++location=25,31,1,1
++hotspot=-16,-28,32,34
++requires_not=lb_wind_right4
++mapmod=object,25,31,166
++soundfx=soundfx/door_open.ogg
++tooltip=Switch
++power=6
++power_damage=10,15
++power_path=25,31,hero
+ 
+ [event]
+-# HotUrn-Statue Switch
++# HotUrn-Statue Switch (Left Door)
++type=run_once
++location=23,33,1,1
++requires_status=lb_wind_left3
++hotspot=-16,-28,32,34
++mapmod=object,23,33,166
++mapmod=object,10,31,112
++mapmod=collision,10,31,0
++soundfx=soundfx/door_open.ogg
++tooltip=Switch
++[event]
+ type=run_once
+ location=23,33,1,1
+ hotspot=-16,-28,32,34
++requires_not=lb_wind_left3
+ mapmod=object,23,33,166
+ soundfx=soundfx/door_open.ogg
+ tooltip=Switch
++power=6
++power_damage=10,15
++power_path=23,33,hero
+ 
+ [event]
+-# HotUrn-Grate Switch
++# HotUrn-Grate Switch (Left Door)
++type=run_once
++location=25,33,1,1
++requires_status=lb_wind_left4
++hotspot=-16,-28,32,34
++mapmod=object,25,33,166
++mapmod=object,10,31,112
++mapmod=collision,10,31,0
++soundfx=soundfx/door_open.ogg
++tooltip=Switch
++[event]
+ type=run_once
+ location=25,33,1,1
+ hotspot=-16,-28,32,34
++requires_not=lb_wind_left4
+ mapmod=object,25,33,166
+ soundfx=soundfx/door_open.ogg
+ tooltip=Switch
++power=6
++power_damage=10,15
++power_path=25,33,hero
+ 
+ [event]
+-# HotUrn-ColdUrn Switch
++# HotUrn-ColdUrn Switch (Right Door)
++type=run_once
++location=27,33,1,1
++requires_status=lb_wind_right5
++hotspot=-16,-28,32,34
++mapmod=object,27,33,166
++mapmod=object,25,16,113
++mapmod=collision,25,16,0
++soundfx=soundfx/door_open.ogg
++tooltip=Switch
++[event]
+ type=run_once
+ location=27,33,1,1
+ hotspot=-16,-28,32,34
++requires_not=lb_wind_right5
+ mapmod=object,27,33,166
+ soundfx=soundfx/door_open.ogg
+ tooltip=Switch
++power=6
++power_damage=10,15
++power_path=27,33,hero
++
++# CLUE BOOKS
+ 
+ [event]
+-# Storage Room Clue Book
++# Storage Room Clue Book #1 (chain grate)
+ type=run_always
+ location=13,31,1,1
++requires_status=lb_wind_left1
++hotspot=-16,-48,32,56
++mapmod=object,13,31,164
++msg="As we explored the sewers, an abomination charged my companion and knocked him into the filthy water. As he was wearing chainmail, he never resurfaced."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=The Journal of Sir Dunn
++
++[event]
++# Storage Room Clue Book #2 (chain cold)
++type=run_always
++location=13,31,1,1
++requires_status=lb_wind_left2
++hotspot=-16,-48,32,56
++mapmod=object,13,31,164
++msg="Winterkiss Amulet: An immaculate sapphire hanging from a silver chain, this artifact is said to have been worn by winter herself."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Catalogue of Mystical Items
++
++[event]
++# Storage Room Clue Book #3 (hot statue)
++type=run_always
++location=13,31,1,1
++requires_status=lb_wind_left3
+ hotspot=-16,-48,32,56
+ mapmod=object,13,31,164
+ msg="The fiercest warrior's sword is as a flame to his enemies."
+@@ -259,9 +516,32 @@ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Aldrenan's Proverbs
+ 
+ [event]
+-# Bedroom Clue Book
++# Storage Room Clue Book #4 (hot grate)
++type=run_always
++location=13,31,1,1
++requires_status=lb_wind_left4
++hotspot=-16,-48,32,56
++mapmod=object,13,31,164
++msg="The northern city of Arden-Ain was built high over an active magma flow. The heat filters up through the grates in the city to keep the people warm."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=10 Places You Must See
++
++[event]
++# Bedroom Clue Book #1 (chain statue)
++type=run_always
++location=25,19,1,1
++requires_status=lb_wind_right1
++hotspot=-16,-48,32,56
++mapmod=object,25,19,165
++msg="It is rumored that the great warrior king Giash was so rich, he even forged the shackles in his prisons out of gold."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=A Brief History of Alcand
++
++[event]
++# Bedroom Clue Book #2 (tomb cold)
+ type=run_always
+ location=25,19,1,1
++requires_status=lb_wind_right2
+ hotspot=-16,-48,32,56
+ mapmod=object,25,19,165
+ msg="And so my lover lay there, cold as the grave, the fire of life having left him forever."
+@@ -269,20 +549,56 @@ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Siobhan's Love
+ 
+ [event]
++# Bedroom Clue Book #3 (tomb statue)
++type=run_always
++location=25,19,1,1
++requires_status=lb_wind_right3
++hotspot=-16,-48,32,56
++mapmod=object,25,19,165
++msg="Seeking to immortalize himself in the eyes of his people, Belandrius buried himself with his fortune in a grand tomb under his memorial."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Atlas of Lost Fortunes
++
++[event]
++# Bedroom Clue Book #4 (tomb grate)
++type=run_always
++location=25,19,1,1
++requires_status=lb_wind_right4
++hotspot=-16,-48,32,56
++mapmod=object,25,19,165
++msg="The stench of rotting bodies filtered up from the sewers for years to come. The smell was so unbearable, the people abandoned the city for nearly a decade."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=A Tyrant's Wrath
++
++[event]
++# Bedroom Clue Book #5 (hot cold)
++type=run_always
++location=25,19,1,1
++requires_status=lb_wind_right5
++hotspot=-16,-48,32,56
++mapmod=object,25,19,165
++msg="Step 2: Light the fire and rotate the antlion legs slowly over the coals until they grow cold."
++soundfx=soundfx/inventory/inventory_page.ogg
++tooltip=Dungeon Delicacies
++
++# ETC
++
++[event]
+ # Warp to Atrium
+ type=teleport
+ location=2,18,1,2
+ intermap=brothers_lair_atrium.txt,26,14
+ 
+ [event]
+-# Storage Room Clue Book
++# Grisbon's Diary
+ type=run_always
+ location=31,8,1,1
+ hotspot=-16,-48,32,56
+ mapmod=object,31,8,164
+ msg="People used to ask me why I use a sword rather than a wand. It never occurs to them that the metal blade can conduct and channel lightning as well as (or better than!) any enchanted twig. ~Grisbon"
++set_status=lb_wind_password
+ soundfx=soundfx/inventory/inventory_page.ogg
+-tooltip=Diary
++tooltip=Book Stand
+ 
+ [event]
+ # Crate
+@@ -374,24 +690,48 @@ mapmod=object,36,15,162
+ soundfx=soundfx/wood_open.ogg
+ tooltip=Barrel
+ 
++[event]
++# Grisbon's Chest
++type=run_always
++location=31,7,1,1
++hotspot=-16,-36,32,44
++power=6
++power_damage=20,25
++power_path=31,7,hero
++requires_not=lb_wind_key
++tooltip=Runed Chest
++
++[event]
++# Grisbon's Chest
++type=run_once
++location=31,7,1,1
++hotspot=-16,-36,32,44
++loot=random,32,7,10
++mapmod=object,31,7,160
++requires_status=lb_wind_key
++set_status=lb_wind_looted
++soundfx=soundfx/wood_open.ogg
++tooltip=Runed Chest
++unset_status=lb_wind_key
++
+ [enemygroup]
+ # 4-5 Undead
+ type=undead
+ location=3,40,9,7
+-level=4,7
++level=7,8
+ number=4,5
+ 
+ [enemygroup]
+ # 1-3 Undead
+ type=undead
+ location=12,27,18,9
+-level=4,7
++level=7,8
+ number=1,3
+ 
+ [enemygroup]
+ # 1-3 Undead
+ type=undead
+ location=21,18,9,18
+-level=4,7
++level=7,8
+ number=1,3
+ 
+diff --git a/mods/living_bones/quests/living_bones.txt b/mods/living_bones/quests/living_bones.txt
+index 55945411b6ee1818989118121ad297da8adeb43e..ed1f66a95eacc37a43a968482f3b6ca2af378d03 100644
+--- a/mods/living_bones/quests/living_bones.txt
++++ b/mods/living_bones/quests/living_bones.txt
+@@ -2,6 +2,7 @@
+ # Living Bones quest chain #
+ ############################
+ 
++# THE CAVES
+ [quest]
+ requires_status=lb_destroy_pillar
+ requires_not=lb_has_explosive
+@@ -17,3 +18,53 @@ requires_status=lb_explosive_set
+ requires_not=lb_explosive_detonated
+ quest_text=Run! You don't want to be caught in the blast of your own explosion!
+ 
++# THE LAIR
++[quest]
++requires_status=lb_ice_locked
++requires_not=lb_ice_password
++quest_text=Search for the name of the ice wizard to pass the statue guardian.
++
++[quest]
++requires_status=lb_fire_locked
++requires_not=lb_fire_password
++quest_text=Search for the name of the fire wizard to pass the statue guardian.
++
++[quest]
++requires_status=lb_wind_locked
++requires_not=lb_wind_password
++quest_text=Search for the name of the wind wizard to pass the statue guardian.
++
++[quest]
++requires_status=lb_ice_password
++requires_not=lb_ice_unlocked
++quest_text=Pass the ice statue guardian by using the name "Scathelocke".
++
++[quest]
++requires_status=lb_fire_password
++requires_not=lb_fire_unlocked
++quest_text=Pass the fire statue guardian by using the name "Vesuvvio".
++
++[quest]
++requires_status=lb_wind_password
++requires_not=lb_wind_unlocked
++quest_text=Pass the wind statue guardian by using the name "Grisbon".
++
++[quest]
++requires_status=lb_ice_unlocked
++requires_status=lb_fire_unlocked
++requires_status=lb_wind_unlocked
++requires_not=lb_necromancers_defeated
++quest_text=Kill the three necromancer brothers - Scathelocke, Grisbon and Vesuvvio.
++
++[quest]
++requires_status=lb_ice_key
++quest_text=Use Scathelocke's Key to open his runed chest.
++
++[quest]
++requires_status=lb_fire_key
++quest_text=Use Vesuvvio's Key to open his runed chest.
++
++[quest]
++requires_status=lb_wind_key
++quest_text=Use Grisbon's Key to open his runed chest.
++

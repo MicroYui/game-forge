@@ -1,0 +1,117 @@
+diff --git a/mods/empyrean_campaign/engine/icons.txt b/mods/empyrean_campaign/engine/icons.txt
+index 3a01b56d52c4da173f6a783941fa420c54eefd22..e33de1ad4c94c46489834fc036e770f2d2247169 100644
+--- a/mods/empyrean_campaign/engine/icons.txt
++++ b/mods/empyrean_campaign/engine/icons.txt
+@@ -1,4 +1,3 @@
+-APPEND
+-
+ icon_set=0,images/icons/icons.png
+ icon_set=256,images/icons/icons_empyrean.png
++icon_set=1024,images/icons/icons_overlay.png
+diff --git a/mods/empyrean_campaign/settings.txt b/mods/empyrean_campaign/settings.txt
+index be8d968484c940bd48ce1cc2b9616125ffbc7000..0b1e311e42464fded3a5112335e82e8e2e019d9e 100644
+--- a/mods/empyrean_campaign/settings.txt
++++ b/mods/empyrean_campaign/settings.txt
+@@ -1,5 +1,5 @@
+ description=The new Flare 1.0 campaign
+-requires=fantasycore:0.90:0
++requires=fantasycore:1.06.03:0
+ game=flare-game
+-version=1.06.09
+-engine_version_min=1.06.22
++version=1.06.10
++engine_version_min=1.06.24
+diff --git a/mods/fantasycore/engine/icons.txt b/mods/fantasycore/engine/icons.txt
+new file mode 100644
+index 0000000000000000000000000000000000000000..1e304a5e56ae48ebccb437b70ec36820ba0b6169
+--- /dev/null
++++ b/mods/fantasycore/engine/icons.txt
+@@ -0,0 +1,2 @@
++icon_set=0,images/icons/icons.png
++icon_set=1024,images/icons/icons_overlay.png
+diff --git a/mods/fantasycore/images/icons/icons_overlay.png b/mods/fantasycore/images/icons/icons_overlay.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..b7588244712be14a23aa2f3dd304fa7135ca1ac5
+GIT binary patch
+literal 741
+zcmeAS@N?(olHy`uVBq!ia0y~yU<5K56gb#`<lmLco&YJfByV>YhW{YAVDIwD3=B-O
+zJY5_^DsH{K>zMb*K!okV{m}HluS{Re?6|n!O?<*;>mY7>Lg&n^?k_AR4pQftr03b3
+zJHz$A`_D8T_K=s|^4~6Vdzda*wrtz2XABEo@8WI{JYe`W|FXOByh|2L7PCK2`6YSa
+zXpH}}y_&s0tEAc<GB6mrb-kZs&Ct+4?-9HBy1Mf->tC$@{Qrwgz4W>|o;g3P=Rfj~
+zs#jdQ|Hs#ZGykWRSNL@%uzZj{u<ys?%!U7FT#P$^v{df&>u?5rHNlh9_2)l$&Qid#
+zLB8$bUe}u!OYcfI#6MfB+_1NJU8j8VnqLQ7)%Nx8d-px}+56wW{%l{^`~T(ZeV=n5
+z$scz5BfZvs|Av2e(ypidi<dY5fAY?Or4JXopYxcYA8&X5Jm&-JseHQm2dX|jJ+1!3
+zjM2b&LCw!k;USDiycnLGo__zvdCmltDGFu`K>2W1h4_7cwuUemTQZ-TzQ4*|y+Ihn
+z(yw<Fbx=un`1$FnIOl_Q83rI@ve1E<a~PkVp1z*TVPDP9HCzpnAYox)hR4w-GU85y
+zymXu8z?lY+z4lCJj__#2@2g2-Ey#>%TENi&bOWc|XF-KY-U>k1yx%Ox=%CjKbWi{9
+z|15JjBu|)u%&G|mx@!H6?eR?KmYf8c_{4sq*90RDppo%`tPDkLQ-EGHX5=|6Fq5(1
+zT;SgaOxNG<{CuBn-Fq9$e^0(XH`~3xj<v#9{o9#k$4~v(-&fzW^=$p;%bm9T-@B0*
+z-+!BZ);Ifq)?fXb%^e`)?`QtpNAWpzpMRQn{Xg`}8z@}&FZ1(s&Ihd5A2*#UK3=4M
+zUOal&#am~0{MohX=j>lo&)&bXKIh-Iy7P1EQ$KJ2`^Oe!eY*MnS+j1Px-CC>f8ryS
+S_KD9yso2xi&t;ucLK6TVe0uEw
+
+literal 0
+HcmV?d00001
+
+diff --git a/mods/fantasycore/items/qualities.txt b/mods/fantasycore/items/qualities.txt
+index c8487634eb588a274cb2b66effa13f44041057f6..29226223cf2b54168f86ced0681c84eabc53ad6c 100644
+--- a/mods/fantasycore/items/qualities.txt
++++ b/mods/fantasycore/items/qualities.txt
+@@ -2,38 +2,46 @@
+ id=low
+ name=Low
+ color=127,127,127
++overlay_icon=1024
+ 
+ [quality]
+ id=normal
+ name=Normal
+ color=255,255,255
++overlay_icon=1025
+ 
+ [quality]
+ id=high
+ name=High
+ color=64,255,64
++overlay_icon=1026
+ 
+ [quality]
+ id=epic
+ name=Epic
+ color=64,128,255
++overlay_icon=1027
+ 
+ [quality]
+ id=rare
+ name=Rare
+ color=160,64,255
++overlay_icon=1028
+ 
+ [quality]
+ id=unique
+ name=Unique
+ color=255,192,64
++overlay_icon=1029
+ 
+ [quality]
+ id=one_time_use
+ name=One-time Use
+ color=64,255,255
++overlay_icon=1030
+ 
+ [quality]
+ id=currency
+ name=Currency
+ color=255,232,156
++overlay_icon=1031
+diff --git a/mods/fantasycore/settings.txt b/mods/fantasycore/settings.txt
+index 87cb56d9f16bb5ef7b247f5efb89afd93189d194..b31e66b43832eb702d1a9b2317ff4d92d4c13656 100644
+--- a/mods/fantasycore/settings.txt
++++ b/mods/fantasycore/settings.txt
+@@ -1,4 +1,4 @@
+ description=Isometric generic fantasy assets.
+ game=flare-game
+-version=1.06.02
+-engine_version_min=1.06.22
++version=1.06.03
++engine_version_min=1.06.24

@@ -1,0 +1,769 @@
+diff --git a/mods/living_bones/maps/brothers_lair_fire_hall.txt b/mods/living_bones/maps/brothers_lair_fire_hall.txt
+index dfc54d7d46f9d4834b8985201e241363ddfadc9f..0627be31f125219561463356ff4b7ed257728ade 100644
+--- a/mods/living_bones/maps/brothers_lair_fire_hall.txt
++++ b/mods/living_bones/maps/brothers_lair_fire_hall.txt
+@@ -267,7 +267,7 @@ intermap=brothers_lair_atrium.txt,14,2
+ # Barrel
+ type=run_once
+ location=23,64,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,24,63,6
+ mapmod=object,23,64,162
+ soundfx=soundfx/wood_open.ogg
+@@ -277,7 +277,7 @@ tooltip=Barrel
+ # Barrel
+ type=run_once
+ location=22,64,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,22,63,7
+ mapmod=object,22,64,162
+ soundfx=soundfx/wood_open.ogg
+@@ -287,7 +287,7 @@ tooltip=Barrel
+ # Crate
+ type=run_once
+ location=21,64,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,21,63,7
+ mapmod=object,21,64,163
+ soundfx=soundfx/wood_open.ogg
+@@ -297,7 +297,7 @@ tooltip=Crate
+ # Crate
+ type=run_once
+ location=23,63,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,23,62,7
+ mapmod=object,23,63,163
+ soundfx=soundfx/wood_open.ogg
+@@ -323,7 +323,7 @@ power_path=0,0,24,20
+ # Vesuvvio's Chest
+ type=run_once
+ location=21,60,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,22,60,10
+ mapmod=object,21,60,160
+ requires_item=9102
+@@ -337,7 +337,7 @@ unset_status=lb_fire_key
+ # Vesuvvio's Chest Locked
+ type=run_always
+ location=21,60,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ power=18
+ power_damage=20,25
+ power_path=21,60,21,60
+@@ -348,7 +348,7 @@ tooltip=Runed Chest
+ # Vesuvvio's Diary
+ type=run_always
+ location=19,16,1,1
+-hotspot=-16,-48,32,56
++hotspot=location
+ mapmod=object,19,16,165
+ msg="Today Pompeii got a little over-excited to meet me and blew himself up. So I had to go into the caves and catch myself a NEW antlion burster. Again. I think I'm going to name this one 'Krakatoa'. ~Vesuvvio (the Destroyer)"
+ set_status=lb_fire_password
+diff --git a/mods/living_bones/maps/brothers_lair_ice_hall.txt b/mods/living_bones/maps/brothers_lair_ice_hall.txt
+index e0948b4b3f27ad2cae3b44eca8a9270d2d7dcdf7..d65b00e42a508cd47a1b1257ec171a53e5e2dd02 100644
+--- a/mods/living_bones/maps/brothers_lair_ice_hall.txt
++++ b/mods/living_bones/maps/brothers_lair_ice_hall.txt
+@@ -267,7 +267,7 @@ intermap=brothers_lair_atrium.txt,3,13
+ # Bookcase Door
+ type=run_once
+ location=17,45,1,1
+-hotspot=-32,-84,64,100
++hotspot=location
+ mapmod=collision,17,45,0
+ mapmod=object,17,45,0
+ shakycam=20
+@@ -278,7 +278,7 @@ tooltip=Suspicious Bookcase
+ # Lore: Plotting
+ type=run_always
+ location=18,46,1,1
+-hotspot=-16,-48,32,56
++hotspot=location
+ mapmod=object,18,46,165
+ msg="When we could no longer stand the idiotic practices of our master, I hatched a plan to kill him. My brothers agreed the deed had to be done."
+ soundfx=soundfx/inventory/inventory_page.ogg
+@@ -288,7 +288,7 @@ tooltip=Book Stand
+ # Lore: The Trap
+ type=run_always
+ location=16,46,1,1
+-hotspot=-16,-48,32,56
++hotspot=location
+ mapmod=object,16,46,165
+ msg="In accordance with our plan, G. asked the old fool to teach him about the preparation of corpses in the later stages of decay. Naturally, the corpse in question was a cleverly disguised bomb made by V."
+ soundfx=soundfx/inventory/inventory_page.ogg
+@@ -298,7 +298,7 @@ tooltip=Book Stand
+ # Lore: Under the Wing
+ type=run_always
+ location=25,60,1,1
+-hotspot=-32,-84,64,100
++hotspot=location
+ msg="My brothers and I wandered around for a few days. In an incredible stroke of luck, we encountered a master necromancer who, seeing the marks of banishment on our foreheads, took us as his apprentices."
+ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Bookcase
+@@ -307,7 +307,7 @@ tooltip=Bookcase
+ # Lore: Outgrowing
+ type=run_always
+ location=30,48,1,1
+-hotspot=-16,-48,32,56
++hotspot=location
+ mapmod=object,30,48,165
+ msg="We grew swiftly under the tutelage of the necromancer. The more we learned, the more we realized we could do better than the short-sighted git."
+ soundfx=soundfx/inventory/inventory_page.ogg
+@@ -317,7 +317,7 @@ tooltip=Book Stand
+ # Lore: Academy
+ type=run_always
+ location=7,51,1,1
+-hotspot=-16,-48,32,56
++hotspot=location
+ mapmod=object,7,51,164
+ msg="My brothers V. and G. used to go to a wizard's academy with me. We were top students until one day V. killed another student in a spontaneous fit of rage."
+ soundfx=soundfx/inventory/inventory_page.ogg
+@@ -327,7 +327,7 @@ tooltip=Book Stand
+ # Lore: Outcast
+ type=run_always
+ location=17,71,1,1
+-hotspot=-16,-48,32,56
++hotspot=location
+ mapmod=object,17,71,164
+ msg="Naturally, V. was expelled for his crime. It was foolish of us, but G. and I decided to defend our brother. We were expelled too. The wizards magically marked us with a sign of banishment on our foreheads so that no wizard would dare teach us."
+ soundfx=soundfx/inventory/inventory_page.ogg
+@@ -337,7 +337,7 @@ tooltip=Book Stand
+ # Lore: New Residence
+ type=run_always
+ location=16,10,1,1
+-hotspot=-16,-48,32,56
++hotspot=location
+ mapmod=object,16,10,165
+ msg="G. suggested that each of us should take one of the halls in the old necromancer's lair."
+ soundfx=soundfx/inventory/inventory_page.ogg
+@@ -347,7 +347,7 @@ tooltip=Book Stand
+ # Scathelocke's Diary
+ type=run_always
+ location=18,10,1,1
+-hotspot=-16,-48,32,56
++hotspot=location
+ mapmod=object,18,10,165
+ msg="It's days like today that make me wonder if I should go a step further and eliminate V. and G. too... they're getting on my nerves. ~Scathelocke"
+ set_status=lb_ice_password
+@@ -358,7 +358,7 @@ tooltip=Book Stand
+ # Crate
+ type=run_once
+ location=11,13,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,12,13,7
+ mapmod=object,11,13,163
+ soundfx=soundfx/wood_open.ogg
+@@ -368,7 +368,7 @@ tooltip=Crate
+ # Crate
+ type=run_once
+ location=22,13,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,22,14,7
+ mapmod=object,22,13,163
+ soundfx=soundfx/wood_open.ogg
+@@ -378,7 +378,7 @@ tooltip=Crate
+ # Crate
+ type=run_once
+ location=29,48,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,29,49,7
+ mapmod=object,29,48,163
+ soundfx=soundfx/wood_open.ogg
+@@ -388,7 +388,7 @@ tooltip=Crate
+ # Barrel
+ type=run_once
+ location=11,14,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,11,15,7
+ mapmod=object,11,14,162
+ soundfx=soundfx/wood_open.ogg
+@@ -398,7 +398,7 @@ tooltip=Barrel
+ # Barrel
+ type=run_once
+ location=12,14,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,12,15,7
+ mapmod=object,12,14,162
+ soundfx=soundfx/wood_open.ogg
+@@ -408,7 +408,7 @@ tooltip=Barrel
+ # Barrel
+ type=run_once
+ location=23,13,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,23,14,7
+ mapmod=object,23,13,162
+ soundfx=soundfx/wood_open.ogg
+@@ -418,7 +418,7 @@ tooltip=Barrel
+ # Treasure Chest
+ type=run_once
+ location=7,50,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,8,50,9
+ mapmod=object,7,50,160
+ soundfx=soundfx/wood_open.ogg
+@@ -429,7 +429,7 @@ tooltip=Treasure Chest
+ # Should only drop once per game
+ type=run_once
+ location=14,10,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=id,15,10,9100
+ mapmod=object,14,10,160
+ requires_item=9101
+@@ -444,7 +444,7 @@ unset_status=lb_ice_key
+ # Scathelocke's Chest
+ type=run_once
+ location=14,10,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,15,10,11
+ mapmod=object,14,10,160
+ requires_item=9101
+@@ -459,7 +459,7 @@ unset_status=lb_ice_key
+ # Scathelocke's Chest Locked
+ type=run_always
+ location=14,10,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ power=14
+ power_damage=20,25
+ power_path=14,10,hero
+@@ -485,7 +485,7 @@ soundfx=soundfx/door_open.ogg
+ # Treasure
+ type=run_once
+ location=30,57,1,1
+-hotspot=-32,-84,64,100
++hotspot=location
+ loot=random,31,57,7
+ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Bookcase
+@@ -494,7 +494,7 @@ tooltip=Bookcase
+ # Treasure
+ type=run_once
+ location=6,61,1,1
+-hotspot=-32,-84,64,100
++hotspot=location
+ loot=random,7,61,7
+ soundfx=soundfx/inventory/inventory_page.ogg
+ tooltip=Bookcase
+diff --git a/mods/living_bones/maps/brothers_lair_wind_hall.txt b/mods/living_bones/maps/brothers_lair_wind_hall.txt
+index 77238766e4385437c3e987536271912b6b9ba680..9bb3936f6ae933999670f7901018c14c037fbfbe 100644
+--- a/mods/living_bones/maps/brothers_lair_wind_hall.txt
++++ b/mods/living_bones/maps/brothers_lair_wind_hall.txt
+@@ -173,7 +173,7 @@ data=
+ # Rising Wind Switch (Death)
+ type=run_once
+ location=23,29,1,1
+-hotspot=-16,-28,32,34
++hotspot=location
+ mapmod=object,23,29,166
+ soundfx=soundfx/door_open.ogg
+ tooltip=Rising Wind Switch
+@@ -185,7 +185,7 @@ power_path=23,29,hero
+ # Rising Fire Switch (Death)
+ type=run_once
+ location=25,29,1,1
+-hotspot=-16,-28,32,34
++hotspot=location
+ mapmod=object,25,29,166
+ soundfx=soundfx/door_open.ogg
+ tooltip=Rising Fire Switch
+@@ -198,7 +198,7 @@ power_path=25,29,hero
+ type=run_once
+ location=27,29,1,1
+ mapmod=object,10,31,112;collision,10,31,0;object,27,29,166
+-hotspot=-16,-28,32,34
++hotspot=location
+ soundfx=soundfx/door_open.ogg
+ tooltip=Rising Ice Switch
+ 
+@@ -206,7 +206,7 @@ tooltip=Rising Ice Switch
+ # Falling Ice Switch (Death)
+ type=run_once
+ location=27,31,1,1
+-hotspot=-16,-28,32,34
++hotspot=location
+ mapmod=object,27,31,166
+ soundfx=soundfx/door_open.ogg
+ tooltip=Falling Ice Switch
+@@ -218,7 +218,7 @@ power_path=27,31,hero
+ # Falling Wind Switch (Right Door)
+ type=run_once
+ location=23,31,1,1
+-hotspot=-16,-28,32,34
++hotspot=location
+ mapmod=object,23,31,166;object,25,16,113;collision,25,16,0
+ soundfx=soundfx/door_open.ogg
+ tooltip=Falling Wind Switch
+@@ -227,7 +227,7 @@ tooltip=Falling Wind Switch
+ # Falling Fire Switch (Death)
+ type=run_once
+ location=25,31,1,1
+-hotspot=-16,-28,32,34
++hotspot=location
+ mapmod=object,25,31,166
+ soundfx=soundfx/door_open.ogg
+ tooltip=Falling Fire Switch
+@@ -239,7 +239,7 @@ power_path=25,31,hero
+ # Waiting Wind Switch (Death)
+ type=run_once
+ location=23,33,1,1
+-hotspot=-16,-28,32,34
++hotspot=location
+ mapmod=object,23,33,166
+ soundfx=soundfx/door_open.ogg
+ tooltip=Waiting Wind Switch
+@@ -251,7 +251,7 @@ power_path=23,33,hero
+ # Waiting Fire Switch (Treasure)
+ type=run_once
+ location=25,33,1,1
+-hotspot=-16,-28,32,34
++hotspot=location
+ mapmod=object,25,33,166
+ loot=random,25,34,9
+ soundfx=soundfx/door_open.ogg
+@@ -261,7 +261,7 @@ tooltip=Waiting Fire Switch
+ # Waiting Ice Switch (Death)
+ type=run_once
+ location=27,33,1,1
+-hotspot=-16,-28,32,34
++hotspot=location
+ mapmod=object,27,33,166
+ soundfx=soundfx/door_open.ogg
+ tooltip=Waiting Ice Switch
+@@ -275,7 +275,7 @@ power_path=27,33,hero
+ # Storage Room Clue Book
+ type=run_always
+ location=13,31,1,1
+-hotspot=-16,-48,32,56
++hotspot=location
+ mapmod=object,13,31,164
+ msg="Fire is either Falling or Waiting. One element, one temperament."
+ soundfx=soundfx/inventory/inventory_page.ogg
+@@ -285,7 +285,7 @@ tooltip=Book Stand
+ # Bedroom Clue Book
+ type=run_always
+ location=25,19,1,1
+-hotspot=-16,-48,32,56
++hotspot=location
+ mapmod=object,25,19,165
+ msg="Wind is not Rising. Wind is Falling on the firmament."
+ soundfx=soundfx/inventory/inventory_page.ogg
+@@ -303,7 +303,7 @@ intermap=brothers_lair_atrium.txt,26,14
+ # Grisbon's Diary
+ type=run_always
+ location=31,8,1,1
+-hotspot=-16,-48,32,56
++hotspot=location
+ mapmod=object,31,8,164
+ msg="People used to ask me why I use a sword rather than a wand. It never occurs to them that the metal blade can conduct and channel lightning as well as (or better than!) any enchanted twig. ~Grisbon"
+ set_status=lb_wind_password
+@@ -314,7 +314,7 @@ tooltip=Book Stand
+ # Crate
+ type=run_once
+ location=31,15,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,31,14,6
+ mapmod=object,31,15,163
+ soundfx=soundfx/wood_open.ogg
+@@ -324,7 +324,7 @@ tooltip=Crate
+ # Crate
+ type=run_once
+ location=36,14,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,35,13,7
+ mapmod=object,36,14,163
+ soundfx=soundfx/wood_open.ogg
+@@ -334,7 +334,7 @@ tooltip=Crate
+ # Crate
+ type=run_once
+ location=11,46,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,11,45,8
+ mapmod=object,11,46,163
+ soundfx=soundfx/wood_open.ogg
+@@ -344,7 +344,7 @@ tooltip=Crate
+ # Crate
+ type=run_once
+ location=3,46,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,4,45,6
+ mapmod=object,3,46,163
+ soundfx=soundfx/wood_open.ogg
+@@ -354,7 +354,7 @@ tooltip=Crate
+ # Barrel
+ type=run_once
+ location=3,45,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,3,44,7
+ mapmod=object,3,45,162
+ soundfx=soundfx/wood_open.ogg
+@@ -364,7 +364,7 @@ tooltip=Barrel
+ # Barrel
+ type=run_once
+ location=4,46,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,5,46,7
+ mapmod=object,4,46,162
+ soundfx=soundfx/wood_open.ogg
+@@ -374,7 +374,7 @@ tooltip=Barrel
+ # Barrel
+ type=run_once
+ location=10,46,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,9,46,7
+ mapmod=object,10,46,162
+ soundfx=soundfx/wood_open.ogg
+@@ -384,7 +384,7 @@ tooltip=Barrel
+ # Barrel
+ type=run_once
+ location=11,44,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,10,44,8
+ mapmod=object,11,44,162
+ soundfx=soundfx/wood_open.ogg
+@@ -394,7 +394,7 @@ tooltip=Barrel
+ # Barrel
+ type=run_once
+ location=36,15,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,35,14,6
+ mapmod=object,36,15,162
+ soundfx=soundfx/wood_open.ogg
+@@ -404,7 +404,7 @@ tooltip=Barrel
+ # Grisbon's Chest
+ type=run_once
+ location=31,7,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,32,7,10
+ mapmod=object,31,7,160
+ requires_item=9103
+@@ -418,7 +418,7 @@ unset_status=lb_wind_key
+ # Grisbon's Chest Locked
+ type=run_always
+ location=31,7,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ power=6
+ power_damage=20,25
+ power_path=31,7,hero
+diff --git a/mods/living_bones/maps/cave_of_living_bones1.txt b/mods/living_bones/maps/cave_of_living_bones1.txt
+index dc688e00d99313a03a77660563298f537ea0cefb..8199ef7846b25dcfb6f4df84da1a3ff7bf875e5a 100644
+--- a/mods/living_bones/maps/cave_of_living_bones1.txt
++++ b/mods/living_bones/maps/cave_of_living_bones1.txt
+@@ -333,7 +333,7 @@ intermap=cave_of_living_bones2.txt,37,74
+ # Crate
+ type=run_once
+ location=69,66,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,69,67,5
+ mapmod=object,69,66,179
+ soundfx=soundfx/wood_open.ogg
+@@ -343,7 +343,7 @@ tooltip=Crate
+ # Crate
+ type=run_once
+ location=83,83,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,84,82,5
+ mapmod=object,83,83,179
+ soundfx=soundfx/wood_open.ogg
+@@ -353,7 +353,7 @@ tooltip=Crate
+ # Crate
+ type=run_once
+ location=88,76,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,87,76,5
+ mapmod=object,88,76,179
+ soundfx=soundfx/wood_open.ogg
+@@ -363,7 +363,7 @@ tooltip=Crate
+ # Crate
+ type=run_once
+ location=30,71,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,29,71,6
+ mapmod=object,30,71,179
+ soundfx=soundfx/wood_open.ogg
+@@ -373,7 +373,7 @@ tooltip=Crate
+ # Crate
+ type=run_once
+ location=33,37,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,34,37,6
+ mapmod=object,33,37,179
+ soundfx=soundfx/wood_open.ogg
+@@ -383,7 +383,7 @@ tooltip=Crate
+ # Crate
+ type=run_once
+ location=23,39,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,23,40,5
+ mapmod=object,23,39,179
+ soundfx=soundfx/wood_open.ogg
+@@ -393,7 +393,7 @@ tooltip=Crate
+ # Barrel
+ type=run_once
+ location=29,70,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,28,70,5
+ mapmod=object,29,70,178
+ soundfx=soundfx/wood_open.ogg
+@@ -403,7 +403,7 @@ tooltip=Barrel
+ # Barrel
+ type=run_once
+ location=68,65,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,67,65,5
+ mapmod=object,68,65,178
+ soundfx=soundfx/wood_open.ogg
+@@ -413,7 +413,7 @@ tooltip=Barrel
+ # Barrel
+ type=run_once
+ location=85,74,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,85,75,5
+ mapmod=object,85,74,178
+ soundfx=soundfx/wood_open.ogg
+@@ -423,7 +423,7 @@ tooltip=Barrel
+ # Barrel
+ type=run_once
+ location=83,84,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,84,83,5
+ mapmod=object,83,84,178
+ soundfx=soundfx/wood_open.ogg
+@@ -433,7 +433,7 @@ tooltip=Barrel
+ # Barrel
+ type=run_once
+ location=73,35,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,73,36,6
+ mapmod=object,73,35,178
+ soundfx=soundfx/wood_open.ogg
+@@ -443,7 +443,7 @@ tooltip=Barrel
+ # Treasure Chest
+ type=run_once
+ location=21,38,1,1
+-hotspot=-16,-28,32,36
++hotspot=location
+ loot=random,21,39,7
+ mapmod=object,21,38,177
+ soundfx=soundfx/wood_open.ogg
+@@ -453,7 +453,7 @@ tooltip=Treasure Chest
+ # Treasure Chest
+ type=run_once
+ location=29,53,1,1
+-hotspot=-16,-28,32,36
++hotspot=location
+ loot=random,29,54,7
+ mapmod=object,29,53,177
+ soundfx=soundfx/wood_open.ogg
+diff --git a/mods/living_bones/maps/cave_of_living_bones2.txt b/mods/living_bones/maps/cave_of_living_bones2.txt
+index fbb1734c59c866697d6ef770c8ea32cd0484f234..a680f9344f070417e0487a320747c0924de29cf1 100644
+--- a/mods/living_bones/maps/cave_of_living_bones2.txt
++++ b/mods/living_bones/maps/cave_of_living_bones2.txt
+@@ -279,7 +279,7 @@ intermap=brothers_lair_atrium.txt,15,46
+ # Barrel
+ type=run_once
+ location=46,4,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,46,5,7
+ mapmod=object,46,4,178
+ soundfx=soundfx/wood_open.ogg
+@@ -289,7 +289,7 @@ tooltip=Barrel
+ # Crate
+ type=run_once
+ location=48,5,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,48,6,6
+ mapmod=object,48,5,179
+ soundfx=soundfx/wood_open.ogg
+@@ -299,7 +299,7 @@ tooltip=Crate
+ # Crate
+ type=run_once
+ location=19,44,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ loot=random,20,44,7
+ mapmod=object,19,44,179
+ soundfx=soundfx/wood_open.ogg
+@@ -309,7 +309,7 @@ tooltip=Crate
+ # Give Pillar Quest
+ type=run_always
+ location=47,44,1,1
+-hotspot=-200,-175,400,225
++hotspot=45,42,3,3
+ msg=This pillar is laced with cracks and crevices. Maybe with enough force it can be knocked down.
+ requires_not=lb_has_explosive
+ set_status=lb_destroy_pillar
+@@ -322,7 +322,7 @@ location=47,44,1,1
+ requires_not=lb_explosive_set
+ requires_status=lb_has_explosive
+ set_status=lb_explosive_set
+-hotspot=-200,-175,400,225
++hotspot=45,42,3,3
+ mapmod=object,47,44,163
+ tooltip=Place Explosive
+ 
+@@ -470,79 +470,6 @@ requires_not=lb_explosive_detonated
+ requires_status=lb_explosive_set
+ set_status=lb_explosive_detonated
+ mapmod=object,47,44,0
+-power=18
+-power_path=47,44,47,44
+-shakycam=60
+-
+-[event]
+-# Persist Explosion
+-type=run_once
+-location=35,70,4,5
+-requires_status=lb_explosive_detonated
+-mapmod=object,47,44,0
+-mapmod=object,47,43,0
+-mapmod=collision,47,43,2
+-mapmod=object,47,42,0
+-mapmod=collision,47,42,2
+-mapmod=object,46,43,0
+-mapmod=collision,46,43,2
+-mapmod=object,46,44,0
+-mapmod=collision,46,44,2
+-mapmod=object,45,44,0
+-mapmod=collision,45,44,2
+-mapmod=object,46,42,0
+-mapmod=collision,46,42,2
+-mapmod=object,45,43,80
+-mapmod=collision,45,43,1
+-mapmod=object,47,41,80
+-#mapmod=collision,45,43,1
+-mapmod=object,45,42,68
+-mapmod=collison,45,42,1
+-mapmod=object,46,41,69
+-mapmod=collison,46,41,1
+-mapmod=object,45,41,76
+-mapmod=collison,45,41,1
+-mapmod=object,48,43,0
+-mapmod=collision,48,43,0
+-mapmod=object,48,44,0
+-mapmod=collision,48,44,0
+-mapmod=object,46,45,0
+-mapmod=collision,46,45,0
+-mapmod=object,49,40,0
+-mapmod=collision,49,40,2
+-mapmod=object,46,39,0
+-mapmod=collision,46,39,2
+-mapmod=object,48,40,150
+-mapmod=collision,48,40,0
+-mapmod=object,48,39,151
+-mapmod=collision,48,39,0
+-mapmod=collision,49,39,0
+-mapmod=object,48,38,151
+-mapmod=collision,48,38,0
+-mapmod=object,49,37,152
+-mapmod=collision,49,37,0
+-mapmod=object,48,36,151
+-mapmod=collision,48,36,0
+-mapmod=object,49,35,152
+-mapmod=collision,49,35,0
+-mapmod=object,47,38,150
+-mapmod=collision,47,38,0
+-mapmod=object,45,46,150
+-mapmod=collision,45,46,2
+-mapmod=object,48,45,152
+-mapmod=collision,48,45,2
+-mapmod=object,49,44,150
+-mapmod=collision,49,44,2
+-mapmod=object,49,43,151
+-mapmod=collision,49,43,2
+-mapmod=object,51,42,152
+-
+-[event]
+-# Persist Explosion
+-type=run_once
+-location=3,35,4,5
+-requires_status=lb_explosive_detonated
+-mapmod=object,47,44,0
+ mapmod=object,47,43,0
+ mapmod=collision,47,43,2
+ mapmod=object,47,42,0
+@@ -599,11 +526,14 @@ mapmod=collision,49,44,2
+ mapmod=object,49,43,151
+ mapmod=collision,49,43,2
+ mapmod=object,51,42,152
++power=18
++power_path=47,44,47,44
++shakycam=60
+ 
+ [event]
+ # Persist Explosion
+-type=run_once
+-location=29,4,7,4
++type=on_load
++location=35,70,4,5
+ requires_status=lb_explosive_detonated
+ mapmod=object,47,44,0
+ mapmod=object,47,43,0
+diff --git a/mods/living_bones/maps/cave_of_living_bones3.txt b/mods/living_bones/maps/cave_of_living_bones3.txt
+index f95154b9979dd1b143abae80fa8babdc4ab026f5..d5bdcbf45516d0877c607fa58c6bc791befdb15b 100644
+--- a/mods/living_bones/maps/cave_of_living_bones3.txt
++++ b/mods/living_bones/maps/cave_of_living_bones3.txt
+@@ -117,7 +117,7 @@ intermap=cave_of_living_bones2.txt,3,38
+ # Crate of Blasting Powder
+ type=run_once
+ location=6,6,1,1
+-hotspot=-16,-30,32,36
++hotspot=location
+ mapmod=object,6,6,0
+ mapmod=collision,6,6,0
+ set_status=lb_has_explosive
+@@ -127,7 +127,7 @@ tooltip=Crate of Blasting Powder
+ # Barrel
+ type=run_once
+ location=5,6,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,6,7,7
+ mapmod=object,5,6,178
+ soundfx=soundfx/wood_open.ogg
+@@ -137,7 +137,7 @@ tooltip=Barrel
+ # Barrel
+ type=run_once
+ location=3,18,1,1
+-hotspot=-16,-36,32,44
++hotspot=location
+ loot=random,4,19,7
+ mapmod=object,3,18,178
+ soundfx=soundfx/wood_open.ogg

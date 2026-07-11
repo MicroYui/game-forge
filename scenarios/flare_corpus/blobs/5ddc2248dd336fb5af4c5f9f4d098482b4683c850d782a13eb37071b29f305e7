@@ -1,0 +1,98 @@
+diff --git a/mods/empyrean_campaign/maps/st_maria_2.txt b/mods/empyrean_campaign/maps/st_maria_2.txt
+index d3c9d5b1bb37fb89b64c1975fd8436c32b554d92..ad4a5604fba9c044b1e44da37e5e990c5b4c4a03 100644
+--- a/mods/empyrean_campaign/maps/st_maria_2.txt
++++ b/mods/empyrean_campaign/maps/st_maria_2.txt
+@@ -191,7 +191,7 @@ data=
+ 3,3,1,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,3,3,1,0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,0,1,3,3,
+ 3,3,1,0,0,0,0,1,1,1,1,1,3,3,3,3,3,3,1,4,0,0,0,1,1,0,0,0,0,0,0,1,3,3,1,0,0,0,0,0,0,1,1,0,0,0,0,1,3,3,1,4,4,4,0,1,3,3,3,3,3,3,1,4,0,0,4,1,3,3,
+ 3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,1,4,0,0,0,1,1,0,0,0,0,0,0,1,3,3,1,0,0,0,0,0,0,1,1,0,0,0,0,1,3,3,1,0,0,0,0,1,3,3,3,3,3,3,1,3,0,0,3,1,3,3,
+-3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,0,0,0,0,0,0,1,3,3,1,0,0,0,0,0,0,1,1,0,0,0,0,1,3,3,1,0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,4,1,3,3,
++3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,1,0,4,0,0,1,1,0,0,0,0,0,0,1,3,3,1,0,0,0,0,0,0,1,1,0,0,0,0,1,3,3,1,0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,4,1,3,3,
+ 3,3,1,0,1,1,0,1,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,0,0,0,0,0,0,1,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,1,0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,0,1,3,3,
+ 3,3,1,0,1,1,0,1,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,0,0,0,0,0,0,1,3,3,1,0,0,0,0,0,0,1,1,0,0,0,0,1,3,3,1,0,4,4,4,1,3,3,3,3,3,3,1,0,0,0,0,1,3,3,
+ 3,3,1,0,4,0,0,1,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,0,0,0,0,1,3,3,1,0,0,0,0,1,3,3,3,3,3,3,1,4,0,0,0,1,3,3,
+@@ -545,13 +545,6 @@ power=178
+ power_damage=70,80
+ 
+ [event]
+-type=undead
+-location=44,51,4,2
+-level=3
+-number=2
+-wander_radius=2
+-
+-[event]
+ type=on_trigger
+ location=63,26,1,1
+ hotspot=location
+@@ -724,6 +717,13 @@ level=3
+ number=2,3
+ wander_radius=2
+ 
++[enemy]
++type=undead
++location=44,51,4,2
++level=3
++number=2
++wander_radius=2
++
+ [npc]
+ type=npcs/yora.txt
+ location=20,23,1,1
+diff --git a/tiled/empyrean_campaign/st_maria_2.tmx b/tiled/empyrean_campaign/st_maria_2.tmx
+index 07888589538340d79c5a88219b0a87b58fe4b694..321513543bd22306a7c04d9d4c515273a407e0f7 100644
+--- a/tiled/empyrean_campaign/st_maria_2.tmx
++++ b/tiled/empyrean_campaign/st_maria_2.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.0" orientation="isometric" renderorder="right-down" width="70" height="70" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="93">
++<map version="1.0" orientation="isometric" renderorder="right-down" width="70" height="70" tilewidth="64" tileheight="32" backgroundcolor="#000000" nextobjectid="95">
+  <properties>
+   <property name="music" value="music/dungeon_theme.ogg"/>
+   <property name="tileset" value="tilesetdefs/tileset_dungeon.txt"/>
+@@ -203,7 +203,7 @@
+ 3,3,1,0,0,0,0,0,0,0,0,1,3,3,3,3,3,3,1,1,1,1,1,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,1,1,1,1,1,3,3,1,0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,0,1,3,3,
+ 3,3,1,0,0,0,0,1,1,1,1,1,3,3,3,3,3,3,1,4,0,0,0,1,1,0,0,0,0,0,0,1,3,3,1,0,0,0,0,0,0,1,1,0,0,0,0,1,3,3,1,4,4,4,0,1,3,3,3,3,3,3,1,4,0,0,4,1,3,3,
+ 3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,1,4,0,0,0,1,1,0,0,0,0,0,0,1,3,3,1,0,0,0,0,0,0,1,1,0,0,0,0,1,3,3,1,0,0,0,0,1,3,3,3,3,3,3,1,3,0,0,3,1,3,3,
+-3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,0,0,0,0,0,0,1,3,3,1,0,0,0,0,0,0,1,1,0,0,0,0,1,3,3,1,0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,4,1,3,3,
++3,3,1,0,0,0,0,1,3,3,3,3,3,3,3,3,3,3,1,0,4,0,0,1,1,0,0,0,0,0,0,1,3,3,1,0,0,0,0,0,0,1,1,0,0,0,0,1,3,3,1,0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,4,1,3,3,
+ 3,3,1,0,1,1,0,1,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,0,0,0,0,0,0,1,3,3,1,0,0,0,0,0,0,0,0,0,0,0,0,1,3,3,1,0,0,0,0,1,3,3,3,3,3,3,1,0,0,0,0,1,3,3,
+ 3,3,1,0,1,1,0,1,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,0,0,0,0,0,0,1,3,3,1,0,0,0,0,0,0,1,1,0,0,0,0,1,3,3,1,0,4,4,4,1,3,3,3,3,3,3,1,0,0,0,0,1,3,3,
+ 3,3,1,0,4,0,0,1,3,3,3,3,3,3,3,3,3,3,1,0,0,0,0,1,1,0,0,0,0,0,0,1,1,1,1,0,0,0,0,0,0,1,1,0,0,0,0,1,3,3,1,0,0,0,0,1,3,3,3,3,3,3,1,4,0,0,0,1,3,3,
+@@ -531,13 +531,6 @@
+     <property name="power_damage" value="70,80"/>
+    </properties>
+   </object>
+-  <object id="90" type="undead" x="1408" y="1632" width="128" height="64">
+-   <properties>
+-    <property name="level" value="3"/>
+-    <property name="number" value="2"/>
+-    <property name="wander_radius" value="2"/>
+-   </properties>
+-  </object>
+   <object id="91" type="on_trigger" x="2016" y="832" width="32" height="32">
+    <properties>
+     <property name="hotspot" value="location"/>
+@@ -559,7 +552,7 @@
+    </properties>
+   </object>
+  </objectgroup>
+- <objectgroup name="enemy" visible="0">
++ <objectgroup name="enemy">
+   <object id="12" type="undead" x="992" y="864" width="128" height="128">
+    <properties>
+     <property name="level" value="3"/>
+@@ -713,6 +706,13 @@
+     <property name="wander_radius" value="2"/>
+    </properties>
+   </object>
++  <object id="94" type="undead" x="1408" y="1632" width="128" height="64">
++   <properties>
++    <property name="level" value="3"/>
++    <property name="number" value="2"/>
++    <property name="wander_radius" value="2"/>
++   </properties>
++  </object>
+  </objectgroup>
+  <objectgroup name="npc">
+   <object id="6" type="npcs/yora.txt" x="640" y="736" width="32" height="32"/>

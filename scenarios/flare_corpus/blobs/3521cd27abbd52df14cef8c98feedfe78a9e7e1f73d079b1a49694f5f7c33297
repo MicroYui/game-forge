@@ -1,0 +1,204 @@
+diff --git a/mods/alpha_demo/maps/averguard_atrium.txt b/mods/alpha_demo/maps/averguard_atrium.txt
+index ad9d9719cb0f03244db5008389821fb66500ee86..d966db3f244585678ab4c9b4f56e22401944c025 100644
+--- a/mods/alpha_demo/maps/averguard_atrium.txt
++++ b/mods/alpha_demo/maps/averguard_atrium.txt
+@@ -63,8 +63,8 @@ data=
+ 0,0,0,18,16,16,16,51,51,51,51,16,18,17,0,0,0,0,0,0,
+ 0,0,0,17,16,16,16,51,51,51,51,17,17,18,0,0,0,0,0,0,
+ 0,0,0,17,18,16,18,17,17,16,16,19,17,19,0,0,0,0,0,0,
+-0,0,0,16,18,17,19,17,18,18,17,17,17,16,0,0,0,0,0,0,
+-0,19,16,16,18,16,19,17,18,19,16,16,17,19,16,16,18,0,0,0,
++0,0,0,16,18,17,19,17,0,0,17,17,17,16,0,0,0,0,0,0,
++0,19,16,16,18,16,19,17,264,0,16,16,17,19,16,16,18,0,0,0,
+ 0,16,17,16,17,16,16,18,19,16,16,18,17,16,17,16,17,0,0,0,
+ 0,16,16,17,16,18,19,19,18,16,19,19,16,16,16,17,16,0,0,0,
+ 0,0,0,18,19,17,16,16,17,16,16,17,17,16,0,0,17,0,0,0,
+@@ -254,12 +254,26 @@ location=11,32
+ type=skeleton
+ location=4,37
+ 
+-[enemy]
+-type=minotaur
+-location=10,43
+-
++[event]
++type=on_load
++location=2,48,1,1
++requires_status=waypoint_averguard_atrium
++mapmod=background,8,50,265
+ 
++[event]
++type=teleport
++location=8,49,2,2
++hotspot=location
++intermap=warp_zone.txt,30,32
++tooltip=Warp Zone
+ 
++[event]
++type=run_once
++location=6,47,6,6
++requires_not=waypoint_averguard_atrium
++set_status=waypoint_averguard_atrium
++msg=Averguard Atrium waypoint discovered
++mapmod=background,8,50,265
+ 
+ 
+ 
+diff --git a/mods/alpha_demo/maps/brothers_lair_atrium.txt b/mods/alpha_demo/maps/brothers_lair_atrium.txt
+index 060a25ef3a263eb5a2022755bd9aa121696daa85..ff088b314c7296c41a78521bf1aefbb272d45dfc 100644
+--- a/mods/alpha_demo/maps/brothers_lair_atrium.txt
++++ b/mods/alpha_demo/maps/brothers_lair_atrium.txt
+@@ -27,8 +27,8 @@ data=
+ 0,0,0,0,0,19,32,16,16,16,16,35,18,19,16,16,16,17,35,16,16,16,16,35,0,0,0,0,0,0,
+ 0,0,0,0,0,16,32,16,16,16,16,32,33,34,34,34,34,33,32,16,16,16,16,35,0,0,0,0,0,0,
+ 0,0,0,0,0,16,32,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,35,0,0,0,0,0,0,
+-0,0,0,0,0,16,32,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,35,0,0,0,0,0,0,
+-0,0,0,0,0,16,32,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,35,0,0,0,0,0,0,
++0,0,0,0,0,16,32,16,16,16,16,16,16,16,0,0,16,16,16,16,16,16,16,35,0,0,0,0,0,0,
++0,0,0,0,0,16,32,16,16,16,16,16,16,16,264,0,16,16,16,16,16,16,16,35,0,0,0,0,0,0,
+ 0,0,0,0,0,16,32,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,16,35,0,0,0,0,0,0,
+ 0,0,0,0,0,19,34,33,33,33,33,33,33,34,16,16,33,34,33,33,33,33,33,35,0,0,0,0,0,0,
+ 0,0,0,0,0,0,0,0,0,0,0,0,18,35,16,16,32,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -214,3 +214,24 @@ soundfx=soundfx/environment/open_fire.ogg
+ type=skeletal_warrior
+ location=9,8,0
+ waypoints=9,8;20,8;20,19;9,19
++
++[event]
++type=on_load
++location=1,1,1,1
++requires_status=waypoint_brothers_lair_atrium
++mapmod=background,14,20,265
++
++[event]
++type=teleport
++location=14,19,2,2
++hotspot=location
++intermap=warp_zone.txt,36,38
++tooltip=Warp Zone
++
++[event]
++type=run_once
++location=12,17,6,6
++requires_not=waypoint_brothers_lair_atrium
++set_status=waypoint_brothers_lair_atrium
++msg=Brothers Lair Atrium waypoint discovered
++mapmod=background,14,20,265
+diff --git a/mods/alpha_demo/maps/warp_zone.txt b/mods/alpha_demo/maps/warp_zone.txt
+index f8c34491c4d610589d009b04b3e85a3dc7507664..8b8e29aa94ad272ef067a53891117d8ff26bd5a2 100644
+--- a/mods/alpha_demo/maps/warp_zone.txt
++++ b/mods/alpha_demo/maps/warp_zone.txt
+@@ -236,6 +236,7 @@ tooltip=Ydrakka Pass
+ type=teleport
+ location=30,29,2,2
+ hotspot=location
++intermap=averguard_atrium.txt,11,52
+ requires_status=waypoint_averguard_atrium
+ tooltip=Averguard Atrium
+ 
+@@ -243,6 +244,7 @@ tooltip=Averguard Atrium
+ type=teleport
+ location=38,37,2,2
+ hotspot=location
++intermap=brothers_lair_atrium.txt,17,22
+ requires_status=waypoint_brothers_lair_atrium
+ tooltip=Brothers Lair Atrium
+ 
+diff --git a/tiled/averguard_atrium.tmx b/tiled/averguard_atrium.tmx
+index 4348633b645b582cb95002bf70a1d4e1cf6c46c5..97388487e24d430d8ade61f5c5f0dbd7812ad547 100644
+--- a/tiled/averguard_atrium.tmx
++++ b/tiled/averguard_atrium.tmx
+@@ -6,6 +6,13 @@
+  <tileset firstgid="16" name="tiled_dungeon" tilewidth="64" tileheight="128">
+   <image source="tiled_dungeon.png" width="1024" height="1920"/>
+  </tileset>
++ <tileset firstgid="256" name="set_rules" tilewidth="64" tileheight="32">
++  <image source="dungeon/set_rules.png" width="128" height="128"/>
++ </tileset>
++ <tileset firstgid="264" name="tiled_dungeon_2x2" tilewidth="128" tileheight="64">
++  <tileoffset x="0" y="16"/>
++  <image source="dungeon/tiled_dungeon_2x2.png" width="512" height="512"/>
++ </tileset>
+  <layer name="background" width="20" height="60">
+   <data encoding="csv">
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+@@ -57,8 +64,8 @@
+ 0,0,0,18,16,16,16,51,51,51,51,16,18,17,0,0,0,0,0,0,
+ 0,0,0,17,16,16,16,51,51,51,51,17,17,18,0,0,0,0,0,0,
+ 0,0,0,17,18,16,18,17,17,16,16,19,17,19,0,0,0,0,0,0,
+-0,0,0,16,18,17,19,17,18,18,17,17,17,16,0,0,0,0,0,0,
+-0,19,16,16,18,16,19,17,18,19,16,16,17,19,16,16,18,0,0,0,
++0,0,0,16,18,17,19,17,0,0,17,17,17,16,0,0,0,0,0,0,
++0,19,16,16,18,16,19,17,264,0,16,16,17,19,16,16,18,0,0,0,
+ 0,16,17,16,17,16,16,18,19,16,16,18,17,16,17,16,17,0,0,0,
+ 0,16,16,17,16,18,19,19,18,16,19,19,16,16,16,17,16,0,0,0,
+ 0,0,0,18,19,17,16,16,17,16,16,17,17,16,0,0,17,0,0,0,
+@@ -134,7 +141,7 @@
+ 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+ </data>
+  </layer>
+- <layer name="collision" width="20" height="60">
++ <layer name="collision" width="20" height="60" visible="0">
+   <data encoding="csv">
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,
+ 3,3,3,1,1,1,1,1,0,0,1,1,1,1,1,3,3,3,3,3,
+@@ -198,4 +205,27 @@
+ 3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3
+ </data>
+  </layer>
++ <objectgroup name="event" width="20" height="60">
++  <object name="Waypoint" type="teleport" x="256" y="1568" width="64" height="64">
++   <properties>
++    <property name="hotspot" value="location"/>
++    <property name="intermap" value="warp_zone.txt,30,32"/>
++    <property name="tooltip" value="Warp Zone"/>
++   </properties>
++  </object>
++  <object name="Activate Teleporter" type="run_once" x="192" y="1504" width="192" height="192">
++   <properties>
++    <property name="mapmod" value="background,8,50,265"/>
++    <property name="msg" value="Averguard Atrium waypoint discovered."/>
++    <property name="requires_not" value="waypoint_averguard_atrium"/>
++    <property name="set_status" value="waypoint_averguard_atrium"/>
++   </properties>
++  </object>
++  <object type="on_load" x="64" y="1536" width="32" height="32">
++   <properties>
++    <property name="mapmod" value="background,8,50,265"/>
++    <property name="requires_status" value="waypoint_averguard_atrium"/>
++   </properties>
++  </object>
++ </objectgroup>
+ </map>
+diff --git a/tiled/frontier/ancient_temple.tmx b/tiled/frontier/ancient_temple.tmx
+index ee41abbf63996266ec1401105b101437df71c11a..b8ead029a1c217119c930c08a0164859168654f7 100644
+--- a/tiled/frontier/ancient_temple.tmx
++++ b/tiled/frontier/ancient_temple.tmx
+@@ -1,6 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+-<map version="1.0" orientation="isometric" width="104" height="104" tilewidth="64" tileheight="32" backgroundcolor="#000000">
++<map version="1.0" orientation="isometric" width="104" height="104" tilewidth="64" tileheight="32">
+  <properties>
+   <property name="music" value="safe_room_theme.ogg"/>
+   <property name="tileset" value="tileset_dungeon.txt"/>
+diff --git a/tiled/frontier/warp_zone.tmx b/tiled/frontier/warp_zone.tmx
+index f272c8881cc4abac67069e2346d5724f9a31f3eb..36ffb3238d0e8d2de973996cb86755267f93d288 100644
+--- a/tiled/frontier/warp_zone.tmx
++++ b/tiled/frontier/warp_zone.tmx
+@@ -1,6 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<!DOCTYPE map SYSTEM "http://mapeditor.org/dtd/1.0/map.dtd">
+-<map version="1.0" orientation="isometric" width="64" height="64" tilewidth="64" tileheight="32" backgroundcolor="#000000">
++<map version="1.0" orientation="isometric" width="64" height="64" tilewidth="64" tileheight="32">
+  <properties>
+   <property name="music" value="magical_theme.ogg"/>
+   <property name="tileset" value="tileset_dungeon.txt"/>
+@@ -250,6 +249,7 @@
+   <object type="teleport" x="960" y="928" width="64" height="64">
+    <properties>
+     <property name="hotspot" value="location"/>
++    <property name="intermap" value="averguard_atrium.txt,11,52"/>
+     <property name="requires_status" value="waypoint_averguard_atrium"/>
+     <property name="tooltip" value="Averguard Atrium"/>
+    </properties>

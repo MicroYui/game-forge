@@ -1,0 +1,139 @@
+diff --git a/mods/empyrean_campaign/items/categories/quest.txt b/mods/empyrean_campaign/items/categories/quest.txt
+index 05a3a638a6c2db53215c0c334f73caf15160b2cb..919a142b200b4438026e08a128856432fe4f2e3a 100644
+--- a/mods/empyrean_campaign/items/categories/quest.txt
++++ b/mods/empyrean_campaign/items/categories/quest.txt
+@@ -188,6 +188,7 @@ quality=unique
+ item_type=book
+ pickup_status=emp_mog_init
+ book=books/mog_1.txt
++no_stash=shared
+ 
+ [item]
+ id=1018
+@@ -198,6 +199,7 @@ quality=unique
+ item_type=book
+ pickup_status=emp_mog_note2
+ book=books/mog_2.txt
++no_stash=shared
+ 
+ [item]
+ id=1019
+@@ -208,6 +210,7 @@ quality=unique
+ item_type=book
+ pickup_status=emp_mog_note3
+ book=books/mog_3.txt
++no_stash=shared
+ 
+ [item]
+ id=1020
+@@ -218,6 +221,7 @@ quality=unique
+ item_type=book
+ pickup_status=emp_mog_note4
+ book=books/mog_4.txt
++no_stash=shared
+ 
+ [item]
+ id=1021
+@@ -228,6 +232,7 @@ quality=unique
+ item_type=book
+ pickup_status=emp_mog_note5
+ book=books/mog_5.txt
++no_stash=shared
+ 
+ [item]
+ id=1022
+diff --git a/mods/empyrean_campaign/maps/mog_caverns.txt b/mods/empyrean_campaign/maps/mog_caverns.txt
+index 4da3a4f427c732ad81e18550d82bd6c24c18918a..e8aea7cf48d8cc9dc8b138bd9a798707ff05c7b4 100644
+--- a/mods/empyrean_campaign/maps/mog_caverns.txt
++++ b/mods/empyrean_campaign/maps/mog_caverns.txt
+@@ -292,6 +292,7 @@ mapmod=object,32,30,0;collision,32,30,0
+ msg=You found another note. Keep following the trail.
+ remove_item=1017:1
+ repeat=false
++requires_item=1017:1
+ requires_not_status=emp_mog_note2,emp_mog_finish
+ requires_status=emp_mog_init
+ reward_item=1018:1
+@@ -310,6 +311,7 @@ loot=754,fixed,1,2
+ msg=You found another note. Keep following the trail.
+ remove_item=1018:1
+ repeat=false
++requires_item=1018:1
+ requires_not_status=emp_mog_note3,emp_mog_finish
+ requires_status=emp_mog_init,emp_mog_note2
+ reward_item=1019:1
+@@ -326,6 +328,7 @@ loot=203,fixed,1,1
+ msg=You found another note. Keep following the trail.
+ remove_item=1019:1
+ repeat=false
++requires_item=1019:1
+ requires_not_status=emp_mog_note4,emp_mog_finish
+ requires_status=emp_mog_init,emp_mog_note3
+ reward_item=1020:1
+@@ -342,6 +345,7 @@ loot=currency,fixed,50,100
+ msg=You found another note. Keep following the trail.
+ remove_item=1020:1
+ repeat=false
++requires_item=1020:1
+ requires_not_status=emp_mog_note5,emp_mog_finish
+ requires_status=emp_mog_init,emp_mog_note4
+ reward_item=1021:1
+@@ -357,6 +361,7 @@ hotspot=location
+ mapmod=object,11,37,0;collision,11,37,0
+ remove_item=1021:1
+ repeat=false
++requires_item=1021:1
+ requires_not_status=emp_mog_door1
+ requires_status=emp_mog_init,emp_mog_note5
+ set_status=emp_mog_door1
+diff --git a/tiled/empyrean_campaign/mog_caverns.tmx b/tiled/empyrean_campaign/mog_caverns.tmx
+index c64f56087d921516b7113ad20ef244187b7c5cd4..619fe1adeaac77ac081d133be2fa4f83a33c1a61 100644
+--- a/tiled/empyrean_campaign/mog_caverns.tmx
++++ b/tiled/empyrean_campaign/mog_caverns.tmx
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+-<map version="1.4" tiledversion="1.4.2" orientation="isometric" renderorder="right-down" width="60" height="80" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextlayerid="7" nextobjectid="58">
++<map version="1.4" tiledversion="1.4.3" orientation="isometric" renderorder="right-down" width="60" height="80" tilewidth="64" tileheight="32" infinite="0" backgroundcolor="#000000" nextlayerid="7" nextobjectid="58">
+  <editorsettings>
+   <export target="../../mods/empyrean_campaign/maps/mog_caverns.txt" format="flare"/>
+  </editorsettings>
+@@ -296,6 +296,7 @@
+     <property name="msg" value="You found another note. Keep following the trail."/>
+     <property name="remove_item" value="1017:1"/>
+     <property name="repeat" value="false"/>
++    <property name="requires_item" value="1017:1"/>
+     <property name="requires_not_status" value="emp_mog_note2,emp_mog_finish"/>
+     <property name="requires_status" value="emp_mog_init"/>
+     <property name="reward_item" value="1018:1"/>
+@@ -313,6 +314,7 @@
+     <property name="msg" value="You found another note. Keep following the trail."/>
+     <property name="remove_item" value="1018:1"/>
+     <property name="repeat" value="false"/>
++    <property name="requires_item" value="1018:1"/>
+     <property name="requires_not_status" value="emp_mog_note3,emp_mog_finish"/>
+     <property name="requires_status" value="emp_mog_init,emp_mog_note2"/>
+     <property name="reward_item" value="1019:1"/>
+@@ -328,6 +330,7 @@
+     <property name="msg" value="You found another note. Keep following the trail."/>
+     <property name="remove_item" value="1019:1"/>
+     <property name="repeat" value="false"/>
++    <property name="requires_item" value="1019:1"/>
+     <property name="requires_not_status" value="emp_mog_note4,emp_mog_finish"/>
+     <property name="requires_status" value="emp_mog_init,emp_mog_note3"/>
+     <property name="reward_item" value="1020:1"/>
+@@ -343,6 +346,7 @@
+     <property name="msg" value="You found another note. Keep following the trail."/>
+     <property name="remove_item" value="1020:1"/>
+     <property name="repeat" value="false"/>
++    <property name="requires_item" value="1020:1"/>
+     <property name="requires_not_status" value="emp_mog_note5,emp_mog_finish"/>
+     <property name="requires_status" value="emp_mog_init,emp_mog_note4"/>
+     <property name="reward_item" value="1021:1"/>
+@@ -357,6 +361,7 @@
+     <property name="mapmod" value="object,11,37,0;collision,11,37,0"/>
+     <property name="remove_item" value="1021:1"/>
+     <property name="repeat" value="false"/>
++    <property name="requires_item" value="1021:1"/>
+     <property name="requires_not_status" value="emp_mog_door1"/>
+     <property name="requires_status" value="emp_mog_init,emp_mog_note5"/>
+     <property name="set_status" value="emp_mog_door1"/>
