@@ -30,6 +30,29 @@ def test_read_only_repo_exposes_binary_safe_commit_facts(generic_git_repo):
     assert repo.git_version().startswith("git version ")
 
 
+def test_read_only_repo_exposes_current_head_and_registered_blob(generic_git_repo):
+    repo = ReadOnlyGitRepo(generic_git_repo.path)
+
+    assert repo.head_commit() == generic_git_repo.head
+    assert repo.blob_bytes_at(
+        generic_git_repo.data_fix,
+        "data/missions/alpha.txt",
+    ) == b"requires_status = alpha_ready\n"
+
+
+def test_tracked_worktree_gate_ignores_untracked_files_but_rejects_tracked_changes(
+    generic_git_repo,
+):
+    repo = ReadOnlyGitRepo(generic_git_repo.path)
+    (generic_git_repo.path / "untracked-output.json").write_text("{}\n", encoding="utf-8")
+
+    repo.assert_tracked_worktree_clean()
+
+    (generic_git_repo.path / "README.md").write_text("changed\n", encoding="utf-8")
+    with pytest.raises(GitEvidenceError, match="tracked worktree"):
+        repo.assert_tracked_worktree_clean()
+
+
 def test_preflight_rejects_repository_local_attributes(generic_git_repo):
     attributes = generic_git_repo.git_dir / "info" / "attributes"
     attributes.parent.mkdir(parents=True, exist_ok=True)

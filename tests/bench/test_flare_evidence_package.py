@@ -635,7 +635,11 @@ def test_project_status_tracks_the_committed_b0a_decision():
                 "M3 incomplete": ("| M3 |", "🔄 未完成"),
                 "M4 not started and blocked": ("| M4 |", "⬜ 未开始", "阻塞"),
                 "B0B not entered": ("不进入 B0B",),
-                "next source or waiver": ("新外部语料", "书面 PRD scope waiver"),
+                "follow-up external gate": (
+                    "Endless Sky",
+                    "f22981b17b43e02caaa494193e6a4b8cd92bbc0c312f9d5f1db249da7365793f",
+                    "awaiting_human_evidence",
+                ),
             },
             "README.md": {
                 "M3 incomplete": ("| **M3** |", "🔄 incomplete"),
@@ -645,16 +649,21 @@ def test_project_status_tracks_the_committed_b0a_decision():
                     "blocked",
                 ),
                 "B0B not entered": ("B0B", "were not entered"),
-                "next source or waiver": (
-                    "different external corpus",
-                    "written PRD scope waiver",
+                "follow-up external gate": (
+                    "Endless Sky",
+                    "f22981b17b43e02caaa494193e6a4b8cd92bbc0c312f9d5f1db249da7365793f",
+                    "awaiting_human_evidence",
                 ),
             },
             "docs/superpowers/plans/README.md": {
                 "M3 incomplete": ("M3 umbrella 仍未完成",),
                 "M4 not started and blocked": ("M4", "未开始", "阻塞"),
                 "B0B not entered": ("Flare B0B", "均未进入"),
-                "next source or waiver": ("新的外部真实语料源", "书面 PRD scope waiver"),
+                "follow-up external gate": (
+                    "Endless Sky",
+                    "f22981b17b43e02caaa494193e6a4b8cd92bbc0c312f9d5f1db249da7365793f",
+                    "awaiting_human_evidence",
+                ),
             },
             "docs/superpowers/specs/2026-07-10-m3d-flare-rich-design.md": {
                 "M3 incomplete": ("M3 umbrella 仍为未完成",),

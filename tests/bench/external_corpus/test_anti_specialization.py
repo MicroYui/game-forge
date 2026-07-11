@@ -1,18 +1,21 @@
 from __future__ import annotations
 
 import ast
+import importlib.util
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
 PROFILE_MODULE = "gameforge.bench.external_corpus.profiles"
-SOURCE_TOKENS = ("endless_sky", "flare-game", "b10b7d6c")
+SOURCE_TOKENS = ("endless_sky", "flare", "b10b7d6c")
 DETERMINISTIC_CORE = (
     ROOT / "gameforge/contracts",
     ROOT / "gameforge/spine/ir",
     ROOT / "gameforge/spine/dsl",
     ROOT / "gameforge/spine/checkers",
     ROOT / "gameforge/spine/sim",
+    ROOT / "gameforge/spine/patch.py",
+    ROOT / "gameforge/spine/stats.py",
     ROOT / "gameforge/bench/taxonomy.py",
     ROOT / "gameforge/bench/metrics.py",
     ROOT / "gameforge/bench/report.py",
@@ -26,15 +29,38 @@ def _python_files(root: Path) -> list[Path]:
     return sorted(root.rglob("*.py"))
 
 
-def _absolute_imports(path: Path) -> list[str]:
+def _resolved_imports(path: Path, root: Path = ROOT) -> list[str]:
     tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+    module_parts = path.relative_to(root).with_suffix("").parts
+    package = ".".join(module_parts[:-1])
     imports: list[str] = []
     for node in ast.walk(tree):
         if isinstance(node, ast.Import):
             imports.extend(alias.name for alias in node.names)
-        elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
-            imports.append(node.module)
+        elif isinstance(node, ast.ImportFrom):
+            if node.level:
+                relative = "." * node.level + (node.module or "")
+                base = importlib.util.resolve_name(relative, package)
+            else:
+                base = node.module or ""
+            if base:
+                imports.append(base)
+                imports.extend(f"{base}.{alias.name}" for alias in node.names)
     return imports
+
+
+def test_import_scan_resolves_package_and_relative_profile_imports(tmp_path) -> None:
+    module = tmp_path / "gameforge/spine/checkers/probe.py"
+    module.parent.mkdir(parents=True)
+    module.write_text(
+        "from gameforge.bench.external_corpus import profiles\n"
+        "from ...bench.external_corpus import profiles as relative_profiles\n",
+        encoding="utf-8",
+    )
+
+    imports = _resolved_imports(module, tmp_path)
+
+    assert imports.count(PROFILE_MODULE) == 2
 
 
 def test_deterministic_core_has_no_external_profile_import_or_source_literal() -> None:
@@ -43,7 +69,7 @@ def test_deterministic_core_has_no_external_profile_import_or_source_literal() -
     for root in DETERMINISTIC_CORE:
         for path in _python_files(root):
             relative = path.relative_to(ROOT)
-            for module in _absolute_imports(path):
+            for module in _resolved_imports(path):
                 if module == PROFILE_MODULE or module.startswith(f"{PROFILE_MODULE}."):
                     forbidden_imports.append(f"{relative}: {module}")
             source = path.read_text(encoding="utf-8").casefold()

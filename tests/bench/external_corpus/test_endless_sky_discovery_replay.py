@@ -17,7 +17,6 @@ CORPUS = ROOT / "scenarios/external_corpus/endless_sky"
 PROFILE_PATH = CORPUS / "source-profile.json"
 LEDGER_PATH = CORPUS / "candidate-ledger.discovered.json"
 REVIEW_PACKAGE_PATH = CORPUS / "review-package.json"
-REGISTRATION_COMMIT = "b018283e52fe9bd879e14fb5039e601423d3f164"
 
 
 def _load_canonical(path: Path, model_type):
@@ -32,7 +31,10 @@ def test_discovered_universe_replays_registered_counts_and_order() -> None:
     ledger = _load_canonical(LEDGER_PATH, DiscoveryLedger)
 
     assert ledger.source_profile == profile
-    assert ledger.search_registration.project_commit_oid == REGISTRATION_COMMIT
+    assert (
+        ledger.search_registration.project_commit_oid
+        == ledger.discovery_tool.project_commit_oid
+    )
     assert (
         ledger.search_registration.profile_repo_relative_path
         == "scenarios/external_corpus/endless_sky/source-profile.json"

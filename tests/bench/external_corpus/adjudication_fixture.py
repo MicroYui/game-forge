@@ -14,10 +14,12 @@ from gameforge.bench.external_corpus.contracts import (
     CandidateDisposition,
     CandidateGroupDecision,
     CandidateOrderTerm,
+    CommitMetadata,
     DiffEvidence,
     DiscoveredCandidate,
     DiscoveryLedger,
     DiscoveryTool,
+    EvidenceArtifact,
     EvidenceRef,
     HistoryRange,
     LineageLink,
@@ -38,6 +40,28 @@ from gameforge.bench.taxonomy import DefectClass
 
 def oid(value: int) -> str:
     return f"{value:040x}"
+
+
+def _patch_bytes(index: int, paths: list[str]) -> bytes:
+    blocks: list[bytes] = []
+    for path in paths:
+        value = (
+            "eligible-marker\n"
+            if index == 9 and path.startswith("data/")
+            else f"fixture-{index}-{path}\n"
+        )
+        blocks.append(
+            (
+                f"diff --git a/{path} b/{path}\n"
+                "new file mode 100644\n"
+                "index 0000000..1111111\n"
+                "--- /dev/null\n"
+                f"+++ b/{path}\n"
+                "@@ -0,0 +1 @@\n"
+                f"+{value}"
+            ).encode()
+        )
+    return b"".join(blocks)
 
 
 def taxonomy_rows() -> tuple[TaxonomyApplicability, ...]:
@@ -64,7 +88,9 @@ def source_profile(*, candidate_count: int = 10, config_only_count: int = 10) ->
         config_include_globs=("data/**/*.txt",),
         config_exclude_globs=(),
         message_rules=(RegexRule(rule_id="message.fix", pattern="(?i)fix"),),
-        diff_rules=(),
+        diff_rules=(
+            RegexRule(rule_id="diff.eligible_marker", pattern="eligible-marker"),
+        ),
         lineage_rules=(),
         candidate_order=(
             CandidateOrderTerm(field="committed_at", direction="ascending"),
@@ -90,20 +116,24 @@ def source_profile(*, candidate_count: int = 10, config_only_count: int = 10) ->
 
 
 def discovery_ledger(*, non_config_indices: set[int] | None = None) -> DiscoveryLedger:
-    non_config_indices = non_config_indices or set()
+    non_config_indices = {9, *(non_config_indices or set())}
     count = 10
     profile = source_profile(config_only_count=count - len(non_config_indices))
     candidates: list[DiscoveredCandidate] = []
     for index in range(count):
         commit_oid = oid(100 + index)
         parent_oid = oid(1000 + index)
-        patch = f"patch-{index}\n".encode()
-        patch_sha256 = sha256_hex(patch)
         changed_paths = [f"data/content/{index}.txt"]
         eligible_paths = list(changed_paths)
         if index in non_config_indices:
             changed_paths.append(f"src/runtime_{index}.py")
             changed_paths.sort()
+        patch = _patch_bytes(index, changed_paths)
+        patch_sha256 = sha256_hex(patch)
+        eligible_patch = _patch_bytes(index, eligible_paths) if index == 9 else None
+        eligible_patch_sha256 = (
+            sha256_hex(eligible_patch) if eligible_patch is not None else None
+        )
         commit = CandidateCommit(
             commit_oid=commit_oid,
             parent_oids=[parent_oid],
@@ -118,11 +148,26 @@ def discovery_ledger(*, non_config_indices: set[int] | None = None) -> Discovery
                 changed_paths=changed_paths,
                 eligible_paths=eligible_paths,
                 config_only=index not in non_config_indices,
-                selection_reasons=[SelectionReason(kind="direct_match", rule_ids=["message.fix"])],
+                selection_reasons=[
+                    SelectionReason(
+                        kind="direct_match",
+                        rule_ids=(
+                            ["diff.eligible_marker", "message.fix"]
+                            if index == 9
+                            else ["message.fix"]
+                        ),
+                    )
+                ],
                 diff_evidence=DiffEvidence(
                     commit_oid=commit_oid,
                     patch_sha256=patch_sha256,
                     patch_blob=f"blobs/{patch_sha256}",
+                    eligible_patch_sha256=eligible_patch_sha256,
+                    eligible_patch_blob=(
+                        f"blobs/{eligible_patch_sha256}"
+                        if eligible_patch_sha256 is not None
+                        else None
+                    ),
                     commit_message=f"Fix fixture content {index}\n",
                 ),
             )
@@ -169,6 +214,7 @@ def reviewed_evidence(
     group_count: int = 8,
     class_count: int = 4,
     group_indices: list[int] | None = None,
+    source_artifacts: list[EvidenceArtifact] | None = None,
 ) -> AdjudicationEvidence:
     applicable_classes = list(DefectClass)[:class_count]
     selected_indices = list(range(group_count)) if group_indices is None else list(group_indices)
@@ -217,7 +263,7 @@ def reviewed_evidence(
         evidence_revision="fixture-r1",
         discovery_ledger_sha256=sha256_hex(canonical_bytes(discovery)),
         candidate_universe_sha256=discovery.candidate_universe_sha256,
-        source_artifacts=[],
+        source_artifacts=source_artifacts or [],
         group_decisions=groups,
         candidate_decisions=decisions,
         lineage_resolutions=[],
@@ -276,6 +322,10 @@ def discovery_with_lineage(link_type: str) -> DiscoveryLedger:
         "ordered_candidate_oids": candidate_oids,
     }
     payload = discovery.model_dump(mode="json")
+    if link_type != "patch_id":
+        payload["discovered_candidates"][1]["diff_evidence"]["commit_message"] += (
+            f"{link_type}: {source_oid}\n"
+        )
     payload.update(
         {
             "source_profile": profile.model_dump(mode="json"),
@@ -287,9 +337,81 @@ def discovery_with_lineage(link_type: str) -> DiscoveryLedger:
     return DiscoveryLedger.model_validate(payload)
 
 
+def discovery_with_external_lineage_siblings() -> DiscoveryLedger:
+    discovery = discovery_ledger()
+    external_source_oid = oid(42)
+    profile_payload = discovery.source_profile.model_dump(mode="json")
+    rule = LineageRegexRule(
+        rule_id="trailer.backport",
+        link_type="backport",
+        pattern=r"(?m)^Backport-of: ([0-9a-f]{40})$",
+    )
+    profile_payload["lineage_rules"] = [rule.model_dump(mode="json")]
+    profile = SourceProfile.model_validate(profile_payload)
+    profile_sha256 = sha256_hex(canonical_bytes(profile))
+
+    links = []
+    for candidate in discovery.discovered_candidates[:2]:
+        link_payload = {
+            "link_type": "backport",
+            "source_oid": external_source_oid,
+            "target_oid": candidate.commit.commit_oid,
+            "rule_id": rule.rule_id,
+        }
+        links.append(
+            LineageLink(
+                link_id=sha256_hex(canonical_bytes(link_payload)),
+                **link_payload,
+            )
+        )
+
+    candidate_oids = [
+        candidate.commit.commit_oid for candidate in discovery.discovered_candidates
+    ]
+    universe = {
+        "source_id": profile.source_id,
+        "profile_sha256": profile_sha256,
+        "ordered_candidate_oids": candidate_oids,
+    }
+    payload = discovery.model_dump(mode="json")
+    for candidate in payload["discovered_candidates"][:2]:
+        candidate["diff_evidence"]["commit_message"] += (
+            f"Backport-of: {external_source_oid}\n"
+        )
+    payload.update(
+        {
+            "source_profile": profile.model_dump(mode="json"),
+            "source_profile_sha256": profile_sha256,
+            "lineage_context_commits": [
+                CommitMetadata(
+                    commit=CandidateCommit(
+                        commit_oid=external_source_oid,
+                        parent_oids=[oid(41)],
+                        selected_parent_oid=oid(41),
+                        diff_base_oid=oid(41),
+                        committed_at=42,
+                        subject="Original external fix",
+                    ),
+                    full_message="Original external fix\n",
+                ).model_dump(mode="json")
+            ],
+            "objective_lineage_links": [
+                link.model_dump(mode="json") for link in links
+            ],
+            "candidate_universe_sha256": sha256_hex(canonical_bytes(universe)),
+        }
+    )
+    return DiscoveryLedger.model_validate(payload)
+
+
 def write_cas(discovery: DiscoveryLedger, blob_dir: Path) -> None:
     blob_dir.mkdir(parents=True, exist_ok=True)
     for index, candidate in enumerate(discovery.discovered_candidates):
-        data = f"patch-{index}\n".encode()
+        data = _patch_bytes(index, candidate.changed_paths)
         assert sha256_hex(data) == candidate.diff_evidence.patch_sha256
         (blob_dir / candidate.diff_evidence.patch_sha256).write_bytes(data)
+        eligible_digest = candidate.diff_evidence.eligible_patch_sha256
+        if eligible_digest is not None:
+            eligible_data = _patch_bytes(index, candidate.eligible_paths)
+            assert sha256_hex(eligible_data) == eligible_digest
+            (blob_dir / eligible_digest).write_bytes(eligible_data)

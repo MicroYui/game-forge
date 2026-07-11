@@ -152,7 +152,7 @@ def score_seeded(corpus: Corpus, constraints: list[Constraint]) -> SeededScore:
     # config, so scoring it N times would report a fake-tight CI over N
     # "independent" samples. We report over DISTINCT clean configs (honest n);
     # a tighter CI needs more distinct clean bases (design §3 "多 base"; M3b's
-    # Flare corpus adds real ones).
+    # External corpora add real ones).
     distinct_clean = {c.snapshot_id: c for c in corpus.clean}
     ofp = 0
     for clean in distinct_clean.values():

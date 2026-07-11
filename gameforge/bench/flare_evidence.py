@@ -17,8 +17,6 @@ from pydantic import (
 
 from gameforge.bench.external_corpus.contracts import (
     CandidateCommit as CandidateCommit,
-    DiffEvidence,
-    DiscoveredCandidate,
     EvidenceArtifact,
     EvidenceRef,
     GitCommandSpec,
@@ -32,6 +30,7 @@ from gameforge.bench.external_corpus.contracts import (
     Sha256,
     StableId,
     _StrictModel,
+    _validate_blob_binding,
     _validate_posix_relative,
     canonical_bytes,
     posix_glob_matches,
@@ -39,6 +38,7 @@ from gameforge.bench.external_corpus.contracts import (
     sha256_hex,
 )
 from gameforge.bench.taxonomy import CLASS_META, Bucket, DefectClass
+from gameforge.bench.external_corpus.patch_replay import extract_eligible_patch_bytes
 
 
 FLARE_B0A_SCHEMA_VERSION = "flare-b0a@1"
@@ -177,6 +177,50 @@ def _validate_exact_matrix(rows: list[Any] | tuple[Any, ...], name: str) -> None
     classes = [row.defect_class for row in rows]
     if len(classes) != len(B0A_DEFECT_CLASSES) or set(classes) != set(B0A_DEFECT_CLASSES):
         raise ValueError(f"{name} must contain each B0A defect class exactly once")
+
+
+class DiffEvidence(_StrictModel):
+    """Frozen Flare patch evidence surface from before generic schema growth."""
+
+    commit_oid: Oid
+    patch_sha256: Sha256
+    patch_blob: str
+    commit_message: str
+
+    @model_validator(mode="after")
+    def validate_patch_blob(self) -> DiffEvidence:
+        _validate_blob_binding(self.patch_blob, self.patch_sha256)
+        return self
+
+
+class DiscoveredCandidate(_StrictModel):
+    """Frozen Flare candidate shape used by the legacy evidence artifacts."""
+
+    commit: CandidateCommit
+    changed_paths: list[str]
+    eligible_paths: list[str]
+    config_only: bool
+    selection_reasons: list[SelectionReason]
+    diff_evidence: DiffEvidence
+
+    @field_validator("changed_paths", "eligible_paths")
+    @classmethod
+    def validate_paths(cls, values: list[str]) -> list[str]:
+        if values != sorted(set(values)):
+            raise ValueError("candidate paths must be sorted and unique")
+        return [_validate_posix_relative(value) for value in values]
+
+    @model_validator(mode="after")
+    def validate_candidate(self) -> DiscoveredCandidate:
+        if not self.changed_paths:
+            raise ValueError("changed_paths must not be empty")
+        if not self.selection_reasons:
+            raise ValueError("selection_reasons must not be empty")
+        if not set(self.eligible_paths) <= set(self.changed_paths):
+            raise ValueError("eligible_paths must be a subset of changed_paths")
+        if self.diff_evidence.commit_oid != self.commit.commit_oid:
+            raise ValueError("diff evidence must refer to the candidate commit")
+        return self
 
 
 class SearchAdjacency(_StrictModel):
@@ -329,83 +373,6 @@ def derive_direct_match_reasons(
                 SelectionReason(kind="direct_match", rule_ids=sorted(matched_rule_ids))
             )
     return sorted(reasons, key=lambda reason: tuple(reason.rule_ids))
-
-
-def _git_c_quote_path(value: bytes) -> bytes:
-    escapes = {
-        0x07: b"\\a",
-        0x08: b"\\b",
-        0x09: b"\\t",
-        0x0A: b"\\n",
-        0x0B: b"\\v",
-        0x0C: b"\\f",
-        0x0D: b"\\r",
-        0x22: b'\\"',
-        0x5C: b"\\\\",
-    }
-    rendered = bytearray()
-    quoted = False
-    for byte in value:
-        escape = escapes.get(byte)
-        if escape is not None:
-            rendered.extend(escape)
-            quoted = True
-        elif byte < 0x20 or byte >= 0x7F:
-            rendered.extend(f"\\{byte:03o}".encode("ascii"))
-            quoted = True
-        else:
-            rendered.append(byte)
-    result = bytes(rendered)
-    return b'"' + result + b'"' if quoted else result
-
-
-def _frozen_diff_header(path: str) -> bytes:
-    encoded = path.encode("utf-8", errors="strict")
-    return b"diff --git " + _git_c_quote_path(b"a/" + encoded) + b" " + _git_c_quote_path(
-        b"b/" + encoded
-    )
-
-
-def extract_eligible_patch_bytes(
-    full_patch: bytes,
-    *,
-    changed_paths: Sequence[str],
-    eligible_paths: Sequence[str],
-) -> bytes:
-    """Derive Git's path-filtered patch by selecting exact full-patch file blocks."""
-
-    changed = list(changed_paths)
-    eligible = set(eligible_paths)
-    if not changed or len(changed) != len(set(changed)):
-        raise ValueError("full patch replay requires unique changed paths")
-    if not eligible <= set(changed):
-        raise ValueError("eligible patch replay paths must be changed paths")
-    starts = [match.start() for match in re.finditer(rb"(?m)^diff --git ", full_patch)]
-    if not starts or starts[0] != 0:
-        raise ValueError("full patch does not start with a Git file-diff block")
-    expected_headers = {_frozen_diff_header(path): path for path in changed}
-    if len(expected_headers) != len(changed):
-        raise ValueError("changed paths do not map to unique frozen diff headers")
-
-    seen: set[str] = set()
-    selected: list[bytes] = []
-    for index, start in enumerate(starts):
-        end = starts[index + 1] if index + 1 < len(starts) else len(full_patch)
-        block = full_patch[start:end]
-        header, separator, _body = block.partition(b"\n")
-        if not separator:
-            raise ValueError("Git file-diff block has no header terminator")
-        path = expected_headers.get(header)
-        if path is None:
-            raise ValueError("full patch contains a file-diff header outside changed_paths")
-        if path in seen:
-            raise ValueError("full patch contains a duplicate changed-path block")
-        seen.add(path)
-        if path in eligible:
-            selected.append(block)
-    if seen != set(changed):
-        raise ValueError("full patch blocks do not exactly cover changed_paths")
-    return b"".join(selected)
 
 
 def _validate_direct_match_metadata(

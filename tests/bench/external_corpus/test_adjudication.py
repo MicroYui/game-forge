@@ -21,6 +21,7 @@ from gameforge.bench.external_corpus.contracts import (
 from gameforge.bench.taxonomy import DefectClass
 from tests.bench.external_corpus.adjudication_fixture import (
     discovery_ledger,
+    discovery_with_external_lineage_siblings,
     discovery_with_lineage,
     oid,
     reviewed_evidence,
@@ -224,6 +225,34 @@ def test_lineage_siblings_cannot_both_count_as_independent_groups():
                 affected_group_ids=["group.0", "group.1"],
                 rationale="Reviewed as separate candidates with identical patch evidence.",
             )
+        ],
+    )
+
+    with pytest.raises(AdjudicationError, match="lineage siblings"):
+        adjudicate(discovery, reviewed)
+
+
+def test_external_lineage_context_connects_selected_siblings_without_assignment():
+    discovery = discovery_with_external_lineage_siblings()
+    package = build_review_package(discovery)
+    assert package.rows[0].lineage_links == [
+        discovery.objective_lineage_links[0].link_id
+    ]
+    assert package.rows[1].lineage_links == [
+        discovery.objective_lineage_links[1].link_id
+    ]
+
+    evidence = reviewed_evidence(discovery)
+    reviewed = _reattest(
+        evidence,
+        lineage_resolutions=[
+            LineageResolution(
+                link_id=link.link_id,
+                resolution="same_group",
+                affected_group_ids=[f"group.{index}"],
+                rationale="Both selected backports reference one external source commit.",
+            )
+            for index, link in enumerate(discovery.objective_lineage_links)
         ],
     )
 

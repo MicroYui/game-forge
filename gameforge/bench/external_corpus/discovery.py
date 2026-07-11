@@ -30,6 +30,7 @@ from gameforge.bench.external_corpus.contracts import (
     sha256_hex,
 )
 from gameforge.bench.external_corpus.git import GitEvidenceError, ReadOnlyGitRepo
+from gameforge.bench.external_corpus.patch_replay import extract_eligible_patch_bytes
 
 
 DISCOVERY_TOOL_VERSION = "external-discovery@1"
@@ -56,11 +57,14 @@ class DiscoveryPolicy:
     candidate_limit: int | None
     expected_matched_candidate_count: int | None = None
     expected_config_only_candidate_count: int | None = None
+    record_eligible_patch_evidence: bool = True
+    include_lineage_context_candidates: bool = False
 
 
 @dataclass(frozen=True)
 class ObjectiveDiscovery:
     candidates: tuple[DiscoveredCandidate, ...]
+    lineage_context_commits: tuple[CommitMetadata, ...]
     lineage_links: tuple[LineageLink, ...]
     matched_candidate_count: int
     config_only_candidate_count: int
@@ -152,16 +156,47 @@ def _ordered_oids(
     return ordered
 
 
+def _derive_direct_match_reasons(
+    groups: Sequence[DirectRuleGroup],
+    *,
+    subject: str,
+    parent_count: int,
+    eligible_paths: Sequence[str],
+    eligible_patch: bytes | None,
+) -> list[SelectionReason]:
+    if not eligible_paths:
+        return []
+    reasons: list[SelectionReason] = []
+    for group in groups:
+        rule_ids = [
+            rule.rule_id
+            for rule in group.message_rules
+            if re.search(rule.pattern, subject) is not None
+        ]
+        if group.diff_rules and parent_count <= 1:
+            if eligible_patch is None:
+                raise ValueError("eligible patch bytes are required for diff direct-match replay")
+            for rule in group.diff_rules:
+                try:
+                    compiled = re.compile(rule.pattern.encode("utf-8"))
+                except (UnicodeEncodeError, re.error) as exc:
+                    raise ValueError(f"invalid diff rule: {rule.rule_id}") from exc
+                if compiled.search(eligible_patch) is not None:
+                    rule_ids.append(rule.rule_id)
+        if rule_ids:
+            reasons.append(SelectionReason(kind="direct_match", rule_ids=sorted(set(rule_ids))))
+    return sorted(reasons, key=lambda reason: tuple(reason.rule_ids))
+
+
 def _direct_reasons(
     repo: ReadOnlyGitRepo,
     state: _CommitState,
     policy: DiscoveryPolicy,
 ) -> list[SelectionReason]:
-    if not state.eligible_paths:
-        return []
     eligible_patch: bytes | None = None
     if (
-        any(group.diff_rules for group in policy.direct_rule_groups)
+        state.eligible_paths
+        and any(group.diff_rules for group in policy.direct_rule_groups)
         and len(state.metadata.commit.parent_oids) <= 1
     ):
         eligible_patch = repo.eligible_patch_bytes(
@@ -169,24 +204,16 @@ def _direct_reasons(
             state.metadata.commit.commit_oid,
             state.eligible_paths,
         )
-    reasons: list[SelectionReason] = []
-    for group in policy.direct_rule_groups:
-        rule_ids = [
-            rule.rule_id
-            for rule in group.message_rules
-            if re.search(rule.pattern, state.metadata.commit.subject) is not None
-        ]
-        if eligible_patch is not None:
-            for rule in group.diff_rules:
-                try:
-                    compiled = re.compile(rule.pattern.encode("utf-8"))
-                except re.error as exc:
-                    raise GitEvidenceError(f"invalid diff rule: {rule.rule_id}") from exc
-                if compiled.search(eligible_patch) is not None:
-                    rule_ids.append(rule.rule_id)
-        if rule_ids:
-            reasons.append(SelectionReason(kind="direct_match", rule_ids=sorted(set(rule_ids))))
-    return sorted(reasons, key=lambda reason: tuple(reason.rule_ids))
+    try:
+        return _derive_direct_match_reasons(
+            policy.direct_rule_groups,
+            subject=state.metadata.commit.subject,
+            parent_count=len(state.metadata.commit.parent_oids),
+            eligible_paths=state.eligible_paths,
+            eligible_patch=eligible_patch,
+        )
+    except ValueError as exc:
+        raise GitEvidenceError(str(exc)) from exc
 
 
 def _verify_cas_blob(blob_dir: Path, digest: str) -> None:
@@ -196,6 +223,82 @@ def _verify_cas_blob(blob_dir: Path, digest: str) -> None:
         raise GitEvidenceError(f"CAS publication did not materialize blob {digest}") from exc
     if sha256_hex(data) != digest:
         raise GitEvidenceError(f"CAS publication produced a digest mismatch for {digest}")
+
+
+def verify_discovery_direct_matches(blob_dir: Path, ledger: DiscoveryLedger) -> None:
+    """Replay generic direct-match evidence from immutable patch blobs."""
+
+    ledger = DiscoveryLedger.model_validate(ledger.model_dump(mode="json", exclude_none=True))
+    profile_group = DirectRuleGroup(
+        message_rules=ledger.source_profile.message_rules,
+        diff_rules=ledger.source_profile.diff_rules,
+    )
+    for candidate in ledger.discovered_candidates:
+        diff = candidate.diff_evidence
+        try:
+            full_patch = read_regular_file(blob_dir / diff.patch_sha256)
+        except OSError as exc:
+            raise ValueError(
+                f"unable to read candidate patch CAS blob {diff.patch_sha256}"
+            ) from exc
+        if sha256_hex(full_patch) != diff.patch_sha256:
+            raise ValueError(
+                f"candidate patch CAS blob does not match digest {diff.patch_sha256}"
+            )
+        try:
+            replayed_eligible = extract_eligible_patch_bytes(
+                full_patch,
+                changed_paths=candidate.changed_paths,
+                eligible_paths=candidate.eligible_paths,
+            )
+        except ValueError as exc:
+            raise ValueError(
+                f"eligible patch replay failed for commit {candidate.commit.commit_oid}: {exc}"
+            ) from exc
+
+        if diff.eligible_patch_sha256 is not None:
+            try:
+                stored_eligible = read_regular_file(
+                    blob_dir / diff.eligible_patch_sha256
+                )
+            except OSError as exc:
+                raise ValueError(
+                    "unable to read eligible patch CAS blob "
+                    f"{diff.eligible_patch_sha256}"
+                ) from exc
+            if sha256_hex(stored_eligible) != diff.eligible_patch_sha256:
+                raise ValueError(
+                    "eligible patch CAS blob does not match digest "
+                    f"{diff.eligible_patch_sha256}"
+                )
+            if stored_eligible != replayed_eligible:
+                raise ValueError(
+                    "eligible patch replay differs from stored evidence for commit "
+                    f"{candidate.commit.commit_oid}"
+                )
+
+        try:
+            expected = _derive_direct_match_reasons(
+                (profile_group,),
+                subject=candidate.commit.subject,
+                parent_count=len(candidate.commit.parent_oids),
+                eligible_paths=candidate.eligible_paths,
+                eligible_patch=replayed_eligible,
+            )
+        except ValueError as exc:
+            raise ValueError(
+                f"direct-match replay failed for commit {candidate.commit.commit_oid}: {exc}"
+            ) from exc
+        actual = [
+            reason
+            for reason in candidate.selection_reasons
+            if reason.kind == "direct_match"
+        ]
+        if actual != expected:
+            raise ValueError(
+                "direct-match replay differs from recorded reasons for commit "
+                f"{candidate.commit.commit_oid}"
+            )
 
 
 def discover_objective_candidates(
@@ -277,9 +380,10 @@ def discover_objective_candidates(
                     rule_id=rule.rule_id,
                 )
                 objective_links[link.link_id] = link
-                reasons.setdefault(source_oid, []).append(
-                    SelectionReason(kind="lineage_context", lineage_link_id=link.link_id)
-                )
+                if policy.include_lineage_context_candidates:
+                    reasons.setdefault(source_oid, []).append(
+                        SelectionReason(kind="lineage_context", lineage_link_id=link.link_id)
+                    )
                 if source_oid not in parsed_targets and source_oid not in pending:
                     pending.append(source_oid)
                     pending.sort()
@@ -334,13 +438,40 @@ def discover_objective_candidates(
         else all_candidate_oids[: policy.candidate_limit]
     )
     selected_set = set(selected_oids)
-    selected_links = sorted(
-        (
-            link
-            for link in objective_links.values()
-            if link.source_oid in selected_set and link.target_oid in selected_set
-        ),
+    selected_link_map = {
+        link.link_id: link
+        for link in objective_links.values()
+        if link.link_type == "patch_id"
+        and link.source_oid in selected_set
+        and link.target_oid in selected_set
+    }
+    connected_targets = set(selected_set)
+    trailer_links = sorted(
+        (link for link in objective_links.values() if link.link_type != "patch_id"),
         key=_link_sort_key,
+    )
+    pending_links = trailer_links
+    while pending_links:
+        retained: list[LineageLink] = []
+        progressed = False
+        for link in pending_links:
+            if link.target_oid in connected_targets:
+                selected_link_map[link.link_id] = link
+                connected_targets.add(link.source_oid)
+                progressed = True
+            else:
+                retained.append(link)
+        if not progressed:
+            break
+        pending_links = retained
+    selected_links = sorted(selected_link_map.values(), key=_link_sort_key)
+    context_oids = sorted(
+        {
+            endpoint
+            for link in selected_links
+            for endpoint in (link.source_oid, link.target_oid)
+            if endpoint not in selected_set
+        }
     )
 
     candidates: list[DiscoveredCandidate] = []
@@ -352,13 +483,17 @@ def discover_objective_candidates(
         patch_sha256, patch_blob = put_blob(blob_dir, patches[oid])
         _verify_cas_blob(blob_dir, patch_sha256)
         selected_reasons = _sorted_reasons(reasons[oid])
-        if any(diff_rule_ids.intersection(reason.rule_ids) for reason in selected_reasons):
+        eligible_sha256 = None
+        eligible_blob = None
+        if policy.record_eligible_patch_evidence and any(
+            diff_rule_ids.intersection(reason.rule_ids) for reason in selected_reasons
+        ):
             eligible_patch = repo.eligible_patch_bytes(
                 state.metadata.commit.diff_base_oid,
                 oid,
                 state.eligible_paths,
             )
-            eligible_sha256, _eligible_blob = put_blob(blob_dir, eligible_patch)
+            eligible_sha256, eligible_blob = put_blob(blob_dir, eligible_patch)
             _verify_cas_blob(blob_dir, eligible_sha256)
         candidates.append(
             DiscoveredCandidate(
@@ -371,6 +506,8 @@ def discover_objective_candidates(
                     commit_oid=oid,
                     patch_sha256=patch_sha256,
                     patch_blob=patch_blob,
+                    eligible_patch_sha256=eligible_sha256,
+                    eligible_patch_blob=eligible_blob,
                     commit_message=state.metadata.full_message,
                 ),
             )
@@ -378,6 +515,7 @@ def discover_objective_candidates(
 
     return ObjectiveDiscovery(
         candidates=tuple(candidates),
+        lineage_context_commits=tuple(states[oid].metadata for oid in context_oids),
         lineage_links=tuple(selected_links),
         matched_candidate_count=matched_count,
         config_only_candidate_count=config_only_count,
@@ -451,6 +589,7 @@ def discover_candidates(
             unicode_version=unicodedata.unidata_version,
         ),
         discovered_candidates=list(objective.candidates),
+        lineage_context_commits=list(objective.lineage_context_commits),
         objective_lineage_links=list(objective.lineage_links),
         candidate_universe_sha256=sha256_hex(canonical_bytes(universe_payload)),
     )

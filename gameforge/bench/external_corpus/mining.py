@@ -25,11 +25,16 @@ from gameforge.bench.external_corpus.contracts import (
     write_new_or_identical,
     write_set_new_or_identical,
 )
-from gameforge.bench.external_corpus.discovery import discover_candidates
+from gameforge.bench.external_corpus.discovery import (
+    discover_candidates,
+    verify_discovery_direct_matches,
+)
 from gameforge.bench.external_corpus.git import GitEvidenceError, ReadOnlyGitRepo
+from gameforge.bench.external_corpus.profiles import get_profile_binding
 
 
 _ModelT = TypeVar("_ModelT", bound=BaseModel)
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
 
 
 def _parser() -> argparse.ArgumentParser:
@@ -89,22 +94,44 @@ def _verify_adjudication_cas(
     discovered: DiscoveryLedger,
     evidence: AdjudicationEvidence,
 ) -> None:
-    for candidate in discovered.discovered_candidates:
-        _verify_blob(
-            blob_dir,
-            candidate.diff_evidence.patch_sha256,
-            "candidate patch",
-        )
+    try:
+        verify_discovery_direct_matches(blob_dir, discovered)
+    except ValueError as exc:
+        raise ValueError(f"discovery direct-match replay failed: {exc}") from exc
     for artifact in evidence.source_artifacts:
         _verify_blob(blob_dir, artifact.blob_sha256, "source artifact")
 
 
 def _discover(args: argparse.Namespace) -> int:
-    profile = _load_canonical(args.profile, SourceProfile, "source profile")
     registration = SearchRegistration(
         project_commit_oid=args.registration_commit,
         profile_repo_relative_path=args.registration_path,
     )
+    project_repo = ReadOnlyGitRepo(PROJECT_ROOT)
+    project_repo.preflight()
+    project_repo.assert_tracked_worktree_clean()
+    if project_repo.head_commit() != registration.project_commit_oid:
+        raise ValueError("registration commit must match the current project HEAD")
+
+    registered_profile_path = (
+        PROJECT_ROOT / registration.profile_repo_relative_path
+    ).resolve()
+    if args.profile.resolve() != registered_profile_path:
+        raise ValueError("source profile path must match the registered profile path")
+
+    registered_profile_bytes = project_repo.blob_bytes_at(
+        registration.project_commit_oid,
+        registration.profile_repo_relative_path,
+    )
+    try:
+        current_profile_bytes = read_regular_file(args.profile)
+    except OSError as exc:
+        raise ValueError(f"unable to read source profile: {args.profile}") from exc
+    if current_profile_bytes != registered_profile_bytes:
+        raise ValueError("source profile differs from the registered profile bytes")
+
+    profile = _load_canonical(args.profile, SourceProfile, "source profile")
+    profile = get_profile_binding(profile.source_id).validate_source_profile(profile)
     ledger = discover_candidates(
         ReadOnlyGitRepo(args.repo),
         profile,

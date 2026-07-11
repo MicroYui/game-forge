@@ -25,6 +25,7 @@ from gameforge.bench.external_corpus.git import (
 from gameforge.bench.flare_evidence import (
     DISCOVERY_TOOL_VERSION,
     FLARE_B0A_SCHEMA_VERSION,
+    DiscoveredCandidate as FlareDiscoveredCandidate,
     DiscoveryLedger,
     DiscoveryTool,
     FlareSearchSpec,
@@ -66,6 +67,8 @@ def _policy(
         ),
         include_first_parent_adjacent_context=True,
         candidate_limit=None,
+        record_eligible_patch_evidence=False,
+        include_lineage_context_candidates=True,
     )
 
 
@@ -101,7 +104,12 @@ def discover_candidates(
         blob_dir,
     )
 
-    candidates = list(objective.candidates)
+    candidates = [
+        FlareDiscoveredCandidate.model_validate(
+            candidate.model_dump(mode="json", exclude_none=True)
+        )
+        for candidate in objective.candidates
+    ]
     links = list(objective.lineage_links)
     search_spec_sha256 = sha256_hex(canonical_bytes(spec))
     universe = {

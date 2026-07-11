@@ -396,6 +396,14 @@ def test_source_neutral_primitives_keep_strict_paths_hashes_and_extra_fields() -
             patch_blob="blobs/" + "3" * 64,
             commit_message="fix",
         )
+    with pytest.raises(ValidationError, match="eligible patch"):
+        DiffEvidence(
+            commit_oid="1" * 40,
+            patch_sha256="2" * 64,
+            patch_blob="blobs/" + "2" * 64,
+            eligible_patch_sha256="4" * 64,
+            commit_message="fix",
+        )
 
 
 def test_candidate_primitives_preserve_first_parent_and_path_invariants() -> None:
@@ -526,7 +534,13 @@ def test_posix_glob_contract(path: str, pattern: str, matches: bool) -> None:
 
 def test_legacy_flare_entry_points_reexport_generic_primitives() -> None:
     assert flare_evidence.CandidateCommit is CandidateCommit
-    assert flare_evidence.DiffEvidence is DiffEvidence
+    assert flare_evidence.DiffEvidence is not DiffEvidence
+    assert tuple(flare_evidence.DiffEvidence.model_fields) == (
+        "commit_oid",
+        "patch_sha256",
+        "patch_blob",
+        "commit_message",
+    )
     assert flare_evidence.EvidenceArtifact is EvidenceArtifact
     assert flare_evidence.GitCommandSpec is GitCommandSpec
     assert flare_evidence.GitEnvironmentPolicy is GitEnvironmentPolicy

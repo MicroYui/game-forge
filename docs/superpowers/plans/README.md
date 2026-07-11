@@ -18,12 +18,13 @@
 - `2026-07-10-m3a-bench-metrics.md` — M3a（taxonomy、seeded corpus、指标与 BenchReport 契约；已完成）
 - `2026-07-10-economy-sink-adapter.md` — pre-M4 economy sink 增量（已完成）
 - `2026-07-10-m3d-b0a-evidence-ledger.md` — M3d B0A（已完成执行，但投资 gate 为终态负结果：526 candidates、7/8 proposed groups、10 proposed cases、4/4 classes、0 qualified/accepted，`insufficient_evidence`）
-- `2026-07-11-pre-m4-external-evidence-b0a.md` — pre-M4 外部证据通用化 + Endless Sky B0A（🔄 进行中；只覆盖 generic harness、Flare 冻结兼容与 B0A，不跨 gate 预写 Adapter/B0B；Endless Sky source profile 已固定到 `b10b7d6c24496e2f67a230a2553b344e200ba289`，尚未进入 discovery）
+- `2026-07-11-pre-m4-external-evidence-b0a.md` — pre-M4 外部证据通用化 + Endless Sky B0A（🔄 进行中；generic harness 与 Flare 冻结兼容已完成；旧 Endless Sky 派生 ledger 因 registration/tool provenance 不一致已撤销，当前正建立包含修正代码的干净 registration anchor，尚未重新冻结 first-80 discovery，也未跨 gate 进入 Adapter/B0B）
 
 M3 umbrella 仍未完成。Flare B0B、Corpus Freeze 与 M3d-1..4 均未进入；不得继续写
-Flare reader/quest/loot-table 实现计划或进行第三轮搜索。下一份计划只能选择新的外部
-真实语料源，或在取得书面 PRD scope waiver 后记录范围决策。narrative BDR、
+Flare reader/quest/loot-table 实现计划或进行第三轮搜索。Endless Sky 只有在重新冻结的完整
+80 行 payload 获得独立真人 hash attestation 且 B0A gate 为 `pass` 后，才可单独规划
+B0B/Adapter。narrative BDR、
 Human-Edit-Distance、QA-hours、`DROPS_FROM` 与 repair cassette/apply 仍须分别规划。
-Flare B0A 的 negative investment decision 不改变里程碑门禁：M3 仍未完成；M4 未开始，
-且仍受上述 pre-M4 gates 阻塞。
+Flare 的 negative investment decision 和 Endless Sky 的未审批分析均不改变里程碑门禁：
+M3 仍未完成；M4 未开始，且仍受上述 pre-M4 gates 阻塞。
 M3b/M3c 当时没有独立历史计划文件，不事后补写虚构计划。

@@ -131,6 +131,7 @@ def build_generic_git_repo(path: Path) -> GenericGitFixture:
     mods_fix = git.commit(
         "Fix broken mod quest",
         {"mods/core/quest.txt": "requires_status = mod_ready\n"},
+        body=f"Backport-of: {root}",
     )
     data_fix = git.commit(
         "Fix mission reference",

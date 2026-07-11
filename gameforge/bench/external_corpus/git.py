@@ -162,6 +162,9 @@ class ReadOnlyGitRepo:
     def _common_prefix(self) -> list[str]:
         return [str(self.git_dir) if token == "{repo}" else token for token in GIT_COMMON_PREFIX]
 
+    def _worktree_prefix(self) -> list[str]:
+        return [str(self.path) if token == "{repo}" else token for token in GIT_COMMON_PREFIX]
+
     def _run_safety_config(
         self,
         args: Sequence[str],
@@ -285,8 +288,12 @@ class ReadOnlyGitRepo:
         *,
         input_bytes: bytes | None = None,
         common_prefix: bool = True,
+        worktree: bool = False,
     ) -> bytes:
-        command = [*(self._common_prefix() if common_prefix else ()), *args]
+        if worktree and not common_prefix:
+            raise ValueError("worktree execution requires the fixed Git command prefix")
+        prefix = self._worktree_prefix() if worktree else self._common_prefix()
+        command = [*(prefix if common_prefix else ()), *args]
         try:
             completed = subprocess.run(
                 command,
@@ -313,6 +320,29 @@ class ReadOnlyGitRepo:
         except UnicodeDecodeError as exc:
             raise GitEvidenceError("resolved commit is not ASCII") from exc
         return _validate_oid(resolved, label="resolved commit")
+
+    def head_commit(self) -> str:
+        output = self._run(("rev-parse", "--verify", "HEAD^{commit}"))
+        try:
+            resolved = output.decode("ascii", errors="strict").strip()
+        except UnicodeDecodeError as exc:
+            raise GitEvidenceError("project HEAD is not ASCII") from exc
+        return _validate_oid(resolved, label="project HEAD")
+
+    def assert_tracked_worktree_clean(self) -> None:
+        output = self._run(
+            ("status", "--porcelain=v1", "--untracked-files=no"),
+            worktree=True,
+        )
+        if output:
+            raise GitEvidenceError(
+                "tracked worktree must be clean for evidence discovery"
+            )
+
+    def blob_bytes_at(self, commit_oid: str, repo_relative_path: str) -> bytes:
+        commit_oid = _validate_oid(commit_oid, label="registered project commit")
+        repo_relative_path = _normalize_path(repo_relative_path)
+        return self._run(("cat-file", "blob", f"{commit_oid}:{repo_relative_path}"))
 
     @staticmethod
     def _ascii_oid_lines(output: bytes, label: str) -> list[str]:

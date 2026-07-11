@@ -368,7 +368,9 @@ def _validate_lineage(
         for oid in component:
             if oid in group_by_commit:
                 continue
-            candidate = candidate_by_oid[oid]
+            candidate = candidate_by_oid.get(oid)
+            if candidate is None:
+                continue
             decision = decisions.get(oid)
             expected_reason = "duplicate_lineage" if candidate.config_only else "non_config_only"
             if decision is None or decision.reason_code != expected_reason:
@@ -459,8 +461,10 @@ def build_review_package(discovered: DiscoveryLedger) -> ReviewPackage:
         candidate.commit.commit_oid: [] for candidate in discovered.discovered_candidates
     }
     for link in discovered.objective_lineage_links:
-        links_by_oid[link.source_oid].append(link.link_id)
-        links_by_oid[link.target_oid].append(link.link_id)
+        if link.source_oid in links_by_oid:
+            links_by_oid[link.source_oid].append(link.link_id)
+        if link.target_oid in links_by_oid:
+            links_by_oid[link.target_oid].append(link.link_id)
     return ReviewPackage(
         source_id=discovered.source_id,
         candidate_universe_sha256=discovered.candidate_universe_sha256,

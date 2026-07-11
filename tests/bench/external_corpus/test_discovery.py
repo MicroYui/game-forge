@@ -9,6 +9,7 @@ import gameforge.bench.external_corpus.discovery as discovery_module
 from gameforge.bench.external_corpus.contracts import (
     B0AProtocol,
     CandidateOrderTerm,
+    DiscoveryLedger,
     HistoryRange,
     LineageRegexRule,
     NativeValidatorCommand,
@@ -19,7 +20,10 @@ from gameforge.bench.external_corpus.contracts import (
     canonical_bytes,
     sha256_hex,
 )
-from gameforge.bench.external_corpus.discovery import discover_candidates
+from gameforge.bench.external_corpus.discovery import (
+    discover_candidates,
+    verify_discovery_direct_matches,
+)
 from gameforge.bench.external_corpus.git import GitEvidenceError, ReadOnlyGitRepo
 from gameforge.bench.taxonomy import DefectClass
 from tests.bench.external_corpus.git_fixture import GenericGitFixture, build_generic_git_repo
@@ -124,7 +128,7 @@ def _sky_profile(fixture: GenericGitFixture, *, limit: int = 3) -> SourceProfile
         message_pattern=r"(?i)(?:fix|missing)",
         order_direction="descending",
         limit=limit,
-        matched=10,
+        matched=9,
         config_only=7,
     )
 
@@ -157,7 +161,7 @@ def test_profiles_share_one_engine_without_source_conditionals(generic_git_repo,
     assert len(sky.discovered_candidates) == 3
     committed_at = [item.commit.committed_at for item in sky.discovered_candidates]
     assert committed_at == sorted(committed_at, reverse=True)
-    assert sky.matched_candidate_count == 10
+    assert sky.matched_candidate_count == 9
     assert sky.config_only_candidate_count == 7
 
 
@@ -198,10 +202,7 @@ def test_full_discovery_records_lineage_patch_ids_and_cas(generic_git_repo, tmp_
     )
     by_oid = {item.commit.commit_oid: item for item in ledger.discovered_candidates}
 
-    assert any(
-        reason.kind == "lineage_context"
-        for reason in by_oid[generic_git_repo.mods_fix].selection_reasons
-    )
+    assert generic_git_repo.mods_fix not in by_oid
     assert any(
         link.link_type == "patch_id"
         and {link.source_oid, link.target_oid}
@@ -214,10 +215,150 @@ def test_full_discovery_records_lineage_patch_ids_and_cas(generic_git_repo, tmp_
         and link.target_oid == generic_git_repo.backport
         for link in ledger.objective_lineage_links
     )
+    assert any(
+        link.link_type == "backport"
+        and link.source_oid == generic_git_repo.root
+        and link.target_oid == generic_git_repo.mods_fix
+        for link in ledger.objective_lineage_links
+    )
+    assert {
+        item.commit.commit_oid for item in ledger.lineage_context_commits
+    } == {generic_git_repo.root, generic_git_repo.mods_fix}
     for candidate in ledger.discovered_candidates:
         blob = blob_dir / candidate.diff_evidence.patch_sha256
         assert blob.read_bytes()
         assert sha256_hex(blob.read_bytes()) == candidate.diff_evidence.patch_sha256
+
+    diff_matched = by_oid[generic_git_repo.data_fix]
+    assert diff_matched.diff_evidence.eligible_patch_sha256 is not None
+    assert diff_matched.diff_evidence.eligible_patch_blob is not None
+    eligible_blob = blob_dir / diff_matched.diff_evidence.eligible_patch_sha256
+    assert eligible_blob.read_bytes()
+    assert sha256_hex(eligible_blob.read_bytes()) == (
+        diff_matched.diff_evidence.eligible_patch_sha256
+    )
+
+
+def test_generic_lineage_replay_rejects_omitted_or_mistyped_trailer_links(
+    generic_git_repo, tmp_path
+):
+    profile = _sky_profile(generic_git_repo, limit=100)
+    ledger = discover_candidates(
+        ReadOnlyGitRepo(generic_git_repo.path),
+        profile,
+        _registration(profile.source_id),
+        tmp_path / "blobs",
+    )
+    payload = ledger.model_dump(mode="json")
+    backport = next(
+        link
+        for link in payload["objective_lineage_links"]
+        if link["target_oid"] == generic_git_repo.backport
+    )
+
+    omitted = {
+        **payload,
+        "objective_lineage_links": [
+            link
+            for link in payload["objective_lineage_links"]
+            if link["link_id"] != backport["link_id"]
+        ],
+    }
+    with pytest.raises(ValidationError, match="lineage"):
+        DiscoveryLedger.model_validate(omitted)
+
+    forged_payload = {
+        "link_type": backport["link_type"],
+        "source_oid": backport["source_oid"],
+        "target_oid": backport["target_oid"],
+        "rule_id": "trailer.cherry_pick",
+    }
+    forged = {
+        **backport,
+        **forged_payload,
+        "link_id": sha256_hex(canonical_bytes(forged_payload)),
+    }
+    mistyped = {
+        **payload,
+        "objective_lineage_links": [
+            forged if link["link_id"] == backport["link_id"] else link
+            for link in payload["objective_lineage_links"]
+        ],
+    }
+    with pytest.raises(ValidationError, match="lineage"):
+        DiscoveryLedger.model_validate(mistyped)
+
+
+def test_generic_lineage_links_must_use_canonical_order(generic_git_repo, tmp_path):
+    profile = _sky_profile(generic_git_repo, limit=100)
+    ledger = discover_candidates(
+        ReadOnlyGitRepo(generic_git_repo.path),
+        profile,
+        _registration(profile.source_id),
+        tmp_path / "blobs",
+    )
+    payload = ledger.model_dump(mode="json")
+    assert len(payload["objective_lineage_links"]) > 1
+    payload["objective_lineage_links"].reverse()
+
+    with pytest.raises(ValidationError, match="deterministically sorted"):
+        DiscoveryLedger.model_validate(payload)
+
+
+def test_generic_direct_match_replay_rejects_forged_registered_rule(
+    generic_git_repo, tmp_path
+):
+    profile = _sky_profile(generic_git_repo, limit=100)
+    blob_dir = tmp_path / "blobs"
+    ledger = discover_candidates(
+        ReadOnlyGitRepo(generic_git_repo.path),
+        profile,
+        _registration(profile.source_id),
+        blob_dir,
+    )
+    payload = ledger.model_dump(mode="json")
+    candidate = next(
+        item
+        for item in payload["discovered_candidates"]
+        if item["commit"]["commit_oid"] == generic_git_repo.data_fix
+    )
+    direct = next(
+        reason for reason in candidate["selection_reasons"] if reason["kind"] == "direct_match"
+    )
+    assert direct["rule_ids"] == ["diff.requires_status", "message.fix"]
+    direct["rule_ids"] = ["diff.requires_status"]
+    forged = DiscoveryLedger.model_validate(payload)
+
+    with pytest.raises(ValueError, match="direct-match replay"):
+        verify_discovery_direct_matches(blob_dir, forged)
+
+
+def test_generic_direct_match_replay_rejects_wrong_eligible_patch_bytes(
+    generic_git_repo, tmp_path
+):
+    profile = _sky_profile(generic_git_repo, limit=100)
+    blob_dir = tmp_path / "blobs"
+    ledger = discover_candidates(
+        ReadOnlyGitRepo(generic_git_repo.path),
+        profile,
+        _registration(profile.source_id),
+        blob_dir,
+    )
+    forged_bytes = b"arbitrary eligible patch\n"
+    forged_digest = sha256_hex(forged_bytes)
+    (blob_dir / forged_digest).write_bytes(forged_bytes)
+    payload = ledger.model_dump(mode="json")
+    candidate = next(
+        item
+        for item in payload["discovered_candidates"]
+        if item["commit"]["commit_oid"] == generic_git_repo.data_fix
+    )
+    candidate["diff_evidence"]["eligible_patch_sha256"] = forged_digest
+    candidate["diff_evidence"]["eligible_patch_blob"] = f"blobs/{forged_digest}"
+    forged = DiscoveryLedger.model_validate(payload)
+
+    with pytest.raises(ValueError, match="eligible patch replay"):
+        verify_discovery_direct_matches(blob_dir, forged)
 
 
 def test_discovery_is_byte_stable(generic_git_repo, tmp_path):

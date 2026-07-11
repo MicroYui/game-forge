@@ -469,11 +469,22 @@ class DiffEvidence(_StrictModel):
     commit_oid: Oid
     patch_sha256: Sha256
     patch_blob: str
+    eligible_patch_sha256: Sha256 | None = None
+    eligible_patch_blob: str | None = None
     commit_message: str
 
     @model_validator(mode="after")
     def validate_patch_blob(self) -> DiffEvidence:
         _validate_blob_binding(self.patch_blob, self.patch_sha256)
+        if (self.eligible_patch_sha256 is None) != (self.eligible_patch_blob is None):
+            raise ValueError(
+                "eligible patch digest and blob path must be provided together"
+            )
+        if self.eligible_patch_sha256 is not None:
+            _validate_blob_binding(
+                self.eligible_patch_blob,
+                self.eligible_patch_sha256,
+            )
         return self
 
 
@@ -619,6 +630,7 @@ class DiscoveryLedger(_StrictModel):
     config_only_candidate_count: Annotated[int, Field(ge=0)]
     discovery_tool: DiscoveryTool
     discovered_candidates: list[DiscoveredCandidate]
+    lineage_context_commits: list[CommitMetadata] = Field(default_factory=list)
     objective_lineage_links: list[LineageLink]
     candidate_universe_sha256: Sha256
 
@@ -668,6 +680,7 @@ class DiscoveryLedger(_StrictModel):
                 *self.source_profile.lineage_rules,
             )
         }
+        diff_rule_ids = {rule.rule_id for rule in self.source_profile.diff_rules}
         candidate_oid_set = set(candidate_oids)
         for candidate in self.discovered_candidates:
             expected_eligible = [
@@ -692,13 +705,117 @@ class DiscoveryLedger(_StrictModel):
             for reason in candidate.selection_reasons:
                 if not set(reason.rule_ids) <= rule_ids:
                     raise ValueError("selection reason uses an unknown source-profile rule")
+            matched_diff_rule = any(
+                reason.kind == "direct_match"
+                and bool(diff_rule_ids.intersection(reason.rule_ids))
+                for reason in candidate.selection_reasons
+            )
+            has_eligible_patch = candidate.diff_evidence.eligible_patch_sha256 is not None
+            if matched_diff_rule != has_eligible_patch:
+                raise ValueError(
+                    "eligible patch evidence must exist exactly for diff-rule matches"
+                )
+
+        context_oids = [item.commit.commit_oid for item in self.lineage_context_commits]
+        if context_oids != sorted(set(context_oids)):
+            raise ValueError("lineage context commits must be sorted and unique")
+        if not candidate_oid_set.isdisjoint(context_oids):
+            raise ValueError("lineage context commits must be outside the candidate universe")
 
         link_ids = [link.link_id for link in self.objective_lineage_links]
         if len(link_ids) != len(set(link_ids)):
             raise ValueError("objective lineage link IDs must be unique")
+        link_keys = [
+            (
+                link.link_type,
+                link.source_oid,
+                link.target_oid,
+                link.rule_id or "",
+                link.patch_id or "",
+                link.link_id,
+            )
+            for link in self.objective_lineage_links
+        ]
+        if link_keys != sorted(link_keys):
+            raise ValueError("objective lineage links must be deterministically sorted")
+        metadata_by_oid = {
+            candidate.commit.commit_oid: CommitMetadata(
+                commit=candidate.commit,
+                full_message=candidate.diff_evidence.commit_message,
+            )
+            for candidate in self.discovered_candidates
+        }
+        metadata_by_oid.update(
+            {
+                item.commit.commit_oid: item
+                for item in self.lineage_context_commits
+            }
+        )
+        trailer_links = {
+            link.link_id: link
+            for link in self.objective_lineage_links
+            if link.link_type != "patch_id"
+        }
         for link in self.objective_lineage_links:
-            if link.source_oid not in candidate_oid_set or link.target_oid not in candidate_oid_set:
-                raise ValueError("lineage endpoints must belong to the selected candidate universe")
+            if link.source_oid not in metadata_by_oid or link.target_oid not in metadata_by_oid:
+                raise ValueError(
+                    "lineage endpoints must have candidate or context metadata"
+                )
+            if link.link_type == "patch_id" and link.source_oid not in candidate_oid_set:
+                raise ValueError(
+                    "patch-id lineage endpoints must belong to the selected candidate universe"
+                )
+
+        expected_trailer_links: dict[str, LineageLink] = {}
+        for target_oid, metadata in metadata_by_oid.items():
+            for rule in self.source_profile.lineage_rules:
+                for match in re.finditer(rule.pattern, metadata.full_message):
+                    source_oid = match.group(1)
+                    if re.fullmatch(r"[0-9a-f]{40}", source_oid) is None:
+                        raise ValueError(
+                            f"lineage rule {rule.rule_id} produced an invalid source OID"
+                        )
+                    payload = {
+                        "link_type": rule.link_type,
+                        "source_oid": source_oid,
+                        "target_oid": target_oid,
+                        "rule_id": rule.rule_id,
+                    }
+                    link = LineageLink(
+                        link_id=sha256_hex(canonical_bytes(payload)),
+                        **payload,
+                    )
+                    expected_trailer_links[link.link_id] = link
+        if trailer_links != expected_trailer_links:
+            raise ValueError(
+                "objective trailer lineage links differ from registered message matches"
+            )
+
+        connected_to_candidates = set(candidate_oid_set)
+        remaining = list(trailer_links.values())
+        while remaining:
+            retained: list[LineageLink] = []
+            progressed = False
+            for link in remaining:
+                if link.target_oid in connected_to_candidates:
+                    connected_to_candidates.add(link.source_oid)
+                    progressed = True
+                else:
+                    retained.append(link)
+            if not progressed:
+                raise ValueError("lineage context does not connect to a selected candidate")
+            remaining = retained
+
+        external_endpoints = {
+            oid
+            for link in self.objective_lineage_links
+            for oid in (link.source_oid, link.target_oid)
+            if oid not in candidate_oid_set
+        }
+        if set(context_oids) != external_endpoints:
+            raise ValueError(
+                "lineage context commits must exactly cover external lineage endpoints"
+            )
 
         universe_payload = {
             "source_id": self.source_id,

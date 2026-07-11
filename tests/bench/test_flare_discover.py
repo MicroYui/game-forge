@@ -631,17 +631,23 @@ def test_trailer_links_must_match_frozen_lineage_rule_type(mutation, expanded_di
 def test_patch_evidence_and_objective_lineage_are_offline_replayable(
     flare_git_repo, search_spec, search_registration, tmp_path
 ):
+    blob_dir = tmp_path / "blobs"
     ledger = discover_candidates(
         ReadOnlyGitRepo(flare_git_repo.path),
         search_spec,
         search_registration,
         "expanded",
-        tmp_path / "blobs",
+        blob_dir,
     )
     for item in ledger.discovered_candidates:
         blob = tmp_path / item.diff_evidence.patch_blob
         assert blob.read_bytes()
         assert item.diff_evidence.patch_sha256 == sha256_hex(blob.read_bytes())
+        assert not hasattr(item.diff_evidence, "eligible_patch_sha256")
+        assert not hasattr(item.diff_evidence, "eligible_patch_blob")
+    assert {path.name for path in blob_dir.iterdir()} == {
+        item.diff_evidence.patch_sha256 for item in ledger.discovered_candidates
+    }
     link_types = {link.link_type for link in ledger.objective_lineage_links}
     assert {"patch_id", "cherry_pick", "backport", "revert"} <= link_types
     links = {

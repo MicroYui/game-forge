@@ -21,7 +21,7 @@ See `docs/superpowers/specs/` for the PRD and foundational contracts (single sou
 | **M2b-1** | Playtest agent core (state abstraction + planner/executor + verifier-grounding + reflection + main loop) + regression harness (completion rate + Wilson CI + random baseline) + planner/executor ablation | ✅ acceptance passing (REPLAY/scripted smoke) |
 | **M2b-2** | MemTrace episodic/transition/skill memory + deterministic recall, compactor comparison, and consistency quorum | ✅ acceptance passing |
 | Pre-M4: economy sink adapter | Plumb SELLS price/currency/buy_prob so the economy sim models real gold sinks from CSV; `economy_collapse` becomes economically fixable → **repair Fix Pass Rate 9/10 → 10/10** | ✅ acceptance passing |
-| **M3** | GameForge-Bench seeded corpus, complete metrics, real non-injected open-source defect corpus, and Eval view | 🔄 incomplete: Flare B0A returned terminal `insufficient_evidence`; PRD §13.3/§16 remain unmet |
+| **M3** | GameForge-Bench seeded corpus, complete metrics, real non-injected open-source defect corpus, and Eval view | 🔄 incomplete: Flare B0A returned terminal `insufficient_evidence`; corrected Endless Sky registration/discovery is in progress; PRD §13.3/§16 remain unmet |
 | **M4** | Production hardening: observability/cost, lineage/rollback/audit, RBAC/approval, and full React console | ⬜ not started; blocked by the pre-M4 gates |
 
 ## M3 external-validity status
@@ -34,9 +34,17 @@ classes, with `qualified_candidate=0` and `accepted=0`. The terminal decision is
 
 This is a valid negative investment-gate result, not M3 acceptance. B0B, Corpus Freeze,
 and M3d-1 through M3d-4 were not entered; no Flare quest/loot reader expansion is
-authorized. The next plan must select a different external corpus or obtain an explicit
-written PRD scope waiver. Narrative BDR, Human-Edit-Distance, QA-hours, the `DROPS_FROM`
-direction contract, and repair cassette/apply semantics remain separate pre-M4 debts.
+authorized.
+
+The source-neutral replacement harness now preserves the frozen Flare surface while
+binding new discovery to the exact registered tool commit and profile bytes. The prior
+Endless Sky derived ledger was withdrawn because its claimed registration commit did not
+contain the discovery semantics that produced its counts. A corrected clean registration
+anchor is being established before the first-80 universe is regenerated. Until that run
+is frozen and independently reviewed, there is no publishable Endless Sky candidate
+ledger, human attestation, B0A decision, B0B, or Adapter authorization. Narrative BDR,
+Human-Edit-Distance, QA-hours, the `DROPS_FROM` direction contract, and repair
+cassette/apply semantics remain separate pre-M4 debts.
 
 ## Layout (contract §1)
 
