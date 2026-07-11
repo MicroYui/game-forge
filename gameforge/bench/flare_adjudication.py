@@ -542,6 +542,9 @@ def _validate_expanded_prefixes(
     expanded_candidates = {
         item.commit.commit_oid: item for item in discovered.discovered_candidates
     }
+    prior_candidates = {
+        item.commit.commit_oid: item for item in prior_discovery.discovered_candidates
+    }
     for prior_candidate in prior_discovery.discovered_candidates:
         oid = prior_candidate.commit.commit_oid
         replayed_candidate = expanded_candidates.get(oid)
@@ -568,6 +571,66 @@ def _validate_expanded_prefixes(
     replayed_links = set(_canonical_sequence(discovered.objective_lineage_links))
     if not prior_links <= replayed_links:
         raise AdjudicationError("expanded discovery omits an initial objective lineage link")
+
+    expanded_rule_ids = {
+        rule.rule_id
+        for rule in (
+            *discovered.search_frame.rounds[1].message_regexes,
+            *discovered.search_frame.rounds[1].diff_regexes,
+        )
+    }
+    prior_link_ids = {link.link_id for link in prior_discovery.objective_lineage_links}
+    new_candidate_oids = set(expanded_candidates) - set(prior_candidates)
+
+    def has_expanded_direct_reason(candidate_oid: str) -> bool:
+        return any(
+            reason.kind == "direct_match"
+            and bool(reason.rule_ids)
+            and set(reason.rule_ids) <= expanded_rule_ids
+            for reason in expanded_candidates[candidate_oid].selection_reasons
+        )
+
+    for oid, candidate in expanded_candidates.items():
+        prior_candidate = prior_candidates.get(oid)
+        prior_reason_bytes = (
+            set()
+            if prior_candidate is None
+            else {canonical_bytes(reason) for reason in prior_candidate.selection_reasons}
+        )
+        added_reasons = [
+            reason
+            for reason in candidate.selection_reasons
+            if canonical_bytes(reason) not in prior_reason_bytes
+        ]
+        for reason in added_reasons:
+            if reason.kind == "direct_match" and not set(reason.rule_ids) <= expanded_rule_ids:
+                raise AdjudicationError(
+                    "an added expanded-round direct reason must use only expanded-round rules"
+                )
+            if reason.kind == "adjacent_context" and not has_expanded_direct_reason(
+                reason.anchor_oid or ""
+            ):
+                raise AdjudicationError(
+                    "an added expanded-round adjacent reason requires an expanded-round "
+                    "direct anchor"
+                )
+            if reason.kind == "lineage_context" and reason.lineage_link_id in prior_link_ids:
+                raise AdjudicationError(
+                    "an added expanded-round lineage reason must reference a new link"
+                )
+
+    for link in discovered.objective_lineage_links:
+        if (
+            link.link_id not in prior_link_ids
+            and not {
+                link.source_oid,
+                link.target_oid,
+            }
+            & new_candidate_oids
+        ):
+            raise AdjudicationError(
+                "an added expanded-round lineage link must touch a new candidate"
+            )
 
     prior_group_ids = [item.fix_group_id for item in prior_ledger.groups]
     replay_group_ids = [item.fix_group_id for item in evidence.group_decisions]
