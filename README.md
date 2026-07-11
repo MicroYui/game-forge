@@ -19,8 +19,24 @@ See `docs/superpowers/specs/` for the PRD and foundational contracts (single sou
 | **M2a-part1** | Model Router (RECORD/REPLAY/PASSTHROUGH) + Cassette store + deterministic agent orchestration — foundations only | ✅ acceptance passing |
 | **M2a-part2** | 6 bounded LLM agent roles (extraction/triage/repair/consistency/generation) + verifier-guided repair search; Fix Pass Rate 90% | ✅ acceptance passing |
 | **M2b-1** | Playtest agent core (state abstraction + planner/executor + verifier-grounding + reflection + main loop) + regression harness (completion rate + Wilson CI + random baseline) + planner/executor ablation | ✅ acceptance passing (REPLAY/scripted smoke) |
+| **M2b-2** | MemTrace episodic/transition/skill memory + deterministic recall, compactor comparison, and consistency quorum | ✅ acceptance passing |
 | Pre-M4: economy sink adapter | Plumb SELLS price/currency/buy_prob so the economy sim models real gold sinks from CSV; `economy_collapse` becomes economically fixable → **repair Fix Pass Rate 9/10 → 10/10** | ✅ acceptance passing |
-| M2b-1b, M2b-2, M3–M4 | see `docs/superpowers/specs/` and `CLAUDE.md` | ⬜ planned |
+| **M3** | GameForge-Bench seeded corpus, complete metrics, real non-injected open-source defect corpus, and Eval view | 🔄 incomplete: Flare B0A returned terminal `insufficient_evidence`; PRD §13.3/§16 remain unmet |
+| **M4** | Production hardening: observability/cost, lineage/rollback/audit, RBAC/approval, and full React console | ⬜ not started; blocked by the pre-M4 gates |
+
+## M3 external-validity status
+
+The Flare B0A mining harness and both hash-bound human reviews completed successfully.
+The frozen expanded universe contains 526 candidates, but adjudication found only 7 of
+the required 8 independent proposed fix groups: 10 proposed cases across all 4 required
+classes, with `qualified_candidate=0` and `accepted=0`. The terminal decision is
+`insufficient_evidence` with `next_action=stop_flare_heavy_investment`.
+
+This is a valid negative investment-gate result, not M3 acceptance. B0B, Corpus Freeze,
+and M3d-1 through M3d-4 were not entered; no Flare quest/loot reader expansion is
+authorized. The next plan must select a different external corpus or obtain an explicit
+written PRD scope waiver. Narrative BDR, Human-Edit-Distance, QA-hours, the `DROPS_FROM`
+direction contract, and repair cassette/apply semantics remain separate pre-M4 debts.
 
 ## Layout (contract §1)
 
@@ -110,7 +126,8 @@ otherwise identical to the pristine `clean/` baseline) are each soundly detected
 `economy_collapse`, reproduces a Monte-Carlo economy collapse with an early-warning
 tick strictly ahead of the collapse tick. The open-source Flare adapter
 (`gameforge/spine/ingestion/flare_adapter.py`) round-trips its vendored sample
-losslessly (`from_ir(to_ir(x)) == x`), the external-validity anchor. See
+losslessly (`from_ir(to_ir(x)) == x`); this is an adapter-integrity fixture, not a
+real-defect external-validity anchor. See
 `tests/apps/test_m1_acceptance.py` for the full acceptance suite.
 
 ## M2a-part1 acceptance
