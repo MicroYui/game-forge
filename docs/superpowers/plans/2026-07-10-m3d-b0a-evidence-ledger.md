@@ -16,7 +16,7 @@
 - The search spec freezes `initial` and `expanded` rounds before the first harness discovery output is produced. No post-output search rule may be added.
 - The exact search spec is committed alone before harness discovery. Every ledger records that registration commit and the canonical search-spec SHA-256. Prior exploratory knowledge is disclosed; this is pre-registered and non-blind, not a claim of blind candidate selection.
 - Git invocations are read-only argument arrays with `shell=False`; `{repo}` resolves to the repository Git directory for command execution (a bare repository is already its Git directory), while diagnostics retain the exact CLI `--repo` path. The harness never clones, fetches, opens GitHub, or accepts a shell fragment. Untracked or staged worktree `.gitattributes` therefore cannot alter evidence bytes.
-- Discover records facts and objective `patch_id | cherry_pick | backport | revert` links. It never assigns a taxonomy label or infers root cause. The candidate universe is the union of direct frozen-rule matches, frozen one-edge first-parent context, and any reachable source OID explicitly referenced by a selected cherry-pick/backport/revert trailer; each candidate records `direct_match | adjacent_context | lineage_context` and its rule/link IDs.
+- Discover records facts and objective `patch_id | cherry_pick | backport | revert` links. It never assigns a taxonomy label or infers root cause. The candidate universe starts with unique-OID direct frozen-rule matches plus frozen one-edge first-parent context, then repeatedly follows selected targets' frozen cherry-pick/backport/revert trailer captures to reachable source OIDs. Each candidate records `direct_match | adjacent_context | lineage_context` and its rule/link IDs. Patch-ID collisions are computed only inside the closed candidate universe and never select a candidate.
 - Human root-cause grouping and taxonomy proposals come only from a checked-in offline evidence JSON. Every candidate is decided as `proposed`, `rejected`, or `ambiguous` with rationale and evidence references.
 - Evidence references are structured and mechanically resolved to a discovered commit/message, patch blob, objective lineage link, or frozen source artifact. A hash-bound approval attestation from a reviewer distinct from every adjudicator is mandatory for both initial and expanded evidence.
 - B0A covers exactly the 11 deterministic/simulation taxonomy classes. `prob_sum_ne_1` and `gacha_expectation_violation` are `not_applicable`; `economy_collapse` is `applicable` even when evidence is absent.
@@ -32,6 +32,7 @@
 ### Task 1: Strict B0A contracts, canonical output, and patch CAS
 
 **Files:**
+- Modify: `.gitignore`
 - Create: `gameforge/bench/flare_evidence.py`
 - Create: `tests/bench/conftest.py`
 - Create: `tests/bench/test_flare_evidence.py`
@@ -43,8 +44,8 @@
 - Produces: `canonical_bytes(value: BaseModel | Mapping[str, Any]) -> bytes`
 - Produces: `sha256_hex(data: bytes) -> str`
 - Produces: `posix_glob_matches(path: str, pattern: str) -> bool`, where `**` matches zero or more complete path components
-- Produces: `write_new_or_identical(path: Path, data: bytes) -> None`
-- Produces: `write_set_new_or_identical(outputs: Mapping[Path, bytes]) -> None`, which preflights every target and rolls back only files created by the failed call
+- Produces: `write_new_or_identical(path: Path, data: bytes) -> None`, using the same staged publication protocol as the set writer
+- Produces: `write_set_new_or_identical(outputs: Mapping[Path, bytes]) -> None`, which preflights every target, stages and `fsync`s every missing value before publication, then publishes complete bytes atomically per final path in mapping order while retaining any complete prefix after a later failure
 - Produces: `put_blob(blob_dir: Path, data: bytes) -> tuple[str, str]`, returning `(sha256, f"blobs/{sha256}")`
 - Consumes: `DefectClass`, `Bucket`, and `CLASS_META` from `gameforge.bench.taxonomy`
 
@@ -55,6 +56,7 @@ In `tests/bench/conftest.py`, define `REGISTERED_SEARCH_SPEC_PAYLOAD` as an inde
 ```python
 # tests/bench/test_flare_evidence.py
 import copy
+import os
 from pathlib import Path
 
 import pytest
@@ -167,26 +169,36 @@ def test_multi_output_publish_preflights_all_targets(tmp_path: Path):
     assert second.read_bytes() == b"existing-different\n"
 
 
-def test_multi_output_publish_rolls_back_only_new_files_after_late_failure(
-    tmp_path: Path, monkeypatch
-):
+def test_multi_output_stages_all_files_before_publishing(tmp_path: Path, monkeypatch):
     first = tmp_path / "candidate-ledger.json"
     second = tmp_path / "b0a-decision.json"
     real_open = Path.open
+    real_link = os.link
+    exclusive_opens = 0
+    published = []
 
     def fail_second(path, mode="r", *args, **kwargs):
-        if path == second and mode == "xb":
-            raise OSError("injected second-target failure")
+        nonlocal exclusive_opens
+        if mode == "xb":
+            exclusive_opens += 1
+            if exclusive_opens == 2:
+                raise OSError("injected second-target failure")
         return real_open(path, mode, *args, **kwargs)
 
+    def record_publish(source, target, *args, **kwargs):
+        published.append(Path(target))
+        return real_link(source, target, *args, **kwargs)
+
     monkeypatch.setattr(Path, "open", fail_second)
+    monkeypatch.setattr(os, "link", record_publish)
     with pytest.raises(OSError, match="second-target"):
         write_set_new_or_identical({first: b"new-ledger\n", second: b"new-decision\n"})
+    assert published == []
     assert not first.exists()
     assert not second.exists()
 
 
-def test_multi_output_publish_never_rolls_back_preexisting_identical_file(
+def test_multi_output_publish_never_modifies_preexisting_identical_file(
     tmp_path: Path, monkeypatch
 ):
     first = tmp_path / "candidate-ledger.json"
@@ -195,7 +207,7 @@ def test_multi_output_publish_never_rolls_back_preexisting_identical_file(
     real_open = Path.open
 
     def fail_second(path, mode="r", *args, **kwargs):
-        if path == second and mode == "xb":
+        if mode == "xb":
             raise OSError("injected second-target failure")
         return real_open(path, mode, *args, **kwargs)
 
@@ -306,6 +318,8 @@ def test_search_registration_requires_commit_and_repo_relative_json_path():
         SearchRegistration(project_commit_oid="a" * 40, repo_relative_path="/tmp/spec.json")
 ```
 
+Also add subprocess regressions that exit uncatchably during single-output and second multi-output staging writes. Neither case may expose a partial final path; the multi-output case must publish no final path because all missing values are staged before the first publication. A normal retry must succeed without deleting the residual hidden staging file. Add a Git regression proving `.gameforge-*.tmp` is ignored under `scenarios/flare_corpus` while canonical corpus JSON is not. Add publication-failure regressions proving an already published complete prefix remains reusable, no final path is ever unlinked, a concurrent replacement is preserved, and a retry can add the decision completion marker.
+
 - [ ] **Step 2: Run the tests to verify RED**
 
 Run: `uv run pytest tests/bench/test_flare_evidence.py -q`
@@ -320,7 +334,7 @@ Freeze the command arrays, `GitEnvironmentPolicy`, and all semantic mode strings
 
 `EvidenceCounts` is the only home for `proposed`, `qualified_candidate`, `accepted`, `rejected`, and `ambiguous`; `ApplicabilityRow.evidence_availability` is derived as `found` iff any count is nonzero. `AdjudicationEvidence.applicability_declarations` is typed as `tuple[ApplicabilityDeclaration, ...]`, never as rows. `EvidenceRef.kind` is the closed set `commit_message | patch_blob | lineage_link | source_artifact`; its `target_id` format is validated by kind. `EvidenceArtifact` binds an artifact ID, `issue | pull_request`, source URL, retrieval date, blob path, and blob SHA-256. `ReviewAttestation` binds `review_scope="complete_b0a_adjudication"`, `approval="approved"`, reviewer/revision, a nonempty written approval statement, candidate-universe hash, and the canonical adjudication payload hash. The adjudication-payload hash excludes only the attestation field itself; changing any decision, rationale, reference, artifact, source hash, or prior hash invalidates approval.
 
-`canonical_bytes` must first turn a `BaseModel` into `model_dump(mode="json", exclude_none=True)`, then call the repository's `canonical_json` and append one newline; test both a mapping and an actual model because `canonical_json` does not serialize pydantic objects itself. Canonical JSON omits `None`, so the committed all-reachable search spec omits `after_exclusive` instead of physically storing JSON `null`. Implement `posix_glob_matches` as a memoized component matcher: ordinary components use `fnmatchcase`, while a `**` component recursively consumes either zero components or one path component and remains active. Do not use `PurePosixPath.match`, whose Python 3.12 `**` behavior does not recursively match the fixture and real Flare paths. `write_new_or_identical` must create parent directories, compare an existing file byte-for-byte, and use exclusive creation for a new file. `write_set_new_or_identical` must serialize/preflight every target before creating any, then use exclusive creation; on a later failure it removes only paths created by that call and never alters a pre-existing path. `put_blob` must hash raw bytes, verify an existing blob before reuse, and call `write_new_or_identical`.
+`canonical_bytes` must first turn a `BaseModel` into `model_dump(mode="json", exclude_none=True)`, then call the repository's `canonical_json` and append one newline; test both a mapping and an actual model because `canonical_json` does not serialize pydantic objects itself. Canonical JSON omits `None`, so the committed all-reachable search spec omits `after_exclusive` instead of physically storing JSON `null`. Implement `posix_glob_matches` as a memoized component matcher: ordinary components use `fnmatchcase`, while a `**` component recursively consumes either zero components or one path component and remains active. Do not use `PurePosixPath.match`, whose Python 3.12 `**` behavior does not recursively match the fixture and real Flare paths. Both WORM writers must create parent directories, compare every existing file byte-for-byte, write and `fsync` every missing value to an exclusively created same-directory `.gameforge-<random>.tmp`, and finish all staging before the first final publication. Recheck pre-existing outputs after staging, then publish missing outputs in mapping order with no-replace hard links; before publishing each later path, recheck the complete earlier prefix. Never unlink a published final path on failure: preserve the complete prefix for an identical retry, and treat only the last canonical decision as the completion marker. An uncatchable interruption may leave reserved hidden staging files or a complete published prefix, but never a partial final target. Ignore `.gameforge-*.tmp` repository-wide so residual staging files cannot enter the broad Task 5 `git add`; cleanup of that reserved random namespace is best-effort. `put_blob` must hash raw bytes, verify an existing blob before reuse, and call `write_new_or_identical`.
 
 - [ ] **Step 4: Run the focused tests to verify GREEN**
 
@@ -619,7 +633,7 @@ Expected: collection fails because `gameforge.bench.flare_git` does not exist.
 
 Use these exact Git semantics:
 
-Resolve a normal clone or linked worktree to its Git directory before executing evidence commands; leave a bare repository unchanged. Every call begins with `["git", "--no-optional-locks", "--no-replace-objects", "-c", "color.ui=false", "-c", "core.quotePath=true", "-c", "core.attributesFile=/dev/null", "-c", "diff.noprefix=false", "-c", "diff.mnemonicPrefix=false", "-c", "diff.renames=false", "-c", "diff.algorithm=myers", "-c", "diff.indentHeuristic=false", "-c", "diff.interHunkContext=0", "-c", "diff.suppressBlankEmpty=false", "-c", "diff.orderFile=/dev/null", "-C", str(repo.git_dir)]`. Preserve the caller's unmodified input path separately for errors. Construct every subprocess environment from the frozen `GitEnvironmentPolicy`, never from `os.environ.copy()`: inherit exactly `PATH`, discard every inherited name beginning with `GIT_`, then apply the fixed values `LC_ALL=C`, `LANG=C`, `TZ=UTC`, `GIT_OPTIONAL_LOCKS=0`, `GIT_NO_REPLACE_OBJECTS=1`, `GIT_CONFIG_NOSYSTEM=1`, `GIT_CONFIG_GLOBAL=/dev/null`, and `GIT_ATTR_NOSYSTEM=1`. A missing inherited `PATH` is a `GitEvidenceError`. This explicitly prevents `GIT_DIFF_OPTS` and the `GIT_CONFIG_COUNT`/`GIT_CONFIG_KEY_n`/`GIT_CONFIG_VALUE_n` injection channel from reaching Git. Before any Git query, reject a nonempty repo-local `$GIT_DIR/info/attributes`; it is clone-local state and is not part of the pinned source tree.
+Resolve a normal clone or linked worktree to its Git directory before executing evidence commands; leave a bare repository unchanged. Every call begins with `["git", "--no-optional-locks", "--no-replace-objects", "-c", "color.ui=false", "-c", "core.attributesFile=/dev/null", "-c", "core.quotePath=true", "-c", "diff.noprefix=false", "-c", "diff.mnemonicPrefix=false", "-c", "diff.renames=false", "-c", "diff.algorithm=myers", "-c", "diff.indentHeuristic=false", "-c", "diff.interHunkContext=0", "-c", "diff.suppressBlankEmpty=false", "-c", "diff.orderFile=/dev/null", "-C", str(repo.git_dir)]`. Preserve the caller's unmodified input path separately for errors. Construct every subprocess environment from the frozen `GitEnvironmentPolicy`, never from `os.environ.copy()`: inherit exactly `PATH`, discard every inherited name beginning with `GIT_`, then apply the fixed values `LC_ALL=C`, `LANG=C`, `TZ=UTC`, `GIT_OPTIONAL_LOCKS=0`, `GIT_NO_REPLACE_OBJECTS=1`, `GIT_CONFIG_NOSYSTEM=1`, `GIT_CONFIG_GLOBAL=/dev/null`, and `GIT_ATTR_NOSYSTEM=1`. A missing inherited `PATH` is a `GitEvidenceError`. This explicitly prevents `GIT_DIFF_OPTS` and the `GIT_CONFIG_COUNT`/`GIT_CONFIG_KEY_n`/`GIT_CONFIG_VALUE_n` injection channel from reaching Git. Before any Git query, reject a nonempty repo-local `$GIT_DIR/info/attributes`; it is clone-local state and is not part of the pinned source tree.
 
 - resolve head: common prefix plus `["rev-parse", "--verify", f"{spec.pinned_head}^{{commit}}"]`;
 - history from root: common prefix plus `["rev-list", "--topo-order", "--reverse", spec.pinned_head]`;
@@ -629,11 +643,11 @@ Resolve a normal clone or linked worktree to its Git directory before executing 
 - patch: common prefix plus `["diff", "--binary", "--full-index", "--no-color", "--no-ext-diff", "--no-textconv", "--no-renames", "--src-prefix=a/", "--dst-prefix=b/", "--unified=3", "--inter-hunk-context=0", "--diff-algorithm=myers", "--no-indent-heuristic", "--submodule=short", "--ignore-submodules=none", parent, oid]`;
 - patch ID: pass patch bytes on stdin to `git patch-id --stable`.
 
-Validate that the reachable list has exactly `spec.expected_revision_count` entries. Decode both the frozen `%s` search subject and full `%B` evidence message as UTF-8 with strict errors. Keep patch bytes raw and record exact `git --version`, harness version, Python runtime version, and `unicodedata.unidata_version`; all four bind expanded prior-search equality. For a root commit, derive Git's SHA-1 empty-tree OID with `git hash-object -t tree --stdin` without `-w` and diff against it. For a merge, compare the commit to parent 1 and record that selected edge plus all parent OIDs. Normalize paths to relative POSIX paths and reject absolute paths, `..`, NUL, or duplicate case-folded paths. Use Task 1's slash-aware `posix_glob_matches`; a candidate is config-only only when every changed path is allowlisted and none is excluded.
+Validate that the reachable list has exactly `spec.expected_revision_count` entries. Decode both the frozen `%s` search subject and full `%B` evidence message as UTF-8 with strict errors. Keep patch bytes raw and record exact `git --version`, the literal harness version `gameforge-flare-discovery@1`, `platform.python_implementation()`, `platform.python_version()`, the two-field `platform.python_build()`, and `unicodedata.unidata_version`; every field binds expanded prior-search equality. For a root commit, derive Git's SHA-1 empty-tree OID with `git hash-object -t tree --stdin` without `-w` and diff against it. For a merge, compare the commit to parent 1 and record that selected edge plus all parent OIDs. Normalize paths to relative POSIX paths and reject absolute paths, `..`, NUL, or duplicate case-folded paths. Use Task 1's slash-aware `posix_glob_matches`; a candidate is config-only only when every changed path is allowlisted and none is excluded.
 
 A direct match has at least one allowlisted, non-excluded changed path and matches any subject or diff regex in the selected round union. Subject regexes operate on strict UTF-8 `%s`. Diff rules never directly select a multi-parent merge commit; merged branch commits remain independently reachable and searchable. For a single-parent/root commit, diff rules search only the raw patch for the sorted eligible paths, produced by the same frozen patch arguments followed by `--` and those literal paths; a key changed only in an engine/localization sibling cannot select the commit. Validate that every diff regex is ASCII, encode it once, and compile a `bytes` pattern; never decode a patch merely to search it. Starting only from direct matches, traverse exactly one nonrecursive first-parent edge backward and one first-parent-child edge forward; include a neighboring commit only when it shares at least one exact eligible path with that direct anchor. Then parse the frozen trailer grammars from the full `%B` evidence message and include every explicitly referenced source OID that is reachable from the pinned head as `lineage_context`, repeating to a fixed point; an unreachable source is an error. Retain mixed direct or context commits for auditable rejection. Deduplicate the union and record every selection reason/rule ID. Freeze objective trailer grammars as `(?m)^\\(cherry picked from commit ([0-9a-f]{40})\\)$`, `(?m)^Backport-of: ([0-9a-f]{40})$`, and `(?m)^This reverts commit ([0-9a-f]{40})\\.$`.
 
-Emit one `DiscoveredCandidate` per commit, sorted by `(committed_at, commit_oid)`, plus objective links with stable `link_id` sorted by their complete tuple. `DiscoveryLedger` embeds the complete `FlareSearchSpec` as `search_frame` and records `search_spec_sha256`, `search_registration {project_commit_oid, repo_relative_path}`, `observed_revision_count`, `search_round`, `discovery_tool {tool_version, project_commit_oid, git_version, python_version, unicode_version}`, and `candidate_universe_sha256`. The universe hash domain is canonical `{schema_version, search_spec_sha256, search_round, discovered_candidates, objective_lineage_links}` only; it excludes the hash field itself and all machine-local filesystem paths. Revalidation recomputes exact eligible paths and `config_only`, enforces case-fold path uniqueness and the root empty-tree base, rebuilds each semantic link ID, validates reason order/uniqueness and every direct/adjacent/lineage cross-reference, and requires all link endpoints plus frozen trailer rule IDs/types to agree with the embedded search frame. A separate provenance test verifies that the registration commit contains the same canonical spec and predates every result file.
+Emit exactly one `DiscoveredCandidate` per unique commit OID, sorted by `(committed_at, commit_oid)`, plus objective links with stable `link_id` sorted by their complete tuple. `DiscoveryLedger` embeds the complete `FlareSearchSpec` as `search_frame` and records `search_spec_sha256`, `search_registration {project_commit_oid, repo_relative_path}`, `observed_revision_count`, `search_round`, `discovery_tool {tool_version, project_commit_oid, git_version, python_implementation, python_version, python_build, unicode_version}`, and `candidate_universe_sha256`. The discovery tool version is the exact registered literal, and its `project_commit_oid` must equal `search_registration.project_commit_oid`. The universe hash domain is canonical `{schema_version, search_spec_sha256, search_round, discovered_candidates, objective_lineage_links}` only; it excludes the hash field itself and all machine-local filesystem paths. Revalidation recomputes exact eligible paths and `config_only`, enforces unique commit OIDs, case-fold path uniqueness and the root empty-tree base, rebuilds each semantic link ID, and validates reason order/uniqueness plus every direct/adjacent/lineage cross-reference. Frozen trailer captures and recorded trailer links must be complete in both directions: every capture in a target's full `%B` message produces the same typed/source/target/rule link, and every such link is supported by that capture plus the exact source-side `lineage_context` reason. A lineage selection reason may not use a `patch_id` link. Starting from candidates with direct or valid adjacent reasons, the validator repeats target-to-source trailer traversal to a fixed point and requires it to cover the complete candidate universe, rejecting disconnected lineage-only components. All link endpoints and frozen trailer rule IDs/types must agree with the embedded search frame. A separate provenance test verifies that the registration commit contains the same canonical spec and predates every result file.
 
 - [ ] **Step 5: Run focused tests to verify GREEN**
 
@@ -967,7 +981,7 @@ The closed reason codes are `non_bug | out_of_taxonomy | non_config_only | indet
 
 Reject evidence when its source/candidate/prior hash is wrong; approval is stale; an evidence ref does not resolve; a commit is unknown or assigned twice; a grouped range omits an intervening first-parent commit; a selected merge parent differs from discovery's exact `selected_parent_oid`; or any commit in a proposed group is not config-only. Membership in `parent_oids` is insufficient because B0A grouping is first-parent continuous. Every discovered candidate must appear in exactly one group or one `CandidateDisposition`; the two sets must be disjoint and their union must equal the candidate universe. Use a candidate disposition, without a fake defect class, for non-bugs, out-of-taxonomy changes, non-config-only commits, indeterminate oracles, duplicate/backport/revert evidence, and insufficient context. Matrix rejected/ambiguous counts include only typed cases; untyped exclusions are counted by `reason_code` in the gate summary. During expanded adjudication, every initial group and candidate-level decision must be byte-equivalent after canonical projection, including group ID, commits, cases, dispositions, labels, rationale, reviewer/adjudicator, and evidence refs. `CandidateFixGroup.group_decision_sha256` binds the complete reviewed group projection. Initial group IDs and initial candidate-decision commit IDs must remain ordered prefixes of their expanded sequences; new decisions may only be appended. Existing top-level lineage resolutions must also be byte-equivalent; expanded evidence may append new groups, candidate decisions, and resolutions only for newly materialized links, but may not relabel, regroup, reorder, insert before, or delete an initial candidate. Reject duplicate group IDs before building any mapping or evaluating the gate.
 
-Expanded adjudication requires all four prior artifacts: raw initial discovery, raw initial evidence, derived candidate ledger, and decision. Initial adjudication forbids every prior artifact. The prior raw pair is replayed through initial adjudication, and both replayed outputs must be byte-identical to the supplied derived pair before any expanded-prefix check. The prior ledger must be `search_round="initial"`; its decision must point to the full canonical prior-ledger bytes and have `expanded_round_required`; and the replayed ledger's schema version, complete `search_frame`, `search_spec_sha256`, `search_registration`, `observed_revision_count`, and complete runtime-bearing `discovery_tool` must equal the corresponding binding fields in the expanded discovery. Both expanded-evidence prior hashes must match that exact derived pair. The expanded evidence must retain the complete initial `source_artifacts` sequence as a canonical ordered prefix and preserve initial applicability declarations byte-for-byte. Each initial candidate retains immutable commit/path/config/diff facts, every initial selection reason, and every initial objective link; only new expanded-round reasons, candidates, and links may be added. Every added direct reason uses only expanded-round rule IDs, an added adjacent reason is anchored by an expanded-round direct match, an added lineage reason references a new link, and every new link touches at least one newly discovered candidate.
+Expanded adjudication requires all four prior artifacts: raw initial discovery, raw initial evidence, derived candidate ledger, and decision. Initial adjudication forbids every prior artifact. The prior raw pair is replayed through initial adjudication, and both replayed outputs must be byte-identical to the supplied derived pair before any expanded-prefix check. The prior ledger must be `search_round="initial"`; its decision must point to the full canonical prior-ledger bytes and have `expanded_round_required`; and the replayed ledger's schema version, complete `search_frame`, `search_spec_sha256`, `search_registration`, `observed_revision_count`, and complete runtime-bearing `discovery_tool {tool_version, project_commit_oid, git_version, python_implementation, python_version, python_build, unicode_version}` must equal the corresponding binding fields in the expanded discovery. Both expanded-evidence prior hashes must match that exact derived pair. The expanded evidence must retain the complete initial `source_artifacts` sequence as a canonical ordered prefix and preserve initial applicability declarations byte-for-byte. Each initial candidate retains immutable commit/path/config/diff facts, every initial selection reason, and every initial objective link; only new expanded-round reasons, candidates, and links may be added. Every added direct reason uses only expanded-round rule IDs, an added adjacent reason is anchored by an expanded-round direct match, an added lineage reason references a new link, and every new link touches at least one newly discovered candidate. Combined with exact trailer-message/reason validation and rooted fixed-point closure, these prefix rules prevent an expanded-only unrooted lineage component.
 
 Derive every `CandidateFixGroup` entirely from discovery facts and reviewed decisions: `group_decision_sha256` hashes the complete canonical reviewed group decision; `before_commit` is the selected diff base of the first commit (its first parent, or the empty-tree OID for a root); `after_commit`/`after_committed_at` come from the final commit; `changed_paths` is the sorted union; `config_only` is the conjunction; and `diff_evidence[]` preserves the ordered per-commit patch/message records. `lineage_links[]` contains the resolved stable link IDs touching the group. No combined patch is synthesized during offline adjudication and no group field may require reopening the Flare clone.
 
@@ -1310,31 +1324,39 @@ def test_adjudicate_preflights_both_outputs_before_writing(
     assert decision.read_bytes() == b"conflicting-existing-decision\n"
 
 
-def test_adjudicate_writes_decision_last_and_rolls_back_on_marker_failure(
+def test_adjudicate_writes_decision_last_and_reuses_prefix_after_marker_failure(
     initial_discovered_path, initial_positive_evidence_path, blob_dir,
     tmp_path, monkeypatch
 ):
     ledger = tmp_path / "candidate-ledger.json"
     decision = tmp_path / "b0a-decision.json"
-    real_open = Path.open
-    exclusive_attempts = []
+    real_link = os.link
+    publish_attempts = []
 
-    def fail_completion_marker(path, mode="r", *args, **kwargs):
-        if mode == "xb":
-            exclusive_attempts.append(path)
-            if path == decision:
-                raise OSError("injected decision-marker failure")
-        return real_open(path, mode, *args, **kwargs)
+    def fail_completion_marker(source, target, *args, **kwargs):
+        publish_attempts.append(Path(target))
+        if Path(target) == decision:
+            raise OSError("injected decision-marker failure")
+        return real_link(source, target, *args, **kwargs)
 
-    monkeypatch.setattr(Path, "open", fail_completion_marker)
-    assert main([
+    args = [
         "adjudicate", "--ledger", str(initial_discovered_path),
         "--evidence", str(initial_positive_evidence_path),
         "--blob-dir", str(blob_dir),
         "--out", str(ledger), "--decision-out", str(decision),
-    ]) == 1
-    assert exclusive_attempts == [ledger, decision]
-    assert not ledger.exists() and not decision.exists()
+    ]
+    with monkeypatch.context() as context:
+        context.setattr(os, "link", fail_completion_marker)
+        assert main(args) == 1
+
+    assert publish_attempts == [ledger, decision]
+    CandidateLedger.model_validate_json(ledger.read_bytes())
+    assert not decision.exists()
+
+    assert main(args) == 0
+    assert_complete_chain(
+        ledger, decision, initial_discovered_path, initial_positive_evidence_path
+    )
 
 
 def test_adjudicate_rejects_same_or_aliased_output_paths_before_writing(
@@ -1596,7 +1618,7 @@ Expected: collection fails because `gameforge.bench.flare_mining` does not exist
 
 Load all JSON with strict UTF-8 and pydantic validation, then require the input bytes to equal `canonical_bytes(validated_model)`. Verify every referenced CAS blob before adjudication, including prior discovery patches and prior evidence source artifacts. Initial ledgers reject all four prior arguments; expanded ledgers require all four, replay the raw prior pair, require the prior decision status to be `expanded_round_required`, verify that the decision points to the canonical prior-ledger bytes, verify both evidence prior hashes, and enforce Task 3's full same-registered-search binding. Argparse enforces that the four prior flags are all present or all absent.
 
-Print a one-line result to stderr. Before constructing the output mapping, reject `--out` and `--decision-out` when their normalized resolved paths are equal or when two existing paths are aliases by `samefile`; this prevents a duplicate mapping key from silently collapsing the completion marker. Precompute ledger and decision bytes in memory, preflight both output targets, write the ledger first, and write the decision last through `write_set_new_or_identical`; only a present, valid decision is the completed revision marker. Existing identical ledger bytes from an interrupted attempt are reusable, but any differing target fails before a new file is created. Convert `GitEvidenceError`, `AdjudicationError`, pydantic validation failures, missing/noncanonical files, CAS/hash failures, output-path aliases, and immutable-output conflicts to exit 1 without a traceback. A valid negative gate is complete, so both canonical outputs must exist before returning 3. Do not catch `KeyboardInterrupt` or argparse's `SystemExit`. End the module with `raise SystemExit(main())`. Keep business logic in Tasks 1-3.
+Print a one-line result to stderr. Before constructing the output mapping, reject `--out` and `--decision-out` when their normalized resolved paths are equal or when two existing paths are aliases by `samefile`; this prevents a duplicate mapping key from silently collapsing the completion marker. Precompute ledger and decision bytes in memory and preflight both output targets. `write_set_new_or_identical` stages and `fsync`s both missing values before publication, then publishes the ledger first and decision last through atomic no-replace hard links, rechecking the ledger before the decision link. Only a canonical decision with the complete expected bytes is the completed revision marker. Interruption during staging leaves both final paths absent; interruption or failure during ordered publication may leave a complete ledger-only prefix, which an identical retry must reuse. Never unlink a published final path during recovery. Convert `GitEvidenceError`, `AdjudicationError`, pydantic validation failures, missing/noncanonical files, CAS/hash failures, output-path aliases, and immutable-output conflicts to exit 1 without a traceback. A valid negative gate is complete, so both canonical outputs must exist before returning 3. Do not catch `KeyboardInterrupt` or argparse's `SystemExit`. End the module with `raise SystemExit(main())`. Keep business logic in Tasks 1-3.
 
 - [ ] **Step 4: Run the B0A end-to-end test set twice**
 
@@ -1851,13 +1873,13 @@ Expected: exit 0 with `provisional_pass`, or exit 3 with `insufficient_evidence`
 
 - [ ] **Step 6: If initial passes, publish it once at the root evidence paths**
 
-Publish all four reviewed initial files as one preflighted WORM set, never with `cp` and never one-by-one:
+Publish all four reviewed initial files through one ordered, preflighted WORM call, never with `cp` and never one-by-one. Each final pathname is published atomically, but the four-path sequence is not represented as a filesystem transaction. All missing values are staged before the first publication, and a failure during publication retains a complete reusable prefix:
 
 ```bash
 uv run python -c 'from pathlib import Path; from gameforge.bench.flare_evidence import write_set_new_or_identical; src=Path("scenarios/flare_corpus/b0a/initial"); dst=Path("scenarios/flare_corpus"); names=("candidate-ledger.discovered.json","adjudication-evidence.json","candidate-ledger.json","b0a-decision.json"); write_set_new_or_identical({dst/n:(src/n).read_bytes() for n in names})'
 ```
 
-The root discovery, evidence, ledger, and decision must be byte-equal to the preserved initial revision; any existing different target fails before the first root file is created.
+The root discovery, evidence, ledger, and decision must be byte-equal to the preserved initial revision. Any different target found during preflight or the pre-publication recheck fails before the first root file is created. Before each later hard link, the complete earlier prefix is reread; a changed prefix fails without publishing the later completion path and without deleting any final path.
 
 - [ ] **Step 7: Add attribution and verify the package without the upstream clone**
 
@@ -1865,7 +1887,7 @@ The root discovery, evidence, ledger, and decision must be byte-equal to the pre
 
 `tests/bench/test_flare_evidence_package.py` has two separate checks:
 
-1. with the upstream Flare path unavailable and Git subprocesses forbidden, require canonical bytes for every JSON; assert the packaged search spec is byte-equal to `registered_search_spec_bytes` and its SHA-256 equals `registered_search_spec_sha256` from the independent shared fixtures; then verify the complete hash chain, all CAS blobs and evidence refs, attestation, prior projection, candidate coverage, lineage constraints, exact 11-row matrix, and re-derived ledger/decision/gate;
+1. with the upstream Flare path unavailable and Git subprocesses forbidden, reject reserved `.gameforge-*.tmp` staging files, require canonical bytes for every JSON; assert the packaged search spec is byte-equal to `registered_search_spec_bytes` and its SHA-256 equals `registered_search_spec_sha256` from the independent shared fixtures; then verify the complete hash chain, all CAS blobs and evidence refs, attestation, prior projection, candidate coverage, lineage constraints, exact 11-row matrix, and re-derived ledger/decision/gate;
 2. using only the GameForge repository Git history, verify the recorded registration commit is an ancestor, contains bytes equal to both the packaged file and `registered_search_spec_bytes` at the recorded path, has the fixed expected spec hash, and contains none of the discovery/result paths.
 
 - [ ] **Step 8: Commit the evidence separately from implementation**

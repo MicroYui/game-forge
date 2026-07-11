@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import os
 import re
+import secrets
 from datetime import date
 from fnmatch import fnmatchcase
 from functools import lru_cache
@@ -28,6 +29,7 @@ from gameforge.contracts.canonical import canonical_json
 
 
 FLARE_B0A_SCHEMA_VERSION = "flare-b0a@1"
+DISCOVERY_TOOL_VERSION = "gameforge-flare-discovery@1"
 GIT_EMPTY_TREE_OID = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 
 B0A_DEFECT_CLASSES: tuple[DefectClass, ...] = tuple(
@@ -383,10 +385,12 @@ class SearchRegistration(_StrictModel):
 
 
 class DiscoveryTool(_StrictModel):
-    tool_version: NonEmptyStr
+    tool_version: Literal[DISCOVERY_TOOL_VERSION]
     project_commit_oid: Oid
     git_version: NonEmptyStr
+    python_implementation: NonEmptyStr
     python_version: NonEmptyStr
+    python_build: tuple[str, str]
     unicode_version: NonEmptyStr
 
 
@@ -515,6 +519,8 @@ class DiscoveryLedger(_StrictModel):
     def validate_discovery_bindings(self) -> DiscoveryLedger:
         if self.search_spec_sha256 != sha256_hex(canonical_bytes(self.search_frame)):
             raise ValueError("search_spec_sha256 does not bind search_frame")
+        if self.discovery_tool.project_commit_oid != self.search_registration.project_commit_oid:
+            raise ValueError("discovery tool commit must match search registration commit")
         if self.observed_revision_count != self.search_frame.expected_revision_count:
             raise ValueError("observed_revision_count differs from registered expectation")
         candidate_keys = [
@@ -523,6 +529,9 @@ class DiscoveryLedger(_StrictModel):
         ]
         if candidate_keys != sorted(set(candidate_keys)):
             raise ValueError("discovered_candidates must be sorted and unique")
+        candidate_oid_sequence = [item.commit.commit_oid for item in self.discovered_candidates]
+        if len(candidate_oid_sequence) != len(set(candidate_oid_sequence)):
+            raise ValueError("discovered candidate commit OIDs must be unique")
         candidate_by_oid = {item.commit.commit_oid: item for item in self.discovered_candidates}
         candidate_oids = set(candidate_by_oid)
         selected_round_count = 1 if self.search_round == "initial" else 2
@@ -594,7 +603,7 @@ class DiscoveryLedger(_StrictModel):
         ]
         if link_keys != sorted(link_keys):
             raise ValueError("objective_lineage_links must be deterministically sorted")
-        lineage_rules = {rule.rule_id: rule.link_type for rule in self.search_frame.lineage_regexes}
+        lineage_rules = {rule.rule_id: rule for rule in self.search_frame.lineage_regexes}
         links_by_id = {link.link_id: link for link in self.objective_lineage_links}
         for link in self.objective_lineage_links:
             payload = {
@@ -606,14 +615,43 @@ class DiscoveryLedger(_StrictModel):
                 payload["patch_id"] = link.patch_id
             else:
                 payload["rule_id"] = link.rule_id
-                if link.rule_id not in lineage_rules:
+                rule = lineage_rules.get(link.rule_id or "")
+                if rule is None:
                     raise ValueError("trailer link uses an unknown lineage rule")
-                if lineage_rules[link.rule_id] != link.link_type:
+                if rule.link_type != link.link_type:
                     raise ValueError("trailer link type differs from its frozen lineage rule")
             if link.link_id != sha256_hex(canonical_bytes(payload)):
                 raise ValueError("lineage link_id does not bind its semantic fields")
             if link.source_oid not in candidate_oids or link.target_oid not in candidate_oids:
                 raise ValueError("every lineage endpoint must belong to the candidate universe")
+            if link.link_type != "patch_id":
+                target_message = candidate_by_oid[link.target_oid].diff_evidence.commit_message
+                if not any(
+                    match.group(1) == link.source_oid
+                    for match in re.finditer(rule.pattern, target_message)
+                ):
+                    raise ValueError(
+                        "trailer link must match its source in the target commit message"
+                    )
+
+        trailer_link_keys = {
+            (link.link_type, link.source_oid, link.target_oid, link.rule_id)
+            for link in self.objective_lineage_links
+            if link.link_type != "patch_id"
+        }
+        for target in self.discovered_candidates:
+            for rule in self.search_frame.lineage_regexes:
+                for match in re.finditer(rule.pattern, target.diff_evidence.commit_message):
+                    expected_link = (
+                        rule.link_type,
+                        match.group(1),
+                        target.commit.commit_oid,
+                        rule.rule_id,
+                    )
+                    if expected_link not in trailer_link_keys:
+                        raise ValueError(
+                            "every frozen trailer match requires its objective lineage link"
+                        )
 
         direct_oids = {
             candidate.commit.commit_oid
@@ -643,6 +681,41 @@ class DiscoveryLedger(_StrictModel):
                         raise ValueError(
                             "lineage reason must resolve to a link whose source is the candidate"
                         )
+                    if link.link_type == "patch_id":
+                        raise ValueError("lineage reason must resolve to a trailer link")
+
+        lineage_reason_pairs = {
+            (candidate.commit.commit_oid, reason.lineage_link_id)
+            for candidate in self.discovered_candidates
+            for reason in candidate.selection_reasons
+            if reason.kind == "lineage_context"
+        }
+        for link in self.objective_lineage_links:
+            if link.link_type != "patch_id" and (link.source_oid, link.link_id) not in (
+                lineage_reason_pairs
+            ):
+                raise ValueError("every trailer link requires its source lineage reason")
+
+        rooted_oids = {
+            candidate.commit.commit_oid
+            for candidate in self.discovered_candidates
+            if any(
+                reason.kind in {"direct_match", "adjacent_context"}
+                for reason in candidate.selection_reasons
+            )
+        }
+        pending_links = [
+            link for link in self.objective_lineage_links if link.link_type != "patch_id"
+        ]
+        changed = True
+        while changed:
+            changed = False
+            for link in pending_links:
+                if link.target_oid in rooted_oids and link.source_oid not in rooted_oids:
+                    rooted_oids.add(link.source_oid)
+                    changed = True
+        if rooted_oids != candidate_oids:
+            raise ValueError("every candidate must have a rooted direct or adjacent selection seed")
         universe = {
             "schema_version": self.schema_version,
             "search_spec_sha256": self.search_spec_sha256,
@@ -1098,24 +1171,7 @@ def _unlink_if_same_file(path: Path, identity: tuple[int, int]) -> None:
 
 
 def write_new_or_identical(path: Path, data: bytes) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        stream = path.open("xb")
-    except FileExistsError:
-        try:
-            existing = path.read_bytes()
-        except OSError as exc:
-            raise FileExistsError(f"target already exists and is not reusable: {path}") from exc
-        if existing != data:
-            raise FileExistsError(f"target already exists with different bytes: {path}")
-    else:
-        identity = _stream_identity(stream)
-        try:
-            with stream:
-                stream.write(data)
-        except BaseException:
-            _unlink_if_same_file(path, identity)
-            raise
+    write_set_new_or_identical({path: data})
 
 
 def write_set_new_or_identical(outputs: Mapping[Path, bytes]) -> None:
@@ -1132,17 +1188,54 @@ def write_set_new_or_identical(outputs: Mapping[Path, bytes]) -> None:
         else:
             missing.append((path, data))
 
-    created: list[tuple[Path, tuple[int, int]]] = []
+    staged: list[tuple[Path, bytes, Path, tuple[int, int]]] = []
     try:
         for path, data in missing:
             path.parent.mkdir(parents=True, exist_ok=True)
-            with path.open("xb") as stream:
-                created.append((path, _stream_identity(stream)))
+            while True:
+                staging_path = path.parent / f".gameforge-{secrets.token_hex(16)}.tmp"
+                try:
+                    stream = staging_path.open("xb")
+                except FileExistsError:
+                    continue
+                break
+            staging_identity = _stream_identity(stream)
+            staged.append((path, data, staging_path, staging_identity))
+            with stream:
                 stream.write(data)
-    except BaseException:
-        for path, identity in reversed(created):
-            _unlink_if_same_file(path, identity)
-        raise
+                stream.flush()
+                os.fsync(stream.fileno())
+
+        missing_paths = {path for path, _data in missing}
+        for path, data in items:
+            if path in missing_paths:
+                continue
+            try:
+                published = path.read_bytes()
+            except OSError as exc:
+                raise FileExistsError(f"published target is not reusable: {path}") from exc
+            if published != data:
+                raise FileExistsError(f"published target has different bytes: {path}")
+
+        for path, _data, staging_path, _identity in staged:
+            for prior_path, prior_data in items:
+                if prior_path == path:
+                    break
+                try:
+                    published = prior_path.read_bytes()
+                except OSError as exc:
+                    raise FileExistsError(
+                        f"published target is not reusable: {prior_path}"
+                    ) from exc
+                if published != prior_data:
+                    raise FileExistsError(f"published target has different bytes: {prior_path}")
+            os.link(staging_path, path)
+    finally:
+        for _path, _data, staging_path, identity in reversed(staged):
+            try:
+                _unlink_if_same_file(staging_path, identity)
+            except OSError:
+                pass
 
 
 def put_blob(blob_dir: Path, data: bytes) -> tuple[str, str]:

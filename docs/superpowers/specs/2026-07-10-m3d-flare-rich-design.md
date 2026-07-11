@@ -131,23 +131,32 @@ candidate search frame 至少记录：
 - commit message、diff signature、issue/PR evidence file 和相邻提交的查询规则及工具版本；
 - 候选排序、去重、停止条件和生成 ledger 的命令参数。
 
-discovery tool provenance 同时记录 harness、Git、Python runtime 与 Unicode data 版本，expanded
-round 必须与初轮逐字段一致。所有 evidence Git 命令把普通 clone/worktree 解析到 Git
-directory 后作为 `-C` 目标；bare repository 保持原样，错误诊断保留用户传入的 `--repo`
+discovery tool provenance 同时记录固定的 `gameforge-flare-discovery@1` harness、Git、Python
+implementation、version、build 与 Unicode data 版本；tool project commit 必须等于 search
+registration commit，expanded round 必须与初轮逐字段一致。冻结 Git prefix 中
+`color.ui=false`、`core.attributesFile=/dev/null`、`core.quotePath=true` 及后续 `diff.*` 参数的顺序
+也是 search contract。所有 evidence Git 命令把普通 clone/worktree 解析到 Git directory 后作为
+`-C` 目标；bare repository 保持原样，错误诊断保留用户传入的 `--repo`
 路径。未跟踪或已 staged 的 worktree `.gitattributes` 不得影响 discovery ledger 或 blob 字节。
 
 revision range 必须明确端点的包含语义与 history walk；patch evidence 必须冻结精确 Git
 参数和原始输出字节。所有 CAS key 使用 lowercase 64-hex SHA-256，`sha256:<hex>` 只用于
 已有 Snapshot ID 契约，不能混作 blob 文件名。mining 输出按 canonical JSON 写入；目标已
 存在时只允许逐字节相同的幂等重放，任何差异必须写入新的 evidence revision，禁止覆盖。
+单文件和多文件输出都先在同目录排他暂存完整 bytes 并 flush/`fsync`；多文件必须完成全部
+staging 后再按 ledger-first、decision-last 顺序用 no-replace hard link 逐路径原子发布，并在每个
+后续发布前复查完整前缀。失败时不 unlink 已发布 final，而是保留完整前缀供幂等重试。隐藏的
+`.gameforge-*.tmp` 属于保留 staging namespace，仓库级忽略，异常退出残留不会进入 corpus commit。
+该协议不声称跨路径事务；正式流程假定已审阅 evidence 目录为单写者 WORM 存储。
 
 qualified/accepted 修复严格限定为 config-only：所有行为相关 changed paths 都必须属于冻结的
 配置/内容 allowlist；包含引擎源码、脚本运行时、构建逻辑或 schema 解释器修改的
 commit 不接受。这样 before/after 可在同一已固定的历史语义下比较，不混入引擎版本
 变化。
 
-统计与 split 的根单位是独立 `fix_group_id`。工具只自动识别 path/message、patch-id、
-明确 cherry-pick/backport 和 revert 等客观信号；同一 issue/根因、semantic follow-up 和
+统计与 split 的根单位是独立 `fix_group_id`。工具只用 path/message/diff 产生 candidate seeds，
+再按明确 cherry-pick/backport/revert trailer 做 rooted fixed-point closure；patch-id 只在闭合后的
+candidate universe 内形成客观 link，不参与候选选择。同一 issue/根因、semantic follow-up 和
 多 commit 修复由人工给出 evidence 后分组，harness 只验证边界与证据完整性，不尝试
 自动理解根因。issue/PR 证据由显式离线 JSON 输入，不在 mining 命令中隐式联网查询。
 
@@ -443,7 +452,8 @@ CandidateLedger {
   candidate_universe_sha256,
   search_round: initial | expanded,
   observed_revision_count,
-  discovery_tool {tool_version, project_commit_oid, git_version, python_version, unicode_version},
+  discovery_tool {tool_version, project_commit_oid, git_version, python_implementation,
+                  python_version, python_build, unicode_version},
   evidence_revision,
   applicability_matrix,
   gate_summary,
@@ -491,6 +501,19 @@ CandidateDisposition {
 派生 ledger/decision 与传入 pair 逐字节相同，再逐组验证初轮 root-cause refs、case decisions、
 逐组 adjudicator/reviewer 与 rationale 未被改写。expanded groups 必须以初轮 group 序列为
 有序前缀，新 group 只能追加在其后；两轮都拒绝重复 `fix_group_id`。
+
+discovery ledger 只接受固定 harness tool version，要求 tool project commit 等于 search
+registration commit，并且对每个 commit OID 只允许一个 candidate。target 完整 `%B` message 中的每个冻结
+trailer capture 都必须产生对应 objective link，每个 trailer link 也必须由相同 typed/source/target/rule
+capture 支持，并在 source candidate 上有对应 `lineage_context` reason；`patch_id` link 不能成为 candidate selection reason。从 direct 或合法
+adjacent candidate 出发，按 trailer 的 target-to-source 方向重复到固定点后必须覆盖整个 candidate
+universe，因此 expanded round 不能附加没有 expanded 搜索种子的 lineage-only 循环组件。
+
+ledger/decision 多文件发布先把两份完整 canonical bytes 都写入并 `fsync` 到同目录排他暂存文件，
+再按 ledger-first、decision-last 顺序用 no-replace hard link 原子发布最终路径；decision 发布前必须
+复查 ledger 前缀。异常不删除已发布 final：staging 阶段终止时两个 final 都不存在，发布阶段失败
+最多留下完整 ledger-only 前缀，幂等重试复用它后再发布 decision。decision 只有在完整 canonical
+bytes 已可见且绑定 ledger 时才是 completion marker。
 
 `disposition_summary` 必须由 cases 确定性派生；任何 gate、split 或指标都读取 case/unit
 disposition，而不是摘要。B0A gate summary 记录 proposed group/class 数、失败原因和
@@ -670,7 +693,8 @@ python -m gameforge.bench.flare_mining freeze --ledger <json> --repo <local-clon
 python -m gameforge.bench.flare_external --manifest scenarios/flare_corpus/manifest.json
 ```
 
-- `discover` 只做客观 path/message/diff/patch-id 筛选，不自动赋予 ground truth；
+- `discover` 只用客观 path/message/diff 规则和 rooted trailer closure 选择候选，再计算 universe
+  内的 patch-id links，不自动赋予 ground truth；
 - `adjudicate` 从显式离线 evidence file 读取 issue/PR 与人工 lineage 决策，并校验 search
   frame、config-only、证据和三维 applicability；initial 禁止任何 prior 参数，expanded 要求
   四个 prior artifacts 全部存在、CAS 有效并通过 raw replay 与不可变前缀校验；
@@ -685,8 +709,11 @@ python -m gameforge.bench.flare_external --manifest scenarios/flare_corpus/manif
 所有 Git 调用使用参数数组和只读子命令，不接受任意 shell 片段。registered discovery
 implementation 是 raw Git facts 与 7,049-commit universe completeness 的 trust anchor；ledger
 内部重算可由 embedded search frame 推导的 eligible paths、config-only、root empty-tree base、
-semantic link IDs 和 reason/endpoint cross-references，但不声称为全部 upstream commits 打包
-cryptographic proof。下游 attestation/canonical hash chain 防止 review 后未察觉漂移。harness
+unique candidate OIDs、semantic link IDs 和 reason/endpoint cross-references。frozen trailer captures
+与 links 必须双向完备，每个 link 还必须有 source-side lineage reason；
+patch-id 不能充当 selection reason，direct/adjacent seeds 的 target-to-source 固定点必须覆盖整个
+candidate universe。验证器不声称为全部 upstream commits 打包 cryptographic proof。下游
+attestation/canonical hash chain 防止 review 后未察觉漂移。harness
 本身不访问 GitHub；网络失败只影响用户自行准备 local clone/evidence，不影响 committed
 corpus、测试和 benchmark。
 

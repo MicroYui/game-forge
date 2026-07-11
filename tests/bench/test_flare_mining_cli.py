@@ -570,42 +570,48 @@ def test_adjudicate_rejects_exact_decision_only_without_creating_ledger(
     assert decision.read_bytes() == decision_bytes
 
 
-def test_adjudicate_writes_decision_last_and_rolls_back_on_marker_failure(
+def test_adjudicate_writes_decision_last_and_reuses_prefix_after_marker_failure(
     initial_discovered_path, initial_positive_evidence_path, blob_dir, tmp_path, monkeypatch
 ):
     ledger = tmp_path / "candidate-ledger.json"
     decision = tmp_path / "b0a-decision.json"
-    real_open = Path.open
-    exclusive_attempts = []
+    real_link = os.link
+    publish_attempts = []
 
-    def fail_completion_marker(path, mode="r", *args, **kwargs):
-        if mode == "xb":
-            exclusive_attempts.append(path)
-            if path == decision:
-                raise OSError("injected decision-marker failure")
-        return real_open(path, mode, *args, **kwargs)
+    def fail_completion_marker(source, target, *args, **kwargs):
+        publish_attempts.append(Path(target))
+        if Path(target) == decision:
+            raise OSError("injected decision-marker failure")
+        return real_link(source, target, *args, **kwargs)
 
-    monkeypatch.setattr(Path, "open", fail_completion_marker)
-    assert (
-        main(
-            [
-                "adjudicate",
-                "--ledger",
-                str(initial_discovered_path),
-                "--evidence",
-                str(initial_positive_evidence_path),
-                "--blob-dir",
-                str(blob_dir),
-                "--out",
-                str(ledger),
-                "--decision-out",
-                str(decision),
-            ]
-        )
-        == 1
+    args = [
+        "adjudicate",
+        "--ledger",
+        str(initial_discovered_path),
+        "--evidence",
+        str(initial_positive_evidence_path),
+        "--blob-dir",
+        str(blob_dir),
+        "--out",
+        str(ledger),
+        "--decision-out",
+        str(decision),
+    ]
+    with monkeypatch.context() as context:
+        context.setattr(os, "link", fail_completion_marker)
+        assert main(args) == 1
+
+    assert publish_attempts == [ledger, decision]
+    CandidateLedger.model_validate_json(ledger.read_bytes())
+    assert not decision.exists()
+
+    assert main(args) == 0
+    assert_complete_chain(
+        ledger,
+        decision,
+        initial_discovered_path,
+        initial_positive_evidence_path,
     )
-    assert exclusive_attempts == [ledger, decision]
-    assert not ledger.exists() and not decision.exists()
 
 
 def test_adjudicate_rejects_same_or_aliased_output_paths_before_writing(

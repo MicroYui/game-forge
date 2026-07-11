@@ -1,3 +1,4 @@
+import copy
 import os
 import platform
 import shutil
@@ -165,8 +166,32 @@ def test_git_evidence_commands_use_git_directory_and_bare_repo_is_unchanged(
 
 
 def test_discovery_records_regex_runtime_provenance(expanded_discovery):
+    assert expanded_discovery.discovery_tool.python_implementation == (
+        platform.python_implementation()
+    )
     assert expanded_discovery.discovery_tool.python_version == platform.python_version()
+    assert expanded_discovery.discovery_tool.python_build == platform.python_build()
     assert expanded_discovery.discovery_tool.unicode_version == unicodedata.unidata_version
+
+
+def test_discovery_tool_commit_must_match_search_registration(expanded_discovery):
+    payload = expanded_discovery.model_dump(mode="json", exclude_none=True)
+    assert (
+        payload["discovery_tool"]["project_commit_oid"]
+        == payload["search_registration"]["project_commit_oid"]
+    )
+    payload["discovery_tool"]["project_commit_oid"] = "f" * 40
+
+    with pytest.raises(ValueError, match="discovery tool commit.*search registration"):
+        DiscoveryLedger.model_validate(payload)
+
+
+def test_discovery_ledger_requires_registered_tool_version(expanded_discovery):
+    payload = expanded_discovery.model_dump(mode="json", exclude_none=True)
+    payload["discovery_tool"]["tool_version"] = "foreign-flare-discovery@1"
+
+    with pytest.raises(ValueError, match="tool_version"):
+        DiscoveryLedger.model_validate(payload)
 
 
 def _rebind_candidate_universe(payload):
@@ -224,6 +249,14 @@ def _replace_link(payload, index, **updates):
     return link
 
 
+def _trailer_text(link_type, source_oid):
+    return {
+        "backport": f"Backport-of: {source_oid}",
+        "cherry_pick": f"(cherry picked from commit {source_oid})",
+        "revert": f"This reverts commit {source_oid}.",
+    }[link_type]
+
+
 def _candidate_with_reason(payload, kind):
     return next(
         candidate
@@ -255,6 +288,19 @@ def test_discovery_ledger_derives_config_only(expanded_discovery):
     candidate = payload["discovered_candidates"][0]
     candidate["config_only"] = not candidate["config_only"]
     with pytest.raises(ValueError, match="config_only"):
+        _validate_rebound(payload)
+
+
+def test_discovery_ledger_requires_commit_oids_to_be_unique(expanded_discovery):
+    payload = _payload(expanded_discovery)
+    duplicate = copy.deepcopy(payload["discovered_candidates"][0])
+    duplicate["commit"]["committed_at"] += 1
+    payload["discovered_candidates"].append(duplicate)
+    payload["discovered_candidates"].sort(
+        key=lambda item: (item["commit"]["committed_at"], item["commit"]["commit_oid"])
+    )
+
+    with pytest.raises(ValueError, match="commit OIDs.*unique"):
         _validate_rebound(payload)
 
 
@@ -377,6 +423,141 @@ def test_lineage_reason_must_resolve_to_a_link_sourced_by_candidate(
     other = next(link for link in payload["objective_lineage_links"] if link["source_oid"] != oid)
     reason["lineage_link_id"] = other["link_id"]
     with pytest.raises(ValueError, match="lineage.*source"):
+        _validate_rebound(payload)
+
+
+def test_lineage_reason_cannot_use_a_patch_id_link(expanded_discovery):
+    payload = _payload(expanded_discovery)
+    link = next(
+        item for item in payload["objective_lineage_links"] if item["link_type"] == "patch_id"
+    )
+    candidate = next(
+        item
+        for item in payload["discovered_candidates"]
+        if item["commit"]["commit_oid"] == link["source_oid"]
+    )
+    candidate["selection_reasons"].append(
+        {
+            "kind": "lineage_context",
+            "rule_ids": [],
+            "lineage_link_id": link["link_id"],
+        }
+    )
+    candidate["selection_reasons"].sort(key=_reason_sort_key)
+
+    with pytest.raises(ValueError, match="lineage reason.*trailer"):
+        _validate_rebound(payload)
+
+
+def test_each_trailer_link_requires_its_source_lineage_reason(expanded_discovery):
+    payload = _payload(expanded_discovery)
+    by_oid = {item["commit"]["commit_oid"]: item for item in payload["discovered_candidates"]}
+    link = next(
+        item
+        for item in payload["objective_lineage_links"]
+        if item["link_type"] != "patch_id"
+        and len(by_oid[item["source_oid"]]["selection_reasons"]) > 1
+    )
+    source = by_oid[link["source_oid"]]
+    source["selection_reasons"] = [
+        reason
+        for reason in source["selection_reasons"]
+        if reason.get("lineage_link_id") != link["link_id"]
+    ]
+
+    with pytest.raises(ValueError, match="trailer link.*lineage reason"):
+        _validate_rebound(payload)
+
+
+def test_each_frozen_trailer_match_requires_its_objective_link(expanded_discovery):
+    payload = _payload(expanded_discovery)
+    by_oid = {item["commit"]["commit_oid"]: item for item in payload["discovered_candidates"]}
+    link = next(
+        item
+        for item in payload["objective_lineage_links"]
+        if item["link_type"] != "patch_id"
+        and len(by_oid[item["source_oid"]]["selection_reasons"]) > 1
+    )
+    payload["objective_lineage_links"] = [
+        item for item in payload["objective_lineage_links"] if item["link_id"] != link["link_id"]
+    ]
+    source = by_oid[link["source_oid"]]
+    source["selection_reasons"] = [
+        reason
+        for reason in source["selection_reasons"]
+        if reason.get("lineage_link_id") != link["link_id"]
+    ]
+
+    with pytest.raises(ValueError, match="trailer match.*objective lineage link"):
+        _validate_rebound(payload)
+
+
+def test_trailer_link_must_match_source_in_target_full_message(expanded_discovery):
+    payload = _payload(expanded_discovery)
+    link = next(
+        item for item in payload["objective_lineage_links"] if item["link_type"] != "patch_id"
+    )
+    target = next(
+        item
+        for item in payload["discovered_candidates"]
+        if item["commit"]["commit_oid"] == link["target_oid"]
+    )
+    assert link["source_oid"] in target["diff_evidence"]["commit_message"]
+    target["diff_evidence"]["commit_message"] = target["diff_evidence"]["commit_message"].replace(
+        link["source_oid"], "f" * 40
+    )
+
+    with pytest.raises(ValueError, match="trailer link.*target commit message"):
+        _validate_rebound(payload)
+
+
+def test_lineage_only_candidate_components_require_a_rooted_selection_seed(
+    expanded_discovery,
+):
+    payload = _payload(expanded_discovery)
+    linked_oids = {
+        oid
+        for link in payload["objective_lineage_links"]
+        for oid in (link["source_oid"], link["target_oid"])
+    }
+    anchor_oids = {
+        reason["anchor_oid"]
+        for candidate in payload["discovered_candidates"]
+        for reason in candidate["selection_reasons"]
+        if reason.get("anchor_oid") is not None
+    }
+    first, second = [
+        candidate
+        for candidate in payload["discovered_candidates"]
+        if candidate["commit"]["commit_oid"] not in linked_oids | anchor_oids
+    ][:2]
+    rule = payload["search_frame"]["lineage_regexes"][0]
+
+    links = []
+    for source, target in ((first, second), (second, first)):
+        link = {
+            "link_type": rule["link_type"],
+            "source_oid": source["commit"]["commit_oid"],
+            "target_oid": target["commit"]["commit_oid"],
+            "rule_id": rule["rule_id"],
+        }
+        link["link_id"] = _semantic_link_id(link)
+        links.append(link)
+        source["selection_reasons"] = [
+            {
+                "kind": "lineage_context",
+                "rule_ids": [],
+                "lineage_link_id": link["link_id"],
+            }
+        ]
+        target["diff_evidence"]["commit_message"] += (
+            "\n" + _trailer_text(link["link_type"], link["source_oid"]) + "\n"
+        )
+
+    payload["objective_lineage_links"].extend(links)
+    payload["objective_lineage_links"].sort(key=_link_sort_key)
+
+    with pytest.raises(ValueError, match="rooted.*selection seed"):
         _validate_rebound(payload)
 
 

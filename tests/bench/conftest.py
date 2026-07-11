@@ -922,7 +922,7 @@ def foreign_initial_pair_factory(
             ),
             "observed_revision_count": initial_ledger.observed_revision_count + 1,
             "discovery_tool": initial_ledger.discovery_tool.model_copy(
-                update={"tool_version": "foreign-flare-discovery@1"}
+                update={"git_version": "git version 0.0.0-foreign"}
             ),
         }
         if binding_field not in replacements:

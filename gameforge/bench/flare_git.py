@@ -28,6 +28,7 @@ from gameforge.bench.flare_evidence import (
     GIT_RESOLVE_ARGS,
     GIT_VERSION_COMMAND,
     CandidateCommit,
+    DISCOVERY_TOOL_VERSION,
     DiffEvidence,
     DiscoveredCandidate,
     DiscoveryLedger,
@@ -41,9 +42,6 @@ from gameforge.bench.flare_evidence import (
     put_blob,
     sha256_hex,
 )
-
-
-DISCOVERY_TOOL_VERSION = "gameforge-flare-discovery@1"
 
 _OID_RE = re.compile(r"[0-9a-f]{40}")
 _OID_BYTES_RE = re.compile(rb"[0-9a-f]{40}")
@@ -636,7 +634,9 @@ def discover_candidates(
             tool_version=DISCOVERY_TOOL_VERSION,
             project_commit_oid=registration.project_commit_oid,
             git_version=repo.git_version(),
+            python_implementation=platform.python_implementation(),
             python_version=platform.python_version(),
+            python_build=platform.python_build(),
             unicode_version=unicodedata.unidata_version,
         ),
         discovered_candidates=candidates,

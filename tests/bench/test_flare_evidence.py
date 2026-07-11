@@ -1,4 +1,7 @@
 import copy
+import os
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -108,6 +111,70 @@ def test_canonical_bytes_are_stable_and_new_or_identical_is_immutable(tmp_path: 
         write_new_or_identical(target, b"different\n")
 
 
+def test_single_output_abrupt_exit_never_publishes_partial_bytes_and_retry_succeeds(
+    tmp_path: Path,
+):
+    target = tmp_path / "candidate-ledger.discovered.json"
+    payload = b"complete-discovery-ledger\n"
+    script = r"""
+import os
+import sys
+from pathlib import Path
+
+from gameforge.bench.flare_evidence import write_new_or_identical
+
+target = Path(sys.argv[1])
+payload = sys.argv[2].encode("ascii")
+real_open = Path.open
+
+
+class ExitAfterPartialWrite:
+    def __init__(self, stream):
+        self.stream = stream
+
+    def __enter__(self):
+        self.stream.__enter__()
+        return self
+
+    def __exit__(self, *args):
+        return self.stream.__exit__(*args)
+
+    def __getattr__(self, name):
+        return getattr(self.stream, name)
+
+    def write(self, data):
+        self.stream.write(data[:7])
+        self.stream.flush()
+        os.fsync(self.stream.fileno())
+        os._exit(74)
+
+
+def exit_during_exclusive_write(path, mode="r", *args, **kwargs):
+    stream = real_open(path, mode, *args, **kwargs)
+    if mode == "xb":
+        return ExitAfterPartialWrite(stream)
+    return stream
+
+
+Path.open = exit_during_exclusive_write
+write_new_or_identical(target, payload)
+"""
+
+    completed = subprocess.run(
+        [sys.executable, "-c", script, str(target), payload.decode("ascii")],
+        check=False,
+    )
+
+    assert completed.returncode == 74
+    assert not target.exists()
+    staging_files = list(tmp_path.glob(".gameforge-*.tmp"))
+    assert len(staging_files) == 1
+    assert staging_files[0].read_bytes() == payload[:7]
+
+    write_new_or_identical(target, payload)
+    assert target.read_bytes() == payload
+
+
 def test_multi_output_publish_preflights_all_targets(tmp_path: Path):
     first = tmp_path / "candidate-ledger.json"
     second = tmp_path / "b0a-decision.json"
@@ -118,26 +185,36 @@ def test_multi_output_publish_preflights_all_targets(tmp_path: Path):
     assert second.read_bytes() == b"existing-different\n"
 
 
-def test_multi_output_publish_rolls_back_only_new_files_after_late_failure(
-    tmp_path: Path, monkeypatch
-):
+def test_multi_output_stages_all_files_before_publishing(tmp_path: Path, monkeypatch):
     first = tmp_path / "candidate-ledger.json"
     second = tmp_path / "b0a-decision.json"
     real_open = Path.open
+    real_link = os.link
+    exclusive_opens = 0
+    published = []
 
     def fail_second(path, mode="r", *args, **kwargs):
-        if path == second and mode == "xb":
-            raise OSError("injected second-target failure")
+        nonlocal exclusive_opens
+        if mode == "xb":
+            exclusive_opens += 1
+            if exclusive_opens == 2:
+                raise OSError("injected second-target failure")
         return real_open(path, mode, *args, **kwargs)
 
+    def record_publish(source, target, *args, **kwargs):
+        published.append(Path(target))
+        return real_link(source, target, *args, **kwargs)
+
     monkeypatch.setattr(Path, "open", fail_second)
+    monkeypatch.setattr(os, "link", record_publish)
     with pytest.raises(OSError, match="second-target"):
         write_set_new_or_identical({first: b"new-ledger\n", second: b"new-decision\n"})
+    assert published == []
     assert not first.exists()
     assert not second.exists()
 
 
-def test_multi_output_publish_never_rolls_back_preexisting_identical_file(
+def test_multi_output_publish_never_modifies_preexisting_identical_file(
     tmp_path: Path, monkeypatch
 ):
     first = tmp_path / "candidate-ledger.json"
@@ -146,7 +223,7 @@ def test_multi_output_publish_never_rolls_back_preexisting_identical_file(
     real_open = Path.open
 
     def fail_second(path, mode="r", *args, **kwargs):
-        if path == second and mode == "xb":
+        if mode == "xb":
             raise OSError("injected second-target failure")
         return real_open(path, mode, *args, **kwargs)
 
@@ -155,6 +232,121 @@ def test_multi_output_publish_never_rolls_back_preexisting_identical_file(
         write_set_new_or_identical({first: b"identical-ledger\n", second: b"new-decision\n"})
     assert first.read_bytes() == b"identical-ledger\n"
     assert not second.exists()
+
+
+def test_multi_output_abrupt_exit_never_publishes_partial_completion_marker(
+    tmp_path: Path,
+):
+    ledger = tmp_path / "candidate-ledger.json"
+    decision = tmp_path / "b0a-decision.json"
+    script = r"""
+import os
+import sys
+from pathlib import Path
+
+from gameforge.bench.flare_evidence import write_set_new_or_identical
+
+ledger = Path(sys.argv[1])
+decision = Path(sys.argv[2])
+real_open = Path.open
+state = {"exclusive_opens": 0}
+
+
+class ExitBeforeWrite:
+    def __init__(self, stream):
+        self.stream = stream
+
+    def __enter__(self):
+        self.stream.__enter__()
+        return self
+
+    def __exit__(self, *args):
+        return self.stream.__exit__(*args)
+
+    def __getattr__(self, name):
+        return getattr(self.stream, name)
+
+    def write(self, data):
+        os._exit(73)
+
+
+def exit_during_second_write(path, mode="r", *args, **kwargs):
+    stream = real_open(path, mode, *args, **kwargs)
+    if mode == "xb":
+        state["exclusive_opens"] += 1
+        if state["exclusive_opens"] == 2:
+            return ExitBeforeWrite(stream)
+    return stream
+
+
+Path.open = exit_during_second_write
+write_set_new_or_identical(
+    {ledger: b"complete-ledger\n", decision: b"complete-decision\n"}
+)
+"""
+
+    completed = subprocess.run(
+        [sys.executable, "-c", script, str(ledger), str(decision)],
+        check=False,
+    )
+
+    assert completed.returncode == 73
+    assert not ledger.exists()
+    assert not decision.exists()
+    staging_files = list(tmp_path.glob(".gameforge-*.tmp"))
+    assert len(staging_files) == 2
+    assert sorted(item.read_bytes() for item in staging_files) == [b"", b"complete-ledger\n"]
+
+
+def test_multi_output_publish_failure_retains_complete_prefix_without_unlink(
+    tmp_path: Path,
+    monkeypatch,
+):
+    ledger = tmp_path / "candidate-ledger.json"
+    decision = tmp_path / "b0a-decision.json"
+    real_link = os.link
+    real_unlink = Path.unlink
+    final_unlinks = []
+
+    def fail_decision_publish(source, target, *args, **kwargs):
+        if Path(target) == decision:
+            raise OSError("injected decision publish failure")
+        return real_link(source, target, *args, **kwargs)
+
+    def record_final_unlink(path, *args, **kwargs):
+        if path in {ledger, decision}:
+            final_unlinks.append(path)
+        return real_unlink(path, *args, **kwargs)
+
+    monkeypatch.setattr(os, "link", fail_decision_publish)
+    monkeypatch.setattr(Path, "unlink", record_final_unlink)
+
+    with pytest.raises(OSError, match="decision publish"):
+        write_set_new_or_identical({ledger: b"complete-ledger\n", decision: b"complete-decision\n"})
+
+    assert ledger.read_bytes() == b"complete-ledger\n"
+    assert not decision.exists()
+    assert final_unlinks == []
+
+
+def test_corpus_packaging_ignores_abrupt_exit_staging_files():
+    repository_root = Path(__file__).resolve().parents[2]
+    staging_path = "scenarios/flare_corpus/.gameforge-deadbeef.tmp"
+    corpus_path = "scenarios/flare_corpus/b0a-decision.json"
+
+    ignored = subprocess.run(
+        ["git", "check-ignore", "--quiet", "--no-index", staging_path],
+        cwd=repository_root,
+        check=False,
+    )
+    canonical = subprocess.run(
+        ["git", "check-ignore", "--quiet", "--no-index", corpus_path],
+        cwd=repository_root,
+        check=False,
+    )
+
+    assert ignored.returncode == 0
+    assert canonical.returncode == 1
 
 
 def test_blob_store_uses_lowercase_hex_and_verifies_existing_content(tmp_path: Path):
@@ -281,24 +473,55 @@ def test_validated_git_environment_is_immutable(registered_search_spec_payload):
         spec.git_environment_policy.fixed["HOME"] = "/tmp"
 
 
-def test_multi_output_rollback_preserves_concurrent_replacement(tmp_path: Path, monkeypatch):
+def test_multi_output_failure_preserves_concurrent_replacement(tmp_path: Path, monkeypatch):
     first = tmp_path / "candidate-ledger.json"
     second = tmp_path / "b0a-decision.json"
+    real_link = os.link
     real_open = Path.open
 
-    def replace_first_then_fail_second(path, mode="r", *args, **kwargs):
-        if path == second and mode == "xb":
+    def replace_first_then_fail_second(source, target, *args, **kwargs):
+        if Path(target) == first:
+            result = real_link(source, target, *args, **kwargs)
             first.unlink()
             with real_open(first, "xb") as stream:
                 stream.write(b"concurrent replacement\n")
-            raise OSError("injected second-target failure")
-        return real_open(path, mode, *args, **kwargs)
+            return result
+        raise OSError("injected second-target failure")
 
-    monkeypatch.setattr(Path, "open", replace_first_then_fail_second)
-    with pytest.raises(OSError, match="second-target"):
+    monkeypatch.setattr(os, "link", replace_first_then_fail_second)
+    with pytest.raises(FileExistsError, match="published target.*different bytes"):
         write_set_new_or_identical({first: b"new-ledger\n", second: b"new-decision\n"})
     assert first.read_bytes() == b"concurrent replacement\n"
     assert not second.exists()
+
+
+def test_multi_output_rechecks_preexisting_files_before_reporting_success(
+    tmp_path: Path,
+    monkeypatch,
+):
+    ledger = tmp_path / "candidate-ledger.json"
+    decision = tmp_path / "b0a-decision.json"
+    ledger.write_bytes(b"expected-ledger\n")
+    real_open = Path.open
+    replaced = False
+
+    def replace_ledger_during_decision_staging(path, mode="r", *args, **kwargs):
+        nonlocal replaced
+        stream = real_open(path, mode, *args, **kwargs)
+        if mode == "xb" and not replaced:
+            replaced = True
+            ledger.unlink()
+            with real_open(ledger, "xb") as replacement:
+                replacement.write(b"concurrent replacement\n")
+        return stream
+
+    monkeypatch.setattr(Path, "open", replace_ledger_during_decision_staging)
+    with pytest.raises(FileExistsError, match="published target.*different bytes"):
+        write_set_new_or_identical({ledger: b"expected-ledger\n", decision: b"expected-decision\n"})
+
+    assert replaced
+    assert ledger.read_bytes() == b"concurrent replacement\n"
+    assert not decision.exists()
 
 
 def test_evidence_availability_is_derived_after_count_validation():

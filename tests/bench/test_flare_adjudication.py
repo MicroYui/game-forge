@@ -1262,10 +1262,16 @@ def test_expanded_rejects_new_candidate_justified_only_by_initial_round_rule(
         for reason in candidate.selection_reasons
         if reason.anchor_oid is not None
     }
+    trailer_source_oids = {
+        link.source_oid
+        for link in expanded_discovery.objective_lineage_links
+        if link.link_type != "patch_id"
+    }
     selected = next(
         item
         for item in expanded_discovery.discovered_candidates
-        if item.commit.commit_oid not in initial_oids and item.commit.commit_oid not in anchor_oids
+        if item.commit.commit_oid not in initial_oids
+        and item.commit.commit_oid not in anchor_oids | trailer_source_oids
     )
     initial_rule_id = expanded_discovery.search_frame.rounds[0].message_regexes[0].rule_id
     changed_discovery = _with_candidate_reasons(
@@ -1548,17 +1554,24 @@ def test_expanded_rejects_mutated_initial_candidate_fact(
         )
 
 
-@pytest.mark.parametrize("field_name", ["python_version", "unicode_version"])
+@pytest.mark.parametrize(
+    ("field_name", "foreign_value"),
+    [
+        ("python_implementation", "ForeignPython"),
+        ("python_version", "0.0.0"),
+        ("python_build", ("foreign-build", "foreign-date")),
+        ("unicode_version", "0.0.0"),
+    ],
+)
 def test_expanded_prior_search_binds_runtime_versions(
     field_name,
+    foreign_value,
     initial_discovery,
     initial_insufficient_evidence,
     expanded_discovery,
     expanded_evidence,
 ):
-    changed_tool = initial_discovery.discovery_tool.model_copy(
-        update={field_name: f"foreign-{field_name}"}
-    )
+    changed_tool = initial_discovery.discovery_tool.model_copy(update={field_name: foreign_value})
     changed_prior = DiscoveryLedger.model_validate(
         {
             **initial_discovery.model_dump(mode="json", exclude_none=True),
