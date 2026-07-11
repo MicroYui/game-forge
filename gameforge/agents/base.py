@@ -15,7 +15,7 @@ from gameforge.runtime.model_router.router import ModelRouter
 
 DEFAULT_SNAPSHOT = ModelSnapshot(
     provider="openai",
-    model="gpt5.6sol",
+    model="gpt-5.6-sol",
     snapshot_tag="pre-m4@1",
 )
 M2_REPLAY_SNAPSHOT = ModelSnapshot(
@@ -67,14 +67,19 @@ def call_model(
     params: dict | None = None,
     snapshot: ModelSnapshot | None = None,
 ) -> tuple[ModelResponse, str]:
+    model_snapshot = resolve_model_snapshot(router, snapshot)
+    if params is None:
+        params = {"max_tokens": 2048}
+        if model_snapshot != DEFAULT_SNAPSHOT:
+            params["temperature"] = 0
     messages: list[Message] = []
     if system is not None:
         messages.append(Message(role="system", content=system))
     messages.append(Message(role="user", content=user_prompt))
     req = ModelRequest(
-        model_snapshot=resolve_model_snapshot(router, snapshot),
+        model_snapshot=model_snapshot,
         messages=messages,
-        params=params or {"max_tokens": 2048, "temperature": 0},
+        params=params,
         agent_node_id=agent_node_id,
         prompt_version=prompt_version,
     )

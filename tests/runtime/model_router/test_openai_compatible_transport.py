@@ -30,7 +30,7 @@ class _FakeClient:
 def _request() -> ModelRequest:
     return ModelRequest(
         model_snapshot=ModelSnapshot(
-            provider="openai", model="gpt5.6sol", snapshot_tag="pre-m4@1"
+            provider="openai", model="gpt-5.4", snapshot_tag="transport-test@1"
         ),
         messages=[
             Message(role="system", content="Return JSON."),
@@ -72,7 +72,7 @@ def test_openai_compatible_transport_maps_gateway_request_and_response():
     url, body, headers = client.calls[0]
     assert url == "http://localhost:4141/v1/chat/completions"
     assert body == {
-        "model": "gpt5.6sol",
+        "model": "gpt-5.4",
         "messages": [
             {"role": "system", "content": "Return JSON."},
             {"role": "user", "content": "Repair this."},

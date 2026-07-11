@@ -273,13 +273,13 @@ def record_router(cassettes_root: str = _CASSETTES_ROOT) -> ModelRouter:
     Imported lazily so importing this module (e.g. in REPLAY tests) never pulls
     in the HTTP transport or requires a key.
     """
-    from gameforge.runtime.model_router.openai_compatible_transport import (
-        OpenAICompatibleTransport,
+    from gameforge.runtime.model_router.openai_responses_transport import (
+        OpenAIResponsesTransport,
     )
     from gameforge.runtime.secrets.env import get_llm_key
 
     return ModelRouter(
-        OpenAICompatibleTransport(base_url="http://localhost:4141", api_key=get_llm_key()),
+        OpenAIResponsesTransport(base_url="http://localhost:4141", api_key=get_llm_key()),
         CassetteStore(cassettes_root),
         mode=RouterMode.RECORD,
         resume=True,  # reuse unchanged on-disk cassettes; only re-record changed requests

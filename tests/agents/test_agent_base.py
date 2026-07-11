@@ -29,7 +29,7 @@ def test_call_model_builds_request_and_returns_hash(tmp_path):
     probe = ModelRequest(
         model_snapshot=DEFAULT_SNAPSHOT,
         messages=[Message(role="system", content="sys"), Message(role="user", content="hi")],
-        params={"max_tokens": 2048, "temperature": 0},
+        params={"max_tokens": 2048},
         agent_node_id="probe", prompt_version="p@1",
     )
     stub = StubTransport({request_hash(probe): ModelResponse(response_normalized='{"ok": true}')})
@@ -39,10 +39,10 @@ def test_call_model_builds_request_and_returns_hash(tmp_path):
     assert parse_json_block(resp.response_normalized) == {"ok": True}
 
 
-def test_future_agent_default_uses_gpt56sol_without_rewriting_m2_snapshot():
+def test_future_agent_default_uses_gateway_gpt56sol_id_without_rewriting_m2_snapshot():
     assert DEFAULT_SNAPSHOT == ModelSnapshot(
         provider="openai",
-        model="gpt5.6sol",
+        model="gpt-5.6-sol",
         snapshot_tag="pre-m4@1",
     )
     assert M2_REPLAY_SNAPSHOT == ModelSnapshot(
@@ -64,6 +64,7 @@ def test_router_snapshot_policy_selects_replay_model_and_explicit_node_wins(tmp_
         update={
             "model_snapshot": DEFAULT_SNAPSHOT,
             "messages": [Message(role="user", content="explicit")],
+            "params": {"max_tokens": 2048},
         }
     )
     responses = {
