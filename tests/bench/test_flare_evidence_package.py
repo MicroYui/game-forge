@@ -622,6 +622,67 @@ def _run_gameforge_git(*args: str) -> subprocess.CompletedProcess[bytes]:
     )
 
 
+def test_project_status_tracks_the_committed_b0a_decision():
+    decision_path = "scenarios/flare_corpus/b0a-decision.json"
+    committed_decision = _run_gameforge_git("show", f"HEAD:{decision_path}").stdout
+    assert committed_decision == (ROOT / decision_path).read_bytes()
+    gate = json.loads(committed_decision)["gate"]
+    decision_state = (gate["status"], gate["next_action"])
+
+    expected_bindings = {
+        ("insufficient_evidence", "stop_flare_heavy_investment"): {
+            "CLAUDE.md": {
+                "M3 incomplete": ("| M3 |", "🔄 未完成"),
+                "M4 not started and blocked": ("| M4 |", "⬜ 未开始", "阻塞"),
+                "B0B not entered": ("不进入 B0B",),
+                "next source or waiver": ("新外部语料", "书面 PRD scope waiver"),
+            },
+            "README.md": {
+                "M3 incomplete": ("| **M3** |", "🔄 incomplete"),
+                "M4 not started and blocked": (
+                    "| **M4** |",
+                    "⬜ not started",
+                    "blocked",
+                ),
+                "B0B not entered": ("B0B", "were not entered"),
+                "next source or waiver": (
+                    "different external corpus",
+                    "written PRD scope waiver",
+                ),
+            },
+            "docs/superpowers/plans/README.md": {
+                "M3 incomplete": ("M3 umbrella 仍未完成",),
+                "M4 not started and blocked": ("M4", "未开始", "阻塞"),
+                "B0B not entered": ("Flare B0B", "均未进入"),
+                "next source or waiver": ("新的外部真实语料源", "书面 PRD scope waiver"),
+            },
+            "docs/superpowers/specs/2026-07-10-m3d-flare-rich-design.md": {
+                "M3 incomplete": ("M3 umbrella 仍为未完成",),
+                "M4 blocked": ("M4", "阻塞"),
+                "B0B not entered": ("B0B、Corpus Freeze、M3d-1..4 均未进入",),
+                "next source or waiver": ("新的外部真实语料源", "书面 PRD scope waiver"),
+            },
+        }
+    }
+    assert decision_state in expected_bindings, (
+        "project-status bindings must be defined for the committed B0A decision: "
+        f"{decision_state}"
+    )
+
+    for relative_path, concepts in expected_bindings[decision_state].items():
+        raw_document = (ROOT / relative_path).read_text(encoding="utf-8")
+        document = " ".join(raw_document.split())
+        compact_document = "".join(raw_document.split())
+        for concept, fragments in concepts.items():
+            missing = [
+                fragment
+                for fragment in fragments
+                if fragment not in document
+                and "".join(fragment.split()) not in compact_document
+            ]
+            assert not missing, f"{relative_path} does not bind {concept}; missing {missing}"
+
+
 def test_offline_guards_install_when_upstream_is_absent(
     monkeypatch: pytest.MonkeyPatch,
 ):
@@ -714,6 +775,7 @@ def test_frozen_flare_package_replays_offline_without_processes_or_upstream(
         DiscoveryLedger,
         FlareSearchSpec,
         canonical_bytes,
+        verify_discovery_direct_matches,
     )
 
     for upstream_path in {
@@ -757,6 +819,9 @@ def test_frozen_flare_package_replays_offline_without_processes_or_upstream(
     )
     ledger_raw, ledger = _load_canonical("candidate-ledger.json", CandidateLedger)
     decision_raw, decision = _load_canonical("b0a-decision.json", B0ADecision)
+
+    verify_discovery_direct_matches(CORPUS / "blobs", initial_discovery)
+    verify_discovery_direct_matches(CORPUS / "blobs", discovery)
 
     assert spec_raw == registered_search_spec_bytes
     assert hashlib.sha256(spec_raw).hexdigest() == registered_search_spec_sha256

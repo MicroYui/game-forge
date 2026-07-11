@@ -1,6 +1,7 @@
 # tests/bench/test_flare_mining_cli.py
 import os
 import shutil
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -16,7 +17,23 @@ from gameforge.bench.flare_evidence import (
     sha256_hex,
 )
 from gameforge.bench.flare_adjudication import adjudicate
-from gameforge.bench.flare_mining import main
+from gameforge.bench.flare_mining import _require_distinct_outputs, main
+
+
+def _replace_with_unsafe_cas_entry(path: Path, kind: str, external: Path) -> bytes:
+    data = path.read_bytes()
+    path.unlink()
+    if kind == "directory":
+        path.mkdir()
+    elif kind == "fifo":
+        os.mkfifo(path)
+    else:
+        external.write_bytes(data)
+        if kind == "symlink":
+            path.symlink_to(external)
+        else:  # pragma: no cover - parametrization is the closed input set
+            raise AssertionError(f"unsupported unsafe path kind: {kind}")
+    return data
 
 
 def assert_complete_chain(
@@ -96,6 +113,42 @@ def _refresh_evidence(base, **updates):
     return AdjudicationEvidence.model_validate(
         {**payload, "review_attestation": attestation.model_dump(mode="json")}
     )
+
+
+def _rebind_candidate_universe(payload: dict) -> dict:
+    universe = {
+        "schema_version": payload["schema_version"],
+        "search_spec_sha256": payload["search_spec_sha256"],
+        "search_round": payload["search_round"],
+        "discovered_candidates": payload["discovered_candidates"],
+        "objective_lineage_links": payload["objective_lineage_links"],
+    }
+    payload["candidate_universe_sha256"] = sha256_hex(canonical_bytes(universe))
+    return payload
+
+
+def _with_fabricated_diff_direct(discovery: DiscoveryLedger, commit_oid: str) -> DiscoveryLedger:
+    payload = discovery.model_dump(mode="json", exclude_none=True)
+    candidate = next(
+        item
+        for item in payload["discovered_candidates"]
+        if item["commit"]["commit_oid"] == commit_oid
+    )
+    assert all(reason["kind"] != "direct_match" for reason in candidate["selection_reasons"])
+    candidate["selection_reasons"].append(
+        {"kind": "direct_match", "rule_ids": ["expanded.diff_behavior_key"]}
+    )
+    candidate["selection_reasons"].sort(
+        key=lambda reason: (
+            {"direct_match": 0, "adjacent_context": 1, "lineage_context": 2}[
+                reason["kind"]
+            ],
+            reason.get("anchor_oid", ""),
+            reason.get("lineage_link_id", ""),
+            tuple(reason.get("rule_ids", ())),
+        )
+    )
+    return DiscoveryLedger.model_validate(_rebind_candidate_universe(payload))
 
 
 def test_discover_then_adjudicate_is_byte_deterministic(
@@ -575,14 +628,14 @@ def test_adjudicate_writes_decision_last_and_reuses_prefix_after_marker_failure(
 ):
     ledger = tmp_path / "candidate-ledger.json"
     decision = tmp_path / "b0a-decision.json"
-    real_link = os.link
-    publish_attempts = []
+    real_replace = os.replace
+    publish_attempts: list[Path] = []
 
-    def fail_completion_marker(source, target, *args, **kwargs):
+    def fail_completion_marker(source, target):
         publish_attempts.append(Path(target))
         if Path(target) == decision:
             raise OSError("injected decision-marker failure")
-        return real_link(source, target, *args, **kwargs)
+        return real_replace(source, target)
 
     args = [
         "adjudicate",
@@ -598,7 +651,7 @@ def test_adjudicate_writes_decision_last_and_reuses_prefix_after_marker_failure(
         str(decision),
     ]
     with monkeypatch.context() as context:
-        context.setattr(os, "link", fail_completion_marker)
+        context.setattr(os, "replace", fail_completion_marker)
         assert main(args) == 1
 
     assert publish_attempts == [ledger, decision]
@@ -614,7 +667,7 @@ def test_adjudicate_writes_decision_last_and_reuses_prefix_after_marker_failure(
     )
 
 
-def test_adjudicate_rejects_same_or_aliased_output_paths_before_writing(
+def test_adjudicate_rejects_identical_output_paths_before_writing(
     initial_discovered_path, initial_positive_evidence_path, blob_dir, tmp_path, capsys
 ):
     exact = tmp_path / "same.json"
@@ -639,73 +692,20 @@ def test_adjudicate_rejects_same_or_aliased_output_paths_before_writing(
     assert not exact.exists()
     assert "output paths" in capsys.readouterr().err
 
-    target = tmp_path / "existing.json"
-    alias = tmp_path / "alias.json"
-    target.write_bytes(b"preexisting\n")
-    os.link(target, alias)
-    assert (
-        main(
-            [
-                "adjudicate",
-                "--ledger",
-                str(initial_discovered_path),
-                "--evidence",
-                str(initial_positive_evidence_path),
-                "--blob-dir",
-                str(blob_dir),
-                "--out",
-                str(target),
-                "--decision-out",
-                str(alias),
-            ]
-        )
-        == 1
-    )
-    assert target.read_bytes() == alias.read_bytes() == b"preexisting\n"
-    assert "alias" in capsys.readouterr().err
 
-
-def test_adjudicate_rejects_normalized_resolved_output_alias_before_writing(
-    initial_discovered_path,
-    initial_positive_evidence_path,
-    blob_dir,
-    tmp_path,
-    monkeypatch,
-    capsys,
+def test_distinct_output_check_does_not_resolve_filesystem_aliases(
+    tmp_path, monkeypatch
 ):
-    out = tmp_path / "normalized" / "result.json"
-    decision = out.parent / "child" / ".." / out.name
-    out.parent.mkdir(parents=True)
-    real_open = Path.open
-    exclusive_attempts = []
+    ledger = tmp_path / "candidate-ledger.json"
+    decision = tmp_path / "b0a-decision.json"
 
-    def record_exclusive_open(path, mode="r", *args, **kwargs):
-        if mode == "xb":
-            exclusive_attempts.append(path)
-        return real_open(path, mode, *args, **kwargs)
+    def unexpected_alias_probe(*_args, **_kwargs):
+        raise AssertionError("filesystem aliases are outside the CLI contract")
 
-    monkeypatch.setattr(Path, "open", record_exclusive_open)
-    assert (
-        main(
-            [
-                "adjudicate",
-                "--ledger",
-                str(initial_discovered_path),
-                "--evidence",
-                str(initial_positive_evidence_path),
-                "--blob-dir",
-                str(blob_dir),
-                "--out",
-                str(out),
-                "--decision-out",
-                str(decision),
-            ]
-        )
-        == 1
-    )
-    assert exclusive_attempts == []
-    assert not out.exists()
-    assert "output paths" in capsys.readouterr().err
+    monkeypatch.setattr(Path, "resolve", unexpected_alias_probe)
+    monkeypatch.setattr(Path, "samefile", unexpected_alias_probe)
+
+    _require_distinct_outputs(ledger, decision)
 
 
 def test_adjudicate_output_symlink_loop_is_one_stderr_line_without_traceback(
@@ -742,6 +742,77 @@ def test_adjudicate_output_symlink_loop_is_one_stderr_line_without_traceback(
     assert "Traceback" not in stderr
     assert loop.is_symlink()
     assert not decision.exists()
+
+
+def test_adjudicate_rejects_symlinked_canonical_input_without_outputs(
+    initial_discovered_path,
+    initial_positive_evidence_path,
+    blob_dir,
+    tmp_path,
+):
+    linked_input = tmp_path / "linked-input.json"
+    linked_input.symlink_to(initial_discovered_path)
+    out = tmp_path / "candidate-ledger.json"
+    decision = tmp_path / "b0a-decision.json"
+
+    assert (
+        main(
+            [
+                "adjudicate",
+                "--ledger",
+                str(linked_input),
+                "--evidence",
+                str(initial_positive_evidence_path),
+                "--blob-dir",
+                str(blob_dir),
+                "--out",
+                str(out),
+                "--decision-out",
+                str(decision),
+            ]
+        )
+        == 1
+    )
+    assert not out.exists() and not decision.exists()
+
+
+def test_adjudicate_rejects_fifo_canonical_input_without_blocking(
+    initial_positive_evidence_path,
+    blob_dir,
+    tmp_path,
+):
+    fifo = tmp_path / "discovery-ledger.fifo"
+    os.mkfifo(fifo)
+    out = tmp_path / "candidate-ledger.json"
+    decision = tmp_path / "b0a-decision.json"
+
+    try:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "gameforge.bench.flare_mining",
+                "adjudicate",
+                "--ledger",
+                str(fifo),
+                "--evidence",
+                str(initial_positive_evidence_path),
+                "--blob-dir",
+                str(blob_dir),
+                "--out",
+                str(out),
+                "--decision-out",
+                str(decision),
+            ],
+            capture_output=True,
+            check=False,
+            timeout=5,
+        )
+    except subprocess.TimeoutExpired:
+        pytest.fail("canonical input reader blocked on FIFO")
+
+    assert completed.returncode == 1
+    assert not out.exists() and not decision.exists()
 
 
 def test_discover_rejects_noncanonical_search_spec_without_output(
@@ -953,6 +1024,152 @@ def test_adjudicate_rejects_missing_or_tampered_patch_cas_without_outputs(
         == 1
     )
     assert not out.exists() and not decision.exists()
+
+
+def test_adjudicate_rejects_fabricated_diff_direct_reason_without_outputs(
+    expanded_discovery,
+    expanded_evidence_path,
+    initial_prior_paths,
+    flare_git_repo,
+    blob_dir,
+    tmp_path,
+    capsys,
+):
+    forged = _with_fabricated_diff_direct(
+        expanded_discovery, flare_git_repo.multicommit_b
+    )
+    forged_path = tmp_path / "forged-discovery.json"
+    forged_path.write_bytes(canonical_bytes(forged))
+    out = tmp_path / "candidate-ledger.json"
+    decision = tmp_path / "b0a-decision.json"
+
+    result = main(
+        [
+            "adjudicate",
+            "--ledger",
+            str(forged_path),
+            "--evidence",
+            str(expanded_evidence_path),
+            *_prior_cli_args(initial_prior_paths),
+            "--blob-dir",
+            str(blob_dir),
+            "--out",
+            str(out),
+            "--decision-out",
+            str(decision),
+        ]
+    )
+
+    assert result == 1
+    assert "direct-match" in capsys.readouterr().err
+    assert not out.exists() and not decision.exists()
+
+
+def test_adjudicate_rejects_fabricated_prior_direct_reason_before_adjudication(
+    expanded_discovery,
+    expanded_discovered_path,
+    expanded_evidence_path,
+    initial_prior_paths,
+    flare_git_repo,
+    blob_dir,
+    tmp_path,
+    capsys,
+    monkeypatch,
+):
+    forged_prior = _with_fabricated_diff_direct(
+        expanded_discovery, flare_git_repo.multicommit_b
+    )
+    forged_prior_path = tmp_path / "forged-prior-discovery.json"
+    forged_prior_path.write_bytes(canonical_bytes(forged_prior))
+    prior_paths = list(initial_prior_paths)
+    prior_paths[0] = forged_prior_path
+    out = tmp_path / "candidate-ledger.json"
+    decision = tmp_path / "b0a-decision.json"
+
+    def fail_adjudication(*_args, **_kwargs):
+        pytest.fail("adjudication must not run after prior direct-match replay fails")
+
+    monkeypatch.setattr("gameforge.bench.flare_mining.adjudicate", fail_adjudication)
+    result = main(
+        [
+            "adjudicate",
+            "--ledger",
+            str(expanded_discovered_path),
+            "--evidence",
+            str(expanded_evidence_path),
+            *_prior_cli_args(prior_paths),
+            "--blob-dir",
+            str(blob_dir),
+            "--out",
+            str(out),
+            "--decision-out",
+            str(decision),
+        ]
+    )
+
+    assert result == 1
+    error = capsys.readouterr().err
+    assert "prior discovery direct-match replay failed" in error
+    assert not out.exists() and not decision.exists()
+
+
+@pytest.mark.parametrize("kind", ["symlink", "fifo", "directory"])
+def test_adjudicate_rejects_non_regular_patch_cas_entry_without_blocking(
+    kind,
+    initial_discovered_path,
+    initial_positive_evidence_path,
+    blob_dir,
+    tmp_path,
+):
+    replay_blobs = tmp_path / "replay-blobs"
+    shutil.copytree(blob_dir, replay_blobs)
+    discovered = DiscoveryLedger.model_validate_json(initial_discovered_path.read_bytes())
+    digest = discovered.discovered_candidates[0].diff_evidence.patch_sha256
+    target = replay_blobs / digest
+    external = tmp_path / f"external-{kind}-{digest}"
+    expected_data = _replace_with_unsafe_cas_entry(target, kind, external)
+    out = tmp_path / "ledger.json"
+    decision = tmp_path / "decision.json"
+    repository_root = Path(__file__).resolve().parents[2]
+
+    try:
+        completed = subprocess.run(
+            [
+                sys.executable,
+                "-m",
+                "gameforge.bench.flare_mining",
+                "adjudicate",
+                "--ledger",
+                str(initial_discovered_path),
+                "--evidence",
+                str(initial_positive_evidence_path),
+                "--blob-dir",
+                str(replay_blobs),
+                "--out",
+                str(out),
+                "--decision-out",
+                str(decision),
+            ],
+            capture_output=True,
+            check=False,
+            cwd=repository_root,
+            text=True,
+            timeout=5,
+        )
+    except subprocess.TimeoutExpired:
+        pytest.fail(f"CLI CAS verification blocked on existing {kind}")
+
+    assert completed.returncode == 1, completed.stderr
+    assert not out.exists() and not decision.exists()
+    metadata = target.lstat()
+    predicates = {
+        "symlink": stat.S_ISLNK,
+        "fifo": stat.S_ISFIFO,
+        "directory": stat.S_ISDIR,
+    }
+    assert predicates[kind](metadata.st_mode)
+    if kind == "symlink":
+        assert external.read_bytes() == expected_data
 
 
 @pytest.mark.parametrize("blob_state", ["present", "missing", "tampered"])

@@ -436,6 +436,10 @@ def _with_candidate_reasons(
         if item["commit"]["commit_oid"] == commit_oid
     )
     candidate["selection_reasons"] = ordered_reasons
+    return _validate_rebound_discovery(payload)
+
+
+def _validate_rebound_discovery(payload) -> DiscoveryLedger:
     universe = {
         "schema_version": payload["schema_version"],
         "search_spec_sha256": payload["search_spec_sha256"],
@@ -452,16 +456,34 @@ def _rebind_evidence_to_discovery(
     discovery: DiscoveryLedger,
     *,
     appended_resolutions: Sequence[LineageResolution],
+    stable_prefix_ids: Sequence[str] | None = None,
     validate: bool = True,
 ) -> AdjudicationEvidence:
+    resolutions_by_id = {
+        resolution.link_id: resolution
+        for resolution in (*evidence.lineage_resolutions, *appended_resolutions)
+    }
+    if stable_prefix_ids is None:
+        stable_prefix_ids = (
+            []
+            if evidence.search_round == "initial"
+            else [resolution.link_id for resolution in evidence.lineage_resolutions]
+        )
+    prefix_id_set = set(stable_prefix_ids)
+    ordered_ids = [
+        *stable_prefix_ids,
+        *(
+            link.link_id
+            for link in discovery.objective_lineage_links
+            if link.link_id not in prefix_id_set
+        ),
+    ]
+    assert set(ordered_ids) == set(resolutions_by_id)
     changed = evidence.model_copy(
         update={
             "discovery_ledger_sha256": sha256_hex(canonical_bytes(discovery)),
             "candidate_universe_sha256": discovery.candidate_universe_sha256,
-            "lineage_resolutions": [
-                *evidence.lineage_resolutions,
-                *appended_resolutions,
-            ],
+            "lineage_resolutions": [resolutions_by_id[link_id] for link_id in ordered_ids],
         }
     )
     payload = changed.model_dump(
@@ -584,7 +606,9 @@ def test_lineage_affected_groups_are_exact_for_two_distinct_groups(
         target_group_id="group-quest",
         target_refs=quest.root_cause_evidence_refs,
     )
-    resolution = evidence.lineage_resolutions[-1]
+    resolution = next(
+        item for item in evidence.lineage_resolutions if item.resolution == "separate"
+    )
     assert resolution.affected_group_ids == ["group-quest", "group-root"]
     adjudicate(discovery, evidence)
 
@@ -605,6 +629,22 @@ def test_lineage_resolution_rejects_duplicate_or_nondeterministic_group_ids():
             **common,
             affected_group_ids=["group-z", "group-a"],
         )
+
+
+def test_lineage_resolutions_must_follow_stable_objective_link_order(
+    discovered_ledger,
+    positive_evidence,
+):
+    resolutions = list(positive_evidence.lineage_resolutions)
+    assert len(resolutions) >= 2
+    resolutions[0], resolutions[1] = resolutions[1], resolutions[0]
+    reordered = _refresh_evidence(
+        positive_evidence,
+        lineage_resolutions=resolutions,
+    )
+
+    with pytest.raises(AdjudicationError, match="deterministic stable order"):
+        adjudicate(discovered_ledger, reordered)
 
 
 def test_lineage_resolution_rejects_unrelated_extra_group(discovered_ledger, positive_evidence):
@@ -650,13 +690,18 @@ def test_lineage_resolution_rejects_omitted_endpoint_group(
         target_group_id="group-quest",
         target_refs=quest.root_cause_evidence_refs,
     )
-    resolution = evidence.lineage_resolutions[-1]
+    resolution = next(
+        item for item in evidence.lineage_resolutions if item.resolution == "separate"
+    )
     replacement = resolution.model_copy(
         update={"affected_group_ids": resolution.affected_group_ids[:1]}
     )
     bad = _refresh_evidence(
         evidence,
-        lineage_resolutions=[*evidence.lineage_resolutions[:-1], replacement],
+        lineage_resolutions=[
+            replacement if item.link_id == resolution.link_id else item
+            for item in evidence.lineage_resolutions
+        ],
     )
     with pytest.raises(AdjudicationError, match="exact|affected group"):
         adjudicate(discovery, bad)
@@ -1253,133 +1298,104 @@ def test_authentic_expanded_replay_accepts_added_direct_and_lineage_reasons(
 
 
 def test_expanded_replay_accepts_adjacent_reason_from_expanded_direct_anchor(
+    initial_discovery,
+    initial_insufficient_evidence,
     expanded_discovery,
     expanded_evidence,
-    initial_prior_artifacts,
 ):
-    expanded_rule_ids = [
+    expanded_rule_ids = {
         rule.rule_id
         for rule in (
             *expanded_discovery.search_frame.rounds[1].message_regexes,
             *expanded_discovery.search_frame.rounds[1].diff_regexes,
         )
-    ]
+    }
+    expanded_by_oid = {
+        candidate.commit.commit_oid: candidate
+        for candidate in expanded_discovery.discovered_candidates
+    }
     selected = None
-    for anchor in expanded_discovery.discovered_candidates:
-        existing_anchor_reasons = {canonical_bytes(reason) for reason in anchor.selection_reasons}
-        direct_reason = next(
-            (
-                {"kind": "direct_match", "rule_ids": [rule_id]}
-                for rule_id in expanded_rule_ids
-                if canonical_bytes({"kind": "direct_match", "rule_ids": [rule_id]})
-                not in existing_anchor_reasons
-            ),
-            None,
-        )
-        if direct_reason is None:
+    for candidate in initial_discovery.discovered_candidates:
+        adjacent_reasons = [
+            reason for reason in candidate.selection_reasons if reason.kind == "adjacent_context"
+        ]
+        if len(adjacent_reasons) < 2:
             continue
-        for candidate in expanded_discovery.discovered_candidates:
-            exact_edge = (
-                candidate.commit.selected_parent_oid == anchor.commit.commit_oid
-                or anchor.commit.selected_parent_oid == candidate.commit.commit_oid
-            )
-            if not exact_edge or set(candidate.eligible_paths).isdisjoint(anchor.eligible_paths):
-                continue
-            adjacent_reason = {
-                "kind": "adjacent_context",
-                "rule_ids": [],
-                "anchor_oid": anchor.commit.commit_oid,
-            }
-            if canonical_bytes(adjacent_reason) not in {
-                canonical_bytes(reason) for reason in candidate.selection_reasons
-            }:
-                selected = (anchor, candidate, direct_reason, adjacent_reason)
+        for adjacent_reason in adjacent_reasons:
+            anchor = expanded_by_oid[adjacent_reason.anchor_oid]
+            if any(
+                reason.kind == "direct_match"
+                and bool(set(reason.rule_ids) & expanded_rule_ids)
+                and set(reason.rule_ids) <= expanded_rule_ids
+                for reason in anchor.selection_reasons
+            ):
+                selected = (candidate, adjacent_reason)
                 break
         if selected is not None:
             break
     assert selected is not None
-    anchor, candidate, direct_reason, adjacent_reason = selected
-    with_direct = _with_candidate_reasons(
-        expanded_discovery,
-        anchor.commit.commit_oid,
-        [
-            *[
-                reason.model_dump(mode="json", exclude_none=True)
-                for reason in anchor.selection_reasons
-            ],
-            direct_reason,
-        ],
-    )
-    changed_discovery = _with_candidate_reasons(
-        with_direct,
+    candidate, restored_reason = selected
+    prior_discovery = _with_candidate_reasons(
+        initial_discovery,
         candidate.commit.commit_oid,
         [
-            *[
-                reason.model_dump(mode="json", exclude_none=True)
-                for reason in candidate.selection_reasons
-            ],
-            adjacent_reason,
+            reason.model_dump(mode="json", exclude_none=True)
+            for reason in candidate.selection_reasons
+            if canonical_bytes(reason) != canonical_bytes(restored_reason)
         ],
     )
-    changed_evidence = _rebind_evidence_to_discovery(
-        expanded_evidence,
-        changed_discovery,
+    prior_evidence = _rebind_evidence_to_discovery(
+        initial_insufficient_evidence,
+        prior_discovery,
         appended_resolutions=[],
     )
-    adjudicate(changed_discovery, changed_evidence, *initial_prior_artifacts)
+    prior_ledger, prior_decision = adjudicate(prior_discovery, prior_evidence)
+    rebound_expanded_evidence = _refresh_evidence(
+        expanded_evidence,
+        prior_candidate_ledger_sha256=sha256_hex(canonical_bytes(prior_ledger)),
+        prior_decision_sha256=sha256_hex(canonical_bytes(prior_decision)),
+    )
 
-
-def test_expanded_rejects_new_initial_round_reason_on_initial_candidate(
-    initial_discovery,
-    expanded_discovery,
-    expanded_evidence,
-    initial_prior_artifacts,
-):
-    initial_rule_ids = [
-        rule.rule_id
-        for rule in (
-            *expanded_discovery.search_frame.rounds[0].message_regexes,
-            *expanded_discovery.search_frame.rounds[0].diff_regexes,
-        )
-    ]
-    expanded_by_oid = {
-        item.commit.commit_oid: item for item in expanded_discovery.discovered_candidates
+    replayed_candidate = expanded_by_oid[candidate.commit.commit_oid]
+    assert canonical_bytes(restored_reason) in {
+        canonical_bytes(reason) for reason in replayed_candidate.selection_reasons
     }
-    selected = None
-    injected_reason = None
-    for initial_candidate in initial_discovery.discovered_candidates:
-        expanded_candidate = expanded_by_oid[initial_candidate.commit.commit_oid]
-        existing = {canonical_bytes(reason) for reason in expanded_candidate.selection_reasons}
-        for rule_id in initial_rule_ids:
-            reason = {"kind": "direct_match", "rule_ids": [rule_id]}
-            if canonical_bytes(reason) not in existing:
-                selected = expanded_candidate
-                injected_reason = reason
-                break
-        if selected is not None:
-            break
-    assert selected is not None and injected_reason is not None
-    changed_discovery = _with_candidate_reasons(
+    adjudicate(
         expanded_discovery,
-        selected.commit.commit_oid,
-        [
-            *[
-                reason.model_dump(mode="json", exclude_none=True)
-                for reason in selected.selection_reasons
+        rebound_expanded_evidence,
+        prior_discovery,
+        prior_evidence,
+        prior_ledger,
+        prior_decision,
+    )
+
+
+def test_discovery_contract_rejects_fabricated_initial_round_reason(
+    expanded_discovery,
+):
+    initial_rule_id = expanded_discovery.search_frame.rounds[0].message_regexes[0].rule_id
+    selected = next(
+        candidate
+        for candidate in expanded_discovery.discovered_candidates
+        if all(
+            initial_rule_id not in reason.rule_ids for reason in candidate.selection_reasons
+        )
+    )
+    with pytest.raises(ValueError, match="direct-match message rule IDs"):
+        _with_candidate_reasons(
+            expanded_discovery,
+            selected.commit.commit_oid,
+            [
+                *[
+                    reason.model_dump(mode="json", exclude_none=True)
+                    for reason in selected.selection_reasons
+                ],
+                {"kind": "direct_match", "rule_ids": [initial_rule_id]},
             ],
-            injected_reason,
-        ],
-    )
-    changed_evidence = _rebind_evidence_to_discovery(
-        expanded_evidence,
-        changed_discovery,
-        appended_resolutions=[],
-    )
-    with pytest.raises(AdjudicationError, match="expanded-round.*reason"):
-        adjudicate(changed_discovery, changed_evidence, *initial_prior_artifacts)
+        )
 
 
-def test_expanded_rejects_new_candidate_justified_only_by_initial_round_rule(
+def test_expanded_rejects_new_candidate_with_new_initial_round_reason(
     initial_discovery,
     expanded_discovery,
     expanded_evidence,
@@ -1404,11 +1420,34 @@ def test_expanded_rejects_new_candidate_justified_only_by_initial_round_rule(
         and item.commit.commit_oid not in anchor_oids | trailer_source_oids
     )
     initial_rule_id = expanded_discovery.search_frame.rounds[0].message_regexes[0].rule_id
-    changed_discovery = _with_candidate_reasons(
-        expanded_discovery,
-        selected.commit.commit_oid,
-        [{"kind": "direct_match", "rule_ids": [initial_rule_id]}],
+    payload = expanded_discovery.model_dump(mode="json", exclude_none=True)
+    candidate = next(
+        item
+        for item in payload["discovered_candidates"]
+        if item["commit"]["commit_oid"] == selected.commit.commit_oid
     )
+    changed_subject = "Fix missing quest configuration"
+    _old_subject, separator, message_body = candidate["diff_evidence"][
+        "commit_message"
+    ].partition("\n")
+    assert separator
+    candidate["commit"]["subject"] = changed_subject
+    candidate["diff_evidence"]["commit_message"] = f"{changed_subject}\n{message_body}"
+    candidate["selection_reasons"] = sorted(
+        [
+            *candidate["selection_reasons"],
+            {"kind": "direct_match", "rule_ids": [initial_rule_id]},
+        ],
+        key=lambda reason: (
+            {"direct_match": 0, "adjacent_context": 1, "lineage_context": 2}[
+                reason["kind"]
+            ],
+            reason.get("anchor_oid", ""),
+            reason.get("lineage_link_id", ""),
+            tuple(reason.get("rule_ids", [])),
+        ),
+    )
+    changed_discovery = _validate_rebound_discovery(payload)
     changed_evidence = _rebind_evidence_to_discovery(
         expanded_evidence,
         changed_discovery,
@@ -1658,16 +1697,8 @@ def test_expanded_rejects_mutated_initial_candidate_fact(
         for item in payload["discovered_candidates"]
         if item["commit"]["commit_oid"] == initial_oid
     )
-    candidate["commit"]["subject"] = "Mutated initial subject"
-    universe = {
-        "schema_version": payload["schema_version"],
-        "search_spec_sha256": payload["search_spec_sha256"],
-        "search_round": payload["search_round"],
-        "discovered_candidates": payload["discovered_candidates"],
-        "objective_lineage_links": payload["objective_lineage_links"],
-    }
-    payload["candidate_universe_sha256"] = sha256_hex(canonical_bytes(universe))
-    changed_discovery = DiscoveryLedger.model_validate(payload)
+    candidate["diff_evidence"]["commit_message"] += "\nMutated reviewed body\n"
+    changed_discovery = _validate_rebound_discovery(payload)
     changed_evidence = _rebind_evidence_to_discovery(
         expanded_evidence,
         changed_discovery,
@@ -1887,6 +1918,7 @@ def test_expanded_new_lineage_link_may_touch_an_initial_group_without_rewriting_
                 rationale="The expanded patch collision has separately reviewed root causes.",
             )
         ],
+        stable_prefix_ids=[item.link_id for item in initial_ledger.lineage_resolutions],
     )
     ledger, _ = adjudicate(discovery, evidence, *initial_prior_artifacts)
     prior_root = next(

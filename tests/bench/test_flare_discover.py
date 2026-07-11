@@ -304,17 +304,58 @@ def test_discovery_ledger_requires_commit_oids_to_be_unique(expanded_discovery):
         _validate_rebound(payload)
 
 
-def test_discovery_ledger_rejects_case_fold_duplicate_paths(expanded_discovery):
+def test_git_path_set_preserves_case_distinct_paths():
+    paths = ["mods/core/quests/Foo.txt", "mods/core/quests/foo.txt"]
+
+    assert flare_git._validate_path_set(paths) == sorted(paths)
+
+
+def test_git_path_set_rejects_exact_duplicate_paths():
+    path = "mods/core/quests/foo.txt"
+
+    with pytest.raises(GitEvidenceError, match="duplicate"):
+        flare_git._validate_path_set([path, path])
+
+
+def test_discovery_ledger_accepts_case_distinct_paths(expanded_discovery):
     payload = _payload(expanded_discovery)
     candidate = next(item for item in payload["discovered_candidates"] if item["config_only"])
     path = candidate["changed_paths"][0]
-    duplicate = path.upper()
-    assert duplicate != path and posix_glob_matches(
-        duplicate.lower(), payload["search_frame"]["config_path_globs"][0]
+    basename_start = path.rfind("/") + 1
+    extension_start = path.rfind(".")
+    variant_index = next(
+        index
+        for index in range(basename_start, extension_start)
+        if path[index].isalpha()
     )
-    candidate["changed_paths"] = sorted([*candidate["changed_paths"], duplicate])
-    candidate["eligible_paths"] = sorted([*candidate["eligible_paths"], duplicate])
-    with pytest.raises(ValueError, match="case-fold"):
+    case_variant = path[:variant_index] + path[variant_index].swapcase() + path[variant_index + 1 :]
+    assert case_variant != path and case_variant.casefold() == path.casefold()
+    assert any(
+        posix_glob_matches(case_variant, pattern)
+        for pattern in payload["search_frame"]["config_path_globs"]
+    )
+    candidate["changed_paths"] = sorted([*candidate["changed_paths"], case_variant])
+    candidate["eligible_paths"] = sorted([*candidate["eligible_paths"], case_variant])
+
+    rebound = _validate_rebound(payload)
+
+    rebound_candidate = next(
+        item
+        for item in rebound.discovered_candidates
+        if item.commit.commit_oid == candidate["commit"]["commit_oid"]
+    )
+    assert path in rebound_candidate.changed_paths
+    assert case_variant in rebound_candidate.changed_paths
+
+
+def test_discovery_ledger_rejects_exact_duplicate_paths(expanded_discovery):
+    payload = _payload(expanded_discovery)
+    candidate = next(item for item in payload["discovered_candidates"] if item["config_only"])
+    path = candidate["changed_paths"][0]
+    candidate["changed_paths"].append(path)
+    candidate["eligible_paths"].append(path)
+
+    with pytest.raises(ValueError, match="sorted and unique"):
         _validate_rebound(payload)
 
 
@@ -535,6 +576,7 @@ def test_lineage_only_candidate_components_require_a_rooted_selection_seed(
 
     links = []
     for source, target in ((first, second), (second, first)):
+        source["commit"]["subject"] = "Neutral content update"
         link = {
             "link_type": rule["link_type"],
             "source_oid": source["commit"]["commit_oid"],
@@ -729,6 +771,486 @@ def test_successful_discovery_uses_only_argument_arrays(
         tmp_path / "blobs",
     )
     assert calls
+
+
+def test_discovery_preflights_repository_once(
+    flare_git_repo, search_spec, search_registration, tmp_path, monkeypatch
+):
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+    real_preflight = repo._preflight_object_reads
+    preflight_calls = 0
+
+    def counted_preflight():
+        nonlocal preflight_calls
+        preflight_calls += 1
+        real_preflight()
+
+    monkeypatch.setattr(repo, "_preflight_object_reads", counted_preflight)
+    discover_candidates(
+        repo,
+        search_spec,
+        search_registration,
+        "expanded",
+        tmp_path / "blobs",
+    )
+
+    assert preflight_calls == 1
+
+
+def _file_bytes_under(root):
+    return {
+        path.relative_to(root).as_posix(): path.read_bytes()
+        for path in sorted(root.rglob("*"))
+        if path.is_file()
+    }
+
+
+def test_partial_clone_fails_closed_before_object_queries(
+    flare_git_repo, search_spec, search_registration, tmp_path, monkeypatch
+):
+    git_env = {"PATH": os.environ["PATH"], **GIT_FIXED_ENVIRONMENT}
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(flare_git_repo.path),
+            "config",
+            "uploadpack.allowFilter",
+            "true",
+        ],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env=git_env,
+        shell=False,
+    )
+    partial_path = tmp_path / "partial-clone"
+    subprocess.run(
+        [
+            "git",
+            "clone",
+            "--no-checkout",
+            "--filter=blob:none",
+            flare_git_repo.path.resolve().as_uri(),
+            str(partial_path),
+        ],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        env=git_env,
+        shell=False,
+    )
+    object_store = partial_path / ".git" / "objects"
+    assert list((object_store / "pack").glob("*.promisor"))
+    before = _file_bytes_under(object_store)
+
+    real_run = subprocess.run
+    commands = []
+
+    def recording_run(args, **kwargs):
+        commands.append(args)
+        return real_run(args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", recording_run)
+    with pytest.raises(GitEvidenceError, match="partial|promisor"):
+        discover_candidates(
+            ReadOnlyGitRepo(partial_path),
+            search_spec,
+            search_registration,
+            "initial",
+            tmp_path / "blobs",
+        )
+
+    assert commands
+    assert all("config" in command for command in commands)
+    assert _file_bytes_under(object_store) == before
+    assert not (tmp_path / "blobs").exists()
+
+
+@pytest.mark.parametrize(
+    "included_config",
+    [
+        '[ExTeNsIoNs]\n\tPaRtIaLcLoNe = origin\n',
+        '[ReMoTe "origin"]\n\tPrOmIsOr = true\n',
+        '[ReMoTe "origin"]\n\tPaRtIaLcLoNeFiLtEr = blob:none\n',
+    ],
+)
+def test_included_partial_clone_config_is_rejected_case_insensitively_before_object_query(
+    flare_git_repo, tmp_path, monkeypatch, included_config
+):
+    included_path = tmp_path / "partial-clone.inc"
+    included_path.write_text(included_config, encoding="utf-8")
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(flare_git_repo.path),
+            "config",
+            "--add",
+            "include.path",
+            str(included_path),
+        ],
+        check=True,
+    )
+    real_run = subprocess.run
+    commands = []
+
+    def recording_run(args, **kwargs):
+        commands.append(args)
+        return real_run(args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", recording_run)
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+    with pytest.raises(GitEvidenceError, match="partial|promisor"):
+        repo._preflight_object_reads()
+
+    assert commands
+    assert all("config" in command for command in commands)
+
+
+@pytest.mark.parametrize(
+    ("included_value", "local_value", "should_reject"),
+    [
+        ("true", "false", True),
+        ("false", "true", True),
+        ("false", "false", False),
+    ],
+)
+def test_all_promisor_values_are_inspected(
+    flare_git_repo, tmp_path, included_value, local_value, should_reject
+):
+    included_path = tmp_path / "promisor.inc"
+    included_path.write_text(
+        f'[remote "origin"]\n\tpromisor = {included_value}\n', encoding="utf-8"
+    )
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(flare_git_repo.path),
+            "config",
+            "--add",
+            "include.path",
+            str(included_path),
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(flare_git_repo.path),
+            "config",
+            "remote.origin.promisor",
+            local_value,
+        ],
+        check=True,
+    )
+
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+    if should_reject:
+        with pytest.raises(GitEvidenceError, match="promisor"):
+            repo._reject_partial_clone_config()
+    else:
+        repo._preflight_object_reads()
+        assert repo.commit_facts(flare_git_repo.head).commit_oid == flare_git_repo.head
+
+
+@pytest.mark.parametrize(
+    ("stdout", "stderr"),
+    [
+        (b"local\x00remote.origin.promisor\x00", b""),
+        (b"", b"unexpected diagnostic"),
+    ],
+)
+def test_config_no_match_returncode_rejects_any_output(
+    flare_git_repo, monkeypatch, stdout, stderr
+):
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+
+    def forged_run(args, **kwargs):
+        return subprocess.CompletedProcess(
+            args,
+            returncode=1,
+            stdout=stdout,
+            stderr=stderr,
+        )
+
+    monkeypatch.setattr(subprocess, "run", forged_run)
+    with pytest.raises(GitEvidenceError, match="no matches.*output"):
+        repo._effective_local_partial_clone_entries()
+
+
+def test_nonempty_config_output_requires_trailing_nul(flare_git_repo, monkeypatch):
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+
+    def forged_run(args, **kwargs):
+        return subprocess.CompletedProcess(
+            args,
+            returncode=0,
+            stdout=b"local\x00remote.origin.promisor\nfalse",
+            stderr=b"",
+        )
+
+    monkeypatch.setattr(subprocess, "run", forged_run)
+    with pytest.raises(GitEvidenceError, match="invalid output"):
+        repo._effective_local_partial_clone_entries()
+
+
+@pytest.mark.parametrize(
+    ("record", "should_reject"),
+    [
+        (b"remote.origin.promisor", True),
+        (b"remote.origin.promisor\ntrue", True),
+        (b"remote.origin.promisor\nyes", True),
+        (b"remote.origin.promisor\non", True),
+        (b"remote.origin.promisor\n2", True),
+        (b"remote.origin.promisor\nfalse", False),
+        (b"remote.origin.promisor\nno", False),
+        (b"remote.origin.promisor\noff", False),
+        (b"remote.origin.promisor\n0", False),
+        (b"remote.origin.promisor\n", False),
+    ],
+)
+def test_single_query_promisor_values_follow_git_boolean_semantics(
+    flare_git_repo, monkeypatch, record, should_reject
+):
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+
+    def forged_run(args, **kwargs):
+        return subprocess.CompletedProcess(
+            args,
+            returncode=0,
+            stdout=b"local\x00" + record + b"\x00",
+            stderr=b"",
+        )
+
+    monkeypatch.setattr(subprocess, "run", forged_run)
+    if should_reject:
+        with pytest.raises(GitEvidenceError, match="promisor"):
+            repo._reject_partial_clone_config()
+    else:
+        repo._reject_partial_clone_config()
+
+
+def test_invalid_promisor_boolean_fails_closed(flare_git_repo, monkeypatch):
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+
+    def forged_run(args, **kwargs):
+        return subprocess.CompletedProcess(
+            args,
+            returncode=0,
+            stdout=b"local\x00remote.origin.promisor\nmaybe\x00",
+            stderr=b"",
+        )
+
+    monkeypatch.setattr(subprocess, "run", forged_run)
+    with pytest.raises(GitEvidenceError, match="valid Git boolean"):
+        repo._reject_partial_clone_config()
+
+
+@pytest.mark.parametrize(
+    ("key", "value", "message"),
+    [
+        ("remote..promisor", "true", "promisor"),
+        ("remote..promisor", "false", "promisor"),
+        ("remote..partialclonefilter", "blob:none", "partial"),
+    ],
+)
+def test_empty_remote_name_partial_clone_keys_are_rejected(
+    flare_git_repo, key, value, message
+):
+    subprocess.run(
+        ["git", "-C", str(flare_git_repo.path), "config", key, value],
+        check=True,
+    )
+
+    with pytest.raises(GitEvidenceError, match=message):
+        ReadOnlyGitRepo(flare_git_repo.path)._reject_partial_clone_config()
+
+
+def test_false_only_promisor_value_does_not_reject_complete_clone(flare_git_repo):
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(flare_git_repo.path),
+            "config",
+            "remote.origin.promisor",
+            "false",
+        ],
+        check=True,
+    )
+
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+    repo._preflight_object_reads()
+    assert repo.commit_facts(flare_git_repo.head).commit_oid == flare_git_repo.head
+
+
+def test_unrelated_non_utf8_config_key_does_not_block_complete_clone(flare_git_repo):
+    with (flare_git_repo.git_dir / "config").open("ab") as stream:
+        stream.write(b'\n[remote "\xff"]\n\turl = https://example.invalid/repo.git\n')
+
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+    repo._preflight_object_reads()
+    assert repo.commit_facts(flare_git_repo.head).commit_oid == flare_git_repo.head
+
+
+def test_promisor_safety_query_process_count_is_independent_of_remote_count(
+    flare_git_repo, monkeypatch
+):
+    for index in range(25):
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(flare_git_repo.path),
+                "config",
+                f"remote.fixture-{index}.promisor",
+                "false",
+            ],
+            check=True,
+        )
+
+    real_run = subprocess.run
+    safety_commands = []
+
+    def recording_run(args, **kwargs):
+        if "config" in args:
+            safety_commands.append(args)
+        return real_run(args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", recording_run)
+    ReadOnlyGitRepo(flare_git_repo.path)._reject_partial_clone_config()
+    assert len(safety_commands) == 1
+    assert all("--get-regexp" in command for command in safety_commands)
+
+
+def test_linked_worktree_effective_worktree_promisor_config_is_rejected(
+    flare_git_repo, tmp_path, monkeypatch
+):
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(flare_git_repo.path),
+            "config",
+            "extensions.worktreeConfig",
+            "true",
+        ],
+        check=True,
+    )
+    linked_path = tmp_path / "linked-promisor-config"
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(flare_git_repo.path),
+            "worktree",
+            "add",
+            "--detach",
+            str(linked_path),
+            flare_git_repo.head,
+        ],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(linked_path),
+            "config",
+            "--worktree",
+            "ReMoTe.origin.PrOmIsOr",
+            "true",
+        ],
+        check=True,
+    )
+    real_run = subprocess.run
+    commands = []
+
+    def recording_run(args, **kwargs):
+        commands.append(args)
+        return real_run(args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", recording_run)
+    repo = ReadOnlyGitRepo(linked_path)
+    with pytest.raises(GitEvidenceError, match="promisor"):
+        repo._preflight_object_reads()
+
+    assert commands
+    assert all("config" in command for command in commands)
+
+
+def test_linked_worktree_rejects_promisor_marker_in_common_object_store(
+    flare_git_repo, tmp_path
+):
+    linked_path = tmp_path / "linked-promisor-marker"
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(flare_git_repo.path),
+            "worktree",
+            "add",
+            "--detach",
+            str(linked_path),
+            flare_git_repo.head,
+        ],
+        check=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    marker = flare_git_repo.git_dir / "objects" / "pack" / "fixture.promisor"
+    marker.write_bytes(b"")
+
+    repo = ReadOnlyGitRepo(linked_path)
+    assert repo.git_dir != flare_git_repo.git_dir
+    with pytest.raises(GitEvidenceError, match="promisor"):
+        repo._preflight_object_reads()
+
+
+def test_uppercase_promisor_suffix_is_not_treated_as_a_git_marker(flare_git_repo):
+    marker = flare_git_repo.git_dir / "objects" / "pack" / "fixture.PROMISOR"
+    marker.write_bytes(b"")
+
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+    repo._preflight_object_reads()
+
+    assert repo.commit_facts(flare_git_repo.head).commit_oid == flare_git_repo.head
+
+
+def test_complete_local_alternate_object_store_is_allowed(flare_git_repo, tmp_path):
+    alternate_store = tmp_path / "alternate-objects"
+    (alternate_store / "info").mkdir(parents=True)
+    (alternate_store / "pack").mkdir()
+    alternates = flare_git_repo.git_dir / "objects" / "info" / "alternates"
+    alternates.write_text(f"{alternate_store.resolve()}\n", encoding="utf-8")
+
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+    repo._preflight_object_reads()
+    assert repo.commit_facts(flare_git_repo.head).commit_oid == flare_git_repo.head
+
+
+@pytest.mark.parametrize("component", ["objects", "pack", "info"])
+def test_cooperative_symlinked_object_store_layout_is_allowed(
+    flare_git_repo, component
+):
+    object_store = flare_git_repo.git_dir / "objects"
+    if component == "objects":
+        directory = object_store
+    else:
+        directory = object_store / component
+        directory.mkdir(parents=True, exist_ok=True)
+    external = directory.with_name(f"{directory.name}-external")
+    directory.rename(external)
+    directory.symlink_to(external, target_is_directory=True)
+
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+    repo._preflight_object_reads()
+    assert repo.commit_facts(flare_git_repo.head).commit_oid == flare_git_repo.head
 
 
 @pytest.mark.parametrize(
@@ -975,7 +1497,7 @@ def test_linked_worktree_rejects_common_git_dir_info_attributes(flare_git_repo, 
     assert (repo.git_dir / "commondir").is_file()
     assert not (repo.git_dir / "info" / "attributes").exists()
     with pytest.raises(GitEvidenceError, match="info/attributes"):
-        repo.commit_facts(flare_git_repo.head)
+        repo._preflight_object_reads()
 
 
 def test_search_registration_provenance_reads_canonical_spec_from_registration_commit(

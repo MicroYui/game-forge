@@ -1,5 +1,6 @@
 import copy
 import os
+import stat
 import subprocess
 import sys
 from pathlib import Path
@@ -7,6 +8,7 @@ from pathlib import Path
 import pytest
 from pydantic import ValidationError
 
+import gameforge.bench.flare_evidence as flare_evidence
 from gameforge.bench.flare_evidence import (
     B0A_DEFECT_CLASSES,
     ApplicabilityDeclaration,
@@ -31,6 +33,34 @@ from gameforge.bench.flare_evidence import (
 
 
 _GIT_EMPTY_TREE_OID = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+
+
+def _make_non_regular_path(path: Path, kind: str, data: bytes) -> Path | None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if kind == "directory":
+        path.mkdir()
+        return None
+    if kind == "fifo":
+        os.mkfifo(path)
+        return None
+
+    external = path.parent.parent / f"external-{kind}-{path.name}"
+    external.write_bytes(data)
+    if kind == "symlink":
+        path.symlink_to(external)
+    else:  # pragma: no cover - parametrization is the closed input set
+        raise AssertionError(f"unsupported non-regular path kind: {kind}")
+    return external
+
+
+def _assert_unsafe_kind(path: Path, kind: str) -> None:
+    metadata = path.lstat()
+    predicates = {
+        "symlink": stat.S_ISLNK,
+        "fifo": stat.S_ISFIFO,
+        "directory": stat.S_ISDIR,
+    }
+    assert predicates[kind](metadata.st_mode)
 
 
 def test_b0a_scope_is_exactly_the_eleven_non_narrative_classes():
@@ -111,6 +141,62 @@ def test_canonical_bytes_are_stable_and_new_or_identical_is_immutable(tmp_path: 
         write_new_or_identical(target, b"different\n")
 
 
+@pytest.mark.parametrize("kind", ["symlink", "fifo", "directory"])
+def test_writer_rejects_non_regular_existing_target_without_blocking(
+    tmp_path: Path, kind: str
+):
+    payload = b"immutable-ledger\n"
+    target = tmp_path / "candidate-ledger.json"
+    external = _make_non_regular_path(target, kind, payload)
+    script = r"""
+import sys
+from pathlib import Path
+
+from gameforge.bench.flare_evidence import write_new_or_identical
+
+try:
+    write_new_or_identical(Path(sys.argv[1]), sys.argv[2].encode("ascii"))
+except OSError:
+    raise SystemExit(0)
+raise SystemExit(1)
+"""
+
+    try:
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(target), payload.decode("ascii")],
+            capture_output=True,
+            check=False,
+            timeout=5,
+        )
+    except subprocess.TimeoutExpired:
+        pytest.fail(f"writer blocked on existing {kind}")
+
+    assert completed.returncode == 0, completed.stderr.decode()
+    _assert_unsafe_kind(target, kind)
+    if external is not None:
+        assert external.read_bytes() == payload
+
+
+def test_writer_uses_portable_standard_library_replace(tmp_path: Path, monkeypatch):
+    target = tmp_path / "candidate-ledger.json"
+    calls: list[tuple[Path, Path]] = []
+    real_replace = os.replace
+
+    def record_replace(source, destination):
+        calls.append((Path(source), Path(destination)))
+        return real_replace(source, destination)
+
+    monkeypatch.setattr(os, "replace", record_replace)
+    write_new_or_identical(target, b"complete-ledger\n")
+
+    assert len(calls) == 1
+    staging, destination = calls[0]
+    assert staging.parent == destination.parent == tmp_path
+    assert destination == target
+    assert not staging.exists()
+    assert target.read_bytes() == b"complete-ledger\n"
+
+
 def test_single_output_abrupt_exit_never_publishes_partial_bytes_and_retry_succeeds(
     tmp_path: Path,
 ):
@@ -121,42 +207,21 @@ import os
 import sys
 from pathlib import Path
 
+import gameforge.bench.flare_evidence as flare_evidence
 from gameforge.bench.flare_evidence import write_new_or_identical
 
 target = Path(sys.argv[1])
 payload = sys.argv[2].encode("ascii")
-real_open = Path.open
+real_write = os.write
 
 
-class ExitAfterPartialWrite:
-    def __init__(self, stream):
-        self.stream = stream
-
-    def __enter__(self):
-        self.stream.__enter__()
-        return self
-
-    def __exit__(self, *args):
-        return self.stream.__exit__(*args)
-
-    def __getattr__(self, name):
-        return getattr(self.stream, name)
-
-    def write(self, data):
-        self.stream.write(data[:7])
-        self.stream.flush()
-        os.fsync(self.stream.fileno())
-        os._exit(74)
+def exit_after_partial_write(descriptor, data):
+    real_write(descriptor, data[:7])
+    os.fsync(descriptor)
+    os._exit(74)
 
 
-def exit_during_exclusive_write(path, mode="r", *args, **kwargs):
-    stream = real_open(path, mode, *args, **kwargs)
-    if mode == "xb":
-        return ExitAfterPartialWrite(stream)
-    return stream
-
-
-Path.open = exit_during_exclusive_write
+flare_evidence.os.write = exit_after_partial_write
 write_new_or_identical(target, payload)
 """
 
@@ -175,6 +240,54 @@ write_new_or_identical(target, payload)
     assert target.read_bytes() == payload
 
 
+def test_multi_output_retry_after_publish_exit_reuses_complete_prefix(tmp_path: Path):
+    ledger = tmp_path / "candidate-ledger.json"
+    decision = tmp_path / "b0a-decision.json"
+    script = r"""
+import os
+import sys
+from pathlib import Path
+
+from gameforge.bench.flare_evidence import write_set_new_or_identical
+
+ledger = Path(sys.argv[1])
+decision = Path(sys.argv[2])
+real_replace = os.replace
+
+
+def exit_after_first_publish(source, target):
+    real_replace(source, target)
+    if Path(target) == ledger:
+        os._exit(75)
+
+
+os.replace = exit_after_first_publish
+write_set_new_or_identical(
+    {ledger: b"complete-ledger\n", decision: b"complete-decision\n"}
+)
+"""
+
+    completed = subprocess.run(
+        [sys.executable, "-c", script, str(ledger), str(decision)],
+        check=False,
+    )
+
+    assert completed.returncode == 75
+    assert ledger.read_bytes() == b"complete-ledger\n"
+    assert not decision.exists()
+    stale_residue = list(tmp_path.glob(".gameforge-*.tmp"))
+    assert len(stale_residue) == 1
+    assert stale_residue[0].read_bytes() == b"complete-decision\n"
+
+    write_set_new_or_identical(
+        {ledger: b"complete-ledger\n", decision: b"complete-decision\n"}
+    )
+    assert ledger.read_bytes() == b"complete-ledger\n"
+    assert decision.read_bytes() == b"complete-decision\n"
+    assert stale_residue[0].exists()
+
+
+
 def test_multi_output_publish_preflights_all_targets(tmp_path: Path):
     first = tmp_path / "candidate-ledger.json"
     second = tmp_path / "b0a-decision.json"
@@ -185,33 +298,52 @@ def test_multi_output_publish_preflights_all_targets(tmp_path: Path):
     assert second.read_bytes() == b"existing-different\n"
 
 
+def test_multi_output_writer_does_not_resolve_filesystem_aliases(
+    tmp_path: Path, monkeypatch
+):
+    first = tmp_path / "candidate-ledger.json"
+    second = tmp_path / "b0a-decision.json"
+
+    def unexpected_alias_probe(*_args, **_kwargs):
+        raise AssertionError("filesystem aliases are outside the writer contract")
+
+    monkeypatch.setattr(Path, "resolve", unexpected_alias_probe)
+    monkeypatch.setattr(Path, "samefile", unexpected_alias_probe)
+
+    write_set_new_or_identical({first: b"ledger\n", second: b"decision\n"})
+
+    assert first.read_bytes() == b"ledger\n"
+    assert second.read_bytes() == b"decision\n"
+
+
 def test_multi_output_stages_all_files_before_publishing(tmp_path: Path, monkeypatch):
     first = tmp_path / "candidate-ledger.json"
     second = tmp_path / "b0a-decision.json"
-    real_open = Path.open
-    real_link = os.link
-    exclusive_opens = 0
-    published = []
+    real_create = flare_evidence._create_staging_file
+    real_replace = os.replace
+    staging_creates = 0
+    published: list[Path] = []
 
-    def fail_second(path, mode="r", *args, **kwargs):
-        nonlocal exclusive_opens
-        if mode == "xb":
-            exclusive_opens += 1
-            if exclusive_opens == 2:
-                raise OSError("injected second-target failure")
-        return real_open(path, mode, *args, **kwargs)
+    def fail_second(target):
+        nonlocal staging_creates
+        staging_creates += 1
+        if staging_creates == 2:
+            raise OSError("injected second-target failure")
+        return real_create(target)
 
-    def record_publish(source, target, *args, **kwargs):
+    def record_publish(source, target):
         published.append(Path(target))
-        return real_link(source, target, *args, **kwargs)
+        return real_replace(source, target)
 
-    monkeypatch.setattr(Path, "open", fail_second)
-    monkeypatch.setattr(os, "link", record_publish)
+    monkeypatch.setattr(flare_evidence, "_create_staging_file", fail_second)
+    monkeypatch.setattr(os, "replace", record_publish)
     with pytest.raises(OSError, match="second-target"):
         write_set_new_or_identical({first: b"new-ledger\n", second: b"new-decision\n"})
+
     assert published == []
     assert not first.exists()
     assert not second.exists()
+    assert list(tmp_path.glob(".gameforge-*.tmp")) == []
 
 
 def test_multi_output_publish_never_modifies_preexisting_identical_file(
@@ -220,16 +352,16 @@ def test_multi_output_publish_never_modifies_preexisting_identical_file(
     first = tmp_path / "candidate-ledger.json"
     second = tmp_path / "b0a-decision.json"
     first.write_bytes(b"identical-ledger\n")
-    real_open = Path.open
 
-    def fail_second(path, mode="r", *args, **kwargs):
-        if mode == "xb":
-            raise OSError("injected second-target failure")
-        return real_open(path, mode, *args, **kwargs)
+    def fail_staging(_target):
+        raise OSError("injected staging failure")
 
-    monkeypatch.setattr(Path, "open", fail_second)
-    with pytest.raises(OSError, match="second-target"):
-        write_set_new_or_identical({first: b"identical-ledger\n", second: b"new-decision\n"})
+    monkeypatch.setattr(flare_evidence, "_create_staging_file", fail_staging)
+    with pytest.raises(OSError, match="staging failure"):
+        write_set_new_or_identical(
+            {first: b"identical-ledger\n", second: b"new-decision\n"}
+        )
+
     assert first.read_bytes() == b"identical-ledger\n"
     assert not second.exists()
 
@@ -244,42 +376,23 @@ import os
 import sys
 from pathlib import Path
 
+import gameforge.bench.flare_evidence as flare_evidence
 from gameforge.bench.flare_evidence import write_set_new_or_identical
 
 ledger = Path(sys.argv[1])
 decision = Path(sys.argv[2])
-real_open = Path.open
-state = {"exclusive_opens": 0}
+real_write = os.write
+state = {"writes": 0}
 
 
-class ExitBeforeWrite:
-    def __init__(self, stream):
-        self.stream = stream
-
-    def __enter__(self):
-        self.stream.__enter__()
-        return self
-
-    def __exit__(self, *args):
-        return self.stream.__exit__(*args)
-
-    def __getattr__(self, name):
-        return getattr(self.stream, name)
-
-    def write(self, data):
+def exit_during_second_write(descriptor, data):
+    state["writes"] += 1
+    if state["writes"] == 2:
         os._exit(73)
+    return real_write(descriptor, data)
 
 
-def exit_during_second_write(path, mode="r", *args, **kwargs):
-    stream = real_open(path, mode, *args, **kwargs)
-    if mode == "xb":
-        state["exclusive_opens"] += 1
-        if state["exclusive_opens"] == 2:
-            return ExitBeforeWrite(stream)
-    return stream
-
-
-Path.open = exit_during_second_write
+flare_evidence.os.write = exit_during_second_write
 write_set_new_or_identical(
     {ledger: b"complete-ledger\n", decision: b"complete-decision\n"}
 )
@@ -295,38 +408,116 @@ write_set_new_or_identical(
     assert not decision.exists()
     staging_files = list(tmp_path.glob(".gameforge-*.tmp"))
     assert len(staging_files) == 2
-    assert sorted(item.read_bytes() for item in staging_files) == [b"", b"complete-ledger\n"]
+    assert sorted(item.read_bytes() for item in staging_files) == [
+        b"",
+        b"complete-ledger\n",
+    ]
 
 
-def test_multi_output_publish_failure_retains_complete_prefix_without_unlink(
+def test_multi_output_publish_failure_retains_complete_prefix_and_retry_succeeds(
     tmp_path: Path,
     monkeypatch,
 ):
     ledger = tmp_path / "candidate-ledger.json"
     decision = tmp_path / "b0a-decision.json"
-    real_link = os.link
-    real_unlink = Path.unlink
-    final_unlinks = []
+    real_replace = os.replace
 
-    def fail_decision_publish(source, target, *args, **kwargs):
+    def fail_decision_publish(source, target):
         if Path(target) == decision:
             raise OSError("injected decision publish failure")
-        return real_link(source, target, *args, **kwargs)
+        return real_replace(source, target)
 
-    def record_final_unlink(path, *args, **kwargs):
-        if path in {ledger, decision}:
-            final_unlinks.append(path)
-        return real_unlink(path, *args, **kwargs)
-
-    monkeypatch.setattr(os, "link", fail_decision_publish)
-    monkeypatch.setattr(Path, "unlink", record_final_unlink)
-
-    with pytest.raises(OSError, match="decision publish"):
-        write_set_new_or_identical({ledger: b"complete-ledger\n", decision: b"complete-decision\n"})
+    with monkeypatch.context() as context:
+        context.setattr(os, "replace", fail_decision_publish)
+        with pytest.raises(OSError, match="decision publish"):
+            write_set_new_or_identical(
+                {ledger: b"complete-ledger\n", decision: b"complete-decision\n"}
+            )
 
     assert ledger.read_bytes() == b"complete-ledger\n"
     assert not decision.exists()
-    assert final_unlinks == []
+    assert list(tmp_path.glob(".gameforge-*.tmp")) == []
+
+    write_set_new_or_identical(
+        {ledger: b"complete-ledger\n", decision: b"complete-decision\n"}
+    )
+    assert decision.read_bytes() == b"complete-decision\n"
+
+
+def test_multi_output_fsyncs_every_staging_file_before_first_publish(
+    tmp_path: Path,
+    monkeypatch,
+):
+    ledger = tmp_path / "candidate-ledger.json"
+    decision = tmp_path / "b0a-decision.json"
+    real_fsync = os.fsync
+    real_replace = os.replace
+    events: list[str] = []
+
+    def record_fsync(descriptor):
+        events.append("fsync:file")
+        return real_fsync(descriptor)
+
+    def record_publish(source, target):
+        events.append(f"publish:{Path(target).name}")
+        return real_replace(source, target)
+
+    monkeypatch.setattr(os, "fsync", record_fsync)
+    monkeypatch.setattr(os, "replace", record_publish)
+    write_set_new_or_identical(
+        {ledger: b"complete-ledger\n", decision: b"complete-decision\n"}
+    )
+
+    assert events == [
+        "fsync:file",
+        "fsync:file",
+        f"publish:{ledger.name}",
+        f"publish:{decision.name}",
+    ]
+
+
+def test_decision_is_not_published_if_ledger_prefix_no_longer_matches(
+    tmp_path: Path,
+    monkeypatch,
+):
+    ledger = tmp_path / "candidate-ledger.json"
+    decision = tmp_path / "b0a-decision.json"
+    real_replace = os.replace
+
+    def corrupt_after_ledger_publish(source, target):
+        result = real_replace(source, target)
+        if Path(target) == ledger:
+            ledger.write_bytes(b"corrupt-ledger\n")
+        return result
+
+    monkeypatch.setattr(os, "replace", corrupt_after_ledger_publish)
+    with pytest.raises(FileExistsError, match="published target.*different bytes"):
+        write_set_new_or_identical(
+            {ledger: b"complete-ledger\n", decision: b"complete-decision\n"}
+        )
+
+    assert ledger.read_bytes() == b"corrupt-ledger\n"
+    assert not decision.exists()
+
+
+def test_publish_failure_cleans_only_staging_created_by_this_call(
+    tmp_path: Path,
+    monkeypatch,
+):
+    target = tmp_path / "candidate-ledger.json"
+    existing_residue = tmp_path / ".gameforge-existing.tmp"
+    existing_residue.write_bytes(b"older interrupted run\n")
+
+    def fail_publish(_source, _target):
+        raise OSError("injected publish failure")
+
+    monkeypatch.setattr(os, "replace", fail_publish)
+    with pytest.raises(OSError, match="publish failure"):
+        write_new_or_identical(target, b"complete-ledger\n")
+
+    assert existing_residue.read_bytes() == b"older interrupted run\n"
+    assert list(tmp_path.glob(".gameforge-*.tmp")) == [existing_residue]
+
 
 
 def test_corpus_packaging_ignores_abrupt_exit_staging_files():
@@ -358,6 +549,44 @@ def test_blob_store_uses_lowercase_hex_and_verifies_existing_content(tmp_path: P
     (tmp_path / relative).write_bytes(b"tampered bytes")
     with pytest.raises(FileExistsError):
         put_blob(tmp_path / "blobs", b"patch bytes")
+
+
+@pytest.mark.parametrize("kind", ["symlink", "fifo", "directory"])
+def test_blob_store_rejects_non_regular_existing_digest_without_blocking(
+    tmp_path: Path, kind: str
+):
+    payload = b"patch bytes"
+    digest = sha256_hex(payload)
+    blob_dir = tmp_path / "blobs"
+    target = blob_dir / digest
+    external = _make_non_regular_path(target, kind, payload)
+    script = r"""
+import sys
+from pathlib import Path
+
+from gameforge.bench.flare_evidence import put_blob
+
+try:
+    put_blob(Path(sys.argv[1]), sys.argv[2].encode("ascii"))
+except OSError:
+    raise SystemExit(0)
+raise SystemExit(1)
+"""
+
+    try:
+        completed = subprocess.run(
+            [sys.executable, "-c", script, str(blob_dir), payload.decode("ascii")],
+            capture_output=True,
+            check=False,
+            timeout=5,
+        )
+    except subprocess.TimeoutExpired:
+        pytest.fail(f"blob store blocked on existing {kind}")
+
+    assert completed.returncode == 0, completed.stderr.decode()
+    _assert_unsafe_kind(target, kind)
+    if external is not None:
+        assert external.read_bytes() == payload
 
 
 @pytest.mark.parametrize(
@@ -471,57 +700,6 @@ def test_validated_git_environment_is_immutable(registered_search_spec_payload):
     spec = FlareSearchSpec.model_validate(registered_search_spec_payload)
     with pytest.raises(TypeError):
         spec.git_environment_policy.fixed["HOME"] = "/tmp"
-
-
-def test_multi_output_failure_preserves_concurrent_replacement(tmp_path: Path, monkeypatch):
-    first = tmp_path / "candidate-ledger.json"
-    second = tmp_path / "b0a-decision.json"
-    real_link = os.link
-    real_open = Path.open
-
-    def replace_first_then_fail_second(source, target, *args, **kwargs):
-        if Path(target) == first:
-            result = real_link(source, target, *args, **kwargs)
-            first.unlink()
-            with real_open(first, "xb") as stream:
-                stream.write(b"concurrent replacement\n")
-            return result
-        raise OSError("injected second-target failure")
-
-    monkeypatch.setattr(os, "link", replace_first_then_fail_second)
-    with pytest.raises(FileExistsError, match="published target.*different bytes"):
-        write_set_new_or_identical({first: b"new-ledger\n", second: b"new-decision\n"})
-    assert first.read_bytes() == b"concurrent replacement\n"
-    assert not second.exists()
-
-
-def test_multi_output_rechecks_preexisting_files_before_reporting_success(
-    tmp_path: Path,
-    monkeypatch,
-):
-    ledger = tmp_path / "candidate-ledger.json"
-    decision = tmp_path / "b0a-decision.json"
-    ledger.write_bytes(b"expected-ledger\n")
-    real_open = Path.open
-    replaced = False
-
-    def replace_ledger_during_decision_staging(path, mode="r", *args, **kwargs):
-        nonlocal replaced
-        stream = real_open(path, mode, *args, **kwargs)
-        if mode == "xb" and not replaced:
-            replaced = True
-            ledger.unlink()
-            with real_open(ledger, "xb") as replacement:
-                replacement.write(b"concurrent replacement\n")
-        return stream
-
-    monkeypatch.setattr(Path, "open", replace_ledger_during_decision_staging)
-    with pytest.raises(FileExistsError, match="published target.*different bytes"):
-        write_set_new_or_identical({ledger: b"expected-ledger\n", decision: b"expected-decision\n"})
-
-    assert replaced
-    assert ledger.read_bytes() == b"concurrent replacement\n"
-    assert not decision.exists()
 
 
 def test_evidence_availability_is_derived_after_count_validation():

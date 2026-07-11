@@ -356,6 +356,7 @@ def _validate_lineage(
     discovered: DiscoveryLedger,
     evidence: AdjudicationEvidence,
     groups: Sequence[CandidateFixGroup],
+    prior_resolutions: Sequence[LineageResolution],
 ) -> None:
     links = {item.link_id: item for item in discovered.objective_lineage_links}
     resolution_ids = [item.link_id for item in evidence.lineage_resolutions]
@@ -363,6 +364,20 @@ def _validate_lineage(
     if set(resolution_ids) != set(links):
         raise AdjudicationError(
             "lineage resolutions must cover every discovered objective link exactly once"
+        )
+    prior_ids = [item.link_id for item in prior_resolutions]
+    prior_id_set = set(prior_ids)
+    expected_resolution_ids = [
+        *prior_ids,
+        *(
+            link.link_id
+            for link in discovered.objective_lineage_links
+            if link.link_id not in prior_id_set
+        ),
+    ]
+    if resolution_ids != expected_resolution_ids:
+        raise AdjudicationError(
+            "lineage resolutions must follow deterministic stable order"
         )
 
     group_by_commit = {oid: group for group in groups for oid in group.commits}
@@ -768,7 +783,10 @@ def adjudicate(
         _derive_group(decision, candidates, evidence.lineage_resolutions)
         for decision in evidence.group_decisions
     ]
-    _validate_lineage(discovered, evidence, groups)
+    prior_resolutions = (
+        () if prior_artifacts is None else prior_artifacts[2].lineage_resolutions
+    )
+    _validate_lineage(discovered, evidence, groups, prior_resolutions)
 
     matrix = derive_applicability_matrix(
         groups,

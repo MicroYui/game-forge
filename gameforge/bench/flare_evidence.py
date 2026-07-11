@@ -6,12 +6,13 @@ import hashlib
 import os
 import re
 import secrets
+import stat
 from datetime import date
 from fnmatch import fnmatchcase
 from functools import lru_cache
 from pathlib import Path, PurePosixPath
 from types import MappingProxyType
-from typing import Annotated, Any, Literal, Mapping
+from typing import Annotated, Any, Literal, Mapping, Sequence
 from urllib.parse import urlparse
 
 from pydantic import (
@@ -31,7 +32,6 @@ from gameforge.contracts.canonical import canonical_json
 FLARE_B0A_SCHEMA_VERSION = "flare-b0a@1"
 DISCOVERY_TOOL_VERSION = "gameforge-flare-discovery@1"
 GIT_EMPTY_TREE_OID = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
-
 B0A_DEFECT_CLASSES: tuple[DefectClass, ...] = tuple(
     defect_class
     for defect_class, metadata in CLASS_META.items()
@@ -440,6 +440,126 @@ class SelectionReason(_StrictModel):
         return self
 
 
+def _selected_search_rounds(
+    search_frame: FlareSearchSpec,
+    search_round: Literal["initial", "expanded"],
+) -> tuple[SearchRound, ...]:
+    selected_count = 1 if search_round == "initial" else 2
+    return search_frame.rounds[:selected_count]
+
+
+def derive_direct_match_reasons(
+    search_frame: FlareSearchSpec,
+    search_round: Literal["initial", "expanded"],
+    *,
+    subject: str,
+    parent_count: int,
+    eligible_paths: Sequence[str],
+    eligible_patch: bytes | None,
+) -> list[SelectionReason]:
+    """Recompute exact per-round direct reasons under the frozen search contract."""
+
+    if not eligible_paths:
+        return []
+    reasons: list[SelectionReason] = []
+    for round_spec in _selected_search_rounds(search_frame, search_round):
+        matched_rule_ids = {
+            rule.rule_id
+            for rule in round_spec.message_regexes
+            if re.search(rule.pattern, subject) is not None
+        }
+        if round_spec.diff_regexes and parent_count <= 1:
+            if eligible_patch is None:
+                raise ValueError("eligible patch bytes are required for diff direct-match replay")
+            matched_rule_ids.update(
+                rule.rule_id
+                for rule in round_spec.diff_regexes
+                if re.search(rule.pattern.encode("ascii"), eligible_patch) is not None
+            )
+        if matched_rule_ids:
+            reasons.append(
+                SelectionReason(kind="direct_match", rule_ids=sorted(matched_rule_ids))
+            )
+    return sorted(reasons, key=lambda reason: tuple(reason.rule_ids))
+
+
+def _git_c_quote_path(value: bytes) -> bytes:
+    escapes = {
+        0x07: b"\\a",
+        0x08: b"\\b",
+        0x09: b"\\t",
+        0x0A: b"\\n",
+        0x0B: b"\\v",
+        0x0C: b"\\f",
+        0x0D: b"\\r",
+        0x22: b'\\"',
+        0x5C: b"\\\\",
+    }
+    rendered = bytearray()
+    quoted = False
+    for byte in value:
+        escape = escapes.get(byte)
+        if escape is not None:
+            rendered.extend(escape)
+            quoted = True
+        elif byte < 0x20 or byte >= 0x7F:
+            rendered.extend(f"\\{byte:03o}".encode("ascii"))
+            quoted = True
+        else:
+            rendered.append(byte)
+    result = bytes(rendered)
+    return b'"' + result + b'"' if quoted else result
+
+
+def _frozen_diff_header(path: str) -> bytes:
+    encoded = path.encode("utf-8", errors="strict")
+    return b"diff --git " + _git_c_quote_path(b"a/" + encoded) + b" " + _git_c_quote_path(
+        b"b/" + encoded
+    )
+
+
+def extract_eligible_patch_bytes(
+    full_patch: bytes,
+    *,
+    changed_paths: Sequence[str],
+    eligible_paths: Sequence[str],
+) -> bytes:
+    """Derive Git's path-filtered patch by selecting exact full-patch file blocks."""
+
+    changed = list(changed_paths)
+    eligible = set(eligible_paths)
+    if not changed or len(changed) != len(set(changed)):
+        raise ValueError("full patch replay requires unique changed paths")
+    if not eligible <= set(changed):
+        raise ValueError("eligible patch replay paths must be changed paths")
+    starts = [match.start() for match in re.finditer(rb"(?m)^diff --git ", full_patch)]
+    if not starts or starts[0] != 0:
+        raise ValueError("full patch does not start with a Git file-diff block")
+    expected_headers = {_frozen_diff_header(path): path for path in changed}
+    if len(expected_headers) != len(changed):
+        raise ValueError("changed paths do not map to unique frozen diff headers")
+
+    seen: set[str] = set()
+    selected: list[bytes] = []
+    for index, start in enumerate(starts):
+        end = starts[index + 1] if index + 1 < len(starts) else len(full_patch)
+        block = full_patch[start:end]
+        header, separator, _body = block.partition(b"\n")
+        if not separator:
+            raise ValueError("Git file-diff block has no header terminator")
+        path = expected_headers.get(header)
+        if path is None:
+            raise ValueError("full patch contains a file-diff header outside changed_paths")
+        if path in seen:
+            raise ValueError("full patch contains a duplicate changed-path block")
+        seen.add(path)
+        if path in eligible:
+            selected.append(block)
+    if seen != set(changed):
+        raise ValueError("full patch blocks do not exactly cover changed_paths")
+    return b"".join(selected)
+
+
 class DiffEvidence(_StrictModel):
     commit_oid: Oid
     patch_sha256: Sha256
@@ -485,9 +605,6 @@ class DiscoveredCandidate(_StrictModel):
     def validate_paths(cls, values: list[str]) -> list[str]:
         if values != sorted(set(values)):
             raise ValueError("candidate paths must be sorted and unique")
-        folded = [value.casefold() for value in values]
-        if len(folded) != len(set(folded)):
-            raise ValueError("candidate paths must be case-fold unique")
         return [_validate_posix_relative(value) for value in values]
 
     @model_validator(mode="after")
@@ -501,6 +618,72 @@ class DiscoveredCandidate(_StrictModel):
         if self.diff_evidence.commit_oid != self.commit.commit_oid:
             raise ValueError("diff evidence must refer to the candidate commit")
         return self
+
+
+def _validate_direct_match_metadata(
+    candidate: DiscoveredCandidate,
+    search_frame: FlareSearchSpec,
+    search_round: Literal["initial", "expanded"],
+) -> None:
+    selected_rounds = _selected_search_rounds(search_frame, search_round)
+    direct_reasons = [
+        reason for reason in candidate.selection_reasons if reason.kind == "direct_match"
+    ]
+    if direct_reasons and not candidate.eligible_paths:
+        raise ValueError("direct-match candidates require at least one eligible path")
+
+    reason_by_round: dict[int, SelectionReason] = {}
+    for reason in direct_reasons:
+        reason_ids = set(reason.rule_ids)
+        matching_rounds = [
+            index
+            for index, round_spec in enumerate(selected_rounds)
+            if reason_ids
+            <= {
+                rule.rule_id
+                for rule in (*round_spec.message_regexes, *round_spec.diff_regexes)
+            }
+        ]
+        if len(matching_rounds) != 1:
+            raise ValueError(
+                "direct-match rule IDs must belong to exactly one selected search round"
+            )
+        round_index = matching_rounds[0]
+        if round_index in reason_by_round:
+            raise ValueError("each selected search round permits at most one direct-match reason")
+        round_spec = selected_rounds[round_index]
+        message_matches = {
+            rule.rule_id
+            for rule in round_spec.message_regexes
+            if re.search(rule.pattern, candidate.commit.subject) is not None
+        }
+        message_rule_ids = {rule.rule_id for rule in round_spec.message_regexes}
+        diff_rule_ids = {rule.rule_id for rule in round_spec.diff_regexes}
+        if reason_ids & message_rule_ids != message_matches:
+            raise ValueError(
+                "direct-match message rule IDs must exactly match the candidate subject"
+            )
+        if len(candidate.commit.parent_oids) > 1 and reason_ids & diff_rule_ids:
+            raise ValueError("merge commits cannot claim a diff direct-match rule")
+        reason_by_round[round_index] = reason
+
+    if not candidate.eligible_paths:
+        return
+    for round_index, round_spec in enumerate(selected_rounds):
+        message_matches = {
+            rule.rule_id
+            for rule in round_spec.message_regexes
+            if re.search(rule.pattern, candidate.commit.subject) is not None
+        }
+        reason = reason_by_round.get(round_index)
+        if message_matches and reason is None:
+            raise ValueError("matching candidate subjects require a direct-match reason")
+        if len(candidate.commit.parent_oids) > 1:
+            actual_ids = set() if reason is None else set(reason.rule_ids)
+            if actual_ids != message_matches:
+                raise ValueError(
+                    "merge direct-match reasons must exactly equal matching message rules"
+                )
 
 
 class DiscoveryLedger(_StrictModel):
@@ -534,12 +717,6 @@ class DiscoveryLedger(_StrictModel):
             raise ValueError("discovered candidate commit OIDs must be unique")
         candidate_by_oid = {item.commit.commit_oid: item for item in self.discovered_candidates}
         candidate_oids = set(candidate_by_oid)
-        selected_round_count = 1 if self.search_round == "initial" else 2
-        direct_rule_ids = {
-            rule.rule_id
-            for search_round in self.search_frame.rounds[:selected_round_count]
-            for rule in (*search_round.message_regexes, *search_round.diff_regexes)
-        }
         reason_order = {
             "direct_match": 0,
             "adjacent_context": 1,
@@ -581,11 +758,7 @@ class DiscoveryLedger(_StrictModel):
                 set(canonical_reasons)
             ):
                 raise ValueError("candidate selection_reasons must be sorted and unique")
-            for reason in candidate.selection_reasons:
-                if reason.kind == "direct_match" and not set(reason.rule_ids) <= direct_rule_ids:
-                    raise ValueError(
-                        "direct-match rule IDs must belong to the selected round union"
-                    )
+            _validate_direct_match_metadata(candidate, self.search_frame, self.search_round)
 
         link_ids = [link.link_id for link in self.objective_lineage_links]
         if len(link_ids) != len(set(link_ids)):
@@ -732,6 +905,53 @@ class DiscoveryLedger(_StrictModel):
         if self.candidate_universe_sha256 != sha256_hex(canonical_bytes(universe)):
             raise ValueError("candidate_universe_sha256 does not bind the candidate universe")
         return self
+
+
+def verify_discovery_direct_matches(blob_dir: Path, ledger: DiscoveryLedger) -> None:
+    """Replay every direct-match decision from the frozen patch CAS without Git."""
+
+    ledger = DiscoveryLedger.model_validate(
+        ledger.model_dump(mode="json", exclude_none=True)
+    )
+    for candidate in ledger.discovered_candidates:
+        digest = candidate.diff_evidence.patch_sha256
+        try:
+            full_patch = read_regular_file(blob_dir / digest)
+        except OSError as exc:
+            raise ValueError(f"unable to read discovery patch CAS blob {digest}") from exc
+        if sha256_hex(full_patch) != digest:
+            raise ValueError(f"discovery patch CAS blob does not match digest {digest}")
+
+        try:
+            eligible_patch = extract_eligible_patch_bytes(
+                full_patch,
+                changed_paths=candidate.changed_paths,
+                eligible_paths=candidate.eligible_paths,
+            )
+            expected = derive_direct_match_reasons(
+                ledger.search_frame,
+                ledger.search_round,
+                subject=candidate.commit.subject,
+                parent_count=len(candidate.commit.parent_oids),
+                eligible_paths=candidate.eligible_paths,
+                eligible_patch=eligible_patch,
+            )
+        except ValueError as exc:
+            raise ValueError(
+                "direct-match replay failed for commit "
+                f"{candidate.commit.commit_oid}: {exc}"
+            ) from exc
+
+        actual = [
+            reason
+            for reason in candidate.selection_reasons
+            if reason.kind == "direct_match"
+        ]
+        if actual != expected:
+            raise ValueError(
+                "direct-match replay differs from recorded reasons for commit "
+                f"{candidate.commit.commit_oid}"
+            )
 
 
 class EvidenceRef(_StrictModel):
@@ -1156,18 +1376,53 @@ def posix_glob_matches(path: str, pattern: str) -> bool:
     return matches(0, 0)
 
 
-def _stream_identity(stream: Any) -> tuple[int, int]:
-    metadata = os.fstat(stream.fileno())
-    return metadata.st_dev, metadata.st_ino
+def read_regular_file(path: Path) -> bytes:
+    metadata = path.lstat()
+    if not stat.S_ISREG(metadata.st_mode):
+        raise OSError(f"path is not a regular file: {path}")
+    return path.read_bytes()
 
 
-def _unlink_if_same_file(path: Path, identity: tuple[int, int]) -> None:
+def _path_entry_exists(path: Path) -> bool:
     try:
-        metadata = path.stat(follow_symlinks=False)
+        path.lstat()
     except FileNotFoundError:
-        return
-    if (metadata.st_dev, metadata.st_ino) == identity:
-        path.unlink(missing_ok=True)
+        return False
+    return True
+
+
+def _create_staging_file(target: Path) -> tuple[Path, int]:
+    flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL | getattr(os, "O_CLOEXEC", 0)
+    while True:
+        staging_path = target.parent / f".gameforge-{secrets.token_hex(16)}.tmp"
+        try:
+            descriptor = os.open(staging_path, flags, 0o600)
+        except FileExistsError:
+            continue
+        return staging_path, descriptor
+
+
+def _write_staged_file(descriptor: int, data: bytes) -> None:
+    view = memoryview(data)
+    offset = 0
+    while offset < len(view):
+        try:
+            written = os.write(descriptor, view[offset:])
+        except InterruptedError:
+            continue
+        if written <= 0:
+            raise OSError("staging write made no progress")
+        offset += written
+    os.fsync(descriptor)
+
+
+def _verify_output(path: Path, data: bytes) -> None:
+    try:
+        published = read_regular_file(path)
+    except OSError as exc:
+        raise FileExistsError(f"published target is not reusable: {path}") from exc
+    if published != data:
+        raise FileExistsError(f"published target has different bytes: {path}")
 
 
 def write_new_or_identical(path: Path, data: bytes) -> None:
@@ -1175,67 +1430,67 @@ def write_new_or_identical(path: Path, data: bytes) -> None:
 
 
 def write_set_new_or_identical(outputs: Mapping[Path, bytes]) -> None:
-    items = list(outputs.items())
+    items = [(Path(path), data) for path, data in outputs.items()]
     missing: list[tuple[Path, bytes]] = []
     for path, data in items:
-        if path.exists():
-            try:
-                existing = path.read_bytes()
-            except OSError as exc:
-                raise FileExistsError(f"target already exists and is not reusable: {path}") from exc
-            if existing != data:
-                raise FileExistsError(f"target already exists with different bytes: {path}")
-        else:
+        try:
+            existing = read_regular_file(path)
+        except FileNotFoundError:
             missing.append((path, data))
+        except OSError as exc:
+            raise FileExistsError(
+                f"target already exists and is not reusable: {path}"
+            ) from exc
+        else:
+            if existing != data:
+                raise FileExistsError(
+                    f"target already exists with different bytes: {path}"
+                )
 
-    staged: list[tuple[Path, bytes, Path, tuple[int, int]]] = []
+    staged: dict[Path, Path] = {}
+    owned_staging: set[Path] = set()
     try:
         for path, data in missing:
             path.parent.mkdir(parents=True, exist_ok=True)
-            while True:
-                staging_path = path.parent / f".gameforge-{secrets.token_hex(16)}.tmp"
-                try:
-                    stream = staging_path.open("xb")
-                except FileExistsError:
-                    continue
-                break
-            staging_identity = _stream_identity(stream)
-            staged.append((path, data, staging_path, staging_identity))
-            with stream:
-                stream.write(data)
-                stream.flush()
-                os.fsync(stream.fileno())
+            staging_path, descriptor = _create_staging_file(path)
+            staged[path] = staging_path
+            owned_staging.add(staging_path)
+            try:
+                _write_staged_file(descriptor, data)
+            finally:
+                os.close(descriptor)
 
-        missing_paths = {path for path, _data in missing}
+        missing_paths = set(staged)
         for path, data in items:
-            if path in missing_paths:
-                continue
-            try:
-                published = path.read_bytes()
-            except OSError as exc:
-                raise FileExistsError(f"published target is not reusable: {path}") from exc
-            if published != data:
-                raise FileExistsError(f"published target has different bytes: {path}")
+            if path not in missing_paths:
+                _verify_output(path, data)
 
-        for path, _data, staging_path, _identity in staged:
-            for prior_path, prior_data in items:
-                if prior_path == path:
-                    break
-                try:
-                    published = prior_path.read_bytes()
-                except OSError as exc:
-                    raise FileExistsError(
-                        f"published target is not reusable: {prior_path}"
-                    ) from exc
-                if published != prior_data:
-                    raise FileExistsError(f"published target has different bytes: {prior_path}")
-            os.link(staging_path, path)
+        for index, (path, data) in enumerate(items):
+            for prior_path, prior_data in items[:index]:
+                _verify_output(prior_path, prior_data)
+
+            staging_path = staged.get(path)
+            if staging_path is None:
+                _verify_output(path, data)
+                continue
+
+            if _path_entry_exists(path):
+                _verify_output(path, data)
+                continue
+
+            os.replace(staging_path, path)
+            owned_staging.discard(staging_path)
+            _verify_output(path, data)
+
+        for path, data in items:
+            _verify_output(path, data)
     finally:
-        for _path, _data, staging_path, identity in reversed(staged):
+        for staging_path in owned_staging:
             try:
-                _unlink_if_same_file(staging_path, identity)
+                staging_path.unlink(missing_ok=True)
             except OSError:
                 pass
+
 
 
 def put_blob(blob_dir: Path, data: bytes) -> tuple[str, str]:

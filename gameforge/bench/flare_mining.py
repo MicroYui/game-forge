@@ -18,7 +18,9 @@ from gameforge.bench.flare_evidence import (
     FlareSearchSpec,
     SearchRegistration,
     canonical_bytes,
+    read_regular_file,
     sha256_hex,
+    verify_discovery_direct_matches,
     write_new_or_identical,
     write_set_new_or_identical,
 )
@@ -57,7 +59,10 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def _load_canonical(path: Path, model_type: type[_ModelT], label: str) -> _ModelT:
-    data = path.read_bytes()
+    try:
+        data = read_regular_file(path)
+    except OSError as exc:
+        raise ValueError(f"unable to read {label}: {path}") from exc
     try:
         text = data.decode("utf-8", errors="strict")
     except UnicodeDecodeError as exc:
@@ -74,7 +79,7 @@ def _load_canonical(path: Path, model_type: type[_ModelT], label: str) -> _Model
 def _verify_blob(blob_dir: Path, digest: str, label: str) -> None:
     path = blob_dir / digest
     try:
-        data = path.read_bytes()
+        data = read_regular_file(path)
     except OSError as exc:
         raise ValueError(f"unable to read {label} CAS blob {digest}") from exc
     if sha256_hex(data) != digest:
@@ -88,33 +93,17 @@ def _verify_adjudication_cas(
     *,
     label_prefix: str = "",
 ) -> None:
-    for candidate in discovered.discovered_candidates:
-        _verify_blob(
-            blob_dir,
-            candidate.diff_evidence.patch_sha256,
-            f"{label_prefix}discovery patch",
-        )
+    try:
+        verify_discovery_direct_matches(blob_dir, discovered)
+    except ValueError as exc:
+        raise ValueError(f"{label_prefix}discovery direct-match replay failed: {exc}") from exc
     for artifact in evidence.source_artifacts:
         _verify_blob(blob_dir, artifact.blob_sha256, f"{label_prefix}source artifact")
 
 
-def _resolve_path(path: Path, label: str) -> Path:
-    try:
-        return path.resolve(strict=False)
-    except RuntimeError as exc:
-        raise ValueError(f"unable to resolve {label}: {path}") from exc
-
-
 def _require_distinct_outputs(ledger_path: Path, decision_path: Path) -> None:
-    try:
-        if _resolve_path(ledger_path, "candidate ledger output path") == _resolve_path(
-            decision_path, "decision output path"
-        ):
-            raise ValueError("output paths resolve to the same location")
-        if ledger_path.exists() and decision_path.exists() and ledger_path.samefile(decision_path):
-            raise ValueError("output paths alias the same existing file")
-    except OSError as exc:
-        raise ValueError("unable to verify that output paths are distinct") from exc
+    if ledger_path == decision_path:
+        raise ValueError("output paths must be distinct")
 
 
 def _require_valid_completion_state(ledger_path: Path, decision_path: Path) -> None:

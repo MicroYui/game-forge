@@ -38,6 +38,7 @@ from gameforge.bench.flare_evidence import (
     SearchRegistration,
     SelectionReason,
     canonical_bytes,
+    derive_direct_match_reasons,
     posix_glob_matches,
     put_blob,
     sha256_hex,
@@ -46,6 +47,11 @@ from gameforge.bench.flare_evidence import (
 _OID_RE = re.compile(r"[0-9a-f]{40}")
 _OID_BYTES_RE = re.compile(rb"[0-9a-f]{40}")
 _STATUS_RE = re.compile(rb"[A-Z][0-9]*")
+_PROMISOR_KEY_RE = re.compile(rb"remote\..*\.promisor")
+_PARTIAL_CLONE_FILTER_KEY_RE = re.compile(rb"remote\..*\.partialclonefilter")
+_PARTIAL_CLONE_GET_REGEXP = (
+    r"^(extensions\.partialclone|remote\..*\.(promisor|partialclonefilter))$"
+)
 _REASON_ORDER = {"direct_match": 0, "adjacent_context": 1, "lineage_context": 2}
 
 
@@ -103,9 +109,8 @@ def _normalize_path(value: str) -> str:
 
 def _validate_path_set(paths: Sequence[str]) -> list[str]:
     normalized = [_normalize_path(path) for path in paths]
-    folded = [path.casefold() for path in normalized]
-    if len(folded) != len(set(folded)):
-        raise GitEvidenceError("Git returned duplicate case-folded paths")
+    if len(normalized) != len(set(normalized)):
+        raise GitEvidenceError("Git returned duplicate paths")
     return sorted(normalized)
 
 
@@ -191,6 +196,118 @@ class ReadOnlyGitRepo:
     def _common_prefix(self) -> list[str]:
         return [str(self.git_dir) if token == "{repo}" else token for token in GIT_COMMON_PREFIX]
 
+    def _run_safety_config(
+        self,
+        args: Sequence[str],
+        *,
+        allowed_returncodes: frozenset[int] = frozenset({0}),
+    ) -> bytes:
+        command = [*self._common_prefix(), *args]
+        try:
+            completed = subprocess.run(
+                command,
+                check=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=self._child_environment(),
+                shell=False,
+            )
+        except OSError as exc:
+            raise GitEvidenceError("unable to inspect effective local Git configuration") from exc
+        if completed.returncode not in allowed_returncodes:
+            raise GitEvidenceError("unable to inspect effective local Git configuration")
+        if completed.returncode == 1 and (completed.stdout or completed.stderr):
+            raise GitEvidenceError("Git config reported no matches with unexpected output")
+        return completed.stdout
+
+    def _effective_local_partial_clone_entries(
+        self,
+    ) -> list[tuple[str, bytes, bytes | None]]:
+        output = self._run_safety_config(
+            (
+                "config",
+                "--includes",
+                "--null",
+                "--show-scope",
+                "--get-regexp",
+                _PARTIAL_CLONE_GET_REGEXP,
+            ),
+            allowed_returncodes=frozenset({0, 1}),
+        )
+        if output and not output.endswith(b"\x00"):
+            raise GitEvidenceError("effective local Git configuration has invalid output")
+        fields = output.split(b"\x00")
+        if fields and fields[-1] == b"":
+            fields.pop()
+        if len(fields) % 2:
+            raise GitEvidenceError("effective local Git configuration has invalid output")
+        entries: list[tuple[str, bytes, bytes | None]] = []
+        for index in range(0, len(fields), 2):
+            raw_scope, record = fields[index : index + 2]
+            try:
+                scope = raw_scope.decode("ascii", errors="strict")
+            except UnicodeDecodeError as exc:
+                raise GitEvidenceError("effective Git configuration has an invalid scope") from exc
+            raw_key, separator, raw_value = record.partition(b"\n")
+            if not raw_key:
+                raise GitEvidenceError("effective local Git configuration has an empty key")
+            if scope not in {"local", "worktree"}:
+                continue
+            entries.append((scope, raw_key, raw_value if separator else None))
+        return entries
+
+    @staticmethod
+    def _parse_git_boolean(value: bytes | None) -> bool:
+        if value is None:
+            return True
+        folded = value.lower()
+        if folded in {b"true", b"yes", b"on", b"1"}:
+            return True
+        if folded in {b"", b"false", b"no", b"off", b"0"}:
+            return False
+        if re.fullmatch(rb"[+-]?[0-9]+", folded) is not None:
+            return int(folded) != 0
+        raise GitEvidenceError("promisor configuration is not a valid Git boolean")
+
+    def _reject_partial_clone_config(self) -> None:
+        for _scope, raw_key, raw_value in self._effective_local_partial_clone_entries():
+            folded = raw_key.lower()
+            if folded == b"extensions.partialclone" or _PARTIAL_CLONE_FILTER_KEY_RE.fullmatch(
+                folded
+            ):
+                raise GitEvidenceError(
+                    "partial clone configuration is forbidden for evidence discovery"
+                )
+            if _PROMISOR_KEY_RE.fullmatch(folded):
+                remote_name = folded.removeprefix(b"remote.").removesuffix(b".promisor")
+                if not remote_name:
+                    raise GitEvidenceError(
+                        "promisor remote name must not be empty for evidence discovery"
+                    )
+                if self._parse_git_boolean(raw_value):
+                    raise GitEvidenceError(
+                        "promisor remote configuration is forbidden for evidence discovery"
+                    )
+
+    def _reject_promisor_object_store(self) -> None:
+        object_store = self._locate_common_git_dir() / "objects"
+        try:
+            if not object_store.is_dir():
+                raise GitEvidenceError("repository common object store does not exist")
+            pack_dir = object_store / "pack"
+            if pack_dir.is_dir():
+                if any(path.name.endswith(".promisor") for path in pack_dir.iterdir()):
+                    raise GitEvidenceError(
+                        "promisor object markers are forbidden for evidence discovery"
+                    )
+        except OSError as exc:
+            raise GitEvidenceError("unable to inspect repository common object store") from exc
+
+    def _preflight_object_reads(self) -> None:
+        self._reject_local_attributes()
+        self._reject_partial_clone_config()
+        self._reject_promisor_object_store()
+
     def _run(
         self,
         args: Sequence[str],
@@ -198,7 +315,6 @@ class ReadOnlyGitRepo:
         input_bytes: bytes | None = None,
         common_prefix: bool = True,
     ) -> bytes:
-        self._reject_local_attributes()
         command = [*(self._common_prefix() if common_prefix else ()), *args]
         try:
             completed = subprocess.run(
@@ -428,8 +544,7 @@ def discover_candidates(
     registration = SearchRegistration.model_validate(registration.model_dump(mode="python"))
 
     # Keep repository-state failures distinct from an unresolvable registered head.
-    repo._reject_local_attributes()
-    repo._child_environment()
+    repo._preflight_object_reads()
     try:
         resolved_head = repo.resolve(spec.pinned_head)
     except GitEvidenceError as exc:
@@ -455,20 +570,7 @@ def discover_candidates(
 
     selected_round_index = 0 if round_name == "initial" else 1
     selected_rounds = spec.rounds[: selected_round_index + 1]
-    compiled_rounds: list[
-        tuple[list[tuple[str, re.Pattern[str]]], list[tuple[str, re.Pattern[bytes]]]]
-    ] = []
-    for search_round in selected_rounds:
-        message_rules = [
-            (rule.rule_id, re.compile(rule.pattern)) for rule in search_round.message_regexes
-        ]
-        diff_rules: list[tuple[str, re.Pattern[bytes]]] = []
-        for rule in search_round.diff_regexes:
-            try:
-                diff_rules.append((rule.rule_id, re.compile(rule.pattern.encode("ascii"))))
-            except (UnicodeEncodeError, re.error) as exc:
-                raise GitEvidenceError(f"invalid ASCII bytes diff rule: {rule.rule_id}") from exc
-        compiled_rounds.append((message_rules, diff_rules))
+    selected_has_diff_rules = any(search_round.diff_regexes for search_round in selected_rounds)
 
     reasons: dict[str, list[SelectionReason]] = {}
     direct_oids: set[str] = set()
@@ -476,30 +578,21 @@ def discover_candidates(
         state = states[oid]
         if not state.eligible_paths:
             continue
-        direct_reasons: list[SelectionReason] = []
         eligible_patch: bytes | None = None
-        for message_rules, diff_rules in compiled_rounds:
-            matched_rule_ids = {
-                rule_id
-                for rule_id, pattern in message_rules
-                if pattern.search(state.metadata.facts.subject) is not None
-            }
-            if diff_rules and len(state.metadata.facts.parent_oids) <= 1:
-                if eligible_patch is None:
-                    eligible_patch = repo.eligible_patch_bytes(
-                        state.metadata.facts.diff_base_oid,
-                        oid,
-                        state.eligible_paths,
-                    )
-                matched_rule_ids.update(
-                    rule_id
-                    for rule_id, pattern in diff_rules
-                    if pattern.search(eligible_patch) is not None
-                )
-            if matched_rule_ids:
-                direct_reasons.append(
-                    SelectionReason(kind="direct_match", rule_ids=sorted(matched_rule_ids))
-                )
+        if selected_has_diff_rules and len(state.metadata.facts.parent_oids) <= 1:
+            eligible_patch = repo.eligible_patch_bytes(
+                state.metadata.facts.diff_base_oid,
+                oid,
+                state.eligible_paths,
+            )
+        direct_reasons = derive_direct_match_reasons(
+            spec,
+            round_name,
+            subject=state.metadata.facts.subject,
+            parent_count=len(state.metadata.facts.parent_oids),
+            eligible_paths=state.eligible_paths,
+            eligible_patch=eligible_patch,
+        )
         if direct_reasons:
             direct_oids.add(oid)
             reasons[oid] = direct_reasons
