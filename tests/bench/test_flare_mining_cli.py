@@ -421,6 +421,61 @@ def test_adjudicate_preflights_both_outputs_before_writing(
     assert decision.read_bytes() == b"conflicting-existing-decision\n"
 
 
+def test_adjudicate_resumes_exact_ledger_only_by_publishing_decision_last(
+    initial_discovered_path, initial_positive_evidence_path, blob_dir, tmp_path
+):
+    ledger = tmp_path / "candidate-ledger.json"
+    decision = tmp_path / "b0a-decision.json"
+    args = [
+        "adjudicate",
+        "--ledger",
+        str(initial_discovered_path),
+        "--evidence",
+        str(initial_positive_evidence_path),
+        "--blob-dir",
+        str(blob_dir),
+        "--out",
+        str(ledger),
+        "--decision-out",
+        str(decision),
+    ]
+    assert main(args) == 0
+    ledger_bytes = ledger.read_bytes()
+    decision_bytes = decision.read_bytes()
+    decision.unlink()
+
+    assert main(args) == 0
+    assert ledger.read_bytes() == ledger_bytes
+    assert decision.read_bytes() == decision_bytes
+
+
+def test_adjudicate_rejects_exact_decision_only_without_creating_ledger(
+    initial_discovered_path, initial_positive_evidence_path, blob_dir, tmp_path
+):
+    ledger = tmp_path / "candidate-ledger.json"
+    decision = tmp_path / "b0a-decision.json"
+    args = [
+        "adjudicate",
+        "--ledger",
+        str(initial_discovered_path),
+        "--evidence",
+        str(initial_positive_evidence_path),
+        "--blob-dir",
+        str(blob_dir),
+        "--out",
+        str(ledger),
+        "--decision-out",
+        str(decision),
+    ]
+    assert main(args) == 0
+    decision_bytes = decision.read_bytes()
+    ledger.unlink()
+
+    assert main(args) == 1
+    assert not ledger.exists()
+    assert decision.read_bytes() == decision_bytes
+
+
 def test_adjudicate_writes_decision_last_and_rolls_back_on_marker_failure(
     initial_discovered_path, initial_positive_evidence_path, blob_dir, tmp_path, monkeypatch
 ):
@@ -551,6 +606,42 @@ def test_adjudicate_rejects_normalized_resolved_output_alias_before_writing(
     assert exclusive_attempts == []
     assert not out.exists()
     assert "output paths" in capsys.readouterr().err
+
+
+def test_adjudicate_output_symlink_loop_is_one_stderr_line_without_traceback(
+    initial_discovered_path,
+    initial_positive_evidence_path,
+    blob_dir,
+    tmp_path,
+    capsys,
+):
+    loop = tmp_path / "output-loop"
+    loop.symlink_to(loop.name, target_is_directory=True)
+    decision = tmp_path / "decision.json"
+
+    assert (
+        main(
+            [
+                "adjudicate",
+                "--ledger",
+                str(initial_discovered_path),
+                "--evidence",
+                str(initial_positive_evidence_path),
+                "--blob-dir",
+                str(blob_dir),
+                "--out",
+                str(loop / "ledger.json"),
+                "--decision-out",
+                str(decision),
+            ]
+        )
+        == 1
+    )
+    stderr = capsys.readouterr().err
+    assert len(stderr.splitlines()) == 1
+    assert "Traceback" not in stderr
+    assert loop.is_symlink()
+    assert not decision.exists()
 
 
 def test_discover_rejects_noncanonical_search_spec_without_output(
@@ -804,6 +895,43 @@ def test_discover_git_failure_is_one_stderr_line_without_traceback(
     assert not out.exists() and not blobs.exists()
 
 
+def test_discover_repository_symlink_loop_is_one_stderr_line_without_traceback(
+    search_spec_path, tmp_path, capsys
+):
+    repo_loop = tmp_path / "repo-loop"
+    repo_loop.symlink_to(repo_loop.name, target_is_directory=True)
+    out = tmp_path / "discovered.json"
+    blobs = tmp_path / "blobs"
+
+    assert (
+        main(
+            [
+                "discover",
+                "--repo",
+                str(repo_loop),
+                "--search-spec",
+                str(search_spec_path),
+                "--registration-commit",
+                "a" * 40,
+                "--registration-path",
+                "scenarios/flare_corpus/search-spec.json",
+                "--round",
+                "initial",
+                "--out",
+                str(out),
+                "--blob-dir",
+                str(blobs),
+            ]
+        )
+        == 1
+    )
+    stderr = capsys.readouterr().err
+    assert len(stderr.splitlines()) == 1
+    assert "Traceback" not in stderr
+    assert repo_loop.is_symlink()
+    assert not out.exists() and not blobs.exists()
+
+
 def test_domain_failure_is_one_stderr_line_without_traceback(
     initial_positive_evidence_path, blob_dir, tmp_path, capsys
 ):
@@ -870,8 +998,9 @@ def test_module_entrypoint_distinguishes_gate_outcome_from_syntax_error(
     )
 
 
-def test_cli_has_no_probe_or_freeze_subcommands(capsys):
+@pytest.mark.parametrize("legacy_command", ["probe", "freeze"])
+def test_cli_has_no_probe_or_freeze_subcommands(legacy_command, capsys):
     with pytest.raises(SystemExit) as exc:
-        main(["probe"])
+        main([legacy_command])
     assert exc.value.code == 2
     assert "invalid choice" in capsys.readouterr().err

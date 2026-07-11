@@ -87,14 +87,28 @@ def _verify_adjudication_cas(
         _verify_blob(blob_dir, artifact.blob_sha256, "source artifact")
 
 
+def _resolve_path(path: Path, label: str) -> Path:
+    try:
+        return path.resolve(strict=False)
+    except RuntimeError as exc:
+        raise ValueError(f"unable to resolve {label}: {path}") from exc
+
+
 def _require_distinct_outputs(ledger_path: Path, decision_path: Path) -> None:
     try:
-        if ledger_path.resolve(strict=False) == decision_path.resolve(strict=False):
+        if _resolve_path(ledger_path, "candidate ledger output path") == _resolve_path(
+            decision_path, "decision output path"
+        ):
             raise ValueError("output paths resolve to the same location")
         if ledger_path.exists() and decision_path.exists() and ledger_path.samefile(decision_path):
             raise ValueError("output paths alias the same existing file")
     except OSError as exc:
         raise ValueError("unable to verify that output paths are distinct") from exc
+
+
+def _require_valid_completion_state(ledger_path: Path, decision_path: Path) -> None:
+    if decision_path.exists() and not ledger_path.exists():
+        raise FileExistsError("decision completion marker exists without candidate ledger")
 
 
 def _discover(args: argparse.Namespace) -> int:
@@ -104,7 +118,7 @@ def _discover(args: argparse.Namespace) -> int:
         repo_relative_path=args.registration_path,
     )
     ledger = discover_candidates(
-        ReadOnlyGitRepo(args.repo),
+        ReadOnlyGitRepo(_resolve_path(args.repo, "repository path")),
         search_spec,
         registration,
         args.round,
@@ -117,6 +131,7 @@ def _discover(args: argparse.Namespace) -> int:
 
 def _adjudicate(args: argparse.Namespace) -> int:
     _require_distinct_outputs(args.out, args.decision_out)
+    _require_valid_completion_state(args.out, args.decision_out)
     discovered = _load_canonical(args.ledger, DiscoveryLedger, "discovery ledger")
     evidence = _load_canonical(args.evidence, AdjudicationEvidence, "adjudication evidence")
     prior_ledger = (
