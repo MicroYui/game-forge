@@ -113,7 +113,10 @@ def _discover(args: argparse.Namespace) -> int:
     )
     write_new_or_identical(args.out, canonical_bytes(ledger))
     print(
-        f"discovery complete: {len(ledger.discovered_candidates)} candidates",
+        "discovery complete: "
+        f"selected={len(ledger.discovered_candidates)} "
+        f"matched={ledger.matched_candidate_count} "
+        f"config_only={ledger.config_only_candidate_count}",
         file=sys.stderr,
     )
     return 0

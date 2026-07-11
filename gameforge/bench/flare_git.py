@@ -64,6 +64,7 @@ def _policy(
         candidate_order=tuple(
             CandidateOrderTerm(field=field, direction="ascending") for field in spec.candidate_order
         ),
+        include_first_parent_adjacent_context=True,
         candidate_limit=None,
     )
 

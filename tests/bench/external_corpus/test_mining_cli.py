@@ -39,7 +39,9 @@ def test_review_package_cli_never_adds_approval_fields(tmp_path):
     assert all("disposition" not in row for row in payload["rows"])
 
 
-def test_discover_cli_runs_the_registered_profile_without_source_subcommands(tmp_path):
+def test_discover_cli_runs_the_registered_profile_without_source_subcommands(
+    tmp_path, capsys
+):
     upstream = build_generic_git_repo(tmp_path / "upstream")
     profile = _sky_profile(upstream)
     profile_path = tmp_path / "profile.json"
@@ -70,6 +72,10 @@ def test_discover_cli_runs_the_registered_profile_without_source_subcommands(tmp
     ledger = DiscoveryLedger.model_validate_json(output.read_bytes())
     assert ledger.source_id == "fixture_sky"
     assert len(ledger.discovered_candidates) == 3
+    assert (
+        capsys.readouterr().err
+        == "discovery complete: selected=3 matched=10 config_only=7\n"
+    )
 
 
 @pytest.mark.parametrize(("groups", "exit_code"), [(8, 0), (7, 3)])

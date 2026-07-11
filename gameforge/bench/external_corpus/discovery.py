@@ -52,6 +52,7 @@ class DiscoveryPolicy:
     direct_rule_groups: tuple[DirectRuleGroup, ...]
     lineage_rules: tuple[LineageRegexRule, ...]
     candidate_order: tuple[CandidateOrderTerm, CandidateOrderTerm]
+    include_first_parent_adjacent_context: bool
     candidate_limit: int | None
     expected_matched_candidate_count: int | None = None
     expected_config_only_candidate_count: int | None = None
@@ -225,28 +226,29 @@ def discover_objective_candidates(
             direct_oids.add(oid)
             reasons[oid] = direct_reasons
 
-    first_parent_children: dict[str, list[str]] = {}
-    for oid, state in states.items():
-        parents = state.metadata.commit.parent_oids
-        if parents:
-            first_parent_children.setdefault(parents[0], []).append(oid)
-    for children in first_parent_children.values():
-        children.sort()
+    if policy.include_first_parent_adjacent_context:
+        first_parent_children: dict[str, list[str]] = {}
+        for oid, state in states.items():
+            parents = state.metadata.commit.parent_oids
+            if parents:
+                first_parent_children.setdefault(parents[0], []).append(oid)
+        for children in first_parent_children.values():
+            children.sort()
 
-    for anchor_oid in sorted(direct_oids):
-        anchor = states[anchor_oid]
-        neighbors: list[str] = []
-        parents = anchor.metadata.commit.parent_oids
-        if parents and parents[0] in reachable:
-            neighbors.append(parents[0])
-        neighbors.extend(first_parent_children.get(anchor_oid, ()))
-        anchor_paths = set(anchor.eligible_paths)
-        for neighbor_oid in sorted(set(neighbors)):
-            if anchor_paths.isdisjoint(states[neighbor_oid].eligible_paths):
-                continue
-            reasons.setdefault(neighbor_oid, []).append(
-                SelectionReason(kind="adjacent_context", anchor_oid=anchor_oid)
-            )
+        for anchor_oid in sorted(direct_oids):
+            anchor = states[anchor_oid]
+            neighbors: list[str] = []
+            parents = anchor.metadata.commit.parent_oids
+            if parents and parents[0] in reachable:
+                neighbors.append(parents[0])
+            neighbors.extend(first_parent_children.get(anchor_oid, ()))
+            anchor_paths = set(anchor.eligible_paths)
+            for neighbor_oid in sorted(set(neighbors)):
+                if anchor_paths.isdisjoint(states[neighbor_oid].eligible_paths):
+                    continue
+                reasons.setdefault(neighbor_oid, []).append(
+                    SelectionReason(kind="adjacent_context", anchor_oid=anchor_oid)
+                )
 
     objective_links: dict[str, LineageLink] = {}
     pending = sorted(reasons)
@@ -414,6 +416,7 @@ def discover_candidates(
         ),
         lineage_rules=profile.lineage_rules,
         candidate_order=profile.candidate_order,
+        include_first_parent_adjacent_context=False,
         candidate_limit=profile.b0a_protocol.candidate_limit,
         expected_matched_candidate_count=profile.b0a_protocol.expected_matched_candidate_count,
         expected_config_only_candidate_count=(

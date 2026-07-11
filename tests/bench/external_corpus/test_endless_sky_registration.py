@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import hashlib
+import subprocess
 from pathlib import Path
 
 from gameforge.bench.external_corpus.contracts import SourceProfile, canonical_bytes
@@ -12,6 +13,7 @@ ROOT = Path(__file__).resolve().parents[3]
 REGISTRATION_DIR = ROOT / "scenarios/external_corpus/endless_sky"
 PROFILE_PATH = REGISTRATION_DIR / "source-profile.json"
 PINNED_HEAD = "b10b7d6c24496e2f67a230a2553b344e200ba289"
+REGISTRATION_COMMIT = "b018283e52fe9bd879e14fb5039e601423d3f164"
 UPSTREAM_ARTIFACT_SHA256 = {
     "LICENSE.endless-sky.txt": "589ed823e9a84c56feb95ac58e7cf384626b9cbf4fda2a907bc36e103de1bad2",
     "COPYRIGHT.endless-sky": "533a3ea9aaba5dbb0dcb2279944866fd70a625c18309fbec2d09463aec6f1b19",
@@ -76,9 +78,23 @@ def test_registration_freezes_exact_pinned_upstream_notice_bytes() -> None:
         assert required in notice
 
 
-def test_registration_contains_no_discovery_or_adjudication_result() -> None:
-    names = {path.name for path in REGISTRATION_DIR.iterdir()}
+def test_registration_commit_contains_no_discovery_or_adjudication_result() -> None:
+    completed = subprocess.run(
+        [
+            "git",
+            "-C",
+            str(ROOT),
+            "ls-tree",
+            "--name-only",
+            f"{REGISTRATION_COMMIT}:scenarios/external_corpus/endless_sky",
+        ],
+        check=True,
+        stdout=subprocess.PIPE,
+        text=True,
+    )
+    names = set(completed.stdout.splitlines())
 
+    assert "source-profile.json" in names
     assert "candidate-ledger.discovered.json" not in names
     assert "review-package.json" not in names
     assert "adjudication-evidence.json" not in names

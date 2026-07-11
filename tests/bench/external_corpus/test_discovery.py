@@ -124,8 +124,8 @@ def _sky_profile(fixture: GenericGitFixture, *, limit: int = 3) -> SourceProfile
         message_pattern=r"(?i)(?:fix|missing)",
         order_direction="descending",
         limit=limit,
-        matched=13,
-        config_only=10,
+        matched=10,
+        config_only=7,
     )
 
 
@@ -157,11 +157,36 @@ def test_profiles_share_one_engine_without_source_conditionals(generic_git_repo,
     assert len(sky.discovered_candidates) == 3
     committed_at = [item.commit.committed_at for item in sky.discovered_candidates]
     assert committed_at == sorted(committed_at, reverse=True)
-    assert sky.matched_candidate_count == 13
-    assert sky.config_only_candidate_count == 10
+    assert sky.matched_candidate_count == 10
+    assert sky.config_only_candidate_count == 7
 
 
-def test_full_discovery_records_context_lineage_patch_ids_and_cas(generic_git_repo, tmp_path):
+def test_generic_profile_does_not_infer_unregistered_adjacent_context(
+    generic_git_repo, tmp_path
+):
+    profile = _sky_profile(generic_git_repo, limit=100)
+
+    ledger = discover_candidates(
+        ReadOnlyGitRepo(generic_git_repo.path),
+        profile,
+        _registration(profile.source_id),
+        tmp_path / "blobs",
+    )
+    selected_oids = {
+        candidate.commit.commit_oid for candidate in ledger.discovered_candidates
+    }
+
+    assert generic_git_repo.data_fix in selected_oids
+    assert generic_git_repo.data_missing in selected_oids
+    assert generic_git_repo.data_adjacent not in selected_oids
+    assert all(
+        reason.kind != "adjacent_context"
+        for candidate in ledger.discovered_candidates
+        for reason in candidate.selection_reasons
+    )
+
+
+def test_full_discovery_records_lineage_patch_ids_and_cas(generic_git_repo, tmp_path):
     profile = _sky_profile(generic_git_repo, limit=100)
     blob_dir = tmp_path / "blobs"
 
@@ -173,10 +198,6 @@ def test_full_discovery_records_context_lineage_patch_ids_and_cas(generic_git_re
     )
     by_oid = {item.commit.commit_oid: item for item in ledger.discovered_candidates}
 
-    assert any(
-        reason.kind == "adjacent_context"
-        for reason in by_oid[generic_git_repo.data_adjacent].selection_reasons
-    )
     assert any(
         reason.kind == "lineage_context"
         for reason in by_oid[generic_git_repo.mods_fix].selection_reasons
