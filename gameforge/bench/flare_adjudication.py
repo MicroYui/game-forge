@@ -7,6 +7,7 @@ from typing import TypeVar
 
 from pydantic import BaseModel
 
+from gameforge.bench.external_corpus.adjudication import count_supply
 from gameforge.bench.flare_evidence import (
     B0A_DEFECT_CLASSES,
     AdjudicationEvidence,
@@ -317,20 +318,9 @@ def evaluate_provisional_gate(
                     f"not_applicable class {case.defect_class.value} cannot be proposed"
                 )
 
-    # A repeated ID is one reviewed fix, even if supplied more than once.
-    unique_groups: dict[str, CandidateFixGroup] = {}
-    for group in validated_groups:
-        unique_groups.setdefault(group.fix_group_id, group)
-    counted = [group for group in unique_groups.values() if group.counts_toward_gate]
-    proposed_classes = {
-        case.defect_class
-        for group in counted
-        for case in group.cases
-        if case.disposition == "proposed"
-        and rows[case.defect_class].domain_applicability == "applicable"
-    }
-    proposed_group_count = len(counted)
-    proposed_class_count = len(proposed_classes)
+    proposed_group_count, proposed_class_count = count_supply(
+        validated_groups, validated_matrix
+    )
     passed = proposed_group_count >= 8 and proposed_class_count >= 4
     if passed:
         status = "provisional_pass"
