@@ -4,7 +4,9 @@ import pytest
 
 from gameforge.agents import harness, playtest_harness
 from gameforge.agents.base import DEFAULT_SNAPSHOT, M2_REPLAY_SNAPSHOT
-from gameforge.runtime.model_router.transport import OpenAITransport
+from gameforge.runtime.model_router.openai_compatible_transport import (
+    OpenAICompatibleTransport,
+)
 
 
 @pytest.mark.parametrize("module", [harness, playtest_harness])
@@ -16,7 +18,7 @@ def test_record_router_uses_new_default_over_openai_compatible_transport(
     router = module.record_router(str(tmp_path))
 
     assert router.default_model_snapshot == DEFAULT_SNAPSHOT
-    assert isinstance(router._transport, OpenAITransport)
+    assert isinstance(router._transport, OpenAICompatibleTransport)
 
 
 @pytest.mark.parametrize("module", [harness, playtest_harness])
