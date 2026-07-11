@@ -15,6 +15,7 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import Protocol
 
+from gameforge.agents.base import resolve_model_snapshot
 from gameforge.contracts.model_router import Message, ModelRequest, ModelSnapshot
 from gameforge.runtime.model_router.router import ModelRouter
 
@@ -36,7 +37,6 @@ _NEGATIVE_REFLECT_VERDICTS = frozenset({"unreachable", "abort_quest", "stuck", "
 # How many trailing episodes DeterministicCompactor includes in its tail digest.
 _COMPACT_TAIL = 8
 
-_COMPACT_SNAPSHOT = ModelSnapshot(provider="anthropic", model="claude-opus-4-8", snapshot_tag="m2a@1")
 _COMPACT_PROMPT_VERSION = "playtest.memory.compact@1"
 _COMPACT_NODE_ID = "playtest.memory"
 
@@ -330,8 +330,9 @@ class LLMCompactor:
     response all degrade to the deterministic digest rather than raise.
     """
 
-    def __init__(self) -> None:
+    def __init__(self, snapshot: ModelSnapshot | None = None) -> None:
         self._fallback = DeterministicCompactor()
+        self._snapshot = snapshot
 
     def compact(
         self,
@@ -346,7 +347,7 @@ class LLMCompactor:
             return digest
         try:
             req = ModelRequest(
-                model_snapshot=_COMPACT_SNAPSHOT,
+                model_snapshot=resolve_model_snapshot(router, self._snapshot),
                 messages=[Message(role="user", content=digest)],
                 params={"max_tokens": 512, "temperature": 0},
                 agent_node_id=node_id,

@@ -249,14 +249,37 @@ class _ScriptedRouter:
     distinct summary string, and counts invocations so a test can prove the
     router path was genuinely entered."""
 
-    def __init__(self, text: str) -> None:
+    def __init__(self, text: str, default_model_snapshot=None) -> None:
         self._text = text
         self.calls = 0
+        self.default_model_snapshot = default_model_snapshot
+        self.requests = []
 
     def call(self, req):  # noqa: ANN001 — Protocol shape only
         self.calls += 1
+        self.requests.append(req)
         from gameforge.contracts.model_router import ModelResponse
         return ModelResponse(response_normalized=self._text)
+
+
+def test_llm_compactor_uses_router_model_policy_and_allows_node_override():
+    from gameforge.agents.base import DEFAULT_SNAPSHOT, M2_REPLAY_SNAPSHOT
+    from gameforge.agents.playtest.memory import LLMCompactor
+
+    step = _step(state="a", result="ok", state_hash="h1")
+    live_router = _ScriptedRouter("live", default_model_snapshot=DEFAULT_SNAPSHOT)
+    replay_router = _ScriptedRouter("replay", default_model_snapshot=DEFAULT_SNAPSHOT)
+
+    live = MemTrace(compactor=LLMCompactor())
+    live.record(step)
+    live.compact(live.trace[:], verdicts=[], router=live_router)
+
+    replay = MemTrace(compactor=LLMCompactor(snapshot=M2_REPLAY_SNAPSHOT))
+    replay.record(step)
+    replay.compact(replay.trace[:], verdicts=[], router=replay_router)
+
+    assert live_router.requests[0].model_snapshot == DEFAULT_SNAPSHOT
+    assert replay_router.requests[0].model_snapshot == M2_REPLAY_SNAPSHOT
 
 
 def test_recall_text_gains_digest_section_only_after_compact():

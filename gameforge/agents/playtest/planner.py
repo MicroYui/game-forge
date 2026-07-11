@@ -9,7 +9,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from gameforge.agents.base import DEFAULT_SNAPSHOT, AgentParseError, call_model, parse_json_block
+from gameforge.agents.base import AgentParseError, call_model, parse_json_block
 from gameforge.agents.playtest.prompts import register_playtest_prompts
 from gameforge.agents.prompts.registry import get_prompt
 from gameforge.contracts.model_router import ModelSnapshot
@@ -27,7 +27,7 @@ _FALLBACK_SUBGOAL: Subgoal = {"quest": None, "step_kind": "advance", "_fallback"
 class Planner:
     node_id = "playtest.planner"
 
-    def __init__(self, snapshot: ModelSnapshot = DEFAULT_SNAPSHOT) -> None:
+    def __init__(self, snapshot: ModelSnapshot | None = None) -> None:
         self.snapshot = snapshot
 
     def plan(

@@ -13,11 +13,28 @@ from gameforge.contracts.model_router import (
 )
 from gameforge.runtime.model_router.router import ModelRouter
 
-DEFAULT_SNAPSHOT = ModelSnapshot(provider="anthropic", model="claude-opus-4-8", snapshot_tag="m2a@1")
+DEFAULT_SNAPSHOT = ModelSnapshot(
+    provider="openai",
+    model="gpt5.6sol",
+    snapshot_tag="pre-m4@1",
+)
+M2_REPLAY_SNAPSHOT = ModelSnapshot(
+    provider="anthropic",
+    model="claude-opus-4-8",
+    snapshot_tag="m2a@1",
+)
 
 
 class AgentParseError(Exception):
     pass
+
+
+def resolve_model_snapshot(
+    router: ModelRouter,
+    snapshot: ModelSnapshot | None = None,
+) -> ModelSnapshot:
+    """Resolve explicit node policy, then session policy, then product default."""
+    return snapshot or getattr(router, "default_model_snapshot", None) or DEFAULT_SNAPSHOT
 
 
 def parse_json_block(text: str):
@@ -48,14 +65,14 @@ def call_model(
     *,
     system: str | None = None,
     params: dict | None = None,
-    snapshot: ModelSnapshot = DEFAULT_SNAPSHOT,
+    snapshot: ModelSnapshot | None = None,
 ) -> tuple[ModelResponse, str]:
     messages: list[Message] = []
     if system is not None:
         messages.append(Message(role="system", content=system))
     messages.append(Message(role="user", content=user_prompt))
     req = ModelRequest(
-        model_snapshot=snapshot,
+        model_snapshot=resolve_model_snapshot(router, snapshot),
         messages=messages,
         params=params or {"max_tokens": 2048, "temperature": 0},
         agent_node_id=agent_node_id,

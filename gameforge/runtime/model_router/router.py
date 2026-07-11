@@ -10,7 +10,12 @@ import time
 from enum import Enum
 
 from gameforge.contracts.cassette import CASSETTE_MISS, CassetteRecord
-from gameforge.contracts.model_router import ModelRequest, ModelResponse, request_hash
+from gameforge.contracts.model_router import (
+    ModelRequest,
+    ModelResponse,
+    ModelSnapshot,
+    request_hash,
+)
 from gameforge.runtime.cassette.store import CassetteStore
 from gameforge.runtime.model_router.transport import LlmTransport
 
@@ -41,6 +46,7 @@ class ModelRouter:
         max_calls: int | None = None,
         resume: bool = False,
         retry_backoff_s: float = 0.0,
+        default_model_snapshot: ModelSnapshot | None = None,
     ) -> None:
         self._transport = transport
         self._store = store
@@ -52,12 +58,18 @@ class ModelRouter:
         # positive value lets a long RECORD ride through a flapping gateway
         # (transient 500s) instead of aborting the whole run.
         self._retry_backoff_s = retry_backoff_s
+        self._default_model_snapshot = default_model_snapshot
         # RECORD + resume: reuse any cassette already on disk instead of
         # re-calling the transport, so an interrupted multi-thousand-call record
         # pass can be restarted and only records the still-missing requests.
         self._resume = resume
         self._live_calls = 0
         self._session_cache: dict[str, ModelResponse] = {}
+
+    @property
+    def default_model_snapshot(self) -> ModelSnapshot | None:
+        """Session-level model policy used when an Agent node has no override."""
+        return self._default_model_snapshot
 
     def call(self, req: ModelRequest) -> ModelResponse:
         h = request_hash(req)

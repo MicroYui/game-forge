@@ -13,7 +13,7 @@ from __future__ import annotations
 
 import json
 
-from gameforge.agents.base import DEFAULT_SNAPSHOT, AgentParseError, call_model, parse_json_block
+from gameforge.agents.base import AgentParseError, call_model, parse_json_block
 from gameforge.agents.playtest.prompts import register_playtest_prompts
 from gameforge.agents.prompts.registry import get_prompt
 from gameforge.contracts.model_router import ModelSnapshot
@@ -37,7 +37,7 @@ def _render_trace(trace: list[dict]) -> str:
 
 
 def reflect(
-    trace: list[dict], router: ModelRouter, *, snapshot: ModelSnapshot = DEFAULT_SNAPSHOT
+    trace: list[dict], router: ModelRouter, *, snapshot: ModelSnapshot | None = None
 ) -> tuple[str, str]:
     """Ask the Reflector for one corrective hint given a stuck `trace`.
 

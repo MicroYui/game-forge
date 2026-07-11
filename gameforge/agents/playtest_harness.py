@@ -26,6 +26,7 @@ import random
 import sys
 from dataclasses import dataclass
 
+from gameforge.agents.base import DEFAULT_SNAPSHOT, M2_REPLAY_SNAPSHOT
 from gameforge.agents.playtest.agent import PlaytestAgent
 from gameforge.agents.playtest.memory import LLMCompactor, MemTrace
 from gameforge.agents.scenario_gen import generate_chains
@@ -307,7 +308,10 @@ class _NoLiveTransport:
 def replay_router(cassettes_root: str = _CASSETTES_ROOT) -> ModelRouter:
     """REPLAY router over `cassettes/playtest/` — zero live calls (CI / acceptance)."""
     return ModelRouter(
-        _NoLiveTransport(), CassetteStore(cassettes_root), mode=RouterMode.REPLAY
+        _NoLiveTransport(),
+        CassetteStore(cassettes_root),
+        mode=RouterMode.REPLAY,
+        default_model_snapshot=M2_REPLAY_SNAPSHOT,
     )
 
 
@@ -317,18 +321,17 @@ def record_router(cassettes_root: str = _CASSETTES_ROOT) -> ModelRouter:
     Imported lazily so importing this module (e.g. in REPLAY tests) never pulls
     in the HTTP transport or requires a key.
     """
-    from gameforge.runtime.model_router.anthropic_transport import (
-        AnthropicMessagesTransport,
-    )
+    from gameforge.runtime.model_router.transport import OpenAITransport
     from gameforge.runtime.secrets.env import get_llm_key
 
     return ModelRouter(
-        AnthropicMessagesTransport(base_url="http://localhost:4141", api_key=get_llm_key()),
+        OpenAITransport(base_url="http://localhost:4141", api_key=get_llm_key()),
         CassetteStore(cassettes_root),
         mode=RouterMode.RECORD,
         resume=True,
         max_retries=8,
         retry_backoff_s=3.0,
+        default_model_snapshot=DEFAULT_SNAPSHOT,
     )
 
 

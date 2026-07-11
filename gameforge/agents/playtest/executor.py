@@ -12,7 +12,7 @@ import json
 
 from pydantic import ValidationError
 
-from gameforge.agents.base import DEFAULT_SNAPSHOT, AgentParseError, call_model, parse_json_block
+from gameforge.agents.base import AgentParseError, call_model, parse_json_block
 from gameforge.agents.playtest.planner import Subgoal
 from gameforge.agents.playtest.prompts import register_playtest_prompts
 from gameforge.agents.prompts.registry import get_prompt
@@ -28,7 +28,7 @@ _FALLBACK_ACTION: Action = parse_action({"kind": "observe"})
 class Executor:
     node_id = "playtest.executor"
 
-    def __init__(self, snapshot: ModelSnapshot = DEFAULT_SNAPSHOT) -> None:
+    def __init__(self, snapshot: ModelSnapshot | None = None) -> None:
         self.snapshot = snapshot
 
     def act(
