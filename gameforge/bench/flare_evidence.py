@@ -2,31 +2,43 @@
 
 from __future__ import annotations
 
-import hashlib
 import os
 import re
 import secrets
-import stat
-from datetime import date
-from fnmatch import fnmatchcase
-from functools import lru_cache
-from pathlib import Path, PurePosixPath
+from pathlib import Path
 from types import MappingProxyType
 from typing import Annotated, Any, Literal, Mapping, Sequence
-from urllib.parse import urlparse
 
 from pydantic import (
-    BaseModel,
-    ConfigDict,
     Field,
-    StringConstraints,
-    field_serializer,
     field_validator,
     model_validator,
 )
 
+from gameforge.bench.external_corpus.contracts import (
+    CandidateCommit as CandidateCommit,
+    DiffEvidence,
+    DiscoveredCandidate,
+    EvidenceArtifact,
+    EvidenceRef,
+    GitCommandSpec,
+    GitEnvironmentPolicy,
+    LineageLink,
+    LineageRegexRule,
+    NonEmptyStr,
+    Oid,
+    RegexRule,
+    SelectionReason,
+    Sha256,
+    StableId,
+    _StrictModel,
+    _validate_posix_relative,
+    canonical_bytes,
+    posix_glob_matches,
+    read_regular_file,
+    sha256_hex,
+)
 from gameforge.bench.taxonomy import CLASS_META, Bucket, DefectClass
-from gameforge.contracts.canonical import canonical_json
 
 
 FLARE_B0A_SCHEMA_VERSION = "flare-b0a@1"
@@ -141,45 +153,6 @@ CONFIG_ONLY_RULE = "all_changed_paths_eligible"
 SELECTED_ROUND_SEMANTICS = "union_through_selected"
 ISSUE_PR_DISCOVERY = "disabled_offline_only"
 
-Oid = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{40}$")]
-Sha256 = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
-StableId = Annotated[
-    str,
-    StringConstraints(pattern=r"^[A-Za-z0-9][A-Za-z0-9._:-]*$", min_length=1),
-]
-NonEmptyStr = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
-
-
-class _StrictModel(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-
-def _compile_regex(pattern: str) -> str:
-    try:
-        re.compile(pattern)
-    except re.error as exc:
-        raise ValueError(f"invalid regex: {exc}") from exc
-    return pattern
-
-
-def _validate_posix_relative(value: str, *, suffix: str | None = None) -> str:
-    if not value or "\x00" in value or "\\" in value:
-        raise ValueError("must be a nonempty POSIX path")
-    path = PurePosixPath(value)
-    if path.is_absolute() or ".." in path.parts or "." in path.parts:
-        raise ValueError("must be a repository-relative POSIX path")
-    if str(path) != value:
-        raise ValueError("must be a normalized POSIX path")
-    if suffix is not None and path.suffix != suffix:
-        raise ValueError(f"must end in {suffix}")
-    return value
-
-
-def _validate_blob_binding(path: str, digest: str) -> None:
-    if path != f"blobs/{digest}":
-        raise ValueError("blob path must be blobs/{sha256}")
-
-
 def _expected_applicability(defect_class: DefectClass) -> str:
     if defect_class in {
         DefectClass.prob_sum_ne_1,
@@ -204,85 +177,6 @@ def _validate_exact_matrix(rows: list[Any] | tuple[Any, ...], name: str) -> None
     classes = [row.defect_class for row in rows]
     if len(classes) != len(B0A_DEFECT_CLASSES) or set(classes) != set(B0A_DEFECT_CLASSES):
         raise ValueError(f"{name} must contain each B0A defect class exactly once")
-
-
-class RegexRule(_StrictModel):
-    rule_id: StableId
-    pattern: NonEmptyStr
-
-    _validate_pattern = field_validator("pattern")(_compile_regex)
-
-
-class LineageRegexRule(_StrictModel):
-    rule_id: StableId
-    link_type: Literal["backport", "cherry_pick", "revert"]
-    pattern: NonEmptyStr
-
-    @field_validator("pattern")
-    @classmethod
-    def validate_pattern(cls, value: str) -> str:
-        _compile_regex(value)
-        compiled = re.compile(value)
-        if compiled.groups != 1:
-            raise ValueError("lineage regex must have exactly one OID capture group")
-        return value
-
-
-class GitCommandSpec(_StrictModel):
-    common_prefix: tuple[str, ...]
-    empty_tree_args: tuple[str, ...]
-    eligible_path_suffix: tuple[str, ...]
-    history_args: tuple[str, ...]
-    metadata_args: tuple[str, ...]
-    patch_args: tuple[str, ...]
-    patch_id_args: tuple[str, ...]
-    paths_args: tuple[str, ...]
-    resolve_args: tuple[str, ...]
-    version_command: tuple[str, ...]
-
-    @model_validator(mode="after")
-    def validate_frozen_commands(self) -> GitCommandSpec:
-        expected = {
-            "common_prefix": GIT_COMMON_PREFIX,
-            "empty_tree_args": GIT_EMPTY_TREE_ARGS,
-            "eligible_path_suffix": GIT_ELIGIBLE_PATH_SUFFIX,
-            "history_args": GIT_HISTORY_ARGS,
-            "metadata_args": GIT_METADATA_ARGS,
-            "patch_args": GIT_PATCH_ARGS,
-            "patch_id_args": GIT_PATCH_ID_ARGS,
-            "paths_args": GIT_PATHS_ARGS,
-            "resolve_args": GIT_RESOLVE_ARGS,
-            "version_command": GIT_VERSION_COMMAND,
-        }
-        changed = [name for name, value in expected.items() if getattr(self, name) != value]
-        if changed:
-            raise ValueError(f"git_commands differ from frozen contract: {', '.join(changed)}")
-        return self
-
-
-class GitEnvironmentPolicy(_StrictModel):
-    drop_inherited_prefixes: tuple[str, ...]
-    fixed: Mapping[str, str]
-    inherit_allowlist: tuple[str, ...]
-
-    @field_validator("fixed", mode="after")
-    @classmethod
-    def freeze_fixed_environment(cls, value: Mapping[str, str]) -> Mapping[str, str]:
-        return MappingProxyType(dict(value))
-
-    @field_serializer("fixed")
-    def serialize_fixed_environment(self, value: Mapping[str, str]) -> dict[str, str]:
-        return dict(value)
-
-    @model_validator(mode="after")
-    def validate_frozen_policy(self) -> GitEnvironmentPolicy:
-        if self.drop_inherited_prefixes != GIT_DROP_INHERITED_PREFIXES:
-            raise ValueError("git_environment_policy.drop_inherited_prefixes differs")
-        if self.inherit_allowlist != GIT_INHERIT_ALLOWLIST:
-            raise ValueError("git_environment_policy.inherit_allowlist differs")
-        if self.fixed != GIT_FIXED_ENVIRONMENT:
-            raise ValueError("git_environment_policy.fixed differs")
-        return self
 
 
 class SearchAdjacency(_StrictModel):
@@ -392,52 +286,6 @@ class DiscoveryTool(_StrictModel):
     python_version: NonEmptyStr
     python_build: tuple[str, str]
     unicode_version: NonEmptyStr
-
-
-class CandidateCommit(_StrictModel):
-    commit_oid: Oid
-    parent_oids: list[Oid]
-    selected_parent_oid: Oid | None = None
-    diff_base_oid: Oid
-    committed_at: Annotated[int, Field(ge=0)]
-    subject: str
-
-    @model_validator(mode="after")
-    def validate_parent_selection(self) -> CandidateCommit:
-        if len(self.parent_oids) != len(set(self.parent_oids)):
-            raise ValueError("parent_oids must be unique")
-        if self.parent_oids:
-            if self.selected_parent_oid != self.parent_oids[0]:
-                raise ValueError("selected_parent_oid must be the first parent")
-            if self.diff_base_oid != self.selected_parent_oid:
-                raise ValueError("diff_base_oid must be the selected parent")
-        else:
-            if self.selected_parent_oid is not None:
-                raise ValueError("a root commit cannot have selected_parent_oid")
-            if self.diff_base_oid != GIT_EMPTY_TREE_OID:
-                raise ValueError("a root commit diff_base_oid must be the SHA-1 empty-tree OID")
-        return self
-
-
-class SelectionReason(_StrictModel):
-    kind: Literal["direct_match", "adjacent_context", "lineage_context"]
-    rule_ids: list[StableId] = Field(default_factory=list)
-    anchor_oid: Oid | None = None
-    lineage_link_id: Sha256 | None = None
-
-    @model_validator(mode="after")
-    def validate_reason_details(self) -> SelectionReason:
-        if self.rule_ids != sorted(set(self.rule_ids)):
-            raise ValueError("selection rule IDs must be sorted and unique")
-        if self.kind == "direct_match":
-            if not self.rule_ids or self.anchor_oid is not None or self.lineage_link_id is not None:
-                raise ValueError("direct_match requires only rule_ids")
-        elif self.kind == "adjacent_context":
-            if self.anchor_oid is None or self.rule_ids or self.lineage_link_id is not None:
-                raise ValueError("adjacent_context requires only anchor_oid")
-        elif self.lineage_link_id is None or self.rule_ids or self.anchor_oid is not None:
-            raise ValueError("lineage_context requires only lineage_link_id")
-        return self
 
 
 def _selected_search_rounds(
@@ -558,66 +406,6 @@ def extract_eligible_patch_bytes(
     if seen != set(changed):
         raise ValueError("full patch blocks do not exactly cover changed_paths")
     return b"".join(selected)
-
-
-class DiffEvidence(_StrictModel):
-    commit_oid: Oid
-    patch_sha256: Sha256
-    patch_blob: str
-    commit_message: str
-
-    @model_validator(mode="after")
-    def validate_patch_blob(self) -> DiffEvidence:
-        _validate_blob_binding(self.patch_blob, self.patch_sha256)
-        return self
-
-
-class LineageLink(_StrictModel):
-    link_id: Sha256
-    link_type: Literal["patch_id", "cherry_pick", "backport", "revert"]
-    source_oid: Oid
-    target_oid: Oid
-    rule_id: StableId | None = None
-    patch_id: Oid | None = None
-
-    @model_validator(mode="after")
-    def validate_link_evidence(self) -> LineageLink:
-        if self.source_oid == self.target_oid:
-            raise ValueError("lineage endpoints must differ")
-        if self.link_type == "patch_id":
-            if self.patch_id is None or self.rule_id is not None:
-                raise ValueError("patch_id links require only patch_id evidence")
-        elif self.rule_id is None or self.patch_id is not None:
-            raise ValueError("trailer links require only rule_id evidence")
-        return self
-
-
-class DiscoveredCandidate(_StrictModel):
-    commit: CandidateCommit
-    changed_paths: list[str]
-    eligible_paths: list[str]
-    config_only: bool
-    selection_reasons: list[SelectionReason]
-    diff_evidence: DiffEvidence
-
-    @field_validator("changed_paths", "eligible_paths")
-    @classmethod
-    def validate_paths(cls, values: list[str]) -> list[str]:
-        if values != sorted(set(values)):
-            raise ValueError("candidate paths must be sorted and unique")
-        return [_validate_posix_relative(value) for value in values]
-
-    @model_validator(mode="after")
-    def validate_candidate(self) -> DiscoveredCandidate:
-        if not self.changed_paths:
-            raise ValueError("changed_paths must not be empty")
-        if not self.selection_reasons:
-            raise ValueError("selection_reasons must not be empty")
-        if not set(self.eligible_paths) <= set(self.changed_paths):
-            raise ValueError("eligible_paths must be a subset of changed_paths")
-        if self.diff_evidence.commit_oid != self.commit.commit_oid:
-            raise ValueError("diff evidence must refer to the candidate commit")
-        return self
 
 
 def _validate_direct_match_metadata(
@@ -954,47 +742,6 @@ def verify_discovery_direct_matches(blob_dir: Path, ledger: DiscoveryLedger) -> 
             )
 
 
-class EvidenceRef(_StrictModel):
-    kind: Literal["commit_message", "patch_blob", "lineage_link", "source_artifact"]
-    target_id: str
-
-    @field_validator("target_id")
-    @classmethod
-    def validate_target_id(cls, value: str, info: Any) -> str:
-        kind = info.data.get("kind")
-        pattern = {
-            "commit_message": r"[0-9a-f]{40}",
-            "patch_blob": r"[0-9a-f]{64}",
-            "lineage_link": r"[0-9a-f]{64}",
-            "source_artifact": r"[A-Za-z0-9][A-Za-z0-9._:-]*",
-        }.get(kind)
-        if pattern is None or re.fullmatch(pattern, value) is None:
-            raise ValueError(f"target_id is invalid for evidence kind {kind}")
-        return value
-
-
-class EvidenceArtifact(_StrictModel):
-    artifact_id: StableId
-    artifact_type: Literal["issue", "pull_request"]
-    source_url: str
-    retrieval_date: date
-    blob_path: str
-    blob_sha256: Sha256
-
-    @field_validator("source_url")
-    @classmethod
-    def validate_source_url(cls, value: str) -> str:
-        parsed = urlparse(value)
-        if parsed.scheme not in {"http", "https"} or not parsed.netloc:
-            raise ValueError("source_url must be an absolute HTTP(S) URL")
-        return value
-
-    @model_validator(mode="after")
-    def validate_blob(self) -> EvidenceArtifact:
-        _validate_blob_binding(self.blob_path, self.blob_sha256)
-        return self
-
-
 class ReviewAttestation(_StrictModel):
     reviewer_id: StableId
     review_scope: Literal["complete_b0a_adjudication"]
@@ -1328,59 +1075,6 @@ class B0ADecision(_StrictModel):
     schema_version: Literal["flare-b0a@1"] = FLARE_B0A_SCHEMA_VERSION
     candidate_ledger_sha256: Sha256
     gate: GateSummary
-
-
-def canonical_bytes(value: BaseModel | Mapping[str, Any]) -> bytes:
-    payload: Any
-    if isinstance(value, BaseModel):
-        payload = value.model_dump(mode="json", exclude_none=True)
-    else:
-        payload = value
-    return canonical_json(payload).encode("utf-8") + b"\n"
-
-
-def sha256_hex(data: bytes) -> str:
-    return hashlib.sha256(data).hexdigest()
-
-
-def posix_glob_matches(path: str, pattern: str) -> bool:
-    path_parts = tuple(path.split("/"))
-    pattern_parts = tuple(pattern.split("/"))
-    if (
-        not path
-        or not pattern
-        or path.startswith("/")
-        or pattern.startswith("/")
-        or "\\" in path
-        or "\\" in pattern
-        or "" in path_parts
-        or "" in pattern_parts
-    ):
-        return False
-
-    @lru_cache(maxsize=None)
-    def matches(path_index: int, pattern_index: int) -> bool:
-        if pattern_index == len(pattern_parts):
-            return path_index == len(path_parts)
-        component = pattern_parts[pattern_index]
-        if component == "**":
-            return matches(path_index, pattern_index + 1) or (
-                path_index < len(path_parts) and matches(path_index + 1, pattern_index)
-            )
-        return (
-            path_index < len(path_parts)
-            and fnmatchcase(path_parts[path_index], component)
-            and matches(path_index + 1, pattern_index + 1)
-        )
-
-    return matches(0, 0)
-
-
-def read_regular_file(path: Path) -> bytes:
-    metadata = path.lstat()
-    if not stat.S_ISREG(metadata.st_mode):
-        raise OSError(f"path is not a regular file: {path}")
-    return path.read_bytes()
 
 
 def _path_entry_exists(path: Path) -> bool:
