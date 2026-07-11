@@ -15,7 +15,7 @@ from collections import Counter
 from dataclasses import dataclass
 from typing import Protocol
 
-from gameforge.agents.base import resolve_model_snapshot
+from gameforge.agents.base import DEFAULT_SNAPSHOT, resolve_model_snapshot
 from gameforge.contracts.model_router import Message, ModelRequest, ModelSnapshot
 from gameforge.runtime.model_router.router import ModelRouter
 
@@ -346,10 +346,14 @@ class LLMCompactor:
         if router is None:
             return digest
         try:
+            model_snapshot = resolve_model_snapshot(router, self._snapshot)
+            params = {"max_tokens": 512}
+            if model_snapshot != DEFAULT_SNAPSHOT:
+                params["temperature"] = 0
             req = ModelRequest(
-                model_snapshot=resolve_model_snapshot(router, self._snapshot),
+                model_snapshot=model_snapshot,
                 messages=[Message(role="user", content=digest)],
-                params={"max_tokens": 512, "temperature": 0},
+                params=params,
                 agent_node_id=node_id,
                 prompt_version=_COMPACT_PROMPT_VERSION,
             )

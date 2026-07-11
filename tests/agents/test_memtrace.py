@@ -279,7 +279,12 @@ def test_llm_compactor_uses_router_model_policy_and_allows_node_override():
     replay.compact(replay.trace[:], verdicts=[], router=replay_router)
 
     assert live_router.requests[0].model_snapshot == DEFAULT_SNAPSHOT
+    assert live_router.requests[0].params == {"max_tokens": 512}
     assert replay_router.requests[0].model_snapshot == M2_REPLAY_SNAPSHOT
+    assert replay_router.requests[0].params == {
+        "max_tokens": 512,
+        "temperature": 0,
+    }
 
 
 def test_recall_text_gains_digest_section_only_after_compact():
