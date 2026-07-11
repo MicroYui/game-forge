@@ -1,6 +1,6 @@
 """The GameForge-Bench report (M3a Task 9 / design §7).
 
-`BenchReport` is the JSON contract M3b (external Flare corpus → `external`) and
+`BenchReport` is the JSON contract M3b (external corpus -> `external`) and
 M3c/M4 (the Eval panel) consume. It keeps the deterministic seeded metrics, the
 two false-positive rates, the bounded agent metrics, and the per-class power
 rows STRICTLY separated (contract §6: deterministic vs llm-assisted are never
@@ -17,13 +17,11 @@ from gameforge.bench.power import PowerRow
 
 class ExternalReport(BaseModel):
     """External-validity cross-check (M3b): the GameForge checkers run over REAL
-    open-source game content (Flare / flareteam/flare-game), breaking the seeded
-    self-circularity (a checker built independent of a taxonomy, validated on
-    content nobody on this project authored). Carries BOTH detection on real
-    NON-INJECTED defect samples (from mined bug-fix commits) AND the checker's
-    false-positive behavior on real CLEAN content — the seeded oracle-FP=0 was
-    measured only on the synthetic Aureus base, which never had, e.g., the
-    standalone items real game content does."""
+    open-source game content, breaking the seeded self-circularity (a checker
+    built independent of a taxonomy, validated on content nobody on this project
+    authored). Carries BOTH detection on real NON-INJECTED defect samples (from
+    mined bug-fix commits) AND the checker's false-positive behavior on real CLEAN
+    content. The seeded oracle-FP=0 covers only the synthetic reference corpus."""
 
     source: str
     n_real_entities: int = 0

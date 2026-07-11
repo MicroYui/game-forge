@@ -7,6 +7,7 @@ trips — otherwise the gate could silently rot to a false-green.
 """
 
 import ast
+import importlib.util
 import os
 import pathlib
 import sys
@@ -15,6 +16,7 @@ import pytest
 from importlinter.cli import EXIT_STATUS_SUCCESS, lint_imports
 
 _SPINE_DIR = os.path.join(os.path.dirname(__file__), os.pardir, "gameforge", "spine")
+_SPINE_PATH = pathlib.Path(_SPINE_DIR)
 
 # ─── contract §1 as an ALLOWLIST, not a denylist ───────────────────────────
 # Hard rule 4: `spine → contracts` ONLY, and spine imports NO LLM SDK. The
@@ -85,10 +87,62 @@ def _bench_seeded_core_agents_imports() -> list[str]:
     return violations
 
 
+def _checker_sim_ingestion_imports() -> list[str]:
+    """Checkers and simulation cannot depend back on source-specific ingestion."""
+    violations: list[str] = []
+    for root in (_SPINE_PATH / "checkers", _SPINE_PATH / "sim"):
+        for path in sorted(root.rglob("*.py")):
+            tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+            package = ".".join(
+                ("gameforge", *path.parent.relative_to(_SPINE_PATH.parent).parts)
+            )
+            for node in ast.walk(tree):
+                modules: list[str] = []
+                if isinstance(node, ast.Import):
+                    modules = [alias.name for alias in node.names]
+                elif isinstance(node, ast.ImportFrom):
+                    if node.level:
+                        target = "." * node.level + (node.module or "")
+                        resolved = importlib.util.resolve_name(target, package)
+                        modules = [resolved]
+                        if node.module is None:
+                            modules.extend(f"{resolved}.{alias.name}" for alias in node.names)
+                    else:
+                        modules = [node.module or ""]
+                for module in modules:
+                    if module == "gameforge.spine.ingestion" or module.startswith(
+                        "gameforge.spine.ingestion."
+                    ):
+                        violations.append(f"{path.name}: {module}")
+    return violations
+
+
 def test_bench_seeded_core_does_not_import_agents():
     assert _bench_seeded_core_agents_imports() == [], (
         "bench seeded core must stay agent-free (only agent_metrics.py bridges to M2)"
     )
+
+
+def test_checkers_and_sim_do_not_import_source_specific_ingestion():
+    assert _checker_sim_ingestion_imports() == [], (
+        "checkers and simulation must remain downstream-independent from ingestion adapters"
+    )
+
+
+@pytest.mark.parametrize(
+    "statement",
+    [
+        "from gameforge.spine.ingestion import adapter\n",
+        "from ..ingestion import adapter\n",
+    ],
+)
+def test_checker_sim_ingestion_gate_catches_absolute_and_relative_imports(statement):
+    probe = _SPINE_PATH / "checkers" / "_ingestion_probe.py"
+    probe.write_text(statement, encoding="utf-8")
+    try:
+        assert any("_ingestion_probe.py" in item for item in _checker_sim_ingestion_imports())
+    finally:
+        probe.unlink()
 
 
 def test_import_linter_contracts_pass():
