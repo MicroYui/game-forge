@@ -917,6 +917,136 @@ def test_dangling_evidence_reference_or_stale_review_hash_is_rejected(
         adjudicate(discovered_ledger, stale)
 
 
+@pytest.mark.parametrize("ref_kind", ["commit_message", "patch_blob"])
+def test_candidate_evidence_refs_must_belong_to_that_candidate(
+    discovered_ledger,
+    positive_evidence,
+    ref_kind,
+):
+    decision = positive_evidence.candidate_decisions[0]
+    foreign = next(
+        item
+        for item in discovered_ledger.discovered_candidates
+        if item.commit.commit_oid != decision.commit_oid
+    )
+    foreign_target = (
+        foreign.commit.commit_oid
+        if ref_kind == "commit_message"
+        else foreign.diff_evidence.patch_sha256
+    )
+    changed_decision = decision.model_copy(
+        update={
+            "evidence_refs": [EvidenceRef(kind=ref_kind, target_id=foreign_target)]
+        }
+    )
+    changed = _refresh_evidence(
+        positive_evidence,
+        candidate_decisions=[
+            changed_decision,
+            *positive_evidence.candidate_decisions[1:],
+        ],
+    )
+
+    with pytest.raises(AdjudicationError, match="candidate evidence ref.*belong"):
+        adjudicate(discovered_ledger, changed)
+
+
+@pytest.mark.parametrize("ref_kind", ["commit_message", "patch_blob"])
+def test_group_root_cause_refs_must_belong_to_that_group(
+    discovered_ledger,
+    positive_evidence,
+    ref_kind,
+):
+    group = positive_evidence.group_decisions[0]
+    foreign_group = positive_evidence.group_decisions[1]
+    foreign_oid = foreign_group.commits[0]
+    foreign = next(
+        item
+        for item in discovered_ledger.discovered_candidates
+        if item.commit.commit_oid == foreign_oid
+    )
+    foreign_target = (
+        foreign_oid
+        if ref_kind == "commit_message"
+        else foreign.diff_evidence.patch_sha256
+    )
+    changed_group = group.model_copy(
+        update={
+            "root_cause_evidence_refs": [
+                EvidenceRef(kind=ref_kind, target_id=foreign_target)
+            ]
+        }
+    )
+    changed = _refresh_evidence(
+        positive_evidence,
+        group_decisions=[changed_group, *positive_evidence.group_decisions[1:]],
+    )
+
+    with pytest.raises(AdjudicationError, match="group evidence ref.*belong"):
+        adjudicate(discovered_ledger, changed)
+
+
+@pytest.mark.parametrize("ref_kind", ["commit_message", "patch_blob"])
+def test_case_refs_must_belong_to_their_fix_group(
+    discovered_ledger,
+    positive_evidence,
+    ref_kind,
+):
+    group = positive_evidence.group_decisions[0]
+    case = group.case_decisions[0]
+    foreign_oid = positive_evidence.group_decisions[1].commits[0]
+    foreign = next(
+        item
+        for item in discovered_ledger.discovered_candidates
+        if item.commit.commit_oid == foreign_oid
+    )
+    foreign_target = (
+        foreign_oid
+        if ref_kind == "commit_message"
+        else foreign.diff_evidence.patch_sha256
+    )
+    changed_case = case.model_copy(
+        update={"evidence_refs": [EvidenceRef(kind=ref_kind, target_id=foreign_target)]}
+    )
+    changed_group = group.model_copy(
+        update={"case_decisions": [changed_case, *group.case_decisions[1:]]}
+    )
+    changed = _refresh_evidence(
+        positive_evidence,
+        group_decisions=[changed_group, *positive_evidence.group_decisions[1:]],
+    )
+
+    with pytest.raises(AdjudicationError, match="case evidence ref.*belong"):
+        adjudicate(discovered_ledger, changed)
+
+
+def test_group_lineage_ref_must_touch_that_group(
+    discovered_ledger,
+    positive_evidence,
+):
+    group = positive_evidence.group_decisions[0]
+    group_commits = set(group.commits)
+    foreign_link = next(
+        item
+        for item in discovered_ledger.objective_lineage_links
+        if group_commits.isdisjoint({item.source_oid, item.target_oid})
+    )
+    changed_group = group.model_copy(
+        update={
+            "root_cause_evidence_refs": [
+                EvidenceRef(kind="lineage_link", target_id=foreign_link.link_id)
+            ]
+        }
+    )
+    changed = _refresh_evidence(
+        positive_evidence,
+        group_decisions=[changed_group, *positive_evidence.group_decisions[1:]],
+    )
+
+    with pytest.raises(AdjudicationError, match="group evidence ref.*belong"):
+        adjudicate(discovered_ledger, changed)
+
+
 def test_discovery_and_candidate_universe_hashes_are_replayed(discovered_ledger, positive_evidence):
     bad_discovery = _refresh_evidence(
         positive_evidence,

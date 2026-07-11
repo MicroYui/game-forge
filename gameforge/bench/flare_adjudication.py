@@ -54,27 +54,69 @@ def _validate_evidence_refs(
     discovered: DiscoveryLedger,
     evidence: AdjudicationEvidence,
 ) -> None:
-    commit_messages = {item.commit.commit_oid for item in discovered.discovered_candidates}
-    patch_blobs = {item.diff_evidence.patch_sha256 for item in discovered.discovered_candidates}
-    lineage_links = {item.link_id for item in discovered.objective_lineage_links}
+    candidates = {
+        item.commit.commit_oid: item for item in discovered.discovered_candidates
+    }
+    commit_messages = set(candidates)
+    patch_blobs = {
+        item.diff_evidence.patch_sha256 for item in discovered.discovered_candidates
+    }
+    lineage_links = {item.link_id: item for item in discovered.objective_lineage_links}
     source_artifacts = {item.artifact_id for item in evidence.source_artifacts}
     valid_targets = {
         "commit_message": commit_messages,
         "patch_blob": patch_blobs,
-        "lineage_link": lineage_links,
+        "lineage_link": set(lineage_links),
         "source_artifact": source_artifacts,
     }
 
-    refs: list[EvidenceRef] = []
-    for group in evidence.group_decisions:
-        refs.extend(group.root_cause_evidence_refs)
-        for case in group.case_decisions:
-            refs.extend(case.evidence_refs)
-    for disposition in evidence.candidate_decisions:
-        refs.extend(disposition.evidence_refs)
-    for ref in refs:
+    def validate_resolved(ref: EvidenceRef) -> None:
         if ref.target_id not in valid_targets[ref.kind]:
             raise AdjudicationError(f"evidence ref does not resolve: {ref.kind}:{ref.target_id}")
+
+    def belongs_to(ref: EvidenceRef, owner_commits: set[str]) -> bool:
+        if ref.kind == "commit_message":
+            return ref.target_id in owner_commits
+        if ref.kind == "patch_blob":
+            return any(
+                candidates[commit_oid].diff_evidence.patch_sha256 == ref.target_id
+                for commit_oid in owner_commits
+                if commit_oid in candidates
+            )
+        if ref.kind == "lineage_link":
+            link = lineage_links[ref.target_id]
+            return not owner_commits.isdisjoint({link.source_oid, link.target_oid})
+        # Source artifacts are independent captured evidence. The current schema binds
+        # their bytes globally, while human review supplies semantic relevance.
+        return ref.kind == "source_artifact"
+
+    for disposition in evidence.candidate_decisions:
+        owner_commits = {disposition.commit_oid}
+        for ref in disposition.evidence_refs:
+            validate_resolved(ref)
+            if not belongs_to(ref, owner_commits):
+                raise AdjudicationError(
+                    "candidate evidence ref does not belong to its candidate: "
+                    f"{ref.kind}:{ref.target_id}"
+                )
+
+    for group in evidence.group_decisions:
+        owner_commits = set(group.commits)
+        for ref in group.root_cause_evidence_refs:
+            validate_resolved(ref)
+            if not belongs_to(ref, owner_commits):
+                raise AdjudicationError(
+                    "group evidence ref does not belong to its commits; root-cause evidence "
+                    f"must be locally relevant: {ref.kind}:{ref.target_id}"
+                )
+        for case in group.case_decisions:
+            for ref in case.evidence_refs:
+                validate_resolved(ref)
+                if not belongs_to(ref, owner_commits):
+                    raise AdjudicationError(
+                        "case evidence ref does not belong to its fix group: "
+                        f"{ref.kind}:{ref.target_id}"
+                    )
 
 
 def _validate_assignments(
