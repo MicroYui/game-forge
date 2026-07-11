@@ -1,14 +1,19 @@
 import os
+import platform
+import shutil
 import subprocess
+import unicodedata
 
 import pytest
 
 import gameforge.bench.flare_git as flare_git
 from gameforge.bench.flare_evidence import (
+    DiscoveryLedger,
     GIT_COMMON_PREFIX,
     GIT_FIXED_ENVIRONMENT,
     SearchRegistration,
     canonical_bytes,
+    posix_glob_matches,
     sha256_hex,
 )
 from gameforge.bench.flare_git import (
@@ -77,8 +82,7 @@ def test_discover_is_byte_stable_and_keeps_non_config_candidates_for_rejection(
     )
     assert first.model_dump(mode="json") == second.model_dump(mode="json")
     candidate_keys = [
-        (item.commit.committed_at, item.commit.commit_oid)
-        for item in first.discovered_candidates
+        (item.commit.committed_at, item.commit.commit_oid) for item in first.discovered_candidates
     ]
     assert candidate_keys == sorted(candidate_keys)
     by_oid = {item.commit.commit_oid: item for item in first.discovered_candidates}
@@ -96,6 +100,309 @@ def test_discover_is_byte_stable_and_keeps_non_config_candidates_for_rejection(
         assert "direct_match" not in {
             reason.kind for reason in by_oid[flare_git_repo.merge_commit].selection_reasons
         }
+
+
+def _blob_bytes(blob_dir):
+    return {path.name: path.read_bytes() for path in sorted(blob_dir.iterdir())}
+
+
+def _discover_with_blobs(repo, search_spec, search_registration, root):
+    blob_dir = root / "blobs"
+    ledger = discover_candidates(
+        repo,
+        search_spec,
+        search_registration,
+        "expanded",
+        blob_dir,
+    )
+    return canonical_bytes(ledger), _blob_bytes(blob_dir)
+
+
+def test_untracked_worktree_gitattributes_cannot_rebind_discovery_bytes(
+    flare_git_repo, search_spec, search_registration, tmp_path
+):
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+    clean = _discover_with_blobs(repo, search_spec, search_registration, tmp_path / "clean")
+    (flare_git_repo.path / ".gitattributes").write_text("*.txt -diff\n", encoding="utf-8")
+    polluted = _discover_with_blobs(repo, search_spec, search_registration, tmp_path / "untracked")
+    assert polluted == clean
+
+
+def test_staged_worktree_gitattributes_cannot_rebind_discovery_bytes(
+    flare_git_repo, search_spec, search_registration, tmp_path
+):
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+    clean = _discover_with_blobs(repo, search_spec, search_registration, tmp_path / "clean")
+    (flare_git_repo.path / ".gitattributes").write_text("*.txt -diff\n", encoding="utf-8")
+    subprocess.run(
+        ["git", "-C", str(flare_git_repo.path), "add", ".gitattributes"],
+        check=True,
+    )
+    polluted = _discover_with_blobs(repo, search_spec, search_registration, tmp_path / "staged")
+    assert polluted == clean
+
+
+def test_git_evidence_commands_use_git_directory_and_bare_repo_is_unchanged(
+    flare_git_repo, tmp_path, monkeypatch
+):
+    real_run = subprocess.run
+    commands = []
+
+    def recording_run(args, **kwargs):
+        commands.append(args)
+        return real_run(args, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", recording_run)
+    repo = ReadOnlyGitRepo(flare_git_repo.path)
+    assert repo.resolve(flare_git_repo.head) == flare_git_repo.head
+    assert commands[-1][commands[-1].index("-C") + 1] == str(flare_git_repo.git_dir.resolve())
+
+    bare_path = tmp_path / "flare.git"
+    shutil.copytree(flare_git_repo.git_dir, bare_path)
+    bare = ReadOnlyGitRepo(bare_path)
+    assert bare.resolve(flare_git_repo.head) == flare_git_repo.head
+    assert commands[-1][commands[-1].index("-C") + 1] == str(bare_path.resolve())
+
+
+def test_discovery_records_regex_runtime_provenance(expanded_discovery):
+    assert expanded_discovery.discovery_tool.python_version == platform.python_version()
+    assert expanded_discovery.discovery_tool.unicode_version == unicodedata.unidata_version
+
+
+def _rebind_candidate_universe(payload):
+    universe = {
+        "schema_version": payload["schema_version"],
+        "search_spec_sha256": payload["search_spec_sha256"],
+        "search_round": payload["search_round"],
+        "discovered_candidates": payload["discovered_candidates"],
+        "objective_lineage_links": payload["objective_lineage_links"],
+    }
+    payload["candidate_universe_sha256"] = sha256_hex(canonical_bytes(universe))
+    return payload
+
+
+def _payload(discovery):
+    return discovery.model_dump(mode="json", exclude_none=True)
+
+
+def _validate_rebound(payload):
+    return DiscoveryLedger.model_validate(_rebind_candidate_universe(payload))
+
+
+def _link_sort_key(link):
+    return (
+        link["link_type"],
+        link["source_oid"],
+        link["target_oid"],
+        link.get("rule_id", ""),
+        link.get("patch_id", ""),
+        link["link_id"],
+    )
+
+
+def _semantic_link_id(link):
+    fields = {
+        "link_type": link["link_type"],
+        "source_oid": link["source_oid"],
+        "target_oid": link["target_oid"],
+    }
+    evidence_field = "patch_id" if link["link_type"] == "patch_id" else "rule_id"
+    fields[evidence_field] = link[evidence_field]
+    return sha256_hex(canonical_bytes(fields))
+
+
+def _replace_link(payload, index, **updates):
+    link = payload["objective_lineage_links"][index]
+    old_id = link["link_id"]
+    link.update(updates)
+    link["link_id"] = _semantic_link_id(link)
+    for candidate in payload["discovered_candidates"]:
+        for reason in candidate["selection_reasons"]:
+            if reason.get("lineage_link_id") == old_id:
+                reason["lineage_link_id"] = link["link_id"]
+    payload["objective_lineage_links"].sort(key=_link_sort_key)
+    return link
+
+
+def _candidate_with_reason(payload, kind):
+    return next(
+        candidate
+        for candidate in payload["discovered_candidates"]
+        if any(reason["kind"] == kind for reason in candidate["selection_reasons"])
+    )
+
+
+def _reason_sort_key(reason):
+    return (
+        {"direct_match": 0, "adjacent_context": 1, "lineage_context": 2}[reason["kind"]],
+        reason.get("anchor_oid", ""),
+        reason.get("lineage_link_id", ""),
+        tuple(reason.get("rule_ids", [])),
+    )
+
+
+def test_discovery_ledger_recomputes_exact_eligible_paths(expanded_discovery):
+    payload = _payload(expanded_discovery)
+    candidate = next(item for item in payload["discovered_candidates"] if item["config_only"])
+    candidate["eligible_paths"] = []
+    candidate["config_only"] = False
+    with pytest.raises(ValueError, match="eligible_paths"):
+        _validate_rebound(payload)
+
+
+def test_discovery_ledger_derives_config_only(expanded_discovery):
+    payload = _payload(expanded_discovery)
+    candidate = payload["discovered_candidates"][0]
+    candidate["config_only"] = not candidate["config_only"]
+    with pytest.raises(ValueError, match="config_only"):
+        _validate_rebound(payload)
+
+
+def test_discovery_ledger_rejects_case_fold_duplicate_paths(expanded_discovery):
+    payload = _payload(expanded_discovery)
+    candidate = next(item for item in payload["discovered_candidates"] if item["config_only"])
+    path = candidate["changed_paths"][0]
+    duplicate = path.upper()
+    assert duplicate != path and posix_glob_matches(
+        duplicate.lower(), payload["search_frame"]["config_path_globs"][0]
+    )
+    candidate["changed_paths"] = sorted([*candidate["changed_paths"], duplicate])
+    candidate["eligible_paths"] = sorted([*candidate["eligible_paths"], duplicate])
+    with pytest.raises(ValueError, match="case-fold"):
+        _validate_rebound(payload)
+
+
+def test_discovery_ledger_recomputes_lineage_link_ids(expanded_discovery):
+    payload = _payload(expanded_discovery)
+    link = payload["objective_lineage_links"][0]
+    old_id = link["link_id"]
+    link["link_id"] = "f" * 64
+    for candidate in payload["discovered_candidates"]:
+        for reason in candidate["selection_reasons"]:
+            if reason.get("lineage_link_id") == old_id:
+                reason["lineage_link_id"] = link["link_id"]
+    payload["objective_lineage_links"].sort(key=_link_sort_key)
+    with pytest.raises(ValueError, match="link_id"):
+        _validate_rebound(payload)
+
+
+@pytest.mark.parametrize("mutation", ["duplicate", "reverse"])
+def test_discovery_ledger_requires_unique_ordered_selection_reasons(mutation, expanded_discovery):
+    payload = _payload(expanded_discovery)
+    candidate = next(
+        item for item in payload["discovered_candidates"] if len(item["selection_reasons"]) > 1
+    )
+    if mutation == "duplicate":
+        candidate["selection_reasons"].append(candidate["selection_reasons"][0])
+    else:
+        candidate["selection_reasons"].reverse()
+    with pytest.raises(ValueError, match="selection_reasons"):
+        _validate_rebound(payload)
+
+
+def test_initial_direct_reason_must_use_a_selected_round_rule(initial_discovery):
+    payload = _payload(initial_discovery)
+    candidate = _candidate_with_reason(payload, "direct_match")
+    direct = next(
+        reason for reason in candidate["selection_reasons"] if reason["kind"] == "direct_match"
+    )
+    direct["rule_ids"] = ["expanded.message_bug_language"]
+    with pytest.raises(ValueError, match="direct.*rule"):
+        _validate_rebound(payload)
+
+
+def test_adjacent_reason_anchor_must_be_a_direct_first_parent_neighbor(
+    expanded_discovery,
+):
+    payload = _payload(expanded_discovery)
+    candidate = _candidate_with_reason(payload, "adjacent_context")
+    adjacent = next(
+        reason for reason in candidate["selection_reasons"] if reason["kind"] == "adjacent_context"
+    )
+    adjacent["anchor_oid"] = "f" * 40
+    candidate["selection_reasons"].sort(key=_reason_sort_key)
+    with pytest.raises(ValueError, match="adjacent.*anchor"):
+        _validate_rebound(payload)
+
+
+def test_adjacent_reason_anchor_must_be_on_the_exact_first_parent_edge(
+    expanded_discovery,
+):
+    payload = _payload(expanded_discovery)
+    candidate = _candidate_with_reason(payload, "adjacent_context")
+    adjacent = next(
+        reason for reason in candidate["selection_reasons"] if reason["kind"] == "adjacent_context"
+    )
+    candidate_oid = candidate["commit"]["commit_oid"]
+    direct = next(
+        item
+        for item in payload["discovered_candidates"]
+        if item["commit"]["commit_oid"] != candidate_oid
+        and any(reason["kind"] == "direct_match" for reason in item["selection_reasons"])
+        and candidate["commit"].get("selected_parent_oid") != item["commit"]["commit_oid"]
+        and item["commit"].get("selected_parent_oid") != candidate_oid
+    )
+    adjacent["anchor_oid"] = direct["commit"]["commit_oid"]
+    candidate["selection_reasons"].sort(key=_reason_sort_key)
+    with pytest.raises(ValueError, match="first-parent"):
+        _validate_rebound(payload)
+
+
+def test_adjacent_reason_anchor_must_share_an_exact_eligible_path(
+    expanded_discovery, flare_git_repo
+):
+    payload = _payload(expanded_discovery)
+    by_oid = {item["commit"]["commit_oid"]: item for item in payload["discovered_candidates"]}
+    predecessor = by_oid[flare_git_repo.quest_fix]
+    child = by_oid[flare_git_repo.multicommit_a]
+    assert child["commit"]["selected_parent_oid"] == flare_git_repo.quest_fix
+    assert any(reason["kind"] == "direct_match" for reason in child["selection_reasons"])
+    assert set(predecessor["eligible_paths"]).isdisjoint(child["eligible_paths"])
+    predecessor["selection_reasons"].append(
+        {"kind": "adjacent_context", "rule_ids": [], "anchor_oid": flare_git_repo.multicommit_a}
+    )
+    with pytest.raises(ValueError, match="adjacent.*eligible path"):
+        _validate_rebound(payload)
+
+
+def test_lineage_reason_must_resolve_to_a_link_sourced_by_candidate(
+    expanded_discovery,
+):
+    payload = _payload(expanded_discovery)
+    candidate = _candidate_with_reason(payload, "lineage_context")
+    reason = next(
+        item for item in candidate["selection_reasons"] if item["kind"] == "lineage_context"
+    )
+    oid = candidate["commit"]["commit_oid"]
+    other = next(link for link in payload["objective_lineage_links"] if link["source_oid"] != oid)
+    reason["lineage_link_id"] = other["link_id"]
+    with pytest.raises(ValueError, match="lineage.*source"):
+        _validate_rebound(payload)
+
+
+def test_lineage_endpoints_must_belong_to_candidate_universe(expanded_discovery):
+    payload = _payload(expanded_discovery)
+    _replace_link(payload, 0, source_oid="f" * 40)
+    with pytest.raises(ValueError, match="lineage endpoint"):
+        _validate_rebound(payload)
+
+
+@pytest.mark.parametrize("mutation", ["unknown_rule", "wrong_type"])
+def test_trailer_links_must_match_frozen_lineage_rule_type(mutation, expanded_discovery):
+    payload = _payload(expanded_discovery)
+    index = next(
+        index
+        for index, link in enumerate(payload["objective_lineage_links"])
+        if link["link_type"] == "backport"
+    )
+    updates = (
+        {"rule_id": "trailer.not_registered"}
+        if mutation == "unknown_rule"
+        else {"link_type": "cherry_pick"}
+    )
+    _replace_link(payload, index, **updates)
+    with pytest.raises(ValueError, match="lineage rule|link type"):
+        _validate_rebound(payload)
 
 
 def test_patch_evidence_and_objective_lineage_are_offline_replayable(
@@ -150,9 +457,7 @@ def test_direct_matches_expand_one_first_parent_edge_for_complete_grouping(
     )
     by_oid = {item.commit.commit_oid: item for item in ledger.discovered_candidates}
     assert by_oid[flare_git_repo.multicommit_a].selection_reasons[0].kind == "direct_match"
-    assert by_oid[flare_git_repo.multicommit_b].selection_reasons[0].kind == (
-        "adjacent_context"
-    )
+    assert by_oid[flare_git_repo.multicommit_b].selection_reasons[0].kind == ("adjacent_context")
     assert by_oid[flare_git_repo.multicommit_c].selection_reasons[0].kind == "direct_match"
     assert by_oid[flare_git_repo.remote_backport_source].selection_reasons[0].kind == (
         "lineage_context"
@@ -180,6 +485,22 @@ def test_expanded_round_is_a_superset_of_initial_under_union_semantics(
     initial_oids = {item.commit.commit_oid for item in initial.discovered_candidates}
     expanded_oids = {item.commit.commit_oid for item in expanded.discovered_candidates}
     assert initial_oids <= expanded_oids
+
+
+def test_expanded_discovery_preserves_initial_reasons_and_objective_links_byte_exactly(
+    initial_discovery, expanded_discovery
+):
+    expanded_by_oid = {
+        item.commit.commit_oid: item for item in expanded_discovery.discovered_candidates
+    }
+    for initial in initial_discovery.discovered_candidates:
+        replayed = expanded_by_oid[initial.commit.commit_oid]
+        initial_reasons = {canonical_bytes(item) for item in initial.selection_reasons}
+        expanded_reasons = {canonical_bytes(item) for item in replayed.selection_reasons}
+        assert initial_reasons <= expanded_reasons
+    initial_links = {canonical_bytes(item) for item in initial_discovery.objective_lineage_links}
+    expanded_links = {canonical_bytes(item) for item in expanded_discovery.objective_lineage_links}
+    assert initial_links <= expanded_links
 
 
 def test_discover_rejects_wrong_head_and_never_invokes_a_shell(
@@ -562,19 +883,13 @@ def test_shared_round_models_and_paths_form_complete_canonical_fixture_pairs(
     initial_ledger_path,
     initial_decision_path,
 ):
-    initial_oids = {
-        item.commit.commit_oid for item in initial_discovery.discovered_candidates
-    }
-    expanded_oids = {
-        item.commit.commit_oid for item in expanded_discovery.discovered_candidates
-    }
+    initial_oids = {item.commit.commit_oid for item in initial_discovery.discovered_candidates}
+    expanded_oids = {item.commit.commit_oid for item in expanded_discovery.discovered_candidates}
     assert initial_oids < expanded_oids
     assert len(positive_evidence.group_decisions) == 8
     assert len(initial_insufficient_evidence.group_decisions) == 7
     assert initial_ledger.gate_summary.status == "expanded_round_required"
-    assert initial_decision.candidate_ledger_sha256 == sha256_hex(
-        canonical_bytes(initial_ledger)
-    )
+    assert initial_decision.candidate_ledger_sha256 == sha256_hex(canonical_bytes(initial_ledger))
     assert expanded_evidence.prior_candidate_ledger_sha256 == sha256_hex(
         canonical_bytes(initial_ledger)
     )
@@ -587,9 +902,7 @@ def test_shared_round_models_and_paths_form_complete_canonical_fixture_pairs(
         "observed_revision_count",
         "discovery_tool",
     ):
-        foreign, decision, rebound = foreign_initial_pair_factory(
-            field, expanded_evidence
-        )
+        foreign, decision, rebound = foreign_initial_pair_factory(field, expanded_evidence)
         changed_fields = [
             name
             for name in (
@@ -603,9 +916,7 @@ def test_shared_round_models_and_paths_form_complete_canonical_fixture_pairs(
         ]
         assert changed_fields == [field]
         assert decision.candidate_ledger_sha256 == sha256_hex(canonical_bytes(foreign))
-        assert rebound.prior_candidate_ledger_sha256 == sha256_hex(
-            canonical_bytes(foreign)
-        )
+        assert rebound.prior_candidate_ledger_sha256 == sha256_hex(canonical_bytes(foreign))
 
     pairs = [
         (initial_discovered_path, initial_discovery),

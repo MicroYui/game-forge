@@ -13,6 +13,7 @@ from gameforge.bench.flare_evidence import (
     B0A_DEFECT_CLASSES,
     AdjudicationEvidence,
     ApplicabilityRow,
+    B0ADecision,
     CandidateCase,
     CandidateFixGroup,
     CandidateGroupDecision,
@@ -20,6 +21,7 @@ from gameforge.bench.flare_evidence import (
     DiffEvidence,
     DiscoveryLedger,
     EvidenceCounts,
+    EvidenceArtifact,
     EvidenceRef,
     LineageLink,
     LineageResolution,
@@ -346,10 +348,8 @@ def _add_counted_lineage_endpoint(
             item for item in discovery.objective_lineage_links if item.link_id == resolution.link_id
         )
         if commit_oid in {link.source_oid, link.target_oid}:
-            affected = [*resolution.affected_group_ids, fix_group_id]
-            resolution = resolution.model_copy(
-                update={"affected_group_ids": list(dict.fromkeys(affected))}
-            )
+            affected = sorted({*resolution.affected_group_ids, fix_group_id})
+            resolution = resolution.model_copy(update={"affected_group_ids": affected})
         resolutions.append(resolution)
     return _refresh_evidence(
         evidence,
@@ -483,7 +483,7 @@ def _separate_patch_evidence(
             LineageResolution(
                 link_id=link.link_id,
                 resolution="separate",
-                affected_group_ids=[source_group_id, target_group_id],
+                affected_group_ids=sorted([source_group_id, target_group_id]),
                 rationale="Synthetic patch collision has separately reviewed root causes.",
             )
         ],
@@ -502,6 +502,257 @@ def test_adjudication_groups_contiguous_first_parent_commits_and_counts_groups_n
     assert decision.candidate_ledger_sha256 == sha256_hex(canonical_bytes(ledger))
     assert ledger.gate_summary == decision.gate
     assert all(group.config_only for group in ledger.groups if group.counts_toward_gate)
+
+
+def _endpoint_group_ids(discovery, evidence, resolution):
+    link = next(
+        item for item in discovery.objective_lineage_links if item.link_id == resolution.link_id
+    )
+    group_by_commit = {
+        oid: group.fix_group_id for group in evidence.group_decisions for oid in group.commits
+    }
+    return sorted(
+        {
+            group_by_commit[oid]
+            for oid in (link.source_oid, link.target_oid)
+            if oid in group_by_commit
+        }
+    )
+
+
+def test_lineage_affected_groups_are_exact_for_zero_and_one_group_endpoints(
+    discovered_ledger, positive_evidence
+):
+    sizes = set()
+    for resolution in positive_evidence.lineage_resolutions:
+        expected = _endpoint_group_ids(discovered_ledger, positive_evidence, resolution)
+        assert resolution.affected_group_ids == expected
+        sizes.add(len(expected))
+    assert {0, 1} <= sizes
+    adjudicate(discovered_ledger, positive_evidence)
+
+
+def test_lineage_affected_groups_are_exact_for_two_distinct_groups(
+    discovered_ledger, positive_evidence, flare_git_repo
+):
+    root = next(
+        group for group in positive_evidence.group_decisions if group.fix_group_id == "group-root"
+    )
+    quest = next(
+        group for group in positive_evidence.group_decisions if group.fix_group_id == "group-quest"
+    )
+    discovery, evidence = _separate_patch_evidence(
+        discovered_ledger,
+        positive_evidence,
+        source_oid=flare_git_repo.root,
+        source_group_id="group-root",
+        source_refs=root.root_cause_evidence_refs,
+        target_oid=flare_git_repo.quest_fix,
+        target_group_id="group-quest",
+        target_refs=quest.root_cause_evidence_refs,
+    )
+    resolution = evidence.lineage_resolutions[-1]
+    assert resolution.affected_group_ids == ["group-quest", "group-root"]
+    adjudicate(discovery, evidence)
+
+
+def test_lineage_resolution_rejects_duplicate_or_nondeterministic_group_ids():
+    common = {
+        "link_id": "a" * 64,
+        "resolution": "same_group",
+        "rationale": "Invalid affected-group projection.",
+    }
+    with pytest.raises(ValueError, match="sorted|unique"):
+        LineageResolution(
+            **common,
+            affected_group_ids=["group-a", "group-a"],
+        )
+    with pytest.raises(ValueError, match="sorted|order"):
+        LineageResolution(
+            **common,
+            affected_group_ids=["group-z", "group-a"],
+        )
+
+
+def test_lineage_resolution_rejects_unrelated_extra_group(discovered_ledger, positive_evidence):
+    resolution = next(
+        item for item in positive_evidence.lineage_resolutions if item.affected_group_ids
+    )
+    expected = _endpoint_group_ids(discovered_ledger, positive_evidence, resolution)
+    unrelated = next(
+        group.fix_group_id
+        for group in positive_evidence.group_decisions
+        if group.fix_group_id not in expected
+    )
+    replacement = resolution.model_copy(
+        update={"affected_group_ids": sorted([*expected, unrelated])}
+    )
+    bad = _refresh_evidence(
+        positive_evidence,
+        lineage_resolutions=[
+            replacement if item.link_id == resolution.link_id else item
+            for item in positive_evidence.lineage_resolutions
+        ],
+    )
+    with pytest.raises(AdjudicationError, match="exact|affected group"):
+        adjudicate(discovered_ledger, bad)
+
+
+def test_lineage_resolution_rejects_omitted_endpoint_group(
+    discovered_ledger, positive_evidence, flare_git_repo
+):
+    root = next(
+        group for group in positive_evidence.group_decisions if group.fix_group_id == "group-root"
+    )
+    quest = next(
+        group for group in positive_evidence.group_decisions if group.fix_group_id == "group-quest"
+    )
+    discovery, evidence = _separate_patch_evidence(
+        discovered_ledger,
+        positive_evidence,
+        source_oid=flare_git_repo.root,
+        source_group_id="group-root",
+        source_refs=root.root_cause_evidence_refs,
+        target_oid=flare_git_repo.quest_fix,
+        target_group_id="group-quest",
+        target_refs=quest.root_cause_evidence_refs,
+    )
+    resolution = evidence.lineage_resolutions[-1]
+    replacement = resolution.model_copy(
+        update={"affected_group_ids": resolution.affected_group_ids[:1]}
+    )
+    bad = _refresh_evidence(
+        evidence,
+        lineage_resolutions=[*evidence.lineage_resolutions[:-1], replacement],
+    )
+    with pytest.raises(AdjudicationError, match="exact|affected group"):
+        adjudicate(discovery, bad)
+
+
+def _discovery_with_non_config_target(discovery, target_oid):
+    payload = discovery.model_dump(mode="json", exclude_none=True)
+    candidate = next(
+        item
+        for item in payload["discovered_candidates"]
+        if item["commit"]["commit_oid"] == target_oid
+    )
+    candidate["changed_paths"] = sorted([*candidate["changed_paths"], f"engine/{target_oid}.py"])
+    candidate["config_only"] = False
+    universe = {
+        "schema_version": payload["schema_version"],
+        "search_spec_sha256": payload["search_spec_sha256"],
+        "search_round": payload["search_round"],
+        "discovered_candidates": payload["discovered_candidates"],
+        "objective_lineage_links": payload["objective_lineage_links"],
+    }
+    payload["candidate_universe_sha256"] = sha256_hex(canonical_bytes(universe))
+    return DiscoveryLedger.model_validate(payload)
+
+
+def _evidence_with_non_config_target(evidence, discovery, target_oid):
+    decisions = [
+        item.model_copy(
+            update={
+                "reason_code": "non_config_only",
+                "rationale": "The lineage target also changes engine code.",
+            }
+        )
+        if item.commit_oid == target_oid
+        else item
+        for item in evidence.candidate_decisions
+    ]
+    assert any(item.commit_oid == target_oid for item in decisions)
+    changed = evidence.model_copy(update={"candidate_decisions": decisions})
+    return _rebind_evidence_to_discovery(
+        changed,
+        discovery,
+        appended_resolutions=[],
+    )
+
+
+@pytest.mark.parametrize("link_type", ["cherry_pick", "revert"])
+def test_initial_mixed_trailer_target_uses_non_config_only_precedence(
+    link_type, discovered_ledger, positive_evidence
+):
+    link = next(
+        item for item in discovered_ledger.objective_lineage_links if item.link_type == link_type
+    )
+    discovery = _discovery_with_non_config_target(discovered_ledger, link.target_oid)
+    evidence = _evidence_with_non_config_target(positive_evidence, discovery, link.target_oid)
+    ledger, _ = adjudicate(discovery, evidence)
+    decision = next(
+        item for item in ledger.candidate_decisions if item.commit_oid == link.target_oid
+    )
+    assert decision.reason_code == "non_config_only"
+
+
+def test_expanded_mixed_backport_target_uses_non_config_only_precedence(
+    expanded_discovery,
+    expanded_evidence,
+    initial_prior_artifacts,
+):
+    link = next(
+        item for item in expanded_discovery.objective_lineage_links if item.link_type == "backport"
+    )
+    discovery = _discovery_with_non_config_target(expanded_discovery, link.target_oid)
+    evidence = _evidence_with_non_config_target(expanded_evidence, discovery, link.target_oid)
+    ledger, _ = adjudicate(discovery, evidence, *initial_prior_artifacts)
+    decision = next(
+        item for item in ledger.candidate_decisions if item.commit_oid == link.target_oid
+    )
+    assert decision.reason_code == "non_config_only"
+
+
+def test_duplicate_case_id_across_evidence_groups_is_rejected(discovered_ledger, positive_evidence):
+    first, second = positive_evidence.group_decisions[:2]
+    duplicate = first.case_decisions[0].model_copy(
+        update={"case_id": second.case_decisions[0].case_id}
+    )
+    changed_first = first.model_copy(update={"case_decisions": [duplicate]})
+    bad = _refresh_evidence_without_validation(
+        positive_evidence,
+        group_decisions=[changed_first, *positive_evidence.group_decisions[1:]],
+    )
+    with pytest.raises(AdjudicationError, match="case_id"):
+        adjudicate(discovered_ledger, bad)
+
+
+def test_duplicate_defect_class_within_evidence_group_is_rejected(
+    discovered_ledger, positive_evidence
+):
+    first = positive_evidence.group_decisions[0]
+    duplicate = first.case_decisions[0].model_copy(update={"case_id": "duplicate-class-case"})
+    changed_first = first.model_copy(update={"case_decisions": [*first.case_decisions, duplicate]})
+    bad = _refresh_evidence_without_validation(
+        positive_evidence,
+        group_decisions=[changed_first, *positive_evidence.group_decisions[1:]],
+    )
+    with pytest.raises(AdjudicationError, match="defect class"):
+        adjudicate(discovered_ledger, bad)
+
+
+def test_candidate_ledger_contract_rejects_duplicate_case_ids_across_groups(
+    discovered_ledger, positive_evidence
+):
+    ledger, _ = adjudicate(discovered_ledger, positive_evidence)
+    payload = ledger.model_dump(mode="json", exclude_none=True)
+    payload["groups"][1]["cases"][0]["case_id"] = payload["groups"][0]["cases"][0]["case_id"]
+    with pytest.raises(ValueError, match="case_id.*globally unique"):
+        CandidateLedger.model_validate(payload)
+
+
+def test_candidate_ledger_contract_rejects_duplicate_class_within_group(
+    discovered_ledger, positive_evidence
+):
+    ledger, _ = adjudicate(discovered_ledger, positive_evidence)
+    payload = ledger.model_dump(mode="json", exclude_none=True)
+    duplicate = {
+        **payload["groups"][0]["cases"][0],
+        "case_id": "duplicate-output-class-case",
+    }
+    payload["groups"][0]["cases"].append(duplicate)
+    with pytest.raises(ValueError, match="defect class"):
+        CandidateLedger.model_validate(payload)
 
 
 def test_group_decision_digest_binds_the_complete_unsorted_reviewed_decision(
@@ -702,7 +953,7 @@ def test_expanded_groups_are_an_unchanged_ordered_digest_prefix(
     expanded_discovery,
     expanded_evidence,
     initial_ledger,
-    initial_decision,
+    initial_prior_artifacts,
 ):
     groups = list(expanded_evidence.group_decisions)
     assert len(groups) > len(initial_ledger.groups) >= 2
@@ -716,11 +967,11 @@ def test_expanded_groups_are_an_unchanged_ordered_digest_prefix(
         groups = [groups[-1], *groups[:-1]]
     changed = _refresh_evidence(expanded_evidence, group_decisions=groups)
     with pytest.raises(AdjudicationError, match="initial decision|ordered prefix"):
-        adjudicate(expanded_discovery, changed, initial_ledger, initial_decision)
+        adjudicate(expanded_discovery, changed, *initial_prior_artifacts)
 
 
 def test_expanded_round_cannot_change_initial_root_cause_references(
-    expanded_discovery, expanded_evidence, initial_ledger, initial_decision
+    expanded_discovery, expanded_evidence, initial_prior_artifacts
 ):
     groups = list(expanded_evidence.group_decisions)
     groups[0] = groups[0].model_copy(
@@ -728,11 +979,11 @@ def test_expanded_round_cannot_change_initial_root_cause_references(
     )
     changed = _refresh_evidence(expanded_evidence, group_decisions=groups)
     with pytest.raises(AdjudicationError, match="initial decision"):
-        adjudicate(expanded_discovery, changed, initial_ledger, initial_decision)
+        adjudicate(expanded_discovery, changed, *initial_prior_artifacts)
 
 
 def test_expanded_round_cannot_swap_initial_group_adjudicators(
-    expanded_discovery, expanded_evidence, initial_ledger, initial_decision
+    expanded_discovery, expanded_evidence, initial_prior_artifacts
 ):
     groups = list(expanded_evidence.group_decisions)
     assert groups[0].adjudicator_id != groups[1].adjudicator_id
@@ -741,13 +992,13 @@ def test_expanded_round_cannot_swap_initial_group_adjudicators(
     groups[1] = groups[1].model_copy(update={"adjudicator_id": first_id})
     changed = _refresh_evidence(expanded_evidence, group_decisions=groups)
     with pytest.raises(AdjudicationError, match="initial decision"):
-        adjudicate(expanded_discovery, changed, initial_ledger, initial_decision)
+        adjudicate(expanded_discovery, changed, *initial_prior_artifacts)
 
 
 def test_expanded_round_can_only_append_new_top_level_lineage_resolutions(
-    expanded_discovery, expanded_evidence, initial_ledger, initial_decision
+    expanded_discovery, expanded_evidence, initial_ledger, initial_prior_artifacts
 ):
-    ledger, _ = adjudicate(expanded_discovery, expanded_evidence, initial_ledger, initial_decision)
+    ledger, _ = adjudicate(expanded_discovery, expanded_evidence, *initial_prior_artifacts)
     initial = [canonical_bytes(item) for item in initial_ledger.lineage_resolutions]
     expanded = [canonical_bytes(item) for item in ledger.lineage_resolutions]
     assert expanded[: len(initial)] == initial
@@ -755,9 +1006,9 @@ def test_expanded_round_can_only_append_new_top_level_lineage_resolutions(
 
 
 def test_positive_expanded_replay_preserves_all_complete_initial_prefixes(
-    expanded_discovery, expanded_evidence, initial_ledger, initial_decision
+    expanded_discovery, expanded_evidence, initial_ledger, initial_prior_artifacts
 ):
-    ledger, _ = adjudicate(expanded_discovery, expanded_evidence, initial_ledger, initial_decision)
+    ledger, _ = adjudicate(expanded_discovery, expanded_evidence, *initial_prior_artifacts)
     for prior, replayed in zip(initial_ledger.groups, ledger.groups, strict=False):
         assert canonical_bytes(replayed) == canonical_bytes(prior)
     for prior, replayed in zip(
@@ -774,17 +1025,332 @@ def test_positive_expanded_replay_preserves_all_complete_initial_prefixes(
         assert canonical_bytes(replayed) == canonical_bytes(prior)
 
 
+def _bind_expanded_to_prior_pair(evidence, prior_ledger, prior_decision, **updates):
+    return _refresh_evidence(
+        evidence,
+        prior_candidate_ledger_sha256=sha256_hex(canonical_bytes(prior_ledger)),
+        prior_decision_sha256=sha256_hex(canonical_bytes(prior_decision)),
+        **updates,
+    )
+
+
+def _decision_for_ledger(ledger):
+    return B0ADecision(
+        candidate_ledger_sha256=sha256_hex(canonical_bytes(ledger)),
+        gate=ledger.gate_summary,
+    )
+
+
+def _source_artifact(artifact_id, content):
+    digest = sha256_hex(content)
+    return EvidenceArtifact(
+        artifact_id=artifact_id,
+        artifact_type="issue",
+        source_url=f"https://github.com/flareteam/flare-game/issues/{artifact_id[-1]}",
+        retrieval_date="2026-07-10",
+        blob_path=f"blobs/{digest}",
+        blob_sha256=digest,
+    )
+
+
+def test_expanded_replays_authentic_prior_discovery_and_evidence(
+    expanded_discovery,
+    expanded_evidence,
+    initial_prior_artifacts,
+):
+    ledger, decision = adjudicate(
+        expanded_discovery,
+        expanded_evidence,
+        *initial_prior_artifacts,
+    )
+    assert ledger.search_round == "expanded"
+    assert decision.candidate_ledger_sha256 == sha256_hex(canonical_bytes(ledger))
+
+
+@pytest.mark.parametrize("prior_index", range(4))
+def test_initial_programmatic_adjudication_forbids_each_prior_artifact(
+    prior_index,
+    initial_discovery,
+    initial_insufficient_evidence,
+    initial_prior_artifacts,
+):
+    supplied = [None, None, None, None]
+    supplied[prior_index] = initial_prior_artifacts[prior_index]
+    with pytest.raises(AdjudicationError, match="initial.*forbids.*prior"):
+        adjudicate(
+            initial_discovery,
+            initial_insufficient_evidence,
+            *supplied,
+        )
+
+
+@pytest.mark.parametrize("omitted_index", range(4))
+def test_expanded_programmatic_adjudication_requires_each_prior_artifact(
+    omitted_index,
+    expanded_discovery,
+    expanded_evidence,
+    initial_prior_artifacts,
+):
+    supplied = list(initial_prior_artifacts)
+    supplied[omitted_index] = None
+    with pytest.raises(AdjudicationError, match="expanded.*requires all four"):
+        adjudicate(
+            expanded_discovery,
+            expanded_evidence,
+            *supplied,
+        )
+
+
+def test_expanded_rejects_canonical_forged_empty_prior_pair(
+    expanded_discovery,
+    expanded_evidence,
+    initial_discovery,
+    initial_insufficient_evidence,
+    initial_ledger,
+):
+    forged = CandidateLedger.model_validate(
+        {
+            **initial_ledger.model_dump(mode="json", exclude_none=True),
+            "groups": [],
+            "candidate_decisions": [],
+            "lineage_resolutions": [],
+        }
+    )
+    forged_decision = _decision_for_ledger(forged)
+    rebound = _bind_expanded_to_prior_pair(
+        expanded_evidence,
+        forged,
+        forged_decision,
+    )
+    with pytest.raises(AdjudicationError, match="replay|byte-identical|prior"):
+        adjudicate(
+            expanded_discovery,
+            rebound,
+            initial_discovery,
+            initial_insufficient_evidence,
+            forged,
+            forged_decision,
+        )
+
+
+@pytest.mark.parametrize("mutation", ["gate", "matrix", "upstream_hashes"])
+def test_expanded_rejects_false_or_rebound_prior_derived_fields(
+    mutation,
+    expanded_discovery,
+    expanded_evidence,
+    initial_discovery,
+    initial_insufficient_evidence,
+    initial_ledger,
+):
+    updates = {}
+    if mutation == "gate":
+        updates["gate_summary"] = initial_ledger.gate_summary.model_copy(
+            update={"proposed_groups": 0, "proposed_classes": 0}
+        )
+    elif mutation == "matrix":
+        updates["applicability_matrix"] = [
+            ApplicabilityRow(
+                defect_class=row.defect_class,
+                domain_applicability=row.domain_applicability,
+                evidence_counts=EvidenceCounts(),
+                implementation_support=row.implementation_support,
+            )
+            for row in initial_ledger.applicability_matrix
+        ]
+    else:
+        updates.update(
+            discovery_ledger_sha256="f" * 64,
+            adjudication_evidence_sha256="e" * 64,
+        )
+    forged = CandidateLedger.model_validate(
+        {
+            **initial_ledger.model_dump(mode="json", exclude_none=True),
+            **{
+                name: value.model_dump(mode="json")
+                if hasattr(value, "model_dump")
+                else [item.model_dump(mode="json") for item in value]
+                if isinstance(value, list)
+                else value
+                for name, value in updates.items()
+            },
+        }
+    )
+    forged_decision = _decision_for_ledger(forged)
+    rebound = _bind_expanded_to_prior_pair(
+        expanded_evidence,
+        forged,
+        forged_decision,
+    )
+    with pytest.raises(AdjudicationError, match="replay|byte-identical|prior"):
+        adjudicate(
+            expanded_discovery,
+            rebound,
+            initial_discovery,
+            initial_insufficient_evidence,
+            forged,
+            forged_decision,
+        )
+
+
+def test_expanded_source_artifacts_retain_initial_ordered_prefix_and_blob_binding(
+    initial_discovery,
+    initial_insufficient_evidence,
+    expanded_discovery,
+    expanded_evidence,
+):
+    initial_artifact = _source_artifact("prior-source-1", b"prior source bytes\n")
+    added_artifact = _source_artifact("expanded-source-2", b"expanded source bytes\n")
+    prior_evidence = _refresh_evidence(
+        initial_insufficient_evidence,
+        source_artifacts=[initial_artifact],
+    )
+    prior_ledger, prior_decision = adjudicate(initial_discovery, prior_evidence)
+    expanded = _bind_expanded_to_prior_pair(
+        expanded_evidence,
+        prior_ledger,
+        prior_decision,
+        source_artifacts=[initial_artifact, added_artifact],
+    )
+    adjudicate(
+        expanded_discovery,
+        expanded,
+        initial_discovery,
+        prior_evidence,
+        prior_ledger,
+        prior_decision,
+    )
+
+    rebound_artifact = _source_artifact("prior-source-1", b"different source bytes\n")
+    rebound = _bind_expanded_to_prior_pair(
+        expanded,
+        prior_ledger,
+        prior_decision,
+        source_artifacts=[rebound_artifact, added_artifact],
+    )
+    with pytest.raises(AdjudicationError, match="source artifact|ordered prefix"):
+        adjudicate(
+            expanded_discovery,
+            rebound,
+            initial_discovery,
+            prior_evidence,
+            prior_ledger,
+            prior_decision,
+        )
+
+
+def test_expanded_retains_initial_applicability_declarations_byte_exactly(
+    expanded_discovery,
+    expanded_evidence,
+    initial_prior_artifacts,
+):
+    declarations = list(expanded_evidence.applicability_declarations)
+    declarations[0] = declarations[0].model_copy(update={"implementation_support": "supported"})
+    changed = _refresh_evidence(
+        expanded_evidence,
+        applicability_declarations=tuple(declarations),
+    )
+    with pytest.raises(AdjudicationError, match="applicability"):
+        adjudicate(
+            expanded_discovery,
+            changed,
+            *initial_prior_artifacts,
+        )
+
+
+def test_expanded_rejects_mutated_initial_candidate_fact(
+    initial_discovery,
+    initial_insufficient_evidence,
+    initial_ledger,
+    initial_decision,
+    expanded_discovery,
+    expanded_evidence,
+):
+    payload = expanded_discovery.model_dump(mode="json", exclude_none=True)
+    initial_oid = initial_discovery.discovered_candidates[0].commit.commit_oid
+    candidate = next(
+        item
+        for item in payload["discovered_candidates"]
+        if item["commit"]["commit_oid"] == initial_oid
+    )
+    candidate["commit"]["subject"] = "Mutated initial subject"
+    universe = {
+        "schema_version": payload["schema_version"],
+        "search_spec_sha256": payload["search_spec_sha256"],
+        "search_round": payload["search_round"],
+        "discovered_candidates": payload["discovered_candidates"],
+        "objective_lineage_links": payload["objective_lineage_links"],
+    }
+    payload["candidate_universe_sha256"] = sha256_hex(canonical_bytes(universe))
+    changed_discovery = DiscoveryLedger.model_validate(payload)
+    changed_evidence = _rebind_evidence_to_discovery(
+        expanded_evidence,
+        changed_discovery,
+        appended_resolutions=[],
+    )
+    with pytest.raises(AdjudicationError, match="initial candidate|immutable"):
+        adjudicate(
+            changed_discovery,
+            changed_evidence,
+            initial_discovery,
+            initial_insufficient_evidence,
+            initial_ledger,
+            initial_decision,
+        )
+
+
+@pytest.mark.parametrize("field_name", ["python_version", "unicode_version"])
+def test_expanded_prior_search_binds_runtime_versions(
+    field_name,
+    initial_discovery,
+    initial_insufficient_evidence,
+    expanded_discovery,
+    expanded_evidence,
+):
+    changed_tool = initial_discovery.discovery_tool.model_copy(
+        update={field_name: f"foreign-{field_name}"}
+    )
+    changed_prior = DiscoveryLedger.model_validate(
+        {
+            **initial_discovery.model_dump(mode="json", exclude_none=True),
+            "discovery_tool": changed_tool.model_dump(mode="json"),
+        }
+    )
+    changed_prior_evidence = _rebind_evidence_to_discovery(
+        initial_insufficient_evidence,
+        changed_prior,
+        appended_resolutions=[],
+    )
+    changed_ledger, changed_decision = adjudicate(
+        changed_prior,
+        changed_prior_evidence,
+    )
+    rebound = _bind_expanded_to_prior_pair(
+        expanded_evidence,
+        changed_ledger,
+        changed_decision,
+    )
+    with pytest.raises(AdjudicationError, match="same registered search|runtime"):
+        adjudicate(
+            expanded_discovery,
+            rebound,
+            changed_prior,
+            changed_prior_evidence,
+            changed_ledger,
+            changed_decision,
+        )
+
+
 @pytest.mark.parametrize("mutation", ["change", "reorder", "prepend"])
 def test_expanded_candidate_decisions_are_an_unchanged_ordered_prefix(
     mutation,
     expanded_discovery,
     expanded_evidence,
     initial_ledger,
-    initial_decision,
+    initial_prior_artifacts,
 ):
     changed = mutate_initial_candidate_decisions(expanded_evidence, initial_ledger, mutation)
     with pytest.raises(AdjudicationError, match="initial decision|ordered prefix"):
-        adjudicate(expanded_discovery, changed, initial_ledger, initial_decision)
+        adjudicate(expanded_discovery, changed, *initial_prior_artifacts)
 
 
 @pytest.mark.parametrize("mutation", ["change", "reorder", "prepend"])
@@ -793,11 +1359,11 @@ def test_expanded_lineage_resolutions_are_an_unchanged_ordered_prefix(
     expanded_discovery,
     expanded_evidence,
     initial_ledger,
-    initial_decision,
+    initial_prior_artifacts,
 ):
     changed = mutate_initial_lineage_resolutions(expanded_evidence, initial_ledger, mutation)
     with pytest.raises(AdjudicationError, match="lineage resolution|ordered prefix"):
-        adjudicate(expanded_discovery, changed, initial_ledger, initial_decision)
+        adjudicate(expanded_discovery, changed, *initial_prior_artifacts)
 
 
 @pytest.mark.parametrize(
@@ -815,14 +1381,21 @@ def test_expanded_prior_must_match_each_registered_search_binding_field(
     expanded_discovery,
     expanded_evidence,
     foreign_initial_pair_factory,
+    initial_discovery,
+    initial_insufficient_evidence,
 ):
     foreign_initial_ledger, foreign_initial_decision, rebound_evidence = (
         foreign_initial_pair_factory(binding_field, expanded_evidence)
     )
-    with pytest.raises(AdjudicationError, match="same registered search"):
+    with pytest.raises(
+        AdjudicationError,
+        match="replay|byte-identical|same registered search",
+    ):
         adjudicate(
             expanded_discovery,
             rebound_evidence,
+            initial_discovery,
+            initial_insufficient_evidence,
             foreign_initial_ledger,
             foreign_initial_decision,
         )
@@ -844,8 +1417,7 @@ def test_cherry_pick_lineage_cannot_count_both_endpoints_as_independent(
 def test_backport_lineage_cannot_count_both_endpoints_as_independent(
     expanded_discovery,
     expanded_evidence,
-    initial_ledger,
-    initial_decision,
+    initial_prior_artifacts,
     flare_git_repo,
 ):
     bad = _add_counted_lineage_endpoint(
@@ -855,7 +1427,7 @@ def test_backport_lineage_cannot_count_both_endpoints_as_independent(
         commit_oid=flare_git_repo.backport,
     )
     with pytest.raises(AdjudicationError, match="backport|independent|revert_or_duplicate"):
-        adjudicate(expanded_discovery, bad, initial_ledger, initial_decision)
+        adjudicate(expanded_discovery, bad, *initial_prior_artifacts)
 
 
 def test_same_fix_lineage_transitive_closure_cannot_inflate_independence(
@@ -902,7 +1474,7 @@ def test_expanded_new_lineage_link_may_touch_an_initial_group_without_rewriting_
     expanded_discovery,
     expanded_evidence,
     initial_ledger,
-    initial_decision,
+    initial_prior_artifacts,
     flare_git_repo,
 ):
     new_link = _patch_link(
@@ -923,7 +1495,7 @@ def test_expanded_new_lineage_link_may_touch_an_initial_group_without_rewriting_
             )
         ],
     )
-    ledger, _ = adjudicate(discovery, evidence, initial_ledger, initial_decision)
+    ledger, _ = adjudicate(discovery, evidence, *initial_prior_artifacts)
     prior_root = next(
         group for group in initial_ledger.groups if group.fix_group_id == "group-root"
     )

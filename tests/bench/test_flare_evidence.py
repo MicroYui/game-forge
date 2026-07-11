@@ -27,10 +27,15 @@ from gameforge.bench.flare_evidence import (
 )
 
 
+_GIT_EMPTY_TREE_OID = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
+
+
 def test_b0a_scope_is_exactly_the_eleven_non_narrative_classes():
     assert len(B0A_DEFECT_CLASSES) == 11
     assert {item.value for item in B0A_DEFECT_CLASSES} >= {
-        "dead_quest", "missing_drop_source", "economy_collapse"
+        "dead_quest",
+        "missing_drop_source",
+        "economy_collapse",
     }
     assert "spoiler" not in {item.value for item in B0A_DEFECT_CLASSES}
 
@@ -94,8 +99,7 @@ def test_out_of_taxonomy_rejection_has_no_fake_defect_class():
 def test_canonical_bytes_are_stable_and_new_or_identical_is_immutable(tmp_path: Path):
     assert canonical_bytes({"b": 2, "a": 1}) == b'{"a":1,"b":2}\n'
     assert canonical_bytes(EvidenceCounts()) == (
-        b'{"accepted":0,"ambiguous":0,"proposed":0,'
-        b'"qualified_candidate":0,"rejected":0}\n'
+        b'{"accepted":0,"ambiguous":0,"proposed":0,"qualified_candidate":0,"rejected":0}\n'
     )
     target = tmp_path / "ledger.json"
     write_new_or_identical(target, b"same\n")
@@ -148,9 +152,7 @@ def test_multi_output_publish_never_rolls_back_preexisting_identical_file(
 
     monkeypatch.setattr(Path, "open", fail_second)
     with pytest.raises(OSError, match="second-target"):
-        write_set_new_or_identical({
-            first: b"identical-ledger\n", second: b"new-decision\n"
-        })
+        write_set_new_or_identical({first: b"identical-ledger\n", second: b"new-decision\n"})
     assert first.read_bytes() == b"identical-ledger\n"
     assert not second.exists()
 
@@ -181,9 +183,7 @@ def test_explicit_localization_file_glob_is_not_confused_with_directory_glob():
     assert posix_glob_matches(path, "mods/**/languages.txt")
 
 
-def test_search_spec_requires_the_complete_frozen_contract(
-    registered_search_spec_payload
-):
+def test_search_spec_requires_the_complete_frozen_contract(registered_search_spec_payload):
     spec = FlareSearchSpec.model_validate(registered_search_spec_payload)
     assert spec.message_field == "subject_percent_s_utf8"
     assert spec.lineage_message_field == "full_percent_B_utf8"
@@ -258,11 +258,21 @@ def test_canonical_root_commit_round_trips_when_selected_parent_is_omitted():
         commit_oid="a" * 40,
         parent_oids=[],
         selected_parent_oid=None,
-        diff_base_oid="b" * 40,
+        diff_base_oid=_GIT_EMPTY_TREE_OID,
         committed_at=1,
         subject="root",
     )
     assert CandidateCommit.model_validate_json(canonical_bytes(root)) == root
+
+    with pytest.raises(ValidationError, match="empty-tree"):
+        CandidateCommit(
+            commit_oid="a" * 40,
+            parent_oids=[],
+            selected_parent_oid=None,
+            diff_base_oid="b" * 40,
+            committed_at=1,
+            subject="root",
+        )
 
 
 def test_validated_git_environment_is_immutable(registered_search_spec_payload):

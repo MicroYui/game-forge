@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import os
+import platform
 import re
 import subprocess
+import unicodedata
 from dataclasses import dataclass
 from itertools import combinations
 from pathlib import Path, PurePosixPath
@@ -113,7 +115,11 @@ class ReadOnlyGitRepo:
     """Executes only frozen, read-only Git commands against one local clone."""
 
     def __init__(self, path: str | Path) -> None:
-        self.path = Path(path).resolve()
+        self.input_path = Path(path)
+        try:
+            self.path = self.input_path.resolve()
+        except (OSError, RuntimeError) as exc:
+            raise GitEvidenceError(f"unable to resolve repository path: {self.input_path}") from exc
         self.git_dir = self._locate_git_dir()
 
     def _locate_git_dir(self) -> Path:
@@ -136,7 +142,7 @@ class ReadOnlyGitRepo:
             return location.resolve()
         if (self.path / "HEAD").is_file() and (self.path / "objects").is_dir():
             return self.path
-        raise GitEvidenceError(f"not a Git repository: {self.path}")
+        raise GitEvidenceError(f"not a Git repository: {self.input_path}")
 
     def _locate_common_git_dir(self) -> Path:
         marker = self.git_dir / "commondir"
@@ -177,13 +183,15 @@ class ReadOnlyGitRepo:
                 continue
             value = os.environ.get(name)
             if value is None:
-                raise GitEvidenceError(f"required inherited environment variable is missing: {name}")
+                raise GitEvidenceError(
+                    f"required inherited environment variable is missing: {name}"
+                )
             environment[name] = value
         environment.update(GIT_FIXED_ENVIRONMENT)
         return environment
 
     def _common_prefix(self) -> list[str]:
-        return [str(self.path) if token == "{repo}" else token for token in GIT_COMMON_PREFIX]
+        return [str(self.git_dir) if token == "{repo}" else token for token in GIT_COMMON_PREFIX]
 
     def _run(
         self,
@@ -226,13 +234,9 @@ class ReadOnlyGitRepo:
             else _validate_oid(spec.after_exclusive, label="after_exclusive")
         )
         revision_range = (
-            pinned_head
-            if after_exclusive is None
-            else f"{after_exclusive}..{pinned_head}"
+            pinned_head if after_exclusive is None else f"{after_exclusive}..{pinned_head}"
         )
-        output = self._run(
-            _render_args(GIT_HISTORY_ARGS, revision_range=revision_range)
-        )
+        output = self._run(_render_args(GIT_HISTORY_ARGS, revision_range=revision_range))
         try:
             commits = output.decode("ascii", errors="strict").splitlines()
         except UnicodeDecodeError as exc:
@@ -316,9 +320,7 @@ class ReadOnlyGitRepo:
         oid = _validate_oid(oid, label="commit")
         return self._run(_render_args(GIT_PATCH_ARGS, parent=parent, commit=oid))
 
-    def eligible_patch_bytes(
-        self, parent: str, oid: str, eligible_paths: Sequence[str]
-    ) -> bytes:
+    def eligible_patch_bytes(self, parent: str, oid: str, eligible_paths: Sequence[str]) -> bytes:
         parent = _validate_oid(parent, label="parent")
         oid = _validate_oid(oid, label="commit")
         paths = _validate_path_set(eligible_paths)
@@ -377,9 +379,7 @@ def _trailer_link(
     return LineageLink(link_id=_link_id(payload), **payload)
 
 
-def _patch_link(
-    *, source_oid: str, target_oid: str, patch_id: str
-) -> LineageLink:
+def _patch_link(*, source_oid: str, target_oid: str, patch_id: str) -> LineageLink:
     payload = {
         "link_type": "patch_id",
         "source_oid": source_oid,
@@ -399,10 +399,7 @@ def _reason_key(reason: SelectionReason) -> tuple[int, str, str, tuple[str, ...]
 
 
 def _sorted_reasons(reasons: Sequence[SelectionReason]) -> list[SelectionReason]:
-    unique = {
-        canonical_bytes(reason).decode("utf-8"): reason
-        for reason in reasons
-    }
+    unique = {canonical_bytes(reason).decode("utf-8"): reason for reason in reasons}
     return sorted(unique.values(), key=_reason_key)
 
 
@@ -460,18 +457,20 @@ def discover_candidates(
 
     selected_round_index = 0 if round_name == "initial" else 1
     selected_rounds = spec.rounds[: selected_round_index + 1]
-    message_rules = [
-        (rule.rule_id, re.compile(rule.pattern))
-        for search_round in selected_rounds
-        for rule in search_round.message_regexes
-    ]
-    diff_rules: list[tuple[str, re.Pattern[bytes]]] = []
+    compiled_rounds: list[
+        tuple[list[tuple[str, re.Pattern[str]]], list[tuple[str, re.Pattern[bytes]]]]
+    ] = []
     for search_round in selected_rounds:
+        message_rules = [
+            (rule.rule_id, re.compile(rule.pattern)) for rule in search_round.message_regexes
+        ]
+        diff_rules: list[tuple[str, re.Pattern[bytes]]] = []
         for rule in search_round.diff_regexes:
             try:
                 diff_rules.append((rule.rule_id, re.compile(rule.pattern.encode("ascii"))))
             except (UnicodeEncodeError, re.error) as exc:
                 raise GitEvidenceError(f"invalid ASCII bytes diff rule: {rule.rule_id}") from exc
+        compiled_rounds.append((message_rules, diff_rules))
 
     reasons: dict[str, list[SelectionReason]] = {}
     direct_oids: set[str] = set()
@@ -479,27 +478,33 @@ def discover_candidates(
         state = states[oid]
         if not state.eligible_paths:
             continue
-        matched_rule_ids = {
-            rule_id
-            for rule_id, pattern in message_rules
-            if pattern.search(state.metadata.facts.subject) is not None
-        }
-        if diff_rules and len(state.metadata.facts.parent_oids) <= 1:
-            eligible_patch = repo.eligible_patch_bytes(
-                state.metadata.facts.diff_base_oid,
-                oid,
-                state.eligible_paths,
-            )
-            matched_rule_ids.update(
+        direct_reasons: list[SelectionReason] = []
+        eligible_patch: bytes | None = None
+        for message_rules, diff_rules in compiled_rounds:
+            matched_rule_ids = {
                 rule_id
-                for rule_id, pattern in diff_rules
-                if pattern.search(eligible_patch) is not None
-            )
-        if matched_rule_ids:
+                for rule_id, pattern in message_rules
+                if pattern.search(state.metadata.facts.subject) is not None
+            }
+            if diff_rules and len(state.metadata.facts.parent_oids) <= 1:
+                if eligible_patch is None:
+                    eligible_patch = repo.eligible_patch_bytes(
+                        state.metadata.facts.diff_base_oid,
+                        oid,
+                        state.eligible_paths,
+                    )
+                matched_rule_ids.update(
+                    rule_id
+                    for rule_id, pattern in diff_rules
+                    if pattern.search(eligible_patch) is not None
+                )
+            if matched_rule_ids:
+                direct_reasons.append(
+                    SelectionReason(kind="direct_match", rule_ids=sorted(matched_rule_ids))
+                )
+        if direct_reasons:
             direct_oids.add(oid)
-            reasons[oid] = [
-                SelectionReason(kind="direct_match", rule_ids=sorted(matched_rule_ids))
-            ]
+            reasons[oid] = direct_reasons
 
     first_parent_children: dict[str, list[str]] = {}
     for oid, state in states.items():
@@ -577,9 +582,7 @@ def discover_candidates(
         patch_id = repo.stable_patch_id(patch)
         patch_ids.setdefault(patch_id, []).append(oid)
 
-    candidate_key = {
-        oid: (states[oid].metadata.facts.committed_at, oid) for oid in candidate_oids
-    }
+    candidate_key = {oid: (states[oid].metadata.facts.committed_at, oid) for oid in candidate_oids}
     for patch_id, matching_oids in patch_ids.items():
         ordered_oids = sorted(matching_oids, key=candidate_key.__getitem__)
         for source_oid, target_oid in combinations(ordered_oids, 2):
@@ -633,6 +636,8 @@ def discover_candidates(
             tool_version=DISCOVERY_TOOL_VERSION,
             project_commit_oid=registration.project_commit_oid,
             git_version=repo.git_version(),
+            python_version=platform.python_version(),
+            unicode_version=unicodedata.unidata_version,
         ),
         discovered_candidates=candidates,
         objective_lineage_links=links,

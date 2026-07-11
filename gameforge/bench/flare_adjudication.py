@@ -323,7 +323,6 @@ def _validate_lineage(
             "lineage resolutions must cover every discovered objective link exactly once"
         )
 
-    group_by_id = {group.fix_group_id: group for group in groups}
     group_by_commit = {oid: group for group in groups for oid in group.commits}
     decisions = {item.commit_oid: item for item in evidence.candidate_decisions}
     decision_by_group = {item.fix_group_id: item for item in evidence.group_decisions}
@@ -349,24 +348,25 @@ def _validate_lineage(
 
     for resolution in evidence.lineage_resolutions:
         link = links[resolution.link_id]
+        endpoint_group_ids = sorted(
+            {
+                group_by_commit[oid].fix_group_id
+                for oid in (link.source_oid, link.target_oid)
+                if oid in group_by_commit
+            }
+        )
+        if resolution.affected_group_ids != endpoint_group_ids:
+            raise AdjudicationError(
+                "lineage resolution affected group IDs must be the exact endpoint-group set"
+            )
         if resolution.resolution == "same_group":
             source_node = f"commit:{link.source_oid}"
             target_node = f"commit:{link.target_oid}"
             join_same_fix(source_node, target_node)
             for group_id in resolution.affected_group_ids:
                 join_same_fix(source_node, f"group:{group_id}")
-        unknown_group_ids = set(resolution.affected_group_ids) - set(group_by_id)
-        if unknown_group_ids:
-            raise AdjudicationError("lineage resolution refers to an unknown affected group")
-        endpoint_group_ids = {
-            group_by_commit[oid].fix_group_id
-            for oid in (link.source_oid, link.target_oid)
-            if oid in group_by_commit
-        }
-        if not endpoint_group_ids <= set(resolution.affected_group_ids):
-            raise AdjudicationError("lineage resolution omits a grouped endpoint")
 
-        counted_endpoint_ids = endpoint_group_ids & counted_ids
+        counted_endpoint_ids = set(endpoint_group_ids) & counted_ids
         if link.link_type != "patch_id" and resolution.resolution != "same_group":
             raise AdjudicationError(f"{link.link_type} lineage must resolve as the same fix")
 
@@ -380,10 +380,16 @@ def _validate_lineage(
             )
             if not continuous_same_group:
                 target_decision = decisions.get(link.target_oid)
-                if target_decision is None or target_decision.reason_code != "revert_or_duplicate":
+                target = next(
+                    item
+                    for item in discovered.discovered_candidates
+                    if item.commit.commit_oid == link.target_oid
+                )
+                expected_reason = "revert_or_duplicate" if target.config_only else "non_config_only"
+                if target_decision is None or target_decision.reason_code != expected_reason:
                     raise AdjudicationError(
                         f"{link.link_type} non-primary endpoint must be excluded as "
-                        "revert_or_duplicate"
+                        f"{expected_reason}"
                     )
             if len(counted_endpoint_ids) > 1:
                 raise AdjudicationError(f"{link.link_type} endpoints are not independent groups")
@@ -395,8 +401,14 @@ def _validate_lineage(
                     "a revert endpoint must use a revert_or_duplicate candidate disposition"
                 )
             target_decision = decisions.get(link.target_oid)
-            if target_decision is None or target_decision.reason_code != "revert_or_duplicate":
-                raise AdjudicationError("a revert endpoint must be excluded as revert_or_duplicate")
+            target = next(
+                item
+                for item in discovered.discovered_candidates
+                if item.commit.commit_oid == link.target_oid
+            )
+            expected_reason = "revert_or_duplicate" if target.config_only else "non_config_only"
+            if target_decision is None or target_decision.reason_code != expected_reason:
+                raise AdjudicationError(f"a revert endpoint must be excluded as {expected_reason}")
 
         if resolution.resolution == "same_group" and len(counted_endpoint_ids) > 1:
             raise AdjudicationError("objective lineage cannot inflate independent proposed groups")
@@ -427,21 +439,52 @@ def _validate_lineage(
         raise AdjudicationError("same-fix lineage cannot inflate independent proposed groups")
 
 
-def _validate_prior_pair(
+def _validate_prior_artifacts(
     discovered: DiscoveryLedger,
     evidence: AdjudicationEvidence,
+    prior_discovery: DiscoveryLedger | None,
+    prior_evidence: AdjudicationEvidence | None,
     prior_ledger: CandidateLedger | None,
     prior_decision: B0ADecision | None,
-) -> tuple[CandidateLedger, B0ADecision] | None:
+) -> tuple[DiscoveryLedger, AdjudicationEvidence, CandidateLedger, B0ADecision] | None:
+    prior_values = (
+        prior_discovery,
+        prior_evidence,
+        prior_ledger,
+        prior_decision,
+    )
     if discovered.search_round == "initial":
-        if prior_ledger is not None or prior_decision is not None:
-            raise AdjudicationError("initial adjudication forbids a prior decision pair")
+        if any(item is not None for item in prior_values):
+            raise AdjudicationError("initial adjudication forbids all prior artifacts")
         return None
-    if prior_ledger is None or prior_decision is None:
-        raise AdjudicationError("expanded adjudication requires the exact prior pair")
+    if any(item is None for item in prior_values):
+        raise AdjudicationError("expanded adjudication requires all four exact prior artifacts")
 
+    assert prior_discovery is not None
+    assert prior_evidence is not None
+    assert prior_ledger is not None
+    assert prior_decision is not None
+    validated_discovery = _revalidate(DiscoveryLedger, prior_discovery, "prior discovery ledger")
+    validated_evidence = _revalidate(
+        AdjudicationEvidence, prior_evidence, "prior adjudication evidence"
+    )
     validated_ledger = _revalidate(CandidateLedger, prior_ledger, "prior candidate ledger")
     validated_decision = _revalidate(B0ADecision, prior_decision, "prior B0A decision")
+
+    if validated_discovery.search_round != "initial":
+        raise AdjudicationError("expanded prior discovery must be the initial round")
+    if validated_evidence.search_round != "initial":
+        raise AdjudicationError("expanded prior evidence must be the initial round")
+    replayed_ledger, replayed_decision = adjudicate(
+        validated_discovery,
+        validated_evidence,
+    )
+    if canonical_bytes(replayed_ledger) != canonical_bytes(validated_ledger) or canonical_bytes(
+        replayed_decision
+    ) != canonical_bytes(validated_decision):
+        raise AdjudicationError(
+            "supplied prior pair must be byte-identical to replay of prior discovery and evidence"
+        )
 
     same_search = (
         validated_ledger.schema_version == discovered.schema_version
@@ -467,13 +510,65 @@ def _validate_prior_pair(
         canonical_bytes(validated_ledger)
     ) or evidence.prior_decision_sha256 != sha256_hex(canonical_bytes(validated_decision)):
         raise AdjudicationError("expanded evidence does not bind the exact prior pair")
-    return validated_ledger, validated_decision
+    return (
+        validated_discovery,
+        validated_evidence,
+        validated_ledger,
+        validated_decision,
+    )
 
 
 def _validate_expanded_prefixes(
+    discovered: DiscoveryLedger,
     evidence: AdjudicationEvidence,
+    prior_discovery: DiscoveryLedger,
+    prior_evidence: AdjudicationEvidence,
     prior_ledger: CandidateLedger,
 ) -> None:
+    prior_artifacts = _canonical_sequence(prior_evidence.source_artifacts)
+    replayed_artifacts = _canonical_sequence(evidence.source_artifacts)
+    if (
+        len(replayed_artifacts) < len(prior_artifacts)
+        or replayed_artifacts[: len(prior_artifacts)] != prior_artifacts
+    ):
+        raise AdjudicationError("expanded source artifacts must retain the initial ordered prefix")
+    if _canonical_sequence(evidence.applicability_declarations) != _canonical_sequence(
+        prior_evidence.applicability_declarations
+    ):
+        raise AdjudicationError(
+            "expanded applicability declarations must equal the initial declarations"
+        )
+
+    expanded_candidates = {
+        item.commit.commit_oid: item for item in discovered.discovered_candidates
+    }
+    for prior_candidate in prior_discovery.discovered_candidates:
+        oid = prior_candidate.commit.commit_oid
+        replayed_candidate = expanded_candidates.get(oid)
+        if replayed_candidate is None:
+            raise AdjudicationError("expanded discovery omits an initial candidate")
+        prior_facts = prior_candidate.model_dump(
+            mode="json", exclude={"selection_reasons"}, exclude_none=True
+        )
+        replayed_facts = replayed_candidate.model_dump(
+            mode="json", exclude={"selection_reasons"}, exclude_none=True
+        )
+        if canonical_bytes(prior_facts) != canonical_bytes(replayed_facts):
+            raise AdjudicationError(
+                f"expanded discovery changed immutable initial candidate facts: {oid}"
+            )
+        prior_reasons = set(_canonical_sequence(prior_candidate.selection_reasons))
+        replayed_reasons = set(_canonical_sequence(replayed_candidate.selection_reasons))
+        if not prior_reasons <= replayed_reasons:
+            raise AdjudicationError(
+                f"expanded discovery omits an initial candidate selection reason: {oid}"
+            )
+
+    prior_links = set(_canonical_sequence(prior_discovery.objective_lineage_links))
+    replayed_links = set(_canonical_sequence(discovered.objective_lineage_links))
+    if not prior_links <= replayed_links:
+        raise AdjudicationError("expanded discovery omits an initial objective lineage link")
+
     prior_group_ids = [item.fix_group_id for item in prior_ledger.groups]
     replay_group_ids = [item.fix_group_id for item in evidence.group_decisions]
     if (
@@ -526,6 +621,8 @@ def _with_reason_counts(
 def adjudicate(
     discovered: DiscoveryLedger,
     evidence: AdjudicationEvidence,
+    prior_discovery: DiscoveryLedger | None = None,
+    prior_evidence: AdjudicationEvidence | None = None,
     prior_ledger: CandidateLedger | None = None,
     prior_decision: B0ADecision | None = None,
 ) -> tuple[CandidateLedger, B0ADecision]:
@@ -542,14 +639,22 @@ def adjudicate(
     if evidence.candidate_universe_sha256 != discovered.candidate_universe_sha256:
         raise AdjudicationError("candidate-universe hash does not match discovery")
 
-    prior_pair = _validate_prior_pair(
+    prior_artifacts = _validate_prior_artifacts(
         discovered,
         evidence,
+        prior_discovery,
+        prior_evidence,
         prior_ledger,
         prior_decision,
     )
-    if prior_pair is not None:
-        _validate_expanded_prefixes(evidence, prior_pair[0])
+    if prior_artifacts is not None:
+        _validate_expanded_prefixes(
+            discovered,
+            evidence,
+            prior_artifacts[0],
+            prior_artifacts[1],
+            prior_artifacts[2],
+        )
 
     _validate_evidence_refs(discovered, evidence)
     _validate_assignments(discovered, evidence)

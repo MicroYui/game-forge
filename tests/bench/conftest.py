@@ -229,10 +229,7 @@ _REVIEWER_ID = "human-review-1"
 
 
 def _candidate_index(discovery: DiscoveryLedger):
-    return {
-        candidate.commit.commit_oid: candidate
-        for candidate in discovery.discovered_candidates
-    }
+    return {candidate.commit.commit_oid: candidate for candidate in discovery.discovered_candidates}
 
 
 def _patch_ref(candidate) -> EvidenceRef:
@@ -284,8 +281,7 @@ def _applicability_declarations() -> tuple[ApplicabilityDeclaration, ...]:
             defect_class=defect_class,
             domain_applicability=(
                 "not_applicable"
-                if defect_class.value
-                in {"prob_sum_ne_1", "gacha_expectation_violation"}
+                if defect_class.value in {"prob_sum_ne_1", "gacha_expectation_violation"}
                 else "applicable"
             ),
             implementation_support="planned",
@@ -331,12 +327,7 @@ def _lineage_resolutions(
     discovery: DiscoveryLedger,
     groups: Sequence[CandidateGroupDecision],
 ) -> list[LineageResolution]:
-    commit_groups = {
-        oid: group.fix_group_id
-        for group in groups
-        for oid in group.commits
-    }
-    group_ids = {group.fix_group_id for group in groups}
+    commit_groups = {oid: group.fix_group_id for group in groups for oid in group.commits}
     resolutions: list[LineageResolution] = []
     for link in discovery.objective_lineage_links:
         affected = sorted(
@@ -346,12 +337,6 @@ def _lineage_resolutions(
                 if oid in commit_groups
             }
         )
-        if not affected and link.link_type == "patch_id" and "group-loot" in group_ids:
-            affected = ["group-loot"]
-        if not affected and link.link_type == "backport" and "group-remote" in group_ids:
-            affected = ["group-remote"]
-        if not affected:
-            raise AssertionError(f"fixture lineage link has no affected group: {link.link_id}")
         resolutions.append(
             LineageResolution(
                 link_id=link.link_id,
@@ -445,9 +430,7 @@ def _derived_group(
         before_commit=selected[0].commit.diff_base_oid,
         after_commit=selected[-1].commit.commit_oid,
         after_committed_at=selected[-1].commit.committed_at,
-        changed_paths=sorted(
-            {path for candidate in selected for path in candidate.changed_paths}
-        ),
+        changed_paths=sorted({path for candidate in selected for path in candidate.changed_paths}),
         config_only=all(candidate.config_only for candidate in selected),
         diff_evidence=[candidate.diff_evidence for candidate in selected],
         cases=list(decision.case_decisions),
@@ -468,9 +451,7 @@ def _applicability_matrix(
     cases = [case for group in groups for case in group.cases]
     matrix: list[ApplicabilityRow] = []
     for declaration in declarations:
-        class_cases = [
-            case for case in cases if case.defect_class == declaration.defect_class
-        ]
+        class_cases = [case for case in cases if case.defect_class == declaration.defect_class]
         matrix.append(
             ApplicabilityRow(
                 defect_class=declaration.defect_class,
@@ -516,9 +497,7 @@ def _expected_candidate_ledger(
         failure_reasons = ["expanded search found fewer than eight proposed groups"]
     reason_counts: dict[str, int] = {}
     for disposition in evidence.candidate_decisions:
-        reason_counts[disposition.reason_code] = reason_counts.get(
-            disposition.reason_code, 0
-        ) + 1
+        reason_counts[disposition.reason_code] = reason_counts.get(disposition.reason_code, 0) + 1
     gate = GateSummary(
         status=status,
         proposed_groups=len(proposed_groups),
@@ -556,9 +535,7 @@ def _expected_candidate_ledger(
         reviewer_ids=reviewer_ids,
         groups=groups,
         candidate_decisions=list(evidence.candidate_decisions),
-        applicability_matrix=_applicability_matrix(
-            evidence.applicability_declarations, groups
-        ),
+        applicability_matrix=_applicability_matrix(evidence.applicability_declarations, groups),
         gate_summary=gate,
         lineage_resolutions=list(evidence.lineage_resolutions),
     )
@@ -758,9 +735,7 @@ def multilabel_evidence(positive_evidence):
             "rationale": "The same group is not a dangling-reference case.",
         }
     )
-    changed_first = first.model_copy(
-        update={"case_decisions": [*first.case_decisions, rejected]}
-    )
+    changed_first = first.model_copy(update={"case_decisions": [*first.case_decisions, rejected]})
     return _refresh_evidence(
         positive_evidence,
         group_decisions=[changed_first, *positive_evidence.group_decisions[1:]],
@@ -821,6 +796,21 @@ def initial_decision(initial_ledger):
     )
 
 
+@pytest.fixture
+def initial_prior_artifacts(
+    initial_discovery,
+    initial_insufficient_evidence,
+    initial_ledger,
+    initial_decision,
+):
+    return (
+        initial_discovery,
+        initial_insufficient_evidence,
+        initial_ledger,
+        initial_decision,
+    )
+
+
 def _expanded_evidence(
     expanded_discovery,
     initial_insufficient_evidence,
@@ -855,9 +845,7 @@ def _expanded_evidence(
         )
     ]
     assert flare_git_repo.backport not in prior_candidate_oids
-    initial_link_ids = {
-        item.link_id for item in initial_insufficient_evidence.lineage_resolutions
-    }
+    initial_link_ids = {item.link_id for item in initial_insufficient_evidence.lineage_resolutions}
     resolutions = [
         *initial_insufficient_evidence.lineage_resolutions,
         *[
@@ -943,9 +931,7 @@ def foreign_initial_pair_factory(
             update={binding_field: replacements[binding_field]}
         )
         foreign_decision = initial_decision.model_copy(
-            update={
-                "candidate_ledger_sha256": sha256_hex(canonical_bytes(foreign_ledger))
-            }
+            update={"candidate_ledger_sha256": sha256_hex(canonical_bytes(foreign_ledger))}
         )
         rebound_evidence = _refresh_evidence(
             expanded_evidence,
@@ -1029,6 +1015,21 @@ def initial_decision_path(tmp_path, initial_decision):
     return _write_canonical(
         tmp_path / "initial" / "b0a-decision.json",
         initial_decision,
+    )
+
+
+@pytest.fixture
+def initial_prior_paths(
+    initial_discovered_path,
+    initial_insufficient_evidence_path,
+    initial_ledger_path,
+    initial_decision_path,
+):
+    return (
+        initial_discovered_path,
+        initial_insufficient_evidence_path,
+        initial_ledger_path,
+        initial_decision_path,
     )
 
 

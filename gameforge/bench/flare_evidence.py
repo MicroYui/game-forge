@@ -28,6 +28,7 @@ from gameforge.contracts.canonical import canonical_json
 
 
 FLARE_B0A_SCHEMA_VERSION = "flare-b0a@1"
+GIT_EMPTY_TREE_OID = "4b825dc642cb6eb9a060e54bf8d69288fbee4904"
 
 B0A_DEFECT_CLASSES: tuple[DefectClass, ...] = tuple(
     defect_class
@@ -110,16 +111,18 @@ GIT_VERSION_COMMAND = ("git", "--version")
 
 GIT_INHERIT_ALLOWLIST = ("PATH",)
 GIT_DROP_INHERITED_PREFIXES = ("GIT_",)
-GIT_FIXED_ENVIRONMENT: Mapping[str, str] = MappingProxyType({
-    "GIT_ATTR_NOSYSTEM": "1",
-    "GIT_CONFIG_GLOBAL": "/dev/null",
-    "GIT_CONFIG_NOSYSTEM": "1",
-    "GIT_NO_REPLACE_OBJECTS": "1",
-    "GIT_OPTIONAL_LOCKS": "0",
-    "LANG": "C",
-    "LC_ALL": "C",
-    "TZ": "UTC",
-})
+GIT_FIXED_ENVIRONMENT: Mapping[str, str] = MappingProxyType(
+    {
+        "GIT_ATTR_NOSYSTEM": "1",
+        "GIT_CONFIG_GLOBAL": "/dev/null",
+        "GIT_CONFIG_NOSYSTEM": "1",
+        "GIT_NO_REPLACE_OBJECTS": "1",
+        "GIT_OPTIONAL_LOCKS": "0",
+        "LANG": "C",
+        "LC_ALL": "C",
+        "TZ": "UTC",
+    }
+)
 
 HISTORY_WALK = "all_reachable_topo_order"
 CANDIDATE_ORDER = ("committed_at", "commit_oid")
@@ -189,14 +192,10 @@ def _validate_b0a_class(defect_class: DefectClass) -> None:
         raise ValueError(f"{defect_class.value} is outside the B0A taxonomy")
 
 
-def _validate_applicability_value(
-    defect_class: DefectClass, domain_applicability: str
-) -> None:
+def _validate_applicability_value(defect_class: DefectClass, domain_applicability: str) -> None:
     expected = _expected_applicability(defect_class)
     if domain_applicability != expected:
-        raise ValueError(
-            f"{defect_class.value} domain_applicability must be {expected} for Flare"
-        )
+        raise ValueError(f"{defect_class.value} domain_applicability must be {expected} for Flare")
 
 
 def _validate_exact_matrix(rows: list[Any] | tuple[Any, ...], name: str) -> None:
@@ -387,6 +386,8 @@ class DiscoveryTool(_StrictModel):
     tool_version: NonEmptyStr
     project_commit_oid: Oid
     git_version: NonEmptyStr
+    python_version: NonEmptyStr
+    unicode_version: NonEmptyStr
 
 
 class CandidateCommit(_StrictModel):
@@ -406,8 +407,11 @@ class CandidateCommit(_StrictModel):
                 raise ValueError("selected_parent_oid must be the first parent")
             if self.diff_base_oid != self.selected_parent_oid:
                 raise ValueError("diff_base_oid must be the selected parent")
-        elif self.selected_parent_oid is not None:
-            raise ValueError("a root commit cannot have selected_parent_oid")
+        else:
+            if self.selected_parent_oid is not None:
+                raise ValueError("a root commit cannot have selected_parent_oid")
+            if self.diff_base_oid != GIT_EMPTY_TREE_OID:
+                raise ValueError("a root commit diff_base_oid must be the SHA-1 empty-tree OID")
         return self
 
 
@@ -419,8 +423,8 @@ class SelectionReason(_StrictModel):
 
     @model_validator(mode="after")
     def validate_reason_details(self) -> SelectionReason:
-        if len(self.rule_ids) != len(set(self.rule_ids)):
-            raise ValueError("selection rule IDs must be unique")
+        if self.rule_ids != sorted(set(self.rule_ids)):
+            raise ValueError("selection rule IDs must be sorted and unique")
         if self.kind == "direct_match":
             if not self.rule_ids or self.anchor_oid is not None or self.lineage_link_id is not None:
                 raise ValueError("direct_match requires only rule_ids")
@@ -477,6 +481,9 @@ class DiscoveredCandidate(_StrictModel):
     def validate_paths(cls, values: list[str]) -> list[str]:
         if values != sorted(set(values)):
             raise ValueError("candidate paths must be sorted and unique")
+        folded = [value.casefold() for value in values]
+        if len(folded) != len(set(folded)):
+            raise ValueError("candidate paths must be case-fold unique")
         return [_validate_posix_relative(value) for value in values]
 
     @model_validator(mode="after")
@@ -516,6 +523,61 @@ class DiscoveryLedger(_StrictModel):
         ]
         if candidate_keys != sorted(set(candidate_keys)):
             raise ValueError("discovered_candidates must be sorted and unique")
+        candidate_by_oid = {item.commit.commit_oid: item for item in self.discovered_candidates}
+        candidate_oids = set(candidate_by_oid)
+        selected_round_count = 1 if self.search_round == "initial" else 2
+        direct_rule_ids = {
+            rule.rule_id
+            for search_round in self.search_frame.rounds[:selected_round_count]
+            for rule in (*search_round.message_regexes, *search_round.diff_regexes)
+        }
+        reason_order = {
+            "direct_match": 0,
+            "adjacent_context": 1,
+            "lineage_context": 2,
+        }
+
+        def reason_key(reason: SelectionReason) -> tuple[int, str, str, tuple[str, ...]]:
+            return (
+                reason_order[reason.kind],
+                reason.anchor_oid or "",
+                reason.lineage_link_id or "",
+                tuple(reason.rule_ids),
+            )
+
+        for candidate in self.discovered_candidates:
+            expected_eligible = [
+                path
+                for path in candidate.changed_paths
+                if any(
+                    posix_glob_matches(path, pattern)
+                    for pattern in self.search_frame.config_path_globs
+                )
+                and not any(
+                    posix_glob_matches(path, pattern)
+                    for pattern in self.search_frame.excluded_path_globs
+                )
+            ]
+            if candidate.eligible_paths != expected_eligible:
+                raise ValueError("candidate eligible_paths differ from the embedded search frame")
+            expected_config_only = len(candidate.changed_paths) == len(expected_eligible)
+            if candidate.config_only != expected_config_only:
+                raise ValueError("candidate config_only must be derived from eligible_paths")
+            canonical_reasons = [canonical_bytes(reason) for reason in candidate.selection_reasons]
+            expected_reasons = sorted(
+                dict(zip(canonical_reasons, candidate.selection_reasons, strict=True)).values(),
+                key=reason_key,
+            )
+            if candidate.selection_reasons != expected_reasons or len(canonical_reasons) != len(
+                set(canonical_reasons)
+            ):
+                raise ValueError("candidate selection_reasons must be sorted and unique")
+            for reason in candidate.selection_reasons:
+                if reason.kind == "direct_match" and not set(reason.rule_ids) <= direct_rule_ids:
+                    raise ValueError(
+                        "direct-match rule IDs must belong to the selected round union"
+                    )
+
         link_ids = [link.link_id for link in self.objective_lineage_links]
         if len(link_ids) != len(set(link_ids)):
             raise ValueError("objective lineage link IDs must be unique")
@@ -532,6 +594,55 @@ class DiscoveryLedger(_StrictModel):
         ]
         if link_keys != sorted(link_keys):
             raise ValueError("objective_lineage_links must be deterministically sorted")
+        lineage_rules = {rule.rule_id: rule.link_type for rule in self.search_frame.lineage_regexes}
+        links_by_id = {link.link_id: link for link in self.objective_lineage_links}
+        for link in self.objective_lineage_links:
+            payload = {
+                "link_type": link.link_type,
+                "source_oid": link.source_oid,
+                "target_oid": link.target_oid,
+            }
+            if link.link_type == "patch_id":
+                payload["patch_id"] = link.patch_id
+            else:
+                payload["rule_id"] = link.rule_id
+                if link.rule_id not in lineage_rules:
+                    raise ValueError("trailer link uses an unknown lineage rule")
+                if lineage_rules[link.rule_id] != link.link_type:
+                    raise ValueError("trailer link type differs from its frozen lineage rule")
+            if link.link_id != sha256_hex(canonical_bytes(payload)):
+                raise ValueError("lineage link_id does not bind its semantic fields")
+            if link.source_oid not in candidate_oids or link.target_oid not in candidate_oids:
+                raise ValueError("every lineage endpoint must belong to the candidate universe")
+
+        direct_oids = {
+            candidate.commit.commit_oid
+            for candidate in self.discovered_candidates
+            if any(reason.kind == "direct_match" for reason in candidate.selection_reasons)
+        }
+        for candidate in self.discovered_candidates:
+            oid = candidate.commit.commit_oid
+            for reason in candidate.selection_reasons:
+                if reason.kind == "adjacent_context":
+                    anchor = candidate_by_oid.get(reason.anchor_oid or "")
+                    if anchor is None or anchor.commit.commit_oid not in direct_oids:
+                        raise ValueError("adjacent reason anchor must be a direct candidate")
+                    exact_edge = (
+                        candidate.commit.selected_parent_oid == anchor.commit.commit_oid
+                        or anchor.commit.selected_parent_oid == oid
+                    )
+                    if not exact_edge:
+                        raise ValueError(
+                            "adjacent reason anchor must be an exact first-parent neighbor"
+                        )
+                    if set(candidate.eligible_paths).isdisjoint(anchor.eligible_paths):
+                        raise ValueError("adjacent reason anchor must share an exact eligible path")
+                elif reason.kind == "lineage_context":
+                    link = links_by_id.get(reason.lineage_link_id or "")
+                    if link is None or link.source_oid != oid:
+                        raise ValueError(
+                            "lineage reason must resolve to a link whose source is the candidate"
+                        )
         universe = {
             "schema_version": self.schema_version,
             "search_spec_sha256": self.search_spec_sha256,
@@ -655,8 +766,8 @@ class LineageResolution(_StrictModel):
     @field_validator("affected_group_ids")
     @classmethod
     def validate_group_ids(cls, values: list[str]) -> list[str]:
-        if not values or len(values) != len(set(values)):
-            raise ValueError("affected_group_ids must be nonempty and unique")
+        if values != sorted(set(values)):
+            raise ValueError("affected_group_ids must be sorted and unique")
         return values
 
 
@@ -674,13 +785,14 @@ class CandidateGroupDecision(_StrictModel):
     def validate_group_decision(self) -> CandidateGroupDecision:
         if len(self.commits) != len(set(self.commits)):
             raise ValueError("group commits must be unique")
-        root_cause_refs = [
-            (ref.kind, ref.target_id) for ref in self.root_cause_evidence_refs
-        ]
+        root_cause_refs = [(ref.kind, ref.target_id) for ref in self.root_cause_evidence_refs]
         if len(root_cause_refs) != len(set(root_cause_refs)):
             raise ValueError("duplicate root-cause evidence refs are not allowed")
         if [edge.commit_oid for edge in self.selected_parent_edges] != self.commits:
             raise ValueError("selected_parent_edges must cover group commits in order")
+        defect_classes = [case.defect_class for case in self.case_decisions]
+        if len(defect_classes) != len(set(defect_classes)):
+            raise ValueError("a fix group may contain at most one case per defect class")
         if self.adjudicator_id == self.reviewer_id:
             raise ValueError("reviewer must differ from adjudicator")
         return self
@@ -717,6 +829,9 @@ class CandidateFixGroup(_StrictModel):
             _validate_posix_relative(path)
         if [item.commit_oid for item in self.diff_evidence] != self.commits:
             raise ValueError("diff_evidence must follow the complete commit range")
+        defect_classes = [case.defect_class for case in self.cases]
+        if len(defect_classes) != len(set(defect_classes)):
+            raise ValueError("a fix group may contain at most one case per defect class")
         case_dispositions = {case.disposition for case in self.cases}
         expected_summary = (
             "ambiguous"
@@ -770,9 +885,7 @@ class ApplicabilityRow(_StrictModel):
             validated_counts = EvidenceCounts.model_validate(raw_counts)
         else:
             return data
-        expected = (
-            "found" if any(validated_counts.model_dump().values()) else "not_found"
-        )
+        expected = "found" if any(validated_counts.model_dump().values()) else "not_found"
         provided = data.get("evidence_availability")
         if provided is not None and provided != expected:
             raise ValueError("evidence_availability must be derived from evidence_counts")
@@ -784,29 +897,21 @@ class ApplicabilityRow(_StrictModel):
     def validate_flare_applicability(self) -> ApplicabilityRow:
         _validate_b0a_class(self.defect_class)
         _validate_applicability_value(self.defect_class, self.domain_applicability)
-        expected = (
-            "found" if any(self.evidence_counts.model_dump().values()) else "not_found"
-        )
+        expected = "found" if any(self.evidence_counts.model_dump().values()) else "not_found"
         if self.evidence_availability != expected:
             raise ValueError("evidence_availability must be derived from evidence_counts")
         return self
 
 
 class GateSummary(_StrictModel):
-    status: Literal[
-        "provisional_pass", "expanded_round_required", "insufficient_evidence"
-    ]
+    status: Literal["provisional_pass", "expanded_round_required", "insufficient_evidence"]
     proposed_groups: Annotated[int, Field(ge=0)]
     proposed_classes: Annotated[int, Field(ge=0)]
     required_groups: Literal[8] = 8
     required_classes: Literal[4] = 4
-    reason_code_counts: dict[str, Annotated[int, Field(ge=0)]] = Field(
-        default_factory=dict
-    )
+    reason_code_counts: dict[str, Annotated[int, Field(ge=0)]] = Field(default_factory=dict)
     failure_reasons: list[NonEmptyStr] = Field(default_factory=list)
-    next_action: Literal[
-        "proceed_to_b0b", "run_expanded_round", "stop_flare_heavy_investment"
-    ]
+    next_action: Literal["proceed_to_b0b", "run_expanded_round", "stop_flare_heavy_investment"]
 
     @model_validator(mode="after")
     def validate_status_action(self) -> GateSummary:
@@ -859,6 +964,9 @@ class CandidateLedger(_StrictModel):
         group_ids = [group.fix_group_id for group in self.groups]
         if len(group_ids) != len(set(group_ids)):
             raise ValueError("candidate ledger fix_group_id values must be globally unique")
+        case_ids = [case.case_id for group in self.groups for case in group.cases]
+        if len(case_ids) != len(set(case_ids)):
+            raise ValueError("candidate ledger case_id values must be globally unique")
         grouped = [oid for group in self.groups for oid in group.commits]
         excluded = [item.commit_oid for item in self.candidate_decisions]
         if len(grouped) != len(set(grouped)) or len(excluded) != len(set(excluded)):
@@ -887,9 +995,7 @@ class AdjudicationEvidence(_StrictModel):
 
     @model_validator(mode="after")
     def validate_adjudication_evidence(self) -> AdjudicationEvidence:
-        _validate_exact_matrix(
-            self.applicability_declarations, "applicability_declarations"
-        )
+        _validate_exact_matrix(self.applicability_declarations, "applicability_declarations")
         has_prior = (
             self.prior_candidate_ledger_sha256 is not None,
             self.prior_decision_sha256 is not None,
@@ -904,6 +1010,9 @@ class AdjudicationEvidence(_StrictModel):
         group_ids = [group.fix_group_id for group in self.group_decisions]
         if len(group_ids) != len(set(group_ids)):
             raise ValueError("evidence fix_group_id values must be globally unique")
+        case_ids = [case.case_id for group in self.group_decisions for case in group.case_decisions]
+        if len(case_ids) != len(set(case_ids)):
+            raise ValueError("evidence case_id values must be globally unique")
         reviewer_id = self.review_attestation.reviewer_id
         if any(group.reviewer_id != reviewer_id for group in self.group_decisions):
             raise ValueError("group reviewer IDs must match the review attestation")
@@ -915,9 +1024,7 @@ class AdjudicationEvidence(_StrictModel):
             raise ValueError("reviewer must differ from every candidate adjudicator")
         if self.review_attestation.candidate_universe_sha256 != self.candidate_universe_sha256:
             raise ValueError("attestation candidate-universe hash does not match")
-        payload = self.model_dump(
-            mode="json", exclude={"review_attestation"}, exclude_none=True
-        )
+        payload = self.model_dump(mode="json", exclude={"review_attestation"}, exclude_none=True)
         expected_hash = sha256_hex(canonical_bytes(payload))
         if self.review_attestation.reviewed_payload_sha256 != expected_hash:
             raise ValueError("review attestation does not bind the adjudication payload")
@@ -1019,9 +1126,7 @@ def write_set_new_or_identical(outputs: Mapping[Path, bytes]) -> None:
             try:
                 existing = path.read_bytes()
             except OSError as exc:
-                raise FileExistsError(
-                    f"target already exists and is not reusable: {path}"
-                ) from exc
+                raise FileExistsError(f"target already exists and is not reusable: {path}") from exc
             if existing != data:
                 raise FileExistsError(f"target already exists with different bytes: {path}")
         else:

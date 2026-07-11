@@ -15,6 +15,7 @@ from gameforge.bench.flare_evidence import (
     canonical_bytes,
     sha256_hex,
 )
+from gameforge.bench.flare_adjudication import adjudicate
 from gameforge.bench.flare_mining import main
 
 
@@ -70,6 +71,31 @@ def approved_evidence_with_source_artifact(base, artifact_bytes):
     attestation["reviewed_payload_sha256"] = sha256_hex(canonical_bytes(payload))
     payload["review_attestation"] = attestation
     return AdjudicationEvidence.model_validate(payload), digest
+
+
+def _prior_cli_args(paths):
+    discovery, evidence, ledger, decision = paths
+    return [
+        "--prior-discovery",
+        str(discovery),
+        "--prior-evidence",
+        str(evidence),
+        "--prior-ledger",
+        str(ledger),
+        "--prior-decision",
+        str(decision),
+    ]
+
+
+def _refresh_evidence(base, **updates):
+    changed = base.model_copy(update=updates)
+    payload = changed.model_dump(mode="json", exclude={"review_attestation"}, exclude_none=True)
+    attestation = changed.review_attestation.model_copy(
+        update={"reviewed_payload_sha256": sha256_hex(canonical_bytes(payload))}
+    )
+    return AdjudicationEvidence.model_validate(
+        {**payload, "review_attestation": attestation.model_dump(mode="json")}
+    )
 
 
 def test_discover_then_adjudicate_is_byte_deterministic(
@@ -200,9 +226,15 @@ def test_valid_negative_gate_writes_complete_canonical_outputs_and_uses_exit_thr
     ]
     prior_ledger_path = prior_decision_path = None
     if round_name == "expanded":
+        prior_discovery_path = request.getfixturevalue("initial_discovered_path")
+        prior_evidence_path = request.getfixturevalue("initial_insufficient_evidence_path")
         prior_ledger_path = request.getfixturevalue("initial_ledger_path")
         prior_decision_path = request.getfixturevalue("initial_decision_path")
         args[5:5] = [
+            "--prior-discovery",
+            str(prior_discovery_path),
+            "--prior-evidence",
+            str(prior_evidence_path),
             "--prior-ledger",
             str(prior_ledger_path),
             "--prior-decision",
@@ -265,6 +297,10 @@ def test_expanded_exit_three_consumes_the_cli_published_initial_pair(
                 str(expanded_discovered_path),
                 "--evidence",
                 str(expanded_insufficient_evidence_path),
+                "--prior-discovery",
+                str(initial_discovered_path),
+                "--prior-evidence",
+                str(initial_insufficient_evidence_path),
                 "--prior-ledger",
                 str(initial_ledger),
                 "--prior-decision",
@@ -299,7 +335,7 @@ def test_expanded_exit_three_consumes_the_cli_published_initial_pair(
     assert expanded_model.gate_summary == expanded_marker.gate
 
 
-def test_expanded_requires_both_prior_files_and_initial_rejects_them(
+def test_expanded_requires_all_prior_files_and_initial_rejects_them(
     expanded_discovered_path,
     expanded_evidence_path,
     initial_discovered_path,
@@ -340,6 +376,10 @@ def test_expanded_requires_both_prior_files_and_initial_rejects_them(
                 str(initial_discovered_path),
                 "--evidence",
                 str(initial_positive_evidence_path),
+                "--prior-discovery",
+                str(initial_discovered_path),
+                "--prior-evidence",
+                str(initial_positive_evidence_path),
                 "--prior-ledger",
                 str(initial_ledger_path),
                 "--prior-decision",
@@ -356,6 +396,8 @@ def test_expanded_requires_both_prior_files_and_initial_rejects_them(
 @pytest.mark.parametrize(
     ("lone_flag", "fixture_name"),
     [
+        ("--prior-discovery", "initial_discovered_path"),
+        ("--prior-evidence", "initial_insufficient_evidence_path"),
         ("--prior-ledger", "initial_ledger_path"),
         ("--prior-decision", "initial_decision_path"),
     ],
@@ -381,6 +423,58 @@ def test_lone_prior_flag_is_an_argparse_syntax_error(
                 str(expanded_evidence_path),
                 lone_flag,
                 str(request.getfixturevalue(fixture_name)),
+                "--blob-dir",
+                str(blob_dir),
+                "--out",
+                str(out),
+                "--decision-out",
+                str(decision),
+            ]
+        )
+    assert exc.value.code == 2
+    assert not out.exists() and not decision.exists()
+
+
+@pytest.mark.parametrize(
+    "included",
+    [
+        ("--prior-ledger", "--prior-decision"),
+        ("--prior-discovery", "--prior-evidence"),
+        ("--prior-discovery", "--prior-evidence", "--prior-ledger"),
+    ],
+)
+def test_partial_prior_flag_sets_are_argparse_syntax_errors(
+    included,
+    initial_prior_paths,
+    expanded_discovered_path,
+    expanded_evidence_path,
+    blob_dir,
+    tmp_path,
+):
+    values = dict(
+        zip(
+            (
+                "--prior-discovery",
+                "--prior-evidence",
+                "--prior-ledger",
+                "--prior-decision",
+            ),
+            initial_prior_paths,
+            strict=True,
+        )
+    )
+    prior_args = [value for flag in included for value in (flag, str(values[flag]))]
+    out = tmp_path / "ledger.json"
+    decision = tmp_path / "decision.json"
+    with pytest.raises(SystemExit) as exc:
+        main(
+            [
+                "adjudicate",
+                "--ledger",
+                str(expanded_discovered_path),
+                "--evidence",
+                str(expanded_evidence_path),
+                *prior_args,
                 "--blob-dir",
                 str(blob_dir),
                 "--out",
@@ -681,6 +775,8 @@ def test_discover_rejects_noncanonical_search_spec_without_output(
     [
         ("--ledger", "expanded_discovered_path"),
         ("--evidence", "expanded_evidence_path"),
+        ("--prior-discovery", "initial_discovered_path"),
+        ("--prior-evidence", "initial_insufficient_evidence_path"),
         ("--prior-ledger", "initial_ledger_path"),
         ("--prior-decision", "initial_decision_path"),
     ],
@@ -691,6 +787,8 @@ def test_adjudicate_rejects_noncanonical_json_without_outputs(
     request,
     expanded_discovered_path,
     expanded_evidence_path,
+    initial_discovered_path,
+    initial_insufficient_evidence_path,
     initial_ledger_path,
     initial_decision_path,
     blob_dir,
@@ -699,6 +797,8 @@ def test_adjudicate_rejects_noncanonical_json_without_outputs(
     inputs = {
         "--ledger": expanded_discovered_path,
         "--evidence": expanded_evidence_path,
+        "--prior-discovery": initial_discovered_path,
+        "--prior-evidence": initial_insufficient_evidence_path,
         "--prior-ledger": initial_ledger_path,
         "--prior-decision": initial_decision_path,
     }
@@ -716,6 +816,10 @@ def test_adjudicate_rejects_noncanonical_json_without_outputs(
                 str(inputs["--ledger"]),
                 "--evidence",
                 str(inputs["--evidence"]),
+                "--prior-discovery",
+                str(inputs["--prior-discovery"]),
+                "--prior-evidence",
+                str(inputs["--prior-evidence"]),
                 "--prior-ledger",
                 str(inputs["--prior-ledger"]),
                 "--prior-decision",
@@ -730,6 +834,53 @@ def test_adjudicate_rejects_noncanonical_json_without_outputs(
         )
         == 1
     )
+    assert not out.exists() and not decision.exists()
+
+
+@pytest.mark.parametrize(
+    ("prior_index", "expected_label"),
+    [
+        (0, "prior discovery ledger"),
+        (1, "prior evidence"),
+    ],
+)
+def test_adjudicate_rejects_invalid_canonical_prior_raw_model_without_outputs(
+    prior_index,
+    expected_label,
+    initial_prior_paths,
+    expanded_discovered_path,
+    expanded_evidence_path,
+    blob_dir,
+    tmp_path,
+    capsys,
+):
+    invalid = tmp_path / f"invalid-prior-{prior_index}.json"
+    invalid.write_bytes(b"{}\n")
+    prior_paths = list(initial_prior_paths)
+    prior_paths[prior_index] = invalid
+    out = tmp_path / "ledger.json"
+    decision = tmp_path / "decision.json"
+
+    assert (
+        main(
+            [
+                "adjudicate",
+                "--ledger",
+                str(expanded_discovered_path),
+                "--evidence",
+                str(expanded_evidence_path),
+                *_prior_cli_args(prior_paths),
+                "--blob-dir",
+                str(blob_dir),
+                "--out",
+                str(out),
+                "--decision-out",
+                str(decision),
+            ]
+        )
+        == 1
+    )
+    assert expected_label in capsys.readouterr().err
     assert not out.exists() and not decision.exists()
 
 
@@ -834,6 +985,66 @@ def test_adjudicate_replays_evidence_artifact_cas_at_digest_root(
     assert out.exists() == decision.exists() == (blob_state == "present")
 
 
+@pytest.mark.parametrize("blob_state", ["missing", "tampered"])
+def test_adjudicate_rejects_missing_or_tampered_prior_source_artifact_cas(
+    blob_state,
+    initial_discovery,
+    initial_discovered_path,
+    initial_insufficient_evidence,
+    expanded_discovered_path,
+    expanded_evidence_path,
+    blob_dir,
+    tmp_path,
+    capsys,
+):
+    replay_blobs = tmp_path / "prior-artifact-blobs"
+    shutil.copytree(blob_dir, replay_blobs)
+    artifact_bytes = b'{"issue":1,"state":"closed","round":"initial"}\n'
+    prior_evidence, digest = approved_evidence_with_source_artifact(
+        initial_insufficient_evidence,
+        artifact_bytes,
+    )
+    prior_ledger, prior_decision = adjudicate(initial_discovery, prior_evidence)
+    prior_evidence_path = tmp_path / "prior" / "evidence.json"
+    prior_ledger_path = tmp_path / "prior" / "ledger.json"
+    prior_decision_path = tmp_path / "prior" / "decision.json"
+    prior_evidence_path.parent.mkdir(parents=True)
+    prior_evidence_path.write_bytes(canonical_bytes(prior_evidence))
+    prior_ledger_path.write_bytes(canonical_bytes(prior_ledger))
+    prior_decision_path.write_bytes(canonical_bytes(prior_decision))
+    if blob_state == "tampered":
+        (replay_blobs / digest).write_bytes(b"tampered prior artifact bytes")
+
+    out = tmp_path / "ledger.json"
+    decision = tmp_path / "decision.json"
+    result = main(
+        [
+            "adjudicate",
+            "--ledger",
+            str(expanded_discovered_path),
+            "--evidence",
+            str(expanded_evidence_path),
+            *_prior_cli_args(
+                (
+                    initial_discovered_path,
+                    prior_evidence_path,
+                    prior_ledger_path,
+                    prior_decision_path,
+                )
+            ),
+            "--blob-dir",
+            str(replay_blobs),
+            "--out",
+            str(out),
+            "--decision-out",
+            str(decision),
+        ]
+    )
+    assert result == 1
+    assert "prior source artifact" in capsys.readouterr().err
+    assert not out.exists() and not decision.exists()
+
+
 def test_discover_rejects_immutable_output_conflict(flare_git_repo, search_spec_path, tmp_path):
     out = tmp_path / "discovered.json"
     out.write_bytes(b"conflicting-existing-ledger\n")
@@ -892,6 +1103,44 @@ def test_discover_git_failure_is_one_stderr_line_without_traceback(
     stderr = capsys.readouterr().err
     assert len(stderr.splitlines()) == 1
     assert "Traceback" not in stderr
+    assert not out.exists() and not blobs.exists()
+
+
+def test_discover_failure_diagnostic_retains_cli_repository_path(
+    search_spec_path, tmp_path, capsys
+):
+    target = tmp_path / "resolved-non-repository"
+    target.mkdir()
+    supplied_path = tmp_path / "supplied-repository-alias"
+    supplied_path.symlink_to(target, target_is_directory=True)
+    out = tmp_path / "discovered.json"
+    blobs = tmp_path / "blobs"
+
+    assert (
+        main(
+            [
+                "discover",
+                "--repo",
+                str(supplied_path),
+                "--search-spec",
+                str(search_spec_path),
+                "--registration-commit",
+                "a" * 40,
+                "--registration-path",
+                "scenarios/flare_corpus/search-spec.json",
+                "--round",
+                "initial",
+                "--out",
+                str(out),
+                "--blob-dir",
+                str(blobs),
+            ]
+        )
+        == 1
+    )
+    stderr = capsys.readouterr().err
+    assert str(supplied_path) in stderr
+    assert str(target) not in stderr
     assert not out.exists() and not blobs.exists()
 
 

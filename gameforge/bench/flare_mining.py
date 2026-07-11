@@ -47,6 +47,8 @@ def _parser() -> argparse.ArgumentParser:
     adjudicate_parser.add_argument("--ledger", required=True, type=Path)
     adjudicate_parser.add_argument("--evidence", required=True, type=Path)
     adjudicate_parser.add_argument("--blob-dir", required=True, type=Path)
+    adjudicate_parser.add_argument("--prior-discovery", type=Path)
+    adjudicate_parser.add_argument("--prior-evidence", type=Path)
     adjudicate_parser.add_argument("--prior-ledger", type=Path)
     adjudicate_parser.add_argument("--prior-decision", type=Path)
     adjudicate_parser.add_argument("--out", required=True, type=Path)
@@ -60,7 +62,10 @@ def _load_canonical(path: Path, model_type: type[_ModelT], label: str) -> _Model
         text = data.decode("utf-8", errors="strict")
     except UnicodeDecodeError as exc:
         raise ValueError(f"{label} is not valid UTF-8: {path}") from exc
-    model = model_type.model_validate_json(text)
+    try:
+        model = model_type.model_validate_json(text)
+    except ValueError as exc:
+        raise ValueError(f"{label} is invalid: {path}: {exc}") from exc
     if data != canonical_bytes(model):
         raise ValueError(f"{label} is not canonical JSON: {path}")
     return model
@@ -80,11 +85,17 @@ def _verify_adjudication_cas(
     blob_dir: Path,
     discovered: DiscoveryLedger,
     evidence: AdjudicationEvidence,
+    *,
+    label_prefix: str = "",
 ) -> None:
     for candidate in discovered.discovered_candidates:
-        _verify_blob(blob_dir, candidate.diff_evidence.patch_sha256, "discovery patch")
+        _verify_blob(
+            blob_dir,
+            candidate.diff_evidence.patch_sha256,
+            f"{label_prefix}discovery patch",
+        )
     for artifact in evidence.source_artifacts:
-        _verify_blob(blob_dir, artifact.blob_sha256, "source artifact")
+        _verify_blob(blob_dir, artifact.blob_sha256, f"{label_prefix}source artifact")
 
 
 def _resolve_path(path: Path, label: str) -> Path:
@@ -118,7 +129,7 @@ def _discover(args: argparse.Namespace) -> int:
         repo_relative_path=args.registration_path,
     )
     ledger = discover_candidates(
-        ReadOnlyGitRepo(_resolve_path(args.repo, "repository path")),
+        ReadOnlyGitRepo(args.repo),
         search_spec,
         registration,
         args.round,
@@ -134,6 +145,16 @@ def _adjudicate(args: argparse.Namespace) -> int:
     _require_valid_completion_state(args.out, args.decision_out)
     discovered = _load_canonical(args.ledger, DiscoveryLedger, "discovery ledger")
     evidence = _load_canonical(args.evidence, AdjudicationEvidence, "adjudication evidence")
+    prior_discovery = (
+        _load_canonical(args.prior_discovery, DiscoveryLedger, "prior discovery ledger")
+        if args.prior_discovery is not None
+        else None
+    )
+    prior_evidence = (
+        _load_canonical(args.prior_evidence, AdjudicationEvidence, "prior evidence")
+        if args.prior_evidence is not None
+        else None
+    )
     prior_ledger = (
         _load_canonical(args.prior_ledger, CandidateLedger, "prior candidate ledger")
         if args.prior_ledger is not None
@@ -144,8 +165,22 @@ def _adjudicate(args: argparse.Namespace) -> int:
         if args.prior_decision is not None
         else None
     )
+    if prior_discovery is not None and prior_evidence is not None:
+        _verify_adjudication_cas(
+            args.blob_dir,
+            prior_discovery,
+            prior_evidence,
+            label_prefix="prior ",
+        )
     _verify_adjudication_cas(args.blob_dir, discovered, evidence)
-    ledger, decision = adjudicate(discovered, evidence, prior_ledger, prior_decision)
+    ledger, decision = adjudicate(
+        discovered,
+        evidence,
+        prior_discovery,
+        prior_evidence,
+        prior_ledger,
+        prior_decision,
+    )
     ledger_bytes = canonical_bytes(ledger)
     decision_bytes = canonical_bytes(decision)
     write_set_new_or_identical(
@@ -165,10 +200,20 @@ def _one_line(value: object) -> str:
 def main(argv: list[str] | None = None) -> int:
     parser = _parser()
     args = parser.parse_args(argv)
-    if args.command == "adjudicate" and (
-        (args.prior_ledger is None) != (args.prior_decision is None)
-    ):
-        parser.error("--prior-ledger and --prior-decision must be provided together")
+    if args.command == "adjudicate":
+        prior_values = (
+            args.prior_discovery,
+            args.prior_evidence,
+            args.prior_ledger,
+            args.prior_decision,
+        )
+        if any(value is not None for value in prior_values) and not all(
+            value is not None for value in prior_values
+        ):
+            parser.error(
+                "--prior-discovery, --prior-evidence, --prior-ledger, and "
+                "--prior-decision must be provided together"
+            )
 
     try:
         if args.command == "discover":
