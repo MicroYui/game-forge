@@ -15,14 +15,15 @@
 - Source is `https://github.com/flareteam/flare-game.git`, pinned through `fe23b5ba73f99f0c3969f8b23dbabaa8f7a6b602`; omitted `after_exclusive` is parsed as `None` and means all 7,049 commits reachable through that head, including merged branch commits. First-parent continuity applies to each manually grouped multi-commit fix, not to candidate discovery.
 - The search spec freezes `initial` and `expanded` rounds before the first harness discovery output is produced. No post-output search rule may be added.
 - The exact search spec is committed alone before harness discovery. Every ledger records that registration commit and the canonical search-spec SHA-256. Prior exploratory knowledge is disclosed; this is pre-registered and non-blind, not a claim of blind candidate selection.
-- Git invocations are read-only argument arrays with `shell=False`; the harness never clones, fetches, opens GitHub, or accepts a shell fragment.
+- Git invocations are read-only argument arrays with `shell=False`; `{repo}` resolves to the repository Git directory for command execution (a bare repository is already its Git directory), while diagnostics retain the exact CLI `--repo` path. The harness never clones, fetches, opens GitHub, or accepts a shell fragment. Untracked or staged worktree `.gitattributes` therefore cannot alter evidence bytes.
 - Discover records facts and objective `patch_id | cherry_pick | backport | revert` links. It never assigns a taxonomy label or infers root cause. The candidate universe is the union of direct frozen-rule matches, frozen one-edge first-parent context, and any reachable source OID explicitly referenced by a selected cherry-pick/backport/revert trailer; each candidate records `direct_match | adjacent_context | lineage_context` and its rule/link IDs.
 - Human root-cause grouping and taxonomy proposals come only from a checked-in offline evidence JSON. Every candidate is decided as `proposed`, `rejected`, or `ambiguous` with rationale and evidence references.
 - Evidence references are structured and mechanically resolved to a discovered commit/message, patch blob, objective lineage link, or frozen source artifact. A hash-bound approval attestation from a reviewer distinct from every adjudicator is mandatory for both initial and expanded evidence.
 - B0A covers exactly the 11 deterministic/simulation taxonomy classes. `prob_sum_ne_1` and `gacha_expectation_violation` are `not_applicable`; `economy_collapse` is `applicable` even when evidence is absent.
 - A `not_applicable` class cannot have a proposed case. `evidence_availability` is derived from case counts, never declared independently. The provisional gate passes only with at least 8 independent config-only fix groups and at least 4 domain-applicable proposed classes. `qualified_candidate` and `accepted` counts remain zero in B0A.
 - Canonical JSON is UTF-8, sorted, compact, and newline-terminated. CAS names are lowercase 64-hex SHA-256. Existing output may be reused only when bytes are identical; differing bytes are never overwritten.
-- Provenance is a one-way hash chain with no self-hashes: registered search spec -> canonical `DiscoveryLedger` bytes -> canonical full `AdjudicationEvidence` bytes -> canonical `CandidateLedger` bytes -> `B0ADecision`. Expanded evidence also binds the prior candidate-ledger and decision bytes.
+- Provenance is a one-way hash chain with no self-hashes: registered search spec -> canonical `DiscoveryLedger` bytes -> canonical full `AdjudicationEvidence` bytes -> canonical `CandidateLedger` bytes -> `B0ADecision`. Expanded evidence binds the prior candidate-ledger and decision bytes and must also receive the prior raw discovery and evidence so the derived pair can be replayed byte-for-byte.
+- The registered discovery implementation is the trust anchor for raw Git facts and completeness of the 7,049-commit universe. Ledger validators recompute all facts derivable from the embedded frame and reject internally inconsistent canonical payloads; they do not claim to package a cryptographic proof of every upstream commit. The downstream attestation and canonical hash chain prevent unnoticed post-review drift.
 - Both terminal results are valid B0A outcomes. `insufficient_evidence` stops Flare-heavy M3d work but does not satisfy PRD §13.3 or complete M3.
 - No production dependency is added. The full gate remains `uv run pytest`, `uv run lint-imports`, and `uv run ruff check .`.
 
@@ -618,7 +619,7 @@ Expected: collection fails because `gameforge.bench.flare_git` does not exist.
 
 Use these exact Git semantics:
 
-Every call begins with `["git", "--no-optional-locks", "--no-replace-objects", "-c", "color.ui=false", "-c", "core.quotePath=true", "-c", "core.attributesFile=/dev/null", "-c", "diff.noprefix=false", "-c", "diff.mnemonicPrefix=false", "-c", "diff.renames=false", "-c", "diff.algorithm=myers", "-c", "diff.indentHeuristic=false", "-c", "diff.interHunkContext=0", "-c", "diff.suppressBlankEmpty=false", "-c", "diff.orderFile=/dev/null", "-C", str(repo.path)]`. Construct every subprocess environment from the frozen `GitEnvironmentPolicy`, never from `os.environ.copy()`: inherit exactly `PATH`, discard every inherited name beginning with `GIT_`, then apply the fixed values `LC_ALL=C`, `LANG=C`, `TZ=UTC`, `GIT_OPTIONAL_LOCKS=0`, `GIT_NO_REPLACE_OBJECTS=1`, `GIT_CONFIG_NOSYSTEM=1`, `GIT_CONFIG_GLOBAL=/dev/null`, and `GIT_ATTR_NOSYSTEM=1`. A missing inherited `PATH` is a `GitEvidenceError`. This explicitly prevents `GIT_DIFF_OPTS` and the `GIT_CONFIG_COUNT`/`GIT_CONFIG_KEY_n`/`GIT_CONFIG_VALUE_n` injection channel from reaching Git. Before any Git query, reject a nonempty repo-local `$GIT_DIR/info/attributes`; it is clone-local state and is not part of the pinned source tree.
+Resolve a normal clone or linked worktree to its Git directory before executing evidence commands; leave a bare repository unchanged. Every call begins with `["git", "--no-optional-locks", "--no-replace-objects", "-c", "color.ui=false", "-c", "core.quotePath=true", "-c", "core.attributesFile=/dev/null", "-c", "diff.noprefix=false", "-c", "diff.mnemonicPrefix=false", "-c", "diff.renames=false", "-c", "diff.algorithm=myers", "-c", "diff.indentHeuristic=false", "-c", "diff.interHunkContext=0", "-c", "diff.suppressBlankEmpty=false", "-c", "diff.orderFile=/dev/null", "-C", str(repo.git_dir)]`. Preserve the caller's unmodified input path separately for errors. Construct every subprocess environment from the frozen `GitEnvironmentPolicy`, never from `os.environ.copy()`: inherit exactly `PATH`, discard every inherited name beginning with `GIT_`, then apply the fixed values `LC_ALL=C`, `LANG=C`, `TZ=UTC`, `GIT_OPTIONAL_LOCKS=0`, `GIT_NO_REPLACE_OBJECTS=1`, `GIT_CONFIG_NOSYSTEM=1`, `GIT_CONFIG_GLOBAL=/dev/null`, and `GIT_ATTR_NOSYSTEM=1`. A missing inherited `PATH` is a `GitEvidenceError`. This explicitly prevents `GIT_DIFF_OPTS` and the `GIT_CONFIG_COUNT`/`GIT_CONFIG_KEY_n`/`GIT_CONFIG_VALUE_n` injection channel from reaching Git. Before any Git query, reject a nonempty repo-local `$GIT_DIR/info/attributes`; it is clone-local state and is not part of the pinned source tree.
 
 - resolve head: common prefix plus `["rev-parse", "--verify", f"{spec.pinned_head}^{{commit}}"]`;
 - history from root: common prefix plus `["rev-list", "--topo-order", "--reverse", spec.pinned_head]`;
@@ -628,11 +629,11 @@ Every call begins with `["git", "--no-optional-locks", "--no-replace-objects", "
 - patch: common prefix plus `["diff", "--binary", "--full-index", "--no-color", "--no-ext-diff", "--no-textconv", "--no-renames", "--src-prefix=a/", "--dst-prefix=b/", "--unified=3", "--inter-hunk-context=0", "--diff-algorithm=myers", "--no-indent-heuristic", "--submodule=short", "--ignore-submodules=none", parent, oid]`;
 - patch ID: pass patch bytes on stdin to `git patch-id --stable`.
 
-Validate that the reachable list has exactly `spec.expected_revision_count` entries. Decode both the frozen `%s` search subject and full `%B` evidence message as UTF-8 with strict errors. Keep patch bytes raw and record exact `git --version` plus the harness version. For a root commit, derive Git's empty-tree OID with `git hash-object -t tree --stdin` without `-w` and diff against it. For a merge, compare the commit to parent 1 and record that selected edge plus all parent OIDs. Normalize paths to relative POSIX paths and reject absolute paths, `..`, NUL, or duplicate case-folded paths. Use Task 1's slash-aware `posix_glob_matches`; a candidate is config-only only when every changed path is allowlisted and none is excluded.
+Validate that the reachable list has exactly `spec.expected_revision_count` entries. Decode both the frozen `%s` search subject and full `%B` evidence message as UTF-8 with strict errors. Keep patch bytes raw and record exact `git --version`, harness version, Python runtime version, and `unicodedata.unidata_version`; all four bind expanded prior-search equality. For a root commit, derive Git's SHA-1 empty-tree OID with `git hash-object -t tree --stdin` without `-w` and diff against it. For a merge, compare the commit to parent 1 and record that selected edge plus all parent OIDs. Normalize paths to relative POSIX paths and reject absolute paths, `..`, NUL, or duplicate case-folded paths. Use Task 1's slash-aware `posix_glob_matches`; a candidate is config-only only when every changed path is allowlisted and none is excluded.
 
 A direct match has at least one allowlisted, non-excluded changed path and matches any subject or diff regex in the selected round union. Subject regexes operate on strict UTF-8 `%s`. Diff rules never directly select a multi-parent merge commit; merged branch commits remain independently reachable and searchable. For a single-parent/root commit, diff rules search only the raw patch for the sorted eligible paths, produced by the same frozen patch arguments followed by `--` and those literal paths; a key changed only in an engine/localization sibling cannot select the commit. Validate that every diff regex is ASCII, encode it once, and compile a `bytes` pattern; never decode a patch merely to search it. Starting only from direct matches, traverse exactly one nonrecursive first-parent edge backward and one first-parent-child edge forward; include a neighboring commit only when it shares at least one exact eligible path with that direct anchor. Then parse the frozen trailer grammars from the full `%B` evidence message and include every explicitly referenced source OID that is reachable from the pinned head as `lineage_context`, repeating to a fixed point; an unreachable source is an error. Retain mixed direct or context commits for auditable rejection. Deduplicate the union and record every selection reason/rule ID. Freeze objective trailer grammars as `(?m)^\\(cherry picked from commit ([0-9a-f]{40})\\)$`, `(?m)^Backport-of: ([0-9a-f]{40})$`, and `(?m)^This reverts commit ([0-9a-f]{40})\\.$`.
 
-Emit one `DiscoveredCandidate` per commit, sorted by `(committed_at, commit_oid)`, plus objective links with stable `link_id` sorted by their complete tuple. `DiscoveryLedger` embeds the complete `FlareSearchSpec` as `search_frame` and records `search_spec_sha256`, `search_registration {project_commit_oid, repo_relative_path}`, `observed_revision_count`, `search_round`, `discovery_tool {tool_version, project_commit_oid, git_version}`, and `candidate_universe_sha256`. The universe hash domain is canonical `{schema_version, search_spec_sha256, search_round, discovered_candidates, objective_lineage_links}` only; it excludes the hash field itself and all machine-local filesystem paths. A separate provenance test verifies that the registration commit contains the same canonical spec and predates every result file.
+Emit one `DiscoveredCandidate` per commit, sorted by `(committed_at, commit_oid)`, plus objective links with stable `link_id` sorted by their complete tuple. `DiscoveryLedger` embeds the complete `FlareSearchSpec` as `search_frame` and records `search_spec_sha256`, `search_registration {project_commit_oid, repo_relative_path}`, `observed_revision_count`, `search_round`, `discovery_tool {tool_version, project_commit_oid, git_version, python_version, unicode_version}`, and `candidate_universe_sha256`. The universe hash domain is canonical `{schema_version, search_spec_sha256, search_round, discovered_candidates, objective_lineage_links}` only; it excludes the hash field itself and all machine-local filesystem paths. Revalidation recomputes exact eligible paths and `config_only`, enforces case-fold path uniqueness and the root empty-tree base, rebuilds each semantic link ID, validates reason order/uniqueness and every direct/adjacent/lineage cross-reference, and requires all link endpoints plus frozen trailer rule IDs/types to agree with the embedded search frame. A separate provenance test verifies that the registration commit contains the same canonical spec and predates every result file.
 
 - [ ] **Step 5: Run focused tests to verify GREEN**
 
@@ -659,7 +660,7 @@ git commit -m "feat(bench): add deterministic Flare candidate discovery"
 
 **Interfaces:**
 - Produces: `class AdjudicationError(ValueError)`
-- Produces: `adjudicate(discovered: DiscoveryLedger, evidence: AdjudicationEvidence, prior_ledger: CandidateLedger | None = None, prior_decision: B0ADecision | None = None) -> tuple[CandidateLedger, B0ADecision]`
+- Produces: `adjudicate(discovered: DiscoveryLedger, evidence: AdjudicationEvidence, prior_discovery: DiscoveryLedger | None = None, prior_evidence: AdjudicationEvidence | None = None, prior_ledger: CandidateLedger | None = None, prior_decision: B0ADecision | None = None) -> tuple[CandidateLedger, B0ADecision]`
 - Produces: `derive_applicability_matrix(groups: Sequence[CandidateFixGroup], declared: Sequence[ApplicabilityDeclaration]) -> tuple[ApplicabilityRow, ...]`
 - Produces: `evaluate_provisional_gate(groups: Sequence[CandidateFixGroup], matrix: Sequence[ApplicabilityRow], search_round: str) -> GateSummary`
 - Consumes: Task 1 contracts and Task 2 immutable discovery facts
@@ -845,7 +846,7 @@ def test_initial_failure_requires_the_prefrozen_expanded_round():
 
 
 def test_expanded_round_cannot_relabel_or_regroup_initial_candidates(
-    expanded_discovery, expanded_evidence, initial_ledger, initial_decision
+    expanded_discovery, expanded_evidence, initial_prior_artifacts
 ):
     changed = replace_group_rationale(
         expanded_evidence,
@@ -853,14 +854,14 @@ def test_expanded_round_cannot_relabel_or_regroup_initial_candidates(
         rationale="changed after seeing the initial gate",
     )
     with pytest.raises(AdjudicationError, match="initial decision"):
-        adjudicate(expanded_discovery, changed, initial_ledger, initial_decision)
+        adjudicate(expanded_discovery, changed, *initial_prior_artifacts)
 
 
 def test_expanded_round_can_only_append_new_top_level_lineage_resolutions(
-    expanded_discovery, expanded_evidence, initial_ledger, initial_decision
+    expanded_discovery, expanded_evidence, initial_ledger, initial_prior_artifacts
 ):
     ledger, _ = adjudicate(
-        expanded_discovery, expanded_evidence, initial_ledger, initial_decision
+        expanded_discovery, expanded_evidence, *initial_prior_artifacts
     )
     initial = [canonical_bytes(item) for item in initial_ledger.lineage_resolutions]
     expanded = [canonical_bytes(item) for item in ledger.lineage_resolutions]
@@ -870,24 +871,26 @@ def test_expanded_round_can_only_append_new_top_level_lineage_resolutions(
 
 @pytest.mark.parametrize("mutation", ["change", "reorder", "prepend"])
 def test_expanded_candidate_decisions_are_an_unchanged_ordered_prefix(
-    mutation, expanded_discovery, expanded_evidence, initial_ledger, initial_decision
+    mutation, expanded_discovery, expanded_evidence, initial_ledger,
+    initial_prior_artifacts,
 ):
     changed = mutate_initial_candidate_decisions(
         expanded_evidence, initial_ledger, mutation
     )
     with pytest.raises(AdjudicationError, match="initial decision|ordered prefix"):
-        adjudicate(expanded_discovery, changed, initial_ledger, initial_decision)
+        adjudicate(expanded_discovery, changed, *initial_prior_artifacts)
 
 
 @pytest.mark.parametrize("mutation", ["change", "reorder", "prepend"])
 def test_expanded_lineage_resolutions_are_an_unchanged_ordered_prefix(
-    mutation, expanded_discovery, expanded_evidence, initial_ledger, initial_decision
+    mutation, expanded_discovery, expanded_evidence, initial_ledger,
+    initial_prior_artifacts,
 ):
     changed = mutate_initial_lineage_resolutions(
         expanded_evidence, initial_ledger, mutation
     )
     with pytest.raises(AdjudicationError, match="lineage resolution|ordered prefix"):
-        adjudicate(expanded_discovery, changed, initial_ledger, initial_decision)
+        adjudicate(expanded_discovery, changed, *initial_prior_artifacts)
 
 
 @pytest.mark.parametrize(
@@ -902,16 +905,17 @@ def test_expanded_lineage_resolutions_are_an_unchanged_ordered_prefix(
 )
 def test_expanded_prior_must_match_each_registered_search_binding_field(
     binding_field, expanded_discovery, expanded_evidence,
-    foreign_initial_pair_factory
+    foreign_initial_pair_factory, initial_discovery, initial_insufficient_evidence,
 ):
     # The factory changes only the named ledger binding, then refreshes the
     # decision, both evidence prior hashes, and the complete approval hash.
     foreign_initial_ledger, foreign_initial_decision, rebound_evidence = (
         foreign_initial_pair_factory(binding_field, expanded_evidence)
     )
-    with pytest.raises(AdjudicationError, match="same registered search"):
+    with pytest.raises(AdjudicationError, match="replay|same registered search"):
         adjudicate(
             expanded_discovery, rebound_evidence,
+            initial_discovery, initial_insufficient_evidence,
             foreign_initial_ledger, foreign_initial_decision,
         )
 ```
@@ -955,21 +959,21 @@ reviewer_id
 rationale
 ```
 
-Top-level `lineage_resolutions[]` resolves each discovered objective link as `same_group | separate`, with rationale and the affected group IDs. Existing resolutions are append-only across rounds; lifting them out of group decisions allows a new expanded candidate to link to an initial candidate without rewriting the initial group. The evidence file also has `candidate_decisions[]` entries with commit OID,
+Top-level `lineage_resolutions[]` resolves each discovered objective link as `same_group | separate`, with rationale and `affected_group_ids` equal to the sorted exact set of groups containing the two endpoints: zero when both endpoints have candidate dispositions, one when only one endpoint is grouped or both share a group, and two when they occupy distinct groups. Omissions, extras, duplicates, and nondeterministic order are invalid. Existing resolutions are append-only across rounds; lifting them out of group decisions allows a new expanded candidate to link to an initial candidate without rewriting the initial group. The evidence file also has `candidate_decisions[]` entries with commit OID,
 `rejected | ambiguous`, a closed `reason_code`, rationale, evidence refs, adjudicator, and
 reviewer. These entries intentionally have no defect class.
 
-The closed reason codes are `non_bug | out_of_taxonomy | non_config_only | indeterminate_oracle | revert_or_duplicate | insufficient_context`. `indeterminate_oracle` and `insufficient_context` require `ambiguous`; the other four require `rejected`. Mixed engine/schema/config commits use `non_config_only`, not a second overlapping code.
+The closed reason codes are `non_bug | out_of_taxonomy | non_config_only | indeterminate_oracle | revert_or_duplicate | insufficient_context`. `indeterminate_oracle` and `insufficient_context` require `ambiguous`; the other four require `rejected`. Any non-config-only candidate uses `non_config_only`, including a cherry-pick, backport, or revert target. Only a config-only non-primary lineage target uses `revert_or_duplicate`; all such mixed targets remain candidate-level and never count.
 
 Reject evidence when its source/candidate/prior hash is wrong; approval is stale; an evidence ref does not resolve; a commit is unknown or assigned twice; a grouped range omits an intervening first-parent commit; a selected merge parent differs from discovery's exact `selected_parent_oid`; or any commit in a proposed group is not config-only. Membership in `parent_oids` is insufficient because B0A grouping is first-parent continuous. Every discovered candidate must appear in exactly one group or one `CandidateDisposition`; the two sets must be disjoint and their union must equal the candidate universe. Use a candidate disposition, without a fake defect class, for non-bugs, out-of-taxonomy changes, non-config-only commits, indeterminate oracles, duplicate/backport/revert evidence, and insufficient context. Matrix rejected/ambiguous counts include only typed cases; untyped exclusions are counted by `reason_code` in the gate summary. During expanded adjudication, every initial group and candidate-level decision must be byte-equivalent after canonical projection, including group ID, commits, cases, dispositions, labels, rationale, reviewer/adjudicator, and evidence refs. `CandidateFixGroup.group_decision_sha256` binds the complete reviewed group projection. Initial group IDs and initial candidate-decision commit IDs must remain ordered prefixes of their expanded sequences; new decisions may only be appended. Existing top-level lineage resolutions must also be byte-equivalent; expanded evidence may append new groups, candidate decisions, and resolutions only for newly materialized links, but may not relabel, regroup, reorder, insert before, or delete an initial candidate. Reject duplicate group IDs before building any mapping or evaluating the gate.
 
-Expanded adjudication accepts only a prior pair from the same registered search. The prior ledger must be `search_round="initial"`; its decision must point to the full canonical prior-ledger bytes and have `expanded_round_required`; and the prior ledger's schema version, complete `search_frame`, `search_spec_sha256`, `search_registration`, `observed_revision_count`, and complete `discovery_tool` must equal the corresponding binding fields in the expanded discovery. Both evidence prior hashes must match that exact pair. Parameterized one-field mutations independently prove that another head/spec, registration commit, observed source revision, or tool revision is rejected before projection comparison.
+Expanded adjudication requires all four prior artifacts: raw initial discovery, raw initial evidence, derived candidate ledger, and decision. Initial adjudication forbids every prior artifact. The prior raw pair is replayed through initial adjudication, and both replayed outputs must be byte-identical to the supplied derived pair before any expanded-prefix check. The prior ledger must be `search_round="initial"`; its decision must point to the full canonical prior-ledger bytes and have `expanded_round_required`; and the replayed ledger's schema version, complete `search_frame`, `search_spec_sha256`, `search_registration`, `observed_revision_count`, and complete runtime-bearing `discovery_tool` must equal the corresponding binding fields in the expanded discovery. Both expanded-evidence prior hashes must match that exact derived pair. The expanded evidence must retain the complete initial `source_artifacts` sequence as a canonical ordered prefix and preserve initial applicability declarations byte-for-byte. Each initial candidate retains immutable commit/path/config/diff facts, every initial selection reason, and every initial objective link; only new expanded-round reasons, candidates, and links may be added. Every added direct reason uses only expanded-round rule IDs, an added adjacent reason is anchored by an expanded-round direct match, an added lineage reason references a new link, and every new link touches at least one newly discovered candidate.
 
 Derive every `CandidateFixGroup` entirely from discovery facts and reviewed decisions: `group_decision_sha256` hashes the complete canonical reviewed group decision; `before_commit` is the selected diff base of the first commit (its first parent, or the empty-tree OID for a root); `after_commit`/`after_committed_at` come from the final commit; `changed_paths` is the sorted union; `config_only` is the conjunction; and `diff_evidence[]` preserves the ordered per-commit patch/message records. `lineage_links[]` contains the resolved stable link IDs touching the group. No combined patch is synthesized during offline adjudication and no group field may require reopening the Flare clone.
 
-Objective lineage cannot inflate independence. `cherry_pick` and `backport` links must resolve as the same fix, with at most one endpoint in a counted group and every non-primary endpoint excluded as `revert_or_duplicate` unless a continuous group can contain it. A revert endpoint is always uncounted. Only a raw `patch_id` collision may resolve as independent, and only with nonempty root-cause evidence showing distinct fixes. Add negative tests that try to count both cherry-pick/backport endpoints or a revert and assert the gate rejects them.
+Objective lineage cannot inflate independence. `cherry_pick` and `backport` links must resolve as the same fix, with at most one endpoint in a counted group. A config-only non-primary endpoint is excluded as `revert_or_duplicate` unless a continuous group can contain it; a non-config-only endpoint instead uses the higher-priority `non_config_only`. A revert endpoint is always uncounted under the same precedence. Only a raw `patch_id` collision may resolve as independent, and only with nonempty root-cause evidence showing distinct fixes. Add negative tests that try to count both cherry-pick/backport endpoints or a revert and assert the gate rejects them.
 
-Derive group disposition with priority `ambiguous`, then `proposed`, then `rejected`, and keep mixed case-level outcomes. A group counts toward the gate only when it is config-only and contains at least one proposed case. Reject proposed cases on the two N/A rows. Count classes from domain-applicable proposed cases and groups from distinct `fix_group_id`. Derive evidence counts and availability from cases, then validate the declared domain and implementation axes. For an initial-round failure set `status="expanded_round_required"` and `next_action="run_expanded_round"`; for an expanded failure set `status="insufficient_evidence"` and `next_action="stop_flare_heavy_investment"`.
+Derive group disposition with priority `ambiguous`, then `proposed`, then `rejected`, and keep mixed case-level outcomes. Enforce globally unique `case_id` values across the evidence and at most one case per defect class within a group, matching the B0A unit `(fix_group_id, defect_class)`. A group counts toward the gate only when it is config-only and contains at least one proposed case. Reject proposed cases on the two N/A rows. Count classes from domain-applicable proposed cases and groups from distinct `fix_group_id`. Derive evidence counts and availability from cases, then validate the declared domain and implementation axes. For an initial-round failure set `status="expanded_round_required"` and `next_action="run_expanded_round"`; for an expanded failure set `status="insufficient_evidence"` and `next_action="stop_flare_heavy_investment"`.
 
 `CandidateLedger` repeats the full `search_frame`, search-spec registration, search round, `observed_revision_count`, complete `discovery_tool`, discovery-ledger/candidate-universe/adjudication-evidence hashes, evidence revision, prior ledger/decision hashes when expanded, and derived adjudicator/reviewer identities, then contains groups, candidate decisions, applicability matrix, gate summary, and top-level lineage resolutions. Its `adjudication_evidence_sha256` hashes the full canonical evidence including the attestation. `B0ADecision` is deliberately minimal: schema version, full canonical candidate-ledger SHA-256, and a gate summary byte-equivalent to the ledger's gate. There are no self-hash fields and no redundant transitive hash copies: each downstream object binds the complete canonical upstream bytes. Tests must mutate one provenance field at a time and prove replay rejects the tampered chain.
 
@@ -1000,7 +1004,7 @@ git commit -m "feat(bench): add Flare B0A adjudication gate"
 **Interfaces:**
 - Produces: `main(argv: list[str] | None = None) -> int`
 - CLI: `python -m gameforge.bench.flare_mining discover --repo REPO --search-spec SEARCH_SPEC --registration-commit OID --registration-path REPO_RELATIVE_PATH --round initial|expanded --out DISCOVERY_LEDGER --blob-dir BLOB_DIR`
-- CLI: `python -m gameforge.bench.flare_mining adjudicate --ledger DISCOVERY_LEDGER --evidence EVIDENCE --blob-dir BLOB_DIR [--prior-ledger PRIOR_LEDGER --prior-decision PRIOR_DECISION] --out CANDIDATE_LEDGER --decision-out DECISION`
+- CLI: `python -m gameforge.bench.flare_mining adjudicate --ledger DISCOVERY_LEDGER --evidence EVIDENCE --blob-dir BLOB_DIR [--prior-discovery PRIOR_DISCOVERY --prior-evidence PRIOR_EVIDENCE --prior-ledger PRIOR_LEDGER --prior-decision PRIOR_DECISION] --out CANDIDATE_LEDGER --decision-out DECISION`
 - Exit codes: `0` for successful discovery or a valid `provisional_pass`, `3` for a valid `expanded_round_required` or `insufficient_evidence`, and `1` for validated domain/tool failures; argparse keeps its standard `SystemExit(2)` for invalid syntax
 
 **Post-Task-3 preflight clarification:** Canonical-input tests cover every JSON input, not only
@@ -1014,7 +1018,8 @@ approved evidence value with a resolving `source_artifact` ref and test missing 
 Every valid exit-3 test verifies the full raw canonical chain: discovery-ledger hash, full
 adjudication-evidence hash, candidate-ledger hash in the decision, gate equality, and for expanded
 rounds both prior hashes. The expanded negative path first publishes its initial negative
-ledger/decision through this CLI, then consumes those actual files as the prior pair. Repeat
+ledger/decision through this CLI, then consumes those actual files together with their raw initial
+discovery/evidence as the four prior artifacts. Repeat
 adjudication into an independent output root and compare complete ledger/decision bytes. Add a
 normalized-resolved output alias case, a discover immutable-output conflict, and a representative
 one-line stderr/no-traceback assertion.
@@ -1165,11 +1170,16 @@ def test_valid_negative_gate_writes_complete_canonical_outputs_and_uses_exit_thr
         "--evidence", str(evidence), "--blob-dir", str(blob_dir),
         "--out", str(ledger_path), "--decision-out", str(decision_path),
     ]
+    prior_discovery_path = prior_evidence_path = None
     prior_ledger_path = prior_decision_path = None
     if round_name == "expanded":
+        prior_discovery_path = request.getfixturevalue("initial_discovered_path")
+        prior_evidence_path = request.getfixturevalue("initial_insufficient_evidence_path")
         prior_ledger_path = request.getfixturevalue("initial_ledger_path")
         prior_decision_path = request.getfixturevalue("initial_decision_path")
         args[5:5] = [
+            "--prior-discovery", str(prior_discovery_path),
+            "--prior-evidence", str(prior_evidence_path),
             "--prior-ledger", str(prior_ledger_path),
             "--prior-decision", str(prior_decision_path),
         ]
@@ -1207,6 +1217,8 @@ def test_expanded_exit_three_consumes_the_cli_published_initial_pair(
     assert main([
         "adjudicate", "--ledger", str(expanded_discovered_path),
         "--evidence", str(expanded_insufficient_evidence_path),
+        "--prior-discovery", str(initial_discovered_path),
+        "--prior-evidence", str(initial_insufficient_evidence_path),
         "--prior-ledger", str(initial_ledger),
         "--prior-decision", str(initial_decision),
         "--blob-dir", str(blob_dir),
@@ -1227,7 +1239,7 @@ def test_expanded_exit_three_consumes_the_cli_published_initial_pair(
     assert expanded_model.gate_summary == expanded_marker.gate
 
 
-def test_expanded_requires_both_prior_files_and_initial_rejects_them(
+def test_expanded_requires_all_prior_files_and_initial_rejects_them(
     expanded_discovered_path, expanded_evidence_path,
     initial_discovered_path, initial_positive_evidence_path,
     initial_ledger_path, initial_decision_path, blob_dir, tmp_path
@@ -1246,6 +1258,8 @@ def test_expanded_requires_both_prior_files_and_initial_rejects_them(
     assert main([
         "adjudicate", "--ledger", str(initial_discovered_path),
         "--evidence", str(initial_positive_evidence_path),
+        "--prior-discovery", str(initial_discovered_path),
+        "--prior-evidence", str(initial_positive_evidence_path),
         "--prior-ledger", str(initial_ledger_path),
         "--prior-decision", str(initial_decision_path), *common_out,
     ]) == 1
@@ -1256,6 +1270,8 @@ def test_expanded_requires_both_prior_files_and_initial_rejects_them(
 @pytest.mark.parametrize(
     ("lone_flag", "fixture_name"),
     [
+        ("--prior-discovery", "initial_discovered_path"),
+        ("--prior-evidence", "initial_insufficient_evidence_path"),
         ("--prior-ledger", "initial_ledger_path"),
         ("--prior-decision", "initial_decision_path"),
     ],
@@ -1397,6 +1413,8 @@ def test_discover_rejects_noncanonical_search_spec_without_output(
     [
         ("--ledger", "expanded_discovered_path"),
         ("--evidence", "expanded_evidence_path"),
+        ("--prior-discovery", "initial_discovered_path"),
+        ("--prior-evidence", "initial_insufficient_evidence_path"),
         ("--prior-ledger", "initial_ledger_path"),
         ("--prior-decision", "initial_decision_path"),
     ],
@@ -1404,11 +1422,14 @@ def test_discover_rejects_noncanonical_search_spec_without_output(
 def test_adjudicate_rejects_noncanonical_json_without_outputs(
     input_flag, fixture_name, request,
     expanded_discovered_path, expanded_evidence_path,
+    initial_discovered_path, initial_insufficient_evidence_path,
     initial_ledger_path, initial_decision_path, blob_dir, tmp_path,
 ):
     inputs = {
         "--ledger": expanded_discovered_path,
         "--evidence": expanded_evidence_path,
+        "--prior-discovery": initial_discovered_path,
+        "--prior-evidence": initial_insufficient_evidence_path,
         "--prior-ledger": initial_ledger_path,
         "--prior-decision": initial_decision_path,
     }
@@ -1421,6 +1442,8 @@ def test_adjudicate_rejects_noncanonical_json_without_outputs(
     assert main([
         "adjudicate", "--ledger", str(inputs["--ledger"]),
         "--evidence", str(inputs["--evidence"]),
+        "--prior-discovery", str(inputs["--prior-discovery"]),
+        "--prior-evidence", str(inputs["--prior-evidence"]),
         "--prior-ledger", str(inputs["--prior-ledger"]),
         "--prior-decision", str(inputs["--prior-decision"]),
         "--blob-dir", str(blob_dir),
@@ -1571,7 +1594,7 @@ Expected: collection fails because `gameforge.bench.flare_mining` does not exist
 
 - [ ] **Step 3: Implement the CLI as a thin orchestration layer**
 
-Load all JSON with strict UTF-8 and pydantic validation, then require the input bytes to equal `canonical_bytes(validated_model)`. Verify every referenced CAS blob before adjudication. Initial ledgers reject prior arguments; expanded ledgers require both prior arguments, require the prior decision status to be `expanded_round_required`, verify that the decision points to the canonical prior-ledger bytes, verify both evidence prior hashes, and enforce Task 3's full same-registered-search binding. Argparse enforces that prior flags are paired.
+Load all JSON with strict UTF-8 and pydantic validation, then require the input bytes to equal `canonical_bytes(validated_model)`. Verify every referenced CAS blob before adjudication, including prior discovery patches and prior evidence source artifacts. Initial ledgers reject all four prior arguments; expanded ledgers require all four, replay the raw prior pair, require the prior decision status to be `expanded_round_required`, verify that the decision points to the canonical prior-ledger bytes, verify both evidence prior hashes, and enforce Task 3's full same-registered-search binding. Argparse enforces that the four prior flags are all present or all absent.
 
 Print a one-line result to stderr. Before constructing the output mapping, reject `--out` and `--decision-out` when their normalized resolved paths are equal or when two existing paths are aliases by `samefile`; this prevents a duplicate mapping key from silently collapsing the completion marker. Precompute ledger and decision bytes in memory, preflight both output targets, write the ledger first, and write the decision last through `write_set_new_or_identical`; only a present, valid decision is the completed revision marker. Existing identical ledger bytes from an interrupted attempt are reusable, but any differing target fails before a new file is created. Convert `GitEvidenceError`, `AdjudicationError`, pydantic validation failures, missing/noncanonical files, CAS/hash failures, output-path aliases, and immutable-output conflicts to exit 1 without a traceback. A valid negative gate is complete, so both canonical outputs must exist before returning 3. Do not catch `KeyboardInterrupt` or argparse's `SystemExit`. End the module with `raise SystemExit(main())`. Keep business logic in Tasks 1-3.
 
@@ -1816,12 +1839,12 @@ Run expanded discovery first, without adjudicating:
 uv run python -m gameforge.bench.flare_mining discover --repo /tmp/gameforge-flare-game.git --search-spec scenarios/flare_corpus/search-spec.json --registration-commit "$(git log -1 --format=%H -- scenarios/flare_corpus/search-spec.json)" --registration-path scenarios/flare_corpus/search-spec.json --round expanded --out scenarios/flare_corpus/candidate-ledger.discovered.json --blob-dir scenarios/flare_corpus/blobs
 ```
 
-Review the expanded ledger in deterministic contiguous batches of 50 candidates in ledger order `(committed_at, commit_oid)`; the final batch contains the remainder. Each batch record carries its one-based batch number, inclusive candidate-index range, first/last OID, decisions, rationales, and evidence refs. Batch files are working aids only: they cannot carry an approval attestation, cannot change ordering, and cannot be fed to `adjudicate`. After all batches, concatenate by candidate order, validate exact universe coverage and initial projection, and build one full expanded evidence payload that binds both prior file hashes, repeats every initial group/candidate decision/resolution byte-equivalently, and adds decisions only for newly discovered candidates or newly materialized objective links.
+Review the expanded ledger in deterministic contiguous batches of 50 candidates in ledger order `(committed_at, commit_oid)`; the final batch contains the remainder. Each batch record carries its one-based batch number, inclusive candidate-index range, first/last OID, decisions, rationales, and evidence refs. Batch files are working aids only: they cannot carry an approval attestation, cannot change ordering, and cannot be fed to `adjudicate`. After all batches, concatenate by candidate order, validate exact universe coverage and initial projection, and build one full expanded evidence payload that binds both prior derived-file hashes, repeats the complete initial source-artifact prefix, applicability declarations, group/candidate decisions, and resolutions byte-equivalently, and adds decisions only for newly discovered candidates or newly materialized objective links.
 
 Present the complete disposition table and delta, expanded universe hash, both prior hashes, and the single complete approval-payload hash to the user. Expanded adjudication is forbidden until the user gives a second explicit written approval bound to that complete payload. There is exactly one final `ReviewAttestation`; no batch-level or partial approval is accepted. Then run:
 
 ```bash
-uv run python -m gameforge.bench.flare_mining adjudicate --ledger scenarios/flare_corpus/candidate-ledger.discovered.json --evidence scenarios/flare_corpus/adjudication-evidence.json --blob-dir scenarios/flare_corpus/blobs --prior-ledger scenarios/flare_corpus/b0a/initial/candidate-ledger.json --prior-decision scenarios/flare_corpus/b0a/initial/b0a-decision.json --out scenarios/flare_corpus/candidate-ledger.json --decision-out scenarios/flare_corpus/b0a-decision.json
+uv run python -m gameforge.bench.flare_mining adjudicate --ledger scenarios/flare_corpus/candidate-ledger.discovered.json --evidence scenarios/flare_corpus/adjudication-evidence.json --blob-dir scenarios/flare_corpus/blobs --prior-discovery scenarios/flare_corpus/b0a/initial/candidate-ledger.discovered.json --prior-evidence scenarios/flare_corpus/b0a/initial/adjudication-evidence.json --prior-ledger scenarios/flare_corpus/b0a/initial/candidate-ledger.json --prior-decision scenarios/flare_corpus/b0a/initial/b0a-decision.json --out scenarios/flare_corpus/candidate-ledger.json --decision-out scenarios/flare_corpus/b0a-decision.json
 ```
 
 Expected: exit 0 with `provisional_pass`, or exit 3 with `insufficient_evidence` and `next_action="stop_flare_heavy_investment"`. Do not change the search spec or any initial decision after either result.
