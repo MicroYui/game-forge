@@ -619,7 +619,7 @@ evidence. The result was not prompt-tuned or re-recorded based on score.
 - Consumes: external manifest and measured HED evidence.
 - Produces: `QaProtocol`, exact eight-session counterbalanced schedule, strict timer/verdict/session evidence contracts, canonical seal/load/write helpers.
 
-- [ ] **Step 1: Write failing protocol and state-contract tests**
+- [x] **Step 1: Write failing protocol and state-contract tests**
 
 ```python
 def test_schedule_has_four_complete_counterbalanced_pairs():
@@ -649,13 +649,13 @@ def test_session_events_require_a_valid_monotonic_state_machine():
 
 Also reject duplicate cases/orders, mixed classes within a pair, missing arm, HED/external hash mismatch, assisted case without a matching HED outcome, non-increasing monotonic values, finish without final patch/verdict, contaminated arm marked valid, and derived durations that do not rederive from events.
 
-- [ ] **Step 2: Run tests and verify RED**
+- [x] **Step 2: Run tests and verify RED**
 
 Run: `uv run pytest tests/bench/qa/test_contracts.py tests/bench/qa/test_protocol.py -q`
 
 Expected: imports fail for the QA package.
 
-- [ ] **Step 3: Implement the frozen schedule algorithm**
+- [x] **Step 3: Implement the frozen schedule algorithm**
 
 Sort the four defect classes by enum value and pair each class's development/verification cases. Apply this exact four-row pattern by class index:
 
@@ -671,7 +671,7 @@ Global orders are pair order then within-pair order (`1..8`). Bind `participant_
 `metric.evaluated_n != 8`; an Agent-unusable but protocol-valid HED outcome remains
 eligible and is shown honestly in the assisted arm.
 
-- [ ] **Step 4: Implement strict session/verdict contracts**
+- [x] **Step 4: Implement strict session/verdict contracts**
 
 ```python
 class QaEvent(_StrictModel):
@@ -711,7 +711,7 @@ class QaSessionEvidence(_StrictModel):
     evidence_sha256: Sha256
 ```
 
-- [ ] **Step 5: Seal protocol, run tests, and commit**
+- [x] **Step 5: Seal protocol, run tests, and commit**
 
 ```bash
 uv run pytest tests/bench/qa/test_contracts.py tests/bench/qa/test_protocol.py -q
