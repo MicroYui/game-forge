@@ -6,7 +6,12 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-PROFILE_MODULE = "gameforge.bench.external_corpus.profiles"
+SOURCE_MODULES = (
+    "gameforge.bench.external_corpus.profiles",
+    "gameforge.bench.external_cases.endless_sky_predicates",
+    "gameforge.spine.ingestion.endless_sky_adapter",
+    "gameforge.spine.ingestion.endless_sky_reader",
+)
 SOURCE_TOKENS = ("endless_sky", "flare", "b10b7d6c")
 DETERMINISTIC_CORE = (
     ROOT / "gameforge/contracts",
@@ -20,6 +25,7 @@ DETERMINISTIC_CORE = (
     ROOT / "gameforge/bench/metrics.py",
     ROOT / "gameforge/bench/report.py",
     ROOT / "gameforge/bench/power.py",
+    ROOT / "gameforge/bench/external_cases/qualify.py",
 )
 
 
@@ -60,7 +66,7 @@ def test_import_scan_resolves_package_and_relative_profile_imports(tmp_path) -> 
 
     imports = _resolved_imports(module, tmp_path)
 
-    assert imports.count(PROFILE_MODULE) == 2
+    assert imports.count(SOURCE_MODULES[0]) == 2
 
 
 def test_deterministic_core_has_no_external_profile_import_or_source_literal() -> None:
@@ -70,7 +76,10 @@ def test_deterministic_core_has_no_external_profile_import_or_source_literal() -
         for path in _python_files(root):
             relative = path.relative_to(ROOT)
             for module in _resolved_imports(path):
-                if module == PROFILE_MODULE or module.startswith(f"{PROFILE_MODULE}."):
+                if any(
+                    module == source or module.startswith(f"{source}.")
+                    for source in SOURCE_MODULES
+                ):
                     forbidden_imports.append(f"{relative}: {module}")
             source = path.read_text(encoding="utf-8").casefold()
             for token in SOURCE_TOKENS:

@@ -850,7 +850,7 @@ git commit -m "feat(bench): qualify real external defects before and after fixes
 - Consumes: all prior tasks and the frozen legacy B0A/Flare tests.
 - Produces: a machine gate for this slice and a status anchor that does not claim narrative/HED/QA/Report v2 completion.
 
-- [ ] **Step 1: Add failing AST/text anti-specialization tests**
+- [x] **Step 1: Add failing AST/text anti-specialization tests**
 
 Scan `gameforge/contracts`, `gameforge/spine/checkers`, `gameforge/spine/dsl`, `gameforge/spine/sim`, `gameforge/bench/taxonomy.py`, `metrics.py`, `report.py`, `power.py`, and `external_cases/qualify.py`. Reject:
 
@@ -860,7 +860,7 @@ Scan `gameforge/contracts`, `gameforge/spine/checkers`, `gameforge/spine/dsl`, `
 
 The source-specific reader, Adapter, fixture builder, predicates, and runner are explicitly outside this scan.
 
-- [ ] **Step 2: Run anti-specialization tests and verify RED on a temporary probe**
+- [x] **Step 2: Run anti-specialization tests and verify RED on a temporary probe**
 
 The test creates a temporary copied core module containing `if source_id == "endless_sky":` and proves the scanner reports it; then scans the real core and expects no violations.
 
@@ -868,7 +868,7 @@ Run: `uv run pytest tests/bench/external_cases/test_anti_specialization.py -q`
 
 Expected: the probe is rejected and the real core is clean after scanner implementation.
 
-- [ ] **Step 3: Add the complete slice acceptance test**
+- [x] **Step 3: Add the complete slice acceptance test**
 
 Acceptance requires:
 
@@ -893,7 +893,7 @@ Also assert:
 - legacy `scenarios/flare_corpus/**` bytes match their frozen Git anchor;
 - legacy Endless Sky B0A still derives `awaiting_human_evidence` and is not imported by the new runner.
 
-- [ ] **Step 4: Run focused and legacy regressions**
+- [x] **Step 4: Run focused and legacy regressions**
 
 Run:
 
@@ -905,7 +905,7 @@ uv run pytest tests/bench/external_cases tests/bench/external_corpus \
 
 Expected: all tests pass; no live network; the historical B0A status remains unchanged while the new external-case manifest is qualified.
 
-- [ ] **Step 5: Run repository-wide verification**
+- [x] **Step 5: Run repository-wide verification**
 
 Run:
 
@@ -918,17 +918,32 @@ git diff --check
 
 Expected: full pytest passes (the pre-existing platform-dependent skip may remain), all 7 import contracts are kept, Ruff is clean, and no whitespace errors exist.
 
-- [ ] **Step 6: Update status without starting M4**
+- [x] **Step 6: Update status without starting M4**
 
 Mark this plan complete in `docs/superpowers/plans/README.md`. State the measured result, exact test counts, four classes, 8/8 denominator, verification split, after FP, and native/reader replay. Keep narrative evidence, HED, QA-hours, BenchReport v2, and final pre-M4 audit explicitly pending.
 
-- [ ] **Step 7: Commit slice acceptance**
+- [x] **Step 7: Commit slice acceptance**
 
 ```bash
 git add tests/bench/external_corpus/test_anti_specialization.py tests/bench/external_cases/test_anti_specialization.py tests/bench/external_cases/test_external_cases_acceptance.py docs/superpowers/plans/README.md docs/superpowers/plans/2026-07-12-pre-m4-external-cases-adapter.md
 git diff --cached --check
 git commit -m "test(bench): accept the real external defect slice"
 ```
+
+## Completion Record
+
+- Frozen denominator: 8/8 cases qualified across four classes; development and
+  verification each contain one case per class.
+- Verification headline: 4/4 case hits, reported as four separate `1/1` Wilson
+  metrics; after external oracle-FP is `0/8`.
+- Raw evidence: all 16 before/after source trees round-trip byte exactly through
+  the reader and Adapter; native parser evidence and two offline manifest replays
+  are byte-identical.
+- Final gates: `1076 passed, 1 skipped`; 7 import contracts kept; Ruff and
+  `git diff --check` clean.
+- Still pending before M4: narrative BDR, 8-case HED, 4-pair QA-hours case study,
+  Cost/Latency, BenchReport v2, machine acceptance across the combined evidence,
+  and the final pre-M4 audit. M4 has not started.
 
 ## Self-Review
 

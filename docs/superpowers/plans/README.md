@@ -21,7 +21,7 @@
 - `2026-07-11-pre-m4-external-evidence-b0a.md` — pre-M4 外部证据通用化 + Endless Sky B0A（🔄 进行中；generic harness 与 Flare 冻结兼容已完成；两轮代码审查共发现并修复 generic direct-match replay、递归外部 revert lineage，以及 selected revert 与等价 lineage 组件 disposition 冲突三个缺陷；已从 registration anchor `687f36fb6ab499d3667fe43429fec4a25132c97a` 重新冻结并在两个独立临时目录逐字节回放 first-80 discovery：610 matched / 562 config-only，universe `f22981b17b43e02caaa494193e6a4b8cd92bbc0c312f9d5f1db249da7365793f`；当前派生状态为 `awaiting_human_evidence`，没有最终 ledger/decision，未跨 gate 进入 Adapter/B0B）
 - `2026-07-12-pre-m4-core-corrections.md` — pre-M4 核心契约修正（✅ 已完成；`5fdfb32`、`f403a5c`、`35330e8`、`5adaab0`、`586b579`、`cc0fbc4`：Patch exact-base/fail-closed、`DROPS_FROM` producer→product、稳定 repair request/Patch identity、`gpt-5.6-sol` 当前证据与 Opus 历史证据分流、bench clean base 跨 checkout 稳定；双 REPLAY 10/10；962 passed、1 skipped，7 契约 kept）
 - `../specs/2026-07-12-pre-m4-lean-closure-design.md` — pre-M4 剩余产品证据的精简设计：上游真人 provenance + 确定性 qualification，取消额外人工 hash 审批仪式；当前在线 Agent 证据使用 `gpt-5.6-sol`，历史 Opus 证据保持原样
-- `2026-07-12-pre-m4-external-cases-adapter.md` — 8 个固定 Endless Sky 真实 before/after case + lossless reader/Adapter + 通用 checker qualification（🔄 进行中）
+- `2026-07-12-pre-m4-external-cases-adapter.md` — 8 个固定 Endless Sky 真实 before/after case + lossless reader/Adapter + 通用 checker qualification（✅ 已完成；8/8 qualified，verification 四类各 1/1，after oracle-FP 0/8；16 棵 source tree 的 reader/Adapter/native witness 与两次离线 evidence replay 逐字节一致；manifest SHA-256 `8a6bec74c87af36a1ddf1b592422f24eafb699315c76fc8c529821c70bec182a`；1076 passed、1 skipped，7 契约 kept）
 
 M3 umbrella 仍未完成。`2026-07-12-pre-m4-lean-closure-design.md` 已替代旧计划中的额外人工
 hash attestation 门禁：上游 bug-fix commit/PR 提供真人 provenance，固定 before/after predicate、
@@ -29,7 +29,7 @@ native parser 与通用 checker 直接完成 qualification。Flare B0A 与通用
 replay 资产，不再扩展；Flare B0B、Corpus Freeze 与 M3d-1..4 均未进入，也不得继续写 Flare
 reader/quest/loot-table 计划或进行第三轮搜索。
 narrative BDR、
-Human-Edit-Distance、QA-hours 与 BenchReport v2 仍须分别规划。`DROPS_FROM` 与 repair
+Human-Edit-Distance、QA-hours、Cost/Latency、BenchReport v2 与最终 pre-M4 audit 仍须分别规划。`DROPS_FROM` 与 repair
 cassette/apply 债务已由 `2026-07-12-pre-m4-core-corrections.md` 闭合。
 Flare 的 negative investment decision 保持有效；Endless Sky 改走精简 external-case 路径。
 M3 仍未完成；M4 未开始，且仍受 lean closure 的实证门禁阻塞。
