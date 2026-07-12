@@ -300,7 +300,7 @@ class AgentCostLatencyEvidence(StrictModel):
     evidence_sha256: Sha256
 ```
 
-- [ ] **Step 1: Write failing normalization and denominator tests**
+- [x] **Step 1: Write failing normalization and denominator tests**
 
 Use synthetic OpenAI Responses, legacy OpenAI, and Anthropic cassette shapes:
 
@@ -325,13 +325,13 @@ def test_repeated_logical_hash_is_one_recorded_request_and_visible_cache_reuse(t
 
 Also test hash/path mismatch, missing cassette, model-snapshot mismatch, negative/malformed usage, inconsistent provider total, missing token usage, missing latency, mixed models in one workload, stable sample ordering, bootstrap reproducibility, p95, attempt known/unknown aggregation, manifest hash tampering, and full revalidation against cassette bytes.
 
-- [ ] **Step 2: Run the focused tests and verify RED**
+- [x] **Step 2: Run the focused tests and verify RED**
 
 Run: `uv run pytest tests/bench/test_cost_latency.py -q`
 
 Expected: import failure because cost evidence contracts and aggregation do not exist.
 
-- [ ] **Step 3: Implement source-neutral cassette aggregation**
+- [x] **Step 3: Implement source-neutral cassette aggregation**
 
 Normalize these aliases:
 
@@ -346,7 +346,7 @@ For OpenAI Responses, read `raw_response.usage.input_tokens_details.cached_token
 
 Use frozen `percentile_bootstrap_ci(..., statistics.fmean)` and `percentile(..., 0.5/0.95)` for per-sample total tokens and per-record latency. A workload is `measured` only when all planned samples and every referenced cassette validate.
 
-- [ ] **Step 4: Run focused/property tests and commit**
+- [x] **Step 4: Run focused/property tests and commit**
 
 Run:
 
@@ -363,6 +363,12 @@ git add gameforge/bench/cost_latency.py tests/bench/test_cost_latency.py
 git diff --cached --check
 git commit -m "feat(bench): aggregate cassette cost and latency"
 ```
+
+Task 3 result: RED failed on the absent module. Source-neutral token
+normalization, logical-versus-recorded request accounting, raw cassette hash
+binding, strict malformed-evidence rejection, frozen bootstrap distributions,
+attempt known/unknown accounting, canonical round-trip, and full cassette-byte
+revalidation are GREEN with `14 passed`; Ruff and `git diff --check` pass.
 
 ---
 
