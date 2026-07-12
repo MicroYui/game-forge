@@ -15,6 +15,7 @@
 - `spine` remains independent of Agents and benchmark code. This slice does not add any source profile, benchmark oracle, or LLM dependency to `spine`.
 - `gameforge/bench/hed/**` and `gameforge/bench/qa/**` contain no `endless_sky`, `flare`, upstream commit OID, source path, case ID, or source-field dispatch. Source-specific loading and verdict code stays under `gameforge/bench/external_cases/`.
 - HED measures semantic graph changes, not raw serialization noise. It excludes `source_ref` plus Adapter-owned round-trip envelope attributes `source_chunk_b64`, `source_kind`, `source_name`, `source_order`, and `reader_version`; every other IR attribute remains semantic.
+- Stable named entity IDs remain part of semantic identity. IDs containing a standalone 64-hex component are treated as Adapter-generated opaque identities and matched as a multiset by `(type, semantic attrs, tags, schema_version)`, so a line-number-derived hash change is not counted as a human edit.
 - Relation identity for HED is the canonical multiset of `(type, src_id, dst_id, semantic attrs)`, never the source-derived `relation.id` or `source_ref`.
 - Normalized HED is Jaccard distance `|agent_delta symmetric_difference human_delta| / |agent_delta union human_delta|`; both empty is `0.0`. An Agent-unusable outcome uses an empty Agent delta and therefore remains measured rather than disappearing from the denominator.
 - All eight frozen external cases stay in HED's planned denominator. Cassette miss, runner error, hash mismatch, missing human target, or inability to reconstruct a case is a protocol failure, not an Agent failure.
@@ -164,7 +165,7 @@ is byte-identical after replay.
 - Consumes: arbitrary `Snapshot` values and finite numeric samples.
 - Produces: `AtomicDelta`, `semantic_delta()`, `symmetric_difference_distance()`, `percentile_bootstrap_ci()`, and `percentile()`.
 
-- [ ] **Step 1: Write failing property and unit tests**
+- [x] **Step 1: Write failing property and unit tests**
 
 ```python
 def test_round_trip_envelope_and_source_refs_do_not_count_as_semantic_edits():
@@ -197,13 +198,13 @@ def test_percentile_bootstrap_is_seeded_and_uses_the_declared_indexes():
 
 Use Hypothesis to prove semantic delta ordering is stable under entity/relation insertion order, identical snapshots have an empty delta, Jaccard distance is symmetric and bounded in `[0,1]`, and bootstrap output is finite for every nonempty finite sample.
 
-- [ ] **Step 2: Run tests and verify RED**
+- [x] **Step 2: Run tests and verify RED**
 
 Run: `uv run pytest tests/bench/test_evidence_stats.py tests/bench/hed/test_delta.py -q`
 
 Expected: import failures for the new modules.
 
-- [ ] **Step 3: Implement the exact semantic projection**
+- [x] **Step 3: Implement the exact semantic projection**
 
 ```python
 _NON_SEMANTIC_ATTRS = frozenset({
@@ -219,11 +220,11 @@ class AtomicDelta:
     new_json: str | None
 ```
 
-Entity identity is `entity.id`; include type and every semantic attribute. Relation projection is a sorted multiset of canonical JSON payloads `{type, src_id, dst_id, attrs}` with occurrence ordinals added after sorting. Attribute values use the existing `canonical_json()` function. Return a sorted tuple and reject snapshots containing non-canonical non-finite values rather than stringifying them.
+Stable entity identity is `entity.id`; include type and every semantic attribute. For an ID with a standalone 64-hex component, replace the source-derived ID with the SHA-256 of canonical `{type, attrs, tags, schema_version}` and compare occurrence counts. Relation projection is a sorted multiset of canonical JSON payloads `{type, normalized_src, normalized_dst, attrs}` with occurrence ordinals added after sorting; a missing endpoint keeps its literal missing ID. Attribute values use the existing `canonical_json()` function. Return a sorted tuple and reject snapshots containing non-canonical non-finite values rather than stringifying them.
 
 `symmetric_difference_distance()` treats the delta tuples as sets, rejects duplicate deltas, returns `(raw_count, normalized)`, and defines empty/empty as `(0, 0.0)`.
 
-- [ ] **Step 4: Implement the frozen bootstrap protocol**
+- [x] **Step 4: Implement the frozen bootstrap protocol**
 
 ```python
 @dataclass(frozen=True)
@@ -237,7 +238,7 @@ class BootstrapInterval:
 
 Use a fresh `random.Random(seed)` per call. Draw `n` indexes with replacement for each resample, sort the `10_000` statistic values, and select the exact lower/upper indexes declared in Global Constraints. `percentile()` uses linear interpolation and is shared by HED/QA medians only where no bootstrap is involved.
 
-- [ ] **Step 5: Run tests and commit**
+- [x] **Step 5: Run tests and commit**
 
 ```bash
 uv run pytest tests/bench/test_evidence_stats.py tests/bench/hed/test_delta.py -q
@@ -245,6 +246,12 @@ git add gameforge/bench/stats.py gameforge/bench/hed tests/bench/test_evidence_s
 git diff --cached --check
 git commit -m "feat(bench): define semantic edit distance"
 ```
+
+Task 2 result: `17 passed`, including Hypothesis checks for identity and
+Jaccard invariants. Across the eight frozen upstream fixes, normalized semantic
+delta sizes are `3, 16, 4, 10, 5, 35, 1, 1`; all are nonempty, while the
+largest raw source-derived churn (`68+68` entity IDs and `185+180` relation IDs)
+is excluded from the metric.
 
 ---
 
