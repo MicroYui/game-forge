@@ -481,7 +481,7 @@ git commit -m "feat(agents): ground narrative quorum in typed hints"
 - Consumes: `DefectClass`, `NarrativeConstraintInput`, and canonical JSON.
 - Produces: discriminated narrative fact models, `TargetSpan`, `NarrativeCase`, `OracleViolation`, `evaluate_facts()`, `seal_case()`, and canonical case bytes.
 
-- [ ] **Step 1: Write failing tests for typed positive and clean worlds**
+- [x] **Step 1: Write failing tests for typed positive and clean worlds**
 
 ```python
 @pytest.mark.parametrize(
@@ -513,13 +513,13 @@ def test_clean_worlds_have_no_oracle_violation(facts):
 
 Also test strict extra-field rejection, invalid cross-fact references, duplicate fact/constraint IDs, target-span byte binding, `is_clean`/ground-truth consistency, case self-hash tamper detection, and that a positive case has exactly one oracle violation.
 
-- [ ] **Step 2: Run the contract/oracle tests and verify RED**
+- [x] **Step 2: Run the contract/oracle tests and verify RED**
 
 Run: `uv run pytest tests/bench/narrative/test_contracts.py tests/bench/narrative/test_oracle.py -q`
 
 Expected: collection fails because the narrative benchmark package does not exist.
 
-- [ ] **Step 3: Implement strict discriminated fact models**
+- [x] **Step 3: Implement strict discriminated fact models**
 
 Use frozen, `extra="forbid"` Pydantic models with these predicates and fields:
 
@@ -546,7 +546,7 @@ is_clean, defect_class?, target_entities, target_constraint_ids,
 target_span?, case_sha256
 ```
 
-- [ ] **Step 4: Implement the independent oracle over facts only**
+- [x] **Step 4: Implement the independent oracle over facts only**
 
 `evaluate_facts()` must not import or inspect the renderer, prompt library, Agent, dialogue text, or target span. It derives violations by these exact rules:
 
@@ -557,13 +557,13 @@ target_span?, case_sha256
 
 Each `OracleViolation` carries the causing event fact IDs, target entity IDs, and source baseline fact IDs. Construction of `NarrativeCase` maps source baseline facts to constraint IDs, and causing event facts to renderer spans; this join is the only place oracle and renderer outputs meet.
 
-- [ ] **Step 5: Run the contract/oracle tests and verify GREEN**
+- [x] **Step 5: Run the contract/oracle tests and verify GREEN**
 
 Run: `uv run pytest tests/bench/narrative/test_contracts.py tests/bench/narrative/test_oracle.py -q`
 
 Expected: all tests pass.
 
-- [ ] **Step 6: Commit hidden facts and oracle**
+- [x] **Step 6: Commit hidden facts and oracle**
 
 ```bash
 git add gameforge/bench/narrative tests/bench/narrative
