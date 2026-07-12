@@ -518,7 +518,7 @@ git commit -m "feat(checkers): support gated and bounded dependencies"
 - Consumes: `EndlessSkyTree`, source-neutral values translated into `EndlessSkyTarget(path, record_kind, record_name)`, and `EndlessSkyContext(resources, restricted_destinations)`.
 - Produces: `EndlessSkyTxtAdapter.to_ir(...) -> Snapshot`, `from_ir(snapshot) -> dict[str, bytes]`, `quest_id(name)`, `dialogue_label_id(quest, label)`, and version `endless-sky-adapter@1`.
 
-- [ ] **Step 1: Write failing raw-preservation and base mapping tests**
+- [x] **Step 1: Write failing raw-preservation and base mapping tests**
 
 ```python
 def test_adapter_round_trips_unknown_records_and_exact_file_bytes():
@@ -538,13 +538,13 @@ def test_mission_maps_to_generic_quest_start_step_destination_and_gate():
     assert one_edge(graph, EdgeType.UNLOCKS).src_id == quest_id("Deliver")
 ```
 
-- [ ] **Step 2: Run Adapter tests and verify RED**
+- [x] **Step 2: Run Adapter tests and verify RED**
 
 Run: `uv run pytest tests/spine/ingestion/test_endless_sky_adapter.py -q`
 
 Expected: missing Adapter module.
 
-- [ ] **Step 3: Implement lossless raw envelopes and generic mission mapping**
+- [x] **Step 3: Implement lossless raw envelopes and generic mission mapping**
 
 Every top-level chunk produces exactly one raw-holder entity with these attrs:
 
@@ -571,7 +571,7 @@ For a selected mission:
 - map mission-state `has "Name: offered|done"` to `Quest --REQUIRES--> Quest`, declaring the referenced mission from the same source tree as a real dependency entity with its own start/lifecycle mapping;
 - add no source-specific checker flag or case name.
 
-- [ ] **Step 4: Add fixture-wide failing round-trip tests, then make them pass**
+- [x] **Step 4: Add fixture-wide failing round-trip tests, then make them pass**
 
 ```python
 @pytest.mark.parametrize("case,side", all_case_sides())
@@ -585,7 +585,7 @@ Run: `uv run pytest tests/spine/ingestion/test_endless_sky_adapter.py tests/spin
 
 Expected: all unit and 16 fixture-side tests pass.
 
-- [ ] **Step 5: Commit base Adapter mapping**
+- [x] **Step 5: Commit base Adapter mapping**
 
 ```bash
 git add gameforge/spine/ingestion/endless_sky_adapter.py tests/spine/ingestion/test_endless_sky_adapter.py tests/spine/ingestion/test_endless_sky_adapter_roundtrip.py
