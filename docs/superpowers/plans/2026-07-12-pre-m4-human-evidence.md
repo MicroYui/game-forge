@@ -45,7 +45,7 @@
 - Consumes: `ExternalCaseSpec`, frozen case `context.json`, lossless source trees, `EndlessSkyTxtAdapter`, `GraphChecker`, and `ASPChecker`.
 - Produces: source-specific `EndlessSkyCaseRuntime`, `load_case_runtime()`, and `validate_submitted_tree()` for use only by composition-layer harnesses.
 
-- [ ] **Step 1: Write failing runtime reconstruction tests**
+- [x] **Step 1: Write failing runtime reconstruction tests**
 
 ```python
 def test_case_runtime_reconstructs_the_manifest_bound_snapshots_and_finding():
@@ -73,13 +73,13 @@ def test_submission_verdict_uses_the_same_rules_for_before_and_upstream_after():
 
 Also cover all eight cases, stable finding selection (`graph` before `asp`, then Finding ID), target preservation, lossless reader failure, native parser failure, unproven predicate, remaining target-class Finding, and newly introduced deterministic Finding.
 
-- [ ] **Step 2: Run the focused tests and verify RED**
+- [x] **Step 2: Run the focused tests and verify RED**
 
 Run: `uv run pytest tests/bench/external_cases/test_case_runtime.py -q`
 
 Expected: import failures because the runtime and submission verdict interfaces do not exist.
 
-- [ ] **Step 3: Add the source-specific runtime boundary**
+- [x] **Step 3: Add the source-specific runtime boundary**
 
 Implement immutable dataclasses with these public shapes:
 
@@ -95,7 +95,9 @@ class EndlessSkyCaseRuntime:
     before_snapshot: Snapshot
     human_target_snapshot: Snapshot
     target_entity_ids: tuple[str, ...]
+    protected_entity_ids: tuple[str, ...]
     target_finding: Finding
+    adapter: EndlessSkyTxtAdapter
 
 
 @dataclass(frozen=True)
@@ -105,20 +107,21 @@ class SubmissionVerdict:
     native_exit_code: int | None
     predicate_status: Literal["violation", "clear", "unproven"]
     target_finding_clear: bool
+    target_entities_preserved: bool
     new_deterministic_findings: tuple[tuple[str, tuple[str, ...]], ...]
     submitted_tree_sha256: str | None
     failure_reason: str | None
 ```
 
-`load_case_runtime(corpus, spec, *, native_binary=None)` must use the same context/target helpers already used by `_case_evidence`, rebuild both snapshots, choose a confirmed matching Finding that intersects `target_entity_ids`, and fail if there is no unique stable choice. Extract shared private construction logic rather than copy it.
+`load_case_runtime(corpus, spec)` must use the same context/target helpers already used by `_case_evidence`, rebuild both snapshots, choose the first confirmed matching Finding under the stable order `graph -> asp -> Finding ID`, and fail if no candidate intersects `target_entity_ids`. `protected_entity_ids` contains only top-level target records with the Adapter-owned raw envelope, so a valid fix may remove/reorder derived child nodes without deleting the quest/effect itself. Extract shared private construction logic rather than copy it.
 
-`validate_submitted_tree(runtime, raw_by_path, *, native_binary=None)` reparses exactly `spec.changed_paths`, verifies byte round-trip, evaluates the registered source predicate, adapts to generic IR, checks target preservation, compares generic deterministic Finding keys against the before baseline, and returns a total verdict instead of raising for participant mistakes. Infrastructure/hash/configuration failures still raise.
+`validate_submitted_tree(runtime, raw_by_path, *, native_binary)` reparses exactly `spec.changed_paths`, verifies byte round-trip, runs the required native parser, evaluates the registered source predicate, adapts to generic IR, checks top-level target-record preservation, compares generic deterministic Finding keys against the before baseline, and returns a total verdict instead of raising for participant mistakes. Infrastructure/hash/configuration failures still raise.
 
-- [ ] **Step 4: Refactor the external manifest runner through the shared runtime path**
+- [x] **Step 4: Refactor the external manifest runner through the shared runtime path**
 
 `_case_evidence()` must consume `load_case_runtime()` so external qualification and HED/QA cannot silently build different before/after IR. Replaying the corpus must remain byte-identical to the committed `external-corpus-manifest.json`.
 
-- [ ] **Step 5: Run focused and replay tests**
+- [x] **Step 5: Run focused and replay tests**
 
 Run:
 
@@ -130,7 +133,7 @@ git diff --exit-code -- scenarios/external_cases/endless_sky/external-corpus-man
 
 Expected: tests pass and external evidence bytes do not change.
 
-- [ ] **Step 6: Commit the reconstructable runtime**
+- [x] **Step 6: Commit the reconstructable runtime**
 
 ```bash
 git add gameforge/bench/external_cases/endless_sky_runner.py \
@@ -139,6 +142,11 @@ git add gameforge/bench/external_cases/endless_sky_runner.py \
 git diff --cached --check
 git commit -m "refactor(bench): expose reconstructable external cases"
 ```
+
+Task 1 result: the focused external-case suite reports `69 passed`; the module
+CLI runs cleanly under `-W error`; corpus replay remains `8/8` qualified,
+verification `4/4`, after-oracle FP `0/8`; and the committed external manifest
+is byte-identical after replay.
 
 ---
 
