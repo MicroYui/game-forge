@@ -684,7 +684,7 @@ git commit -m "feat(ingestion): map dialogue references and bounded loops"
 - Consumes: raw `EndlessSkyTree`, `ExternalCaseSpec`, and `context.json`; it does not consume Adapter output or GameForge findings.
 - Produces: `evaluate_predicate(predicate_id, tree, targets, context) -> PredicateEvidence` for `reference_resolves`, `dependency_acyclic`, `target_reachable`, and `mission_offerable`.
 
-- [ ] **Step 1: Write failing predicate tests using synthetic names**
+- [x] **Step 1: Write failing predicate tests using synthetic names**
 
 ```python
 @pytest.mark.parametrize(
@@ -701,13 +701,13 @@ def test_predicate_transitions_violation_to_clear(predicate_id, before, after):
     assert evaluate(after, predicate_id).status == "clear"
 ```
 
-- [ ] **Step 2: Run predicate tests and verify RED**
+- [x] **Step 2: Run predicate tests and verify RED**
 
 Run: `uv run pytest tests/bench/external_cases/test_endless_sky_predicates.py -q`
 
 Expected: predicate module is missing.
 
-- [ ] **Step 3: Implement predicates directly over token trees**
+- [x] **Step 3: Implement predicates directly over token trees**
 
 - `reference_resolves`: for target effect sounds, compare references with context resources; for conversation choices, independently trace implicit paths and require a non-colliding label/terminal.
 - `dependency_acyclic`: build a source-native graph from mission-state conditions and conversation gotos; suppress a back-edge only when a matching `not FLAG`/target `set FLAG` pair proves one-shot traversal; run a local color DFS, not GraphChecker or Adapter helpers.
@@ -716,7 +716,7 @@ Expected: predicate module is missing.
 
 Every predicate returns structured target/path/line evidence. A parse error or unknown predicate returns `unproven`, never `clear`.
 
-- [ ] **Step 4: Run predicates against all frozen cases**
+- [x] **Step 4: Run predicates against all frozen cases**
 
 ```python
 @pytest.mark.parametrize("case", load_case_specs(CASE_SPECS))
@@ -729,7 +729,7 @@ Run: `uv run pytest tests/bench/external_cases/test_endless_sky_predicates.py -q
 
 Expected: all synthetic and eight frozen transitions pass.
 
-- [ ] **Step 5: Commit independent predicates**
+- [x] **Step 5: Commit independent predicates**
 
 ```bash
 git add gameforge/bench/external_cases/endless_sky_predicates.py tests/bench/external_cases/test_endless_sky_predicates.py
