@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d79329a83878ef4e597710dd30b343f3c207bdba4bb7b54be588ea951e7ec784",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6465,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 622,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 183,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 860000000
+      },
+      "created_at": 1783849000,
+      "id": "Lsah1tai5tQSTS9UFW/HEhW1HPDWXHLDXCNLmlPT/TrR5JDwEKUwjg5TVHn666dFqWYsopmrSpRobwRDe31us+k8IpVPO/ClIzzThNNgoPRGOzc07BwOad8AiZgI1VML97iM5bwGOcbcPfQTXDdoUQNwXGDLIVY/S6KAzlGdycG8lrR/k0PcUu/d2gx/qn0BeT9FZfQHMCXKxBDsgoXegd/8e56kMrIHuonedLKftpx/IaslxQYT/LFvlgVD9nV7nCMJju0OIDDKmneGrmsg7zuXKO503QEcU2SU4dDBsuKPJ561ioazErSfkUp1N+mnZm/wqXMAKvHz6UmQ8gBXRWEyJ7cb15sg15a0j/Ttqj2ARA1H/h3f7BeSKxRYz5nuiymlNqZ2omgDx2VX3a8yJJJuyBXzSw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "n0B5y0e/bFiGhvcDX2gSNfCE+NrQFf3ybfVCnFpqs4XiUJnDtahSZ/vixoCJNOdgUvXvPN4NyhUsJsRj0p6dPhcXgFxWQQzMeccdg1ngZG8+TYUdZzqwlcFALSdAYFrlOch+mcxr6cCbuhKgERk5ZQO9acD1xsXZZw3FUZevph5aAJd0R1A0/rzgmHDS6MrMZjEXHMlDsJXUQue5COcEm49IKxYl4O04N+a97cQ/Vm6e1vv4MFrB7hDRxXaFCi0sWxI49IOwc4hjaepF+bpZXrZX6BVz/pYjAQqeo9ryJZtW0hAfcSXxBz0i9CHLQJOzfM0i03UukPOuqUbY55imkK1KHjTmHRI2XD94opf13Jr40NDWfR6o7duQLYnvARG9B+ZP5kWqA1rlIzFEhXKHoO2bveQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:15a74027b842fc3a\",\"npc:bee388d9b5bbecca\"],\"constraint_ids\":[\"C:350f64cc50b59e10\"],\"span\":\"At caravan court, Mei was formally introduced as the Crown Witness.\",\"rationale\":\"Mei is presented as Crown Witness after Daro accepted the same title, with no relinquishment stated, exceeding the office's single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "TcQkqLqKSXjR15oKbTFDwEP2ylLppn87UWjGDS5l0D6MRrg2XVDG1/gDb2zZ6j8D2I8zEHCrWdJ08dEhyDN81o4fUjkR5kG2Hb4WN34M+Otg4nywS529y6uLuhKBwt45DNjXP6s3ds6YpR87JHkKGLDs50GUHYOOQLQsgnUcgOh3bz7APMtWzrfwq6qmgWxw25VEOkUy9OB3tUUzdI6utBaqxxS7yOtpLG4CK4ZXY8yhEFMFN2RimiEkutlA5yneU5y97BHLlvIGJNCNPkbZ/ojMaNc8o5qNzzCrGN5LSidBjmwGd7RJAoQyCCpFPmmtwr0OLXafoE81u02KVYtGEI1Hod4qAKCsJbHtxwgfSK4cSkjSafC0nzXsUj/PQHz8l1Sq8YzRoCvxiUMES8rJOS3z2H9h",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 622,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 183,
+        "output_tokens_details": {
+          "reasoning_tokens": 74
+        },
+        "total_tokens": 805
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:15a74027b842fc3a\",\"npc:bee388d9b5bbecca\"],\"constraint_ids\":[\"C:350f64cc50b59e10\"],\"span\":\"At caravan court, Mei was formally introduced as the Crown Witness.\",\"rationale\":\"Mei is presented as Crown Witness after Daro accepted the same title, with no relinquishment stated, exceeding the office's single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 622,
+      "output_tokens": 183,
+      "total_tokens": 805
+    },
+    "tool_calls": []
+  }
+}

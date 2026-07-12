@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5fded782679455c2e28ddcb86a4ddb37663ee899bb894c4c0cd04e2a775d678c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5276,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 607,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 185,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 858500000
+      },
+      "created_at": 1783850200,
+      "id": "3IiRQ/wxUfiZmhb9UVDm2nj3suCSp/CXPffIeMwANFsM0458EL4kHSeottUuxhwjeTI0nzryHg8eGFFRRYyP/Q0gZRGBh/t5cYNCoIGIma1Gp+p7pEvNrEFj4TPWe88LVv4kMMhatBkv6xOOssUjq+MgAN7MtDb2C4bYR+lz4GXrq8e0B0+VugPfL69lku6hbC7xTzUSRxB2hiZf2uzSR4yu8wTasEiJWq/3F808rPn4WA4DsS7VDWJCo3/hh5feuvyBCwph9KYTku7mEI/U0l4SlGQjfGDs3kzZSJmma191Rhao6MS4MhAWwmMfBQ0UqgIy1jeeooe6SaBxSCuUK1st1jgiBVvl+xaVAQKxAcP55kGBIOYlrdkdaOMQiGkd//1N2WhQ/B7BbMlfN0eHa90F7kY9DA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "TIeiFKuFvdQhmto+5jzqsj9MttltyuPExDhPKoc3W/3Vnjm8gKmNvOnDJC8lIeDilBLhWDXWCQi/fWwVQy2wiQml6soI3K9J9ECqEdEJOhUBAcddDXgsxYVu9bfORaclQ0RSGwnzVcoimZgxXqHsZmM9Yp6SQOhiTuTB5DcBRZctvZYyOn+IoNtsRGw70eE7TwNJt5MgbMNbnyKHL0/LT92lw4WJQmEf+oHUCXDxgjUZbUwb9gYr4C+xlqhsXDbVXNbVqiEqCrV+jNkicO5tMsUoxXpQ+1qnws3IO5u95rjDy4KPhAqJ++ASZUOsXU5XZ5/ci+shcof15/lY58jSMol5Tm1ydF6VnD8d/3o3pm20TtbSQCzXujdhxsVBSSU4OQfuLdDtEvBhoZo2GfAQLnPe5E0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:34d7901223284dbc\",\"npc:7a88a82c129a12c0\"],\"constraint_ids\":[\"C:ac4cd17d8d72cc15\"],\"span\":\"In archive hall, the council recognized Lea as the Caravan Voice.\",\"rationale\":\"Ivo was already recognized as the Caravan Voice, and no relinquishment occurred before Lea was also recognized, exceeding the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "MmLb9sZcXYmUX3LWPdtBjQ/7ZV6TiCx0DReuUgMNHLxI5WFpge4XXIcEFBV0CdLY++ACUApAzYbeocU6sBSmQCixpDHrnK6N4PA4TcdaZeDSt+ZinYE61Uaaggtwp3CkQHznC1xn1IL+5xWtph/Q27AfwfQzVoYw5qR4Bes/ahReeMuAPPtFlLv4seZhYrQnuYrdqgw8GXE3B4IPfP1anrk1Mqb7hE9lA57uMQkRDuOj/HifnHNVXBQ91kjpwNtXv4nqsuNh96CPiunyy8VvX7oOcSrSk9oUBu8ZJri+STomchm+dU1L/Dft/Qwp9Gzww0virJLB1ljOYeIvndIDUwJ4wKbaQiFRP4LbALRSBe+S/0NGXiYbkm0YafcUNodyaBAUnv0HYR8C2rCX+C7ChdM9LRGQ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 607,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 185,
+        "output_tokens_details": {
+          "reasoning_tokens": 76
+        },
+        "total_tokens": 792
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:34d7901223284dbc\",\"npc:7a88a82c129a12c0\"],\"constraint_ids\":[\"C:ac4cd17d8d72cc15\"],\"span\":\"In archive hall, the council recognized Lea as the Caravan Voice.\",\"rationale\":\"Ivo was already recognized as the Caravan Voice, and no relinquishment occurred before Lea was also recognized, exceeding the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 607,
+      "output_tokens": 185,
+      "total_tokens": 792
+    },
+    "tool_calls": []
+  }
+}

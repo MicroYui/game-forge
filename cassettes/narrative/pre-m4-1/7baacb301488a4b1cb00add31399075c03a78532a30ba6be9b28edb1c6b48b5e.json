@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7baacb301488a4b1cb00add31399075c03a78532a30ba6be9b28edb1c6b48b5e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3303,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 661,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 190,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 900500000
+      },
+      "created_at": 1783857500,
+      "id": "Nhvp7ijbezPhQ2dWHBKTcxGCSiHVxUuYeiPCnKbsomvj9Qo+fy/o4kdWo26Jw7jsGmu/RHmwznYHj9Rp8Ghfio3qGHEv9l7bvuHs2VQbNSNdnSPy/CqvzCFJ90w1aD2KZhakFrzCPQFK2Q6hXfF6iaG9UX16qVA2uGD7D8R7bNG8P3kkpP05t7/FA2yC8XmRD1TT4MRKTFq4Oww4VKVPHqeiMF+MZuy4dTdI1jkYxNO94i056k1XYt42Nx/ravEkb9PTg9g3fB7GwAfLaO5jUN9IhcMXWRgAxuimYx2oo3z8s6nfN/gx21UNmBMugwpRaaEX25SnNLpknkQ//D0zk8tgGibYkauXxZ2yNkpt5wywAFHvk1Hdw5TpvFMGQ6dVRDuwlvV4ZcVX9mKoyWyQD6esNh0QPQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "UmPenUlmpO5vHOvGU14K2eBjACN1h0MEBugFU38ba35lJec6rlvU7/a9gCW9KSmHTAQhb4gxR/otHGBcRO9WFqxcBHKrt9LB/YO6EIsThdtlsM9fvD8gol0/t/Fx6UNy7xPQPFxkST7eYXySSPBMXTMGUnVkrFxsFEao5MvzfpW8UClVe9bVeAg7Pra32HaFGyV76VXS+q1N9QHAg4cdIoYywRiRVrhxy4NsiDWeRz0Pq/b+Tm53l+cjtgXXiQVqvdCB+dMlcInpCeTTCTkZNLOUDkeydiDfQ3GzjgVOOn3W7DjwqLKKFaH3Raz4y8kEGT/UxSuuIGAKkIrroZNh70nQP6xpDaAQ9kQE0MRUXHSEHwNtGyw9znOui/JVvK67T/oF2srbLP95OMtzZHMH/mK8V+Q=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:62028733438196ed\"\n    ],\n    \"constraint_ids\": [\n      \"C:7e239244079fb0e9\"\n    ],\n    \"span\": \"In river market, Mei took the last medicine and walked past the injured scout.\",\n    \"rationale\": \"Mei walks past an injured ally while taking the last medicine, conflicting with her rule not to leave an injured ally behind.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1VanJwGBLIdyYC7uMofU9Yu4/1IJpP00A7CRT2FE5BMpZowSj2tLM0HyKkug84GuxH/KEwREbhUd0G/dUEJpkTZebzL173nn0gYKgSGO8LQoyyupCGZSajL3poDWT7OEjSHENXu/CjEqI9g09sUZ0poIiUVOe42dcNcBN+OiZ6rGsnR9HFk5mmAgs8oSb+4pDvl6FEiuRfErJsyGFEcbugbVeKOZo0X1YpJHRhUOUSAFL+Qqjqp/5eG1WajhZJ3jgzkWE03/uMGTnJxOr6BfnunxUaJlhVfPRDjL8QesepQb2LoZwLkZc6lNKRp2okxBgFbKK2pf/6e4Z2RRLSZtIhyoAUxKvJH7RW+QR0L5jOGwtJVelaZHdck0XEu3MTmtviTX9TiB4UnsDGZRuBGXlPQjslvX",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 661,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 190,
+        "output_tokens_details": {
+          "reasoning_tokens": 74
+        },
+        "total_tokens": 851
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:62028733438196ed\"\n    ],\n    \"constraint_ids\": [\n      \"C:7e239244079fb0e9\"\n    ],\n    \"span\": \"In river market, Mei took the last medicine and walked past the injured scout.\",\n    \"rationale\": \"Mei walks past an injured ally while taking the last medicine, conflicting with her rule not to leave an injured ally behind.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 661,
+      "output_tokens": 190,
+      "total_tokens": 851
+    },
+    "tool_calls": []
+  }
+}

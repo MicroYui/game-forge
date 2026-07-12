@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f57b3cdb7826c68dc6e007eba4cf430b278d461619772abeb1c1b04e9e75e7c4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4755,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 572,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 802000000
+      },
+      "created_at": 1783844500,
+      "id": "xvw8he7v6ONj9NEjZgMWxeQ54zMKtSDc88VPk4c7MOyklCsyrq1Vf8zLY0YlxH1BZX0ogk0/AWS5MeusRnZnWpDLs7kSG97FT4eM6gYjlkEnJJQfQcw+KrVyxeTWBizhwMWFq1BHxKo7dvQnuTmJfJ4C8hKvsbQQSlfGf9izuxL8XUS7pIz43nvF3f/S90UyssF1CEf/1MK+aYqQTh9fL5yGdGD80pwuLBhTOZsN8Wuhm2rHdxDJutiDqvBZnKLro4A2GdY1Pkoua++xby274FqBlKxN/xHcGpZkaBj+XFQ1LuSQeZegFuQqa4Ew+xaNyuOrePo0Q2y2MQ8IUQdodgoNoQhPHCCvDeaofgA2XrOQaXBi94kaT4MArnNZpcX32OroMCBK8/nUrYtVLjLJrkh6Ketyvw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "p7MKVtMTh7ehl9pjl4LqUGtEn8DUDEeaNg3ouptLV+NLhsSj7rNcbCobHtcK55FF3TPx1x+DqkPmHixvirOjxqnLDyToF5/vfWfgVWVsgmMWtFrFXXu6hkJrLf+5Klxc4lBPda/5N0Lkuh67hokCItYfn77BoyPHZ9J+nL6BbZhSpxKredRvWErcZM0o67UeVu/5RUzr4MaT3uoK4A6yYP8MfXWM+n2MkpOqWOzvpcW8XdmQB4/aNtMnMASepB5w1PS0oGS3gdUi5LSu9LUkb2j21h4CQPvomExIQukyj90A0uw1G5jQOJIt+RQx9EulDaKyZWpvdZumNGIEfL9Iw6gqqS1qVJa+T6vhkTejD1tb+BZnAo/QcC/F42t3QHoKqi+bIB3bdYeMtwvK7VuVgoEqLCE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:00780c1c86df667e\",\"npc:abd106e0f9ca7edb\"],\"constraint_ids\":[\"C:869c3982fdf3817a\"],\"span\":\"In signal tower, the council recognized Malik as the Beacon Keeper.\",\"rationale\":\"Malik is recognized as Beacon Keeper after Ada was recognized, with no relinquishment stated, creating two serving holders despite the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kb5jrn8XES4zJr8cLrhxlERd6d/qEyDHPdCj66d9Tp0bE0/ICWmrkwf4D0fXZ5bDZK653/q4lnFcbebY2N3CHljG1deSTHdqrOhjA3SOX8uQyrWD4avjTdsZSfOOSVOds84sZ/lb1Ga/9frbWRgdaJ37O8Dr4kDHZvZkm0+PM73YULQz4lov1FYjjzRrlAYmHT7bTRHcPvR/hkwqiXQJhfO03y4aDVjUX23j/kgWI3XI4VF7+klS9O64WfizfLtHxzCZl/DdYBfySveKvbBKgNx1PWxihPZtAGmwrFtQfi5/Aav2yLCWdSeh43opm9MI9bwk8DcLwVIHRodbX1KHQwD0yTyxfCibvm7KBedCMp3LMv0dNg9aH299aVK6jzXgyuHtUmfF3Uc7Vufj5B4OBJ/SnjO0",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 572,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "reasoning_tokens": 62
+        },
+        "total_tokens": 744
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:00780c1c86df667e\",\"npc:abd106e0f9ca7edb\"],\"constraint_ids\":[\"C:869c3982fdf3817a\"],\"span\":\"In signal tower, the council recognized Malik as the Beacon Keeper.\",\"rationale\":\"Malik is recognized as Beacon Keeper after Ada was recognized, with no relinquishment stated, creating two serving holders despite the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 572,
+      "output_tokens": 172,
+      "total_tokens": 744
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5549093cdd47af709d1149090102793a422ce77f16fa068eccc4ed85e2d519dc",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4235,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 622,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 233,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1010000000
+      },
+      "created_at": 1783855600,
+      "id": "7TZm75HNnRHE+xLZ1Ka3i249GNsjTzWb8zIqQpavfGOmWs4K7WzPXLNNPvZw5Idu7morjlQegvr99WhApmqdF7ZKUjvj4M8R0wa7B3pUpq/dpWvtUopGKXvUq8SQT9BSQcO5rt8YcpgzQH0Z8anGALJYVyXdSvkqoCgWWeTfivr5GJA+IW50IQjmlIu/wV55CezBybZJiPQ4pWa4pjA+RpOPj0sJwE5l2npvdVj9ejCuFHOvotzNdYNP55e8XgLJ+VayW1R7JQVWpx6nIPNucWQarPc7nvBfNIDA0v7WQyZowydEaVKOB4vp+ymYqq6jiOYX4I9eUTJoZ1rUF8wkNtLVY/kZ9YSQeHoN+Ampo2bCJCAjmrtzcwUpkQD6Hic1Xlo7Llk/FWNZ09PvNR33E6aZjtE85g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "k0N501i6AjhdVYk9dNOcuimiECEyjjP0N75spcrW4vBc7ZmsSnodXp/37VWkDIihp8sFlv3W/p6sRrCsc67L2Wm/qGPfgWvtsFam4pm+0j8bPCptUoSKWNd9aEAuZjR8/ERMezHpNOzMyE+r/3bvKfRe+Zvu5qDW4bmpXXc8jMfD2IFCggkhTw/PHVWTQ0RTZXP/ppLwLrsGWkAJ0sdQ1LrbXP5EyIjTSP7HUX2G6gGgv1pZlrYWkvdaRsyt8D6YFhUUGbfIFHYS7tT+Prq9L0r2phVmKxaUY8CBx8ZOZAgel6oJ1M3F39v6d3KhWSoc3Dzm+WH/FTlaWCmLMYLznPJ/9/IzREvobFRGt3W3ETR7YLxebAxSzVRTgLCjG//F9x+PxdUSpORNevz4HmI5FMmj2k0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1a95d9a8de60c9c6\",\n      \"npc:1f9736f3dd22b857\"\n    ],\n    \"constraint_ids\": [\n      \"C:9794658f75b5e9f6\"\n    ],\n    \"span\": \"At cargo ring, Malik was formally introduced as the Crown Witness.\",\n    \"rationale\": \"Ada was already introduced as the Crown Witness at the same location, and no relinquishment occurred before Malik received the same unique title.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "P//G8T0NhRIKiykAK7luWLbDA1Cb0WHe/+VvbkGpLzJM0Fi0YaYLpEAWasoroOonw/TgRZy6/mKEDANOYZIhItYIn48dGQn/viaudZYI8GUJnZGWDFfy7uscfD8C2b1bqsPbBnF26b9VvgOjiffywyrjmmmjTnutNkcs2SZs1iHjbFVcDP2YcwxBfHTeBUhTy8TDLzRZc8MT59HhEp28iKe15qimyXKRdeLCH7gq7bRZ4h1smTNY0+RI86ksa97Tv1vGZ+YBxs8Rz8ak+BxG7NNYH1gwRsoCA93G6vKXChjnwgW4FRBn8wU4vNwKIAgRcQ29dvqDw3w8av5vdTa7ZJpEhsRIsS+ksDzrRoD/jYYI5WLusg3YZveaD32YlZLN0G4lv0o61eIb8HTuayBd+/iFgetZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 622,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 233,
+        "output_tokens_details": {
+          "reasoning_tokens": 93
+        },
+        "total_tokens": 855
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1a95d9a8de60c9c6\",\n      \"npc:1f9736f3dd22b857\"\n    ],\n    \"constraint_ids\": [\n      \"C:9794658f75b5e9f6\"\n    ],\n    \"span\": \"At cargo ring, Malik was formally introduced as the Crown Witness.\",\n    \"rationale\": \"Ada was already introduced as the Crown Witness at the same location, and no relinquishment occurred before Malik received the same unique title.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 622,
+      "output_tokens": 233,
+      "total_tokens": 855
+    },
+    "tool_calls": []
+  }
+}

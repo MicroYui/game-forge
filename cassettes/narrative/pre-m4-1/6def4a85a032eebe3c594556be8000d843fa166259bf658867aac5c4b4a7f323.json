@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6def4a85a032eebe3c594556be8000d843fa166259bf658867aac5c4b4a7f323",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3362,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 584,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 187,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 853000000
+      },
+      "created_at": 1783860100,
+      "id": "gNiFIvrjTTb5JN/MzGBYDjDM/YQw3fwsDtY3GFlHr6soDDWM4US0sqEZ3TX30qvdBuwqyid/uOFkE3wofNGb0pH9Ucy6fWR4YFid4h53BIKjpawDQHIgM/NNYt27g6B38YyBNSBEhn3nlSLIvhm7g2dpYjELq9bnBfQyflBf9WvCrcpEw8zvTvNcsg5EjREG90yX/nWdnJ58lBuQZ4UvOeCBwNDSEWi5L1E1pt/kKHg/56rzD53SZDsUIs/UD8jCclSiaiH3qhjm3zuZiJ2vV97Ntka9DvvoihesfyJjYAiVJ153QUlXl0pNPoUMjVgMFU9CH24fw1U09uGNMQzR5mtCQG9ZB69fWASpNtuGaXHF8zHzcJW4rOBYBGScA+EHVxdnvc/NxcwQMBNj1XbSRNdvkCIkyw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "S55SYBkh/8THxJhFjB49sAmu3inl4mWukTsq07A6HPu4UgA2ox/wzidePqK3MNp0RYgSrskxhBnVB6Bhi0aOad0F1OsuXBk9gkYe1fuODGKvsaaYfSJAHSbS0hJibeTpsbMCV+nQh644NzBpMuZDPLMsKwjZ+AdnGPs/5og9QM9gXkb//tzQcq7KgtktSXF5dYSdNUkjnGgSruMAmtMl816S9tvDfUvliGOw8SI31YeNH8sXA+wNOoLHF5cmxty0ah81Xht7Ep2uBURcfnevmXX/wM9AspYEBebb6r9iM42v7cy7oB351/UJUJDWloIM6ssO8QalrM/PSjGAj/FRwLIIoa1gLCIETlC5ws7UiQ87o1yaiMsGUfCHbfZHqVRHBaA4KzlT/MHltOxujkdvqWyrDDI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:98e077756cc72c10\",\n      \"secret:d9b8ae2d47a2f83c\"\n    ],\n    \"constraint_ids\": [\n      \"C:a243143f3a09a6eb\"\n    ],\n    \"span\": \"At river market during council session, Noor told the room the truth about the hidden heir's identity.\",\n    \"rationale\": \"Noor discloses the hidden heir's identity during council session, which occurs before the permitted reveal gate at archive opening.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "iWFOjUkS5oMlW6M5VzdlmXM/QYNTlfAZfFe6qg+3GL34NoN5BxsP23cBq8ZhKGTPr8NSah2vAsWpM7vYxgbVhs+V9Zw9BTlDhimpy0YRBKfkEPlZgEsqkKU4euPpoT97Se/wPy1E9ic1+HtuuWuDRheUSn9nx8Eu9hRblyAfaIdWupXZir466ciWwoBk/WC6vVNr3WYHqwYmO9s+JaqygAlzyyRL49WQB1eAOcalTAdUGq5DEb/FdQAhziK0V5Z6JWmxS+Sm8Nkku2mn9AYj5zws5fcKluKvoYRFDhn2i9XV7zLcLJyWK6YHod6jPqTQWhHt19K+T9RnI9gXdvBfR0SGdhQmnED1+EWDTVKGg7xJczpToq5qST0Rcmq5m6LVZLVtvR1ZExMJe2xVtCs98+IIIoUS",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 584,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 187,
+        "output_tokens_details": {
+          "reasoning_tokens": 49
+        },
+        "total_tokens": 771
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:98e077756cc72c10\",\n      \"secret:d9b8ae2d47a2f83c\"\n    ],\n    \"constraint_ids\": [\n      \"C:a243143f3a09a6eb\"\n    ],\n    \"span\": \"At river market during council session, Noor told the room the truth about the hidden heir's identity.\",\n    \"rationale\": \"Noor discloses the hidden heir's identity during council session, which occurs before the permitted reveal gate at archive opening.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 584,
+      "output_tokens": 187,
+      "total_tokens": 771
+    },
+    "tool_calls": []
+  }
+}

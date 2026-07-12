@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d2c30264ca7c06ae680123e87b0cc86abca27ba833fb0964b318ae51501c24e1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3634,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 569,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 174,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 806500000
+      },
+      "created_at": 1783845000,
+      "id": "n9dqGS+xM9RScwsJdSc8Q6pBpJF9QVxalYcx98KAFPa/7JS+FuntieiVTXgb8WXt8ZAGbf+BqBPBT8wnu8BpsArUnZ9bCDaoI8tyHMIx8eTkm9kx5dN40Kj60UocW0IVmapUp7rIGIWBjt/TiSOeM/xQDFx2BcG+orPKL+KQz/v4OKBWm65VtlQhsdTvNCPx8UE9PDAPXEiA/aGRlWXoakdNdkuS+8QCPE1h/80TscmsyZXMlDl7UKafBZeDATcYKKtq2vBJ7esqcX4CUFTqaZyVJq8iHv6R3sstCJ013KIb0qczpdtTyINWunWPGTM5R55sPgPoRMOdEWQbJuKdOePhXqYudzTI8qa+lwQWxHosSVGgHXCUKLbJRB8fduVfQeTDzyd/0utCGtxA1ZlEthHhlD2afA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "lujn388CnFu95GSPWngMMUWq68BpKMyLGfHqtzuCMH0wllLGaYSML8mQraPym0Fq8oZhKVCHoABJSWvihfPQOtxtdOP+f4XD/iCBEUhtruaHvcOMnnkFVPUktcw/PfGnxMluFnyHB+/a5MqKJs6+myNtuw6WYpfXfkKDTZpGww7hmyn8TctqOdnmZkebWYPpOwlyUObkZ69FxbES64gRus8jPpjoAMlPOblR7LVLNz0YKENdp2dwMDzC5T5aczi4H7VdUOrLB/JwLm1U8iB4jTNRtZpzNs4sX8OogWCb+Ta7miq1pUpYnY5FEQglfHQccjwHKDDug9tn34zs3dadQO6S7uAyMFg9Xwes3q9Zb3zKFsuiKbaRoDj4RTJg4Q+wkPgwZ+QRMlads+CdsfR7ZlneFjs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:276b257615be4a29\",\n      \"secret:330dbffc3f6e0029\"\n    ],\n    \"constraint_ids\": [\n      \"C:c208e8326aae200b\"\n    ],\n    \"span\": \"During second bell at lower court, Ansel openly named the saboteur's name.\",\n    \"rationale\": \"Ansel discloses the saboteur's name during second bell, before the permitted sealed testimony stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "zqS7lJ4bWGztIXB7Hv4SFFyeSGVyN3+l2qwYI8eCbrlAISHSkaMHa6UuV31nfVw16PjijmbhMJmSrA2vKRFdFyCCv61B2iK9v9d+zMKX7EA10TNyWdEtZ6vQCgojntHx/7pywGBTYroyzFCYKtk932YWCo0mcaBNyJwHS2Ml37lFW/Wepcn8kfQiesJT9aD/uyRfUx/GOry3LlDmShtW4gLDddPVlusHeE6XsEimaOcHloP9+PI1ZTHTIxc3J2Q6rwDiDddqDjrd/hheOAUOiisuwbiqoxbEroEXmv659xX+fOFfAYyp/N1JTRV50oFXmCr3P+LRKe5uBXF4XwsU4l+8XQAonVlgWv9IimMAaQkIWOjCX0keGRHfYGgaMgVYEphXYlM0WGakEG2srWt7qZGWC6PW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 569,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 174,
+        "output_tokens_details": {
+          "reasoning_tokens": 46
+        },
+        "total_tokens": 743
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:276b257615be4a29\",\n      \"secret:330dbffc3f6e0029\"\n    ],\n    \"constraint_ids\": [\n      \"C:c208e8326aae200b\"\n    ],\n    \"span\": \"During second bell at lower court, Ansel openly named the saboteur's name.\",\n    \"rationale\": \"Ansel discloses the saboteur's name during second bell, before the permitted sealed testimony stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 569,
+      "output_tokens": 174,
+      "total_tokens": 743
+    },
+    "tool_calls": []
+  }
+}

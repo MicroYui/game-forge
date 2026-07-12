@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1f611de7b0ccb86ebab729bd7215083a63dba9793cf13663454088c239cac5e6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3643,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 636,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 235,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1023000000
+      },
+      "created_at": 1783850500,
+      "id": "+DkvumV46oXfH/r+IlxZnebR98liwZHXwM1LQRxW54hBPRu1PjhbNvL9xpHM9i93ct9Z9UZ6BmAU3+nR0JSbCWP72sBG6llw/lT7dSjhH+lQ726lArYmydzd015XL3n71gHwV74r3QtPG8svPbaHYCwhT3q/NOtkg1RBZ/g06P9/EVAcET53CwjjtXn6bSXBX5HXWYNA0S8wxZKuIZZ/B7gZALS5OzF8qcRSFQkzK6KOLZXypQ4exyM/JUJxBs224ZK63VtNEu6cC950FSXFGAhcU8iosbiU05UPujZa6YjIhl2jTR9mQy7K9pznJMQD+LnVQHaWSw9SxLuf9hJE00YAm4mKBNwCcmsHw/7m0K4sXLhZQq9oz4OeMHQlYg4aEpXT6YGOiu7VPmeXMQMtYRolmrCeRg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "geIPr/vqMEFxcZbS+0mCfVwA1Ti3Bidd7hRGgmJh/YfhTc2cRMxnOLUuXH2RnBGAp+lfCUbnlS2ciwX5jt2Go8S61pDEjz9iSKd/UjAKUQtulcKRMhw1bwniprE2a/L59VjTnDXJ++NtEONVsLc75JmDiZ2ChwNq+CT0u1q0937HTy44gecc1tuzyFPeXmdz4s1ido6yDcklpyDhV7Js169XoStxx5Ud6pxokJAEnVw63C+PhAx0l3Mu8ANm7/APa2v49E1hBkWgL4lXwcqsTWpCaeIL6JO97SDOYrVu0vexThd9lYtc9oDO3UX0C9Qk9H+fxZlX9EzrjtK7RgEomV5vFlgdd8W7e9AjDWpbhJ91VGcCxffbudJrjK6jXqBEG3AhjnwF9ndmpqN4jsyAA0Bv5Qw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:6ae427701721f62b\",\n      \"secret:fe9973f9f325cc16\"\n    ],\n    \"constraint_ids\": [\n      \"C:2faaf39dca486ab4\"\n    ],\n    \"span\": \"During first watch at archive hall, Ivo openly named the reason the eastern beacon failed.\",\n    \"rationale\": \"Ivo discloses the protected reason during first watch, which occurs before the permitted finale reveal gate.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gFqK0/hE+bBr34jQcOFZqx+G0xQwVreGWyYvQLe/c6Blgpcmiea6pHu6Yq+vSk+F64B7+pjVO4nS1cCJqsYQz/JuML3zAhCnklDP0lKP7c3gIAeRZBaq3/tTPctlsiLR8zYLKGbeqlPhr8sF7A/MYv/OuxEHnYbexs4ctMxgtDuKHLtoi8UTUOXvZHIZXODG4RFt1BHYnV1XNuYQ2Lwg7VaiLr12HJccK70fdMBD+TqGWIgEmCc4PcE8ftKD1YStUgu/hPL9E6CLMWJ9GUEmWWPjiIpQBcZ5kD1/odLCrnHEK3ZttRWd9WC4vXEnAa4cbvJnhA9fmfthRLqik5D2a+9bv2qjI6ACZCZNsHY/6DsoXAwNSelGLXKh+VrZB9ejgg2+9/cqFzXEQ0jxRHmp6WXsoOnW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 636,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 235,
+        "output_tokens_details": {
+          "reasoning_tokens": 106
+        },
+        "total_tokens": 871
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:6ae427701721f62b\",\n      \"secret:fe9973f9f325cc16\"\n    ],\n    \"constraint_ids\": [\n      \"C:2faaf39dca486ab4\"\n    ],\n    \"span\": \"During first watch at archive hall, Ivo openly named the reason the eastern beacon failed.\",\n    \"rationale\": \"Ivo discloses the protected reason during first watch, which occurs before the permitted finale reveal gate.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 636,
+      "output_tokens": 235,
+      "total_tokens": 871
+    },
+    "tool_calls": []
+  }
+}

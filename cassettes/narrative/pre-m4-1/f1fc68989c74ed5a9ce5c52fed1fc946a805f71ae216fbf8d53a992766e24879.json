@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f1fc68989c74ed5a9ce5c52fed1fc946a805f71ae216fbf8d53a992766e24879",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3201,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 580,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 148,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 734000000
+      },
+      "created_at": 1783851000,
+      "id": "URLhxw18GMGAL2NTc8QNCuPdifalUtGh7g9ouOU7BMenNtfYE8nDJflbRouqXUIf3KOSANA9rPBqdqYBmyhFwy8U52wDA+5/j7VydOXEEV1EvA0KTlGPUwfTHldlpH8UUbx2l0ZmQ2iacpuj8tSxxk0Xu9LtU62Z1w74vLHUnEfO3gRZyYDOzfc8H69a5MmE7zusvqsKOqRhOFPNZGyPkseo5AlXUy1+VftWraCoIhIxHdDnbYzYPvKY/lRqp7JOeH4FqO/HdrYvyzC0DbvHTR3bDUh3e/gRYo0NWhTJSj9m5nSw4vlFYMzU4u/dKwQIYaSrTeOJshyxbbwhxo9RvsOyppZ/8Nql3cvl5fUZUReqFPijnW8Mxql/zQsy44fYvedmA0Nf52Mt3hOjkrL9jaIlZu+FxQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "u74IoaRooAEJni9WifLdNkn5V2CZ99wREdqP5q9STXIM09U2TbsndUCVQIMBAFKRU4xtxxqCAN3779EomkMiouWujWf9EIG2Nmh0jM2DLD1OqCzc15V3lT0o9Dg920WHWDehFMgCPAXjhnjrz8eHW4GFEctTOGHaCG6ma+SaPsRc7LIKknABGmkLKw6RigFT29ClAJzcFDugjm4rxbEzWpANkvsdHOBvgCP7dXpXhj8JUSsuVZE5QVjexaRWmAfYWUxo5LGFpJWuaIqJ3nox8QmFIAZDZQFKQn7T7HipqN8y9DDoNftLx3i3Q63UfzDHUuqcxdxl5lHVqfJQgsT8l0P1X9mOZHNV41TbiyHa3NUwTrB3r5lwIt+xkukxGG2N95fw3JbuHqx3ISNCz5jaLGvn2Zs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:27bac6252864bcc9\"],\"constraint_ids\":[\"C:9f8c1b3bc6cda882\"],\"span\":\"In old mint, Ansel exchanged a crewmate for safe passage.\",\"rationale\":\"Ansel sacrifices a crewmate in exchange for safe passage, directly violating his rule against buying safety by sacrificing a crewmate.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "8t6CEx919OR1lyxAtn2JU4PAB1bJOVRsvEPSeE2eqPUOadBOLl/SByjapoV0k0nMTqrrTQjkAI9e3I818X/tfmlFuR5yxi3AeY4kLI+WzjagY4Po8yimP9BqXK3zPNpir8mgymKfUt4mTqr/m6ekXHtTK2HsxepVFzltJoSTuMHuOkqJwmqee9oQX4JdsHHMK7u7i5K1KNuyp2SQPfE8Fq77cROw50eov/kBZSV+sFOEh2QdcQwk7D/YFJnd5Z5DwmSG2v8FVhEVjN+jubzLRcVIO9ueV8tfMA0DYkSHzZpJgfkF2jNQQDNE+EL6j+XF7EZVCIzhAYLWfnM3Rds7AIj/syJB9ORExMH+ER8h6mOA7RZntPHVxzbjyij2i1wzo5Q0KiBTJ/FiL+c8TkjEUjVB3BuG",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 580,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 148,
+        "output_tokens_details": {
+          "reasoning_tokens": 51
+        },
+        "total_tokens": 728
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:27bac6252864bcc9\"],\"constraint_ids\":[\"C:9f8c1b3bc6cda882\"],\"span\":\"In old mint, Ansel exchanged a crewmate for safe passage.\",\"rationale\":\"Ansel sacrifices a crewmate in exchange for safe passage, directly violating his rule against buying safety by sacrificing a crewmate.\"}]",
+    "token_usage": {
+      "input_tokens": 580,
+      "output_tokens": 148,
+      "total_tokens": 728
+    },
+    "tool_calls": []
+  }
+}

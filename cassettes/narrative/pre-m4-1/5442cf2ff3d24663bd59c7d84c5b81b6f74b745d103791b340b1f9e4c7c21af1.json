@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5442cf2ff3d24663bd59c7d84c5b81b6f74b745d103791b340b1f9e4c7c21af1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4223,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 682,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 854000000
+      },
+      "created_at": 1783856000,
+      "id": "7knlflP3VwGM1qAOo6D3mqFYrFTMR4YNBGyNBnRhdRLFH8ZnDphfhiUj6/DMLr7lyVjxco6hi8eGTbXER31Ffz+kbdoHt0Dg3MEXGLH21xjymH/02/auvZtn7IordQneQrIuVdBtxz5UGgfwfgUacJqm3Igfx8+oooUgB8MU9mCElf8aL68bzKyBFC/LDjul7trgB6UkTGwncF7mtCohr+NaiCPB7ucY0V93mTEMO3e+x1qahIUv3d93BHFKvQ6wdbZDT68cqqmUjNHpM8e2YLGkEmShgsBDkrW2tDwkuvW/qUx0H6X+c+H9c37BA5CXF1VGbKDS5K/sEDIYq03onJpULOYQ65BpjKGexRa8AxUOa7pNwnKXtT/E8xK8JHtC2FyGhnoaEXSa+lKKd6UcfqkU/hyfdQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "UIREoyzpx+nAAYvC/ljg15WB1S0mpP04L7YqqQ3ghN2XSNv3Ew6wzXkbEYtGfoXrfTqzCtmM2ABLHh6ieo+K6IdBVaGnZyPwuaejdhuPSp1GC2WCNNJ2fB7uyPaddycInO1e3jERy8lHaDTUi7UQRuPA/wrWmsTNIpVp9AF6bSDH5qqKAyaAtx6DHdp9z4xEWfvKtPL6WnPEc9YHniblSZcMVibD8Tq+tSTt7w2w62uF/d5tCyKBvGP8L+cqNh50XwjPgOpy6XJyCy5uom6CawgVfBLFCzeKtxgRzEP9nE3a2SoNKXxa70DTRyldmYiI2h1sIYv4B6Lkk1DPWyNhTBtt/qIuRUmHvXr36xRF2/gc3LswTDYFUkr+3HYGHNl/NrML10+Uhm2Yh++s0/l5xRE9Y+c=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:36f12dbdf2cb61be\",\n      \"npc:6def7b03263b297c\"\n    ],\n    \"constraint_ids\": [\n      \"C:272a419b138bb9c0\"\n    ],\n    \"span\": \"In lower court, Mei supplied Daro and called the partnership permanent.\",\n    \"rationale\": \"Mei, a Harbor Guard member, directly supplies and establishes a permanent partnership with Daro of the enemy Ash Fleet.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ErZZKRWeLkp89S5kbpXfxaPE/T5FkxMEGJ/SJ6jUXP9S1FfCHqzhP4Fo/XMP9cVUJ6mgQbSsfaiKlaYLVHuKA5MVC8LP3CJr8W6V/dqm5l32JuYSPUsujuXk4LGnhhpsLYRSQTOSN3f3kK3Bo+gdNMDuRzaEiJxUbqbuwWU/eff2EcpHS4ADGM5EKuMUJndbQ2zAyljUbUDGNQQN65Du15JZWCxEa7OpcodXlN6fJhjUJ6YH4DlqOeDchLmiMIYNb7Kh1ilEjoSarAlOcD2UBNU4UlPw5HpWTtpPdxdPPMFqoLAs1QFXrLtPSrTFVoY2rhHU+9HotxIi6xFo+ya5SB0IIFh1IDU/nQJnww+bFvLyTjujslqv1gkLHnNi5yWvIyeKmlVce5g2JfxXmrd6d482fL5l",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 682,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 40
+        },
+        "total_tokens": 853
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:36f12dbdf2cb61be\",\n      \"npc:6def7b03263b297c\"\n    ],\n    \"constraint_ids\": [\n      \"C:272a419b138bb9c0\"\n    ],\n    \"span\": \"In lower court, Mei supplied Daro and called the partnership permanent.\",\n    \"rationale\": \"Mei, a Harbor Guard member, directly supplies and establishes a permanent partnership with Daro of the enemy Ash Fleet.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 682,
+      "output_tokens": 171,
+      "total_tokens": 853
+    },
+    "tool_calls": []
+  }
+}

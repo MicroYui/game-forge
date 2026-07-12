@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4d0a95b5415f5a82791f4b1624110d02e5f0c0ebad9b76983a40efd42ee2a0a8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5105,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 697,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 255,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1113500000
+      },
+      "created_at": 1783856500,
+      "id": "eYP0HPKgTLT0jhzPEbjxMxJNO/RR8Hed/iHLX4kGGUkua77cwQoA8uX1PWJ6I8TAXqeDYL1Ft3QOfr9QIuddazXpXix2S9JQsyomiBSl7ZPrCUurSOAncVmxBbXAbB0VPCf440OyiwEeb56NvpcTodwPV5SjnsSZC2DNxyl7Tkwp5ycbc9jFKBLu5aQwW5WzswYfMWEjvPC/2ruCVJ12sNpyW41szYEC2O3CoqbPot3n1zxFTC8sVvnQfkRjNHNu9j+xNpO0nsxz7PgTWkzxVblfBNzNNUHCkh7aIh+BN+Sl2C7acCD3K+y58ryWzi3kbgpTw+b6vjXzaOEGZ1gbvpawRQfaJYQsTPHSpX6uDIp8yI+QI5HQbMhamMSBH9l/ddvQAdwtFN1LuWhOZQ4pwbdXFYDtqg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "tDQtEEGllRGf0/mdhOjDLUDN1pzJjzwvVETjK1+yhIyrXN1AWmougp8o0lRiJ3xokwM76xdKyeCGVsYSeCNiQa+VVahPq/qjh31/ExxK91fvcM6gNC6hOONYQYEscNAo4BsFzp5sdAbegMdtJRi03lcNT4dE+hfs17/9+YBj+CTYXblavfdY7z+QaoAf+4fo8LWhtmlezT9ZetQ+PHcP2+UwLESVTf63cuSXtj9v+j/pAn2PJ/EMdwQPLH0iEqffZK9CtBmTAYrM/KGz989ybgJz0B5UdWdmI1MyrAzb6haUWmh5fp9BINpNpI6CA2HvF4Wjrt4amKxcvI3gQp5j4RDI2RGYcUtaEIfVNiri+pnQbIwLPFyJUm8rm3ohHF5SJfBdCmesq22ogw5uVN31QTSd5o4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:9b6ab2d3325eaab9\",\"npc:a20cb5b31039828c\"],\"constraint_ids\":[\"C:23372c35ed6fea12\"],\"span\":\"At archive hall, Ivo was formally introduced as the Warden.\",\"rationale\":\"Ivo is established as Warden after Lea signed as Warden, with no relinquishment stated, resulting in two simultaneous holders of a title limited to one person.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gJ1w2B2IUgSMMs0MOFHeq4hRs5BTw9cost4PkHtfvnQK+wScowbApC53OU/y79WjFa8VapvMirUjxMGmvpNvuNfwE3uwdggLHii9swHwG5B8h0MkviuFjO0PRePGdMxKUwCR6H43/5Ej3SvYknAvEHBQlEHuK0dvEEdOJsJkdN8yOvuciAb6GuZYV6VqfKnxT+4SbfslmcMQUQm4v1NmePXoGTqof56J/QYMq9EbVPDjznosi7MTlyNljOcxtPDn8gjnMHM0va4F70oCiCHBqqbH2brtzGdbfnUyxsvi7rrw5wz4+tvn0e/eJ05E80LaZx4CNHShnGzJWkaA67MDCIVhdJ3w/S4/mMq3mVACvB7GKdJ+1WjrKE7E61IdEPJS/7K0uXEIiox2P0KGS5Vq27OmR019",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 697,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 255,
+        "output_tokens_details": {
+          "reasoning_tokens": 140
+        },
+        "total_tokens": 952
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:9b6ab2d3325eaab9\",\"npc:a20cb5b31039828c\"],\"constraint_ids\":[\"C:23372c35ed6fea12\"],\"span\":\"At archive hall, Ivo was formally introduced as the Warden.\",\"rationale\":\"Ivo is established as Warden after Lea signed as Warden, with no relinquishment stated, resulting in two simultaneous holders of a title limited to one person.\"}]",
+    "token_usage": {
+      "input_tokens": 697,
+      "output_tokens": 255,
+      "total_tokens": 952
+    },
+    "tool_calls": []
+  }
+}

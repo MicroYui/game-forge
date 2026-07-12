@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4a9ca3f24cd760b8c8ec9b019fc89abc81cb6598b9e49fc34698a598df91698d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5908,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 563,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 287,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1142500000
+      },
+      "created_at": 1783846400,
+      "id": "xMqUn5DCK9/SBwxxGFGyOCpvOtbUI4/GdF55ZKEvbBbrinK1+PoVt7O3NLkaqlXnoDiyNCUOT/mlFhG66rCWWJnNOUkhdQ6QwkNuXR7Bd/5KPrTy+F/Ho7b3IYOpf0bTKDdee2nrkp0Du8gTYRpLW3lus54cJyBccAOlL5FDxK5NED9Pa1561t/It1JUCufaD3w+3TLGxb2wzLk0fbk6jV1R21lzigDdZV97RfMYcZxnM3FhGKNvu3+GuGW5NFpvuVQmqMfZ0hDWfpEYtiByDW8/AHOKNJvzEeOwDC0Pm+VOvS4vgEMdyJoJhuyjMM+Pr9mGABBNQxt1XuxDPWNlCqjOP8yVrhk52335RaC6dBNvUyJ4cHPya97V7Pb4+pHcWhCZPYJEVzfaih4ev8P9gvJE6Xy85g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0k0g8HGwIMs6hbBWHzf3PyIVwzna1H7o0FEMU2IVrvDKcdqCWgjZozaVPJBcZUz69WFOwFwplqq4XhyTG7QGVhinkq+ZdrD1HIF5WFwf6bn3LjOkhbU8d0VBHazmbcTB7cYF9PDn8//rM0D4fQyAcpCiWE/RyOUQ/Mxw7f/52lMjtagKlPinCuLsEcHVJL/fbG7Swl2JnE8mdidK8+wG8hkaeAfS1pPm0v5Ytt8HVW7QHMZCFdTYPTnVp9Kuo7KTc7jq5Wwa/XQaaCMuIRbb2R0I3oB8pasvsDdXfdH7e37b1IqTFlAq4tzvpoDSij2IK/7cMkpIccpSfvqMlYG/WJfDD3+W92BNt/Py0Bgtdk5+FXs4R9fFalt3I6Jb4DeK6G9Y4dnmmrY6Wndsb7991HsgcC0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:fbb5f154e0a66c84\",\n      \"npc:fc38660b3d002c8a\"\n    ],\n    \"constraint_ids\": [\n      \"C:917eed1a0c562cbe\"\n    ],\n    \"span\": \"At signal tower, Ansel was formally introduced as the Warden.\",\n    \"rationale\": \"Ansel is presented as the Warden after Iria has already signed as the Warden, with no relinquishment between them, exceeding the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "2kk9bmNsjHIk6VC3shD3rSTALXc5VsrH7nlM+I5/gt7ZfUYdevpOYqtWHq5IkDF4H99AEAifg+oKcUCpIurye0oeTMT7h3MxdIBu0RkK9Vvjs8yaxXq8tio56ZKavlTVSmeL4CfhQOx6M4O1w1AgBFyf4X9f1K8rFF+qQeF+y5ancMhXd8J9tP8+/jzbo1uHfrY2hX6io5VpwtvRNFv7JWnh2G8dWrImgBR1zLSTlHtkmu9z/+ii8elfip6pdiglaAgaty+pT2G4rUaByJpzu74hmVtF8MmIflfnS945Umum5ICdvRmZnyQJxnavp19X/vMC865INp1JfTgn+qud8iip8YyKiZSpomxI0N/v5XkWwbNUQCV4oW3UcYPiy1f9C+O6bg3HR1XLNbh36r89L54ROyVK",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 563,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 287,
+        "output_tokens_details": {
+          "reasoning_tokens": 145
+        },
+        "total_tokens": 850
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:fbb5f154e0a66c84\",\n      \"npc:fc38660b3d002c8a\"\n    ],\n    \"constraint_ids\": [\n      \"C:917eed1a0c562cbe\"\n    ],\n    \"span\": \"At signal tower, Ansel was formally introduced as the Warden.\",\n    \"rationale\": \"Ansel is presented as the Warden after Iria has already signed as the Warden, with no relinquishment between them, exceeding the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 563,
+      "output_tokens": 287,
+      "total_tokens": 850
+    },
+    "tool_calls": []
+  }
+}

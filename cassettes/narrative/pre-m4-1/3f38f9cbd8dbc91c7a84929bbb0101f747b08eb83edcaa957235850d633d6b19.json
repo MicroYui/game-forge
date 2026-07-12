@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3f38f9cbd8dbc91c7a84929bbb0101f747b08eb83edcaa957235850d633d6b19",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4268,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 621,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 211,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 943500000
+      },
+      "created_at": 1783849700,
+      "id": "mZtMHGwsplmOq5b5tNCdhkWSUNHeLUUDeeS2FIqwqSGcw4vcWIWc/kqsatv6abJbV2nAYS+sXj7lJYdCY6eSvoaQ8MMawJmUywnxFQJ/iZo2njaRRxcYb5gjvL9bRukoV6VWpR4XJI6kBsjnFaA/v7ewpwByvAxvJcIg/4s6AiSqzPVbsV4vr1BUtUmnx9eBJXo6t9qLV6sKY9jPxv0H8f4s1RGHd4UPh41VlXKRn2/YZtziQyc/iErPda2Hk/uw/a8JCmS4hllii7/Ec4gE6Ab7ZDE34Hvw1dR+kOdAJxXkjl/ngTEpsNsP1LFvL88xoOy267U5kCVMpwLwpIHNr1498xvSgYsuzWO1gmU5VOoihYIruI6qX+uNQAkZ8G1GmPK9Q+xBPAiOdrXnWCEhjIPNFEfWlA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vv6zgMtIKcfRpl/btWd7jOf1EPwhIGcYUvcSaXyq5OFv5YkcZpoChoP3hkLPLxqSCfkI1R6nCa/OkFSdS5KKopNiAFv1yyT/4XHVOGG1f37QDo0qiXivxJWE/L0leZhSFreUp2W79waiMDwb3PAeCfsIPBzY7fVU8rJmm0HhKuE+IM66SMKUeUtVnXXMO5e9+PVbTgxvV3g08QWGqFV73bGHA5+jjlfZC4joIDQo9k0cKL2Efn0YMPMhQd/AvtqDvUPwWBM6fpH0BFLPHB2v50fUSvakCr6MW9hN+MHXWnetS7gZbfByE8ntdJ9r2kmVcJxaXMx/ZUZJ60dEGXOD0Oh8HG+3RPKk/gdlMxW6kSdWxVj1jL/CsBw7HwIbohrusr4ztGCdGdcQkC38HFgiNbCEOSQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:02a0342bc2245d11\",\n      \"npc:7f612ceb1e07d8ba\"\n    ],\n    \"constraint_ids\": [\n      \"C:c7ab9aee99f4142b\"\n    ],\n    \"span\": \"In north gate, the council recognized Daro as the Crown Witness.\",\n    \"rationale\": \"Daro is recognized as Crown Witness after Mei was already formally introduced in that unique role, with no relinquishment stated.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "96O7qbhLqvGoidDCSTSEGefMsJJPegAIKifpNuoVrWC/Xx4/2TbTf0cDh1MOojTFIVNpu2E/LYW8xhgEbEcTSvzosf3H3rzW+lW8b3h8+yd65rlRetVFdlNlOO7I0YnUhgznwlcFnkM620KkB+dOZZdGSDn63x8jugU/t0hu0whQtAmFMTetjUDJRd/fLOyE2MqfRfeEkx2P/dcjEI6JLSV88ftk1FHZXS/jYoVXX9G0+i6Ah34Gt390cI7hlDX81ACPK+ivzl29pOG+uYsKQ37kwEz/z6AcImLUtGktGnjSVw33j0nmmG2C/BxJqcSjUGKGpJEu2X6SPjBujcV95gkp1gwAUKRVaLziFctEf6zp7jjtkx0UR4bFZ/QeYAb12Nhbddma0NFo37rNM4EKAVHHfHDF",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 621,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 211,
+        "output_tokens_details": {
+          "reasoning_tokens": 77
+        },
+        "total_tokens": 832
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:02a0342bc2245d11\",\n      \"npc:7f612ceb1e07d8ba\"\n    ],\n    \"constraint_ids\": [\n      \"C:c7ab9aee99f4142b\"\n    ],\n    \"span\": \"In north gate, the council recognized Daro as the Crown Witness.\",\n    \"rationale\": \"Daro is recognized as Crown Witness after Mei was already formally introduced in that unique role, with no relinquishment stated.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 621,
+      "output_tokens": 211,
+      "total_tokens": 832
+    },
+    "tool_calls": []
+  }
+}

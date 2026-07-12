@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a274c0bccaea12aacdcd68a5e30150f1b592446cf5d793fa84c188e53efc6c0b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3241,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 536,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 781000000
+      },
+      "created_at": 1783860900,
+      "id": "blCplZpg4tYwIXKoo1kh0U22Um4daMie183FTs3JQPXC7nziNEJGUxYg38xxkbppngJd32hPEqj/kb0NGGvCs/JLICnOYqDzlW15laEZJoX+7djfxlz1MpPiPsG7WEG0SOtzefyKlYPHseSpvDiyGGhRTE2EfvucsjlTIzC0AD5SVnlcrv+wLw8NCSEx+cEfOErSQS8iJhth8Vv3tShz/Dv/9zth06ZIONCg3ur+mYGZJ7Jnm+DIiONhlA6bSWF9cmahGTPVUqLQTzHE4mgC8zyPpxSBXERgfD69e+wfEQm0c8siM1/7fdj4vVMR0XeHLeqWURzaXCsjrWm3tfPCc3s6HkoazxOgLe7AQDrmluffRG5XPO98aBle8CrF5zQZa4Qfb4DPFiHkeAqkjP476pacci27Xg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ftem0cC64kSc/QWeG/SwA84grpRuRD0KPBMsKjpO38mSNaGjDC1A23UHer7tnPANOmLWBwTWMyOX9uyLvyb+mID81bOMvT1/O5+gSkunb6JL+D5GH1hgOAJyXRJBw7fQ3B00vgqNtZyLC9L5Su7cjHO8od+GXaaZ3dIJDrsV/KuS95WZmxYFpga0LTcnDesl/uXnE53cUDx+uiXEaDh7FGocJAejTJwhLAbY0U1XBRWxdfOWnA7E3nT/sqwwsEpzed44qdFYAQ0L2w1FzlwWBW81iFttSR1GLHPw0TkUSyKwIalbycwZkxCDZT2YOHcy3Q5z+Lu4QxOPkMSvlf5omAfUYAHAhh5JYyIFH5Oce15LOFudrGllT86PujbPK6TDu8/WgxxcHC584V3tAfDkWs8c6z4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:28849a0d3436bc4e\",\"npc:a790b302ea8c558d\"],\"constraint_ids\":[\"C:a799f548d3c68399\"],\"span\":\"In river market, Ivo supplied Lea and called the partnership permanent.\",\"rationale\":\"Ivo and Lea, members of factions explicitly barred from coordinating operations, engage in supply cooperation and establish a permanent partnership.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ZaPaqwLiakqe8LD3vTeOQ72Wq5fhbGONkGPHq5ALgew1Dzr8smLODzc+NKxW94uY0DwHpUTnTZ2KXLTAM2iGfSLIIbqpjFW7bMb3ONjbXHhAP6p4hOrvChF4k2eIhzTPGo/oDO7XvqjyRc/qt2ar76f2955b+ZuAdoad2Mrwrfkvog8LZrVOTqNd0kqWXuowG6DO4jxiazJVyXDIGQXLmEImDgbBu/KomhIkQHG2T/G4lYe+xqnx+Q1tVO0tXBdDtb54yqXvBGjH+UJtEuBZ/LQp1tKUCJBEqhUKlGAULwtVmh6f7yP4rM3igCEw9V/JBvZrEWDbP4cKWLjmZ1fa3YCy6yPvxiaiQUvzZR7Xav4QIyuxSrUGwHXKWMQjourdo/UgwEXxESTNfIC0FSvgZsngCHV+",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 536,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 67
+        },
+        "total_tokens": 707
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:28849a0d3436bc4e\",\"npc:a790b302ea8c558d\"],\"constraint_ids\":[\"C:a799f548d3c68399\"],\"span\":\"In river market, Ivo supplied Lea and called the partnership permanent.\",\"rationale\":\"Ivo and Lea, members of factions explicitly barred from coordinating operations, engage in supply cooperation and establish a permanent partnership.\"}]",
+    "token_usage": {
+      "input_tokens": 536,
+      "output_tokens": 171,
+      "total_tokens": 707
+    },
+    "tool_calls": []
+  }
+}

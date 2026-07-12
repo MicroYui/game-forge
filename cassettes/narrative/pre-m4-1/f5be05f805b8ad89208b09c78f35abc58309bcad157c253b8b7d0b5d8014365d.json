@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f5be05f805b8ad89208b09c78f35abc58309bcad157c253b8b7d0b5d8014365d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4490,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 524,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 147,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 703000000
+      },
+      "created_at": 1783861100,
+      "id": "PwwbjlK/nhLWseet7UTBQzV1/q1panufCh5ZvXl6i1FjRgt5zldni7ryrEDcHY0Lc+04X9NF/TGKYo1kFsnvhSNBHtEGVy7QfJxoezR1r8/wRQSgt7rKw6mNQzdOrri+BQiJVEeQlL2F5naG2kOopSYhcREobI9pOZzc5m7lg7cJRxpAmlttIJvQGQAJNZtoYF2yjaiOe132fHZ/xMREyFS26nsPvw3wyOTH7LqyRR+yJ4FKd0oFzE44VUr3qQsdvujGhX8w4TlMWREXR+0lK8GlMorsf2SGU9WmkIPpq6znw7huejR3pyxsqkt3po9LYCeHLfV7V36zysvxHy3nbmWBw5ZO+7OlfEC46VRt7vXW+zDSB5FZhzrCY9gvixOJkDMlvXy7tjGLeIaRelHhECAMCzd2kw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0HZvc95NOEftoQBLwQTED8OeJkpBSHxfIEtbpoNb+tT5ThCnkUp/VRfQLg076O0yHjNh7FBuoAswWnwWWR7BKR1oz0Bq6U5l3ZVDy3srM4nGj8oAAo1usCKCyzVeLFzz7GSFVbqL59f+h2qJwRmVQnex4ALxTJq7wJ+5UecgesAC5CTjbMEZn2wWVXBDJr92ayetLB/x9F86EK8nBwQlE52DLwgYiMFV4m1Z36l0UKFcvTljue9jaz+M5tjaQuVa5B3jLt9EznVGi8s5/tjnS1zr80OnM9sERJ1Jy3SluZJo1BJUi/8yU7kTuVxlWZ9gSSWwzG4fL6chEgWtd/1aIsAWryD8jBwlfO5+caRknBJd0pXT9QRMGfnTVB7fHUBRLEFiKzhUkdsPPHLYeHs8GmwSDFg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ac8ac0d912e295c7\"],\"constraint_ids\":[\"C:7aa160263cd448a3\"],\"span\":\"Qi closed the lift while a wounded companion called from river market.\",\"rationale\":\"Qi closes the lift despite a wounded ally calling for help, conflicting with the rule that injured allies receive evacuation priority.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "osPX5shAc/bpwWUu+qbhV2rC+EcMxy9CXR3C/EMcAn1mgHPHBJm3ZS7AL3ZIrwmwYT3izftmvjl5RZ8jq5xMWTK/Lr5M+CQ6HCZgd0h/RQLJ+8ef5te18hpjf+BvywY7lnRavQVE9r9XnUZs+GC80Mmb5auEBmjjab1dp7pqdHEpbOV2AqUwyDtzZlYHIW/QUnuyZZJwgszieFWPftckpyeyTtqSCsB4VOtHvXUWnOCb98WUAsRLjUHPF8PKudxlq0sr5Zc/ie8RTwO4O9fL1K6H51PAN03rl4ffE3gpZ/PezV8oAurpSoEU6q3/8FFPiDyvh/Sk2VwDvCr7hDgHS25oxpatCvcXTE4j9lsOGTPv2aPcy6gpT7KAtvQjfEagFxLec24ZqtaixwNAjtwPdJRzmmXK",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 524,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 147,
+        "output_tokens_details": {
+          "reasoning_tokens": 57
+        },
+        "total_tokens": 671
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ac8ac0d912e295c7\"],\"constraint_ids\":[\"C:7aa160263cd448a3\"],\"span\":\"Qi closed the lift while a wounded companion called from river market.\",\"rationale\":\"Qi closes the lift despite a wounded ally calling for help, conflicting with the rule that injured allies receive evacuation priority.\"}]",
+    "token_usage": {
+      "input_tokens": 524,
+      "output_tokens": 147,
+      "total_tokens": 671
+    },
+    "tool_calls": []
+  }
+}

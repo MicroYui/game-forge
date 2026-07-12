@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:09e27fb262a8d666940a94e168730130a057d9ca6b030f9f002d7d26d39a1c77",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3005,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 676,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 174,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 860000000
+      },
+      "created_at": 1783857400,
+      "id": "XgROa+J/qy7PDp650vzg4wZ2kBU99+6w80vKhQhMZ+C0Y4SHYjeOP6HhgkxC2hkiYs+ZrkzSk+1g2yPl7Bxo3S/pbZmispkiVZw3emIzM0eE5XmVpHnbU3U+SEm/bANQW6VfXgXp54a4p+Q4WzkWT6I8CfX9pZdmWBXiqZRuwuF69VzDP7KOL2HMH/1ZPdqjrJn+fzQAFxabUTU7X2zoirmC3wdDujWR/a8sHgxEcrkdeYYtP2nWM9pF8Uda++fU8/BrCiX+0NNZgjPaGdnbWybVaobRj/Hqxx6PpBbRPrGe/vsNN9yq3opmwKSgs9FDp0Nk+NXRtbITmpyF70OtZXJ4xPG+vAHhysP8SrkmEIq4y90QzafhR+bZHK77YOSUShlsC2eYER9gQyrJrBjvbSQLTVGm1g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "qLNjXLctq93qxGyzxDUKscoFyAAPv1l4s5uWv0dzGLCjzjI0crDXP+MGUieMlTNAIJ1A5akiLxWPJ/P2AOh8hYJlpuV6PxAgODhsXX0sboz2pyu+CNihiGTxz/WcnIXzcZbBHD4TQXRsDGkP//xVqu/L85V31nOZLbcqb7tKreskJYs64m6oXMn07zcobEGytYXPUxNv+3hLb4KoiGMueK20Trx0vv9iZ1CBS/nmjszinEOBmELcQa419mq3/cihq2AsVYNBj9hNvxujodgoT/X+vMeBqFY2muyczibPN8aT8AAuP9v/V0hpvoE2Yl8AfOI7pjhbIfBssTvekvVSXSRhtTO/BikRAdMG4L6m2LHeNED7n7Sr6agSdbzun5hPXPGcADLENjXpV7uRM+ZF34HAI2I=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:54d496a2dcc2b09b\",\"npc:e0993bfeed713fca\"],\"constraint_ids\":[\"C:29a7c94336344ebe\"],\"span\":\"At signal tower, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro belong to explicitly hostile factions, so jointly signing a battle plan violates the stated enemy relationship.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "PwXkRiLnP0V6lF353tAd05sCu+lYR0alg0YzfYtoQ0KCHvAGItZTSHaYUSU0fhX+1r+KU5J8eFZp71JBtShOrXcVf8FxvSY3zbrgtPDY09pyW4+Txv+h5Sf/zcV+19VD8YQqI889yAK0sd2tlXAstpdJw6kbLW9UGNnifBM7dmA9e5rm5z4jXp6RcfJMg7TWTjSD4J/gpOPDrVGfK6QWylsulGV20fLxjrXidsd1XAPHVYaZWRAuFa1qUvlxuyYaJFxTZZMTLieOH3Rc8cyv3yFgPqpmAFxIWiCc6NLze5hT1wKQc/C49NtxdfHux8cgqKWT7rNYw0kjGGd8GuYGC7ae9An62JpW7YEkTBZmD+++XAhTHpd/WtZ/A2zaPfyMNO/u6SdttY1Gl7AacPJNvdLzyPMP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 676,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 174,
+        "output_tokens_details": {
+          "reasoning_tokens": 72
+        },
+        "total_tokens": 850
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:54d496a2dcc2b09b\",\"npc:e0993bfeed713fca\"],\"constraint_ids\":[\"C:29a7c94336344ebe\"],\"span\":\"At signal tower, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro belong to explicitly hostile factions, so jointly signing a battle plan violates the stated enemy relationship.\"}]",
+    "token_usage": {
+      "input_tokens": 676,
+      "output_tokens": 174,
+      "total_tokens": 850
+    },
+    "tool_calls": []
+  }
+}

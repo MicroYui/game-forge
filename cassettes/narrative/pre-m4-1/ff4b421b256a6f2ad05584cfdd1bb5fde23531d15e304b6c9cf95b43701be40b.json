@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ff4b421b256a6f2ad05584cfdd1bb5fde23531d15e304b6c9cf95b43701be40b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5680,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 548,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 169,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 781000000
+      },
+      "created_at": 1783843100,
+      "id": "5wPIrVW6iS4hpuknpnFhDFTdGti77SwNMMBWqcmQlhZ1cu9CU/A6iROHZLrrNpJmipFndVw5Ga9q+cLdA7Rj4Xf0nVaDea9iLw9ujviV0/eWxRJ690KC9Wg0QTO5AjMKgvisTT9AzZ15nNqoTgEoNu3uVbfFPAMdHcgCE+xPlQe4QA4uU8so5YopsPb/XmA+siODI7ytZ8/AfgE+RDOj+DEbeDvsk6tqvLbHkQLSlXhU0Q7mMp0RL0Fs7THzoftbNg3wCoad4S2y+xD0ZvxuWIhgdObNgBWiDviG414eoX1dqV7n6FiGD6a5ki0ydQrAbM3sXwM2MRSDEUw4x2/Z424dzrU+rDhRWA3F1zfujzTpxScik0DxPTzc4xyhNzp30hE3EkCEhyU0EpQ7a4om6G6jLi+Qlw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "yf65cOsPIOAD2Aaa0hVKZ7MEX8gJIbzrtufUnk1oywqczm8Zywa/Gg3/jtbs5ouKVZ2RtKbS/1WVj4kly3Kx7Ei3GTi08ZCxmvMbfqqid3IZoEYJF350ToIrPc8lIcJCnJSMzOFfHa42cUiC6sClR35Im1rDNSbKhjx42xMMnz8DRyvYnhqiz+4rcSoDVFJe9mRF61eIQLQuRim0jfkB8WHbeS50RwC/LhSLN3u+ecKDdMHur5LsvD3C+H51kkl9n1jhItHm7F2/LngiYPf8EYVu0pOmhMLhI1eFCMaW9y/VUsvyor4xEOX7vfaUczaxfmncvJkx0+zdb2Yj5y7IUpIdy2lUAoCnaK/V80HQJ5InG9EvIqOuEUMNY+rcmMXCrfv3mpuKksF6zIwVQ7YADWKLByA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1f197e17babf340b\",\"npc:851744dd5950395a\"],\"constraint_ids\":[\"C:6f779b9a1a226c9c\"],\"span\":\"Ivo accepted the title of the Beacon Keeper before the assembly at orbital concourse.\",\"rationale\":\"Lea was already formally established as Beacon Keeper, and Ivo then accepted the same title without any relinquishment, creating two simultaneous holders despite the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Gm9XEGpvao1AqYD3ujhItl9yx3k9N/i+OSSykF85oZsrfAoNFfnzBPwnhPwWskxmp4MJo6UtcSocc533SA+BQPqQR17TKIYGjy6cixXo8kAHkg0vw3BaB/XFvS9jbhLKLwaQMqT3PuK0K4lvzKHpNp5CMjGOVdYxGiDpdBU0TvLkwfA0s9W8++iitfYMgiDb4By8TjD/vnbJD8RpZPwNw2hn/mwN8H7WY4RS7q0NmPG3N3RYBRvCEdasradjqxar6psDNHFdpMT6R9c8D8WmJ/H82hYcC61Lp9JDPKKt+9EicHwxLsWYeNyaCW/ikTEYF5pxHGigUWQECocbGMzIOlatggnFw/xoKmQM9Yef4fv1KLNse54rVKFaHcbFtV3wX2lfcke9gYo8ToPLbO24V8M9iG65",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 548,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 169,
+        "output_tokens_details": {
+          "reasoning_tokens": 50
+        },
+        "total_tokens": 717
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1f197e17babf340b\",\"npc:851744dd5950395a\"],\"constraint_ids\":[\"C:6f779b9a1a226c9c\"],\"span\":\"Ivo accepted the title of the Beacon Keeper before the assembly at orbital concourse.\",\"rationale\":\"Lea was already formally established as Beacon Keeper, and Ivo then accepted the same title without any relinquishment, creating two simultaneous holders despite the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 548,
+      "output_tokens": 169,
+      "total_tokens": 717
+    },
+    "tool_calls": []
+  }
+}

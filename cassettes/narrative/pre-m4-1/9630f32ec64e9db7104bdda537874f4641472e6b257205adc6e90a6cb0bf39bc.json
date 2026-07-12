@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9630f32ec64e9db7104bdda537874f4641472e6b257205adc6e90a6cb0bf39bc",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4625,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 597,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 186,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 856500000
+      },
+      "created_at": 1783841200,
+      "id": "v3FZyChvx90Han/daH/VlxZfktBxJ0902vip7SMXdc6Xf8Q1sSgj9yLoBE1VjNE/SrzuLyN7toHQdD5qGvFJ9iNx/wQ7lgXP/1MlvWjV39H3PUuuTTeC0slnmiPMHFGnySABl4CfB+wkvPeLx+AbgBBSe1RvSHpF5EXx4My1yYZfe9zMZcKVKIQjGYEGVoiHjpO6CKBrX48xPcJhyWBpetciOJydVzFeivacTOMKplRb1EVJNBzV83V+zh+PrJvx3iUfbFE2k6hfl9nbIvULBLj+kvkKCn44Cz/4WH74OgMcgH86fVv84fKhv0qU3+rr0M5E70FLzpyD2iUAmk/4WOAxedoXHHRlEIte+APvZDRZYI/cmErAYWJ0FhcOIjgBJpQ/mHBaC1+0Fz67sMSwF6XO4+4ptw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "KQJWjDqaYWlXQDx9BFb9646kQoo4cV2GG2Y8k9YYqamVQdRxvbWYy+pu+gBi8agClXTjxpiJcYDvM0zXIhsycUDN2U6RedaYqZa9sKAjNpuSwNBX8ZArk65tHcKbKGIpK3DpUEIPC8DHbVB9HBuVA3jNNKAn6rJmYGy9LdTx+Mm6LXaUE0Mtq1Qqw44X7+B0Kz+c0UqH+4qQsPvUzSOXOVVfwUHhLHCuetvBGguPw26gu3H0YGf7L+R5JkxQK6wp3d9cpq/PTnGNS5av3RWwnmRIT74AcAtKkraItgSAp5tRyCgdqIcW3luvlGoq3YUpliUMWBXkhv+3yzvAWnmn0bHbiynn0YEGJ0ivLGM3jyHPYSQCadPgvKosjW1n9BezdkoIH/FCVKSXvZrlT6Xsu5+u6ho=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:138399a99aaa60ea\"],\"constraint_ids\":[\"C:1ef21dc51f54e88f\"],\"span\":\"Ivo closed the lift while a wounded companion called from eastern ridge.\",\"rationale\":\"Closing the lift while a wounded companion remains behind conflicts with Ivo's duty to stay with wounded companions, even during retreat.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "cM62fZ7inIvI7FFqoUnOjsYDCcQ8k8tt1NyfxEGf93Aa2mDk9yGMqmmyUGpu80TmvTfU1SQ7FRF/odKM6xS6sXXo/Mjl17k10xpA/hzX4V98LQcQ2yeDMVbG7ae5WHVTzTURK+KwDogdUG/XX5ji3zgIa0t1RhiRkGNTJlVREebBEVR9s6hbqCFf8OPauT/Hjj1yMB9gbyPTcZJHMc1tH2Wk9NxAWpG+z8nrPlbdJsh8UlP88mSD3fTJCMfMTako9gaNFZgOKasHF6VVUZFI1aR6XMjriNmTNlrc37Yct7djYqVkzAGLF0aBa3s6ozARJwEYDWU7QwmVGEeZd1f0jsA1eGSE9Ig9yVpmuoz8cPeJ6E61bOD+8Do1XckQII91YkN/XFMa5iSVW82vHaNIrbDxGYRE",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 597,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 186,
+        "output_tokens_details": {
+          "reasoning_tokens": 94
+        },
+        "total_tokens": 783
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:138399a99aaa60ea\"],\"constraint_ids\":[\"C:1ef21dc51f54e88f\"],\"span\":\"Ivo closed the lift while a wounded companion called from eastern ridge.\",\"rationale\":\"Closing the lift while a wounded companion remains behind conflicts with Ivo's duty to stay with wounded companions, even during retreat.\"}]",
+    "token_usage": {
+      "input_tokens": 597,
+      "output_tokens": 186,
+      "total_tokens": 783
+    },
+    "tool_calls": []
+  }
+}

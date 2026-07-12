@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5ddb6a1534fd4d17541a5f90ba6b08fff813cb9cb37488b67ad223674c47854c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5683,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 694,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 303,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1256000000
+      },
+      "created_at": 1783860700,
+      "id": "skgsscRtf+0xnVRP9OS51Pc66vjIroAlFCzrScbRFPBVTkvpZV7CucweamL9sJcY6h2bTVJRE0OeIeW/u1kabuTlsgtpVpWEg7OiOO28K4oF8IlDRkjOFjB6UNZtyVEUIqCrTnbTS9XYKSUNh8/pTniW0CZxgl3qmTcF06U7cP90VvUZJUxi/DMHZvgOTQZyv5GK9FjuQZMi2LyXoWy7OHiYQQiqq06y+qgpFxvezqjbCJf75zp4EF36kKophesIweD9+mzM2oUDV46mj/proQPa9SZTeKMJaWoS0nV94H8OPgerFSaELNo/bRRQn0ngj20inpY2TqOyFmRec6Xgd9HrB6MnMhr8+h5t+y4DdkyWbQXwTl3KEnChCDdWmZJbE/5uFgda2Zb5hFB6nPBVSfp3yK3vLg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "qJnE6MRNcSeN/sE73GWRLBEHkocnL5kXBH3cTSUBYXZfY8Z9ez4MtHV2Co2rV+cYltEvYjvvKrTfXRKxN94sjij/QSIrzf3+bx+EfdyrHjzzMSjBUqTSKNFa+hLg820mBAT+CirX+eyBnfx4pEQRxsV8XUJmWjSoVrvdhJPMecXcsQO51ew8mvGoXWDBttK0MnrOFhAHaX0HM1X7WsICYV5R/ebVKCHLdXqNVSTMMKi/RbWTAIb1XP6KgLnCHZz19NSdeKSzNJ9Vj/CEdIg35WmEdoLYLWCT0opAvXv+o61v+V1tQmwWHDhWr4LJJs6o/49Jdt4RU0G9FYMtMqtNA5gCIHzBONYR1EDoq7iKIlmcgIlqvgeDgQPB3y3zMnkpt6p+NGCt06vKM4ZAEzPBn1FsM2A=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0ac31bbc0b8f4283\",\"npc:11b7f94e47edac87\"],\"constraint_ids\":[\"C:54ca8aa62b52f831\"],\"span\":\"In old mint, the council recognized Ivo as the Warden.\",\"rationale\":\"Ivo is recognized as Warden after Lea was formally introduced as Warden, with no relinquishment between them, creating two simultaneous holders of a role limited to exactly one.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "mOSySISAAFqPKopynMcu879mTVR3JCnG7Xq2HAVNLcLw0uYy94WUIVRIvzWgO1QXvFBz3mGWyPE/woZBYvtxybkINQzFZxdJcrkh1IIWCcXf5MIS9Xp1H1ezWQB+O5/n9hqwP5p2+voolLJOba8fY/28w9qB2jZdzYytLylnEUDdJsI2KRIEHQwQ0KqANehDCdGZ/A8zy0FyRWxkHomTyqeH/dxeGvOIfjoMNjadnLncfWSQX01ilBjsclgnzj0/Glz974Q1wO/3x9LSvKsjIAY2sWojZV1mHN/hkniKqWVdklr54jKYJVyI8F8HH6BkmhDdvaAtAOdWQwCMifi3KlCDRfPll67xRSwrMPpCLDV2970QtDAS3oG3Hz4/zmkcTcCbF/sE/XhDfWUCysaBRIidsc6h",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 694,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 303,
+        "output_tokens_details": {
+          "reasoning_tokens": 184
+        },
+        "total_tokens": 997
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0ac31bbc0b8f4283\",\"npc:11b7f94e47edac87\"],\"constraint_ids\":[\"C:54ca8aa62b52f831\"],\"span\":\"In old mint, the council recognized Ivo as the Warden.\",\"rationale\":\"Ivo is recognized as Warden after Lea was formally introduced as Warden, with no relinquishment between them, creating two simultaneous holders of a role limited to exactly one.\"}]",
+    "token_usage": {
+      "input_tokens": 694,
+      "output_tokens": 303,
+      "total_tokens": 997
+    },
+    "tool_calls": []
+  }
+}

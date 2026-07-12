@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d0b6baf23318a3f2cf271d216ab720fd4c418ffce0964866a78d881cca14e203",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3078,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 629,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 170,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 824500000
+      },
+      "created_at": 1783858000,
+      "id": "0PJmvVIJlhDyTcx1UgKdJNPMYyC+ugMHVOT1oBQ90kjT162O5BLJvjG2rwa7bQPOfrfX3ztjkv1mTPeqEtNxESThVBwCk35eRzQWu0vq+8iNduuVRNoITyiN/TzASz4BRTTHMXkCxVYEFCRlP4k1iyEY4qCi7ohLCZf0OHCWlU3U/pfUNw+81nmQADtDqgRy1sZa8tI7b0N6RZpjlPCgG3ZhVlBzMXAwGVZml4llMvrLFPN7v/r7LCTcNQaLrmR4suGl3gmdjJGt5dz2CChYk4WDpQtMgN+t69xPQDLLl2byBkiXiIFVwXJRNhBErR17Ui3Z+WmFVvDAVf4Xr0ZjwKkpWpuFiHtTjxcBLW2h+FwYVQR2BZ67a18GiIz+RvPrm1DYWPj6xDhj7hdyfyBmtOK4vT+4mg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "QoSqhFM+iplzX8fvtFTId9eBJsXsV63yN2R0owib67z4ftGm6PkywbQkXD8jn99BeXM+ZftRXtbENA2U/tjy+xmrx2Nwob8adnsnLcyBV3Etoi3mPkjGP2ql0hTByagH45Ej6Gf+Vm8wMolfrYlze8Ga4UO1zVDsKvvZ6IDm/41Jl6pDGyQWRRMspg2btkUiooRV9c6LdXcGuyUe6IgAzW3vXFI+0sV/ebCVnoMnqV+S4Ty7r/nP7N0D8PND/QUnX5Xye1ax6K0NF+lkScd4QhpX1v9V9g9vu40jfMGOzFN9xWxR2yFanGwzWRzwWxEzsw36GGtKyfGMXk71ASMfD2RNB39tpv8I/Vfys49ZoFOxOei5JKMK85baiAB7FVCWM5H7UE+p6E01sR8IfMQLVbuu+Xc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:259e7d2d45571894\",\"npc:7461e6d56c7826ad\"],\"constraint_ids\":[\"C:cda69023100f6058\"],\"span\":\"In glass conservatory, Noor supplied Cass and called the partnership permanent.\",\"rationale\":\"Noor and Cass belong to factions that do not coordinate operations, but the quote explicitly shows them supplying and forming a permanent partnership.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "+A2fHOBoIj6kSRgGmwYPLuXl5efFzNPbGsHzcOqSoaeNVS/dLmIj4ctjrc2gfaJynN391hF9vTBsz24FjoS34s+HCOY2ebeROU2z5JyJ9K76mqT6SdO/f2qqh0BWQXCu04L7TEaBQKqxztNG237KSgOGB4inma9E8zdMEsw9UBfXrp+L6DwVs4+3a14Mpqtw69k+aMwb7VcHsPzwEmVbEQpxlJOuRPqI5RaoEPGyT16pysMQnVtHxGnynCcd2daVk/548UicwXl8P8GcapTIUxps5NDuCZuyx87npMYlOgpyd1ImrbjLG5Faz6h+TgzyizaOWLbXde2wkOax4x0pTae+l/mBrtYLuU+KC9sLpbTvYkxuK1VlVdcE1dEwEn5KwEaigQtM5ishG4IhQJt1fDprdOUx",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 629,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 170,
+        "output_tokens_details": {
+          "reasoning_tokens": 64
+        },
+        "total_tokens": 799
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:259e7d2d45571894\",\"npc:7461e6d56c7826ad\"],\"constraint_ids\":[\"C:cda69023100f6058\"],\"span\":\"In glass conservatory, Noor supplied Cass and called the partnership permanent.\",\"rationale\":\"Noor and Cass belong to factions that do not coordinate operations, but the quote explicitly shows them supplying and forming a permanent partnership.\"}]",
+    "token_usage": {
+      "input_tokens": 629,
+      "output_tokens": 170,
+      "total_tokens": 799
+    },
+    "tool_calls": []
+  }
+}

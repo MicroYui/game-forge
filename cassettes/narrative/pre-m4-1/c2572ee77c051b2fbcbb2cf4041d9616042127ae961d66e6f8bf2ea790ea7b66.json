@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c2572ee77c051b2fbcbb2cf4041d9616042127ae961d66e6f8bf2ea790ea7b66",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4448,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 702,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 204,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 963000000
+      },
+      "created_at": 1783848300,
+      "id": "v2jCuJ+5uwkxAZ9DqDiYiCPwJxgdDLeuGSe/xhswrD1ZGlIY/HzPQUcH2+QMvf5o9XOlNJzHyJMFDMafg1K1BbJ/xy8+Tn+phjdvzSEKwymlGBqnoUsUFBLsu0M/S5V4TruJHXJVabnseykCgIQLzUrj2okQH9jaKjogzUeJ4zb57vN4Jec9lx1E9/Nc09dsOtZB7xK4uL/jZC/Sqj9JNdQ+8xXMHROS6LbI55HkCnlP2ywjAhXlR6UKCQbj9vWyKVMrHax57YHTTwQvoggkGtiJDzl4I/9+G628nvmuhV59Keba5fo8ywP/4rdZpUjdPUkLVCt6CiKKlIK82ehQdXGQqeoKj4Cehe17syULSJWQ+8Ne61Ha99iJKnqaym3QFpND8ojjYvTVlMDFfU6nrv2pWgVTJA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "bkH5wyWi9hNtb9ghvAu2OnPukvLcNRIIvTaWB7kKPw+/LpwPpWQbQNeVCFYFGBw/NKEt6zIrfNEBXvHbb4KbK9Ilzhf4IUXhe7kmkIGu1hCdwlWD10dOFjrwMm0srL0buuuf2aG1Y1YwBOoxLZNf3jGywhVLnpOZ0CykO9F9RSw9n6f+vpLAJK1X3Fz+iu3+ljraEFBBDjXLDlz85Uv5OpPYTlFLoJ5995k5AkHmEoklIYWYElO2oK31D8peJPv5EYHWQBxzrRjLtIW1/KVuh2JtLysuSKPF3hvlMtFjfO1KVw9PQ2qz8R/PX8up3+/XEec2n9sCqxQhvGFGv1IYunLIDt5YDuDT+mFVgeZNBvifunQZD3b3GM+oKx1IUofmWVqxgSaHlx9UZRQyoMVagMwSygQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:04ddbae4bdef404a\",\"npc:fa491c9fd772b4f2\"],\"constraint_ids\":[\"C:69f6920d56b9cc10\"],\"span\":\"At eastern ridge, Qi and Mara signed a joint battle plan.\",\"rationale\":\"Qi of the Glass Court and Mara of the Iron Compact jointly authorize a battle plan despite the standing feud barring joint commands between their factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "InEAGBhCiP183xVR51X4rVreR2nlaelqoV4XLynCCiDmZ52xq9ROi5cJX+qUMdZatRVv9I6KgJUNBbpcaXLaYnvHnhftM6XOTQgZTFj+v8jPjn9XsgTin8Y2FW6U5l2+fGA9A6HZzzpZ+zwZen/UZetTrGfHU62lfR3PgL3sQYW+Mu00IYeE6taI3X4qHd8KOMAuXSqLcuc/HUOlkebuSUQkg8/N+7hYcDjWT7FARvyrEcm0KHykBAdKgvRX40CHs72gNxH3xvw+2YSNC4jP6yTBs63RxDnwI5EJHIq8vU5F0B1HanoksW6hLMvq4thgPtMHgfJABT5tR2UcZ0Cp0nD2CEDm10WO/dM5Sj1mlqRQ9jFJJXeVj0pPiWORqeS4TvPCz2akww/psPAN2MijgD1GAeeo",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 702,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 204,
+        "output_tokens_details": {
+          "reasoning_tokens": 95
+        },
+        "total_tokens": 906
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:04ddbae4bdef404a\",\"npc:fa491c9fd772b4f2\"],\"constraint_ids\":[\"C:69f6920d56b9cc10\"],\"span\":\"At eastern ridge, Qi and Mara signed a joint battle plan.\",\"rationale\":\"Qi of the Glass Court and Mara of the Iron Compact jointly authorize a battle plan despite the standing feud barring joint commands between their factions.\"}]",
+    "token_usage": {
+      "input_tokens": 702,
+      "output_tokens": 204,
+      "total_tokens": 906
+    },
+    "tool_calls": []
+  }
+}

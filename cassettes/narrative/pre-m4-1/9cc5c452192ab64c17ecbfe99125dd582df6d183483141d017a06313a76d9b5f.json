@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9cc5c452192ab64c17ecbfe99125dd582df6d183483141d017a06313a76d9b5f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4187,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 632,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 242,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1042000000
+      },
+      "created_at": 1783848400,
+      "id": "SviUeRmp8TX+uE1gURzta6p3aX0XNjuzWz5XPzdPN3fj6yuZzCeQMLlQyYk6malBjtKukjBmqsDlGZYm8OJjyrAUC+TVGfzqxzhcU4rn9HA0COXQ42U0d3HnS77davoE3HeGLCPzrb5z+nIynUhrTe3kzm1gLTRCUDW6C1Uopa4nLN99xlgzkzco07QsQJYQhAUdFttvMrRDQnhY6Y3ksfZs3rDElTau4SHtZ1ZB3HZ5ygtSn0ChVXRanxXzhn/cN81CmvxBmVkKFBlWFVTQtNV+wf1mwAyTMuY6LSol3MpmNJDifEFvn3Biugsb71edAyj76rB10jq8+wbCtQsLuzNYkeloN0urb2eK8yuj6WMeKBSCduXQSXidFHO27/d+kznPnEdJiOiHY6zEEd3h+FLWjvLSKA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "XIJW487WmLlAFKa/EMOgJTYV/8Xj7uj5TogGVCT9TC7T6ZS/hyr1uSrjntqNvbukrd+FMv1Gl70OI7Ev1ZyrdVN/lCtJobe17pwcNV4ooztnVownG+TpaXYrR6QkF6CjBo3uvoJwPC+7zWnsXBFEbTkkwesJWqtScoRkPP5nBYgU/vsBnlAYTrE+utxPIcx22uiLC61pwEFO+umxJmbILPDc5xQCVn9MLPH6KpdMdYpUNDVIcmeesiy2Y6sYSYrw0wAMw4Gt/dOSifi69XKm57SpQosD5xz5HzPdt8slM3HizOBiolqwb5LzQ50sAVurDv9XhUuAWDBw3fzE8G0tu88XHJoc97YwZOfX0y9RXOHlNFEqu+nQVgxUdNmCwZbZu2qvLE4URdeqOdCtnG/FDYFvspc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:0004435250ebc08c\",\n      \"npc:1cf954d9bb731ea9\"\n    ],\n    \"constraint_ids\": [\n      \"C:5bcec7754e8931f3\"\n    ],\n    \"span\": \"In signal tower, Ansel supplied Iria and called the partnership permanent.\",\n    \"rationale\": \"Ansel and Iria belong to factions that do not coordinate operations, but the sentence explicitly depicts operational support and an ongoing partnership.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "z2UGHYeueWqIJiebvN89C6BLd2UVTUcJccgcStic0HLbYHFcW3sPWz/wWL79x3JBxtWigepRyjaeihKC61m/i21YCXJLmsx2XYzO3TbdcdniKt7DKYdeFCOJqAG4rv9cFsUjV2C9094/qncHFVd1yr3R4NcAl8xmaYYAVfPjabS5c/MDq1yq8rrr6n4xRZz2KUp0F4GDKGQKZLYm3plXnCHB+7Sr3gmVnLLJBpGm29VD5lXt9EOeZivftu0lUlejQbZYGafE8jQaGCjPvmR08G2Yi/rz6x2NIXGVxbK+L+WI7V5BbkT1K8NVF8dwJJE3BZ6sYRx+wJVBznLmM5kfAsluWmZrvV4N5GuKdXiqglAog/PGsxCiga9j5l8sDjlpaVxXsaMpBxGo/J0dFKh628p2bX/u",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 632,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 242,
+        "output_tokens_details": {
+          "reasoning_tokens": 108
+        },
+        "total_tokens": 874
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:0004435250ebc08c\",\n      \"npc:1cf954d9bb731ea9\"\n    ],\n    \"constraint_ids\": [\n      \"C:5bcec7754e8931f3\"\n    ],\n    \"span\": \"In signal tower, Ansel supplied Iria and called the partnership permanent.\",\n    \"rationale\": \"Ansel and Iria belong to factions that do not coordinate operations, but the sentence explicitly depicts operational support and an ongoing partnership.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 632,
+      "output_tokens": 242,
+      "total_tokens": 874
+    },
+    "tool_calls": []
+  }
+}

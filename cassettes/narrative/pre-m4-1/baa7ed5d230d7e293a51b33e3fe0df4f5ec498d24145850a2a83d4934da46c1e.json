@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:baa7ed5d230d7e293a51b33e3fe0df4f5ec498d24145850a2a83d4934da46c1e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5672,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 613,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 198,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 900500000
+      },
+      "created_at": 1783850900,
+      "id": "uhEKk2JbYMqycyXbUzDa63VJpdIFkTubIN2rVaQf5FfDPBGG9jBXVdoXCP/r2Kg+AYFIUIj5h6i8HFJa0j6HNHJrYf1+QeFd0RGTc97gaIKemsuH/Wb5ti24PNv1UKmY5+Qco9MdHBMSYDtZsZQ2BTxprTARSEM3G92oj1EJoK9nDKUbrNrFG7tq6CvwdQ+Hyqyl4YpaN2acud1JY9X4FclOsXQgxvpPZxYr6mWqA9zoFRX53DovgflhdWRz5f/UjSWkxHrVDxP5bLg0OHX5p5TmisMdLsClEAlpzn2peWrtISoq9h0VTwXEBOQjpYuuf4DKYK2RbLH4U9ojhi7WwBfuCR0cybgW6yS7eiJhOvJC21UOLiIgIODuhrgo7ZmRUHe0UkxHhQNkrHjPdEnxTbaPC/jt+A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "e394iEe/9bOlMbfYWBgvrdV0s4+c1vYzZeaCJrvfOb0o7oo5aHb2x5idRW08gXLePf7Z4rOR56a/LNFbrfi2E7OhU5szUei7jZOXMw4THl/YkgM7pvwPgS1uunEcx4B4klIyOILjKGxyaCDpypKV4Ole9XHz54oTiKdTOf6NLn0AhvcRCOo+zaTVuwusHhqqYo4BpxaRyyVe7zVd147r9GieqYQfn9Xgqm9IVY4bs78FKqYIrPgzOIPpau6yk0Ddbr/mzsAm6pE8ySPzOaafqrV6NNnOxoWieUkUV6ZUvcfTLdphUgIeaVoLtonmdpp8C7WWgV/IBlE2nUIgs8Zdr7dAD8tEK0B7SzUDnNS2EYdvDbDmKwzo6XFc22KLw8esisc8i70xw5aTAZq+ORSgMB0m274=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2c0e4c37091f9b47\",\"npc:893524bcfe385361\"],\"constraint_ids\":[\"C:a007986f1b2ac064\"],\"span\":\"At archive hall, Daro was formally introduced as the Archive Speaker.\",\"rationale\":\"Mei had already accepted the unique active Archive Speaker title, and no relinquishment occurred before Daro was introduced with the same title.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "3+qBcQCEwg9bdJRl+SHBUo4KWSwaaXnv5vo8I5k/FpciVHqkE9SOZ1TZtO9Z0LOreQpB3VFaT8egSClLzGE/KJY1Q/bMRoW+cuNxePaCGmhgZJtUU0sHMJoZn1VqgBs840IoFWNZlFUqegnLYjn7BtNf9yOxf1lZXAJWwQ0Uuvcu3r4afrNj5OdeqMo6iVWCmAsENRkG4wRa9DuoR8g5jYmLoYKyU744omgrRaqUKfX9AbPy9i4TAT61Ajrsb3PsPswI1/S0yzGvtP1y9mBEQm5gmlRk/wFjK/UFLw2PXZsG5Q65BmeDjTaH4H+JCbotcTSDbPtfhqR5V78NSVplGQ6tC52aD/tVbLPq27h9/MB+0qwrvI8Cx89Yi576wBZgdOrTCTPFcDIyYYt7NenqqZ50jbHt",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 613,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 198,
+        "output_tokens_details": {
+          "reasoning_tokens": 90
+        },
+        "total_tokens": 811
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2c0e4c37091f9b47\",\"npc:893524bcfe385361\"],\"constraint_ids\":[\"C:a007986f1b2ac064\"],\"span\":\"At archive hall, Daro was formally introduced as the Archive Speaker.\",\"rationale\":\"Mei had already accepted the unique active Archive Speaker title, and no relinquishment occurred before Daro was introduced with the same title.\"}]",
+    "token_usage": {
+      "input_tokens": 613,
+      "output_tokens": 198,
+      "total_tokens": 811
+    },
+    "tool_calls": []
+  }
+}

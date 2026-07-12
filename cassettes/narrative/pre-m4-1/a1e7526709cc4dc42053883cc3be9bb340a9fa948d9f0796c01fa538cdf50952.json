@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a1e7526709cc4dc42053883cc3be9bb340a9fa948d9f0796c01fa538cdf50952",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2854,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 521,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 147,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 701500000
+      },
+      "created_at": 1783841900,
+      "id": "7R1M/nPixcdYuJ7Bff/XPITs7ucu/UeN1XOIrNnfTMr0a8xou9JNbCWVN/T0sES2mH7UyR6/Kb4NY4sruRD++yUGQxBMaYoQ9OyZRVuC1s0IHZ9gW6lAZG1MSNVRMbOogw/OJNYqS9/jq1odlAaMwSqn7DtiCjPe6euYuXsI439y4CM//bOYOLs35dXFav85oo7/fGU6+GqH40qLFIAiAQigKltTb0biJPVt/C3P/dfdVp/RxZ4hFktVt/kzu8xcdN6QWiGMtnebKnmhfOoVcMtWNgbt/SkEK8HOoN/T8z0BJzeOwzJbhMHJQ5vHZpL5I0PXFuml/Q/azwZzXLiSFn1zTVoC+PAczef5FE/72sQ+KDCfqwfb/JVUq9lgRSHWqp5SuzAgpBsyVkY1nL0Ujb5R9tXajA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kqiIwlhoCysaRx+iq0Tl+CpKP6MwANucT1dJ9f6PNEu3AONHzRJPcqDq6DiHqgB6LLL3uTKNfDz7CTx1xDRkweee0xcab44jCzWvgEhbOCJp56wXd/vMzf5mGwiOqdFW1zBOryVbI5R6VHUzQaWeBxyXa8LS41O6KGFyUeCf/fS4xzD7UemPJsR0LJGvQ/6tMOfueSvz44mnFKZPZiAh9wanNd6O9f2+mEuMEM5iiQy/3oxGw6No3/JWXIjuX1yzUpG1glJm3eU3ThfTp5u9leVciNpOoJExa3VSIr9lL/2zLfpnNDfaAMuMEo42fGLB+liYIo8mwBk4OBxnxGS44ovoSWZkH1ehVZluPepLhHaOAiI/TqOO06EHkgmsxQVEqlv3MomUrD84UwT7idRcplfCN+Q=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:40f6e4c35a66bc4b\"],\"constraint_ids\":[\"C:e4c86df14a3b347c\"],\"span\":\"In canal bridge, Ivo attacked the messenger before a word was exchanged.\",\"rationale\":\"Ivo attacks a messenger in his presence, violating the rule that an unarmed messenger must remain safe around him.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Nb0zWkt6/mVyJB2MTmg2810GvmP6ujcnIPSxzXE9yK3JUCaKQHcfNH97aUo95V6M9GII2i8D6hBb1vOfiwhDg7rCi6eXjfJxA90SUN5v3akhuEQYE9WqMEDHW/YjoYiNYiCJzgfe/154cnW1I1wEqyeaEI19QVn5epIX3Vc3NVF2snH746+n3cSTOLOWVN9xOILTThxLppjbv0Ovb2nK4TA6JkYwrD4csyxiG2Y7n7eshAnbKn0UOFwpq6y9T+Pl0CE2CT6rIY2SbPKKAqUHERwtHtWuOZyscNdru6LpIJ4S9gk11e/TCWXVy6BOnA68zUk4eW2ocHX8ATeSeAcyQxLJ0L1kw5mKYM7Kyap9z140niT8f+0zVgkTdtu1v22r5dVe//clcDpotcX3VIZMz+1tsKhp",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 521,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 147,
+        "output_tokens_details": {
+          "reasoning_tokens": 51
+        },
+        "total_tokens": 668
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:40f6e4c35a66bc4b\"],\"constraint_ids\":[\"C:e4c86df14a3b347c\"],\"span\":\"In canal bridge, Ivo attacked the messenger before a word was exchanged.\",\"rationale\":\"Ivo attacks a messenger in his presence, violating the rule that an unarmed messenger must remain safe around him.\"}]",
+    "token_usage": {
+      "input_tokens": 521,
+      "output_tokens": 147,
+      "total_tokens": 668
+    },
+    "tool_calls": []
+  }
+}

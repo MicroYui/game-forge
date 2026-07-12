@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7a3ea964f607f0bf0c96484c4dd32d5804cab94a730d690f988c92199a604c61",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2850,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 675,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 159,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 814500000
+      },
+      "created_at": 1783848200,
+      "id": "/lb12+jUVUwL/7cr1wc6kTiLFeueE5xKWI2TZPEIDpTymyfhcn/zVl2UT1d/OTULJyuMWds1B1iFsNR7g8LGV+MDyrcwRMQb4301ZHdfwQlcdYjcjSGNijuYPXJvuMEuOvoXACWZfyuabLb1PONWtUcDbsGgoxmGWMEtCdl8PW++EsUC1Pee6kYLGgYNktlt5oz9esv2puTU3IxPjVgq+wiaG77y4kfqoymVI6aKXFRdvr2v2plOJNcnN6Fpz8hCbggW0DTtEIrFPYNPnxG1B08n7gqPoGzMrzqEEwGUYxJpPilqwzTTsYpfZwVe1Eb8SSIZECxO06LFYtUxvnbQPDUBhulwzhY6/GqIrr0RJ/cQ/n903++eGbT6C9gedB7hNmNmuczor6Ndeom8eaAnorXzhatnKA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "YmJrKk9XyyHi1+cPby1g8UoHPBv18/h3Nf2+/fgvRt1BgPCz2yDt49M/YvCs6ZqoEQf6ljBSMT7L9nnOga5PHuhC03YeL4v/w6OKDJIqze2pHT4jk0hI+fLhQgOWytH970zejNMGzjOPd65sMMLrD/0HnwIUDDNbYC4ufzf1CkCsSprSyCJinDXxMuv39lB1P9Cu5dIQgit5cQtRporxab0XUp1YitzBeLzepOJ4wVTs163jm5TtrYmw2ye6EKZas60vR/pKx0N2x9+kYz56L3EdlpJ9kWqhb447ewVnwl9zi8pW1Z0REqnkGgBo6yFlCjd0fKVAdbOW44cZAY+4UCZlq0J9WWloHyF44wrZOAp4yqj+ci5u/9EjAsvS8Z/hvt0WpLu8iVLor4du70oO6oS6i7M=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:3b02d8731383a23a\"\n    ],\n    \"constraint_ids\": [\n      \"C:ece212c3064e888c\"\n    ],\n    \"span\": \"Ansel publicly renounced the oath before its terms were fulfilled at lower court.\",\n    \"rationale\": \"Ansel renounces a sworn obligation before its terms are fulfilled, conflicting with the rule that he treats such promises as binding until every term is met.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "3qPNMlZTPWQ0C755AN6ZnyzE+gP4lVVaSkfbj/nPjFbyvW+9dIdEiUvVxGUHSEpVnJRxFHWUqvig4ycXmYAJb59ueUviuysn7NDSWAcobvbjCDt/SvrOS8Cda3d2H1/33pQcdVp0iw2f0KEXXgZhmxWTqPu+Bov189fZ19t4NBLnrNRxwjqKypvD8lRke3kDMwK7GVJIVHow5vQtG4LZds7dm2J4Wue78kE5/9i99vb9C7kpBzmzXLwhT57/kNuIY7eMWtiy3lHoKfD9gu8PeYL+HzMDpufd8Hpp42QPEfsCRbcXI5b7xex788PNv+iVcAtFFBIb3Q5sv0fmzerq4IR+VeBtXmdDmPyTovQRtNwj3Syjfb2jfTWjtTrl6K22nG+ze3RcxSOUaY/xwHEvX/udDDDK",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 675,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 159,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 834
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:3b02d8731383a23a\"\n    ],\n    \"constraint_ids\": [\n      \"C:ece212c3064e888c\"\n    ],\n    \"span\": \"Ansel publicly renounced the oath before its terms were fulfilled at lower court.\",\n    \"rationale\": \"Ansel renounces a sworn obligation before its terms are fulfilled, conflicting with the rule that he treats such promises as binding until every term is met.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 675,
+      "output_tokens": 159,
+      "total_tokens": 834
+    },
+    "tool_calls": []
+  }
+}

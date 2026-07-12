@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:67e288d36be510de89a3701a6fff613f60019f3830c946db75805e0ebf922096",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7264,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 530,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 161,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 748000000
+      },
+      "created_at": 1783844200,
+      "id": "ci9VtnceY2pW0leefSI5fFsjZ8tvCJeobDQ7UaE4Bg5tEFjthM3bJln2r6HBuPanJ+Iy5EmnMD7tWvPrtFOGh8wPVTBK5WyXndee8WprhSwMml3HHRwyLTmWclWcIMqnhtyqHt29I5IaAX9lg6NbbPtvaJAy+hI07UweKh3ya5D0NnNGFDDkwX+ddtmc3s7VTov4v2qySKSL9XURi7G664UrvEVBaBPUnAQsBq3wdlSnkvfQhm14kfchYjNb2tjN1qMFPhmpDSFJCLAjMtKuGRB2IMMJVYEaBZTvkD/G/OlgMicfL0/QoKvbJTSJIuoj8gxkQ+/4UJbnrKxN8z+I3AE5pPjCyans0ve8rRoMi5HkmVLpK3T2+EBdMoSbKfcrRQxuCa0Wwi8rOQWF512tActoN8s+cQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "SejWyCZoYyJS735K97tIgzY3c7VYEHSe6yu2xFWJRN5NR2bsP3fimV2lHA7rykzk6vwxuk/nGWUPMERjFjVttqHPmWcAsVTRVRAHCJ5mOREwfjQJcpF8B5IR01C3JxKHYROPDx4eUCp9z2/tlB3dF+Jjjvrf7tL9VdHgDJEaJq2yALPEMf1r3R0SCeejws/7bfATnRQJ6yhGPiDI3ETQQ3LI2SK4ZnzYop44nYhPZLdIeppHyCmrCdf9zdTJ/KC64Xv5p4xPnZ4cDMWyypkJByN5jByiDYPL4Sk68sfCo0JsD9t2qM6XPkg7Y8NxNgQTwCXcAZQicGnQQiUfMxiBZGGcIv4N/GtGzBSr2RMVGmRrKZ41kkWUwKSE1GPzRhS+1yg6Uty9BvITeg4egm38eOGtKsY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c8914aaa56bb5364\"],\"constraint_ids\":[\"C:701eb9cc168a2a9a\"],\"span\":\"In north gate, Qi exchanged a crewmate for safe passage.\",\"rationale\":\"Trading away a crewmate for safe passage conflicts with the crew being able to rely on Qi to protect their escape route.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Y2d3dAaomBONDSmWYvXpQj0hdLczX0zMHqqhbNbwuPSV9lWZ+eRa8brh60rOhq5QOrQGoxAj1t2zCkCyWsrCFxkCzFMOxAzH+jZ9bdgl3W55xNqFMrbNa85GOlRMEEkC64xJbhmlEhKxogV0L9EOlQrF/BA42gA4ukEkOYkSqzOXB7bDisqJsvPidCJc/HaCj21+ne/JOH1KeVxp1T3bzOgpB8HoBksYTU8A6eLmWMz8M1+Sf/0vrXW+qhKuPfCDfhDe9pmUst8THLemb5UMQmMnJePf5JWs2guSos91jgx5GWo6nLl40oQXQb5TKHMo9uzj3v6AR/Z3EwpQzY/EzZMKH+gKKJqgbvbqghJ75mfvMk9iEOgJwSATmCgaxDZgMWu4m1qxIswmFQpd5At+q7qiTHOv",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 530,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 161,
+        "output_tokens_details": {
+          "reasoning_tokens": 69
+        },
+        "total_tokens": 691
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c8914aaa56bb5364\"],\"constraint_ids\":[\"C:701eb9cc168a2a9a\"],\"span\":\"In north gate, Qi exchanged a crewmate for safe passage.\",\"rationale\":\"Trading away a crewmate for safe passage conflicts with the crew being able to rely on Qi to protect their escape route.\"}]",
+    "token_usage": {
+      "input_tokens": 530,
+      "output_tokens": 161,
+      "total_tokens": 691
+    },
+    "tool_calls": []
+  }
+}

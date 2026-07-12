@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cce3c10badedb137850a16b46bdbeb8316989ed8895fff01daf8e152e6bdb8a7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 10396,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 631,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 235,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1020500000
+      },
+      "created_at": 1783848000,
+      "id": "QAeRstEOXHSkfWZ0RJZ3qAgtKz5/5l5dXdMw8LMgG0A8kkPmMj1rpke3JoPI3cQPL5PhV5cuyKYxKk02LZjW5WbFVJqU9/R6N+kGel1mzjVDRdnaWgqhZo5YwNMgmrf6AvQ/8IFsDbWWxWIuvpXEXKuayBdx8p0qRg9J2UCCjdAwFmPH367i6ZpIOPG68emXxsMQUPjjG+PUI2gPiM02SXFgqAy5ppaQ+csA89S6LNXbqSyQ2CyOQ8HJcZXLvz73Y2jvprt0AKbCClD/YJPHchYwUpSwAlTfYfmkTjU+DaUVYSfLPJwhABUr/LAQJqi6jh5kgdLEAwV8fmZ4BzWzzOFsfUM5YUnrzqoa90A+yv7b/f16QpQa7kku9NILQJcpTZHyBM+7g61CHVLRRreiOOePVENWcw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Fhzuumfy0pG2fPiwAykh7WyBhcIPCZRUA5dG2Jjjb6OBmb9yvFpaALgNKVrfoag5hd+SO7tmSjxc2y15jaC2eWHW7K43FawvH7X+A+VXBD7agBRYxh16Niy+R7FwB1caL0hTiaayDdXB3ojEeUv/K/XeLQiopFIjLPIW1Q50o06YgIEdyRIEO03JEt90gICLo+Bcmqu4uAm0YfUcHv/3syZPV6jj7WlE0oYzMenVJgPLOJYdOJ+UlcAxurY7EQMK5CPOYPP8P57tRygqqDt2Kt1Y8EHho9goJZUN4DbYhttJHm915fyhVBAlDcCJhgn+1oLvbg269XYIoh4QffPOgmFPTAIW5HG2YSQ87h6jp0Nty/nR94JfywRAxAJ3fAGWZQqj0SeuIbJ3b453uffZ5IneRXc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:a4b3e7d26bb1392d\",\"npc:a635dce9ba8e3024\"],\"constraint_ids\":[\"C:0104efe67f9f4048\"],\"span\":\"Ansel signed the register as the First Navigator at archive hall.\",\"rationale\":\"Iria is already presented as First Navigator, and Ansel then signs as the same officeholder with no relinquishment, exceeding the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "mYXoOLLPqTVGnhA/KHjp3VTTbF6shxjiLGvpHK9bnGEmyDE1x1GJHpqH0oWUUMwHjnN6K8LIS8tZZPL+/cDso3ud0uQIdjQ06EZ875xB/XQ/4jvQ+5haWnKFgDS4hjR/1YJUciH79Do5OuTEyjMGfCtd6Eyy2ZECeyEjo8r1zfOZTJw4690j5/rfgVjz1AjkFooZV0gU9HdQOvFNOBPLzfEKHHvDiKwm4VBeUAn72HEL/NVtr5IVxHjPmhPdxPXvP4HU5avrRDaK2RBRwEHf35S9Il49YzOPzDZuvo5YsLJB5NOBdKzJVxqo82/YEUYkjI9LErHdT4amvg2Z+huF2tkXtH4gy3/yYtjLY9hbuJuvv3VjPFiX9QZ80QuVPUeuuh3BbrASlxx3Kyn1ZBAudOawwENP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 631,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 235,
+        "output_tokens_details": {
+          "reasoning_tokens": 122
+        },
+        "total_tokens": 866
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:a4b3e7d26bb1392d\",\"npc:a635dce9ba8e3024\"],\"constraint_ids\":[\"C:0104efe67f9f4048\"],\"span\":\"Ansel signed the register as the First Navigator at archive hall.\",\"rationale\":\"Iria is already presented as First Navigator, and Ansel then signs as the same officeholder with no relinquishment, exceeding the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 631,
+      "output_tokens": 235,
+      "total_tokens": 866
+    },
+    "tool_calls": []
+  }
+}

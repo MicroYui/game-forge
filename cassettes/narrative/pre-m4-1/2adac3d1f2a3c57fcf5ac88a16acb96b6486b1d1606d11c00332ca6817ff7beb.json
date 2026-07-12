@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2adac3d1f2a3c57fcf5ac88a16acb96b6486b1d1606d11c00332ca6817ff7beb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2183,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 650,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 128,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 709000000
+      },
+      "created_at": 1783842800,
+      "id": "byrReJjG3bo0BULK99OmC385LfsIf61PM28dgPas+eUjurvCDEYWxShIM4D5tmDt3IwnMLOXl45uqF8Fh5ArAHP9orjMuc6/bHxThCT+GQ/wm/LtNFUniUE8GVD8ONNEg2vBMfWhXM8zWmiw5/WVMLj/5i64QuCw0Z9W1dA14JRfuW9kayMlXAtN8hYbUjDE0ZYG9j5GdTKOwXscrlGQOrCFBbhS0G02SA/N4Qy1bLYDY56paZMY4ep7c60lBa3RnseykQ4wmNO9bNOnQlndi/XUpPuL0FtWsunQDKAgmunO11NHhUUT985heRCqiD5rISPK+xO01QMsT+69XHwUnzWJWb0czdKtzOdqZCdErricGH2vVvBSKFKmYoTQ/uSgQm4thvYsN0cDpG+fB53XqqcDRXJwiQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "jUbK8woOdH8CcsuYpvm+hK96XSFhbgjZLlrqMQ0YX9e/rzUeeTWInS6wlxgNAklRE5P3otC7VkMONrG6hKUc+aRqlJrXctB7TdQAsVBMwjwRK8lXI22jngkrw3TAC8iK6rpwu8hF+OsN1zRzR/QbMHuVpQJbrozcYVQfmKzAuQT79EJjP4AdyJx/EWDkRENMlOzj0cwLP6C18kqSHiwg2Lwb2WAOkQGUjnHispWNUq0sqBFXXNeyD6dggY5GPKlHFvAqUQc4rbRcNMH3ScASt7WSvcZ+4l/OGGsaL216/yoFAHlj0h/YNaNiBKMWpmfOSqNWkm8zPXMHaZPOqxRh46TrxnqSr7h/zZ7EJiprhkiPw2SpT8nT8D1KIqLYtwue9uJKtk4ByYjMbvaqfmhrsJ3jTTc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:72d71132fc7ca96e\"],\"constraint_ids\":[\"C:b75c0867bdb85666\"],\"span\":\"In relay deck, Ansel exchanged a crewmate for safe passage.\",\"rationale\":\"Trading away a crewmate for safe passage conflicts with Ansel's required loyalty to every crew member.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kqAd8sCTDsIJqh2VgnYZuh2Z6vKWStc1/8FNHAqhVs2CRP9bHOamp60oz8RlBexOd2FInyaF/G/XxlL48JRZIYXWwe6liMGPT0bkhJMuWS2kBY+FApYsyKfFVpTLgrWaebj5YcbLWR8eYtg9aHevHop2+B1K7ER4D/c7AncWYRfcTw6UvYMr0J7nPH6RGQZYl5cDVWEWnhIuPNkwZFDJVSfAg5rgekdO/Aoo9YNKae5wHtPbbuaXG25po7QloMJI2bzTPBXpCd68YRRTIbcXz33Ls1nB0+7XeELQtridgdBs/dmu5w/JnBhmapOUwV3nkIhcIaj3iBnTZ9OAxMOSFvxFdWbOMF0z0XL6c747UDrnp26i5QmyICYA2knQmiNVglJ2qbfYMU6YXw7U25ugSjAjPjcj",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 650,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 128,
+        "output_tokens_details": {
+          "reasoning_tokens": 39
+        },
+        "total_tokens": 778
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:72d71132fc7ca96e\"],\"constraint_ids\":[\"C:b75c0867bdb85666\"],\"span\":\"In relay deck, Ansel exchanged a crewmate for safe passage.\",\"rationale\":\"Trading away a crewmate for safe passage conflicts with Ansel's required loyalty to every crew member.\"}]",
+    "token_usage": {
+      "input_tokens": 650,
+      "output_tokens": 128,
+      "total_tokens": 778
+    },
+    "tool_calls": []
+  }
+}

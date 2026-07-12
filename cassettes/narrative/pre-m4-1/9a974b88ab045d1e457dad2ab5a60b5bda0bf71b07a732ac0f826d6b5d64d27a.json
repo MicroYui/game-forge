@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9a974b88ab045d1e457dad2ab5a60b5bda0bf71b07a732ac0f826d6b5d64d27a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4182,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 720,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 184,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 912000000
+      },
+      "created_at": 1783843500,
+      "id": "IVUqiS+ToU5pAyp85ueX1B7Ebg0J0VSz5FCiO8BfxnUwlIioewSUn8WBaMrAH8JCuLG3Y+ytzj15ZyWqA+2gS8neFgnc7kOMANf9eEs0Sv3rtlCItHcbfRmPgM2+QMWpbIP25yZvlpG6Mv7Jrytxt3oQibIRgZIDT4nfz2tnmK5ZStZ3ZDmpOdF3Nw+Be6ck1ErI9m4/V9Dod0MsqNNDzut1QEE50ariNU5czhVh83wfcjhd6O2YAlhQB0SyyAmMnWVwt6i8B444xE4iQk7QU8q8oGPhMOK5n8nq+3VM2DinicTaTsuAubUiRpO5RRkRxjGp16OJVA+2hFfzcHUAwrlHe1qqkF4pNW6JvqcADNhdGZsYyw5ZRkoqorUfzYECEvk14V5y5pKJkCFOHywHm3QG+4iIgg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Jxv3SsQpc67ba8y89YAP4ZWj7Y1p8g9uvXZU2iz7ZBlpxmBvocQ7GjMwmIT4mwSgBdGvW0UMGkhgHB6NYmKi6hLmvkZaqRW+p1iRQDHURgNYa/GkA/MniRPF4IudSTdGUU1DQatILorokJzporx0RcPWfOXuMh0EEkFygN+rNJi90OWpP+UdSpXEFtANlGAIGL+2aU85NS4+Wjj3N+YL8W5TcVlCJyGnHYPDtWDgvTn8FQm6T+l828QeIjrWO2pNKFQ0oYHHRBJVNMYBHDhaUNJ3RVHSudleIs0aWGxVHHJ05QBTzvQG+rXigs4QlRSoUdgDFht0GRleeZu3I+u9v6F8aFC2xOCk6DxWqY1AG8GJBsrU5afLuV9oe+TtCvAwZw554HNeP4Hwv0NZrINNos0mA4U=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:7d896e1f79e69e95\",\n      \"secret:d7ff7a141cd47037\"\n    ],\n    \"constraint_ids\": [\n      \"C:9034c07b989dd62e\"\n    ],\n    \"span\": \"While the story was still in procession, Mei identified the saboteur's name at old mint.\",\n    \"rationale\": \"Mei discloses the saboteur's name during procession, before the permitted sealed testimony stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "n6Dh8BDX9Og1y/hG9l6JUoMyBCfC2RJG3PJvOJ4n/y4fwSklDZ3uCuQUjYc/LETiHIpPO4M/rAklmGcdyQVdJmPwhlbHVzSUnK3IRR5fcBvyP2QApjBaYLcYPYHa4f1yo/5YezmF45uTAPV++8qyY0NqmOXP/jhqNFPtVM2ZrHsQmzTQke7dlVNFi7LlW4Up8qCVyL7R20XP5TeA7oTqNy9Glk8lnGjI6MWoYyHnyMjVV07KxboFTw0JUaKAGwOFfY31xeaXB4ylzIpM19ek4FbFg77sHgd5bu23LwuFyhA5RnU2fBj94g2iVyqabdgGEG5H6Pj8daCJiiCly+EMvdbyvuDTN4xkmpEQSli6E3GD7xZsFTiRfSV5aF2bT8ixbro8L3QX6FCQJp7yThHcLIr4mObQ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 720,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 184,
+        "output_tokens_details": {
+          "reasoning_tokens": 51
+        },
+        "total_tokens": 904
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:7d896e1f79e69e95\",\n      \"secret:d7ff7a141cd47037\"\n    ],\n    \"constraint_ids\": [\n      \"C:9034c07b989dd62e\"\n    ],\n    \"span\": \"While the story was still in procession, Mei identified the saboteur's name at old mint.\",\n    \"rationale\": \"Mei discloses the saboteur's name during procession, before the permitted sealed testimony stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 720,
+      "output_tokens": 184,
+      "total_tokens": 904
+    },
+    "tool_calls": []
+  }
+}

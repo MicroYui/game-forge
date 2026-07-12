@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bafdbdd20cd5bc2f6240c5df2601fd5c17207a7cd1543337694c5cea54afe847",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3864,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 614,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 174,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 829000000
+      },
+      "created_at": 1783849200,
+      "id": "qyGVx27UgMmKs+lxzxD2Ldz5TYkJXzOAhnprb56Fu2EVo1lXuG8q+bE3ecxNPIU91frTSXjesznJRSLvOA/oDeeVSzsDpj6vsna1/47I1wahMWXsS3NZ829npd0VjngZkfUXI4YsBIQkWJk2wijHShtvlZ+OKQat2m9gxPfZVtNWibdMoX+4GFtlWAsUEg2PGLB8WQsUVnlaQEnfUxtxKtcToZk18UvsPr8Bca3/1nqgcKNY7i4R1yn0UAXeJCYFNFMUcneVdQAdev1xlGxG5oStJlGcXu0UXBSTdFyKyLNRonSFKJKvLPwliaZhFu+lyBgi4TcMobI9MzQVb7OSzb43yqMpx+Rk++Qnfq6RfGQqxdSMhzwG859DhZ6lezbZEeZeBUcMaqhjgRPLUrXUq7WpfAzhLA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FYy18mTCEDYgmGZECXPxxyXCL4F8EYU6j+PWEI73o9Gk1IPpuKs3YuN1l9TALkDMG+ixgNjHluxrvpTsm6/unDI/8SAGO4NJkepAP7XmW2MbNZoaMqHOEDIhgbfAro+6GvELraYfnyBArwKowJxIZzhDCgN5klx82nWJaA3XrECcBfz8jGaY5EL6XyHVyeY/UkrULdq3QWa+MxwmfjRYpKXehzG6YojWZjZ3Eev8iKBd8kFly0KK7UaL2snwWBzoglgWpFed+zZaG0qyt0UkjQpIPfupYfJU9ti61wpdtCl89VzKrbkEKSQlW99+mhbwYbg4B2ZAWZXZsfHhLpjosObSpGphFr33s9AB05XVNWilMafP7GOH6NQOQOxluJX+vSXH8Mw7xPREJDBcXanjdYJEJ54=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:1bdac1fe609930c5\",\n      \"npc:5bbf54d9962787b1\"\n    ],\n    \"constraint_ids\": [\n      \"C:4c834e51a712146b\"\n    ],\n    \"span\": \"In relay deck, Ada supplied Malik and called the partnership permanent.\",\n    \"rationale\": \"Ada and Malik explicitly cooperate despite Dawn Caravan and Salt Raiders having a no-coordination rule.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "YbEz9JoUjVwH5NrdS6PcKFMfBWgcV+TvZtgz3Fljf+Rvti+oHzuaL2R+iNe5XGO8SMHG11ohtHAguvKKeTFvU6kuUQi/XeUlm9uvzWxA2LyeMulPPsDx3XGUAD6jdITm6AWLYX7ByccTc+2ngsjsJQ22+wXGKPp2tXt3pULKKEIrO4zhYKyugTQf5UozUfbO9wAEcMEQ96sLs0BlyHc9bN6DxB1kuuktDl+9r2/BC/DGECTBzIl74iSB/yo/NKrdpAPu1+oNNofDNWHL0XOIOP5hmo8+1oq2/ySp8cJLXkbsKdTcLQSdNY3n4muluZpsCoS+L/xA4BtgOaGbDOo6dDIz7OG/NC2jBC44UZXGOz0Vh49nBoIMEcQdiy2lwAIXNwWWFq4RX3lm9SRg7v2L01gUKPAu",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 614,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 174,
+        "output_tokens_details": {
+          "reasoning_tokens": 49
+        },
+        "total_tokens": 788
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:1bdac1fe609930c5\",\n      \"npc:5bbf54d9962787b1\"\n    ],\n    \"constraint_ids\": [\n      \"C:4c834e51a712146b\"\n    ],\n    \"span\": \"In relay deck, Ada supplied Malik and called the partnership permanent.\",\n    \"rationale\": \"Ada and Malik explicitly cooperate despite Dawn Caravan and Salt Raiders having a no-coordination rule.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 614,
+      "output_tokens": 174,
+      "total_tokens": 788
+    },
+    "tool_calls": []
+  }
+}

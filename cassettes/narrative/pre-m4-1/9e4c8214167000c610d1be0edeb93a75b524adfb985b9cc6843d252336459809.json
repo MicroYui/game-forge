@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9e4c8214167000c610d1be0edeb93a75b524adfb985b9cc6843d252336459809",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 1884,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 611,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 96,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 593500000
+      },
+      "created_at": 1783860200,
+      "id": "9+hKXbbiV3qo4edkaUT4uQmONAEkxf2VDBFc1l26dlSDO/tF0CNua8jCLGSpMjvijSn/9IH9vcNH0IomApDWjuQjAQfP1Crqx/aNQAAviSgZwFc7HJ+pdojYO4Z4HO45Sb0jcpDlaOyI7bQabLvONNqVyNw2N2JxF5BtcAKw8X6cTYbqNrf1JwMcCwST2eNyBYsP5ecCSC7Qm7CFVxe4qlqd25V7LyShqm+M4japvJ1zhEaNf0smUA6ndRs8ecMyD7Kk1pIGpxqM+7iMHCl+MviKeunrD7ahF9vwVTY41wWP3i4JR3vzhkh/VWJnGEI+Ejq3KO0GerHIylWTks3ENlf2eeZzDCv9yXtLOWmmqNntbyIK7kUiY8xlhDzuVx4LrAyPQ/YqdaouKlUs6m9LinkA5cbIhg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:b37ed04b5f0a7918\",\"secret:172a5501bb0d9b2a\"],\"constraint_ids\":[\"C:a97180cdf25d780e\"],\"span\":\"In canal bridge, Noor disclosed the hidden heir's identity during hearing.\",\"rationale\":\"Noor reveals the hidden heir's identity during hearing, earlier than the permitted verdict stage.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "UBFi0DDDNGK35XKRsY2bhsnqbayzrXX0Sx9sgDKpaqbXLveVHIip4nomSfA0PIPOTSEIXzR9LiY0/I8VihxART8f8IXLNZ/wGmnX0GPIOM+PRAQ0JoXosjReWmglEUJxStIjNuqdpFpdYcrkQgBjGhOLT8K/+XflMPZRfj/0xykLoqIf1hQDt/qdWA8FERIfIBAVx8gTocBJjf5nx0s2DJ4/YyqYx5u9OCPZeVe1/zAy1BrNq9vefppUVVNGXNUm2dSt+gyBeb6sfC+vSEubezysPDPUmaJAdf/98O9IcNXTxo3jhuZeUDzhKEJwQUeGSY3w+61tHoWcPckFtRD8aseCKJMQidl1RcQh9h5TK1yLVJDZ7TVHWHVZx5Xi5gEQAF6QRie6PGW/BI9BECy24Nk/kxom",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 611,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 96,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 707
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:b37ed04b5f0a7918\",\"secret:172a5501bb0d9b2a\"],\"constraint_ids\":[\"C:a97180cdf25d780e\"],\"span\":\"In canal bridge, Noor disclosed the hidden heir's identity during hearing.\",\"rationale\":\"Noor reveals the hidden heir's identity during hearing, earlier than the permitted verdict stage.\"}]",
+    "token_usage": {
+      "input_tokens": 611,
+      "output_tokens": 96,
+      "total_tokens": 707
+    },
+    "tool_calls": []
+  }
+}

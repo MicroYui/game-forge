@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:41e031216364649e022df8d6870986df8b13fade1731529110184c150c71dfd6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2967,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 586,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 151,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 746000000
+      },
+      "created_at": 1783854100,
+      "id": "ZPYpwcW7LKopCgMjrZXEwJzYzk6ITMezcBfeDmY5dy4q7rycKIIVDVi+8eeVBS0ShgRFhYrxr9Z4LEdSLobNvANYX2T6lYtXP1e0IDSKvrm/27WVnEZ/4LQQIp+03OQ1ZXbff40PNxeJitLWdCcXtXShwzuATNXUMIAJD6aGsDTPnzBvrXMOhua3Mf8sfJ9emHvim++BJXzoMAWbHDWGRpfPU4D3KSbFKoIL4La0Ga2iEXGVOSw99/ctv+TTe9C+a2a8GNVUW6Bb0bhvKAa8O7siePGIY8yN6P4EiNBdriHuiM97UkODSn0FZnm7MwEWCsMNVX12yg2aaW0SaBpcueDXzeeZR+KAYp+iCcgJHiwE/PA+3pmMDCLvUXqIYpUG/jgX/s7ThtGyuFg9ZO2pNPakOKXmKw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vctXjEKFt3KlmfM734yBh/nIfxtKo6lu6/AKY6einYoR+oI/NKD+DCORViXe+XTW2nWoUMgr3OxjHLYnfIhcwzcQcJGjzzHX0OMJdI1p8Alhe6NZakKvFD8akZB2ghoyJLCTgzXchjv6/JxrmRTYe3t5/jFeMlVHHQJQdhlUGquA+uwcU54qgvYwodEPLhS08MVDQfJ6jUVAbebdTpoU/04dGgk8xdKS4/7kemodC4M0CiHwru6GL5/daBDkanJYMPoCz5Xvuzcx5A9mMiNZoy5hSbtsbVNA0Z3ORR6E3oTFawZK+i50Q8Vp3XQyVwz0n9dLW4wcZPSvg2wsx516xcNq/8fdaVTr4Nn4lsCtf7ceq59udfQuzmgPUS+JLofeX5rT9q/x9Jy33jUrW7szcxRGgAs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:7c51fc3d93657dbe\"],\"constraint_ids\":[\"C:076147e1a746df69\"],\"span\":\"At caravan court, Ivo revealed the crew's hiding place to their pursuers.\",\"rationale\":\"Revealing the crew's hiding place to pursuers undermines Ivo's duty to protect their escape route.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "AFaozWhEVgk3y2aKAZhajclgRA95TwvB5BHx7ZZNDB/ubrqjtdfPwKaRYq4i81HGQVxjImnBPfJdN9P4uOgp99fRpHFMt7cZMIs+8pFu++V3fW0/rtNN0u86PaY90OcTZGA9qjCl5Wg2FWlRvuYkcezDHjAMW1i9J4qgyyzbgPxPQipVH1Q0bHSsrVwGjX28ONjYuf/l1tQ3pZ5DZPMhO26G2WTH0gC2MmY1fmBbz+KwDKRECovljgSX23kIkt71XBq2R95n4VzWiaPdC34tTe5iCK8ewTp5PUdEwUFWnGB7GnRkL04xvzsQUwI4ixj0fMP1ulz8tIpG0rCSgX1AQwpGa2AHMNEU250pAKCRjLUHUzCb2VvZvvoSt/sOqxQ4DXSRhVFq6+K46tdtyIfmZZWz0Q1o",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 586,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 151,
+        "output_tokens_details": {
+          "reasoning_tokens": 57
+        },
+        "total_tokens": 737
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:7c51fc3d93657dbe\"],\"constraint_ids\":[\"C:076147e1a746df69\"],\"span\":\"At caravan court, Ivo revealed the crew's hiding place to their pursuers.\",\"rationale\":\"Revealing the crew's hiding place to pursuers undermines Ivo's duty to protect their escape route.\"}]",
+    "token_usage": {
+      "input_tokens": 586,
+      "output_tokens": 151,
+      "total_tokens": 737
+    },
+    "tool_calls": []
+  }
+}

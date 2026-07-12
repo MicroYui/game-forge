@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:07d85b2ce99ad789949f7f8b2710c247eccc961cf01c1e83ec2a79148717361f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5332,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 586,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 197,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 884000000
+      },
+      "created_at": 1783858300,
+      "id": "YzBGj8VC+F84DpK6XQwwEcdI5lBJKhJkLPK/JlkrAPkV8vfh4Rvl8nsyty5SbOGLX1a3yAE0fw89bV+xKtU4dY02TXPkiaC8mlixz40ayEiUapsYhXlAhA5ZwktLtf5eXhDnJDdD1Oj7brzdFUmNXMbmzzLw3sRr7BsE2WQ79xkfQYkrY7O4G2isF01xNVDSSHxaCNx4yyzO10TL/yi5tq73yjclPgsNO1Q5vaGE2VDtvGLzjQsVFFA2hQdTsZ/BRjcnrmE5rEyUt6X+i28DmTFHIQlWVu2f3kNGdr7npxb2XwkXsT30BoKBUlTq237FbixvhMljlXFXlCGcJyFKP2lIY567GFNHcKrEfGqV5rV1xg4uc06JB3nNZE8JV7s/TF+Mkk3JbOY+eSzr/U20HPSYLiI1tA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9SJippCQ5D5V6jjCRF4S3nW3x2De0HeyUVp7gfe9kaFFDGO94nozTCGVs+z/lFiDdZPJRAg74zV/1htABT2hou4Ce3SjMg0974Mk8zPeVg8cCRSo0nZ4WTOpZJ3TUqdsaXulCf7APEnMmwFHc212MCyijt0Ok8sAimNTtq0zfQTl83R0AhJ9+uozpGRsCxgeejB/sorO1+X/OOwnOV9DMlN5HY6vYsOlwXPiK8WrXE4Cum719QxIK8HFXrhkwRDdSxalMX7SiDIGNbElok/lo7XeyHVtCwYKeo5lSLqp5tC/OY8Z+Cv2NUC5821I6EMO9ZDQKqzoC90JsBWhkuY2siSES1vjqrulm8UNI1qWBpdn1K/r0tBMnPVbgkP8ZJpSCHKeeEM4UgWaHzFaRF9q5oNz270=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:0fb6e2b2a2d6e104\",\"secret:3725797c27515a45\"],\"constraint_ids\":[\"C:9aa694047323b7b8\"],\"span\":\"At observatory during survey, Ada told the room the truth about the vault keeper's allegiance.\",\"rationale\":\"Ada discloses the protected allegiance during survey, which occurs before the permitted reveal gate at relay alignment.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "PrAUp9JCCdNPZ5Cr4mp+zaqFF4ySOIZY33935kpKQlttU1dL7Opu6eusjB7RAyrjAEsaAr517j4ygSRYeUIW+icMXf7egR+9l+4wUNEtfMbZcLvDHJA4ewI2WBszbhqfYWNduF1rGbEA+pDJOF0qHwAjL24bUHWVZIQtPE5ND7xoHLAD7Xufe3x9Q10aspNbg+qdziy49MCA8sw9MyWu0r+S9tVwnGAmcaQ/HvTbWNTjzDaEXPQzbJJQtRDNGyHiUz5jhwPIVAzPbFJXq9xvYwt2PrKJcLXnatZj/LYXG6Suu5hDpGg9IeY7x7NRUulTojDBmw6JK2ftA/xUt6yYb88Kg2PZLSz2T5HW86zAAoq64mz93ppJZZtFiR7IJIqaVWX5P3O0mw+GSye1Dn6LjszBwKVq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 586,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 197,
+        "output_tokens_details": {
+          "reasoning_tokens": 89
+        },
+        "total_tokens": 783
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:0fb6e2b2a2d6e104\",\"secret:3725797c27515a45\"],\"constraint_ids\":[\"C:9aa694047323b7b8\"],\"span\":\"At observatory during survey, Ada told the room the truth about the vault keeper's allegiance.\",\"rationale\":\"Ada discloses the protected allegiance during survey, which occurs before the permitted reveal gate at relay alignment.\"}]",
+    "token_usage": {
+      "input_tokens": 586,
+      "output_tokens": 197,
+      "total_tokens": 783
+    },
+    "tool_calls": []
+  }
+}

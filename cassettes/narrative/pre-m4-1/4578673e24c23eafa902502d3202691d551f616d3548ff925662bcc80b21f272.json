@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4578673e24c23eafa902502d3202691d551f616d3548ff925662bcc80b21f272",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2716,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 557,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 163,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 767500000
+      },
+      "created_at": 1783861200,
+      "id": "10QeWdHiYDxzfBkUesdGMhqD0xJ+sehJ03jv1IgLqwiPX1QTtT4GmWKlge2i685NbSNwY75zG9J4vSd3CNtjpnqCcEDHDM+MrxNygqByUj2QiaCzDhsBmWeQGWluqJFCjTUoDd+8pN07b75EyXBk43K6jGPYtlOWxaMc8kEr8fZVyYeDpXUBkt5VT+QvadJYyrGxxEEM+piOorhaQim3oxYb5xV/uIQHzTM5McV69hFivSxbwH9HI3dlPD26+6KpSth5jfdpcnst9dOjTbKXKyprDesEIaNMiyJGpZJ6tCX70drGF1JR9Vm5NjUcFsmsl4PjNSMUSxmFz5K56synuStxUdWg2yBOI7Pss5WikXGTSXKRogFL6Zcg+I2RrAGemgVUGpO/P/zugzLZo+RRTQ0w5zcPhA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "SXC1+eNQrbA4F77GB9UqBtn4FTNtO766hjioHBIyWHR/illgvbD7s4isyYJdS9IZqKtV6a3B8/urfSF99z/IM2mKkOvwTjfzZ7xnEvIY7faeaD4QkczmPGRhIs36VsTjMt0oOez70/puIeH76aRCw4Hg70j6bqA26hUEOPpNhPpkutSacL4tor2xk3X/8mGRFKj7+x84Hka1vI3jzI1RtS3RdhCflcgROlo8N4qWAxuU7AwTwHjnj+rLnABbwBvsk/SUZ2SQi3an4pAQwiHOObbwKi+xcjOUfoqWyE6v6wHSpcwU502BZYwknmjILod2BfG6bQ8trpH5Y6TB9SQXJFSoP2Z+zaN3GTNWLd91QdDzmrf40hvbycM1qG/rgDJzuCT9zNh3opp+kM+x52yLBZwJhJU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:6841767a1fcc4f07\",\"npc:ea26bef6603f0028\"],\"constraint_ids\":[\"C:bea923e6ef9fd635\"],\"span\":\"Veda fought beside Oren under one banner at relay deck.\",\"rationale\":\"Veda and Oren are shown coordinating in combat despite Valley Rangers and Storm Company having an explicit no-coordination rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "V7oGnQcD0hIP2kH4RWBgKGhsmMb+ArmtadO1uib2dkjSyjU1ZEigZH72DHovXiEMUBrfTGMszHn2OSVwgh3KxgMKQ8KWssS9+jPICp9LDdbgotNahR/6iC5GwKUJf7gKw9xlSQxw3dNRhIoHOEf+z4WRS3NjdFprKne7bfFb3pbii2YJmrXT/zQnWTBrcSVS+NgjOQulMmq8k5RG7vI8/+vR27wnZChLUzJKCMSl/9USfbhiGWQ2rXup/+FffydckOKX+BQBvORzrqzjz4AJ4G7m3MR0sHBbQeKsgOpF4pEF3HqLgJt6FLLmnbYE5aYulzL7SrZrXaBNGGp0cwPUs+3G2IovU00EzQL2rr+G3QWOgyq5MQx9S8HhPAOglHXfLO7qCJIR04m6102gOmlpFnAipDjb",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 557,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 163,
+        "output_tokens_details": {
+          "reasoning_tokens": 61
+        },
+        "total_tokens": 720
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:6841767a1fcc4f07\",\"npc:ea26bef6603f0028\"],\"constraint_ids\":[\"C:bea923e6ef9fd635\"],\"span\":\"Veda fought beside Oren under one banner at relay deck.\",\"rationale\":\"Veda and Oren are shown coordinating in combat despite Valley Rangers and Storm Company having an explicit no-coordination rule.\"}]",
+    "token_usage": {
+      "input_tokens": 557,
+      "output_tokens": 163,
+      "total_tokens": 720
+    },
+    "tool_calls": []
+  }
+}

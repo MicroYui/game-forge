@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:99c971c2321955ad55e4e500764bb853f2a87234280943c7d0619a5a3402b582",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5559,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 612,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 224,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 978000000
+      },
+      "created_at": 1783841500,
+      "id": "NUC1NTZPNUd9agJNsyMUTCk2YX+ApkozM6aJZOh05bGjNr2aa+PfJloaVhlOAZVL7tVctwJdJ6DtnZmRl+al35fb2iLBbEPih8ZAFcPFj9rhYDfP0WXlutw3Iz9FXZkuUAE35W3VURoYlKmdhRjSlynMyhDyF+OjGDWPfDnTvY22zDqxvpd4gWOc2dQTzbzA849qIv9zW/G13OW7z6YwTVMw48i998J8RqldLUzBC/QHIib+j0SIEyQrBtw4MWaJMf7xB5tX7SVrQTGvCq8wdXsAwFXsZpCF0a1ROwFhMY7CEGktlwBisC5/VsOmiHP6mYlwjZ6pEs1tS9Y5msNIOGj3nk8W9gnxcQn+NDpdkyyoWtheZkMUrI9qcG9HpvpMuJC8hYcB9m8TWM0HMOXs36pSzb3TVw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "VV0/IX6iBSO8iQp8orldmfJxO/uOFnwYD6Nt9czJDtIlc0sNT/f3T2KSwuKonzMKt4hjKkVQts8U6UvXt7fpNHKwJND/tSsqYsuNkWcf/t/2Hf58105lOTbj87u7tF/HGsFOEGJItNCA8HAr7Ll3tgJv69L0XJDgXC62KmYtSBN96oXz8unDdKbNKL4/Zgy3SydT2GAzik6yNO/6/wRqr7+4eW1g5xHQ7Y1e1jPDluUE1JUYjfd50emHy/nm9xxPeEYDWvPLK4HcR7ZAdG2h2AXSxO2gnn1p0kX7Ey4JfErWHhgKIyfG8Nfpf8wHemr++LbPmTC8eUqq8xmOArzqUWxjlkNk1IW8V/Zjy/OTZKttjeSyWrrvSlEn1lXxjnFAp5NmZXe5IO03lFgrP1nI2JRk9b4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:a382273b66a785a5\"],\"constraint_ids\":[\"C:288433a2926f1338\"],\"span\":\"At lower court, Qi locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Qi denies waiting civilians access through an evacuation gate, exposing noncombatants to avoidable danger.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QItkvu8YHkZRx2S9wEw572ibtybgo1a3P0CywZesSLS4EnYcc8Yyr7IvRVwukHbY8xWXViWQt4wO4sFT2idAtrnqBl0lnkfKUtRmPysMC5tLG1IZZGwlttf6t+u+XwN5M6Yq6e2kGm9KppNlqV6PR1v3tQp/2w8Ds/H4gIETM+Dlz4lR9RiPeekbNHE1BwCqD0uof4L73KMJzT4A7y74XbB5ZrrqTSJAtB8MnbLktcnidL07vHjjJ1KxzdWibnD3MId2cqpd6+TdA5oHJlI9jCjp6BnILU/U2ZYMr+CrHroGvsBC+Hgj2/MdXu3JEsf9xWqvs4pmIBAekFoU5/jeERx3hEqePQ/xRcEiKpEFizYLxZGaC+nPW1jiFLHAHped5LXWoV3It6pmLieko5oTLOSFRa2V",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 612,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 224,
+        "output_tokens_details": {
+          "reasoning_tokens": 139
+        },
+        "total_tokens": 836
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:a382273b66a785a5\"],\"constraint_ids\":[\"C:288433a2926f1338\"],\"span\":\"At lower court, Qi locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Qi denies waiting civilians access through an evacuation gate, exposing noncombatants to avoidable danger.\"}]",
+    "token_usage": {
+      "input_tokens": 612,
+      "output_tokens": 224,
+      "total_tokens": 836
+    },
+    "tool_calls": []
+  }
+}

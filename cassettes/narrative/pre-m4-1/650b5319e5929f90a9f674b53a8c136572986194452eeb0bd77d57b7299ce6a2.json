@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:650b5319e5929f90a9f674b53a8c136572986194452eeb0bd77d57b7299ce6a2",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3989,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 641,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 197,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 911500000
+      },
+      "created_at": 1783859000,
+      "id": "a72+V1LvNRIhHg/o18f8ShVXOO2AerLSz+YHeJhy+78sBElAaGup1BiQUh8PvaE8gtqtU9af06kXrL6iYfDM6kgWPc3M0nuWQItOH3Zo6bwQ6nK6CvXtsyoMmhBuYlN8Sdyy/4ZG3nNBDBJbnAfs7PYGcZCml6wP48UccyfjL2B7MC2OujL2zpu5Z+fRW1jBQTNn4cBRvT2+bHTCqWtNhU5jlFP60BWGZV30eo96gYOmFe0QuizWsv9L6RoSWnlBsCOV4PsnJINsImuHl/Fi2yzkou/D0U3fEUx+Xo/lbG/Ihzx9ZNh/fF+1YlKUJH8k8qJs8p+K0B8UI4TWiXhLYyGcOyMzeyJIYBn7+SJHKVDXr7mQVSHVFgVhFk03O34rJQbeXAZXbAMORKrAyhAfwtb3ecZqrw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9bfZwO7VRQK60hAkcwAF8ViSwSRdxYub68CyvXIk6357worcXQCVw8OrJrIuJ2jawWeZMQGot7zt/7Dr7J7zg1d0TW2XK7L9RK4ZPaIjJT2gyNDv14wyBN16yoj7mJer8Fkk03oxKbERXy1w4Isx8Lf3kxHr9b+T+UC8s+j17tmeGLPkwBLuUAZflxXDDq6Ib9GG1asOejRbksNgr8vc3IR/0PGoPGETKSAdxdRB9ink1tGG1k5ljyjQ+cMxIzo8OFel9J7UIn3AISPELr7UxY/71kUxPdq1nrDqsZAeMzBWVa3rhJS3bVFGa6nQdWM2un4IqhQaiaJ8gMkXnqQiddSrhKwd4Brsd59hxKPtR7zqR+jvUatb3n3JrI4eXt6UazL8xBS+03Lj8LsTQMWTqsPPSx0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3eac1c72ec138674\",\"npc:a0c27ddcbf41a5e0\"],\"constraint_ids\":[\"C:bd8f833f20d86022\"],\"span\":\"Ada accepted the title of the Vault Steward before the assembly at salt depot.\",\"rationale\":\"Malik was already recognized as Vault Steward, and no relinquishment occurred before Ada accepted the same uniquely limited active title.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "E2EHYIFldMKM6f7w4W4yLBB1Me1pyOXL902qr77ttEuFbfhy0X6VTR2tRsTawxNJbN8NrWQ7FnY9vZeQ18JNJPtlAL5A95lz8Ae7VDr8NRRiXPWY4yFNklc19v0lihT7ZPXwV5xu4OayLudRrWCWrSyIw1jhc1dr/qrzTUBNUikLYP0UgCwovHt5keHqypUQWhT5yDghLkJn5FQU6CheQWHhsatCgNL8nBFvO62+Iig1PZKh9bsHHp/QiXNoa3a/tAWBNS/QBdPl2kGkv9ymCnSwcreQMetQbOKheMDw/XDyklvYD/mM55CuMEX6Yq11D4XxklhViSt0iIG2EsG+UMVRYnj0KCPyXFT2wJ8uk2dvnKTM+To26OdZiukfSw9/gEhaLV4L4sSeaGmupiyZNn4fPx5X",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 641,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 197,
+        "output_tokens_details": {
+          "reasoning_tokens": 88
+        },
+        "total_tokens": 838
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3eac1c72ec138674\",\"npc:a0c27ddcbf41a5e0\"],\"constraint_ids\":[\"C:bd8f833f20d86022\"],\"span\":\"Ada accepted the title of the Vault Steward before the assembly at salt depot.\",\"rationale\":\"Malik was already recognized as Vault Steward, and no relinquishment occurred before Ada accepted the same uniquely limited active title.\"}]",
+    "token_usage": {
+      "input_tokens": 641,
+      "output_tokens": 197,
+      "total_tokens": 838
+    },
+    "tool_calls": []
+  }
+}

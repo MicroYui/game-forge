@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3c84740faf9b25555f0589dec51c3f47e39156477c7932b4c159b5991720e6df",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3900,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 669,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 192,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 910500000
+      },
+      "created_at": 1783850900,
+      "id": "HMz0MrqKlxtQK864DJdp/O7tkti5YWT4HSUyP08+3dSyVA4D1tomygIc7kaHtatrH1NGe3rrXbapE3AiVB1V3jx4GBvdOqEvybSV4UKiz/2wLS7O6faWLzNlL12pIM7irlh74KBSmEryDQ2EYVXH4xBruLOQLADVL1V1PYPMC4TZxzhKvnyaJKH5VsnFUAoq3ESKTWLjq1frfg0qSZxkhj7mb6DfA8WCwH0/3enijyPjKCxMSBpO9uGDHtjbMU5pr4OFRTaFaA389S32ZM2Gp0KJePWJfjA+n+wQrcaIzRHa39CRDEDWHqwYzdXTMMGRrzw4RCCtjGhYUvZ/XsEPkaFm2kXFSRFOAStRpwPmNnfVYEZQnRmbVdOE3M/w7zm3R7Ef7ygUTwr73BGs2Z0A99KayHl1aA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FQZ5XycjdXE0eb2wX1KL6pIOAV51kxTQivDn+G9+AsnX1dRkbjFjBdvGdZr91dWdXj+CKab7xwHb1hKwHSv6i0egneMvslGOmgbHOGHTyKLkwpP76FgQUPuXNFnjMKOteKCwsd82Aom2npENEDc/Q3WELbPBlTsKlLoHJ6q4HP62FD985xUeAa3zpq0EVU0wirGKlVQH+DiNCWOcvX/8mvdQ868YEH5ohVLVwzXoYaGKoSEmresiwk3Mqv1kL4f06CB3ZleJKynLSJT2K/VXF7xgbWRCFX4ORSJ/cxmfDIzgDwtLU1Ta0AhSGrVJb7S84fslOlkIwhkHaG0lCxeLX7Fs7f5eTgcd6ysBYUx59urMTzHvzg4eh1G7Z2ngGsimWfqJipRXL2oSrKSGriWd3ngk2tc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:a5fcf070d34e8395\"\n    ],\n    \"constraint_ids\": [\n      \"C:a7507ca363378d3e\"\n    ],\n    \"span\": \"Veda redirected the shelter convoy into active fire near relay deck.\",\n    \"rationale\": \"Redirecting a civilian shelter convoy into active fire conflicts with Veda's duty to always preserve a safe route for civilians.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hxKrNoHc4HTIGBZVB12RQw0H6XQNTMQXfxsomsDNn9AjZQayjEXJz3N9w0iKHx+WKXgLtb//LX3AjdhVQawQxctT3FSyAeVopJOvDQF7ecxp4aKDD711cY1ijfuOs9vc9PqcgzgjWExcFFjqhyIK5C2qeAldXOKZMlyY9p2HDQgfjJCYHmwWidmnSn1ZPP/ee054+q1SehMzpCkRFBo5byKrIK9odPQBy2ukWW9HA+lPSxo+r1gnJ32zr+M0xTTMZQzPYJAy5geUvjrvi9CFf215i00R4Mr/R98TkFElInjdP7lN50y3FzFNA2Jk+vlbFhOqLc3CJaGrHsh5hV51zTrjtSpNX1FAHpGD3Eknl2l/m50H3BjfZHPuiwKlT7ikJUWVYR/sz6474vrTC6RykG4thn0C",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 669,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 192,
+        "output_tokens_details": {
+          "reasoning_tokens": 78
+        },
+        "total_tokens": 861
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:a5fcf070d34e8395\"\n    ],\n    \"constraint_ids\": [\n      \"C:a7507ca363378d3e\"\n    ],\n    \"span\": \"Veda redirected the shelter convoy into active fire near relay deck.\",\n    \"rationale\": \"Redirecting a civilian shelter convoy into active fire conflicts with Veda's duty to always preserve a safe route for civilians.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 669,
+      "output_tokens": 192,
+      "total_tokens": 861
+    },
+    "tool_calls": []
+  }
+}

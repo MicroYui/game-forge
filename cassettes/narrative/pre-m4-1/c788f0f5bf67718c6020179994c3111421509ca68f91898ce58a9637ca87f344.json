@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c788f0f5bf67718c6020179994c3111421509ca68f91898ce58a9637ca87f344",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 9246,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 699,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 441,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1672500000
+      },
+      "created_at": 1783842000,
+      "id": "+lRblt5LLGtQDpwPiBsMxVAyBK87EEXdJSBm0WaxefaNu4IPAm591V4blY3ie5ZLJvav0hUMItyotoqUme9B4VZ1rGgQcZb62MkRYUb3mQ1LMVo6v9hs94nDUDt0mA8Yvk+BolaYCYiGk2XJ30ClJgV5DT/lfFNmNpIwPMYc1WQax93oJtJJ6PuZvBHm/aS2ANROHdwq780V7Q2zuIVfOF+73Z1BCfcdQ3ZVK+rws1pWg5drivqvC1fBYWGcq+Yw8xBpX9G6iI7d3XYc5vyFLN4OFTldOtUQnF4/kD7+UGoDkNIx5yg5i/kqE0UEya6SIPfkkwFMkm6ReOK6qMHdFgWBthzs1l0rTu/us1c45Fj/JPYBWN1RtVS9/ztT2JtOCLiOcrVLYdstSjNiUGB76v+1J27fww==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "1iBsai3+96+84snavvjWfp/SuBNnVRGUrYCH0eccaB2TRGTApHRGPgWP+RD3kP+XvxJuziKoRB/aJBD9YbxODTbQekhg+gNBoWo0VWe6+KJpnkM3lEcJwCbHZe9WBQQUtRjjjk0V3twOTCyXYYob7LQT+wImzG5E6jO+HcFyQGez2+XmmHQJg/4oL3mUHXNJAn/9tajFDDe10ce6WFtpFYVsZ43DbvwmoNqPz/I0g5vA3N771za4V9Q49k6q3Zs0nKaUeMk+gicmpSDlIYTzMYl+C1lz4i/NjyOlRBJiCACKP7illnhCB1irkwqCI4A2iJQjbbm57yz40rd0S/HFEIjxgS7f+Z/LQnB0DdNGpfavVofjHw6aaOu8yosVBd22mxh+ivTx6bwXU5uyQCAqgRcObB0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:99c1c345675a1e79\",\n      \"npc:e080ef92cb1f1a21\"\n    ],\n    \"constraint_ids\": [\n      \"C:8bf0c13db9cdc1c5\"\n    ],\n    \"span\": \"Mei signed the register as the Harbor Marshal at north gate.\",\n    \"rationale\": \"Mei is presented as serving Harbor Marshal while Daro is also presented under the same title, with no relinquishment between them, exceeding the single-holder limit.\"\n  },\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:99c1c345675a1e79\",\n      \"npc:e080ef92cb1f1a21\"\n    ],\n    \"constraint_ids\": [\n      \"C:8bf0c13db9cdc1c5\"\n    ],\n    \"span\": \"Daro signed the register as the Harbor Marshal at north gate.\",\n    \"rationale\": \"Daro is presented as serving Harbor Marshal while Mei is also presented under the same title, with no relinquishment between them, exceeding the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "B2ueMCPwRkE2ivMGRp50s2MkrzS7wIAg805oxVKERkchzoivbjrAmPvZS1rwGL8kFO7lfexolvmE/Cv/VXdw6SqVLXrRd1eUQ0O0gqcGCuglGuY3ipFFPc5Vb+64NzKbML7fumlQ35A8VWoZHHKZHyF+qs6NPemel/vgE5XE2BVz9XkkFGEc8gfKNU6Tfp8lOPSptGdU+9VbMLWQyDPoiCgoJwf58IeU9j/TmzTCyWdrqWzDFgEjblZxAldOgwKu3aDTRPoet67wGpRl149PsFXyScQiV90kjwtGnlGnGW+Ubahx1WtXEbstNUWoB6RRZv2duhF3HQpaXJsSptWvB3v7/KkTtQ2oSL73c2iCF80pbHTYIDLtMLiYCmiljtzidxfG8OcVudk48TVAoMeXD0hV/2bO",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 699,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 441,
+        "output_tokens_details": {
+          "reasoning_tokens": 166
+        },
+        "total_tokens": 1140
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:99c1c345675a1e79\",\n      \"npc:e080ef92cb1f1a21\"\n    ],\n    \"constraint_ids\": [\n      \"C:8bf0c13db9cdc1c5\"\n    ],\n    \"span\": \"Mei signed the register as the Harbor Marshal at north gate.\",\n    \"rationale\": \"Mei is presented as serving Harbor Marshal while Daro is also presented under the same title, with no relinquishment between them, exceeding the single-holder limit.\"\n  },\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:99c1c345675a1e79\",\n      \"npc:e080ef92cb1f1a21\"\n    ],\n    \"constraint_ids\": [\n      \"C:8bf0c13db9cdc1c5\"\n    ],\n    \"span\": \"Daro signed the register as the Harbor Marshal at north gate.\",\n    \"rationale\": \"Daro is presented as serving Harbor Marshal while Mei is also presented under the same title, with no relinquishment between them, exceeding the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 699,
+      "output_tokens": 441,
+      "total_tokens": 1140
+    },
+    "tool_calls": []
+  }
+}

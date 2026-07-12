@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8595c30c52afe870fe54593cb84c51653afd3da102063ba43e236d8212aaa776",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4156,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 697,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 200,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 948500000
+      },
+      "created_at": 1783858000,
+      "id": "aEa2J3MvRRW+4JIsPEKGVPTlxzxufL6I7QKhgHJ8PdelTJTtQbuYsiyO75IkNPa4ySKrSeXu0dyODtRd6TZEv8k1vaWl7S5V84+Pv/MPh1AEccjHKy0HdmxIfJUOruu1QUyhj9cQ8RZpLtYr/sGUTvIek4eqdrZucYACayk/C6lxh7bh8K6lnEjha6JZdLpVuQy/WKvDxxc8kIgdf1wuTqX8vj0W2jwAIeJZPlHeVGZRATgl/IXs6Y1d8mlth5JYyN4ii7SJLnkC0V8651qhlYgs+Em3+uvmtK6bvBRRl+GYSZ8CZxWo6fkpTWUyTNbCM7zB2zYT3TSOlPOG3rnTGn/TD7I98RfIh3jG4XLnbXAy1ut75RHaCdqn6+qu1VU2uoO2rFFxvXyMtvX4N8a8HAvYcpuKWw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "YfehsQ5Fz/hwB30k4DlwQVBl51JDwbdDKAeYWjvYf5yM5PvPqbkNz7lys/ABimMSoDjQRiljQZ5HuxGTRlyD4tMmK6Cr0qGMOLwis0DMYjEam73/mqogSSzYK4u5R2Q0goNHDdZX63AfCAE7CTawEwEzwgC8LfjvYYecwzrXyhRFHHiMVaVapmbLHd1hJeTuRPRqpozhXaL87GkmtMh1cwQlgZjgIJ2GwzbkHeEQkpp2hz2IOVBKtcoCbKZ/Qz46Vdc1I8b71DG0TBs41qa75ItOaLFrd+lQsGQDhrG3H8ne+YeHkEJIXtgZYsrx6IbdNOwTSjT0BT4KfHzSLV9QSHjFpE6QId4H3OiqJNDBHtwYj3xXKgZDxpxmd6ZkPWedHM4HCPlRLGfg28cyrMGfxyt4OEA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:099f098f35784096\",\n      \"npc:2adc1fe57517b1b0\"\n    ],\n    \"constraint_ids\": [\n      \"C:df436519c588b6be\"\n    ],\n    \"span\": \"At old mint, Ivo was formally introduced as the First Navigator.\",\n    \"rationale\": \"Lea had already accepted the unique active title, and no relinquishment occurred before Ivo was formally introduced with the same title.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Bb4MvL6mWOF5jPB8JNdX3x/VshEyiWYzRfmdNVASMxRwy2qUv+F49RTkKSmJvSQHpvDbBUVaaI0i0EvIaycdeBLDf3KelajKwnwZ8hde7QJzVTn2Mn1cDHqTp0Hl1a9D1fBjisKbwxO+i1nRw+FzqvPM2SPKI+IGeaU5AqocE2kGpQU4n6lesQZR+xIIvB3kETH9BSQ4yt4OidxhPy6NXDAc4RNkPlnVNnjpE2YwZCePbay4fQcAk+fGaVTxF++BHE/BKV3JKsApQPXF/FgBIKgm9NV5VRDGdWKVZj0J+CPGixiYZDk9rYjMlb964/a+IlShEh81hnvu6AzlelyDazquYPFgnSVcoJV6nPeJLWnaef5sxvrrmQnsA7JCVuNxbpvl8tzvVdOx54Uzii2+DLLsxFK+",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 697,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 200,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 897
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:099f098f35784096\",\n      \"npc:2adc1fe57517b1b0\"\n    ],\n    \"constraint_ids\": [\n      \"C:df436519c588b6be\"\n    ],\n    \"span\": \"At old mint, Ivo was formally introduced as the First Navigator.\",\n    \"rationale\": \"Lea had already accepted the unique active title, and no relinquishment occurred before Ivo was formally introduced with the same title.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 697,
+      "output_tokens": 200,
+      "total_tokens": 897
+    },
+    "tool_calls": []
+  }
+}

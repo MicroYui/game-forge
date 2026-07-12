@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3f41fd79f5e6358259468e35b5506b40b8349d7f67f499d9898ec55546a3cddb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3312,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 625,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 183,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 861500000
+      },
+      "created_at": 1783850200,
+      "id": "f78aSMtF7ppx85h+bBHlzZq26WQB6TEHtFf3JKwRY/M5a9ZmoY4B8rPDg5z873jxH0DSyuzs9z/HekCc6ZDFJt5UvULnyvFWt7zFR/tt+p5Iwu/JK+d93lqEJl/5JsuJnU4Bhqtmx9QcpDbRRXQubt3dDaRvL3lHsQLalrtWwOpNJd+fgTUJSUOnMW+5yKfbBNfRq/+O+/G3LJBThvuLdRHXJs8ddQCPIwDsufwIMYn2HUnBNwZWEQrs+jpcUyTCUl5Zx0pJzzMeczITgfrGAV/x27MDb0HAqQJVhWkbGF1anEOvKN3Cmn9yZ8hcdw5r2UPnUkqzrIfH+jyyen2fie/eHlbq3IN4GihAuS41jLzLxVBZQO3rSZSrSEowTqPo54CVpMB6LU494xfhvHsAuWcDuVgnng==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "bzWv1TLYIxN94hDWRixL+1hxPSq5lrk4O6MOMQX+HZCGGqamVzFvemoeLsYHNCIaYKFBNbvi+CtQSnzTCguuHMZLuTup2J6Gc2QjIyVhZWv4E8IxQscfbf+sRzY2TuHsX9otEA0SdZQchobT/TunKb+TsCUK+JskX0SV7IzaJ+qfYsnRaXeM/wD6g7kuo9wy9sufRV3Uo2pJxa8BkXu6pQQRvdOCyHj2gyVZu0f3yw1eWbkPlqrxsKOjc3wD/a0HqSskiM4coXJMi4ubgWpAVYQfzMQhZtNba6n62Vtz2lrbVmas1gV+cLri0Lao2yBvWVk8K9lVk9tr6ui3RfWm1P/biigzSYlQbtfqiNPZ7FdunaGaqdCmpgbeecPWghE7Z3e0uzPwjXN/jwXS4RlMkdX5BB0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:3f4e2a4074a21e27\",\"npc:a6b3f3df8bb2fe21\"],\"constraint_ids\":[\"C:a7a9d219f9b66760\"],\"span\":\"Noor welcomed Cass into a shared command post at old mint.\",\"rationale\":\"Noor and Cass serve factions that do not coordinate operations, but they are shown sharing a command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "BQSFPhH1n/rswA46FnPT9Ns2KnKUDgeXDe0k1cusYpRatqwfXVT8cf8anaew+juTJ4UaX5nfgUDNbmXapRQKktJmq0ZUoOojgA3LMpA57yZ/zxWHZSBjo3U12rLBCAQwCB1Zx+Ms5lesUvsNTNZ1AilcnSohr3k5VAKRpsiMlG5t/vWz88VeuFr9VRXpITax3oOZOzr/fThI9PzRP2d0TiCJO4JLc6ubCZlDTbGfhUDQNWxZmribAg7fbJOpra+EjkNTBCaxMrVGZ3PsqYgdxRrtwbq4X+GK7k3HQhNH9odCDNm0hdJKZ0ASDRnTnS5s+8sGaqJv+cKrnu7xa7NRhTy5L6RiISrw76b3FKhWJoSdD1KUNlAf+cNKOBwQACnFZ6MQFiF9ToDP22RwAwyFurY1TqXu",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 625,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 183,
+        "output_tokens_details": {
+          "reasoning_tokens": 76
+        },
+        "total_tokens": 808
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:3f4e2a4074a21e27\",\"npc:a6b3f3df8bb2fe21\"],\"constraint_ids\":[\"C:a7a9d219f9b66760\"],\"span\":\"Noor welcomed Cass into a shared command post at old mint.\",\"rationale\":\"Noor and Cass serve factions that do not coordinate operations, but they are shown sharing a command post.\"}]",
+    "token_usage": {
+      "input_tokens": 625,
+      "output_tokens": 183,
+      "total_tokens": 808
+    },
+    "tool_calls": []
+  }
+}

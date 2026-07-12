@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:53b02303b22ea07f8ebef97856917abbaa793a7e5badc4fda073b882eeee9822",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2810,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 581,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 152,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 746500000
+      },
+      "created_at": 1783851300,
+      "id": "f6zXoVgVrrDFwHI7U3KNU9F4qq5yY+NfE85itqmNgmjhmPQsJgas6qmSn1oPf8EQho5txi0oHzqiDtqxflsTDOT+bwnwydrRO9HbtBN5StOb4yzxwzE+NJfchdKDT68hKwPW2yajQ9zhFgaR5OxIPar+FTsnXWW/U0hcI1Gl6T80A2urSIEVLMcNPRbN9vmzRsn70NQFjHBevx8rLL3xFrBbQQ0di2mgo5TH5DGPvkkVnRUz2XaGKSva6JxHCNnS7v0iYxDJTMAu+8/0O5puh8MvdlvyaLiOLLXPy1QtESu4M+icBH2KIMppNA22KQh4XWrdBQTLhQC9oD7bzu6549GbkQJijj4e8nejvLHdGxUJ/Q6Fqa8QlIHkmCc24kanRxU+L6TgEUMr9nnfryHkLA+lF8J/TA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0wWY6Pg/KKzi11yIzP79xnSqyVMuQj2/KTzQSc0f6YEe5OxdSJ+ClAqRls8nz3Dh6aDWKO8cYNfAerP65PcxPwe/qosDxCXlvSwcS4iOPECCrwrtDmKnrxT0FNo+YH78XRTLtv9RHn8tTsE78T9sPYILiYW3tCQGkM5IKcl07QkDKZgSLg1AaFyAQ9HSYcrKxpEGXCMCITXhzhFJE0+2qMOpnoaJl4YgsU2ZOcQUK3VaWM/FiJYYRqcOQI26pFJXVzPvN3qEa8JcXRDc26ZjGToQ66SFjw/r23g8lAfpzHsA5Wc8nZ92GA/YH5Gs/DQEwPfqqg4JTt47U0i5T9FiG4H34ur0tcvwOrN9LaR0ZU9FtxnAoap0NBPEMfXbwYtL9E5RXbxoKFZedFUtRjZVnr+q9LM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:93379c189ddbe2b0\"\n    ],\n    \"constraint_ids\": [\n      \"C:3d660d3003180140\"\n    ],\n    \"span\": \"Qi kept the winter medicine while the outlying camp waited at glass conservatory.\",\n    \"rationale\": \"Qi withholds public aid instead of delivering it to the intended outlying camp.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "LT4qC9RW2r1JtUG/9oFJ4VWo78weT7LmXrMZhfCbVmFYcBkOLey61NqhUTX4uOshC3a/ufYviN/biTkv/CIHkpHYpwGKJN9i/tMqV5Ff3z9CYzZQwC1BJup3r62c9DIZrfHsQzdn05Vzmkx/pN/TQ+jGk0auwsjJbxiI8KW5D2tAmdSsZW3lnw5mbiihK7/WahFrDecWws45vLsceOdp/o0O+gyARRCSvHX/Y4NsygjeqBw9VeaXxGrTkbzTzSMK0Z7FqOsmOcJx9Cs2lFOCyTxE5u0MQGPU0dFZzTwMqClhqRt28VMV9qC5bTMhn1Uu5gBLemnAxDF2xWPF/cuIfFwvAf7ioICGdNhrJ0oziqTYdHnRobeSCSo29w8t8WiemEQF7CESNbaf91yc4Fl6V58kiwsX",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 581,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 152,
+        "output_tokens_details": {
+          "reasoning_tokens": 43
+        },
+        "total_tokens": 733
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:93379c189ddbe2b0\"\n    ],\n    \"constraint_ids\": [\n      \"C:3d660d3003180140\"\n    ],\n    \"span\": \"Qi kept the winter medicine while the outlying camp waited at glass conservatory.\",\n    \"rationale\": \"Qi withholds public aid instead of delivering it to the intended outlying camp.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 581,
+      "output_tokens": 152,
+      "total_tokens": 733
+    },
+    "tool_calls": []
+  }
+}

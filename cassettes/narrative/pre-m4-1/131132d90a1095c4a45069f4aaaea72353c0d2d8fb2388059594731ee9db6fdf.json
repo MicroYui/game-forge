@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:131132d90a1095c4a45069f4aaaea72353c0d2d8fb2388059594731ee9db6fdf",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4601,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 536,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 234,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 970000000
+      },
+      "created_at": 1783854300,
+      "id": "HlT/phvf6icH/qzcJIE+Y1Fg3BwX+qtvuTwZOsBDg00CwZPhmvMuN4orNzKSBu4KMoYZHHQjorT2MHQd4Zzu1iITMLmpa+Ou96KBkHI3tBKAfjrnGa/9mJLsr73a4u6UBQXnyi7u43KP+6Jqk0gg+z+tLagsmII1QKqD3cg0gTnMqJ6J6WAH0sZQ5IW0kagHl37uW85EiUmb/Vqna56CfK/z5AminZ14P8BCbLy9Q0O0L/VdunfhOGY4NyAa1OvWI2+bcWtNb8hu4neTjUGIRI7yfjkrElBGYpCRnLsi4v00n88wZAxqw1bTLAC9fouiBFX3j36cADCJu8wesjTIcXBHNZBDKTJFuA9753aZwo4zQF8DCAauD0ZoRvx1qezXW/R8TH6qaFYvpL9d0sVtdkoFR2tXVA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ZX5uh0bDZBruU7l2lT4Lf5UZdJiMC3PhphDEinorE2S0YuS4aQ7jbOQauggf7QjXy+yncfvMk3SEWH4NvpX3eSlpttXevdQrfFBflMzLbNgBkbds8n+N1w9dMvrvgm0L1O69ifySl7Fy4wg5531pwOsLEzwIRFosoz3tgk4agAFtm4ZpgKvJB2TituamAJxAKaHClVb2GT9bG5oD4Dz1ViR0PpgbXHh9d3BO46fV51G1sgH0PLKVH0nVYHqih9yoJsJHKbP/n5paMqwqQyTRQXP6FV1WZKI38Rv+SBI9XhM7gJrbX4BEsAUorgRGmEeShkKjHzICeixlA167wCUwMrGiGNZnSKJCA2tLHTA4Ak/C6UP5mJrlzW8ivjKEzgSoqRcn12RF57/n7YbVKSVvq2OpwlU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:8f834dca9ed208ea\",\n      \"npc:961a851642bea854\"\n    ],\n    \"constraint_ids\": [\n      \"C:36a9d174f6b3a8f0\"\n    ],\n    \"span\": \"At archive hall, Oren was formally introduced as the Caravan Voice.\",\n    \"rationale\": \"Oren is introduced as serving in the single-holder office after Veda was already introduced in that role, with no intervening relinquishment.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "YI0656AWxELJL8QIhOLlVJZxAXGyeItexuKIlxnfjCHn2ewTGswNxu2GjVBFUlSJludh5Wtv3IlPXecmdP1A5jyyCy5fVUvBpvtfu2uZmEoa6zQtRpcGtnBZhsmIGVp82uhcS4CVHF+PSOKzEL2KCggLhXRkVS2cwSWZJqFxP3nTc2DnENgzeR+mPpCMIbAZPUMXK9LsZu743EiLEgjAeqHrtrJ4mZ9wE1wVozXj1DYuvcvjDvQFLC7XsMBrAa7SPnFqZD/mmC8pBO2ORlgn39vTz3aaLaiF0j0AkaNT5e2W7Onfm21VNGY+z6SRosyXIzf+7S6pNyk3IXrLd0Bp9Dpmb3EfYvuG5SlbUSAav8r5LD0K/rAtzrUuWXmlrfvxnC8jItMnu7skY6WimU5CQlwjxecW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 536,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 234,
+        "output_tokens_details": {
+          "reasoning_tokens": 97
+        },
+        "total_tokens": 770
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:8f834dca9ed208ea\",\n      \"npc:961a851642bea854\"\n    ],\n    \"constraint_ids\": [\n      \"C:36a9d174f6b3a8f0\"\n    ],\n    \"span\": \"At archive hall, Oren was formally introduced as the Caravan Voice.\",\n    \"rationale\": \"Oren is introduced as serving in the single-holder office after Veda was already introduced in that role, with no intervening relinquishment.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 536,
+      "output_tokens": 234,
+      "total_tokens": 770
+    },
+    "tool_calls": []
+  }
+}

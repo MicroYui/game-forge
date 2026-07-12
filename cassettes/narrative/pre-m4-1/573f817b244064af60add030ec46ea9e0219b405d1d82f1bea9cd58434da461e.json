@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:573f817b244064af60add030ec46ea9e0219b405d1d82f1bea9cd58434da461e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2452,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 511,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 124,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 627500000
+      },
+      "created_at": 1783861900,
+      "id": "+7Nk8Wyn7McLtAsGbgoiI18cn9OlOzu7R5Bp5ibdOzhtay9mn7RX68m0S810+7gomPahTA7TFzblCSsAjAKvOsMM1Ig1DVzdu5J97hHrw27v8jU41GTpSZNNeCaUZSAftmuciP8WBH+d9tiN4j9/qXvqOI+ZCfOvLWOFyDCONwcvAO3jW4PUSzTVeoLb5iyENx8oBFCy6Y9bekD/uvtj7KOEjz5bHXVvBdcFyN0MjbCnduHeiguC0mL4VAvU4hyD3mcgKKS2qKBC02uV/5JMCRSHSffVWx3c9CzCCBj237B9ox/bCnhHZ7ktacRRvz72MfQ4ggf8xm4KvWPeHnyoJ0e20YlFxpuQlZQDa+7GVt0lWF88vEcQlQq8GGpf/cAa4XI4LkEYDNQr+ajd4RErivHYimQ9XQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "RM5L7XNQeuiykqYaBXiHqCv9hPvR+3YukHKI7CTNZsCsYwsGM+ECT/XyYhU4x1bzgrMnfntjwcWV1Jjbh4F5KD7gCNPM7Mcv48A3PwYT4URerboa5h01XskmzXh/JILpM+xptx+T+KQuxkcuYOc4EFVGuPQEwL1LyrcwzWQcuSIwJUWaC3E+Kq8KYScq7NYyoVMeNln5S4FuYlhVmEPQzkqYjigFBrRb4kfbh39JR25yJd6MQn6c6PxGgM4PrA1wYlZIrS97sTTW8P7rKInPR4jB5HwFvA5N/sWD5K+lmF8EiscOcUM+BzmoK2LaxmxebONLaxDqx7Z9S8iwjqwgMjYqOJIHGjr1GZrXeOEm1D3hLD/F8IkUC30AQ6RnAVcrprjzF2/amyLSypubdw4t7piaCFk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:3db1dbf993f44819\"],\"constraint_ids\":[\"C:4a8b4eaa570a7381\"],\"span\":\"In archive hall, Ada marked public rations as a personal reserve.\",\"rationale\":\"Ada diverts public supplies into a personal reserve instead of distributing donated supplies to settlements in need.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Lm7qKY36hidUtw8plfcU5OwpYAd9cZyZPi9vhYoL8P4g2LRL6fZmZNtEn8fVNMaDWS8hoZ9lumCNbrZRVHJ1zkY7g7TaPrWLaNUDMWy/yauJa+Wx549AyJeasr7GSz/UG2htSZUTpHNLxsRtouL2WAziJkARfZTd1AZleIb+eTWLSs79anjCGIdU+sGo7LRQIM/7Puyrqt/rckkg177mr9zL5Cs980FxYt6+GkUuxsAWU247PYxGFfSKYI9Hf96I4qy/wkY5U8yAgN979Ctk7D/H252IOOAFt+3N+2IP7hGUds+Xaga2aVCgYHEc3chWJLD1JKnR2IVixmoRR3ZKVVeMKAKNYJLjq9+w7I4/tArsNvHEVkHjSXTydU249dqyYXZcnTCD4zeACcx+JwIHPiAcK0UU",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 511,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 124,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 635
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:3db1dbf993f44819\"],\"constraint_ids\":[\"C:4a8b4eaa570a7381\"],\"span\":\"In archive hall, Ada marked public rations as a personal reserve.\",\"rationale\":\"Ada diverts public supplies into a personal reserve instead of distributing donated supplies to settlements in need.\"}]",
+    "token_usage": {
+      "input_tokens": 511,
+      "output_tokens": 124,
+      "total_tokens": 635
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:81b88ae2469b74bc72ce8e8181b6c7947aceaa06a959434afa671bf4a8b6d870",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4288,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 687,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 239,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1060500000
+      },
+      "created_at": 1783850100,
+      "id": "ZCD7dHkw0C5l8t+f4w1ibvTqYU93S1+pqt8TBzfoJZVsvBmReFP0k/BNZviE1mP4Uw/TV2PeAGstAQlNbbHi6nIjRjs+6XS3mGRHI4PTrvl+8j5QIwqmT+WaJ0WiA4YRLbDA3ezHAtYlgzwhuDGXH9NHGpAIHnDiHzqkxMZriZK3sTf+/0vLO/EP3Ma1JcBNqmW3AQtVMQvvDeqoDpKJ/moYzt1wGuynq+GivCcycFyCLEiAhAAo5vBqdLEdVGkuFQs5yD/bkuOjtvluHBd4vlsjVNNs2JhB4i4WktbO4DdDhoxzj7HJStEQpn5dpe0hj+k0MocXsU7QXENFELfKaWnuXpUDUN0EE7ye6qGmLfhh2WLhdkwunSpv5px9YauMruY/rg3I+efleyttGJpwVCZ8vFjFZw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "MRUtGK5OYqiTUU9yEhHf6QMW2gqoxQ3xTwDcdth6Evm5nyzz3znzmhpct1Qp/8MeA/9Hkk8oJEKWwgqTdDRPBdK9SrwCUCwmcTD7riR4KSEd+x9uqcvzKkiNAGg/rScsdHviaUyaf6708BBXfDxWZ7vualoXZLp9qIxLzd3dL3h8zF03Bvn82EzX1Ar/IHbNt9s6D4h8JF75QgxCfxifFyBrmohlqupcAxsL3lmgPUhXv98I6juVFxGRkAXTjoYB5Y4gH8Qtymi5mUjz7dijN/e6owEGyfGBh5eIF/OKtz5/t6K7tt+wIGVit8KfXHGhYH6jtRW8EcFgS1+hj8kIIaEXnXzvJS6ox/CMkXVP/rFmMvNff+Rv1ZdCqyaQKOrVVB10M6tn4bfWg6p6WeXzkwrRYy0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:b3893914a7bfb58b\",\n      \"npc:db893ba0d0a20e3d\"\n    ],\n    \"constraint_ids\": [\n      \"C:fffa8570f362bcfe\"\n    ],\n    \"span\": \"Mara signed the register as the Caravan Voice at eastern ridge.\",\n    \"rationale\": \"Qi was already introduced as the Caravan Voice, and Mara is subsequently shown holding the same single-holder office with no relinquishment stated.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hD1H815/wlvjElsnFjt3TydRQamhovUFa4MhaE+aPQPHnNAFtYcRqyFcoeklrZGQs2bFan1RPhUYBXx9komRyZUr4NN6BeLzEh7qzA18PufAwtu/HlVxY5FzhQvpCDFes7OuyT1O7Y0d6FPr3v+do0RhvtxSpd2m9wsMVKCAswYnocz92U+10aCttbQYBDf27+Tls1BqvalKRzRsZMMBrP+fU8TASDU1wmXVEpgmwtwC2onqirvQKhgSG0TfYRW9ufBuRjjb8GGIxCi2QyqBvYvRBQuUxx8Rj5CnLMNjrxO8otBF2C/VltYehsF+Ta+lbF2bxYc1cKB4NfCe49FS+yF/yS4b2NrEOAgxEADO9fJwpfchWrWX+ptYOjH+JS9rdIkVpidx9PTqSHDRH9kAUfWX7V76",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 687,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 239,
+        "output_tokens_details": {
+          "reasoning_tokens": 105
+        },
+        "total_tokens": 926
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:b3893914a7bfb58b\",\n      \"npc:db893ba0d0a20e3d\"\n    ],\n    \"constraint_ids\": [\n      \"C:fffa8570f362bcfe\"\n    ],\n    \"span\": \"Mara signed the register as the Caravan Voice at eastern ridge.\",\n    \"rationale\": \"Qi was already introduced as the Caravan Voice, and Mara is subsequently shown holding the same single-holder office with no relinquishment stated.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 687,
+      "output_tokens": 239,
+      "total_tokens": 926
+    },
+    "tool_calls": []
+  }
+}

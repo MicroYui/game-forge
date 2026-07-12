@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:62837a016387c0e6a80ec3725a8d3b4a75f7042c52217b06f075b536705ab291",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3263,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 616,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 204,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 920000000
+      },
+      "created_at": 1783854000,
+      "id": "Wo/gJma+8+FHlXn65bu7vBjayzG7y1SNtQxRizFfxb+QzHr6kDchJqwODi1UsdS7eIfOzh7JOfMQBD/tKHGvbW+y/C0+rN6RnSKPgb4lSEFmzVBBWD1jCmaxuxsSkfkJlkh2k+y4vA2jI4OQtprGoOIXfwcquBDbeXmOBInxnPTdIDhsmAmOKH1uhhWx+Vj8lgLwIAS/igIASWIR95Xjzrfu//UDrrJ1UyAmrWhjPn+k0hVFl17shfTqbI8Rpz68l7FZ/2RXxqBfPTKyI7hjutwPNVgYyHBl3V5HJxYe/sY0I+FmB4TcLf5f0nCV5xcN/1CbjLZUmweZETtONkYlySuLiIZNJR65QYkYi6H9LpTBijjb790XoDlEreTYQQ9U+mZn8z2Al2M3AsC12wqkUtUd7usj/Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "DX21yA8w6iyAftQ3Juic1HUW39nSbboKS1UtbuBQ4gw9eVpxxAUlhTS1LebRc7owGBnsNXB499nxfVaFWqdPAqT8th8LOGGK6P1y6EXdGCpM+v6mCFA/KDUp2y3WegY04pWp161otzS8Ogt2BMqhsm6zfZTSdxeiHozpZBxY/AbgMMwl7t+DJHoAOMf+Gxtws6E7QPqRhZellhgtfVwKpEbtRe7LUMJP7Wjs20YUHZjP4ybEbjHGQ0mP78OT9L/8B+6cQOn0O9GX4MT7tu1o0uOQBqu0mGQsXQy82sWaOARIBjv1QMXeKGk/ZfLC9B6Sf4q4aRwFRHNUrWPcjhkfUndQbNNiKqhS3iboT52xbj+hkr5aJJ/scrF+9wo13bJOn/ybPHD9TqjG0QVuHhQOxKaSEhQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:2a7e0831b09cbf33\"\n    ],\n    \"constraint_ids\": [\n      \"C:a8843e00db6b4afc\"\n    ],\n    \"span\": \"At signal tower, Ada abandoned the ally named in a sworn promise.\",\n    \"rationale\": \"Ada abandons an ally covered by her sworn promise before the dialogue establishes that every term was met, conflicting with her rule that such promises remain binding.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "aFWKkgK+UkUqoo7QWQNLwRtpLee1hMDRvkFWRbYHlu2LVqWuLh1P1w+piff7YOdTPQfkxMZkX5GIepFOo79bkLRYDUgkLix0WiA/JkI6phGEthSnN0vkpXV6fKziH0KCKJ7xj0SVQMFCkcKwpqdBh1YsrYQGbRH894AHKrhKwuRtKdGP6tSUjHvrLUJ7oZoJQAaZ7UO4A8d50Z0/q1kOwlFfPxa1pJwpgkVfgSeQESD5bKMkwb8wehUMRHNU1wBAWF9USYf4M2MZ2waoznfx+tyJu9lTUmxuK+id5xL76XEXztnlcTcczTohJ8JQT+tGZyuayZ3yZ6YgX0Jz0tIsf2c8MoCVsCdBoWU7WO+0gcPPIB+5SdVzDPsqbSLdb4BN8/I3x81+WnDERnX8EMr0/qgor1XW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 616,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 204,
+        "output_tokens_details": {
+          "reasoning_tokens": 79
+        },
+        "total_tokens": 820
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:2a7e0831b09cbf33\"\n    ],\n    \"constraint_ids\": [\n      \"C:a8843e00db6b4afc\"\n    ],\n    \"span\": \"At signal tower, Ada abandoned the ally named in a sworn promise.\",\n    \"rationale\": \"Ada abandons an ally covered by her sworn promise before the dialogue establishes that every term was met, conflicting with her rule that such promises remain binding.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 616,
+      "output_tokens": 204,
+      "total_tokens": 820
+    },
+    "tool_calls": []
+  }
+}

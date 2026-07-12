@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:efd17b33478b04755125057a7409093f027c9d17ab6fbb1e191b3a140cca50c0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4912,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 633,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 273,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1135500000
+      },
+      "created_at": 1783857500,
+      "id": "FZY2CqJiiGkkqdjdigttQRb4lC1d+HBQf/GGPHtbHa6M9GHrc23VyR1Ntimyw9kMLDDAcqE7RB7gRukpi/qVuKuDemI/v67Q+TuhVWcHd9kwV56yseUnKkzxkHKGSYYn2aS6+fQn9EQYtDxABN5OyAYFEea6bsZ4XQiGNVsT/6O+YX+CdrWoimy93vZoo8LDgew4qzyJOabIrE94asvpVzlR8ieYV+e6YXGBQcGPbj+ymUo3fmAEy5+20mjA506ae/z/DCy5yEoF28LSRAVHY+bWn928sC+1Etkl7ZEI33+5F7Y/W4P0qNePhM3xayvUfZqt3QLhrCDzLsid081+t4CuwC4SS/r0Tf+8eE/oWntTg1ZoPQfVMAavbp5Cp4+xzJZ5uKXGyJ/8hsSIGIYtTlO8o+ywwA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "D7UPsg3TPYZL/BBxLSCKB69NLntLBC3cPrZWoZUwrAUNqW5A3VX6iCDzMIMM+73Il9TTgfcnfjZSFpKiB6XdwT/O021ZaWSzvC0QEOxyhvkCxwdiPcB9pOmNGSq93NEdlCKi7crx/cvvym0scbA2wgq+9zpO8ImW8EhAaXFAr8kYxqYtXTDRkjWih9n9hr+/nqLdZkX1j270M7GRfes/PiUnpc5eLvQ0h5HBxeSIxGMDpgvhkuLH8LFWPbFD7u/6Q/VAST0vKYaUUCZFSd8/RgC+y/31uYSgRMKSADmZqUbWLq7SosZaYLxfZNiaVVW4tFkqr/g1PxmCxkuYegizSlqX9bulHgkxdpPLSokyAOyc0EaFS4eVJWrnz6MI6vWuuPex6UdNKzvFBFzK7Tugb0/LNMU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5f85c882e2088810\",\"npc:c62f4d46d254b5f1\"],\"constraint_ids\":[\"C:aaebb916840859ce\"],\"span\":\"At caravan court, Lea was formally introduced as the Crown Witness.\",\"rationale\":\"Lea is introduced as Crown Witness after Ivo receives the same unique title, with no relinquishment shown between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "7RlpXZTvVz3Y3AWiyuHBX2Ji7jSmZORBeQQDyvIjCXoaBRuu3cSFPPcEC1uxTDa1YvGIvRB429fuMWE0680+GG/hs/o+sQNdF3j9K8jY/a3RVz2jleQ9r75PZGBOxWFQB5TYDiEH1sUncALLdtpwJiyF4B3dos9dIkG0cExZvKK2BcQOxpUhjFhkrDCv9lB0lI68Ibk3In7UihbgeybcGM18GfNSxThWoBXMFSAfNiegqc9+1xIs3qFPvmHRTgHpPMxACBNNrVvY8aL/xZW53MQkJJHJgMfPysEmcTKyaVZ3BK5gZ6aVR4ED30U4O8q4044gPyKdygwNs/ePAlHFVUe6rKv44PkovjM2iQANFTzNLdfmKAwfDkwYUESpxs2wWey1XkYWYaCv8PDhRiLXc2Oi0s2l",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 633,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 273,
+        "output_tokens_details": {
+          "reasoning_tokens": 169
+        },
+        "total_tokens": 906
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5f85c882e2088810\",\"npc:c62f4d46d254b5f1\"],\"constraint_ids\":[\"C:aaebb916840859ce\"],\"span\":\"At caravan court, Lea was formally introduced as the Crown Witness.\",\"rationale\":\"Lea is introduced as Crown Witness after Ivo receives the same unique title, with no relinquishment shown between them.\"}]",
+    "token_usage": {
+      "input_tokens": 633,
+      "output_tokens": 273,
+      "total_tokens": 906
+    },
+    "tool_calls": []
+  }
+}

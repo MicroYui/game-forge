@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e5f4a2a949af8eacfa5fb1271e0c87bf3d8dd5606a92c2d0bf9718ae8aaaffde",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4318,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 705,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 221,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1015500000
+      },
+      "created_at": 1783859200,
+      "id": "qhQ/stmf/+58UpxwR2uFOyMYXR3WjTm2hlEw8MnskPV9XyJsjmYmLLY2zEWvN/FnZG8sDW6FWKAJwyORTTx4kF8devQBMHpGX8yM/WbUkrKXKec+Q8JDWCuVW/ZwqgYpJDJK+CPJCZxH9K8H/XwXtEHEJQ/pqkNYVNd7KDlJ4mfvhmpmO02rKn6MAx2/YiCp2j200sosO1KuWRpUkpHSIQsuwPQhCDw9mqJbyvHt0PJvPKY25/UGpXuJMJsWNY8YSFM+Vt3+jQR4RvXaPbHIIAlKojXm1hEfv3KhdsIiqnIJQehfZsePXJd9xTa/b7PTj3uLo9vs7RgKFvbNGpS9pNZyk00djMw/e43PLQDwJztrIyDmY7Jr/jU1HnHzDvGKr04laEesM7RCb3qUQgDJpt855n7IEw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "jyGHAjPvd2zLgFnVVrhvems4ZbDKaQW2KnOaNzFbEnXgNgfSpR0jCn8EK/kXtO65rZK7SmLXI86WKiRSdIhSsJTzNYD8lkIjZ6Cg39Qsqj+f5riBzOwzPoo9okeNCAIyBdpb+YYCg7CDgYgcU0yhae7hbo1GHuiEIQsCNAhGtKFPbr+MI8SEVH3Dmhr9h0oxNt2bG4ZA/d3BlwlxNHEGcytM13ekMfvLaE+BfUwHN+ATDh0/B2+io3kJazw53K2t8SKLIsskLBafwPmG6Je5iIx1bJoZLJMRYYih5HMuGbIeBTabUTGbdpKgbIITjs9TipoGkEIWKwH3LL4p50GM48COx7Q7UDORxt3T4LdrmFBDhZ8q6UYxFklJLPkgaB2zTsCx2Da59u7dvnW4XE1cIaaIQPo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5944c3f5e9f89e31\",\"npc:9740b3ab7810f002\"],\"constraint_ids\":[\"C:9af7c424c6b94462\"],\"span\":\"At eastern ridge, Malik was formally introduced as the Caravan Voice.\",\"rationale\":\"Malik is established as Caravan Voice after Ada acted in that role, with no relinquishment stated, exceeding the one-active-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QFvAEUk1ZLcbniUnBH5/wrYOr45gzZKHfI1C38BQQr5LiwB7FOtlgd0Doke1Rct5xDfK7WTxShob6AFB743dO1NaG8YynNYBVNXnrNtGeXA1++B0atrLx/LCvOlwwWmugLZk1X7VBooUKeKwaQOoXJFGiQERQBfURvVWl7Rg+bI3MJKvuHf8RJjDd1gCt6zA+pK0P2outTqPrggMcnKWJsxyL0r3xdVSsYGwEIvyC1tfuMtgTdEtOEytTIQ91DNmzHPeOu8r47wiOaioUlozFl8SUsEFbM7gHJt30Qy/pbkGzZvyr1xwB6VThXkq3pRmQUzmTOTGpD8J90LaTNA5C0LiS0DKoq2xRNBJg/Dhtrq6alNtkPmX+Z37Yv2BFwB0lWRa0cXsZFkvDaV04m1PsJh0ABxm",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 705,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 221,
+        "output_tokens_details": {
+          "reasoning_tokens": 109
+        },
+        "total_tokens": 926
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5944c3f5e9f89e31\",\"npc:9740b3ab7810f002\"],\"constraint_ids\":[\"C:9af7c424c6b94462\"],\"span\":\"At eastern ridge, Malik was formally introduced as the Caravan Voice.\",\"rationale\":\"Malik is established as Caravan Voice after Ada acted in that role, with no relinquishment stated, exceeding the one-active-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 705,
+      "output_tokens": 221,
+      "total_tokens": 926
+    },
+    "tool_calls": []
+  }
+}

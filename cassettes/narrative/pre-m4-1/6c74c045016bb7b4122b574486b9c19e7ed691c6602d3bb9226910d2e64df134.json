@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6c74c045016bb7b4122b574486b9c19e7ed691c6602d3bb9226910d2e64df134",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2766,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 694,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 149,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 794000000
+      },
+      "created_at": 1783847200,
+      "id": "xr1e14dUjZaNHJQ8k/Z6WzqG7nqEeBg9wCcUsg6NVyrh7jU7YbxcG3CirPaAzX2ej96z005n0tIoO5dJFX0hcMIB+NN2MS13wllcs9twlaKuBDUJj1kMDGggDpmBlTp448MyJNpqciL9ShSo0XncaHboEj0ZkWONWG0RsecPYhHU/qCtqoIBl+OSAiA7IE8Xx+RPiAF0pYPecLaaveggdvMfG1dCGlGV9YKTY5n8m/izURhrsc1hbWmWvcIsZA7l/z21jawj9fr8mL12V29k018HLPmc7sv/h9UyccZ0vFQEzh0HoZb5ts9CCramgHB9w2ozU8P4AXnToFoSBqE6M4BMjyRtyxo8jHGWTDRVOAdBpOrb4T2q0arkz6QwzMECAFov6SaV08/PTlD47nC9BrWvLiQ4qA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "qoKNeD4QK9bU1dtxig43quYijJa9ROkCdGrzzsxrWHi9OHtmXT7YhuRf47vfMoUFWxuRLeb6hUP6PXswEB+l9vV0oPTdSyNbPEldX0j24l5OiWGMw9Gb7qtb8KP+ys1K3ALL143IFs1Tq7pIO8oBYMhgPaCEng3oE285WHxFOAFv9a66MsoMrkwk89b/rXVrZe7nodoPVYh/zKj0c9eCsKhJgjqv+Ida3IWokPGKDDsYNTNAupwrr1yvrGta6A9kHJjxrZ76MGehheXQ4zZyrKjJVNtqnB8Z3t0lqB5vubVRMmscG4U1JsbcsNjYzXrRE/UrFVRlbGaNi9fn904/qZO8G4LkULCCGUuB/C5wV5ZDkgnnVRY1NRSwjSIs2V37z3ZAFL5mILmI7COHWZqVwjIw+/E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8aab9a578b2004b1\",\"npc:fa95ac5067f2d973\"],\"constraint_ids\":[\"C:2f629181a068dde8\"],\"span\":\"Mei welcomed Daro into a shared command post at eastern ridge.\",\"rationale\":\"Mei and Daro belong to factions explicitly at war, yet they cooperate in a shared command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "xTznJtxQz5higG9T3yp4FIPlZyWoDUNvq1wezwC3zvhUaWGWdbQDRbnKTVNjl/DSVQR2xSQC8ETk2nLFDT3fDTOt9qyLmcPtcdo3scFp+6c3Q93FjjSx9ABAuWYLJe+/Pdb4bRB/FVaEBUYDe1FZcbc1AOS+uAEk7+MiFmKn8UF+xd3rfrrV5PQ12xxZYAe/Vcw1brwGyA/ajC4WGCD3mriU+yYnYlu96LtsKq+ae9stitLcKBMUCFiC+hSRuEttRlKNoaX4TgoPYCm2dUl3HNfALqrycE1ghvMlBx7VGfFlMSxO4ZpqhFX4Fu4/B1dSK2KDjz9LHbKoL1Yc0rACYhyemGQVQIxtzb/uJxjoBrNU7JDNkxyweR5n6FyprhwqyjXjgZMYgawQv610K4Cvzs8t9+Ms",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 694,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 149,
+        "output_tokens_details": {
+          "reasoning_tokens": 46
+        },
+        "total_tokens": 843
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8aab9a578b2004b1\",\"npc:fa95ac5067f2d973\"],\"constraint_ids\":[\"C:2f629181a068dde8\"],\"span\":\"Mei welcomed Daro into a shared command post at eastern ridge.\",\"rationale\":\"Mei and Daro belong to factions explicitly at war, yet they cooperate in a shared command post.\"}]",
+    "token_usage": {
+      "input_tokens": 694,
+      "output_tokens": 149,
+      "total_tokens": 843
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:843357c2518d8fd553c67c985e22671d9805b9babe7a585a9d233e6ac9642581",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5788,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 570,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 245,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1020000000
+      },
+      "created_at": 1783860600,
+      "id": "Tk5oJFp8ssl72kPYTXtiiLcb/7QxNc4//0qNv4I4IBwro6egjya8XGoUKakVGvDaT9P88ScLeWle0O1327XMJNRsOTmTEe0IO/TmXkdZ0kEnS4W+hAJU7iQRNcr9VylK6641KPNHd8t9ATkGBgAxRZhBylXCuxsB1/cSFIXgpkukUFeFay1hhs/t7+m9jCdOejcQTtQsD2v60Em5iE3qLSReD1rtH18A+fEtn5Jsq6QGZ82sjPL9/IKR9iHbcZQR3G3ymOJMmqVwnqvbnTDug+kzK8fOq0eD+mTUskXEuygOwUV7QgWzyMNBjiO1iVjg8fbskvemXEg/uwkU3oz/ctjliG47Hua3u+5H2QUd+Qq0HQlawOm48JqNzZYgSKmN7QmO8LYSdXE98oif3KOQb7IWWPPUsA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "2ZSAqxFuBM1PuCebPTxomIuq0KywY8qnuIkV8k6+seTXrTD2uPzp0mprjRHgqxPu3dkUEUi4+5u9WP6YnKMYWf4kmg3Lh0R61P1Jb8XdAn5azB7n9Cxn9j5WS/5tGeua0mSU4kTvj2dzOVbTbkz8xDeDxgWr+HU0SUGBCxO3JtAinfKxJIYzS9ChBBBO+gSwha6ue8D+oih/RUqPbyrh8Bs4R+xeC5KWOP72yER4PgPWmxUnyu7US0omYc/gnQJoWgjoJa/4QZaVrGDQDOuYwZiysJxCvg5z7BZlO07qtFmbUJ/6DCEtjzukySxqcIOeAwWxBRZHrnjhgMSt4UHGZlfzz3gwK78wZufLm3Y84TdiKIn+OPOjdDUtS40LVcnSR7eQmHMXt89VTsSO/LhaAKCmDlU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2a3a56aa0a8b7a9e\",\n      \"npc:c4961207d236076f\"\n    ],\n    \"constraint_ids\": [\n      \"C:7634ba5a9b48cd9d\"\n    ],\n    \"span\": \"Eli accepted the title of the Archive Speaker before the assembly at desert waystation.\",\n    \"rationale\": \"Eli takes the unique Archive Speaker title after Tamsin was recognized as its holder, with no relinquishment stated, showing more than one serving holder.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9icxAT6AnIlU7ThCO8gCX1MRpb8jB0FK99Q/YaSLFuzNFV1e8IYD6G/6+edlKM7aDxzcDAgr/ub1YBuY0fl6Vhuc7v/RKUd1iv7XPyqSBP+YGvkxaaPUP46nY9NKK663SaFeiXUQ1eWlEI/BPoCgGxcqMy+4G4cHBOe7xLB+rFhSg1aXk0m6HrM7ZwaFcZn1I+D/Hyme0wDu2q5OUpamL7GTsT6AEpkBhUx4EaEfwcTbW9RNlR9wF4JFpy9dhB8li2dip+IeAUzh/yXSlVm7SufnyiA1GfzIFMXonLBjOWSYxidUh34d2LdfL3baadpyHU3EFEUaccjrrrsgZ0tt4t6p3g0dm//TAUjXslZLTZDHvfs3ldl0pXqdYh/VrP8pd/NQojtXAjf366MQlQYYYDYKCA7q",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 570,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 245,
+        "output_tokens_details": {
+          "reasoning_tokens": 98
+        },
+        "total_tokens": 815
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2a3a56aa0a8b7a9e\",\n      \"npc:c4961207d236076f\"\n    ],\n    \"constraint_ids\": [\n      \"C:7634ba5a9b48cd9d\"\n    ],\n    \"span\": \"Eli accepted the title of the Archive Speaker before the assembly at desert waystation.\",\n    \"rationale\": \"Eli takes the unique Archive Speaker title after Tamsin was recognized as its holder, with no relinquishment stated, showing more than one serving holder.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 570,
+      "output_tokens": 245,
+      "total_tokens": 815
+    },
+    "tool_calls": []
+  }
+}

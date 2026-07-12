@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3420b782859ead1629acab1203f1d6bb89ff4820410118c35fd4e489e2c23ff4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3295,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 590,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 210,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 925000000
+      },
+      "created_at": 1783850400,
+      "id": "qWerQmQ4r22+lTooViEFCtfc5X5IoTH4R8HqjzcAU/F81DYE5kv8Vffetf7OzVslM0iVbpd23DEUISE3xocwiikglbofEpPk1mwxETONn6po8YclRBiUuuCGL6MlEd000kmcVsBx6/zsb42i5ystX1fU2SHy2ZoUkN7MD8e6WHw7kUStYdhmsvxLwES5Thyum1ZxLsgN2S6HbVPpvt3n+fMYv5U7I4E2B3n9l+k3ssEraP4vrSd1M6lml4h/UZoN4n6004j4Nv9Tf8xoYHZdC8fqj+oFvc6jF5tj8/7xgnlwyOAx4oeOtT4DVNI7ffXubcSKv+mLhByYQm1fPkOebojxgDSsmvQbZatIcnork8XHvKJN8/cNKSfak4MIP3GqdBFwx2H9x0sobmty7BfrOTZrI4d27g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "IWba+Ve/+H9PRBoxUTvqZ7uQISfFOMyfatgUiJO+IObLV7aF/knHCvmXhQB1zMfMPmAcvbRC+jOI0Prw6AIZKWVF5csUroQgB5pivDltY3lvhaulpoG2sRWI+/LcgqKUsAJ6ZwxKJMNpASRA3ty3kzPK8nOke3/d1Oy3ACdlZYumY2FUEPyZuxcAvA2a/bWG7O1paG7WTAF4dz6uKC/YBSsWySMLVxJIg9VZy6oSV2NuMcIiZ58f+l0WrPg9Ia8tx1U88iKOyrigoORWlgt/MgbqCqUiIl7Saisd1wD12KwwWKLhrFs2Vv42DDXWETfMzfipfAmBItn/LZl74OSvUxYur32/GTWurtCMnErCL1blZxeBqsrgdLKTE8MdXhsHQcNdtjt6au+Ou1k6SaJxIoNhta8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:cede7a46de2f7d23\",\n      \"secret:05965b3afafecea6\"\n    ],\n    \"constraint_ids\": [\n      \"C:8f87a4a38bb2e862\"\n    ],\n    \"span\": \"At glass conservatory during procession, Mei told the room the truth about the hidden heir's identity.\",\n    \"rationale\": \"Mei discloses the hidden heir's identity during procession, before the permitted reveal gate at verdict.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "lqJJQYZLeOa9g+DD6EjVXDIIbFXyhIRGwToDjIZ7V0QqvmtsynEQrs6lprh0RNNIMKl6tk2wSzx/zFpiqrTiVqKFepM+Tl3hIzoAWKA/5mdXi3HGR6fxumsD5uZvtOscLdtSa/B7FhNHtRGwKcPYuUV42jnrkMUrL6gJ0C6yN+NUhzgL8Z9KI+KmlGHhyyv2O0EiQLU7aUyUls0u6AM3VK7LEYJRJrAUQz/nBu//ykj9N9JgM0m1p2KcLG4msAsV3x7SOyyyuLYpzJftVAP+zbNQ/u+El6JMqNN2hhQc+teu2tAvJtfcsBApRA8zTymlHWmsjXMHCzQ0jyBe3E1hoNsPPwyAuzeqT4giwz8jCTYcva3VTmCv2W0WGcYuwE/A3NLf1Cic6+P8O0TmdH8QmJtZQ1rV",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 590,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 210,
+        "output_tokens_details": {
+          "reasoning_tokens": 76
+        },
+        "total_tokens": 800
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:cede7a46de2f7d23\",\n      \"secret:05965b3afafecea6\"\n    ],\n    \"constraint_ids\": [\n      \"C:8f87a4a38bb2e862\"\n    ],\n    \"span\": \"At glass conservatory during procession, Mei told the room the truth about the hidden heir's identity.\",\n    \"rationale\": \"Mei discloses the hidden heir's identity during procession, before the permitted reveal gate at verdict.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 590,
+      "output_tokens": 210,
+      "total_tokens": 800
+    },
+    "tool_calls": []
+  }
+}

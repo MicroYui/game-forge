@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:32bd296896b991cf3c494e9d4e937fe74102539da32a420a8753c14de687c244",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3793,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 643,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 160,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 801500000
+      },
+      "created_at": 1783859000,
+      "id": "KrCjCeSP15mA89SeUeV7mMcYupVvNynYPDPqQ4M9PHcCx6hbmFsgPwv1aac6TFg7GoYjJEMkju6ggeVrMtXITkX6QBsw+28GBdTdMI3quQZx/WFjoLufE4AHEB9qQs8kncWOSsbf6mFRUYeEkyMbS6VcqBDXlE6dFlJXIvvWYnRVbz6FQPg7yrL0fN2R4nXZkKnUTcCGWgelSbDrnivpVCQK4CxcmT/pxSkcfGZX1ZsvnuZPMHkl0sWdn0rr+1P9QsgS2LQiIqKeGk9/9G8ulV/1IonHQiWDVJDAQkGVW0U8ZnBpiDnkMNcMqUku5Pf05rhs6hNmEI6TqZUEqj4hZ5Y7VVAhl0TJGs0/6ACMW8SXWwh9ikhySJ8oRJ9BnSfPYc39/HJnuoZW0Of1eSYv64CNSUF0ig==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pKQ40+BWiH9H1FB2hfdnUnyHCn9WriwfVn2qlPeS89jLTUjcx1H4KAsY1gZ9hIC8W3dQgk4/UGq8tDGPRkiCiN7cAv1WwBRt2Z91mlQKvfu8FVcFygZt8/WAP3Tota+n/5ZX4DY6LrfsBxTpn0xrOWvH93gjEBUQzljkrdbIJy54YLy7CD4DtF2cR7+cxcRamPJr3K2Z1rgX30pFUD3ozpZN674XmkoGAmoP+awzTs5lnKETxLn0o4PJl0JijLVNqHu8v8Im2b5kOnCKUe+QN3e0uXxcxSpC7bao5AphRM9dynUosXtTIgAMf10ik2Y3gsbZylo3ifE/mrKFff+pZZYSZKYk2xrEytX/Ibpc8El+bGtjUHcAhHwN85neeeCGBn/SHICw/hNMMqQC51Rr/tWfOuQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:d1f7848d2e1fd8f3\",\"secret:d5f7223cc6aa05c3\"],\"constraint_ids\":[\"C:a75e9dc19fac5e67\"],\"span\":\"At observatory during survey, Noor told the room the truth about the witness behind the sealed testimony.\",\"rationale\":\"Noor discloses the protected witness during survey, which occurs before the permitted reveal gate at vault access.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Df3QctZlwxY6zJzsQkXOK4E2UdtJ8k2a6g85VwbBv6X3fkXKeg69TAdS71UMY0w4HvrZ1OXKIYPlk18VSX6rfX1vVo9sL0eTlyEJUrkHskJsX7xvSYf9LWkb69ytyMg4WRSggi3RqMCCvo5xLOAQPK8x43aEcbn5j661JjuX+QT+JtX08PuIbdgP4Jri9+99lOKHF5fFXarReaWmbKoAUDgrR/bOY7Je5Zfs+jUoDbQEGGgt9WSbRZtaLapVzCplC3+rvrk1TUdWhmlm3QtjaYsvrHUQkkRF3t9Nh4ydSuc6zHHA4882L54NAWKsTwMLkpGScecTT8e0YC3UvSsxNDiiV7rs2Zs+77lE+JLvfNdYsddjFfNCt5H9tpnVUrKf7PZq0hvSycnF2A6hrHIjWPnQEQDm",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 643,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 160,
+        "output_tokens_details": {
+          "reasoning_tokens": 49
+        },
+        "total_tokens": 803
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:d1f7848d2e1fd8f3\",\"secret:d5f7223cc6aa05c3\"],\"constraint_ids\":[\"C:a75e9dc19fac5e67\"],\"span\":\"At observatory during survey, Noor told the room the truth about the witness behind the sealed testimony.\",\"rationale\":\"Noor discloses the protected witness during survey, which occurs before the permitted reveal gate at vault access.\"}]",
+    "token_usage": {
+      "input_tokens": 643,
+      "output_tokens": 160,
+      "total_tokens": 803
+    },
+    "tool_calls": []
+  }
+}

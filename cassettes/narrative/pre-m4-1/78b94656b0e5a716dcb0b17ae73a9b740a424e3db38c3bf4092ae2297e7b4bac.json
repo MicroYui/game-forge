@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:78b94656b0e5a716dcb0b17ae73a9b740a424e3db38c3bf4092ae2297e7b4bac",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3407,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 560,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 166,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 778000000
+      },
+      "created_at": 1783852500,
+      "id": "WA2BbAVJ+yHtP4dIVqLPqz4B5Sg+X4VNhT0M5RX9YEMtFIby4K/bO+F4vQto+6/ZlHQqBQxP1onig64+zmFd/ATGLaVKKwMX6/kmdoVXrtR9KH3ROExU6BURqsjNkfRKjCzA8xU0u3bB2qjgXegAtYtyVJR//a9iT0e12MHVGrF78xRBBbr1OfV5GSCUOUYCV/cpluNhURLTPpJhsAB82O0xaJm34RSXGEJRyVChuQirWWS3hBalILzgEDqfm8ObAh398OVMttV2/u3kq2U0r+s349TuhI47ptsg5Vb3tsPfVI4mc9n51OdOR/eWQi5hmaVJHXRGzfogajU7CvcSEkttXV3bWzDuH0Ph6XAW6+V1Ct3q4cHuH1slZpKAEoKUwgUpMTJlJOztVrLvAqnlrs8L2SP3bg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Xkvu7XuGO08CAfsUJ5dkJjjcrHXcalBq7hf0nBjKhx7QWnijjvy7sipmkkJ06ZQi4b5TpLRIyj+vkGfHEh9ux6S4Jf/2JAxpPOjjJvVuJDKUcniUg38t3yCwJS4tUf+XMQSMwedqRb8CtAVnWvQGCEAu4ynGxLiQ1vII+pI1Jm5qRgd+Qe7sN14hvg+fq0eHh8PBiLKK59OGS60CoDrbkjRO7Z5q53TEGt2vg4GmBwwvHbX0lBaOoVSh4HIJn7aGa5f1Nc0NQMhrm8uuSQemgYaX1DKcvUiHplRFOLZWBKOMGuilKjRloE83uMrGMPHmKX+rDoLErjUMGlfP3v7jJIhqrNBuZgqNcG7F7CmqX6FbOYxQoRWvhS7UfHTttDhwj2xhOJTukTb3iBHJDftGahjhJ9M=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1ed221ad0d1afa73\",\"npc:4fc0ec88bbe3e4fa\"],\"constraint_ids\":[\"C:6111b49106eccdd4\"],\"span\":\"At signal tower, Oren was formally introduced as the Beacon Keeper.\",\"rationale\":\"Oren is introduced as a second serving Beacon Keeper after Veda, with no relinquishment stated, exceeding the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9bUtZZmQWTXUj5FA+etf+gk+JeB/y3AAjAJstMPvWB3nGmxIcb4KwL1b+73Hmt65Mx6feeVWVb9TKn+V5RWMo3Wi33hwrstba/5H0Lno39G5xqgpSxJHbtVKWTXM2AZlE+FFUn6KgiHCDWgbPam0QJeCbvXBCVxaz5jwg3ZfrGDlqIyRkOt0sxFQKYtdunKYvBhM5ffR2bY4UkbOPofi8NrZdeRoOCtGzZMiKCoc2xeTP7LCbQOtEmKEhslThs6QZdBgEANBD2h3WSbayxsp/8qmdFukZ/BiDnPmhgrkSxIOSyCyeSd9tTvfLU6I486rADkfhYgHI/Qa4PXn+Cz+cwFP2JA87uAymBtiPH1EYiENEUFElOEz2VekmRXTsmLOTrnkZiCjNHnCnz6JD4XUGAvTkEsL",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 560,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 166,
+        "output_tokens_details": {
+          "reasoning_tokens": 58
+        },
+        "total_tokens": 726
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1ed221ad0d1afa73\",\"npc:4fc0ec88bbe3e4fa\"],\"constraint_ids\":[\"C:6111b49106eccdd4\"],\"span\":\"At signal tower, Oren was formally introduced as the Beacon Keeper.\",\"rationale\":\"Oren is introduced as a second serving Beacon Keeper after Veda, with no relinquishment stated, exceeding the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 560,
+      "output_tokens": 166,
+      "total_tokens": 726
+    },
+    "tool_calls": []
+  }
+}

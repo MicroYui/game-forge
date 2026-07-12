@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:10ef81ddc5991e29b878ada2ad27a2d1f438297cc778d514fc891dc5687983b0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5548,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 627,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 181,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 856500000
+      },
+      "created_at": 1783841900,
+      "id": "kXkvs7/6mqOC0q0/Ox+xUPKFb/6rVOyWcOwLasdtuucLWl4RvC59+PwAgvqu07bF24FQGY1tVXD3D+bJeOJwhoQfCup4LXKVhTM+/XN4/XNmw6rBcl5+aUj52NtOJHXfwhEJk/w2ZaTAyDzEo2g7CZ3Nr2tk0LWEhnPEnES+p+j5CFqe0Ys7VnuJFh9wie0jfGqP/7vh2dxxlQc7+oG6WhRBXxaYzGz8Of9zcxughWVgb2Kk2d82/MgSAO1J4QzXO+Lvl3Z70uVCOJIeGNUhkQ2mAZJxyOLBQdzj5jp+Xl+2k4eApYkUCBLWPoAkldRaf2+mNE/dU8Vs4cMW6/+ZI7MvIwdZ/uSj1tBqSnUfXOEFiJSjTCRJX8MtffTCyjqw+rTgTUEv6M+RRQIBgGsJKnG+IGqknA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "MPOCdE8eImt51s4bGnUAd9xDy/4uauLqhwlCbEn36H6wLT6Z4Ap3MT2KnVm/V9HYIIzat1t5CzvrYY4w8hyei8tGiN5adD40DxR0k9aFcRBX3XedSrdUPIGB0G+Grvg7xM7/4P3XMlxCZt3n2iHTbW9km4c8zsUWDaiW19BBlUYIGv+OKYrAb7bDDYssMQit6vc/U1YXLiz5EpiGpqb6B8BFoyYc6Su6/IB5wFX3u+p3kyZQ4A5eJfbDBBlmjF82bxa2E1XyoO85vZAjf+lPFF9P8MYBPfmqfCKQP1jgWNUljO0Ngq2OvfxmZ/RnSNMyHiXfoMWeBq7fBuGes+QuFx2CeCErsy36VgchWCS44qa0Z5QNsKcpIwjo9/EY8l5QdqTJw5Wed9SBC4Pbb0CLjFiRiW4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:505d5339eae15afe\",\"npc:9dea44f963c05883\"],\"constraint_ids\":[\"C:76a467f20df7e087\"],\"span\":\"At old mint, Veda and Oren signed a joint battle plan.\",\"rationale\":\"Veda and Oren, members of factions barred from coordinating operations, jointly signed an operational battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "o6tjuHOGohzRc8zEp8LoznmGuyu7ozgVDsrMXeOBm5TTaFonUldl6O9VjvTOvVZe4sD+SuoaF1ZikKCH47pOZCpdQvAOK6ms6gqF1/ZwCgAJDiK1/17l0cXQGAD5mAoGr1aIRkkEPYk5lvw0uXvD/dysbkWUnZ5AkeVd4VCRPYv9J+/CCW2W7K524bSKjH2TYcXkpyjzktT4R/gIdNgBg/RaFFKX77TUNPhI6XuzQ4oODouyy7Z+7l390opwSatam8jhYFjRE6s1cFAhEauGqDBpJgfzbVp6r0M5gmKYzOioj9SW5dPMhiQSaJCfiIBApe3VFyL0XCiCKAGngYb9eM+uGFhALMjXwhlzIeMBSBToItWaTRISmY5/TySlH5pvHXdXqxlru4tJQC8IGzCnY8VHFHQv",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 627,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 181,
+        "output_tokens_details": {
+          "reasoning_tokens": 80
+        },
+        "total_tokens": 808
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:505d5339eae15afe\",\"npc:9dea44f963c05883\"],\"constraint_ids\":[\"C:76a467f20df7e087\"],\"span\":\"At old mint, Veda and Oren signed a joint battle plan.\",\"rationale\":\"Veda and Oren, members of factions barred from coordinating operations, jointly signed an operational battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 627,
+      "output_tokens": 181,
+      "total_tokens": 808
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4f6bbb4c307bb202c0fed4861e47c949895f82222c157f4853c6d44c27517837",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5220,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 699,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 233,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1048500000
+      },
+      "created_at": 1783852500,
+      "id": "Vp8xwlyZfvCsrnROiObWtorUi9KTNfFyl1BR2Z3FNfEIYSuOGMwgNsgZGXdXnYz8zlKYWYgYAq1ehzsyGmDMwQRdglYt8KxWbWnJEaKsh10EhNN1Qaw2Qo7HkzUdOi2iUBj6v5+CTNL0YNITwIgBCRTgPq849n3ZRcYpZD8iils/JtvazGeiBkXryyht/yykfEzzKtvTfIjY/JqwXyV0z7r7dQ6msU+VYXihmUquH6nBT4QCmNBkLFj84YF4viHkcG67KzN+MYKvaRvnsUklh/MyznvF45/UuJgZlCcfUWD8s6Wy98kDWgLaOB/aVHmff4mYHpzOlzEEOx7dG+AYLRwlMvlxo0OaJfwzPv56wnbN9puad4s3OpxZOSf/uswJksFQRpc6j5mwMfBYyJuU8KW1dCDelQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vrLQ3T6BHXgj5aMVimzjtW2ZxQAGNz8uj1YXj+kDaH2n1JzhFQB4S0eYsTJW3TdhzTCGPGaeR59p5+WEHNBXqDo85nwRJWMJhQLC+13a0AyMd7df1qvL/dZgrVD8iPFWKeE+ndgt950x68hD1LKpZOecte4/fwxERZXcrvlQ8NwYafKru7+JRNDtX7Va97PSufU4xXrWSzTB4x9IQlbMhz0ftjrhJ9QSQz8mYpL9uEnY/+FD6TApytzospmbLZT6CvWk9Ukyr7xsNGowCqtNmvWGYw/Kfhoph6b1Pp+SYjErtaFkJwYUQsxBzYnZReS7u+y2BigGWrfJR0uwWNhlXl5Cfpm60cVXvnzb3YgvHjmvA2ToCsFod29OHoTTT0rKKuoQBKCPslBUYp3u4+FgmQ8FcL4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0b7545de4fb85b72\",\"npc:ce5c05c4532e3eda\"],\"constraint_ids\":[\"C:1a195ad38c85f564\"],\"span\":\"Daro accepted the title of the Harbor Marshal before the assembly at glass conservatory.\",\"rationale\":\"Mei is already identified as the Harbor Marshal, and Daro then accepts the same single-holder office with no relinquishment stated.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9sUaJEJEDKOAtKwzJpIw6a9Izt+AaN+PGPhp22TQodgHHtvazN+kZoahJ6OfrlKYmE8rvUZPuigSg9TFAZDRs3UbyduB/5jsSruuCi7i1ic01/d1xRgC+mIWOYgiyapqB5cmysh9sd+TIoRGrp0NpO9hMbC5JIbmS9jB5ouioBVMa/2vDz2IA5M02vPAI1j5Y1JBfRbO5AmrtkPghrGo+OdGfkCDwzLqdjsBigEguka7ajIoIFPoFOMUGmffeDo9bnuuEsWAeG11AWASjJuydBRssXjps9kx8NH2709V29sqZ1YrEMr7J59qEaa/knOiNmqDP27ThS9BzIi2mc9DQxeMMx+aWlI+NVntVXedESiInjSN8KvQyKx1M2AIxi2gGmjxRHLqUyWfz4s4N7jkKD/+92iI",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 699,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 233,
+        "output_tokens_details": {
+          "reasoning_tokens": 120
+        },
+        "total_tokens": 932
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0b7545de4fb85b72\",\"npc:ce5c05c4532e3eda\"],\"constraint_ids\":[\"C:1a195ad38c85f564\"],\"span\":\"Daro accepted the title of the Harbor Marshal before the assembly at glass conservatory.\",\"rationale\":\"Mei is already identified as the Harbor Marshal, and Daro then accepts the same single-holder office with no relinquishment stated.\"}]",
+    "token_usage": {
+      "input_tokens": 699,
+      "output_tokens": 233,
+      "total_tokens": 932
+    },
+    "tool_calls": []
+  }
+}

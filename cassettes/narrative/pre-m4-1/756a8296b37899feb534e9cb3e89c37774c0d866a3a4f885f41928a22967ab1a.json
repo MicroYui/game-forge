@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:756a8296b37899feb534e9cb3e89c37774c0d866a3a4f885f41928a22967ab1a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6139,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 699,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 193,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 928500000
+      },
+      "created_at": 1783848300,
+      "id": "NdPTML7YiHvmxcWT7TsteEQk2EqaIfgkTnnaAO5dQYApU3tfzyqLQu7gxkysIwPFUhvd+nfmRNc3qBMXi1imBeDNrc+nmpaQIjaPOv9oPbATkvF+bdQRtyshBy+Qenml38+EUWeo0n+3+nBh2VAxyEZXoFrys2pkx86AvO4Jq9PWBJD3gHYZ7oWdvv2TNvSLxUQq8mIso3KcFQT0paR64Wa0hXMwBiYWLbup6WJozhGJ2lr08wyzmVlhYOuL/1eEX7ryagNMRXdEwJLUFNZLW153JeJvWYZDF/gPXqWTZfi2hkT4M2EdBK+nsEo8T0/ZMcYDi2vDmdOcsmDYq1APgzcUk74AxbWxlacCAQydO8mZm95noDkxKUWtCFVwiIUaY04OyH270uHgg/gFFt2CfcxrwHghaQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kKqdeRIWl1EtCvV0NkdCWRZAB8ARMcqr1Lkzs+W51J72I0zK/29dO4CbjqdZAOsv054MuF+3Gc+AoaHiOFsKsZdHJKgbGwIEdH5w1GnUjzzGvVkeWpgt+b55gXCjkJJ4m1eL9jYCWFC2jrqvMOqxKvtjWI2xmqhseqlkqbzKne2mmp0B/qpYozwo38ACTCx3EkIhJBDN+H2xITPBwUm2NUlGVk8jKLzpjds+vH1oxHwpxwVA4+ODzvisQE2Ka1ZTA1HcPzK2Kse0z2SziHEMjGBfmWxqys9XM67VlIMfWLrFBXDjML3VKvuinwh7IPvPYCPRiWieLFFc+mtSDDsKlA8VXIppQ9BmMRfS5FOmQWWFSTi61CJhmiDju0ZHh6lia7v79P8rVW7rYLr/iU2W18T0uuQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2ee5d819f1137780\",\"npc:bcd8e61123784c1f\"],\"constraint_ids\":[\"C:be02f3d949445f7f\"],\"span\":\"Malik signed the register as the Harbor Marshal at signal tower.\",\"rationale\":\"Ada had already accepted the unique Harbor Marshal title, and no relinquishment occurs before Malik registers as holding the same title.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kIuuVnBzuPpk/XXxzaUSAWfSdhvw0QvZYYzYfQJx8hengqSem6GMCBs2jyhFy35iiL3IWDnrLrr/hc0I/iQ1g5aAesguuXqMamw/MduBSBY8Mb8udtTUloYZmXXQt82I8MoCRUV/ZbP2AvVLElA6pH5n7v3cChjVd258XBj4v81pXomQytK0AEvFHdvKBUaiOPUoszN/QNekdm0PfdkIDXvMIhlVVg60n5CRlQ3cysa1g5ZpmGFNSec1H99rgh+Zi++JHrtw0uWZGnOSxV4O6s2gB2MnIesp15cXkCT+Oq8mfk8eAXNBZkGEHIXWuDE5cJuMW6nfYK0f6XcugpQU3OT8BMaAnoXD8HQ5DhF8dnMvbFAuJ/rR8lS1GD1NSg/TlpK6JeiqUFYAnQPXH0x2bbfvU/If",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 699,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 193,
+        "output_tokens_details": {
+          "reasoning_tokens": 87
+        },
+        "total_tokens": 892
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2ee5d819f1137780\",\"npc:bcd8e61123784c1f\"],\"constraint_ids\":[\"C:be02f3d949445f7f\"],\"span\":\"Malik signed the register as the Harbor Marshal at signal tower.\",\"rationale\":\"Ada had already accepted the unique Harbor Marshal title, and no relinquishment occurs before Malik registers as holding the same title.\"}]",
+    "token_usage": {
+      "input_tokens": 699,
+      "output_tokens": 193,
+      "total_tokens": 892
+    },
+    "tool_calls": []
+  }
+}

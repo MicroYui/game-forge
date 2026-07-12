@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:efc6546c456136b32e6b6c3aeb0f83ede5f3078e16e80ebe4e635e16b6661d3e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5119,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 552,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 190,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 846000000
+      },
+      "created_at": 1783855700,
+      "id": "Yj5dlM+kxGQypZuWPGCbzWXVSuKgDbXOTFJhAmW1sYQ+p1m4FrMQP2GvsCdL3eMJPeFZqToHEyaYQgLCcFF9W7EZmGj2GmuWlq6xExHgErFHD+Nlq/ku3vboarwNzwQG/dXG0WWIqC1OPe7L4+hH57PKkDN/MTvtUkLZPfdPKXyrlNZXdpmJGpIwTi4w5/guIWOYDBQ1+bIGa5XrWHWTIw1KPBZmNKicRKDeZoCZOCiIKceyA7UvrYMH+VzsOM7nGY7xyiG8aX4qqtsQFLgLFHWmJTjQJ8ZaUJZ2w3mtZnDVzmK3EX94AwecFyU1qa5Wa9GYOjGyxz0d0JtjIsWCdFaQli94sOqDp5nq50fpdIh4Em1zfr2dauuwTnOI+VJaxmXXHW2MGLMQwzK2HPUtIFRJOLsTyg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "75tHqFVtW6RHLkjvVaPNylME9MBn2Je4p1kR2h4zJ/0eykPhSkLs7dOpEMybY8pc2w+al4rp+jbia6XgKskhpoWpAT09ZjO+o7k0ZtMclap3zQpLaZxDRVhvraCFtipootmLev5clGpXwvRJGqr2Le9q8mVioAfhXaNsHNF+2BqoKTymwbJCFxXZffe7/goABZlpbg06D2+kEW20HDcUNIc/6FVMSXSbhK3CJwZ0pbNjx0Wt1/cNZ5Zr8dJo0dx1Qik8XA5dmRlAFdKHjaY2f/XIuRtpxWr8jEbjPAAqLQgdTvaxleOV1Q4O+UufTYS/nCp/MDEiHKca8qdHHUZvGVvSkFURi5ClV4fL4mUYHtoeOPCxy7na0eTtsS8dIUOIxHSTg5mlNn9NAvqHC/+vqU4wMn4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:cd18b08e64b4b6ea\",\"npc:fbc29fc82c207aa7\"],\"constraint_ids\":[\"C:da61981c7507bd34\"],\"span\":\"At north gate, Daro was formally introduced as the Vault Steward.\",\"rationale\":\"Mei had already accepted the unique Vault Steward title, and no relinquishment occurred before Daro was introduced with the same title.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "enCExnY/Hc4h9T95mexA4IY2e1tLN1zb2kSluNQsNnIIOyxYy5Rz4RkQ49rDKGE/PG8rfrYiZaePvzG6ERiDRupxVEMKeehBLn9ugUvCQOd7jTxl6wyA02whXX64NHZM9m5CPQw7qXmi3wg7n7F8Cgyic+3gNuBm+wc4/ZJTGnrYCFALPugFec2elfr2/y0TfYzjfglHvZWAUKJvBQF18Z3oA9liJXUX8G6rETOpHpeiubKfptYDua8PhY8OPzJdqeMnfzjwK1uApy7XAC8wFkqsg5+8Bi89ufEBwJE1lxfRDD5ZPX35O499cJog3JFY6SrrcYAAuM7GdZcLLqyioqYyTnFaLGqHhN1RQ50WmkmI3zPQ+Ev5x0QoI6J+bJLn1NhUMFH0pqxtjOxivg6OHFdniIKa",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 552,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 190,
+        "output_tokens_details": {
+          "reasoning_tokens": 82
+        },
+        "total_tokens": 742
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:cd18b08e64b4b6ea\",\"npc:fbc29fc82c207aa7\"],\"constraint_ids\":[\"C:da61981c7507bd34\"],\"span\":\"At north gate, Daro was formally introduced as the Vault Steward.\",\"rationale\":\"Mei had already accepted the unique Vault Steward title, and no relinquishment occurred before Daro was introduced with the same title.\"}]",
+    "token_usage": {
+      "input_tokens": 552,
+      "output_tokens": 190,
+      "total_tokens": 742
+    },
+    "tool_calls": []
+  }
+}

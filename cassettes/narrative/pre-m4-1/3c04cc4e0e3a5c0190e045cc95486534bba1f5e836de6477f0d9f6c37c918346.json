@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3c04cc4e0e3a5c0190e045cc95486534bba1f5e836de6477f0d9f6c37c918346",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3952,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 638,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 198,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 913000000
+      },
+      "created_at": 1783849100,
+      "id": "DqFC0ikcrr3QvyXi6FejHXOeecTg1y3v9DZFfTVNXt0wp9aHppLaMphn9J/uIMB5v0bsoURZcI30VjmoKJ/bqvMbJ+TtuoxZjksWAqkTF5PZWHYjtK0F4PeXJYEawjILW+KLNnREsSroeljOGxdX47Tlusz2l8oOqEPr1rEoL5DFX/k3+7L4RKEDNECU9OSDQ1kAEhNpzf7HQXhdKK9/ubpqPYcvq26T1Gs3a0SKYHRsAGl8kTrECE0L+pk2A8OOtCG+U6cyTWH5B/3e9wNbGP2sQOUySbdbKm6tWk60nU2TrhfpsdHJxDJRKqdGneCVk1VE8SWpEGkGlfCVlzz16M67IRk71qeKnSMW9uhQmc/BClbIloVMkR1CdzveiVZJKuluwsPAMwD0gp8ZBP6ghp1NDswf2w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pGReWYCnszFQN1Faeib8ZrS3NQ1LqLtvCJxzco/ZAnl2EZP3jR0UcmCWvcYbs1WuG2rwQfoV5pZyoQ4v8NNAAZDiXIQOkkeVQLiH9A0aGRSYVEhAYNYtbXen5kheS99MA88UZu/stkN6GBDpa3C8s7CCfkojjbR4h75LwoLPiUVjzwT1DJ+eBmNI2fLM3B6TpXZ5sLb2vIid3OhA3ITrafFIN2yw9HJrTVVVUU72Rs/Do0uXd/mGQ5rzZ5jxVtO81wrOKRym+KBik0Zd3/hoLf+sdGGX630LndNDN3FO3r79/E/ezCKaflID3KRTvYWJuXXWPbMQjZTZDArjxIw4RkKpbSmY4n0LuehuJ28FVsLY5e0fX1U/yWMxbw3FN888RhLAiYleHf12SBSLjYr/B60zP5M=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a3017e1daaa4433c\",\"npc:a9a4eb7578899912\"],\"constraint_ids\":[\"C:03e6b7008d321198\"],\"span\":\"At salt depot, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro belong to factions whose standing feud bars joint commands; jointly signing a battle plan constitutes prohibited coordination.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vxQE84eQbWnOrmi4zv+1IsthTiIkGKDaZqCMyTG0DxEn2bBC4/taFNbiU+mgOe+G18M/znLExPrVUhciJKimATe0hLyXu4aEhlY2c12t1WQMPipoN+6gix6EnJJqi0SsC7DMzYZBRFkfSYpAmIVGjPDYk3yAH9brMMtrfSGzeOu4L5LAdx0Wdhm+xuT0yD0skl7fDVxiZLzke6P1qcIj6aseKrz82Y/0koKHHCAL6sn/yUxajCiIXIsxQ/HOf8ydppxRdUkhLPuIWBHLv6ETkaHPuwu0F+Cp/fJUaVJuMUiBfceywLNSI/tsgWWmbrt5/Q6qWf1hK7I/C6OKuS+juBb4RNz/u5amxPbsviT4Us41tsIQ48ez5Jme99MMaNmc+pyAqiGdSzpIcRYvqJwW3bEaacn5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 638,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 198,
+        "output_tokens_details": {
+          "reasoning_tokens": 94
+        },
+        "total_tokens": 836
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a3017e1daaa4433c\",\"npc:a9a4eb7578899912\"],\"constraint_ids\":[\"C:03e6b7008d321198\"],\"span\":\"At salt depot, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro belong to factions whose standing feud bars joint commands; jointly signing a battle plan constitutes prohibited coordination.\"}]",
+    "token_usage": {
+      "input_tokens": 638,
+      "output_tokens": 198,
+      "total_tokens": 836
+    },
+    "tool_calls": []
+  }
+}

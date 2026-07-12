@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1b84b08e5737ffb80752f3c2de4f593e4381e2b99de9364b34960c71a65f4498",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4809,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 541,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 179,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 807500000
+      },
+      "created_at": 1783854000,
+      "id": "1gnl4/g6And234FhxgApKkR/jalyyB3ohPoGNF6+qUcpLjrke4aU4wfi4vcYG9vjfksPz6L/1MK9KUmW+EActVJ6b7xyxpfUVDlQSeq9ErXWTHKfhX0YDL5ga864ldxiTHCqIKcVw7PFxfITrxtb8RpLiCJSf1VolHKTqNnoBGCGFkuLdy/n/mavFRwxdlo5lQyX2BpwkDGKM+Kyu2zNBUhplEntYZV8I5mQVy2gNEuqUZxzZZrOhmPnezhGfjwnDFOa0TGa2FqXpOZCJM/+IG38xWfCW34BOIohtqJUg4yhVv+yzsjtDH0urYXQcPooqLP1JLjQRSEeGGnyYGXohn5FEoJzLcGL61MLdg0H2nASnBJx0Bh4S3PTxWjl389q+lgRieFzaqYEmaQ5Ra9qLhE5t/3h5g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "X8FRqcSanGDHG/uqtTMZ6xs7D77Jpl4tL6jhbSiwNf+7tUVlngSpxa5C24p/KFUc4Tvq2NC+AriuMVpgf51MwK18TdW7MWfOKQ2LrhO1DzWwzGlZEPtYQKRGwShH8CEe+uUO5VxvPme234vKzVfnk1tS3s7VN0jJTJ6vM/UIK8J2vhVIYfZ7GuR0gmXIi3Nka1jjaWfSnNgfLUas9tFDVgrsysbb/Ji/u6fLjLprMavzAI/EdT9ddjS9vRNITUIV9GESsXOo8x87i1u1avKoFr6rwqQQRBWfdGIWqeprcLRnOTt/f+UQpovVTZoAO3ZQbs7sSvfsLhV25P9jzuD39J0hkJxQHgSrKMrDUMWjQenTdYUcoVEVbIU4gjQbgYjGwdt7NUlTBUzI28TdgOsRaTztjHk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4b89a866e5caf87d\",\"npc:6bf65d233b05817c\"],\"constraint_ids\":[\"C:17b063b01e0c1a25\"],\"span\":\"Ivo signed the register as the Warden at caravan court.\",\"rationale\":\"Ivo is shown serving as Warden after Lea accepted the same title, with no relinquishment between them, exceeding the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "J1BrsHxrceqNpTeZOhAj6q1VkFTi4FskvkMraM8I1pXASA96IOP3LU5gmn8FgONuxZ8A8zbHMOD7kQbWmI3n+YGv01+65C/2qLBn5qa2SPPSTYFCiRe/3+Hpb04+JhQSfVRxCaJSSXz9Qwsc4RiGss2Dcdg/LTCjc7TayNhb2ghZY18eKuFcin2oiF2rmW5E9Ceuf7NnquRawH2NCGcbOuA2vFvOEull55NjZOBvCSLDVQdcWAJGUZj953NrlJ9DdZXrN5YR1HO47F7hP1CYtoNOlQ9my+4Sq3uOXBe4yNyBQ+0YAHVnDwZK+31BMAf5sniOwDHLpWZnME/7m1AbV0IrG4GVC2F+1va3cgJmhRdpRfw55jZc3UBLt4C6/oDXstvQmkNIHUy8DKb5jk/TIh5uK31x",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 541,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 179,
+        "output_tokens_details": {
+          "reasoning_tokens": 67
+        },
+        "total_tokens": 720
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4b89a866e5caf87d\",\"npc:6bf65d233b05817c\"],\"constraint_ids\":[\"C:17b063b01e0c1a25\"],\"span\":\"Ivo signed the register as the Warden at caravan court.\",\"rationale\":\"Ivo is shown serving as Warden after Lea accepted the same title, with no relinquishment between them, exceeding the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 541,
+      "output_tokens": 179,
+      "total_tokens": 720
+    },
+    "tool_calls": []
+  }
+}

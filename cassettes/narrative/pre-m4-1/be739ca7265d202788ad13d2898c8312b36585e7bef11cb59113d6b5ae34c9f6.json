@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:be739ca7265d202788ad13d2898c8312b36585e7bef11cb59113d6b5ae34c9f6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4541,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 556,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 227,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 959000000
+      },
+      "created_at": 1783845100,
+      "id": "mmRj9JhPzlgS8Jc7Mo5rEyqCyKXWpzJikhyu+kokD5OnMQKKFwUFiiLaiIIo97BsaNW8pimEmL5yC7/Ov2k30yP9ARjfbjIvmejWPwbtzTSBNJOezgw+bNhxznt432OLjR52e3xICf4xh8D5Bnc+INaB/55HHtRfbpTYBArwJyISMoA2Xnu42w1lFKnZ1yJbEDA/nejeEiu9WWalJZb/uCVmMneTtD7mTvGASFKVdbjlPn6ahjww9Eg9LOAocWGXI/CeELJyRSgBqLydY3HkmrPlsMDe49EGsjamm3xBf+Sy8v7S5OAM0jHG8iXuSPowb9vUiLpl/8HZEw44U9bHyqNdoHyU2gfl78vDxLpKLt6j/aiDqmE3j3aRbOV2XlWY+icOPkGKwGGe1QpmS9Rqbx4MPNJJnw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "KhqGSurFcIVOKWopqyV7OFwco+2OdeMrJ59A7OOFNxlWokEvXtYPnXZkkWIsY+dXe3cwIqiSlF0D3Hj17vcfVXmWa0FK449r+JSAggkk48ajTZH4gIZUXuisgFyRXG2hDZl2FZ9BIo6yqcb1Lx5X/r2r0m4L3KcXAkjVqtR9Qq0ZcIZ0NIlTeyS8c7yQAS9sDLnpr7Tj4n/amncEH8zG9U8hH309w6coiXZb6WwJ6KErwxFujQ3F+5JvttLbjeHVz1oCm5IR9kvxbdxBuqDefnWJum6qLUW7+/s7tnmzT9B87uwZQr8vgZhAx3OGJZAeC3vVYr9awFiaQrlvaNe2rzgRSf9hwM7tczTxd0UqyXciSROxQop7IkWjkZnZO4DsMpHz55/klm6KdzbT6DZNXiywFEs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:55f984d083b3e375\",\n      \"npc:6a1e6910d84e6061\"\n    ],\n    \"constraint_ids\": [\n      \"C:1f81e1f94575f207\"\n    ],\n    \"span\": \"Cass accepted the title of the Harbor Marshal before the assembly at eastern ridge.\",\n    \"rationale\": \"Noor had already been formally recognized as Harbor Marshal, and no relinquishment occurred before Cass accepted the same title, creating two simultaneous holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "CFYOiJ/AimLKcR/E6F2IWiylh8kCpqnKY/3hSaKpncff+dRl1hkwtGRlGeMhEMXLD4yEM9y0vyjg2mza155YyBi0hHPRndUAnmj7w6k3f3mTRGSkWYHp0timijGoXlU2KbtT5ypuTU10/wPH2AoADuIroI05wkRNjprckbxNgwFyVU7OWmCEzOTze7CL0dAmDv6a3zYEpgEY2eBoVRbYU5RXr/DtCqV/MyyV01AO6+7AJ04PKj+zIjoOoXYmSDukQV1QvyXQzrQz2Crp6Hfv33FpM18u+vizZjApaWjJVeJQcPDMuhbahRVmWbACMzbrpjTRD0NBpSAR0J72+Cov0H694r9Tb5B/xt4xNGHiMnF/uLsCe7hhlOqeaauVKUzVn0uF55px00D1QI/mTnIejkX2+hbq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 556,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 227,
+        "output_tokens_details": {
+          "reasoning_tokens": 87
+        },
+        "total_tokens": 783
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:55f984d083b3e375\",\n      \"npc:6a1e6910d84e6061\"\n    ],\n    \"constraint_ids\": [\n      \"C:1f81e1f94575f207\"\n    ],\n    \"span\": \"Cass accepted the title of the Harbor Marshal before the assembly at eastern ridge.\",\n    \"rationale\": \"Noor had already been formally recognized as Harbor Marshal, and no relinquishment occurred before Cass accepted the same title, creating two simultaneous holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 556,
+      "output_tokens": 227,
+      "total_tokens": 783
+    },
+    "tool_calls": []
+  }
+}

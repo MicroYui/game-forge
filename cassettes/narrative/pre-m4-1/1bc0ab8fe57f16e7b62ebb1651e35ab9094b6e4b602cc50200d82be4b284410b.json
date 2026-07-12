@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1bc0ab8fe57f16e7b62ebb1651e35ab9094b6e4b602cc50200d82be4b284410b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4559,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 566,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 195,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 868000000
+      },
+      "created_at": 1783845000,
+      "id": "FNZAsEqhxpAMTlsRvFs15NGosiPxjiA24EKlNHdIFIpNQb8MTTmna071qa/qo9bdQn16gBuraMlogOsB5XnVoQ7RIWZziHVExd/qu70y43bCsUOBt+U/IuDOYaw773yFTuOqZnM/fWG4rXWhwdopy8jr43FmMTdjcPjH3v03A8yq45tcYrlCSFT4Ja0N+ZURjBam2iP9AJQ3Evj5CrcaDteD5aVt/+yJ/EOHZ7DlxUk7HuuEWn2Er9Y0CdENbMkoOPmf0Uc/6hBAMxqQYpVvwvm6BJ0+INvQvvkJJlHAB59nTndBW1Xzw/J7WgfvkZ+U3alZx0Mj/K3vXFEGltYwBSdF5Przx/YnO3eoFensC0DUdOvksnybrHJFg5NDulKhfxlDRyhvykpPZPB5W11GLM+XpmfCRw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "s5NGgaxkw/RJhbcmHQkwW1bxZW+IgkJpTd5EQgJ5JZ5woBm4db0PpgG5sqKHaT66NpLmUpFyFhPT1fBOUOxZjyU0tnuaXmXqywhlhPsG0KlkDWvZEn23UGsGleEFT1L8aYNJPlnO1qz1AbamGhWFjkLYtzxPH93lyZ4AXMligGX/qcduWJLF+JR+xRsrjO/i0ihzdGa3ML/Cbo0cZIoqg8EOrReG0z1zChAbEVa0WvJj3oiT4mS8h3fu/8wYM7HlfI8tv13pEJMXVoi/wtny7fex+5CB6bfj40FoSgDCBRdsE02x/U2jxwvvS0esaRU5QmWJS/3Jrkma0gvmcWESlBtOfIYjqoB3g0KBTuAUrlfeHHc6qkD7/OmKTIPTPwMJxfpzAP7dthku+JkH08y7WbgBiDU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:89724a9079a9899b\",\"npc:bb669665c9b4262a\"],\"constraint_ids\":[\"C:b98fad1726dbea14\"],\"span\":\"Qi accepted the title of the Crown Witness before the assembly at orbital concourse.\",\"rationale\":\"Mara had already been formally recognized as the Crown Witness, and no relinquishment occurred before Qi accepted the same unique title.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Xq1Vuxi6BDG9l3CqtUsiwjYZ8tDD8wWPe0RQmASLSwfl2tQzjlFgIW94C6jDP2XJYZZlSmJMyMcgcYJzLG+/XwoED/mU24NC0w8v/Scr0p+RZbHzkyramyWU6MQno1uuww+zgdzKW0D5LiwBHMisGrvnnujKGDtI3E7WncYoZmmwb+y4BHuxSDQnY/nGEs7KzPohNfDT5qXA3DIZnSAymEXomvi5jj9zl6VXd0VSNhRc4fk7k9Hgs8oBj6ZCnHgfSpwuc49tL91iDZStXIlpqnz7c8Boy5vvbTZpZBeM1ljDA76bw+g5TlmspBNpDR7pGYdwbAb6ViDAuX4Rsn/2GHEuvxOnVoRAR1hhlYmQJU9v/TACzEq5VysMweyZh9XGDqrfNRE3rrmntJbLcNOWuWccT3ws",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 566,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 195,
+        "output_tokens_details": {
+          "reasoning_tokens": 88
+        },
+        "total_tokens": 761
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:89724a9079a9899b\",\"npc:bb669665c9b4262a\"],\"constraint_ids\":[\"C:b98fad1726dbea14\"],\"span\":\"Qi accepted the title of the Crown Witness before the assembly at orbital concourse.\",\"rationale\":\"Mara had already been formally recognized as the Crown Witness, and no relinquishment occurred before Qi accepted the same unique title.\"}]",
+    "token_usage": {
+      "input_tokens": 566,
+      "output_tokens": 195,
+      "total_tokens": 761
+    },
+    "tool_calls": []
+  }
+}

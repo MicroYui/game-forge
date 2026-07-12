@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7fc051cd3cba2ac48996b3f9c33bb5bcb4b9213bb2bc09c105c27bd03a91110b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3589,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 639,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 214,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 961500000
+      },
+      "created_at": 1783845900,
+      "id": "S/enMrBm7ygxm3oBdlBSsjunuYtH1yQFS2jTyqzhaYfd7+GW92z8gtXfbafL0ufxOjY5jSMBdHtlBu7iwU1vG5BYn6EbLuaolQix/T1sKMnuHKwhZ6ih6Fqj05kd1Kh5/QYr/NylYScR6cATay2QSyP8qudPeHFWOEhy4YZ90V+VG9mzFJuESuuOPTgiaur5xhM9er/Luu+UOQz9EEX6EgRI4iMLJWgNYQrMoa6AGxrq8R8Vogt1mUYZPS6A3s9CY3buap1gPQZiccA+xMQ3LHsnBz4iAcyeGV3typZe861ndnWXXkBLgdPVDDzaDTg8Fsvf/1wgoVRSb7Z26qBl6bAXgxOrx4jerod/h6fUmwR9eQKiDuN3ffScL/fd0jO4I3VUfGD2C1d31mzKdnH/N0uhY0eGiw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "xAC9rgt0YytHWe7wh6L/EgXszweI4UwbWB5m7gnydUtTFEU8P+8DAph6OD4x2PzVEfAqpJO3H+rI/jYdE3x9vrPHSNcuMbl+ztgyqY7KMOBHmkumb5OBABPw+SnovmEKEfVA0zfYps/RoMACfW6HkZM6q1ndwjAcP6ah5lQR+rNCBc6B9TVQ4/6pIKEG8pk9N9GD89DONEQZRgRnUpqJ/ihnxqnkqSh5JcUbavtajJ3lGx4+BmUnGkJSI0AvPt403wwqORHGiGofALhsUy2oNUxXH/b3+pGwgmDTXiMwzAEKG/uRxFs9OHJz0rbjv0iPMBLhUXmgrsiN1tCSD7wtUQOfFZcP9iIwGvJlM2ctPXZ3f81ou7CqEf3ZJb0/tPtty97yE2dlFU8IbqoDUNy4OUah7mg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:277faaaa6c51faa7\",\n      \"secret:ffdf71c7db3cd418\"\n    ],\n    \"constraint_ids\": [\n      \"C:84d99b1e7a33d91d\"\n    ],\n    \"span\": \"At lower court during hearing, Noor told the room the truth about the vault keeper's allegiance.\",\n    \"rationale\": \"The vault keeper's allegiance is disclosed during the hearing, which occurs before the permitted reveal gate at second bell.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "oBM1hB8pInedBjHiIqINAZHAdeyOCoIC0A+bqoec+ZDY1JVkJ3B4JJJKu45oX6qdoe2KP7+KnAzqLw3HX6TnIRlzEyzzwneymKffKogPZB8v58HjwdzZPsnNvn8zqTkv3rHUqyYYgUr5nclGun51tcQjG0qAibbFRMwUW+LxYXx1Hv+A4egJohql2AIMgJVaT8LClQEPst7Bl6/ZaRrr+HySygg8zCgQMHKllpVrZNMYxLr9FJDWXdkaUN3engYtIvNw8IgrQqdXGAtBNJLmek5XUSGVkrnLk6eBD0TKOdu1b8pcIXOLhcLFpeSR8geBiTxYARQeks+3asYYisQH1cOoxU/onjFqfyb7/ulZBbh6AqZ48rpI0loULeN181kRhG2CJxmqEP49mI43RXK1Mp8x0kO5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 639,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 214,
+        "output_tokens_details": {
+          "reasoning_tokens": 80
+        },
+        "total_tokens": 853
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:277faaaa6c51faa7\",\n      \"secret:ffdf71c7db3cd418\"\n    ],\n    \"constraint_ids\": [\n      \"C:84d99b1e7a33d91d\"\n    ],\n    \"span\": \"At lower court during hearing, Noor told the room the truth about the vault keeper's allegiance.\",\n    \"rationale\": \"The vault keeper's allegiance is disclosed during the hearing, which occurs before the permitted reveal gate at second bell.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 639,
+      "output_tokens": 214,
+      "total_tokens": 853
+    },
+    "tool_calls": []
+  }
+}

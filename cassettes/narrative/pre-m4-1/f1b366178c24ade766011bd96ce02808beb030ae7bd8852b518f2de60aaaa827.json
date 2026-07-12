@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f1b366178c24ade766011bd96ce02808beb030ae7bd8852b518f2de60aaaa827",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3424,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 670,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 190,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 905000000
+      },
+      "created_at": 1783850600,
+      "id": "HIqGsQn087KgeQp824d5WvgHi8K3T0svcrM50vO6ke5zsyM54MomNlbsazQQ+bQfgxYXQ3/Ee3JkHqNTR8uCIQaPCaOp7biMnLfarg8UVR6ubjYn+W+iv8h2TY4NVcWukqnZ3tHuDP3/Ay3ArbjmpVSpj+1IyRx5NzF55KgoyBRuvL3tjvbLTw26p7xl3TPUkjtWj67YhHCAkmzZMj95DRYMIOvm4FrgeHslli0NJk4ZIcJ/y3trPDmETg9L+UfiWWbkbzQPs77mguLr4oOGtsWxfyZvGTcDGIVWcf166UAJFbn0PxKivm+t7odmtCnbkR5PqlAo3f77VqDIJuNRM8RI7SY9NxbIux9r6qBdygk7DWIs1pM6KdZH+i4+rG9wEvqZBMrsmJV4tf1+mi+4s+CUh0/ObA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "cVFZUEM5HXY16RmXwXI1V9I5ITKP1+pNwQV2l7FQSYqwqdL9sB1zcc/kEH5N/oowCuu0dbu3tXTkGNk9+BbwnmQEA7dTfE8b10yxI76Lm4GGLjsjFIxzgCBisD3djJxSo37opbpJWmRuHNRI+REIoGXUAgOwKODR5CqiyZahK03LcPYd2AftEzlnTCeMvsAPk3Xdd9w4MjNUWUnlkdQUdRxDaQrbU6sw0R5p8VX96BYNaqUQ+FSCvTZejBq44/Gnp9C4HVdMgXXxr7tPJD2SH4v3ZAR9lrDAo5MvylFk4QtEC1CR0l51t/T2CGVlVaqze5fhEQg18kGfKxJWyBJKxfanNfdCeCYUSQipHS5Mq/barKAAqhz4D7JWpobqInEk53NEDdjDEXpd9euOix30LrLMr2Q=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:02adcb4301a2aace\",\"npc:a2296863b61053ba\"],\"constraint_ids\":[\"C:4aea2c07400a5147\"],\"span\":\"In cargo ring, the council recognized Mei as the Caravan Voice.\",\"rationale\":\"Mei is recognized as Caravan Voice while Daro already holds the title, with no relinquishment shown, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "alMwqow/i/jSHU92qzSJqzeKmsB7OyOW/SQ/5c7A2Q0dZDF5XoyefgEJ/vhk/URhKe6suOBFT/ExnsrtMCSRbtE95kH/Pdc2dRVUzkBdqIxFQ52MW1TA6OPouSOzwu91mI3WNTIqHGcXhAW1ZSqv7irCd5D5/Sb6GJh6T4SFNgVenqDT572qBznAtRFwXDJSkPViIsEWWBLxo+nlyv6N3uY2i1QZfwqj0jVcOEHtvy8wkvOzMi+MIm87FCIiwR8Ra83WkLCgRU2CmNcXE3CPW0yND6qhpvWmLffV7abHmejmoQRIfcz97WK7Zm/rv12aTJ9tDmsGn7ndpeUL0kkaQuKGLgHjj3aRX44+QvXe/AiZMvRhDrZq+fjdEcO+tKFeJVFmKeeCOyRqAoadltct/eFZIOpC",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 670,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 190,
+        "output_tokens_details": {
+          "reasoning_tokens": 84
+        },
+        "total_tokens": 860
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:02adcb4301a2aace\",\"npc:a2296863b61053ba\"],\"constraint_ids\":[\"C:4aea2c07400a5147\"],\"span\":\"In cargo ring, the council recognized Mei as the Caravan Voice.\",\"rationale\":\"Mei is recognized as Caravan Voice while Daro already holds the title, with no relinquishment shown, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 670,
+      "output_tokens": 190,
+      "total_tokens": 860
+    },
+    "tool_calls": []
+  }
+}

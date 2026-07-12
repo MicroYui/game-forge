@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ff1cbdd021a200c53d227e17302447342cfdeee241e40c7dab8c5022a03a5fcb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4329,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 586,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 187,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 854000000
+      },
+      "created_at": 1783862000,
+      "id": "nBSNwShvQTgBVRvUJ73+o7EL2JmBUORXFViG3ErWXVS/CdwRvD9q8Xv92vUKLc5HJ4XARY17W9DV+mFLZgKyZRQHgpIfKg7X8p9rHeWtlvgF8vhmf0qZ4cJlYMVaZxRT8b/JE0b3zyZUnJS49cLNB67YBGEkQxaifm7qMcrad6hGu9oBEZHNRV/6l51iZaby/rCe1AcQhcVhaUiIWMJ09S488sxjNU1n3CKEz0Xv8oI7NsLMFepFoqRVu0sh7maGVOjOSSisoIxKyNUrMGjuQVn52cD1sHTLC2annIYv/2Puv2/LUZJ0q+39H/cqTfjX6ZHy+fGcyq/mWeu0o42pYafj5Yxel0Ny0re1iNcVFEf0iPd7L5/bDV0rx9mq3aYpJh2QwiETQNthsqlyjAAIzZdlKlBDJQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "/PO13U+k7hmkjisDq1/UxS5q9OqpSASNu8c3SlM8sh+qJzmB+iy532WvsVn2/ZNh7gKcNwjBsGq0L4EgGAxrKqknhvJZwW7flLOAvCCBT7ojqjR9i0G59S5uIIKyy5z80MQg7GYIWKY5xlajNAZqNv9FT01BmdGf3+P/ZFQpMYDjIhqqiVghw/TwvU+KcTU7s6JjX3BRYwsLvLYnYRTBwAXEwi4XOF0HbL7uqYho7X5BdHM+ovMCODCOx6S59Yh1jiRbMHDe4HonK8QKGF52ROWUQnZ8vxVwQCcdhQjf+8IUG89jAK5WSc7kMpfdxK4SA/iIlk2V4JfF9qMgEi1CUu9S1trVqm/17VBBVlJk0zPVznp1AFSoKRhdBNM9AgdcGLaP83Bmioc8/dYyagrZKbnRiAI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:e200ddb9715111f6\",\n      \"secret:6bdcd7c24578d4a5\"\n    ],\n    \"constraint_ids\": [\n      \"C:156e0d5a8043e2eb\"\n    ],\n    \"span\": \"In archive hall, Mei disclosed the origin of the black compass during archive opening.\",\n    \"rationale\": \"Mei reveals the black compass’s origin during archive opening, which occurs before the permitted finale reveal gate.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "IORDkuZ2bl97J04LQdRjQ4244SG/Ccn0PnXsEL+IpUs9tsQQrX6LQrkIS2l0UI5WCqu9A0cjHVz5RVGjNOJYhnW8JzZcTLDtY0r/oGMi4h8/MZtBV/MPZ3hNDuRP659cP0lk4qW/hG8K9js2fe9USnOpONjMYfhKskHC0bntteWJMsEEBmnkrwkMFXMfXhhHnRME3oPqBEpDyu45nNCanmYEY7g/j0a+f4hQSFMW8L3av3xDjiv95KLavYMQ4Ryg2JGFvqA7FCwA3eFd7/gfKU36KjEakQWxatJtEkuObdDSDQsdZSJ3KagFtMVCFN5/5j7E6Rg4mFWHfi2zIYGMjA7RpMGGs2UsHZ3IbUFocZ/GICpwzH2hPbseW3ja4eOJpqEbKDwtMN9FzBewRbQvokGiF+Qb",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 586,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 187,
+        "output_tokens_details": {
+          "reasoning_tokens": 57
+        },
+        "total_tokens": 773
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:e200ddb9715111f6\",\n      \"secret:6bdcd7c24578d4a5\"\n    ],\n    \"constraint_ids\": [\n      \"C:156e0d5a8043e2eb\"\n    ],\n    \"span\": \"In archive hall, Mei disclosed the origin of the black compass during archive opening.\",\n    \"rationale\": \"Mei reveals the black compass’s origin during archive opening, which occurs before the permitted finale reveal gate.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 586,
+      "output_tokens": 187,
+      "total_tokens": 773
+    },
+    "tool_calls": []
+  }
+}

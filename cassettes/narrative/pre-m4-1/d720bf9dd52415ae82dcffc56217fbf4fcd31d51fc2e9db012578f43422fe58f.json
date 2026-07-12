@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d720bf9dd52415ae82dcffc56217fbf4fcd31d51fc2e9db012578f43422fe58f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4454,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 691,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 225,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1020500000
+      },
+      "created_at": 1783844000,
+      "id": "jMyvL/LGAQ+m6Rp7TkCTYuxTynvAz9qTcg/+1+c7T7HxdjeXAa3nPeo6u4EfjFXaodEEL6gcDEVJhLvnl2cQFWmLZVbt1D+SjKPXC+/DO5nuG/+m8WxzhPM6iM4v5ZMov5SJPOdmrjrsqQC5mGvRijPBF52MsFPkdJjHl1umXWZwhncu5+lF+L460g4CpmhZG5CD0R54fkQF29gNFgCXeSYOM2fQ3o0XFau9q0DEvnZxrsztzwb4sPUUCNG16koYXOqDmRRzDHMuSui+Vs97uBiK9qNXbbHu2fAmOKdPud43D2NTSReIGREeEmIbcFKs6X7JbYGI9zOqEpbVcIkWPqqdtInhWhdTlBvMFmguwkSWyr7bA+6Dr/OEB3pdoEASU5NkV+cCUkEBQlWYNwiYG9YHdBvBTg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "brTNL9/c8ZedVbZGCBwu+vtjBjHKbNp2cL2Ps8O/QEoVN35fIQj3/H2zs3FwxtCgwnhRGlr0eNSLqS1kjMsjjW8aQl/EgrnbeP1DHWDfUE0FKSj1BcW2+gP45U/hfTz2cVkd/InascF6euiUxjFIs6uw76QfJWPWaynbkQr5gcB5ysqiFLWB0RwO7EktUF0O6gZqeQmJXQIYa50ut+o1MH7tyo7MrDW1e/ExNUe10Li6rmnWFabJqkUT3ghTKKZSjShmwriLE8JKgaIFYdKtcHC8xeXiHq3K8hoP0pqI+7+5GpUTrdgzmambxP46nNBjnGsIr+J++UsYX0Cqa7QY+XstxRcl5oBTHJz+mDq5blOsO+aQXQ8CUPFWHCV4BG6wL9Nkb21w67K0odUdjIaCHJJANhw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:f3ede60e55990575\",\n      \"secret:87ff184f0b608070\"\n    ],\n    \"constraint_ids\": [\n      \"C:c4926da62ef48fb0\"\n    ],\n    \"span\": \"During dawn patrol at desert waystation, Ansel openly named the masked envoy's identity.\",\n    \"rationale\": \"The envoy's identity is disclosed during dawn patrol, before the permitted reveal stage of map unveiling.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vcXloS+BazIQMN91Mtnhjh0OsZRDsry9tFmW4vmvt18iNePBvDaqR7AmyEIoPVPrI5XxAvJ/1E4eQa1dS9hRcrqhuLMiiUrl4w5qxxkPdDNA4KyTVCOr4ri50LUZ2TWAvNZCLfb8DTk0s/HaLh1193LuZcEi+XCEq4mmTW0svehE9rGTv1EPIiAlV8J7J38URAS9ZpoaqY5T45j3KZOrlh51lv5yC3qO+YlfjyB5zUbFPTb0Ch+gnPaaPOrW/076IsGsVQtEr67jAEBzZ7L8OwVhos3MFuzaHO15xK2y9tAZqcZPn5FBLdchGetFoQWXZwBL1QMI1D22lgx3SRFYU2+hyzlTZ0an6KnF/wyr0XIZkeMvcvXYUurxUMWoL12G4wCvAZjaW/EH/qS9aSSz47NrcVPY",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 691,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 225,
+        "output_tokens_details": {
+          "reasoning_tokens": 101
+        },
+        "total_tokens": 916
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:f3ede60e55990575\",\n      \"secret:87ff184f0b608070\"\n    ],\n    \"constraint_ids\": [\n      \"C:c4926da62ef48fb0\"\n    ],\n    \"span\": \"During dawn patrol at desert waystation, Ansel openly named the masked envoy's identity.\",\n    \"rationale\": \"The envoy's identity is disclosed during dawn patrol, before the permitted reveal stage of map unveiling.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 691,
+      "output_tokens": 225,
+      "total_tokens": 916
+    },
+    "tool_calls": []
+  }
+}

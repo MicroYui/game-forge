@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e1b7be71ad62b8a03f92dc51c78cc1203f588ddaf1825995d885fbdaa5076606",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3612,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 626,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 159,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 790000000
+      },
+      "created_at": 1783861500,
+      "id": "Vt1OB4gVyO7Zw7etP3aohlve4ci9aZTmY8dFrtnhBMKTDX4UnKDEWtr5Wfdg+3Oy0JeIp1lvzv3FDPZdB0dhdWcGk5VwqAz7rl63kouftA+uXJnG3G0sCOlpWRAyu9SAjSSrCwmjRszhFspwuvZ6k3V+5Rk3CLQmcYFGWAMbV8trGUQS972hNhxRDZ9kQD4bBBxhWs42lt5NvF1SbjULS3VGGcwtEx3yxbFamq/Tz7Ktdpgpw66CtPsTJ1l2aX2R7fWae8gsTXRIRv4ktqkM0Ik7LCO/7Qkf9gaVXujE31Gei1Ub4szldBcCZ6qGTOMOV9+Z/TrZjPMCrxTuEHUr+le5915NMTJPAe2gxd2QKJVvDUkrmwXbeQXdvw3opz4aOR1z7S+bV6GGx1Wyw5d1EPiPmyOXjg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "brnWfaRHV7nXtMGQYpvKWsl3nKsECvZmzoaPyz3Ec03tSBedJF2f/nHPD3ECHhpCNKFRbM9cWIBSjOKijIfqc4MGQ0fEjsCD7l/HddHanyGZJNNpdZxMtmMAk//SABPBSDRbTpDGm3ORxyg//XdvE30BwsJdBK1yPNh0iBkMqCdvKr9JLI1RzuVJN2BlTgAFASGS1VvodSzUeZkDBA0hubiisqk/S8yZt4S/Bhp6dzmsaEkTg6cbDnBNW/LoAV2+McC9JIsq1NET684OYSKCDTyj3ZeXxgl6ynZk8yvzSDmvdMH9Uey287WmCqHLStFVyD1zuHMwiShxrCwfNLZ6/UR8U+0PJKbCyteTB36cOfoQCGXXINayYCXRQ7wBpj9Chy61f21RFBqbfrLr07Y19IH/MbI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:41c65ccf77eb2349\",\"npc:8e429d3a981e839f\"],\"constraint_ids\":[\"C:437ecdfee3541c83\"],\"span\":\"Ivo fought beside Lea under one banner at glass conservatory.\",\"rationale\":\"Ivo and Lea fight together under one banner despite belonging to factions explicitly at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "pY1PcyAfrmwvXH1tMDJk2NnwzTvb0mIdCEztyFF3W6ueKQealxisPjU2KJ6WUF2osdx/vdAC+dMinanxEdBbEPKRJgP+chw7gMw2h/mIHmBEcVo8MAZ4U4wUkUAgvj5he+LMA9Ac3dVo02vQpEEDJtWyLRc5+Xt3R1CvkYg/gLNk6zMW7+yyGqTvmYJrXidG2hRRqrrwPNFOt1djdtoj44SfVBFWpL5l98RCzR5KBYS0xCmdbJrsoUA9nkoS3zwZ8z55vzR32IukVISYiCKCe377qycN8kyBqqZn5OYgjNxXsyhxKtBTY5rbvZdVE9dWIch7wuOokz4oVUAcd3nJb8YC9wvvWJXajCUNYO0loV11RegZ3vz0bqppJI0lpswL2uKdm0hFTXyWLVba01l+a2u1WFS8",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 626,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 159,
+        "output_tokens_details": {
+          "reasoning_tokens": 63
+        },
+        "total_tokens": 785
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:41c65ccf77eb2349\",\"npc:8e429d3a981e839f\"],\"constraint_ids\":[\"C:437ecdfee3541c83\"],\"span\":\"Ivo fought beside Lea under one banner at glass conservatory.\",\"rationale\":\"Ivo and Lea fight together under one banner despite belonging to factions explicitly at war.\"}]",
+    "token_usage": {
+      "input_tokens": 626,
+      "output_tokens": 159,
+      "total_tokens": 785
+    },
+    "tool_calls": []
+  }
+}

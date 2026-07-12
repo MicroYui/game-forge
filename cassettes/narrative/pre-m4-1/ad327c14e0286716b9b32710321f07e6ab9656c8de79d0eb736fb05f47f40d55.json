@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ad327c14e0286716b9b32710321f07e6ab9656c8de79d0eb736fb05f47f40d55",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3053,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 564,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 95,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 567000000
+      },
+      "created_at": 1783854200,
+      "id": "wvWL+YtvwN2Q3cyFZicJV9a3zHrzSInjhd1rDb4LuLZe6agsRavJkMr3n8lw4CTaGnsJeGOYXlTVRwvqhd0v048ELWp+rhqSHJulHqZqUWTy2ys4Lbdj3yWD83Dq+VEbLUncNPmiGu4MWB0VLepAjkVl4lWWbKIxuJBBHZEa2lB8opvryyvTPZmTQ4Oh3Gl182b7FlnK8FqIVGbzbz5eLj8RpI64cbR1vltikFxqTTxZcRJXph/ZHKASispDOSTDg4AHf3EYyolpq901pHI1JfpJbCz52WIWfSNgGVXvc/uGBVQHpBFAWipa9owJ//WpoOld87XPlWMnp0ifXwCw+HVrUUfZtWnkzZJpvYP2NCKBApG1YRKyVeoneAyW+LBGmn5NLh9SIE7hgqcujHOzNTB45dNEBA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4ee68f6757263988\",\"npc:9dad979b69dfd33e\"],\"constraint_ids\":[\"C:79477189278d24e9\"],\"span\":\"At eastern ridge, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik jointly approve an operational battle plan despite their factions' explicit no-coordination rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "FWvgMhkjtEhwbK4grQcFSwZe+OOlwTLjmx1tA74bUamMkNkoUPDR574tcz13ucjSnAmdDv+WiSylmKEjaFdqwaJxZDcDAmpGIgT1xiY8icyCg1Q9olOwC4gCROyCFHe/Fq2OSMZkFRxGQVATOSnEeXHf/CCewCmtYWh/3nvrAV/PNMehRG0JiLcwzcKK5cChlvdYcI5sedn/6HUsqFjWH3bsDrHR8GZQgYg4GH3DbFPJaLRRdpWGMJZ6Or/y3jFeB9Uq/jYrJJjCR+3+Ozl734VFloSVaavu+zq6iQDnPintPe4gErJckHJIsFdgMR4jK8Zaov8fOJ+lxoc0SFLYqdViJHYr3TOX31sNf0zcxVD4uRbui7OARquIMsmIbrnvj0CfyZyvgdUzqx5owSS22vsXeyvH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 564,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 95,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 659
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4ee68f6757263988\",\"npc:9dad979b69dfd33e\"],\"constraint_ids\":[\"C:79477189278d24e9\"],\"span\":\"At eastern ridge, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik jointly approve an operational battle plan despite their factions' explicit no-coordination rule.\"}]",
+    "token_usage": {
+      "input_tokens": 564,
+      "output_tokens": 95,
+      "total_tokens": 659
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:934450cfda1bf71e50123bd4eaf54ef5a98f3549e93a473aa2a11018860c5603",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4975,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 654,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 241,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1050000000
+      },
+      "created_at": 1783860600,
+      "id": "+YZfSWm4g+ayVP1ylDUpdi0gVexkRdiKobmQlhgvGMAlcJX4+Tg4NVDWVP5Y+VPUm18xVT2AbLkfg7Wxb5b1CCMEG+AVPq2WHlWG51pMcyAlnaiMChOaPCFIMMMyK9s3Sw2TH0lezgHZjLVwHQUHuiVXFFIgYGik/E7uCCWW/9xW5kx3LV+1nW63uEZFlA+KuyBYuIIK7FF4mnPiyyrJqxFLDXtGSWRQow51huklk8kBI0084HTpy6+QMdsEPmDlclE5+nLhqSForRNQzF1Bzqe2PQIzSnieusp3RfbEM6TPplvyMi2hOiPKNGfMpjlLBwRRdq/8QDDGZqCXAWHZK/Xz3KWMXrPEu44ZqKPZHgoqgdAMDPzUlgz+QymnqssDQN0tz/9L8CP4lbXIal1E1onSypKEsA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "QIv4vMTophjWiRdWWbjWhJnzu4T7Y+YCRcDByWuBNGpYWng2NxIXMQax7SzubdZj5vk27A2WYfpBRFWBXbDXSLdGxDgR+tmKlkEbaSHK685adpQVEWvONLxwZrNKNpOsKvC7Ws8V/Xg6BadOFZhPEvrRfpaTIuqZSLd8K+AHJvTZQSa6VnrGBWWfOAEQMsvqQyo5SlObEIyZWlWUSNcBltHWupaMccM/7LvIY1Sdz8PNYg2xIQ3PNdDq6fav8/dy73xnpDFoSSFVylYUUlDt/DInKMg9Vb+fn0ZlKpS9v94RQRa8EnXIh4sSwCmLkkhkVRrncDJwnTA9mP3m0Ki79e5m2YVqjbWqn02Dx1AGFGlbN3mg8cLHuM0qbyH5yUV75VlJJB6gW9xH05TSIZlV3Ll3idY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c0710243534003a2\"],\"constraint_ids\":[\"C:ebc19f8671d51789\"],\"span\":\"Veda closed the lift while a wounded companion called from desert waystation.\",\"rationale\":\"Closing the lift while a wounded companion calls implies Veda leaves the wounded companion behind, conflicting with her requirement to stay with wounded companions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vGRE3gTYPNTie/c94hkqzAW36OzvQyT01QtKGTlgHT04Mvw+P1lUOcZL6lS7iLYjovYxT3EgicqJEm1m6LAA72J1QI277ebzLXZXaA/oCG3AFwJtoDwgrNFnXihtCJrb08zc7hLa1BIxQTBrgzL2cYvYAkYVfu01MKn25FFllCazBekAy3/i2df891qnhd2Qyh5NvQyHgyjbfFqNg6WxBB0C95b7RicPaopVCyg++CPs3O1SAIVdryP+KK8/PetSI6S/v1GZOZOA2xCTf7AlDq1z8UOsCTPF/8OCu99a+aaJmFfNPRbVfRUgyCo4gwOREir/AEJp2Ww7SoCveSLlfcztKfmkAQa3XT7XTEFQDaLofAi8UQUttlNFGsRtRa5Ing8xFg3OViIrp8LJlmNi4G4zuWm1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 654,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 241,
+        "output_tokens_details": {
+          "reasoning_tokens": 147
+        },
+        "total_tokens": 895
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c0710243534003a2\"],\"constraint_ids\":[\"C:ebc19f8671d51789\"],\"span\":\"Veda closed the lift while a wounded companion called from desert waystation.\",\"rationale\":\"Closing the lift while a wounded companion calls implies Veda leaves the wounded companion behind, conflicting with her requirement to stay with wounded companions.\"}]",
+    "token_usage": {
+      "input_tokens": 654,
+      "output_tokens": 241,
+      "total_tokens": 895
+    },
+    "tool_calls": []
+  }
+}

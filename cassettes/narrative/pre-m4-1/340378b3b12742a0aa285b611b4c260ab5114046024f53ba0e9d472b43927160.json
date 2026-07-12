@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:340378b3b12742a0aa285b611b4c260ab5114046024f53ba0e9d472b43927160",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3939,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 598,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 141,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 722000000
+      },
+      "created_at": 1783854000,
+      "id": "SMqoG6SVp9T2n670c4iSFOqS8pO7yOKdSe34W8QC2C9/3UkBr2QsFdOQM9jB3u5fsCLVskaaUr9JjcNvkGThh1xsWJ1U9O0t6d10xymbgmXeoGd+OERvvC/M3ivqlgPpyFCM27X2iOEnyc02kOWhd1g4m49aApoTxHFPxutmim0i1z6eFHHZ2Q30NWMOD+65mk7rbVw35CHcfaOb+3kg/dDVQ2g3wA07Mv3OaBMGPqUMy4UQUgK5k3oO3aYUuon0r0z6d+EmiOJwJ1TvQhg5prrUYJ+3GOaB5UJ3xEczk1AH3PvgKbBPdGMrmDNcBUoTH/t4rufW4xVmn31y7UJTa6R5uzsDlDRbKjKLTPnYFjcIJ7vIEOtOBe3qPi+u3aWYPwRmhQoeGbDQuxvhXSk7KrGE+FUslQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "7Ts7qt2fO6GgPEdJPOuRqUb0hk8M/D87eernEYKtlhwG5ZTjIJMKF4ap5kg3TESIf+n544+dB0hXpG2hdb1W6s/1vJ3Ql4Lg7D3uMRIGzJCLERIQidTNlsV8Xccg+H/Dt3EeQrGsyfEeII3DM2BexJwmL8Z1CVn4upGBIwil0xbe0uIH3mcL4sCQNHbpyaZLkiHVu1e5RmLKu7eAiTODjKTil3jdjZ0Xx9ysnIcwifzaesIQl1fr9AvG1JRJtAyQbECqWz3pOq1Q7hWtPsNscLl7e4pNWrb8nb4UrBssURyf/vXEisIjt7NvAjLzkiMH7iCM9SmlQypPqysLUIwROhxA+RC6OHf4sWsWYHyf1dUMwkUMFFVcvK3pJsqSBN0L82welt89qjfO9g14BTJOwB6KFP0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:d1455e8589109e90\"],\"constraint_ids\":[\"C:174e9a80436f0689\"],\"span\":\"At river market, Noor left an injured ally behind to lighten the cart.\",\"rationale\":\"Noor abandons an injured ally during departure, conflicting with the requirement to stay with wounded companions even during retreat.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "2NK1E9XjEz0BJ8m4xa3tfeyXjGZa4vWFBRhLP0nzQi42IQg1tHiQranogvCt+ilI2KtT9EJh4V2g2vg5EbkiWaU7GDsnaSlisKeC1aN1b3gKXkDphjY4cBamcwEZR+Kz/mulpP+mUZ2H78rMlRBoZ/RcYwWBuPGgFkOQONhXoROAJ78MQef3a8zSifIHm5WmoO+ZcXkRAueDjK76sVcBLAKy6RyM47VFaFJKkZLb5Knk63WyA7r0utZCZPt/fi2a+M6kflv0tNqALRLUqTobhkzztG/6RLr2HkNqpB26OBL3aukRzTsIprA0CbS8mLgWurMsUfUfauoB+6Ucdxpu/ui37PXjJJrnfejctj/5wDx9j7D2ra5oOT4u9RHFaXh35yfAPJJHBJptySOQalpICyrlNC4U",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 598,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 141,
+        "output_tokens_details": {
+          "reasoning_tokens": 50
+        },
+        "total_tokens": 739
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:d1455e8589109e90\"],\"constraint_ids\":[\"C:174e9a80436f0689\"],\"span\":\"At river market, Noor left an injured ally behind to lighten the cart.\",\"rationale\":\"Noor abandons an injured ally during departure, conflicting with the requirement to stay with wounded companions even during retreat.\"}]",
+    "token_usage": {
+      "input_tokens": 598,
+      "output_tokens": 141,
+      "total_tokens": 739
+    },
+    "tool_calls": []
+  }
+}

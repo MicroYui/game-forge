@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:82c934da46e23c917d36973c1f09ae79775fefee68f2131f1e6948e19c3d16a7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2054,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 624,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 102,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 618000000
+      },
+      "created_at": 1783862100,
+      "id": "DhDqOC5BAN418Mo8AXsoEI+JmGEDWf+kc2yRCpIrDLfUl+cAGRcxt57yfKYVvxNQoJ3YSdzQVw/GX2Fba6XsS52fZB8gibmowscihoPvFQbjjKUUwNcs7xTvSB0rLT79R0wWbUZySMqyhL1oAXWRQBcucX+qQSw567PSDkhpGbsQTgvsKoOJ88yVwz+ETN+GHTR6A5zY0qSZAO1y4WwNrj82+HuGi07JjI5Y2qehBMZiah74Ad8WKVPyspynUexJApD80IGalEN3VHJLBnfQZ0HjJdzMySN5BLDtXTLp2fRPd4YyS7aJITgGL6ldqu2jF9Qzo3UZ6krYzZFTtbZOm5/ukCisOAbe9qrGO+vmCGx+CyybZO6AwmXUxSIUZd4JBEhoe1AiyeCzmuW6F7NTyxgaijRSsw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:c558ab27f63a955e\",\"secret:95c798ae1bc015cf\"],\"constraint_ids\":[\"C:984e3943f724794c\"],\"span\":\"At archive hall during first watch, Qi told the room the truth about the source of the winter signal.\",\"rationale\":\"Qi discloses the winter signal's source during first watch, before the permitted council session reveal gate.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "C6t+Y+kh2lBTt0mGauK1A2+nxmQwhFdk47MaPcE660sI6+XT9ElCJytspt6M+l78IeibkakGeCpoGiLM3jJ5mUl2DRbGBfeI28+Zn+XpWwfANKThne9w9vN28sMMUurxuRbc99Y0cFGVdTIfym4CLq29KiC17q50yZrB6Z5mX1W+XsE6Rlcgpy4j7JsEdWZWmYh9JDU76+5Wb6uVLDfF8MD59MeDFH8qcdRkk2IvZs/R8WbgH+mOCp3j87PTYiL+N+9TLm4m0lGdHXlJofyxv0DcmBMCtnDZ5F3ljIY4P46VfO4LGPJt+DimlqffBuJfVMAXhc9e27JfT/zwIGMl3mHtyt89f2wqIHoXo6td8Q2ZYiMPE7VE0woAjm4o6y+1jJN0jTmfzdwi52ka18ctMb86i0Os",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 624,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 102,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 726
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:c558ab27f63a955e\",\"secret:95c798ae1bc015cf\"],\"constraint_ids\":[\"C:984e3943f724794c\"],\"span\":\"At archive hall during first watch, Qi told the room the truth about the source of the winter signal.\",\"rationale\":\"Qi discloses the winter signal's source during first watch, before the permitted council session reveal gate.\"}]",
+    "token_usage": {
+      "input_tokens": 624,
+      "output_tokens": 102,
+      "total_tokens": 726
+    },
+    "tool_calls": []
+  }
+}

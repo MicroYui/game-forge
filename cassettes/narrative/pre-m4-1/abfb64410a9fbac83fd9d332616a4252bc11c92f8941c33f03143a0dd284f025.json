@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:abfb64410a9fbac83fd9d332616a4252bc11c92f8941c33f03143a0dd284f025",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3101,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 682,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 144,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 773000000
+      },
+      "created_at": 1783860600,
+      "id": "IcWKX/LtSLMvAxxx4eZ4xc1Q235T3pA1+MSFbwpO7G4PzWAxA7wCYheUXecjcRFqhxHEey92G/BeIOv5nmTKinEeysuhBFT1AvrcJ9q6pHmcbib0ValFKF2EwvBlIa4RopOgD2q+NRdrIk+bvGUQLPCPecNWYLK1Y11b65NDvgFNpCOwPSgzQkDCegNgX6X7zKgzNkgfryEBM495fgEnfs8EzYI/OpvI5Xw9AuZgVyvTKnhCHrJ8729gtYIwKCZoeSzRvVSPT840iOAjE7/hCLDUULPXLWZ5cvjmvOUwKa+ZW1p82porC2Z5mo5ez9FMHxbcwMHCdUgM7b2oSDYarTcFyiCQ3KgnILOEtijksJsQVoUUvAhk4H375s/K1UiDe3YB54qtbccF7L/wmH3UHdrt7UwM3A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "GSHitll1/HOaRggK0impst4BvckTTkHevXBMzl8WmDxifCc2lh1bPFJ5CrRCifezAdddk7tk0WDrL08EmL0TyDkhHKiJYKwvoX5HxLPinlegjnRwFDfhDOM7nUQ0ynDiIWZmnT6McLeJff5+WC0pcmR/QnYrjYUf2Zad3XnCxVOYKh5S3OWMzCZvnGe8WPHJ6LwK+oXmL/jq9+IXbxjUPDYdQZHojZaiEyv5FzCzciXs8R/I5txqwuzn2aSVaKc6OTTl8DX1HH1wdFOKk1Dp/7CcTJXU6hmUzgPO1e5+Ktlja3QI7p48K5gC031eAIVAN9tGFtbDQI9vJD1mvK4h1POfAjapGmNonouJu/NmNB4kbtTVkmfXx4TDXrad8i3GEttfHDBaVJKuwbfb/2uIQ/1kTGA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:30cf3b4374638da2\",\"npc:6b7dbaf769d2ec1d\"],\"constraint_ids\":[\"C:f794bf145eaf15dd\"],\"span\":\"At caravan court, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass belong to explicitly feuding factions barred from joint commands, yet they jointly approved a battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "wYvC2tUSm+1X9tsyOFGxAhLMZXNEGH2AnE0985KXGmqKtFCFXXRgH3FNj0tkHruJQDIYi1ll9cYLgP9iFVKcGML9s145BDp7xcPybynXiEuQ4ohe7YsJtnP93VOvknFr2SWrwigvt2woVTOBaae8cNGcIau2RINyNlFE9ru157xtJefdtKzL3Ng78R29lWzwTjTh9NQAaon0Rj9/l7/X+/NHI/bs9LyLhansMbDo0XeJRIoZZxWiCJGLnPfZcRU2bo2AKPV2CIqkSfewVzLlfQ0yPps39lXWCB813IKNX0VxGRxBSrXYp6QQf4dKU74U6rRCm+qTc7wiOvV0mDEaoVOALOOzH2KTlph3z/GjdSOKNSBn35rHWgivWCc3lwdHh63qOELGppIbGJqPYnsbamC6iBzv",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 682,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 144,
+        "output_tokens_details": {
+          "reasoning_tokens": 41
+        },
+        "total_tokens": 826
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:30cf3b4374638da2\",\"npc:6b7dbaf769d2ec1d\"],\"constraint_ids\":[\"C:f794bf145eaf15dd\"],\"span\":\"At caravan court, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass belong to explicitly feuding factions barred from joint commands, yet they jointly approved a battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 682,
+      "output_tokens": 144,
+      "total_tokens": 826
+    },
+    "tool_calls": []
+  }
+}

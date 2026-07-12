@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c2e2cf6e8124d722b23e01606ebf2e1daf130a6c6f81d9592c641387ce4aa8b4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4552,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 648,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 232,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1020000000
+      },
+      "created_at": 1783858800,
+      "id": "6/mdqYDNch7Q61ghnRnnLPw5abZPdc5zFSp2YvnUOSLRXG8hDJx0pFIYZI/O8VOky2yv26R750XdivVXADXu6FwHdzZxRqDBStYT4LbpbkNRpSYk3vpA6fLx+fxw2CYZJTixY6hMmE68d82fRCUC6U1sWUWz3XzbTjuwjovw4+b7Ue0mwZg2vX2SoLf8LX1jVnJ8luwwvr3FIU9mLa06XAmaDp7NJ1PTclGVpBA15JsHFG9lLYWWZc2wDlNScbryGCrHStdZmE9u1xUc4wnyviKTMNIuCPyRbu8KW+b4Qjb9+gfnXygMy+sKPvd+MoF4Ml5UT9uvSOJoC90Fk/hURL+KcNM6ZktqO+bV0V34w+l/HslzilCSoysNItMciFyGyuzjSy0lqj5HASxQ3Ln/24ujyOiLAg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ledN09fWkHSBP6zYa1tN0EiOuvTg8QMnE1adHlqMlJ1rC+5eU47efwIbGnZG96XMATW2g0/0hOOEOjLM9DZtVB+6KHi0veFbZcYMFMSuFwduWpV18zQvSyZuRtSHh05tS2S/P61IPqQOvdmbenOtXBbdj5Piip/ArHi5W26o4Wg9lsVxuKqn4TVIk4cH3wZGC34MMhbkL65RNEafBP/nKGORgCfPMDAUymShMtDVGxmhzrqKYNF7Yn+JY8Qu0Tb+MNrQVjU2ROnYpJr17qR4yHuPIVFFqz2Fcz50rrpDENT6NyRlrQuUkXGmgUS4eSYeXWAvw/rjbqtQve8zLQzQM0XhBFbvMFSXDvozu6opuJeTHpnFOYCwWFLNOBiazaUhOLk7poe1SVW5u6H0HGLhilARGL4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:913e389672f34d4f\",\n      \"npc:ba8556dfde95820d\"\n    ],\n    \"constraint_ids\": [\n      \"C:c9b215759eb2a94a\"\n    ],\n    \"span\": \"Mara signed the register as the First Navigator at lower court.\",\n    \"rationale\": \"Qi and Mara are both presented as recognized First Navigators, with no relinquishment between their registrations, exceeding the limit of exactly one holder.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "eWUo+iPqDqD8yUCfSaY6JJAbTF21Uk9UdX7qPb837+bEbswDgK/fNfjpS5ILd9mHWLvdexR+JWObLZBPTIFttpSzFcjFXiN6fg0fGS8NxxYCF8Urbj+PDE52RroZ+udCdWMTh8fHSpwJ6wD611rC1XnDVb8PKWDPDedklohclq9lFISOrJ9K1cdVIv478ZvvaqbI5Q7cJCbBFsZt9ldpInSBXww/Qdl8XlxWwPZfQA5WByUbsOdJE1Ea1xC5tHQjE8FDOU1I+OaIJYMe9+JXVXyd1f/Eb2BuvzGu9X40okdk0iHI/U5STwL5q5OWiX+fcRoFfP+T2bUwNPtsz2dwMQ8LgBfcgsJWHDxezjWEvsAD4Gb4dyOTQ55aRf0lHhtwDeFFBZxAS7DzkRXh2ZErWUQVgL1p",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 648,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 232,
+        "output_tokens_details": {
+          "reasoning_tokens": 98
+        },
+        "total_tokens": 880
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:913e389672f34d4f\",\n      \"npc:ba8556dfde95820d\"\n    ],\n    \"constraint_ids\": [\n      \"C:c9b215759eb2a94a\"\n    ],\n    \"span\": \"Mara signed the register as the First Navigator at lower court.\",\n    \"rationale\": \"Qi and Mara are both presented as recognized First Navigators, with no relinquishment between their registrations, exceeding the limit of exactly one holder.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 648,
+      "output_tokens": 232,
+      "total_tokens": 880
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:400f8ad98d21a9c85fada0af28e2aa3e78659f8e1638ea0fab2994efd3978951",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3070,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 610,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 163,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 794000000
+      },
+      "created_at": 1783861900,
+      "id": "RiHamU6Mv7QLXmHqTrvh7GavjSbwH7/rIjk0u42ZRzi2/qoEWkLtNv3H7H338kU2m65vC2EbgaWgQhYFv+XcF24LlJoe1bTmfPvRkKE7wyoWj5QWEE+5JXHiMn19B/mAEcPt5UeewDum/sowZN9LM9wWO128oh9oAi/3aElfYwMAg95VtTvILJC5e+9OXs4N63C6d9WLckascNZ/plQ2MrM4hjI3n763+S2ZGIPiopdLIluQcCj6lqkvvCoMIwZc8enK94Cw5BjezXqYLrKh48rbZk8ZSkJe7iJwRi0A5UDnFIFhHcag/4GbGjyGzS6yanTaMZPXGSzpTKFc28iGnhK6Qwa0jf6aqs/ouDyxf0hxXrxVpiCxyobRMLsZrYdCu5vbosLiqs4RIRXy8ZuDQCmDoiX+mw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "dhfcOfQV1UKcL2dEqdVMduytrUkijvZLt0QQtJZJ2aWhjjDglzFoapEqIgGf7z2dMWvOYPOp6w1r1GCPGfAPHd8cZcc6tqO6qCMttDCqdCNqBVXGeJ2jO0Ww4+cxnb+p8j0jCGA2WVC8U725tcyYcskykH3EeG5C0Y7yVos43T0rnwccVCGVt4qwGs6WQpI8sVs/sijecwWXafuP9zDRKkmT/vL4czFU7LFTyx7hh94GVHqdZSdu2xxsAWJzjobhN1HN8CQzsbvdjGI4BPG/JZWZZgzsNaL6YMi/CjcWTB0RCZUDUWjB+5aG3PVhypwA9GcB6Sku2g8YNPaMPINS3JN/jFjg0JYjKyJf3ZaUl929E99DsRvlner1w/A9dl5GG0BPZFykydiXsEiMbIeFgIWNAN8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:8f38b85957ca7539\"\n    ],\n    \"constraint_ids\": [\n      \"C:70362f52092cc693\"\n    ],\n    \"span\": \"Tamsin quietly traded the allied patrol route for coin at river market.\",\n    \"rationale\": \"Trading the entrusted allied patrol route discloses protected information, violating Tamsin's secrecy duty.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "VJYD7yzC0DL0wWO+W8bh0Ls6zoFbR2JhHSycmmD04elL+wLC/LWlWywFwHm37ETmlU4QMLZBXITQtDLdeotA7hmFPxP+TTnSKy/hbw0q6B0eoUS8OpTfRv4ECS/Iyxk+joBkUgQAVkeSsYbsH9isHH4E+LUj536tT6PRCODFH3RE1F/aGMOYRexkD1DdVLy1Rc6tcJm7F6hczpYXMVOqQgJggqc7rmmrxohYWIvBP8bbMJMI/AGwfRVNWsoUnGhbV3ixiQwQYLdgSzOoy4hJkZvxY38YZf+JKF5aKtBWLxjwBd2jVodpd+mZIeW4dSqs1B4KINQOv5z2AWXWEEZYbZ4eKL5dpTH+CT5jYLMq9nYJ3hIR7HrHgc5+bPVkr5HLUgxGj/yLs2nYwRubRNiByLR2eqTd",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 610,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 163,
+        "output_tokens_details": {
+          "reasoning_tokens": 52
+        },
+        "total_tokens": 773
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:8f38b85957ca7539\"\n    ],\n    \"constraint_ids\": [\n      \"C:70362f52092cc693\"\n    ],\n    \"span\": \"Tamsin quietly traded the allied patrol route for coin at river market.\",\n    \"rationale\": \"Trading the entrusted allied patrol route discloses protected information, violating Tamsin's secrecy duty.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 610,
+      "output_tokens": 163,
+      "total_tokens": 773
+    },
+    "tool_calls": []
+  }
+}

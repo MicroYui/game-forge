@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:40c2c75031ac245849061104d510717e317fdc7f21d2d46b0db249ede9fe2a5f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3444,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 648,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 163,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 813000000
+      },
+      "created_at": 1783848100,
+      "id": "DPtG3adgms9wONMw6GKpL/bMUj3OIgGFQbzQu3XG0TZzRCISEEtn/PY3ElJxMEQjf0OnaPJkrgsYOxf0GfOeh1jP8pw/gs+uaGhEDuo8FwkxIT+LSJ9LUcx5q3QWT6U3c8/ZfRNfwTcsKmtXwOek7Q98DkJhF6/bI6+G+M6+xjlfFNsI6GW9gHxtjFI4UP2icYAswh/phQiqbfkIfJaUUpOCbLwcONrHD1ji6w20xx6leHQ2ZEvHBSbRVYarUlRWAsbCwdWNJeINoHM+u2PTnNa3mE+Nh7H7B2xpQxbYcJN6dpv8FvO1Bks2veKYxFldjb+JaMMphbKkhcWXFeLZFukn3g8PTrcvf+NaeIIsgwY4aAR8YOE0IwCInCodLhBM/YALQUzNhz124K7VKqcIfpF3LLargw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FG8Ps4XOravVWzgg4phmYwDXgYD0LzqT46SdWMLo2Bo+YxZZacJ7xJjhjN8RyC1SImty4356zoFzjyCUrDxn3OlhDe66hJ6CHf1heALd6YQm9DPuo9COLmeI/kEsZiHODwv9KT1u+sDUAAOsvPUdHHNcUgy3ND1SYZ0565rlnu6omUFqT3sK/CgBVkBqX/T1+m+e+vZwToXaHAbpVqldN4znBzh0EPoLvpyEi+4JMwHMSLQRcOqZo+9OJ0M705468lEbKmG3fwRwEZwAXRF1FyAEFmB4j1mbejAayNwX5ktI5U+inUaOCwIOKue8axZmPp6jmo538+yP+UJwP0V1qX9cNnPqVZEYcTwtYwbTu6Hh9czM8WXeIFrfkcDtpReKyIC4+57hB1BoOYj7A/hsOMQwgAI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:98a0239bee48a53c\",\n      \"secret:e261d7ab53e0a911\"\n    ],\n    \"constraint_ids\": [\n      \"C:95129bbdad005308\"\n    ],\n    \"span\": \"While the story was still in dawn patrol, Noor identified the witness behind the sealed testimony at caravan court.\",\n    \"rationale\": \"Noor identifies the protected witness during dawn patrol, earlier than the permitted reveal gate of crossing.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "6BZsUjrsPjvILKm90nAAJV1DEHo7jO/bfMZnoWvLrPQslYIi0lFypZo4sor94JfsNbzHpX60MQ3dm+SzFMrwptfj0JpFo13weyblplumKd/CUqZEYDtoOMclMX5oblKXu37zvEw3j3jPX23s6qHRLcgZyL8pLTqxpeY5lBdckHccp6TQajDYWE6mAu0uXjfKoEkx5VXcOhvOknhUeX3JnnqEFEIPpkYjys4qknmgaSHZIkA5cmn+Ly/ARfKnV+1I+1HR6cm5bNbsneB8BBwfH7gVTEj88TkLnatrw/rEv2R+JIbH/VM+ZX4orNnG9JzHDxXtASgYS4lePEspNohhp+xZ19guqz2483Hk0OSbDA5VGb76HjZEUzaoQTHTdnjMUAX/q4ICZd+jwp1YpqBdi+RAwROq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 648,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 163,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 811
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:98a0239bee48a53c\",\n      \"secret:e261d7ab53e0a911\"\n    ],\n    \"constraint_ids\": [\n      \"C:95129bbdad005308\"\n    ],\n    \"span\": \"While the story was still in dawn patrol, Noor identified the witness behind the sealed testimony at caravan court.\",\n    \"rationale\": \"Noor identifies the protected witness during dawn patrol, earlier than the permitted reveal gate of crossing.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 648,
+      "output_tokens": 163,
+      "total_tokens": 811
+    },
+    "tool_calls": []
+  }
+}

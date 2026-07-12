@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:54c8ba9f37b73062b59a5685562cfb808ff02d11dbc6c6b1eff7fd0ac5a5b671",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3333,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 681,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 170,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 850500000
+      },
+      "created_at": 1783842000,
+      "id": "ThS4RfcZXOhii2oOEyeo52yA6+egN79HyLOQAsytTOi4A5kSEccUW61ioe71dzRaoZFZho7VIuJ5RI7d5DgaaSwH5XieBolkeLQPj936tzSfDaecIRKC23l8KgdNzvmEpDSEf/iUyi4KfochQX7DsVM9jXqCD8eHQRQb+C2G6QhLRad2JjGDps0t3Qf0gJQMTInOtJ/ZVjC5JpdZzjwqX8KjI3B/tH4weLifU1M4pIWShHAWAPRY6y6YN+TZzDdJ+VOEI/UDjOfNGzUc+E3/26M7/5joUFedrJdgkNNs6CouvzJhBB3SwWFXqvwP3PIDa771ihCh+cTX6iRYNrGhYR1ih/c6c8W35otvg/gK1/8wxuWSb13UUTjJpHtmNsyZLtJaUTKyVvykaiU6ilrK+v9/OqS2aw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "72WEKS+sRyBX8bJrb3eXHuKsjpBjVSYZefaKKH1Y5BZl0oWQFn8NzN69rZ5UrUs3fi5pFFTdhxV9hkODTwEHWk3xcZGushmTOHS8uQKBYiKt1fQcvETEfWcAaa0eFFlQz6hh1UN705nNEl8Z3/NgOrfAHZX1nCWLKGyeISVsknqIFk+75FM1qMEE1QSh5bxfbyNUWpcRJ76NYExucrqm0BjJ/9ODZFrGkqf4BocsMXG3zaCuXS37lsesiRokEOYB39e5/jJsf4haqv8kbtdggQcaobNerCrCW9jjnC3lTFp5tr0A8ucLiQBjsJJvhLSS6QntalXQz6KhNaL+1r6mh8NgWXKSLYcScBDDCpk9RbJuqOjswWkNSYCyqYkLg7/Z32xvqNSjgtFx/yrFCGSHUtv9jQo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:de85e572898350fd\",\n      \"npc:f97578932de5a1d2\"\n    ],\n    \"constraint_ids\": [\n      \"C:df8743b614f55071\"\n    ],\n    \"span\": \"In river market, Veda supplied Oren and called the partnership permanent.\",\n    \"rationale\": \"Veda and Oren belong to factions explicitly at war, yet the sentence depicts direct supply and a permanent partnership between them.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "zlELlMEB8TC1tyLrcY+AfbXlWmBuoNuZsFBFvuUoOgZIDocLYfVgoM9q5b4v1Y4CYn2HZSMgz28Gf9jlN++6VllSeaPqehoqif4XYdvxBIk6ii1v4DG1XGSpLUmqk+lEHyXtdk7VfhW+5a1LXX2TOLrFyg3/+PieIiKHcqFOxlU902yYnU0Tu/VMRR66R673ttIi7kiJdrg1xfugsr25diLT2SkQI3ZNBLAqMCT7m5sEJZNDWGZ1KzYPyPMY9jwUpPo2Xv4HTOE2t28i4aqZEtcoILe5kjjJJKTZNszthT9+/GE2LL6ER+TGj2bJzav6Qsem+USVMXI1RrOqqB+32fX8Dz2n5CzoSVUhJH7/q1pQo5rSwL7lbUPsFDJWED94ro0rInz4f4Deuo53sEqV6XTOTh97",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 681,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 170,
+        "output_tokens_details": {
+          "reasoning_tokens": 40
+        },
+        "total_tokens": 851
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:de85e572898350fd\",\n      \"npc:f97578932de5a1d2\"\n    ],\n    \"constraint_ids\": [\n      \"C:df8743b614f55071\"\n    ],\n    \"span\": \"In river market, Veda supplied Oren and called the partnership permanent.\",\n    \"rationale\": \"Veda and Oren belong to factions explicitly at war, yet the sentence depicts direct supply and a permanent partnership between them.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 681,
+      "output_tokens": 170,
+      "total_tokens": 851
+    },
+    "tool_calls": []
+  }
+}

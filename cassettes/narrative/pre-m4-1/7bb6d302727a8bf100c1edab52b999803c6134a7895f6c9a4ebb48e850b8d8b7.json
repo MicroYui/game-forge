@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7bb6d302727a8bf100c1edab52b999803c6134a7895f6c9a4ebb48e850b8d8b7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3386,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 637,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 198,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 912500000
+      },
+      "created_at": 1783846400,
+      "id": "JbtCIgE+xSh9ll9ZzQGrQsU+WU526XR2FuxTzMbWWathVWNL5g0KwL3Q766aVzkFLhglGTRZXnV95zkcO9r3HTRjYuA9c9bXzM3Y9rvkwLW7grZDytFXgxFmJnoB8B8WeYefheOMNMVq9NWeWcZj2zsr6IE1NQV0FM6oyzSibzky5EsnxRNwQwctMBTBMxLX/G6atM60Nk7xv8p+622Q0cRP8G9WqZataMZYszh18P4kC4eebAzLZKT25t4rb/yZ1oWxEzP9r/nIYwhdGL/SxFD0G9VhoXtsGqA1rjMYRfgtUL4gb8ZdI0jiHeumeZkpx9A1ut9trOAValer8LIWueizFnqbYakVzvDG0NoNmvp8c1Ym/z1cLrsgON2+TzL0SNjx5kxJt10451X0sBwHdx7T+20gBw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ykHlhAw85PgzDLjV0XAeCiWYeiTbwuvgeoRZ9H1Ex3huCWeWswC8O9S8DP8o0E8tj1IkIGz9K4qIA46dy0nMpXzMJWxWzPNgmO0ZANjCd7XJxPtrG8akYkHU1V0R/uo8LQYM4C6OdvC2yffPds+Qfzqrz1oDCICTUp+FDlXa7qg4Ea/4TaqZKBGgcPcmz9fiP9WRkHUcYo7QkKa2MSoepTOCRBqXKbzuZMlsHUIUX/+Tx2q4sOb+ZXDQr8bEo7VwkxLjlfi70mNOb8aGfMX0TFF1gBrkwlTaWf8wIzPtU/+mEtC/9JRCFBV6+nJl/P/wudpZUFJKz4hFez6wXKbG9LKDMR3Zgjp+ME5Pat5zXp5nb+kN9StYhe3t9iA6OlF6liF+eDqozVzSXDjCH74NOk0LraU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:5cb1b37bf38b2bf9\",\n      \"secret:dfdfe8a5d1400e89\"\n    ],\n    \"constraint_ids\": [\n      \"C:7ebdf272b04c026d\"\n    ],\n    \"span\": \"During first watch at signal tower, Ansel openly named the saboteur's name.\",\n    \"rationale\": \"Ansel discloses the saboteur's name during first watch, before the permitted finale reveal gate.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JYaEByHLo0AyXlGMeDEyBvgdou9nZ7LUB/Ycc22ZBcrtbkSlSaWZ0jMryGg5mkygWwHwu6Zunag7olxLbYJ7NaiC4Q5KfnVECOizR84VH5m/+/K1xPFvqU3DrXomvBdNyNwoQp8jIk35hdesfj/A3n/ZIsCNkC9myvFHClt/UUC1lb9nAJiajvTrJ+JVy1OjnGzCxW2T+4e2yAHWP1BvMQEuzZdOkP9EixVZzzY82wyIzh+bEmuCcQlYaNAR07XJm3y4x7Uvq0xuwP/g3cMXv2I9vutS6wXj5l5t9ZV+ZIe9hhn7BMkBf1hR4a2q481QvyuTwAFH0teDBUeO3TpWpyTccipM/tU1TuGxujFvqZNrfdNC3Z+tbk/9+z6C6k4kUKMnOSs/Vm+/nkCxWQufDq0KTdXn",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 637,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 198,
+        "output_tokens_details": {
+          "reasoning_tokens": 63
+        },
+        "total_tokens": 835
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:5cb1b37bf38b2bf9\",\n      \"secret:dfdfe8a5d1400e89\"\n    ],\n    \"constraint_ids\": [\n      \"C:7ebdf272b04c026d\"\n    ],\n    \"span\": \"During first watch at signal tower, Ansel openly named the saboteur's name.\",\n    \"rationale\": \"Ansel discloses the saboteur's name during first watch, before the permitted finale reveal gate.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 637,
+      "output_tokens": 198,
+      "total_tokens": 835
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:83c119cdbc3a9a1575ba16f8df25f69f9e21640df5d32c0587d820d5d41e3480",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4941,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 625,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 210,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 942500000
+      },
+      "created_at": 1783862400,
+      "id": "oXQHCtlxwWteefBHG30ycnOtwCH8zOy2TmA/i4rIhcIZcFvO6JamG2xqemeOKTQ2V+dXb2+cvqar2Kgpe9LgZCu6PKUV8dvQnpMXvs2ud6IKs4jQ/k50CbvwZXpNzKFdeeg22Z3rXeRF8gz17X5TSjaFOEtF68YiCE5BUWUs4rhN3lfA2hLT5zIzupBPnAiq9OWQFN4AuPEw1F1pywo3MK1/OplbPwynh5arMbz7FCwX/k7x8fD9BFeVlzaS0BvZct1FYrTpYElcOFRSwDrbBDYo71OaI0/e/d4iYTcmInbRMZdcr2funGIMOpZDh4JqC6GZa+KTtOfxWXJCIN7pQF13u+Z7c+JJf6ltkBVhL7gSlFipFPEWq6+LSWcb+M1ccEABCQSxmx/Hxp4g0ZMEu5KDF35sLA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Lc2DSSTD4ggRwMVdfFT/3N/mBPEoKnfPs0edjPRzD8ycXNdJsLmsak41m46KaBuwYV4e8upbQIOVVg1OpzSLFf1fJMNOdArHUaH7T8/nIsS/xht8YtS3zlL5ESyW767xU7bQw2dVd1ZEfz8cfFkCZaW6bvi6kp0jPwyRxhdQ90Oc2x8h5knM0orGf2Q+cpL/2fKSFllUcmItFqaftbpCIXoAmlDen5xsuj4pBKLd0rS7hdGvGUjEtqP3C2taJDW8e7AApqYlJb1LJ0hxez7sV5dypElXhTB5jk4i1ywmzwajnXZ61FebnPIlLglvLAlAYL13QCBmzR/RPQzgod9DUTMpPf81YH25MC7h61UkggqNuOfWKLmaDS1mFtsZRpJ3Wd39aS3yHzqoUsyQsLG6fSj3I7I=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:521f4b70f9528695\",\"npc:96cc5872b3ef010c\"],\"constraint_ids\":[\"C:f633f3693374f83c\"],\"span\":\"Noor signed the register as the First Navigator at north gate.\",\"rationale\":\"Cass had already been formally introduced as the First Navigator, and Noor then registered under the same unique active title without any relinquishment, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "YY/jqxj3SVjC65SnshlBHEhnPxXOH1sXfVNc9pCWHxklPdi7E8vP4NKLLSS3xPRnp/z+bdIhhV2L11ArB4f4+gwwdeDvjEruwKjG3M10dJiODQ9nljsNviJOz4xvMHsAQ4B1wKRd5FGXWililG/A8YDmtfoa9bo5FfD4LXJhf9ELBYUqn73Q/XZBS3H0hIu20V3fIlr7NS+PgDLf8QdpTaGaadF0CCB35Yc3tkMZDBpszHdJsSGvIMfB9LRC1YsyMNhD6TfR7KUv/a3frNE4U2V7JzOVWRMk/XKF4ALllmhLSb1ya5Uipy2TDXPebyLi1piH7qjhIeYCDMm2sKP5qfeKPityt65ZsVHfl6oWOa+XZFOtv7EAnWyjW9uc2Oqo+19UahSsbwYqGFt7Rm0vY7YjWO4H",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 625,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 210,
+        "output_tokens_details": {
+          "reasoning_tokens": 98
+        },
+        "total_tokens": 835
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:521f4b70f9528695\",\"npc:96cc5872b3ef010c\"],\"constraint_ids\":[\"C:f633f3693374f83c\"],\"span\":\"Noor signed the register as the First Navigator at north gate.\",\"rationale\":\"Cass had already been formally introduced as the First Navigator, and Noor then registered under the same unique active title without any relinquishment, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 625,
+      "output_tokens": 210,
+      "total_tokens": 835
+    },
+    "tool_calls": []
+  }
+}

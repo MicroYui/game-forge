@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:897afd255ffa3fe8caa93ccf9a1d0f04fe541f2e01b3c115938a14a0a74a9448",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6281,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 547,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 287,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1134500000
+      },
+      "created_at": 1783850200,
+      "id": "6nMeJisaeEgZVk0B5nhuvOvjbljsI52Z8nSj6lm/hKx8RyL3hQT2nsZ7Rb7Q45z82nqGl7nTlgFBg9E9Awrnk2RadPmp5LvIYXxpRsyULoRoR/1J8AdPkNPexrbiAg1pzrHUzVANFuDhwj7v3n8usxRzLecDDR//pVgUa47642HA7hCbO+oszZCJmYbLuAPaGoc7zKCMYPFRRotBjblaLVC6qgrEgb3tIF71ZDZcP9Ad9+6/xCLpeuVZslw1dIHDP4F/oaXUCaSx8bLX99YFFEV42g3XI5bkAFcLyGZFQmOZEpaFbD4Mcowjns0mpolE14PkOz1NdWEBhMo+tp0k9CeO6A1h5Qvp3X0hfBdbWO4SsKtAnZlYbX2BvfsTwz64ueSidGDOF6mRCyIwfpg0Vg9/Ni5O7A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "qcAhb9jSmCjwo2duqt6klcQPnzDL5IIP8RdVWXwBxm27tZkDReORGZK9nfUgKl04l9XfiRsGfALG990OzvbaHGK50bC60JM4+LvQtrhEd2gnZEr862qB+wOBCvGayNo57IrtR0BfM03FoMnB/ltGxBG8NAhxeKnYquFW0hEyRN4MwF4zgwS71jYWHHseW+WUgN9KMUqhYxxVfdgFN07tZDeQ6nNbtrVBzI1zDtBKroinmujHn2cha39MPZHVaLU9JRU2Asjqc4K1cYf4b/p6QMirDD5Z113BH9igzU2LJ6x7alFR2TDTO88RIo5ZO7r/vXraZ4SehKprdlZqj8I6mu3yODMmuA9X9EESjhixZcg2bybs1oo+P6DG6wSFiMvUh5VAxX2unTa15bcKUxEyPN4JkeM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0134fed1d0220269\",\"npc:72d264d1158d2b12\"],\"constraint_ids\":[\"C:c19b42a4bdf0a998\"],\"span\":\"Daro accepted the title of the Archive Speaker before the assembly at observatory.\",\"rationale\":\"Mei was already recognized as Archive Speaker, and Daro then accepts the same title with no relinquishment by Mei, creating two simultaneous holders of a role limited to exactly one person.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "nFgiKkvgIwJwLbau8ZAi3XAf4CFqqF9qdB5PCciDMaN1VBhnY8bjqfHGSHot/MVSHtG7wI58iHBVnMmrrdUlf/3U+pxpTElePIvE1GKPnYNjPUf+bTxggX+/kNinqKR/GYVJifQKJE7HoRdQST3CFaIYFEEHJCFOEbQdbL2d7swQeCQehF+0ogswlYA82/YEd+sB8kmQD8n6wyJ17VMIEu3HTNyPmnfdq7hqtC8AOumNbWiyVREhX/cIzMY/rXNZaMq4dEKNRN3ZHaFRNYAp1eCjj20laKCYCHBDbyN2EbwrgOpzIEHRRcdnOIX319eDJwZQvw1IjxKgFJfbbbFvTyJVE2sXTS1hmda0fKWFY7cPVJfJQ5lU/TpFWyogp7cIZG7mntDAkv+MGLiqdXEbH0vbpbBz",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 547,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 287,
+        "output_tokens_details": {
+          "reasoning_tokens": 165
+        },
+        "total_tokens": 834
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0134fed1d0220269\",\"npc:72d264d1158d2b12\"],\"constraint_ids\":[\"C:c19b42a4bdf0a998\"],\"span\":\"Daro accepted the title of the Archive Speaker before the assembly at observatory.\",\"rationale\":\"Mei was already recognized as Archive Speaker, and Daro then accepts the same title with no relinquishment by Mei, creating two simultaneous holders of a role limited to exactly one person.\"}]",
+    "token_usage": {
+      "input_tokens": 547,
+      "output_tokens": 287,
+      "total_tokens": 834
+    },
+    "tool_calls": []
+  }
+}

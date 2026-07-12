@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:41c1ab283bb27f54d2f4c09d260d07043514f71ff5b48e811ec82875e5c74776",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3273,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 606,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 181,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 846000000
+      },
+      "created_at": 1783841400,
+      "id": "9lvrVxqkAhoegN9ArYaSALugkGxPGg5V6rqgYoeCpYB+e/npccAxpwCzZHxHtJCk7Kt2d6VWfjX6JPSqF1aKRiGY8CViS5o1tNjJkOidRyUA92zapAb1sNRfs1v3/23IF/yAF5+63EQ/oe+z4silf6yk8lhUCW64Jv0BKhqTUgUSBg60i6C3YtX6hZdgeAMM3KcD94g01Tigehux4Qju6873hgmE5Q/BZapJXEQN1r+t56eUzlRjNPGtiXICsjsP7YZW+JMWjANBtYPGeP9eTdsfU+B0YgVRwK/P2WHvoamxC119gLlsNTAvrZoV2C7OUmN55t3CSefNArle1zvIAZjf+UaVCGbhESfhV0Wne+yr7go2cDBIdK3MGpk9SQj2x+W4mqhy3FxiRearSajRv1SypK7IWw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0YdoPX7ViPtQKYa1ROsclh/VQIdJJAVYs0i8hhvuNu8qoadKO5y0pMeGQuadr2pIW8kuBaGva1lj2lnjmcxKlm+qUVSDR6lSKEK6K/Q3jqnqaaSoIVusWmdw5KY0hrdeX8rrzm3igYK7OH3G1N/oOFV04+j5LvY++tuxA/CDjk8avj+idRbklLPtEZad6gjRGfmtOZn+3htlKRf1Zmr1yjSRFRu1+foCSkCuXssfIbLOP42BdryVK258c0AVCb77UlkmT8pQoacOwpzpVx1mAhL+CKnMo2y4qt+c1DUzxAELroUQwnYs2quhqPsT9PirpWVJQC87PT8hqTTC9dcCDqYG6q0TevkkbSTdYwBMUGcfEVwBjbQicV3nGRaPXiekpsBrO6wHfXBejGkO11Ly66v3b/0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:73d0f57f8c588d89\",\"npc:c144917e4066eccd\"],\"constraint_ids\":[\"C:29b85117a1c8ac7d\"],\"span\":\"Noor accepted the title of the Crown Witness before the assembly at river market.\",\"rationale\":\"Cass was already established as the active Crown Witness, and no relinquishment occurred before Noor accepted the same title, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "EQqCxSuO+cZRG4rMo48CtsWry4CKwGeEGKskEJfLAzk8lJZ5ZwY2wbqjg1kWinjGcbZ2DkwW7DGQEX7XfT8ckJTCnQ4Tma/+Y0sLQBraFXuWbyhpQzf6iFdrFn7ZB/0R9C6/F64GHfUfkdsDdBx2lMwVSXVfsbH3KQG5wBfuk9gf0He4VVEryS9Jq801cz9D1kIgmqu5GJDuuWgiDmWwhIgokCfJ5ind6fS5T8sQZjOGJ+KUnqbmPpYN5o10GROlwejX10xFcA2yUQDjTd9TxbQgky13uEDOeSqlQy+GQTLSGzVfsy92A8y7Loc6hxmHAQaN/b+FZhIheXogZRWWwRAq0B5voqx8hFpx92RsmJOlK1s+VFX4nc51nZjDwtgGftwIL/ArcOJh7MjdUnW8hVe7RnUk",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 606,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 181,
+        "output_tokens_details": {
+          "reasoning_tokens": 67
+        },
+        "total_tokens": 787
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:73d0f57f8c588d89\",\"npc:c144917e4066eccd\"],\"constraint_ids\":[\"C:29b85117a1c8ac7d\"],\"span\":\"Noor accepted the title of the Crown Witness before the assembly at river market.\",\"rationale\":\"Cass was already established as the active Crown Witness, and no relinquishment occurred before Noor accepted the same title, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 606,
+      "output_tokens": 181,
+      "total_tokens": 787
+    },
+    "tool_calls": []
+  }
+}

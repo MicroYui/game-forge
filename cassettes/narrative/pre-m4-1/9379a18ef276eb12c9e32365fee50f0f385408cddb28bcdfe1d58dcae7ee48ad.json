@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9379a18ef276eb12c9e32365fee50f0f385408cddb28bcdfe1d58dcae7ee48ad",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2965,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 666,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 149,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 780000000
+      },
+      "created_at": 1783860500,
+      "id": "yJfps9MPkAxjouMzjN9zCYoMiW6spjgt8Pe1vUj4nQqx9mwwS9oxautAls5PODLdBJ4slzByuTq5Mm2NcELBkEkxW6i6YuLlpvmXeL+xv2aCVSHJeK/H4tJhPFLve97tvqG6skR5Nzz8C3ZUXVsCQug9WaM2/dRJL1z0lhRj1xBLPrcqeXEc5FKNME/xiSQjyN1r57CLt0USxe5zkozzDNJfkiBqUhCiVm11OiIhbFT+5KCIBBOl8N9gleTxVErXLHZCTKl13yDNnU7xGOixrJdsBsYeqHpE5yNZgK4+Xjnmeg8i0xDb6PzJ1CuWHNdt5RD1MNdgZjR16Qh4CiqxYlVS6axgwp8Ir3cMwzaEfAE21VkkkgpDI0vyuEZb3jiIiKDu56gu431zYanAT2BHj/NmCLOjKQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Q6hhK55UQK1jNBtoOjoXdTIsjLdyeq+Hiflnai4suvDECi4Ov9y/vOKb6urnPa5hJyV1mx0PY3tQmFOdYdeHF3b9uFM4/OipkUmqQyYzX+qXWJZqOkuRpRJpLdCVfCzP0W+alZs0uH905Ej7SdRnT9sfmtdsi97ZQ5BSVIOzkfrPPNE7trpzrw0zMZFBIZBJealM3fIxiYiIGdoYtSHjzDwbsrfXGZwyY7aTGIvsS5vUcdlP+2jDi99GhJs7+CYv7fdb6kwpJ2AFj+9pZEMFnshxRAimihYU1JooQjekf1xIKrV6kLYLXZG40uIeQqJFqEa6eD/kSXFPLrd6fokshneE5Z+O1dGFFX61irtfZZBnHzy2V70SLJCNxttTQvJbe9CpcxMLb4TGbX609FenDMW4wwQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:161e3342fcf7c47d\"],\"constraint_ids\":[\"C:7dd70831149b98c1\"],\"span\":\"At observatory, Ivo locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Locking an evacuation gate while civilians remain outside conflicts with Ivo's duty to prioritize civilian safety.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "oJE+nP3jp7rdFXoXfcOoJ5ZKPtaEePduKVEkGcz2J/ilYyZKFNoEcRlM4KVfHb4Z5TVtqsv54pHSZl0l+hCj+N0Oyhzk+JC4nJQeEdvcwdPS1G2dxgUqArl532schJiY7CtJfyBddcHt2FHkpzAAbEbH9+eesvFae0KBg/o8MiwQYYcP5W7IxuV7yw+p0xWk8EJcowdZH13xZoRsdUYlAwWDlp/UFKpFrSY1x9IFsrEuhfMZMByjsaneG/7q8XEDrvL5UTM/ExfrOlpen5EFnwDn5zzOtwEu7lXoZzRYhat4H9a+vD89SQX/kRjF+cfFQVaVfb5A6b/aVgd7t+U1a1kkxLsf7566tJt3xupWJrHuQTBE2OSSyoeXla1pJ1nIssOqDUbShrn/q039Ab9RUVrGcCEA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 666,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 149,
+        "output_tokens_details": {
+          "reasoning_tokens": 59
+        },
+        "total_tokens": 815
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:161e3342fcf7c47d\"],\"constraint_ids\":[\"C:7dd70831149b98c1\"],\"span\":\"At observatory, Ivo locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Locking an evacuation gate while civilians remain outside conflicts with Ivo's duty to prioritize civilian safety.\"}]",
+    "token_usage": {
+      "input_tokens": 666,
+      "output_tokens": 149,
+      "total_tokens": 815
+    },
+    "tool_calls": []
+  }
+}

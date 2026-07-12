@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:13a0179bf7b92806aeb2359267986e94c0367798ffe1f50f393fa84dd09b3d98",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2792,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 667,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 189,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 900500000
+      },
+      "created_at": 1783857500,
+      "id": "dbZYfeQTCf74aEdIH2xVcoUPeH8cHTzLO9cKbnCkG73Ym9l4dj7jZu/44n123LA0Jy342soIPxjUK60XsoUJ9jRwQYnWBBrsK1Bs9VZphnE2CVoyRTBx6xxEkPixWfSMqI+/ndPkhTaexjZ9p9Hk8DNwNLeLEy0g15yBQkj1/501LWj7Y53FHNdjvUNVimiXxDx67HtIyOb2O096e3B9uaoLPle+wgRh2+JI+iu+kPrVJ5EywHX+2goQn/hHX2cVEb2aTI+3dZvMIX+2Fuig4+pRzzt4iM5q6eey4RcvGjEXZ8V6MuRhoWQwi4H6DgeyMhMrB5Oz8VmiooM8W+eWYysHTT62b/ifU97e8K7ohIL+cgrAqrxQ62c3Y4g+eH963dYudrZiORYkeoAvbH3JFx0ILnu8hw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "IFnO6muxDOY0niyroPFdI2ZuUQ3TNp+v/EeB4vTOAAnkp0jX2OfWsnJJ79XfDqSRQW1bI8vpXrcYmKZt6upvMvYoMIEI2XNzZ/gVLo0r2yxZR+CnxxfAuIpdbKGbpUvMKh/VNs3TJsMyIwZeuSZjFT7Veptu225P4V0CnYkA4L3qBK/1FrnOv3q4LPE1wZFFg621tgsk2AVa/WbhiA8UP90uPcmEpmsw3PXPGx1QPBCznEh8hnH9+6iUja0iAmwjomky30XwcJq3ABmQFyrgUoQPTtEOthGA9StqLmgKrj9NSxJAinDrLM7Px3ZyYfiBnb59+vn3puqrjWL3VcCH4wfXk/hhegFV9eM0cDhosujTw8Ws2dEnjbf1KvlkLX52m4g/vSCaKS/ZBLrXgTS7A32Gglo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:48486fff070a0297\",\n      \"npc:eb7b6ba0cfcbbdc0\"\n    ],\n    \"constraint_ids\": [\n      \"C:b1cb0fdeb979459f\"\n    ],\n    \"span\": \"In salt depot, Noor supplied Cass and called the partnership permanent.\",\n    \"rationale\": \"Noor and Cass explicitly cooperate in a permanent partnership despite their hostile factions' no-coordination rule.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Kc00mhIR2q0EDtlrAFIyRb3CKS6N4H9DaTEH5g3EzpqJ77IfZ1rEd6m8Cn5nPUYpGFyOT5SnAI0CVDeU0pttVYXV0WpxOuaOb6wjE1jMZ6ErZ5Yzl07SMjEYX12rU8TTaTCUqc6t/fWo5wH+Ux56s0fdU+zPQ85h1sgdxVLmFTB69eINZK7SvR8+N9nrEu2ndwj6NcIujjkbxTvJwNndySa7/rWvPquPzxyHXQ8CYIIxcgNR4wXe1VzXgDeINNWnUgy7qpzt0kQgdkEwoYSgrA5T2b8xHWirypEAhS7e82nQrLAVBZAmFTg8HaQvQXp0La2qNLoHfteOfOC8lYp5GMfEBdGcA5pnpTBIqLY60QWSWcIhbhTLG7POCyLPXgax1M92yV+xdsL9K313DP8nR7aFU7yF",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 667,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 189,
+        "output_tokens_details": {
+          "reasoning_tokens": 64
+        },
+        "total_tokens": 856
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:48486fff070a0297\",\n      \"npc:eb7b6ba0cfcbbdc0\"\n    ],\n    \"constraint_ids\": [\n      \"C:b1cb0fdeb979459f\"\n    ],\n    \"span\": \"In salt depot, Noor supplied Cass and called the partnership permanent.\",\n    \"rationale\": \"Noor and Cass explicitly cooperate in a permanent partnership despite their hostile factions' no-coordination rule.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 667,
+      "output_tokens": 189,
+      "total_tokens": 856
+    },
+    "tool_calls": []
+  }
+}

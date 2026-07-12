@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6b1d72234f32a975918280bd61962d208ba50a96a7cfb0644f9232cc35c4e9b1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6300,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 621,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 211,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 943500000
+      },
+      "created_at": 1783847600,
+      "id": "fUuR+iZT1HSUxb5vUquFVmYa//V6hhrAqfSxSpqOmownpC9038laLD80hLW+jexxdWZVxmpPp6ULtXE41q5AaUjcTRDzkV+WqNOTZ8LwtY1XGy4hJmAPxGyweZPehfG9a7fo45i1pLkuwIuLLHOblFtM6QsShfkNOQQm9Gg+SRlkCRgtqCPNrk+EsWNYZDspoLxjG803ZTYm0nri2I19uSJ1IMWJMdJ7xi8CXD4uPaOUqKy3tzIoKV9yzpcLHmGCraOM3M5HtVdqOwBZEyGPnWHvt1hSZVO1kX5gIpYh77rbDPLUYJk24C2ghmdS0yrSIsCXWox7diJn3UxDBrEburgXi9if0VLmVjN4G5xGQWCLSz9hKs34L51dQCYxCN9vsXRa3PLKodo1w1ZwAxyztUttjgSIBw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "SV7MJjfAxeAQSDGWwSSwCPW/akxW0z0GFEYkqYQJ89RI/T9/6kgG/CoC4FyQI1mKz4xdLnZk34F18tP4WQTG5v87wJvyHQ345EXa57JtpDeXLm4VYoWtmvwTYUa1vx0vTJ+oeRhJ8NCO2WLNS7abjjB1gy7tmL7bgzgyJlsGreBFbJBxHnLH1RyBnW5WgDOuutSnnhoFhi9xKRA4ETJtzK9Y2DAiysw2MC8m++7NICQ0GSzS84nrHW2JQNkZRmYUDy+74nmYJEUbSri+Qad1NNPbxniZ3B/bLsJUmGT4tiAgv/7f8vM4yNY1fUzuTVSPRwC0BEvga23WaDS6rvjeRvlhYL2iPjP027yU++hyz2bcERSwrtfrCTuj2CVu1AgbHHJmu2dSW7Nf3TmKQ04zyyy6jFw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:bd633601b9042060\",\"npc:cdce9ade56c95402\"],\"constraint_ids\":[\"C:bce92733acb31856\"],\"span\":\"In lower court, the council recognized Qi as the Beacon Keeper.\",\"rationale\":\"Qi is recognized as Beacon Keeper after Mara accepted the same title, with no relinquishment stated, creating two active holders despite the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gLYBzM++Fr78zzQAzuwSV5KF8gLvQW83nsn2jhUAgybJehD4q1NxFoeScGalDxJBRpCn8wQELrinhnTApXfQuQSW5N87uqEBuN93ENwEtjNMts0M3YlMBYnTgiLVnHIamy7SCj6g6sjz2PvzlZ1cfZscNqLeFfIP8jjv3TQ2gSwsBwGMD/kgXQq+dk8ZvFtJ/mZhITTzb2AJT4c92cGTBxxQOEg9rskFyvyBEjstziQHzHNkkj5VgYRfzyyWF2HiL5jfioxOIKEvaqyrY4bDmiFBPOhJWWXrYfC6RCF1c07VnXVW9zn/Ho8zz4QvEuH53wMf0F9MdC73xGd0ZtNs1OcLFlTqf9p8lb8juj92KueCSEsUE1EBVK1+L6QyXcC5N1VqJHTPNPwDaYFZ3JOdEkSLn+WX",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 621,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 211,
+        "output_tokens_details": {
+          "reasoning_tokens": 106
+        },
+        "total_tokens": 832
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:bd633601b9042060\",\"npc:cdce9ade56c95402\"],\"constraint_ids\":[\"C:bce92733acb31856\"],\"span\":\"In lower court, the council recognized Qi as the Beacon Keeper.\",\"rationale\":\"Qi is recognized as Beacon Keeper after Mara accepted the same title, with no relinquishment stated, creating two active holders despite the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 621,
+      "output_tokens": 211,
+      "total_tokens": 832
+    },
+    "tool_calls": []
+  }
+}

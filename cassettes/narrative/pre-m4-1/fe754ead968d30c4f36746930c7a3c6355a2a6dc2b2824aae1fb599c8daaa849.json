@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fe754ead968d30c4f36746930c7a3c6355a2a6dc2b2824aae1fb599c8daaa849",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3881,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 622,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 217,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 962000000
+      },
+      "created_at": 1783860400,
+      "id": "XVbkxruIG6W2j4MRCFHm8jz7lTjO09I8X3o6Ex9H2zsK2Xzky5hHXhV1z/41js3OTfSolLGzq7JeYPm3aOeBpBINoaZvfYLU6kFsvqn3RAW3d5SdaXJeSAFwyaly5XU8CVMy0PzSZswZdCx/towQ5+KGfTnaED10moXG8XDxslTPHulwY+CICFSY/ttr7g/7nzHpkE0CB4Tk9sgP6zg1z+8Gat+LAJKdLvY6QjGofu4JND9CYXFXIJFZZnn55aCrxbZYwTEAbveKafOzsTVVXagpZHAH9JmM4lKjkPU9sFmQ71nS76XKN66jvRL2YpCzOR0iNJGLKkVsAmfThTmEpZrkSE53AvgDmN4zTgS74BPX6s6M9YkfHGSw95m+eYqDUi81HMc0JjRn1EgH5UD8Wo54FRdZNw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "yHwCkmshF249P3AGckUVAOAGLHMM6Q5MzCR2oshXKrQDf8vo04gFiAR9Wt+NBLqPYId+pfgDQQenD0Ei7qvfCDDn1dTAHyh5/gj9pB31/bGEg/B71k7Bkkq0V9d2gHVk0CiQvpDqbMOnSkROVTCDJF8O+/mwqGmLmVsW5S3FsKt+XA6QTpPG5LH+u7GK+tz9Coz7fg5h69Ix0fhDfbScKFIKwvrxwC0sFqyTRDx2iS6GoMWrH+CmpUVDBWnD8McL9Xe14hIuo4OzOx/g/orn66nHT0N5t1vhv8e2l6eJ2CkECX5kcD4WTQT40lbQT4d0W528+WojABKqQzlqE2ip7nfPz9QXGFgUMZuvEV37p+RjgJlS3ywP6MA72oQ3Lmd0XUK3JSh3fYIl6f+yH82iw8kBDl8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4729c70059268e00\",\"npc:ed5034876dc8e3d6\"],\"constraint_ids\":[\"C:af02c069e7e888ce\"],\"span\":\"In caravan court, the council recognized Tamsin as the Crown Witness.\",\"rationale\":\"Tamsin is recognized as Crown Witness after Eli accepted the same unique title, with no relinquishment shown between them, exceeding the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "sMGq3q3Zybg643ZAflCQOFje5BbNTSXO3Iz4eOeOQTTSlJmr3PpRtkD/AoxHL+NGSczR7iHDW+w+zNClH5hU9XVN/RRxjOY7awRuvO1ryHb+ilH3Dlpi85dDpnTQns80lXhW3uVJdL2fiM+YUcbdJ1nQ/ayUZ+RZGbP6b7ft4Q91K48fArqqtrGCbfEfyexCyDZ4EHHI9jqION2hyNfCyku8Jv84vQoueWC9SfSq/CNEzIFr/H3VHyCAS16dpWVTK8Egl2HTwXDhPpt2eoZZ/D0D+eD82pgsFbVXsIZNFUDmg/4uSSVU2Z/9PrFnB318ck+DPL/VTLsHDf6kk9wXcRMKWTfgJmSn60be1VCqJZmlirHX81gWQkMGsb5s2isk5hRo0OU5EeIa4MG6kkWkJrrFQv/Q",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 622,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 217,
+        "output_tokens_details": {
+          "reasoning_tokens": 104
+        },
+        "total_tokens": 839
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4729c70059268e00\",\"npc:ed5034876dc8e3d6\"],\"constraint_ids\":[\"C:af02c069e7e888ce\"],\"span\":\"In caravan court, the council recognized Tamsin as the Crown Witness.\",\"rationale\":\"Tamsin is recognized as Crown Witness after Eli accepted the same unique title, with no relinquishment shown between them, exceeding the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 622,
+      "output_tokens": 217,
+      "total_tokens": 839
+    },
+    "tool_calls": []
+  }
+}

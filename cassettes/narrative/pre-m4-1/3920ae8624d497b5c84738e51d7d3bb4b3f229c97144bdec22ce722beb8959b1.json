@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3920ae8624d497b5c84738e51d7d3bb4b3f229c97144bdec22ce722beb8959b1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3730,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 548,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 161,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 757000000
+      },
+      "created_at": 1783842200,
+      "id": "BPoWyxtUS3IfOSt77PTzX7pSF0zYzFpfz7tgLIcrIWhZLx8OriOWLB39fj0JZAcwfkxxfn++Ay1yqcDSVEogcdU1rxh+Mks/DXCSh8LQPitXlOJG05YyGZonbQoQcU+hPkrl1DrPIO9pGHV+RsYDORWz+E3I22/36m0frIJxfjCIjU2D09n+uPK0+vTpI3+W4eJHpGCa2RKSTL7ucEGSW9OwetY2GKeF9+oFdfwxY9ldUgEmIJKgHEySNpOvobFm9qUek8dl9mFYkLEwFRQwlCrZXH5LapQt7/gfuTxmS85lAtAhNoyfFuLPNXLB5fRrLK9pKMF8NYqwqFX80w35TCTb6OueJneh9vOf0x3wsvKVVKRN2Y+mFGulcYRSk9ocV1CB9nSyndesZbiesbpnyAHQqK6h/Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "DM3h9cY8tTfi1DTbRCNSOcvIYZwLi4l5Hwl6UvHcyNG30NGdMAfY0icLvPKNsQ6voIXMdyPxPdK6sXM/UrEra4VepTcK79YgzJzb9e/P5+Jub1Uf/b1OW2dLzq1L7e5zf3aZ4NAr5dM7iqFBFCXWX5tFvKdh0PqSbRkMhkKZ1rEn9OWcg0Vdv9o7NqIeDFERD8r+ymt7RnquW2pYSIbsQjysYL+nW81wfeMl6AN54LBE17ms6vyVEBUgWdrOrxw/cOX5lxtAQVdBGD78HetcNc2CuJ2KI4rwJA5dv7FAKETrcm0QiKC9k4IOx7gvPnvrOLOQJfcb7972Xphl6wnaX1WVRAZGfWO21xzww2rgEJ/Kx4yXQ1KjRIP4SKPiUnlbLqg088mQbeh/Y2+X17brk/QqBpg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:76bff7f5f61c9401\"],\"constraint_ids\":[\"C:4f8a8ddb2a4a429b\"],\"span\":\"Tamsin quietly traded the allied patrol route for coin at north gate.\",\"rationale\":\"Tamsin trades away an ally's patrol route for coin, directly conflicting with the rule that she does not trade away an ally's route even under pressure.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "HePgRpehAMQRgE95yt6GyN45f0JNbYQpHfljRR3UniIZiN0kYEzjm+JNpaAVsDWI6YYSpPBjJjkZ/hCubYv7GK/GFxuYXrmu6b8HPRsEe3h+8vQJ1G0duLALLuG6fRcQuABTCg0TPfOQ43HTJ459GDgGHcO2dqea1Npbm+lNO/5rVslYr7Vd8arLRdneHVgezIVOPVQSJBrwWljPrnUg/ITrJ8K9MQAaHvjq4Qv6MoA7mrWaUjwJxXDjQNhAY39+irlLp1htOHPK3mA2Nln499vTIot19i3IXsjvmvlB2wm+otMawh56rXoFjHvZbXkECDxCPEYqHvm5nj5g8hc1EDix3MBvQUp+gmoN0dPiGFcljOdWI23O6VH5Sz/FWOHsgUYWXXjuHVVMbxne/4U85Qn3TPxY",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 548,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 161,
+        "output_tokens_details": {
+          "reasoning_tokens": 55
+        },
+        "total_tokens": 709
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:76bff7f5f61c9401\"],\"constraint_ids\":[\"C:4f8a8ddb2a4a429b\"],\"span\":\"Tamsin quietly traded the allied patrol route for coin at north gate.\",\"rationale\":\"Tamsin trades away an ally's patrol route for coin, directly conflicting with the rule that she does not trade away an ally's route even under pressure.\"}]",
+    "token_usage": {
+      "input_tokens": 548,
+      "output_tokens": 161,
+      "total_tokens": 709
+    },
+    "tool_calls": []
+  }
+}

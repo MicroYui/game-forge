@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7b8e07b449f640db643298e6725d7a3cb6824947011ae12c9bc87738563b1138",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6224,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 685,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 352,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1398500000
+      },
+      "created_at": 1783861900,
+      "id": "g8jxNlw7olmLgi+KtQXpkS8y/KNDcSmx0sEadxePxnlEfx9itnk85cE9WLZ1QagN4/sVgtAYd4wqzCJdGSVjr6SD1gHVCyO1TJwZule/1BrR+KRgHuff4uAwboAUtJqTJL4NlFnFGWITXBicu1LIUl0WOu2FTc2iGMXlnixRabRwnWpCGj4QI/BfhY+msfXGMmQzIak57VEwiwdXaOE83iyfVRCBWHd3oRK/tDdzskZg+Y2ghY3iyEcjijgoLiMUYfC99C8fkdf9GU/diW5FvC8OL/tlkus4gxxnwug8HgmtpxWsltL1BpfOl+q5VZwVcF3yXDT858YUwX52PiTpTAhqbfWvIUG//GprXAOvwZMP+3szn3iiDGHFyNjlsRQkHr+PmoB8KpuvkB+U0ZPZUy7r3iP86g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "6r2PHOCdc0gLq2vWYaiBlr1lbpKETjjpi4/NF1pqXqOiWTKU2bRlUc4fo+4e/uSuGPFpEL8l2iuobk1UT2Ble9etR+zVe/TBVp7SHn0rGV4j8/dgftYRxw3pasF1QzBeqj9Wnod5dQWisVH12Z32044SpcDw73H6Fvxa8bbrnZH1DQX2KsW22bc4FRdVCiYA4aoR5CvwUFY+w6nQrOFdm/b1f08S5aPO+eORIdqPEO2raDaoiyGO186Fp30pUPBCdhbU0Z+TARGAEo1gT/h42qBb47bortS1UsAGmI9MUxFDhwDVL5XDszkDTVGe4nGKTqoVLUJjRHoG9AbWaikvXKsnR3tVRTg6RkWd3YiJ8Cb5+vyQND0CRmJz1ORc8HfWCUf/axAKge8Y6wuHzZEROMgGQek=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:415cd139bca67c2f\"\n    ],\n    \"constraint_ids\": [\n      \"C:5540e32aa3e261cd\"\n    ],\n    \"span\": \"At observatory, Nyra transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Nyra directs recovered coin to a rebuilding fund instead of returning it to the public treasury as required.\"\n  },\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:c0c01328e697f39a\",\n      \"npc:f0780f7d26edc5b2\"\n    ],\n    \"constraint_ids\": [\n      \"C:d695b0802a12fa25\"\n    ],\n    \"span\": \"Mei welcomed Daro into a shared command post at orbital concourse.\",\n    \"rationale\": \"Mei and Daro, members of factions barred from coordinating operations, are shown sharing a command post.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "qwku8w/dtD+SH3JD54r0uSHapvu/PGzq0kzaWcPIq2POI9PoQQfGpugn8hpOMnvBs5h4VRbhMsA67l5hGFdJekCGAbGGRDmk3Sg9htS3R+QP50by9NAFLCbYnACTQ9b2X0+NyFOa43kHdwLmr2ja4/tCaIbY0w+OIdbA2k+FcmSGuBnK1jzprIBKDkyWk7wEAHQSDTsFsKYUDcYhIp+fZza6Eqys+4du1KflFBTkqNfHSb7eps2n29mOD7XIRYc+bBrPQJtlIyph/bubH0HFbzB1G15Je1X1fbduedcVSi9qFKKUAjrKz5IHPbZhgWC/L+4GMuwQWtYctjKCVudHxQLwpkoOoYCzcAvlG41iM03BKpLQuwCUwfJYDDnslv8WEu2In22itDCLPYlMK4t08Em5SrN3",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 685,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 352,
+        "output_tokens_details": {
+          "reasoning_tokens": 117
+        },
+        "total_tokens": 1037
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:415cd139bca67c2f\"\n    ],\n    \"constraint_ids\": [\n      \"C:5540e32aa3e261cd\"\n    ],\n    \"span\": \"At observatory, Nyra transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Nyra directs recovered coin to a rebuilding fund instead of returning it to the public treasury as required.\"\n  },\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:c0c01328e697f39a\",\n      \"npc:f0780f7d26edc5b2\"\n    ],\n    \"constraint_ids\": [\n      \"C:d695b0802a12fa25\"\n    ],\n    \"span\": \"Mei welcomed Daro into a shared command post at orbital concourse.\",\n    \"rationale\": \"Mei and Daro, members of factions barred from coordinating operations, are shown sharing a command post.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 685,
+      "output_tokens": 352,
+      "total_tokens": 1037
+    },
+    "tool_calls": []
+  }
+}

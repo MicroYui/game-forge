@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:14a341b45fa61639fe72aeb562ae9d02430fce08745a8742a7f7f3971a11a966",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5435,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 698,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 332,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1345000000
+      },
+      "created_at": 1783846300,
+      "id": "zA//EQk8JeKqRaKX9EYRI7scE7Qa3JX5EQqZuiIohzNEoJuU2pzJNIsnComuWycG8sPzxxFbTD5QiJyHKFp34q2NG2LtERq53ASZA6AGwk+9/aRmGZLfA9eejMP+4hvUuxCK1/t7MSuG8A+Qee8nhSlEz9yPRMTJg0cUlzlqje+M/S+2CwYOVlc6acGjJPVsodOzRPIC9b37Ii76qm94H4kc+W8dc4s//YJNCwChyyrbYCt5u7SsSE1+GzD4/McuZfZVIMrUr/rPwCnueP5kHzb0IWq9RqN4538Py0jmRUWXGZn1vIHmkjQToQANbHV6w969QppVR9nsBHk7v7b8rvNDZu6dpQce1EIoYKRavzQxJlAVHnjCE09FDIRd/C6y5iHgNQy4EgQZi30byBuUcTiLeyWc5A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "7OTovg4MC4e8tQI92PDjyijCTQY1W+moF2U/xKOmF7woW/vn50soIPMvxiA9MRT26swuVGLmEhf2iAIHBc/C7qthEoEoD1rk8sdG5ZiR9BOqjEd7d4gMRrCHpHZj/k8hjT0eWPrJ/YBziZqC8fMEA9Iedu9mj1G83xm59sB3dVCwdq/qUrefafY/WANDo71zQz7G4EH70Rf5Wi6x4Rt/EAzyktbT4rm/iVhRHUdhBvg8azeLcc4mO3tJqnyOgMSOHOWlrNjMX11pFUn0SpWkFfZks2ABbE/ABjcHZXHx/t02pIDeSTkLWUzhaugKUl+Oq5gs3eicaEMAspyB7UUh2fBuGfxwr4xV57AnRgrfw57cAWzybl73KOC3NUlFc5L0LdrYkK/T+m4HsaULUWGak28QepQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:5417b71b34c5f076\",\n      \"npc:6fbb023ab28ea6a2\"\n    ],\n    \"constraint_ids\": [\n      \"C:03b4ea75c98b8a13\"\n    ],\n    \"span\": \"In signal tower, the council recognized Lea as the Harbor Marshal.\",\n    \"rationale\": \"Ivo was already identified as the Harbor Marshal, and Lea is subsequently recognized in the same role with no relinquishment stated, exceeding the one-active-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "yCNpx8TP2ltQBzUG7pD+vonUlmGByD8/8gK0fbAMXuL3f86KXdG5+FgoioW9uXt2oFpIBvN0kvsi1EbhFZZ6pFH0Pnf032hN/mymYZoeBTWoc1mPfCejaTxhpCUZv5D6Kh8J+G5+6jSBlUG6j7whd/dnrfu0ZuV0mGCNmtcBb9htpV0g3NjqlVBymr0uHN5HyDVrckzVpXfY9w8zGD63I5bk19DzvzVWSUutCPWCb4LgpN+Diyvp32PFA4gC45ZaeL7BdsKPy32aoSX/9jHNdVBCiRiCNPN8OjswoJujfB9f3/pFS9xWOjf6Ov4k2XNgt2ab3V9sUqLtlnh6Vqy2QFInfSLji2Wsd+WZsho3A8KsGWJQGnPRYSAyb/TyVrTYs73KFChEbueSsAmx/uo3pFO022Uf",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 698,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 332,
+        "output_tokens_details": {
+          "reasoning_tokens": 189
+        },
+        "total_tokens": 1030
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:5417b71b34c5f076\",\n      \"npc:6fbb023ab28ea6a2\"\n    ],\n    \"constraint_ids\": [\n      \"C:03b4ea75c98b8a13\"\n    ],\n    \"span\": \"In signal tower, the council recognized Lea as the Harbor Marshal.\",\n    \"rationale\": \"Ivo was already identified as the Harbor Marshal, and Lea is subsequently recognized in the same role with no relinquishment stated, exceeding the one-active-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 698,
+      "output_tokens": 332,
+      "total_tokens": 1030
+    },
+    "tool_calls": []
+  }
+}

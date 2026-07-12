@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:dd79bc4b947428f1b84533d7826fd433160549a8678195e976ab63cb1d7d6c60",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2915,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 667,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 849500000
+      },
+      "created_at": 1783861400,
+      "id": "0fwyKP7BCbf9/2BaoW8Uh1K8/04JqWKD34wqcoC3usNCta3OgAs00lO8TuKVmNUdY6JSU8iYQOagxCBHRgHK2cm8pyYXxBxzWCK3I77VZCz2U1zdr5PEvya89Knf6oLCm9brTu0HQ5NL7VpSOz30J6g51pI8ncuZQGgBGhPiZB61Sl7l3/ouSxrF1mxhtBAgsMxwaCezJPJPgfEe5cuWtcUg1CtWqD4kjZzNsUtEsH6S9iuKj6YxC04U23R3W9T5YxJHQDlGHL+R31pDk5FjDSLfIKt3Qj+aw2xsEZzGOW13rWJmkP2fmKzMU8dCM4L9cOQ1qIiySAzzR1iZ7PYeOPQXeQS/1GaUT2YsbP61o3Zs2di1+kK4qBi0EVcDNTw+HvEwlvlAh5LPR3EtuBwzEaEhuXWgJw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "N9ebUnEcCx/j83j0QvKCy+b3CHq+FucnT0f1kJ2lWrxSvglbFHC7p53oVzJIHQLNiUVm2RKXDV+9/GlMeKZcyIVa8zDeHH9yi+gVRIXwlTXB+BXimBBRm4CA5lsrBPatGddPz47Yp8OYP+Bwm7/IXLkUMujO0mf6WrfyoeUscD3u6q682CORD0gjz7ibQEgClxbQK351m3dMgdBPwVuDPagrM5epvdnlgWUFNux2YKrAwLzDxXj5e5ANJpUIWpQFTdS97+BGiDO64q1P3q5fT2QeBoD8lCE5VKnoNxHICy+BQY8jyXf7RKkv6AbZmstQOF5LvohNjXibwSAD26EMHbXkPLFAjtj020H9JMpTusdpmU/daMIyhE1w+jDdvyF9meuk6L2OYN+XqAsGrZgWCu3Mcjg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:52e5e15bdee0d37e\"\n    ],\n    \"constraint_ids\": [\n      \"C:10333e34cf1a7536\"\n    ],\n    \"span\": \"Ivo closed the lift while a wounded companion called from canal bridge.\",\n    \"rationale\": \"Ivo closes the lift despite the wounded companion's call, conflicting with the requirement to keep that companion on his rescue list.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "08lRtVny4Ijhq+cQQzJ/H1WpzhllnL/xi9mw9u/HzlUf5aZxsLgSzCIlICwx8ndCWF8oMAwIKrJe6bqzomAFKy4b6sGHi1UDxZw3jE3e/pkiYzJJ7RmOpVC3wXgJ04VnqX18Z6hlpI9HOQCz8UV6DfemQ8INcqLQYaRUqVZ0T7xcunVIYosGz6rauErxwyBal6pyFUdbHFFtNacbRyJ44ZPkMnhpijy/m5G4xO01Kp7lXX45DcIR9xoRGX4CYPRlV8s8/j2GBy4tf9aNkzuh0otjLmHt9AKDVWVcPd43IhAUn2wHUtf92HNcTfAkFwlCC9TS/+hx3icn/3n3kcqFAP0GuyiSPQmmAr8X6+1XitYuAw/iteVukhiIK/wgQYG4svZLznjfDp9nUAFhTegBMYOSPUtj",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 667,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "reasoning_tokens": 53
+        },
+        "total_tokens": 839
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:52e5e15bdee0d37e\"\n    ],\n    \"constraint_ids\": [\n      \"C:10333e34cf1a7536\"\n    ],\n    \"span\": \"Ivo closed the lift while a wounded companion called from canal bridge.\",\n    \"rationale\": \"Ivo closes the lift despite the wounded companion's call, conflicting with the requirement to keep that companion on his rescue list.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 667,
+      "output_tokens": 172,
+      "total_tokens": 839
+    },
+    "tool_calls": []
+  }
+}

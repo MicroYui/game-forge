@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:878480562337631c416cc6e26a1d16ffa1ee3e0856fb5f0bca223b33bc45b88b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4522,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 540,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 162,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 756000000
+      },
+      "created_at": 1783844900,
+      "id": "pZwMsIDN7DhKVN4UEZRyn9WZupT3SBdhJwPXL56NmiLcBkHxxup/fU2vWSP0oMM+ONSnDi+4Tbz3PRDrzJUo3xRVOwvclsEp9PVYOVoxAGkgG7Ey03CmMRLAukycXIpcHmw2NCol0OMo5BaUTbQ/X9k5h6jitwRXwNT1saq7Kw1+yEJUBsHY1t93I8tjoI1Blf9Wm14xloaDxHGI+7WbFJcSSphvceNWbAyut6gfyAu90y3Odc/KNi5z/nSBFf7jLhyTCuJtlLjSyu1dPcYB5OGOSijY66uZtkCB6PmJuYlL+UQ9KnUPzn8ceEurZ32T4IbwqV/rBYG/rnGFG11i71W78PoSVr9an/vQpijDGZ5TjOwt79KXlw+NdEuuIIAOhHXq5u1FeiykU2Cjm1uUP5EgFME5Jw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gAEqCOlPhy+xlJD+nkTkvtqrJcabuBD36tpzwi+adTxAF0yS9bjLiMnTaXN4E+X8mah1M1rpT/rrdm3x2rvGGo4D4kypEN2qpBmooYam+7CILo6cm3xNq6OYXtnuEzRSqf9omoEPsQ9YpJ3nX2AnPzzo7FiH6pS3poyUWX0ub7Tn0KGf/1luk7QTtOLksBxhXKhnAkD+anDVq4IiAlK1PkXR/wJxgsP9L6cPgdMVP3CN2q/ly1Vws8n1hAz9ssBsDkKswpecC1QK0L4xgs59B7n/7U63J5/AXZ2lzIoRKGXWWoUBLXTcUBereVxmsllpQlKC9YMhYORhZCs0aLd7DQ+CzCTTzSTWwsLdlz/J2QLXxQCiefklXnXcShUK07SN8zIcKBHGQjX2FaIo5CjKzS6dFZs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0037bb57c305d577\",\"npc:589bd4c85fee3a72\"],\"constraint_ids\":[\"C:4b022dc65ef262af\"],\"span\":\"In north gate, Ivo supplied Lea and called the partnership permanent.\",\"rationale\":\"Ivo and Lea belong to explicitly warring factions, yet the sentence shows direct supply and a permanent partnership between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "g6Ik14quzj26gVsXTfvxhPnYfvup6J/bFCUlNUk4fmydUWGWU/lfxoP7w7yp5qPV+DoPNMdHv2XEBtMZw4pusOt7ujTOHv1hxG9xs3LB1WF2EEhSMp0kEc64eVCdRelcoi8gWZkyHDXiLTDfGmLu1GMWnwWvmbdUx9o4QOmZjCse95eg3UQWWE1rj97i4JEg98tXmTGXvlaHSP/3fxkf01SovLVNvPVPpVvaL+60QFWtw5/lEgkqX6laNL1sulNugXtNx/PPjdpTofCqwcgV2F5qqsOXJV1BRyu0b9y/nKmP+kZgQZvzZXpQJp+5f5avlH56BHyjUJZzNKqCXLPtt06B6rGGbk5lTaPMKuWZKuUNVYYwyin86j3rncKCTY2HCyYPa+iN5tI8RqNWGbR8P2RC7tBb",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 540,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 162,
+        "output_tokens_details": {
+          "reasoning_tokens": 59
+        },
+        "total_tokens": 702
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0037bb57c305d577\",\"npc:589bd4c85fee3a72\"],\"constraint_ids\":[\"C:4b022dc65ef262af\"],\"span\":\"In north gate, Ivo supplied Lea and called the partnership permanent.\",\"rationale\":\"Ivo and Lea belong to explicitly warring factions, yet the sentence shows direct supply and a permanent partnership between them.\"}]",
+    "token_usage": {
+      "input_tokens": 540,
+      "output_tokens": 162,
+      "total_tokens": 702
+    },
+    "tool_calls": []
+  }
+}

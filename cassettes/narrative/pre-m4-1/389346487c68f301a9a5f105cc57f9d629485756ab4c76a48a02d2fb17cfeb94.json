@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:389346487c68f301a9a5f105cc57f9d629485756ab4c76a48a02d2fb17cfeb94",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4391,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 549,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 188,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 838500000
+      },
+      "created_at": 1783855400,
+      "id": "TZ1JEVK8FGymPJ2zawAorACASCHU1M10jF/2ueckP7nKCAJDUDJjn/GV0LCUuiVsxCjINjCKiMLCOmxSYa+A1uLET6mWjCz/H5qZNoh0tn4Z3CmWYgL/k96lIm8kFurd+ChDX7XfDu3eLMapqSQjUgc8L8Rjm4YjYz0D9GjQHalITkdfen/5TZlWbZIowMxn3EQMMGYF8g38Dc0sggsOoXDsQb6DnSi0eSw1vBgXrsy+7Brt+jpgADo3VIHjaG4NjWxJMgnAAw0VjSBDnHU6O09gmKz7+CmHfvR/xuKI7uWlRbGKBnskjgQyX8vfknH2gP6BiOsU5Xd3TbqOFeSofQVYyNyjl3/JfHVA4dmt37DuBHr9tNF2rltpPMVLxa71oBOGHKb2aJcgng3TdVqDg3rfKQJn6A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "b2en6IuLXvn8nf7ag2DF24CrLUmfgNmJWVFQUqrY7E7nTDfe2swJhLf8kyXPQlELkSz8GFEXvUBz0yD2WCP7q/71vb1kSpyJ4vZ3YNODH+fcjMslgq0lp1ukhibN8tX6EuJd4AcQUpoz59z+gPIY3UD/+x7ZoDOXnQsw75dMlqMwRV/Hj9zKtVBNAPUtfaSbhDiNVpCyz44e8sGRZnxK3QK4nxTrHm/kYu6wa3K6BU93TsrLE8x8R4s23QHsAOZkzi6HEaXews4jVGE8PXXYix0doR9FPKxwwcyxdp1FpCc7sJ29BmnXEQnMP3ZhO1Mu3nsSjUSghLP/c8VxYi6x04ULtPN685Yh6KJoBnSwj5wQmJY7ApKPd3hYh4l/IbhRu2SzNjxdIhWb2Db4S7GU6cQeHeM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:80caa8b9663a6dd3\",\n      \"npc:b55faeede7164e8c\"\n    ],\n    \"constraint_ids\": [\n      \"C:b5bbe67d27c665f0\"\n    ],\n    \"span\": \"Ada fought beside Malik under one banner at signal tower.\",\n    \"rationale\": \"Ada and Malik are shown coordinating in combat despite their factions’ explicit no-coordination rule.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "b62ZgrdN27R3jzIQYHTXIRNXenZcP3fMRQ6FXHz479bwLRRYgU7ZS6zZvPkg1KMI0dIevKoo0BDmovu9yV2tpDU7eaveeTbp2DZq2kwhN75tPlTEcr6FWSWKFsTZxipumaQOCXq+ZxUlDFcvT1DYVfVQm9Eq0jDkyWZCy1KSbDAeuuSR5JrH9/W9dE0ZJvqxM2gA/tHVSHOqrVKL6ojc79+HHedZDbTY5eKItgWidQn2MEo4qC5jPRRg6v+zrd8kqJzqWas2GLCVvyUpz1zYMhBkTV3vpeClZuwyIvNJQ/eCi8RsU8BDZKHRmN9AoxlAaaAdQORiHG6ddd3twU/Sl/2VJIxl7aFe6tPLl4wEyEXvkmvauL5wg5TdwbXvkux+jBWDKON41L66Y+epnINh8VqwpN2t",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 549,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 188,
+        "output_tokens_details": {
+          "reasoning_tokens": 64
+        },
+        "total_tokens": 737
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:80caa8b9663a6dd3\",\n      \"npc:b55faeede7164e8c\"\n    ],\n    \"constraint_ids\": [\n      \"C:b5bbe67d27c665f0\"\n    ],\n    \"span\": \"Ada fought beside Malik under one banner at signal tower.\",\n    \"rationale\": \"Ada and Malik are shown coordinating in combat despite their factions’ explicit no-coordination rule.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 549,
+      "output_tokens": 188,
+      "total_tokens": 737
+    },
+    "tool_calls": []
+  }
+}

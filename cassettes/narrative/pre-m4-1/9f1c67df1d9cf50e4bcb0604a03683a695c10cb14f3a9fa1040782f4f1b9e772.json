@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9f1c67df1d9cf50e4bcb0604a03683a695c10cb14f3a9fa1040782f4f1b9e772",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4954,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 562,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 213,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 920000000
+      },
+      "created_at": 1783845500,
+      "id": "CA01sdP5IDTd19XAwo8l5b85NKDm0JHqoeg5s1koznKCNUD5e4VHqTrQt/9bN4CO8MJsgnCzfx3U8E4Fkt6Z5L2te0Bra+7isdI2rw2kje2PLDzDht89PPDOHscE1snvyxJ4WjPlC8Sqo9K6u5VdZ2x6UCNAUQ+dmdt3q/FVTMKhOWKVAWvVCND+0lQbr0yZi6CVe4bDOK2x/el+oy5D7UAgH4Gko3f5afMOEGmP88+97YUjlOsHvcsdz8pUBysIrazeolH6c3v+bA1HVw/x0j5jRhRqGNyjAcwtVqK/RKELXp9sE2m/h4IQw+QQUqC1lbzOoRtIHNor9h4D2jqWXZg1+G6G+hi2wXeaom5lyyRziVBkqDM4pRurrEOO2l5mk1BL3IAjD4QnzfLDfB4XXsi8vc08EQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "OD6WsQVAvZl5DacYNXihEMzniQxTrpPETZKJyGP6TIPrtfBGoTcwGn9+znN3Xekk63iO8FMWmiIYtt15a+UyMkBAyXsHGfI3skPQUvW6r4s8u5++w1HdIjS4PcRdloezKhEmquTF6ESViKKdDHIH8dMmRGJHYw5wbw+jz60xVa4729fXJcGW4Ed1z8uaxw7Gx3597U8RVMUzBmWHL7Aozrg+9MMdGQjB4oz73sBLQx+gpRCFag1wEzUi/uW/WUCBNfskGlFEMhF6iE/y9VHaK0VsD7j3GTgh+nxIHPVZPItYGbbRB3AqzENO40yO6pjuzmM/h/uNxhf5XHvx/144Mnu5i1RWW3tta4nZuFwm9dODvEAnYA7FbGisEnchL82hVTsQ8ORWp9jpfYjxePkMH8x+Hxk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:8136beb294384f06\",\n      \"secret:5f2ad5f80c721a1f\"\n    ],\n    \"constraint_ids\": [\n      \"C:df590984fd7f6040\"\n    ],\n    \"span\": \"At desert waystation during trade council, Mei told the room the truth about the source of the winter signal.\",\n    \"rationale\": \"Mei discloses the winter signal's source during trade council, which occurs before the permitted map unveiling stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "mFZAIZ7bm9baQRD1hnHPvvRZ9eaE+G9hnWhYiLnJ7n+0PGBiXFz6QaDUTlhCAnG0SLahRbSi1Ogd60xTFyIgGmISE/P+Am+qQ09Sln2lnVjyaclR7Tai49U/MAnowvii9V8MdRk0lHZuZ2wVD/BZPOi2ifY5lK9voV0t+OD2przcRElx7IKaVFJfCjnFL1Not9yLtbMLRsbk0Ks6ZNKM4w+ySZ3nKLIcs3xFdIOGbszwWeAEpNU5DpUVyiCQ9SjqAdfZcD4g3fSZMmUwzoSA4qQs38RfULWvREFkz+xg05RIQv0lmirZYdnJ5MegblmBlizQrz1J1NFUYIKPv2jagu3yPIIUM3yoKGxzZsePzlByV0G1zzKCVpTSsh64varCi4+pZhB+i0BpEhhyyxQjd7NjILVD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 562,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 213,
+        "output_tokens_details": {
+          "reasoning_tokens": 77
+        },
+        "total_tokens": 775
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:8136beb294384f06\",\n      \"secret:5f2ad5f80c721a1f\"\n    ],\n    \"constraint_ids\": [\n      \"C:df590984fd7f6040\"\n    ],\n    \"span\": \"At desert waystation during trade council, Mei told the room the truth about the source of the winter signal.\",\n    \"rationale\": \"Mei discloses the winter signal's source during trade council, which occurs before the permitted map unveiling stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 562,
+      "output_tokens": 213,
+      "total_tokens": 775
+    },
+    "tool_calls": []
+  }
+}

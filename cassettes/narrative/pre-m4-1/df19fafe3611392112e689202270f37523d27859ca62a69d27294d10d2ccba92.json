@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:df19fafe3611392112e689202270f37523d27859ca62a69d27294d10d2ccba92",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3465,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 658,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 161,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 812000000
+      },
+      "created_at": 1783849500,
+      "id": "sT3GEuy9QYKrTeeesFKtdgXQqCy5+dcizAhqLUQWaRrolPRLlHfxSHmbBhqdEpQP2CzufeLBKxpeOUq5pnPIYxcqWiwiUXJoE7TAIqWGs4ZAliRLE7MbXX/fGUTgByA8Yc1oy2TIMZJXOLyMZ+/Pxm00WrLB3xLDibA16v/CeO8MJHrRFfhv/BJKOnc0zlg7FDl+X4YIzYoC1m4kBa3EJcq0HfvDqGs3HOm1SxxJsKN9bVBwNAl/IYegV7t9c/73KE9jtK3PR60FkCZsAEP9Q8bHtsyHCJJAxsM8I4B6F97Uu3ztyy4xjl9SuWSNe2HCTmW4AhRx8lzb4oWjuPuiJEGq1qpllmXq36E3RXhHKE4kwmtIlRENNhBTOMePrGCdTidZBTmTH/Qqxplg6Ft5yvP4+NOBCg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "5Eabt5sIYavGNOdcFhRGmyGdUS2Nm/0E4ktQsetzcD3sm0sHAzdyFkCOYq/Dvb8gQ9vyRRi8dCg//6nZYIcOzKfqKbgJoDeRIzb6HTuB5FMg2FRPbt9Bl5UDvgzJGr/l3kwSx/BvUCJNTzVvnfigzfw6aaJngs2lbrYCddPu4sr1eDhHB7QbzIFyHKnl1i7bC22H/u/BSVD8lSqWNNbG19XO5oIoNTeCKTpk4Mdenqe91ZhwXcn0hdFiPzGuZMdvYGiXf7e7PlJIGMnR4VPfuZ6LHDlq6MFVEt7wdSrDfHmEpVIHJA8eQ9ZsbfiSfWvK5IAxtNxSxC2ZRXzVy4BzDh1ocAl8z8wFZ587eh8/qaLkOrj8KAOzPsMbL23cBSCN99q+zGHk1AhTsPehFZfh/Y3Xko4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:48714bc337502a67\"],\"constraint_ids\":[\"C:d9c9d098abdb7e10\"],\"span\":\"In caravan court, Ada took the last medicine and walked past the injured scout.\",\"rationale\":\"Ada withholds the last medicine and passes an injured ally instead of giving the injured ally evacuation priority.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "VidREc2hTvR9fbbLiYRN3cJXd54cVQ0z/wvb3NvcIuYs41smlkBm58BLYZN6dazFYUoTVM7uC+H4lDUWq8WQ03Qq3DJATN33xh655Fw3YwAJwTXK1n6Q0zaxIzLh8V6ENB9IGA9mJOV3gi6v2IjCNNiLUz193FPCfBdkJ6hwQDGKJoriANoQRZuIxgLlL1KzHnou2IodJq2vxACkaJ+ec28FzCwzyL87yiMShD1enUaWYjX1v+/z/yvhe3SkP478yzC6anEvRFoZOX9TkN5h9PnUO8UR8l+27Os46xQjTea3VzJ0nK0U/pi1LX0tUJ/oi6Cj7dhO3I0Q+x25kIfQrbD4AmqaAf1oe/aQrJDvQZjzf6U63SQi1clXp3v1EIO1quv3n99entx0ePmMJIJ6dwPJzF3r",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 658,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 161,
+        "output_tokens_details": {
+          "reasoning_tokens": 72
+        },
+        "total_tokens": 819
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:48714bc337502a67\"],\"constraint_ids\":[\"C:d9c9d098abdb7e10\"],\"span\":\"In caravan court, Ada took the last medicine and walked past the injured scout.\",\"rationale\":\"Ada withholds the last medicine and passes an injured ally instead of giving the injured ally evacuation priority.\"}]",
+    "token_usage": {
+      "input_tokens": 658,
+      "output_tokens": 161,
+      "total_tokens": 819
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:eaae7c360ff727bbb48268fd49b9e8406604ddde0f19a6bc23e56af5c8facf42",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2758,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 676,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 124,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 710000000
+      },
+      "created_at": 1783857400,
+      "id": "jMNczW5VWxjXRWmvuZUI4yIy34snBtNrvXWYxhYBSFzV2Xv9G1Bar7k4s0xT5GjxbC3P6cInmRO5APaewOgKeWSb3yDpYqtNmAx7htgQdwzQT7bgAkcedTWHK6/uF+C7grgYi3lYyF+42/0QcHGcKirrWYdCV5Se2vO3DfruFQXeurfnltaUuQVUnbX5KiaipUHYJwwlIniKv8Ef+TZ6OEdFNQ8Y5wOyjzdr4rL8ABrJr3M8dl/ncpFClN8vLRv4pTn1WbwhmN1c4SQkYSM4A5jQXHXwDfXwbZftKc/uJYE//AN/Y5bmoO0Xv1bMhcQYljzZqRtk3+gNeiRPwLbFN3SkY7UO5rBuZZ4Wbj4mWxs820JArciVNQgfoI7pm8nQxLNVrIi6rf+VHEpiUUXfGL0TuMOH1A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "UpsloKD2c480kr/zmO3lUFApu/4hpazmDAUXfCEC1UVsAUVymSiu1pZFsxHsc7l/Acp/hLfjeuOqk5eHA+ZuxyeKtYUyqChpGdv/Z7VeLK67ecebJxoxAB8w5ByBi/b4OjOSJjQvLCGiP7EyxuXp6NH27/z3O/SaIIwNMPOgUxCPpH6Mk8ql4CcCYjdhF/x0FTXPpMKWtDgeDoWgA5hyGEOKkg+Vj7/NxlcuSKy3OzbnRQhwC8jwECA9InGHlK/+PwALLxsRek2LeQyBt5AO/kzaGmvSd7EXO9YyW9RocAUY/sH4R8jYqw+5Kaw8UYcXjnAP5BruvdwCIwPOOaerYRxB4g+ZaIRTU1lzhf3eESfcGXT6WEFzQpnomSOpN6QcE8Kmhj6+/WX+zW2hrTWo4HyiROQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:9e19240e393209ba\",\"npc:dce5cc0d754d928f\"],\"constraint_ids\":[\"C:f913234c83632900\"],\"span\":\"At caravan court, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik belong to explicitly hostile factions, yet they directly coordinate by signing a joint battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "eVmFXUgSJhHS5Uwfq+c20MiC6TwWzOtOCRAVzQoZ+WFYzT9Eh5Fpn2pnYk/smNmc/Lp1CgEH7uJKEjDkoM2FUAEs5iEv1MrI3eN++i2flKP0QbnxXSOhWKK9WGZSEAo1Wb7DPnxASdRKPXZNMBHgD8zR+dC86bsnxpnE57ldzoE8xYnBeDzX+hbTtTKpkLFDhDvD04pVqqeSK/xNpODksDJEIM7mx/gnhKsMmk0Le/qmryxQyIDaWTM/Sv3M+73/4gyuSURZg/oo4ibJMjjH8ZI9cJUREWErcdGA7j0JFu5PICWH9zqHzn7u1PGeP2bM+mJgqWnpEOEProLG95W/5WDiDWaPtS9nxpBnr6/vbbifxrXpJGxaEGLZ7aGGCs4EmzdWEsK6Q6IIOkXUhIUkOypyBfhR",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 676,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 124,
+        "output_tokens_details": {
+          "reasoning_tokens": 28
+        },
+        "total_tokens": 800
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:9e19240e393209ba\",\"npc:dce5cc0d754d928f\"],\"constraint_ids\":[\"C:f913234c83632900\"],\"span\":\"At caravan court, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik belong to explicitly hostile factions, yet they directly coordinate by signing a joint battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 676,
+      "output_tokens": 124,
+      "total_tokens": 800
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:86b342dbfa5d0309c74ffb3ff3a760c5a2feaca06468b4105f2d14ccdcffdd2a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3203,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 586,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 162,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 779000000
+      },
+      "created_at": 1783853300,
+      "id": "1wcAg+tOrTjDUjLVulM5iFqYz9rESnIv8sdxoVs5SOFidiOiEVcsUFbyiToMIcLjIsV0DIcakgjVVGaM0xQC5M88b2lMlJSHrtD9UpELCkI0Ur+MOqNBjwxeGS/ChRWrXAXgW4aWihpuTef9etocIjfZkqlakHqi/EPYJt5Q/xteaB30AkzGs9oD5YwQtqr81UJHjFQZBOxlPPGsrCInWjAwJvan+VVOQsN2r+CaY/5DkHSj3G97pImP1o2eikQiZ9P+wxAZRkewwUY5rj8Q68s8G1gwrOfGv3Oz+RZPN3kphoByjpeLW0Q3T5xVLet2TXsMb98hY7Hm18RGNdFQ/EqTAVVdKtp4NaZk1eCpmtjG3mdYIvOG29VSkD4jSHOhT0OkE6+g7PiO+sVFL6BF38Ia+EenFA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ZW37IUglCyZnpr/bK9tG+45qh8cvYzsM22y54ZXXxW4uiwnMyrgkTkpTCXEgfl/ipKiDZSwKaDr/TOfSwGhP1v4Z5PbPdUSjSGCVQQbthD6r3ZoKjNx3NmG1MJzquZ4SAedxOTU6RskFLtF/PWWjyEBL7vaN6mznsad0E1o07yGZ0g8D1T6vT7nstECAoOPEXW2VPX9E9LMH/JD0GHmHHvSajEVM/B/1LisCqAJFCVXlcaXSsSoWJlyHo3Ru4lO9EehBaM+X9Jz5nrwJJQJUPQGXZ4rn3koyVKU0DJu9H62iPL6CLARSLW9SzTPHNUMzYvgEuftrDpYCFGanJusnlPa9makBr2n6UjUfPYHtUJVo0ADP0TiSJFhBwIH2FzJjGF2cY6tBTFCGyIoUu7p5oPnH8l0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4a2afdea8010832e\"],\"constraint_ids\":[\"C:253887aa81a9bc2b\"],\"span\":\"Ada ordered the last rescue boat away from the stranded families at caravan court.\",\"rationale\":\"Sending away the last rescue boat leaves stranded civilians without a safe route, conflicting with Ada's duty to always preserve one.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "j51apgyjCKrEH4E37s6zGadWy0TOn++FAgxbrSy2LetMzxfjnPO9/8cVzPdJaZ9IM286BEECyaZblKQDt+D6Z9VZH06u5JNWpVPJWj/gHGByLLibo8JtN/Gn3Qahf0sKhTJnTi6KL3BJhbqyVvh7fBO+LJJZ2V76jQLWQv6b/2u9CT/cLCqzZORm9/Jc0ZGjOBB7KU3nmK70O59hU/OzDbA/wvA3WikKCUjLAZGzyUd4z6vzVOY8O4fjYeX0LI6eZc7S1KZv0w7ITN/n2QRDqEHVET+O7yzEb2w4oghEfoZnmNm8sTCiGdbmbN/AK8MQC3SUI9t+lODQ9jYGWL7oWGMRlq5os7C6sXp6kMznfa17FJn+SfXSeXXEhF9/h0A6tfpd3Vsms894W/kGtGbBam8MuKcd",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 586,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 162,
+        "output_tokens_details": {
+          "reasoning_tokens": 69
+        },
+        "total_tokens": 748
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4a2afdea8010832e\"],\"constraint_ids\":[\"C:253887aa81a9bc2b\"],\"span\":\"Ada ordered the last rescue boat away from the stranded families at caravan court.\",\"rationale\":\"Sending away the last rescue boat leaves stranded civilians without a safe route, conflicting with Ada's duty to always preserve one.\"}]",
+    "token_usage": {
+      "input_tokens": 586,
+      "output_tokens": 162,
+      "total_tokens": 748
+    },
+    "tool_calls": []
+  }
+}

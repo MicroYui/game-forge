@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:27a65729d80006222da9f33c71a2be3956f42c4ca7ca76f123e6a07f10486a4d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3517,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 540,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 185,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 825000000
+      },
+      "created_at": 1783851900,
+      "id": "L8g6Ypw8xlluB7HVkNrDN28/4XkCArvs9uvpnAQdpFk2JtriXB6FRBwtUs95VzgkZh3FVQZnqYAJEQe2Mk6ZrV5csajUfXqKZX6iyICW/xxurLNjXe4f2ymT2qv1gv4Gd/qGKdAEmtAH1SQF8tsLrlLgz9SxNNbCROX1k8JpO4e9U1aibzfelWbjgtwkGxeEp4zEQ94T5yfn3pxMF9c20x9r4NxU8SZ9Nw5seKVxYYJHhj703K9Oc1sdbqRWXwe3hevNEaCRhXOdOzEvAj56BfBF/6USt1zCkP+lcm7Ev2IY1hklt2s7kAMy0Lydgt7dyoMw8R0dIUNBpU67JZ/G7OkYjKoWqJ5jqXJ6A9xd+ies+y640d7FKD8/mKQ0Iezei5RVHpnUzMHZmnkKTM6aq8nhZZ7XbQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9ST1j+0XPReI0UySmlGxTofE1YdbKnwrM8LD4TASIYBB1xPzZaMKbblAXOkfRbPa5YNHmQTGxHMWcHdW2TZoSmy3zkWRRYhmYDljarAxQguvmDqa2rQ5peXxsuwAODMNQO7uM9VZSWInf3HLABPp6nSr3fxHUkQ9Bzgz0EHNH8hlx4ZxgQqWjfbF3yQQn/BfJC86ZYzLiNdqJdGEjh1kz3V/dFmwvJh3naWtlVMNj+mJBJAx1bQrvOp03fZ46Oc7NiRI76fPwBg5Y8ele5CLSDj43V6tlBsD+fZ1S+iGfFONLjm4/65/MeprPtGTlLgVMQbyFRBulOb6/7TVUrclMMWGDbTS57MTK9AzpoitSCFzJxVjska8TQoR0miM30Ldj9ciCGKKOOaAfYAW1rVyRYHZN9w=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ae8c9208cccc6964\"\n    ],\n    \"constraint_ids\": [\n      \"C:12131d93eb12a248\"\n    ],\n    \"span\": \"Qi denied the pledge as soon as danger reached orbital concourse.\",\n    \"rationale\": \"Qi repudiates the pledge because danger has arrived, conflicting with the rule that a sworn promise remains binding until every term is met.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "TmtO7Y9lYMeMdER/GCFwfnRM2afh3R6emJfICesDmgB1YatvC/AT/MsTYoDHtdKExQNLJQqpfbvaW6JB7kPVNp1ATo2SYgkauFNYmaXMyTjjerWkgMF/l+dYQ1ziqaxYSmF6OybghiV2pL7lZcEYT65UGmn67bmBBS/oJF8fWBd7t2VHpUoMkMu0LklANOa92m1sILT/p1QOnWRJOr0TSeGItdKBcr4Ph6QaGEHnALlkVOBBOVLTYzkpGKqXFHwDS1swV2aL+edUycnnYzMGrgIJljDEQc4VF7zdhfAmzTvlachPH+xG0Qg0twvCBTUJEe9iE5b7SfElK7QvGutp62QskZPdRtWBmRVFDtRsKxmAW8Ucde2ZS5AvCAJeeQlBVlKnLwEAETMfl+s7Wp9j2riRIUXY",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 540,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 185,
+        "output_tokens_details": {
+          "reasoning_tokens": 70
+        },
+        "total_tokens": 725
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ae8c9208cccc6964\"\n    ],\n    \"constraint_ids\": [\n      \"C:12131d93eb12a248\"\n    ],\n    \"span\": \"Qi denied the pledge as soon as danger reached orbital concourse.\",\n    \"rationale\": \"Qi repudiates the pledge because danger has arrived, conflicting with the rule that a sworn promise remains binding until every term is met.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 540,
+      "output_tokens": 185,
+      "total_tokens": 725
+    },
+    "tool_calls": []
+  }
+}

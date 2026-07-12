@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ec1e60d65184cdc01f53b0ae4301cfd8004fc58ffeacdd3bd6c21d2f9741b7c8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5159,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 570,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 280,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1125000000
+      },
+      "created_at": 1783849300,
+      "id": "1yWIW+P0P8a+s1md6U3fTBr9DSj6hMHVqL71DXvfL5pwsgdQI38SCsB3SZdhvIH4xEWmRLAodEpkbA6mhaAbHNgMBQEUs+Ip8jkam9EOnCokLc3VPIJ+5lfiFCgkhyyHmXXC7SNJnXLI817hbSUEsE+x4pL8gnPiHM6w1cYNs1dk7uBQZ5ofDa9qv8gAkAdpt3Jyogx4rJ9zAOsKgQleI/ozQ6/A1fqL6wnHWXKfZuI99MDKBn5Ui5XQ/RXIl+FkXMTq/kSnVpQtqyleh2l+DyBv7BO+pMhOYKH+ITlascWh2a+CTKvgNmGjN9YzRuBOnV1iP9tc5GeVyTiBDWzifQ7LMUgOHyqj5ZKXEuGfFiy5pN3zSfRRuaB+MoMcTnE18xSrDwFI3yB5u57ao8bi22DL7mFw7Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "IgmAjYPdPGGhBKplad0i9tDryJww5XYi79NLtrpsa2oxz1mqFknDmIq0zhhO6o3pHrX3VJ3qXLHbyhTe798KoVK0C6Kk8lDxtzdVrO3KFXkEnvzu07kI3vfXRrCVkzwrSfk+NqNSad/ZQH+s8AA4CeIx90S1dcVoBGHna8DGmrbcnG67cgVrt8OObmaZg+1yjTQJa9zytfDksixOnW0PQC5Xkr5CJa+bQ8lng6StQsr0WVhRKyt3Lvoudrg20/Nqc/D0GFPrKKopz/wCxvIgerxB/M8MFrHIGQxxK66rFobAu937KUd8DgRC+Ok+JiJ9sZjWOEcnKsd+uxmab5bYfRZBnQ+/yacIDsfNWtTHVkoryhTUKFU8fa5Xrw5N98A9QU7q9NtydAn8tx0isD1iA4uUpQY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1f56ae88ea2f1a6d\",\"npc:5cd839d1b792b0d1\"],\"constraint_ids\":[\"C:7039eddd8d7fda12\"],\"span\":\"Cass signed the register as the Vault Steward at north gate.\",\"rationale\":\"Cass is presented as a second Vault Steward after Noor is also identified as holding that office, with no relinquishment between them, exceeding the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hrPIPK81Qp3fRyXTV/oMexWvuIcSYLRfXRwV4zJo5sPDeX+SVSCRSSdrDoYmIUW2fcT8PTCYY0YBThS5263xIMF0GFwQCy7DNudgsDAuqPZcq8Dpn4Jw2lmjgIfBLI8eI2gA/+0N9D3TDIOPAtdOmw4yZm1gVWUKUDFLXX8u9E8F7zz6OAEKREiT1zxC1sgykXX2xlJgy9T1Qzvp+z5Zx6fWrpG/lz82GSjZlwNxTo+sVoC7fvWIa/vSXrytXncqbCDUCCXeV7HWT6bkZ4AcbIanm4OTsExMl546cYeYpATQbtXucIC+V95fzlGjhhPBf8YnB3qTlc1pxNAwZovf5ECWPWb15CEm/z9FdxLxMfZBUgdkAP+TccTvaLZxgMcEMVG2WcmiL5+j62yl5JVpqx8ZY/Gu",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 570,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 280,
+        "output_tokens_details": {
+          "reasoning_tokens": 163
+        },
+        "total_tokens": 850
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1f56ae88ea2f1a6d\",\"npc:5cd839d1b792b0d1\"],\"constraint_ids\":[\"C:7039eddd8d7fda12\"],\"span\":\"Cass signed the register as the Vault Steward at north gate.\",\"rationale\":\"Cass is presented as a second Vault Steward after Noor is also identified as holding that office, with no relinquishment between them, exceeding the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 570,
+      "output_tokens": 280,
+      "total_tokens": 850
+    },
+    "tool_calls": []
+  }
+}

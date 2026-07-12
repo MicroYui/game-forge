@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:be308079ea241c74b582dee44c015fcfa1144a9ef3faec55bbd808a20d8c7e40",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3195,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 654,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 165,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 822000000
+      },
+      "created_at": 1783858000,
+      "id": "TgxqVsSzaxvspLIL8EpCimRjxfdtsuI29HCgVkjxpLoAGeIGsAzrsvR6yOdDDp+AO5F2DGMHmfQlE8A+L9nuPX4LARGTgkiHadw3rxH6noX/6ZAmk6KLzv5wSUktT5wy27nsVoVY7u7OxJtkqcz9VsdKu3wgqtrJf8WuB/dos+OgBCBNB9bT3/vLVSF6PgKvamy8+r2rD1SltmhDH6hDx+bFrqPp/HrZD2wM41JG7dBwtX9TcaSVuW+WYaV+Pc6fN4jfNnfsxGs/XEg2afdy1QLCRHuO+aNnsklNNQGzsypDyioU4Dar1zk82/P1h5oldBqYK2D6Awqi6JSMVN6J4POTtShIxIhEluSodV+nVXxr5Lc7gnDgcRAy3RXVNwpzrZqa+96twBb3IKJEDdaf8kP1KvXZFw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "tShwcrGJHbNob+otLTuyHhl2cRMH5SrbdUZCqFhB/4Dji8pqEd5sJAgCKAYB3hqEYpJXEntXmlBfJYDBgcvzi3koA6VVQD3Q0yww3dHMmFQInx/vr8mybgzgNdVmdrYlmN0V6k0KXV2hffNLNiLk/aAyk/l89vya2UsW+BM4jxXEY96HSH76cTfxCKhsDlteaY0mYGhyytErG3x6PnBN7GS1kbvEzxxKEyYvRQDEPz7Ui3QNWW8fTe+EYXoPVdMG4GKLLQ2MhRpajB3P185g52eWmNLGOT2xxnPTfTsh76Vy/bAyiBAHh1UlHBA4ObDzWi1zuCQE8XTR38kTg5tPCXG38sDv+Cf3cPglEmxg5Y40MyKWYtWgYqP1ZETvExiz+h9Z/nA/ByihW0qNIN92sXMoyQI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:11e8e0f469f0926f\",\n      \"secret:d45dcf0b14a31934\"\n    ],\n    \"constraint_ids\": [\n      \"C:d34258db213ea4aa\"\n    ],\n    \"span\": \"At observatory during relay alignment, Veda told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"Veda publicly reveals the withheld identity during relay alignment, before the permitted departure stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gntzFyPLxF/jDS7bWFuj9jFJsIXOh7Szs7hC6XPBFfYLTDWxsUDcBVYlZKGRdkASxMVB9/YaN4e2inTLsBi0GjjEkbDsT/NOLewfVK9q/WXiXaN4S7wi+OB2l0oTzJdg64fS0G9F8AuvtaOGccR+lgKBYlcNC/wCzLLVqsAsmjS3coAtJ6n0DjHb5mLV6slDLewkMSytD/Cd1vQA0I+XrOcpBS/flT/BiDAXPhKF7FM92O02zMYsEInIP23TW2n8XH/xzGFYe0HZMoG+oGVInQuhb1PtnOoXb/pwVZOPttH7lhq1gFMoXlWteSjdwqJXdMFrDNSC5fQCciAcRumQNFRbF6CNDFanMQiZUBEFKvYOKInGCA3If02BdkQn7nY+KSNi7JuesjvUysmAp/OEWM5UAC50",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 654,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 165,
+        "output_tokens_details": {
+          "reasoning_tokens": 36
+        },
+        "total_tokens": 819
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:11e8e0f469f0926f\",\n      \"secret:d45dcf0b14a31934\"\n    ],\n    \"constraint_ids\": [\n      \"C:d34258db213ea4aa\"\n    ],\n    \"span\": \"At observatory during relay alignment, Veda told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"Veda publicly reveals the withheld identity during relay alignment, before the permitted departure stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 654,
+      "output_tokens": 165,
+      "total_tokens": 819
+    },
+    "tool_calls": []
+  }
+}

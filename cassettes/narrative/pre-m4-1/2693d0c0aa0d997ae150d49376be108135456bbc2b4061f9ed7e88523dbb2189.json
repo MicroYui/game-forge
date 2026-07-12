@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2693d0c0aa0d997ae150d49376be108135456bbc2b4061f9ed7e88523dbb2189",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3783,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 536,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 192,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 844000000
+      },
+      "created_at": 1783856400,
+      "id": "XYDmLh+BJ2HLkW2uPcUvZkYaAPkV+j+M59qFK57XHBhfdWIe3k6Bce2wk9aJlIypryLd42FxhHuQwmVpxXSKmCjIE4FDqhGl0CCbJz3N5Y8GzPodjKwdKqw2kH257oAxWox7ZYa/EnXT4SBnJcqRF0bPhPzesAiVrIIlC1ez1nocS90UwYTsYFtIISMgJBX+9yXD3aXo2ZT9KwmiZBQasGE1BsU+5Q7Q50+qYe8MTQzMRKJEocCqdxjamM3Q3zmPyQdt/IpyLjyt/6SZWdpXDirfCpsduXfKBy+F2ljHhPS0m0aOe11OgWcRjN6zV8qdz5PCp5zfCwHhRWFZfQ+d5o6ZwrNBfgXEJZbDyA5AgoS7qSHsChMM6dtjtxo75acfUmR+/2/r6ijPJa3BfABKfxFFFgPWsA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "myXwSWTbgTrvgkhp21n/9UaIqfM2gooHbX4z9PHzWSiBIPKoIuNl708x4Dr88ONcpEIjC4GdIvkLwtnnd5wljUCJ74RtfmmrA06A/6kB05ZhX2T9O7Cbc60/aMwS/Y7jH0RJfuyrzY2ePCw1ugkxrnPvYD7Fv+euAtHCfPwZch/YTFViRjNIsXvUIsb7JOrey221g6d5ZSze50U1ueJlfHBmBkVJI1Uk43p/sc3bO0Y+yfzYyM7LpKLvwCoL/DESMzMCVb6WcbGUJQj+kGdlJoD8pGY1vjugcmAU1azzmFi3lkgmeOREUNHLFXSWPit3CdD2cNDvKuCVnp/LI41IDpTB0EAUpkFilLW9AjnNjW+gGJcXqi6eE4VYAx4b7icaiXRKZr4FoHusZIotQ9BSj7z3cc8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:63248cd36ba773ba\",\"npc:f6e4512a6cda2ae5\"],\"constraint_ids\":[\"C:470ed453531eb089\"],\"span\":\"In salt depot, the council recognized Cass as the First Navigator.\",\"rationale\":\"Noor had already accepted the unique active title, and no relinquishment occurred before Cass was recognized in the same role, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "0bMCA6ng5RkhX4C0RABxi7MoF39BD+zTZhUBV79aNE3X/IVgK8zbuIsJK2/lMHzFIWpsAtpkAKBuaDB0xtmOCf8fuFP1aG93GZ9EfcRJBvARLf0+f5VUzsVo3q6dVQxu/32DKiE5ac2cjRW4ISD4NPgrxFYLgLxOlj4MOzB0JapRhhUx74JVxllsNrPhdxGbLPIVJPkWEyukdI4c5Bw2Q/Xj0nvnkV74IK6N0ZnNcRf5T4eHjns7LfNah10bu44s7x7jRGUgd9DtCi39BiLxtfSlX/sTEYBcUqo6HZZYXwzvK2ciQwbciHG8dgrY9KSOtwUEsCYfyqmPkMnX9TAVMKxcA6Mt+9dTPF92Tzx8JWx4Hnmj3kmTv/vatNn4AtxQ4GZiVz2xhTPN4Ovxpn2s7ok2rF4b",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 536,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 192,
+        "output_tokens_details": {
+          "reasoning_tokens": 84
+        },
+        "total_tokens": 728
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:63248cd36ba773ba\",\"npc:f6e4512a6cda2ae5\"],\"constraint_ids\":[\"C:470ed453531eb089\"],\"span\":\"In salt depot, the council recognized Cass as the First Navigator.\",\"rationale\":\"Noor had already accepted the unique active title, and no relinquishment occurred before Cass was recognized in the same role, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 536,
+      "output_tokens": 192,
+      "total_tokens": 728
+    },
+    "tool_calls": []
+  }
+}

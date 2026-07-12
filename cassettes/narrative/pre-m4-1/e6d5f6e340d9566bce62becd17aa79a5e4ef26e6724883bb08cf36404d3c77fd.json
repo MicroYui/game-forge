@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e6d5f6e340d9566bce62becd17aa79a5e4ef26e6724883bb08cf36404d3c77fd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3075,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 571,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 152,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 741500000
+      },
+      "created_at": 1783861500,
+      "id": "Vh1bkUMh/mk60nhH8jp5hhL96oqac6RwQ/i7zgco286BD/uI9jAnO/J0iV5TjBylZYZ9pKy4t08M+RbFGvVwkKkkrfItB4Ww0wJaPNAfhvcGhBv6ZhxkLAdcFtVvRi/WaWAQY7COymYLQWlkfSROSZpDsK2stwWVIDb7EsdycEI/Q/b/cas6uBqYqSAvwiQDMkrhy98CzPwGFxeYv/lFBYFFSU1EAKMxtWHo1c2H27heiLdIeCkqL6lexQTC8YoEWfDA62Miip3L/s7KoVW25i6BVdTrkJ6/unzrMWgYXyvaW0/ZFVcdbnFcy4e7xHe0Kg2xGbKeLMt12fSQjmDmqtFBLqVw7RH8Fa2F8M8nZT1W4jWW22q6Kjwewc9Z1/RMJaqSwO1nb8vypESz2vNEmLT1TshIsA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "q13kHzb1LGgngfD9sfE2GZQrMykOa9/wIGAZuQ4jYUO43pAngx+tj+qZjy60MxSHOMwD+zlQ/I/s1zlz68ZJ7shhIRVjBWuOtlotcBICp+q59TH8Nq7R1wdJLi3Ac3T7jx+CNk39f1BIpAzHnnqxjxGFfJi6FGq0gQM5J+xEVJm6W5WxpymtiAdYGD8RUd9hHnf/bDGyj+r1tkI9Rj4YFw6qycEkdlh8rnge0a7iwESZrg795HvpxC8G8EJEEX/BB1bZibgvgDXI2hlc3qYbiFe1ZdQosCjLz3B9GiHDJdXMSa4vJbZTmGyVzaOw2OFk8fxB7yE7iXH8n4dWt3XRS/PLusEDcboBBXhRw7LLWYLv+eymvr+Finu6WZOSOlIUKBQqSDYbl7LRcO+eHcwWnBwaF/s=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:0100ce8012dccedc\"\n    ],\n    \"constraint_ids\": [\n      \"C:9ed54e03bf08cb79\"\n    ],\n    \"span\": \"In north gate, Noor used the civilian refuge as bait for an ambush.\",\n    \"rationale\": \"Using a civilian refuge as ambush bait prioritizes tactical advantage over civilian safety, contradicting Noor's stated priority.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hwkUgLcaYukJk5N9KsTU7IOJ+yYJixDslXu1YCXepyZNMTALfCYmMpkqkneGXfzzp91eKxPFMp05Yasw2/Iviu3OvocnN4VuUV78Lu4sM1G57fm1EWTjrzMoHFYJbd3PXpeyHg/zcL+IEhy16mxPn7cIoKIBv8qJ18jvemWi/d6Yy8k1vn4pYnQZ2ckVJGMbHJlgviLr+1BtxZSAqRlCiJsJdAd1G3/FeFXul4xaf9MKikHJO/ODmTlKa4vEFJWpQg2kmyKakE1Zz18kz1+yIaAGTVPMr/UMvCX1EyQ2Zo0ysgAHR/BKQDviGq5DNPR/a8xbWHIbsmsrbrBt6bLvuRAGWTFugRVb925COuWKAVNHdY1UFppX9KQiiTyJbvAZxjwWYMRjZzs3kjGB9CGjglbtfio5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 571,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 152,
+        "output_tokens_details": {
+          "reasoning_tokens": 36
+        },
+        "total_tokens": 723
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:0100ce8012dccedc\"\n    ],\n    \"constraint_ids\": [\n      \"C:9ed54e03bf08cb79\"\n    ],\n    \"span\": \"In north gate, Noor used the civilian refuge as bait for an ambush.\",\n    \"rationale\": \"Using a civilian refuge as ambush bait prioritizes tactical advantage over civilian safety, contradicting Noor's stated priority.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 571,
+      "output_tokens": 152,
+      "total_tokens": 723
+    },
+    "tool_calls": []
+  }
+}

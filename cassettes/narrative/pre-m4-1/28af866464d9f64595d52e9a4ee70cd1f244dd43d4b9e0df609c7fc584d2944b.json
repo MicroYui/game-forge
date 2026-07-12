@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:28af866464d9f64595d52e9a4ee70cd1f244dd43d4b9e0df609c7fc584d2944b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5137,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 674,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 221,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1000000000
+      },
+      "created_at": 1783847000,
+      "id": "1pIzCIfGR6yJAOpxclN/7RBp57gFLJIMJpBkk0eJd4KziRTlkZRK+gkJ3aiKTsfDcwWE2016sxKlAjoaOnGfShtvEdVl4E564D9KuPlhCmgwFd7v4i0vU9CG2ZXEok+5XQ0B4GPJhS1cpE+zfYVtjXRaI8zwpnnNWmrs0E/6bwHLb8a6zbqNOn0+lwl4MGjGyIB4Ygnc32es83Cz4Cm+YNuV3nWB+Is13zO0yzmO3ntuZVs0lHMfmpWBnHDJt3Wwa9WPS5PQljRegEadCTld4ehpcf6qlXg8r1b+vqOStpK5JCPOzfjG9EwBtAe2b5QFIppegckdoJMexRYupa3I3948RgLyiDbnJGk6xbe/VFZy3uIWUmJ5XOlmTKayHsUwouf7Feu3+TPC/kOskUmyKvKVZhaeOw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "CZCyyxsoCJ6CHi8S3LaA2gcQ48crpJF9pfZk9dKrPF5B2M1gdocdRiXi7yGXrNbyruzFSoaHGSx6T3S3aoVu6EbczJxKpla1l16Tc3a4kwOJXAShIwPIEzpNDl9e0TrJJiNY8j0QWKLmd2Fes5QwSsb/r44NOfCrtyuXbVxUwGpv68g9nL6yTAtO4UjRGOHLWc0ag2yea/0mlyAnrQZephcIn5rkxsFhY994RqM+fh6eQw7qCjbazOkheBqDCd93lqj9ibYu24rYk9kzhejtLmmh8VyfOqeMYRsqM/D8tNYEro9hF2sH02aG2d8IcndP2dUjwwgZdTy3bkFhp+KdGrtc9/V3hWstlID9hB9zzk4lyG8C2nnB+Mj3VM5hi4sQEGgyfLf99G55dQr+gchPOZSwpic=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1dabeee59dc42d15\",\"npc:254321898cac0087\"],\"constraint_ids\":[\"C:38480bb616bfbfb4\"],\"span\":\"Qi accepted the title of the Vault Steward before the assembly at salt depot.\",\"rationale\":\"Mara had already been formally recognized as Vault Steward, and Qi then accepted the same title with no relinquishment shown, creating two simultaneous holders despite the exactly-one limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "4CjkJGVaDYBsrppcHHoF8lKgOL0wid3r8IYUX993TUTHcksVrM2oQE/99ZOmDvStdDtWIhKMaXwxklTFTkdDAMtLBKAVQBQUAkcLGDLbN2V4b5t94Ng9btMle/N8ujGBgkpjcvhicQ6j6+oFnLV4aiKxV6+ws2EZV8DdkHFhyg90Y/0HqGSCJosyckEgK1mumGN5AB5DgmhjLcE8tzKg5ZBO68RggdHfFdGq/ejxB2E/PMMR6pwgSqjQ1/QlkWxO9e85hPBcYuLNCTrulZ6sb/T25cM9aEWWTT78YXmVaGbscfU8XlG5VRJgRizjiMZ9ugRNuxbkGARyVVFHkjVLM3hV5Wr+8H/pwXmqL9SWRGXJLbmVH+VHHQnN1ATaGVZfCCggPRjbh6ithw9tg2GUv4ukjpYe",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 674,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 221,
+        "output_tokens_details": {
+          "reasoning_tokens": 109
+        },
+        "total_tokens": 895
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1dabeee59dc42d15\",\"npc:254321898cac0087\"],\"constraint_ids\":[\"C:38480bb616bfbfb4\"],\"span\":\"Qi accepted the title of the Vault Steward before the assembly at salt depot.\",\"rationale\":\"Mara had already been formally recognized as Vault Steward, and Qi then accepted the same title with no relinquishment shown, creating two simultaneous holders despite the exactly-one limit.\"}]",
+    "token_usage": {
+      "input_tokens": 674,
+      "output_tokens": 221,
+      "total_tokens": 895
+    },
+    "tool_calls": []
+  }
+}

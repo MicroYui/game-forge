@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e36ed3cd5e13e9b323d9231567bb64b994ccaf370a1a339059f4a145690fb499",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2597,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 661,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 142,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 756500000
+      },
+      "created_at": 1783859000,
+      "id": "p1reW7dkUOrzICYDpwb84PQDSvDdSyT92bIDlOMkFh8X9zrCPnnc6lAVL0A+7cWT8nKgv03gJnEZ2Tv/MYr8ZOSI1huwXoBUFgUC1pfWZrLboIz2q2hJPOIlWWlnhBlQ4zK2w70EOktAJj0GQlfelG2EhV5Azm4lJ06xj0519UHCmboZTUvvmfSmf8BYUM/00nO+exvl1Z8L4dLDVkIaDInVO4p6wYslpSaMm0Mi+XJ7NZBbW9q0I/cGcm3Y9qIxRx+030aXcglz+RMigdX6X/6KYkZ5jbTvmaneF2kcmsMnTO1G3t2OejQR76dMqgJsyH2WBk12nq1wVxZXTL7egymz/BODYn7WrpBTRYvdizvpjIQiKwJ9NfymN2MDDcqnrD8toTeH2CDUKfHZXjft7kmKM2QROQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0+1Be/8Moc4mRSb9TZtzYyu2R1wnSZJC/v1cM7o1N1B4hUEnlR2rHqYdlCAEAWVhpRlDdDbZwPkcY/2h/XNUBSh8E81RuvU1GY197kChmPH4amIqfSrmccLvmAL1w2tJi2mrUV2oSZO6K0enmYucQ/EADWKzlZBTjVAlXVq0DSFBiCtluukJRNByMOMGHG6yQCyHTmhGEsWwMUckDxRM+UWtVHoMCyKGE982+1PAX3mT0tZrJxb1UEZXoWjyA61bDjQr/IuiwxCfLRlXhK85WArf0a2qd4oYbAFxGYMuDRI/AmBRY+leB1mBqjCEtzNeO4ChCXhr8HhBfJ1K0UmW/qM43WLFt17fyyVzdXezvm+1SbhqXNvZVqH10D1ILag55cg1MFQBn71mKSgteFjyhU4Hf6U=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:67c5779947103523\",\"npc:894f39dc64e86efc\"],\"constraint_ids\":[\"C:d7510ed4aeaa81c4\"],\"span\":\"Ada fought beside Malik under one banner at canal bridge.\",\"rationale\":\"Ada and Malik are shown coordinating in combat despite serving factions that do not coordinate operations.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "RYTgzigl6XH3Vho74bemC4QpRwbBeujB+mY7tayEiYYN4tgD+XtnJKfNYF+ehn6wD8x8Zwqq1vsb5naDK1UJsRXEVEMIECWYU9dREozvQujQPmHrZoDm+Wxh93qqeyaTdzlXl/dkIyyQh0QYgqLsgtLgSdnlFEYrGjAwPtnh4j7hMmAlpyWaS0MTYEpXN9pR/lEeL9k6XR4zj1qUEZBZ3NAl9iRmPle46Htan3o9PTvrbrygwoaUFs+ud2O4KIWAXD8pGXsBQI4qnt1l8KCRo68SVW6qEVJdekQTI76Ry8yXmVpHF7CsHERRsAqb/RTVqASO9WONPqMVi67J2NJ2okxp7ge9pVUvBQnjfiu+44Cf1uGQqGxiaCL9/CBcY1vphtEaqwXZRIaa0RF4rYxIE2AvtT/C",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 661,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 142,
+        "output_tokens_details": {
+          "reasoning_tokens": 49
+        },
+        "total_tokens": 803
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:67c5779947103523\",\"npc:894f39dc64e86efc\"],\"constraint_ids\":[\"C:d7510ed4aeaa81c4\"],\"span\":\"Ada fought beside Malik under one banner at canal bridge.\",\"rationale\":\"Ada and Malik are shown coordinating in combat despite serving factions that do not coordinate operations.\"}]",
+    "token_usage": {
+      "input_tokens": 661,
+      "output_tokens": 142,
+      "total_tokens": 803
+    },
+    "tool_calls": []
+  }
+}

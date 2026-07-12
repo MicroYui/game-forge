@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7258d4ac5418c406e75af33e54c00b3e6759448d298b277e1f93abfbf913ead6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3156,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 636,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 182,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 864000000
+      },
+      "created_at": 1783848600,
+      "id": "PNLEbW9mdkj+UanMVPaYBFkNGLtWHSMnIirSeeBGdYaMiCwoCWz8wzVWYMN1W5ereaiQIl7FvgDyDzVX7A7hBncZHs6xnHvcq7yDtTioszDPaF4q8cr5RRnvmMoSJ3xxjwer2sw2/0/21z9EhNi4UrPsU1DgOA/brXbbGTVfgKx8FDVdHtKLue3HYXEok02O02mYSFrweADIXxeLajcGfST064iifFvAfy97P4KYksCK8jsTqhQbe/TrWnveBiUE9VvUxH05VzkPMe+sgmS+7fn+Bf/Rn0l1SLHk48xLB73not2L79LHg6e/JK9egoeCUZsP7iaGPq4RdINZ6OfiEyexO58qyKPX9mP8gIY3Nh3Pqh/sPYf6kih+Dyv4w5pQ/pv6pbiUsRNSsreUh0ISexD05LRZNw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "aw1ScaTHgZSU0Af6BJmU+8mL2JntkK99yL1eVHLrQJ+VJ2+TcH9BPi4VMBG6C1ANLU8R9RUrlDgx5AVjc4HXR9f/TQA7YaKKZSTV/VKvaN8sAGwc/X3QAHKyvkpGhCyN2Qnn+UbGDHzPm8VOfAGsQ52MGClt7PpQjhJfjmytuiGQO+WPPpVu6dxjX6w7jwJZsBcM8C8HtvIbVvBYShpfvHAwtHEvXTM700v6GDkrlsvunbLw8sbMfvW8cVAvHMCFoIDA08s3fVZw6JkrDoew9XOghWfdbuk5yW17JuWrGtbln7GHOXvzWtoInufYlpiCM78vNmoAocI4fQN/IgdeEU1CVA+TwezMeMuIy7XkzMf3NzP+xi2GRHtn6VleyJ8vj8Id/5RK9Q269+t7LL+rjhKcDM8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:9fb56bade07a7fe5\",\"npc:a2d7d1ea50fc4bff\"],\"constraint_ids\":[\"C:d1bfc9259864ee1d\"],\"span\":\"At canal bridge, Ansel and Iria signed a joint battle plan.\",\"rationale\":\"Ansel and Iria belong to feuding factions barred from joint commands, yet they jointly signed a battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hrK24nCfLeu1kpkcoQt9I85SPP0VIbEtntJdCpTRPjK1kruWVVg8FjWvsvJXgqeDmyrp4JgfQZg8jkusNPT+8+i5xMC05sBc8jXcy1CgtH305KRz973KW+UEy5n+GB07jxQ0o5tT+uw3GOTUgSb8x0FkOvUx5nwfh0nje2d9Gt42qRW7fSwM1Y/lePIvv5F0bXc+hkO7YqQugJJt30fXO+t9Zavb3GZgoKUS9AEov8jqWneNGR4h8bx6oW1IW1y1C1aVHHM888niZZeLYJJr08QJ4ughEtc9Hsl01CaTnUqLjyLvWB5Tb1dUpMZbKrtqkky2gZqlMrdMSzSjm8bV7C0GFD3V9GhL/Y+BWWr7DTeCIiwEbIdtqxLq5Ey+HeLV4BTW40dOMjaz7dwEBxzrIVXwm6w4",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 636,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 182,
+        "output_tokens_details": {
+          "reasoning_tokens": 74
+        },
+        "total_tokens": 818
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:9fb56bade07a7fe5\",\"npc:a2d7d1ea50fc4bff\"],\"constraint_ids\":[\"C:d1bfc9259864ee1d\"],\"span\":\"At canal bridge, Ansel and Iria signed a joint battle plan.\",\"rationale\":\"Ansel and Iria belong to feuding factions barred from joint commands, yet they jointly signed a battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 636,
+      "output_tokens": 182,
+      "total_tokens": 818
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7d81d5ac7974f358e443f26af1253e2b4376eed139949cebb384b8c09714c2a9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3232,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 572,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 802000000
+      },
+      "created_at": 1783848600,
+      "id": "azCgUpfyHjdY3wmCmlVLNWVvTqPYfnRsTZgCd/xe9vrtsh/J21uLv+4DB3rKXc9r4oIw5jaZ5QIPjx9TEhy8dVL/nGHPf6Trd/P+LU3IiER16DJC3F+DK9F8n9fP8+94Puh0pKpg2h3q66GJ6DP7G5L3SSmCdar8O9Xf+llPSO+VuJ29JIXQdGl2IxsckmO6a5ECP64hVPyQd2V4yusoJOkS1bisbLqGlcxrNHeBUh8LF0VP3pkTgslpl0qMAxBAUTX2PRcDuzffSbvbkxAgs0U15WYZNFWnouIkReA+EgM0B8Vf/SjGNvBXZrVyOcJUD1FlSsTGOR0hpi7qqWOQQClzy/clBERyTVoDrSIMKcv0gt7NmE5P/CPqjJAmXVeDyeeoY03QdJfd94Q0lEWnxDogp42+uw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "g80BB5mBYDfAVpnoK9RpArDEj0gPbYg+BN4Gvhbw1mPMfKR3Rwap4YztsbqLOz6vREe5g2YRMFEmhLDMxZWGXHFWeOkqPOXPX3w0n4HQMdaEN985fcN7srv2WtarH0Yfaya2pLwqPyHq2YelE3hMODUw9vlL/tKylq8NqXmJwX8qRNpygT5l/lNqHNp1IMzoOpHA6Rx0H7Moo0q0SmHD5+fmiLNJtU337iTubYSEgv9VJlkftdMRIFHITAS1tMiLO0oKGf6O7v5E4GxTppAVPu0TuUThe4oZGCrl7aWO/sp6iaTf6EFOpDUYbdNdOPB1mJF29WkwJjLuwC6LdXu61oWzmlh09IYhA/2nHWOfCUamuZhNqYQF8amajnxScsf/Dh4o6PqSsOfzRdaeiRvgqNnAda0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:52f93cdf4a3dec49\",\"npc:f3ffa49a3d23389e\"],\"constraint_ids\":[\"C:730dc810d9f8c4bd\"],\"span\":\"In signal tower, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei and Daro belong to explicitly hostile factions, yet Mei supplies Daro and describes their cooperation as permanent.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ziG9OKgk1RVwFD4zMYAhgwCLhxfONMHtwi3h/Pehy3u3CA48WiXyiur/qmBoBVb8E9UgEXrQsIqPcrVPbSikBAOYN5HjJyGambZhqJGv67CBvDdaJOHqeqirvgIErswAQZx8L9lkOkvY+m78KmCIx6jY/f8tY9A86Z58k3G5i7i0EoF/Q+oBnqJRqpGOE+TWFs9j2hQJBRT8YXAIxMswg0PfBCdBUG1U0K6j5+5eZwRC0j+qbCATM6oSjnqBToWl4dNTtJThsDDx7cWqsUWsrm+D7xGiAmkrnba62vlWl6+g69xkctnqWVWpx8OV+hWC3zuy9uhr5nwSDibJcw5MIptZ5y92si88Tz6gLde5fi70zxRverc1LINqPg+rZpjK5ZacuMvARTF7yqwQ0nUonloHAgOp",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 572,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "reasoning_tokens": 67
+        },
+        "total_tokens": 744
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:52f93cdf4a3dec49\",\"npc:f3ffa49a3d23389e\"],\"constraint_ids\":[\"C:730dc810d9f8c4bd\"],\"span\":\"In signal tower, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei and Daro belong to explicitly hostile factions, yet Mei supplies Daro and describes their cooperation as permanent.\"}]",
+    "token_usage": {
+      "input_tokens": 572,
+      "output_tokens": 172,
+      "total_tokens": 744
+    },
+    "tool_calls": []
+  }
+}

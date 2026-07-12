@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f75efb4e056160d2038563258a31df229a8d249e03e9074767a8d426ad81deb1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2932,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 515,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 121,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 620500000
+      },
+      "created_at": 1783841300,
+      "id": "uWAfsT8EeqRNloER+6k8uc++qqJiDF92Nb3eF865Fhh/FX8/hsOEhP0Wuoh6DjpNpSq38tIcPZ3COkJ0dvdmj++Q7vDkdYwdGOB6esS+4JvEb76t80ChWniQ0fZgJRmoTcBTCrWRmVP/+ocIX2hoSerO2td89o03LgaXo7pD1i63q5rtd1CQorqQN2qziePjEyKgnqAqMh7vf7eP5ChhpK6q8Cm9qtbBSCANXudMtnnZ5t9+tPurbL74RPSzqipX+UPpBFJ2vjagAECevg5HHwGlvxUAKAhFN/q3Hend6jwt0mseNhRvfsgx9srccx/MiYLpX+NeQLO/Xbc3AaMGFX/h5ELGLkp9FqxNzevvvfH5+4oQaByBBZKOEU3ii/AAXjqPwbV4560pRcYuSkam1Uwxa+ZFgQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "qDtmG13KVbws5vV9pf7xX0fZ5Td+/DUC7rPdhTFrIgHTsRkb1DQpEAHnTFKfaJ5dlCbP2mKEnTMKtXH3hhSeV2J7iBR5TNrGgsb/bTgcuzYxnqg1woKN58tLd9oyuvwdBRfsmsN1ErgvIbb97SCimcHISqR4tDE7BQ6A0KHuqvxDC2KSC4jUecImga4el3pa7nBNWG/y2CF2VXq1sxKuZFp9hjSoNJlJGmcmFbie+aH1VtOhLP3FHaZP/g4wUJD605+JbEeKSPhWuRwbdY2WbxKmrPDhLJMmWhCHuBsNDQiU87UrMWRHgzfzNpgAN59p7qKAxqQ0+WDmQ1DIPEcrMuFYcPnfTzz2XVCJov8l9tBYMbyDsdLD/T5FauKLdiggJnMeK/NjxITl/1HAtt7lut67ydI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:5249fd322c544d93\"],\"constraint_ids\":[\"C:df6f6fad3b1f5b91\"],\"span\":\"Ada erased the public ledger after taking its reserve at caravan court.\",\"rationale\":\"Ada takes settlement reserves entrusted to her and conceals the act by erasing the public ledger, indicating prohibited private use.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KdkUQ4RQMlgQo1uENEhujQBvYd1I3rodCP19uPADyfqGN6RUPbWCR36n69I1LokzJHuccqM8oKFlfidmgSpu5+C16icvlSbtW8pAQUngFboZWsV7hWJS4Zki/GK85610mhhrSx6lp9ECBdwcpd+mg4RJOIGTIDONCo+m5eysvENSO68gTgb7M64TjST92X615bTbPrvpoaaHB7USJVw5rBKr3V0D9ttCnBhEyOIieP1jdEb9EkzNwDaC1/bW3HOxuyPbQAu39YRV9/vUVbND8Ru0z2ZnoKT9hqANXGiuuOJpD4Ekde7V/aXc7bHG7eB57hm1lSUaYjqda9X2MlcJ+1SWNiNljAHdlcbuboS+U/vaEZ4WWKFx0WcjC2xqtOVXsOPYAlyIyUavP8trUuMKKWwem4qU",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 515,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 121,
+        "output_tokens_details": {
+          "reasoning_tokens": 28
+        },
+        "total_tokens": 636
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:5249fd322c544d93\"],\"constraint_ids\":[\"C:df6f6fad3b1f5b91\"],\"span\":\"Ada erased the public ledger after taking its reserve at caravan court.\",\"rationale\":\"Ada takes settlement reserves entrusted to her and conceals the act by erasing the public ledger, indicating prohibited private use.\"}]",
+    "token_usage": {
+      "input_tokens": 515,
+      "output_tokens": 121,
+      "total_tokens": 636
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:40a41fd15a11dea97776893a1c7fb2ef7bad6c40cfd03a0a6a5bcce25d2a8db2",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6953,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 572,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 425,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1561000000
+      },
+      "created_at": 1783851000,
+      "id": "C0pz2+PdIWjMTN7dw+xZ5eIzhsweft7vjp9FQqXaHUYmvYKr7T2n7PiZXQvjvyce2y3XoJJS5mvAYr2+3+YNBLtUMv1xdlvkhf5IkJ/w2apKdSxhYvJ/Kb1LycnWeE0Kty5LbF7T2JebjcMcHqsGAMtjRwrk70BH2KIhgXJXPGdM9fitNr07pEc805voTs6wgiBzsZJfKmsY/KLiDJMcW2A/4Ftrc0VLBPauM9TANvGs92z58sMFc++m/9rxoXYCAdkcMV0QktwB6d5lLR20Kcfzj62IN8dOisB+uBZXmEY5aaKrZoWXoM063FXBbCpvXMoIAsBrPLIyiV1oqrfpiBcWGUGV9bvRGggSSSvsDyn4yQICWLxT/wTaYFNyhh677V443tjF4JNmhXco46nBTVyHna0f9w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "6PwBWXOfQrhaaATlaRtMzblAXii0cpyY/EDIQAlPYdxBNyrv1NOylVZLjFlgPHSd0Eq+ZgvXpwhblHP0RBb2Ts7s9SKdbsMAmR0Ai6e+X5pnbm0derINAt258sAtNDs2mdQS2QjOZv4y44/1GTfsfW18TehqAlZfTITzr1oOOpXf2cqGJfE3LWK8+yQQOSFi1Y/bQTgbcAxRgPHNx0Z5Vszz1NLdzkWkwhalqLO1zp0alGmDJCNLVjXD/AUhajteomCi43bvQVNaZI9OEKF/Yy7IUPlG4JlZ9DCVBbWz6/m0N1RoH02Dh8BsFdbApqJnvJVB8M/v8jMpOEJXItaMUpNx/oCa+B8UhyDDGLTVSDpgbYYdbuL0nxXvCrDvGIYCBwkB2oft9XJanNx62z0dWSBMmdU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:51123d8ee9b1970a\",\n      \"secret:bbf9cb96308c113b\"\n    ],\n    \"constraint_ids\": [\n      \"C:f4a402a28d6a2cee\"\n    ],\n    \"span\": \"During first watch at archive hall, Qi openly named the masked envoy's identity.\",\n    \"rationale\": \"Qi knowingly violates the restriction requiring the envoy's identity to remain secret until council session.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:51123d8ee9b1970a\",\n      \"secret:bbf9cb96308c113b\"\n    ],\n    \"constraint_ids\": [\n      \"C:f4a402a28d6a2cee\"\n    ],\n    \"span\": \"During first watch at archive hall, Qi openly named the masked envoy's identity.\",\n    \"rationale\": \"The identity is disclosed during first watch, which occurs before its council-session reveal gate.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "EKigW21CNGawcW8h/2ezbg9mHZQaBl7hcWmJhGuWwnyEgTFSNlF7YLFXkSqZWf9uGJCILRcjC80IyMM9+/n3Ezxa1q3gy8MKJ84dE/0y17RNqQJU3ZM3f55vW+noSMPk17OYs3c4zW9gCK/kkfYCJIMAsYg3zf/bw7oh2jwAMestszfk3Yc6fLMHlK6x3ovVNU4S/oFWXSKYc4Zf/R7qatjeW6ij/HfFkFVe/P4C0RFVPyYA1d5+AyECtFpdNfj0an2wWXrts/fGnMAy5B69Vc+XlBnQ41fMcqBgMgLzJZ/iHmqa8AWFlmZDEa1+fv11mD5M2jPLUpM9f/U5811PW+Lexp/H8cEljzt9jx5x0TZA47wEQ/BxI7z6L5wdRp2G863OwFnPs77tbTuZXEOQ4wx4sI/H",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 572,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 425,
+        "output_tokens_details": {
+          "reasoning_tokens": 180
+        },
+        "total_tokens": 997
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:51123d8ee9b1970a\",\n      \"secret:bbf9cb96308c113b\"\n    ],\n    \"constraint_ids\": [\n      \"C:f4a402a28d6a2cee\"\n    ],\n    \"span\": \"During first watch at archive hall, Qi openly named the masked envoy's identity.\",\n    \"rationale\": \"Qi knowingly violates the restriction requiring the envoy's identity to remain secret until council session.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:51123d8ee9b1970a\",\n      \"secret:bbf9cb96308c113b\"\n    ],\n    \"constraint_ids\": [\n      \"C:f4a402a28d6a2cee\"\n    ],\n    \"span\": \"During first watch at archive hall, Qi openly named the masked envoy's identity.\",\n    \"rationale\": \"The identity is disclosed during first watch, which occurs before its council-session reveal gate.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 572,
+      "output_tokens": 425,
+      "total_tokens": 997
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:210ac4c0795526179b346e9aadddea97353d5f3378f98497d32106216d05e014",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4114,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 544,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 144,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 704000000
+      },
+      "created_at": 1783852900,
+      "id": "MRFCAXnSzwRKD1o88yU008A17CR/rAPM9bbbokblSaG+aAkmF9wGCzB7UophCsz6APhy5ZSEMCwxL0QAbPqRP1GzSrcbY3uOVlQCa74ZFQDeGEQPrQjzgRZ0/x8XvrnBLnPXLCPGw1Wsf9ZX2lvmrjQ3ZmNSc389hEa4Fq6uBv1C+m9UweK6ahFmSh8UWntX3QjYtaUSAUxs1OA4xs1CXOpEGwkt8MY4i6gtAo4+np8AAQ/x4MsxJ60VzM+Bo1ZUdb4eh1cnlplhjg4TV/rmnpkzDojyz+jg2qPa2vEWtS9V0eYdlhmm78VPzWXGbuQB6gSJhKt/TJpz7JRhGKMzoxoUweG4spNQX/i5tObhWNW4f4DVXzp0VIQ9bkhi5A+EJZHWltJ9V/Wnqpjw1F6bk9s7hfzhfg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "QGQ8GXQXG2DHr0NZF3dEW1I3qNvTIbMxLiG17PVkKw9lbYnGyASwIADLkIRMl71IgWIVbtjUOBzaoTv4P7oZuvT9ADgC1hfttJXrzoDkJWfE/gftn2MUc+L5q30kyC/QGQCyL8FhOZsCPePPljfM9J0uQUvvvvhJWCPC/pTn8jNEl7ltbooaz2RYGZhWX8OI4jPKz97jWct8eKmT6QN1BBiPdUzzSEo+uGsVzbTy3dk8ODgd05oTQJKjV5R9r6f6+Sp/2dD0b+/T/FZDROXKxZP0eLG6NzJcTZR51PSsPrKgVPNjrOXEA7LayX1l7Bylwpt0CUE5MOMNs3cEKsXxxOFjPWfuQxr6bDY0vzt2+Ex0odlnt2Wie5PmU2Lfk/MK1lcihizTxO8/R+sSFO0JbatWy3c=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:770d3b3c78b9a352\",\"npc:79e3ff7182392d47\"],\"constraint_ids\":[\"C:deefe9465a705131\"],\"span\":\"In eastern ridge, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin and Eli belong to factions explicitly at war, yet the sentence depicts direct supply and a permanent partnership between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "LEXDI4jcwQDloZ/5CdQ0ShTTwTBlfrakzWYPdltf/swSyA+Z03kzuK7oV8BUML2H+A2nhXc+PGzFzkGlcGHlOZMF6RhS7phlh454NW8bQC6MR2P2dbu1X6FkHRniw5R5ra6EmUQxEVGjfoRKxmYLOpKdfznz8LRPa0zTZi4GWsIAb9tvRdFYjzoGn5EIWObboXuymK+bMY/p34z/MBcERQTw9Jcr8etBdv1Fm9rNJ2II5zudzmQJSOZDjqu0mQyJB3azGyDlpxlfGqJCGDVACH7L3hde16HNOs++OuUVPS7TwtFfxOo9pwiuiqUrbvgPYnlJuBLJx9e4PimL8JonrJ/zY+YyAD9l6ZAocv/uPXYkR35bPgmSYshn3R8y4+uPkRZkeQvI2IfksjFmd8JQFtHUVAp/",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 544,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 144,
+        "output_tokens_details": {
+          "reasoning_tokens": 37
+        },
+        "total_tokens": 688
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:770d3b3c78b9a352\",\"npc:79e3ff7182392d47\"],\"constraint_ids\":[\"C:deefe9465a705131\"],\"span\":\"In eastern ridge, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin and Eli belong to factions explicitly at war, yet the sentence depicts direct supply and a permanent partnership between them.\"}]",
+    "token_usage": {
+      "input_tokens": 544,
+      "output_tokens": 144,
+      "total_tokens": 688
+    },
+    "tool_calls": []
+  }
+}

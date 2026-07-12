@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e85ab3e355b70c90be618ef723bf957536ebf3c35ce8eeea8c3e181f02f9acf1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3265,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 632,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 183,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 865000000
+      },
+      "created_at": 1783851800,
+      "id": "W94To2ViKJfJ0/vyl3DP/rTXj31W0oNwrO4Mm0OOXz0/pQAdFXzpplodT2ZN70ccBaQ/Js4o6DM7icYlEqrIOFsrB+6EZelPEbDi86e7hvk1RJD7Z/7NwJM+rv0Licor0kYFMAsnZj3/FX1kIRGJ+tOjVrRFzR4Q2U+dGv27N9FE89afdyB89HIjZc0EN9AqHImvOOTM8ABp9+TYCRTYv2e1q4ZswCOwbNEIFu1/vMxHNP8fdHc/UyJrViP1AJchoftLc99sm8TY7d4nxKnjyC+8qMC6Ve7vYzLmMVm7a3F6YaOA/Xt32GN99KBjxpFgMguGPy6o6dDF8ozSky+Ksp48kteUEPHrt7h0qLojdZD8tKAtoTxSdd5ieTN8SmJuqmWEe4ozdDe1+SRf3xR+G3KgmMiZmA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "EhJL2VgH1fp7LU6JYAtOV9J1yyPEKhn+3dOhuuEdJ0MiaYjwCNbQngn2oPn4zFCXi0KpcByuQTZDI4NuKf28Oranc9zx/dtV5Oxpx5HctmAUTBAdbI8OH5Uwu8os4HfWPj79wKnOBR24kO53mRJ9uECx8fgIo0UfrOvIgXN6bYePVYGGWBomNLfAFA9gopIcoJgLz8Vat7lFAwT/oz53YcvxSUJLTnf3MFsvUfD7yH3EbKKUkRFXBeeweEycLECyiGCzl9ncVzXjjhqtc6AcLoiTEXlbcRGECqd/oGK6qbjp2IsjGNLNIPvkHCNxWWj3Ml0UYy9m95cEae91WFYUj4uXmqP+Yc7jzUackbQAhgcOp+3BkcAGItNdnO2RjpSsF3DCdg9SGUf545UDLJyEDsQOrWM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:053eafe522bf11ca\",\n      \"npc:21646bbbe5810b78\"\n    ],\n    \"constraint_ids\": [\n      \"C:dcbd0cd6777e731a\"\n    ],\n    \"span\": \"Eli accepted the title of the Beacon Keeper before the assembly at relay deck.\",\n    \"rationale\": \"Eli becomes a second recognized Beacon Keeper after Tamsin was formally introduced in the role, with no relinquishment stated.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "61p1LmDbbMb2DPqnsuHpC6VZKMOc6pq+icvMU/aY+AI7Fnk74iA08egZ7YUq3yx6FiNf+ST4gPG2/nU3F+UOvcOAlrGPYzGhYCnHmmzORFtNyiWiKQ/95Lx7oT91ovecG4k7X2W23nkDYGJgy72wDFMk9DQD7xQIUyaRivh/b22pMSZF/Ynrhj2oeVnFFccN48TZQ7W2VHxLDVssZS/uJi9R1uXrFnBML4cFXJVp8Jms6YarPVAIghtn26B1UGhzFT8Mr/WuusvwMznlaeayp1VCYqb0hHZsfiqqZV1GmsInqKIHrAjSYChr8hqpH2id8+mYSLb7hFshObwGHg2td3lRRM337vxAzU+jvUNNGuryi7f74PrRC9EROfnFnG9Us6Jf0w+SMtV9RMnGKGJFGUKjr2n2",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 632,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 183,
+        "output_tokens_details": {
+          "reasoning_tokens": 51
+        },
+        "total_tokens": 815
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:053eafe522bf11ca\",\n      \"npc:21646bbbe5810b78\"\n    ],\n    \"constraint_ids\": [\n      \"C:dcbd0cd6777e731a\"\n    ],\n    \"span\": \"Eli accepted the title of the Beacon Keeper before the assembly at relay deck.\",\n    \"rationale\": \"Eli becomes a second recognized Beacon Keeper after Tamsin was formally introduced in the role, with no relinquishment stated.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 632,
+      "output_tokens": 183,
+      "total_tokens": 815
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6dbbab4d3fa1a1162180fb61358327641f21ec28c1ba0d3e346e4c7a196e98d7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3859,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 723,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 207,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 982500000
+      },
+      "created_at": 1783851100,
+      "id": "tS1qSvWgCPJPA0fZWlrlFlr3D/FyYUWGiBEkdHtcijhqcJ4lHfbP6ovQtHcAO6twMwkvVP7oMzX8kRosbzFgf3RKcKjipJbwBMNu0aPqennHDENQbIWVtuXWRGDPJuSPFu0i1zYdECw1XPzNcDIUyVFk5srpbEHLDNHvB/KPXIUXByihHQC6FJqsXelyuho74ANwiwDxXvYJ9bSC+IE45pRKMToFUE1MKM8C2Pqx4qOgbcALRFJGWfW9Tc5MuvFmvr8tfFcgKqOgDh/qgnNXQpoNOTscWXIIOE7/c/cFdLjHy+7Z3KRpg4gLVHx2epBAB4RLqhWvynSkKEmYxApRgtqFBMfM4fPTEPY/DYNCjQpp4vsqN4hBGVCp6FQKKbdL9h4McgWrlUBy9Uy6KsTw50VVHSd5HA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "LizwTV+evbL9uELNdRLU2j8MZR02WJSnmZQcWW55HfTN6XUFSaopKgfDVaGZU/dM29c7r9pDf01NcWwbkTi/6Wl5I4Bas47mOkr+1oOIKHe8zWlsRk66u6Hv/R9gKQcnvqKTeXzhf5fmtl7yaWHtw7gCd1vITguU62lfOC7xKBrN8FC86RHeyqMWHvwIu19I1ITXU+CILboNuqCMiThtjcp7DjB+TDqMq5zlTRUSLqruKm8Ysis/27vcTQyW/JlE5YXlr5+qVr5wr+P4IgePvi0HZpuACFFVG7xsTNKVwAkQ46LAwPWZGGBUv1y6ztg+kRsNOwBzDAPsoTLrsvZbvuiZVsOoTqk7z4ZcAse5IQvu6dZfvjDlGXL1gTvG4f6nxnbUjStjOiYEiBIgndA8rG935Vo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:98a7a9389511e746\",\n      \"secret:3afb9321a3bd2d5a\"\n    ],\n    \"constraint_ids\": [\n      \"C:b4031fb56bd2525f\"\n    ],\n    \"span\": \"While the story was still in arrival, Mei identified the witness behind the sealed testimony at river market.\",\n    \"rationale\": \"Mei discloses the sealed testimony's witness during arrival, which is earlier than the permitted council session reveal gate.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "IDLlKu2x1E3hvSZGluIW9SryiAnjoBT7q4KysWyX+R+MmgydbD3Oz+HVoQl6Kb8wyRsnpXNVqbCLfLnC5CuvN7G6yasIJN1l13arfGzzlxtQ3SACRozLc1TFSz0MiZ4jCnof+rnJfbddwY8tqxjYSQgGdI0vE7ktk/nKHTi5t6DSI43F/5g+uamVAdDCvIFrkM/XCPoKLbA+XXHEEfophoaAxruy7w6oky77gFHnj6g73HNtMVJOus45X9nCWQc2gvw/KuWwTfBSs9hx+orZimwPQ3rJPuJLQ2UTmX2Db5oo5piiyD/l1zz7p+hwgA434PANXA2vhn8HHaitSboWXRB1QRWz2+xDrrCZGo7OT06ZvW4bauyHRA9NrOPRuVdlU7ZqhBqlnqxzx/dlmqGGyxJVF4rl",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 723,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 207,
+        "output_tokens_details": {
+          "reasoning_tokens": 71
+        },
+        "total_tokens": 930
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:98a7a9389511e746\",\n      \"secret:3afb9321a3bd2d5a\"\n    ],\n    \"constraint_ids\": [\n      \"C:b4031fb56bd2525f\"\n    ],\n    \"span\": \"While the story was still in arrival, Mei identified the witness behind the sealed testimony at river market.\",\n    \"rationale\": \"Mei discloses the sealed testimony's witness during arrival, which is earlier than the permitted council session reveal gate.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 723,
+      "output_tokens": 207,
+      "total_tokens": 930
+    },
+    "tool_calls": []
+  }
+}

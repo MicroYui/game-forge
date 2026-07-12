@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:202088b49afc620b2502eb9778d4cdd0360d5ecdff8b49c78b682df9fc7cf148",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3005,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 698,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 166,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 847000000
+      },
+      "created_at": 1783859200,
+      "id": "gz5MV7SJSb6HyVOFbcCS+pqhmYWERZ2EOYFEFgjjK2h+vi8TvGV7/7RjYb8l4Q7rjIktlwpC51atHYt84xmKAuN8J5vD191YZXP/SgM5irKgagvq9iaOtTUxC3fm8daMtEt2Lgnf8tbxs0P6vVYxmaXx7B5OIZ4L+/UddDp86bZXjmJIoTOUmcHeAT+SXHb1GkidI3iaeSbY9fNTixn9r6tJ7qA7bDowS9nyLTsdwu/+FJxaOnRz+F0+qjFPCZDpIQ5Z0iFoVKb9eym8OYA4qi+geAlTPSIX6/5BQbRypkNtY9WfzOeNzp9NziheF0ai3DlQ80/0WMTOQS/Irqybx67sj3XUMPdQ5EkUZ7ln+eQGEAJET687+kEaX4aiEAwXhLecuxTyLpNlN1W/G9jmGcdd0tw5gA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "63NNiTrcBrCsrVzqTbcEC9TkI8sjUAHB3Ivc62NjkszsrPikjJ1+u8hN6P+z5qh/9zO7l/rFn5993ahCc1YZuUnEfiYkeXID2xPEI/mruapi9HvH/N8z/pw1Gcu85JgBinsbbwOj4hl5TpQQVxw0/8nr+k54epdAic+ULB4n7RS3eukKnSB0mjStI7krN6ruiqkrp+RBuu9pIxWvHIyfeVdNLclXiOT63J4VHwDUt3YNUGwVTsQYz+8xMwD7fgzbXX03MrlGgU55jzCBzHr5Fxk9ui2AUUXaZsDVKcwGDNdvi/Irf0EKQT6jY8QzezEkpW3+9ESsjXgTB57JriR29JI1IOSX++lQ3Ht3pY5vkCi2pVLS2984k7y+OSfLV6Rs6zc5qO6nWiZC2V2TzAwX0T1nPfA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4a120b6888351fc6\",\"npc:634d3c897a7f0e16\"],\"constraint_ids\":[\"C:35fa512f4a3e3fdb\"],\"span\":\"Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli belong to feuding factions whose standing rule bars joint commands; signing a joint battle plan constitutes prohibited coordination.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "EhXqjVBc3BRRlm78vcbS7Qoat7GhFe0rYbsHrWlcOh02dINVJcfvHylyPInKd4xnny3Z/1xENto2Hyk+3xGcQ9bkDth4+EJ1T99NKyJngltCsX7MRml7UpGzDA+1wyaB6ENOHwVtZWqVzKegycuNzaAVfwFksR0u5tZN9CjbXvmkmbXXyp79iJNl1lbDDHiZigiggGaiMlSqw/xQG9ub2TfkfTM+Ro/Bu8bxBVI5hjPjIS1fvMYntToRM8Tg3m6gKkSCdAfDzM7/2QWsyiL3SPvOAH7azXt4SyaX1RPTaBz3ppQQt8XJ7dwVQGoJugcIDaz0b2fCXBg7+tTQavs/9B7uK0ZP6FEuu8JjduHbvvEC0LfB11z9BQfusL4vTR0SFEZ4XR3fuljSospye1jFUqIGpra3",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 698,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 166,
+        "output_tokens_details": {
+          "reasoning_tokens": 58
+        },
+        "total_tokens": 864
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4a120b6888351fc6\",\"npc:634d3c897a7f0e16\"],\"constraint_ids\":[\"C:35fa512f4a3e3fdb\"],\"span\":\"Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli belong to feuding factions whose standing rule bars joint commands; signing a joint battle plan constitutes prohibited coordination.\"}]",
+    "token_usage": {
+      "input_tokens": 698,
+      "output_tokens": 166,
+      "total_tokens": 864
+    },
+    "tool_calls": []
+  }
+}

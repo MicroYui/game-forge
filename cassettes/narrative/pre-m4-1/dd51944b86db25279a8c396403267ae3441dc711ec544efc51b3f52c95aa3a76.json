@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:dd51944b86db25279a8c396403267ae3441dc711ec544efc51b3f52c95aa3a76",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6152,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 702,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 199,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 948000000
+      },
+      "created_at": 1783845600,
+      "id": "iV2KfTVLP+/RUQPhzOzTr6YYyhnudKda443ZSRgxj5DfKsIoz/bp9yr7kEifoCVTVDPLyY5x2wWsU19QleCmTfm+Y7mhNvg2WDcbLgOeO1Pg9lCUsVu5dSuk/UFHw8plwNywv9oyx6D1uXuTQqwNfiP0/ls3D7elR9xw2H06mSmOXJO3Ge0QD9mY6S8mtvg+E72i8mwfmWgXmEIcUbeUyhzS+MHBgYznKWYCZ7lh/yGerasf1NF901fJRvXGpJokFh7jBu9hjkBqWpTdJ0PyclR5aq44bGizzlXWbjM5VpWpDYh2EgxxiesTj96k9RpkTFpBaP7tYq01vuhqpxMLVmG88e2Mvz0nBg+Wt7w7mvhZaMBsHpZMwFuk1TNIqcFR5/Fwykf1sKGJUJNVFWO7chFTzDtZjg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "3JUglbxZ0hf06yAzqUIa4oZ1ndL+zQixTAVac00p+2mQT9iHA60NrvLrQkGvVGfMKXsJ97S/88fTAUKjLcW2htCGIMcMcPaTKAWMyzFZaaXYaXXT7Mk81Sxch6SJQB4J7JKQEgbMPf3hw0BEi7bFy/sFClCiN7szg0iVcZJHbBtGtzZ66VJ7CBxmBHq5K/inzpC9cTixLAoUV2C3EyBBZdXcso5J5u8EMWkjCZ25rbVdHGQmO+pZ1jb9YBdRGhdyp1sVXLSqaEdXZtBYDWXwHxCQMWxQIG4VVXwJD8IXqsRsgQ55nil+51szAwdNF9/C/LdlWha8u/eVrpcWtdvV4TrC/ZCFPJPgiuoEB7DEO1nYlVpPtiBsVVmL7Y/NcWmi8OS/RQAHOYPVsxKbHmXRuBJOwBY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:9750a58c307d9487\",\n      \"npc:cf84c7dcac8f5ca6\"\n    ],\n    \"constraint_ids\": [\n      \"C:864bc1e4b43ec508\"\n    ],\n    \"span\": \"Daro signed the register as the Harbor Marshal at observatory.\",\n    \"rationale\": \"Mei was already formally introduced as Harbor Marshal, and Daro then assumes the same active role with no relinquishment shown, exceeding the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "tccyezJyt8HMfwT5+IS6BP4eegonqBVFLW+Hp/baas93c/APu/03O7lSuI4UUgz7YOjcKwQDzT3z14cI19KM0IEFpGG+bCqYqV7yLLslx1zaJ9SYmM/OZJj2yNXi+fm074dnXJlM1p1xpVUFB0iJ4eC/96SjRfaWa+rNuwPQcp0jUreeFTIkLWaU081yHsopJxMnrjGfsr65TLJGHAexyFWFnOCsBUJ1kM3uEChWWxee2593wT0Kms9SHbS1rLLw16CwuKoTXyuS5uUmY0n15XLE0YTstuz4ffVe7KpJPFERw0sAHOM8PtHPeUc0okCsvhpBGxiJj7WUDYth+x4DvrbhQHMO03NBvOoA3EkkUiblHG3gbIf/iMmB/bd/6Jp2nW+ya0ZU19SvxVlO+WZLLj3VPGqs",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 702,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 199,
+        "output_tokens_details": {
+          "reasoning_tokens": 59
+        },
+        "total_tokens": 901
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:9750a58c307d9487\",\n      \"npc:cf84c7dcac8f5ca6\"\n    ],\n    \"constraint_ids\": [\n      \"C:864bc1e4b43ec508\"\n    ],\n    \"span\": \"Daro signed the register as the Harbor Marshal at observatory.\",\n    \"rationale\": \"Mei was already formally introduced as Harbor Marshal, and Daro then assumes the same active role with no relinquishment shown, exceeding the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 702,
+      "output_tokens": 199,
+      "total_tokens": 901
+    },
+    "tool_calls": []
+  }
+}

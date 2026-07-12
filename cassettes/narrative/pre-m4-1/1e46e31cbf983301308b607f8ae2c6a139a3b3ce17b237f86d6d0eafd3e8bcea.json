@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1e46e31cbf983301308b607f8ae2c6a139a3b3ce17b237f86d6d0eafd3e8bcea",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4390,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 558,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 214,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 921000000
+      },
+      "created_at": 1783844000,
+      "id": "TjLtpwxgGk9ltRckIBqFBbYXxVXrDN7TvucjRDRyD3dXKc8kwkp2TiemqqaY3+fBOxhZo3ZyKteAvkS3h8aosaoBNc+2qycuOb3jZbfuDPUV+Hve3H7WlCwJBwImU/kpr+d2c8R/T3wZTAj3kozzj9cnOPMX5KI2O+L8IZhXTMZiwd1uZzecSCrW7ZbRwE3UgEEvWdUE9CW9MMVHDDicR2MaQRfvaIz+XnN1ufmC4TaDQZltkc39qVr+EH2fi4sNNQrj+KBx+UGVIahq06CUPU8ST+0kVPJoQ0Whn1BYJxW3I6syrJx0abYQVtwBlX3xLWSFqK5fkpG64LTADws1TqKfzXGg1Iil6k38Z9CPKAXRIhHikqx6sa5PIChpKuY4tQUTKBFiLDXd4L/+CrwH7llMW0nAjQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "YwPvnpAxd2ix+kEAUlpAS9TA4Db5itXYMfoGjF03z5EXayPgklR/JIjAemjSsgKf2/UKfG9RRMJxYClcT2e4petUszEhaGqtPtRkmZBqSySNdGK0M9at9g3nNRpk9wpQi9q9/gLBpd1sywElJhCvWA8dRiiDU5JLOOgZ2O4vf3VvlqQkT87jDtl9MW96iR08BkVsDUtco6jOGql+OqIO20A8AH/LbkXmuVo5mPknC4ksgN00Jjvjjl2RizfcSdJBqm5chXWKEha5SgpCjB8uGMUnqkrx5QYLQMjncrAoBo855bqgWjUNSnuM6H+1Lci+XT4kquKMPQosWfRj5nzHdjxYyAd4a/VSHHksfJ39kXxLiBdIYjjOwwghfnbfz7lwKM2iToXF7B5o2e/0PguXeV147jc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:bb54992912f29a0e\",\"npc:c8cacd04a2ddff0c\"],\"constraint_ids\":[\"C:84e08b46a21f40ca\"],\"span\":\"In salt depot, the council recognized Noor as the Archive Speaker.\",\"rationale\":\"Noor is recognized as Archive Speaker after Cass accepted the same title, with no relinquishment stated, resulting in two simultaneous holders despite the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "poilZAnzBP2RBFI4ZMlGJbQc0cuqg64YClS8a4twr7DCtHdwQNs7OBbm083ujvnLczb+QTEwbcmdUpPQWRfamfhSenJx847SJmcjyRYue87dLOOiH2Y462VlYGUjpDQPj5CNHRxbpBwNPCMuI35TlaBa6wQLcwdwqBbhNuQy5iru/oK6W0GQ3DEvKR4sjo6k1JPm5d37YAe6KA3UaEYc498QQntEAT1zJQAsNC3jjBIAu3z5r1cfQBzlCil6rXA0gryWOVGrf+Rc9iRvkJ40ndYiX7NLR/DNu9JNXr5oCv3Y8wsoep9SISspS2konlKLfyKTkNDCAj8oHvTLmZEWKY/4F1mhIfMPCoVijMzdrt0uGLPG8K7bdvkYSbdZwvYFtActw30GVkfmQ9MIrk/2R330jgU2",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 558,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 214,
+        "output_tokens_details": {
+          "reasoning_tokens": 100
+        },
+        "total_tokens": 772
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:bb54992912f29a0e\",\"npc:c8cacd04a2ddff0c\"],\"constraint_ids\":[\"C:84e08b46a21f40ca\"],\"span\":\"In salt depot, the council recognized Noor as the Archive Speaker.\",\"rationale\":\"Noor is recognized as Archive Speaker after Cass accepted the same title, with no relinquishment stated, resulting in two simultaneous holders despite the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 558,
+      "output_tokens": 214,
+      "total_tokens": 772
+    },
+    "tool_calls": []
+  }
+}

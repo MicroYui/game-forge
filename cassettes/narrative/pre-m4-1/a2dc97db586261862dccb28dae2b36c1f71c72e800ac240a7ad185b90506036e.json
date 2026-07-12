@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a2dc97db586261862dccb28dae2b36c1f71c72e800ac240a7ad185b90506036e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3591,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 675,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 145,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 772500000
+      },
+      "created_at": 1783846900,
+      "id": "yLHVyjbUGinTm+cxPaPAL4N71svVNGWwNmvOkONT7sAFAMQZ7ZWo3tAuv5uyD0Uf5De6E2GaBtRU40lLU2tsAl5pvj5OYcYkVKOS+l443VYWRl0m4fpIgbaL2rYoEnTD0jO+oobxtsjV0M9M++yNzOF5zaaPL8DnRiUrFjAz3uxTDKE5V7/KOAGP6R0E65L0SIjYEJWlkzg7B9A2yasmB7+v37UpgfM+YO/TaF5ESFNxRYIPoFKiWAY9oLfV3Ag75puGgErFmzc6PRsQnAGyycipBC7VlZlQYZOpAfkrkCloRPIey7PnDlARunxZ4wdZsALeOlaeTd/GFCfYCyCqEDF5x9FpRAqD5jvHzGD3TiyJGd8O91OjQ/cSNpVXQEEXpOZ50s7gcFPAHIdl0sAknyiqgIzgIw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "mlW3PSvOvIxpfNxnT9tkTFlgkLdos2XhvhVOIA10dT1GGW9dSADPgDJpCGdFmV7bbVfDl84Y1JKLoX5p17Ekz4HWhbHIVJ6Q1oVINKZgs8kB1HvEJbY50863NS8dNyazcCD/MQupMdHmxSKjl8vSdULC4161/HiTCeBDz8VbjGZjqFFFRQS6jBgLaQd58v1PKZkW3HakFlPqjk6cJgJleQ+KUbuYiDnusoib6oY3GHZA3HHu0zNO9XNBQXTzym482fzvTMzF8bfaXSbHnVpvQzYRKx0zfMfDpYMCpygVSuPxhhh0Pw33py3DjCly95WgR79aNvfIzrqNvmHBu8xTzCUNXCZ1SX/8upnnRzt+pK8eAojcZgEPMv1xtVSnmL6cYU5RD2n6x84HqBFfRZcbax/IN2I=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:310a6515c7e01a91\",\"npc:77af5077df16ecd9\"],\"constraint_ids\":[\"C:80408ee6eafd27e2\"],\"span\":\"Ada fought beside Malik under one banner at relay deck.\",\"rationale\":\"Ada and Malik cooperate in combat despite belonging to Free Pilots and Obsidian Wing, factions explicitly at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Pc/cIn8Sl3IS6uBcBHEmjqi3rI/FmJJeU+Snl9tzUpR3DKKJ6dC6cPDqGOEUZJPn0dbMQLJfnKEaplTVN/O72QjneJAlMx+gmfZ89+xpdsAKwec/BUZt62WB5DBfbEm0hU1QeeG36dvaxo4USqls+dBeoRigflHX1jBBhFjTMlDH9ulQq5g8Hd3CnZcZBNfSwI4bUXI5noXhvKr9ijBtFyRqp2TM7/LVcpIYc7Ua7HH7fNuhmB/75TFaNSOS571mKM4xkqzc4M6tracb0FMjCZuDUBscwzH4FLyeyRHVqBEAMTWlLnLvNq8fVvQB+kpCzwVvw0B//YSi6ynGXTY+aTTIZnYb8NaK+xaRN/AMwAbDy6XIP5hpL9ec4XVDDL9wFiS2wffQJ2nTuz9CB9oA7H55dSkP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 675,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 145,
+        "output_tokens_details": {
+          "reasoning_tokens": 44
+        },
+        "total_tokens": 820
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:310a6515c7e01a91\",\"npc:77af5077df16ecd9\"],\"constraint_ids\":[\"C:80408ee6eafd27e2\"],\"span\":\"Ada fought beside Malik under one banner at relay deck.\",\"rationale\":\"Ada and Malik cooperate in combat despite belonging to Free Pilots and Obsidian Wing, factions explicitly at war.\"}]",
+    "token_usage": {
+      "input_tokens": 675,
+      "output_tokens": 145,
+      "total_tokens": 820
+    },
+    "tool_calls": []
+  }
+}

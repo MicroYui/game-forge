@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:be05a0cfc9ac481700f2f0bcae79c13441502a130a25d61fec6a7a0c955bf191",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3988,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 686,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 152,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 799000000
+      },
+      "created_at": 1783858000,
+      "id": "IqzAV93Eu+lAAmUQb+BkUXlletUaQCjJa29uyHfTgluvNfJsA/xcmBH88rxhXPsRFER7jZAt/C00THjMNbDJ+d85dbqXR46WS2f0N3wShxlO9PiJJJ6j9i4IlsQ091U9E+t5DQGWBFwqe2HTFtdCNYbS6MRd/qdKpNwTTaAJLO4Aa+yEJbRySe75+QkTQRWU2fxp9kF6/fPHSp/LjZXzzuhO2JWP0EbQcJCsAm9YAOVUFlbuGtC3x2vIq/KqpcCgbZq+PXkNdvv6EKv+QVbQM4aQXi4jCVPKPhPaU+zdGHDbUNEcOFZFgtSNuPcNxz6w/wfNQQ+ZsCwO388kkqnFVVBdBOjEUTSy2pDuGfd9Usc0BT/d+Op2lkd60/FrKdXCAFOuwc8CkkZnZYnVeEfTkSC8HHS5qg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "YunrnKkAZttcJFYMvNQvhsR0UgXEcRYtLREnODfhUMaSOM5+eQnRvFH+QRXetdzWKSKkj4dI0xsYKMH7VDS3HOiPcWfCZFlgfsdJIQ0TENxQp0GvwZwIyBUgwBKtcSrxcdUsU2ny+tKOeViRgFpcMie9kjGX8gjefK5/YsrcCfEYhXMbzfloNfrQTmfLu+84SRlWBy6K71CaTcfh/us4H+zzqSvj+KjRpK3uFHwKBqKTbILPvl7qAGUf/5sfvgSKYJJpQlDmK/O5DjLHEDGiv1yf+dfsA214qo3WFK8XQNtC1VF5NkYYygtGqp1RzCJk/vTpbYfJiCUWPC6xKMtI9CzUbBa6GzbFMyq4LPjCIb/YaB2m4THGAIzsfb6Y83GAc+yjKfaOIE8kPXZoyZwkPHO4oa0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:cd7aba166fde6917\",\"npc:f19cb790a6feb37b\"],\"constraint_ids\":[\"C:04a38e5014142c0e\"],\"span\":\"At canal bridge, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada of the Harbor Guard and Malik of the hostile Ash Fleet jointly approve a battle plan despite the standing feud barring joint commands between their factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QRtpzJa7eaI2zDwwvfXVIpqrFNXXdLEVpd9JojETrmw7dMOR7ORmJ8hhiaWynX6RRtr1+y3aSWgPhi/5idnd0hpcvxkwmKNzq9WKyXwW6SwgEEcvgpRbf/YFwye4ysZEVMjkfcm0IoLUuww1CBknjRfO0deS+jWpVH9V9QqCsP5UtkipnYjsM6PoMMrZbQ/UaThk55wpKoZkR64RYIoNG98hzbEQwRjyk0nkyDwx5Ma/kCc6QFNQREBn3wUbdpn4sj8kH2jjY/44g07eAE7SygH4qyndvfW2hN3mFTFs2O94W87DJmUk8RBSm+Wv0In3L4EK+YqCs3lf/QWktvQaxZzOvyjLCVgpz9r5io7cKrTdoVBNUumYwMRkrjm0uISY+gVAdpMMHPGsB089E/uwwOv0yL3/",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 686,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 152,
+        "output_tokens_details": {
+          "reasoning_tokens": 45
+        },
+        "total_tokens": 838
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:cd7aba166fde6917\",\"npc:f19cb790a6feb37b\"],\"constraint_ids\":[\"C:04a38e5014142c0e\"],\"span\":\"At canal bridge, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada of the Harbor Guard and Malik of the hostile Ash Fleet jointly approve a battle plan despite the standing feud barring joint commands between their factions.\"}]",
+    "token_usage": {
+      "input_tokens": 686,
+      "output_tokens": 152,
+      "total_tokens": 838
+    },
+    "tool_calls": []
+  }
+}

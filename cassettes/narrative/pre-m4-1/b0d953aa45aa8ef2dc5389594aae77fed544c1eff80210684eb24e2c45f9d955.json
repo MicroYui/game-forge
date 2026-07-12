@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b0d953aa45aa8ef2dc5389594aae77fed544c1eff80210684eb24e2c45f9d955",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4881,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 603,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 141,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 724500000
+      },
+      "created_at": 1783843600,
+      "id": "MDBpQNNTy+JbvfjwcJsi4ArS9Vd/r3K0CkexnA37mTw6CZ8ZoYPlKTQAMNaNjSbplYP9ORs01crGmyLPKv2mA1A/3avTQfd6q6f+5NvcOScRazxDXmpXInn/elQuwAyBp9/VEyQ6CChYioB+CCJVRRRyGaVTg9zrM22sEAtP8m/99NY1cePn8YU2k3zemr82g0GpdBG1DgJ+Ce6IKscnzSmCmWIXnpcw9VdX44/XX2OkEbMQCTpV/ezqLUckekHHFblPElAA6T9Ed6XPE6bVLxjwulwIbfiBeCcXhQdXwgFteic71OMHkibaGoT9RdYikwnJvYHiHJJIF8XSDT3MsJSMUUuA4qwECFk07Crw6do64PoV8RRGqKKIie6yYtLhEacQNUQKkp45sErhye+KLcaPEauD6w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "X4h2w29idV3qR++Yn+pRd6mo7xlhGgoMYCJUcEuKy2vExfqH4e8szbf5XIIJzvKtQe6ebU4m3pXobV7MJEkP0BdYIs0QRupFi8wznCt0rZqQn9MDQbwSt2wm46K/hwK2MeUNiSP3HXwAc0QsbyCmqQ4t/Q/uSwDdyhXK0DuRLMCgPd4EJ2l5BPuVzq3XP0QIZE604fy0rdm6U31B60Q855g5DTPbfeCAvhV5x3awMAIP/CvZ+8LAO8UZk6BTXhgYlWDT1X+kY9aMBdtLUpouAIkfNjZQdJChpQmR5Ci3MyqXKgIbTslTMdMSq6L+cfJyXFO+zPU/tejGKPRhXXHDca7bUG1M8RJJ8Oh1gDKnUmWv7vKlkUrKWrVLn4mlFItt2WdDya0erJZ/q58K6OIxzNiXS38=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:09ed258d0cbfa327\"],\"constraint_ids\":[\"C:31ea0242d702692e\"],\"span\":\"Ada denied the pledge as soon as danger reached north gate.\",\"rationale\":\"Ada rejects her pledge when danger arises, abandoning an oath despite the rule that her oaths to allies cannot be abandoned.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "egT+EAY/ZtfgjmBRqybk9rMgliVwwGyeOaY1bIKzGjyJQxK/bVD/ZFQkcW92PA2/+0Tk2FF9bahShkkL6In6gyXediElhvASt0EB1C/qS1wOvJvhxHUATce/GVj+LSF3qI/S2kstY7PYX0zWQBSpCnXKxG297smTp/f5F7UtRpeWs1J/h4Wz5Ah7+LYizkodhxYDdyFeyIS2gHXDQRu21U4MDUou6JZbnA3JlX42y0/3c8CP+fdtyeQGdesS/fLUdMrEWkoaShxoO9aAuJduGRk1VQPH+eqqs/nbWFM/FoGtZk4jYOQOYIYtutk3AIusJmYBay78vx6sgp4xZ8CuIQghf2wQGUbIXZQ+2fO4+pykMF+Z3NXjn9DT9VAKGZeTuvXS95Jj9yLLR+6B6E7ZjLvw9L7i",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 603,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 141,
+        "output_tokens_details": {
+          "reasoning_tokens": 53
+        },
+        "total_tokens": 744
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:09ed258d0cbfa327\"],\"constraint_ids\":[\"C:31ea0242d702692e\"],\"span\":\"Ada denied the pledge as soon as danger reached north gate.\",\"rationale\":\"Ada rejects her pledge when danger arises, abandoning an oath despite the rule that her oaths to allies cannot be abandoned.\"}]",
+    "token_usage": {
+      "input_tokens": 603,
+      "output_tokens": 141,
+      "total_tokens": 744
+    },
+    "tool_calls": []
+  }
+}

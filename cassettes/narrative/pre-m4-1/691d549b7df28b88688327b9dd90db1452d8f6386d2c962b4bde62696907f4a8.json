@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:691d549b7df28b88688327b9dd90db1452d8f6386d2c962b4bde62696907f4a8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3289,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 554,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 191,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 850000000
+      },
+      "created_at": 1783858400,
+      "id": "8sIQoXs9qf4Y9wucCYAKdBH4honoAWM4dN54A6IV4PCzwI2bRoM4iGmVLQEjA6RZK8wp1LjdMaGGJYzIoyzRB303k8IN9N2y9gSacejfCGGYL+J4KpkHu26jgfXTZJ4vALX+AgA/u1Ywf4oqL860cFvqFUJOAqfrnXW8UTk5ibjBhqwSeOTej6EKe7b96VPnP4A2PHv/+ggTrJvyPpuqfptVPhYNpc77z86cduehoFNRph9UhAkhuGQEJsCJ2Ns0nUIkZ6m3yH8SW8sUtDMHW0kPCqjUCVfuRVt2/1iwXQwq/MGGGL3Tm1baeHpSbs1KZkwonIIARZDB1IlFMaSU384/p8byMGqypTWMe/2bmqxrYQKDVuSFrcEii0Y8AHKQsYUZZPcAosOconfqyHPIiTgFKt/YTg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "adpDRgdhAFLAqKs3L2piOvkS4OUrzPGGVTliD4tDvHvWCKfEx5cd3HsBcelEBzywcd5nLg/+RtttTKL3no3TCPl2VMGqy2hrWeUthZk/khCNbfFKuXlMPeeKVEGCNBg0lHhhIQwNBPhmMffe+hSAxcg/REOYS9ZnhvdoT1r9/nw2J9Sgc0Mmu0boXad/bA3pSQoXyQnyvVhvQLELLJn9xnSE47namJrJfzzAuo7BFHYSCYFPQ0bKd8ZwTXRXBj73+rYgtUjrShNj60rJwAH59MxkzddAUvMwUat9g9buOsvQXoeb8T6nO+NCaOQEtdbEqwFK7LkzdtTL7W7w9NilyQgob/0z8fknJpWdpkxsphXTa0Fxi/5amVtUcziFUkJIXkEIQgXgGuwP8AeVCooIjjDAW3U=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:5e810f37cd21a2fa\",\n      \"npc:d3a78c2cbb86a11c\"\n    ],\n    \"constraint_ids\": [\n      \"C:88c3444b9ab441c5\"\n    ],\n    \"span\": \"Veda accepted the title of the Vault Steward before the assembly at orbital concourse.\",\n    \"rationale\": \"Oren had already been formally recognized as Vault Steward, and no relinquishment occurred before Veda accepted the same unique title.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "qL9LyX7GvzgGEvj+AMb4IqeLL3nSKW+VECt1v9f6hJ5rYn6RdQkeFJjYofC7in8QyrfIwrB1UCoiM52gI/RQZodMHUx5PY3XarHaSjGi9Vc7Jda2ZvHIMC2zfDSWdZFYwrHQs+lhHfMfpRIV50IK5BRztM1eIfId/cWIx/kDlT16wKT7wp+GMwPMhBVQ0eN1d/T9Srq5hMs14morH1rV1t8J1CH3BxZzX6od9pX9zFmH+dYLsIOKKPn/9kZ/DQquvmc49dvxgtf4AEZvF9SXP1SOhDmToQnt85kQu1HhtljA4E7M+GHJJAHWmGNjkw73fr2l6mweeWCtQ342ErZaECtayqweZv4mOFZMZS4h3UnmdLbd80swMjUTM4uQCc+5Af3qQRbiTdddoYnaYdriX9Bkc8s3",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 554,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 191,
+        "output_tokens_details": {
+          "reasoning_tokens": 51
+        },
+        "total_tokens": 745
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:5e810f37cd21a2fa\",\n      \"npc:d3a78c2cbb86a11c\"\n    ],\n    \"constraint_ids\": [\n      \"C:88c3444b9ab441c5\"\n    ],\n    \"span\": \"Veda accepted the title of the Vault Steward before the assembly at orbital concourse.\",\n    \"rationale\": \"Oren had already been formally recognized as Vault Steward, and no relinquishment occurred before Veda accepted the same unique title.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 554,
+      "output_tokens": 191,
+      "total_tokens": 745
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6d6249a99432f7bbd71fac4f599d315b87744b91f664aa0abd5763e3c1fefb1d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3238,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 602,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 168,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 805000000
+      },
+      "created_at": 1783847600,
+      "id": "CEmy0ASkutnwbaFNhRnIK2Ai6PMcUpITa7kwAI4DRENQvZQWBQP3x1tfdcpy9aiOdsjKLl+Oqck4Qzq5dbMihGmWST6KUnGZ5osHhYKcrHD5WYqtHN+vgPSLFJU/7kdCqpx0Do7YiEntiTriuh1Vbuvszsoc7feNUfNQEZjG6spfT1146PywwOmSUdAk/VyDtmQZU854jWw8fsMLan3EFVfpewtgtBVxjFIVAtkTgmGCddr1bF8xGJhgp45QVFNg1Z/ft2Q581RvZ5nm/q+g+PVYZsEDXr1BQyNXubzqWt6qeZj1B6ZHTyltAUtqubdUgwgd/lfg4aHqEuqEsBFn/4NoX11bHzwbXJ/bYW2bbkhYJZrWn55uo0e799Znedq0wKhUh3cT10kblKgpUYa4TIs2kW2Paw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FcPwMB9Tr+c08ljfEOPs+MRZuFku7rdw599vUbsos2KB7nzVBYNMrphhno3fgl4pxhJT/nNuAjCQdRiFlKr21HYYdP1zdbwKpi7nt2FvS3Ak/TVlA+2poZT4KP+NsI1gFK5JZxn6QIviUykMElfBGj2NiiFM+nukuP1JHOib7FTRwqUQM2JP1IM0XumUFnbGVcFtYNYJNb9lBW+uYrciVT83wVSWqglpclvLwt5ST9hh8KJKzytqkVhVxaMm02yCg+55EjZWV+EZrI/VzZ+KAB4NA9gi0/FPemk5MkI6vyHbQzlpDf5rWsxxhHGbnhi0KLzy6CWQmHoEbX9RHMS/WlLZgpxJgLEH1DAL/F/w7BkhyARPztdbfX4PS3mqjY+YCstk+jEYMwKWnRcVfwgzlkdN4eU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:710942b757321eb0\"\n    ],\n    \"constraint_ids\": [\n      \"C:59466d18103eea65\"\n    ],\n    \"span\": \"At orbital concourse, Mei locked the evacuation gate while civilians waited outside.\",\n    \"rationale\": \"Mei denies waiting civilians access to evacuation, conflicting with her standing commitment to protect displaced families.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JIZKchFbzwlIClXGJKlR8LhJN87ZqEpNUb6k1yaeIlzJQ3KjyXLH2BOF7wdnRgBGTuhALcV2axPPcewN9kFWM7r40ZJw43vn3s+XQXw/dm5XbauwD3OirMbcJc6+I5Oz22pteYfV+qmRE1Imm7KiqHbErw2GkZAXjISpjz7nX+HjmVP7MxMjQmBTNWRPOQpI7hK4v4JogXRC2dYWE0ubOENXaGumMJ5VtXdtmOX96kl9M52cQAjO6qWE8B80VZFG8YFPzuO8pUiHMBAfp/0qACVnFl88c3SQZcFvy0JCnZV+Ps9/7+B8cFQiw3uR4uo7VZ1i+ana3BvkamLvhb+w9gkzAni4eyy5CChPNOnKjaD5XhBu17uSDa/j3gWrvazyhDv7lsbzGPynM84h+wCzwPCqpuOq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 602,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 168,
+        "output_tokens_details": {
+          "reasoning_tokens": 59
+        },
+        "total_tokens": 770
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:710942b757321eb0\"\n    ],\n    \"constraint_ids\": [\n      \"C:59466d18103eea65\"\n    ],\n    \"span\": \"At orbital concourse, Mei locked the evacuation gate while civilians waited outside.\",\n    \"rationale\": \"Mei denies waiting civilians access to evacuation, conflicting with her standing commitment to protect displaced families.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 602,
+      "output_tokens": 168,
+      "total_tokens": 770
+    },
+    "tool_calls": []
+  }
+}

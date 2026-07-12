@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b201606a77483c00da014c855eefd07f10692f758d2f2689129f3a931aa43f14",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4690,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 571,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 194,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 867500000
+      },
+      "created_at": 1783846700,
+      "id": "d0VgTWSIcld2Kk4FFqFqQ+6IEh7JlCfn5aKel+rWo2zy/VMLvcfVmFPY9+WNEjAut+E751N2J1hinrHwKSD/Q4EM6to+SCJuAT6M3i/Qao+KIbIC9pAoqDygdjLt/rnlYfx+H0jCW5KcfitVWlV8u+V4XXRYPwv9jo8As8vUuJlF9kLV5ryRzpeE6ZlydXHi8ctQQn78Zau0n2fHzcVLtR6Qu8+nzGb+zFAmZbiUZRcUfSYWSc+oyoZqUcZBqEpL+hLTnKSSQSEILlv3HfO7YFTTDFkLDeuvjEYJ3B98yax8EXvSU29emUuT4yBhbtTxwFOM1kYlyu2AmP4DjGH+sKcNxSW69N34mfGcQUQblDzUhkQG3qFyEF/XAL3OMH4TY8g0ogT0H3fdKvQr5X3P8fkh0GcBVA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vYR36nlKbDWMYyHhLSnutLjU5I/TgoAoB+mAe27QdxGjV/MDisvn21N/vpL9qite8iT8hJ9wo5hlclJRpr1+w5gJUpAkb+qTK+WqU/aRliBUDtU6vpLU21om0xDEiJ7AzLa8NW4vANucRxW8iiTIEMbNU7hodvEcpgM7AUQsqKfgFIblQch//uN815I+I9S8os5m1nvlO3OnRz5KpXDxDtqd1h684VW91UmTEkkW85dkS+F/Iy/iVcWUBe9q07nisLiCHBBXRASlAozXN2z4O0H4SzrOcugILuRXwNDD/juvIH3IKAcxeBw8rzaxikd015xuCuYsIIfCyDWbJpfCyj66WJ15EAvfzZKY/3n5eJ6Kc6wse3L8bgSLpE1+02yOmO5jzH6fpIN3eXLRgkV2i4/3Fc4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:76b3e1aa6bd185fb\",\"npc:ad50283feaa5dea9\"],\"constraint_ids\":[\"C:33a39a413e3fa0ab\"],\"span\":\"In observatory, the council recognized Ansel as the Archive Speaker.\",\"rationale\":\"Ansel is recognized as Archive Speaker after Iria was already recognized, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "X3UrmQCqEeWdFk+hs2CTJd9ZepC93SHPMUluXMEW+GnGUoJ6yYyEORTeQ1EWLFRJE0Ae4e8t/i+7JadPGoOuufSgP8PnAKZmonkAosoukSpBArPwd2pzIMLWLKYoCqfJHHFKyjAo2NLpq7ljkyFqX16PhiHxrEjK5onDZw90ZmB8tJs05hlC6H14+T9yD9zEDNyF9Dqs5sKDGiNRDA9iyGh4zCZZxWPL+5FSkThNwTHYNv2SnawrPUoqUtZFfb2bJPY1kSO7Me65F+jQKZGNb1jLzkl0OZmuTaMMFqr2o5gCxY+zTr8H5VRJ3mdsvXdW1tsk4tctRISTP5ioI8SEVyjnEHDXhdVdxMvo07sxIAgkLgGkPwPI7gPgYkHghm0VC4bS3Lj9LB/ea8gCwoaSpBH2a6sB",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 571,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 194,
+        "output_tokens_details": {
+          "reasoning_tokens": 85
+        },
+        "total_tokens": 765
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:76b3e1aa6bd185fb\",\"npc:ad50283feaa5dea9\"],\"constraint_ids\":[\"C:33a39a413e3fa0ab\"],\"span\":\"In observatory, the council recognized Ansel as the Archive Speaker.\",\"rationale\":\"Ansel is recognized as Archive Speaker after Iria was already recognized, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 571,
+      "output_tokens": 194,
+      "total_tokens": 765
+    },
+    "tool_calls": []
+  }
+}

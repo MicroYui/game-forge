@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3d55f5d55bd93bcd6f29fcc864ce30e0c0411c8c8b7ffb204f6a356aa951908e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4855,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 564,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 193,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 861000000
+      },
+      "created_at": 1783846700,
+      "id": "QVFbtFkxWB3s62cv3Q0RmO5ZGFI8c7wdc1+WmXk0M3IX81zTh0BirJzh37yf/ArG/Zb9QfEA0aQ5CWxln7ZF/KMazWRz4Bwx2eNK+sImZyA/fw3IrfQl3vHH8iPpJpm40iT9NJ495H1LVc9vjFWoOv3A+dtkaBXRlyYKqLLnL67iBP6/q57WkcCsu3vZP1foBpO2ujiVRtAX2/YFzKueRX3Qq/48c2VGVDEUJ+XOEIEI9j+csb8r6Nlu3aLzhzh5yEejLpVsys0EAFduqIMPOKyGoKYPRXyMQcD0JrTAvKtfsd26hOLHH/9A02d9kwjJpTQMnH6Y8P0dWDWlyRmxXPrPWIfRa+LVGKM9eC4IRweg44CfInph+yj2qhK1yv13E6KqVYb7tqCQxpAyIg9vBoZRHzxqcQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gyrkktU3WyLBsveKjos1bW7maIx5yYLnFQcPdVd8i0OzqYNf/GqIfw8D8bsfnhUSu0g7BLQdzTJ91WiJNQiIkivywd0rECbpYQKlQLZd7En4RZLmGNCxsl6AZvu+ybaBomjSdIs1vnKvr9H+9OKvI8epQvvh7VRiCDYuYILeXW6u9w++KJraEZYFkwV24XCjxg8l7wRWx/fatRTXihZDsO2UWFmUH8Trid4rJM37CkwryOR7R7IfwVsYA76g1Yi/hfTJijuJj2Zle9mpiVlDb+/eUNyq0l1m1+uErQUXmKBQ6XOXtUiCTW8lk/iIDZrkeGAl/H7a1L65iZPE3Zdp6XCGSpLhPv+2ln/OglSfg+Sq3IHw1Eezw0RDkiaJweUQWgqZood31Xkqnvh52pjD/DmPYE8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:54d249b99239e38f\",\"npc:8278f5356adff3af\"],\"constraint_ids\":[\"C:c5bcd9793cd8c3ac\"],\"span\":\"Ada signed the register as the First Navigator at desert waystation.\",\"rationale\":\"Ada claims the unique First Navigator title after Malik also signed under that title, with no relinquishment shown between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "u5dEmPGATxGXQ7UzVOgLon4CFg43AfyxeBtMpKpi0sTh5ff7F2Mcmh0MGEGOCNE+wG5jP9e7y3O+YeEOMeh0CP2ssl7LLE/BRrYsRKx1t8kDVW3e3IQaS42lONSgQww0C6ri37WeNyGRN0XbvpkE9RppT5bqQEqqw3D+fgzLsTmN3UUFeFX/fc+CRGl8NuEYbU1+kXTDxdZ1KWNKX/jA4FRPY83My3X2vRtAMZI4e5Mwr+EH/pLFGHiCjIpvB3fLBJZW+HgBZ2V98CoHJtsJvlN2lJ6ltSu+WH1gVnRjJAEjxIKd+zMliRGp+C248Rw1hJ/Vj3Ox2zY/58qFlMJVnY2c3DeMVmkV9C/TDJ7gFKImaQC9jo99TLF32Hm+7mUNddQaLqU5IJTgfTeJu76iMlxf9dR3",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 564,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 193,
+        "output_tokens_details": {
+          "reasoning_tokens": 88
+        },
+        "total_tokens": 757
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:54d249b99239e38f\",\"npc:8278f5356adff3af\"],\"constraint_ids\":[\"C:c5bcd9793cd8c3ac\"],\"span\":\"Ada signed the register as the First Navigator at desert waystation.\",\"rationale\":\"Ada claims the unique First Navigator title after Malik also signed under that title, with no relinquishment shown between them.\"}]",
+    "token_usage": {
+      "input_tokens": 564,
+      "output_tokens": 193,
+      "total_tokens": 757
+    },
+    "tool_calls": []
+  }
+}

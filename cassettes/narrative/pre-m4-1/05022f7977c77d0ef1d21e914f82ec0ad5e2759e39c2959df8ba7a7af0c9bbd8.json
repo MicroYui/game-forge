@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:05022f7977c77d0ef1d21e914f82ec0ad5e2759e39c2959df8ba7a7af0c9bbd8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4472,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 702,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 271,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1164000000
+      },
+      "created_at": 1783846300,
+      "id": "ZuMqK+TzFbClwhjDTVetXzRTzwt/fjrN9Ro+Yb6H2qvf6z9bCO7JC5T5KY18N0IKKtkj+To63+kyQ3DYYRN7lV2Kjlk1bPOjrc5NZdpI5m1KILy5TLvISSKEv8sdXqgctIMgrKqfe4tlo6Pz4ky36KmJSWxQA2OKjJBwZfvMqq5mPeW/c/9gIFwAHPIA6UPCjh7GjJB4VsFwxD/Hh654iPM0FNXfrivQbn6p4eho0azkvnhSzc9TxYRnSmOGhw0kugLtIbl9O+chHdEpOfD/rXr36w+6/ZYQlxGkGQYWN1MCqUKCvaMmIWXIwcxTVhGqC0WxFrnykcJisiRaNMu5nK3+5CxfkSqIMh3Ejcm4TX90jqqbe9zEPWPd/I68TEID6/Hm0L+MEDnhf4gNLSbwxijQSNGTUg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "cAFtu7SPbp+PHXfvQ5gy3Og/h/1DMxXGWDgfZyj0y5mHI3t9ObWf6tUVi3CG/BAin979NLa/a2yqQS5zuW1bwGy0XJHQcYlEquJ3k1MgXQHaascIgFXYengLCxarjyslOmKoAGL4jpECnK6MB2ZGvlmILD1iGTtrXhnYrX21lLwkkUUXhm42tfrR1l53pw6x5sjaUOtoZ++fWE65h/n+IkWXZbI/r/6ox7ryXScBwfWGJH4Dm8pngQLfXTlp/2+H5RmQDVyZxZgMH1fxk0tPUQAuiiOd0B93+idY8ilcTmogfIlHFsO7BwBDVPsUOMgxJY7nsueq2BmmJCaWbVyPmqtc5VU8Za0nUpltMKxv4yN43Ah9td86Q1mML5qBNYMPGNf9JIocWUh2jPZYjfLa4JCtiag=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0e6122f7d888779a\",\"npc:b0dba184a57f7934\"],\"constraint_ids\":[\"C:911e43d1a0c3544b\"],\"span\":\"At cargo ring, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro, members of factions explicitly at war, directly coordinate by signing a joint battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KGLlgy9xPUcKOU8acwGl+SFDKUQciYqnRJAXFdrSQcwduDuNTLY2Z+tnamNLuKFBvowOv7LOzIq1RpcF6vQuLb9jSc0T0WEnSzhJVoZOwliBWfYM0UvpFtwSJJPTLjxDdFx7oKq8TbS68/pcpwyNO/9HNa7/GEqQtO6K2zkEdi2TITnSQor5ZZ7C1eVJXH19CFtti8vZfm/5mLFNsFiYRBiDkdpl36cSL2P7l/6nOkMOi/q5HUlWU/2E62i/GkbRbDVOzGAdFhCaJ4Bqdp0hYlC7p8o6HDTIvgJuaORhgzRWCbMz4NWolS+mzF6SjTqY87D2RYE2LH/BlBgxCjlS5423glmn8VrPy4YZ37X36skQWaIv52kWN/GqvnmKs8SHwqkaJl6zsax+QcQkIxoJKACoDkqu",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 702,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 271,
+        "output_tokens_details": {
+          "reasoning_tokens": 165
+        },
+        "total_tokens": 973
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0e6122f7d888779a\",\"npc:b0dba184a57f7934\"],\"constraint_ids\":[\"C:911e43d1a0c3544b\"],\"span\":\"At cargo ring, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro, members of factions explicitly at war, directly coordinate by signing a joint battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 702,
+      "output_tokens": 271,
+      "total_tokens": 973
+    },
+    "tool_calls": []
+  }
+}

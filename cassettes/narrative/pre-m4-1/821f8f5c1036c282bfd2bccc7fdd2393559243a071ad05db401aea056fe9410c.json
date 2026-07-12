@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:821f8f5c1036c282bfd2bccc7fdd2393559243a071ad05db401aea056fe9410c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3100,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 613,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 156,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 774500000
+      },
+      "created_at": 1783857000,
+      "id": "jr5XMPXcOOUe0GlcqaDG31PXhhAZdyItuaUL5picDUQVQ+VPrMFKTk4M/26KBvIbBwkumtAxpvgovr+16GeB1LbTEPDoYDR/mW94HjDQdz86Kirhg279vgIK7Daoqjf+M5iIx5Y1PMwv8p7xUcdslAi/CQ+tDiAA6/s6uBn+W3dRVGNvq5XzCbA2KVSRgGG7VIBwzCdplPzr3xLYyAeoyuyjcwXY7pVxMEQ2bC5/efgP1an6s0RWNEzPSro5nfolrvv5z+t7bXiuMGzHeaowiQ8hFKQoSqfuJgoynEMuMGhRTjAtIBqsAI6+iPHwrTbVewcjt5yb1LtbU9OJirouImSq+uPYwNEoXY26/0XlauGNMxOMgkLmuqNzbPDya0Vkfm+5x1lRzVu/OipMBrw7MdHk+i/RNg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "6nU8FsgVBGXHVcLFxQia9MmIpPQYwBnRktcG8hc/hl6Mr2TDJo+jgVJ256kfk5QZiR6EXS69jBy4FlaSYgYnCQCFo+kQ6ilRuRdI6quOTr0yfi5EJE0za3L8uMSTmxo2LAKFjUDXJEbdEkBeAM6vwCUYpNbK6YCxhChjko42iiq71wDOPqUbpJYxvrHud9AcsbkpJorQToLf/sd3jthgqrhQnMfQQx8789twhKT8URa2vErZsUO9NuVsrg6PNW10IAe1m9fXAkOaQ/rd646gk/2y11Z2Uw+9l9rX11Dk4QOVQJANJhaDD2VpODTCzQ+m9wM+1vzO7tKIEuH7UhE0vAUad1EXuG7vlNl3gzQEFNkjgGvrQGSt97s0UTVTPU8CE0UDyTmTQh7j+stZMkUYy/CeS/Y=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:02d5c54d03c7a7de\",\"npc:217fed95defab6d7\"],\"constraint_ids\":[\"C:19d59751b95647cc\"],\"span\":\"In eastern ridge, Noor supplied Cass and called the partnership permanent.\",\"rationale\":\"Noor of the Harbor Guard directly supplies and forms a permanent partnership with Cass of the enemy Ash Fleet, violating the explicit hostility between their factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Xm3mdxHNgMhS+1ElkOqiDWXY+EuJ5oMVG9zmOo8QOsC/eqAO/6XNfUA+GglnsadUBDYFyneg9rO8h0+tQ0h7qgRSv0Yaq4E/WtDAS1RBABjCejPe1HvihCfN26k/H7CWgUsL14mcUC4n69EFvclJAgXswUrtN3wrYVyEFFBKFUWCwG/esN64GqFKzueIEwaOxMcaxlR638fozGeNigW06z8gjE1819GWJB1kDFHC/XLVQhbVd/kIe07/PQiFaNahBCY15ws7CfvhsYPYSN+z1Q4U0PY7lzFU/Z7ptsGoPmFxREgLeGq2Gc6hSpOOAlrsqINO/YoovFt30XSg2vboRlxxYnzwNUOBpKM8k0UKAq8JAGsyw4OzSl23VykSwBANamlBu+IC8Yc/ftWXa6TTVoycBlzs",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 613,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 156,
+        "output_tokens_details": {
+          "reasoning_tokens": 46
+        },
+        "total_tokens": 769
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:02d5c54d03c7a7de\",\"npc:217fed95defab6d7\"],\"constraint_ids\":[\"C:19d59751b95647cc\"],\"span\":\"In eastern ridge, Noor supplied Cass and called the partnership permanent.\",\"rationale\":\"Noor of the Harbor Guard directly supplies and forms a permanent partnership with Cass of the enemy Ash Fleet, violating the explicit hostility between their factions.\"}]",
+    "token_usage": {
+      "input_tokens": 613,
+      "output_tokens": 156,
+      "total_tokens": 769
+    },
+    "tool_calls": []
+  }
+}

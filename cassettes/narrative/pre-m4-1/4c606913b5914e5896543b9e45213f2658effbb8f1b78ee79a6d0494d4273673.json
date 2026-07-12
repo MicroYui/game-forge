@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4c606913b5914e5896543b9e45213f2658effbb8f1b78ee79a6d0494d4273673",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4327,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 647,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 236,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1031500000
+      },
+      "created_at": 1783859700,
+      "id": "bPN1Uoq1XBtkS0teGBiJ17z8tWW5Y8uwZTfy02w0zneaN+ba8U+ToytL/mRcAn/34ag2R0sAWc6klb7yLMz7aB+PxbE+hWyb2XdDzTolfGLRGeIqNm9Rw0oQtY51Dekqg7U5hS8KOtQUdVur3SSiA/0+V55eo9sAg18FuTb1ayoz2L+xJerraLysZy5RpqhS6jV64uAhTMOWldncbhX5i7juKPOr4lb8+1+WOUE78vR3TIFD0YsrYrmfLNxzizoST7Nwef9J6738L328QO7lV4X/2Z2eE2wblT/diAtTf6059EAjm6CpdvpD3u5payh3DiF18BGVSIzML+LiUiMywXsm6ilp2z0/6Mb7WmgtEr7abCiP4oShFzT0+wilpUjDoD1Tz9RJ9UEVVSriEeIWhoJdv4rgwg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "IWeWrxgKLKJ6UipAB+ZSc+ktHYbG2I9pZZtNHu0KRckHzaZdlYOxxJQ3H86FwJ9I9pKBJffv+L8kDu1xvs9QHiVO7CtpY4Nl85fpGGVHT7IMORjMqVYt3gwRabrMlYa/Bd4Qr7aPDPpgrpgGsFJyMXU03sIOfO/jhZ7VDjYdCzIXbOjmPGCylsxn6tl0xfUqTB0o4PfOv2Pzpf0wzaz1QJD1ZyhHrlYrJrL5mSZUGu87uG8cYV2M/Tx39KtAPojM+WtHMXEFb2hOLRtjyPYKYZ/+cp/6eCpJ/+CrMe9om+aW7iiL1625uSwNUu/vSGa7dt5tjZmT57452wimKiUWofLt5hlsSQVTKrVG7OHnaV/fwK2YaHAYFZfLOdCdNK3GU8+jxKaRtrqwmUL3b8ueA/o7DQ8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:02e3b9fc3fefcd5e\",\"npc:86caebee19e7ba3b\"],\"constraint_ids\":[\"C:92cf78d799e10009\"],\"span\":\"Veda welcomed Oren into a shared command post at desert waystation.\",\"rationale\":\"Veda and Oren belong to factions whose standing feud bars joint commands, yet the quote places them in a shared command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ncrR/M1E0KdY3q4fYBEsp3wQyvwpcRyhyFvBxuiaMUvOwIF2Ry9Gn44iHJcmXC4rCHNER5xKgunsrqg1787VnTU/1T2T7BgVc0MhwzVM9KBpqGYf9t6AlyerJh2R8Bf8Qh+aMLSWj85xbWK+EooSSGEaSbuQAEaxKWfZrGAByLV8/RpC/47etIFGCq9F3iCSeskcv17L2sIohZUGbDdgh1YDKyeLff+WTmk9AwWnVbToQmYYKBI04UD/teXC/fALvXLH/QPlqG3/tlb6QrwikJGaRfnVkZZGC0/kS2Vo6SkUvtYP//plr2oFdy/weBd+xeHzRnYK79rI06hJJzA3fLfO0bk0kyGTeGroYxk24QCSGHVVLKr3igHJWxZ28S2OqzJXnAh0Dy7swjkAWCIJ+gbKH1cy",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 647,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 236,
+        "output_tokens_details": {
+          "reasoning_tokens": 125
+        },
+        "total_tokens": 883
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:02e3b9fc3fefcd5e\",\"npc:86caebee19e7ba3b\"],\"constraint_ids\":[\"C:92cf78d799e10009\"],\"span\":\"Veda welcomed Oren into a shared command post at desert waystation.\",\"rationale\":\"Veda and Oren belong to factions whose standing feud bars joint commands, yet the quote places them in a shared command post.\"}]",
+    "token_usage": {
+      "input_tokens": 647,
+      "output_tokens": 236,
+      "total_tokens": 883
+    },
+    "tool_calls": []
+  }
+}

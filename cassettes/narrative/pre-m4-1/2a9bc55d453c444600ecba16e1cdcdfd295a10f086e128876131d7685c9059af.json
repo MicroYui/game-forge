@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2a9bc55d453c444600ecba16e1cdcdfd295a10f086e128876131d7685c9059af",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3921,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 598,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 135,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 704000000
+      },
+      "created_at": 1783851800,
+      "id": "1l033+bYrdVhkCjp1DElfWrT3lKXFhTx4MRMUMfA4K6E8fHOz0ktv2zsKuG6KUet3QXTVWjTaeDflInq2ZAa0G4HIh39jYNlcvqUhgZWGNDre6NlnZSybngCAmuRukGXWkodgLLlJMZkfu6oJ3ud7ypZ1hOFCOQc7g2Esm4/UXegrjAga4jPKDoL+6fk/ayGjlC8vqiCPvzr7vLpVmHO7LVtLGS8vu3gMV9Sghb24FJLtMTBv1vXq5Zw7mtgJ0PCPd+DlfMBTki+Sv8d+NqK0KE6wOpsKWHVpmC8cAdr+Gj+ojqR5Lvsp967knoAcRyn0ji3sSMtjpAPwJeHLHN4PsrUONjleCUtDDQCunA6SdMN57ak89gGTXADwvjfQbyjEy48gyfcIdtDolNjUZ7Xk0w8qWl4tA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pLr8ssF98nQOujc9RgRuE4RSLlKlTEC6y9DDU2g5WW+Yn3ZD9S5e+lJGsSGzZa+tPSk/zJuBtCUO3aPUf29Yg2aFANMnAJAHiLDTvlixPDDax7IlpttO46DoehXbm3ZNs1VwG0ge1vmWADaCMJ/exFrpGRXEBET6u+X7rW8YQ4ODDIxE0syCf6mhRCQJZpZqtmxJ+Rb7mvozD7iYm7P6MS6d6uaZsTbv/cukGa1V2MyVA6cgRpSBiX0nXFUpmcQxvHdmt0jPZ6FnNs9yiOY4bDY/P17Gr+lLr+IB/zyMdy5d+6dNkLnMzSMipBzTp2O2TVYz/IWEvbY5sBaLZn6ss+iUfYIwy+i44r7MJLOGiZcJdkpzopZlzMxmXne0SxwBST642ub3W3Kv5LF7hB2oNI6SAcA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:22beb146990f1890\",\"npc:81105ca999932ca1\"],\"constraint_ids\":[\"C:96b5abbbc617874a\"],\"span\":\"In salt depot, Ada supplied Malik and called the partnership permanent.\",\"rationale\":\"Ada and Malik explicitly cooperate despite belonging to North Watch and Red Banner, factions that remain at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Oyhh7o2AJjo9/7ujsihteK7hCXz+k1wfnbm1gD932wTJfIxR3qO+2FF3WgU9RHJKxRJgT7SkTVob24MtvFTU8FaZKmASXegNzRizxMh0jlicRCuMSv9c5y2gvzaevMRbVNRfSGWG8ASSwzKcYlwsxmX8dg4/XIghjg/gFcoWFADC0SMA83tRwoZVryiMpRoBfnrQLmqCjmIfcjIoSyIoNu4X+PlWytvPVWjS8uiYc5WV3hLHkAR6NnNKMRCtUqmkLqrvvzm34zavwvjaVLwYelY0dh14tjK+8lK+r5dz/N13r2vLPmM24t7KtELgv1VSLgLKvWR9rwOSsKtdgqRThufyr+NnZjGxGBLKl4bM54v1KPMqo4EEsoSZvlbayEVULhPHQzNPuqBg74PDr1QOMWIM2l1H",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 598,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 135,
+        "output_tokens_details": {
+          "reasoning_tokens": 40
+        },
+        "total_tokens": 733
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:22beb146990f1890\",\"npc:81105ca999932ca1\"],\"constraint_ids\":[\"C:96b5abbbc617874a\"],\"span\":\"In salt depot, Ada supplied Malik and called the partnership permanent.\",\"rationale\":\"Ada and Malik explicitly cooperate despite belonging to North Watch and Red Banner, factions that remain at war.\"}]",
+    "token_usage": {
+      "input_tokens": 598,
+      "output_tokens": 135,
+      "total_tokens": 733
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6c27c95960faf93313cdd243cf216f403115ae4f2f8193e28839a7a754d1e39b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3578,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 631,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 201,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 918500000
+      },
+      "created_at": 1783852500,
+      "id": "8yKL43+fDOBYiSqqYsekKLtQijFI51K0zClU/M+j13HVsrD5l7RtFtTP7Bkv5mr6HCnp1qaE0vAnDGZo5EUgjN5LjslYvik7v6j231mQEEFtihqYBpGn49y8wKHgblj2yvA/1/+4cAKASYPK6jneE/ETRrK7+sFk3PRbsCOnmaLYhOSEC56cQFNBPpO8B98sIE3iOcFH0emecgv33DSnS0Y11kFNwbbQT7MmbJEYmcvCIz58c4p2WXI1wi9Lt11Y1FU8OVGvTO8Y44osCoFq7w78D0b5KiXQExXqT4fjsB9E6gLS8t+sUXft7/1ZzkEnGLA9jj2bhFwnLcjFTdi8WMLWGKLBSWugB098KV06DrgHGHoLvrc3FJBYswdUNSHuDXS6J/7wBPZaXjwJ5kudDqnDbpIykQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Exwqw/aJadNgXewN7Pp2A9nbRLBuklrciUjfG1kTgsp1gqB14Vj7Hzeei3WWNOAAs0vcqghvVGpFyw32d473pmKwxVjJx2vS/7MStzPi8gfXC/h/x4sgY1JlHj6Pe0jW05OkGnLsLObkJjcHvmylNl+WQhbLK8GXkcfgGH+OnPed37xv6+VjzoW8M73dlBRDCcrkN2HNBxLRK588AndJl40JUK6wJLqA0u2FSN4ImNwEPPH75QSz5VF3FdQ0qnbrpt52MDoWE+2DwqlyAGJYbuley+jlYIAYr4VanTaCWjm4hWbvVdmTkQ7K1Q3D3Hspbj+EqamaiPcTMfxZpn28o93C2AN1nyaU9wkLZti/FxF5Kxc1Q5p3CA0t8i3jCuZknEs7hp580u/J9+eDnTXgD1K5QGM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:21b5a9f00ca7b0f8\",\n      \"npc:a21bb49ebd86d426\"\n    ],\n    \"constraint_ids\": [\n      \"C:bf94a240145608da\"\n    ],\n    \"span\": \"In glass conservatory, the council recognized Noor as the First Navigator.\",\n    \"rationale\": \"Cass was already registered as the First Navigator, and Noor is subsequently recognized in the same role without any stated relinquishment, resulting in two simultaneous holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Fg+ifDE5wOvLKSEBh+Cb+4JUTRr65zVXSRduJE8fP5GFat/B0sgW1cfnpR8wRrFCFVE0tmEkoScSFoF2/kGgm3UDv6iaQqY3sgdsMfrt0C5VOnm+napuslutmFRU9vnTjlDCcSmDVFN2hALmP0wEJCFwZ4w/ittOhIP9vco/k9si2kY4Jw+EFdm9CAJo2ajIymmK1pNm2eJ5nrEhx4+2z7uaCI/8DqhjOwBIXoP0+qHcHHYred8DLcg9fXXJWNyK3OINFhmoBJFu4HlQwLElL/2l6n2VVPZ81/NWm15Y5NTeHLSKsi2+clphtfQrd3G1+xTINvR3E589Wfzj6gkddrFLL/d4KLLH3BYDwoukiBsCJxoLMUSixyhPglyBvC1mjZsXa1Hdb74aRE9LgakZgq3LNfzF",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 631,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 201,
+        "output_tokens_details": {
+          "reasoning_tokens": 62
+        },
+        "total_tokens": 832
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:21b5a9f00ca7b0f8\",\n      \"npc:a21bb49ebd86d426\"\n    ],\n    \"constraint_ids\": [\n      \"C:bf94a240145608da\"\n    ],\n    \"span\": \"In glass conservatory, the council recognized Noor as the First Navigator.\",\n    \"rationale\": \"Cass was already registered as the First Navigator, and Noor is subsequently recognized in the same role without any stated relinquishment, resulting in two simultaneous holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 631,
+      "output_tokens": 201,
+      "total_tokens": 832
+    },
+    "tool_calls": []
+  }
+}

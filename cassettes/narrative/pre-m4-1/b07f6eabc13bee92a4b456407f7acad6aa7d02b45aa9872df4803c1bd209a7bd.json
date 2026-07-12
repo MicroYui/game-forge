@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b07f6eabc13bee92a4b456407f7acad6aa7d02b45aa9872df4803c1bd209a7bd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4379,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 686,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 197,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 934000000
+      },
+      "created_at": 1783855200,
+      "id": "UCp4S3I4VC8sAy+b5rDa1d/TsfZHcVjRuHKWxbHqK39pPuJmrtPegZSKTpXuCE7L77P9iiUdH71TmMVaFtOmx6/D1D+az8XLvJW4kGmkDMhmodscZcaEEuKVy93xesYK79iG1KYRU/izVRfix3xNMqZmaigeyGrt7aBX6mb40NQvRHA9SyiGquGICjn7Bp9NA08xV4APjxcc9xPqTXh1EwIwPKuC7xF2T2dVAfCQ5N0/KUPN9n7jl4cnEuhhh6qlpY9t8xl2cU+iYzmzFkbROjucGieAArNBz/nTkZNPsX9Nh2z6cQYAfqCbcSyqVwYEPZNuZkU/NoEXboQJleR+hY2pa29htPq/mX5JB/nUBBSWslpNsKpQyyssleug3VCMTGKDPo7OUUQ/iysD2thoAuLSj7dWsg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "QF/bm+mud8qO5L8ad/VG+86aqPFqgVAoqOUS92yRSTrqJtOK/BWYGYVDLE0rVXs1JHJKf8eYmECBDFcZfAQ8TEf1gKHDxvRoJSt8PZfnvCn4q4mPYlIL4j6sWsB4NIBqYHc8Cb38u63YoAUt4ELYmVdQJjrDobafFUZrgIas4g0jfc3hFdLiakFShZFpcuIe9KJx4vy/ssR8Kr/rEdaCASDIlZ3OS5Cu9TV6NGpje3nSwQSO8DTdgsy1tOsdw3fCvB+B28hs1/aJr/3Th9/7hxycHgm+spSJE3TZC/cIYRwAsO8CuVzDZcZkZehQbDAmh7Ym6uwqnb7YQ235Htbl2/MEBNWH/Ni1f+RLX1KBXJiJr7ZU1KIRblUqH538MUgQv3L41rHhqbjkOdpyWqGkYJU7cmk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:c0efba588c514bcb\"\n    ],\n    \"constraint_ids\": [\n      \"C:2a8eb1bcf2f94e5b\"\n    ],\n    \"span\": \"Ivo ordered the last rescue boat away from the stranded families at canal bridge.\",\n    \"rationale\": \"Sending the last rescue boat away from stranded civilians prioritizes another objective over their safety, conflicting with Ivo's duty to put civilian safety first.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hIKi4XKDwksbmNJKROiy7EQNiqIyo3Qdi+7QEf4WXkkWU8JqKGUVF9goA7XLECDVUdCyc4Q5taEFENAGFlW7bhSjGZFWAFM4rN87/lhO020NfuuD8pu9bjiRS4fxJ5ee0liuAnDNLD45VX/d4suz1CMSt8O746yOkI43fNnPapt2dm+R61bbGlzbENzQwgg7avggP3xZvoSz2tHRWFndla5jbIOg+WrUcGQuSD8R9RTukqmT2zlZLV883ygsh5lUbVbbB1W6lnZZJM6D1dg65a4l3MqKvS2HThFCYHxPx2PkXDzDtaB8tx0FubFvnfnyKcHsykiFwiqHKXXoLzDGtzV+cx4oEQsfOx8mPQZGFVxbRb1s1NQijFSsWQPHSSu7vF7aw97jD2R4i2GYjhpZv9YNfbOW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 686,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 197,
+        "output_tokens_details": {
+          "reasoning_tokens": 71
+        },
+        "total_tokens": 883
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:c0efba588c514bcb\"\n    ],\n    \"constraint_ids\": [\n      \"C:2a8eb1bcf2f94e5b\"\n    ],\n    \"span\": \"Ivo ordered the last rescue boat away from the stranded families at canal bridge.\",\n    \"rationale\": \"Sending the last rescue boat away from stranded civilians prioritizes another objective over their safety, conflicting with Ivo's duty to put civilian safety first.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 686,
+      "output_tokens": 197,
+      "total_tokens": 883
+    },
+    "tool_calls": []
+  }
+}

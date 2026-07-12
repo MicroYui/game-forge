@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:683cc8f87057a42785f81275688b61b5c9053f253dbd1de0f9413b869bb4e780",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3095,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 607,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 170,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 813500000
+      },
+      "created_at": 1783851900,
+      "id": "tfo8GfcKOV8M61NJPXd70bDIRowWpqmGEdzjpiosK6oc3w+KKJ+4xdjDPkcDuWc3WtIEojRDR3+s0h3aMJIX448CTXMpMjTDpSn3RbxTjrXyLEODvrXzifZg2FLRlV2A12pnChMk4udzIKTlxagyzaTwJ6EW/8xOIDse6LZnX41Ti99mUhSax/jVBVVz0OcTVLIfayJTiII4ZxJRA3FACLbzyT7e/nm/9U5tTcqD0EgWfw/LD+GXuWQqQR/6JYhf7Ww/iULjgZTR81weM51Uv36Y2dbuA3P/AIYkAmwjwTiYMiYiluEbDL0VgK5PnSBTkr/eQdblsg1bPVEb4+YbORLgynhVwa14B9n6O6P9MRY5QrEWS5DXmuLgRBNIwHWisLImMSupk9XpuiG7Uvrawcp0y4ZKqQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gMYfA8ufHppGjcWvNaQLGXwtj56UUAAp78ODciJLg8+DzU7ck4hldmOCTT7SSSQr3JjbukxVgUX2i1T9H9a7GFGehlozEUtgggVbONddIaP47Oya2lc9G74jpCNh3gk6icEG2/jDtm6l/9tQrlGwqixze3yjdo4p+cA4BQW3llOv3MPm6+HbJOc587WRnlLe6u5mjIvSQCD6SWK/h9QaHDvlYdfJ96OVqpOcLJc/gTGpR/eMBlV5m7j+m2WAQK9g3NsJiz91nCgN3Y/9uUXGz7DFvWrATgPGYlrpiR9xYu7FDouyjp5jko+ZeGRsdEXyHpSTQi2mm7JxKay8/MPlUDjMWFonD8T+znc9/5PemmdKR8Q3SIuCwUYQ9qAClxNkbV+OSjTrH8mDyVD8Bf9oWyVa89g=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:256d59f5e4bcafa2\"\n    ],\n    \"constraint_ids\": [\n      \"C:102468a70b529bed\"\n    ],\n    \"span\": \"At archive hall, Ansel revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Ansel directly discloses the crew's refuge to pursuers, violating the rule that no pursuer may learn it from him.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QGVZsdZNYT7ej8DqgTWESa7YqmlTCApaWIzSzB6ISXQE1Qg1OQTQiawq2b/bOmtJDLQtCqXWwQyDswXI6lYAJFBZpegAK4LY/sZ8U7C67+1zWRcPLHZc8qjkMtT3CMOXG5/Jf+IyL2n3+OSxvBtTq/1iAYgodC/A58Ej6mHCS4ikFuQQ3BQKF/UiJaXgKwRh77YLtIVjs1ypo3gwi79rxEDGirrdWWOa75waN3c6VFScXxEkHPiqqY/GyM6FL2sNN+Vik7tMIrLJPeZ4EDe4VF5g5n1eCEaqNFev2MTiGlcb5/3uBPueZzr8V6tzDw4k6sMp8l1McmRVj7vhmNwIkzZ5bFIwu+M7hWm6e5LX/3QW0wDByA2bpjB9cD0pGLRuIefcWhJmGdkmvMF+et0u5uNrLN47",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 607,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 170,
+        "output_tokens_details": {
+          "reasoning_tokens": 49
+        },
+        "total_tokens": 777
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:256d59f5e4bcafa2\"\n    ],\n    \"constraint_ids\": [\n      \"C:102468a70b529bed\"\n    ],\n    \"span\": \"At archive hall, Ansel revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Ansel directly discloses the crew's refuge to pursuers, violating the rule that no pursuer may learn it from him.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 607,
+      "output_tokens": 170,
+      "total_tokens": 777
+    },
+    "tool_calls": []
+  }
+}

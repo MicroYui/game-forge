@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1464fa610d8d9c4a5681ad5c2f529ce33759e4e24957765719f75956535f40c0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7594,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 587,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 460,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1673500000
+      },
+      "created_at": 1783845000,
+      "id": "ZxfdG4DjIT12CZBI7TSOg+H7QlP5DsGwYaMZoV+s9Bv8hLGZNaEJK+KElSdmcrADKEu/lh/yACo6KHYalj4r6F60h08tCEOqGW0j9MVTnPjGHpTGFAhFJ6FcVFeEO8dCqQ4lHFvOnqvPs7XVLdR94qo6PmIsuXMJJ9G0nZsmXyoZEA5MA1+d5udUIojJe7JXleNAZDZ63rla39p+CX2wZMfaQymH9elOHD+E3IlNg+j1/ZU6vQHU9N6CX6Ky2+2g8zRLg5mUoda2EIElq1o9ORNhA7wXS88mXyrUP8ZmU1r7hJ8VrHVpRyBcujl5fGZqwZREMj87jt8EYnhEj9UM1PrFos6xEEIuPQ6a00YprNPR3VRvLPJLFmuHOCQhjB6DV+zmfoy4+Y3vTzOLw+2fvLN60/ALYQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JeEb9I/eEBxWUkUi86xrvyJrE1qZN1jaDgiXt1JIfaKSTbcqw30D1CFsb1FQ7GnJmqdNQlBtzF3nT3S4IQC5oj3OCkfZ+L62kssxdPkZE1QZHZzBJBTtZgyA6uEw8TVafNeKmluXgAr/69BFlS39q17e+l1LWNN789B0YHXC5S5Xx4a/NUOiTx3MZ4mpCD39q6/T1/cdJqPFFENoUtKQwN5ratXZa5f/+31rA9nMZ6oa3KWIPcDf7I17GZ6hx1lQ1NAIXZycN3KwcSjGGx/acaRJQAoscrAuH258xD7exQja1gLKXghx3mJvSRlLO+DE3Oux3aw2QWIhFvab3qyFWjtJiDSKy3+D6Yi7UfnYeqjyql6iPhZozYieNTj6ZMhFAe9zQ/sQWBoWjBst1BrPyUQ0AWM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:1c45d999b69eb601\",\n      \"secret:981f5f87a61b9a64\"\n    ],\n    \"constraint_ids\": [\n      \"C:95b4153c80bb84e9\"\n    ],\n    \"span\": \"At signal tower during first watch, Ivo told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"Ivo knowingly discloses an identity he is required to keep secret until the finale.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:1c45d999b69eb601\",\n      \"secret:981f5f87a61b9a64\"\n    ],\n    \"constraint_ids\": [\n      \"C:95b4153c80bb84e9\"\n    ],\n    \"span\": \"At signal tower during first watch, Ivo told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"The masked envoy's identity is disclosed during first watch, before its finale reveal gate.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "fYV0DHWL3MIFdhn+YXMtsAQFMFnpcNl5lcd2B9mMVgX3lIJGO59NmQFFgEEdKY5tXddOweReIrW4a3TLJVIsKNuyZCtumlg7b8oFFcDBFXVOREVXcqrvquk/CaV+zL3gyymBCNk5JSeMHxeNaH0KcTpkBkYKFUriBHXyMkk2m84VfKZ5Vql5VDATXZpbAqohnaxknTcp+DuBEM0teM9PtLd+29LNYgKkDzZwmvNHg69Ux1d1Io4tXt/KB2Lfb7rYYxeQvxCnTa/iiIfOKc+Jy8/VKxSxm6KgcUXeDiWatTPus0V4YZC1mhv4oZDDA08xw/OPBH1GZKUT014uFrXYHJC3vsIeXpTUAlQPZuqAl3xPnJjPCeedHVX227613Ay9Bcm4QbUXpgUjSZHMzw1ILnpb+xd6",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 587,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 460,
+        "output_tokens_details": {
+          "reasoning_tokens": 202
+        },
+        "total_tokens": 1047
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:1c45d999b69eb601\",\n      \"secret:981f5f87a61b9a64\"\n    ],\n    \"constraint_ids\": [\n      \"C:95b4153c80bb84e9\"\n    ],\n    \"span\": \"At signal tower during first watch, Ivo told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"Ivo knowingly discloses an identity he is required to keep secret until the finale.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:1c45d999b69eb601\",\n      \"secret:981f5f87a61b9a64\"\n    ],\n    \"constraint_ids\": [\n      \"C:95b4153c80bb84e9\"\n    ],\n    \"span\": \"At signal tower during first watch, Ivo told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"The masked envoy's identity is disclosed during first watch, before its finale reveal gate.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 587,
+      "output_tokens": 460,
+      "total_tokens": 1047
+    },
+    "tool_calls": []
+  }
+}

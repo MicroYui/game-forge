@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bc13d415d388728483a93b51a116d8616a4502132804683005377dc4c64a1b9c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4355,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 667,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 224,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1005500000
+      },
+      "created_at": 1783845200,
+      "id": "49x8Q5AF5Pk5VyGtY1du3X6s2AAfIvPNfYrpK1DaX4CZC7ehtbISEX3tYNd3tMJD0mY0eNz1lPDqDVskG8HwgyAo7QXZBF2zLUFYiWlYiyicLcTfhIS3sErZv+py/iQLEScC8pwgqLYD+HN8BidoVl52tyobYGAkPte+2bm9HV8ax4S/OxUuHYlr2qAgU5wByZnRZ8jnqrT1ESzjZQo5HoPhoqG8gLtcyD1WXvg8zPkX1aZdHJpA3S8G71bx/r1zS6S+yfUvKP21fYxguRfI3qPCrwwXzFWAz/nZok86aTcJ73pzqDbvC04LW6WDdAaeZSAeiYkmTPz5OlYTeGgRFKgRNSWkMTNCN0axhTBaEoz3b2MLPyDUHTNSrYbP0rk5sQlGYVmPUDWpHrUQbwym3GRRR1vQIQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "V9dj32SuHLGq6B6DVz6vGzWRe6+0mgLyOASBLROOP2hNgM7UWyViMA6Sib4nkM99RVx1qlMfo2/BiZ+geGC+eBJQ/yXYwXe69DAOhj2M2xuYyXLOjLLPC6x16UdyWsj8HLnEjdqkJ20pUCdOXB1xGJlPqRwWLxO9ps4CgrOs0BDl+yR8SOf616Q+g4UOfKp7KLqyt3e0oL99FGAV4nQz0JHhMJ8W1qMFH7uYHWcMDmIWpRlXqG58wDvg3tXPOHxZOk/glmHFvBMJ2pv/95HqiIFf5+T9PIopGRIfDJHwSrX+fsqwuIsmlJTpFJAPmk4RX7AjcemMz3x+VU6Vu2KoeckA+gF0VdJLX80EO8OohmRdCgXAL78zwmBl5tFkdi9PrPNtgr+IudPbC2yZVc36fMisVHI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:42a15d1d5fdf7105\",\"npc:9eccb2947af7c0b0\"],\"constraint_ids\":[\"C:28d98d3472313683\"],\"span\":\"In archive hall, the council recognized Noor as the Beacon Keeper.\",\"rationale\":\"Cass was already registered as Beacon Keeper, and no relinquishment occurred before Noor was also recognized, resulting in two simultaneous holders of a role limited to exactly one.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "GhyMsr/fjOBIcFWK6NmHB9UewYPr8hDIQSWNiwyvlKTYj+/uH2GEsm368yF3/KO+vzQLEwjGwt0IjwKJbTVVxT02JmAykPbFVy/vr893t++1GTLn7e9TIyoeHgG8c3ll4ceRN5YcFCyRC98ya6mSO7yncgqTWDOoxDmgqShcIeVlDB6Z0TSKxcuwyfbwVdSYIQHYGBQoYCWmXByDNmX2waPHuOGbEFI5oucuwDJYWGZA68z3jRHvfpTZtezRjA9JSqETH4XhIP7RmufJPEaToeUtLb8ldFXPy/wKRmFSxtGSxqXoqvMDBycngWvdhbhrIliVhRph6o7x8hupZ1X9nHlWRruLMP+SlpItHIm9D89wpwP3mlKgT/GnmHILQVitvQHktgBq/BnBLZVgZHm2PenvLd/O",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 667,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 224,
+        "output_tokens_details": {
+          "reasoning_tokens": 108
+        },
+        "total_tokens": 891
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:42a15d1d5fdf7105\",\"npc:9eccb2947af7c0b0\"],\"constraint_ids\":[\"C:28d98d3472313683\"],\"span\":\"In archive hall, the council recognized Noor as the Beacon Keeper.\",\"rationale\":\"Cass was already registered as Beacon Keeper, and no relinquishment occurred before Noor was also recognized, resulting in two simultaneous holders of a role limited to exactly one.\"}]",
+    "token_usage": {
+      "input_tokens": 667,
+      "output_tokens": 224,
+      "total_tokens": 891
+    },
+    "tool_calls": []
+  }
+}

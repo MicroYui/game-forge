@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cbb617ee32767838432f3bbfd5d0368bb8ed59daf2df2c946feb1855b3d1cf8b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2655,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 636,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 146,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 756000000
+      },
+      "created_at": 1783846400,
+      "id": "8l0qFo6BOM+XRdDlWD4heJfXrwqQv7X1T9TeZNAkQiPDSGCty4FhixbhFdmp6czmKD8Ty2QAEQmt4zU5DpX1pTvTA/Zv2/LGv+qeRHaG7Z+yRp6r0uvmV6+ZoxkHv3clBPeLIuMiaAxWVbNt865RspzTIHD+kc7hBa+SFthRoRq+HhxLufdb8sp2alxuUAgneCrrGIQzGKAJHbdxApanMpkOnf3A+R4O5S2ivVVwdS5cUUkAWFQgv5RUJ6b7pzdpKMEunh0Fpy4yDuoHp5IB01FBUUDst6zKVtnrd7GkrACL3s8Lx3IaUfsL295BoCfKhyH+G3/DZ/OOWNUmEuPiEzD7g/O8DBMyEspshkdpODIWvI/Nrr7jigLwazNlkplEmoP8/7QJZRLWTO5LnHVW56vL6WwIPg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "NnRCpzjosdhp2rdQADZUaNzogC0IeuW6Zh5creOr7pSzX7Jw7QkCpfu8F3nOOYWcd+Xr8J2t294uU0DtuCESW7zG2tfbbaQx5Q0R15f7jtkwRWeCR6bY5PJ5wsAFC8rV9hbJslnUUvKJIozaO2E0PZ3DhGNglmzcFc7QVs1sFeagf6r2KEVe5foAHrxStEl3ASFH396QNJBP5XyUxzA6RExdnN/lutNpkVeLrmmRhA7XGKx/qbjp7uXJrV58Zbes2G8KBrpZgfunykGz7SLNwtfJnS2BtIbYdUu3wPVOJTGI0cR63gYw1XiyjeXrEJqPxmobjmZP4Y1fbJEJkyuJ3Lr5OztvSi/uCXPHSBMEZc6Nuq4BcmS9qY/LqovfBhGN9mR7kjSb31gAlKezD0oneBn+Yho=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:e6742ec7042bd45f\",\"npc:f3af6c1a533c39e3\"],\"constraint_ids\":[\"C:a214f28eabb859b2\"],\"span\":\"Ansel welcomed Iria into a shared command post at glass conservatory.\",\"rationale\":\"Ansel and Iria belong to explicitly hostile factions, yet they directly cooperate by sharing a command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "X9yRpQ3T1BW2xRcFKZV7dM01JzYhQJaOdXwRvjn2BbS+Kk/jexxWVsBvoTPvFfc+higtgZ5MEoyPIGJXL1bJtaczBVlvlY4fZCKKdZ4rTFYZyNqxviLvDiCYVQBAwTjYavXhwabSYTcTJcaQ7EFfNyLN7pVVALw46kNV1enkWPFOfQ00hlda/fOw1wWBY3zyN7WSs2KFu+STxKvlbETUQFw1Q3GSka0zaIA6GjKduwbVQidW6d/bbXszyL977olq836KB1byg7Wemas0fwFmr8a1XqlVTWFBT35B1cxQNUtcGUBjxfWjxbXL/h44nJubnpnxyYTyQH6zwPE4T9A3d4nrhzGH1959PMn1NbeccXlDkhilsVSJ1tD9lE1K3pKnGG2xHB212P+szxV+HFS8y5AcWA2H",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 636,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 146,
+        "output_tokens_details": {
+          "reasoning_tokens": 43
+        },
+        "total_tokens": 782
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:e6742ec7042bd45f\",\"npc:f3af6c1a533c39e3\"],\"constraint_ids\":[\"C:a214f28eabb859b2\"],\"span\":\"Ansel welcomed Iria into a shared command post at glass conservatory.\",\"rationale\":\"Ansel and Iria belong to explicitly hostile factions, yet they directly cooperate by sharing a command post.\"}]",
+    "token_usage": {
+      "input_tokens": 636,
+      "output_tokens": 146,
+      "total_tokens": 782
+    },
+    "tool_calls": []
+  }
+}

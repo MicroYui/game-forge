@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:eb796c6294016f31166faec2ccb4fca1705400a01d4fecb99669eccf354e2071",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5722,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 703,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 290,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1221500000
+      },
+      "created_at": 1783845800,
+      "id": "n/DnOvCMDoItbW39cULotwcgdxh8ZfVcdoYfmDf8qH7mfZ7H/BRD3NyCQsp5GG8EP5EoNssOhqzzzbcXEh1bBRxBirQ0bvMLe2b17urcWSkkEbfeCJx88YA+I0YEOjN97XdmVXleHIoVOcr+B4CaCiNSXukFJ5Zn/6K+LF2Gq6EC+zpwjskzSF7qdrklUWQZxPRRzUuLhaqUwZe0FBaUO/usyWjntWvEmpXsZ+j60Erl/2uFjxIN8sCzJuDdzdrX2SsuqD3trC2bga+yPeOLGNa/WwQ1w/C2o4T+xg02Sl/bLIbTygokQtt7vz9sovmd8R++f9yFy/u6qPv2g2+owXxcZJ9kVK3CDnfQlmJahPR3iDkbJdCes4Iur/p59++3UfTuDI0i2KGB4hxv0L1Tj+7DW44XCA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "lUfMukKARe9jgF1t/Xnw6ShvTb8DFoUxJzZCkGRhumu4Ebh4cZKofQiZgY3xL6mkoroP/BrLKHoitC9vUdj1RJm50EQwE/1tGdXyDG8iS15sOhtjnzH5ilciP/t7gIAhw8qBl+wSolUWhlcnQTlAsC96kwt7ogaUx/vaHzRPICHJApvq51QIkPnTMKhHm+IA5qAtZnYWPGmbs2jHYQGppvXba8T4XaibyP1oHTufkDx00aTnHbKR1Ww/vr1A4Et5Cs8tFdJ+NZ4Sh6YWK5jZsaIJV5xqtqXalEcFlWVtWHNboOy5cWItIZbB3SOUi2VF4RxHU5yBJCGHh7+Cx4Vr0mPYz7MVwnWc08mCeWDu6Og0bD084a+fh5sXbt4m3kO3H/IWQEqe80/k3EyLJX0jybMUULY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:60c5370c8f64be46\",\"npc:802f2f447d0e0da2\"],\"constraint_ids\":[\"C:9c235dcdaec47eac\"],\"span\":\"In river market, the council recognized Noor as the First Navigator.\",\"rationale\":\"Cass was already formally recognized as the First Navigator, and no relinquishment occurred before Noor was recognized, creating two simultaneous holders of a unique role.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "0uFvII7RDelXgcOX4ED7dokVEmCmYLd/gTmZlUYyRZerq53lGzXfxIvzp4KbzDcPx4KpZG+gBb000ey2C7AsX/M7oSleXJg/z4+ZNf1tH/6dd5vf20ytneACoPPsOSkUXgiq8lWGV9kHqWh1BGKJfHcC935+kM/0xo4Hepl1g8bHcLNWQLa68udxctBz2hL651Rwg3pUNxmf1dIn8k/VyBeyeiuN66gNqrpJaayQMTpmBkX6rvEoo2E3LkYFgCbXXY8XJfAHSDkSfGGOQ+5zI3fcDdJY+XZAplOmVBzaflYCOGQOsYqYiY9EqhFg55x5quBD/rnuQufL65v4NQ6cwLM2utvJJbS04aZ0A2zUJ9DQgMJxXit0cvX5ZevhC1iPMetqPQhqhNMoPt3LRgPg442It9R6",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 703,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 290,
+        "output_tokens_details": {
+          "reasoning_tokens": 177
+        },
+        "total_tokens": 993
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:60c5370c8f64be46\",\"npc:802f2f447d0e0da2\"],\"constraint_ids\":[\"C:9c235dcdaec47eac\"],\"span\":\"In river market, the council recognized Noor as the First Navigator.\",\"rationale\":\"Cass was already formally recognized as the First Navigator, and no relinquishment occurred before Noor was recognized, creating two simultaneous holders of a unique role.\"}]",
+    "token_usage": {
+      "input_tokens": 703,
+      "output_tokens": 290,
+      "total_tokens": 993
+    },
+    "tool_calls": []
+  }
+}

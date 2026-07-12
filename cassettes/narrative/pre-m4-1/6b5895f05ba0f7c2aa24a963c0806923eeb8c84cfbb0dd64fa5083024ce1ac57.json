@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6b5895f05ba0f7c2aa24a963c0806923eeb8c84cfbb0dd64fa5083024ce1ac57",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3482,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 699,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 188,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 913500000
+      },
+      "created_at": 1783846400,
+      "id": "+TSzUBhWE0Y6pn908ihNr2InjeNbJnbm6RCDtDKNtC7Omi9TY6XFNoKorUK4wTygjNU/HK5iRw8ymkS80a8PdE1fOpOaVXcwu+k3bDEkvaWAt3dQ8xP4Z/kitovRAAq0yaLqdLsGsh/5142RzQJEYHY6es6fEHngrzf+1pm2exfT202RsaLZlRdlt6tBBs8qXVIt9yepqL8d457iwFlf2R0eCnaQARsEFdDpUgzhFJGHv+iJ87NHzdaEsRFESElq/zI22V4zm8JTKwIsQHA9LaSdkXlGz7LnXub8e8ZrYcQQ/IrHtAg7tOtXr4jOdorGY9IcroHp1fuJXQRjxsE1LlzLaXm3DljzrxjjT+riwXuo1zs6sp7T/AXzXCO3cyQ6AM07Hfj8N3p7t/e66d99sFkJkKkiUQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Bc1hY9GVTUPWKTMeZWFpsN7Svb//8ORwqwzhAM+LqSTkBXuB8bnqHx8rdgfJ8/5szAA2VtTtaTX8qmb3RoelrCwvnihPO/PxRl8bDkvPnnGgAygRZtkEJ251GU8OtFTbzchFOUis8MDvCqQPTrDVw+VCbvh+M4VGrfYAVO/L3czOMfOKQT0RkkyknX8J0kXfKuUcRCgOf2G+GYI5eTdfnGca83kQItl4UYpcEMjHmKMMW1NsaoM9vj6sw+nJr6CJRCpEQDNE/PFrawJ7M8OWw2u/HnDn9UL94dw5QgeqSGWu7ug4731GjlSyacPYnaVMHqQZF50nJ6abWRSBlvnWGO/n5ZXxBwEVGy23ubjTrqFgNJFAK/6E5ZAzk7wCMC4uMuXicxur9ZngG9lEwihFKYU/96E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:b24c031d1c32f103\",\"npc:eba04f6c4c0c4847\"],\"constraint_ids\":[\"C:2c43620d1dc8f56d\"],\"span\":\"Ansel welcomed Iria into a shared command post at relay deck.\",\"rationale\":\"Ansel and Iria serve factions that do not coordinate operations, but they are shown sharing a command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "OqRGwZLHGNi+qFAV9nyz0IcnhVBobVKr+BC3LSTHsHpMstRd8FPFKw/xl2frOWuWII59wLeGizeKf8CQHUOP2wUKD+kHlAZH1uVUctTwsiyZ+sdbYm4AC7Mkx+TiYEQ/78FdhPEXHOkVIEU2mlpk0ruZhSE5VAioODUklvYR9SgjT9BJigpN3SpyyxkIDZtE7DJ9VKuJRzWjX753cWK+jRV2+GwXnJ4y7BWZ76mB+P0l1E8nCJ19gQL1g+UM9iNxsXmPeuJMnw6tPRZpS9YkgiXwcaa2uCqaDIMn1KojsmNWHmXAdta1fzXl6BwYlblree+1sYzXuSXneIUDJc36SadZkf1JxoWAvvGuFrvAjforiOVkD0C5tvmjEBcjwk82h9wtdkAj7QQTCFSmGQnRzKV/3hd8",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 699,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 188,
+        "output_tokens_details": {
+          "reasoning_tokens": 81
+        },
+        "total_tokens": 887
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:b24c031d1c32f103\",\"npc:eba04f6c4c0c4847\"],\"constraint_ids\":[\"C:2c43620d1dc8f56d\"],\"span\":\"Ansel welcomed Iria into a shared command post at relay deck.\",\"rationale\":\"Ansel and Iria serve factions that do not coordinate operations, but they are shown sharing a command post.\"}]",
+    "token_usage": {
+      "input_tokens": 699,
+      "output_tokens": 188,
+      "total_tokens": 887
+    },
+    "tool_calls": []
+  }
+}

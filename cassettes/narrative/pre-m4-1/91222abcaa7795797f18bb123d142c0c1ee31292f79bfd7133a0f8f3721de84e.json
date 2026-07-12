@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:91222abcaa7795797f18bb123d142c0c1ee31292f79bfd7133a0f8f3721de84e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3678,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 558,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 208,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 903000000
+      },
+      "created_at": 1783843000,
+      "id": "BsGPyouZwGH7CdiPADayuT/TjMulHxTSXyr4hJlYbuy3gEEY3d4Mb/7K3LsToc9tmdOQqJxotj9R84uySRSJ0nLeA3L8ejXP7GPzYxiUYGHdi5YmznToVTTJkAgWC8oswRqxeiyA2bjLwaTnHkVx+tfG71MaCdvtvyZj0fjMHeKj++BfIVgxi4YRvgSfBvODAON+47KDvr3XpKUVjC7E0ZC7IxIv9+/rEyjDLnYbIA1VX4+4yBAlpnw62xEjBG2ZYLt/GqjUhyijU7inbQTeRpWACXyT/xt6D+1o3yEgvGUSi9ty3URB6qg0g3q9xUzxo75JxEHqgteOug8zXWTwwg97OeUfc+Wi6iSwXYafrYqprVjeVJOI7HDF5ZLxvLmWX7rM17EJYvIjXhW0F4ZV0Vw2Wrhg1g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "YQEe5D2cKB6GXUwu8j7fJwxVLxNRmIo0ey6EH3/o0O0jBMyCd7g4U5mX5KUhttPD8W9fqU1lmYvC+AkrxH8/SL97ErXre/+tqD33W/8Lg1jmkJUAAW/jpPIuiLUSGZOy9kQJdyr3fHJmghV/3R/N7HszGfUbonkgVq5s2J4ChtJXth/or59Xr43kAvbYC6yUGEsehnaDiNODlYjUT7GXBBmbFSyiyc1dtc8Lb32n5utapgE9o2OF7i68aA9zEcPLifXiyScnG93eEuRtT71UkAhEDFCze6p3jaZqaCEaxT8dSeSwfB5oRctIkU+XpXAKFZkjuAEROUuA4eVgQnkxe3eX/RaQO98rZFXsiYwnlY4z50NJaMFgaGOskhMzU+RbAfTBFML5VI2BJoIRhZid9GmgGJU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:9d034414e171eede\",\n      \"npc:b82340ea9c98c06a\"\n    ],\n    \"constraint_ids\": [\n      \"C:3eb3776685735023\"\n    ],\n    \"span\": \"In lower court, the council recognized Mei as the Beacon Keeper.\",\n    \"rationale\": \"Mei is recognized as Beacon Keeper after Daro accepted the same title, with no relinquishment stated, creating two simultaneous holders despite the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "PsJXJhDUEaIxaI1of04ztk8maTEpyeKuMXreyOINzGEpAcB7ezDpIzBPOPA7jpsy/G07ULTc/ZLvQuBAMsINyl1Y2Stpe2c8pmaBsvXPwME4QimQ/ElL7St3rKSnteU3Lxb59R7dwvAW8uKtHXf0zWRdc6mOBHATnEMrmYLdVg6Nejlr8KJj0sgQW1Liz+qFIrCuozARgvGkyYNCterui1fPokpv/i70yY5ZbOsKinXH7ttRT1t/L6XV6Ir9MiEOkBbWDKoKpjcXq5gw0MFM0YGiCkCVzAm48mSWoVUKr006cLOD4sHTNfuGaSHqTyhjyzFaS48SEC98olk4nFCKe0cqgmcdQTaDWiBYLQKlKwNrBW8djyjOBOA2Rqoz0U7bJ8xCZlU5iBsA2O03R0pldUQdJofd",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 558,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 208,
+        "output_tokens_details": {
+          "reasoning_tokens": 73
+        },
+        "total_tokens": 766
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:9d034414e171eede\",\n      \"npc:b82340ea9c98c06a\"\n    ],\n    \"constraint_ids\": [\n      \"C:3eb3776685735023\"\n    ],\n    \"span\": \"In lower court, the council recognized Mei as the Beacon Keeper.\",\n    \"rationale\": \"Mei is recognized as Beacon Keeper after Daro accepted the same title, with no relinquishment stated, creating two simultaneous holders despite the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 558,
+      "output_tokens": 208,
+      "total_tokens": 766
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c1cc7e28573e5647cc425f2d0f39986e3e9a3341497e9fc4566612bb64b9cc8b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3884,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 699,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 197,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 940500000
+      },
+      "created_at": 1783858000,
+      "id": "H5KzP1Trmf5Fv+dLFQrnso8ZUrcG7hnEFGIUqX/xVdG2B7O7Mz3f/3socBbzpK+yRKVMi80cCGE5Z0hKMls0+0LhhMHPyVPXCGgu6DqZDlW+NNRzm4iaWH00GbcX+XpufA1X+bN+jnpy227bHmCyXROFMjN/gmpOh6jWsd3fyXQuXnQDg5pdB23aP9BYpE0VMM9a+Ykb5wGQh1AQBY/SSUMyGKmhTYdABaqie2T7lqPRnTc/2gvsQGVwnZNEJgo0rKtb+XdrixlEsU+xlcORFKAe/fA3dQjuaRxSuSfpdAPMJUZQDA7aj3uMIIUnjNNZ9vaIjT5VpMQ/yGwc96iQPzZ8CfsMtGvCTNplir8yxQY4DGMetN5IW/Y/ARYAPol381OG5pGRY3ZmC8dlxIMqlGTNQrTVmA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "57rzd/wns5yeddcRCU24aWGnOxC/mITX4QGgB7xQ+GShUk7BfTqHCxfCFcoQ/b70FI6smi0Wh+yX9RF2szEIM7DbkZQ+KHsVVZZyll+pmySs0gO1wexpAZfGvA+EKYCgTmrpLU2WoOxHSTEaXWa+sB/5XhpDlO+CliWHp5Pnr2lX05KeSzztWnK788ySG6KeR3lX1KcMbrqIUvn+abFl+d/zfd5Ds+imo+vT3L87NnYpMUwsJUrxgIKeQpzfJwM4aJuTm1UX3LekTM/+x9PwWrw+M3AylDZJUPvdQ3IkpzYfaKcjQZA4Bw68QyfrbN3YnOulnuRHc6HuD1QP9nww49cXuJoW353DmTA5mydwvY+gvungyLM660oJlCN4I8ztnnC78VhZiwysXlU7kZYl0pZZfag=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:fe6cf6377cf36978\",\n      \"secret:ee2dc5e84c7ca27a\"\n    ],\n    \"constraint_ids\": [\n      \"C:b64e1e9d2f5d33c3\"\n    ],\n    \"span\": \"At salt depot during encampment, Ada told the room the truth about the source of the winter signal.\",\n    \"rationale\": \"Ada discloses the signal's source during encampment, before its permitted reveal at trade council.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "iyZelKotguUmODbXSyKGbfIvbL0xaKdC8ASknIb3yGSdlkDzrab8HYIjuGxJ+EXB+pKAvejMaP9NY5hiVLPEGUOzqn+2b4eYXWq3/dionkq0Oe0QTvFpXzUdpzxeijRuFwS0zUrlMHiad9LH0gLhrwNtcwurScUYkk+hijQMtHfQWE6j4pOBZ8YErCO1jb6s1kdLesV9R7JOF39o0ewsiXFC0iMjwg9wT5VxDpCekDkGY5iFKxXzwAN4sv9AZD8PP5hF/RcI1atkBZzF+sl+74r3cpL6A2Hb7BSQGTTkRhMv1msY3C+/yHSqLArVthLz1I0SqAHn9iFIsesbWLMc24Zt1ulpwNV0JVAW32ouLpNpYxLzWcZw3Q+FP8XHXK9iqBpfi9UV6iAbHTNL5EPzlAdHuLq5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 699,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 197,
+        "output_tokens_details": {
+          "reasoning_tokens": 58
+        },
+        "total_tokens": 896
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:fe6cf6377cf36978\",\n      \"secret:ee2dc5e84c7ca27a\"\n    ],\n    \"constraint_ids\": [\n      \"C:b64e1e9d2f5d33c3\"\n    ],\n    \"span\": \"At salt depot during encampment, Ada told the room the truth about the source of the winter signal.\",\n    \"rationale\": \"Ada discloses the signal's source during encampment, before its permitted reveal at trade council.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 699,
+      "output_tokens": 197,
+      "total_tokens": 896
+    },
+    "tool_calls": []
+  }
+}

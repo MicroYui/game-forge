@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6c555a08e95a9db10df57af8a20b8098e0a184b0f3b0fbfbeb0d64b916a097b0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3788,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 699,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 220,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1009500000
+      },
+      "created_at": 1783861600,
+      "id": "A1MX11DiKLhhISfagXu23Lzo232Dw94SDTjed4OoIpK8tCN+wRc8VLU5We0ZjxISA9yyKWO754NdzLpC/TUVz1rmRq5YbKTeR2uAO1ABbjvuavXo1bwSGbjv6iov9cs+1qP2JsyZS0BqKTanGMvqNMrPHiPUDgyVaw0kvPERN0iCeI3EQt50J5ATJoYuOp6WmRjQiwAsLJALhHXeVDPqvvaYnLCeqUUo7200x1C2zTnsxiN1HDcyZjSYAHz6T9bdWuIST9aePfFWx+YFSu+ErAlV6NrxDQ+aA4IzydIwKbJUKVl21MqWl1fnYXF01acXOEmGbW4jK7TZWkXC0SnvrU+sgom89GIrWj+aozHOoeZAcZbn367PDVyBtmlRSLOSfpeALOaOhjhYOJ10ThGua4fYtXr02A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "2QHOEViLD3kmet+EX/PlwIit58tkA5PdrKVmasgdigBZx/HFj4QZCOD+p8kBd0BUMbwYJ1vpTIwfhsbKvLal67e1xDm6V9D0QvITCmMuwQlGlil9wc33JD8oOLy4Ys+UQo7hddQYWx/kk7sAasK0agby/iKFE9PRTbPXvFleF5h8foZcVksxfq3lRPiFjDSuewIAPI4gxs2ed0/lBfMAoJ9MnWJVEBJfYhLzdiumcHLICL6tZHr95uUyRffLLmJAbNS6/mQc92jM/6POKXgFkPWK5uAR5bv/YOuYvcoDPUcC+Tx/WOWwBkleerdzMG8GiSyImsHQSnPdzfSrCINhAbRIGixHlwUdZg8ekfgaNZwJBarbTa5fxXDCpGj0hs/E53G6F2y/MHsjlFUcwN7vfp4Ji10=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:4da3e86a95c0a21b\",\n      \"npc:f2b10c5ab955b3bc\"\n    ],\n    \"constraint_ids\": [\n      \"C:b36c31357e30ec27\"\n    ],\n    \"span\": \"At caravan court, Veda and Oren signed a joint battle plan.\",\n    \"rationale\": \"Veda and Oren jointly approve an operational battle plan despite North Watch and Red Banner being prohibited from coordinating operations.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "dTuVXWolcQekhZDtZh3XVFWQrvs7333P2y89JAGDeepU7vI11Y6bk2wwNJRz/iXvrcw9zbBeeHn9x0UpMD3opZ4UlVhq04kEYQvZGRFrh9z9agi5ji+wL0SxbzJCSDCF6vzcNFyvruD08/CsW+dtV/7Cw0W5g/F4SwyErJ27Q343Duy5OptXBtDWcLxEaZRtD1abY1vt5eZzbRWWRf44C7KoYyxCXhbRlumu6/YPEgspZc69jpiKYJ2UbesYb77Q84IyTNuDr+0rVr1dIRRzmLQDau5MJiUOBv1ZWnWGp0L419oJGbK/6VYaz154oNkEL4i/SIgdl2BHCsgtx64AB2XutsGme1Ub5fGYQ/xeKa4mEbc6Lxzy/EGXAS71LNbkHdLAnUB68EJV8F2ZHrIcg3dCmxYx",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 699,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 220,
+        "output_tokens_details": {
+          "reasoning_tokens": 86
+        },
+        "total_tokens": 919
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:4da3e86a95c0a21b\",\n      \"npc:f2b10c5ab955b3bc\"\n    ],\n    \"constraint_ids\": [\n      \"C:b36c31357e30ec27\"\n    ],\n    \"span\": \"At caravan court, Veda and Oren signed a joint battle plan.\",\n    \"rationale\": \"Veda and Oren jointly approve an operational battle plan despite North Watch and Red Banner being prohibited from coordinating operations.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 699,
+      "output_tokens": 220,
+      "total_tokens": 919
+    },
+    "tool_calls": []
+  }
+}

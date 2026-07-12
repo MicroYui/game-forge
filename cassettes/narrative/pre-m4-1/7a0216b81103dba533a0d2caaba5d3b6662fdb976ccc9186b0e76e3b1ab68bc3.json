@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7a0216b81103dba533a0d2caaba5d3b6662fdb976ccc9186b0e76e3b1ab68bc3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3781,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 540,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 152,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 726000000
+      },
+      "created_at": 1783861500,
+      "id": "dYcrZifM1aQmKMj0gm4SjfGii9Ooa2ur3KTmPS/In/677LD8m21DGYIrLVpkPfzmgsr14io6KQ+oxCPTZ0hcrmYwkZQQs/74jE1Md/sNg9HvOQ0/ATy41zQQQmEDf55/K4iEoJvz2/QFSCc6ziLkKYMby+1SGuJKRGwYYuurzZv3w0lohVa8i2/h7aZ1+qmtfjB9ExPJEip854Nim9tDYyXVb9Q1AQrC+EmeErKLnKy9UChifz9iQy5VDrH93L4nzubdWCIrdzX8KFhR0zpIM84eHCfRPHwmM7LybudxhvLBeFuyzEOXbZQftTaUvW2V2R8GBInoNmghRYyUcl7lUdzFel5/0CDIWXIfvlvw1RPb4a4iWZs1KmaD9ThRsSKa4bKTl3/bceRniiKi5BT9Wpytocni1w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "8a8sI5rEmU1Lwe1ympB4nBPxGSPcJyrb+cGCGt2crPoNFnd4L8eocxwpP0dodQJKubh5FS94Nt/YnNdYoXyBqCoeWYTIJHQ9+udKUUmFW48uqiH5PR38MUSb9rrF0guHXR5xHlj0qmLVghvU+QiTkRf2QsZ63KBxEz6hBci2laSO8LioqKBkVgc36yGXnG8UpIgll7CBnIyYdWVfaxThuTQQquIRs3l6I4I5+nEJx+LdsDA/HfH/DF9B12B01gQVf+H9DvDEne9oA2I2QvuzcFlZGoCLtsDzH8m5VCgmGo+e61kiID5J+LfosporKBq4LKeVIrKM5QSCMPkNbnAnXnPoHlyYb3gP/k++z6l70fPgqxxjsZMcWMLTb8KdGipZeNufIPkpJu+517Ah7qYwbLv0yWQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:7727167723ddb2f8\"\n    ],\n    \"constraint_ids\": [\n      \"C:86e94279b72900a5\"\n    ],\n    \"span\": \"At salt depot, Qi transferred the rebuilding fund into a private account.\",\n    \"rationale\": \"Moving the rebuilding fund into a private account conflicts with Qi's duty to preserve it for the council.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gNBaiO+MPGwifTSU1XaKIKd1F/X7haklCAtQM+ooUxa//BmoXLidBjSeQSUPswOmfq+LBqZJ82wnyoNDk5zT9TsuQoQmwr9Hs4f0RagfeBzXHyPn9SZOwmMpCElj384BD5ESIuYUtCtEPDUpimwCu3lgz76GiY37ejtNcbPOVH/NJ38OPGG/8U2LbIJnbHnMORMSyDd8QZYZdg71jLJ/vUYs+7V8gXEtin+O2YBhmDj78KGurpjqliiItE7g9T+k6gYNnxvJhH8f/eLQGqsrVO6X82bvgwpioH67SiNM3pjeSpRnAvO0J7puWs0LOKJqy6+kIoQ2qLW5neHm2WszbTeinu+oZXl6nUGFeP+n8ZOEWHgCRQCC38QTbVWIHUfama14QzZUx1/E27G6lGL3uRfcCbzW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 540,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 152,
+        "output_tokens_details": {
+          "reasoning_tokens": 41
+        },
+        "total_tokens": 692
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:7727167723ddb2f8\"\n    ],\n    \"constraint_ids\": [\n      \"C:86e94279b72900a5\"\n    ],\n    \"span\": \"At salt depot, Qi transferred the rebuilding fund into a private account.\",\n    \"rationale\": \"Moving the rebuilding fund into a private account conflicts with Qi's duty to preserve it for the council.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 540,
+      "output_tokens": 152,
+      "total_tokens": 692
+    },
+    "tool_calls": []
+  }
+}

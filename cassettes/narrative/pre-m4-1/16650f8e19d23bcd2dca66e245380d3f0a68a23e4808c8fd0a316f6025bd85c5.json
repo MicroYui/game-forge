@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:16650f8e19d23bcd2dca66e245380d3f0a68a23e4808c8fd0a316f6025bd85c5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4200,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 691,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 233,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1044500000
+      },
+      "created_at": 1783859300,
+      "id": "XIV6e7K1wAo8V3wPOiYPGHfknuGHYjx6b4zC3x4hvX+uZi0tohgIqw6uWHx/ILwx1FlIPANClNZCld7XjNHTF9aEOzYvq0+Z4e70GRGps7oB2dmpC371dFW1yYGugQCppz57Ks6u+cstc5XWlAJnFCCi+u4xsT1BxpHwQJB8Q1lyVbsZ20eb6+Gve3ItEfiKZEsNQqnK5d/qjS4DEJIaOXeUMnuW8J4Qh1L5G0o6udC9rJkU1De5UdU01jP1K7CBPzMZwlS3blWklF+sbuOubO8DBcxaSnvZT2R1bqL3KO4MEeYewhe1VYQQjRA7GFEzhqVAzLJH6/AepCpVkWm7U0GBcQHAMkOaenUwEjSUt8k5z9IgqZ5FGoxxkHzg/RDUPqVG3DXJ1EIguDYYEMl7fk5ZYNvQHA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9HQTeTp5tzL6RKUfigu1pncwB2HxxzjR+T0MY2SxCeD6lsQU0ehkbYnvSjS4O3+DGFGVDPiu4CakQjDfbFacehVU/n2vAfoH7RG00Kakyek7puWRLZloUjdvA98Xc3E5YKbeOg9w+3z8jSVvHEOiOgIlPRjb32rbGupKaCA99VaZ2HpVrWWvJyOJLKnkhoHBa6ewIiOoI87Wi+6BNg293Frf+LqHeEbSrz5fYoOyPpjfYADmTg/2Z3OsRprBfwyVPVbAWb86BLFqTNWMozKp5Asat4tG9GSlJr03L8z82xiTr9he5LdHuiXcA54VRP4oad1bf9kgIchQNSZEPh243zZ5kSfXfKYBHLbg0HkMPECo8Kt4NK1IGk7DBfRBIQbWd6Hms1h8ru3uC/qmz2ecwZqgrkk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:198060195d5af581\",\n      \"npc:af0eb2dc5f08e067\"\n    ],\n    \"constraint_ids\": [\n      \"C:fdbdab083f9769cc\"\n    ],\n    \"span\": \"Ada fought beside Malik under one banner at desert waystation.\",\n    \"rationale\": \"Ada and Malik serve factions that explicitly do not coordinate operations, but fighting together under one banner depicts direct operational cooperation.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "CXOBIQEkXXJINKZ+v1q6R8ZpG1Y3Fan21m7rNHOlSxTW7cJXil7jA90yJK4mkmjU3LEy0E8fxbohMdzD2WhZVlwxuJ/riNA9Ydp7185qd7X8EJqB9EuPx8aMcxxH6h8OXDkTJI/w4zKtI9V3LyEII4JeBfEhaqgjK02LpOvGqK4uvkJ14WCnMFJibKI1WeI5qySgtNbQN0eAOHAEzF4ukuVCDN40TRfVBjoYR5isfPe4derF3hEbNen9HsaKXTwmHq+pqg0h67tZ9jGrMHsNlBtstRnJ3J3KzM+h3wSzfPCijjX92wTbxtocvoHB5IzhAcIeuI8rf71ziYnMB9PeYShvifsS+BnxFBGXSYVGhypWi6XVFVNZH8/QR3B3y3r1NChLSz0NgfrhF2U/7EguZx4gofKo",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 691,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 233,
+        "output_tokens_details": {
+          "reasoning_tokens": 108
+        },
+        "total_tokens": 924
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:198060195d5af581\",\n      \"npc:af0eb2dc5f08e067\"\n    ],\n    \"constraint_ids\": [\n      \"C:fdbdab083f9769cc\"\n    ],\n    \"span\": \"Ada fought beside Malik under one banner at desert waystation.\",\n    \"rationale\": \"Ada and Malik serve factions that explicitly do not coordinate operations, but fighting together under one banner depicts direct operational cooperation.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 691,
+      "output_tokens": 233,
+      "total_tokens": 924
+    },
+    "tool_calls": []
+  }
+}

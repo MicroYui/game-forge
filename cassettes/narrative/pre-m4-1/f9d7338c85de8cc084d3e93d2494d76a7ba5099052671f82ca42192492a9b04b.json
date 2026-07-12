@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f9d7338c85de8cc084d3e93d2494d76a7ba5099052671f82ca42192492a9b04b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5488,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 553,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 220,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 936500000
+      },
+      "created_at": 1783846100,
+      "id": "i3Xdt+yWnpdDxYWlpr4PqHUeSUHcIl0KQr08O9raUICef5fbaImACL8pQMnyXPjez3dVLvyI8vkwNFvSZ13hdOCJp2uhUV5x/nKW20UVyRx46t5RcajbvktWiz7fRhaCTZFK8JzJca1KqcOTduzRZNg45J+ld3/+HVBDKIQVCEOVxhoSSyF3ZLm8zDLWJJaQ0OookPwzRm0SbG/1qdfjy9M3OZbrb/Tf8m9xnR/wfbq+pHOTpke2DvgtisiTbQf4aOm2LCa450r/1Lph406oue2i2xGAtB/7tEV2Ni0ZGLvT1gOjKbZeyxtpLKuoZ/PxVGi+Zgcp3V5qZlvi53BNInmm2gMTFBvJJACOstSjHh/SuQCZBbcRSTevpIYhvFbeMBeiXHUfey9Tz6qN7Z0/s17Y8YSzfA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0fc7X+/nVo4zLrKxxr/H6Ipu18RUEar2m1A+GM2YIuDai4C3OQxTzXZch0zdsgdTuLVK/N/mVSImiF7/AGEcDaESMBDDMLzBg2vDmFDcQxdSA/ED4qx26LTigFduqYAIF/SPbStKCcfJOfKH8dsC55mLtUDmmj721ezsQpZuP1LlBVLVzIg3+b6XXqIMTJ+cw56MhpnymrhFRKTKcrdSReVqzJtz9Pczke76qHlPAJBHI2gF95JM8pqhuingjavzmzHkLWTRfM92ALKKfjJVgiaWxNd8PXODYgjzFNv+6N6X9w0lUZdeTSs0dwZ8FsO4hSaP83z4nVfiwGIG+IR6w+qyKwe6x+2OULTqqGpN5L4rrT4psxkLEq0Djta5br+hF6Oea5M63tu0It2ZDVpQRupXgwA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:cea7be47081972ce\",\n      \"secret:f7fe6c3b79ce3aa7\"\n    ],\n    \"constraint_ids\": [\n      \"C:305abc365c5d38ac\"\n    ],\n    \"span\": \"In cargo ring, Ansel disclosed the witness behind the sealed testimony during docking.\",\n    \"rationale\": \"Ansel reveals the protected witness during docking, before the permitted reveal gate at vault access.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JWnqpTO7mFrNmaH58TJYRorD1CS3WpUxo1XEi51s2pvKtA1atv3vPHVTpJXj4SL6j3/eOUHGR1+c2ItlcMKLicHQBIw+2h+5fBc4ofC7njtJClFF0GfTdksn22BavUNsLKmN3lOGEsf9SL2PDuXxDnkpO1VL0/SsW7rpXJqzgllV8S++62oZjJkG8R3ChG6Rj0OQEZO3RutR2Agfjinnw7c1EdqtEOJ116Xo7aTAT9GWEAptV6PzM9jSoVNC7j4kMgjAVY08X13KJNTyOC/VFihwjLIP+FqDrhjAIsVSDnY3cgOLd8vvZzQCw6cIr8vpZlvBoXuPVXFHg33+Or6bQ53cju+/Ojod4WwG9mOYUYcp4IRwlr6ddVzwVUhIQ13bFkWZ6eSu06hcqnYe0Ie3cgPntO79",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 553,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 220,
+        "output_tokens_details": {
+          "reasoning_tokens": 96
+        },
+        "total_tokens": 773
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:cea7be47081972ce\",\n      \"secret:f7fe6c3b79ce3aa7\"\n    ],\n    \"constraint_ids\": [\n      \"C:305abc365c5d38ac\"\n    ],\n    \"span\": \"In cargo ring, Ansel disclosed the witness behind the sealed testimony during docking.\",\n    \"rationale\": \"Ansel reveals the protected witness during docking, before the permitted reveal gate at vault access.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 553,
+      "output_tokens": 220,
+      "total_tokens": 773
+    },
+    "tool_calls": []
+  }
+}

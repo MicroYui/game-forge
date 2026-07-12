@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c9fef33b40be7e3317e6cd9f1a0238ab191166815ad8784a0198b01cd5545d96",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4045,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 676,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 224,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1010000000
+      },
+      "created_at": 1783847600,
+      "id": "KM+/CNUmzHPs8hkwMXvIl8WInoxcZ4d2g0p6KfENd46Oa1H7BXrs8+vx9Spp9JJg/p3PkBHDR373Y0WO57KZrMnFYiw/zGiXOwvnvR5Jt+q92mNH6dcm5aR4WUx2kH9drHxMObAX4xJ3wXVbPxMoQwWi/5lxDBDtSKoTntIl0fM40sPLB+ZWYBQUhPU14YzaNqPAbk7I+CwlJcKD/QcVbIywBe68uhbKDyIaRezKNkzKMgZNn2zAQMcJ9VZq2F9tlDYWhDDaKbVyPpPYeu4f6jsjcqvnPZxmDHKqU8onfySffh1yMWIHIcSCJ8OQrFKA5H46m2OcnN0eqEFpzNntvtTc64WKoqCgtQ9Pq57Ff2BCxNhdukAdQRQnABuj8Vlqy1rnt6IIkH65b1+jF7tinZY1TOnxbA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "rMc+Z8AJdwzxZbkSm2A4xOW4cRQB6Mgj6A+RDNmgkW+ztEI1EA9OgNFW0iXuMzQwG+DjNUeJJTo0DNP6CjYiZPrc/LD5u0pG7UifeAdX1BmJ5BtOUDRTNzAG1HCComD/1QSel94IShgQ7FJqBbwTibSEoGu74/mQii8Ri/wQacPEBMZwMe8X6uxG3KntXcGxAGWCcOUw4yfVUDNQl0yuKaBQpsomcD1K/msLoKTbu1TDlz5ywjBnL1lGiis5Ok+lKV4qbF7H/zZ2SfbI68kP+s5+JKvEA/RfpNVXQIx3Tfs9A9UF0XRg+BqQ2CoT5Fr3k6gkjGqvclIV0NSE4I6nlGZUGe220mNRsL66Y5nhGkCw2QEg00A0LM0h7rCC2xHtUtVJj1rfAGGoy4nhT0AApwarfGk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:12041233b05c5e36\",\"npc:dc610b8d1055ee58\"],\"constraint_ids\":[\"C:77f89148a16548f9\"],\"span\":\"Noor fought beside Cass under one banner at eastern ridge.\",\"rationale\":\"Noor and Cass belong to opposing factions whose standing feud bars joint commands; fighting together under one banner depicts prohibited coordination.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "psKdI61jVQH/Cm7W9UsZHAP5OnEkJt+v67+Tbv6gFWn3G2h49EZcU7bOhB8btNMPUqWCunT9/0leOLw8/+KwbZNCNmSMqvadzSqnmnsgRFFrHbmg5IHqIAq/hKg35r6p+pAvjhKOAxCMFZ3rSDJWzM5y10YIC0U/+AF+QoTU8/aufGaGo+2OuU14X6ogg24SsxKGnj0R+UZryXGFH3RI1FYi30jhxHDNVdfGXc/lpgaNj+BGOrOx1neS1fgcRrgn7vEuXfHf0FEAlfE8/opfnVP7+0FSCfg7EFUhMYUq8wneAyobMDCjyh9qP4+2m2ex48J4jpr+wHDThpWIBZJu/uDpUh0lVP/+t4T5C//7NUReQTZkjVr+oYxC7zY1wFZtPJZbULFH/SHPsnKJy6zQUA84PKf1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 676,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 224,
+        "output_tokens_details": {
+          "reasoning_tokens": 121
+        },
+        "total_tokens": 900
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:12041233b05c5e36\",\"npc:dc610b8d1055ee58\"],\"constraint_ids\":[\"C:77f89148a16548f9\"],\"span\":\"Noor fought beside Cass under one banner at eastern ridge.\",\"rationale\":\"Noor and Cass belong to opposing factions whose standing feud bars joint commands; fighting together under one banner depicts prohibited coordination.\"}]",
+    "token_usage": {
+      "input_tokens": 676,
+      "output_tokens": 224,
+      "total_tokens": 900
+    },
+    "tool_calls": []
+  }
+}

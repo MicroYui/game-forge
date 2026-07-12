@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1ac7ce42c5a1778ea8c6fdd0525f962e386b0e61999a83703c5c2f1ee528d1bf",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3176,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 666,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 164,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 825000000
+      },
+      "created_at": 1783859500,
+      "id": "oqPQJGlGW+DKvL3TVRgZiih2pF9Lk4+BpfyRnLCNraEF4kkAk9kI5Ws7ayue+Byweo2zsus+kJuosPb6y9O400EcsaFRBACosyGyJafebUbNVdFgTfk99PFdIrMPRzJV/B6w2yi1xxPrmKuvmVjUc98t9jsXBljDCDsky+gT46yg1Upi3+FR4+dA7viOGwEexRSQ9PHpLhy3RJTfUCHNsdkGntOm9yFMKiMYI5Lzvl01d0tIJn83/6nKESHAbXjYLOjIlC+ojMJ/PgCVrlw47MFZdoAmKrClcHvw/4e0sk3Wh29Z31FPPfUCVRxB1M3hm5sQ+zm2X6GuDQ87+Ydz/4i/beL8PMHYY1Ayy1f6Y4cVhfMT6tLB5TryOWb0ZGwVf7JWlp7/kRGDv4ez2VjUyq5FEIS0Rg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "x3JC0/VdJPUMj4QGuTJTXZFdUIq/QMzjgVz33HTvFc1BjYyyNFMs66vwzEX/RMm8IuOMrWdzbDNsmNNOzNwug2Gttt9wHSfDZgx3jPdG51sYuHZAIgeUdVoXXa0OtrdjCWABCz+w+b3fuq5qDvfKyU6R4QqciwcqJJTMHz5UMNIAEenYyLzcjTKupU0IpaJyN9h/VyYbcN+om1Kj3UksHcx79MY13MMxV2/BqMmp3U4H+SBnnjZ+znLVDQY05Fk6nxebTudrDO2hW9A9Dj9vInQUAs8LSzeSC3h6MBievmm53wrvvbAoT8cfqAWHRRSC4saWkOujbZV3b0lhdhMtzD0QbpCCzKxS47bZHubVsCDW46BlHsfN9pVMu12iUmCc4lgdKOEMMOIA7298RceTnPxY4dU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:03e35c828db11347\",\"npc:48420840e84423b5\"],\"constraint_ids\":[\"C:be624fc2f540639a\"],\"span\":\"At river market, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik belong to explicitly hostile factions, yet they directly coordinate by signing a joint battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "q5qpZ6KUDbmaXSC7PjTznY1EmV+B0eNBMAgOWizHJoNfoWNNSETlLx0+CwB9MVFPo/JWhniHqIAc3vea7N73wIpYskWuYbexUAvB9kdjkTuwjaCOuwHH/om31/WUPvU2BGB340+65zTLULjC9gWODxYgYa6laniEovdI6XAkRR0WyOqxtQs+x7Hv5dYSc56nitOE08sCgjRvrC7hvEaGfWDWUkqMLrb7jIVTubGP7CM2Xg7pQW5x/J7haT5WvC163GAtn+0BE+FtbziBA2Y9WlLmAQWwA0mhtAKdnOCiQ21Vq7PeYM548AmCX7k9XWlPPQNn1M88qZZk8xy0U5ytatxQn4LBb4ee05kNpTWM2tvL9+HSFbS+pgc1uu2cZaWZ7mkA/iSUdm/S3P0AoMUYJSYdz6fl",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 666,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 164,
+        "output_tokens_details": {
+          "reasoning_tokens": 67
+        },
+        "total_tokens": 830
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:03e35c828db11347\",\"npc:48420840e84423b5\"],\"constraint_ids\":[\"C:be624fc2f540639a\"],\"span\":\"At river market, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik belong to explicitly hostile factions, yet they directly coordinate by signing a joint battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 666,
+      "output_tokens": 164,
+      "total_tokens": 830
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a555e7a40c712a1fcb97f88641f02dc3e98b1c4b36227e302623d7750260d36e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3704,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 625,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 196,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 900500000
+      },
+      "created_at": 1783850500,
+      "id": "BVoUNkXZ1ccnSppCI5bTCf8N+gSFoYoCZ+jya9ZJJkQgRMjGUyUwF3YCrtr7BR3SFOxSVD+MwfUIvNJ2VkAeVs9aPQ15yljDeEAkoHP7fO3whv5QRcBNpGnHJhL8ICaTDBA+5T3jqlIsq28PQkfPnQdSCo08ve8xzwcNSi4Y3tiDoTQi9sc5A9dNipy/B5OYKkDSj822Kc478u5rnPNY/hA/GM3LmrOFC5dtIDZf/d3LXOlj6ZQ9v0nYMlrlLZdyri++i1AjjGa4teAk/pAjhCVA2szyECZQgZKuuCafPLtQlMcBRZmLvFYBzSstRpE3ZuEqimX3N+q113/qtDZOKL4YVhCZ5dGq1ezFf0hd26KdscGoBPp9BIkis7jH0TCJ+wbf2fbD9xqiiGvmJ22Fl9Z2YZupWw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pZzQckLH4/KatD1h0hzLaxhe3cTRYS+KBwnMNWuHhiOLdSvkSPG2jwnd2eubHbZyDLFIX2hLSgH96v97S1WDRLqYopE0EFouWKSMcbc/Ogl2lOE1+6Ii2OOQVI9PQNEtMtcYnHLPEOWePSZdFbBXlUGa2IMlM4gK0rpK7mKgRWuazDx47X8Edzd8FDqcPNrOg4t6P8Gvo1i4k37QpLW5o/PhT13UNPkTolw4ejGv4FNjiRu5SLe1nskclZDvkrvIGVxfmBBzzTQty59clmIYLmE10dL9TIfaFWG1Lrhs+tws5zc0FEdaPPWT5TLWqZXZaJFIK3/R0j9vOOXSh1NcIFUmQfX3CQGhPzF6ip/4YXQJEuIDhb38t8oDSGG18il0FF61WpcMS8KjMoNn7qfHK3LFMZU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:58177a8efb929d28\",\n      \"npc:76fc8ef106b1c3a8\"\n    ],\n    \"constraint_ids\": [\n      \"C:652f6206d690a61c\"\n    ],\n    \"span\": \"Veda fought beside Oren under one banner at desert waystation.\",\n    \"rationale\": \"Veda and Oren explicitly cooperate in combat despite belonging to the mutually hostile Harbor Guard and Ash Fleet.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "twWAqnTPe2kJgt7+/5Z8u7CRNOQJ0Ko/rKHwV+3OI8gHavOjUFITGQs/V2jlWuK5No3lh3G7XriXfzrSPeoAf8ZJMUTyZKej/CiPrgM6qWuMl0NcsOv3GH9G8o4wIWd/p7KCJO1hezog3x939EwmJs1MDUCqkf7zwrJnuWOLbiGWrG3is1f+/GHxGa8VajiZ4WkD5vfNd3A7KwKtwTuyoJuCsURCpMwdgfIvNoUbMVPIn5JCFv2vXf4M36B39k5qEfmWqOQs360elJGxN6k30FBBjPrKnpXydqR1+UNyI7IYjZ0MRBwuFiUUWg2FwHPGAVmRXSd+ttbDBFMtibKvj0IjBbvWImb9UhRlsm0Fg+JySD4hhZwad+KIF+mMnHpI3vxSKAG1sCjrMp5cw3C/9yFqv7uy",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 625,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 196,
+        "output_tokens_details": {
+          "reasoning_tokens": 66
+        },
+        "total_tokens": 821
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:58177a8efb929d28\",\n      \"npc:76fc8ef106b1c3a8\"\n    ],\n    \"constraint_ids\": [\n      \"C:652f6206d690a61c\"\n    ],\n    \"span\": \"Veda fought beside Oren under one banner at desert waystation.\",\n    \"rationale\": \"Veda and Oren explicitly cooperate in combat despite belonging to the mutually hostile Harbor Guard and Ash Fleet.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 625,
+      "output_tokens": 196,
+      "total_tokens": 821
+    },
+    "tool_calls": []
+  }
+}

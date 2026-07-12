@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a86d9a72e4a976ad3b34d221b8db6610c811060bb9f84d92defd320864d9c9c0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5279,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 710,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 252,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1111000000
+      },
+      "created_at": 1783860100,
+      "id": "8sp5pIu85QP1nLlDS7LnQm21pC6kouWrl+4y05NQ1tN3SXeFADL+MgoC82NEqhSuKfWwktrwpmFNycpE+Txyl/9k8T8TTlCgDJCbpVTrkFgr5xVqyxQj+AUgwGgJxPKeimpPCeIC3Hr789rZmft0w7hm/j60MeznUknHHtxjioq1UTlZ0e/pTIF0i71Pl2qdrr33s5Jc8YN6lMweMOs2POoEqdcUYGHmDqVZZD3lCRxazcqtS3LdkEW5dm5tvLmvKpOXgZwbNB3JX/AuwYfJRIaMmvEmMwKh+1XeUf9V2wbhbFY0R0FufWXaIBI/Y/V4RYa9A6cE8Ldf7vM05bytTOwShDTpMwb1Q7iR6OFwOh06FFPGNCPTVT6k+X4ZhwXyiBelQ/GdsdsgItuvUHusmQav2m6zhA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "8/oBY9nSuxTMEt9ck7XwGv8NIyg4wY7AmS6+yxct5mJfWZqcGNqE6MblV6Syje5JD3nCH+LuwwH8GybVgisLCFIGvIVAJrGA7AQTkKAgQUnHS2l7LbFOIXIbrJvYq4SoZnhgAIdJiCMif66f4sktmZvu5f6gdqMvLfl6MMtrnYEA/44owx8BO+Ncqlfx6ocozfLyOhAtzT+/iRXU++5spVvGGXrBuQ8RdPwDW6lkBvUNnjlpVe/17Y69YUk3CRwwK1mxE4ZCQTRN33PKsHKJaflovwGR592SGZq72mY4ojYHfUeZY5QK4p2y94xy1FC0e+Ywe+E9Syl6aVjH7zlRzODQbKjtQMuSo+8qCmzkp2YmoEzegaLUS54nL+kffCxyZ2/1xWlHYW3C5yl2PFKZQ96l6uo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:10aebf32688331fc\",\n      \"npc:6c10f69d4c54092c\"\n    ],\n    \"constraint_ids\": [\n      \"C:846c666ef1a38005\"\n    ],\n    \"span\": \"Malik accepted the title of the Warden before the assembly at orbital concourse.\",\n    \"rationale\": \"Ada had already accepted the unique Warden title, and no relinquishment occurred before Malik also accepted it, producing two active holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Qh0zsyyWfTHeJoW7vRfWYYtWVJcJyAeLJDL9nTB5RLCNo2SsVlHmviNOhslZHwA7u20+4Cpgpd8MNw1mGDj9XUwt1vUHMYzePlYgVHF756QIrnpZ0tjgRYt7v/BgZMI3YWSc5TrO8fS9ZoAvV2GgpvXaAFo989VHHcIf0FO4SMHoSF02JpG3T6/jg6eKKdpbdphV8gkVWIdAX+QiW8PfYCaGbclVu7YgfFZN85y5qTWiFLGre3Bdbt7+O4Hw0/CoT8s9ugg+GalVZjUzKOSbnEzQPD6pguAGsuA+45FKORJgBprwDbaf5TfSzURbe16NQHWOHNBo93eGNfPKr8Y7BnIXNW/rv2ctW26qTmC+dILEhsVGLZyorqW7igT+kTlAMO0DyDK+4v7B7xOuinN9XjDf0Ivr",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 710,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 252,
+        "output_tokens_details": {
+          "reasoning_tokens": 115
+        },
+        "total_tokens": 962
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:10aebf32688331fc\",\n      \"npc:6c10f69d4c54092c\"\n    ],\n    \"constraint_ids\": [\n      \"C:846c666ef1a38005\"\n    ],\n    \"span\": \"Malik accepted the title of the Warden before the assembly at orbital concourse.\",\n    \"rationale\": \"Ada had already accepted the unique Warden title, and no relinquishment occurred before Malik also accepted it, producing two active holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 710,
+      "output_tokens": 252,
+      "total_tokens": 962
+    },
+    "tool_calls": []
+  }
+}

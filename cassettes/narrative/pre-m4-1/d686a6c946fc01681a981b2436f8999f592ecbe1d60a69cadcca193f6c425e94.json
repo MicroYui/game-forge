@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d686a6c946fc01681a981b2436f8999f592ecbe1d60a69cadcca193f6c425e94",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4587,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 640,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 833000000
+      },
+      "created_at": 1783841400,
+      "id": "GSFPPElwMlsdqQ6pJ8uTv9LyaUdK4pD6ULlVb8pST2RPJuxV333uzVB0j2NmDcSStcPgYJnBWne/3naxTjeMoRpyrMQzp9jy2NQi415qUiWMPV9dTGAfyt35e2mYTXfihCvELEBuyz8wEEIFfu1U0052KzLCtHtpPSKo+8KlxoqmfYjg4+LBcbGpw5sem8/NJAgdj3U9ofTIH773fr879Vq6Bf30lzG0CCXWueRTyUREKN6AJY5t1NIdeFYOogIXi/lJff8jZx8TyBSShfZ3DnzZMO4YDrf7IO4jKZSZ9+M1V1qkQKJHPtgCav/AhgRJQfCOziLf4FOQ6acfAz2wWUk86udC2qp11Z22CYcimox60zID1OSYWyv1lI8hXm09M+UAO/V1AwEYVm+17cjb9oIRIZR7bQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "yv3YaF98xeOXdPqqXuiXGhgvTfAYi2EB7Yq7dfSce7OqGdU+OlPrEDrfSxs4zWEMHZR3/KdNdFMgSuOCAwkk50WFZ43H0QLjHFDjHh6HqFYDZTymO/3UpIqsMldCgt9MLxx8Uo6lDG9gQoO0cYXOQBC6t4/8JYGXdMVHbYVtSl+cdu2ZxQ7RyOA9gy/EKyKNmOBQ4WLprAAVR85vyuicznvtgxc/EQ/RJn0CUxR1vXWMHFg3LbdJwoxYFIHvXoNiHmtxSLmVc8yQv661K2YbHPZv92+RMfDpC+wPItLZ+2W+KnxseCiiHDvHj/GegYIHYfwgwCWGZwRPo802n31iToI9qescjkvt/gWcSIqBmTL4XIZQ4YJczqLdZmQBSz5KNwL0qFY+cp8q/csHzcwE8EYQYjk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:a8e3c337c281ee2c\"],\"constraint_ids\":[\"C:1a9db61b88cefbb9\"],\"span\":\"Mei sealed the crew outside when the alarm sounded at relay deck.\",\"rationale\":\"Mei protects herself during an alarm by sealing crewmates outside, sacrificing their safety for her own.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "80/YMcejs/0f5yv3aVo07kcT4G6SRYHA/ELd08y5MvvzEdtqxEgW3TmarEa5GoZgRY2Tebppb9NzvPy5+iD8AuW7tzKRl8vpR76c4mjmdAfuYEZ8slS9Tu1GE80tDdnmxHNXC57Zvs9fB5ZyIwNmipqeT9GI4ORCxHw0m6mVB6Uvj677luTnDv2tFpJfJhHHepAju/MneDEo3+4OcjdOBWFbV2UvBtWr8W7ec+65aAbzdxaYlcSMbdTFVTDYAzIEIg6IOTj9ceg7gTW/QriI3WAeRIlDRKG2HN/L+TZqAjWSfqeFSPbElfrUUzYBDa7sfPl0CwYHdJYp/K2qijMZRFXjIec2WQXxVffQc4FQfsZFmiq5aTcBx3QOVu5oApUt3WYnx9zPGYEKEl/0xG3gFmv+uYqK",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 640,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 80
+        },
+        "total_tokens": 811
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:a8e3c337c281ee2c\"],\"constraint_ids\":[\"C:1a9db61b88cefbb9\"],\"span\":\"Mei sealed the crew outside when the alarm sounded at relay deck.\",\"rationale\":\"Mei protects herself during an alarm by sealing crewmates outside, sacrificing their safety for her own.\"}]",
+    "token_usage": {
+      "input_tokens": 640,
+      "output_tokens": 171,
+      "total_tokens": 811
+    },
+    "tool_calls": []
+  }
+}

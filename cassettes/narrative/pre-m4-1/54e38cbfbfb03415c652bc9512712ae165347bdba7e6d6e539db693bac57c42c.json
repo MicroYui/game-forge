@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:54e38cbfbfb03415c652bc9512712ae165347bdba7e6d6e539db693bac57c42c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6440,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 680,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 458,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1714000000
+      },
+      "created_at": 1783852000,
+      "id": "aOC+6DfXa2WohKyysl2bBKqNtZikm80nL3bmZHtF19UyW0KmnR0JvAtp36zlA97puDVmr0mVD1fMwr+cpFEJ7DyFKreUGjLTM9kZ4WV9cv7ubxkszkUv4n0/TjZQ4r4jagdai5ri4c7W2yF1kE7vcIytgNJSTv+NfgloUEbcBdZA3Rocb3FiUcRiJHlV2bDJjDFW6eQokrFzCWykmiKRcr3dSZH0FbYloAAE2SCqQA8LLgIIjqPHBwEYBALsqbx8LzQxdecOk/RqLSKb3WpBtNBzj5P8XqTYk35dwQNx7rMHRxqEHx7Qdd0sN3WQAbYMs7387IQhRu3rafKhC5PA7ri5tF0e47d2ZT94XMFzptB9YloG7Se41czglIviAnRejruTcGvtoS9ExNNx7Sa4Zt5GPyRiwA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "tGsHRhQ2Fi0/sP6LVHJP+AsU97ASzYJBg7SRnG8jJs5Qj9I8vFQ+Rmvl7Nzb9KuF+5tzlXv6zHh82Iyjj+fg7erIGprEVTkS6dIbLo6w7FeRvpbQWpBux3IkhGkbrKSjyau+QyrkVaEMpRfsBXx+l5nSyHshpNIXSVoeT7BDXyHm0pbMXaJn2WX47ldODoicD84SHV+kXERQ1kpF24oagUn3ZN7yzRcXZHA1LTY86gh/p+1fp2ye4ZcI+RogolnBBCBhm6a3bqZnfRxBL3RB+2ElCG7PaIm9sVnuDqUMOgHksaU0uQK/X5YK0ir843dlaNIKqvkDpn9inFsRCt3a53nf0Dpncb1LAmHhSYf1DH+XfsCXgHulqa/8SC9+5ikz6ASIp4Chgz3SydVzhQf6LHhUZuc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:851ff263e9e6954c\",\n      \"npc:aad21dd46e7a8785\"\n    ],\n    \"constraint_ids\": [\n      \"C:7917d47f1fdea6d8\"\n    ],\n    \"span\": \"Ada fought beside Malik under one banner at cargo ring.\",\n    \"rationale\": \"Ada and Malik explicitly cooperate under one banner despite belonging to factions that remain at war.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ba0100c6268d9248\"\n    ],\n    \"constraint_ids\": [\n      \"C:5ea17e5c8aeb59ae\"\n    ],\n    \"span\": \"At observatory, Yara transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Yara directs the recovered coin to a rebuilding fund instead of fulfilling her duty to return it to the public treasury.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:d9004f9701515cc4\"\n    ],\n    \"constraint_ids\": [\n      \"C:b580f967de42bb39\"\n    ],\n    \"span\": \"At orbital concourse, Theo transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Theo directs the recovered coin to a rebuilding fund instead of fulfilling his duty to return it to the public treasury.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "q0grrMJjeiK4tieSLNdeOz8iCT3pxZ+ehdwRmyeaOl3IT8+WWDSMmVHpnYodlNKXE7ozkgm6v3mvxPNZB47iq7redkJp9W0vpbmYqo81fEQ8mkaI2NnjbVQt+8xUMwqyfOKVpaPVW5xCgt2bGMxVla1ugiEEeqDM/qYFPnkJq40hlpVb0kFyiE4XtSaua0c1RfxJmKB7gdmRSIIukpR0s+OMsVdAgHPDn82Xqh139VGov2vLwWbjGzum7UTclb6MqioBZ43A8PE2EFO8aesJIE6ETBc/JeHExNDQfDUM7xqyw9zpYZ70HTzxNKXc8y0JDWO6J89jleRSSSfbyl8URfIYINgCZ7ybpMk4muGKGhVQsS8MHyBwqkEBh2znMB2HUyQfMY/oKM4+AkQ7Cuqfc0cD4tIb",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 680,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 458,
+        "output_tokens_details": {
+          "reasoning_tokens": 121
+        },
+        "total_tokens": 1138
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:851ff263e9e6954c\",\n      \"npc:aad21dd46e7a8785\"\n    ],\n    \"constraint_ids\": [\n      \"C:7917d47f1fdea6d8\"\n    ],\n    \"span\": \"Ada fought beside Malik under one banner at cargo ring.\",\n    \"rationale\": \"Ada and Malik explicitly cooperate under one banner despite belonging to factions that remain at war.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ba0100c6268d9248\"\n    ],\n    \"constraint_ids\": [\n      \"C:5ea17e5c8aeb59ae\"\n    ],\n    \"span\": \"At observatory, Yara transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Yara directs the recovered coin to a rebuilding fund instead of fulfilling her duty to return it to the public treasury.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:d9004f9701515cc4\"\n    ],\n    \"constraint_ids\": [\n      \"C:b580f967de42bb39\"\n    ],\n    \"span\": \"At orbital concourse, Theo transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Theo directs the recovered coin to a rebuilding fund instead of fulfilling his duty to return it to the public treasury.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 680,
+      "output_tokens": 458,
+      "total_tokens": 1138
+    },
+    "tool_calls": []
+  }
+}

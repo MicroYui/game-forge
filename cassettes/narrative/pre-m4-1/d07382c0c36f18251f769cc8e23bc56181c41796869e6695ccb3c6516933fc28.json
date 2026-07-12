@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d07382c0c36f18251f769cc8e23bc56181c41796869e6695ccb3c6516933fc28",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4704,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 611,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 177,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 836500000
+      },
+      "created_at": 1783857400,
+      "id": "+sYBK6lcbu12t1oD3MJ6V3DyBvQtHmoi/As/lwQ+sLl5YBLODFsgS6KN+K/NWbI5HcYcdDc6C1bjMwqATq5FxW1bvFJ7Mz7Uc0QmL9Cs/KUOmQej5fz0Gc+lqG69wbfZ3V5o7Po6hPyHz/t5Z+4lP2X/1hH+hmrMIxHUggpvhX9soxKrv1X3djYYb6KxRyqQW5LO1EPcAeqm88J//C3lIEG+qUzl5yl6fpDa6speO4V5APaBqhzhdWLvNktfPSIK+Ez5MhOr1y2h4x6ExxT9tQGT8EIRhQqN53voxQHlQLJYFWYJclBUCqKr0+0K0y1jtdlOE0yCGbq1AVQ4nwvfnRGDMnNiMGmUprsZvpblXDo8C6agS+2WKih59sfOD5p3CXBmYhsFOUzTwJo/YMXJzpm7+1y2bA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "jpf6a3RO74Yq3h0wGK5hTO9mHf/5fmR+gTEtun8kqusYBn0RD2EbIp7ODF4Rz4LqZTlfEMth4T45gwOIIJM4jnCrdXZ52kcM4vTzpMiwu0ssYm7rl71YI9rJzP5c5ncse+amfT/xz3MIl3cJhlEBgEWlEfEqWdsK8hQoJXe1mghHnvkd9q0zR+pbj5V4vtMGELSrpn3/FGiyKVZCXWVa4p/pouk3eYqKV4Kp6Eju8/4UxGRC19giDoVejxINCNBrlJTIjd9T5QqhLhC5y1uRqtJjnpBzynEx+UPHl7XtWjehOZMYvgE9PwsVIyHwukWu7EzR2WVmoqYfqJNNfmzITkfqyuWzaWiAJJp7ekAsjGjFLnROSGN0KuJue/PDLwlROVKJxMxqISovN3y+wZ4AE6AJpBM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4e512d3a108971b7\",\"npc:e25754767c898fc1\"],\"constraint_ids\":[\"C:f9743cb582ab107c\"],\"span\":\"At cargo ring, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik belong to factions whose standing feud bars joint commands, but they jointly signed a battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "BxEPV2boE6ncs6TgeTXTan1jVBWP07NCD2uczmbqWBNQcZq+n80TEdV4J/I73+FW+nF/tlBO4Ilzlg/9kLozOhiRl6zGIUb/L2KsjyjskGc03I1h3f9UYDA2ojzknHnIQyrQf+UD+Kwy4RT3HvHlwyjawlIo5/Fkj474wXXPedJXEqliauq9hmQOfPxkEImH9LJLogTyk8cQ2KXRlwUzX1gnZLMsxebUIfvBLobdvZiYIxGrhagBx+5juSBUK9DwCSPcp8stSR0mqdg02OOd4DK3q7tVwR/GGDkr/xZIYUjtXb3fC2GMhDv0Ai6aR7P4PU78bMO6Sy4GD0iEIjs0SCVBRNtBE2frbytB9cehGAooJv3Nrrr5RXZ/LhPTCpvHB0dxvrJ8afgdpqLAqoxQfhTVOnU5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 611,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 177,
+        "output_tokens_details": {
+          "reasoning_tokens": 79
+        },
+        "total_tokens": 788
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4e512d3a108971b7\",\"npc:e25754767c898fc1\"],\"constraint_ids\":[\"C:f9743cb582ab107c\"],\"span\":\"At cargo ring, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik belong to factions whose standing feud bars joint commands, but they jointly signed a battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 611,
+      "output_tokens": 177,
+      "total_tokens": 788
+    },
+    "tool_calls": []
+  }
+}

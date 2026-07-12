@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a36792fe7d5aaad00994cc202391109292bc97fa28a0abd4327b9a1ee3e891f7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3501,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 532,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 183,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 815000000
+      },
+      "created_at": 1783857400,
+      "id": "+2prVGYimT7dWkYmSJz+h+cx83+k2ynHVtNxI1esrZNteS+El5/es4TOKk2uKSsWUjNbPs9tXvyYVPoOIrO4i/PirA1y+5oyOfi0QqjxMMp3KlyNUH1vD8RkFGSbg/6klMdPFxGculqZCi6Ij1UpVRwH6KZRsBrLKtDfwJ+6HYBTNrw+b/V5muV7VqMANNtzSHjheLHeCkpGTZlD1dUGBW/DnEInnVijpiHdo6BB6uqaIWJhDyfjsKUR9qZhcfWx4XrHqq/HDmGPrIngBE+rdcUG9LChUiNUDTamjYmNdNP0KjnQwswMtwBiT6KbXhTE0bLfRV8rt7faqCBtiI2XMm3BZNhs2ErXbkYma6dhOwPb/oHk6Xv6PpJw+iraX/MDQPBJ868OpR3bmJbOn9QdZNhfdVokFQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "XLI6Sqyo2O45XhNX1HP874Of53o4PR9Nl+LyPXpRjPgjk4Kyez/zDkNV05EOm8uCGgIvEt3jL3833rNJYiLysX7VCaELfxrvtsIq7FjHVXAlTuizsNYWw+LksUR7qHqEjtAf0mziXfnDt7eovYeZbunQBWq5du4GwaFZqsj1CrKZItKTmHQncMrEGJrLfy0+MzbG/4fhGwvxTAdJAQAX88hFFHu2D0UDs7UqnqNZKg5Iy/Ru1MajRkaq3hrDJ6yo90n+oyTnub2phveCyt2tSbvgqjaSBk8xnj9vaouZfbm6/EMhHSXugqLeR1E/XUrqU3bzaHeTK5WResfQ/CmiuP8m2vqlSGHCtHgavfbuHG5FMgILP0mJNIad+46QK5yzFIe2NKuOIaFi74isw7xJEoQvls8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:948c550b5e41ad90\"],\"constraint_ids\":[\"C:608f2c30add4d57c\"],\"span\":\"Ada kept the winter medicine while the outlying camp waited at cargo ring.\",\"rationale\":\"Ada withholds needed supplies from a waiting outlying settlement, conflicting with her established role of distributing donated supplies to settlements in need.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "2flSlVDa8pEFi0iq9eqKk+50N2qFtbDPa2JoHG8oHC81YZX1K/LAbsCALLrgMGpGeOBKh52kCgYmqESPWUHrJDng0mLJeGtTUyS2HJVmDxtzy56MB/3LDoPaNfChgNug6wxBQuryAxmN1X+dR4FMAgp/SCwmTHtuPXRvLhuGfoKkKYPHDY48bBQY5dq8dKgYaraid0XskvrM3y71ZScZxqGNoNjorltJD2QDHtVqBSjncb+SuUemSg6tNhDDRn4nIhavaVNN7+fPjTKLMkXBRtmaMH4Zt+6ensRAztLEFoiH1GSAj/Fxq6HuA0odIo84NbXF8HsdLq671RieO/O48T9tYs/Vw0vLTg2oYbOZnUmwsoavVT/ZqdJc4iA/rbymVFvCqv1wjFrcdOb/4uVl/Cumm5q6",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 532,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 183,
+        "output_tokens_details": {
+          "reasoning_tokens": 87
+        },
+        "total_tokens": 715
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:948c550b5e41ad90\"],\"constraint_ids\":[\"C:608f2c30add4d57c\"],\"span\":\"Ada kept the winter medicine while the outlying camp waited at cargo ring.\",\"rationale\":\"Ada withholds needed supplies from a waiting outlying settlement, conflicting with her established role of distributing donated supplies to settlements in need.\"}]",
+    "token_usage": {
+      "input_tokens": 532,
+      "output_tokens": 183,
+      "total_tokens": 715
+    },
+    "tool_calls": []
+  }
+}

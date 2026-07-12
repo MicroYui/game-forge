@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9b47d2d1dfc4ae74e3e4aab7b7f3e5e376d7fff755a9227346112b99fca1f19a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5179,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 690,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 246,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1083000000
+      },
+      "created_at": 1783856300,
+      "id": "7vqeyHCcx98mWSLzx8XVUO3k0oT43g9Yt547pcwIT3yPEC1EZa7lFO10ndfhoSSTFAa3jLz6edcEA7LmTCYxORvddWEDdm9V6/aY8O/gF9r82tXFYqV7BgHF8YZdyy8e/UpMU70cjuR7CE12FOgRM7nbAVixiawCp1Q2Un5ilOVJcTfUwN2hvnJAxAFQYocK/ui5TU2HfSRhuSu+zqloxM7sjyf3oUKFXLEjJpspUPSTBfrACVS4QE/fTYERLLezENLfTIZCU/6YtSaEXFX51ruR8kZwZEXx+usVzjdQazUxQsV5n0WXzASYmmYMFgbtam37XgZwFMM7WniuRIp+z6CczyY231qHg1xZdpWKIjr/G6I6UnXg1OZn1MWD0mZrprvvtnG6iU2C0Ux5utdCvidChJ2bMA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "REA4/mZjxPQTBPhaYe46tGLH6p+qoLMFceVMLSNP3cxWu2Th7DtkV0cKqF4TgFq1tO3efpACaA/DZHrn7Knzt98FOySbn239V+m33D6yrmys2tKS1nYA6WVY1Q4iz9eCJUK0GW4oweVOJp/zlc95yl8xrypk8uhTSkE7c6p+9A6rEhqKMVCcCMPf/074LV4gdsDcGLZPk9aax6kbfeOBzbRDYqHtU90f2Idvz8rZSrxS2ZKXp2yBQf5McPUImwPuYVWmH5YLNUuUXR4q4zimca+04RVZnJiGTcFxlCocJ6UQaBJ67F4yvYxJ2T42yc7IDwAF0gY7wDrVgBlmy21APCJ9kCTut4fmg+9f3gD/2v/Jd96vHnNf090mDVMz5Fw+JFc8qFDcpjX4py4FA/ZfXE58Hlc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2c77ae1371d65f09\",\n      \"npc:e2006e67320321b7\"\n    ],\n    \"constraint_ids\": [\n      \"C:3ba3fc31835f97e1\"\n    ],\n    \"span\": \"Lea signed the register as the Archive Speaker at salt depot.\",\n    \"rationale\": \"Lea assumes the Archive Speaker role after Ivo was recognized in it, with no relinquishment stated, exceeding the limit of one active holder.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "V80fDAu/zTUdjJDes7/TOEAImWEHl1IBRWbNOQtCGi+2RAviI5w8aqG2EIPP7ahpzuJfkqnUCDN409koSblPexs75038Hmmg8gebZIypivfbWkW63MDsDap0ZqpTOPcOuj3RZmEVcgXo7uBYk+JrdPcTfKKWD3IjkAl7/sUr7v9vZF4U8KtyZApG/6cUOyOF6kSlnrSgbmmIHRMLwceiD8vi+Oo8ahRsRszpZUKxTPuTraYz5Lb9p3O0Ju4wD65LvlkSYLHXESLfPS9MIftdI/CySgPdMOa+H2mA65+8WkNexoM1b0INfggty5ojU7IZOYfBqZjQKVJqX2cjsXh2f97cXxDaW3Xo6YjUkPF3jathoe7BGsrFJHhxdpd+pcOpWhFadpe9ag7lNBg0GZLtobXHmKEE",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 690,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 246,
+        "output_tokens_details": {
+          "reasoning_tokens": 109
+        },
+        "total_tokens": 936
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2c77ae1371d65f09\",\n      \"npc:e2006e67320321b7\"\n    ],\n    \"constraint_ids\": [\n      \"C:3ba3fc31835f97e1\"\n    ],\n    \"span\": \"Lea signed the register as the Archive Speaker at salt depot.\",\n    \"rationale\": \"Lea assumes the Archive Speaker role after Ivo was recognized in it, with no relinquishment stated, exceeding the limit of one active holder.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 690,
+      "output_tokens": 246,
+      "total_tokens": 936
+    },
+    "tool_calls": []
+  }
+}

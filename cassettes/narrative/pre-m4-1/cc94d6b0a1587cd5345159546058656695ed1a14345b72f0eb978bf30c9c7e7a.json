@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cc94d6b0a1587cd5345159546058656695ed1a14345b72f0eb978bf30c9c7e7a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3389,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 662,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 193,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 910000000
+      },
+      "created_at": 1783855000,
+      "id": "oCBzoHVQ+bPiQG8kM4lJiuEucx5lhUoiq6XFtsa/Ju7RKkK9ybpyqq8O+HdbHh8kAtSwjkFsilnqNb48dKqaG6b/8cAKEg+a4uzVrmWz/qyW8BilE5y5DsxuVV4HkevU3nO9GSmCfP5Jg8Q+Py1X9hgMMl/PHxAquMMncLyuQGfuDffFTv1ViM9tt9WQGFHLuUCwdRqhHJv3I3IMiM4qBCDv4woAiQz5zx51XwVv+GKIiRo0FmvOLGCxHpov8yDpOOSHQtPzBlSJArKBqLRUJ7Ss8GVtiiESNUb9+C32F/T7PogKQCaA1s+WIE/YBr7lstpoe4SFiIljG7naonMfBsC+IFcwjxtzQ+s0rXDZjLr1f7LvByMO0jlA0Pwt/mqj1zEXISYCpayxXg6hLrnu8/aEOd6UKA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "5zKEd1bQ3yMXfcN+C8PZjbX40YEOTWXyAPiRWu+IAMkXF+yAKh4d/rEXpUjfEbZIqv7/hd0ZsdjtaEE4BliFClZAuVIQ/OeecvW/GMg26Waup07LijMdOeOoY+tHmqqgo/wGy1wTsiegmFeieXFJHuHq24mwMoujmG8sycmGSMKg0EdRANkwC4q/a3O+mxV+iI0/IIui8xcuftPucLsM5MCwz95fIc88pw2s/Eq4Aqaqk0JZLEDM429gliKz2dUGgBbR/5OnX3bCd0UOh7+UiLnjpwDJq+oIuA9js9/QQH9BNGgoT2HyN4XP/QMxdfsy8DdNJLvhUCGUyvowTniIt7e3FhrvObRESWq7LmVFqUtCh/wBmhzIlx6R3fCPmHBiG9Fjmozdr9wPWinlmdu3dYbGe0A=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:efd275b6d2f5989f\",\n      \"secret:9bf3214ca2a541b1\"\n    ],\n    \"constraint_ids\": [\n      \"C:5a762c01cc4d5c3e\"\n    ],\n    \"span\": \"At north gate during first watch, Noor told the room the truth about the hidden heir's identity.\",\n    \"rationale\": \"Noor discloses the hidden heir's identity during first watch, before the permitted finale reveal stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "e9ylR/+pOwbRIVcUk8AYzR6+4Ibgxs15LFCf6QNmH4v+0twYy7JYpar1UhsQYCi5mTrl3AxqBAA3zsvk567EpIG8Eh8Cd1/QeJ9l11oDMXHD+72knEsGJX4E2bO8qown3AosQjoA3ynQiqwR+rJyrQTxjHzg/hpTrjoBaykee1yZbl+iRaT278eWIEnTjfWaRfEMnlfmkjPeGhSJJicolKfXUT7DI6L+lh6KrTIc2B7u1hE9r1r3g1gW6EXWHdje4c+17mqdt2/ohkj2/f252ZFKKFm/hPie7Q7YttYcflTc/uhZ9lwWQABHNZ5Ehs+B1I5s1wzkvqMP3wORoL/8PSUKNDo077bYTtLn5ClErNfhwvyLmggsauXUHhx3r6qvL+mLEjGbqaojhLswTxtF/cqXKTxx",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 662,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 193,
+        "output_tokens_details": {
+          "reasoning_tokens": 56
+        },
+        "total_tokens": 855
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:efd275b6d2f5989f\",\n      \"secret:9bf3214ca2a541b1\"\n    ],\n    \"constraint_ids\": [\n      \"C:5a762c01cc4d5c3e\"\n    ],\n    \"span\": \"At north gate during first watch, Noor told the room the truth about the hidden heir's identity.\",\n    \"rationale\": \"Noor discloses the hidden heir's identity during first watch, before the permitted finale reveal stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 662,
+      "output_tokens": 193,
+      "total_tokens": 855
+    },
+    "tool_calls": []
+  }
+}

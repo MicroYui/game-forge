@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9e2ae26be508db7b48e7f1df1bb325bd20d2a7bda381d86c70d4a67d947a95ec",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4721,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 604,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 200,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 902000000
+      },
+      "created_at": 1783853700,
+      "id": "3iGCmctLHs/WYcDHQrmtrlpj23K6sW8pRoSTym52vTpcmuu6O3kf8j95waJYnGNbrSlufIqrMQKWF2R7CSgqgrGl1cl8CdoL+iH1Jib8vrv3adfM8ZfjnhDfBcpboaBexIHnZGhuuv47ResVsaeXBLv0tp8KbSTarn3Ru1tElCjkwfR4Ovz2rZg3eh5fjYrRkbAbsoizJayrXvP0nSoTx7dRUOBgXNkwPdMFQk2RwMBjCUNYutDfs6E4rmhYVPMds3V0TXQ7MG74Y1YMDnwnLgktSVjw5K6aZD7mW/BmNCGKsH6mTri7n83qaQvCWZMsYN+My2tJ/P/ibV9XoeQ8LwgnYkgVBlzkjhHReuMlSH0y1fKhq1kBdgYWijA01HPpOXBpIaBMswHQQk51VCbp/9FykFbgWg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "R4PMJ2GhCVAwYG2vl+myf9TKl2ybrpC6rmp4Q3N2CYvJYyrgAP5n4Dm8mkPvhFZ+YisBlikOPjKdk4R+0QKLh+VyL6WsnremJXlvJVlF0M1FPIBswlbRdNnHR4JGD/zbQ/HBivs+e6QByTHDlJR47e1uWm1J909X25yL74gZMLr7j6qbQX+0ua6nwnKHrEXywlS8pjCoXORpehhLqIDKgQxZNAnPm4ulImrWWh69Tdd9YDTbk/VvezIN1Faqfac0rxrmAyFBmq3rwwvKuoUzKaulCKzm+Nsv1QjgP5wA1eZQPVmNUzYt6t9Z8ikYoViKnfj2alIL5n46VxV6H9uMq/P4+/SMK5PqEg3fP+ArGK/5TkCd7twCMiGYRc7X/CPTu9BeO9W3gyZlhHAQsoIT9Y5/8OI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:352d095ff27a5fef\",\"npc:4894ecbb2a2ebefa\"],\"constraint_ids\":[\"C:844b19bb719aad23\"],\"span\":\"Veda signed the register as the Archive Speaker at salt depot.\",\"rationale\":\"Veda assumes the Archive Speaker role after Oren is shown holding it, with no relinquishment stated, exceeding the one-active-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ZosP1ek6CGWkY8NO+FZqo9g1gkA4UvoMjiUhY0RJfuN+7Nm7kAyj5wDcshLrhvpAT9PxCVv/Dd9Qr4Aw/YfzEJeuP29j2eypIib1LHz5JeRK2/G5A7NpJHbgmREwiA3TSE1MJW4/sHL0OVrytRL0lcx/wW4C7xuvBo068qUZk5WR3QW5l+eHdcYfteu7WYAJIb7XmWIwHBUTt+3dpWCi7TWry5oXhvtZ7uPXj3XnSb3zs5UTGfLZyWhcdwxSNDOt4n1wrqGSUF64pMYRoDZRLYtXYteFiVlP8ylDDXfpEKDOCcrrmUTYj4ON7Xh41TpJjo4dpQZVy72fokgY/F7L6mtvAZrecHTEcgTod7kKFLpq65v3y6QR1/Wdtw08TZEgbiMa3UdtR7/Mfdy4SQx1RrtMKyHM",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 604,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 200,
+        "output_tokens_details": {
+          "reasoning_tokens": 93
+        },
+        "total_tokens": 804
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:352d095ff27a5fef\",\"npc:4894ecbb2a2ebefa\"],\"constraint_ids\":[\"C:844b19bb719aad23\"],\"span\":\"Veda signed the register as the Archive Speaker at salt depot.\",\"rationale\":\"Veda assumes the Archive Speaker role after Oren is shown holding it, with no relinquishment stated, exceeding the one-active-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 604,
+      "output_tokens": 200,
+      "total_tokens": 804
+    },
+    "tool_calls": []
+  }
+}

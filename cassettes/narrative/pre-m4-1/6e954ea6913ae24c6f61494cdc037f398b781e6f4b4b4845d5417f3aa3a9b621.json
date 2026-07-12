@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6e954ea6913ae24c6f61494cdc037f398b781e6f4b4b4845d5417f3aa3a9b621",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2811,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 629,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 108,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 638500000
+      },
+      "created_at": 1783854700,
+      "id": "wpQXG1lefe8+7PEL63IYNnQQBZ7qksy//LiZTLGVKAeDeIznIdOuZGbFP/JhcpA1TIEeLVrbvGwCOeG4Nvlaewg/VYpqDBKVwxCaLojtet5QLMqjtMXc2KIA86vKKVJg2bysMN5CL4jK4gWt8Fnt4T6bqCqW3q1cSzrB9NTORKnYN4aXw8LykojhqW+0/Jb0Y9DUaTajzAMyPvCWySquGw8CXvCrPb0O0Hej2fx3U0MjIXP/XCBMgIGZf5t0VjLPaS7kV2BHzO1b0qic1v5xZI+JQ1MBSbFMyaaeOkvRzxW5QIwwTga43lC7OJ9SF6bcrfmBfeRU5Y6mlHkI4R309Ac7F9qqhz83d65fGVY9yxYvu8atS2aSpF5bnHFb/TPsASj36aOKtXTCZh70N2pvx5M60jVBBg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:8d3b69df1a6517e2\",\"secret:82ee4b9cd514bb7d\"],\"constraint_ids\":[\"C:196f4c423e58209f\"],\"span\":\"While the story was still in procession, Qi identified the saboteur's name at lower court.\",\"rationale\":\"Qi discloses the withheld saboteur's name during procession, before the sealed testimony reveal gate.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "zhB3LNqmOWm/r7mKRcJZPXGz7OfJB174J3ZNKPScoyZF8DfqSCbEqNeOoKWXu7zZNx4EOim0zisdxiGi7AxvhfYk01AYqzbRWFndEfEwB/aqMBeU+FLLvz4Qt5azUZ9pXm2i6WDFqzkMsKO74N+0iXBpUj4KcuKgIH7xSOf4CC8OAy/czzw7Bowivu+LNPz47TsS+u8djzaWr2Vrz5OrT0Pk3267aSPPg5Q73hw5orzvXDHmrqAkDB4j9fo1bz9rVHr4eaNfhE6xOpyT1FhIYQIqG9kaYompEYKl5P69V1VWGV1T0UFCtMdc+KYQbG7iX3X/IQffC8rqKbqHhiMfDnT+/ozKH1M8EyPAcYe2Mh9JzfA/rkIhojCtoJ19SFPwYYHz9ubPoCpXDPGvnbniLG6CMbyb",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 629,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 108,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 737
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:8d3b69df1a6517e2\",\"secret:82ee4b9cd514bb7d\"],\"constraint_ids\":[\"C:196f4c423e58209f\"],\"span\":\"While the story was still in procession, Qi identified the saboteur's name at lower court.\",\"rationale\":\"Qi discloses the withheld saboteur's name during procession, before the sealed testimony reveal gate.\"}]",
+    "token_usage": {
+      "input_tokens": 629,
+      "output_tokens": 108,
+      "total_tokens": 737
+    },
+    "tool_calls": []
+  }
+}

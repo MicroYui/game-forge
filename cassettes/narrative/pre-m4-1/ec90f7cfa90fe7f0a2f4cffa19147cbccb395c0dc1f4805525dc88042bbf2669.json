@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ec90f7cfa90fe7f0a2f4cffa19147cbccb395c0dc1f4805525dc88042bbf2669",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4142,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 618,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 206,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 927000000
+      },
+      "created_at": 1783845800,
+      "id": "mMkM3DHDUzvzOYKQPWznCHxzv6+r7RsbNoSbWfe/d42H0nnu7B3eiWZp/RNWf6NBvQXWrFU9cXPfZwO+YCbVXhuMCgI50wQP7V+WwPxrkggjv52e1wk00nKyVWlazzRC0SUqiSVQ54NYw8I2QyLW51fuhHRuFrnJnanvJY8BDfymVYpBmFc88StJHqSjP9YUReNq2ki/oHJLVe7uJiwbKN//y+A8yXprkoTkyn/v28LmZ4wEKa1WztcQ4Sf2m8i7ABr7IcMhVSNeJ1YbnkwfZvGY84n+Wg39BrPwftArCtWb/gzrtKDL6SQU8/35h5Z96kDOYkDitS5zATU3HH99B/VSHvMHLz45a1b5VPF0DKxUxAdzO/1tYNrfG2gdgRe5qpsOnG8y9kLs3FFe1nBe7H1cumBpIw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "NXyLW+Gmfpw62PTgXAdU7Sm0F37RMBom8Grnbn0oNsCZGjtDzofqGbFoFSxMUEW3P3jlU+Tdj7ih8ltI8Wtt4i6GvGt+HxYp4LvdjHpaf9s+TYvTQ6AvXaay6eWarQEoioX3Cfacvyi5B/gl8L4w7c0mvn3jJwhR4mkY4+lryoKpv3EY9Pyk9Tb0Ol/qYE2onHGAZUE/BA7l6wZpRDgqp7rWkx/u5mMMqwHws52vnIXZSjtjFELNDsE4hQkHAPYV6XlU0DpxMPXyxxJP8F8/XIU6cxc+fHW/8Nv6RiI2I8dyTIy4LgdDaROYsbJXjLgiB0MgtlSEPxrERAKah7r9vE1IbmpDi4n9ubtevh6zny4AYCBrYSH1H9ZLrKvLzfekLeZShe6bLU2rixoiEFktf+qHyGQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1d6f3ca1e43fd4c0\",\"npc:e5577bdc2bfe5092\"],\"constraint_ids\":[\"C:ccf636c7994055ba\"],\"span\":\"Veda accepted the title of the Caravan Voice before the assembly at lower court.\",\"rationale\":\"Oren had already accepted the unique Caravan Voice title, and no relinquishment occurred before Veda also accepted it, creating two simultaneous holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "k95sdgZVt8+lmO8uh0yvsUjG/L7O7Y9UkDbhZRQMWcJJDjDm1wxrik3AdsHREQ7DUuRVOFe24/fuTCK5CRPpiU2sFyHJBrdaGknHDd+AIWxRKgR2WaGSyZ3LvExH5h+YaIMIdpGSbXQ5C7z385TjwKTdBuFhYEYdOXnE+bBhYdlm0UEpxsIf+0V0FCP/k2AvOEGKZn0GQ+wKKCG0csGfcsMbsAWm9jlH5J8rp3tQtZyvv7MJIMPgAgo4+HOIQ0U8Ao7etBcUPDZ3Yz2+N64NMOD++rKXtRrHqNUiQ50+PzjV6Fv4izV1BDVlU5XjsTekGNRFWSILOqqGzYTJ9e9X0B7VwD4YdqndHNtACjNcJhAZ/yBEsoaowHWKOad7trFlh2BHchtMBeqq+FBxWs26H2gSZlaq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 618,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 206,
+        "output_tokens_details": {
+          "reasoning_tokens": 91
+        },
+        "total_tokens": 824
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1d6f3ca1e43fd4c0\",\"npc:e5577bdc2bfe5092\"],\"constraint_ids\":[\"C:ccf636c7994055ba\"],\"span\":\"Veda accepted the title of the Caravan Voice before the assembly at lower court.\",\"rationale\":\"Oren had already accepted the unique Caravan Voice title, and no relinquishment occurred before Veda also accepted it, creating two simultaneous holders.\"}]",
+    "token_usage": {
+      "input_tokens": 618,
+      "output_tokens": 206,
+      "total_tokens": 824
+    },
+    "tool_calls": []
+  }
+}

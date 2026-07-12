@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a6b3bac1d54e0b05fbcb2f971c53d84560921be598f94b271fa2828b61add931",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6363,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 275,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1124500000
+      },
+      "created_at": 1783850400,
+      "id": "JpnaeMcxgmvN7sBzvoleIbAgUWEfhQ/oyx7sWgOZL1KRyXSb2OiJsE+6VSe1jkdvPca6hz6GxwEm7rsfG22Qc62eZLoRyeVL1Qz7llph4frmr9Ka0hilyFyagn1sAxzZ3+7hsNXZ0Z31o+xlD7UkQKBWpnUsM45OYntbw3QNI1mmmRuaDovU7ck51uVJxEorGEjEc/FazfZjY4y9RxdQhDSS45n1PraBwsG/sSb4cEV0wGgGtDgdpvR9RF0wDtAjn46DHw8Y8hO1V1+UzyTMRDAXsG2vDSYpLaAjMsH/Aa0cWlrzBK1d4OcEsxrQXLg37oKOE8qLmDiTCTCTEyJo7F1VQHXq/cnWhEQDqvKpbpi1Atsne1d4+T11WXP4KsNesT5iMS+lqOVvGx+5nfX+tX3imykD8w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Gb+RTEXLllcOMzs4akgrYbtckd47XFpW26EgFqBqMcENaBztbJXzIXlqlGvxMxyEnOIDuC7kqT97djsWhOedO2cGE2QU2ESayBwdLUYgt0OoD6iRooaQ/1YWTlJxJIdD/NKqtPZRRzti6a0iHH3nnDWnXoecH++lvvd7CCYi4OM9Is1vFkTXtADAuflE9yBnGcBIZ99yoYZhJE0wMLeuLYSKKZV4joBRwblPMsm/miO3MEiGBerQ4YdehVTzhizvqxCZKOQFERlud8rgZ6VYPClG+nNm4vkBNY7LBB3zb9mrx8yVCfBAH4XvqYBXcqXzkNZ9pxdnm1a1r66th8pO8wa/HOPk1CtzDDYh/F9AXG6GffO9sDJQr4k3kK2KQ+Kbl5Oxx293Rpy5whwgnPtNIeMTNQY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:839cc8d71eb8e09c\"],\"constraint_ids\":[\"C:445ccfee9d0c733a\"],\"span\":\"In signal tower, Ivo took the last medicine and walked past the injured scout.\",\"rationale\":\"Ivo takes the remaining medicine and passes by a wounded companion, conflicting with the requirement to keep that companion on his rescue list.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "24cGCh1LncWNHP8RcUFp3y/dz8PAMG38zCNGGXVGd7GjHGrFRye4EYRRkj3p0coVYQ21xUo+Cb6eeMXCLad6Vny8iHsPy6SlDndPLnn1ZM9NmrFJarYz13MifAL2URV2P36UJo/9M/rsXxIKQzCI7ZKsJ3M/N2m2iFdxRK0Kh0w1kPeQO4iP9O5ZzBDnIXgiyzz92m54ZKsmRtBPTa4EiJZ2ht8jpU12Q97rsT2SytRRTU5TmS1aGPHlpCofA1kWpTHMULQLc+cO8Yw5veZAWSE0dBU65leWWGIeBh/FxVYHBYoiKLaXREIWAE6HZUtyObgAvwSfiYdQXSzvENTuLTDmYDMC/2Uw+nSnFpawsJJy/alWuI8IlgyqgSIfvD3GAoTwl7ehaRNf5wb5wNFdf0EFuCYP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 599,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 275,
+        "output_tokens_details": {
+          "reasoning_tokens": 177
+        },
+        "total_tokens": 874
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:839cc8d71eb8e09c\"],\"constraint_ids\":[\"C:445ccfee9d0c733a\"],\"span\":\"In signal tower, Ivo took the last medicine and walked past the injured scout.\",\"rationale\":\"Ivo takes the remaining medicine and passes by a wounded companion, conflicting with the requirement to keep that companion on his rescue list.\"}]",
+    "token_usage": {
+      "input_tokens": 599,
+      "output_tokens": 275,
+      "total_tokens": 874
+    },
+    "tool_calls": []
+  }
+}

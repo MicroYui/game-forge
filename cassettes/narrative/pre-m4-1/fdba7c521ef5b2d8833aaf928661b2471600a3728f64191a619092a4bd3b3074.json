@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fdba7c521ef5b2d8833aaf928661b2471600a3728f64191a619092a4bd3b3074",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5357,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 643,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 266,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1119500000
+      },
+      "created_at": 1783851800,
+      "id": "ZKCr3EO/RLZ2IZ7zBvpRT5NwNDcl4pxU6ZSqvfkNUbZK7rbg4pM+NQ8OzoPeKyAxbKlWVHH9gsHS8jzA8irvwcaFitg7Sc+0CwzlZMYUBJIHTSt/TbfBpgSVydHrh6pA1dBB1tsRq+NFmDSCSxt6gEfAusPo25lA5O+JM6RDLqXMD4w54fcmQlRE/3thbJ5WhgVfYo7qQhR9ePyllOEdvYKIshbvBcFpFfnznBYOKHWAg86kiwy8ySG+N6XlSQNfkwyqQmtq4e8/D17lFceLQcEliq859hXYLV5uIXhH+iWrgFOgqmpcc02ABY5j7+OyYymjq1HYqi4ThQN6l8mmM1yyIkKV19O+2XVFsWHstG7dJZLxLwtCYNL7n3KXkls5xwYp4Za1z8hOUK01FKjfzFq9748X4A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "EoemElMUgSAxLk2wDDQffzv8YVY3SrJiD5qDpsHY1ey6c84xJtD8b1ppPpquh+9JDYlrwLX2RpunbOoXpcSrl8n4d8rLOdFI9egVCSKqQrhLUAPU+bM3BYkN/+6HyfaPvYfJeBJm4tOEcKgQjAZP8Ua6WjNlza5Jbbse/Z1wOcD8WB5amTPwVkEVn0L97QPCBZBSrjwfz73N+FvGdTm+uKoWs4DI0CHcObIRvlY16f0AcUoGUNFNbgEOAD69f+LglDHQilAWf6ZN2Svrbsmgbj1r+jBt20+28LKBJwv9wN14UTXWfVcsUJFx0I6l9XjIv5oQ+BRjl4uBAP4naA4tDDX/zIiQTPDZis4JtZyfwb+YE515J/krKDSJW8DsZSDZT/wZHhCbj+6oXL7XA92PhZALtHM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:053eafe522bf11ca\",\n      \"npc:21646bbbe5810b78\"\n    ],\n    \"constraint_ids\": [\n      \"C:dcbd0cd6777e731a\"\n    ],\n    \"span\": \"Eli accepted the title of the Beacon Keeper before the assembly at relay deck.\",\n    \"rationale\": \"Tamsin was already formally recognized as Beacon Keeper, and Eli then accepted the same title with no relinquishment shown, creating two simultaneous holders of a role limited to exactly one.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "7xih9Namz5vujmnaeIBM+LX+/m/Cd8KxGjwZTJGujtBmlmlWvijsKt95lpmjHTdoq+9tZAWRPFPmJq5Y6zWYWs7ov29CewdIBsNc7QOI1ngL0XXmOArFnIHQFWymrS6SFMUmYfbDoy7rmGyUpNMX1Xg+vlCkUm22rxGviFWBCxzqHXpGiGhHjb+0RlSzapTOnkUC+A5R2aT87KpRfZxUrZcYwfhJ+KHUU+nBDxJvjjVp0dNV6F23PCiYlNxnVHkagGwZG0EyT0dGoinF/xkpOGQGTS5CIDQYzeAjsjwiOB/45Vwdq3nTjUxsPTWdGEJ6NLaP/BpHxfGqd7dtduzinf+6HKGtmZrFfqltPy8rztl9dWtQFnpuf9M+DAlMZfSY6KT5MuqiUl3Xvx7cB3I+9581q0f7",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 643,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 266,
+        "output_tokens_details": {
+          "reasoning_tokens": 123
+        },
+        "total_tokens": 909
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:053eafe522bf11ca\",\n      \"npc:21646bbbe5810b78\"\n    ],\n    \"constraint_ids\": [\n      \"C:dcbd0cd6777e731a\"\n    ],\n    \"span\": \"Eli accepted the title of the Beacon Keeper before the assembly at relay deck.\",\n    \"rationale\": \"Tamsin was already formally recognized as Beacon Keeper, and Eli then accepted the same title with no relinquishment shown, creating two simultaneous holders of a role limited to exactly one.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 643,
+      "output_tokens": 266,
+      "total_tokens": 909
+    },
+    "tool_calls": []
+  }
+}

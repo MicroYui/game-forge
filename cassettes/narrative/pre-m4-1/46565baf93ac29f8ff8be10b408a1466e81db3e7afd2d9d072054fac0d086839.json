@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:46565baf93ac29f8ff8be10b408a1466e81db3e7afd2d9d072054fac0d086839",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3876,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 561,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 192,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 856500000
+      },
+      "created_at": 1783848600,
+      "id": "M3jXeo2d5IJmcVECn4uy6spzcHf6bTtd69bahLPJ7m5ZgUtJI00M5+sjk1n03rCzRHnqB+s/TofT5KWgcSiiGZ7mR67eSFScDLXycmoaf4RPG+T/uEKlH+EtjaW/kOWbCOKbdMLhi1ibfqR70WFaY0VLJL40jqtXFqA60h80RNy/bSIfLpcZMBoWjNDCBVXauNNjbpL6owg380/+0gkNlghtvLb3yRJR1YlL2Wo+9Sxznf/Zr1inoQajg6d23flwVudTQFYa4UMQNVhuHWoK0onuuc7SWayJpD/N2EfTKlWm83tMM+56YTsKovCJIehk7ngv92dPaoj70KT8Zay5rqpp1mYstABtp+4zhnjFyVTeT2FXbwVSvKVagBwnCj8QqnLJXdXUVx1oSb/o508GrQKTR/32BQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Vj/B8dalWPv4+CKcK3uvnZbODQ5aSvxR7/IW2iQjsdam80FzILbROOECJPWNK+gwySo/5+AsIfdOf87ABmwc2VbNgBfw61cd4gMISZ4+qyy7lOEaLBPQCX371D6ngicHGC94kGiulWMU4w2Zn5NfM/3AscsaZ/uTmh3S0J6+aDsDBf2mU6Afn7zxZdP32QAqDrPneLTNG9MtwHr7sKm0tmGh400KKntGCRSiub3sdHdHX8BNVQp6dShIFgZhcZoM8Fto8bfd/c5YA6lyqsqCV0vxCwAHxQZ50rCKe5I4FnUeSNFqOO94bWxzRPfWeyKHNqfSX9JfKMA40dsN213LE5AqgU/LNSvSuWRZARHZGNQIQyzR7bdZWqe4WoRewmV3mQQpJ3MpSEd8mKqyUwe38acj3d8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:52f93cdf4a3dec49\",\"npc:f3ffa49a3d23389e\"],\"constraint_ids\":[\"C:730dc810d9f8c4bd\"],\"span\":\"In signal tower, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei of Archive Ward supplies and forms a permanent partnership with Daro of the enemy Cinder Circle, explicitly showing cooperation across hostile factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KPuY9MtLLH7zOYIXplIW8qYCJ5uypJxXFlZ9EQRltROsNPFr7z8O0g7l4tWcJv2p5/BitGrOUT4bpdRDGolMHYlAfPVvfkhF5GPQeCsldciz8RFkqmF8cykjjuALldu35ImMfIjVZw3c1gzXufc5sJuVyNj+fx9jqbOXI/hDS3O+fr7XWAjEURG0saFPd3FC8ipJN6t/qDWwwDvgDDwhP6rHiaOGVr7cCZ4A+iyeYQ0Ool19vRPLsKc+tLpCrHYimnmIkO7bqVU6a7Akqx/gSxVWnII1ttQ2fxjMyfmEjubJ2veGFPKpSugoPV4WiOqJ2WwLFcbAXDXzbrfz7yMz07DNZEYzjcrlydYfEVjPgb2dyA8gMS2HHAbHv+Og+R+Vrh/jY13m+A/cPUIbEzov+DTBLlnj",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 561,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 192,
+        "output_tokens_details": {
+          "reasoning_tokens": 82
+        },
+        "total_tokens": 753
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:52f93cdf4a3dec49\",\"npc:f3ffa49a3d23389e\"],\"constraint_ids\":[\"C:730dc810d9f8c4bd\"],\"span\":\"In signal tower, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei of Archive Ward supplies and forms a permanent partnership with Daro of the enemy Cinder Circle, explicitly showing cooperation across hostile factions.\"}]",
+    "token_usage": {
+      "input_tokens": 561,
+      "output_tokens": 192,
+      "total_tokens": 753
+    },
+    "tool_calls": []
+  }
+}

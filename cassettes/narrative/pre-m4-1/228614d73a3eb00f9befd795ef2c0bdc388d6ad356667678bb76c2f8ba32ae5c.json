@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:228614d73a3eb00f9befd795ef2c0bdc388d6ad356667678bb76c2f8ba32ae5c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3305,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 655,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 158,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 801500000
+      },
+      "created_at": 1783855900,
+      "id": "gAxwL7fXt5Ju9h7qstUYVTD6DxlRNtu04S7xE/F9WyzEA7nm3HtaFLEatmaHjwuk3Dp99pgIRGyveNS0Q9vKYW502aNTo3/EigKA5WSySlcmKsweWo1JN3WGo9kC8AEzdoXW3lvvPyrdiVUb4x0qKWnzlbUHQ0VmoNHz2//8b7H6K4at3baOHEYtJiSdXk6xrH8TdBroZwXzjKy3fZeFslamQbYr4whplh4sXA+MoVzi2s0fgLl8Ecv9P27OTpI8PagfeDo3JY0tPU+w8dgPsU4eIXcTHeu/k9ot/EzQ2yWdJ22jYysyncnyoGlo+GME9zMrlWK77SU18mdsnlxrrhgcdnmVaPa9hksgkRehZ6crOZTNzfBL2B0FIl+Qa3UyvRDZRpV/nyC/R1oZa/Y8evnYSe0frA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "EzlaYoeUK0XsJp/gNWg76s7wzum25PSLw01sTvLmpG6AWGR8FArpy0o0kgZ7HhrJFfJIt+JzQOcq5fNWhKFPXJjgxw9h8Zks7TwhTHFeOKSCOB9bhoQpb+lCNVKbYDkojsjlb8prA07ZBtnK3jk2Ox02+EzqajubWny5+djH9mP3UkQzIv/QEQdfryOvtwLAPHNRAdzmi2geqUaS8Paww2M1v8GFS5zk4BIeL2MKdOOxjmTq9dvVW+Ndb8Uf4BTmBWmsGtyk8KlIlxuJGrFytcXkI8LZnFGnskZvMcMhYcNIVUtSoQUHrtY4t2ITiYC89mXV1LvzG9erNJDvlsxPc6as6fuQVrbCJVYtYZTc90+eKmeB33FpZKp13XuT7KOepz+31qdspLdTUcOqDBXm0LRKePk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:0cb40a5d2959c7ee\"],\"constraint_ids\":[\"C:d640c92b3eefb259\"],\"span\":\"At river market, Mei left an injured ally behind to lighten the cart.\",\"rationale\":\"Mei abandons an injured companion for convenience, conflicting with the requirement that a wounded companion remain on her rescue list.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "zZWRVcmXIf2klhHcYTkFoE5P7Y8dr1N/8+kEYgVrS4BBARVKvDWk1mCG4KI8Hkoc6VYUMH7PqhTOnJm/mBUItUr78uyma+V4quUpTwi0WxL7Fj3SbUXqn2oumu1LZ4zOvYgFPWDmLnIEIQl5L794Paa5mbGOUjyXARPT38Arrr7g2eACL+9vBK7TaKKVRnxdY9dNdkjtXvYxmMythxm5oZhngk5TV4LQIb3Tif7Ay/vPchnmYyMr/QcQA2agQaZT26NyQUHcnUIQGjyLEgV09oFi2kYWxGYbWHJUfpnBpXV16Vdwy4avHJx17HUWS+zf3NnlWhizXHZUnBvslo2zVRjuMYkbdaoT85Rx8FAt8MXvVuR7UrSetwsiT+JlczerD0zH0sw7M5YgHZqL8raIFC+9VMzH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 655,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 158,
+        "output_tokens_details": {
+          "reasoning_tokens": 64
+        },
+        "total_tokens": 813
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:0cb40a5d2959c7ee\"],\"constraint_ids\":[\"C:d640c92b3eefb259\"],\"span\":\"At river market, Mei left an injured ally behind to lighten the cart.\",\"rationale\":\"Mei abandons an injured companion for convenience, conflicting with the requirement that a wounded companion remain on her rescue list.\"}]",
+    "token_usage": {
+      "input_tokens": 655,
+      "output_tokens": 158,
+      "total_tokens": 813
+    },
+    "tool_calls": []
+  }
+}

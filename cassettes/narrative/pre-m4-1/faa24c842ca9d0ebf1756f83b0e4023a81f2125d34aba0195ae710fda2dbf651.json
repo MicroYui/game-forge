@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:faa24c842ca9d0ebf1756f83b0e4023a81f2125d34aba0195ae710fda2dbf651",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4666,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 565,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 230,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 972500000
+      },
+      "created_at": 1783855000,
+      "id": "2j5tkMKpDzud25+kcNHnn7VBdF9xWo+L1ZedtbM4sxzD/vUMlvmlwY0hJSnjgN9JpVGknUekAoV1/HukYE6WOsZ8Zv7sLXJl0egpZivrP71mnCo3xWtShNnhHK3Tuve+ShJC1qMWc1a7wPabfXaj1cP4XrUpT1LnoHP6dJNUaErpMbXmTZBGnA2V6aHFjShj3wi819TNhWgJJAceBvV5jmcWbBZviJ8S7VWg+29Him1EggASzoBttdYixs0XvGFn+ANEHedqb+DwiC9izVjes2sR79rnCWUfploDuY/60f3eapibVDRp2vG7N8wF+jCjW+y9i4O2EZw+qwKvusKDmBWWFrDoDteC9LfmkdNcKmSdBoVNBUIGr79Z02YC8I4qLTTwzY8w65ZNvg7iShUDIHU6Lzzkng==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "YaIC4AZyR8+MNcWEbsZHcu+vRh6w4Lu77Y929z0x8Ov2Ji5XFVSpWX24EYcQ1RRvVV2dn0NcbriStJiPUms1rtaDb2/WOhRkLc09ySFpdsGkF8nEfmaygl2wC5b8mN++sLrYK/eJrCIBMHkdeM65Tt1IVTlOCo5HzncBlsRBrFkuGLs9C6ndSMTD0InyyHzsoxn25cNd57oOyQKuqlYKlT3gNjwql0POQ+NIkHfMMaQVwLcgG7RJI4OdXfMf3ATl1YrDjsWPopTigvretVuHoeeR74sjZKqMy9XO1daE6BH8ZlzIBgQhGIUIOzbWMrfRWk9g3d/cdEjEBn9ic4uZEjGNFT8lYFpO8CvL7713ahVqoR9DPasXQbTM4CwTKu2hHpV3cKOUzzdHHdlwkx3sj4v/k2s=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:06ef8cbd1751eca8\",\"npc:ca823e5fd60364d4\"],\"constraint_ids\":[\"C:b1d2dd739522c161\"],\"span\":\"In orbital concourse, the council recognized Ada as the Harbor Marshal.\",\"rationale\":\"Malik is already presented as Harbor Marshal, and Ada is then recognized as holding the same single-holder office with no relinquishment stated.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "npHlsDPTdeXbyVu/m7BX5PlF1rufsrMtaB7D4XFKxx6lw0vbMpnau8CePLsx1yRpLskeNoFmoigm6H2tEzj5jJ55VBsUUdHYnaHJtHf+iXUR7kYCvVliwOf0TtYlPH/cl0wxvYU5d1PRx7VQCCeICclJjq0wpj8LjBUAwKJWcxRSqN4jSdfNDdtzuU9pw0Peqa6RshI7s3lLZRxoNguPSGMCt5/11z5ik+oDgfMf5/en4S2pSqs/4TwGmzpu3u0RXzG60bXknTRIYR75+lJwZK+YWBczKMGgQAtOHAgTdkOtudJbz7cWIDez2O7tTKSv6LLPGNAfhCG54sCfcKvcpBkPBkZmPcK3/tnU9ks73frtJXy1gDZOF7lhlP+uyuZG06UtVfFT75bAX+rOAbTNYN9B+iSZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 565,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 230,
+        "output_tokens_details": {
+          "reasoning_tokens": 122
+        },
+        "total_tokens": 795
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:06ef8cbd1751eca8\",\"npc:ca823e5fd60364d4\"],\"constraint_ids\":[\"C:b1d2dd739522c161\"],\"span\":\"In orbital concourse, the council recognized Ada as the Harbor Marshal.\",\"rationale\":\"Malik is already presented as Harbor Marshal, and Ada is then recognized as holding the same single-holder office with no relinquishment stated.\"}]",
+    "token_usage": {
+      "input_tokens": 565,
+      "output_tokens": 230,
+      "total_tokens": 795
+    },
+    "tool_calls": []
+  }
+}

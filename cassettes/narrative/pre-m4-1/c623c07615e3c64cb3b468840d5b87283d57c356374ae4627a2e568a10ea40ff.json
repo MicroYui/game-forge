@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c623c07615e3c64cb3b468840d5b87283d57c356374ae4627a2e568a10ea40ff",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3452,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 675,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 180,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 877500000
+      },
+      "created_at": 1783844000,
+      "id": "nYatrtq9CnfihXRPDbn69wxSgoXdOC/eVrfm9i9i9kr1OcxnBKFmNDRD9YoCbAn4AbUMftjKntcP7uTnGJYM4xKqmT7REjuTjjhBLQua7ydGkdYJEwVWwlNLx9RZNEugXrweQapiH082B1EtUarQcgumYiN38OH5QimGIjqIjET8ttqNluYP0HCFLaiR/ep/IxfV4dn4uLRcxHbs66lXp/lFoljCbC3tDpQN1d9N/zJjT3gLQFSnDL3H9ru5mrP4CFhYMfxgMorLdGhz80kcvGRnKZmrDVOKGIEJAu6epfrlz8oXI1956Iy1GClQhcqcpJFHAPOp0DE7e9HksPTzYR+2VGIKOOWHvTC4kIcMZWAuRp35w8KCK8WFJUCQ6GOB+m7VF9WES7Qm5jUdDlWHXJYqYg1QRw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "+JYMAtOG+Q9GTG7u/H7kzH7qrllsGU9OTHOCQWsDgTB2kiMFDNkE4KkTZ5DVncVl/V5crciDFcllaLbHpKM4dCUESfVaz3U1Gi4TsUIke5BwRP2Ni85HhWDVjMZIS2cZymGvdczYl3vzRHFza6nnU7AF8i5gIi22Xk0PdXHcMeGYsGkPk9y8WUNqVMt3IKXhH9FDdV+6yUg1pQbV78g3Us2b7cUh+zz24ME6ughhW4LbMv5PE1Nt1FFET68OKoBCNvfGCyjXGwiGuH6+JS9APxguQKi+XajltfkdyyWl2dPDJbkOpuN0B3yfZjBCMLil+xCJ02ikwN+h1b5x6gUDGHouYx4wmAcXZNn1BC379tkYvwzdNNRGEPCCObgpJGjkwCeaddEum3NKlSYNjzjASDTQfGc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:90b91e51e6ec6ae7\"\n    ],\n    \"constraint_ids\": [\n      \"C:6d09266ccfd0fce3\"\n    ],\n    \"span\": \"In eastern ridge, Noor marked public rations as a personal reserve.\",\n    \"rationale\": \"Noor diverts public aid into a personal reserve instead of delivering it to its intended recipients.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "UwoK/RI4Yw6sSHKz3rSnAFB/6DrAssapQEomA6Os843PBi3YJshXZYlZwmvzT9KAPaBOVNj0mcPte09k4OJ1ZJ2AgjlGxM5Nn/WIvNIKIL+0a8zoRbwfl0cYAgYZ3QuiZ3PKJB8u446yANdhLL1J4rrBDQ40uvoEhdsxoBZ1j1fMu9IpWSFONTLJCPrbCu9rompHlwCHmKz9lIWA8Qt8s1m6XUSYB+taL4OAQZu5wg7YskTTUqUtd0yApoqBpN2mzp8K0EJd9u3M8AWydVpb6PHilCvnf7owxYpP6mrhCZnmKlpu1/njRiUDZSIBUrrOTreJ9CC2kutV1Uex75XWxGZfyfvaOMhJVHCclGDnuWK4IBANBX6xZVSE8svV/KYeBc/leTKfnYBog7hlO/TnooOWItzw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 675,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 180,
+        "output_tokens_details": {
+          "reasoning_tokens": 66
+        },
+        "total_tokens": 855
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:90b91e51e6ec6ae7\"\n    ],\n    \"constraint_ids\": [\n      \"C:6d09266ccfd0fce3\"\n    ],\n    \"span\": \"In eastern ridge, Noor marked public rations as a personal reserve.\",\n    \"rationale\": \"Noor diverts public aid into a personal reserve instead of delivering it to its intended recipients.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 675,
+      "output_tokens": 180,
+      "total_tokens": 855
+    },
+    "tool_calls": []
+  }
+}

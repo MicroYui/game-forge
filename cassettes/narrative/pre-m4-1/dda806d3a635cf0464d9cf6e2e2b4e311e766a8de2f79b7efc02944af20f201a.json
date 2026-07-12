@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:dda806d3a635cf0464d9cf6e2e2b4e311e766a8de2f79b7efc02944af20f201a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2882,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 597,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 152,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 754500000
+      },
+      "created_at": 1783857400,
+      "id": "FeUFEOfg8CAemvtCly0PLdKRaT3J3WBKmkGsX9gWQMM9B0g2Wz+wqQcle9IZOO0pPZdKhM8GcT1KGE517Hr05d6gNwQBDlzm8ZkzXhEpX9qyTwI5uK1+8lx9nfm0WrjZjOiNVa/JVII4aD0xnvERv7ITko+tHgFhj3pIKps7OohtjN69yN3hqsxCGRwFK5rP1dzLEyQgUg8HVC8fU88gVWU8NH3Nok3SoJBajKBQ1VrTX185sZNfmEgkI6DAYGV48JYRLGoYIAJVlkirQI46il7eEcdm4ts0HQrwjI17Uz49bYqOkVzvFfLGV4kREolG8EPWj+TnrWXJbY8yTyWBCqKjFvlDeMKF3xnTzyoHFqLvohK5RgbLuunrtETAO+T+2kfs/NB65zPWsQqRaRLuNXBACLUkdg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pbpG3Dm70MDccXTZyfC8sNHQTmIOIm0x6gYLJjxIsbFg5/NCDSpK8n8NSXKwHtSvCjJ7AwouUzRc4c2Fmo5WG7+f1ZSeotFjfjQyjBHdct0GniBcalY6X4CBH+9PCediqklI7bQqBYR/YIFFussr1bVi21p7Vth4cLrAUz/OjBBlxtNqf/Nr9AaXko+lLPE2OdCrE6M3BC98nQhkZZhjUXnqJINGzdsG1G0oCRScvHAs8PtVBE+zjy/83DZWtj6qvn/TEKIRmyeI9NeoB76n+GbY7rrI1w+HL264kD2psrDywY9A2W1QWN9SVN/ktrOOFk1bgs3sTb2By4aQuwXixi0EIoLijcHe68QPbAC/DE2EKONGbnlD+XCKD5QKkQ54kYhryb3FSiNu2sl2HIkXNH/6H1E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\"npc:66ec58879f3a549e\"],\n    \"constraint_ids\": [\"C:323fca5e51d7d170\"],\n    \"span\": \"At archive hall, Ada revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Revealing the crew's hiding place to its pursuers betrays crew members, conflicting with Ada's loyalty to every member.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JHdDKSjqGUqzf4RBhzFlMtB92XzD7EpwVQQ5rAgexzi6ISQR1Lr2wL0hm4SKNB1no3Vr6u2TY4B8f+XkaICVyI+mx0G1OaFQGzw0109Afpyk+ARPj6vys7j3qFhP684v1uNSkj0PZSUzXmVRzU0kCSq4HsHRPC74G+6AAcdyitJ1TZAu/QNGqJAFyDE8fKJNEahG2XwwL3NlIBKffjxuXnNiRdzbzKv8S5IpU1V4WzFJ7ZJFoKRc7ZXlfveI8cLEEIVphqPTwSp7oThGJY9sgtW5v3IROzwqKaONL6xECm5UM6EgKG8xvhDkSetDB90uZMhb/M+sWTCfuOTOHqlRPeuAPoTT0DoiBMK7CG+4qjvJMCcKEH1XMO5777CJ4zF9+XReXyJAf25QPdlgXMl7mjmtwtuO",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 597,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 152,
+        "output_tokens_details": {
+          "reasoning_tokens": 39
+        },
+        "total_tokens": 749
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\"npc:66ec58879f3a549e\"],\n    \"constraint_ids\": [\"C:323fca5e51d7d170\"],\n    \"span\": \"At archive hall, Ada revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Revealing the crew's hiding place to its pursuers betrays crew members, conflicting with Ada's loyalty to every member.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 597,
+      "output_tokens": 152,
+      "total_tokens": 749
+    },
+    "tool_calls": []
+  }
+}

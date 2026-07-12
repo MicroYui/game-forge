@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:85d94e8b5eb6155c9f0228ff521ab4c03589b8536d49a35074dd16aeba527b35",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3037,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 597,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 138,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 712500000
+      },
+      "created_at": 1783846900,
+      "id": "YQgbu429BkC5sXZsnZ3bg9wyD6kiqpWeLzMkUDROyCxwj7djXkgxI9wXIUG9zsy8hamF6AxFK1hc1koHJ8jR6o/yYUYO3Xu9Sakempe28qNiXTDac0kQ5rVglfztOb85sFC8sC4R2Q5iF7slUJ4xqM3V735FPblMSV0nCcQb9IF+sUpTAoDKli6x6wKw5S2TLf05pt8OatlCFLiJt6Hvro8GqpgLaJFiSmioFL8j2aZvyOrno4HZtBmHCco/Mmsq/jy1nnocHoZq1Lr7YrdWfcubrqSlMyRxtEVjSmcZgHgT0YFCp5nZhMtYRl6rpbra1w9+YP7+9kCVJYQt1F+gECN3AVPrDVuh3p/CbFjFwAblqebKdg+RmQOrydIb0KC5BHV7a5zww5uG4nEmaPNFSDKNNYfrdw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ao0+lN8LDJisNnAsPNu+jIKb3WADT2tH6HpvrDbwOaoLwmURAXOl6+xIKQXyS2FDs36KA8HWEnvBHdUMdJSDNPu/8bhZR0HoJd1z4wePNzNvj5v+d9l4kDLMugahOtTjVtob/hTyXQSahCHkckTAtutSX4tyWLNvi1LZjXs5qocxK5ep4l+Xf760+Pk5w0FUjf7Kt2jrHrd6nG/ElhPA+980vIrVRWkkvVdEXryuSZnwR8AKTjKPCnGBGHjNACjwI2as803c4st4lKDMIBXkr16w4x/LHdjjWsj9QGvsLlKwGigixUEl+qgqv8YUW1ojmGickqY51HWm50oLERmZ6VoZy67XiTuLF+3XH2hAmxtte5N82yCps48QL5pFdEfCPtw24/iW1MBhPCGZ1Av2kpKxzSU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:3af1983a4578326d\",\"npc:59db546c07753c5a\"],\"constraint_ids\":[\"C:23c2a423f1aa924b\"],\"span\":\"At old mint, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik jointly coordinate military action despite belonging to Dawn Caravan and Salt Raiders, factions explicitly at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "NHePcBDr8PePjhp+1hvDbI/ltZIt6Kz2laYRUq9JcctRtYyr/4MrC73+olf75/WvZ3M9yPV0WwkNAEDPxOiAmzEK+SBQIoevBdsdCBWevYr67GACzDRPUxwA/I9SZ/Idyrv5mt06oGy+1dgRrCTXze6JMqgIG7IWgZ5O2Mj+geMoNUb9vUXKQmOJjvZhBQWujA/i1i+U4pspHdjr21OD9mCDDT6CB+7bn3iKIvmRdH6RlhdOrflxNWycS8ylVUV5vNPHFb2/XhRJcvPGBhm7Dk3dka1Tb9+mBP6O4jVdQEW3oJ2UGW3mpxQnS2b4I9hzp1ryi69UplwM/G7PCm58hKHNwurULT+R/ZCYVBhX6LrNqweAooXiVsjvxWyGigNHd8Ku8sU3A1VfD7f0NE7x5E9aWfsi",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 597,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 138,
+        "output_tokens_details": {
+          "reasoning_tokens": 36
+        },
+        "total_tokens": 735
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:3af1983a4578326d\",\"npc:59db546c07753c5a\"],\"constraint_ids\":[\"C:23c2a423f1aa924b\"],\"span\":\"At old mint, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik jointly coordinate military action despite belonging to Dawn Caravan and Salt Raiders, factions explicitly at war.\"}]",
+    "token_usage": {
+      "input_tokens": 597,
+      "output_tokens": 138,
+      "total_tokens": 735
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a44215e555da7b48aa3daf138299486ef3ba61ddbe5feb4057d05e6836199eef",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3700,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 674,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 139,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 754000000
+      },
+      "created_at": 1783851400,
+      "id": "YWfoIPta+BgyKxp/mjkY+i+Zabks1mLj6+Fw7eEZkSaKPyOIdP09cF8V1CfRG6Zt6xjmSv1PxjTXWWHVqcrWNe768HWdilhZOTt4hCcoa1W9iCyIDXlaBzl2DP0yzExvrddUa1tAd48AtjmQxYy0Bwcms1qQZFE3dvUF2lolQ4lxLPCJ6Jlt9bBB2lQRd8IcMw+hTW/6Q+wQThWNLFi8rGs95t1BaJ9DjZi1MzeyB82YI36/4q2w9Ng0FVi32cXL4tceAN9msDNiLOx6d6RZHzex2VPriMs+lX2XZt69bJnaGDPk/fsDknK+L6KncV+2WZtFeDI2vviGzK6tivFTtfRyFzj29j/Rk9af9kBgiFMRBpVBOnPZsDG0YMa7UqqMcPt8OwbmvvawD9TO6Hx19wPPu+Ihow==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "5rp9kw/VdJX+D7MfKv95Tg8gcNiw/KOarsYJql2dqgkTjQAeVn66t+c8nhhdk6Bq7+d8gPk7nLoD7sO1oHrx30I8EOYniO4IEBv9C0+0e9WzKn4Yb3h6wwQIuQrNXRlS0QSlct/5k0sz8auAjkxg8ae/uCyNiWVaG7EFtS9EP5tMT1Tv695QTQ62afmMwEGZxXbuCGo+IETBZaf5RMVaGg9nXNO1HslJ/AENF275GPugxOUXMpEMwGUniZZY4OI50drorhvxbcMxyvGp69RXlGTjpgtn3EKjbSfkE/ltdvGy18UhBrO2SgeoiAR4lSyglexpx84SL80NyPrCBJEnHbIVfzWggHWdsEgYmCUJ6g3rhG/8rK0qyu/lK/xcLrGVBcs/kl8naLEl+MXzRvzou2vYeKY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:3fcfd213eac99e94\",\"npc:ee98e8a7e41aec33\"],\"constraint_ids\":[\"C:38ef72bbec82fea5\"],\"span\":\"At north gate, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea belong to explicitly feuding factions, and signing a joint battle plan constitutes barred joint command or coordination.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "fdfWg9FKvnn3D1Mn9wLy1l0Pn+BE74cftDkopTXddHOLk+T/uMqiXEo9shttEONzIjnEXL2ubuL5F7cYzZY4RCW500lrt1k+e/2shgQRr+pfZeaJS9JNknzrj7eNAofw150iDtifq8fiYXuhmoVWw6SJcxDMd6xRJy95EyebAK+aMzf0o8HOd9yahVxjd7UzFmIfStov2iDPOHypGhSh6jcUdBrWqzjjOX0vy/dFDG9ey4+dODQdYUa9NzrYqK3t+WEGKkxpg3eSCCaJN7yhpRdG1zl8Pk7kI++Za5nRjsS50Sv7AlJvsyFbmIXz+yqg1ZUVfeWskDKLhWlpafkGVzboigHvUplqNCdbEWEHZvmyjgUgR1DbqMYfkhX7Hij7B5t2YL7ZGzUhyIVnvLFdsXphjK+h",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 674,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 139,
+        "output_tokens_details": {
+          "reasoning_tokens": 34
+        },
+        "total_tokens": 813
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:3fcfd213eac99e94\",\"npc:ee98e8a7e41aec33\"],\"constraint_ids\":[\"C:38ef72bbec82fea5\"],\"span\":\"At north gate, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea belong to explicitly feuding factions, and signing a joint battle plan constitutes barred joint command or coordination.\"}]",
+    "token_usage": {
+      "input_tokens": 674,
+      "output_tokens": 139,
+      "total_tokens": 813
+    },
+    "tool_calls": []
+  }
+}

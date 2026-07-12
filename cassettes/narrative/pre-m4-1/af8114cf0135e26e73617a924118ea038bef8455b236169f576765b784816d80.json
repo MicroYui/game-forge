@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:af8114cf0135e26e73617a924118ea038bef8455b236169f576765b784816d80",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7499,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 695,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 345,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1382500000
+      },
+      "created_at": 1783842300,
+      "id": "IxVqwhhlFMagK893kyVheLdf8ZbLhfCD0K9HUFL8ZoJB7X09BHYlh+WbHdNHUHsbf1042eWHLtYHk1ZGHOKCjh/IZNIXgmIjVxBwarLFBDmPHsMrBh+WAcM8PhGMPxalzKB49UDBoq557hWnHS8bcrK3m83e942KiDWkie//7ZWh55xPPRDmCBVVngCPpM0xWDN02TpVnV5YwDDPvrQbH6JApetQgCGcPkYsu73PBZcSYIvzDb+oKAmWbOlt0EPmwNDyOV/KyerAWka14pjCe6ZbrTl4WoeaHIUZFcw6ANk8vEta5z9pJXwbhviuX3EGDp8dng1wpqm3N0QD7HIgihAZ3lMtgz40FJdCF4bg9XkvutdjXOLyaJXkbfNFbZeyIvkLZrM8uYXsHi0G5Cr+3/8UGA0fgg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vPO0EJUmVv0G7uF3FLa1zV1a7h2kSnk2sJgK6QBHP8UBgNs+99cDMOIgEZgdxmXHqSh7qkuN3p6PdVW7FUCZIYizPhAjeVkZ37PERpxZB+e27Pbh1J9OTOSEuvc7z61M4BGgPyO6qJ4ppjovQc61Ud8z/ZIqe4LdSPjl1miWYnSARyU7LJ4Ot2wSMUe/eK9ODuPt/HyaTywWg1J/XSCHZqX+oLBmnMR5MPHVgFDH/VwbGVGrPQpnXzwfwgIBIqQdZ4ys0j1pwFXd2fBUM8A89bca23flQ+V2d+DTJjn8G920G8abZ5biR6Uvhbc6SoFGpp3GmDXkZoP5YmZ8/Sr+tnEvHZZUALl1NLEUyUo+zPXJDE6N7Ab5fy3ru9glKHneEz5G9v2H9pILqdFpzAiwY3Jg3ME=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:64551d2315a26b94\"\n    ],\n    \"constraint_ids\": [\n      \"C:19035412a15d9e6a\"\n    ],\n    \"span\": \"In caravan court, Kellan returned the reserved rations to public stores.\",\n    \"rationale\": \"Kellan returns reserved public aid to storage instead of delivering it to its intended recipients.\"\n  },\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:506abf9553e37576\",\n      \"npc:52a3aab9cbdbab59\"\n    ],\n    \"constraint_ids\": [\n      \"C:d662e6fc8bf6ceaa\"\n    ],\n    \"span\": \"In salt depot, Mei supplied Daro and called the partnership permanent.\",\n    \"rationale\": \"Mei of Harbor Guard explicitly supplies Daro of Ash Fleet as part of a partnership, constituting coordination between factions barred from coordinating operations.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "GkjD1ZREurUCw+UzihoTLlyIZJOBzeY1azwxupkhZeDY/ifSU5m76onzgfrGWYuG/TPqWTGeoBjj0T7zt7nJ8FvUq1nj2pJQI0mDFp5UN1ChjkR/l0eL+hV23SF7eemGoooCw4GznlhroBIi0xFYyF9PAtrIoeHu/O6Pp09LpRBX/+YQlnMzTRWu5tmNdVWKrKfvkHytFZYiTBBuoPkDbgkK8fyjYiJgxezK4MJiaahFrpPGrzLWJdrQkCUeP18s7/msCQXKRiRviL6VWobXd1fnFzczpfFV1frOEUsDjOdH0JCb9od1FeuEam2vfJ98wvtk7GUCNe1/zRAkGPgg31jUrbPLOIwN7m6gto4Jnpz/zgN+mkBihkzszEn8V0wQ2TCb02Kn5dXnurYCSA//3wXLMufi",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 695,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 345,
+        "output_tokens_details": {
+          "reasoning_tokens": 107
+        },
+        "total_tokens": 1040
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:64551d2315a26b94\"\n    ],\n    \"constraint_ids\": [\n      \"C:19035412a15d9e6a\"\n    ],\n    \"span\": \"In caravan court, Kellan returned the reserved rations to public stores.\",\n    \"rationale\": \"Kellan returns reserved public aid to storage instead of delivering it to its intended recipients.\"\n  },\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:506abf9553e37576\",\n      \"npc:52a3aab9cbdbab59\"\n    ],\n    \"constraint_ids\": [\n      \"C:d662e6fc8bf6ceaa\"\n    ],\n    \"span\": \"In salt depot, Mei supplied Daro and called the partnership permanent.\",\n    \"rationale\": \"Mei of Harbor Guard explicitly supplies Daro of Ash Fleet as part of a partnership, constituting coordination between factions barred from coordinating operations.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 695,
+      "output_tokens": 345,
+      "total_tokens": 1040
+    },
+    "tool_calls": []
+  }
+}

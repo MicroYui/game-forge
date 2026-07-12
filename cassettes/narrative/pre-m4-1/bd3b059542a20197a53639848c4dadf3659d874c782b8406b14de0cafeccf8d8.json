@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bd3b059542a20197a53639848c4dadf3659d874c782b8406b14de0cafeccf8d8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5748,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 606,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 201,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 906000000
+      },
+      "created_at": 1783842600,
+      "id": "ZmGIkYeJUMcY813p0Fj3VUsQlm23ujycNLtzlpKyDJLTf5SlsaL3q6hmMlgpgLxugZ3LpV/W1G26nekZF6rsozH5JIGtfGx/j6IDtcNs2hwrkLJ+XK3f/KMRW81o9Bm7xzZLjG5aAxkEisygTvoYhElbTPPWWH9JtZ6an7m8uq1RsLpVYNgzYvxdVD3o4i7Vm31TO3qQstH6Ml4HyPTkT0osjC+/Wrb1HoM8ZTLGzYfPfr7mEa5DIE8LA3EJwV05VlRPDZB4vsz1+MwkZPzDf3Nl60K8xzfhdITDqPYA6O8oVqqv4M/hdY6tk0wLkPGasv9dxDF5VZJG3s7DISKR0rVQ4HdYsQmWFrVzI5N2aQyNK1derLejipz3NBNg3nAzegiYc+SJlFQyvb9vUBaGGat7nK3EQA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "3uerIZR2nSVvFZ1tItsiXYq870d7l0w4oYMn1GHgJjMiqgjAL0NePWsMoUTcpiLLyqavrAW+x2ta9RSElfZdQX9RHHva9JROgRDLXc4BIPss9PIemIaGO34pr+pu0pG00gN5bW6TnMspyRUTVW3hSt2Xav0iEy+6gXxJmsGBfr2ZXMtMdvF0CxlxoGJB+kcDEcpNERCQCmlUV68OjazyYpgwHU/9VplZLSBF4sur8UX85vzpWKEy2nau5cPR+oHwj465rilOoGqxLvsuSOZJY7wpBYMeK1GMS46uFzaVet62BzmDjFIZ9Ohn1zVew48ff69TDXVxN/3pyfSBd+vUJU07/bH6QQh5h/DSngeHpScBIF7bYS2y+iXh/0zc4OyxPgFUvfsz5s1QxGuOW6ucmwyB4Hc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3906a5eb60cdee5c\",\"npc:ac2df70fbacdd7c3\"],\"constraint_ids\":[\"C:31d027b805d7c542\"],\"span\":\"Mei signed the register as the Crown Witness at archive hall.\",\"rationale\":\"Daro had already signed as the Crown Witness, and no relinquishment is shown before Mei assumes the same role, exceeding the limit of one active Crown Witness.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "XrB9Bd1Y3MZ/lZeppKQ7yJnuMRp/ph9pSRgj8WEZmZJxoQOEbN2f0QSQ7BJtniyyv+vbOWmzZeWeCwodws3cUial8jTTlXUdDJREr10XmDSo5Eed+xlkI6gUKBSaXCQUT++2+Aja+1TGUIgvonEAIWQ4vP5dSkuOIwfcYPJ+U636pMxbr+Zv4Np+R3czc9VgsOTz77H96bbFKDvTuZGyj/r5q2SWnop9FZZV2k3irPBe1yukFGKf7XgdXWTbzLYbLY5UapdVemHhDxP1QaDAygM6Q3KwQqQ0Q5KLg7Q5yFNcaYF0J6Lkpc41qLjWExbgO5BBHoz4RFo1eQ/vaNd7GuBPHsixIyed+MfVNDNxEyuiQuzoVEMVZ17znCN6r8APvuek0kSyBKM98y/WSigs3ULKii3q",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 606,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 201,
+        "output_tokens_details": {
+          "reasoning_tokens": 86
+        },
+        "total_tokens": 807
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3906a5eb60cdee5c\",\"npc:ac2df70fbacdd7c3\"],\"constraint_ids\":[\"C:31d027b805d7c542\"],\"span\":\"Mei signed the register as the Crown Witness at archive hall.\",\"rationale\":\"Daro had already signed as the Crown Witness, and no relinquishment is shown before Mei assumes the same role, exceeding the limit of one active Crown Witness.\"}]",
+    "token_usage": {
+      "input_tokens": 606,
+      "output_tokens": 201,
+      "total_tokens": 807
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3f62a533451edd70decf5a590352f47128735121ffe6f17d10a2eab81226a081",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2835,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 565,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 170,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 792500000
+      },
+      "created_at": 1783850400,
+      "id": "bkeaat1L88vgpWry1Jm3XplLHC/doHTwA6rt0dFYfEguXmxIz8bRuk8xbBW/gIq4yJ+nUjk8nuN3uG4AubYRrRK+CzyLqKpinNJNMT4aHcCqhqHWz+iNgON2yFIHwZu2oxv3m3HrY6MCoYQiwHCs/sGBfpIRuY7Bcl0+C8K1Vz7Guo4CNu1pFWcrXzHL5TYvlIty9xRr+BfUT8NojFXzSb9z6GtewnLKQR/lcGYG9Vzs0DagjlqrFOJ9cD/w3UAPJfOXweIwapo4vzrEDFuiRcZ3jfHnpSjFc156B5Nu7JMblXIBabf3WQV9u2GbrfMZXaqG9ZV1fgROSR4eneJPSzZQF90BPkQRqyDb0pmJ02/8VVExeD2iXJogRmj9yNCvAGJoUekfu3zexdk6g3a6ESXBwsXY6w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "1ROWtFmwz1titbbvIOLYJCis3HXmi7tzs3x0FhzHtmAz08S0an5ZVWmdaMeyI+SRWdc4G6SM0pAuSFAH4H6UViWXgdaJQrf95B3UElXlo79+KXjpVIBp3zpeTqCEouOJptYR9IqxnE1h+IRudSmShxkq6mvEn8f7ROjRjKyPKCuyW7iZ5f5ATvHhYomnoA5jtlGUi4+8Bom3mrcWntl8bOOr+uXQ/NS/SEZcbOClWMYBgrYDRVFdNJ9/4VdQfihENc+uen5ZDDdWcyCowHYgynj40DHGWw2aM5Z64Xmym6DkxoysjhV6R7gEDo3eiu3kdIxHsNHPcjx6cSodOs6gJ0Lr10PENX8fPMq0OEPDsD3Kc+jtKljDsUDvdo9CveJgJnNr+f/Bjp8qKOQMCo68RKAbmuc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:34db8c502b1793cf\",\n      \"npc:7095eeea63ad06c2\"\n    ],\n    \"constraint_ids\": [\n      \"C:1007bdca2efbbdd4\"\n    ],\n    \"span\": \"In river market, Noor supplied Cass and called the partnership permanent.\",\n    \"rationale\": \"Noor and Cass explicitly cooperate in a permanent supply partnership despite belonging to factions that remain at war.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "krDeXvS2HTNoWfsWAf5VZFu04QTNwU+FbgOfuDEJ0hGGy6GOu63V8fH2pNP0VHuHtddFvPmLIctsRts9ailuD65msxYBqMAS8M/J1DDVi/whWEHbjcg4GYvp28ocoHDIsVUnBKM28o0tTp3K5MwxiYwk9VyjlXGVoLj/sDyqT7o3fWsLStpLCqEzILXm2zWVl4mXscTEeoNsYxdYL06CIWOVcZ1Cl3lZ0hwbSgLTWMCYOCoGB7EXbvp7PoCjmTMd2tMcU7cAWK4aJJjnmmd19ExWz00Opp7cd96tZBinu/+yUSo9g6MISpXnHgMfq42NMd4KtrQaBmCgApZ90TaVVp/SZhv4ES0NtMY5o+DUtcwCjuBFvBk/HmU9ps4p9Y7FUkaEsKyfIIuQBaeOvslyUbGDCzuH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 565,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 170,
+        "output_tokens_details": {
+          "reasoning_tokens": 44
+        },
+        "total_tokens": 735
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:34db8c502b1793cf\",\n      \"npc:7095eeea63ad06c2\"\n    ],\n    \"constraint_ids\": [\n      \"C:1007bdca2efbbdd4\"\n    ],\n    \"span\": \"In river market, Noor supplied Cass and called the partnership permanent.\",\n    \"rationale\": \"Noor and Cass explicitly cooperate in a permanent supply partnership despite belonging to factions that remain at war.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 565,
+      "output_tokens": 170,
+      "total_tokens": 735
+    },
+    "tool_calls": []
+  }
+}

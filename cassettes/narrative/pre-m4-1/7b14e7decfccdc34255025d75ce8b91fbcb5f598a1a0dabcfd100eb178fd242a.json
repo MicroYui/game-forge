@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7b14e7decfccdc34255025d75ce8b91fbcb5f598a1a0dabcfd100eb178fd242a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3106,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 698,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 159,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 826000000
+      },
+      "created_at": 1783848100,
+      "id": "cknEzDwALBvyXfAX0w8e3XM4coz/W9/L9P9HQkllqed6oW9we6J+F4k/rECH3e3AmJwoeVdt6VQhAWSUty0wjOMkEtzmNqmmoa6DqI8Ce0HhRMjEH9UAfZ4AQ3i3d+pY/ky4STKs6nIvd1R5xiqrEl30T0iP2OG3jNT9Og0jRnyz/R+NT2iRCvRV9ZN6GzN46xjBTq4FYGtjIKay5diWHlxfQI/gzqfBiJFJEm6OdLGVxtALm9k+qfK6QOC64t3rFe8N7jX5ZU3K0d62FBb77dnj9ZOiQBdS+J6Tyy1cMaNm1NEB85CqLkuOUvh3Si5XtJR/S+DVrY/lqbgUTNAMCYs7PPS17rDxMLZ0JT3GNKL+7m9WGqWWVQKGqaidpcc4WfP4m0t5xCpumcQEVWRGGQR8u/jQqQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "MK/ku7D2hyu5wgiUNsVQ4cyyiNuoukfnrLC+8hcMJGAOMzC1Gb9wUqxbR65kkZCyYnRHzJsPWFFu529RfEqJQz4lELb2g1gF/Q+yHGwkaC7V4tRHo+EBLksxBu7ykuXOqeY7UP3c8+ZEshTlabC88/3v9DQ+VhpVI2KidlqcaD9aPMDrMLJHmFk7hWxg/H4XbSAqOULnzJdss2V1fRZWya/SQ5v1/WJxdOiLjznj30cns4ZhHytfMPyDt6PMPM6/ZMWQK+0T9xE9nN7y+3giC+QrKTLcUst7b7t6Ff102dDPi1vfAlx8A1Xj6StoHNrBf3M348OLF/fopLi1R6Kg4Z0gcW44zVQYl1V9iSc3vB7fhmBqOD+t0e7nbhjE4RhGoBr61RLHj2osLUBl8XibDHB0tQk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:aad309cd776d0aa0\",\"npc:b8b70d2f3d935135\"],\"constraint_ids\":[\"C:8593ed92befe1822\"],\"span\":\"In canal bridge, Veda supplied Oren and called the partnership permanent.\",\"rationale\":\"Veda and Oren serve factions that do not coordinate operations, but the sentence explicitly depicts Veda supplying Oren and establishing a permanent partnership.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "h5KGr98sgqCNkHuOo5zH2LAOATvphuqEZJEOB2mC9tFYdNxf/oaNcxV2sEGYGuiDGhfAOKf7zBmzutX5aklVIb1L5FHZRoWHH4GGtG7gRGJefPTn4d6Ujhg7Z2dm8aBkFjHmulFeyQ++YSCarIJzFXbla/g3uxfvIrI8KGAW4HePwkYwt1jZ/LI99PPuN5AXegd2XYmuCUgkrL2UGZ3NIlCyYDP0GV6fkzdNeLby/5pYUyrxRifUADM9jNwlt4tf4hb82unamky45vv+t1ZUsl7x1XdXC40MMURg4LhRrv590QUoSj8x/opA+ZQRPFM3cnmYqb3ceFg2DpKGWOF6qzvPx95e2/RQ2xKUNcRH0Y4aFvf2aSjZpz9YJ8GDJ2miyjByui5K5brbJ0hggNENaSv821Dj",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 698,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 159,
+        "output_tokens_details": {
+          "reasoning_tokens": 49
+        },
+        "total_tokens": 857
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:aad309cd776d0aa0\",\"npc:b8b70d2f3d935135\"],\"constraint_ids\":[\"C:8593ed92befe1822\"],\"span\":\"In canal bridge, Veda supplied Oren and called the partnership permanent.\",\"rationale\":\"Veda and Oren serve factions that do not coordinate operations, but the sentence explicitly depicts Veda supplying Oren and establishing a permanent partnership.\"}]",
+    "token_usage": {
+      "input_tokens": 698,
+      "output_tokens": 159,
+      "total_tokens": 857
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cb5fadd048df45cfe3c85856d9acb1245d6acaa82bc54339a9d7a10230339e80",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5395,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 622,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 214,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 953000000
+      },
+      "created_at": 1783859300,
+      "id": "S+QJuNBQ9IHO3oGd4F+TTo/p6nQNcBgZLXL3p25ZQ6klSJGJa94K6Gd2D1re6WYH++CIKAwvTHSI43tEbL/BDSqZ7BRoy+0cWLTZd+tBHZwczgUF6KUUPyngxSFJl/rYiWvu/0wcezL+MIJMBVKoR0P26kn/Dvzd2c2jlrxXQQBw219qgbflumIqUM2MBjhtgqjoA6eIdUzn4MGAmrAYuHOokLTPKCaEcJdL5LRy5RzowXSiGkFM+r4LQaYBQwpBh4w2z/+6b3PbZVn+/ByGj1jndubW0lZx6cIYFDc355Cvw5Es1tICXZQz/kZz5UjTYJdjfNJd8AEZCz1389E3xiXXIu+3E2tZHSBA5PK+01JcG0IMOytDt4rjFyuGz+bgKR8rAQySSRFYPqWqABF0ILUjEXfihQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0eQR3WRG6YT7IpP73Z8P5FgW5myUU0vO4uH9KAy+KRLdLtTlqU07kKbXNrn8VX8OswVpidcWfnR8drmKM4tt/UDLlmFCIURYHeSdDW5PuMvYcU32wlY9BsSih/Y6qj7s5BUXZlOr24CGydUFSjuc/YFmfRiVGO/NH22KTaDA4Z5/enub3EgKXQiRzQyNtr7SQedt/mo1DySQv7j8hcUr4SnPjdAADfpdFDIIKlQy/p4fdoFSiZDe1RdKD5aCitYpDXDN7tBhIxxbEumfyDXFscC3ZA/WjIFS47PnQ2mRKDjMLqk7WPzu98thDsL9RasZWppEGYMGYAkam2hvgnLH9YpaMLpSv34pr5ih0zcNzfwcueCeWnFgZiFH4SGc1YGBM1gOGv/s0RQpwJMaHe2aeoRN8XE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4343fb993e1139e7\",\"npc:84482e0f78041726\"],\"constraint_ids\":[\"C:d7bdbe9146e05efa\"],\"span\":\"At salt depot, Ada was formally introduced as the Archive Speaker.\",\"rationale\":\"Malik had already accepted the unique Archive Speaker title, and no relinquishment occurred before Ada was introduced with the same title.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "OYCBb3lSLErcgp2rP3wZL52bFdag40uHvOKoWqTqY+Wl+Mts0KUR07Q5eGR66tbty/UEj4rZqXoCDejqdTfiYOkR21WqE4EVppHq3rH9SzJF01ubWCZWMPsY7zsPgaPSbv1+YK53usC3NiKGUb61mne2BsL9YqXlYxsQY3CTRf88STGFi36C8l4Pe3TO8c7gAXnado1iyh3VCu+N/dNxSh7BfGKTEJuHmLevMSvppTo8FownoMjZRb59FzSvwU7iYeFKW9gxh5ymVEq5JzlxR+3r2Y83HAECU/TVIfI89a64YvS5lRW1V//oueZ+8zYRrlrsPEL67sweuk3rUtsqcU4g4MY44Gr1rajwqyWy2+23bcWxuzJyPg3CgD3bI3MTV2bA8kQ7eFi5pb23/G7PaZF/psBU",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 622,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 214,
+        "output_tokens_details": {
+          "reasoning_tokens": 110
+        },
+        "total_tokens": 836
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4343fb993e1139e7\",\"npc:84482e0f78041726\"],\"constraint_ids\":[\"C:d7bdbe9146e05efa\"],\"span\":\"At salt depot, Ada was formally introduced as the Archive Speaker.\",\"rationale\":\"Malik had already accepted the unique Archive Speaker title, and no relinquishment occurred before Ada was introduced with the same title.\"}]",
+    "token_usage": {
+      "input_tokens": 622,
+      "output_tokens": 214,
+      "total_tokens": 836
+    },
+    "tool_calls": []
+  }
+}

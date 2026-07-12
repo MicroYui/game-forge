@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:54099099e3e31720cb6a3f66c86addc539bf9bd6fb24b3cd65775405a7274de6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4140,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 604,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 160,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 782000000
+      },
+      "created_at": 1783862500,
+      "id": "tS9mFQZ66QdhxHsJ/KVfNvzfj2iGUaXLhEUTOhwz3SEluSDmvV8HhQ4xEMcj6/DUIUcJL5r6xbykKBhW1JhLDIbRGBtk1BRWtkJmb+ocVpVC/6Nvn5W0Z+DwmzEAYnanMS6TLwCQKLgbUOz9ZdYsp0XlW0+e2qG4SAfq3+vx8DgSO7yo5um57Rx4Dz5l00e6L4aPX3mh8ugKA2TZNeK2otapOQG/RnccdK6O9uTJ8BCW4T8cfY+WqFbuyXsyo4S7GRWz7E3fExU7sNek4ofJWyoHFZUsI5gLqUUiH1qxbl279jJBdjTpIGuqgLUzLfY19YJ5wDzfjm0csjX3Xsv5LvR2dSUNDtIdwyqt7e0bu1ujqIoWFAy3pMRPyP0D+EXqBwDuGUXxjAKI+OQAS4ILbdHjLa/jxg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "7jfbPGtBftNuW0Wg4VQI2s5fgub54rvjJUU4Rd9Y/00th2VQuGEtuzXN4fekOaawTsypy+CejTDVUJjWObdncPxWlwsWAwnbHj8PIzmdIRuX2XdGojQoN9WD3EAfcVgrnMxf/ZZs8k/3Qy7fNiiWUjxlmwFNfijHOoNfGgl0po6t6pfBiXKOXtN8EZeC/XWpbbOff3GkCZLOSHYB4Flp0osS9AczGVdYvui07MaXfgx9NC/GMWHKwSUTRCSgEIXXSw+jwGzcDgDOQwx2afSeV0mg+YQo41UIClTxzcYCONaCkTbxNBcc4n/SajXJlL9xFeJNLHWVIUrVeNNlu4L5khWKPaeDph+e6d90taPdXQzKc8GH2rdbc7uzocQ3SawSXZbr1k40BfL7dO5MhadVvxezV5I=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:556322c3eb423e14\",\"npc:eb9b7c703d26d191\"],\"constraint_ids\":[\"C:25ed286660420dd7\"],\"span\":\"In archive hall, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei, a Free Pilots member, directly supplies and establishes a permanent partnership with Daro of the enemy Obsidian Wing, violating the explicit hostility between their factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "THSi0WzqBd5qrg6/k5w/5Lr6paIidSWppFYsf5L1mVb3IxydJ1360dPTcB8d5iNZS+h3FEx+y13R+R19yRVab+PtaqlGERsehPS3vsp09yR523ysJQL6pguhKVMJbN799VYCliqcCQM3kraesNwbAjaGqbCrlNxFoePnAIqBAKk03WLy5iS6sD/A/mO13P1kJbyFfa1G+fYh3ouYGVedv+T+vtk53gyaMZkvtEhuvPMqtNsqk6Yyfzr/fcg05brWWbxqtUntHFKGAWFQT10d6kkENuY1DCYBz2bulHusR4PLNObFqaChbiNOyWB+ErIdL0/hMqb7i/zVlURRudBXDC17MYUjoantrJq6KFTu/oiDXa39XFDDNlRmk1ockv2+RRIkZa/tmqJpJvIfKuSUCLzlkecf",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 604,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 160,
+        "output_tokens_details": {
+          "reasoning_tokens": 46
+        },
+        "total_tokens": 764
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:556322c3eb423e14\",\"npc:eb9b7c703d26d191\"],\"constraint_ids\":[\"C:25ed286660420dd7\"],\"span\":\"In archive hall, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei, a Free Pilots member, directly supplies and establishes a permanent partnership with Daro of the enemy Obsidian Wing, violating the explicit hostility between their factions.\"}]",
+    "token_usage": {
+      "input_tokens": 604,
+      "output_tokens": 160,
+      "total_tokens": 764
+    },
+    "tool_calls": []
+  }
+}

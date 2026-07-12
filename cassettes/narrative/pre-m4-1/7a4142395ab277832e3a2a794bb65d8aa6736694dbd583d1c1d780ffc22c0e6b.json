@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7a4142395ab277832e3a2a794bb65d8aa6736694dbd583d1c1d780ffc22c0e6b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2779,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 575,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 160,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 767500000
+      },
+      "created_at": 1783859100,
+      "id": "8DHgtSbcXdPcBH0+Q9UlTrxb+k+39u5PKvDXxohkriEVEDerHiMFHPZuB3BkAYdg8qsistNiODzpLKgW1p+7E38sKUUQHpDqR0i41/8yCqzfSAHwqR+DVRy2OdFRnRf3Tl2WUToWcgw90x42jABaChJVNmE1JQam0/ubKzst9JmLaqW+/MpLNFuLEue/YDJEDt1WfFdE/ssuUQi6oLx/tDOWQaQPcOMoMoJZJBjehUOqqAG1LuQGme/ff8PnOABYOScfHs7PNykfPbjJpGJrIsRUNaIKsS6cXIx4RfyMCby0WjGcVKzyawL/heEex1gJmacu/gWgKITey037R0lyRNjbcRdDJaK6l7kyWGXlOc1b3NNd108BaFFFG9ekSdcZ+Ia2ZipDDBD2Epsd+tgPvf0jhGfjFA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "V9aANZp/gb/zyP3FvCcGFG71PfjCnW+gGRt2RK8vNiChpZ4gUTaTszpKQetHqeehydUQNbVMUFNRD0wF8PvYHW/MpRsxo0hByx0PqOYqZGZoig9kVzw1gF3rrii++lgqWuEJQOIqg8BK4iXXSzsyY0YM5/BEQvhJSM/GJBvN4uXmNMvJ89P6q2WO/jpNJXf0DBXM4r+65Rsz4EAqXMqs7n/KfYSItZxkYeXo7zQ/qJc3mi7YZTMnJHyUSHWyl08A+kiIN6mT4aQJB3wp1ZJ0n5DM8SGgkg27Vo9D5xeUzNKq7aTQZ19IbSVvL0//L+WNDnzhx3yfFPlUFzNb4V9zuxKqBT5wd35E60WJ+NOkJz7xbHTPh1H1FYCuiu5oPTk9rp8LS7Dng2WK+JcWOx235xic7Jo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:44d3d3239d6c78a9\",\"npc:8a58fc8ed8f0455f\"],\"constraint_ids\":[\"C:287e3dacdf0127d4\"],\"span\":\"At lower court, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli, members of Harbor Guard and Ash Fleet respectively, coordinate militarily by signing a joint battle plan despite the factions' explicit no-coordination rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "x/WrpGVaPiA3Um3poCCUsyPG9QXAyCb/tiggkUybnQrDd6cI1q6hdkhLPVlD81uDr7YrBjbimZFNOZKWDyb8pdZm9VLIM7TaUNgSFEOOswuwrgIiCDJ565ybYIJD2DIrt5SKmi7GeqNMwL+CzCY82Np46yPwWLbZl30kfs7AEZvhLxF11O3fY8EmDnsBYWQhZUjyST6gaAMlDoSOSPY4YwGszSKekGArxlKptnlCaxmAIEL9NW67IpDU8wn/lKei5LK9xTb5N2CVFn+uXWq/FUuQv4osXPybBPTmSnxD9NnRcOgkitcg5DXtFPmohQjuDmWEYERkNm87v48KICtMEJtjO+22G2KHoHGJo0GxCTXCsPmyzMTcM3YpAM+9PEg6jhTWvoBLMsldYS/1epl2FYpcp4PP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 575,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 160,
+        "output_tokens_details": {
+          "reasoning_tokens": 39
+        },
+        "total_tokens": 735
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:44d3d3239d6c78a9\",\"npc:8a58fc8ed8f0455f\"],\"constraint_ids\":[\"C:287e3dacdf0127d4\"],\"span\":\"At lower court, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli, members of Harbor Guard and Ash Fleet respectively, coordinate militarily by signing a joint battle plan despite the factions' explicit no-coordination rule.\"}]",
+    "token_usage": {
+      "input_tokens": 575,
+      "output_tokens": 160,
+      "total_tokens": 735
+    },
+    "tool_calls": []
+  }
+}

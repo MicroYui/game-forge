@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1a7804b7f53e3c19c766093424e01ea0acda14c605c5f0c92414166167366fcb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2437,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 543,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 129,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 658500000
+      },
+      "created_at": 1783861800,
+      "id": "OloXE6RJg4lZyqaBO3tPjWaNMbWcoTW7J5rSQ0boArmM3RqGYx+l55OwlyOo8mRvlIjQJhnAJdO2ZTfhITXgagvj0CdIBKy6w7kldTM3t6+ss/vBua9jIb+vXFUhGPlny8k9MH/X199exYHoVuwKn6AFDNzQs21sGh3fNDkGUe3QMB5LtVkZWuP3gAdkNgliCkKvsrr+nbaeTWew3mXF+BDdRkEgQdVMniUy/9Xps0z2Wmowr21iPGPa9FZOS/UETv84+IMMbYupiHeMc4kkuIaL1HzgxSudhi15xTiHiImX1Ha9OvAgpu4vIyljOcH6bEJt8vjmAVlF7M14ChlTMcKpURUZZCbPzLsNcpe6V2bDI3xugsziBiCrpY9ym3H4B1Nqo6DB89rG4ZjNCMBzAwmULmtclQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "HPUpBYrest5/R0azSS7dVlUDYc/LBq/NJjRT2aJWdsBxC8LSSvN+HCXWN6hCLAOTPb7KAwamkKGie/EMmZDZiLgEvwamQgdz3t+2h7UHiCzYGOwuegAutdNvofvKusO0HL6VdIRZ8V/M5Jy/Unlk8vXiB2dDDfwnbLs+R0XcK8SVe6ICB59bF+kw7K+d8tpDGNqk9bBZPEZ3Idj2e+BJbojxIntHTWBdlsrndrpTSyII/iTHcBv5FvzZ8tbRLw3yV4q/ClGrRaJ5S0xXhsi7L9gNRtxi23XJcZL3zB/qLQ0fpc0WWQNg1aiBQzphkF/4PajPZVZXybYkkCpXnPC01QmLxx55LyU1UQbuBmenzIai8N83M7NPUxeWw34ZDl259GcdBB6ptQfpva86lXaLlebwp08=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:edbca5d0ad3e11a2\"],\"constraint_ids\":[\"C:137401b53bca59e5\"],\"span\":\"At salt depot, Mei sold an entrusted route to the raiders.\",\"rationale\":\"Mei trades away an entrusted route, directly conflicting with the rule that she does not trade away an ally's route.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "OJEgkAmTm0RLGySwB1OKsd9I6MlBwk8vz+K60DV1zmyaUF2ZJX+J3BNPa05YcKLo1jX0zniEPD5xSxhCXanrF6UxUh0Emj11gZ4moEXpR9iGk2tmZUhPY5TtZ4cppGd6pTDc808vqhuOBVi1Gm6MasUxvnFVx1pslzNtoh2ui7kG/AixJsH8Ly+E2Zg0jk3MHvC5+Xgj8zot7CPGZlpuUVRAsr/Nh+QKOrtExh2pVwyqaFx4ZkZOQtQrAt4bSCzMX/Xq9AZHdqypFbyhioxHNPvwQ0tjtQ9vxyjrktNbqYfQ8cZ8WUN6KBAhs7KcnLv7YrfY2fqCczcbxsa8lLr7pi4boLB+95q6psXlbDDNeJTNMIVaVuAaMWLptddBfHq+tESUb/Yv5KKSGgSoJt9E5l07aKLm",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 543,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 129,
+        "output_tokens_details": {
+          "reasoning_tokens": 34
+        },
+        "total_tokens": 672
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:edbca5d0ad3e11a2\"],\"constraint_ids\":[\"C:137401b53bca59e5\"],\"span\":\"At salt depot, Mei sold an entrusted route to the raiders.\",\"rationale\":\"Mei trades away an entrusted route, directly conflicting with the rule that she does not trade away an ally's route.\"}]",
+    "token_usage": {
+      "input_tokens": 543,
+      "output_tokens": 129,
+      "total_tokens": 672
+    },
+    "tool_calls": []
+  }
+}

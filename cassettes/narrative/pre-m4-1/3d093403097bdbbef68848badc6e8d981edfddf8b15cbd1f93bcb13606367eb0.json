@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3d093403097bdbbef68848badc6e8d981edfddf8b15cbd1f93bcb13606367eb0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3903,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 564,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 158,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 756000000
+      },
+      "created_at": 1783841700,
+      "id": "1TBu973GQgqtDliU8OBDE10ji8bwqMdilOFfnLjqpjTHISdmzShhXHrv0RYbxBvVjGYAbjKwICAZec8+IvvlLWjdX1qQC/UwBd4r8sW7QLAQDWETd/kwdleHNbrOEXEyHEztUftqZ2dZu7y3JoXfTKsoESdZQB5yV4EfAAA9DdlIBq9zoxlDhhHC8qp9XyUOJenbyAWNQ+wHGOhvJADkPH+k9xY2tUyYG7cs/DGvFQFP6vUYLtqe3pV0EBQA1Cck3F9uWuvLXCb0g7I17Urt87ZW1Dw8fsLmposk0QCrNACVeYWdGQTPQRlMuws6FKU94UobHl4O8x/hbjVKtoQpL6KmsH7rFMunN3CPW5RbclbFhBP4IHfLZ8DxJoH16zcWDSXalSatKlo+5C6PnsdNxwK0xEVfiA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Y/C87zCg6nbpO+ua854Yzbhwyxb7QSz0a1qEf+oQ1gNbH40XfCBCGXv8eWLSLos4BkNVDTv2GrGqXGwuzyacC8AyB65rzFFuyD51K9QfFalc+dyTmRIMiLgoeZ+mSfu602RiPZvxXTU7JWmw7WdffAUaFH0nw9Tnsj4UrY7WVkWw8UdNHuBTbekoe6VBq1HIFUJ1291tUsnQswsAC+12e0F5NLzXTYYvXwt8EB57GmaxrD8z3kAewgDsN5b9zBwlD+sn2dPkwDmYAsAHB5iQpZ8o4Q9k4XAKZCcJvpEQ8Ne+U/ZvUcKXREVs8iH3D7ve8eaRlxgBPbbdbp7l1I/8oCBM7ntBfhf0NMDVKSg+y5GiXbZKQYjCjmb/Dwo2ur/U+izHZzcPlOyL5e30PGiRDStd2rM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8d61089d388f52c4\",\"npc:918b9c3358893009\"],\"constraint_ids\":[\"C:408d42a9f912e6b0\"],\"span\":\"At desert waystation, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass jointly coordinate a battle plan despite belonging to Dawn Caravan and Salt Raiders, factions explicitly at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JXdq5HG6VjDiSn7NkpTw6YKWu1XlNlpRUBdiElzilhT5DKCqLJd0A/595rCpZYgppm3tVdCS94iPIyuOV1dMqoaiYyryp2Ib8QHrHHc7Uxbk3xta2Mclx1rGlbv1F8jC5MR0oPnAwLBaTZd+iFJFVL66Y6ijcOFzh3on1R3ml4sWwwegS/orJeqkfQD62jLFrmxfMt24dp6P5zzFqCTFOeT6pi6RkgmEkYV70E0bYBkBh9XHV6KLxJWLhDeRm6YfMHbmsMhTMHaTb5K9gVJeKcN0euudD0ZWa4nBHrMBfr6JOqjSpWWJ6BGorVjUTJ9cJuyN4UHtWpyzpd2xWX2ZNBHXO7CyAumrynWyJec0Ak6IjjSbcsg+w67s92/GHu9/v3UECImnAkryh8ge4UPBMDicEfwE",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 564,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 158,
+        "output_tokens_details": {
+          "reasoning_tokens": 52
+        },
+        "total_tokens": 722
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8d61089d388f52c4\",\"npc:918b9c3358893009\"],\"constraint_ids\":[\"C:408d42a9f912e6b0\"],\"span\":\"At desert waystation, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass jointly coordinate a battle plan despite belonging to Dawn Caravan and Salt Raiders, factions explicitly at war.\"}]",
+    "token_usage": {
+      "input_tokens": 564,
+      "output_tokens": 158,
+      "total_tokens": 722
+    },
+    "tool_calls": []
+  }
+}

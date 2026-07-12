@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f7e355ad5cad273697394efda62c07281b048718e3f9120ce7b9038e524370c3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4757,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 576,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 254,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1050000000
+      },
+      "created_at": 1783859200,
+      "id": "AocBGAkAnSNGVIHa/HuTPR5Y+cwZrPJz7gjQ8nIIOdn+jvQT/eZHKSEuii3qEgKIBHbKu7JvrtsNiIJpmHJ9TjFk1Bdm63SjCWKuv+/igTP2iYJNt2j+O50I9GBrnc8m7LYpTX1f3qnv8e3fI5bwh4dc1PTdiA6lzsRnbdnF8LSLyZDZi/8Subgss3zi+dTy8G4B4egBVfh1CWVYM6nQXYwqMdcVfkAjl9OZ/Utd9lSL1WI0zUGgfyWV5zOlMme9nxguo4Xo8uFcA+5FnNjJT19AJ/QjSfIKZoAXz2JSySygRvpBFAdlLJgw2b0CR4yLhyuhq1t5AIaA+Xks1vQah2gOeRgX6i8fbUxYAVYZrBh8UO/XynWqbICckLBqp7baJRFqT9plXIfvUuigar6CGylf5cG0Kw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "sxnDKK4OdPJeJx4ePxMyugBXzGw+mMm97uwlHPWPzM11wuJtNvqKepSt3uH9kLUXJf6v6l2ZfJ2/C+C5IGzniccCkjs9DVdWpKZ7q56SK/u3fpxaelLKd8SA2ZAt2Vhwa5g53hd4LgfiWMTir2SQlC3R8UIpNbGA3OUCaOQoOkC6AlEVEJJ4R+bv5QuJypDLRMsTlkjBcob3IIWyL5z+CH8pS4kV/TglbaJ3+MaBKvlsrYYar6nyj/C7eBA9hYnLGjfW5RU1Vk9VLUPPSO+P0kc5Yd1qQU/uV7kSZhoTXjHvUb6svqTHB8+xzSfQ59xJgUJPY9o0J7Fi0RmkgkbrMrcwqM6GR/ObbP7tMU3P9Xx1wQF1FIS7RNFRoKXepd0Tv0Fja6RXIBqO+A7zaWNHkOWsWys=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:9d8cab738005edef\",\n      \"secret:fcc8844c78b3e7f9\"\n    ],\n    \"constraint_ids\": [\n      \"C:9f85f0badd2ed3d9\"\n    ],\n    \"span\": \"While the story was still in docking, Qi identified the saboteur's name at cargo ring.\",\n    \"rationale\": \"Qi reveals the saboteur's identity during docking, before the permitted relay alignment reveal gate.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "mRjNNjVIrwxWPxCYs3j97DMJTFyNABOKYNA7qEaFI4HDJ662G0rkNgnClxieJgxJFRPkjPlXK2P9WhsSFEc95nMogTVKDhgP9DIec9R8RwgkdWua8+Jg3QfIfmEq5c+z299A9lEU9JzJ4ddajHVEIBUMJ3GYL9yiiYO0KCcdY6/c52xia1F6SYPEdBgTMNvlMfFlONaM8TyxPCSSmAidP2u+9+Zj9N2SjJQvO6QVB95ywZBsRtJck3iUaJ6xiEdV27Pij0eMKZM1dYgfirsFGqk2x1MuwG2aln2oo3fToMpTisvgfhrp46Y4wcLy+cX3e+zr0q2hvEiLkq9tVAHinEHNIn1tqp0PRAngaVdkt7WfjFpl2cn8+R8hnB0wFMAYo0CEUiWLxjKyYOXOVnWwrQj17ZLB",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 576,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 254,
+        "output_tokens_details": {
+          "reasoning_tokens": 121
+        },
+        "total_tokens": 830
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:9d8cab738005edef\",\n      \"secret:fcc8844c78b3e7f9\"\n    ],\n    \"constraint_ids\": [\n      \"C:9f85f0badd2ed3d9\"\n    ],\n    \"span\": \"While the story was still in docking, Qi identified the saboteur's name at cargo ring.\",\n    \"rationale\": \"Qi reveals the saboteur's identity during docking, before the permitted relay alignment reveal gate.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 576,
+      "output_tokens": 254,
+      "total_tokens": 830
+    },
+    "tool_calls": []
+  }
+}

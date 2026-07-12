@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:eddb4bd0263f0fad3ac462d3d903af9e4e6243ad9a4de6ba4e61687cf678448a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4182,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 696,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 307,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1269000000
+      },
+      "created_at": 1783853400,
+      "id": "qx8c7A4pxVl/ztkBjKk6EUfeuPXELMnNkrEZu6tYCZXMRFhokghJv9SoHgHoLjW/RTMCTEHNMv0DQ2eJVsJ+NrRnd/1nQur2ehnlXOfgDcfwPf7cQ6KTMUHeuIZjFrXH67X+5S8K9jr5j0tkzHqQc6rnpKkhmhBw/+vFMqEM0NxuuRjXLbIYn/B5zftMZBTAuMAbL0vwoc9Sp1A0SH0mWX23htUp+PvvyTlquzOI2qrCxlr1nSc2HNnYXqoNYpKztZw58UovClZdAVmzXhetd/HoYpNADNkMaLCKjaNF8b4vsFbRpCpC1zCXBPfDsKzoNK8oRTpiQDq8DbHGhNj1/dUu0o5S7oUN4oWqwojKGHXTnqrBz7f3QyxfaWloqvFiljmrZj6nMpeSW3F0WHe7DSVxCPOZoQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ss/tEn2gnKg3XAuwowkPOv30AaBguOPDS9jx9Z3qQdDaPOihaaFIyneuHlEVrNc7Un0f02PWkD9HqX4u/YySiumW8BSiXZ/Li9AaVGWR0OxHJZM7SbpD3wGB9Sdg8n/cpxDPcwj0OEff4enGURLeOHPBrwA3yUK3vEdq/WLWosPRI63xjmnX0WM4qIRNAPMvvDBcCA5cz72sKLZCW33QUDnvsdmWm3bgrRAVp1nhNQQETUaUf9SmZPAsfJdFvLr+HjPXF1SVIhUjDAtFPoPYO/Ve8u/iqiaH9v6WKpEf1FcpTBCX3bI+ic9VK8NrgwszXaNyPyb7atLa5+cOLRCg7vfR12dS16rKi78K446S+6rWZ34ky157qBL7jTASU1SXmIyO3DSY8bp1S0lcNaqxEcJ8oEw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:9e18bc275152c262\",\n      \"npc:ab751ba13280dbba\"\n    ],\n    \"constraint_ids\": [\n      \"C:0a8d1d765031d847\"\n    ],\n    \"span\": \"In lower court, Ivo supplied Lea and called the partnership permanent.\",\n    \"rationale\": \"Ivo and Lea explicitly establish cooperation despite serving factions that do not coordinate operations.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:5d6321d189e8ba7c\"\n    ],\n    \"constraint_ids\": [\n      \"C:a673aa10d88b262d\"\n    ],\n    \"span\": \"At glass conservatory, Benno transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Benno directs the recovered coin to a rebuilding fund instead of returning it to the required public treasury.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "raatfX3Ct+thijl5svN7QMjkXVnXkknGPh6ZBoS6/Iw2SwW9YWmnthErlM0bp1RmsFGHwL3jfoJpkuNZnKQEgQyhNFRTZyRPC6M2ipxpXGaRVfU+EO6uq7v8JI8vDq+BxqmMrtaD9KiRu6Sk+j6zezBOV33Ln/y42y6Y3rhEcxxQkmJ0KguE73prEPXezPSfUrwcEEKShAHZJx6feXgjttBoHXSqLWi74CPQxXG6xXP4Mm/RRRnkRTzb1/5Jnx5rkD5vcLiMbhDygquFlmj+b70KBDbsPv1uXJXeqzq8TGxcavi9cemwFQyEI9pDsfknqeE7IoiYSxWDaOaUJ+WTLEoAqCV0q7hUn2jaAMmUB8a/8lcdDggyNSIRc2sH3zBLbFaUJ3d3LeZcXxiPFFPVwZCp892U",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 696,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 307,
+        "output_tokens_details": {
+          "reasoning_tokens": 79
+        },
+        "total_tokens": 1003
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:9e18bc275152c262\",\n      \"npc:ab751ba13280dbba\"\n    ],\n    \"constraint_ids\": [\n      \"C:0a8d1d765031d847\"\n    ],\n    \"span\": \"In lower court, Ivo supplied Lea and called the partnership permanent.\",\n    \"rationale\": \"Ivo and Lea explicitly establish cooperation despite serving factions that do not coordinate operations.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:5d6321d189e8ba7c\"\n    ],\n    \"constraint_ids\": [\n      \"C:a673aa10d88b262d\"\n    ],\n    \"span\": \"At glass conservatory, Benno transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Benno directs the recovered coin to a rebuilding fund instead of returning it to the required public treasury.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 696,
+      "output_tokens": 307,
+      "total_tokens": 1003
+    },
+    "tool_calls": []
+  }
+}

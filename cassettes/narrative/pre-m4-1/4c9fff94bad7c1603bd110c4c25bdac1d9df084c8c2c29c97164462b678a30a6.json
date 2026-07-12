@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4c9fff94bad7c1603bd110c4c25bdac1d9df084c8c2c29c97164462b678a30a6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3459,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 704,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 212,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 988000000
+      },
+      "created_at": 1783849900,
+      "id": "MjA8SK/DgBOTnfQAF5jhX95mmvMvz9F0hNtP5qwuf2nG8zs40w71gI+z7UXogbjNWtfurwcj0kee/o1xOZGC5xxKh83jZ4J56bVRyl6k3FugzGnDEL9bN6ZJvhc7vnJO9zHAuCq9jTG5b1Mkrqs31uiFeSG7ny3pQs1vocIK/IglJ9EcoBdkb7zjLUkovro/FcZtOcyOPzknDNsnkG6Q6x5+DUwETldXFJn9bJur5JBTlMSBVLf//7fZNnaG4fix9GRjlrIfpYb76AMa3KQgtAeFfzoSlk2XSMSf6Pchd6WVcucYADFnwt3STgMwnPSsIagaR5o7cofKeBMWFhersiWXvFP/o4TWxDqa+2yw3MBzs2D+Zef2A4npUGpYvNR/YGFKeRizhWDmBjGl8je739UKypjSww==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "d84SfJcVqpxGLYhIZ+MQEFssZXxyAieDSKJ5U4J845jtXb09Shx0oupFJGIHOZv6hvlzAjYr//CjfnZ8tQfSKqYZt2N4ABsSTqWBcJQSAjSgU2g3aq2PAT32RsE6QK6wOgDMnjFPzLajHYIbYzMJmITFUBGfSagJG+hi6gegfuoKRH/bktfzpHRX3Stt9J/jE5luj8iytM6+i8c8XbxRQW7fK4pPwG7H+mBCNnJB/5ntCMEozvQ8182AYXc/PSxineBJ9QUUDiJejR1CUpnmdo3EYJ56zwQaoTCfDccf7paJ0gWuRghf8kMO8MJF6YGpEeVF0xdncHcicvDNKOJXiYyPBmCFVfTtnKyObTnLumpe+DRwG32XjE1jEHwYezSEaam5YEqLCzLCuwiV/8QrcbWTbP8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:2fdb59163057937c\",\n      \"secret:9597c829d646ee0e\"\n    ],\n    \"constraint_ids\": [\n      \"C:ecfa7368fa6e55d9\"\n    ],\n    \"span\": \"In orbital concourse, Noor disclosed the saboteur's name during relay alignment.\",\n    \"rationale\": \"Noor discloses the saboteur's name during relay alignment, before the permitted reveal stage of departure.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "E3np2pTtZUX09fGTUXiRj6fsJDY+24Phve5B7qlnFitx55bE9yatElQLWWFyDH5IOPtLTlmsPdad61OG5Zsnkp1QiKPL8Ct0WSN/DbsJOrjlV5x9ORv9mACwOAjP5C5G8kYYB+eikfTKpiGgicvymmpFjUIVIY7V8M8Zz7Ji57WFtyQJSd2cmiQSGPBy6dYdEwMlqvWiXzdYS/q0H/niHtXh1UO/+p3DxEX99x0nQYvu5dePe7lKJAhYS6y+edjPpLF8ukfYt0uvdQBRCYCV9HW6m5hjK89BfojR0dkm6ebhTuwM7u36Y6ayVMO10yvZSCZsjK+rwSLRPRmZhM4bCP9xxYlk4f+DdFwqAw4qHyma9iFRCvAtSWO4cyr0anv/2klSVrap6bS7WzjMS84CQtT2PuBW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 704,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 212,
+        "output_tokens_details": {
+          "reasoning_tokens": 81
+        },
+        "total_tokens": 916
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:2fdb59163057937c\",\n      \"secret:9597c829d646ee0e\"\n    ],\n    \"constraint_ids\": [\n      \"C:ecfa7368fa6e55d9\"\n    ],\n    \"span\": \"In orbital concourse, Noor disclosed the saboteur's name during relay alignment.\",\n    \"rationale\": \"Noor discloses the saboteur's name during relay alignment, before the permitted reveal stage of departure.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 704,
+      "output_tokens": 212,
+      "total_tokens": 916
+    },
+    "tool_calls": []
+  }
+}

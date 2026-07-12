@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a47d49c9fa342e26afad255607d653526917c151bb1fed409170dbd0b5e12b1f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3895,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 566,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 796000000
+      },
+      "created_at": 1783846800,
+      "id": "g/nP+f1qYM1xZ2oWi0r/uH0G53rdtXnQA578KE8bRyf/Ojy/87qbYZbTRvA6XH6DFog1tvjoaTpOyyskJE2p8ocwdta3FtIVPR5siBmv74WB4FOHsXt3PqPP1O+IfHrFHBCl/9MFcD176Ca7CPDLP33F1Zknj9YQaCTH7NCdYHvvmQXNI6MLiEQYJ7JseufetS6sEOTvhel16UGKzmklQ+LiEKrln47i0agxRa8HXhEUobJe7OUP7vNgbOZ67Hoz3KhlAs4gTNmeUBdVmYK+PXlza87vsBOulQlVRvOokFNHoVAlSuWkMItE3jeScE6K9fJh1jG3R1wRBCW/tOZOHWiNlbpakeKiITO3Hw4B3me4LwzY5oAxNMxkA0hLmmzPgLQ1RgJoG0Vw6tIurq7kQWPXa5ef2A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "3iKI9qCEEpi0Ii5+rnQXf45M3wrtJMOv2M417rdP4AK5DYPChrI2H9lk8+2Zv7SYsYi31FlZhrhI7CPfXOadlmJg7QoupmV7nmt2m1BWEqQAQXxwkUckJFdF7W9zH3QR3tjii8CWjyGsylpEXNLtWESPLSZdV5+D0vxPSa5XBp99zS3pz0X34EjsbIf1C91u/4IiYVcu4RotxQaalaHw138THIQDpR72XvNO7LUIYm7kx+G1C4NyQ5mGrVhyZT59/XmwPQ7vBjyDt9GB7NQIR2C2eEhf+x3fNSGNYxzUP/7hiM+Z8jGECmaFApc1zPsZlod5hRBGsrvGXRxvzfD+/SnrbIMFxAndxvx7moYlFL4Vt0NEIHNIjPmuYxSHfh+HeENqA1Gb9OVm9EmCw1PNeJDG+oA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:5a1ba8d348ccf1af\",\n      \"secret:13708c6eace2c45d\"\n    ],\n    \"constraint_ids\": [\n      \"C:2da45f4a74b90e31\"\n    ],\n    \"span\": \"While the story was still in first watch, Veda identified the origin of the black compass at archive hall.\",\n    \"rationale\": \"Veda discloses the black compass's origin during first watch, before the permitted council session reveal gate.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "26DneTMm4x1TCBI0Zh39+OBWHW7OVxT7d9K98B7rSOtRKDvlPJPkRcmETg/ZKMSNgPM9EZPdt37Ngo65u7m5fkByxt2yzHPf5sz/UZRDsDmBvneP0H7bShxJPu5nKxTgoBC3DXBX76648z5DIfUjTa60GwKmm67plVCwA3CSTt/l1zRmg9xqSMBLGgjgRGtb6t+tSQFojsruiYAr6W8NF5F2sT6GTyPQbDCUIqwrgkBUtIp11fp3nQM1LO2mZtZjE/YMkskd2pSGwzcVGOS5T3vhPBugn58YgKb21Lp+zDa3fhS5T8MeBSKZx9ZBQWcnCVrU1cJjWtD2DSr78tC3h++9uUSiymfZ0ExEjp5HZjZTltSpn/9xqH0G5MsRMq4vsLyY26mtGjkEcssdEC6hLMtCXIIT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 566,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 31
+        },
+        "total_tokens": 737
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:5a1ba8d348ccf1af\",\n      \"secret:13708c6eace2c45d\"\n    ],\n    \"constraint_ids\": [\n      \"C:2da45f4a74b90e31\"\n    ],\n    \"span\": \"While the story was still in first watch, Veda identified the origin of the black compass at archive hall.\",\n    \"rationale\": \"Veda discloses the black compass's origin during first watch, before the permitted council session reveal gate.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 566,
+      "output_tokens": 171,
+      "total_tokens": 737
+    },
+    "tool_calls": []
+  }
+}

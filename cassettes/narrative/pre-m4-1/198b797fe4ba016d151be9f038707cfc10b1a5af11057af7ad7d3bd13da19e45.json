@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:198b797fe4ba016d151be9f038707cfc10b1a5af11057af7ad7d3bd13da19e45",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3773,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 561,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 228,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 964500000
+      },
+      "created_at": 1783847000,
+      "id": "zXEimUJd0bQJklipTFNZvGfy5KSh/A3USzMf1yu4Ghp+zeUTngh7M4x8NAOVQjWu1S6TRyrlWF06zGZ8BepIapfOdtm+WtsA0sZnL12Ni94vw9AxOmB3fu15HS7hOwhYQN0r/fQyUGEK0C2FRlsrUyGPbRe0dW5/wNTDuPMQPyn3ALSHnlDYlXp51KkukXufIt4Xa24L0YZv0+Ctw0eAEGQ8VtzOmMd741Ce13JhbABjgswRaMHWXGxyeWQXR1VAOSqnhFNDaij+tVNlC1RlB8vVDDJadniHUnECz9sxUCA7vvcBvzMpWzN9VsFGxrUVkDnCf+eE/DWn6DaGsaPC0Wt/FPyqYlS6yUSVKgwSP9KnETCJyYFhrn+LK8CfiZpubRgWrbrelc+/a/DoIO62jSBrF84deA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "AgqDcacWq99ZwF2+FwohsP9zZwNgPM7HF4ml/XN9+wqBPlPWT7YVP3lJOAPF6fKNRxCXWu7dADfbkTtbSLkbck1ucJDMMZdpXC7RTRzt2yd3rauVUo+BZuQYl8Lou7Z36S1r23Bsg+xKf3NVggl06u1Tz+rIvL2rcGM5E5lxeYfD7Fbchn+gTuLOdjdIOdjqoWgVdB9vOc7PSZOKcJtQCQZrP3+L9tPedKibk/+KZka6XUKWV6PnlEFAtrtXQJEs9aAjqIJRHLaC0svzMVWI9od1AYdLx9qPIJHzziLFhZh865rw/QZqy3camHoq/NXXQxoUH3PUy1RPCFJC52tHNLjBw4rpfH8IcfYTA/iEjAznsYLlaHtjngdR+8TPP/eU4omi7GU5Ytr2p1X+H/NZ5jQ9Ets=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7bfc8b4adc66446b\",\"npc:fe05ee8463cfb038\"],\"constraint_ids\":[\"C:d76638a95b8d6507\"],\"span\":\"Ansel accepted the title of the Archive Speaker before the assembly at orbital concourse.\",\"rationale\":\"Ansel becomes Archive Speaker after Iria was introduced in the same active role, with no relinquishment shown, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "0i1mVd9cZjkgzSrkKH4+v9o5TvGTZtmpaxwjw6Afra8mWywBot/liG2XzP9mL+lNYAsrGvw2s3/2Se80OFVZYYaFdPuCX3R9W9aYIFwoj7JI0eXllbo6LdmFP86KlWTS4dFlFJVX+g7EhCgLhlgKjm8AUZfv9JEG8naKS+VF2JN2AGIwjWv542BoVfp+3DniViThvd91uI3BkSigpgPPJXflgqBzYlGVUYUJV3ibXOtWp3iUr3mXLiZ9Tv0fKyR4LVCgTA5Htu7l8yRJWcLSQcgMRRJdOH9TpjvOm4szQRyfZ0bRvL5PStadmrSZr/CeeLLM8usx/ra3mX0y2vp+7xmp/9u3aAC4HTePI9kiUmlgcmIC/Qo0EygDtUchdMHItqtbYudEXs1SWB7XWfTNNMl7Jv4/",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 561,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 228,
+        "output_tokens_details": {
+          "reasoning_tokens": 115
+        },
+        "total_tokens": 789
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7bfc8b4adc66446b\",\"npc:fe05ee8463cfb038\"],\"constraint_ids\":[\"C:d76638a95b8d6507\"],\"span\":\"Ansel accepted the title of the Archive Speaker before the assembly at orbital concourse.\",\"rationale\":\"Ansel becomes Archive Speaker after Iria was introduced in the same active role, with no relinquishment shown, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 561,
+      "output_tokens": 228,
+      "total_tokens": 789
+    },
+    "tool_calls": []
+  }
+}

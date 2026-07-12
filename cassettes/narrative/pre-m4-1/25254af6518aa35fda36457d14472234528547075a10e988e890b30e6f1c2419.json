@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:25254af6518aa35fda36457d14472234528547075a10e988e890b30e6f1c2419",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3916,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 650,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 838000000
+      },
+      "created_at": 1783847200,
+      "id": "4fs83zvcVwlj44WuJ/wgfgZCf1Ts6LmquLOyATztrthaAomSe6eEwxTUMAj3n990Y6DiU1Gk7PfoGV+aAIUQjzt7BUcZazXTw3n67GorDwUGGCC0CVoYIAngtaSD8Q7eE9hqCUYdu94mXOrvrYENbinzXuqm7NkgoTTgbkL/2cUqUZ7XrOayYlJZ5+vNvPaxu4MTF5eFmAFwBqlANzcGVWcxu/XM5nzaRswfEQLV+XmSHuvhMnjNvUsQZ95XqY8h+9pOIEUCR49Xb3kHfVZsJb9Eide1qNgorC9XupaxPw0sSlBDW1ugvYvVpmT/evqghLFsVW1wNjN61bqKT1O2RvOTgA5DhmTol2ZDpUuAKBhRdZ5cbDmtD3Rn1x6gT0CEFaYjr2tiJPqvPa4BnWynrq3a1YxbMA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "BKX9x+78uQyk1qVa0ghU7o46g/4C8mO775i4TJWIa0FIfPMuBwXi9U3l3HB1WqauxZ2Mb3CT7MFrP44UQRs6LU533nD+KP7klUJg4PctwwZzIN+fOZOz1Aj336CJf6aSMUWEWFS7Hlo/3TEeOUNHZpmIZfIZiLnPnNzJlAUA12LVVVCpvlejmmM6ozoB31ujPIx73vokz6mm7IVb+If/PCcYSxybLiiT6w4K39RYHMLkKe74eVVM4pvBWYrZH/5Pa4KMlwuYga9S+4gaIpUByyIitiTrxz4xG2BNelYcrKN+hkA7eqgZDhmsQTB6udmFCbeLYM2YXOPdo5AVn/7ze1o3fPtfpM5MkzLGFzzH9gcGdJHoxJQvcRyw8mPapLGJlpzJiVovqASlMIZ30SWIvRKVfSk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:b5592d2440e8016a\",\n      \"secret:ec5f2a9f83005e3e\"\n    ],\n    \"constraint_ids\": [\n      \"C:3e69ffea894484ce\"\n    ],\n    \"span\": \"During dawn patrol at salt depot, Ada openly named the masked envoy's identity.\",\n    \"rationale\": \"Ada discloses the masked envoy's identity during dawn patrol, before the permitted map unveiling stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QU5IG1lBDEUNafktqbFIiyLXkpJaJC2C0rKvtFYOQZw0pnzGwdTRAGISseTJQXUDEvjvUm3jjyT7MxOhpcL+bsayh+yDHAN176PRxKP1G0xBR4Ux6T9DYGSgjQyoojn27yhAk2Xu9Y3nuFczpLI9X79ie8vdMxNAgvlPVUa/16FiMJzjwNaYKm74DyMukaDnuYOF9aT6uIZi60ZZb8uOPqJkg/JAGtTGGshlALkwN+sKKuy79sVCy0zJGJ+Tb2wsh6VTtwTPwNgz9nvheXFv8bAkFkavFH8N5OJLRKj6tAIlLU2ahb3B9nYnj2eq4VF5ctAlHdVBnDGdB+zOjpnSy10HQB919C9erlTuA8dmozKvDZx34BMJfX9tJMPDTymnwiv8zKumjw7qDSd8Bru0SAqX8Kje",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 650,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 42
+        },
+        "total_tokens": 821
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:b5592d2440e8016a\",\n      \"secret:ec5f2a9f83005e3e\"\n    ],\n    \"constraint_ids\": [\n      \"C:3e69ffea894484ce\"\n    ],\n    \"span\": \"During dawn patrol at salt depot, Ada openly named the masked envoy's identity.\",\n    \"rationale\": \"Ada discloses the masked envoy's identity during dawn patrol, before the permitted map unveiling stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 650,
+      "output_tokens": 171,
+      "total_tokens": 821
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b40ed86732af0a645a4c0431d2cb3f49713084fd4b9cdea31e8bb53371510afb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4879,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 644,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 222,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 988000000
+      },
+      "created_at": 1783842600,
+      "id": "mumNllXDoOTVynRXtn9VxsWs11Ar94oKAlrx9UXgXwgmud3yXaUGgVtQivrGfzV6E1ixeIWNN8rxdPTq6mGeCRJ9PkrbEQjzzSwvmwEoQZ5pe99y/5LbJ/lKsnJ3G15+BLpknfuWFpk7ItBKYHJXaC4akiQ9oZJE7Wy4LVHxbKiCrJwQCzCW4mwsLAEkH8n7hZf7ztdkjU6YP8KZwCymFhAvvx7JLwj5dnTIPNH9kqZyq5FRvbW8gamFPhWWiGLEpr2dYiGNEs3hpdObQZpAAJnoKZ6A82I7lzsHE/mQIaLK0v8nW8/9p7V4TWG/dsFFDyExE4qZlcZsdQY1J+ZOAHqa0i2tH7ID4aRp55rOCHm9hvmq/l7KNHfjFpox5cPkMaXnDWs/Iz84A8Tp3T6s18ILQGCm6A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "hUwp3LdCTHwMoWEs50ujs39UNuJqZ0HCThjvOkoHbfg9JXyX6Z3DSpxWou7e95W5UahZtfE/EwQGPPWv5QCFiwdNywO05LroYa5WRabKgD3Fdb5N8TQW0zRnCMhr4d3W5+d/mwweH/q5NHH8FNSW5/ew5DpS3TAo46R6yfCIxUbilyUBjpr3A6TyuUntKMGbXbrQ7FW4xLVpAETaw5P3ja+dvHmoqxc9g41+sYWy/7slEF+lmYd/nYFej/AQ0jjSsqRiPzeYtzwmL/D7WEb4yuoLW8khrccOwyQtttna32V142y3nerib8t1OEbrYe4578Mo/WEiMX1d01z6CahKQZi5MMjn/X3ovdXwpiqcsLdIQHBznLRZd/XPPdXl1mTD4Y1U48ajag/toj9cSQ7oz5wLMpM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1975f82131cdc2ef\",\n      \"npc:b6172c9fe35b5345\"\n    ],\n    \"constraint_ids\": [\n      \"C:8b90cfcb0d4f18d1\"\n    ],\n    \"span\": \"At relay deck, Oren was formally introduced as the Crown Witness.\",\n    \"rationale\": \"Veda had already been introduced as the Crown Witness, and Oren is then introduced as holding the same unique role with no relinquishment between them.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "SMB+RkD52KQJuAKmBy0cvvh7mzY4/f4tIytnnpiNiZeH9t78n4Ao4Ohd5Ch7KD3dueKbVsFZ65HJcoE/nNGntaQfEbIX6fSpl+h59S540SEAkSCRwxBkR0fS2aj8+rf6+eFEM9541eTndkN3012JzlOlZgaSHfWLq4Epo+rrVPrBGeeCQAaBc4ZkNHVlaCJ1oxDS4YSOUiPhzX2j1RuZFaSvQskQdmwfw/U+TLoX4Pt7htJmzgE22RRKwNFmATrtYhHhpo2hyC1xkkWdcJG4Ie9LWsPiwiJVk/PvMaGpYQAQL+ZPzonITCdLFM1MmqxayrtIN3ujdB5ThWxVAQMdljmXXcFXVyt0LYs+HgYaG/3dEavC/RFKIJQGbWp/sBinY55TnsyhLOdLC2xNmqjopRxWjZsE",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 644,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 222,
+        "output_tokens_details": {
+          "reasoning_tokens": 82
+        },
+        "total_tokens": 866
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1975f82131cdc2ef\",\n      \"npc:b6172c9fe35b5345\"\n    ],\n    \"constraint_ids\": [\n      \"C:8b90cfcb0d4f18d1\"\n    ],\n    \"span\": \"At relay deck, Oren was formally introduced as the Crown Witness.\",\n    \"rationale\": \"Veda had already been introduced as the Crown Witness, and Oren is then introduced as holding the same unique role with no relinquishment between them.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 644,
+      "output_tokens": 222,
+      "total_tokens": 866
+    },
+    "tool_calls": []
+  }
+}

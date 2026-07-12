@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fac1629ef4d9a1e39275410fd79d7018aabdde604002c8f8d4164cc67b6da0d5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3224,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 609,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 196,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 892500000
+      },
+      "created_at": 1783852800,
+      "id": "Hs1IPGJu2+m7T3RHsh0UM/4VoTOOsnpt0PpC4XSaZ9j4IuhGsCNWKEJUnJkz2tG+8Y+Hl3FrYpPudfPUj2R6mffEOYWAtIY5sU9qqDxTPzpGYLoRZAs58+89GGtlXf2wsxdMH9QiZcWHwvwa5hy6y/G7ZZxKVXO99TQe1L5MYpnXhbD/uwkTnt/Wz/LE5e+3B8z3iW96kK/d7rsBaQvjKor3ZKh8hFP/rP4rs+sgemtWm+HaMku6i/rtqDms/y7vasUoRv7/hhYvmvQOyTS3Wu4uSD1vC7IcYAn7alQyGoBGza1hA3mq7fQtnvTjiTZJ+jvdW7brb4IWvJG2ilf51J4BVRWObQCttrd/ZjkCuNMC29veC4mtcZTRGW3CJ4sqs3oB+iaHVuweaEuqNqJ9mDTYvmPBRQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "RI1/8NorlR4toEFMU/Jm/UhIazJGHlInAv7yFUFRMjQWDe60CmofncTXSPXaqlB1r1TnVykUpHK+qVKrqETXfIqESDN08EsgQKLYYNBle8xZtNuumX6cVUb4D4mBAMhAu3GuaafcsYayHxEHe8rxvb/fX9IA6uZ+iJf+JDerDcPucYDw2k/DfTASC4NQWG9IKdzKQp8DZgHu40UWLm1u2IsXJQAB5fZOP/CqnsU0Hcl0wvk87Uk14Gifg/l6vdjd+2TohAPAIgXelZ6RIDqenQwtM0t5L1DFwbLozHyA332sQWH9yIz/vJD9KI6yz2v/vVXhz/rJAajoTmAIcZ91/qK3HN3AYvS19K4VBsYWhgNgnsuRxrhZfWNn0gKBWUaU6GKi04OFSQy9jN4iOXRMOWF/Qcg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:26dbb43eb8790bee\",\"npc:cb552b62be8d8db9\"],\"constraint_ids\":[\"C:fdf44b6d5065a206\"],\"span\":\"At relay deck, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin of Harbor Guard and Eli of Ash Fleet jointly approved a battle plan despite the standing feud barring joint commands between their factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "jWTm/9tefon3JQ31jsIKVZWB/bj/mjL6CCwcQqNAtQZLajL53fkUUoegpgEDc+ztABvffgfPttpqMhPGpM8rS1hBkRms21ZUC6Eujl0sbqPdWl6AyBnRbEmYqWTGuSNoPZSEc6PoOYXVd6g/Mfn/jLGUsInpXzjlBFguyfbd3VBshIMgZ2+hxId1JiUZGUIk6C9DuqyvdR2Nm5f7dqdCdRTq1tjy7NbPuyibmvdlfrxLPhW0WMRmFLR+pl7W37VURGiQ36jtzX0Q3MGd7UUXge/ekGKXxQvVYyZYVthRlcLJN8CDaPH4LCxruCuFY3SWloN4VwBPjY+yNOUjmBZS4/nMjjTOgpd1lsPGNCPpwwusCpWaostpqqc+Wog3EL+d6CKm6VMGNd6jhHC9s703GhmEx3Pi",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 609,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 196,
+        "output_tokens_details": {
+          "reasoning_tokens": 86
+        },
+        "total_tokens": 805
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:26dbb43eb8790bee\",\"npc:cb552b62be8d8db9\"],\"constraint_ids\":[\"C:fdf44b6d5065a206\"],\"span\":\"At relay deck, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin of Harbor Guard and Eli of Ash Fleet jointly approved a battle plan despite the standing feud barring joint commands between their factions.\"}]",
+    "token_usage": {
+      "input_tokens": 609,
+      "output_tokens": 196,
+      "total_tokens": 805
+    },
+    "tool_calls": []
+  }
+}

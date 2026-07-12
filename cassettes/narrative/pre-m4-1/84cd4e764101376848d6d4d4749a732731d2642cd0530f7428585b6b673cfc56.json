@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:84cd4e764101376848d6d4d4749a732731d2642cd0530f7428585b6b673cfc56",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2452,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 544,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 148,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 716000000
+      },
+      "created_at": 1783861000,
+      "id": "au00EuqguC5ej/zyJ5tr8Fg579+bXm780m2tLEZHbWSevs0U2in5FWYWSgJ0nmdsIzM1O7o9bV3/zRt+/CgQMXbsrPES3orandWxZBdwNFYvrZaHgMaqWtdvgyyK2oY6weZKBRVG/yp1gw81VjTRS5z6gDtlW80L2juL2pk0EffV++ErjQ295VlFa+HSprHafpFKfKqx0L0TAPyH+vDkcABkT/lAvqRqNKqOo5rv/lxlOHWslUf5rbjvooWlOuw72XDAyAVw8/1jgrd9ca4U1ogBJ1Mlcr/YxaeTzzxDDUPV1QgaJNewzCnB2WWLymYozT5n9IP9ucyuOaNCXvRwhneCN/zczk4FjTkHwdpXOWWytZlpSFPzLpzbs5rbHTCJWBUpnvnUH5Gw9hT8hj0M43zFecvGGA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "KD7Hogu2Ks8TbEh6Cc6ZXRyZ9xugzcfFhSIh5TAVq0uvwOkv87/o/Avzv2BkqEkMlC3tbWSkHQHwr37BUqHGM4zT83HEsXXYH8WgGn24IrBSufSzDrs8jnebHrUqlsUTuQT6sqPybag+bwDAbTphP2yKRDnC+pd4M6uo0Hi8p4Ge9hoyjSUXZxmtASpKOmtAUcfJeHokQTPKr0IqyYij1k04XuBLGU9WIw4efSdYfzBCFHWLpswnrgEvFfi8Fxem/rPsxAGslfGqTzdcIJWaPBf1kSktgy+zPC0XEbR60ZS9IiDXIzO60oaCg061wj3Gn2VpaGSOqy5FwYRJaP25nXiTxbyNC0AylXtgCIabGgNrJNQco0INtzi9uGNL46Xa8oyrvPHKshGrrOIyz6h1+YrrIF8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:637dfef98f7c1dc1\",\"npc:c7c83ecdc611b6d1\"],\"constraint_ids\":[\"C:4a5d7f6064d9fdcf\"],\"span\":\"In orbital concourse, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei and Daro belong to factions explicitly at war, yet Mei supplies Daro and establishes a permanent partnership, showing prohibited cooperation.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "VbHJrZQWj5dIqPdMHcM0GVUN11BHLA96GtQzNb074SK0KDZk0+SrqZUHUNLrw1IqXGW0GCH6AvBtlPcURfzsJAxZHEI7nYVDF8rkSttIqU5o6vkFU10/AY9f/EpsbTMdosgvtfr4p0EkZoGmHFGnFmd0yn97K5SdnovN7T1k/FmB/V1MPMjp2Bcns5dyPnX8fCuFh1ptcFKOmsRibgGN7G3XtAGCf9rSBGVsCJhHjL/MQnJLUT7wTUjKgnW7EoajxiJenmkDDZ+y4CVsED3FaXwQWGZvdxd30YiiwTa2gmf9sqkjH5iGhIifMXNJp0iTeT3EWRbpskqGkFEYJzKuvGifPD4Bt3jI3LYFo/8xyY7N0DQ5os0xwZfexQmOwyUnkwDCn1FkcSqt8SsQFuhXXiTxkV26",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 544,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 148,
+        "output_tokens_details": {
+          "reasoning_tokens": 34
+        },
+        "total_tokens": 692
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:637dfef98f7c1dc1\",\"npc:c7c83ecdc611b6d1\"],\"constraint_ids\":[\"C:4a5d7f6064d9fdcf\"],\"span\":\"In orbital concourse, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei and Daro belong to factions explicitly at war, yet Mei supplies Daro and establishes a permanent partnership, showing prohibited cooperation.\"}]",
+    "token_usage": {
+      "input_tokens": 544,
+      "output_tokens": 148,
+      "total_tokens": 692
+    },
+    "tool_calls": []
+  }
+}

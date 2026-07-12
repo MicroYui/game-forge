@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7eaf695118237d07f64aeef94b260151bf72048fef2d0bfa3946a9ea08cceb68",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4271,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 568,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 217,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 935000000
+      },
+      "created_at": 1783853700,
+      "id": "uRvq1nnECnqd/SMZwL/bd24gqmRfoPQMP8XILE1z0QG18bam2aARFt0AJeW8AlblCYHm4OLfdLpyWGGSHhPV8Syxab0JBtyL1HFHzA91Srgn4RHOPRE7Bv5QvGfBduccjctu4FI59SpfT0vTD30mguKcshLpe9023wcLlKCRsAJ6VlgUCg4haf3QtktxbDqMlHjMNrcHBzryua5pgVLUCWTaHqmiC94J24LZbLNSd5D+8COqY119dcCLtTeHsLT7GOeFxhd4iqi53xvNKaQavjOiDFji1yRLdslXIPOpUwZRtI5YQjtxdNZq86o6FhhbYE2rnfdlja5QdO6Wj9mTjQqS3oqIBJLz60b+rabJFsD+0tXP8MDsi84w0t48PyGwbFR+IlkPwxt5WzNXxLKMCGw11yXPkw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "/JeMsKtfeqjhC6KhR0IQO8cyoDcaRvtjLO51HQI9AIGL5C3CnAdboqO4f8f9hllGU+f7Q7u28jkOh1sfNU5KGY+rIyY8d5Fq/crrC5jVwkstwpyiV/UOdGwIC9gt1ugljTTKs4WmiyqmQshhCjgV52OM5cPhl+gEcGGY0Hh/s+7ojo1+Iv0qZbvqpgMwAiWD5J6cUyYIq0yOQ5sG/vTvjO9qBWvAaCFKMuwWSNa5dOYbGIYxOSWvEpCc8EOSe0/Ki3PqI92txGPYVkyAqjoJeKFCanK8exM1QaFA9dtsVe/+QCvrBp7Pk2VtCVCGqyeRjw3U132ED+2rXAA6iccq0HsgEK+lld0Un6suG+4BSi2rN2H/CwCQ3jTnEAKYxlmyVTHm653Fo3LRZlYx3QMi68leaGI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:156b0bf78709e40b\",\n      \"npc:92574d415737cfbc\"\n    ],\n    \"constraint_ids\": [\n      \"C:05c67f0a27734709\"\n    ],\n    \"span\": \"Iria accepted the title of the Crown Witness before the assembly at eastern ridge.\",\n    \"rationale\": \"Iria accepts the unique title after Ansel is established as Crown Witness, with no relinquishment shown, creating two active holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "AbHBK0eI7DdZQS3iWvi6LjSE2Js6mpO+cNngIvkEmIC5JOS6IYuT3WG2au9rULcypNlYZW92TyoUkOndHL3nLnAChRZsv1qmCuQgoUDRCgEejjQa2/P9+LMxGeip/LQOUr+ptJQzNfhFAbDMA4IWTsmAUfETcsShE7tK9WnkykdlezVAlkn1mf5ShqYzkZlUd2RDu1N3nZbbtvmi+8VayZFQQtKARvowGfoxvwWoTWEDSKDa4Tu/t5wKCbVH8rMvw2Sp0fwNLOrls881+48ugSFnHWxDrlksvDnd2YxD9wvoPdjysPp9hBVFiMb7OrdFzLugFI3jt69i2FldvBT3vGMC5UYRC+G3NY7hSUlT7EvRFUfANaXL+VBeugcQ7+WUBC6iBd9LL8C8YYNG2cbsJAuM/USi",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 568,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 217,
+        "output_tokens_details": {
+          "reasoning_tokens": 83
+        },
+        "total_tokens": 785
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:156b0bf78709e40b\",\n      \"npc:92574d415737cfbc\"\n    ],\n    \"constraint_ids\": [\n      \"C:05c67f0a27734709\"\n    ],\n    \"span\": \"Iria accepted the title of the Crown Witness before the assembly at eastern ridge.\",\n    \"rationale\": \"Iria accepts the unique title after Ansel is established as Crown Witness, with no relinquishment shown, creating two active holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 568,
+      "output_tokens": 217,
+      "total_tokens": 785
+    },
+    "tool_calls": []
+  }
+}

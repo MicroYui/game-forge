@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3f200c46b5750b92ad5cb67de6d3ee74263390426d0709ad2db68bbb18078054",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2852,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 597,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 811500000
+      },
+      "created_at": 1783852500,
+      "id": "kGMXplXMvp6T8pvtDxvZw8FteirJdqqXvdS6ExBK8FmzKgG0LSdhKbMMJP2NwwI+Sa7+5IKxxRGZuChhk5VNex5BMXbMTzuRJPZZL0EeHwichDWFmbRaVzZDERvsKWw7gXWzPPv5iOaxT/GjyU6jm8vyYCLC3du0jEjy2EmpAfBbY+93xr8n5IFzyf5EW92KuzfALP4lSrJjQ5bZDvUJGEtWt9pYHU4Q2vbMCgjmUw5OVji/g3dTkxWA9d4b1X7OmvyiZI02Bn8ZCDbID9NPisgBXFgeIG7llJ/jOlnwnMlSiyI1odXq4avEOShmc8ucowjTWPLObtUM+qsYAhN579xwnJkKJC6d0pXtcEwyPgB2cc4mFz6/FJEh5yBe+r6UcZUg1n5Jq6w8EE4I8wcjgUMhs8vlaA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pkvSI0FKk3CrU9gLrLzLPLZkXD3dPqWl8iseeEAws+rhibDHD32gsF56BtrE8AR30xYurzCgHlqZyYRJC5pqeWxXo9I7FDMJtr6Lsqrl5Z5tmyl9DxrMdM0Sy2mHR3vRIxvp1mLZSrxjzuW6m2JEgmd66u6Vor2mujR+gdKxNiZRUKW4SEc7sVIWJ693WW+Bx8B9NMreYipphJcqvKNqZFiK4C53Du7y1eCwJHkDQXwNfE4swCEkpoDnvBRbOkXNIsqfiP4PMpVqlWQUkCT1ocFM/Rd0D/ZUOrQjTUw0qVEbjarITA/HTTGef2qxbNYlcByIq6PhzJ2g9mmH0cDLDBJl8LJNOZmNUA0rWicxuFWBzqIkP+ib1o5NhKWhzQz0wW6zvIvWmsou/HM22CNTE3AeTkc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:494725ecf9e78821\",\"npc:d7894e97fb2b38b6\"],\"constraint_ids\":[\"C:0a154cfe148c2088\"],\"span\":\"At archive hall, Eli was formally introduced as the Archive Speaker.\",\"rationale\":\"Tamsin was already registered as the Archive Speaker, and no relinquishment occurred before Eli received the same active role, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "PsIjMEYU9++w1NOuCdwGQ9fpxe2hZM9OL9pjS4O+D8MAnW7dm9pzY22v5VTSEHxBvXr3XAoBIvBIcQP0WR09BOFDbUH7LPKhaDvSbQrqkYk0KO9WXjGTfxKymHlNntu/maY+AR+eGiYm9C6nmEPJeh6CRUCF4k2MneyeTNkHWwnGfBXR1dd0KeqmZOpJHmKM3eAo0XAanqr/jilP6jaVKMqyFBlXSywA+RHlLOIadYXo/ONV+ctK4rrtO4jp7/lLwZ+2EtyQZcXFC2ZZE/Sv/Eq/m79gR8SE8ip+hkbcprtOrc0DenI19YIwazTYCea/FurYZRk9PdbhYgRrs5T5L70dTlxRHLvOhdvFqPllirkZMGc1Y9zvKKTWHof/KRRGrGsYeDRMrPhKbNDzeKXkFMxhF7sH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 597,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 60
+        },
+        "total_tokens": 768
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:494725ecf9e78821\",\"npc:d7894e97fb2b38b6\"],\"constraint_ids\":[\"C:0a154cfe148c2088\"],\"span\":\"At archive hall, Eli was formally introduced as the Archive Speaker.\",\"rationale\":\"Tamsin was already registered as the Archive Speaker, and no relinquishment occurred before Eli received the same active role, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 597,
+      "output_tokens": 171,
+      "total_tokens": 768
+    },
+    "tool_calls": []
+  }
+}

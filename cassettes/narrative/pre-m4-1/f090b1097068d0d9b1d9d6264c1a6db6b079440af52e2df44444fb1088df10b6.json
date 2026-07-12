@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f090b1097068d0d9b1d9d6264c1a6db6b079440af52e2df44444fb1088df10b6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3036,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 622,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 179,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 848000000
+      },
+      "created_at": 1783861800,
+      "id": "ow1Dkcm9WAPxuM/X01Flu0LyX1qbyCB9GOA5QKMi8I7+WkFU6iJhJhUk00ODPcRfDxCY77Adk/kxSLUXE9M8nkuGE6FktD64lEGE8a7noiEg5rI73cPO03gnGPBl3Rrudv8/DkBeWS+4prstd1L1UZ+Kdh7FQLQsAsnNvSsOb+/hFMdHla5Mt0XERRK3cg/jCMTpvARxMnLtXybGvWyRahn4UKYMnY6q4ZaxxKmSKuBbE8gf2+w/eA6+Rn9XOHxuCBIKF0g1saryyUWbdiJYIWt1tDaKs96E7mKhy0B/S0q7Y0yuR0EYLrNupWvIqhDkkUxXHgnyH2FKaSVYyCKcIZZ7FBMirmOix/4HHNaIX9CVc5ET2pfr8CIICJ37imY6RH5DyQOFQdIrzeKwkuntFlbbI02Txg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "8E8OvGGSs01IhrkJzmULq80OBpPmx19qACDPsm1ThdBi3nB+Ak3Ndoqmix+RZ9E/URqBAJCaFGa8o1/+bnSKD5dx07d7kv4ebVJNDjrJ7Qy/wZk9mNGeO3GEiLXGgT6z/LaWzA1ysD39FsB2aHv7OIfZtpechA7jAG0Str2IlruRJIQSL9Y0xAIoBcuU4r6af/9Nyh15HYTYxqehx5voy8558+HHxNAxjhohZBWF6WW0uRSOzmlyvaURfFSq5N5zgk3nCndFrh0Q9GSh/1wl8MufALHbBn1nWiWFC5swa/dTYD7fDMVXHky3CluHJWR85vakhHERvIsrFCYSEN4s5ut4DVVy/zDRyvT0VwVcQt210KwQia52XIWbYFZKG8cHeuj+JKkmV8/+3UixRL1I3oYPSJU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:c832cfc82665539b\",\n      \"secret:4dc5b5cce48ef7a5\"\n    ],\n    \"constraint_ids\": [\n      \"C:a19430b0deb29216\"\n    ],\n    \"span\": \"At desert waystation during dawn patrol, Qi told the room the truth about the reason the eastern beacon failed.\",\n    \"rationale\": \"Qi discloses the withheld reason during dawn patrol, before its permitted reveal at map unveiling.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "L+vsy7aguO/EptxNDFUUbBTiPST/UC2HaAIj0wLgZMsWkJzY1PifVgYpeDd0tShjdzACl+Sn6OUWoDlo5qt22P0CxG1DeI8yi+y/Ht4PV8q9MK23EvC9Wzr+vFG8g0rmA/kT1QSCRFDqBzeAryZFV5Wk37zpr7rVmFD63taHY4Y03AZH9akkWdBuPDn2XK0OnthCOX0DbgajY2xfXZwaJHjNiSpnSJb2eI3tIRnYMqyXLxmkUH8zmoOiJ6uoDc563xRU5DH99EjlZ/qq3cRtWa4E+Wknmp90lL3cxMIrkEEouvUoTcXz+YvLyfW1jx4i13V4QkyhHFeNanZEerLAROEXB4TeqhGkk4Bk3LyuG39DHcOtnffvBMcZ+M9z7zFuoERbRiVgVr9UtfD1LeYchTJTKw5d",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 622,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 179,
+        "output_tokens_details": {
+          "reasoning_tokens": 48
+        },
+        "total_tokens": 801
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:c832cfc82665539b\",\n      \"secret:4dc5b5cce48ef7a5\"\n    ],\n    \"constraint_ids\": [\n      \"C:a19430b0deb29216\"\n    ],\n    \"span\": \"At desert waystation during dawn patrol, Qi told the room the truth about the reason the eastern beacon failed.\",\n    \"rationale\": \"Qi discloses the withheld reason during dawn patrol, before its permitted reveal at map unveiling.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 622,
+      "output_tokens": 179,
+      "total_tokens": 801
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d42afa6a790ce9a137c6a31189870382b2ea1c88e4e89632d841d6ab6dab1a48",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4208,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 629,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 249,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1061500000
+      },
+      "created_at": 1783858300,
+      "id": "5deHlcqUZClMu1JiFT0cAZQWUGqj4JDgFP12pt/WkArLmBES26zGVk3OgzdCuUJ8QXkuAyu5APBKyfW6kMDxZ9X6dko+qMWDH4iV3KFB/lfZ2Tb2U6VDc8gXfe+56XOloUdKajVIr84fFxCU2kARZVW29Y0fznc177s3yXeWRZ+DOIxI77mxE591X4nuZLGuYa8iXeebP6X2Zlaqh2n473ZxemkAitj7aX3eVrGbw7Qocjxc1gvo+y8kmbDUdnCVpZf3+Jm5WNdjELZ5CbKoPOEZAAf/P0RwGvVIviOzeZ1MfvIZNYM17Jky9PtIEEuwMaJLis71Gom9wR195yEVKAeMkUElSlu/H5kFyJylnsVt0NwSVRlWDI5ZCrziOlhjsJrP2QD55wzn2amU8rluPG+ugaQQtw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "keOqPiPvGPby3CvqEJfAllQ+VjpjuhLMYZivb4ha2JOZo3G/fTj3d9emhFz2+dqy7NrwO7UIpnwcARD+fXtyoOmPfcszNkoVc0nV/yxTm6ylbw+LoPqoqFs0gkoZfs81x4ef/FdcHehNAIq2/Zy6rjALKg5jztqrENt6nK6g5rR3fJIAJtg7ZcLPRuMzoyQPqpyGW93Omz+z6qkxWViXfTbvieo2y7pjLk9XH6mWkbktMxhVEJcBL3+vWvRTdgy0noAfo/JWWKsK2SQQ1jPCFtrCxbrdk/w2dC1ew2A5OWywO9uhEJM/4gwvAprbSFtsyp4oeG9bgHogqHsXOJpsO3VUL/Vjk3bNoRyzQcXgvAyuDfCFxIxQhjadC7DYWv8+8qn+2JDftjpq48BpNrw0iaj4QKM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:76689e788a60be93\",\n      \"npc:b9b687463a621849\"\n    ],\n    \"constraint_ids\": [\n      \"C:e6bf7fd9e02a8eaf\"\n    ],\n    \"span\": \"At canal bridge, Eli was formally introduced as the Beacon Keeper.\",\n    \"rationale\": \"Tamsin had already accepted the unique Beacon Keeper title, and no relinquishment occurred before Eli was formally given the same title.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "3AsoL5ikV6r9Ecjr2cuw5U53dGKcyyEHM/PcS93Whj/ILbwnZH4IQ7yImd0AlxW9bJxgg9pHs3d1t9+k2w4lu0M+tc+C5+LAGC6Mgo7wm1JJHoPtHTlnlhqXh9auyC1yRj0RWktglJ9tMsj5mWO3CpoUxb2+R2657vv/UzXZd1X484kSnvD1n+SUxMG7fBmwrB1FKs2lB5JrV6njWhGkdNwiny0hKzMRJeJXAmMignyX1ijIUJitLXj9C8CpOQeyAJ9ZBe1Z5cWobpa6VhT9a+YW0FFgf5Be837pax/7t31qU0qHQztJ3AeHdTIOAi+GcYl5ULrixNcNyC3hUECLiZ15EYkiVlupfQV9fOG5ZvmqLPTofuFSzQCkIeU4OP9BQ4aPFdi4doGcfofmaTjCFJPUD+HS",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 629,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 249,
+        "output_tokens_details": {
+          "reasoning_tokens": 117
+        },
+        "total_tokens": 878
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:76689e788a60be93\",\n      \"npc:b9b687463a621849\"\n    ],\n    \"constraint_ids\": [\n      \"C:e6bf7fd9e02a8eaf\"\n    ],\n    \"span\": \"At canal bridge, Eli was formally introduced as the Beacon Keeper.\",\n    \"rationale\": \"Tamsin had already accepted the unique Beacon Keeper title, and no relinquishment occurred before Eli was formally given the same title.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 629,
+      "output_tokens": 249,
+      "total_tokens": 878
+    },
+    "tool_calls": []
+  }
+}

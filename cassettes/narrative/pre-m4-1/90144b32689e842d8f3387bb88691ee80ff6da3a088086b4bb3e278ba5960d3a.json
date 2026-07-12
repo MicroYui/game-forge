@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:90144b32689e842d8f3387bb88691ee80ff6da3a088086b4bb3e278ba5960d3a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3578,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 511,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 162,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 741500000
+      },
+      "created_at": 1783841700,
+      "id": "rwX5qTELinG6I6aXE6i2hoL/qPuQIIjmph48fd7+DB//h0Ki9yIKveaHJSdX5xBHG31OGEZePWRUNNXFT1sufSgFzZh5v5LRsQ1Q+9RU+hAXblPsgkWSBjK+IBcVzag4Bv8FF9rc5XNhuDLQ5TALBIS6Y1AdP9tuEnXF/rPTqVymCbmTyAzO6dFOUKjyWBOvg2BnHMkPPt2c5tSz/giXx0N3T6b1kwQOIwF6CpuX6DRUR7mhhPtV0hZafxcDPNPtRfxqJrNMOO13+uyKmqsoQ3lrbzhX6OCXmK0ZJ1ERUnEaynrU8PZ5H9WFne9R7tKQhnzBBoQO9ytf/oPmBsrrKe8LhfkdQeJJZwcK3vXCT3hu5SgNnS/uxpNZAGG7fi8fR7w8qCKCuVBvMYYjpXvcff3A/DpNIg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "maaOB+4EgMxN2HW1ybQ1Q26hRvQuwVqRcmHf6PFk+2xveeQCPo9kiSRaeG0YoyNu5Lbk9ML2aIbLWnGp67mtCnaRpRun3jfNaXpMMTBtTo6wwTwAapPdFAaR2WJ75gHmzs/dBa1zeKune2aDLyJo+WBOHivbY8p5ElqH5XPtz2pA47ajcSWlnKiwO9hG+lDs3k0+S20zpt6v4fTZwS9Ltq2dO6kYw6aMj6xG7+Nsu1wUbhC0syJsu8cpmOAt+sDvDVObZWlxqj+HmbYLX0AvsjbLvZhMANqp1x6T7Otd7y81jVhkyo/oIleF4jLo26ZiuAMmLkXTs9Z9nqFWp5eYuM5bGy6rEU8dDMj1FP3lMYfst1146d5wkW1US8jSvxh8seH7iwCVyoRvJLy3R2H+JeS+U+c=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:961c3ecf3a89a445\"],\"constraint_ids\":[\"C:0d091da64141f1bb\"],\"span\":\"Noor sealed the crew outside when the alarm sounded at observatory.\",\"rationale\":\"Sealing the crew outside during an alarm abandons or endangers them, conflicting with Noor's loyalty to every crew member.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Fd6DU+Ac6AVUbo06i03fVgxC/x1SlR0OCC+AXw/zuZ43YtISv4AVlgWgI8pahWFjaUHIyyo/LM1vpOtg4R1sxlszmvjghXLC0Xgam8pN/QmHrvjOvjsAIcpdbkKUJ9tl6UjOT7XcTIqAebahSaR2hag3LTjZltssDEOP3kpaYcfLm2Q4/H242GNi5LJRgxQPivYeVGh2Tppaisps54ChB0SRFUaGZSO6zU2b5/MQ/gcTDSF6RYoA5Jn91fXe0Rq762pCpj/WYpv3tJXvO+N6qp7OR9+pEhe149RQWRCvxf9V2d+osnkKSxbkelS1x7f8c3JE1ld34kE4lNgj5P1+Y0xWy8r86LT/bbYQM50DSCAZBG6vWx2FeHw8EWMUdyWrkBRytCopf2YtwCISdku2dIsLjrlU",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 511,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 162,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 673
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:961c3ecf3a89a445\"],\"constraint_ids\":[\"C:0d091da64141f1bb\"],\"span\":\"Noor sealed the crew outside when the alarm sounded at observatory.\",\"rationale\":\"Sealing the crew outside during an alarm abandons or endangers them, conflicting with Noor's loyalty to every crew member.\"}]",
+    "token_usage": {
+      "input_tokens": 511,
+      "output_tokens": 162,
+      "total_tokens": 673
+    },
+    "tool_calls": []
+  }
+}

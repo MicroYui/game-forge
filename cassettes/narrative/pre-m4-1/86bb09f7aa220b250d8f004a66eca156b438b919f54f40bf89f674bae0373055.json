@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:86bb09f7aa220b250d8f004a66eca156b438b919f54f40bf89f674bae0373055",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3195,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 628,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 830000000
+      },
+      "created_at": 1783855200,
+      "id": "r5IXXXMIaYZlzFZX0FPQV7Q1++w3M3bUScyVeOYCcIUNb0EeQzq/Na1dSLUKw7caDyzvmijd0r7OMxxzxPqBY8w1fvUW1CMsN+RZUaGQk17YQdhDLPCXmAFCyMjTEqwr9m2ARAizxigZOo8WGS7Urg3HO8hjgkDsIeNgvvxs6OWllySElMQpYoDcpsZHm3hoUL8YdwZl3ICni3zHXi/rtz6G0MCJyeZRuK1NGb4IjV64IsTXtaUcrtXaDtXmDZJD7oTMRPMaCvzbzwIND0tugIVovB98rMrl/GOOhduWzrWQpH/iZ4vkcwrsLbxo7sUCJHMU+8yF5Z+y05NNaobuK2VIAJHtrrN9ZlDP/HjJma6ba63xjQMSEFZu+34GB6W2AMLvY5yxviIZnakDAtTBBBTpeWJN3g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WRhbQ3KyfMOdURzZlCOg6yH+jWF0CaqCGsoM7yuxwzhN/DWtnGXyyA+3Ik/1cJl2EWwrGSjP+8+W7lTPbXr/R+YN4F+Y39w+7bo0XZUxTQCzzvsusWogcyxd9Uy5QgwZ78iuiH8EKiFwg92qTRfKrF+Qs+5t3hYLHnA/Tf7UwqmSwadFN+60J+jlwhS+3j5FmzHHS5zmOPCUFuN9fBYxKYM4VUh3EXLsViJV0GvbXbd71yDzMva3sdxbjaIumY9lD+W+Yqk8hSCMUj8+hQfbXdtDMR+zE1vLTIFn0BHanCMJxX6dTED6a5elALai2+pjcYn+vLDvItOi/Qai5i0/kM6m0VrvFvepNYN9sJqYzdD1JldA51F4cu+vvhRlF13BUTaNMKbL2IhflzeHldrJ4QuaHj8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:568a95f13999340b\",\n      \"npc:befa7fc27d72f584\"\n    ],\n    \"constraint_ids\": [\n      \"C:71db5230321a2753\"\n    ],\n    \"span\": \"Qi welcomed Mara into a shared command post at cargo ring.\",\n    \"rationale\": \"Qi and Mara belong to factions explicitly at war, yet they cooperate through a shared command post.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JJ2p7gGwygz1qoN78BuO1cNdJjmcBjCOCLvvnqsNsVemQcEB62rml/ym8S8exu2g7o/6zdiHDSK4qY53OpAKcDQ4bbUpTNyXGJBVYIT8ZWpxy7CgrFQYf6v4Ns7LTrKaaD18tK+3xA43UoFJyPjSpk/1CBTtRaMt4mgGZOINklFlh3ZgSIl88Oer+ZjAxxsw3uNsfTfeYu3BpP2z3xTWoo4hYUZAgWg5D0KCa0wSzMMpk4ROeu145skUW9dY5bmCXIGfmAD07fZ+LzBqVJHmcApFnWzhlR7cA8YVL97kEc3Ta+GGVNC9e7JWwwX3WccidvKDWUfgse+xZqNfcwNGX9dOPAylY+1gn8yjOIaadrPXQF1DataIuARKBgUyBMQbWyMGg8zOMutYAKPHvU/QTXzyWNUg",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 628,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "reasoning_tokens": 50
+        },
+        "total_tokens": 800
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:568a95f13999340b\",\n      \"npc:befa7fc27d72f584\"\n    ],\n    \"constraint_ids\": [\n      \"C:71db5230321a2753\"\n    ],\n    \"span\": \"Qi welcomed Mara into a shared command post at cargo ring.\",\n    \"rationale\": \"Qi and Mara belong to factions explicitly at war, yet they cooperate through a shared command post.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 628,
+      "output_tokens": 172,
+      "total_tokens": 800
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:772b8cb36fe3d0cc31f936e41d7d177664a13f6b54a0de50e28093a6b695726b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6435,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 554,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 278,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1111000000
+      },
+      "created_at": 1783846900,
+      "id": "h8G7j6ShxtpAo433zvsPUfIgjyghUSXsOv3ob8J0qm5/D4NZyL+DkmpFiDVaM6zTINB3yAqdqCHRqt80oRbp9YFsb2TRe5CZQG+mrQEj2lCiBXF+O/EOXIX3/SOdV6/EyxcHWgE6umRUf7ZDSkpJyT21IG02CNlNIzpJ4IoTG7VqWqzv+K+4Fvn226HBIys/s2gXoDhEiIHOjexNZ0qEeHl9ENh6FE/glTybt7DgQMFXGh11frgjJ0tu8R55TuV/TFdg48CMubpPo9Gf8ziISkGk5S+T1JqWCCEtD/WTU9cw/11+FE78l30ljU5PlsTbx4slP7SVp6DapcTgDGtd8pFbcY8QZ7KhferKl3Rw2FJFeCjcybaifPk/PtoAOjzNprabK8OlDRCBKJavyqppB6TQuhJnkQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "1etOi41WYMcm8Jruc3bc8r8A74fzl7DGMda4r8f2XRKWoJmQNNswFKt0xoDEubkmOSa/AleAT5he1eALDsw6lJc4tcPA9daIpeu/oIu/F+lTalkEJnSjE6aHWVZfeC+LvmUg//m/PxX8xs2x43XdcrrD1qy4k+r/OpQX9jsZ7/I2N7iB/qU6qf89I/+OcRvz1YJM8UpTuTiUOn0+NNulai8cWE2eS0IupVPUbrXO8sitHpCSNtrNmcLkexeoryHv//CQezIBFIRogET2udSeyYigbbNa4CYgXEWSQ0lToMDPpck+iwUs6ASFuMozo+y/qxIK0Hk5Wl2CbD5X1W9Z+IQj00mnC5FpdW16RjUeDi+K3En/Nv9aiPo1SwSFLj+aUIbqRU7ar6c9bxXsQywUVEd+VYs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:545a585363346970\",\n      \"npc:775844540dc14c6b\"\n    ],\n    \"constraint_ids\": [\n      \"C:3c30482243cc4327\"\n    ],\n    \"span\": \"At desert waystation, Noor was formally introduced as the Beacon Keeper.\",\n    \"rationale\": \"Noor is recognized as Beacon Keeper after Cass was recognized in that unique role, with no relinquishment stated between them.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "x+WIRaB30Pa2AcijaX1RMXSvxCfgcNJn7OP7t5+VAIHZ0dQb1vL12+Yzqeo6WhHE793/dynJ6gNel6Fuf+v8Z75OjNNQJKMw6DnOVRDqaZ267m+h/RwU8QCkWiPhVcH9pJqWA8+0pA9UnU79AveGlcpzn0e5z1HOuvyC5cXb5M1uxnmmTsLjwEdo5LFjQXjZtgMgZRnbqIHWmPFGmCkYsY9/lL4Ut5ykkilBqrAYAybmq2cjkdpi0iHyM3OGSLPyEHLH5QOEBJrBulaCxZo6s9OX/eDY/gz1CZrbioOIiyg3hKvnZ4TvCAm8y98sd0omPjp8FDw8OFMgB+AeNu4xyCSZLsNlzYg3dxQm5hS9jOaLoHcyvHrWIwW6DZbfHS55L68UuwtLSBL0iKJg+8D6QKxVVjRq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 554,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 278,
+        "output_tokens_details": {
+          "reasoning_tokens": 151
+        },
+        "total_tokens": 832
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:545a585363346970\",\n      \"npc:775844540dc14c6b\"\n    ],\n    \"constraint_ids\": [\n      \"C:3c30482243cc4327\"\n    ],\n    \"span\": \"At desert waystation, Noor was formally introduced as the Beacon Keeper.\",\n    \"rationale\": \"Noor is recognized as Beacon Keeper after Cass was recognized in that unique role, with no relinquishment stated between them.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 554,
+      "output_tokens": 278,
+      "total_tokens": 832
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ffe7dc07f476a3053f959e2914adb438a8516118e57c903985ceda9e6036588f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5547,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 578,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 248,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1033000000
+      },
+      "created_at": 1783846500,
+      "id": "XzT7bWtnjmbxOXwpwa5LXyjUOdfDDZjI5eKT7co72xKyVl0avB9BgXi2AgnxkuZJbHiZzRWDvnMHjIAtJannAeGmj4HpAj1BVbw27Mt1fW5G87WW9eRa9guvhroMcJX4QxkfPpUvPqqDE4rHa4OVAK4k75j7RKIPG9LObLunNz9e7/kjtwGyvLzvkfP0OJbgQzVblBW30MqOGUjSod3lgzTR6NoebGWwbqLGkyaylv0t0gifkwQCZa/qNsWNCpZ2bc8vJz3l9wpAPe4wE0YlCs1gD9iHPhYQNKz27msS3twc2wkoYV+7WGNrqZtg1rJeKaYPin8z6BiYRrcU9ltklwdGMbVcz3TGjoEvlfzOX/GuD95S7fH98H8ewqhlOQY3yDcpKpnU556p3SmERup4Xj+1IBo/WQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "bYXcApTmz3FmrfDT4UmnHByzzeRFAr8lZxO0SW22Q3wc0GudynGWIlLn0q8kiD/XIbADQgUBTrLtbDtKfy65z0/1rCLFtSgo+wtFgwF1WrBeesEMgX44DxMi5zoQO8jpBJNPQVfSPPzqGIi/1sySSsYYRRjy+vzGe8Tiknbct7Hi+8TAIqkeyascxMj4z5Z7wBfWvvRMMTSZl4c4RisRRO8ryhv1VOvH7j/wZ6W6maVB4HGkXzyMCtKvlqOd+ER/F5SeUS6rZAasLTX5LeAbVMaoTjSOxt75efpyTJpUI78R7/T5hY8eCGbEXFZVEjvFuhLKmQgEeIx9eK/IP94vv+XAN5w/bOgPaAzomFQJF8QbLF+nLjhNR6oM45RK5zKeUUnp1pJlmE91L7dtNyNE5K12csA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4cf52914d57860b6\",\"npc:96cdd9f74969f528\"],\"constraint_ids\":[\"C:741fe7eac1f190c5\"],\"span\":\"Eli accepted the title of the Crown Witness before the assembly at archive hall.\",\"rationale\":\"Tamsin had already accepted the unique active title, and no relinquishment is shown before Eli also accepts it, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gx3wRgicef6orjwSw89L9EddvAn9Jc0w7s8/7oL9WABVSJ94vHG7SinFoRUW/hay/DKJRGxS/MZtvnuw4Zp+RXFUbDp9jGSV+/sDmk7pEyjC0hthfAoazf+4yUPqHPVcY6MfIKMqiWibZ3WBn5wPmogoLlMvasN4g8kyFPCoxQmG7l8vav0Ume+7naGNbQy7q11rzMoOepqadexhxv04Ega1cd4KirUWJ+CpSt7Scc0E5DHpeZqC1w6i3XM+zbx4NlSu8+GSY7PyI2McvtndUj0OC7DYDMjquETIDVnqrxxEpWgAoQ5GDQF+uh/DihI4VY4oKg1k/1z2gRMOAV79EOekj7oaEa1jQeQsJoxk9o4NVO7xrC6ZIEQw9mkjL48VranK/vQzQLbanZEwNblQwKtlrqlU",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 578,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 248,
+        "output_tokens_details": {
+          "reasoning_tokens": 134
+        },
+        "total_tokens": 826
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4cf52914d57860b6\",\"npc:96cdd9f74969f528\"],\"constraint_ids\":[\"C:741fe7eac1f190c5\"],\"span\":\"Eli accepted the title of the Crown Witness before the assembly at archive hall.\",\"rationale\":\"Tamsin had already accepted the unique active title, and no relinquishment is shown before Eli also accepts it, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 578,
+      "output_tokens": 248,
+      "total_tokens": 826
+    },
+    "tool_calls": []
+  }
+}

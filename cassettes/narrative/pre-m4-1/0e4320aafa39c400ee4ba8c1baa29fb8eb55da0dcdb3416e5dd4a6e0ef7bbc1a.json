@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0e4320aafa39c400ee4ba8c1baa29fb8eb55da0dcdb3416e5dd4a6e0ef7bbc1a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 9359,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 626,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 550,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1963000000
+      },
+      "created_at": 1783842400,
+      "id": "2XvwuHVhVXrNZelVnVKZJnrXIJfOASW5Ll11WHJo98D3YSTzJ6jdrHWg1RYVyqKHsbz4yPt2lovagaDp8e2JVWDJ70NG94vN+lKZ7tKMEfadHOyE7Fc+9S9dz3OMxB8jS76FycNJaBbr5OUKuL8iB4fOBPG/fpGh4sNRT9xve4HlAaf2ADG6CN3AQqjVAILFceGsQFax6hNoQGTXfbZbTn05ayTllTVrTD8tofF+cAO8yKH33KhgsIriBLFD6f+mpdcB7FgCK7oqd7nUwWbhkQGUTASwvfdWUHbPgg85i+61L9sqO4YWn/TDhT9b0GPHdGzNMgFG4dMFUGVOzV/+QLg+w2+KHl4cOQQk+kl6Ep7QlU6nMQPRO1f1R13jRtPyZ1hKNhrRr5PLzzT+j7tVuL/OP5mDnw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "i0U0+OH7uBF2u++zgxjS1fWkaa+sil7q5+XU4OlVAeFKygC4QJgncAFvwzW1UXvmhhjAW+DIPi4t0+H0j7nbP2eW9SJuGhUPaVJa4S/viKzsCZQFkZZbenGdxvxPW2MXR6FHDY9zSkgXC2Tl+bGdHD3OfEJSqR3yO/eTnJ8k4bJyk7zcQv7njCRxAF+A7aXvKEoX30R0l+09/d+hjLdd+9KmAAVmzjKpmylUDdqGq3y2LGglEjvFn7HCTpws3uqH/wjg1cAnGW1HC11+zuMxOfF19u4173jUWBJGQz39liwunWuw8d1PTmYa1fdFRQHp54hj9cvlcxY4yat2exFCcAS3I9kVXKCxl5ZITWmOze6/77Rxv04RJ2/Rnn0M0J5l0yPzYPNmkNAQSwdiPILCIlSe/uk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:6a1da6d1f77abac7\"\n    ],\n    \"constraint_ids\": [\n      \"C:1eea8083fb9766c8\"\n    ],\n    \"span\": \"In old mint, Mina returned the reserved rations to public stores.\",\n    \"rationale\": \"Mina returns the reserved public aid rather than delivering it to its intended recipients.\"\n  },\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:12a9ac70dd6ef69a\",\n      \"npc:2fa598b87ebbcbbc\"\n    ],\n    \"constraint_ids\": [\n      \"C:7f80beaf06162a38\"\n    ],\n    \"span\": \"In canal bridge, the council recognized Noor as the Crown Witness.\",\n    \"rationale\": \"Noor is recognized while Cass has already signed as the Crown Witness, with no relinquishment stated, producing two simultaneous holders of a role limited to exactly one.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "TV9ktZm1vCFwJWOGac8Hi0G2zcuKnb/iYI1o/JbcanmkjTy/OBxFfShgoAyBydm8ZvVOGr8BM7cdF3oi+Y/4Ok931h8nb2f5m+hvTAEEmJeunTRp6PMV9lrk0dEmJzmSAh1nBN5Nk6vIirkHbFfFJL6/z8EAmZm0tqD9capAOBnmxqFdwWu6kQv+UxIU6IrRUE4BzCeu0KHBoFWbC72NM0/YQCmki+WlxL//rTxU8ujMPIRnlmf0QAzcHerp3Wv626ktdj1WKwb5S5Yhv2DVcquip9cb5oGrhHgs4niYXycarAM7uqfAIDlaNpOzgQG/pQRFQ+VaK8s4fCfj33njc3zp7iG0RKjjo38pHAYp6zk3rlDtoPAcXVLS31ZqifkAGEUrav51rlqRvVS28ZN1aALc9VVZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 626,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 550,
+        "output_tokens_details": {
+          "reasoning_tokens": 307
+        },
+        "total_tokens": 1176
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:6a1da6d1f77abac7\"\n    ],\n    \"constraint_ids\": [\n      \"C:1eea8083fb9766c8\"\n    ],\n    \"span\": \"In old mint, Mina returned the reserved rations to public stores.\",\n    \"rationale\": \"Mina returns the reserved public aid rather than delivering it to its intended recipients.\"\n  },\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:12a9ac70dd6ef69a\",\n      \"npc:2fa598b87ebbcbbc\"\n    ],\n    \"constraint_ids\": [\n      \"C:7f80beaf06162a38\"\n    ],\n    \"span\": \"In canal bridge, the council recognized Noor as the Crown Witness.\",\n    \"rationale\": \"Noor is recognized while Cass has already signed as the Crown Witness, with no relinquishment stated, producing two simultaneous holders of a role limited to exactly one.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 626,
+      "output_tokens": 550,
+      "total_tokens": 1176
+    },
+    "tool_calls": []
+  }
+}

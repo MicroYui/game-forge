@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a9248607263203f9754073e737a90db140dc7eca3060e8ad0059c16626b94995",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5344,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 684,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 286,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1200000000
+      },
+      "created_at": 1783853000,
+      "id": "f1F4YsVPA9PKhR4eZLzl25U+hl4jOtt/wRloZ7U8OtfqIbz/LnskduORkNx4s8WlLJe5FlUb+SNJzGGqGhmJKp+QmAjps1HH7KrH1IRIg8dwYZ0kETQlrJ3rX8E+1HRRrcWrC8+1E0Z7DTUxYlMBilDhsN873bAobCcQnsHscQOoOdYmyI3/F9BTu+XbyWmPiPnH4yBzse8u4+PetM66VFRFb80BhCZ6jR1nDTdTUj2tt27j9wPBusn15MIj4awv2WfVEksoIgKgiwYNNjeZ64hCpXh91jCeAKyS9qAkxhn76+RetMLQ3r7UNS4GvrPtbCM7rCeCb/YATvDivUjmFpe7LBHEzjFznCnPePBoqhmaZ8LVhI4r7i39pXq9TU9Hdjg6UfnjW7TbtF7sgCGz9t9yoX6fkw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "RSXFFWCiuR6hY+ADNxRb5+BG6SUedbcarnQeKSrZ0MOp15+FFyocm0k0dqObDAgmFEwbvwDl7uu866w/ExcUJ8tGWKEqVgsxl4ed/VKAl+pr0e4dFXJiGNI/+NOlHEtSiJ3YNsBPPlFwkPwz0lUJlV1LXXVEJBTL0V5hXcV5FR0JefeLvfxPY+PpWv3qsb4+XQdt7/hOnHZPhk+wI5U/xG+GnJBYghM1CClrwvOas+PlPfpgPZunlmq5MSETKSjy7KP4n/XwKI2WZP+6D7h7e1xWkj27z1X4uiat57LjHuk3lp9j81YSnBI6RutJ4bQqk6To/Z8vZZ2tOXTGA+7cK7J5b5YhLP99u1Hc2G3TS9sTm4HcPptmQzWdQfbzjmrpKvefFmpMTBrGUYBJi7ZbKl9VV64=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:17d006f7ccaf52bc\",\n      \"npc:58ec62c66525ab71\"\n    ],\n    \"constraint_ids\": [\n      \"C:cab560411ede9d99\"\n    ],\n    \"span\": \"In observatory, the council recognized Ada as the Beacon Keeper.\",\n    \"rationale\": \"Ada is recognized as Beacon Keeper after Malik was already recognized, with no relinquishment stated, resulting in two serving holders despite the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "aR8bI1jzQLUmMa1xKCQ2rZ3guBbEdSQXU4corSqclVyo8RBY+EG4wC3ffrzLL7TtuGYw2xyfNI1fRt/gSu4Zj2GfnlT6uY6wLHIAM7NGQ8M7Pyx3AkBeWkL7lO85Cz8sbNggn8OWTPfzceMmCYx3grZIwrd8KLvOVJeWg5FRdptlQghoK/uQl56iQxmu1CSGxamiJZY3j0pVOXdEgs0oKeDap5IeSi5Ph5xbmslTZQUCVOuzkBJ1c1qBSzmh63ibnhBUUBmv2Dgr3tYAVG/gODuTgiTLJkW7ZXJxF6nQVhwJLSss16AuAh57h1cNwJKpboeDD2T/SnKZ4xn14etm35b3R52gJqVnMu6NSc1Pg9fLfEjyBJLqQ0sW3FQMwzke6ehLQJL4m9xdM+NllYrwpC3IO85D",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 684,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 286,
+        "output_tokens_details": {
+          "reasoning_tokens": 153
+        },
+        "total_tokens": 970
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:17d006f7ccaf52bc\",\n      \"npc:58ec62c66525ab71\"\n    ],\n    \"constraint_ids\": [\n      \"C:cab560411ede9d99\"\n    ],\n    \"span\": \"In observatory, the council recognized Ada as the Beacon Keeper.\",\n    \"rationale\": \"Ada is recognized as Beacon Keeper after Malik was already recognized, with no relinquishment stated, resulting in two serving holders despite the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 684,
+      "output_tokens": 286,
+      "total_tokens": 970
+    },
+    "tool_calls": []
+  }
+}

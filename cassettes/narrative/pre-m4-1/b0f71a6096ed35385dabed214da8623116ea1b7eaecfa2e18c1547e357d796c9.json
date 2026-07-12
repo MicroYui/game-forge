@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b0f71a6096ed35385dabed214da8623116ea1b7eaecfa2e18c1547e357d796c9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4998,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 595,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 252,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1053500000
+      },
+      "created_at": 1783843300,
+      "id": "EcJp9rXH647zAU+sjUmLbNuob9BsuZeBHYIdgZ2lkTpZYDwvpuMSP706iZocMFD9FMvwrr+sTPeDMG4bSz91Bd/U7rCoWMDUq7DKodkQ71ixUqJMuBcsRpPlQSrqiwmK9nANLFyBv125sUu1Btaf29/LwcjvcfrbYq/r1GkL21B89jgAWZRgq+h9uKGne3w11U1nZ/XOqqZbhHeeV/bG14V7f4rzM6mMDeyiULHSMvJH/U0VCM9UKx4LYZfbHYNIf7ZYaK/DOpN2XvJW+B9tFPHKQ5kzspz5AdyYEotKos4O4TBvAfq7CqwIPMySnk1DJmZMcLQ51ZSFmP4h/pqYS9MUDNhM6PyASF1ZLemYLKmZQCQC9RMkS5POY6Z4p9vwbeObcAw5zQBH5fLbuJPjU8ehBIRe9Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Lv242UGw7qW7VfT00FhXCzH/HVhM18tubMtBQUtVFviiYB0Fr8KospIIsBpsJmDreQX+VcTlycE6By3CMn7FHpwzaJiadPiDNHIVaz9snHPcShT630sU3QdU0UulLB5YlOSJl+Li5GIC3HbqhG0hO4qJ2P4I1rFVO20fH6E7KGmg5q5eVvjrz6YIRA8u7pBBVUU5JbccN2Kh7O9505zURYAvZslPVRW1UEhYHEAnNIA/NLxXAjlgEaE1vIcGMgY9M0B7Q92ATNM4WH4taxtjlSaxMma02f69z0sBtD5i4GIWEdqYn43Ywu9nFIJ7ExbpaXE56Kcj0XCor8xYwfLFT9Cd6iu/tFoVLtuoKm1veTyyDFo1k1e5ulYahvEQL0weszpKLEgeV6Got5i/AcuDjiybpCc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:86758d6b54ce5401\"],\"constraint_ids\":[\"C:055c05c947c1d037\"],\"span\":\"At relay deck, Ivo revealed the crew's hiding place to their pursuers.\",\"rationale\":\"Ivo directly reveals the crew's refuge to pursuers, violating the rule that no pursuer may learn it from him.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "fVwDZbQRgY9zG/4iKiUVcUxhgSZT2XIuYkQFOqh6JtrOWYGnLb1GS/ProBDgDXxKHtt3iAlEsraD14MM3TjccqP4YyJKG07PUfNZ5pL0cXDZGCFEGky4zBJtmXZUOSnVhI9tBAxMyoFVgREzHuXmY1LvvddWpQJeLdvEGd1H2JIkXO1fwOPl+JIEKe5XKV6DjwcmnEXGF1yj1mvLmuoMqoDUPiCVMkdth1tUqE1He3Uzr43GHFBIiy1lJZ85qjjkka4p7lp9AFPovQla0sbWmRq1jcRgMKkfkKjcgKkE6sTG5mEZnKnTPFOREzWms5qU2yLzNX2nVt2/5VHaCmP8zG/4ET621wA6B5Ueg1wePiD20MoUSmtIbMuL1q1WMfTb24P14vswvHrX1PsMxTBPJUm2/6Y0",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 595,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 252,
+        "output_tokens_details": {
+          "reasoning_tokens": 156
+        },
+        "total_tokens": 847
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:86758d6b54ce5401\"],\"constraint_ids\":[\"C:055c05c947c1d037\"],\"span\":\"At relay deck, Ivo revealed the crew's hiding place to their pursuers.\",\"rationale\":\"Ivo directly reveals the crew's refuge to pursuers, violating the rule that no pursuer may learn it from him.\"}]",
+    "token_usage": {
+      "input_tokens": 595,
+      "output_tokens": 252,
+      "total_tokens": 847
+    },
+    "tool_calls": []
+  }
+}

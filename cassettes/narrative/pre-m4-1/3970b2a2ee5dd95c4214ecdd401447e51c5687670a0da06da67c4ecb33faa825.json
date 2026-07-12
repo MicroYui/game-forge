@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3970b2a2ee5dd95c4214ecdd401447e51c5687670a0da06da67c4ecb33faa825",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6437,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 603,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 182,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 847500000
+      },
+      "created_at": 1783845000,
+      "id": "A3oX2LIuTsXWsJcFRBtNKm24Tw+xXb/+bRbjHhxUNO9OJ+EsF/i3aCjmqRWa6TCN/LZg41R8bKlzb1LDqZYdLm4fAq48PlRQdYu3ADY3B6SJKw6+sHdzw//yTyULF8p4juIflrhqaMu6z7qqQ0XhTzqL3vyUjEh9rybZ7B9NTLWOP5jYJnYmMznL4oDmnEk/Rohz0I6FchNxbZac1L1ex0lnXNne8WvQJjuX4xcMw3iIvS9hjoFVTeqDcI6R9deNFqwsewPwaGuKQUeYO0aGL91puNgxmYrhvE5Y+kNDtVIFajvHHt3r1roh3DnQgfvFLRZJu5oZg6PruNI5GtwfPqonAqXNEfUCkqG6mNW4K2/VDj7LPJLK/kBqBuTMNwTdFWALC6nBzabCx9KA4lbeJWF4m1oyUA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "uSbp+RRf2KxxdjjfNhXVrZ2JFO/aVb1X5IheXeN3zspQ+v/yUWMKhuN4Nn0HxyVCyhZg0agNlxIhrGzFyfYhqxrVMYh4UCgVfMkULtVaTFGj40VqFMpVwmBK1vaiIZCd5OrYr9LbcmTCJ4Ot5Zdfm9saoap7rIhiZpDYdb82+xzEJZ3iAbOTUPFDFrCKTOEhBjzFDHfKxKNiB00M4ks6MICZWIyv/JIoovyi5LUpP6T7zaL/bKAQMCvngdR6+k2/J3APJo2UJsCiSobD9YDtwqHlM3yP+cOTJSHJ9lkZKOLJh2052keeIKUAiraL1EVV6KjJrAlf6uHo/UvtQTd8tu7VGNH+fOhccCX8gP77JfijPLhRj6QpMwnpupp5FHkS7k4xcfc9u/l1VrLSSSmfhSjoAmk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:be11800aa9495368\",\n      \"npc:c65ecac8a7049d47\"\n    ],\n    \"constraint_ids\": [\n      \"C:d2798f609e3c9aaf\"\n    ],\n    \"span\": \"At north gate, Tamsin and Eli signed a joint battle plan.\",\n    \"rationale\": \"Tamsin and Eli directly coordinate on a battle plan despite belonging to factions explicitly at war.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "xY8GyQnSV+cL6zhKlkVtNNeOVPG2WN5O0IHgvXOyQVikOZLTKfimgL/9nmJR7YJ+IYisnP7RMCIllgeTUKrKUISubPUaCbcdt4ARCDIDIM9Ur6rRUzHec42cvSBcQA0bXQAFL2FgZPaaCNqPrMnntW9ga4TLn+HgaSsvwn0emHsoDe6DYE2s9Sqms5Qoz29KTznvhtxBBeJQ5wyGa2wbPBzx1Us7jF5AwzRY5rqt1CBbhohiNf1ImFFcG3CEfLJJy1qGENQHIaD6REei7Ej3yeLRgcAbzGDBy3gqrkH2b3/8ZVSaN6c4vCkuCHgB+4Ow57nk7pK3U90XOPfS7dN3Kvd/cousObHM8T8ocIXIVdr8ABATh7aG4hlF+0BH0HFA7JGzOTkSku+hbX562dpcxxWzzT/8",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 603,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 182,
+        "output_tokens_details": {
+          "reasoning_tokens": 56
+        },
+        "total_tokens": 785
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:be11800aa9495368\",\n      \"npc:c65ecac8a7049d47\"\n    ],\n    \"constraint_ids\": [\n      \"C:d2798f609e3c9aaf\"\n    ],\n    \"span\": \"At north gate, Tamsin and Eli signed a joint battle plan.\",\n    \"rationale\": \"Tamsin and Eli directly coordinate on a battle plan despite belonging to factions explicitly at war.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 603,
+      "output_tokens": 182,
+      "total_tokens": 785
+    },
+    "tool_calls": []
+  }
+}

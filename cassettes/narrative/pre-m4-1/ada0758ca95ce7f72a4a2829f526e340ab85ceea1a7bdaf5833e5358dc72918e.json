@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ada0758ca95ce7f72a4a2829f526e340ab85ceea1a7bdaf5833e5358dc72918e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5616,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 706,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 228,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1037000000
+      },
+      "created_at": 1783853300,
+      "id": "odU9YRxdGozkkw7+u1Fp7h6ll9ab6JR0ReSFp4oAeSsI7H8lUvOt4Aeen+hFrdQx/7VuGR8NnDagSwLGYcp7kZux2RJtmBWM4nKTNvkG/9IhM/25vqwzOzDoATrPz977m1rUO9hZVQRTR20NGAJAds/nF5OTTpHV8CkmdTAoIDQ0uydtxNPTP2fRl0RGYeMIYKaDqj5z03C+jeoqoTLTqamyiLzQ06/+rc77Pn7uDx9cN4dHx1+IupC/EaZU1ZlcDDVKWn0u0TPjknPoFdEVepNpWbrYS2WjtftRYOCZsN1Ji80ljS+U0SX0vwktzdhxPgVYCMMrYXDr9MmD1p2yY4tjoOfs8fTYasS/jtTn7uQSQezYQqQ0aJEE8qd5sNQFZbdAnTyA4fo0x0KmkaRSQDTpVHmC1Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "yEYZlwFHLZS34OFurZtsaTyPJrYof6QBg49lrJ7CW/Nhva0Hwn0nJmXh+i3QsvXrWRbykroOE/OFe3bJufs2Enqr++p9G5kQa4F6NKIGvcX5MTp1Sqch/2aRorQYFZz2XvzXkmqZpPcNlLyG/Q2CNhdYrc+9+wjsX2pp+KtTWSqXVxyMBx94jvXuaW9fViK8M1LcH/JfvsuJBcHXMhcTXB4JVe1iI+X/rhQwr37gNTuAyG4VdetI4lRJgmohh3C912GB2Bawlxu7EfzQsChniXNbO0uhC5keu+s9oiE8E9SbP4EDHN7j2Dus0nGYYsDlSk4ZAHt6UWRK5skdFWeD3m2ZCzG2xTZpNSLli9ydEnaWC/iwjl2f0Qa1XktrkVa85/MDBC7HgfqZfj+L1ZJoxWrvah8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5693f02dfbc9ab76\",\"npc:8ae187625dfcf2aa\"],\"constraint_ids\":[\"C:97c5f3621a0d9181\"],\"span\":\"At north gate, Tamsin was formally introduced as the Archive Speaker.\",\"rationale\":\"Tamsin is established as Archive Speaker after Eli was already recognized in the role, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "N5hIV+J+fxEjMLQm4tCXrXbdgJCdiY24THXBduEMATpH5JoSVW0pVO8wQ8HjO9BYC6HiBT3Akff5lXWgSZCOrz/AuYYrgeYa//I0tAvye4EtXLaU8MqU2f55hK7S/Q1zuGBN8601RKiNlFOnVyEbndhIM0uWIU1PF/ZSveB3N3J5PnRWUixOj53orORDYmoozc+eWe5x3F2NfkjehFoi60UDXRIwPK198nf6ThPGxMQRaL4oBy8Xz2AoD+hfHlaejcr/8yf1Dgoc0mxmP/X1hHC8e12zpaFE3fOJezwwzGKRYZQiLefVqNdDFuyI3fEjViSEnc9sAZCu4a7lPPvpjA4/UH0bnYiApQZf+got3hXA1oPz7RfZAf0uRdCS3Q0F/M+f5sjk9l8MIKm7SAm8bmqICg4w",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 706,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 228,
+        "output_tokens_details": {
+          "reasoning_tokens": 115
+        },
+        "total_tokens": 934
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5693f02dfbc9ab76\",\"npc:8ae187625dfcf2aa\"],\"constraint_ids\":[\"C:97c5f3621a0d9181\"],\"span\":\"At north gate, Tamsin was formally introduced as the Archive Speaker.\",\"rationale\":\"Tamsin is established as Archive Speaker after Eli was already recognized in the role, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 706,
+      "output_tokens": 228,
+      "total_tokens": 934
+    },
+    "tool_calls": []
+  }
+}

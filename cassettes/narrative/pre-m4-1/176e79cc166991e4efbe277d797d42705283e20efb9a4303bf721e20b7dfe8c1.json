@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:176e79cc166991e4efbe277d797d42705283e20efb9a4303bf721e20b7dfe8c1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7777,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 614,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 365,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1402000000
+      },
+      "created_at": 1783851500,
+      "id": "7kqUjYKuk4CtUNMNUHTeQFYa+K6r74Dsdp2OZWkV6+DJQTCgSkEpDZ9wXa4HxBP+1qB8Jkr7n1xEp13N74SMQLzzPdRUSsJiuorVIacCvqmf01VE0M+eYtUKEhP2h1adfZrpSoacAOx6/6pqXS0LOH5JHx0caHMSn8P4DbL22Osb1NtFnrAnZG8rlcDYQApcmW0EGzEPqZkZxq+ZZvVNcybwe9lbvof8jX9xaILjE0X6coQ4ElxyabOwSPx84lQ3ojo9B8aQExo0nzWOwBZc95BRMUIDGdANGp0AtDM8rKBz+K/q4ymQaFoZgFmEMNLdU7byRl3OqxzwGDwU6gejwtIQW+48jKqqIm1m/IkW7D1iVzr+cvmQ+PMGgLXDYWpjYfEKMB7k66uB7R26aFoEsiyDWPgKAg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "qnHcFLrCpVZ0kfqbQEy2FJwgM/7k9YlyvTAcrLlg1+LAKDWvS40F4Og2QJtTJZkdITh/3iX25nnMd8SkOkEl0C5hN3r9CFoy/BeD/Dra9qUCZ7B/BGZdxU2B4N+HlA9gipAbmt5wut23UrqAJc743vS88HHTC8ysWGFhdltG4Kkl5XOnzEQje9vL7IQjZhFDv2SWikMFHDHe2jeOg+s3r4IRIOqAPWbfGG7QMNWjHT+rqgxxwxAKY9zTT/p9T++HyXJ1HG0zFAlJkivx7PSiWhkb4dJEK3dmHPeCBvos/yc2HS/biX0yZjI6g/k6kTnupaA7jouQoQX3HRc/FhjFiqTP9+/EoLyA+jiyreTr7UvnA2AwbvtItMaJXrlX9x2eb1hhai2R+cDb/Zp8S1LM+DybBrM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:098e249aa76ad69e\"\n    ],\n    \"constraint_ids\": [\n      \"C:ce18b0baa91dd0a2\"\n    ],\n    \"span\": \"Tamsin closed the lift while a wounded companion called from old mint.\",\n    \"rationale\": \"Closing the lift while the wounded companion remains elsewhere and calls out shows Tamsin leaving rather than staying with them.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Yf8ZpNQa81cumcZsuMUuZtJNujI9cJ0qsl+g+KafoPux1SkjgrDxGjFxUvRaTyIKWR2sBTwlvGyvhnmYYLCm+HXnlUnE/nWLl0p0IX1MWrVESE0KMDbJt2edtiSj+pCsssg91irZHFyqS8vugK2lORdZykuJUgkiZMonJ5yJAq1l8g9pF19mwXSF62G1xZOXjQiWD4k5Sh8A0jU0u45uTax5y2fJQ3IdpbRsgzeyCrSg2t2Y0IG7c7Vrluu6+uydfAInO8hyr5GPQ+asArzlXYfo5wNrfz2jZktl76ZrDigqjNvLnGiTNxlEtq+i79tUYaLN8u0PSfCvuLNgBlHWIIM9dcLk6fRivaGvHmfUzBSchIO3r+tb/lTc89BohO6KYNbY8Np48BMCsHDvvD4s81dB3fUk",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 614,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 365,
+        "output_tokens_details": {
+          "reasoning_tokens": 249
+        },
+        "total_tokens": 979
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:098e249aa76ad69e\"\n    ],\n    \"constraint_ids\": [\n      \"C:ce18b0baa91dd0a2\"\n    ],\n    \"span\": \"Tamsin closed the lift while a wounded companion called from old mint.\",\n    \"rationale\": \"Closing the lift while the wounded companion remains elsewhere and calls out shows Tamsin leaving rather than staying with them.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 614,
+      "output_tokens": 365,
+      "total_tokens": 979
+    },
+    "tool_calls": []
+  }
+}

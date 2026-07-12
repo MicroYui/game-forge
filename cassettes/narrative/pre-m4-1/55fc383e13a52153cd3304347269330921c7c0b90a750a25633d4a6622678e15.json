@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:55fc383e13a52153cd3304347269330921c7c0b90a750a25633d4a6622678e15",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3829,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 702,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 225,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1026000000
+      },
+      "created_at": 1783855400,
+      "id": "hS0dRUQsvwKDghcwhIWIK3wYrW4U9RJRmli0Vp4XtzKj6+Z6L4oFNhoEN2fh0pUxHevNI5hnIu5yqdg11ANU0PY+PA1vsQeC1G80UtgCgEZr/Niao4pT0kvVOOB5bxfjwwwVzF1VEw8MRTf3iRi3cxvC6H5UvjVnTtYrnMtza+fnvQjYCBH27gAwePvhicoFmug87TPc2tr5U7WCqaLjBh24YchtdZ460nR6Nx+vh4tshAajOrmRbGRfMChmA5RKaIYzZ8prNGm/HuDrXsml5k4kNNnpsyVM605Ne1S09lluu2RXUOUQsN/jqAZsiHn0bKGU/izhXZJHoQyXLqS7ULhxlVTtdHhS2UM5/fSEt/Fx5pFyiF3zSqi1hunyXb2d163/g+snFGXAtqB7tDWasYDKikpMGQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "N8A9gvGKKWLil9xXosdes7SYdYmG+0dzQ2RmTLhP0cmosTuqv/6IoO7qDuo6JftTdvXDtVLUQJQikPUgLYirLaxlGS84R48S3CJAM17IHqrKLR+PQFvH3wmQw1dTRhCwriUPCbkBcPBmWx37rhu/wwlZhDng7NF5DEzSNYy3vzC065YzQDVVw2TQq4HmdetpPuGP++B27WugovTYwCvZYGtsNIzVw/YIj4Q3K+AbGa12Sc5ZxSFPKh/Xi2WWHnT3DVkzDSt9MGKOip6BzRzT1w9ZCDYf79EQ8Mr6UugggM3O9MK2J+k2gAhD1yKLHWzKnmBKEeU63qUs8hwZWXYvNB6iuvlXTjiI2Ve8wqNsJj13jUWDIzduBLvsV6MYZnrlF5UJasDt0MNUo9xQzArj+cmWjsg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0ebc9ddce754641a\",\n      \"npc:425b065bb362cc27\"\n    ],\n    \"constraint_ids\": [\n      \"C:15c7937a41e92e60\"\n    ],\n    \"span\": \"In canal bridge, the council recognized Eli as the Warden.\",\n    \"rationale\": \"Eli is recognized as the Warden after Tamsin accepted the same title, with no relinquishment stated, creating two simultaneous holders despite the one-person limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "nzmgEPqGNckNraYRPSqNUQGMF0UirdxtKEJ8CERN3+7DQJu39alxLDyoKxdqGHNrabXRTBAhu4SKc8MaMP9KWssenWsoVymRLGrzpE2eJaH7NJXtklKxDY1VfVzoPQqLxWxoR904Zscbr33urhOvv0ipPxKYjTC4dErHW/yOwUBVnYn+Yj9MJs0R3dkUya3/kG0r3XZhYFnkE3BjzRuFR4OqqnRLr0o18yGtp+n+QMOLLMfUhaQd2j/SFdskIBAzAjkKQqaswoC7sgCCd7uh9CoCH/ZMKFXa/JM9jda262igFpWRzv7LpBENvKX9pe+trUyUH6i5nGCv1dXCrCRY2ZC+Of4uuDIQAGu7w/z1HZdC55JTtN0AMCIoxvSIl7potH25njGow3fggUEkB/V13aB+tchG",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 702,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 225,
+        "output_tokens_details": {
+          "reasoning_tokens": 86
+        },
+        "total_tokens": 927
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0ebc9ddce754641a\",\n      \"npc:425b065bb362cc27\"\n    ],\n    \"constraint_ids\": [\n      \"C:15c7937a41e92e60\"\n    ],\n    \"span\": \"In canal bridge, the council recognized Eli as the Warden.\",\n    \"rationale\": \"Eli is recognized as the Warden after Tamsin accepted the same title, with no relinquishment stated, creating two simultaneous holders despite the one-person limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 702,
+      "output_tokens": 225,
+      "total_tokens": 927
+    },
+    "tool_calls": []
+  }
+}

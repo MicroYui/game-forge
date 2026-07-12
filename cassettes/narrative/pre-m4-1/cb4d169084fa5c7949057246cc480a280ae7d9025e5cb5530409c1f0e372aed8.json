@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cb4d169084fa5c7949057246cc480a280ae7d9025e5cb5530409c1f0e372aed8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5241,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 700,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 258,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1124000000
+      },
+      "created_at": 1783841700,
+      "id": "4GS88T+PL2BnGFMMp8y0cfZVcZKpRZlS9t9TpUAV0pgAY/qEsv75XwuuVO3Gd83AxFxLbk/9UU51cF+2JG1px6b6ykoVODqM52DSZmGxHI3eww7r2Dc1SZXekO3oINdOiUTkh2rHSP0ndM/18RIdzKzdr68ywhPl/FK8Do1S3qjW0Dx/lAjjk0n6WasfyVL3Vorw8e0MnVmY63+TM1nCN8XIv70WmyZCb4gKRYHLaTb91dcGOSbinwVm3Vs+V+9LzcBJyqlwmpn8xN10LyWRBVucRi9+iRZyCtllCTRyud4/XhqpNbqKE8h1xC94Yn03031jscZBBZ8crsBCS3RVoOzXBdQmFyt4P7W+QNor/G2NVzJ6eRuUot81qo5mEx+Th8g6stg0dP8d0e4ak1+RJy1r+NJm7w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gxDJpX6pZj3J8s8daRtZIIq7PAtQZkbL1E3syILDj7s3kZs70Z7nVRalBeyGBvOku9sbCM543WNkx40V4YYleeIy/ENebc0bwaHS3TkJiyv9+561icOawGUbORzkTlYJ8j1ssQOfYq72dNKp6c1xbCp4r+FvQMg48Ylalz2RVK6/MKG2J03AcMmbEPGCpEl9w6CD0rlrbFSz+h3z9vQqIAUMWfKwkOJAvw3D2LRiUTWdWMeYe4s8YRuJN20lvgh4RePkrKNeDl88VUeBW2Mc0QipN+97SKJEwJ4fVG3C4EU6gMhHuqjE5gmR+8XPxVhiO22T8sC+iAZH3ZRCXCJUBPXhIcAAHwJItNXV3cUhaP6y3heQR4cbi14+IquARSSQW2nk/oDnR2u0HGrtqpxA+j5YGzQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:906b009a1a435cca\",\n      \"npc:bfd56c07a72d9613\"\n    ],\n    \"constraint_ids\": [\n      \"C:747f76b75988ce70\"\n    ],\n    \"span\": \"Iria accepted the title of the Crown Witness before the assembly at lower court.\",\n    \"rationale\": \"Iria accepts the unique Crown Witness title after Ansel was formally introduced as its holder, with no relinquishment stated, creating two serving holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "sWdpPQPluZFlxjX9Om01l2CznsHuLGLlj/xESZwrhAAVZbrXdvZV0sNVCqJ39e8uEeM703XRpYQ4YOgFmOdlY75tCdnLhpl4a/cEJNwDFvFKbH2pMA2WSouDqdy4hQf+kGrlVad6UeosPqecMTkC46lfZbtK4CRfgSqQwYkw/B9+TT3W9pSaUzD56jzLzv/LiPKtl/YXPr6XI+9pZyuUFjfWwECwdWRgMy5ZxkrwAH2ZYhY+eX4QdMiY+YacmzxxzyceLZLz4Qj0WKEOVIbsI+VOXj3PD5S1N6xFbjn17D0tn/EOFgn8cu63ZAlJZG+Y44zz2rM1CmsLJPNrPfbm4w5Inf/dX6kyl/pgE1Y1hI9F7d/seuGpMxam2Vh7bR0K9gWRb4rkl8XFDEG9wBURcLBK9Rvw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 700,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 258,
+        "output_tokens_details": {
+          "reasoning_tokens": 121
+        },
+        "total_tokens": 958
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:906b009a1a435cca\",\n      \"npc:bfd56c07a72d9613\"\n    ],\n    \"constraint_ids\": [\n      \"C:747f76b75988ce70\"\n    ],\n    \"span\": \"Iria accepted the title of the Crown Witness before the assembly at lower court.\",\n    \"rationale\": \"Iria accepts the unique Crown Witness title after Ansel was formally introduced as its holder, with no relinquishment stated, creating two serving holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 700,
+      "output_tokens": 258,
+      "total_tokens": 958
+    },
+    "tool_calls": []
+  }
+}

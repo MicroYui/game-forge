@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e9a44374ca869cd68e9c7c87c79d510cec6f8a38802142b8a90fdda6939e154f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4168,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 576,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 224,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 960000000
+      },
+      "created_at": 1783856800,
+      "id": "lEgbyap0l9bkRzo7TemK+n+uDDZyHazdlHQ6Rnz11A0oqH76yRZb3gRpOi26+1DzcB9D1yoYetPkaKZI6a4y9HD6iILo17GRtcuuRUG7okcjRqP3M3UPneZQS/oIzGaeuqFjjdrvBbHQb6kvvaAZCcpWmpXkL2md8BelADP/PymySRkcINKH+9f8T8aDUJeaJcTQhdHQoN44SKIn+uOeH9dBIq0sWLwhKCMJf+rKpxknrblmGUSanFuBEp0mSlDx5egaf40tpKyj9WqbqCLwnM5LudW1q8N+U5Cbtu2xe7zfj9g40ncR3ARvn1GdRjP+dt8+64gqvYrk73b8FEyu+INOT8PmlRLP2l7JL3luR+D0DoG1964FoQEXDo6XT8GWVERk4nbekjiJGmn8+HNt1Md5pyYN4A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0NfNx2S5R3wVVTL2QgEfxFc4bJKLxlK1L01bNHd92nC250/jg2ehA3QnP/PkqRmx6yS0ig0ERyrOHrx7qLl8Md6m7D1civGXeU8myQowZCsO8Wq85E2p8Jb+ebld6WEmzJJ47/7TDYcklmHviTyt85UhqD84SrUreWbzHDo1pe4M2wz099P8XkOD/F0Ndh78ffPlFImiLPkWgg0gxw4dwgIs2mJnMu4nT6kGlBtxjQh+hhY1wmfVtDocyG5/prUZ5+O2iprMHlVxl+crVnVT6xoir4RFmGGhpJSP7PgNrw/BS3zngX5SHuQkGLcSXHI84ZPtJOfOxbmL1Tqk7J3Sio04TiarR3ld7NUrhPsk49PIIbGyUUD6N+oKTRK4WYetQ4se3mjDA47ZPNx9FOfUCiyc2Zw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:015393b4b1520a6c\",\"npc:763239932f2e55d2\"],\"constraint_ids\":[\"C:4d3bf822e234a214\"],\"span\":\"In old mint, the council recognized Tamsin as the First Navigator.\",\"rationale\":\"Eli had already accepted the unique title, and no relinquishment occurs before Tamsin is also recognized as First Navigator.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "d1YelV3AoRKnPG7BU5rB1Zw5kXSfm6f8H/XsO5eTBgAN6i5+164gN/aEXNVt44XlGqJ4rgU5rA7K/Xm4wv0xqEa1AG0HHa4U2BpxHvOKzIZlepW2sV23c1dftGW6NDsr6UStyoKgH0uWtPBM5fsGYYIO/MffD4Wxd/UR9CP1Shty8ftZS+wg2tkJ+iPjyMgiaIcno2Ey3zGeWV3WQ3AD5fBIchKZyuKT/PkGk7ZbHEvJlw3dE96VNNuXWiiLVjBucxptqTZdkZw6rBC7C1+VcUKeWP4fnJsrF1rp+dY3JbkLkkmvQ3fedVt08jF40Cj1F/TPYKBpTDl4V1lcskcPSGKZ6hfOENYw7j8P5SybZTQTsvD6BM99y9rhxPWRcloKsvuA7h5tsdjnT48pGi0GFwVKPDZP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 576,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 224,
+        "output_tokens_details": {
+          "reasoning_tokens": 115
+        },
+        "total_tokens": 800
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:015393b4b1520a6c\",\"npc:763239932f2e55d2\"],\"constraint_ids\":[\"C:4d3bf822e234a214\"],\"span\":\"In old mint, the council recognized Tamsin as the First Navigator.\",\"rationale\":\"Eli had already accepted the unique title, and no relinquishment occurs before Tamsin is also recognized as First Navigator.\"}]",
+    "token_usage": {
+      "input_tokens": 576,
+      "output_tokens": 224,
+      "total_tokens": 800
+    },
+    "tool_calls": []
+  }
+}

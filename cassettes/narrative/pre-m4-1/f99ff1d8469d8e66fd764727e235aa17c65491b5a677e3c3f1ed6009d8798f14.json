@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f99ff1d8469d8e66fd764727e235aa17c65491b5a677e3c3f1ed6009d8798f14",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5846,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 614,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 205,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 922000000
+      },
+      "created_at": 1783862400,
+      "id": "CwqFE13KrL3cLwP4OuUx3hH30qmk6NEj/sKrVbFOoRRQkF3a0B4KOmpwImTYveigON7ATCMMiZFZykEMniHA35Yokd+/8hzexP3kWsulwZOiZ1T+w+Tf2GqjePx13yLDF4zH2iwDTw7yapYzw27LPfTOy9w/vDoym/WU+L6A/j8zO8qgmsxbIykJlNSBxpOOMFBDqFfW/4sLLsWGldUFrbuCw1TGn0MlUwlXN1sxGf8YzQzTuuF+d+yk4GeQCMfu5tArDgC8u1KVvL/BwvsTTrD1FyVbkOpEfaY5crelr2M506UvcmswlDu7tqWCQ2BEAGVgDWQLOkFe/cRwPXgOMxH5nNnEKJ1d3v3C/0Rbb3LJu2MK/nmTEVHgwyDnDj8GQI8UR7g4frc99d94nzCGSPVhOqj1rg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "QnFKYavt2P3zybYmImG/w6UyksJ716jipFvVkg6VVSu3vl4V2T3dCyHpbp2dQTl5epIZbu92m0LWsOXRNu8y++J1vsc9n0St+1e9qhyFr7GjP5czgdE6OQm160qHw+LOpFKUiUa9Wa+XosDm6DKDVdYJ06ZXoak72qfEXywtvOJ4H4bBxZXJlbahsEgiTsoA/RK/4Y7VJK1GU8j66IzlrC0h25xTYmJEGY7retVIKvUxMDCXSyEKpFAiWnk5J4rwE8pVJb5qFbpVF1brlrnctG3umm09zXK+BKNRMo1kbWVtzFzLnCEHNOfC3lpSu3vCHl3wJWT2+15awmpka3aYCm06mtJOYePU/F/UohF7wD3/9fBt/1tZBuiNf++jm/ODlGjDKzK4jISGLZxTgy+eTs14BbM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:521f4b70f9528695\",\n      \"npc:96cc5872b3ef010c\"\n    ],\n    \"constraint_ids\": [\n      \"C:f633f3693374f83c\"\n    ],\n    \"span\": \"Noor signed the register as the First Navigator at north gate.\",\n    \"rationale\": \"Cass was already established as the First Navigator, and Noor then assumes the same limited role without any stated relinquishment, showing two active holders where only one is permitted.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "DXfwMfsPij+xQb13cJH7IM+KEs45uu303Enp4axWpPjG65I2dvI3fMV1VCncs2OOCEDI01jeny9VNsRU/zccKSb+hAxQIkFOXmh0b1Mku49HKhV2/5JL0cKFKSjKzpU/uGur7z4SP23TuxkvwzReZeEelGfAu1BCk4rKaECje4TCRLY2fFRrVstEY7z/s1r4CbApJJLb4z4fls0eoT8E7dT4KzdNvCqzxeWm7LZMYyvMQxFG1zGv3+9wT0Y9RPGLYizzApMOalecZ1II2rNf5vCP5WVM6aMXploRQJyIWWRRD/O+kqNtq3zj1Q1V8I1pDyofRBU50WZqnpZeKu62/R8vvZJbWFjo/OcZ+7R0bn0eFhrJ6MpENQQONwdrm9M+riXj1u3pdHVBwbWxMduSBqGjM0iV",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 614,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 205,
+        "output_tokens_details": {
+          "reasoning_tokens": 66
+        },
+        "total_tokens": 819
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:521f4b70f9528695\",\n      \"npc:96cc5872b3ef010c\"\n    ],\n    \"constraint_ids\": [\n      \"C:f633f3693374f83c\"\n    ],\n    \"span\": \"Noor signed the register as the First Navigator at north gate.\",\n    \"rationale\": \"Cass was already established as the First Navigator, and Noor then assumes the same limited role without any stated relinquishment, showing two active holders where only one is permitted.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 614,
+      "output_tokens": 205,
+      "total_tokens": 819
+    },
+    "tool_calls": []
+  }
+}

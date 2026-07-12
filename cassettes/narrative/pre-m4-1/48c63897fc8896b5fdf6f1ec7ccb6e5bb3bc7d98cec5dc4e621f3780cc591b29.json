@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:48c63897fc8896b5fdf6f1ec7ccb6e5bb3bc7d98cec5dc4e621f3780cc591b29",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2866,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 540,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 146,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 708000000
+      },
+      "created_at": 1783844700,
+      "id": "3ZL8qXqirpWuiDz69spx2aRVJLpveNS5CAlSMoiKzGwo5ayPj1yI7DNigWyqvTPDzahM+40TkQHoLZxRiavVlJwj4uL/rUJjCkyXxxwVF4wIuaef+ulTHRTY9HenTfMVHLrxNGZCc05kLoMUPbq/lSHYAGBjOvYLkH6TkcBdHITXunZtXeH0BctoX8BzxUtXnDwbuEnLeHPApJ4hgn7vfOg/aHPvQcMnAusK83FCilvk2F5pJPB8pGNUEjwUkySmj1EM9wZqjkqenUvoeysuD67xUyvrpbjr9DkmdaFVn3qGfsbFFTU38Bp6hyMUCAwJCECRBsPtDLhGNH76PTNfo8Q47QIhBXmQQlHw2dycfIq86HUsmrWXy/9jf8iPG2syRkPay+bomE7d1HrDYc/a7F1TQzNkIg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "4LF00NeUkiQ24x/1Iq4c1xpVhvGt6EqEEEAmRvbVTUPfoGhRONs6uvUE2jqvJBMyYA8jHZdxSjU0dWh1ArsNeIvWV04BgQFgA8mCmCk0NG5EThEg9IwO+UcpBDHPvedC/ImI66+Gv9fgqko3GieV8rEIJuIJ/cq3Z3eD8T1aW7lKEu6zl3tZY1whgBm93zg/7+XHGb/mNg1eFcXIwj0bfQo6t6asfu5Topx5Rukg85uTStbeGiouI4b0Caa/ZXy5a9bPGG5WM96vkZNDTsp/wT1NQLOgzjLMAlPl3KQCNWkc6U/se8x6XjldciqgT8Dsvhx9SFoLuVgN5MBc/S2/WPrW/6+DqMZkhzRgbVRmwIfg+dvsGJNUcqno8vnT1bzv7GZaaYR91Ya+YtDEe/QDcSq3Nzw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:384c918df2e51f04\",\"npc:85cf11fa8c23580e\"],\"constraint_ids\":[\"C:136291d0b29c2c81\"],\"span\":\"Qi fought beside Mara under one banner at cargo ring.\",\"rationale\":\"Qi and Mara are depicted fighting cooperatively under one banner, despite belonging to the explicitly hostile Harbor Guard and Ash Fleet factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Rvl3DaINI64ayY2pvRwoVPFKYink9FdT9Vb8koX+h7yVVmo3oBh70O50wS2EAwkyDLZb4jJFYWVJMd3JXW1UIM4AEiUTDvUxdiQpQtUub4B39VcqQwiEQvD4/Gs1cWI9Ggw/IEVI8RwDWoNqAo1q1wFeVO7Ao6szT8cjfsq7e+9EohceTbmkfisUTbX/Q0XEWvzt2byPhKUXbi95ALujvTac3+kPoPDn9Bdp6Ix0vCOWpe4S1/CpJBdraYefBMJXt/i3Y1eFSwQ13VpsxNKOXQ9l2fmtBlVVli4TLP6LQIvNyHNQjzS+n3XECRBmeJsYT0V7qIjzrGqfrL4mB24assC+JNnDIpF4VRBUv6H4bItyoCwWcLikTs4G/XDRkETiSzJYJagdZIQISpCVKhr6sf8tAAZ5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 540,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 146,
+        "output_tokens_details": {
+          "reasoning_tokens": 42
+        },
+        "total_tokens": 686
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:384c918df2e51f04\",\"npc:85cf11fa8c23580e\"],\"constraint_ids\":[\"C:136291d0b29c2c81\"],\"span\":\"Qi fought beside Mara under one banner at cargo ring.\",\"rationale\":\"Qi and Mara are depicted fighting cooperatively under one banner, despite belonging to the explicitly hostile Harbor Guard and Ash Fleet factions.\"}]",
+    "token_usage": {
+      "input_tokens": 540,
+      "output_tokens": 146,
+      "total_tokens": 686
+    },
+    "tool_calls": []
+  }
+}

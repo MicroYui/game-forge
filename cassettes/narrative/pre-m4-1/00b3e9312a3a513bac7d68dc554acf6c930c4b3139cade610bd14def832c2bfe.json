@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:00b3e9312a3a513bac7d68dc554acf6c930c4b3139cade610bd14def832c2bfe",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4500,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 635,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 239,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1034500000
+      },
+      "created_at": 1783856400,
+      "id": "uXsc0jbZegPiaIqOP6SrJhXsoZNI+noTCvRsgNx/CbW92zPO6A2XQV02RX3wpSSytXe/gjBwqSj2rOnXtdWSSC5unbQ2sKrvZccwnDMD2mZd64zGzAGEV79f8E5OX4ywTbUGMOrnNC7k5MKpLnTNHyDkrQkAfWukvBKOLr28ncDTjZyg2NQal335UxdmRLfEL5l96v3JvJAvv+6VOot6MA7KLIVhSFNOkvzdTvANAq8WQYfa3CkOQp1bYELdnTGi+8zFiP55wU6ItdPX4+Ms3eZpWCcz/amqkMu6xP0dZUdEUhVFNCJlJbiSSJOVVFPCKXU51FG0mJdweaerzqrwy7RM56a+IKB2sPzBIP9086zuelv9+xcsJ70nmt/Rjt7hU/hO8fThr1lbrW0C31figD0U7EH6Gw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "O4MfZ/LlORnP3qBwEWWGg91+HoDoRKt3jLKan+8jryXR7M/GTzDqmKhv50qaxzruCyqW9kjB59dMuB0fv8LL+CwqUWPuKOGfc+4s+NgcYhErqcfNAj53HZdlPG7wMxMQofg4OnEwh+ktgUuMwqS6JlkGPKpCIPxIywJiy+Itg/EpxMfhQJg13PjKUuKXMzYAn6fch4wsNKgb1KlEkgvlwW7e7s5kxgPhFfQtfDi+5pQXkhM4wNDLkjQicZwP49bmxaN6owDNZfiqFhN7/EYmHGT38Nuog93hlGjHQ72jxOjOp6CVBxqXQJKrHlvrKUYPKz5BS/p9p6jCDCDH4HEyfBvdLQIuHuS3oQHR+sslpzcSwnGZlxOi8svaMR4mXbv37mJXqisTdqsQG/jhfMB4b0MzZ6Q=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:657e7260bd908c8c\",\n      \"npc:9076c29c9d60da36\"\n    ],\n    \"constraint_ids\": [\n      \"C:c408553a7cf48a02\"\n    ],\n    \"span\": \"Mei signed the register as the Crown Witness at orbital concourse.\",\n    \"rationale\": \"Daro had already accepted the unique Crown Witness title, and Mei is then presented as holding it without any stated relinquishment by Daro.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KJYyaGsUcI1MhoAzQwL0StyuIr/bsJJtPYjh9yDiaLARpVRQGMTWdaB0Nhx75MlCMULD7nnj3meWCP4PLqJn/z7+cYVUxgtYcHy0uM3p+sPSyvNVjn6YRNgGGrCof4QsKlVvXCU4mrMQTnosxfjq9eLEZVBZeQtLYo2mw7sOAFjWh65+X5NWh/bdR6XSj04AL/98KvORAf5WLc1OhV5ZFn6QqcELiMAebtdvJmv+bqgYXbBywvuvCuFEFEWQwb5A9r1gMwJMVzJpIZxL2WR3LG0hi+lCHOUUoAw572pn3zJSJhRNHlPRixCCf8zYcO3S2TdUaV9/A06d6CusjhLfK6sdmv6Krm87nHOK2qAnC0AgE1I2JC2cxjDpTpG2EgjBGOxmzLj8zeZGPJR9hNkWJS2l7Eax",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 635,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 239,
+        "output_tokens_details": {
+          "reasoning_tokens": 103
+        },
+        "total_tokens": 874
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:657e7260bd908c8c\",\n      \"npc:9076c29c9d60da36\"\n    ],\n    \"constraint_ids\": [\n      \"C:c408553a7cf48a02\"\n    ],\n    \"span\": \"Mei signed the register as the Crown Witness at orbital concourse.\",\n    \"rationale\": \"Daro had already accepted the unique Crown Witness title, and Mei is then presented as holding it without any stated relinquishment by Daro.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 635,
+      "output_tokens": 239,
+      "total_tokens": 874
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:20832a33c2aec796eef9033267d069a66b61f5f05c33743a0a84857af99d6f65",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2220,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 701,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 104,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 662500000
+      },
+      "created_at": 1783861000,
+      "id": "b1CuxCnMPLbTf+EEIFVSw/XCjQuqxHz0LyCnHr+OgXVFnAPYCIk98yUrBVV20vhxlx9QLOGEX0ZpTXBVzCHdUJdSCmybffGUPNzuMZ26aZDaEHYH1lKGvrICJaKZH9bRrZN5qyqJzasHs+p+U6884zUPf3HxUPs6SHzOUAjUXhCiDMQ2PQc/Cv1PvWOwWXXaHy2ZoJkhocJ7sHRcrkjnWU5h2MkDhvXWmJxoOHqWV4JUwAlEYrjlqpbGM22hKE/dfOKh1iIWCOX7O5FHZEXMfG+V41G9X12cJ5clGeG2Z3JalgdMsIuWyWMe13NOJm8GALNSf4jozULmhLHaGclZUKYOwEAPF9W1axiu4opUxAq85BGtzc6KbD1OgsNXQksNh1O4FxsjHTkiDkEwSjJAsVRqONHxGQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:befee0fc358b7cfe\",\"secret:722bfbcc638cdb11\"],\"constraint_ids\":[\"C:fcfeabd4288efd98\"],\"span\":\"At salt depot during dawn patrol, Noor told the room the truth about the source of the winter signal.\",\"rationale\":\"Noor discloses the winter signal's source during dawn patrol, before the permitted reveal gate at map unveiling.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "An5d3aZHJ8TO/Npgm6e+0MWNhS4B1eWhLDkDG3Qmzk7qZug5F+D3UD11lhMhZe9EJ4OtvnS4F82Z2SlIvQIph5jQfCwE/n8Mcf4VJJpkIaNS6bFJcIeblrKGc+atCdmL0saalz/HMw4jpUQKEMeSXDJOzMlD2eDSBmRuv+jY56s9nWH7sf+9ubsFK8OHu7Rk52dihw8nnlkNPxLIs9PwJGe2MhnNGS2WTqvynP2qMOhY2sR7Yg1CpRVM/WNW7X26hYT8xd08VNNmm3jh/eQppngDYfvGmJNIbbTdURnq3JTFPlNdfEMXTQPYh0KROemjowTdF+XcB8BMlpl1itwV5OY3cv2KW3jvuXWfgIaBLsxvMrV3mt5AV+JMiTpjcp3iuG2laZ1f4KXIuSW07Uvxv9tBUUW5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 701,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 104,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 805
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:befee0fc358b7cfe\",\"secret:722bfbcc638cdb11\"],\"constraint_ids\":[\"C:fcfeabd4288efd98\"],\"span\":\"At salt depot during dawn patrol, Noor told the room the truth about the source of the winter signal.\",\"rationale\":\"Noor discloses the winter signal's source during dawn patrol, before the permitted reveal gate at map unveiling.\"}]",
+    "token_usage": {
+      "input_tokens": 701,
+      "output_tokens": 104,
+      "total_tokens": 805
+    },
+    "tool_calls": []
+  }
+}

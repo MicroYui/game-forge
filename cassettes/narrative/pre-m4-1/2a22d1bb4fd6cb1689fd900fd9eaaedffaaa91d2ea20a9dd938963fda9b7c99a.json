@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2a22d1bb4fd6cb1689fd900fd9eaaedffaaa91d2ea20a9dd938963fda9b7c99a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5148,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 702,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 217,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1002000000
+      },
+      "created_at": 1783855400,
+      "id": "xhQBxbJZzsn80bNZswYwXtoiEv/TvadqwmBerem1RecjGz126/xC46NTdFegEGc+JK+bsSh0kx6+pMJbXLFNPuUjEeulp8OXXhj5pRBCKiq3sH1tzm7beitRG1OCE8Rr/H08BVMEIfn+qpCBQnzWWYxTNpf2X9a7gvJF+gQUqevpbFed756CX4QDeh2nfRviugZp6bG57V89oUQbkhTEld7lph/oRmhI8Mqql8lTDrm6xGXKV4IGxIYdZ+I2Dbb6mAZhWzFvFuv2W9km6Nvfw0Ynx+71walEya/Tn0k/S2MM8NLfmlYdgmg7iu7nYIekZ+SwLNPktV5cl4PvmtI0jbVEdEiZ1e9NXU5L8kA4L3kXIMa3QBbyvJlp86/0qdPON0HJJvkclxYD4h/U3kkrDdqd3CpnAw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "/QJyS3RrdHHU+mnQbby2aB6WHHYjU8AcjxWfX2E0dnF1MlykO9Gqlf2nn1CWIEXdnPrxl7tf1tmZIooGpubRzTdUS74jKeLtZKRt9kA+lTh9PU3ks0mMkq+sSdbaARv3tazER5T4IIHF5RGASiesub5UvVdZ+YdCkGG9Nf/NqDUlAp2kG5D+Lv+ASbZRW4A++bEPCTVQklJgjvz4SVRxYibsCL98dJXc5jYXCZokdAlRJhqr1ocVtjUc+TeCgYfNEwc50LCNXEGV5Nt0CA7m992BpuBygYCujJnH40qcydHKYiPqOtMUl3iJ3E1MWts1O77aucL3dhJepcxxmv37oaJhS63998Co3EEqlG48IlULHYMJfbvtPvSZWXKG8DKCDiDsMhbQLXxN5Cmpwq/g0noqsF4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4b53ba39c660b5d0\",\"npc:898644188735201c\"],\"constraint_ids\":[\"C:97f23f6da227c403\"],\"span\":\"At archive hall, Noor was formally introduced as the Archive Speaker.\",\"rationale\":\"Noor is recognized as Archive Speaker after Cass accepted the same title, with no relinquishment stated, creating two simultaneous holders of a role limited to exactly one person.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "jbpRHNwR83eIj4Tb6M0Zd4D9WN/8wrnLfcY0oJiQnrxsTJ0B22QSOP3LHym7ykEENpSh+5PXIjQq2p+wIkcA8c6xhYduaWHOTPXsJMiRQNRrM55U9RFdRownHJf8EM58ksR0ViVGBpDxJn/0fkIl9UIJH1hXgvf6coKxhXDnXFy662P3GRngdZMPMQiYRUu1vwHerfqRSUGw7Lg+KJ7F5oOmxNKSzh8Lb8XTLvC7cPsBEHNtuoKwKZFSmITdwpRkow3ZS5WbZxtYWQo1StlNuNQlM54fjqtxqSGpN2Zl3zACT8qyRER2iPue8K9nAeTIs/Fp4PvVddbi6/uEhD45R9D82rQG6+CRHq9GUl9Jrcm26sihNf/zQSTZhsSmsIZHBA6DvrPVklik0LaHTZppCuuz1jR9",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 702,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 217,
+        "output_tokens_details": {
+          "reasoning_tokens": 104
+        },
+        "total_tokens": 919
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4b53ba39c660b5d0\",\"npc:898644188735201c\"],\"constraint_ids\":[\"C:97f23f6da227c403\"],\"span\":\"At archive hall, Noor was formally introduced as the Archive Speaker.\",\"rationale\":\"Noor is recognized as Archive Speaker after Cass accepted the same title, with no relinquishment stated, creating two simultaneous holders of a role limited to exactly one person.\"}]",
+    "token_usage": {
+      "input_tokens": 702,
+      "output_tokens": 217,
+      "total_tokens": 919
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2106e64d4e6466e7e4f3ebf9c693bdcd5c512d27f46eda6a4137e8ea34aa2b85",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6198,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 249,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1046500000
+      },
+      "created_at": 1783852200,
+      "id": "3pbfHtbqYMuaEB57xlCuePL4Gl1gBCucfXlfk8ygmuxjNEI5MjJDNZEwy/RHU72yVqSTQMqc/5kwPwA1OGgKf1m3NhVjXLbfczbwsu6Me7km7U37FkeDiRcRbHAtsnJgYtV/CAYPgNokjLb0sLZSz7U/mCxTN82xnlsdByIVXxx2YDBv8jj/7jtevm5tU22rjM+ODZiNYfbg13rbZwNOc0IeDLNz/eUNopvmkTmSUcOKH4eHV3IgIMuHtWswbn9OFXIl4yk/QYbLbMuTW/eJtVLQcp12PhnWUOwMReD7ANeJC9HQBx2e3JkA8nriSET7yoaD4K5mKXC5ADIvKhiNGh2Hkr/tgUGEsM96Z/bwdn5YB6LijVucBhnohS45fBgf8OEVi0DiukJPz8bRoxjwXCbjM3ucWQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "15xke17f5UUpacgdFDF26cRW9ifP5OM2IGvHyk9aN5i1UENDY/hCBcBaVbqHBAKEl3KARC8XJf6Qsa/s22UVKDFHH5XNkCbaGxiQnFDlEPvFdfb3FgGWEWTeK9QGURCdB+dzNCBEY6QDCaFHvFGZ4vs6IwtP2lKd4jKx7TnSHNz37evVPYl+E+rcxtZf21V8Y5gKe9rYCtDgWMh+XFY5FX5fuKiQOQbyIUBzVYmU3JSJr277baVHomXP5T/kEi2WrCPqm7mRY/IrGLL8KndThzLfTS17qa+Khw8Ffc+LBIwIQ9RoU9ZIopNJPXedUUIpwWtnxgrg8CKSrZYYhFJuZMgKvOke+o7mq0Oph/FnRfzzUHaYowSG5fz2j+zQdKrveiE/rCONRemfFr3ApukhStEGZZA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:0ef899b33a7d5719\"\n    ],\n    \"constraint_ids\": [\n      \"C:9a60f158fc6e9724\"\n    ],\n    \"span\": \"Noor removed the ally's name from the rescue list at north gate.\",\n    \"rationale\": \"Removing the wounded ally from Noor's rescue list directly conflicts with the requirement that the companion remain on it.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Rxi+U0xihSjU5k1h8QuG6F6/vNKEWUto/U35atckbkcZ8tii2TqjTHrW56oAoxmcvnshc7MpQxtVeWWYnpDWRTzLP9qBDvik9K7o1g6GL2Ht79Fh1FDKgWuHaTz0zXeDPt4Yf9ThJqZTou8tYjGHpnPYiN6INBpWIuTIJ1gK6N9otdB7iWCF6XeRBoxeDAI7CBRX+oGnXq+kpb87w27n5CnJTT7MGIrjXb7PbKah+WZxvJigm8z7Qx4MEARk8w7ajZ0LJiymVEoG+NUZ69y4m++CoMW54quj3AfqtGRte0yHiPLmspfUwwWbr7YCnQzuPZfoPDYHpbmU360P15SvjXHHe7ZGvDegeOPvCyd/w9NyBlYlln6tBSXCgUdS9/7xoLZ7/wVMyR7B83MseN3tJB08n/49",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 599,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 249,
+        "output_tokens_details": {
+          "reasoning_tokens": 133
+        },
+        "total_tokens": 848
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:0ef899b33a7d5719\"\n    ],\n    \"constraint_ids\": [\n      \"C:9a60f158fc6e9724\"\n    ],\n    \"span\": \"Noor removed the ally's name from the rescue list at north gate.\",\n    \"rationale\": \"Removing the wounded ally from Noor's rescue list directly conflicts with the requirement that the companion remain on it.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 599,
+      "output_tokens": 249,
+      "total_tokens": 848
+    },
+    "tool_calls": []
+  }
+}

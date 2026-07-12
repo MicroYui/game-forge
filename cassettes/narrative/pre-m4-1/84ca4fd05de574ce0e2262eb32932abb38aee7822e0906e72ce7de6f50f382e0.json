@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:84ca4fd05de574ce0e2262eb32932abb38aee7822e0906e72ce7de6f50f382e0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2399,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 675,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 144,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 769500000
+      },
+      "created_at": 1783857300,
+      "id": "t5tnTJgDwAbKoCqObeNjRiYvh2a3/y5fkZXNRprQPArKTjCMP6+mZmWQVqfZ3r6vUNS/ORGeZ4LV8/GNkOBfyf0MVkf2BekG5WWcXcXVm7UEPvvHooga3Q1e6P0x0SKU8KCMZ4uv1YciIJanFEAZazoQZM2zgTrwxSNU9bRkchXqmCAt9HpU6/MMp9E72I4Mdh9aho4+o5rGiGCCyNPE1RqOAB3RWgnbQV1pU5jOnVpnjcSaKF+f62oBBs9xv9k7UAXSgXt74xwpU0pP1/HK28IMJC/RqKmclD6/WHGzDFyaY54rNFOI5QHRZMWeKP+0HnEDbiwL0FotA/glvg8gP8yb87IaS7V0Py+oviHREEB+JIv+C98H9KLlqn+FQXrnbKuUmSG1NKKnxEROzE7o0lxFC/LKAQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0pmfzSMcq3G9TXGIZejxrmG02Ggr39nai7d+S1K669dg/yagMC/IiEv01dog2rmpP4oRbLPR998AqtKMNfN/fo4VJkRyirfJsXswAOLWSlZFx5Z2mrqAP/iwLKuSwEIV1m3VuaAxv4ZxM81FG7CqNZMfTc2TdbSsMQHjo9xDvZ+8JY0rLq0kdPQ5z6irw5su7GS6o1Yd3jyWXXuTM8kuAhtXApbaY9vhLvrNfRvm8BvmeudGXdvts4DdBj+k7mpFRTkeJAZzYqTlkRxpHkAia57SMAqW3yp0fK+DdHsEuOt+sDK4waztXgN+83Gq1EXK67vdcUL9fV/oJhdMY5GQ7d5IZkafd100VCfr/jRmAfkIzmj3P3goCt5dwFEuauZqigGRAB6/Tioqop7UZfoa7X0JaDk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:860350adfded71d2\",\"npc:9bd5e6ebb309b3db\"],\"constraint_ids\":[\"C:89b6926fcd136cbe\"],\"span\":\"At river market, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli belong to explicitly hostile factions, yet they cooperate by signing a joint battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "m2ASTkIOsCx/JaqZhfxS6gJxbs9jmTtBKoysSIpd1t4KcC7pLWnNtbllQBWKaX5T9HRYJfb5eDSJg4haCSVTJ+oTF7PJi0ScLZckCUyiU6hmneEf/qF1LEoyBBy8vS8U0zbwnmtZFd4p5A9NTGk57fkCtE+Z6C5XVXdus/cRnjSbU9zV0ute+CdqUkLeXulRV0kyfR+tCTv1KpGuv4sHyLqUA7D+150ABZViO0N612lwdqUQGQ7+RxyrYBNdnm1taXmar/VlLZ0KTEfPr4daJ6OKfCcB3tE6pUs5GLSEaxQ1HudE07thdBzotJ19r6f8SaETR64MRJsWQ0lZdJHg3dCnOh4L9vxZGco1oa3rc5Ev5aJyD97Zeihxm4+/DQNY4L4XSjojOgqWFmISROm/ZcxA9/JZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 675,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 144,
+        "output_tokens_details": {
+          "reasoning_tokens": 41
+        },
+        "total_tokens": 819
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:860350adfded71d2\",\"npc:9bd5e6ebb309b3db\"],\"constraint_ids\":[\"C:89b6926fcd136cbe\"],\"span\":\"At river market, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli belong to explicitly hostile factions, yet they cooperate by signing a joint battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 675,
+      "output_tokens": 144,
+      "total_tokens": 819
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e71821fd4a8778190dfb09dd2abc4966cac6ff664df2a139772298ca235a931a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3753,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 665,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 199,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 929500000
+      },
+      "created_at": 1783847200,
+      "id": "/8gqSoCrqgR+FTZziFgn7AXXf8Nc4PvO9jqKWuuVH7EmssEyVSQQhR72Obdtixz9cQ0+HoLioIbC5w1Ftp3HYruywPhMAhSUwpbCLPdq0AkPV8iXcBKccsdjOBbb36iCfKpTcbDRo25D3fg8eIAaT0irDFkGKlgQXs56qHo7ONABEchwmttZNtK/EzZZrI0wsf/fpA99Aygll6bfh5MMm1uFBmVhKwwo0aSQEsIJSAP7bDCQ2lQBHffR5zAM8i8Y8OU5NW9N2M3Ajd5Sl6z6NuFHP13Uy41sJ2uOB+peciycetNOOTUxmQayXYBBdnulWkhFSxxNvaMwuKUiO9vr1tWxuiIvUYHNPffEr9mZLZoiDYu6AU9cC/VpsNIDJn8KzP4fJDk0NIEnUrZEX3BApU1C5ttYmw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "eREioXqdBUULk72b9JP82uIArEhjqV8HnBt979gyTX6q4vy7dLm7SgFLZHJHSgSF3LZrKBRToqlGzaJYNJH59eeLBxOEfWz/ytZ+Kr2eHYl+AZFdvYny4P7w18xfJlu7DRfWcL1uiqtEFxXi9gwIPeKgAzvdzEExM9lBrNtGRDA4iZNefp/JryQ16XiTuhy5723oXQHmVrM7B8SAPlW19wDw6jmh/9f7e8qD70GPXhAY5oqW6ob/Y5dCS+E+68C3HgyF9bcvwVojWvR5VuQUOlrAaHs+aIDGQkktQZ3dVOa/YjHZwoEFQN6K4zenUjkNh5bxTZ+3jrXsqpXGtcSn9KFl8jxMJBhEFJUUue2M4vYHXZc59EHgHt3tiyun59Yy+b6L6bGaRUMd8+x3krFF4IENrZw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:e2b6da8b1d5a6bbf\",\n      \"secret:8adc69caeb0778b5\"\n    ],\n    \"constraint_ids\": [\n      \"C:1044001b7d2f5132\"\n    ],\n    \"span\": \"At observatory during survey, Tamsin told the room the truth about the witness behind the sealed testimony.\",\n    \"rationale\": \"Tamsin discloses the withheld witness during survey, before the permitted reveal gate at relay alignment.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9l8MTB6Spylo0CltqwNBQwqHt7qeXrcflQr49ivjWCABkcsC/0+9/PZlD7ze0BdVLSlE6/ZkC1wdsTG/Wotf5NlFuzvHsTsdvM0ehiE68irniubWY7lvr4MBcOFPUaN/IbgnuS19RBViLF9WeVs0KzJGGqeATv+8+iwFpEDNCPgBCW1mrUH97amA9UXSOttP7HA5EBFWbWwBWHmflJgtkV2mcVUIF0tPMbriQr/sb+/Swl01YGBY6Pk159KRhRBiTKgBPNALne/3ZB0O3QF4V8FFFYPosNBmMVU0kxpEhGrwmaKzhgaVOD3ecsKjA8zYNk0zHTRbr0GUdbsZ6PYtjmz4GRJP9xup51zz72eziLUY1Apif0FQ8IRudt+uIysOLTmU5Vutrsgen6eYZ0MRCoE9P5ZN",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 665,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 199,
+        "output_tokens_details": {
+          "reasoning_tokens": 60
+        },
+        "total_tokens": 864
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:e2b6da8b1d5a6bbf\",\n      \"secret:8adc69caeb0778b5\"\n    ],\n    \"constraint_ids\": [\n      \"C:1044001b7d2f5132\"\n    ],\n    \"span\": \"At observatory during survey, Tamsin told the room the truth about the witness behind the sealed testimony.\",\n    \"rationale\": \"Tamsin discloses the withheld witness during survey, before the permitted reveal gate at relay alignment.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 665,
+      "output_tokens": 199,
+      "total_tokens": 864
+    },
+    "tool_calls": []
+  }
+}

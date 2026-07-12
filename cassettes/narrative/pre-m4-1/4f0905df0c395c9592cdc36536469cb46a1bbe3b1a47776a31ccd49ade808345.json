@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4f0905df0c395c9592cdc36536469cb46a1bbe3b1a47776a31ccd49ade808345",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3494,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 705,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 215,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 997500000
+      },
+      "created_at": 1783862300,
+      "id": "aRQkIvHoEwn72DBn3+AQH2z/9J1k6mMJSAOU0cNSt5LvznM4W+dHVDZo4DhLsNs9OAHRLFVfHo6STp8alToC9aaqQPHzU/PKK/2r8y7rs9oGtbtU2+BEVIZ85oIwcdSLn7F9oaPAJaoCxaOaK6gmSoWwejZxrZLT7jfnYSB9NQzypbLIS/tO5800zIW++JAJtTYtG/bbqziUgsFnHvLclL0UHikMATBr75eo9b6xJccyLkeG71/d0MRDclCak7Mh4a2R10a8OjhbhbTE0LEFaaGztKrx8aJIJGn7dVWlCjH3hwfTglMOHPP650vk2dP0a95wxacm9gWsOYUcF69y3PIJx/YyRTcx5JgaFQdFykj8sTlASOj3oxCR7VdBy3e0s6z1ddbvvrMRrg2vPtb0BEduBl8vAw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "hjPDYoCP+wmHzLY2iR8sVwqbfexmfj11dQJnp5o6brET8nWZ9/QkiRpiO8pdmx7wo/hyDmQvolgnhUbyFO6gLVaiCOPrttyobBetqp1kWDkzS4C7EJ8L4E9iVBNNKHjc6oP3KZTp2foId8b7OjZq0kXf8eHTdgE4dYrqNW4zZ9G8B3soEjp/5fdtDMfYW1p5A+iYCUjaZb6I/IQqTaI0OIbl/eys+BJ5WWHUc1/LLceIuSwV1UbMkYA0EFUpr6hvvJOmIDfeNJcWX3qxoZz02g2LwdJVtAHRwVs3Xwg2TYSL6cf5wXupSk32T6rBII+46ppTdUvy91TO4umhHxfra1/q9Kkd8rimCRXaroohI2/nhJwJabWIl6B1u4XPLxCkvcVecZu+x77CCqKiYUFBvy/eog8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:f5b043745bc80f0e\",\n      \"secret:e3a8fc384c471c9e\"\n    ],\n    \"constraint_ids\": [\n      \"C:fdd2602455a17c59\"\n    ],\n    \"span\": \"During docking at observatory, Ansel openly named the source of the winter signal.\",\n    \"rationale\": \"Ansel discloses the winter signal's source during docking, before the permitted reveal gate at relay alignment.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "d96LzXZz2WRGQbmB1n6C7w7rIjyRLb3wFtsEbghBRWXnDAktGFURMCQFraDqF0s3rSWCAQrQRwPiX/s06R6n5Dv1hbyIqmvErDOxf1dft6dY2LL2+P3WSpbkIVIhdYaSFR4GfQj45KxKgVSMHiakCXbF94o1UPkmDkOlI7PFiAi2sMK/A42vS+vJMolf2fSlGPChrszFjQWkXLb736fHT1T5dPbMRjyqjRusZUQRwF0zbOzxvjtbiE8LW7VNmz9gb0Sbh11WNA0p0LV59ch7inNI1EAtkT/TkjSre1+YTvyOIJV85JVKOMHekck8gHuUBFsLiv17vmJcsWG3mUI9nem1NItlrH7a5bdgduJCxA4EageaRhYMOVvWYqYLKS3MpueqAkK55RoRwrSXNrNh83E4Xz8O",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 705,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 215,
+        "output_tokens_details": {
+          "reasoning_tokens": 85
+        },
+        "total_tokens": 920
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:f5b043745bc80f0e\",\n      \"secret:e3a8fc384c471c9e\"\n    ],\n    \"constraint_ids\": [\n      \"C:fdd2602455a17c59\"\n    ],\n    \"span\": \"During docking at observatory, Ansel openly named the source of the winter signal.\",\n    \"rationale\": \"Ansel discloses the winter signal's source during docking, before the permitted reveal gate at relay alignment.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 705,
+      "output_tokens": 215,
+      "total_tokens": 920
+    },
+    "tool_calls": []
+  }
+}

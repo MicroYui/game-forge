@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4b3ad05787753f49ae45b71549a54200dcb90087888257677b3538897fac1d5f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5840,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 540,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 254,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1032000000
+      },
+      "created_at": 1783855600,
+      "id": "yv9UXKbYCvePf04xxvunhDnjMn0F0UyMDRRvUFvpdyptU2qgUNndSH5DfafWGmUXl/d4LLNfeYQRqA8/NZaY/g22cFVYssgA756NkqrpniiV/wNVVcRbxEOAkNlmBB47oXgGuMTSX9meJ5JEDirDc7eseWTKHQQaUPLMPtpEVDWBF9b98ZWzGU04UiyqOhCGn5ELZxyilB0Gy96jYU+BOS2/qN4ggjF+WX3ROAEIGpLU8NtwXnqfwb/H/YT8IPunD/HuiyD8Jn4lyJfhyeYpcqI5bP5NQktdxhv81Tu5CAXkMsCiVqgRCDRvLu81s6PhARLcJOlNPf6q2R7P7O8vLTx8gbn8Z1a7P9Kjbu2pkgLT8CurDgJcBOTrhqp6NzQ1L5TdFHibdUsexzAx30OR7V9MUsy2sg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "j7hklQS30EJzJIZvXIuaGSgu6r1v4BPhKk+SE6CLIMhwnE8Esm6hMtR5Eh+Qz5lf1YMVrZDlcFtfPhUTSqu0F0ryYLo2ytttbQqzJ3zPgd/mx84kbIbA696PVl3i6FcWDeMX/C+5HCCt1xqR1TkTO45oFES82KV4OdAa/mOnQshl/XZzpL/numtRs4KRW4CwiYx82F6UvDuSCaAyDLmurYfLRKKuJKqG+bttuGJawPKtfJwgacR8N7ol0v33N5oCkojabTu1lzPJXwttfPQOLu604Fq/iLgza2SUleXEDxoGvw4oDUyOBjqfccoX/BoxlX0YL3jEC6bs8nDD1WJZBzZ80AmW6jyCf1WjILwIDOsPEh1dAo9AISnrIP2dTdvRzlaKfUDkTy0N/b14yChyFzkJvAI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:8725beb7f6cad13c\"],\"constraint_ids\":[\"C:3ec416fcd0b52036\"],\"span\":\"Tamsin sealed the crew outside when the alarm sounded at archive hall.\",\"rationale\":\"Tamsin excludes the entire crew during an alarm, conflicting with her required loyalty to every crew member.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "HXLdkz/tFyx+0xvkVMmJ/nWPlUl8gEjJ9OIRli2Ts53LpqgKN1DYSLOQTpYKnZs1nR7ci0h2x+mnHUPIM2AJ165hvlMs3j90o4VdtJBlsMg84PB37iM9hOSkOoe79bqE+eQjJYbN9FN+LDE/Nas3kKOhtD0J3JKWOPlJGuqn7nYXI5UfH2g+6XKdLA98C1+8AOX78/7vCyN34eVrlppUZF+ApW1xCO7lOXn1CD8CHq9zPXSNM0IhqZo+oChUEz49cigt/mVjszcK5+9ghh3N8Ml6zUkMhzaxDaNdEbblYyII/Q9EN/LdfmMQBQZOJbkUkaQ0N85R8ogJ8RpwN21POuZz2D+A5714tHb/VO7SbH5UGLK5jYLNr7iiD+xiOyzOf/i2e1wEWNoKJadJlaTM4IDIQUvr",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 540,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 254,
+        "output_tokens_details": {
+          "reasoning_tokens": 164
+        },
+        "total_tokens": 794
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:8725beb7f6cad13c\"],\"constraint_ids\":[\"C:3ec416fcd0b52036\"],\"span\":\"Tamsin sealed the crew outside when the alarm sounded at archive hall.\",\"rationale\":\"Tamsin excludes the entire crew during an alarm, conflicting with her required loyalty to every crew member.\"}]",
+    "token_usage": {
+      "input_tokens": 540,
+      "output_tokens": 254,
+      "total_tokens": 794
+    },
+    "tool_calls": []
+  }
+}

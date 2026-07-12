@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5c28b5e8db5ddd59740bf44e3342e40108e132e4e0a4cc33af4330a1f3141bf4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2569,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 576,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 147,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 729000000
+      },
+      "created_at": 1783847300,
+      "id": "741eqXHoKRNn/BKVmLwQai147DjzDW6ig45DNE4BlanSOKONrihcQBGyalPc3bHPed0awLwOphbJfHkbX9CE9QiIZl+qCv+Yt64K7SbW6pwh4pD+nuCgD5T3q7NZHjBGk72Tb4ZPeTSVnF5LrnxgyGl2f5oCj7NqTLA5zLrq8B/J22sc8hSgr6S9xREKQTRPpCMSoyBuygC8BwGVTf1f8muQqXG3SiirGfPkz4Sq+grN4sCxiGtYwi1R+5R5PAr75aASsgXdndUdmWdOlZAAw5ShMm7+/f743EwWPp0uFvcWgLU1l0PItkpNJVStwcYPeUwYZUHLorw5BJ0pVAA8VDWKeHbF5dDwHUSw9qj3u4x0v9V7744uUdd5VSP4t1TPE0RmhvTxxa6bZOSwbYtLaBQzZbXUZQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "sULRCe1lzpgb+SJbUcGHKJ5qrma+gO0f5DiL1uWe3xvLpu2Q4YFHhE4Vg7qLzvwKtqb8pcZv9Rq3TmlAWSInjygj/ASwGD+e/oAxjpC80gM8iZ5bRHduT52NFJNENDwyyv51eSeKrmEyMYkASM/Z1Gu51Nx1iPek/rSHA/hrhia97TlZkDWKbv9ks5U6RZ3foNPq5ZxVDIit4Va94XoTqAAQeAx+R3TU36fy1KtK1ZgoMGdA/djCcKB9nTMQ+2jIDTpDMF6eYNAJMpIcuHT0htx1/+Oq4G5zXxkMs7cC8WFmvVyNnFnmHhIlpuAWeevy7uQc65Vddt40wo/qy8AqNUxk9WLBcYFNSue5LogstW+oM08GO1rIterXcJ6Vva4RdFK0Tj344V7QKNPhNh/sEoWmSMQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:0729196b52c8dea4\"\n    ],\n    \"constraint_ids\": [\n      \"C:d41efe89417a9d6d\"\n    ],\n    \"span\": \"In archive hall, Tamsin used the civilian refuge as bait for an ambush.\",\n    \"rationale\": \"Using a civilian refuge as ambush bait endangers civilians and conflicts with Tamsin's duty to always preserve a safe route for them.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "oQ0Bgot9UX5SDGgZAiXBbhmfsz2JiFnbPnPSfiyR5+P7zjKXgB5xBZaHJ+9ZBS6N4l9yPNkxlMNFrRyAzWMeqbobDWJgejwLO/IFfwI/x4IJz+xweuPaqbKz6IKhPk4SihMTmN8DukQxaMDz96Qv5TJA8Rcnr+TZwiYpIhcACTZ9xHxtFU1gMYl24gdpGL/x5cerRRtrgKCVNFjvDQRqT1onSKSo3WXi3tOHZ1emyt3yvv2utIog22Ul+Cobvpe41Tg4Y/4uuJ4GN8q6LFta/oPwVGrribzvm9dkMg7+/cII8xl4VbYHu3Y3MI2fOxzU22LRFDl64vDmgSHypqn9v+wJKSp9MsJc/zuqMTIV02TdY32riE7UvsblrtUcCs8Bkl0DB/ZeXT+OUYpFRlMRG8uE44cd",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 576,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 147,
+        "output_tokens_details": {
+          "reasoning_tokens": 23
+        },
+        "total_tokens": 723
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:0729196b52c8dea4\"\n    ],\n    \"constraint_ids\": [\n      \"C:d41efe89417a9d6d\"\n    ],\n    \"span\": \"In archive hall, Tamsin used the civilian refuge as bait for an ambush.\",\n    \"rationale\": \"Using a civilian refuge as ambush bait endangers civilians and conflicts with Tamsin's duty to always preserve a safe route for them.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 576,
+      "output_tokens": 147,
+      "total_tokens": 723
+    },
+    "tool_calls": []
+  }
+}

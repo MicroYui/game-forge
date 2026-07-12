@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:043c499a6297eabe6cf1cc2d53f654cbf9171e8841ad6454f75ae695f52668ad",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3942,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 682,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 207,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 962000000
+      },
+      "created_at": 1783854700,
+      "id": "nbgTAb/LC9qe1mVkbNUSxtwaH0+IQtti4+uLo0nQMnTWdTKgswjqsf17eDYpYYK/SW4vc+RNBBxyw0o844v+SklOw70lXCnjURo3NsHj8NqvKWrEWHj40PWcDKiCZHnrD5edaPaOFyB1bTnyKysQkcnj59nqoVp2dBz+dBJUz27MrTjUAEBNiIFmHlhUQnQxO8zW1MdPQTQg/376ktjjgpsnu+3JjNYz4AgtRD6hOF5rnkgxJ5G2xyrhnM1CDj0xcKu8P5jbDJoOsSFUjwmT86l4IDa3JUtmVrZIG2qeBAGVlgf7r8MMDWRfd4ezpXKdhdu18cpISZPAoTPDRtW9J0gohLnQOPanr+J5jRuFVNJvQlU1/FyZ/sv7ACUjmJvvLywyV5mCHVUYPOMcLTSztH5V8q/PBQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "GT083+4JnNuUiFx1NhT62uKHe9iI+8DWlzhdKnadiZ85iptHSnhggck4LytqdBQWf7HuUthj0iX7x3ZruJlalFEXSAk/ghI6Cl+a0NgLTrZiHgTU/GgWRKWPZw7FuXevT9FXKms3iRcnrHWGQzyIFfqoIsAiAGTeZz7URcQNcQfmzabadetu3XEGjIv9kMhaoSzQxFV3T+oDBa5zokxUkvmiP6Py95/WTwEnkT8wx7bKLb6lTkJB/uFIAaMmqm8A1ME0yuJ4vIQg/455FCwrha0Z5X/7z0cX6b+FxRT6wf1lwQzBLe8pN/tFoD2fvpFMpJfK+8l3fwRp2DeeOmveIooiFIl7W/o64ndTAE15DXtMFaFUs/IPAbvJMYWh0l0Gwamu+qpOim1unGesXvdUqPwUwTY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:7392740106ba2a4e\",\n      \"npc:9866b6d2c8aa5343\"\n    ],\n    \"constraint_ids\": [\n      \"C:b75218ea84ba95e0\"\n    ],\n    \"span\": \"Noor signed the register as the Warden at glass conservatory.\",\n    \"rationale\": \"Cass was already recognized as the Warden, and no relinquishment occurred before Noor also assumed the title, exceeding the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9ZfIuloXaAaxmwq82MMQERcnKSoHyycsYYZFXjnDXUr0HzK/bdG0tP7u78jyeeua8fe0zo1pwUtQ4AnOPHVV2dWJt5uUfqZjBL7O8toEqZRRSqZZEaZlM7Spc8546zrJAIi4enBXUiWpBpLyuocboglBLOtFcmulY5TBhgrxyc889KRK/cvNEO9e7SZ43HYVsH24j1kxAnKIrQ0xjOJBtvw9+xtB+shTkbKorUhT+947My3LCziRmPbnuJuZU+edW0N9Koht3P5FOCJlFwA3A2lO9tTAx1BlVzKVj7NAgCKow/5tLQ0Kzr3JNklFwcL59YVf0lXita8XxdfgubclmKI/DdC97fRoIc8CbYfaqb6zrp1FeannjrF80y9eK62uv4CTWc0PG7wGwlY90SKj3qMRotqa",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 682,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 207,
+        "output_tokens_details": {
+          "reasoning_tokens": 71
+        },
+        "total_tokens": 889
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:7392740106ba2a4e\",\n      \"npc:9866b6d2c8aa5343\"\n    ],\n    \"constraint_ids\": [\n      \"C:b75218ea84ba95e0\"\n    ],\n    \"span\": \"Noor signed the register as the Warden at glass conservatory.\",\n    \"rationale\": \"Cass was already recognized as the Warden, and no relinquishment occurred before Noor also assumed the title, exceeding the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 682,
+      "output_tokens": 207,
+      "total_tokens": 889
+    },
+    "tool_calls": []
+  }
+}

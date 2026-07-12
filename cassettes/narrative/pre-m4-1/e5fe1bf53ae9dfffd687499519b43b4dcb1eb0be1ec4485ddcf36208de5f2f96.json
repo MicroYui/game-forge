@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e5fe1bf53ae9dfffd687499519b43b4dcb1eb0be1ec4485ddcf36208de5f2f96",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5286,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 575,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 229,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 974500000
+      },
+      "created_at": 1783858300,
+      "id": "/85JyoSh9BkGi7fzo6HvdmSDk8xfYZwaKT1YQnMUZa+x9cXxxTWLUZCHtKHc8SihXXwBmWoAZJt+1YFyYEwRviOPFdqWcJcJc8meIULtVKU9WK/xMUcYgPFcSkK5KxHFfC1xtRaG9VxWGz/lCNB9+LQz2MGWIDB3a/xdfEzTC9REoqSRj7DxB+oqdXum4UrPmWeR8222PWKQ/zdC2zQ/Op/rFYg55e+qqfg5FFuWpMvXR3QLKP34K4BWZUqL0Baxh2OtG76kDCi/HTTh7rzCaDc8Pu6rj0+VOYa/Yw+lfX+rS5DHye1zEKVv6sh/EC1srSH8Z5nNfZm+CCmFKCotb4nHk/BVAMO5vyYQ6gaKIZQvTj5Sq/jhS3/0K2LOm/gA6eenGDnBsoMVbgCJQE5LMWP1RJ36DA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "+Q7KvAvTFsykrT79hfzGiSzouIv4IH6CjTY5JJOWdSuNFfnn00GbYPqvzloVs7riZGuinbWK/ZKtIbZT3EEytFbDHcXkZLA3tl2j6rZunarQXsjRV2cV8RQB1FFIsj2t1PniQOPt2zMKTTKgqbd6AoHnIbnx4YFrM52KX7E0uTd//RtHvoptxfYrF5gUYedaXfR6YtSlop6BDIIlspNV2YrS7jDV6iXgXxgvNN4ktwMRBHS2BNI2vxM+ZncMQLWfVnlzSNslmmtB9JLC390VRPZ6FIrBRafNIy48Mrkyun3PbOhTLKBbI/EOc6E4A55ePFz9AguZM95dRcPY9bq7gf8xIW172+fTR33EDTg2ZklQSOO5QIhG+0yGk5lq0aDLR5s+gE6JylaGHmyFY6yscSRUung=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:bef1a11a01242a0a\",\"npc:d5ec0642437aad44\"],\"constraint_ids\":[\"C:0142f719703f79e3\"],\"span\":\"Ansel accepted the title of the Archive Speaker before the assembly at salt depot.\",\"rationale\":\"Iria had already accepted the single-holder office, and no relinquishment occurred before Ansel also accepted it.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "dwPZWQ5HdKBKYrUJWjoxWzwnozu1M5wq3MZkfqyKJT/hhS75dv8M8QQIhkH4eaLJlVw6IfdJVg6aJuvnLXVVD7AM3xVzUcguCP6sTl+1W4VH9WDwlUOk8w9SYLZp2k7JfG6EGtj2zhJxCoRW+L0Ck3qHf41p/Zh9qVmyvO/9pHDU1QjesHesOYELfBHznuyotwQbZsHBjATLYSgoclwaVPv0u28unu0tJi0e83qE/+w+jOt0KSnlX9HRtAg/r5k4iKAR+YehWD8fnKzH5j92Yenl0g1/48KeFSJUWRpZxQJ1s6t5Ye6RhfVYOcAiA7gfMaZaqBiPWZndVeJcRle2JLIZrTe9lenPVo2ec9nZV9iGkWUlnhbcGpmPPNbKpKNuSRPFpXCvYbLrlQF5IruxuOhpzaBL",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 575,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 229,
+        "output_tokens_details": {
+          "reasoning_tokens": 124
+        },
+        "total_tokens": 804
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:bef1a11a01242a0a\",\"npc:d5ec0642437aad44\"],\"constraint_ids\":[\"C:0142f719703f79e3\"],\"span\":\"Ansel accepted the title of the Archive Speaker before the assembly at salt depot.\",\"rationale\":\"Iria had already accepted the single-holder office, and no relinquishment occurred before Ansel also accepted it.\"}]",
+    "token_usage": {
+      "input_tokens": 575,
+      "output_tokens": 229,
+      "total_tokens": 804
+    },
+    "tool_calls": []
+  }
+}

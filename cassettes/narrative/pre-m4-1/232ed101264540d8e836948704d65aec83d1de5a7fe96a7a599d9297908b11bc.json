@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:232ed101264540d8e836948704d65aec83d1de5a7fe96a7a599d9297908b11bc",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2394,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 667,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 88,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 597500000
+      },
+      "created_at": 1783841200,
+      "id": "jeMTa3AtKLUhXGQlnUp5z9G6+tk30U7ivuzSbDv4qZlecDQmer246gtI7xvvsHWrgavniBZdilS2ENpNgIttfy3ZXnhAY8r/Dlit5qJqZzXBKEH7QMrRVJB53MXqPwnv1Wogt1rELeObwy5fPCdLxJtlpvspzKo5NtinzmRX1AUyH9ZyfMnZBk+zxLE3bg9a35QLfojICJTikQYK0Ki8iQpdv31EvMu3EU5aVKHKCSkr8+wO//IQxi0MyN/FPna48o8yzsfBKpHfKOG9oc31W6DgFXld9LoVBiAwbpFBudhCj1OOjdCpgUOJW/Bd0UtAy4tctxWf6YiTzTL27JI4HgELGHYBw3iQtYzgdokCXsj/TLcZcQLduvUElbntMM8s50Zz5gkmukoNPQ1kWkXWXtzyD1Lh9A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:1081beda201442cc\"],\"constraint_ids\":[\"C:7237de5813bd97ba\"],\"span\":\"At caravan court, Veda abandoned the ally named in a sworn promise.\",\"rationale\":\"Veda abandons an ally despite having made a sworn promise, directly violating the rule that such an oath cannot be abandoned.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "x2SP7Rv1S19uHSDTU5hf+KSdXN77IQ6WNnCtHA2a1s+J86f9TCLX8EJ0jxv1iCpr88ief932j0yORJpKZma6uAdZrLRZCse5+SW/J4qMcZdqUXXBFF19ugmVNcHSKu7BhMBsqLhw4u6jyxw+kqR3htDbbUBQUMFRtCfoZUurxsd4kKYFdLqW3PnhZ3ICCPhHTP5SDVSO9+nacFs1fVDGgUGE36udNJLqrS7eIug4toXWLOVJcleb2T/pcnikUIqZnr4vo4kDeb37kKSHNgC7SSo+vbb4mt6oE5IvbRen0Joe91Ssd7zH/BkUwTrqcrvGGtAwZVjdH3ACyvodgfENbfo+uenDtgC/97YtBh9OsaBTjYdBOY25427YH983o/CP9d7NW1mgbrYi09gXhOCFebEdRlPG",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 667,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 88,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 755
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:1081beda201442cc\"],\"constraint_ids\":[\"C:7237de5813bd97ba\"],\"span\":\"At caravan court, Veda abandoned the ally named in a sworn promise.\",\"rationale\":\"Veda abandons an ally despite having made a sworn promise, directly violating the rule that such an oath cannot be abandoned.\"}]",
+    "token_usage": {
+      "input_tokens": 667,
+      "output_tokens": 88,
+      "total_tokens": 755
+    },
+    "tool_calls": []
+  }
+}

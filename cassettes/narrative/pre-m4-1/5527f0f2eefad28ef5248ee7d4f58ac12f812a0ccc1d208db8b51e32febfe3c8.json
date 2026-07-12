@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5527f0f2eefad28ef5248ee7d4f58ac12f812a0ccc1d208db8b51e32febfe3c8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5114,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 575,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 289,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1154500000
+      },
+      "created_at": 1783857700,
+      "id": "cVKXx/IJfIq+vLHSPS4cXAhi362c7ujEss4Ea0AxchaIlCjwwxPJ9kKjrxfHQg6ZVZTEYRhSyqiX4dipyuMIWoPz2i+sORsOqcBHRRNFKAr2PAvITHGa9jac7E+2C6/EANcl0ixtgZxG4DLPlXJQfUX265NyVEWoetsQL5wow1MdN8xU7gNukYSJf4Dozbxsa3X+pJje+gj9le/r+kNfPxquPbbk13w9A5IaLB+YsQkzjO1g11Anh3nNhCmG0bFXfo+4E41LbTAqDZ/tvpWkUHIUYutTUJ0bJniiOcbejTV9DljwVdy/WZf20lCYWU0dt6oGKiiMsl/kuwriP9fiTjxtKHiH0qmzQERroVaR7SIDkb8XE9sBFZbLa1wfldVNiXATOoAh5pBek4OOi+z4fydoAsoUTA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "8Y4+jzDZ2incF6Ow8sZAeMFWkA9l/MA1+Dbv9Knc927uGY8Xu2KTNN6VZNr0pcfVziClDCP4Art+QXKB6y+n6yIUKpNQHb39+UZwHRJV1TuLYj1ZQBHEByak6spJu0lmhsXwRThzfxcGBQHzyFzUghG7bHsuZ14aE388fmjR6XTDpS+GBMKqG1n50UQnXsw/OlvNPBfKfw7T3P8BL1ooNYfU+wuAWCGKsXOTPwBWWvsrSFuZdcRJwE4v06ruoh9W/dW/4G74s+OWBH10zUT6R2Z2EJhB5sp/ABTsg4liqz+JkS2cltPzU1i4FOEnBxkV8E6InxGy5uKPiFn3vRUaorKiGfTylkQaB8CVnuIxqgdptLGVr0op2MDc/JDOZycjtP7miKLOa8/uxi0IVPr83yCEmM4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:588d5edeb7ed872d\",\"npc:ea846bcccbd54723\"],\"constraint_ids\":[\"C:f18b7f3171156726\"],\"span\":\"At old mint, Tamsin was formally introduced as the Harbor Marshal.\",\"rationale\":\"Tamsin is recognized as Harbor Marshal after Eli signed as Harbor Marshal at the same location, with no relinquishment stated, showing two simultaneous holders of an exactly-one role.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gsn5tMvJEmQ4reC3Uibuif7mjFocqioAilFLlB3nmRyLqstGZzT4i9vBUtOL6Jipc4/oHaZOUrlnVm8IwwFs7daEq7ZNmUToZQBx3l2bVbOI3QCpJg2JtbNccQqEPQHMOmE0UI/63scZgJzoNJVssSr1OqNH1mjzcQFrsVsxYAq2GGxrxCP+muVsJ96Sq/RSZOlgP5+ZfwlCmyjhFYj/HLoOHYYQ1l7ikWgyvCphtkwxQxVLwWH5pe/xY97lVWhVopPycjbKhP9lmb8dd4hKYS71PVLZgcWwTqRy/vrfqXKZPD102Yfkd0CAsQ+laWXZ/Z2N8A1hY0iHIvoxGH1f1ci282OzTdiQaWvzuAQsbuzNwplkqWrLhPnni+Y5P5GBF4ucKn0X5L1RM+iaiZ0GSfSSFbzC",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 575,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 289,
+        "output_tokens_details": {
+          "reasoning_tokens": 174
+        },
+        "total_tokens": 864
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:588d5edeb7ed872d\",\"npc:ea846bcccbd54723\"],\"constraint_ids\":[\"C:f18b7f3171156726\"],\"span\":\"At old mint, Tamsin was formally introduced as the Harbor Marshal.\",\"rationale\":\"Tamsin is recognized as Harbor Marshal after Eli signed as Harbor Marshal at the same location, with no relinquishment stated, showing two simultaneous holders of an exactly-one role.\"}]",
+    "token_usage": {
+      "input_tokens": 575,
+      "output_tokens": 289,
+      "total_tokens": 864
+    },
+    "tool_calls": []
+  }
+}

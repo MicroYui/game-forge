@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e2c9147596607ad66fa8fea48ba83e2dde9ae17d61810943af65c3e2653847d5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3346,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 707,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 156,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 821500000
+      },
+      "created_at": 1783841300,
+      "id": "xxDn4h62vOFtwrv6YFsineW4dKrgtv317ahcaAG+Q+fhXNAtIAVHHGrv2XXLOQw6G+ZiGcnyIosC7lPxxLzMcXgoS71nBOAkcjG4UxayquhWR2Iylu1tNYXQA3fcojVa3TVyFzqgsTJKBBIfzrxu9M1CXzrFk1gBEv85lrlu5D7yEpmHtebdc1E3Gjb2bWSLueQ6gZ9WpL2KJw4HW8JaJw96BgJd9+K6l05UOst6XqtRJ30I5EFFiymyiDdfxLOjgwdwNQc0ngQhqxYda8GOehJgMNpXeod09RVyycmVdWjY8TowY+XlZDeg5xWnBawJu3W7rTSItIb0OEoOnIk/ZPiDXEJTY6VojzXa/20THEgvySeRp/HuoodiMoGlFU3m4GOCOdlNLpvFnhyQGTNmU9dH9/q0dw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "J7C77GHp671Sr4HPpTXLH9p+A93gtxdozfdbvuudLxUN9Ij/rvxU7aljsWePnIqWNJDbrwoiMzQAhlCTvH7ChS7eD7LgU4RnXXwlwc2Or9ibbOxsP+WWnrqdMEBWU5AXv9jM8Nzve5bJZ8erq0+InpPqyXkYBSUg5Ftn1I69B9mSJjnuPa8UnZUWPc1cM9wSgu2RBWfZPptIbKWGY0+EzkqtYtHnRp21flNKbQswdpqJXQGmbE/g3rpNy2u75zmLl4ONfEFTqc1lS6slVdU2wkYgyl+nASZOHZ7rG15hXnUA+NAUxSsyZFE8jxU144XGU1IKdTyzzPD0EdkoW1GkyKPw2hXpB6B3IXlP4nAiM3U9+cFcTZifPFpB0/1DYHeEcM24nRv84vIJOi5OH07TncC4QtI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:c524ab59791b3111\",\n      \"secret:5d15f6da33798d0f\"\n    ],\n    \"constraint_ids\": [\n      \"C:5cab9c0e8e892090\"\n    ],\n    \"span\": \"In cargo ring, Ivo disclosed the origin of the black compass during survey.\",\n    \"rationale\": \"Ivo reveals the compass's origin during survey, before the permitted departure stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "WQLsgLJ9W71ELDEjfZ8QfjSjDmRhx46cJihntqTEy78iqdeMo9/y+ryn5ewE9YCHuC8TCuxw4ZaEu6s5jcpUE0BZ3h7tqoX0hYoxjnGinZlzoyJWmwScP7xBPJLdm1LJFtMA/ZAFo9eoVnKQHQXzSzuV0ngLBQgaG8qyL7gTZNIVg3NdTujM+anoieEjFllOb+nVdjkHNHyTTF8iwuFrLBKqvRMCVqrsGCK18aXI0Q5aBhqQ9JwCJ3bz94s0mQV4P7tMX3Syz5I+9fXRL/Ll1YOqsIjCSljCHYSx8mzR9QKgvjkBy+gsFiQXKj+bpMzOB2zVHewaSO6ibqq1C3vEjVNUmumbiYgAyVR7FGdydS9PQwJw1xJB+eGxnxdHDtKJIC717EihlH2hga5NdR/7t0nG60jG",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 707,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 156,
+        "output_tokens_details": {
+          "reasoning_tokens": 32
+        },
+        "total_tokens": 863
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:c524ab59791b3111\",\n      \"secret:5d15f6da33798d0f\"\n    ],\n    \"constraint_ids\": [\n      \"C:5cab9c0e8e892090\"\n    ],\n    \"span\": \"In cargo ring, Ivo disclosed the origin of the black compass during survey.\",\n    \"rationale\": \"Ivo reveals the compass's origin during survey, before the permitted departure stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 707,
+      "output_tokens": 156,
+      "total_tokens": 863
+    },
+    "tool_calls": []
+  }
+}

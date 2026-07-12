@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d17e719a00413491233fa27487fae44c61ebd38c788851c7dead4899e2c11b74",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3473,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 545,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 175,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 797500000
+      },
+      "created_at": 1783844200,
+      "id": "NAz/n2JmmDm46j+uk0VNJI9PQecNyPGmTETqF4v1wNkQ3pyPHzgf9t6r+SJbxFV7N3Y52Nzc0u/s+ErgtY57Ba5XxFyAmwfEUIfQAOxmbyUdkrTfyaeTsBP+M/rHZHG3V6ODB/DLCtsD4Ih8T5AkAs38o1/i04WKuEQFtK/IKfHy+2cDMGwiktETsXewIgP0CAehQAdCjKwMhiVpCLMdVQIYkTeLF6pcLfwEhJMNDKv1I/+9ALyKmCFmSzo9NjZgKRV9q1HJtrOFW58uT6WSxXEinzPR3NrXmQw1WTsIOQOReJQVILmOD3A85516qs+qZHRPHn/xrbmz+IsFl82KEvjtlNF32ixmKh7J5DJF1a7dv1OVV2rGZwvPMcwICLWgGa9lNdxyad4H9JIXwFTzoDIVo6BQyg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "NIQYgzKsDA2z/FLi45JORdXqCYNK6uAZeVK4VMGAlxxOHoV4UhIn1FFufPzvqvBzG531tIc/r9Iq4RMu6czskRSZ7W2+7H4wuyF/Uk3rjVgxk5e08N61O5+A/nRZW9vNRHVrJI+uxBMRQgHo4wGuKUo5PYfK7lH2BW6TjgnspxV+yKp8LE/IumfwRCCDv+MX+AONc5aySHSKs0VOnjGLIR70MKzxAgGtP8WlRHlVR6UN8s0r7q17cdOCA9dlbseVTgBujElstKprFoxkdbSugEHZarZcgK3EyTepUI04xxq5mmNUGl0MEDzZ/vvYuGJajPxHH6oXsSEQBafdRd2RMgDqaOoU2ERmPZn/eRXxxVxrsmnUT0+ebeAnvE1I7MC81KJ0DfOnfI6VAXl8WUlzC2S3hm4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:73348f4576dd206b\",\"npc:dc1e0cb4d9b2f70f\"],\"constraint_ids\":[\"C:1f2b7fc6d7ed909e\"],\"span\":\"Ivo fought beside Lea under one banner at archive hall.\",\"rationale\":\"Ivo and Lea belong to explicitly feuding factions, and fighting under one banner depicts barred joint coordination.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Nw8iD/nwu/cY5aehYbDbK8hpCFgO2+IPsaSg9oQ6QMbuR1nQTQPlJTPcPTj3BfCiuEDFxq58pp88LnE95wshZGJi6CyAdcl9B0t908Fv01crN8UvZvbtRHNFDlfwRUD0GaD2Y0tN+TeEocuhkSSba9WtJ1u+3IbBK8CFCGhZ/cmLtUg7oMyvfxmvPSCcNCUrMjp60cq6r00f7XfsD2h6bkqv+gwJDbi5MSgVcPBQ3bnsgBZ7J/j+rDggJ+2iY9x4WNnkmBpZcGFWy6J/9PEZgv/sRqj4Ur4uDdBrKyIsEw8KOB5qi/nJAGNUWm0Ei6QTDDWDB1FYdA8CsMzM+R1GuC3wtwVdhRDJaMd99Z2tUk3zBJWa9GqpDFRJImzOtVeoXDbXAFYSCp+kvaQHHtdGUdx2U1UF",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 545,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 175,
+        "output_tokens_details": {
+          "reasoning_tokens": 69
+        },
+        "total_tokens": 720
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:73348f4576dd206b\",\"npc:dc1e0cb4d9b2f70f\"],\"constraint_ids\":[\"C:1f2b7fc6d7ed909e\"],\"span\":\"Ivo fought beside Lea under one banner at archive hall.\",\"rationale\":\"Ivo and Lea belong to explicitly feuding factions, and fighting under one banner depicts barred joint coordination.\"}]",
+    "token_usage": {
+      "input_tokens": 545,
+      "output_tokens": 175,
+      "total_tokens": 720
+    },
+    "tool_calls": []
+  }
+}

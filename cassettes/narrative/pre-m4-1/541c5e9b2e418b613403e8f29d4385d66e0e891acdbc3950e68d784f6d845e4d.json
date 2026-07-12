@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:541c5e9b2e418b613403e8f29d4385d66e0e891acdbc3950e68d784f6d845e4d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4944,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 615,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 186,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 865500000
+      },
+      "created_at": 1783857900,
+      "id": "tWRrAY/8NtnW1M5w04rst3ju+aWKaFi7LQhcpK3WpT2wZ5UYSsySu8geBBPCN1W4xBcm6dYcwZK/ABW+4IwVwjpNbPVsly5ICTefYiQ3/g4u+0PKYhs9RErP3FQjB+ITEl9TGxTb0OUNSs/zWzHBUsk6EUcsrT/uiAcPduyDc6SurXL/Q0gM87jLXhwDOgF6uoOkE678gBVQZR6YT40wKSRegAEZtwVdtfxvdXUsvgoHZgm+Z6BA8a34IHRu/S746Qtn30ql1hVBJz3HYhZUQD4pZtC6KByhdZi9gX1gkskYMuWynjrh2e+jFj4clzVW5TN9+4VvQvhZqdGQ1S2yXwlf8E8MucaMD+AlFB95pVfKxDIJLGPlh6pEZxR3oAIlTt16uTPu77rodmHEDtRBe0EkQk0/sA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "dpISwq/K2meEfXmzZ1QJBmhcSBE1x8sO8wByO/8MbGeiZWNEUFaXpQQmfMwrfzFxeanLwzJZmoRaccJQs8huHkHm8G98BlB1Njtc+9pfIpCZa11ehgVbA27mWeQ+I+HipfY0VhwI3XJwXw8GQFmGTmIjsm+5UyXRD0t/qney8UBB2E87XDElakDNdSpKYxjpL+9lqLe7oDAA55ofvjmCJ4LSYWcKQHVLrl3FuKzDYNlMPLbV3NQB5YRJkJrpF3QJHtJbRINj64uUGotXhC4WiJKJdrmGGKZXSJIoFrLaB0LCZsGlX5qIlxcd6ildwWQJMvW17BlRCDDgmhOXuiPm9xB5aPvc2CAUpaK3HwZRSufyBEaSjKP6oXiae6DmxxOX4u44R2lwd1FsQVQOKeTE9wfAZH4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:9538bf84468ec61f\",\n      \"npc:f14b9fcb379d5e96\"\n    ],\n    \"constraint_ids\": [\n      \"C:461473b838840c79\"\n    ],\n    \"span\": \"In archive hall, Ansel supplied Iria and called the partnership permanent.\",\n    \"rationale\": \"Ansel and Iria directly cooperate despite belonging to factions explicitly at war.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kKkz+FUKBJblo0QYmCHL+a7yrvi7OdW0Imcxsy4PjlQYpVvgrG9k6ul0KV8a1rMFRjPyh3Wccopc0/JDxRMNamCphwaml6/IGnnbhQDNU7GbUodXRV6s1poEjuDfP/fwduHu+2EXlvqnwAWco++HyQsw6qhujEwLg61n9l1Z4pqobLMTulR8WuojlhORiZ4yRACFsRCvVi+GRSeaRNbOoMsq3uGtCav/WRr/zXbZ8nCrn/MPFfg+GscbjxcIis+AAa6u7NhnW3d3gnXLeCYLxnKFrV1lp+rM/bB7iWcFkwsaRMyEasPtuauUNw3hmSlS9BsDJxuig/DS127SgupPMbpIUb33Ep8QwHb8SnssROEqI1WiYyRdtvluvkUIGezgRf6PwVzVDAg2Mr3YRIjjlAfN5j9e",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 615,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 186,
+        "output_tokens_details": {
+          "reasoning_tokens": 65
+        },
+        "total_tokens": 801
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:9538bf84468ec61f\",\n      \"npc:f14b9fcb379d5e96\"\n    ],\n    \"constraint_ids\": [\n      \"C:461473b838840c79\"\n    ],\n    \"span\": \"In archive hall, Ansel supplied Iria and called the partnership permanent.\",\n    \"rationale\": \"Ansel and Iria directly cooperate despite belonging to factions explicitly at war.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 615,
+      "output_tokens": 186,
+      "total_tokens": 801
+    },
+    "tool_calls": []
+  }
+}

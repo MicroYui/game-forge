@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8268000691602f0de724145acf1f52e4b8fb5b4ba78b3b133a90506db552b373",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4003,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 543,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 181,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 814500000
+      },
+      "created_at": 1783862100,
+      "id": "kC2Ds+HN6YNiTl/j+3pDgNfIhUgMvOnSVuTSgOx7IGXA/YV0a/Q7RRXHyO/+TqQoLXT5zstFL1SyaFGuwTqHY8AHotY3LpA/vLopEEk5FUBMd5VAsYRUSGLKiijK5PHIM8WLGl+TTNvEJlh0godeWAmlUSEq5RnVgwlKkR4zKGOFrAVb70UFEUQukr8jCeiWnpfpTTuRWRvBYGPrdrrUjDyEZYwmziuOQ32bL54Hl8/RVE/VtfB0mQOX1q7JT/3GFAkd4vHjuzO/UQ6BkBvzvScrZDlmBEMFIVz37bMABtLZrSMiuKUPVwdx+ca51enAUCW31d+rNUxOCwmK/uRKXpbp9MwDa98yJ04pZ2TJrZV0Fov41TmAIRRrScXGFGcrC7RzopylmEZy+Wc/po4UqYtRbzSTFA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "GuG3ISWWIYDA09wASYed1Cq9wV7IqqfQq+TClx6wZerDeH2jlOMLytd7r99V91omOxYB6W7h9rC0focYceR6rqxxX539BT0SCsJrLCABtqDqe6icBULVJRsr/tYEr4eHKLy9hyOONN1wj2kQLAvjZsi8N/U7xl5lSgIhL8SmbeidXvf7MdGq8NAxqhbBYqPl/tnqCWnJ+Tme+XprQaLPfjDm0JE2tOu9tpYV8ESLXsn+zk0Y7jtaHetN/PdncFkBqTjFxyufeH6JR4saNb60J91tMFZiJJ11dJjXaENdftm8eHwy9li6Xrdykf5LJO3N4S6R4DGJJkOgXcDwz+3jcGExk9R087NtmKOQs9Tt/mE6TWn4spJNFNUeBpHTiukuIjVGAlDGb0q3JMm9RZePmLUYDh4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:b13869967b6a4ced\",\"npc:dbe95b85b69ef316\"],\"constraint_ids\":[\"C:befb88e0e54496f5\"],\"span\":\"At orbital concourse, Qi was formally introduced as the Harbor Marshal.\",\"rationale\":\"Mara had already accepted the title, and no relinquishment occurred before Qi was introduced with the same title, creating two simultaneous holders despite the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "5FNUFOnpaGVT6zhU29t0Z8nZg5wnbivz+LuoyZya3r8/ZTheKtNaXpI0c99QpqeuVHueup2n1H+Z6VC9dm1e7xVELASD/WO7U5QPqf1qRZSWur6JMrV5Y7btzbaKNBXsvQXGDU+eGBRZSuzNahk+YDyW1qBVuKcdgnsC2p9GLj0V/tJE3SUF3ZdpY0nUJVOAufQeSk6kUJwKW8VQQhEOMMa+HWP3tLjltuC3BF2AuRGZhqz57MAh5h/oL6v0j76XTcDMxasj9vRb91WFLBKOp7ljC9pFHMHWIZyG/IudAq34Z4RRAPco8tEG08Sh3dMQOQLfXfAejLj+qM7jPQSjNQ7i9C4OvXrli6UnLGHQcWnVoYpmWZPmJqhjN5be68yvIK6mupyAQpbGmr7kDVZ+F4O/SmUL",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 543,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 181,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 724
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:b13869967b6a4ced\",\"npc:dbe95b85b69ef316\"],\"constraint_ids\":[\"C:befb88e0e54496f5\"],\"span\":\"At orbital concourse, Qi was formally introduced as the Harbor Marshal.\",\"rationale\":\"Mara had already accepted the title, and no relinquishment occurred before Qi was introduced with the same title, creating two simultaneous holders despite the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 543,
+      "output_tokens": 181,
+      "total_tokens": 724
+    },
+    "tool_calls": []
+  }
+}

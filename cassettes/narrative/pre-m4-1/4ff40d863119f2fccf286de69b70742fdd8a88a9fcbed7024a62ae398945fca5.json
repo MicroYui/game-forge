@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4ff40d863119f2fccf286de69b70742fdd8a88a9fcbed7024a62ae398945fca5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4875,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 631,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 258,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1089500000
+      },
+      "created_at": 1783854000,
+      "id": "7UnZazrGUnOjxQzbxdnodHztOP3VoUMVfKjujqjen8Nn6o+q8JjI3dFUMMgDqLNt0OlW6Dw3lHL2vfp4yVwxj/AIPIG98xhf7PqWf6+Z/8T8ISpPslvFlK1xvKoJ2JAsexnvMg1SVK9P1XTcjCzvFyMfdA3tzhizJKDh+Kv17JAkvYR0I9FRXgNLsOe1I5QHsCY21T6wY0v3Xg+icx4E5Hf2cwhv40car/E7qdcp+p/jCHXQkRRAsvwkc1oJXwfjB8G9gqmpsF+pWRS/6BNshN83BCkOoCA9vRVp7RL0e2AyeQptgglThtFlB7gQ3kyraIPIfri1CYVGn+hjE9NGUzYig6EZj3+xsHv2qw7YAmEgBiIlVjR+p+fbVn5X5dH7TpGvjiXK/Z2FkXQL7voYdfuk8EuwIg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "mjFyxsZfZPQphvhQwVuKEu7BLC1w6Ti/v5h8Xuid/qf/Oa+KLdcp3kY1+jtEU7rtDDvSf7SCeN6UUhYy4TD+4UR8STTbT8oczIYdvGTD/arKhr0SIbEN35bUk7o1XAZs0DSpsW507xOvPGbkuHsVvGazejlvREskJyFZwY27pkNe8gYms0LWN+3StsER7DbZji6rvdg7hppXciG/TQbo0cGU/DY1uVEINXH08edO5iYRiBSHty0q9VruteTBoJW1ExNxBksj+sd26l1OTWXM26F5hdC4QaBvF8U2TrNN+oXitvMaziKJXuDr8B9vE4ZOOuhPagjmdRYpezaWKjcF4Wrv7FXTvMi4Vj1V8OccEXZjWDBdFFhpI/u2c8yqkYh1/ePbCte2V/Sz3R3e3+JFx5e329I=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:04ad984ea257dca0\",\"npc:fc85be1aba585df4\"],\"constraint_ids\":[\"C:ab864985aacec844\"],\"span\":\"Mei signed the register as the Archive Speaker at cargo ring.\",\"rationale\":\"Daro and Mei are both presented as serving Archive Speaker, with no relinquishment between them, exceeding the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Aa5/dWo+wKK6GJv0VhZlMO4CeqiuvxTqWGpzJytMNbCXTVnLmvNBPZVlg02Q8C/7Thb3/AhF/FmCGfzHwtgUAYHBKYpvYCk38wCTM0wspDAu0Vi1EPG1OJcRNcuADTwVZn/r5bzYA2wSxLiluV96eZ+MHY+jtEZ9jhcjreIRcs7XcsrXmQhpytI/rPrNx8sqLIGBfIPV2fNXMQPRnqL1iWTgMapaf6diOC4xBJutyvbDr5e5o2GoJ/ari49YsSJUtUjCoj5swVTm6eUxllCFIoSE6B6A6naL2TMFgiWG2frf4U/pQIHmzQAX77iOvGzrPFgd6VyQtSpWQuqvobNXuWxoXMihJ1Djwgb0FFvjDX05GLlHelc3yi7LoajjWNGzc3KVtS0tBuBBMV/fF7p/SEV3Q5mx",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 631,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 258,
+        "output_tokens_details": {
+          "reasoning_tokens": 156
+        },
+        "total_tokens": 889
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:04ad984ea257dca0\",\"npc:fc85be1aba585df4\"],\"constraint_ids\":[\"C:ab864985aacec844\"],\"span\":\"Mei signed the register as the Archive Speaker at cargo ring.\",\"rationale\":\"Daro and Mei are both presented as serving Archive Speaker, with no relinquishment between them, exceeding the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 631,
+      "output_tokens": 258,
+      "total_tokens": 889
+    },
+    "tool_calls": []
+  }
+}

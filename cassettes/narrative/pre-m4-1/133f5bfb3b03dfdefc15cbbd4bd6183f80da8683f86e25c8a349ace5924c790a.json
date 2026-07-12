@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:133f5bfb3b03dfdefc15cbbd4bd6183f80da8683f86e25c8a349ace5924c790a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5324,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 614,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 229,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 994000000
+      },
+      "created_at": 1783855200,
+      "id": "WaZ+pKaAXZXWvqA54RiOtMSKhSgotuYT3f/9D3y0lrBs9pdZGOa+rQRCa/w/m64xW2Qbtovmok5hVysWqSB5cHz/JjqOsZjLRPVH2sPRtEXrn0EV9ay3V0zAqxaFGDP4y3pNOQopSI0TWZktLKHO6ciKEmD+0SU0RnpPLXRgFJxcVICGIpvJjW8DPAxVJJz6pF5HZIztC2jorc7HoNwREeHnYr2jlbx2rBt7yQB1faF1S7QwjBIy0bHLMbRMPO/z3/4489BpgAOhuGkTmEC0jO9pFHcDUhUL91NF4PfL5ZbJxG5E5rfFjW6ZWyqEnaZ8nKDP5sS87KSrFT9QGSyj13mutdRWp/wDgCcUJHWxumz+mgd6MuCHy1PG6whVvQeSQcfpbUEm92RMO18TuKMdqrLVOZnUCw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "U+oia7ZmiWfQuv2JqSMt9ZYev62g2T7PFzUCH1OCwHM5nVeohZ48fjCQxuzFysS7mhiAnJeWoz9GzXIwTnTwQ4nd1OSwVGrWbuCFG5VlDrkXK7dVyy9Vj/JAoe6/RqtUcdcgHal6Y7aX6ociGdO679E8ygGxeo75gDVrjwmpkicIUM3qq/j5/oQTsW98i2wfY1lfBGIWapyO+FoeI1I61hcF2Ocw0VTfMq1Ai1ICzjx9TIVdN0QsuC+RryLa+HCV+A3wrRfhUWdatlwCo4DiewFaBqLwu8AmyhA61jMzDuqSsDMWTAA7lPqE6iBU/QDo4RAof8wUovrJvfLVyl7kiY0YTkV/1iQm+C4xDajG6J/QuM2BJxVWfpe4hNNQYgHemxmg8dCpntcOd8OYjcMKAoFud9s=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:adb744c7ee41f3f8\",\"npc:fc4d19f40d4049a2\"],\"constraint_ids\":[\"C:4ea8d064a0ec44e9\"],\"span\":\"At cargo ring, Eli was formally introduced as the Caravan Voice.\",\"rationale\":\"Eli is established as the Caravan Voice after Tamsin was recognized in that role, with no intervening relinquishment, creating two active holders despite the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "5DapynTIra346WEBiFw+FwfLks+WrlNXyUmlDnRHfERior6erw0Tq9s4Jur8UB05z1NoAdU2NvwNUNNTJQ/GqsDYCg53F7RpFgzZUBglsRign+cPsbZq4Y1RusShWC0klSDGmHTQ/Qcz0GzD6BROhrrcephUnA2m7/JUDgjGKLrRR3oEcMs6cLbMXRvBYMxEtx9OAaSuu4vdr2gfVK6bBgQ8Ig7bpEUz6HpbTk/HzmpboLbYVNwNvriBDdy4KE5bnlVJatIkIFQJbjPRnUptHVsnyVYLLqAMZjLqY9jCG/cdJK1gHzYIUqV8hgIRFflYwxgDM0W8R+sO1zn9TZBA5cp29dDCOF2qq6/V2M9jueoMUgLPqZ16MnUvUjIekqjpqiVY9fchNoTs+MEk9cvlzYyaGyrq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 614,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 229,
+        "output_tokens_details": {
+          "reasoning_tokens": 108
+        },
+        "total_tokens": 843
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:adb744c7ee41f3f8\",\"npc:fc4d19f40d4049a2\"],\"constraint_ids\":[\"C:4ea8d064a0ec44e9\"],\"span\":\"At cargo ring, Eli was formally introduced as the Caravan Voice.\",\"rationale\":\"Eli is established as the Caravan Voice after Tamsin was recognized in that role, with no intervening relinquishment, creating two active holders despite the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 614,
+      "output_tokens": 229,
+      "total_tokens": 843
+    },
+    "tool_calls": []
+  }
+}

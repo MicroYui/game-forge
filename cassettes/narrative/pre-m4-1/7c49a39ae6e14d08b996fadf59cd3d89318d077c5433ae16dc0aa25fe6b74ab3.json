@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7c49a39ae6e14d08b996fadf59cd3d89318d077c5433ae16dc0aa25fe6b74ab3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7253,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 702,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 286,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1209000000
+      },
+      "created_at": 1783862500,
+      "id": "A+nkrWdQDEbt4R+Gp0mQlQWUS8ZbyxLd05Zm9oTHRe/KIIteMfDM9u3V4vtzBklOmrFlNCEAuU8b9yI30VpjisluPip1Kt6JhM7qosg/60IM2OyAr/0xaIdRM9Sd7dMcw5I8/gCB8XAazdj43frMJxP5MY4bOia/xBnqahRnkpgb6OBFLcZjUYoZpURsNHHIq8/bzM2L1YRmsOIcdj63KMsK7qkvPDpUx4EIvaMRyJjxliq0PXll8+W9kYMizlwNvhC0d9f9tcpVG2aJhOrC2XmM9zRcbHRfwU6Qs9fobjQq8XtIiZKoaM18QcpKvCqro2qSOrDXMTfeW5O+gyrbORQe2d8xL12v1D5qbQCipx2nv149aM8TB6oGZZ0J2DT4bEnaonjTipnltOJu4tj3B4voeiizFg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vqKR4199lKmmBetK6zNdUb/jonqCUjbHKab697iIoixcLcx4Vh1UP1cnZGX4COelU5gdyXkwHV5CseMOuPHuyJ3tCBF6h4syn6arQKsqf90NLo4+ApZHKf5OThSDFxd2FTbk3+04C6GY3Iztsv6cBY8d1PznL1aCL3CciLoDyF8A0RWuSYhEAKcrT7+Pc+414brOy3EkV4frnAmpKum315OingbOiSobjMW/IfnZIIkqsz8lO0kTpZ1ZXd0jpe9g/GwrsVoig5KsVAbAZLy0B5PTU5ewXnY4eIN9OVhpUDhDt+/Gnk9NFj5cZD2HRMmxSYvSFLBc2pUerk+o6NEnyfhfaeyD5Ac4NpbP/wkmqAzp0dYuoCgU+1URSFarSE3JnyI7GZCkvbXrP1QlDR3OoeerVxs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:06c9166e7ee48b13\",\n      \"npc:f174add1440b9db8\"\n    ],\n    \"constraint_ids\": [\n      \"C:31dce1435f2ef675\"\n    ],\n    \"span\": \"In orbital concourse, the council recognized Tamsin as the Harbor Marshal.\",\n    \"rationale\": \"Tamsin is recognized as Harbor Marshal after Eli was formally introduced in the same office, with no relinquishment stated, producing two serving holders despite the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ixEDHCosA5J5Qq5hgtf5umzM5WXFYT20s5K6b20wnOSs2lILJP68SlImroEqOGcN6+TBdHcKD/viHf8FpcaSGYDFBySDAYCJuzKHHRi5d6iO4543K8AJkZp6yFuxmJo5foajz5ZNngUyc4wrY+BsSAlHDDMZTYIQ6JZZ63D8avLYp/irotCMFmGidFayba8N0lJTOYlKUyzHU7O77zCP+r/RvWXTsdZ2qa3aLf7rXRP5QS3ikB6RshAihM4zL3Cobruee5q67QdDf6bzpN3tzhCb27ILwSG9T/F5H3hcpfBZgnn+7eTjC7lQcyOxLl5b/CJGzUiXgefBQJ5YVLTO7g1A0LhR+p5JlcOCDwlRcEZupljHrLGFlp07AyKg2OEwKR+rsJTMm5Q8P2+8xTG8UIRMk9kx",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 702,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 286,
+        "output_tokens_details": {
+          "reasoning_tokens": 142
+        },
+        "total_tokens": 988
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:06c9166e7ee48b13\",\n      \"npc:f174add1440b9db8\"\n    ],\n    \"constraint_ids\": [\n      \"C:31dce1435f2ef675\"\n    ],\n    \"span\": \"In orbital concourse, the council recognized Tamsin as the Harbor Marshal.\",\n    \"rationale\": \"Tamsin is recognized as Harbor Marshal after Eli was formally introduced in the same office, with no relinquishment stated, producing two serving holders despite the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 702,
+      "output_tokens": 286,
+      "total_tokens": 988
+    },
+    "tool_calls": []
+  }
+}

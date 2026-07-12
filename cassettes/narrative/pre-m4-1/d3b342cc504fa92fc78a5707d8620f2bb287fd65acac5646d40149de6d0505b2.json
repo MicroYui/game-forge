@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d3b342cc504fa92fc78a5707d8620f2bb287fd65acac5646d40149de6d0505b2",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4213,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 602,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 199,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 898000000
+      },
+      "created_at": 1783842000,
+      "id": "GsqFk3XIx7ULnglxUDKN9AElMJHq3iYdqmyhXIOV5U9YUkNm2QpdziqV9ipjCKkHixCe0Dygp1DKPmnfISRQRxemTYRHm5Ffa/zNRpV7OKQ55At/Qc4Wt0TKaQqdPbQEe7vgc/hp7B8sOYzMP5vjVKuEiuqfSw5sBTxnuJIbWU/YcQb5XRo6d/Kah+rvWpD52jYp0vXgGpMCimOA+Oxqwd/GspN2rYkU2aXAwfIWpOEND3ZntKGlMABFKu6eTxOHeG8NsE01B4swinB5EqwVACOT37hdkcq9KeY7ikEPeYl/Oiy6mUeZ0XrJhhLhCUtrgkuTk9dj079LUn+QuPfzfaHihBGRNun86izw1nS0GhA9cM+o9gAy0X8dHVYfuDRCD8l081ZRXCANUDSeU6SUVEkFDbJxTQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "uDXzd6pQ0ukQPEdNoOlgngAuEkh5gYebCuf609LH4D5bzR2ehbw/+yPQ05LC4y64NN7dS/36tuNKVQUsnJ7ElrMbOwv/q6KLGesGG/jKMW/AhMCGOsHRoajDQGpcMIsTTW4txd5s3xGhQv+u0l/92HmzHgnW1L9IbSXFYCKetNrliiQPcgaH8Br3KZ5FHE0dr4xyBsFut4m6tTGtC/zf8T5gUZbvEZMm+f4QfzoEZayf0Ue8/xl8TLEjrw+3A7mW1iHeZ3SGKexsQetZfskOeWl7t3j0d+I5hjdXxf92DqP7gjMImpjiH1UlATNZvNZBpA08u4Verq/FSOHe6P05YFb1sTGV1iCe0JiSTyvDgyxavkFPIJsMKx2UWF6iooeLgWU0N0mfAfswphNG8Iiw08pCuT0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:8d324154fc72c178\",\"npc:966a2d05a4589a08\"],\"constraint_ids\":[\"C:9fc77240c0e84931\"],\"span\":\"Ansel signed the register as the Warden at observatory.\",\"rationale\":\"Iria was already recognized as Warden, and Ansel subsequently claims the same office with no relinquishment shown, creating two simultaneous holders despite the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "sd6H2mjnmHNXhzsN/Ca09ftK/dFWcVJezvdyzA24Zag4V/dCgXsSzuG3q3iNa6nWLHrGI8lX0w8yxpb6pWTckpKyDCn+vPI68qqshysR7dT95f537swxi+U4N305AWMEUo943d1TvXH1DybQ4lb5K+vWMltHBKLa3yUyLxYDib44XO+xtbBj5uUoebZsGE0f6IrC9DkvF1ZlYODG99FsRPnlhFtAkmFmj40kijGZRVU9nqtTrEUFgut6ST9HtCu6aOVzvrEm94/YE873qyN7xsMpSwQrlogqRBpsfG5oE3b/HMn2YNfqrYKHer9/AEUJIcCJrooNdoSXccGJLgdDLDt7Y0z5TnmYFYPS1fSfGsGGQEGumRhdiEc8DdUU6RtL8KtIYx3PrvHNNXvS2ObQqbxw+Z6t",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 602,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 199,
+        "output_tokens_details": {
+          "reasoning_tokens": 85
+        },
+        "total_tokens": 801
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:8d324154fc72c178\",\"npc:966a2d05a4589a08\"],\"constraint_ids\":[\"C:9fc77240c0e84931\"],\"span\":\"Ansel signed the register as the Warden at observatory.\",\"rationale\":\"Iria was already recognized as Warden, and Ansel subsequently claims the same office with no relinquishment shown, creating two simultaneous holders despite the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 602,
+      "output_tokens": 199,
+      "total_tokens": 801
+    },
+    "tool_calls": []
+  }
+}

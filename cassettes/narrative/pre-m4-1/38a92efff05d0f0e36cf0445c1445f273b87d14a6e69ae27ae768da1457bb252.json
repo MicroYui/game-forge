@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:38a92efff05d0f0e36cf0445c1445f273b87d14a6e69ae27ae768da1457bb252",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7764,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 560,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 379,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1417000000
+      },
+      "created_at": 1783847300,
+      "id": "ggrxXsj3FDlil9wbtSKG0VrMIZ1EwbKrdeFm8dHpmYzzYiMaGhyeQnUqtkOLmIU4q+JF5mpzESXV+GLlT79uVqI/DmYK9dbkwwBUYGtP+UfSeHpdlwWKNQgONe8CtPEg1486mABlpqBtcybm2MuwLLA06Si+Th2lQu0BArFqsSpiTItU+xRjr+1RAXdhyTICfRgiEd9edCJdVENnm9c6nGuryBWCYzTAy6ZPlo11j+SZFd+fFMQRU5TSa5gvouHB2PxR/AlRFRZZZu5hU39mWRj7CLHBPCUQFszcoX7rz+PeR6iIB+E9+0rM4w4n9niQqoM4OJu7pCtilFaDC4PqnkWdZn1/K72hC43WrF6Z+1R4ogCB1ajrn+RSLNGalzRAjAcd5hVvRT/UNKIBuIHJWp/AetfygQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gY7JwjqQEXoKNWSfXIChm6OPDZaUzIeXEhYIi04mR2KmOOSWfHTjkMuOtokHCPUd1zTjV8dl+vd1F/nhC+ZlZQM1WDShNcDja4BTQ4Tywj216Ic8rkYUxOEhw8K5GBiT3GiXy17YSTLjsuxvNWhjMdxXvs+m3h3ow1jhqLNBYHGAlT5r29cgyBXr/DJ0MqtnbKc9d5wwJlQmbVbbwTQ6puv9lLHuZhZPq0Ivhmk1eAVGsd4NQiEG+1mqWUVmpa6pUEb5guAMfVLlrkmPRwp9eBkNUqfOGSkuQ9S4kyRnjCyMprKS5aMOIsYSx7vB8TUbwE3A8Un0jbvqbCoaYqznoOIlgw3WsjHGHUqojjt9GQIg07CVA9XtXs2MyX1LQy2G1Ah8guVGj6nuzcpW6lO4UyDt6UE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:20a2af3da264db02\"\n    ],\n    \"constraint_ids\": [\n      \"C:9f4ffffe73e31c0d\"\n    ],\n    \"span\": \"At river market, Jora transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Jora diverts the recovered coin to a rebuilding fund rather than returning it to the public treasury as required.\"\n  },\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:516f0453012553bf\",\n      \"npc:881c5941ff60a6d7\"\n    ],\n    \"constraint_ids\": [\n      \"C:0f2566f1a3437623\"\n    ],\n    \"span\": \"In north gate, Tamsin supplied Eli and called the partnership permanent.\",\n    \"rationale\": \"Tamsin and Eli explicitly cooperate despite belonging to the hostile Archive Ward and Cinder Circle factions.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Q5izPDUQ36obWBeb9Fb+6z3qFlANgn1cwNcX35cxJd/nKbCob2ZG5AkZ0QJQO/sjFveSNxPqGASr0bgc9z142c45YPHLGisPWXmF1czAaWExhNdSzaaHCOUDb/0b3BtuopbWuZqSxGchTMqA+ks+JpHhEwmvxdKA090FciH88aqEtMaEn2N4YvEvtlHZ65s9VnRmwJyN3e789BnHRPHUJztW1zPHTZ4A4dpHr/KFITRLb37kXj7z1L6qi1XXMEn1RO1I+r4mLJTSvBIgKdnrANj36WR6qJKwCz/vZTUlU97NQIS/S4oDz0DGEUGyOkDZCC9zUeOXK23Px85jz442qIAUcf+bXL9/nydKqVSNBPQFW1GSmOHPBnPiO5Dj1JVy5ogcs9ui3l+Ms3ESqzCJvSfzg8wy",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 560,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 379,
+        "output_tokens_details": {
+          "reasoning_tokens": 142
+        },
+        "total_tokens": 939
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:20a2af3da264db02\"\n    ],\n    \"constraint_ids\": [\n      \"C:9f4ffffe73e31c0d\"\n    ],\n    \"span\": \"At river market, Jora transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Jora diverts the recovered coin to a rebuilding fund rather than returning it to the public treasury as required.\"\n  },\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:516f0453012553bf\",\n      \"npc:881c5941ff60a6d7\"\n    ],\n    \"constraint_ids\": [\n      \"C:0f2566f1a3437623\"\n    ],\n    \"span\": \"In north gate, Tamsin supplied Eli and called the partnership permanent.\",\n    \"rationale\": \"Tamsin and Eli explicitly cooperate despite belonging to the hostile Archive Ward and Cinder Circle factions.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 560,
+      "output_tokens": 379,
+      "total_tokens": 939
+    },
+    "tool_calls": []
+  }
+}

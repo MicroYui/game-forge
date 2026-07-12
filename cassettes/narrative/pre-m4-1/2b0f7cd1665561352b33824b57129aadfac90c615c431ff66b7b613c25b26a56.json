@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2b0f7cd1665561352b33824b57129aadfac90c615c431ff66b7b613c25b26a56",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3677,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 640,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 158,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 794000000
+      },
+      "created_at": 1783861100,
+      "id": "JkdPlYtMkhgxJuF9fuflqxtAPWB360tWsyN5lkeFg9lOVonzMDwJBxoUQg75s0Ic8NgleWDXxqlLDzyqnmVLowWKniOa1swAsBiH/rgNc/FacBIy+pUHh/E2MwOwgZ+Nh1H1kcbibZV7TThjHTKN0J597dXD8gj8c+xNW/OEyLk6IYv7IkDRRUxlAxipUKCLcitvR08PASsUB1b0G3uD1W+3cAOiTkx0w9qVBeb8JLi0D9rgeRdD2j+W/1+CPHPfu/pndiuA/ktwAqXoXzwhAbI6KAgK3pdDKc+8KML7iWDhnoaHpv5aVaOez/mQ3d+ednCPyqrB5kZQ2KFn9QW47Gf8VlmBMGsOL9Y3JVjJRI5kw2a2g+JHmRBz6mQk6mgsuFJ3+p6wpMugvzrYn4w4WFIUVYz1dw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "i98aJPRznZPfpj18O7rGbRkR+ZGaeV3gpooszuVTTb4LE9By2THgdvYtlr8YjxEBOs2/MuXz+RIRMLFg7QIRSqBKjKhoDhosmWzytUCiE1pVblxRnyk2QpjLK7diErArEb/uAP8fH0bZVdIP6sf568uuh4hwAGmTA3UpxrOs11CSDJXIcl6l6NbST68iFvdI/SVGRoE9t7qP4RJloQ18d97lw70gVlo/drLl6Hj23UO3X6W12ynRPL3JwieT9gk8H0Q+pzl7W5KOVlWBiPBgbdcpY1aWHUhsvLT1oUdGMVwVvYC9FhmQwCPtv7gybx8CXNacRfl9yX9c60dIdcuErD0fXu8brzgx1H6X//fQ7Y3tIpc2Qf9w1RNwMrFi75kp0fLfkUI/KRs7k5OkhgRuZlndHc8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:2c79a0c0e3ff757f\",\"npc:3f22a5a6465e59c9\"],\"constraint_ids\":[\"C:94293c3ee6ac4218\"],\"span\":\"Tamsin fought beside Eli under one banner at eastern ridge.\",\"rationale\":\"Tamsin and Eli serve factions that do not coordinate operations, but the quote shows them fighting together under one banner.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "UAy2p/ZMFbjaip7p0nf4Vk5qIZ4p9/FhFZ9RhScXeQ3g7HvQ7KvjUvshKGP26zmkdhFazsXC5Hq/J3VO8ueNrEbip9fHBbHyYu9XTyrbIfJyTs4x+//gJcj0YlEgSE1haNWWvqKS8D2wxgkD16crtJPRLdBwvCRz6DQaJCI5pnBBTZYg2NsQxKqU1qchirJtG+Appnkxru1mNLFk4ScXi2MzzhyNe+jCaWepRzJgarHKbUyEf9VhwzqM5iRWkMoL9tNw+zRM8eBZZtaq5plHjEW87T7kpmD27Fv6HzO7fd0hjYwcq+6koaXuGzqFdhqDJpctRAv4MAYGT5krUZaqJ6lJmqPQV30G9kVZtW1kYwx29Cbvy5xP6Ohl75Pi4iz84W5O23ZKwa9p/vOn8efn5qO5LrAE",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 640,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 158,
+        "output_tokens_details": {
+          "reasoning_tokens": 48
+        },
+        "total_tokens": 798
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:2c79a0c0e3ff757f\",\"npc:3f22a5a6465e59c9\"],\"constraint_ids\":[\"C:94293c3ee6ac4218\"],\"span\":\"Tamsin fought beside Eli under one banner at eastern ridge.\",\"rationale\":\"Tamsin and Eli serve factions that do not coordinate operations, but the quote shows them fighting together under one banner.\"}]",
+    "token_usage": {
+      "input_tokens": 640,
+      "output_tokens": 158,
+      "total_tokens": 798
+    },
+    "tool_calls": []
+  }
+}

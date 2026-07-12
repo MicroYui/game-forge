@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1209649d4c43a6e4ea22b7fdca9e8f69d6aea9beab23e5b67c38e03589187db8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3589,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 625,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 168,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 816500000
+      },
+      "created_at": 1783844400,
+      "id": "U7eJHyHeagYbqh+bekkgu3w7r7zAiwGZrVMAdOiTbyLeQxq2kcuRa46NpTz2VBMCB0e1QMfTib7vl+nvNppqKPZEHKxncc03Utf2V5y8XsaDJIguBIPWk03AtHIPVRagYmwFS+h7oqZOfjYu8HDsMJd3btBsSqOmJF0sz0/R6nHyG0NnzrsJCsFifX2V0LHesFBVXVfW7aF9a2ljnE3WD41thdDxssXiqdkFBkQBclEZNevnz61EvW27OyfJovnSRIfgc1F4D7bZGDxxX2Ae/p1oKUqgEoG/n/Ix23aRGk6G8Xe0deNN2uv6D7DvIGVqRM55EVK1d5/+kZTWIeHk0RitDxI3oB1mQxWlTLpZGSCULiy5Oa22Cj5uBydRwo8JfUh9A82A25JyFFK67hTipSEvOQlW9g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FOfwgoO5nBq0lnA51IomyrNFdZ+mg+rgP4RjUiFducavfkop7BX81UarCd9CREclS9K51uP6288kwtkXrkOYdXHmGvpGZ5SpDCiv2//iJB1AOoIlErTBntULkZnnoTGyCU1y9n39FE8OURwPOxYZPDy1e8arSAh9a/Tn4K/sojvW6f8uBEAbfw+02g1+t5MM5u06yAApVsZlQoQrRUMqrFtmQ7bNccwy4yOLSrFMTXne1JI+jMvkbqBcXykiUTiDrEN8Q5XiEGISQkPAWWKm9i/Gus4lDMETQT3Ga0+vMvlAKg8Qbqd8UXKUJfGtgsP4TUiIsdKXzklU2DIR4GtqckcxvN9aL8EEMOPRAiRRHkeAyyEIev5kkxDedB561REQ2eRo+nnr4lmpvNpEUvYf6iEyps4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:681daa3118674c06\",\"npc:c78946cac50a5049\"],\"constraint_ids\":[\"C:1a3705707b8c04a9\"],\"span\":\"At relay deck, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass belong to feuding factions barred from joint commands, yet they signed a joint battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "uU24aR28JDrxGs2iAJGxox8Y8Inaqz9Q2nv9etlKuC9B/HVLsiQMgPH/JX5Rr6mcAVo0gx9m8BLN28d3Syh/NTwUnnA9fduu0XVla7WbIdpHN6OcnsBk/sGbUP9NWazEuIKmecwBtlCsaS257vjOq9j4GjW9w6PNAcv4fVwcyKSVfFdgkqsOyHjRglHzeDjWG6lEgvsjlKwv7xvVr5LJJGPH2XGzpb1vRxkjT0J4hrgXxO/2VDqbql8v++GsgGV6rA+0qEuwD4XdSZ/SWYsiY9FSBHUo8D0Dk8EBRUhD2GBjHyXmzfhg9MIzQnLgtuHgNqEF4UpHLYhL0XJakLwrrmueNKHH2a4W/LOGaRquleJ7y66wVvjF78YpFUzHk3hSuekTkX0eOmzPBoR6zg277hsQOt+o",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 625,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 168,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 793
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:681daa3118674c06\",\"npc:c78946cac50a5049\"],\"constraint_ids\":[\"C:1a3705707b8c04a9\"],\"span\":\"At relay deck, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass belong to feuding factions barred from joint commands, yet they signed a joint battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 625,
+      "output_tokens": 168,
+      "total_tokens": 793
+    },
+    "tool_calls": []
+  }
+}

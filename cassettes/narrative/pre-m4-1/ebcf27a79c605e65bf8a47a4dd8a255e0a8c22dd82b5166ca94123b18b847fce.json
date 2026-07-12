@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ebcf27a79c605e65bf8a47a4dd8a255e0a8c22dd82b5166ca94123b18b847fce",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4528,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 695,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 250,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1097500000
+      },
+      "created_at": 1783847300,
+      "id": "BiHWdGyndqcKyPmHEFUnBcBCrQf2kYTo1yHuCYAa1aOfu1AKc+N3FQwdSC/Du8OH3DQ0UkP+GbzrIgKrF3wSJMtLKjM5YIxrhxy7Vv7+9+q9OrwC+yNRoan/jV9vpylk9aa95TAJ6zRqA8XMirXjQlSs7fcIJ6vmyFCNBKj2huMvXVxDVOfGiuv5YFY6DJkW0zAmOKgeVeDHhTxwXdbcqmhXhM68G3Dra4mfJpkgsUkYwAPiOVp0FDO9LnbxUK+Q+raOfg/Eu5A1W1+O6NU9zJVpyJCz6WzVr+Lc5YHz7/D/1PLNKuYW5/+vt5JlSIKjGOlmSJcUy2v08I/ZNZIOVaL0pNwSnKatQtaWdd2zJiCWV8fadCohYcQ9FVyRtpshIAKawAqnwdfhBICsRC27NmjR6Xd+bQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "eWTa2yptu5BRQZfNur5taVOtL+0prShdyhshf87zguIvfl1hg6BtB9rCZwZmfYgviaSbyyEfqtUHvqX9UoQoRE4rTet+OI9mrKoPMZakyaWltOOhDp6DbaOSuJmdeaAmeZrC4zY05Z5fFuZzU6AnUqhXr4YPh9Kw0+sQaCdoh6Cs5VlBz6vgNM3WQUSIw8pfX6woFJkiT0Hpp5ekJxSXwHBle6H7N34kOEBPFTKEQ+kcX5I04fpycJZjTEYMLAg8sYbD+JGGW6l8eRDnhlrtbeB9RgaCmYxvuaW8FHwNI0p4xR39U1/E1jyvY5nrNLzRwI99odJQLcaNG19HFlkdtAAabZbw+abiRvOjh9+J69gEAQh45cB7pFNCDk6riInF947eOMKQ6eoYpDM6dmT8vhf428k=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2608bf8df0d8912e\",\n      \"npc:283639fe8ec49637\"\n    ],\n    \"constraint_ids\": [\n      \"C:42a229324f3b3ed4\"\n    ],\n    \"span\": \"Malik signed the register as the Harbor Marshal at eastern ridge.\",\n    \"rationale\": \"Malik claims the Harbor Marshal title after Ada was formally introduced as its holder, with no relinquishment stated between them, exceeding the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "DjG0ODJcerh4ho9Su/LVtRdosatLbAZsujAf/X/o8uOBPw88+M2xRd9IjmAdkS3O51JOwJKm9/YIxaYOD4S4LfjJdOel7RBr6mi9SsyquQbF/NqOMYq3xtEWkg/mgVC3wy4DRmShi6b0knNOPfnotlpNKT3wqnA1kQL5hDxDsDaOivvjt5esvVBvHWSFPw5h+kdBAr4lS8qFAWnVN6NuOnQFoQPmTNBsPC36aluRsfLBFcV8nh7F7JfQAi0va+AzDrbLjy3evxOUNofdTz8Rs3cFe3ZwQMq8NDMJzBVklZRqsdlp9se/xMrQgNKW1EMFia/XpvXp+wzlBWL5TNGYMe4b5QEE0RgOOxLz78dvBfz/B6LHj40aihatbRzOS8I4c3so09Rh0P8V5PGfVLAijZaTMal9",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 695,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 250,
+        "output_tokens_details": {
+          "reasoning_tokens": 113
+        },
+        "total_tokens": 945
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2608bf8df0d8912e\",\n      \"npc:283639fe8ec49637\"\n    ],\n    \"constraint_ids\": [\n      \"C:42a229324f3b3ed4\"\n    ],\n    \"span\": \"Malik signed the register as the Harbor Marshal at eastern ridge.\",\n    \"rationale\": \"Malik claims the Harbor Marshal title after Ada was formally introduced as its holder, with no relinquishment stated between them, exceeding the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 695,
+      "output_tokens": 250,
+      "total_tokens": 945
+    },
+    "tool_calls": []
+  }
+}

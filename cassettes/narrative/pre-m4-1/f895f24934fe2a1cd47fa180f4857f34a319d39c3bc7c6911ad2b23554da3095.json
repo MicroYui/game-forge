@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f895f24934fe2a1cd47fa180f4857f34a319d39c3bc7c6911ad2b23554da3095",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4734,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 697,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 255,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1113500000
+      },
+      "created_at": 1783857000,
+      "id": "cu5fbOjssEzKW4RQ4sgUFyy3zdkQZagF9hzNKyJn1ti/3PJz5ctVMTp490T+oAvInaXZJliayUla5pL4Tkzz+zDTob7/YYoSr9A1PiClGdh4qeptjojig187xyDLUiHjlYisr9U8WGf4U99yv4XojfH8nYyx+s09GF29nQf9Va13GWzH/WvQk5cjqAoVEC8xeXTqTEAiVSyLLKT5OnNxHjyjugn90PjHzOMZV/6QB8Ws++VSck+GxBLVohLokjd9JA185Yd7X2TWq0ICz0Rc2iwCAWklf5h1ugJG6m0w61Yk4cuGy5C8EW0ITRUrQLfl3NlQovP643Io2s1wmQm9nNNwlWc4Xt4S2gBLsFpSR0kn+i2/vaIjhcEZgzRaBdofgOU5uniGci69Hmy/3yPzlsejHJ81bA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "uyGE40RAxKUNT3AwOVhxmfbSLaysBNqtR67Ttk2BPBy6A3dQ/95iy+Vm9wMJWmKvhfbFs/Ke7VeGWc9PgYwqHREn/CusP4De8zzq/c2ij5Zo0+c7ruyriyh0t2XBLG8CgcjHtQMJLAm/9Br5hRbrMk0Cl4a6yExr6Gntevud0qRo29xVO0uXI+yZ9GGqdJhUOKXaOPq4MmvekcqA4bDuWY9FAgrU8RotYbJ2qfa6NrontfD+JNqWvyiD44eT1jj++ugKgRWLcECLDTu4PNmPIoJQDyjcmgRTUTF4pHL47Sji61LYzbu6qj8bxJ8+3JxnMkCd4A09yk8gOHVR2xNaS9PtCefzOf34WTFBwHdG4Gx3L8mOH6DOI3mMgwi6Gfa62p25Yj+ro/wu93Ni1JO/rXEjF5A=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3eccca27263e5416\",\"npc:91716028ebb9ee1d\"],\"constraint_ids\":[\"C:9e8fa907677b4ca1\"],\"span\":\"Ada accepted the title of the Archive Speaker before the assembly at river market.\",\"rationale\":\"Malik is already identified as the Archive Speaker, and Ada then accepts the same single-holder office with no relinquishment stated.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "nyldVC0Ek9xyLCdL1XjSKwtZetISTWAxIdGTN50TKGG7LnoQ/94N7oqsxbwy6RU4/s9FbO0h03/CiOG/MArMM8Hhhb0bZrxEZVIcWdrcvxQ15BKf6aRGRJ+C/tI0l5oOyRWhPcKC0W8/b1gFKPhnwVhHVHIDI4+oH07pMdelWMsJj0rHNiTGtp9UyCeDoptT+mHhlslQdd2A5dl1SfdY+qqONOCN13Uq4t8gm5fWe+Dtx/OaPuuv7Bk2K+nTCjDXNT+eWZzPP4jN6c8nY9LEGnilnheVJUOPArvZMaRmkQyY7zBjxOAaOPP998MFTppjWRkrKz88merBX0cyNuSiXrDGjDWSp22cad0mzvHbhBfytvm00V6oXJHaeSG7x/olyajQfNAVes7Pu1FI4TS+4yRnrSk+",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 697,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 255,
+        "output_tokens_details": {
+          "reasoning_tokens": 148
+        },
+        "total_tokens": 952
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3eccca27263e5416\",\"npc:91716028ebb9ee1d\"],\"constraint_ids\":[\"C:9e8fa907677b4ca1\"],\"span\":\"Ada accepted the title of the Archive Speaker before the assembly at river market.\",\"rationale\":\"Malik is already identified as the Archive Speaker, and Ada then accepts the same single-holder office with no relinquishment stated.\"}]",
+    "token_usage": {
+      "input_tokens": 697,
+      "output_tokens": 255,
+      "total_tokens": 952
+    },
+    "tool_calls": []
+  }
+}

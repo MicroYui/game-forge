@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ed2a9b75498ba6fc48c2b79227f698353599a80f26cb9bfc16836dd9b61a23f5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4793,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 593,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 251,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1049500000
+      },
+      "created_at": 1783860600,
+      "id": "75S0HqYKY/+7yPlJ/aAniG6CkcIi54PQn0YFrI6fn/y6Xlfy/z0HHMoMsJ4AgcWEeX/Nn3y2pedi4BiP9mIP7CWl+E6vzPcS/iXNJqE4IWjxPzyRm8u5X3NfVzycaRFGXs1IBYcke0eQE4+eIkrvEVlgP94vFNs1nqka5a6GhKBEoL/VAWBbV0yuJ/HSLnVZ+AhN2u4oynhGTHusC+UqGFC7CZbHrHnpPXx9YPhaT8Pzl4YnhSjQ46W1bVUdAcLj+pqjV/YYX14kc+3COX0LW6P4w5gJO1vnmxd5sMj3Q/npeD7t1gwSzv6gwH8l2dfhX6+7fkc4dEfgN+BHfA1PtweGvV6g4QPwoTh8OI/+g0uM8cIRGMv1ziQQ127TQHQDmBL91dpJNJAarIxprJtC1FpyQoo9gg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "aPEjl0c/MKxCYBBjx6PIhhVz4ws5VNvJrFa33kRoHqEujog4c0K4S72CIiLHi7LYJMNppCMNZ1Ye45nvPTMI0CiOMDgYo+USYwTU+Xkpj3T5mYZugSqgNnLe4ZKoQFYKS/VAdq+b4oxRbTw5IY7S6VaA/sFFnn/cLYszpsqp6RtTJaowwqjRDDfyFEDSAhnHsrRr9Gnjkb9Amo7SsJ+ez9X22+8Ajq6or5/qeguetXf390WNPK/hykj/6veQ/vLgrMYmBT0oVt33WvUc/6sJ2kPGA4N1Aas1uw/i82SZ12h/grXtr5ruw7F4Xx02Dq6WDLIUPjxF1SvffTH73upE72GARVTXhfo4jJNLF2pZme+Jq5Iopv8afx8glavNyq1NOvaSUE7cW0qPs8VJ0CtYH5SMoJM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:c36dc26ba2c45b92\",\n      \"secret:58d29d053dd5c1e7\"\n    ],\n    \"constraint_ids\": [\n      \"C:3da78c0b9e557fa4\"\n    ],\n    \"span\": \"During arrival at north gate, Ada openly named the origin of the black compass.\",\n    \"rationale\": \"Ada discloses the compass's origin during arrival, earlier than its permitted reveal gate at the finale.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "DrtY/jtkpu5BahyZ8hldvJ4uDnOpNzLIaOg4YShuYbHLesg1M67A7AceEYYrA3S6LvUY/hGv3peYrYIGDBVseaAu/TjRnWEkx0WYjRsiOTOuN12D1Px5K/8XIg4gTYGbh7V2wqqb5Rs/HdXc6+xbH24YKTzzSvGoOg5gJJATslIbWMpFBxlo13dwCfZDRAGy+pcUgTgOk1j+3RjIt55q2PngN0NNWn4k9Tf0eKHtbA504nPN53PaH6KTkbPklCjElWMHAJyBOJDk3ZoGyH935CCwFgfCEejLZ+l4/MjBwV7uuYrFUbEUCDT1IBT6doketqA4wXbdqa97ZeyAyhvJd2hrgzEjAN1rSuMn2dBAnkll+j4PIgVHUVaj0TLH/UCz0nElIMWoN6HXtHW2ea0D1rltWRsG",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 593,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 251,
+        "output_tokens_details": {
+          "reasoning_tokens": 119
+        },
+        "total_tokens": 844
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:c36dc26ba2c45b92\",\n      \"secret:58d29d053dd5c1e7\"\n    ],\n    \"constraint_ids\": [\n      \"C:3da78c0b9e557fa4\"\n    ],\n    \"span\": \"During arrival at north gate, Ada openly named the origin of the black compass.\",\n    \"rationale\": \"Ada discloses the compass's origin during arrival, earlier than its permitted reveal gate at the finale.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 593,
+      "output_tokens": 251,
+      "total_tokens": 844
+    },
+    "tool_calls": []
+  }
+}

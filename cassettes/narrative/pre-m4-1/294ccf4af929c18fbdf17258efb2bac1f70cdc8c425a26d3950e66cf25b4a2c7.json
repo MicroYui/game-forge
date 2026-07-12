@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:294ccf4af929c18fbdf17258efb2bac1f70cdc8c425a26d3950e66cf25b4a2c7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2785,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 686,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 147,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 784000000
+      },
+      "created_at": 1783843300,
+      "id": "06HX4/rcrYHZXwOYdrwcVfUPZ1Ozhy4MHR7HgJMJ0vGi2IAkp3trD4QG+aAnVwxsxLa6k46eOkZ1REWZ35nnslOYcHPa5UcYSwl0O+wxFytLbutoaXF5td87K5HgwZXKgRgRny1MlNyfhX7pVshY2/gpOsBdkwWI52WOqi0o/v7Be/GxEMF6YjDlyecQdiDhq5S+cqxXErpaziO40jJDDuwQux6XvH2+ZBDzdMurx0zYqOiVjyGC4MCXmRFFZMj2iPjetebM4iDsqLnbPy1kcSMxPCeWvRG/ocZD7IzcFJBkgYd5xpcAq+HOT1bTWx6/C64sDOe/kKNyhJpL7WeKbxEwH7Oo4jHWSi0ZDm4sc92nf+uY9WXk8QxIfRkyAjdLIb+dGE8AuMGAAK7Lu7QehMu2sNmrmg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "3/5CKFLmm/DxEIeizmmuWYtasOiITnolJOUScjGsVxZU1QMvqKLbnrKl11WUYF7OBv2QFlcaW/mvioredgAhatx4y0tZMYS11eYVY/9Lr8sR0tG8n3Mh19qjMk94Z+qfB9t09mTVbEluCzXGGD+FxpDiTz4wwBhwifvX+Xl49cfBeW8kKK7Y2bFhKu7Tv0Vs5XOdM+/PldDuyRNulHH1JSvcSTBPrlKpCd7OI0eDDhO0u4YcocvPLnXYZbFq6RS9y/+MrxsaXqY1PGw3rK29TDoqG//1ntFqNQda8vBtlw9u05MV76+VPSlZL0iISbD6iaRSSAZusOiO07mUqYqVFqUl7kehMjvxhuBemXDnhgYWA0FyRdpa2n4rrDVmBK8avP5KqrtGNMfGnqYW7qqlXgQ8bOU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:58c52af50e9355f2\",\"npc:f24ff3fc133ad964\"],\"constraint_ids\":[\"C:26798be858d8728a\"],\"span\":\"Noor fought beside Cass under one banner at archive hall.\",\"rationale\":\"Noor and Cass fight cooperatively under one banner despite belonging to Dawn Caravan and Salt Raiders, which are explicitly at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "yB7yM2gfUbniXMpPwaEicuJuxfKPQejt7lsqx7GLqgZPSDuwc4tErpD2geeSKbrnqHSl0/QkCjnVeveEqrT88eBGGXYDR3XhfFUXgNNZghJ8KzXRU94qF4IJWaXiulAtuO8uNeR+TJQ/PF8Q5LyVrv7jhH/yC/AtQNj1A4PQ2km2IlO0AWqa0Z+C3KAarBp8GPEpcpanRi79WE8vx1eQEP3c/4XN232DnNgGQhs3+C7SwxHyFFCMbf6Tcaf/4wR8wKv4+0j05Mao2+yyE4wc60sP5ePwMZG7LG5Ol6TbQOV7CpN9n7bkqhB0NCdiMniYVa4hPPefadmNFQ6Jl3x+8mg7xsroebsw/NLVLImMWMyjMhy1Dyko3p61BcXv24rM1rRqIgJ6qOuvOBD9M23rlU52Y1WV",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 686,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 147,
+        "output_tokens_details": {
+          "reasoning_tokens": 45
+        },
+        "total_tokens": 833
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:58c52af50e9355f2\",\"npc:f24ff3fc133ad964\"],\"constraint_ids\":[\"C:26798be858d8728a\"],\"span\":\"Noor fought beside Cass under one banner at archive hall.\",\"rationale\":\"Noor and Cass fight cooperatively under one banner despite belonging to Dawn Caravan and Salt Raiders, which are explicitly at war.\"}]",
+    "token_usage": {
+      "input_tokens": 686,
+      "output_tokens": 147,
+      "total_tokens": 833
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:903613b5d2448bbd4666029488ef87f48218764ae874dc1323532c574dee83ec",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3586,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 676,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 208,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 962000000
+      },
+      "created_at": 1783843600,
+      "id": "yoyslAUeBc73BWvcJkfAwnHfsWgP5F1urdReVXt+xNhGijhSbDKziR9oWS5Q49zI8OV5nN7koLchrYRLD1DaW9XAWmbzKHxc8ZHdPEwechOb9eYsVMvgw16NYtd7kyPoeG/C6C5KIHY87aOoN/envO5qDXN92HuU/AnqK9HHVIVl0RrwtcOf7uqxbkpo7E4BwKyeGacQYmX2lZBiw4whxZy35UGGz9/8H4S1F49Czir7qxTsRsQolv+Z8Y5RxaSFcn8hcyk55vHFljHoVRU0zD3U2ojZWLnuCxcqOObs+ow8wIJ4qC1DIttLWUekRbOktybUmSaqHt2Z+TER/c4WON4VjTc31s+Ydc0RTUzICRP38gpP8jNnAjTvtIDbYUBadfqJ+0cCLOjgDYKL662qBpECLeEdAw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Ev37JzePfqOjGvYlID2FSYGnFwXNxYvEEtPjFZh4SxQThHDcAI4m+9Zx+VA5swA2bwMxsJrQ067yrALJdUs5fesCQUCjC04UCDaEiy93HVtDHcpx7qGq7IHkghzCQBvU60xwyKNteEqioxRS9sH1BtRD3wKK9Ckg9FOhmp65bGKr0Tb7Awtr7NAKfT73ybDkA493ASYeoRvhmcRFNrNDZ1VAlVrSn5aQWOBcUrofsjckkFC12v7SkPp8l1QaobmocdVs1RFh6yPh/+shQv0TPa7Hc5dvpcwzCmGako2j8p0HDFDzrJ/YGswfpEUmbbEl7p5kXuMfTwyiL+kTK/m24M7jbkDKuqov1GBhsuT6gIT7Vo+Ozg4vOI5xHoywrEsaWd3nZ7W9VLcrFm5HBaKJeXSphiQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:cb28a0bc40e90b26\",\"npc:da4c6108533da42b\"],\"constraint_ids\":[\"C:6d41595580bee128\"],\"span\":\"Iria accepted the title of the Archive Speaker before the assembly at river market.\",\"rationale\":\"Ansel already accepted the unique Archive Speaker title, and no relinquishment occurs before Iria also accepts it, creating two simultaneous recognized holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "osUA0j64U2pWNx6RuEcPRy33UFsu3n0APSKjPBz5h+eOKre61zZQ3T21iFKqnaB4SE2DiuCmmbZODGrxV+rroZ3/UGcHox6Y5J1mGxKAfI07K+K6dJuhyR4kL76G4MqERuUiZVQePre5c+d15AQe2MdLYK+CIlXh3kgdRp4kWD/6i5BLSz8NpADbk0hlX2shiXR76r3Fc0dkO18VrcIqzg2QqP8m7LdmUN172W2EAfz9bYX8MNR6QQG6JXcGjrDHlxEsMMsbmwbBLEtdulTimYa7xIU3Vu2sfud6+SYoK2n3wDmXzsNzaW4293+1Ty1Gc44vx0mkB1Mci0yRQZXXhViKyUC/E6mkevi9BEcYRpKDu5NmDX+F5bF9xvs+m4lywQdLwxikMMQsptB6/pZLoECnefTM",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 676,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 208,
+        "output_tokens_details": {
+          "reasoning_tokens": 97
+        },
+        "total_tokens": 884
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:cb28a0bc40e90b26\",\"npc:da4c6108533da42b\"],\"constraint_ids\":[\"C:6d41595580bee128\"],\"span\":\"Iria accepted the title of the Archive Speaker before the assembly at river market.\",\"rationale\":\"Ansel already accepted the unique Archive Speaker title, and no relinquishment occurs before Iria also accepts it, creating two simultaneous recognized holders.\"}]",
+    "token_usage": {
+      "input_tokens": 676,
+      "output_tokens": 208,
+      "total_tokens": 884
+    },
+    "tool_calls": []
+  }
+}

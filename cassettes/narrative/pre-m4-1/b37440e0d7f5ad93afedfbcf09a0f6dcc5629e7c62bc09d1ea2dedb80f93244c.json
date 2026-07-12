@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b37440e0d7f5ad93afedfbcf09a0f6dcc5629e7c62bc09d1ea2dedb80f93244c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 8791,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 591,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 217,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 946500000
+      },
+      "created_at": 1783861400,
+      "id": "ctJIWhqtiRBWEJgXg1ZMHaJuuZPR3Gki5Ydgf4KExF23xVpoTMAvKqFvOvtFTNnMnRg72PCTJxO8snD2Ml1VYIBbVwA6HG8Fdv//zwZ2vuh8yrS+0J3zQDp5lb+he6D9dLxhpjFzB6V8mjxL8H4VYfTNkNxUXfywEXKK3wJYnVp8WMMEoyemYn30J1xVbfOh2ZEQoXPZnSJ8G9dCq2oCTvSs5MrAAAZYcRSP5hEVRBXJnGxUwYW8+/YtFooiO2CusR/dGLBAzQshko0Y8WaAlrkUvpuNgJpjJw3qa1E6Du+4rM1qAoUlMkokXOx/PBIgLBeMgYqP4Pxv0axcggNoPYAZ1mTEa/fSQDfbS/hR3bj3gGgWrk6rkSY3ZHqEG6jy0uoHRgAHBwGFdUugvaHLMDgUB7F30A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "C30THAYohCBJu35XCltM3tAwOEKY3zpZbYsoqfBNpejmQ8exrh84W41gteGjaQRjGaaCg36wuy8bXpauGw+bCUOqz22njiTFJu79wHUy+ZOHeUEI2rPEhw/Qxotcgi3ik2WifrPEz8BucYNaxQjv7JqXPOYUUcWedm5hQcOKh9wjPyc3yPyorh15YihUILct7OvmQY+051A3BdQgdZuM6QFcAGHmxFButQSZ22/Ke5xvi3bX4qP0AGb2vk6oxUw4FQz+sUnbNIwpeJybbKGSRGMTyMnsmKJFAeS6YBW3lI2m7XDkbPbNL0fI/HEFkxZMiC/BPgtV0uK/u9MtSYP+p7ctm+ZXY5iIAbfiOLjADI80Y/nHwkYdOmx4erafF+Q6gJW4vN5xjh56sv6CrIgGVFX4jg0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:661bfebceb36b7eb\"],\"constraint_ids\":[\"C:6309da87b1461484\"],\"span\":\"In archive hall, Veda attacked the messenger before a word was exchanged.\",\"rationale\":\"Veda initiates violence against a messenger who had not acted aggressively, conflicting with her rule never to initiate violence against a peaceful visitor.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hl9SKhrysGg9/J65pwaqyD2p6+uFpbMwPHJ+g/ccdrqQ/XwXcCh+sO8mJUfWXU8Jq5XMAfSscBUL9nqsuje0tjq1q2hiqNvDxitcSK3HrcCWURRsFpW4bI0qivQWI/OcP9RnMERKJcXYXV0fY7tjCsem/WzSi2J/vcc1tyfpbN2VuHhDF8iWEtKxuEdYwElf6k75ZZPVP67/erbc9d9ZmANRp4aWVGiKprPNm0llBNG+0MfD5LrrR1U4PVfCCEj5U/uK38OdE022pw/xGpltg2D5kMcveZguDi3TugFxJhmRzcxogKv+78FZ8Yf0vb1PhQTHlJ8N2jYGXpe6RYK/UdDM8kb2rn0LLqInOvllEf7VONkai+MfSgNFL0/Q4o+oJV5JcNdbhXnLCyIe8YV1QZBSnCVr",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 591,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 217,
+        "output_tokens_details": {
+          "reasoning_tokens": 123
+        },
+        "total_tokens": 808
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:661bfebceb36b7eb\"],\"constraint_ids\":[\"C:6309da87b1461484\"],\"span\":\"In archive hall, Veda attacked the messenger before a word was exchanged.\",\"rationale\":\"Veda initiates violence against a messenger who had not acted aggressively, conflicting with her rule never to initiate violence against a peaceful visitor.\"}]",
+    "token_usage": {
+      "input_tokens": 591,
+      "output_tokens": 217,
+      "total_tokens": 808
+    },
+    "tool_calls": []
+  }
+}

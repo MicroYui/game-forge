@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3c9aa9ff465bf7b6d21d205cb81db45ab8487bf1ddcc6d8bdbb71a5749080b8e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3010,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 690,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 168,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 849000000
+      },
+      "created_at": 1783859800,
+      "id": "d71wteknd1ekx69c9jh7hFd9jeKsLjgkWPCkflUXk7+WCBTtYAQlst4AslTLQziu1sjBHHJUcogShhgAkJxDQYXAYQDyt/9YrWkf/rSdk8z9Kk7Xuw/aOv0bt9UMDljaJ1++FEHbIeEJfGbfRqhccIE/Us+Y8Tx/6tfy7vdj17bnAL2cl0h2Mbxa598fnGGpINgJuhAQMsstblCbhYq7SEiY3F3fYeW/VlpzTcNxiTtKIVkbIAQmbgT1df1tA9NgEKo12cQg7/VmNgY0oWbTvvzYoc1K/bptKluDTshoNhsFz0WQ2jz9XEUDQw/y/dEYeQZ8yEOGvuhwH2lY5emrRzd+SWs8HErM/kFDTjlZ9dk3XEJ3OmHRlq7Z/NM5ZeG0I5BEWXbqsy8q3KNMQijPBgrItEXjJQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Cfn9+jG4zbOfL1U4GLRwc8dbe7CPk4+RZcH2ImwTFQuivC4qcEnXyFQaUrHnCBQyQ8NoxAd+Aq0KCfy//4t0wLeWEdmjLyffXCSsbWDlMXSs2PMeqGE0I8tl6qDB6JwbgqOBHdXZFw/2KPDAlzCMxVbw4JvU20RSPomWtRy1neAR5AKozd+mpcfwm7bIb0aLzraMNRaELaESEEVTjqx/DxcYAIq2f6R4t9YYWwvcExrGFJt09yX9vRxHHFnRe8UjXVseBlZReStFGqzbzRMsEb/6YhWao5QhRnN3b4hLnOnHe2lRjzYahyifcaLnmIWD9xQ9jNq8txryUQKcJaU922aRpPonil7v1nIPSrljcavHA/Chnw8vjG4Yv5n6+cQRHFgVsHZMdRZRGMt0WbEEbrTe/OQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:072240f2f082919e\",\"npc:e79b1d43078c13d7\"],\"constraint_ids\":[\"C:15329bad1ac32ee9\"],\"span\":\"Ada fought beside Malik under one banner at glass conservatory.\",\"rationale\":\"Ada and Malik serve factions that do not coordinate operations, but the quote depicts them fighting together under one banner.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "5PqUt1fHbIYwQDYe23JT2hcvsI23vJsx3rU/q2+x6eDa6tczYfPbggUrteVK8zeOe7PYkdfVoCHO/D7MoKPMjrFtr57aHZCg2EN/iFd+EWCJJCreiThobv4PfsCrEG5wqRAn3zOF+dJUqfuCo5dK7xikAXDotHD9bfUkqSihtNYomzRj/f1OgukrKS5iiPEOqdOmAR5pUI90/mcjKNSCfh5pQUSFMtglFs1MFmmRaTMnrU14nVAe26aEr1UmQSaGkkJiAKDzi3A0i4ekFNx4JxUY+dR3Srk/NfHVpZFN1da89PlFnZt8cMC3fyJ0SSLmvDWjCf/lW/CUW5wbXVivjo+6GOnWA8K4Ppy8xvW2+pE7VqG+ienmZ67q7sF736h/xsJmGyqLbJ0/A/jAX5mKyk8nH4DH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 690,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 168,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 858
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:072240f2f082919e\",\"npc:e79b1d43078c13d7\"],\"constraint_ids\":[\"C:15329bad1ac32ee9\"],\"span\":\"Ada fought beside Malik under one banner at glass conservatory.\",\"rationale\":\"Ada and Malik serve factions that do not coordinate operations, but the quote depicts them fighting together under one banner.\"}]",
+    "token_usage": {
+      "input_tokens": 690,
+      "output_tokens": 168,
+      "total_tokens": 858
+    },
+    "tool_calls": []
+  }
+}

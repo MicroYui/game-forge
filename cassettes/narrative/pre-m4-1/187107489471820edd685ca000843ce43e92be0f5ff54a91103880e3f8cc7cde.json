@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:187107489471820edd685ca000843ce43e92be0f5ff54a91103880e3f8cc7cde",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5126,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 568,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 301,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1187000000
+      },
+      "created_at": 1783850500,
+      "id": "lbRVlRc6OlCDzV3KT3VYE67pl9vE0M9h7ZIccUlbX0y5oI+l3P1DOUZ4ca073WoxvUZLgpR9haTIj4Nb8B/vYm7+oQ1TT8sdNyvqI9Q+E2/XofCbSXl/z9BvlxBcwHaF/v3YBNy57RO44zcPG8UServ1KcUlJk7KeIBn28ncH9qEywe8Ly/fXZZcIInhU7LzYmucbNcHvamFgHejk7TA52rcEMvy/vxl08hapGrfIgHFmFR5suHd7ZAjsgZ6oDVZ6L8hCMLP8xXv/buX4PG/uumrKQgg6pBeskzCfYss8CpMZwBMggjb55I8hyJUgnXe755wqRJt4XHEcj2RH1sDz/jfYGycSQNpfDYEdDUXoQfGD/VQ4gQB+og7U31PoQ5xKFx2EEcINM0ccctTanPOUJIbW4RBaw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "xz72L7qHhVAemCf75nYyuOVE3eF8qOR8Epu71p9MdoBJsgvWyNrSVLHeQzHzSjTsfJSS66wR/rcU0//CgsluypxiK4DMaWM1qUfClrkMcyFJMvKvOLST+HkOA0/OK5Jl72FE238TO2m0JouPbypaK1PuZwnPN1UsesaMb9g0L/NQzCvBCVyLSFNWK5C/8T2x9fCegbGs9t/1fb9p1VbMOCml6mi7Ax2528Jh864S60cyj5zNTL6CNVFzOO9x/HRlSxWdZJOMQqr9THc0l4OKgLWXEVlAcxwLx9wRIrZwfxiOtfRIA1SPu6fd8FeyRbmjN/3gnDJ+I5jqP0cHbwm3XpzRi2CQTBGTIvyAgTcE49T6g7kSxJhMa3ngiiZTcNU6fKGavdDehIgfCXkztc/2NAO+UOE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0f60b1af4fa70401\",\n      \"npc:c1ece063466536d7\"\n    ],\n    \"constraint_ids\": [\n      \"C:9e2e80fbf6747e31\"\n    ],\n    \"span\": \"In orbital concourse, the council recognized Noor as the Beacon Keeper.\",\n    \"rationale\": \"Cass was already recognized as Beacon Keeper, and Noor is then recognized for the same single-holder office without any intervening relinquishment.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hf57QW1AJyWLOPzI3RozVTcCwKsUV9ILN6dQqB+zypE0b6qHReUqvHJYDXCGnog9NDJkQA8iAUJgUuq7fQAN3efG5Aym/sN/zlzWIHeHvwtnP+4OW03xDl2rUAMc/oXtJZBqoLx+xVRxFxlRYpaBJE0Bl5War1yihoV8bgx22yVqOprH0mG3Wx6n8nKhTKT85wKgSh7+C23a9AUKpxEMXD34QL8bLD45FBhxJSknlIUXNeWIn+PMW/cqjT29FHiOTxHOVU1bb92uD9y45/cMY24mMpuY3SXNGPpaWhs6XWO/DRIvEG2lyoKbWNizQ+jiBLzcAVa5/aW36v0suusRXeEM/uoVvOAiRSnhNHj8LN7NmIJsUtTBhXoEuODHViB00DMPW3OQdJGsRZz4WSgRieo1eQAM",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 568,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 301,
+        "output_tokens_details": {
+          "reasoning_tokens": 166
+        },
+        "total_tokens": 869
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0f60b1af4fa70401\",\n      \"npc:c1ece063466536d7\"\n    ],\n    \"constraint_ids\": [\n      \"C:9e2e80fbf6747e31\"\n    ],\n    \"span\": \"In orbital concourse, the council recognized Noor as the Beacon Keeper.\",\n    \"rationale\": \"Cass was already recognized as Beacon Keeper, and Noor is then recognized for the same single-holder office without any intervening relinquishment.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 568,
+      "output_tokens": 301,
+      "total_tokens": 869
+    },
+    "tool_calls": []
+  }
+}

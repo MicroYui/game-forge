@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b15bdaf3000cd9db321328ab581008b52c548ca6002cdbeca8596131cfd7a565",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2515,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 565,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 136,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 690500000
+      },
+      "created_at": 1783849700,
+      "id": "/z1/2apA15k/OAkyba+A1W22w4q+y+VcMj4BRlEgUKz4f1WoPK5bUxfnGuQ/sWubyem8p2lxUAPbxvKAa4eOpSDNG4ou0Q890iouxckxt6YdGZQzNTmRT0lvwenR9585V2SKM7UiE/mA89MqxnNORtHEWyHLJiTnSTIEXA2DVea4G8rJbJ/xbSIHsrAg3vju+F0IAnPFU3a6G0ei3LuIgI/Ntw8CZEscUiMtlsgHiVacC4YHr8SDufKSQr3/fWzwOFBE0n7Ib4w2FHA7I5118TV37P4+ccTi5RqQnU+yWIiyheuGT1+tR8F4/wRyR4YjkHwpWflXO+2zkqh4k0/1apatNvhtn/Bp6n63806scM5pX+DtDPga/6LjY661fyug/WNYvgfMh5XTBC2DHEiAPfBzQW3k2w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FRO3MX9p+T1nwbklk25dbRzJkV1R2nl74ZSP4jwC7jZbhK1nlJ6pSYeSDWe7vxLsbQB5BxiHjXEXZNVPbNDzddOOEAWLTzCQ1xg31PRj0RpRyDMjX9ED2qIPhnHn+ZZRxRE0/DPIn5LTqugCItx2ADs3UINSKsBeF9r/5QkR/97Xiqi7imhDXz1i4WKqJ3ZlbtzY6ijzpptJDQCNnVhlUa8+W6HoU+Z4WMrKesriggoKULwUfIA2hlRhkJu1XKXkumrhqVRZDzYrKgqG6fSgbhyldtW9xYFQU1yOi44kpHW+PVcIIO+9j2nsQDH1UiLJhsqDU7sZN9JUS3wgO4PE2B8L8lucg9nE8Um/51hc/PDw9Qe1oTpk4scfTEhhO/R9H+AxK7ac839Vn1YThPlOVYvbHGs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:d05a71459c4dc0ba\",\"npc:ea0f5c712a8d684c\"],\"constraint_ids\":[\"C:2cb811a82c0cfeae\"],\"span\":\"At signal tower, Veda and Oren signed a joint battle plan.\",\"rationale\":\"Veda and Oren serve factions that do not coordinate operations, but they jointly signed an operational battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vtQBGX5oLupmc2HQc3vp+9MBCoaFQri+Tvg0ZYUOL4TB5T3jHkstEvEycFVnps4IoUnF7R43WnGJj3O4xoIGhpc5jMc5e4S8+rUWlc0hmS9RYDftcPSLVYuAZYKdkl1NFME2YThIKd2ZC8aVIHYCySzIdNE5dh7hewd1OcJ7N13vvlDcj4dzQ/q6qUuM02EUoCmlcCCoOfHqjh5h0oQSu1QIPlqynLysJNF8L3+7HIXrYBjlkK3iUpLDoe2+Iw2gTr9OcWzQ+ieZgB+e1jWydxdYGCM97N6g/hdJvgeZrr5KPl320yJeKC2XS8NxrklpqAKDf8QycyRZRlHr8jDjlajadz8dsIB4T1OZm18XS7vRXmbMPvpQQa+CUxnFQMS8ZR0e1QRSSXCPcZE9B48BjvOi/Z9J",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 565,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 136,
+        "output_tokens_details": {
+          "reasoning_tokens": 29
+        },
+        "total_tokens": 701
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:d05a71459c4dc0ba\",\"npc:ea0f5c712a8d684c\"],\"constraint_ids\":[\"C:2cb811a82c0cfeae\"],\"span\":\"At signal tower, Veda and Oren signed a joint battle plan.\",\"rationale\":\"Veda and Oren serve factions that do not coordinate operations, but they jointly signed an operational battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 565,
+      "output_tokens": 136,
+      "total_tokens": 701
+    },
+    "tool_calls": []
+  }
+}

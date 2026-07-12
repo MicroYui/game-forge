@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:24d36d0bfcdc1c6fb3ba939446662f880df49a815d7762c9a70ed322348e0f06",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2509,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 598,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 122,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 665000000
+      },
+      "created_at": 1783858800,
+      "id": "UmAhhR69YGbFnzssC+oD+4lvkOlYhD96CsRDJ4RcYCnuS5Q5SwP2ZQfk+YFB7Z22hB2yZIdx4XCe2WcG006hDKtS03F4S7sm4MVzHUzT26pcEIbOqWpKCIWW4ilh57MJzf5urO59Bt3EsPnUxxBdIe4qz+ilEOIioipr/4ySsXr3BSv69JDhHe9ZYFc/VRkCAnUCRxFZvBVGyOHJt6vbbbefqkDv8a97bAjG1tWZyU2llLVkASc4uQEDVWRJy22lNaEBXaESHHsXmEheYa2tRHvxaYfMVVxMt/OkQ0UVI7WPf64ApKJyEKfUXMvOqESCg8JFVyJA6GxG9/s1kzMveym7uIOTR89Y3Un6XbWeLbOekPkW+K0rGINhZqFFECMEv8inv9/Mo16KEErLG/9kHZsd1xI1kQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "mRkLoQ3xECh0EFK4j+OToKfM4pl/hoLpTLGFH4GTQl9Vijj15FfJB6FHT9aNuO1+cZCt1pce6NjVHeiTcRawuBoPlViY3i23CaGdjFUiW+kHfEjSFtfptaQmIkeoNZVVdBd2p3x4Bl62FGRwZFFynuMBVpGlV3xtRA0kgWA8rbaPYarSZbaJQUGD4gnMk+S72W1qeJxFO+vHc9i1VDU3gKwJ2//MoFzr/RyEKbm9I9bfih1aHoR2MDl2MHGMzdUWHjxKJCQxFTAK3Tr7hie9lAsmU0cty+ta0eoY0C+BW4i34a/kXlBBmYN/t41XLt2l5GSRagPYsfgsnzhf7VltR8bv5nL13oSIPpFIadWfbaVVqtWDEt9Jahk/juRl0LyYuJ0mU8czl84YsBTAJfl/7QqBmqM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ccb0064525bddfea\"],\"constraint_ids\":[\"C:5df830df84247f0c\"],\"span\":\"At lower court, Veda struck an unarmed visitor without warning.\",\"rationale\":\"Veda immediately uses force without warning, contradicting the requirement to resolve disputes before considering force.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "0y2ym1y+PGrgk2Ur4+gKwiJg/nXeBFUs/PgC5Ta6+Zf9F4Fi7pXDpja48PW2xKrZRGPEND6xkr8tUSRVMULkG9+79gcmBBiY6++e6OVc40pRY51lNPBQ/swYpMNEdlQxo2B608cBiBczSk3oP9Od6z8ibuYfU3o0oy3E4UrhACKAVpXSlcHM145uFbvNSeYbxfVstBhn8cm7O1azzn9YlK/wzcq4HkMzbi95lx0NiJhwiqFBG9ugPUULSmhUiR29IBf2nAl/tR0effXJ5l7Yht/a9Yh4W0EZk72aRnHd4a1ES7S2kZ/I21sNE12KGWdSncWfs567CyRJFbZjgJaZNfra8uBUXjG1Mrg+ao4HpNkDA3UlB/WN/4cNASjqPAYXOtTdkMYa/gupGTKADC3yqhw5ac3g",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 598,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 122,
+        "output_tokens_details": {
+          "reasoning_tokens": 38
+        },
+        "total_tokens": 720
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ccb0064525bddfea\"],\"constraint_ids\":[\"C:5df830df84247f0c\"],\"span\":\"At lower court, Veda struck an unarmed visitor without warning.\",\"rationale\":\"Veda immediately uses force without warning, contradicting the requirement to resolve disputes before considering force.\"}]",
+    "token_usage": {
+      "input_tokens": 598,
+      "output_tokens": 122,
+      "total_tokens": 720
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4f2ed28fb63ddf59838fcbb0d0e736f4f91db9b1d18e7f09d1de4915f0f636b2",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3892,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 620,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 176,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 838000000
+      },
+      "created_at": 1783859600,
+      "id": "rjwNHQJTZDjrEv6yECj8Qs+/gYAfchzVgP/Epq9PS0ijiiSAxHOagTrJL3312ccXvaXUunskafovQkfZDLB+1iMJfkzTivXkyCSc1tjqLhBAAOycNYl0NFPZb6AauhgvMv7fxx8e0lacd03OvbCLakCLA5jSJnrqql8jNhpp8monwTM18rA3KH5GN2Li3Q4nd5mKLLVGmg1q/nKyt5Uea9qRHsBKXa7EsnhFEb+fw1U9YUCQJ9xey6dSiK4S7mOHp/jcvo5Qx7EYi/ursluGnnSlH6HskyeFvK6zK0DxaCum8FGO3lvyQai9MWeNH5hhbc5bpSyYGjQSfOW2TGMKPL9qJoGJF17AC8HUKc35eWrlZZ1t2SuV+4yz15+G8/2kC7QLREXvEIDplKIG5q1s55QryNvHMA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "DWIF/FMlyhM44x709kDhs1jiXNkuYQwFLq6/TN0JkfPwcLiYsU+gegMRJiLqSC21h4Nv5z6QnDF4/eOUrNi/eDb+oz+FJvRnYUnd3lbZ8T2JpsgbgWpey5Zp2kBglry1DxFT/6JbFDxm7liI8S6S2uv8m6kRs9Sj9Y60hcz+MSAuwga82kEWsEoW9l/JVV46uIlNbwuYisbBIseyLevOSCH7r8qX5MF9PHYWtziXGYxGe9kyLx1oJheM6aqmcWFBc6FfKq/6ARieQyqZmBAzjFbvA9oRRt4Q9ZjEO5ezDz6KjdN36XvCgVdru/ubBIujk/Kg8KdwduEEFsxJQb8qofL30YKvXxqGviARR1SZhwGjjd0v5awtMNHn02Hyn2aeUKbaoAkTd2c9SCGhAQpOhY3N1n0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:bb6261f3f0882a12\",\"npc:c395022b4725b7a7\"],\"constraint_ids\":[\"C:3a39d3108cec9190\"],\"span\":\"Oren signed the register as the Crown Witness at archive hall.\",\"rationale\":\"Oren assumes the single-holder office after Veda accepted the same title, with no relinquishment shown.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "h+30KDXbHtugDUyT06MU3LIsQPrt4F0WHwB4OOF0WCQZDa8fEGif9Em2f0ycEV+oFUA3Cl9UnxZxhREtC/N9UcExLsBo1UEi3+UDMYhYVfdnRZosqJmCY/pblN73NHDlU8CBffARfq00meqgcnlSx7IaYz1+uv3CLtLkfdaygyOt8Typ0d4oQO8I6f8Hzea83lWyf7aBEzyMG7N8c5XaLyiUllVxv8wq6kPFnsXDLEOkJyRuspOmLw/v8YasA88vUIpmMQNawBZSyFEReRSXAMXk3DEIhOUw0RaNnIBPwKcmTdGjPhPrb2U/9LHmSLJqxjHygALQHM+gjxudQI9Cdk7mJwD/grHeml4imjF/ga+HY6IRlk07cEn4zNRfaLXa7BMq2Y3nY2gknTnS8zup6/7cbMWH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 620,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 176,
+        "output_tokens_details": {
+          "reasoning_tokens": 73
+        },
+        "total_tokens": 796
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:bb6261f3f0882a12\",\"npc:c395022b4725b7a7\"],\"constraint_ids\":[\"C:3a39d3108cec9190\"],\"span\":\"Oren signed the register as the Crown Witness at archive hall.\",\"rationale\":\"Oren assumes the single-holder office after Veda accepted the same title, with no relinquishment shown.\"}]",
+    "token_usage": {
+      "input_tokens": 620,
+      "output_tokens": 176,
+      "total_tokens": 796
+    },
+    "tool_calls": []
+  }
+}

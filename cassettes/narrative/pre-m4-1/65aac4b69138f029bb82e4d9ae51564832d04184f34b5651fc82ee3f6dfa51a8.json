@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:65aac4b69138f029bb82e4d9ae51564832d04184f34b5651fc82ee3f6dfa51a8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3333,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 696,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 203,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 957000000
+      },
+      "created_at": 1783860500,
+      "id": "+vvnJdzLiVhP9QpF28LPyTl8xoXBt9jn9ssEQ8nZrl1c3g2R8UcZSjLQY5mdxNsx3MoD4CDhepRuvZ8svmskMZLtGim2md4W2Wwk2C0yXmqV3Yxr7pi1Is7gUbZKfHkFGpYih0YQRMZTcVwS0WUrY77oxxUXtjRl7rMP1darT4nFRKa4rNQ4VEf8/0ro7DLpKWCCboc6UyL/YYqY2RVw9Zv4sJZEobp3EM+u2UxE9TDHwVky1DVT546mh+t4v37pgIOHVgDfOZ/W5RxvFyHl72oYWIvnYWDjnVTIwgo3qLFX2XJRn/fClQmAIMUcfTLHsd6ImhBt1eB4JALdFOJ54t6OUfNcKoyybWkJc688W6dvQVgMg2Yfi4de/r3KWqlGc+JqQoVxV0N6kT7lkDYz7xo4tRchLg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "C+ZelWO4VN7Iie9t7NlApwVg6kWLy8AE3fTfeOagBlOYr8p6zsasVr1vMAlU/DQEWxC5ReVGuGAxK1f4x4oYNNcMSzgFt59s505hCYO7OR6HadVQrazqX1ZLNQAQt0/KiJ6Req9oiLkEkG/2Omn1rz6L+B6R4vrT2dRU0rFWmG6IWXJmZ7ypJfLuCZXxNY7HI5SwrL+h1Mhh1fT/+ZIZ0yb5ri9g1VIrqmoDQ5VbbzuCLL3+MC4xyoadTvLynP444fYWdEUc0nH7F2geeEl3LD0oDPI6F7bDD0hok4dvfP7BcR79nQnCRIz1daiePcnkTNuk/SQ5rtayrimADH/vw5fS19GHF/idrFQU68xfRkOqlKt6/4iODix0yq6ohJwciWb/aP/7oX37JOYDN+qzKV4EPV4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:8d3fb1d41dc97849\",\n      \"npc:905f2da52aa1e277\"\n    ],\n    \"constraint_ids\": [\n      \"C:b734cc06ac2aaf54\"\n    ],\n    \"span\": \"Tamsin fought beside Eli under one banner at eastern ridge.\",\n    \"rationale\": \"Tamsin and Eli, members of the feuding North Watch and Red Banner, are depicted jointly operating under one banner despite the rule barring joint commands between their factions.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "88Bd7MV5uXv7nFoRM8eV93wGcfSQnZfH66rKzRPM5XrAnR3rxBCOiUk0MZ7LPbtRYA1qGUtquUFTdLwfGYwCsyGA92ursheUpdOhkbC8Y3Jw8on10co2/oPM9+W3IrvAD/woak22ELEx2LCBJU4u3mj2IDjLlzM8T1jgrdt7H5c9bO+DQ0tTOkziA6NJVoUYZ4ZudfS9jFalTmU2jIA+l2ubTBNNbjb0znhgMnStVEau/OgUiB/eGSMf5GKyLxRO0nX/B9hrANzR9m9cYtnohj0B15V7ucN7Ir17jFBxg4qmVVylE4YVKqqjBlu6y7VOrRal/BiWI72XZedt2Z3F7CPPRItNwDHpYe26czZQXwta6HNNDiUgLJaRkbfAJjnOzCWz8uWI/EmUJ/T11shqZccxAUFn",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 696,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 203,
+        "output_tokens_details": {
+          "reasoning_tokens": 62
+        },
+        "total_tokens": 899
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:8d3fb1d41dc97849\",\n      \"npc:905f2da52aa1e277\"\n    ],\n    \"constraint_ids\": [\n      \"C:b734cc06ac2aaf54\"\n    ],\n    \"span\": \"Tamsin fought beside Eli under one banner at eastern ridge.\",\n    \"rationale\": \"Tamsin and Eli, members of the feuding North Watch and Red Banner, are depicted jointly operating under one banner despite the rule barring joint commands between their factions.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 696,
+      "output_tokens": 203,
+      "total_tokens": 899
+    },
+    "tool_calls": []
+  }
+}

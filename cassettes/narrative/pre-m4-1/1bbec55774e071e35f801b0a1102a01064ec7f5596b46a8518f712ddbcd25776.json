@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1bbec55774e071e35f801b0a1102a01064ec7f5596b46a8518f712ddbcd25776",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6399,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 641,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 202,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 926500000
+      },
+      "created_at": 1783846100,
+      "id": "EaolefbOrn8aN2hD15BDIOODTd+d/apa90vnLd00ChlT3K7fzZ/osIyFCupC3gkKnMCq79jrtBfRQWoFaT0W9K23ktqp9tSaJiWs/y/Rqyh4ULgJjjcdlTVs8sEr7cUPKdy4jBXLTdd152kwDv5Zsmcsm5BpG1DWn5vc8Xaj1f020kz090jJIvxZXFeFaUfONUGlleOiiBmfHR7Z7lg9HuyZPanxZ65AQ+geEFiQ42PriMkEyKcXu+/TgPTnETVOk3V6gNkseY6Q23Ats7N9KrSqzuYh7P6sXNNFZM8iC5XH1hd+5rJIgPGwhBv8HkFfxT5X4QVQMnssxbWPKMJ5iX0q9dA+cJxFVerWPP6j48wop3QjP9YZjbfaEssGxiSI350cLcPz5YdmPGs83s9/dJvg0QbJxA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "3nLjviW9HBQpzry/TQL2XoGWQsIV6hy+7q8bwYUk0BVBYmh64Ed5ccYLf7FHFivwwpwxSJ8FpdcIlunnw5rFgv66vrGO0x4SBtpiU0bZGguBuw/gaY9VtjT/RvIe4fuIiyCQItI5Rvg3Aygt9p1AwjVl5Iz+29XM0MyfuC0GZ6YssIwfE1A91FsYeXi3ta21P4NhsZysU8FWICeW6Q/hFElOiK1NB+vw7MxImPxBr/gCHo6CnM4YdsBtL1WEUUmVxPVzjNnF/x3FglV6ZP3UnpZM8Rx7sEoDdPmWFVKyuvKsLZTEvJM/oG1tuR/WSUXXqFhLcQVmx1t8g4J/Y5ayEa6XwyPWRbzF5BQBqp794oCuZKoFbwUjJi1xPkL9tH1SvBUy4g5w+slBrN7Rwgc3TOWiyoU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:0852057cea3eb77a\",\n      \"secret:c52049ee231a02ff\"\n    ],\n    \"constraint_ids\": [\n      \"C:b95c3426a9846f1d\"\n    ],\n    \"span\": \"At river market during first watch, Veda told the room the truth about the vault keeper's allegiance.\",\n    \"rationale\": \"Veda discloses the vault keeper's allegiance during first watch, before the permitted archive opening reveal stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kyN+fxpImY1iletT5OYBdSKhLw1blz+0ackxQ+3/Qs3+CPdvRqlXvMRxepjU+tFo74rQ5hd+HCaPhwURawqBXBz+sWXWluQG2KRLj4Wk0+niNEl0iZhjll2vwKuwFbZLregKAOq2J7Y+oyMR4K3SAj4RXUWoq4rvxdV+iMCPMVhjTupjxOgPQ4eZJQzyjeIBjjdPAVSqZMWQh1gvhG5kUpVIepvM3uD+qzCH5okEg1kliFNERzqVXC+JEXnwpluWLhOlKiDpaPIUVeyslrWCHCHnjomIWw9NmqOvs9UudzYcmyV6lCTx89bJNQfbvoIWMwy8tG+WbxKK8J4IlHH90KLH904Y+sR+qk735kQxNKB2q/sMVUxcGNHdbTpKthE6Bd7VheoeR6n3LW/VNbaeoJllmxtu",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 641,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 202,
+        "output_tokens_details": {
+          "reasoning_tokens": 70
+        },
+        "total_tokens": 843
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:0852057cea3eb77a\",\n      \"secret:c52049ee231a02ff\"\n    ],\n    \"constraint_ids\": [\n      \"C:b95c3426a9846f1d\"\n    ],\n    \"span\": \"At river market during first watch, Veda told the room the truth about the vault keeper's allegiance.\",\n    \"rationale\": \"Veda discloses the vault keeper's allegiance during first watch, before the permitted archive opening reveal stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 641,
+      "output_tokens": 202,
+      "total_tokens": 843
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:88bc0753385d8eeeec3309ad6f4ab8052d964f646bfaef9d6567cd248d4aaef4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4800,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 672,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 170,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 846000000
+      },
+      "created_at": 1783850900,
+      "id": "w+15GjxiRMUspPk4p4nwBihpvvE63DkedgmY8PM4pAcLq53JqxA7N92DeeeN99l8W27TSJ6leAUXpRKx/3KPVcdFfAFf0xq5ZvmiK/UhJ68yfRgu6oUbvqByn0GmjFp3onz5lKV9SkkdYwtOxMq5BKf5Vmw0zLtPSWng6vrWdrXSY1RfhHjaghUEZznejBdpaxGeOVFMpx5+kGJo1D6yQWhSnrHNPujrlimZRy6bidVOV/vhIsVNJcTjoQ/vw5Q1NA5taOClTUDU93yLMnbfjTt3zW2Yi7P1Pmq+4k5mBroVIVbwanzSE2byQb9GnLzrVEAqwzrpXxwyjpq+Y66TrI59lOxPXHQLXuXF9kTQmMKa/4e4sZJ1bMJ730gyAyGDObhVkdae0qIwvrL2/2dulc0wmFilXQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "U3Dxhh+DAunQCaIjqnuId8ostuttc058dvBhrotEX43Afjvp3nK7nLvdEFbVRWcgjU8z6ogwbeNrDlvnGioP3WaJqqDywSnGn2SodG6zh/dW7KXoYAkgkufio8HG+7uODXNosfGvryGDvD+lOj/n/ENVbA0PhdNMIRUcjALEcBrg3BIt/ai+24tuxfLoEIZNnrzUWcqInVXYVPwjrfjleqKvQaH0P52Hp9GTUYHU/UOGONfszynrAji5DmLTL9LHWteJXKfbHRoc8KfxU2DS/glJ8LtcXGiwgCAQG77Om58M2OqSjvwXTLUJhY0185hAcjL2kFpd38PPt7AFhaSVXzwmYOMZPtTMKWMvRLOFIeRP9WpT4kkZYsO4gPt+VP5UMyVejWkv1DIqpehimhnaRPpkUeM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:231ee56821d3eb2d\"\n    ],\n    \"constraint_ids\": [\n      \"C:52d528e0ccf958d6\"\n    ],\n    \"span\": \"At archive hall, Mei revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Revealing the crew's hiding place to its pursuers betrays and endangers crew members, conflicting with Mei's loyalty to every member.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "q4ZlI+b/IliYqTUPOoNGHKyoo0GuuSyCiSZ16KcHWcpvTJ5vg2ILoawpvO7KfivDPo/iDxUB5VJMuBR2WNvWgkOBalyvFjT/QCfdsdTjhgbNHac6Ii9fLKmz4aQJgbCzDy3/UUom+Vv+Pk5WhcW1um+y8aZjQaqPOI5H06DXY3Hu+mndR5m7W9dH+5rWdrX5rAnovixCJDAwaRfOs0yrG/X/vrnoGzgU+ttxW/zX5ztLc43SNyqV7KDiOGvaaSTLeOeT6eOThnszCxV8WIfaUemE1aYq6t3cYtzCiPUPxz5yw9ifi/A0VDxRw2BAjdLqM3xuNerZSNySNsfO6glY6Neanod7ftVIsvWsvrJ5U/Tdyt9240JmEulBZfqXTmkqwpXK2gFWq9C2Jpl/+iyyLkOzsgtg",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 672,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 170,
+        "output_tokens_details": {
+          "reasoning_tokens": 46
+        },
+        "total_tokens": 842
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:231ee56821d3eb2d\"\n    ],\n    \"constraint_ids\": [\n      \"C:52d528e0ccf958d6\"\n    ],\n    \"span\": \"At archive hall, Mei revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Revealing the crew's hiding place to its pursuers betrays and endangers crew members, conflicting with Mei's loyalty to every member.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 672,
+      "output_tokens": 170,
+      "total_tokens": 842
+    },
+    "tool_calls": []
+  }
+}

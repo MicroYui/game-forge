@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d1ab0a709a7a370fcbb6723bcd4de25d561a1123cc45f4fec48e135a2663fc4f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5373,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 563,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 252,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1037500000
+      },
+      "created_at": 1783855000,
+      "id": "ELfB4n548tQaVDwpC0+cTC37R7C8lpHJ4H7MoZogqWKgoIkXS5NvhR2b2F9RXONTiM7UgH01keeFqaRK7x60fHVFobPuce7jEGuAg0VRqeicNlDj2AlNCcx7gZfaZW+zNwmjki2xOiMb4Itmz+kZfBedlfVgeN42y5MdnBrG8HDS7p3TITSPkN4ivrfIGniJQuZDwxEGgRchGC+3XNjHoYLKpOAIKniR8EFbQGl1j47nwL2gm5ElUh1azd7tAst7uVB3Yvh0PShtNVSXXQq7Up9XpTAEzSj4D+BWNWToR97N1H6NfBD7rj4x7VqofwSyGE/NpIdApXzvWAw5oQlHc5sU4lViYkogbWuYtNjdEQm9l+PfzmGsqWnSrjd9YPBWesH5AoTj5rXM4y/SNEQEBgPRLTMTlg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "W4FTEiHCX1qIcWZEUkM/OehyBCGcLMEO8IXxdxlVUjSlj5IdTLdocQg1HjNqD9uphcMsbPhRpocSo4jaeFfPzY3heCN2QWz687jwsSKyhamRTAT8VVNo4bWo881U1GmGiDv9YfrkX86tXf0M636eU6tkYhfeNamDLZC8iXUn3Fzd7/jzkHL4yVN9WO+tcrNqMH9ywNUnZcVdhohbLwtXUHSwDgWeLwy5yRaB7MWnDYSxW32LSfu7D1QxC5AhRXtA7AAPtTCMMFsYM2vfvIOc7OXU2P5PN0XqeGMr3rltIAm3Q+ZkzRWSK/e9phKeaKIMdGSgSqpi4mSPSycxxEm+l6icg56zSnV5h+Wr9SldMkNK0WmC6LXnmN79n/htJbiMDvUFy+h80UgBBVcME7/weVK0RyU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4bcfc26fe93d6b13\",\n      \"npc:b6898b0714572e3d\"\n    ],\n    \"constraint_ids\": [\n      \"C:67e0cd9c074eaeb4\"\n    ],\n    \"span\": \"Noor accepted the title of the First Navigator before the assembly at signal tower.\",\n    \"rationale\": \"Noor accepts the unique title after Cass has already accepted it, with no relinquishment stated, creating two active First Navigators.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "GPWdLz1q8O4SazuE6s+zZE1KYE1tfnZRCWA/WdWTop95/IGcekSBkAJhB0hxRgKis5MsTOMyWnBIRcEsMMAzQbWZEdypfJoPkQpWNGJi+dNPnOM9nLk7FkF2R3POJpSR657u8yI8g8IacYP18IjmjVrdWe+fWGOcQGmQfo+r/wK51E2QA4DR3NnSIQKkDLdu4zL1os7pJUIxutMOykIPphhTv0XOfKp9SnZJ4t3Ck3DbYs4GskRxzTebNiKYpydKDyM3G0s206/KaYSe1pwjsQn3ghhV/Eq0wjpmbVjDmjVw2nRcn1820O0G2LUe8RRM1hZc00iqXQh2aW6UgH/wAS4ZOII5MECOzusvXN+bO6j5g/20P4ejwUBBX88+CBUmfqnk0mmpZnQbxz9X6YnGZxX/tOpW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 563,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 252,
+        "output_tokens_details": {
+          "reasoning_tokens": 114
+        },
+        "total_tokens": 815
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4bcfc26fe93d6b13\",\n      \"npc:b6898b0714572e3d\"\n    ],\n    \"constraint_ids\": [\n      \"C:67e0cd9c074eaeb4\"\n    ],\n    \"span\": \"Noor accepted the title of the First Navigator before the assembly at signal tower.\",\n    \"rationale\": \"Noor accepts the unique title after Cass has already accepted it, with no relinquishment stated, creating two active First Navigators.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 563,
+      "output_tokens": 252,
+      "total_tokens": 815
+    },
+    "tool_calls": []
+  }
+}

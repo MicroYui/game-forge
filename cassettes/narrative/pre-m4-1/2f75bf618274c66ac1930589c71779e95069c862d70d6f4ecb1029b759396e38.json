@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2f75bf618274c66ac1930589c71779e95069c862d70d6f4ecb1029b759396e38",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 1989,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 557,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 103,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 587500000
+      },
+      "created_at": 1783853700,
+      "id": "S0q0YW97KYKWwmot4mU6vJ9LyV+2ROiuL+lY6AARb4E+6RoYC6yuJZu272P0RVWB8vv18ts1ceFQRTE4yb9868Tyq1VgFE6IzO4lmQ6leOLIOfEC5j73fOu1CkhmS+zhjUORppuc60vqcVnyqTwjxrSq+p8Vw4S1aVVJjEz+2X8Hu9F9TvcNFSf1r6yePdUKpoeKajnvCVbHB8eo3jvzGlR/wgEeuwtaiaocQDUcz90diMHn1EyTiesqH8ZZ427PPWfbx88aIf53qnJAwL+nNLPMDFK5I6h+vnoD0FJH6D9N8slHTv3XjeC1t5/pZj5OYri48rkufcyIfzfNVglJGkWNMGr9rJU9VDO8UwoBAdTBxE3hEAZWpqdHeIN0OBhfSqI8ppPraKt4V6AWFVRNBtauvvTgHQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:889d94999abd0d0d\",\"secret:e3cba0399041997a\"],\"constraint_ids\":[\"C:c3e6f5fcae325d40\"],\"span\":\"During procession at canal bridge, Tamsin openly named the vault keeper's allegiance.\",\"rationale\":\"Tamsin discloses the vault keeper's allegiance during procession, before the permitted reveal stage of verdict.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "YJ7mdg0Tm/z+j+daGYoo1eze2hnNYT+nOj/BDiwz5/Pcf4s2NV9rEFnEKzu8pid+nkfARUiMp/gIegPl5LCt5nd6IvVY3nxCu9Q89gBgOy6qaFEQKm3rQEu2ouucpnXKXR7WgRZEerHFBBCD/qZNlNulUWbizgLSfA+RkewCdJphVJDfxZht/eVmeRZBeQPGGF7Qdp4EtUcrV2Nm3chis/XYRu1ouwcqj30em+kzXTEIjfvIgdV9MtP8mHq7kfwm8VKL6YwFpdoWwi4+Do2KLJS70ygIEDqGYztaMYOSugChs16fh461Zj1DsWP97KYUL8F4R2iTUTBeRfV1c7DeusD/w7wYFkjFxcb45ok2kD/huszA5qOmAXrQQ0e1PHzrQtuspaOekJtjlNnGYgq/MFmv6sNn",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 557,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 103,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 660
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:889d94999abd0d0d\",\"secret:e3cba0399041997a\"],\"constraint_ids\":[\"C:c3e6f5fcae325d40\"],\"span\":\"During procession at canal bridge, Tamsin openly named the vault keeper's allegiance.\",\"rationale\":\"Tamsin discloses the vault keeper's allegiance during procession, before the permitted reveal stage of verdict.\"}]",
+    "token_usage": {
+      "input_tokens": 557,
+      "output_tokens": 103,
+      "total_tokens": 660
+    },
+    "tool_calls": []
+  }
+}

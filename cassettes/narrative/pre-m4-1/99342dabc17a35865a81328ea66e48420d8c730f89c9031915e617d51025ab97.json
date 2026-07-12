@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:99342dabc17a35865a81328ea66e48420d8c730f89c9031915e617d51025ab97",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3481,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 622,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 190,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 881000000
+      },
+      "created_at": 1783857800,
+      "id": "cEMhui2oruHvp1CzLn4MAkQt+a82YpfN/oxsD4lq0TaIUDI6dM2Jg0t05SH1mkeZl5T7bt9bUik+h6aLgJzpUyzrd3/lh+RN8SGkuYma7PNA52KAKCsocKPJnWqHp2JivCOUHwGu5HGhFRIy7t7EZC01TzQP8de/Zh8XbPe552zZbkTXbZGuM7ZegTpeb7uI/h6sGlnv1xrYc+nkjW9MAsyDqqk8yteVlYyKxlZnF/Q4CDnf9JiTT5B59mnHE1u3Gt6TTPAi2CsdyGssbLhBOE1yCRe/3gRLGtVOxUrDcbQ1xPJS1qhXdy3eW7Sv2+69il1iE1LEkUTQttAoHRhQF07C11Gln1pK038TtGMMqVOlNyJyissm7ulyfeBV9qZoUUkQt+tw0kgJqFgdRlgzmou7GSfx6w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "xKy4M5doLgOcC7S/ek/rEORvEyQNoPsjnXooIm1MnjwfMsL3Mw7yHHm08plpRUwd76etR37C9rSb35BRXW+a31KYtrMT3q/MI9Cjh2eqSpT4qFQEVaKYphH4rAKbk7kS/j+SAkLWMCsmVkkfN7/HpYgxZkad7tWjccKBbATAzFVKzXv93tBN66cI+/HRmIGeEsuMQakCOvbBa7aHiCMkzK27rOjqu9BJNCW3Gp4smqEIIR0CQzuz286G5y21BhQWu4hjU8Xt3EDBpsXcQeT/2f+YlCIBlHOlOKQXSIkOTeqMDgyyZtmiYRDUDpb3QRdvuAZifWP0RfZx9daKKtwNzED0EE2Np8jDTBB/qJ/DkNc9LTVg/RIo6B1gubEiyI9O8YLk3HWD0u22p+MLdTcmvsMHa6A=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:0f225a621ce321a3\",\n      \"npc:6bd477edbe900e8e\"\n    ],\n    \"constraint_ids\": [\n      \"C:93ae630c060809ae\"\n    ],\n    \"span\": \"At orbital concourse, Noor and Cass signed a joint battle plan.\",\n    \"rationale\": \"Noor and Cass jointly coordinate a battle plan despite belonging to Valley Rangers and Storm Company, which are explicitly at war.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "cSsyhQzAkmPPWWU8fOVkR+CR5xGURK2JGfKjQYOo0+kkA+LPNQUnRFZ1whSiguFdXTlhhABJdE4lrWRTayWU1GpBoReD+Vd1UTlkfukQvWapK4YzoDrn/8LKIGau0uf51XSNuMqU0f0ORMekR52YGrdPniyFZV1j2rNd8EVR+MTYjIUMKHvCuEa42fHCFjEi9cWhY/shtTlJQdSEUh8Ia05Ck6Di1VDzWs34jYnDAcF2fbjkWMZ0LnBdpYlcucT00V92tn7JfmKGkJqGdkNuqsL7Fp1e0c4PfG74FQICHQuRGCH9SRhR3dSCRiQmwobKtgduO7hmg/FEqEUk5ngd5vb2I9xoWF2nNpIenDOvFaMDU07GD93enD5oivF9mJqF1yDkweCmfY7HNaqMYqyUkN86WTl4",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 622,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 190,
+        "output_tokens_details": {
+          "reasoning_tokens": 61
+        },
+        "total_tokens": 812
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:0f225a621ce321a3\",\n      \"npc:6bd477edbe900e8e\"\n    ],\n    \"constraint_ids\": [\n      \"C:93ae630c060809ae\"\n    ],\n    \"span\": \"At orbital concourse, Noor and Cass signed a joint battle plan.\",\n    \"rationale\": \"Noor and Cass jointly coordinate a battle plan despite belonging to Valley Rangers and Storm Company, which are explicitly at war.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 622,
+      "output_tokens": 190,
+      "total_tokens": 812
+    },
+    "tool_calls": []
+  }
+}

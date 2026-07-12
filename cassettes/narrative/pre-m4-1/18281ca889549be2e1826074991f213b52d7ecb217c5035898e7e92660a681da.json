@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:18281ca889549be2e1826074991f213b52d7ecb217c5035898e7e92660a681da",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4778,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 659,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 254,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1091500000
+      },
+      "created_at": 1783859800,
+      "id": "KIHBRjPbo1TDm4LbxWpGh59EomQiBo7zXW8896X0bEHWDVEB10yJH0UI6G6/DXBrDy/QR514aHtrF03Gczql5nyi4bllSLFUXzGaXEWs2ruTr08SpaniQFzD6HyNNnq/EvOCAksOx3nnFYqE0vaCUzb9xruVdLaEFffl5jkyky7PwlxVldvhXg9hG/4ALHukiavhlBtTaHqJRf78/4kn5Yl1anFE1WEPIFyu1m8N92Q9JKVZmANq/frSLuO19H3kUdKyUpZSbNanF3e1Wm2xSbkledmRa0KVKIPwoRLUf6YWg5Hm5YTN67mjmhvojQccYnb4qXWt3Q4TJU3jQH6J4aCQ9Wrf5zCSB6qazv1kp+mgeRY10kJBTPdA2t0KzlregQLJULeHetGWlQTtsjlSZYOKW83DIA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "hIADErWlEoOUxDSn1ri94dR22+NYOaOvvwoQbFHdzbgDJogip4z0EP9wbZLJqme7YN+gVTQ7KN8O11KHakhwN7QDhx2abVZ95K+RC+ypRdg5Teg5JRRLvMY+L/Qh85KmUFQDbYH7Z9VY+eLcunpf5MHmej+sf5GAqZsFJ0v0WSxStRzerTRWzyU2MbNSOQYI3EXnNOtMM4t8fb3YeP8tF4iAkJkG+0hUEm+RFxAiakDrrCnso6w8QtFjT+Nty6CumLdGiR9j6MjoeU04zgQvYEdAAPLMuvj1J2iqQnbZ/M9SaEbfZAR4RVPjMj4E0UZpA2jS3bPP/ChN4nS/uhDGcxfAikgWp7pnCIGjPzX7aAIjToMJL5nhCEGoWNO3xKCHaBF9INrDCBrKzJTQ4wO4sZa4KwQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:593d8e0bf3feb45a\",\n      \"secret:fcaf437712cec4f2\"\n    ],\n    \"constraint_ids\": [\n      \"C:4b226a2b2d5aaefd\"\n    ],\n    \"span\": \"In desert waystation, Ivo disclosed the witness behind the sealed testimony during dawn patrol.\",\n    \"rationale\": \"Ivo discloses the withheld witness during dawn patrol, before the permitted trade council reveal stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "j/DVs4J5SLIMriizhOW7ArlSPJDBATTXlJQ57OmXGh1GcZ6MscFcc/QkMPCNKuWhBjcwz6xHGsKeLYJ41DmqxFCKnAONra0+Thw6C52CzV97Jtpa8ZJf7KQt/NGTtMMy4hh78SHPKmVqo810BJXQiXa0SGl4ziNUTjjhe2f1MEVqOEbWzAaSu0JU6Er4TDx/QUDYUqfITxRBd7cwn9VuRIUV5R8PSofo02hxAqqhL0eABxqIpgPF2PR9BC6EOJ4ZNcRS9aCOU76Ax5AfjUkJq4SYAbUZ298VVB4+gOevzPBIGcXGl357K2sjvIiZbLmgTUxw1DboMjDygfR6+MeQy2vuRu9+iXCl34cfadlBkHbioWRg4uMcGZexe9g43GEg0ua4NLb7tfsiv7kGLm32H5jTsFyA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 659,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 254,
+        "output_tokens_details": {
+          "reasoning_tokens": 123
+        },
+        "total_tokens": 913
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:593d8e0bf3feb45a\",\n      \"secret:fcaf437712cec4f2\"\n    ],\n    \"constraint_ids\": [\n      \"C:4b226a2b2d5aaefd\"\n    ],\n    \"span\": \"In desert waystation, Ivo disclosed the witness behind the sealed testimony during dawn patrol.\",\n    \"rationale\": \"Ivo discloses the withheld witness during dawn patrol, before the permitted trade council reveal stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 659,
+      "output_tokens": 254,
+      "total_tokens": 913
+    },
+    "tool_calls": []
+  }
+}

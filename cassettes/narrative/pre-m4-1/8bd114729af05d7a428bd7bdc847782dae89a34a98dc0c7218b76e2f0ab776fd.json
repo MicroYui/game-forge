@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8bd114729af05d7a428bd7bdc847782dae89a34a98dc0c7218b76e2f0ab776fd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2565,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 601,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 143,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 729500000
+      },
+      "created_at": 1783847300,
+      "id": "UYLZSKP5QRAppa5tytmaPBpEByyyuX1fRoN7z80VYJQ6BVLmABOYiv0SZunQHo+UnlryBSEKtkYhfiocGaQsvvK5KFvBv8IK63XXDtz/GH/BVjAmtWXx4S/0o6kkayDDt8rK5SE4KLehj6Jo6VwYc2Cx2wmPBeYoWPKwqYP567iPgaKei3kAKU1BcfDfJlElb/hb4feAlTmGaFd72thXGRc8Ni5tSsqisZWP/06k/B27iI8kwXRxdxUoWqpNs4dT3E9Cv8IjaU3DCl1QtIv5tN00olmyfUk/tARWfyM+02aP6S9bFs7PARUwd5QO1FHqpyx9ShA8IIXbz8JnwjA22b/fOjra0dCmmk3IVwzFFgN8fyBY/7kswyU6pZYBZWp/3qU5WYX29lHBpPfUpptAFAnjIEzmNw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "mVbssvxP5B0Uo9Y3BwSx8ettGuZ8rL07MO+m08dEiq5oqI8kRYkvUV7gkBFBna1TH1n6JiVZ7qteD0XLVa0stj6pMF3VhSeRIFKL7H99ZrYH27IvHMHjY9Z0gFoXKSbxD1ebdC8R4gc2HGGR4IpvGfZVeKT5aPwVcYCJXHa+iG4/QrJzZntW5Go4hJ4R82vstTn1/UImIgRTd22nGXb4oy0kDuMVmVeL0KkBErHlJxOMZAg/o75zRfXv5r1fzWn+j2Tm2NM6D10q5lu2eiqCLn+ytw4NizbRS60ENeXoIXT7LgrbOKap6QghAwGS5M/Bg8S8zTeUMA3LiaOKit6BlzQcBUgX2atwAfb6/2kaoi8I3iO9behj8mhIbPvyUS/3hsxyhgEtC+8dCL2qOWoYhQJxdf4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:6631882f97d0a43c\",\"npc:c381707e7192f159\"],\"constraint_ids\":[\"C:a68078397aab24a0\"],\"span\":\"At north gate, Ansel and Iria signed a joint battle plan.\",\"rationale\":\"Ansel and Iria jointly planned a battle operation despite their factions' explicit no-coordination rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KiGYqkvqY8RO0O8OxJzLoFvEZyOpgy2TbKkPpnmFLoYgpGVkBDdDPFocDq+Lt/YG3uE5SK3sQ2a+2vMm4jifxMmjnuBDMnn9HNDe59efFUGRlnOKnahtC94mhjwM/I5QOvlmnhlDL7HdPDrPXrmjeMeYUaEK98/2u0H0qhW+Y2o0sbf2E1MzyikS7zJvL89ZsS8ZBXwEVDBuq19hLPNiR1aD5xXIJzoc75GE0N3h+mG7kvZ8/RBUuynY8cSkOS+lFop5DDXGJ2hBzGTR8aift8I53Lk4IIrPt1WIXZXolyEX3kCf0TROzwuNNjZVQ4hqTQpln1bOTG3uSk8GHBRCTNA+23MMIuW6P/RWMxvgpYIz9lpprsNvrrX2yf0WPZ1nmwPj3AuTGW6AZetb6ugPjVlrPbBp",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 601,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 143,
+        "output_tokens_details": {
+          "reasoning_tokens": 43
+        },
+        "total_tokens": 744
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:6631882f97d0a43c\",\"npc:c381707e7192f159\"],\"constraint_ids\":[\"C:a68078397aab24a0\"],\"span\":\"At north gate, Ansel and Iria signed a joint battle plan.\",\"rationale\":\"Ansel and Iria jointly planned a battle operation despite their factions' explicit no-coordination rule.\"}]",
+    "token_usage": {
+      "input_tokens": 601,
+      "output_tokens": 143,
+      "total_tokens": 744
+    },
+    "tool_calls": []
+  }
+}

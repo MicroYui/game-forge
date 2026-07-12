@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c99d530f9719a3b942604eaa6546cd5e9fffae4ae12f68e116504f067d749112",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3478,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 547,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 184,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 825500000
+      },
+      "created_at": 1783861000,
+      "id": "H1rcVJXPQdos6H29t+gz2AaLoTylYucfnyuoDyDhAyxNQpAgRnLoxsDKM0Cjy5EBCICqGMBFE+Cvoq+7jvfAAUEvz4tgStNRb+I76CZR6LyEFLvuk6fGNdaBj4/14OP/FB3Q61QOwZj4zAQVbTKTMGgMAZBAXOce4RKgibEAKNGHDx8vwLNGxizloOrq6YcjK6UIbOWrXUAycEZ4RC01SJ12i9eHEspDL1DVZkZLnsFpf0OPYzzIYITtEKQqakQZHTPk4ilz4FnWGM7CpgSDd7h6Qm7aWLy3pob4mNoRIJl1rdGenycrrXxOeMtwbG2fzuGJoRa3b2yYn2iNv3WSXctdYo88Wp70K8+g9/5xawGNrQVrJ1OEUOFebsWfBic9lg1f5HXIfnBt1Cog94KdulrUZxj7Kw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Vf0cJCXI9C0paeYWDdTbPJ8NruWw+b621mbIN4ERf8lqQR/jDYPqrvs5aG2HX+j9lsNhQXSqGIexSo/JzYFABCwRua5mYhsIjFJoaTaLnRD7zyZ40WQiTeuH8MwozaSdospR+AxYmZmFSQPXdiG6n/czPD3dpXPnbR5AqVsC0J4PxheR/XnsP/6K7wDRNrSaCv+oiHMrpVwb1N/VKQXUQ0ByrZi2CE/FglCdMdxL4Gji8uZLtF6hntTwunI+6XASINWVVbCTTjO6i11MhLqRyASGxkW9X8ozUBkWlU3FS73hKcc7dr6pIfiyZWGDMgmapRrOU4Gchg4QLbeng6S/gi9O+0RbV7UGILWRqnSTqdXgizT2kAP6Xn2t0VBkp56uzyzDUk2Rs890rv8hF30KkXpdzQU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:25ae65e6a0280f25\",\"npc:6c7422c333a5446c\"],\"constraint_ids\":[\"C:c638d7c582cd83b3\"],\"span\":\"Ada fought beside Malik under one banner at salt depot.\",\"rationale\":\"Ada and Malik belong to factions whose standing feud bars joint commands; fighting together under one banner depicts prohibited coordination.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "VM3NyLws0eSqDoIm3w3fL3A16zBi2cVe5Dp4GVvvCCRlrKihDbo9sC/BMkdug45P5w3lRhpFzeVizq7dluAEO60V0ebmD4mt/rO8ghIpoDPpMqq+Scq6pLCmkVJUxpI3U2VjJvGsZghnnCadmrFgUtphcgHKjMMQyZCo5v57Vczq173v1+HJ7Xb0KRT4UHfw2XWyTyxMzlzLa3n4ZeLUDo7Jpq110UVmAVBeTLPt/EbRmnOBL1SX/AkxV5fNBTwr0izR924RNxpDZgeQXrjzr3PIEYZ8RrdAU/Y1QwJqxJXKGGYIF7HXDbOfcwmJt5SJZqRTgkDRVRYI5yFD8vEeqNteyn0wQK2x3QpuW2Byv1CKy4SASwSqgt/BwJSZlcE3Ne8NjtaVtZSW1WBZ1pTtWLFMxuHT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 547,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 184,
+        "output_tokens_details": {
+          "reasoning_tokens": 82
+        },
+        "total_tokens": 731
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:25ae65e6a0280f25\",\"npc:6c7422c333a5446c\"],\"constraint_ids\":[\"C:c638d7c582cd83b3\"],\"span\":\"Ada fought beside Malik under one banner at salt depot.\",\"rationale\":\"Ada and Malik belong to factions whose standing feud bars joint commands; fighting together under one banner depicts prohibited coordination.\"}]",
+    "token_usage": {
+      "input_tokens": 547,
+      "output_tokens": 184,
+      "total_tokens": 731
+    },
+    "tool_calls": []
+  }
+}

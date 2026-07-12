@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:582302784de2d30953c82ee46b77bade8e3e27f96bb1b937cb2f8aa818be796e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4043,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 572,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 233,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 985000000
+      },
+      "created_at": 1783857900,
+      "id": "PsrHUQgxNdGdGpSxWiUzbndL0PxaUNhqDnsJUz5zVdF1T5VXppansbcWJrAG1Ywpy6zNYrtRfpcCzq/xtqvRKwXWEfMeyv76QEQO6Bhg5CLIXXgKvIhieN+90skiQygtYxx1dPkJBw+nos80d+fLI0VKCGL6nIVW9373+bocSecPxWOsagciwvH8J1oo+G9xvLm9Z/A6tj3cNKSjNGrWSLOBDwTLeUgSNwioaBrM1NdR3r/ZbdOl4BfIkoDNiCUsHIr4WfKDSEIyjSRZHEYjn3qSh8gAQ5OgrZ+WKV3fRlvZ0WJ9riYaiXw6GhLDEM8Xyeb/C0fd5YPiaCdxgkgZlVwc9Tidtj4/2elnr2URyspFRIoXCTo2wVgrsOMcKVizRRG3tYjqlHEMW0HLay6ARJEtyC1Hcw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ApaxbKLENxIhlgOjwFQkYMbVDA5Nwt5pp+/VJ2Vb2XhO3ZIihwhHUxyUi54Qf6RvEzRqYcr7ZdyYjn5VRfLOJkyip3ypI++CamolBpHekKGv4ab1twwul7dFWxVHaeY59HfLKlrUI4Pa6lHSO5Ctr/oHScJ/MSDbEHZDh4/VOwUSNSsnhRtCE2jFDG1zjlUoym7OU9pqgYAENIUu5Z8x3kd6pLpyHTq21tMGJT1GDUfaDkurMiU75h2mA/F60X0MDqkohZdRDc5rRW+tGW7d6YZm0DUmsqYBRC9SWdUZNBwDa6iD8yWheowlte/3LMDt+LLgputKoMkemPPFcLmOthRn9ZQW2AZd3CWDkW7fec9DSGvma1v4s6eJZkpq6Lo5gTFr7gwcNxnfQlQXGcVzu4ASeXQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:815274768a016255\",\n      \"npc:ab801dc8acb06db2\"\n    ],\n    \"constraint_ids\": [\n      \"C:f5d06d1ef3d8263a\"\n    ],\n    \"span\": \"Cass accepted the title of the Archive Speaker before the assembly at old mint.\",\n    \"rationale\": \"Noor had already been formally recognized as Archive Speaker, and Cass then accepted the same unique title without any stated relinquishment by Noor, creating two simultaneous holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "LEfVujvRHuz3GT+dWBmQzTxTfJLjskc/TPNKGh7FG8WHTak3cka8wuGTer4fRVsLvI0QREUVHPbkEcDPh8F2/zHZpHCLlpP7LflT+sSxUQ1MOTo2EyEux4CCIGPQbFZv7EZRltPQvBht0D1NTF6BySmBMsajk2HgY8gF6BH1Hk+s8nZfHb9LiMjSh4mbL7JAMNoE/GfsygAR7VEBnvpQA6I0BU2BblUfVSyBfLjFcH/yWx2C6u78OJJMt8u2lH5hIrQ4IMkUp1kCCIUGSqmiJEKBsxceKv+voVace7v0N3lZXTaoYfzajLLWHJEikZUnDrZc8e0xyIrKqmJNvXBhZ8sh6qUiXZKHl/LyB4T+saztcKMEhVb7Qee4bHN4wYm4Pp3uI8CHdpNniAfwvCSkFgDaet9A",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 572,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 233,
+        "output_tokens_details": {
+          "reasoning_tokens": 93
+        },
+        "total_tokens": 805
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:815274768a016255\",\n      \"npc:ab801dc8acb06db2\"\n    ],\n    \"constraint_ids\": [\n      \"C:f5d06d1ef3d8263a\"\n    ],\n    \"span\": \"Cass accepted the title of the Archive Speaker before the assembly at old mint.\",\n    \"rationale\": \"Noor had already been formally recognized as Archive Speaker, and Cass then accepted the same unique title without any stated relinquishment by Noor, creating two simultaneous holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 572,
+      "output_tokens": 233,
+      "total_tokens": 805
+    },
+    "tool_calls": []
+  }
+}

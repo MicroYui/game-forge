@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a1652e173a0d9a2ff4cac3f1aee15eccc121ca05079ee5bd5b2e58f19ae03f8f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2604,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 604,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 133,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 701000000
+      },
+      "created_at": 1783845600,
+      "id": "uEBfclxsWkfR8z1pt/kz8tWjxHBBFlOxjnuwwfPMsYFpCKZSvi5rVluxdLBo52L1HW6rdt1ewR+HDNU//OBS5t4YfKiRoiCbunzKu1+2zEtOnLQpv7/nHw9WYnu0aP8i0/H2HQ6EwBGW76jAOZgZbLBtAn+6LwS1VJEjrVQ/V4qdOlpXIE6Ua110u8Q6Ac1I/nH9xVRYF1klMdE8Ggmdh3OO9BXUWoi5FJXOu+Ue9Qth7/2mdDuVPqLvz7u+4HeYiOO2SlC3lefoL0L++vBOy8fFqmHf4kGCBEeqwuJiriG3QnZkonW8QJjo+Wita2iCRG6xtIFXzVnlMfPWM4q18ylLrK6+P1N8bgEQRkn53BNJwuui9HAoWwRT1elNsOWo6enozb7lIAJ2xnjnkYz2JxFrZlKHTQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "hVkN778iVypy38n4Zl1dJCUhsyQ7IxhDD1YM4yyjC61HJVWE5gO5K8UzfC+H6/dmlAq7Wbqe2epqcgdtkS3djwLX9Bjra5mlaAJJ38r4vCcQOcB4ic4bVmmt/WDHls6EwgkLwIQWNWcv9CMnjqBXF/n1b/p/1d5anfa4cNL9k6lIpCVsclNMeRYiIvlw24f4Z75ImgUdxHzMehy1INNjYoOn/ppx2VmvI3OAEe7IUHDwI/0gmwuqkW1Cqac2Kp+7O1gmciatpxjMILhKF7pYTQ9A8op6XXFC7TH8G8xSZRIHxznsxET72nlkCA5BPQ1u+aKsQObIuHYMO1XxdURd1bLzvIpBzhtmss4rahwvw2lPDAPADK0kGoA+nnwbgR7lARM1UGNm7VgID03w7aSbMXh5RNI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:acbc181cd0f68a56\"],\"constraint_ids\":[\"C:55b683d2b922d350\"],\"span\":\"Noor ordered the last rescue boat away from the stranded families at canal bridge.\",\"rationale\":\"Sending away the last rescue boat leaves stranded noncombatant families exposed to avoidable danger, contrary to Noor's safety rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "qPZ6SzlL5WOMHFrTNwNIVA8JWKOE5TaKikXupLjNaG+YS/xUlGoJGjwhofyPtUnHOXwo/f3vHbYuDOKDBb51z34wMO5U3OK2YR/0gnjEplpKUq5755WOYceriHt/QE8WZcyd/rE9QrsiN+TyTW9EPJBH78o6JTotzfWec//hb8609xmPwYOkX0GoGowv8zffrj9EeqgKAyGA29nPw/Z2y3IBoSPWCjdJj1kdj5DudO3K9Xg9aKLMtC+EVs3SKzt2EsOaP/Y7qpp2tU17JySw54sAhpjdjCObZ1AXXzMgohPzxxWavmOzGG5CYRa6j8tXq7pPJ7uygi3bSTZa7mtltaJRucdNHFvanEJ0xwkQDpIW5RmMxMuOZ2Q+Pn3kAN5UVFN26LLK4+q3SMjflFCP2BZeF9GO",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 604,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 133,
+        "output_tokens_details": {
+          "reasoning_tokens": 38
+        },
+        "total_tokens": 737
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:acbc181cd0f68a56\"],\"constraint_ids\":[\"C:55b683d2b922d350\"],\"span\":\"Noor ordered the last rescue boat away from the stranded families at canal bridge.\",\"rationale\":\"Sending away the last rescue boat leaves stranded noncombatant families exposed to avoidable danger, contrary to Noor's safety rule.\"}]",
+    "token_usage": {
+      "input_tokens": 604,
+      "output_tokens": 133,
+      "total_tokens": 737
+    },
+    "tool_calls": []
+  }
+}

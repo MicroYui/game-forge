@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1d35400e4ef2f92e9b736eecfa52df979559510daf614edc5c0a12f2562e74ce",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4415,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 670,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 205,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 950000000
+      },
+      "created_at": 1783846500,
+      "id": "1JBCSbhCG/86gy6KO6DC6KYST0D6PT1e8kORAS3RxcmknDxwfU8Lsdm7yohmNztVjYp0v8ibPMcxMLJRUl2Gka8gQZuIQ6Ls51wQ4oSnORtPXuPAvPwkjuXTxOgrsfQIzOd72LRJGbl5/Bt8J3XoUKqhttlF4LeoQvIn1G/ohgPUhMfHuj66sz9kzErAw+EAt2O73zPKoYzlGIxbV9VC0quRA8M8CvuVAnPaXF7eZ132TU6c7xEey86A3dbkcElk3cNifA8v/0hCzKfTP+S7czOxOQy07265UugKzK3txZOvSSchc9OzCLjO8rUu42Vf705CuLi11CI2AXS563j/dNyBIM6OjAncpqcDUV4C3b18lB+SUJLrmn0SwK0WWqO7WJG6iy8VSRDK24Jtf1bklTWtsYsF+A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0c9BhXaD9sTheT363A5QvF9+h2Wq9ESl7zy9WVAL6T8XQ67Z7fhE3jt41XxBcSEItM/glBoSoYDNgL1IWdHyOtE7IB5KaZtqp1xDxib+N2zLsVjw8tsQNi5uNXrApESeOxrs03BiAE1EQskY9nqSsf1FWmVRAvAAfFn0qTEZ4LOQuxfRrpzKEF+XB8jbdOFKPf/JAAQEvPH+nV6ZGHNsOD/6UZa/h0Ol5bgUy5zECORr6H8nMtWSZbLPiik5vyJ00Xcc/U0nR3kLgKMCLq5s/9REYw6RJcYmwUtzjhul52VLkoSLxSmJVeKduW/xzLdEdJXnFvA66yJxj5zyPwU+GUPE1L7xOnptsjNyzp5LJt7JzHpJ0e82y53pLVW8W5KleAYF7noV/rU97jitouUK/Fj6qAE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c2b7f655ce56522c\",\"npc:d94198313aad553e\"],\"constraint_ids\":[\"C:e1e4c9e97b7bdd02\"],\"span\":\"In desert waystation, the council recognized Tamsin as the Crown Witness.\",\"rationale\":\"Tamsin is recognized as Crown Witness after Eli was formally introduced in the same role, with no relinquishment stated, creating two active holders despite the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ITTkFA0nAMqQjFC0J9ICisICciGp3+SAO3AJIgFL+NbaQq+k10XvLuUrbQs11L5WJMX/KMFi6dj5tki/TOMd2b2e6hARhpLQ7GXTxypUI2RPKEmSCZvDMeBUM/VmDNyqejckXXiimPlHrF9PZ/PrcgxzM39lrMtYabR2SqIxakVYSFuRKNMiUmBglNcA9x5O8Srt/junot+R47QUPqmRzL3AlWSVvOtWAofs3Po3KiUN6nbtgx1JgnJwICF3qc3sqyt+DD0dpvng3tCqhJaibLUsnYCXojuabkPHyjbl18t/Wwmd3+9Nc78JwWRqVAf61QG5pruYU5HnKyiIETaJuQTNjFpcaxA9xG3h5JdwiMbeq8stcLqeG/e8+gXbf/8rg1v+2AHsW5NuJnoaLT4wBs951V9I",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 670,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 205,
+        "output_tokens_details": {
+          "reasoning_tokens": 88
+        },
+        "total_tokens": 875
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c2b7f655ce56522c\",\"npc:d94198313aad553e\"],\"constraint_ids\":[\"C:e1e4c9e97b7bdd02\"],\"span\":\"In desert waystation, the council recognized Tamsin as the Crown Witness.\",\"rationale\":\"Tamsin is recognized as Crown Witness after Eli was formally introduced in the same role, with no relinquishment stated, creating two active holders despite the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 670,
+      "output_tokens": 205,
+      "total_tokens": 875
+    },
+    "tool_calls": []
+  }
+}

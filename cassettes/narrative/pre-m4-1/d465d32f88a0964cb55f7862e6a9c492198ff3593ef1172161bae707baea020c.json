@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d465d32f88a0964cb55f7862e6a9c492198ff3593ef1172161bae707baea020c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7206,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 675,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 504,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1849500000
+      },
+      "created_at": 1783861200,
+      "id": "hhepVcZs322Wl5q5fB3nYD2oKCPzx8wjT13FExLAJHO1w/vi98Oj1KP5RsDXD86xV1c3Ix9rbmTse/CNWgo+Xjrkhg9AMZnDWGCDEIalVAwPskTq+YQhGwTbSzApkJJunYgmhjCsAJPvXenXihYyJz6EFpoYJJry33WzhH0o3ncmBRAD7vA4pe7jwWl1nQGjp/ezILpGXjb1WyuOOhidazsh/SC/AvQ2THERm4fl4oz5T4ShEmO0lO1b0bRTk45j5Ao2npOdFQtZubT9pi7GghRzISjl7oUoktrgKvhnBvosZw0hx2jQVy2M3BXX8SeTwsBYkY0Vsf9fs3dbDfZQXgCSNzJvDsAGan4rR4f9a/aqzA51KGiXYxXqr1wx3s0Zr18hjPtqtT/+eWQw5NT7PL/7s8NQRw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "TIXFDRzDpseh12IqXhjfAJRBQf+4FI0KHBdm+TNbjdcgwXREKBrXYwJFrXBF7mAJub4EvsYMyhQRTR3MMlUuV6oaTHukEbDXNoeZoIYyIuSaXb4hd8DyDVTS0HJxQ3/v79yBgTzeXwnoshpUdF7aq/NMGevoY2RYmOjmtSo2kizS9tM+eDoJBUTuPOsQfDqTvJRb792q8zw/oZ8hFE1eXlplgJZ8u9cEsO0Xz/nkyZbTN6Wl9T5crlARXRtpRGTGvl8x8b1qYEXM8ioqbz67EOIuzfZpGNxWYAR75Z/u7DrSbV1DJECxf9wzApIHeHM9rGuz5LuzO1G0wISQWIbkNPf24cnh26jNUOK8DbJ4jfaJUxSyR978TlZ9eTyRiKuGyIATJYpTC9LsMXzGcckH014ddpY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:70a76fe16a5c27c8\"\n    ],\n    \"constraint_ids\": [\n      \"C:6dad09e7c840d00f\"\n    ],\n    \"span\": \"In observatory, Petra returned the reserved rations to public stores.\",\n    \"rationale\": \"Petra returns reserved public aid to storage rather than delivering it to its intended recipients.\"\n  },\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:32521ed8d4a35fc4\",\n      \"npc:a9dc05cebb49769b\"\n    ],\n    \"constraint_ids\": [\n      \"C:a419a5f65916341a\"\n    ],\n    \"span\": \"Veda signed the register as the Harbor Marshal at relay deck.\",\n    \"rationale\": \"Veda claims the Harbor Marshal role after Oren was formally installed, with no intervening relinquishment, resulting in two active holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "eglCjdU+7QYAnmmkDoDFMR50AHQrnRlWvYMw8JtrmML8YCcMK7WtjDmLfY+G/IJ1E0+OR8EEQ34Ktv1yTb94F92Vu0TRsJzhBZFl3zSifnmIjiYTEwK0RGx3pfi5n/tfwQUYEPcbzL7MACcEFWy+Yfguj79sN/QxlpZQL0HwsHrZJ/JNYMwVjlfVYhkb0V0oKQUXsRY7AE5C2lcJEpElnA/H89vpjWC5nnmP3Sz7y4hi9NArt9ZiO5mE6xeMSWuvhBydWO7jxIOKlEv1Wp/7eNMEvPkLcuIwAqsgHeXQgedjpGISviutrKy4dtNP8s2JzHmX2THT5/vmugnPlYFLmFcKYs3MGMf6vX4kThQdQ5rJPP8Wy3zCU5Y+cTs+O2bi9cmWdgD2dTQfMnrNRGF9BRF89seD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 675,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 504,
+        "output_tokens_details": {
+          "reasoning_tokens": 267
+        },
+        "total_tokens": 1179
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:70a76fe16a5c27c8\"\n    ],\n    \"constraint_ids\": [\n      \"C:6dad09e7c840d00f\"\n    ],\n    \"span\": \"In observatory, Petra returned the reserved rations to public stores.\",\n    \"rationale\": \"Petra returns reserved public aid to storage rather than delivering it to its intended recipients.\"\n  },\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:32521ed8d4a35fc4\",\n      \"npc:a9dc05cebb49769b\"\n    ],\n    \"constraint_ids\": [\n      \"C:a419a5f65916341a\"\n    ],\n    \"span\": \"Veda signed the register as the Harbor Marshal at relay deck.\",\n    \"rationale\": \"Veda claims the Harbor Marshal role after Oren was formally installed, with no intervening relinquishment, resulting in two active holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 675,
+      "output_tokens": 504,
+      "total_tokens": 1179
+    },
+    "tool_calls": []
+  }
+}

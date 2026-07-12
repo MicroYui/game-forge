@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b4fcc37cd9577a619ed755c0b5331a45f6d388696094cf138bfaf2a37773469f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2998,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 673,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 166,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 834500000
+      },
+      "created_at": 1783850200,
+      "id": "kAUj0/oJ5vPyDAULRNtxJxU2iFmn5nEAGoGJXIg0cTx2+FdWjtB1+EjsF5Fsrp7sWbUhVIJGNfuC0R87K7TdEi39tXmT//shG+auWmtiuBvhKMw2MclXYnYO6o4dDny0Nr1C7Z1CXH8FsoPm8s2xDI7dtbcEC4fHqBuxOef8V1NL6rPStgL+ERvn38aPnzYZ7x9mffvA/MkfxcNtqu3KH0MthFlBuJy6nj6GEXxN27XEYca2xEMtINQJhP+3orLFiJm77+N+Yh2u806PWbmZk97fLd2Hk+juxksJ5g+zZgvI69qteWqFvKmgJW+ZtBLqweXpF7vGqAUashaciFpXP172aW/GgSMLfp2qWVU2qGD1W6ZV/FyUaXl4pqiqBtOjf4dhnRYESugasHZ97Igh7uGtapKyCQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "V2yatJlibBKr6qt1zyBquXg5MhmhYjN6xjLZI/9qEZTyP4hLeE05mGyzalaK14g6m0GfqZQkIib4IQZ5jNEjP/nwrLzt+twAC+xukPhFfbloPrOH2EIJLGa9aPhXy07aohyWqPDqcOjSzl6HwE0+/U5dYdnsyvWboGFiXXVCVtOgaTeI+QwEcy3kbgXbUZvWw4P4SpRQUxZ1fleq54ZAGfrLHY7B8JgNbHMFq97iuQTTsqfQxY2gIzQcABTFZ4H75DXe8YIESiYAK9f/m/cM0pBVJMJTHVnhhVhyJX9vt8WLNNBRzdJy3yKaEX2zdRHv7kkBIvRJd77r/8BX5kdyzelPDx9nObd+6H+BdzEGSPh+Lf2F4OJV3dywNtle4xE3JoFxpj0JYobUaJy7SnmKBmb9t6Y=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\"npc:31f09ad708938ec5\"],\n    \"constraint_ids\": [\"C:54b169779ca1809d\"],\n    \"span\": \"In relay deck, Ada handed a confidential route to the attacking force.\",\n    \"rationale\": \"Ada discloses a confidential route to an attacking force instead of keeping the entrusted route secret.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ThNmVO/BmlJg4BxmJiW3krz7Y5jpJ20y72tM+5RsQqoD+Av71Pk3ktU5efuKgHDV4d8czuFh+SdJn0DolEALsa0mLYvFuwic3s3A7ZJY//7Fw0EvG3gwPE4vFFUpkbJH3FS0DTmq5KmzXXwNNM9JuwBM6/fJfNEk+l9bKrBeZA3zBcQGFo7tX9S7Co0vV1uroYB5A1OEpEu6x3ensP4nuYoNRTIL/C0ZlRcyYbkNxTfCSbHeM3swa40/P0Wz/wuL7YKT8Cj6/UFCbY7DhtEivKCPmphPnlbSh77p9gozub+ucXhLqdtzt6tjomxcRpg5CA0ajW7NIPaV6VArdIceXQnPkyDiWPyWo2452pmrFuHozt8kg0D1uJ1+k7ilS0FzLy/pUPMD4G1M6vwa++TEOxFWj+Rh",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 673,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 166,
+        "output_tokens_details": {
+          "reasoning_tokens": 65
+        },
+        "total_tokens": 839
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\"npc:31f09ad708938ec5\"],\n    \"constraint_ids\": [\"C:54b169779ca1809d\"],\n    \"span\": \"In relay deck, Ada handed a confidential route to the attacking force.\",\n    \"rationale\": \"Ada discloses a confidential route to an attacking force instead of keeping the entrusted route secret.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 673,
+      "output_tokens": 166,
+      "total_tokens": 839
+    },
+    "tool_calls": []
+  }
+}

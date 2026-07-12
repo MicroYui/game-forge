@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9cd0edd5f8abc440668e50737aa9c0ecddd40f45fc16f49690121c1e2d18aa63",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3141,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 664,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 158,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 806000000
+      },
+      "created_at": 1783843300,
+      "id": "6C0upLH7KB8qua2STdsJGfWj7BejAmZ2XGVMIRUrHuGKzHhoGj4xnl34ELzug7BxP1UQZglTMuWlDASPO1qgbr5bMsiH0cKYHPuwomyLx5t8nMUszbuQ2N4OhQN6dg4Zy7yKuzdiXNK9I16oG56hWklShgnVfDfLSj0nFS6Ofqymasy5SA3djL1mCDcZUc8pm3Yh8p+sVhxAsDtKcCz/p7KMZumBQ4FKORpcSmKrLWftuW3zCp8hOkBMJ5s1d4f/+35qVyf+rrPso2i/McsWH+0Z6SGR+qcMltbBHhmv6vU7K5jQXBy4KQtpGc9kqnfWGDmWXCcbBy7QNHvVPEKLQbzf0IGOfEBGZyAQuIhW753HPu6yLYo47KOEBSKYuiVe75ZC91t21YzW3n9xkB22t1eFK8xKuA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Tn3igCP4soPOdP9CvmjTvlJHlU7YrfKv+ZKuO5/qnIyd7tH3JVSPSvZuViljpZZYFKzJN56HihLN7BYCW2rZODHJVrgBace8qhH8jI+fcO9JKyV8/s2dDgWdgxaxtOL7wLlNz4XCXkdxc4x0xpAaptJkqbtY3UGevTivqMaE/lIhfDA+o67VOZh/f++ZvQAbtzbJudR5YMVDm1YeHZOD9OOD8CSm1Z+j3c0saAye4wHAxL/EMFRoPzr5A5b9v/uYcc8NyJCx1caod2DWYqOk3mV/sHURfnWttLMm0M5nB3NsdF3BUkzadPfTzIbDSR4ogNEz4Moh4h3nxh7ck+loSl57wNnum/b12jLT3SIC5lcADsJeYyiNnCDNNtt43KffXbToVAm7FyS79fb+i2+F8h7GSB4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:448e1ec3c00e1a37\"],\"constraint_ids\":[\"C:50e184542eca081c\"],\"span\":\"Noor redirected the shelter convoy into active fire near north gate.\",\"rationale\":\"Directing a civilian shelter convoy into active fire puts civilians at risk rather than prioritizing their safety.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "nSBaozv0Xb7OzNT9r66aMn2gLwkrehkR7NqsBxcw7OOghPmzVxMHk2bE/839UwiluLXpj8V15HrdEsrZB5+hazALbEczKBs32ou38hohhhK6TBDhyL1HV1NTUEtpgNWS+Q45I0SRU6GXA7J1J6s/XA72Kk4f4fh3zVCijl3Vv6aHXoGe9q6YbPt+R5CpTi8tnNyeVTxx+YHcwI8hVNDBBiStWbPMo0KIFqPcjJ/us4uVe9l71PA5hgLtXJjNVCA8iK1Xc3mSgnEeK+mWZj1sQ/XeksQMW8bAWWFuOKSdn/7aW2RG3Lz+yn0+/o9lF2Z4BtkRtI+lR3ZSMQmCnnckaOhwZPu8qNrf8DcD6bNax0Zh4ZPpF7GkZX+G392YeSNgY/KILKEvsampniAbiikUg28fQpTH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 664,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 158,
+        "output_tokens_details": {
+          "reasoning_tokens": 71
+        },
+        "total_tokens": 822
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:448e1ec3c00e1a37\"],\"constraint_ids\":[\"C:50e184542eca081c\"],\"span\":\"Noor redirected the shelter convoy into active fire near north gate.\",\"rationale\":\"Directing a civilian shelter convoy into active fire puts civilians at risk rather than prioritizing their safety.\"}]",
+    "token_usage": {
+      "input_tokens": 664,
+      "output_tokens": 158,
+      "total_tokens": 822
+    },
+    "tool_calls": []
+  }
+}

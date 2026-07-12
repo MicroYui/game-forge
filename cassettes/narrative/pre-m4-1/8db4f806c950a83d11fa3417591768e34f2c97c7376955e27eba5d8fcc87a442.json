@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8db4f806c950a83d11fa3417591768e34f2c97c7376955e27eba5d8fcc87a442",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2894,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 665,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 159,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 809500000
+      },
+      "created_at": 1783856100,
+      "id": "EnxvPGVC4i6Rg03adGtPYXH/FVxWAad/HjWD3bh2r1jUELtkAFrvURHFWXHHPkjunYL/khr1KMORsdwDJn8NlI4lxDJdbvED+GHPjwD71q5GR02EuAQ0RXANoRNE8dBzq8Rcv6MmWwIpcfMoEl7H8dCit+4IdFwNG1tDB6+HozDPQQL0A+mbEZkN3MylCzx0r1KzE+5ycvo/w8E1hDiMS+mt7R6Cwndah8FlAuKZBugOktyTWMdm3NtsYOJ2zp0jlaXbaoOrfJ4LL08TV7pvxlM28NnEFapNk05CmRRTgHyron1IbxrDISw5UPaCbqOJKYeNKVoK2eoKdXI31k1Xq7o6DD+yUYkAjtttEZIjY/OFPVeeI1pTlQhajW1uJXYC+tl18EvPNyBjeA5mDF/YqC5TJMts2Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "D1s/2qVMTc0fcEb9Qpp+yRQwzMEpR4l8vP2sLjXyD8QlMeS7/ow94lvRFawTXStwJFcKReH0aC0211uh0n3NTk+vGIy4PTLUZZq//ipQQjiHMdEvFKCQ8tri3k64tAIrBXqCws0gM9evf8KJPNKt/df+e/1ojRYhrqr0tOAnB8kSPpSDS4YFgXTQj5D+HTqvUIjSOXUZgWlCtYGk39GXtNIaJQjBUtlJtEKbptYyRZZI1SZ99J1HGkAAEUjviMYBw3yTS5RidLEi/WSpByC7US5UGxTXZ+Aq8/ZK8icXGCFSw/mpAzXwbusw3n9IDFZVeDYdtzVCkBvkGJ6oVcB6d+Ywnh1TJQKIMQ97eDy9vNNG+t0z7nlVJqZ2l6S11agIfDYSWqbjm3XlgfsSBspW0QiYX7g=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7d95e7f61dc9affd\",\"npc:faa8c65c5981f019\"],\"constraint_ids\":[\"C:6161e8a75885f071\"],\"span\":\"In river market, the council recognized Malik as the Caravan Voice.\",\"rationale\":\"Malik is recognized as Caravan Voice after Ada was recognized, with no relinquishment between them, creating two simultaneous title holders despite the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "s2hcGcba9yHSvwzQF7+KnZTz+zx93Nivpu7dFZUFERSo65e9VxbaCnxFcmqol3MbuEsnY1j3Xa2Mhjvbbd0/onl8/vL6fUUpTkmbtx3HS/zqKDMOfkizi3AR3NFUKgmMFs/F2NhLTOJ7b4xZX9nDQDu4GL1BwmbpmSQdNy5flgvaxM7N9RIxAbo3w3YlrTRuWw2+YdZlvcbvEDDHLhIBdMCU2V/MFxpNi6K5KuB+BfNX0XPLjmYJJ89uy8T9JVYyAc8kYzDD1WFxOUQw5++mpS6hTwgC038ug7Ufxwo/tecpsn8akDfjIVrZoZMX95rvKBBjMRM9rR8lN3T2CcgBqQmD0HzSxvpGcT7gt5hBn3/6BqmpzsT212zpZthANtRvPV73wIhwaubyHLZp6tAtWFIzg8x5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 665,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 159,
+        "output_tokens_details": {
+          "reasoning_tokens": 46
+        },
+        "total_tokens": 824
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7d95e7f61dc9affd\",\"npc:faa8c65c5981f019\"],\"constraint_ids\":[\"C:6161e8a75885f071\"],\"span\":\"In river market, the council recognized Malik as the Caravan Voice.\",\"rationale\":\"Malik is recognized as Caravan Voice after Ada was recognized, with no relinquishment between them, creating two simultaneous title holders despite the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 665,
+      "output_tokens": 159,
+      "total_tokens": 824
+    },
+    "tool_calls": []
+  }
+}

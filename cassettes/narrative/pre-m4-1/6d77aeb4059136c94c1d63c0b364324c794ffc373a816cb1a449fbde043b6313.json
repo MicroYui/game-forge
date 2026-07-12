@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6d77aeb4059136c94c1d63c0b364324c794ffc373a816cb1a449fbde043b6313",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4074,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 675,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 146,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 775500000
+      },
+      "created_at": 1783853600,
+      "id": "GRJ1JmwZZkFplAmJWz569rOcuCZrZMuCQ9z8gT+sb1EZMuYTSjei3HpaVqni/GOKLgJJncIhaYGdiAhP0xSxErv+KEGF5GqFt/7FYucvlAmT3KbqqAplKR4tnJJHSyQVdcXpcgm5m3PNwE6sX0Es77b/SsU6Bfh4HHls1TrstpirAyJ5LcBGUyVPYbDH5TWm/8FkWYuVNh/RRzpJ1j/PnggVUxNjInIZPwa59wcVO9YmbSZvuI3eUhlBlfdPOVUhFdA197YeAvVc1l/3qTGefUnfTSfPL5+ndBltbhbVh1lqtghgBYbOtvhqBlBcWsQSPJJTQVU2jKQKBQyoeHw2m1vI3HgVlEnnM1MHQBg5AUcNSo+ohQlVOdTrF5Uel8W2kSizM0k5Y1MauYa1G9grfOaGZIOhmA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "QUXK0lNtOU6W5JCmrggZWVjH7/pjph5UR/6jj4rTg7n5S8OpUCdL0j4+MWczQeHhN868Nte2I0MLHhSNcTyTZHeWEn0BeEo9URPAhm5pUYCmT01f0yNVAE7/GAiblo7RB6ykzKdwnjBVnOBirGdyzWBlbw76m4S+TrnWEbU4ONB1ueu/M5GxDkCd6HEd5gKp55JXKUgE1GTr5xP+F9LZsM+C8ZzKpi3oGXe291GW/664aGOp1z3atXLua8Jl0G45bR8jzE0xmGkvPq8KhIKX6NFUO0xOfyD/TTkbsJJt7gdfje2RMI70SeOyhBeBFFhbVSnOWmQrYmCDxp1otFW7OwgFtLnyUdCHMBxzkZrVGufPiVXVE8K8/xhbvTEUtP2Q4SZpFZxqo+ZombyvkswXDoctLP8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:2846a6bd7f41e041\",\"npc:88941397242d7fd5\"],\"constraint_ids\":[\"C:1ee3595df8527b49\"],\"span\":\"At old mint, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli jointly plan a battle despite Valley Rangers and Storm Company being forbidden from coordinating operations.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KzEWG0rImI6zW4OVEnAy4ay5eNzL1IpC1RJzgb47PHt1yJi9iaGli35ThFoZhlPqDFWA6bQArOXvE/m2nKdbcsBK50nUGAT0n4NQzPJ5k4s4vDo+TBZuP8lotpURNj+ElTmyvcgHKmOgGNUr9tsa28esgnXoiKtFNuaETXl+QaG6WOhH4rOQwMz+m82cMzPTXi4PU/KEsg9IW4Ny6Cynn/+YrOkOu3lXRqcmBR2yNiqRRvoi/R5XaQoN6Hz6hkSiEbBQLN/+k4bNANI+pHB12Jn9NhiCUUwgRskWtkDEl/bxWc098VItCXVBrLJGH1Nc6Kmu8Z8myvTxtQUZ9AkJsKhHUrUJy19k9dea7MZCyvnp0WfImtb+k1QIhTrW0dOPAr43icwa+zs92hwja9AEtlGrcxBz",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 675,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 146,
+        "output_tokens_details": {
+          "reasoning_tokens": 43
+        },
+        "total_tokens": 821
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:2846a6bd7f41e041\",\"npc:88941397242d7fd5\"],\"constraint_ids\":[\"C:1ee3595df8527b49\"],\"span\":\"At old mint, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli jointly plan a battle despite Valley Rangers and Storm Company being forbidden from coordinating operations.\"}]",
+    "token_usage": {
+      "input_tokens": 675,
+      "output_tokens": 146,
+      "total_tokens": 821
+    },
+    "tool_calls": []
+  }
+}

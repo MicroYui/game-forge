@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5acfe5ef26f9f1330fbbc90a1228c1968c1330227e309808999b64cb883b1d7d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4007,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 543,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 243,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1000500000
+      },
+      "created_at": 1783856800,
+      "id": "cXia4yAp05l0Ob61x1z4l7VWfH5v/nlroefP1EnTQkBeEAymX5iXdWSjmZ883Pzl56C6tTg9YH/nXat8E1XGnV1lEF2aMpsMxdjai4tnQx9LBEbDQO04ISzSZuC4TTFEJ/17Bijuse9lHhg0oK8nkJyTsldJ25vLUhBXuPjFNr4l3w632DafmQ86SxGa2aPHzyagTUocDawfIIG+gIeVW6n0Q7gDLn17vMWbrR9MvEHeszGjJdfxczLTD6bNkNajdtkmE54yG+kvoxzk6g51DK2Uqi9S6FgZQN0CgX43AF1qmX7EJP2sPlbQcNADcafvDF261yZRP+YGCs7REkzciHDBoxYdFRFHBrukZsFsMrklXYJ24KtlQpRhx/ZcGMfaU9jiNxzptqDCI9/7ZPTl1ykfPOEnKw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Lebah/QluVO0uB2PYJm1pWrEkMSCTh/I5bUm0vOVsZ2nqNSWLJ+0FEDemYlm0pKYXeZVq/M73v/Uj3kfMh2m3Ee83uepiaAlcz4n6CNV1uF4vkBBwEjECjERdteq9KO0Tiez9gYIADXJLyihswRBPHR6Mo1qTKyJ4Xl6o8STpp26b7IouKawwbeEYqC0SZcCqkKvjgSAsZO993FxpEr/KH1FGD5krBhnCZpXs7NHfoqiSpm/OT3aJHwoaP/1fPoU5zLwRm2nt44x1648KhYFCqYUiRyu8iNI+Kq5CZIvAjNZqeup4vnSDBugO05CetCDvzYEbop8Le4WVrrEzPSQdcojK7nFej7UF4SCRnJtxi0WeKKRJ0VJz19qe0tby/IShbdPnJ2F22NZeRsZ9FxWWqnxpFY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:14403eeee79fc201\"\n    ],\n    \"constraint_ids\": [\n      \"C:73dbf75fb27358fb\"\n    ],\n    \"span\": \"Mei disabled the crew's escape route before joining their hunters at north gate.\",\n    \"rationale\": \"Sabotaging the crew's escape and joining their hunters conflicts with Mei's required loyalty to every crew member.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ZGvPeeM61n/E0Yt1STxY8vP5WoXKxGOIyoCIvDsC3Dm4MloPk5pg1DhBKJZOHzFIbJGoKcvwnvZWL/TGvfWzNrs57EBv8sNcrhHS3TuL1SGM9xcZCIkhrc2vUvWQEhFP7of2gogGoFnpEXTqR9JYv+XysZl5Y/94XG1l9pvVYQaBScGLkfHQrX+jNADPJoFyaLEYsNkV9uHW7gfGVUtFAT0Y1TgcNJLvlbg4P1Nx6WhvzOHr4qxaXWZSsMLEWD2zhMu23BClBeWhBgxhfWA7588yVyQIIjw3LR6Fh1ixRuDgV2VA/xRpR6yKv9e1t48T3WvhxTJmiv5XGd0cxZjVPU0sZRt4rXwNAkYisRp+EI7Vq8G7ThSSXBL9dBexUoZJbhkGt8jpLUHSY1K5f8R3qQQtnoXT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 543,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 243,
+        "output_tokens_details": {
+          "reasoning_tokens": 131
+        },
+        "total_tokens": 786
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:14403eeee79fc201\"\n    ],\n    \"constraint_ids\": [\n      \"C:73dbf75fb27358fb\"\n    ],\n    \"span\": \"Mei disabled the crew's escape route before joining their hunters at north gate.\",\n    \"rationale\": \"Sabotaging the crew's escape and joining their hunters conflicts with Mei's required loyalty to every crew member.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 543,
+      "output_tokens": 243,
+      "total_tokens": 786
+    },
+    "tool_calls": []
+  }
+}

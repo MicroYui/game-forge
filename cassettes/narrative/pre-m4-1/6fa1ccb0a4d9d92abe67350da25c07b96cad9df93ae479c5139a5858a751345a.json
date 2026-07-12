@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6fa1ccb0a4d9d92abe67350da25c07b96cad9df93ae479c5139a5858a751345a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4120,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 693,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 859500000
+      },
+      "created_at": 1783859300,
+      "id": "GXN6+KJ9+9eBVWBrpwM59T95RVyu7Cet5JZLZWhzw2AmPLWhWKqLoUxZ2c0y8A422xfZ91Lur3K9xm7l8YadwX5dcVGi5zFYkMygSP/an4Lsu7Ib9eTni3v4+UmVIkHqoNNxXhwQRwaXMKb6TNuEf3fgY41oMwY0DFXnjuY80R+7xsibFEbrr0kpqX/6aEepaKbOkMgbg1dAKRInib7ukTzd4XCUlek63O8/y25A3amElwSjBMxFBo1sp82c1Lj3ZcFXiwpZtfwPgFRm0NnTc4flGF04YPlZQNK4YFZDHsg8yJZ1pKPLL4uxdBEnaRrj/i5DgW3Ge6KS4NjOAOgcyC6cgar9KVFbDW5CaP75b38lHWKEjv2m3/BvBeN6BBvqBPoZNuANOBBkO6aU2sNLTSqhNYnDJg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "08AOSxKHN0G6uc1w8vBaitua/lS7ZXsE/nocP3qFx1Y0C1vFqdSY3B2d6thC5Ek/azOEAoiCgCD5j24JO49UEpbSnll+qu8p655RbWFhVOutozGPb4h4v+GJXiUus4KYJGT4AXRCbDPqh3Ta65/6lEyTwqYZGkj+ytdjxD/BNvYBAfPQ9P/D66tCW7DBRdhjxLTUUhMl6qXnCWKgGjQAHnWV8Ltcs4cMIXM1A0BMlqCrTWGkFFC01CcTfXOvnW4FygU8KDdJZ8/79LzHJqU+bd+U2G6YJjOUqaS4v8ki7UrRMOfyerlkip0vzcyAf2yyLw1tcgw/+lnRLR/nsM5lLUq/j5wk8WTry3KNGIcX1OcKGnTyJzESAqWddiCdgO2h4SsuJMT4n94+lZ/h0BcoA+m+m54=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:6c9db726d9752be8\",\"npc:fca5eea0584e2d20\"],\"constraint_ids\":[\"C:335ce61a18814818\"],\"span\":\"Ansel welcomed Iria into a shared command post at caravan court.\",\"rationale\":\"Ansel and Iria belong to feuding factions barred from joint commands, yet they establish a shared command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "tm5SiA7az1NCKrD5VgWSL3YF+BTPTCJjrVwVf8/YsU9yx/JBTc5is8jfEYZ4eUdjRqV5RmTGc9iVaMq1ZRSmH3yqhwW2IdCuzuXN5dZ7SnzGavJV30wn5fvkV3CLguhsP/2yT4yi33YTQErLjdzUT6JiziEmpihTbg6na8BVK/fmT5BUuZ/IJ5oeXlkpLKzgUMPfHwnfwOYUiTpRkb9muivq3z3Qm9YJxM/uHsjqPdKE57HEwH0IbvKT6tWYF97oqBy4uqSp7pdIqI4N7YI+2yOhnWoonFs4PdXSoFU1EN9sycP19fpJzwTslKH0a7G4dsfkfS62dXAhdvot45faZjvchkefVY9/O/r+wLJlrS62T1/2DH6z+rnI3cxjJWWHd8uk6ffuJxEUuti9HiMouJWQ7dnc",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 693,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 67
+        },
+        "total_tokens": 864
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:6c9db726d9752be8\",\"npc:fca5eea0584e2d20\"],\"constraint_ids\":[\"C:335ce61a18814818\"],\"span\":\"Ansel welcomed Iria into a shared command post at caravan court.\",\"rationale\":\"Ansel and Iria belong to feuding factions barred from joint commands, yet they establish a shared command post.\"}]",
+    "token_usage": {
+      "input_tokens": 693,
+      "output_tokens": 171,
+      "total_tokens": 864
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1da6b85f22f46c01b820a3817f7c611ae14123037b68bfd65a2414f3a57f6d7c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3681,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 609,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 188,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 868500000
+      },
+      "created_at": 1783856600,
+      "id": "J8Rx30jkbR6zIDmdUP54KHwA5R+2KotLExfIpBUSLIWloyawaykJbNGKy9gMFCu47I/lJHQ2Z7lQ7S4dc/ia5fdp510Hsz1SrGlyluR84FNv8r+bP7zVlUqeAbkyXwQNF+3ur53j3Xn+MSvGYoBRA4jnt/rBnZAP11K9w/8PRBxal8N2Tta6oFUK0TaiH95PBYS9inKdC7K3N3hB4v8hstkxXQWl5Kdkysvj78zrU4odVj5rIhNHB9ISAOX36H3vfrYUTM82bU+Jtk9H9sD8T4Wh2M9IKXWb1T2fOiMGLhp21ILP2Su58ju9NsWeq6a+Hst2DlR3jgOqVe60jYXc4luIdfmVsu+Rx2tqHnuQe/cfs+1xbuzRVp1Khlr1SMyYdXBGGe1+MdQiEwoqQa+ULS+u0qKQsQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "tNsNvw13wi5GxA7sgDbpZDqksiPuiFOGdPWTuRJRYXJL3s0E4XgkGYy2HFMXf2JIaUSO3sCkbroOoFsHSuHNju6D8tNrJkslA/3eAUyGY57d96P0M/5HMyXa3SU99pBnlvS7MSpN/iwyvS+rcSd0oUuyPtR2VifkxzT8mfM0847KutQ6goCmtnOMsJMVi/hNm6pC0IFQlP3ZtZmnP1d+l4uLhwYNZWUvVyuwOzSC594xmS8XwsVRBR4VAjkPoRDnLi1KJ7UwjMYEpq3ntu/eQPPEQYuC0Ei1uy4IzV7k9TnH1t7I5nmYOhuqGYUGhy/qKl6qOCoUUsWtzk3BkrX/hwaZiYYvbE5OKYlt6xp6HLB5EZt7NbbU5lCTIyrOaicpBcItsWzed2toNbfuYQDf8xEZ2Ao=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:944535c40c5ff393\",\"npc:bd254fafca6703f2\"],\"constraint_ids\":[\"C:b0e78fcf53d54f7f\"],\"span\":\"Ivo signed the register as the Warden at cargo ring.\",\"rationale\":\"Lea was already recognized as the Warden, and no relinquishment occurred before Ivo registered as the Warden, creating two simultaneous holders of a role limited to exactly one person.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Thhk1UWy9cIQTfg2jZbqUjngexAqCrWRFGJCDtx7b6ni8Kf5Atjff+GUpFeggFUA4GDWTfoR/DV6dLFqGAayqYmvl2ZZXNaZqQ7TYNsR9h+/Pz8MslSVsPR+narQvKI+Bn7WWWVTTq7uZhEK/l7TZXb6naLEaaT/xa1yT1z8rf9vagPL64xZzsBE8YgTvsweKNDiTHFuFulMD+f8xmxryHCgPQOCTQUlJAdqSpiliKDdI8yD9jHAOjjpsC/oegWkBcledbzuZt7j/iQJ4qdLSiJL7HGXDgVfhc2UAC85MgiV9uG73h+BqPGZjMvuiBxPk8KmUV910B6AJWGViIP/xwpQo9lsWqHdtBClUBT801v4z5Qi0ZamHkzQRH2idl1+f+PqQCBoSt2tMdtuY4vaYUZ7CBqZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 609,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 188,
+        "output_tokens_details": {
+          "reasoning_tokens": 70
+        },
+        "total_tokens": 797
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:944535c40c5ff393\",\"npc:bd254fafca6703f2\"],\"constraint_ids\":[\"C:b0e78fcf53d54f7f\"],\"span\":\"Ivo signed the register as the Warden at cargo ring.\",\"rationale\":\"Lea was already recognized as the Warden, and no relinquishment occurred before Ivo registered as the Warden, creating two simultaneous holders of a role limited to exactly one person.\"}]",
+    "token_usage": {
+      "input_tokens": 609,
+      "output_tokens": 188,
+      "total_tokens": 797
+    },
+    "tool_calls": []
+  }
+}

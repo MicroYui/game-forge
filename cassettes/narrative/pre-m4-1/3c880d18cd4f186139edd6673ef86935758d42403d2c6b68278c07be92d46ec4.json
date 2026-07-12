@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3c880d18cd4f186139edd6673ef86935758d42403d2c6b68278c07be92d46ec4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3714,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 613,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 819500000
+      },
+      "created_at": 1783853700,
+      "id": "PoyYPJJjd0X0po095mhgPeKfybbMePJvIrg+V/ZRb8HYXWmxohyf/anzSjBiSTKZ3vTmNQTE+ONol+eFwVDd0memy3zSuxv66S/SkJRXSXchc6lO9TuttLzTV+rduucLs2jQ1DUJwxXdy8WnZS6nnzfWTUNpCJicrVMU4NdGskQA2WPpMG7mJeL43rFxbM+PlTrE/yHwXhnSHagTQ+kz+hc0XPexbnG5epBFCKK4ptvDVodP9SINIxyiWcQsGHYwATE5jl1TaWJ8VZBGd6gWvcLWQPPPm8dZEPjK93Nw7Dgq1m8HkhDpnmTXvwrdRaoVA0qzKmXY0/WiFtpAbotXYW0CAJx8tJR6KFXQs3sZOhAqH+s+nhqFe/lWLXZhhrddmoMF1TKq6ZfOsYwH5xSoeoO0+nLZHQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "6uEi2eVFVTnnH3OToRsD86e4eb6Nnr5mmxuWGSzkUupJ2olbiTNVOPR9c5QiVFAp/CG7mz/e05YWexDEoGkmsqChUB9Pf/c2C8rSiNQpqhfApXQI0bDWMBZXPJ4cyr2eu5O4OlwqLJLzyKCDknRaSkluudhzvV7M818vFDpRkuwkSbdyo+PLLiVk9h5bDJ5lEBG+Z6+HQhBnfZ116icUzkgJVTMRJO0zZLDilnYxdMbMS62z/TQph1+oTGSKs4n+K6yCD1munrQpUvxrb+lS3khHygrLVWcsZllPT4NZJ6wvA6kVkKmtxxKSI89JEsfzoUAZbxYbxUiqdKcIZIIjrJUzvAs5abfjwDJUXZ4NjuiOoqGiFaB4Rdr4c1ngjtx9i9Z7ZgyWdX83Xqw79E08aqA4pX8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4358250d78d8ec6d\",\"npc:f9917a46a04bf807\"],\"constraint_ids\":[\"C:18ec9fac274a6b82\"],\"span\":\"At archive hall, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin of the Free Pilots directly coordinates a battle plan with Eli of the enemy Obsidian Wing, contrary to their explicit faction hostility.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "TqSuXcPfNtfsy7xgxXtzppsaRDs/qdD46Q5xGoyssUH45//m1a/ABTm2OERzdqQDZUolADp7/QLIw6jU94uQVAFnkbJKpdjBRapVEJyskRo7uR+PAeg4ZQ1WCG4RM5DK3lEXWairCNUi8LwNfbX/2q8V5BP1KBUmB+XJz/uNI3Q5rBOTV8OwfRix7GqaczgC6oi5EPNB9hGIaqd0mdIqYu5zW6m/6Q2GaatPDPtJayg+Kup12nZ45zWpWYIX4zU4/FcdPUqcJPzu0ZJDZiZ9Lq87g2TqPf8rHW0rX1Bkz3hm/BTvXr1mal6sxl983/MTTPL4aSIZQt5wi98z3nUf4fkY1e1uGdxlnjJkGWYWq8/+Wn1ABqjd3VIKkvRVrah0QoPsDymYqcg2bpfR3VAQ7/2ygpdU",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 613,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 59
+        },
+        "total_tokens": 784
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4358250d78d8ec6d\",\"npc:f9917a46a04bf807\"],\"constraint_ids\":[\"C:18ec9fac274a6b82\"],\"span\":\"At archive hall, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin of the Free Pilots directly coordinates a battle plan with Eli of the enemy Obsidian Wing, contrary to their explicit faction hostility.\"}]",
+    "token_usage": {
+      "input_tokens": 613,
+      "output_tokens": 171,
+      "total_tokens": 784
+    },
+    "tool_calls": []
+  }
+}

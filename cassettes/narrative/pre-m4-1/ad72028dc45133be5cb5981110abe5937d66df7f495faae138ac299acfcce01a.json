@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ad72028dc45133be5cb5981110abe5937d66df7f495faae138ac299acfcce01a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2739,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 631,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 137,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 726500000
+      },
+      "created_at": 1783852500,
+      "id": "kH3TnNt+9V3t5evoNqbDY6rJV2PE7jK7VhM1X+NiXtqMMUTzQsGGmumOPBJBzLGa6Ic75z6QSxWXUyS6oUdb8KhHXG8ZOX5BzNA+0D2npaaX56peQtY8cE/4coCTTxQaXYcWwilB3jdwUwboqIeZa+Br2VP2bRVOza4LcBqA8/ftdNKnZni6RdqZzFGdelQaOgfCo+f0cAAeWLM4rsbnmfnf1oc4EuXn0ipGsTFrXSeT+JLVqJ2Tsj6tjv/1YDlAiJ0V01h2nStqk20qlD5IIJH5YTQFLafZi06eFIWKyBqa8yy4/pcmJSOZ5O8lm7vs7LiK4QBFFwvsVsE3cFXvWMX3sNRuOPqKMY8FUUorc/ryiEAhhSFVA4qjbjVh3eeM3oRfq6TJ0vRVoJPzsVAREpmbSYVxWg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "E3iBuPIM30e54AxGXAcM+4MR5T/ne38UGJGckcFSyNglwd1qxDpQR+T3t+9f+FPOmc7YRTl4D8XL7Qg2+Nl12wOKAK9DKe7tJfm3ThjtIDrP0IbdtHJPft5mIGaCw9nfMKa9csrIldpqTk5IQ78RJjZd1+5aHt80mBaISUiVlnK4eiX05KUTCZOpv0kj9xhIuLohveIRmYKaP7cDW/dncPfENThrDdQ8pO4KKbi8otZRsm87yMmVjRb/peT0LJ6y123hfdP6FcfQ/MxA6L3MfUBFBjEAuRdvEI4heqwGnXOg2fwWBw3f+WyhC4e1F8dMbops5b4JDep1Bi/s3E2V5KmZHaWL+zA8oE8/bkiZfz68Ka05kup4BR5jiywijTB3s3bEDjPyAaHCjicSHa1zgDBzkQU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0f06003a7d818357\",\"npc:587f33d2146af10c\"],\"constraint_ids\":[\"C:b6afed08e9f70867\"],\"span\":\"At salt depot, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei of Free Pilots and Daro of Obsidian Wing jointly approve a battle plan despite the standing feud barring joint commands between their factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "YZpDw8HCyFDF2+bH4YV9AwzBmWm/906Yo+k/udh0Qak7FJabqZmfnNjiGTfgPduTNgT8++OHAjNZj283pNIFeUwNEZLWYvV7Bg0sP4aAYhzVQlP6ntKM2v5BUNBk9IN1b/sRQU/WmT06TYNzkQG6bwwG61dqoI6iUKH3l0c4e//fe2lRg7ed+QOFOSrztQNtOB1A4MlUaOIqC+W9X5vkq8/HG4F0xEXjJ9xRULiscHIjM79TOPv+gAijpu5R7rm/ysxQ2GFAssTR2H/0PROJhI3CwTNYp+NIx1xLFAGUuQDNPL1ZcjemMx0sRjkZUldrOgZkXRaXS47TApVf1o51z2924YCxofiKFOXdtB8+6uPjhznyFP0fL08rvAibHPudbeSlKOaa2LCkYkn65jAJ4D2sGn8H",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 631,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 137,
+        "output_tokens_details": {
+          "reasoning_tokens": 25
+        },
+        "total_tokens": 768
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0f06003a7d818357\",\"npc:587f33d2146af10c\"],\"constraint_ids\":[\"C:b6afed08e9f70867\"],\"span\":\"At salt depot, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei of Free Pilots and Daro of Obsidian Wing jointly approve a battle plan despite the standing feud barring joint commands between their factions.\"}]",
+    "token_usage": {
+      "input_tokens": 631,
+      "output_tokens": 137,
+      "total_tokens": 768
+    },
+    "tool_calls": []
+  }
+}

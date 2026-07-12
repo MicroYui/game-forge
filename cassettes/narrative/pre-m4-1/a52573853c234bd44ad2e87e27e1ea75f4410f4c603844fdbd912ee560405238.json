@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a52573853c234bd44ad2e87e27e1ea75f4410f4c603844fdbd912ee560405238",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5137,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 676,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 220,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 998000000
+      },
+      "created_at": 1783849700,
+      "id": "NTzIiOrSGpFGDgErY+VbOmbvACLFj3ZroCQGTw/xkfYG/cHScMmCZZY8TzqHziaSeQqMEVCPeTWJXNtPATUem8odRCpXL6CBP/5zkAt9rdYVfTEUZJLdp7O93O3xwabbOTz6iQZuqNChOufuNRVCMuN6dOWBaYptf7KcZ3Snmh6Eqv22WZJ/83lfEI/a1by/IezY6GvQcXsuSIcCoK1wRYXx4ApbG5a2ADpmgSxABetQQqVYZnQ1ak7vvcfZxIJnr2XSi+3WyxpZf2jlSX7gNdgdzhBeXOmCC2DEmud4nNCl/KaRhXUdNjjJTpp6gaOhuxyIiNM/m9XbtMKUZBR+4SGhYEeNUAKNUBqDJk+A9/jg1jKHBwH8IY/ojUa7vjUdquZI8Fwadv9n90mfWr8GZ7PKuLPfkA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "rRV9FonffP2C7Hzdjm/gWclIfrIUbAaWU7ZEltg4tiURZBRG7H0BlvE9/q1riM0HBsbPr7ZO0cT/+NEbSjZdet3zS6pLhRvW6QHUzTpNmI4IsnhL34rw8afP5vbCBp5doEgk4k1yRFCvwOU+PLzqzUF9rV7wjEax5cxR0Tu+0veS8dV2lI1f2e5EPrOiBsK9eMw5uuzXfUvd7/QFL6b0htbAqOUIfNs9lO784xTkWz6aCYIacBB7IPMclY0Ydit2A0oI0qxSF4l7vA71o8bNdjj0bUFh3m2tC8T4Vm9j0Cu8EkVAApuvbGRWtIc9+P6DqDlCXuhq7nQyGsQzEkfUwQ6PY57gaqhuvqBg9jbDQMAkHnNplRqzPNUEzM6p3EHLlYKaKRW0Fvj8sga4i7E/eebOTB8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1a606baa8d902cc9\",\"npc:49e8a8dcdabd802e\"],\"constraint_ids\":[\"C:58dba1695a54195c\"],\"span\":\"At relay deck, Ada was formally introduced as the Crown Witness.\",\"rationale\":\"Ada is recognized as Crown Witness after Malik was already recognized in that unique role, with no relinquishment stated, resulting in two simultaneous holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "yo/SBExIqBbRht76we/GG1v2foLptPwREF7kPMsPjKOOLauJVBmqHpbe6Ev2FBnbqvP4zcRmrK0mAhlwDXF6I1dd77CdXvxjNaPcPq+mmeCNh5Veve0pkQ0NCKXcNWzYVHSoZ37V/fG/rzom7El3LdS7VNFaVDLkOHVI7o0ishATsunCIr3zPoZkuIidFdd67yDm29u/00yKGoTvrHxN3Qkz6Cv6S7YISA/GibCAzYNLZkonDzBwCbMb41edxkF9Pxc4VnaSlJu1+pQFiG9EevdznHl6R3NSdSHIHNV3DfZuJB8Wn/3H/bAJwV3ngwtpqac0NCQ5Ke/qZtyyRsf8qgka3FhfsnoZkTZvEBmMs7WS6yedjhUa4bnChVJRcQa005fmbvhQbjhTl1xxEq0L/jFsRDlD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 676,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 220,
+        "output_tokens_details": {
+          "reasoning_tokens": 110
+        },
+        "total_tokens": 896
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1a606baa8d902cc9\",\"npc:49e8a8dcdabd802e\"],\"constraint_ids\":[\"C:58dba1695a54195c\"],\"span\":\"At relay deck, Ada was formally introduced as the Crown Witness.\",\"rationale\":\"Ada is recognized as Crown Witness after Malik was already recognized in that unique role, with no relinquishment stated, resulting in two simultaneous holders.\"}]",
+    "token_usage": {
+      "input_tokens": 676,
+      "output_tokens": 220,
+      "total_tokens": 896
+    },
+    "tool_calls": []
+  }
+}

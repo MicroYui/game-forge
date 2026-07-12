@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:566fc9af40fccab7516dc1f843ada6338723bc0972035924a25e6c715fb6c86a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6690,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 706,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 164,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 845000000
+      },
+      "created_at": 1783845400,
+      "id": "3PX86Of4sg7Y7Xjxv1/A9Td7DqN6nRUDNQVOOBotTheVlzLPGySh8Tc/UoUIkX9mc0zDQKvvdJb6V3pupgJc+e69p8dH8ebiqbm5zD+jn7sQ37rqG9E+UMpYwTCkN77+MFWD3Gl8kWRoSTL9SQWlqpbYDH9TPNj95pk4hlg9WpA5I+59H/4dV2Os/fJzZAT1O1csZU4qfEb7NQ6+retygpouj3ph2fXKbEPl1dTwkUkFvNuObQr+cjWxT16W12QA2kovLc/vlroKhHTML8zjllg127zzKbkcJ51B+0kQJq483++M050cFpRztL8ZLdcchoA5RvYRYTsx9Y918tSLhj6MiMCBFvMveovL7If5CLjbaOPStJZityNlhcLhwbFk8Jj5B0oo2aB7wSp9oH+wKY5lWfnkCA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "XxImGzoQ8J7R2dlJyp1v6nZzoGUwOvqD7Ha0hcE8w0Mud49/Z3d+M5ODFybIyf8+x78UyHi3P2I8nonrN9CveuuYUruN8G+HktQaw3LIRXni85wLPmZmswtBV2Am2Off2vg9LqsbV+MZ525HtL/bytwSwF9XxU5e2/HIlgPPYT9BiLq3KDPDRiXFaSt2BCZrgtAFyHFSHTByzFnYF5MktuEwlncgiSrQ3T0tGST7BLBwfoQCMhIo6xxw4oMwfOpmJxgBoQ5ePAHtVNoMRGLO6vPS/5p8s0P6mIgOebvUvEg3QOxX6Pt02ZM4kpKiCme7v2H8EPy0TMOScUu9f6eDLv2tK2TPL3A/LW2UWf9PXONI2syxpMoQetrsvUxAoCbYiaP7GMqqRJzo3abNbcUaPG3v8vY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:66aadd8c752182a2\",\n      \"npc:b6de3e3d77db1a72\"\n    ],\n    \"constraint_ids\": [\n      \"C:e4b99fd576b680ca\"\n    ],\n    \"span\": \"Ivo fought beside Lea under one banner at desert waystation.\",\n    \"rationale\": \"Ivo and Lea serve factions that do not coordinate operations, but they fight together under one banner.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "5aUlC9p4HUZpSz/5oRVHWFBLLs6i//aAyP2JbtG+bb89hMsU8AfWTigQG+WnGFiosS251kVFoZj8088GslvXHbsvbubY3w7UJ2/oeOIb+pviBeFxlPmSrO+iwQD38rwVaRKONX532OcCFbVxfgovzMlvpwDx12xv+8FNjvBcONc+qunFgiS8rvB8hqaeKhP9hB0YzSfWg5/35J/c0XnG8ro4FinZQd7KtI1F2Vn8Rcdjy8sdgMXtVVDTfdLSq6RBO6kAeXhV4LZSE71LqjA8dzCKKAg2m3OR6DxHZXngenijFT7EEJGpPnUJ95z4IwR1dA0wm8qAPgATYrNB47WelowQ7FODrC2hTE4CSiNIyJw2RCZOL42xiMtEPa4GU9u/k6YeCvhQjxQ+YiJjG1+DrA+/54TC",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 706,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 164,
+        "output_tokens_details": {
+          "reasoning_tokens": 37
+        },
+        "total_tokens": 870
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:66aadd8c752182a2\",\n      \"npc:b6de3e3d77db1a72\"\n    ],\n    \"constraint_ids\": [\n      \"C:e4b99fd576b680ca\"\n    ],\n    \"span\": \"Ivo fought beside Lea under one banner at desert waystation.\",\n    \"rationale\": \"Ivo and Lea serve factions that do not coordinate operations, but they fight together under one banner.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 706,
+      "output_tokens": 164,
+      "total_tokens": 870
+    },
+    "tool_calls": []
+  }
+}

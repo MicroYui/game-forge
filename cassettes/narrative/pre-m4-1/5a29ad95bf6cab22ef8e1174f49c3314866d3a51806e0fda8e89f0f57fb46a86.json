@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5a29ad95bf6cab22ef8e1174f49c3314866d3a51806e0fda8e89f0f57fb46a86",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7092,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 707,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 411,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1586500000
+      },
+      "created_at": 1783852800,
+      "id": "dsrpl7ayh/0rUecbfFmvCPSTYBlYtbu53xAr0GtHHIUn/2WypGaGpOtxYAZYX7X1hERnQyy90bnZeoqvTUt36jrpdefL6sECDY/nrBdDgQJEawW32rkMHo/smeTHif5J1Q0b8LmIpYsYASli9Aj5ItWsvKMzvhpaA2iqMKUTHqKUfzrPqYX0v3xIwJU0bXY4pA8i1pjK06IHt3ODuqCsAteQ6Vgtpx/e7/XItESSuT6NIv20DjgzdGAwMKhHc7MeUQ5Li4ibMZUJou5wYjjkNt/8LhPaBUIrle0yVKi7sbNJKPvrH8LU9K1aP9apMQfqpTOJ0RKrKlJNtp67zjC/RT7SA2//bPv23kHdHsR7HzTAMg4rbWui96eFWhyCu++XUxwWb6sD2erny6NF3lCIqRqT2ULDwg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "YX2WpRtSXvGkOM5qQIuOg83V9o6TGw+IJIOUkJPKU3eBbbAStMoOE5Jk9OkyeIhJJJcgUSKt4KBSNVYCCDCtzj2wIKYo1VDlIFvAsPVvFyXp8znxOPuNgCDx6FBmn4eVsyKnMS1nSLu/r5JKoza34phSEO5vIzSyEkS0H5tSj1RdB8fS/aHOKVwyzUQFaVg/a+/RdIpT3By/e9KVsrEXNeP/5i5vLxwA/03D6RI8cLfED9WKVvhN77paBPTJrkb595PZqZQtVkYBpETu7uMLMq9Zk4U2TztAWp9RQmJsINJqvumuyEuRVjNWKsoNCVhRonRjRqW3Gr4CeBXBjQspcmWGqVD2NyY02VTqrmomRMzqe4JlyBE4ScGFYIAsGaYJxGdoXmkHnJRujh23+m7YXMBiH94=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:2245ad49b85a4fdd\",\n      \"secret:b2bfbaa9343bfb05\"\n    ],\n    \"constraint_ids\": [\n      \"C:d70f0e44173a1d22\"\n    ],\n    \"span\": \"During relay alignment at relay deck, Ansel openly named the witness behind the sealed testimony.\",\n    \"rationale\": \"Ansel identifies the protected witness during relay alignment, before the permitted reveal gate of vault access.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:4655a5b351a0e7fe\"\n    ],\n    \"constraint_ids\": [\n      \"C:923e8b87c6bbf1f0\"\n    ],\n    \"span\": \"In orbital concourse, Nadi returned the reserved rations to public stores.\",\n    \"rationale\": \"Nadi returns reserved public aid to storage instead of delivering it to its intended recipients.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "feSM3znaeRHBl7sd7DYMotemAXkNXHbmqHZyJW0yeXdJcYlYGCAHFFpVQPwF2gSDpr6+d8w2AoGnG4gir7e1uhFLvdf3Y9AzsctpmModKwsrXZJlMGaspKlkfv5BuNVwsfGJRWWHDA/3v/qsqkcn40vLtSbCa19bJXoy+EbQeTtOxeSuoAmywBnEhXAza7SmK0Gvj1JhJNQ5BE6zQTMwmEpNaH34EsOPRDbMZ6tgk33qpAu6MibbvH5WiSMyuz7YSdH4LZONf+WhxohegYqhnfl+2EPtPtVnNm8e6W1Gh5WkClfxjA95nfZvUWdTkIq70+zEbdh+iVHaCVakGe2D7FKRkMrxyZto/ZsEKEW2ordfzBiZD9J056UF8PQZ4oanYoaBroSSd5/JJlDEwFMzSZ/o1UrT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 707,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 411,
+        "output_tokens_details": {
+          "reasoning_tokens": 174
+        },
+        "total_tokens": 1118
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:2245ad49b85a4fdd\",\n      \"secret:b2bfbaa9343bfb05\"\n    ],\n    \"constraint_ids\": [\n      \"C:d70f0e44173a1d22\"\n    ],\n    \"span\": \"During relay alignment at relay deck, Ansel openly named the witness behind the sealed testimony.\",\n    \"rationale\": \"Ansel identifies the protected witness during relay alignment, before the permitted reveal gate of vault access.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:4655a5b351a0e7fe\"\n    ],\n    \"constraint_ids\": [\n      \"C:923e8b87c6bbf1f0\"\n    ],\n    \"span\": \"In orbital concourse, Nadi returned the reserved rations to public stores.\",\n    \"rationale\": \"Nadi returns reserved public aid to storage instead of delivering it to its intended recipients.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 707,
+      "output_tokens": 411,
+      "total_tokens": 1118
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:068f89fea1620c900706751bb129b67197676994af4fbfc2712affbaa509aa8f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2720,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 697,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 145,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 783500000
+      },
+      "created_at": 1783843200,
+      "id": "Ba0gCCAm32qEsrRqTunhteM6RfLCCa92bSKp8EeTq8x8oly6jaa9a2ds4VbmB0//QWBQIrrcdCXKH33blLx2sl0GVlI/zH7r35rxBm4pjHxE8T8laDlMdx+XxfqZZkgZ84JhjE9VI1tCdwcE42rqTBiujGLRv2FYz/Whr/yiEK5UG1ZyRiey4wvqze+ZIAbHCk3LRp0EUBjYaCYZC+FObzdtFEJcF+B0Z/Bf4hlDP6glwej9kE6mqjk4tEYzjLDGdpujLgmip5JaBeQEzTlyHtRiLJxdQPh4PNfMryz5iqc3k22mRbxQKK9PQOkhllGKOljC9MS1GqDNBxGx3b89cYgt7raPkmrTnpIkq3XwlwQ0WdkRDoEDtMYsw4bzHdUdWzUovAtMSCAznAoGPYr2wiljGE4IGg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kH60EEfMk0o/zhqNqEDkIJ0zWZedx9yNzpG2jCUOV/382Om0BkfSbcRfX9GhgGeB0fN+UNqrLZKq2i9bHggtzz746hJgamZV9dlK3uzCag/ttiUWsUVL56ApDL+TacF8+aLRI2J93m60o57s0fvzxitJcCMUfxm1mZw8pre7fapGaE+VexZ3uut7f05Xx7T8dVppAhTjJbQkMotU/SHSfFG55dnlPe0QAzr4QqDMNt1mwSn3EeM+PqWi+cbT4RjTpbwfEsytThAuXeyhw9Hma7c1bE//smHBHcJLCv1Qg5u8Ks0F8iCWhQBl+o282G966LckrZVR9WygvJqyRTzdTXa94ywgdBZCNkP5tUGpUoys0YHl20b3bsU/m89Ek6oa3OiJtMQqumsjsPVMG1fCPeLPsGw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:7906b0a6495860a9\",\"npc:d8689b672d06d689\"],\"constraint_ids\":[\"C:d6940e65c65c0835\"],\"span\":\"Veda fought beside Oren under one banner at old mint.\",\"rationale\":\"Veda and Oren explicitly cooperate despite belonging to the hostile Glass Court and Iron Compact factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "WMTy2R2mp3AdDJmYRobraWs+ilrLNbXpjnmtyXKkJT7kaxyfn9i7YC5EZE695+MvdprehsITkFnImIut6n+r2gJT6CGWBNwZoYDrzU5gYRYL8eVu6wGEhFqtiEpgGYmWdCetl08U0E4AVoaIMQL28AfS6oIsBbbfT4MPnSYv1CiUlrck5wMkRBDC2LaMTzs7bcz4c0J4UVvalwBVnagtEMSw2XuLRF2tl2BbmXCX5bFOfhEfbdlxB1lbeF7MCry+Nkws7CmboxiYM1d+YpOhksZ4kMqxnT2de/1RYo2vYwgD8awckCMdc2B/rk0uDfyGbNgVBC9pAymVnIoCI48kiJhNGNPqaj6DmrMCem1HtUpwXx/52iRatTDuQj5F0FXUVCc3Z66+B8avDHGNwW5fOMGiPGCD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 697,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 145,
+        "output_tokens_details": {
+          "reasoning_tokens": 46
+        },
+        "total_tokens": 842
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:7906b0a6495860a9\",\"npc:d8689b672d06d689\"],\"constraint_ids\":[\"C:d6940e65c65c0835\"],\"span\":\"Veda fought beside Oren under one banner at old mint.\",\"rationale\":\"Veda and Oren explicitly cooperate despite belonging to the hostile Glass Court and Iron Compact factions.\"}]",
+    "token_usage": {
+      "input_tokens": 697,
+      "output_tokens": 145,
+      "total_tokens": 842
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:841538394f31b74b56b8c8e7996bf22fd3b1e5d8040b06aa6b13e76e0d0aa92b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6038,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 696,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 223,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1017000000
+      },
+      "created_at": 1783844200,
+      "id": "NZ6UOvTIvA5dxWRWWB8J7TJGL1KbVJZZrAp3CLpZtJBAXXSzung9SNK+ak+wEds7VvOiWRqJS5kDop+6NCi0T5W5unWcYP5UdbUOkCi7S2AvmtCF/b5ID+RY4GoXLgxUvEAWhhXkVQogddOAlqwTspBuDVWWmcCJ0OaDUFcrE6wE9nIhWGRwHPD3C1hgqdd5RXOTSVIXzWPnWthHEda7h/BBB070z5bjj6FmQNZRgtVFYrlSxv0bzVQ6K+C4BHihYlYjEdUIo6yiFUjnKtI8ROQu3NXTwv0VI16puKlq84qxcke3cRGPqOYDgXixzFk2JdvEmuMCgottnOAj+/Y9qpK4EZoMmRVXqagWePimNxnZOkT+MbmAWJEBXFJq8yMv6N40Cgu32U16UvXMV//lcdgAit+HMg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "/5aEYBxxt6FHxbJpG+0nT3TbaBKHBtWwUEfu34AV1X+z/GWVKa93CAZrVUeU/eMAkiSYfrQfWbGPfSKxNk8/WzWOs7wA36n9WDvqIe8XXtnv8GCQ6q7fQCzmH5i1/aQ9fdp3nGOmUAkCXnCr3kRZjGmMUxXG4Y1YiunJ2XoRrkS2E4OrNp4ANqatgXAz6X4LWfUgaePpw5KQWQsiFUXIVJhpDBQcufd8M+nZm3OViUdxAMb/Pig7noJYxxC7Fp4uSwED9lDOZreFfltiJf0jiho4YaQblaXapr1rKvb1gyHM1YRVzhMj9ByRkqo6qGifhRGgM4w89grnAY3Bu4ndgDxhYDrNez5dj2UVUpjWtLSncdUQjaflOhD/7zkluhPErIAKi2crMkPqFu79xk5XGmhIVrQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:18b9f890d5421392\",\n      \"npc:514fa05f1152f816\"\n    ],\n    \"constraint_ids\": [\n      \"C:38fcbf097b3145b9\"\n    ],\n    \"span\": \"At cargo ring, Eli was formally introduced as the Crown Witness.\",\n    \"rationale\": \"Eli is presented as holding the unique title after Tamsin accepted it, with no intervening relinquishment by Tamsin.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ujSfrpPbXvXYSzMuYa4Vq4ZyHILjaWFE7OGrMGYf+unobveSXMH8cZSWEaKFykAvmz8Ew1oVHrM+FpMGoOy1kUqCGxIzKcYnJEhPFFPFiZ9W8CE1dZaSkanT8eenL58STJyXYoVPBzUmQLc9GCx+M43Z8q7ypRlxBkXfgBZFDmWM8bA9KuDQG6b9vEYk7DsQbolx1F6+rWTCXdVJMIt2MQAhJKVcCGD+aRBEpL72td4VeSrigTu3Wj2b3Wa47UoZWAp9NH7PQvyr2DH58xl6OrPi9F/1EQmMN6hnts2sxyJxJO2dIzQqvHziuu/2FonE5wBwghpBUfNjHQvelG2etkyn4dkyraF92JMbkx4hfEZBVyZHNgO7y4GRk9pnq7t60tx3yHHfj+QQMqq5HrZgS/rtU7Oh",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 696,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 223,
+        "output_tokens_details": {
+          "reasoning_tokens": 89
+        },
+        "total_tokens": 919
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:18b9f890d5421392\",\n      \"npc:514fa05f1152f816\"\n    ],\n    \"constraint_ids\": [\n      \"C:38fcbf097b3145b9\"\n    ],\n    \"span\": \"At cargo ring, Eli was formally introduced as the Crown Witness.\",\n    \"rationale\": \"Eli is presented as holding the unique title after Tamsin accepted it, with no intervening relinquishment by Tamsin.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 696,
+      "output_tokens": 223,
+      "total_tokens": 919
+    },
+    "tool_calls": []
+  }
+}

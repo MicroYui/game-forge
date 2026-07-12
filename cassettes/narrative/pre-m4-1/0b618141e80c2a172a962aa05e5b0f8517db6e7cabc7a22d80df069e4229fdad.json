@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0b618141e80c2a172a962aa05e5b0f8517db6e7cabc7a22d80df069e4229fdad",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3436,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 670,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 167,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 836000000
+      },
+      "created_at": 1783857000,
+      "id": "E8aK0ScoUKqAnkpmdjqHcLNZxoK3OsUf7GjgcPzrX/yb2K9YATL4i86aQP2UfsHrodZ0BC6ZQpLLf5utA8CLl4CBUy42ZvU3ZKL2ItoBwHt5FAYINdBlv4TijgPQJqW73THHjTN142zG6dCV0e+3gWxYT1N2gN56Ks1NHou1vMX2cSZk37Ab/NZCfIzV4rDvQG1DIsiN1UPN1LBO/75Uve4Vlzf54J/sizbjDltdcmbHqPvSydTpfhFyon3wRrWmQvdTPFH+zgjGPaQJK/CpYinb2zG1MEOtpNDv7JC6+ffxunxJ68VAc5+q8VsDVcZN01bX2hEwSyU+FS97bvFtszGx9haMja3i+8coQPIAJw/y7H33NtpeAM4jIAec3P4FzF51hmXbjDJFZ1TWfC2YJyUaHjfnHA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "GKj7TpxlUwWaGGEPev1thUsqJ3DJVoYXDI6qBIJtSQP1MZxBW6CbAhwiA7Qkc5Z+/1nFaYGo7B1CgX8Z6pvgyHJZMWjPqKf4g0HmB32Q9xtnyUy4QPW3RoLmPhudNhWHNe0BROXKTGdG19qfVwnRCHBlmAEIYaLxs3z+SGcUqdNyyCAMZYT4To1l7NKCExOsmhFBOfBc1ATjekifZsjqESS727FX9rqFbr6unegu0RA6FtizrablFXGWStTkVq3DVpTBS6m8AQmHzAB/FXTEJwsVHPH0XTsRpMkKQ25PhPatlwHdVVjFrAYpUGqbkkR8V9h+bq6aLUEhZUdfzyCEuI0rEz55k/VFqAfDMSuT8GeMmq9ULr2s5ljth1PIlvh6s5lwZQfNm2XmHRtTA9CBlelRvpI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:35aab3d8ea3d4d0b\",\n      \"npc:8762d2d9464bffcf\"\n    ],\n    \"constraint_ids\": [\n      \"C:ee25672d6764541d\"\n    ],\n    \"span\": \"Noor welcomed Cass into a shared command post at relay deck.\",\n    \"rationale\": \"Noor and Cass belong to factions explicitly at war, yet they cooperate through a shared command post.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "tK4Sevk96/kOrP1qhL3TCGOzWO4YrxWpAxMNfS5I20/IXr+vQRr1lDoV8kNjarv9n0b58Bep93TDnoikM6kUJninuNHRuujxH36a6hoWgY3ValXPhX3uOTZ9xChEkXSsDN8JGmkLemghSYJcX5EuKyWwsQVe7DVYcpy2Fdmdg6bTfQMp1G1SNHPhxS3AQxiiyFa+JrdjTsCgn2T7MEivvhKLgQwXWKTiL9KNjr/fA3p7UxUcWHu625HF55JHDiNcE59eNF9wUYlXzACAxKchDUX2mP1/03n9PbslVodzeEafx8c9LTcr23E/XTHCqviCZeea8JGVczqf9N4mgVXePPMjV4+ju9YcyftQNAk+fRxqbej4cRpQ07N5uWcxg3jhGkhNz85P8AJIYrwCb7kRbH6FZ+Nd",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 670,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 167,
+        "output_tokens_details": {
+          "reasoning_tokens": 37
+        },
+        "total_tokens": 837
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:35aab3d8ea3d4d0b\",\n      \"npc:8762d2d9464bffcf\"\n    ],\n    \"constraint_ids\": [\n      \"C:ee25672d6764541d\"\n    ],\n    \"span\": \"Noor welcomed Cass into a shared command post at relay deck.\",\n    \"rationale\": \"Noor and Cass belong to factions explicitly at war, yet they cooperate through a shared command post.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 670,
+      "output_tokens": 167,
+      "total_tokens": 837
+    },
+    "tool_calls": []
+  }
+}

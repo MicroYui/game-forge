@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e15589834a59a2b45c050ef986b2768ca1afb3b98c0dc2453c74f8e7e809b273",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7635,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 677,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 177,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 869500000
+      },
+      "created_at": 1783859500,
+      "id": "hE1wjvYYhi8XW+DcpZwyZC5wfq7eh3PDji+HhlshW3lInSOMdmy1WVfSyG3iCXSFKuKu/yeAwvfY7m/hrJ9vHfWkhsSk9aeFvtdvUzhSGrcxMNBJ/9XvolCmjjs8OkKsdRWyNPzQSRVbkjny73L0q/Y/kMqbMJ01qeTskDrf0To0l0f2KoBR5RC/WLllqhz51/a49lJ7OMMTb/kyWVw45Je8a6phV61qEarvAQsNKIn8Ci+RhNVsRs53vUMYAuNZMQEnlNrorcO6U84/rVF0MZLHzYUK+cej+saMkDy96ZWQ0PcIO0D0EyifyW9sK54XqQ3eb9WGJ2fdwdWixzS0K0PNDvRuoh2LYCYkjqGfVogARnpppQxqTf1VAop2cc5V+o9WEmFx9SK1af8mi3qRq28+hC7nzg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FsNhM+pygMAdk1qCEsw9hGYEz1zgdW9GruGrHTeAn+Bo2b04xBC5/ld5LYhE/NdNcAkqyqHqoX+44WAhCjVfzKfoCssESttu8xnVNOfSkfPf+qQPkvHy3FHu07gwux83GfkMNeKrV1jX5e3U33+4xlH4pxPIk+m6aGar0wV6zOPnxxI89hjL9gZbnbOfBu45Sv80yMiHtEdsm1exoVT+5f/c3aE9SDlB8BvyI+VDnE/Q1+JU4X0o9D53YAF9zSY7b0tcev1vHUsca+1xDngji9kXz1wylFWeuXEcEOakcVNCYokjSqIl0ZcAWN1DXi+qDT+z07v8zH2iiI8PyVBkz0Kygx0ASFotSOW/SSfdmwJzUiP3e1fwDDKt/cKnhz7zQh8RAr4vAfgRIdI9ubk1ezNbiec=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:03e35c828db11347\",\n      \"npc:48420840e84423b5\"\n    ],\n    \"constraint_ids\": [\n      \"C:be624fc2f540639a\"\n    ],\n    \"span\": \"At river market, Ada and Malik signed a joint battle plan.\",\n    \"rationale\": \"Ada and Malik explicitly coordinate on a battle plan despite belonging to North Watch and Red Banner, which are identified as enemies.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Lk/1U3+839VPfsebEzmM5S20gPv22/VGuZKKtSFf7FXXwdi+6TmHIjVQ5Mr/ctXFdsHpdPktLqcibrM24RBeJ2+Cv/xmMPtnlAOgm4P84zZ5plHpJWSnfVcgvrqRwgABOxQoh+5pGt4P89XLAG4UeRnfppxo2d5WgFxKYkQhpxkpvjsh4W/tQfKW/lHOM5fVhgDaOaSUuGJ2ae6WcxacZnP5erh5R9jFQYDzp2TEFuQSGV1s6zOvGardI9CTFIJquJojm6jzvB0HjfLhbOSLEUYVJ8mCG1Q1kOrAUhiToHEPryRj6xGFUkyB11ZkLfEAMs1dGBoFvOgrkwHCa1usHQl45Oiw9dOABIOPsDUxbWLok3fYEv0dcKd3EenxVyPDk5tD7QATnWispm25LKhkSp7+KxPl",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 677,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 177,
+        "output_tokens_details": {
+          "reasoning_tokens": 50
+        },
+        "total_tokens": 854
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:03e35c828db11347\",\n      \"npc:48420840e84423b5\"\n    ],\n    \"constraint_ids\": [\n      \"C:be624fc2f540639a\"\n    ],\n    \"span\": \"At river market, Ada and Malik signed a joint battle plan.\",\n    \"rationale\": \"Ada and Malik explicitly coordinate on a battle plan despite belonging to North Watch and Red Banner, which are identified as enemies.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 677,
+      "output_tokens": 177,
+      "total_tokens": 854
+    },
+    "tool_calls": []
+  }
+}

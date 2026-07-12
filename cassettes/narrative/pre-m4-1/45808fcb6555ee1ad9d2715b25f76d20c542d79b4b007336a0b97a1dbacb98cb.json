@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:45808fcb6555ee1ad9d2715b25f76d20c542d79b4b007336a0b97a1dbacb98cb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2809,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 529,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 161,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 747500000
+      },
+      "created_at": 1783845200,
+      "id": "U1pQM7fAa6UDC7RRhETfVoxGgF4yiyA6U9pNVrwd3uLo00PTQ29SaagV5O4K+MQeFDpm3hvPvphoevfUSBLBc6Ej75h6XRPRQ4Kt/FwK09Mg2aWxpVk44TH4eXzWdt7sN+r6bVVYmZbbV30dpzddn4xND54U3A8KUmMBVJbnRTBoC/VKVvBK5nnWL/6U/Sp5GQ1j+1MJWppyYb5HCWaecqymMtZA7HTa8ETyb4XdIoycbzCFEenIJwyZ0sGEzDr83MgU5bnDJOgYzH4qw0rLkrs4i9MfwfpcbLYKtqUu/YV5FEWRBZZaZJP7ORqsuoMhI1qIrmpVxVKJJb7rMXe9C8XA5CYcPQLzNnXxeGo7sE2M3Q+rGPIkvnJcGOwx6B2GdpsHzddZprs11Wr/7Arx4xjFdcDVEg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "OYbdKYE7neK1QiS/GmhGRaUXerVRFDHmcCyknqeiMAiB/BMS+RHbv6tGljXvNhQccnxrauFmgOSP/57eGlTAFrSVJBJ1iprJROwGcHP2btgHrrJQmKwGzvEvi4mrBGIsGUBGGmSTj0enuPcWDT5c6WGLTjiyHqQ/ifBhylCH6EaLm0D+cAjU47hOcOj6XcUU/WqhtLb0xhRITYAHwWfNWX+9Q4bArwfyHwBN0IeYztBpuPAhTHbmzsOe0TfZ4oA7SV60b9jppXPEk2D6KTqBIddC4VF771xhqmwTIXXkbi5S73PwBr4hA09qF6nWbufB4ZGvH4r8/viSh7RDlMEgBqKt0xwFiBuzpfh/r+Oz15uux0FBEi6ODVTKBfk4DRpNwqAMitrY/hkYMs9trDg7ZdFs8wU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:d0997dc5991d847c\"],\"constraint_ids\":[\"C:0c5de0ee78c81016\"],\"span\":\"In glass conservatory, Veda exchanged a crewmate for safe passage.\",\"rationale\":\"Veda explicitly sacrifices a crewmate in exchange for safety, contradicting the rule that she never buys safety by sacrificing a crewmate.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "+45SPx3/RKFUSZAmY9FKNrAx+bsx4gpMgBKwckrfDMiXpRrbWhVAdgc2L+ti59WqEt7KukvFT4L0Mk+Z4MED2IOxYHSB4y1zBPGTL8ebWgdXKYEqxQQcezBAdGi2Sr9eQ1S86BaciP/b47UGfP6XtZv5qMfq5lp/aFesOSpp7G60EcIfRdAMXyDe/UtGJE4Hk7lnCX6xQRtWqp8sFbreIPLce/WuypPJr78lzrje44ahyD+jK1kwsCOppCArCOxxjZJ0gD4kHZ5Eak+Ex7G2W0NBPr+OAEVFoircXAF2VFafmkw4Ox5JYiBfJYJz2LMskZQSM3p0fLFp80NG5TwVLdo04Ims84vchsqADl6kzfVkeF4lmNfNXPZ01F3bX+TyqZJxymB3T5uU6YUTugX1yi73FhL9",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 529,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 161,
+        "output_tokens_details": {
+          "reasoning_tokens": 62
+        },
+        "total_tokens": 690
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:d0997dc5991d847c\"],\"constraint_ids\":[\"C:0c5de0ee78c81016\"],\"span\":\"In glass conservatory, Veda exchanged a crewmate for safe passage.\",\"rationale\":\"Veda explicitly sacrifices a crewmate in exchange for safety, contradicting the rule that she never buys safety by sacrificing a crewmate.\"}]",
+    "token_usage": {
+      "input_tokens": 529,
+      "output_tokens": 161,
+      "total_tokens": 690
+    },
+    "tool_calls": []
+  }
+}

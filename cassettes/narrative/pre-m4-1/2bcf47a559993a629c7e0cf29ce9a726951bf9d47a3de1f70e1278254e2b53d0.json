@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2bcf47a559993a629c7e0cf29ce9a726951bf9d47a3de1f70e1278254e2b53d0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6485,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 680,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 276,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1168000000
+      },
+      "created_at": 1783858000,
+      "id": "B4RKRb0H5j60BttwfzYvBTqHbpC8750rFwmDC/t98LvXN9Yd1KROpl/OUn90cG85IuyeMnP5oY4rxTLCcJ/4zrCRjtt//jO3U5bTqOmGcZdBtzbVVah24NLpjdIY/ggoAJWhjhGgLBTrhqWntCrtuks5Vn2TFwgOypcGTNcfRJyyHMMJFcwtcqgJz38Pt0bnWmPMPgb+7kzCw9qdtemljXm88afQMJUf1i8SPLO1Kmmm/Lq2A3UNrdZtvKEKvyOkTvYNb1haZXx7o8mjz8qzrNUE2gEIVlk34aX9SjZ/++oxquUtJWYWNUvmtfDFN+edo+3UHdM4gCrxtuZlUbU+y7LyYRuZpEBZRmyCiMl+e0JlVEUuXzQPPu1ypYHHVT1IKtn8tgzvR0Bo4sonr6TNDGHfyGzXpw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "rwlnaxrjmrKzrBn9k/AJ+2ORQY3xlDecV7BGbFbJ/lz6OtVM/Zqk2c38wEKpgC+D2JzQzADJEAKR1zt2ZMUkymL7qDF4Gn5EDZN4oLOgDXBsc2muu0T0tGpC/8drAwGVxxlnnEVRoF5L26DT0ZIl56js1IN1JcdTi/o8TOD3suaBvY7TCi8+TaYE/TC4NUVH52EBHb8NyKefwqjmB+k0Xm5GFzB2J2zyJpwaV8Kz03HxZtIciHshXF4Yv5/a/yIIbuM/tkcNZ7phrKb0OQ9P7VPwbFj4o2ngZrclSQmhCWC4r3Y2UEvdSistSXiFnBarnvxL7CQNJ4Y9nMU6bB7SMKms2FzlspT+l0egrOZ25r2HfLVGJjGowA2+c6aLqLPtKTkv6OS2S//9r325FdjpXo+lF78=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:839880424fbfc0e1\",\"npc:90f9be69c201dcbc\"],\"constraint_ids\":[\"C:c4bd26817651d2b2\"],\"span\":\"At salt depot, Eli was formally introduced as the Caravan Voice.\",\"rationale\":\"Eli is established as Caravan Voice after Tamsin was already recognized in that role, with no relinquishment stated, exceeding the limit of one active holder.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "2FszF2TDLVVp3h+l93clQmRhPhOB7XZfKD3YJCpDmuCevcr4NCLNUHPM2H5xv+3Gtx6srFmFdw+fc3SKrqg3X4H0p9TbDQ72u2/cnKrPVXb8CQSqfC6QFhR6qrGKjmIj7QASiaFeGB3K4X7cktvf/+hL17ybOfs4h2vhOvepG7//nfwdIaqYcNRBI73QGrtN3vnmBdaSEms3OM2oba43weGZz/goN6TFTLA77ewrzM/DTVLrbvSYvVxuGbLUkeQdXZ8AxpYGi5vYZLaslphzJPpxpMt1gaApPZx8vyR4yFDzO/8uX1PaCdYqjaULm7GIG+zjLFAx5PcNRN40bulr+32F0FfDki3+ktv8w8lSg1xoeQlUcYnpJYqFqaLywjqzK9F0EyMxMJOxcPz/P20hNgrIgov6",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 680,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 276,
+        "output_tokens_details": {
+          "reasoning_tokens": 164
+        },
+        "total_tokens": 956
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:839880424fbfc0e1\",\"npc:90f9be69c201dcbc\"],\"constraint_ids\":[\"C:c4bd26817651d2b2\"],\"span\":\"At salt depot, Eli was formally introduced as the Caravan Voice.\",\"rationale\":\"Eli is established as Caravan Voice after Tamsin was already recognized in that role, with no relinquishment stated, exceeding the limit of one active holder.\"}]",
+    "token_usage": {
+      "input_tokens": 680,
+      "output_tokens": 276,
+      "total_tokens": 956
+    },
+    "tool_calls": []
+  }
+}

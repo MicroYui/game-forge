@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4c5f454bd9b3621ab40b8ac06515fe2d3672366f7f79d0d5b125cf6312bb57ec",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6265,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 675,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 200,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 937500000
+      },
+      "created_at": 1783853000,
+      "id": "931B+CshII75DC8GP5KFqh+sf84Qz+zTGePK+PW6xoz1BSm4U+OYuWacmd/J4lnXs3MezmbcJiGzcToGh5EFVUR+9b8pEiY5Aw5RWfAba6GLWXfGDVooWn2y5bmCMfg91piVcH7vmrpUoD6f2dt0PwSSQG4lxjMArJXXOw2KEOKc58wMUKBDs0ygT8Cng4nVeye9VZgq2AsjX0ZwvUrXDwrdJ5HAYzoBhv9ErdOTLBd9XsbAyA7hi6DhIeI7GhcYQjy9KOg35f1mJTZu3GSiM8moRwXsstpCv2E3K5BNZRIht2Z2+jPWHyCSlu3O0AocmHiH3kr8p+Ir7gMJCd/sXnquZ/UOVzzEWEVFKHIhtc5rtyQMye6DhivU6ys/38XPbc5qKcelDLF4KHVMmH7YiiXci/ElMw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "G1R9JO5Yv/FWJLlF/J+ZbbamWw7rNCkKOOkMul5AN4/69zCOizhJbn3SoFmymTcakdzYHwlU9JV3L40vnEyTDprxks02/rixoske2EYHLxMlseR2l6IWGpVEwYWpF3gICzXau2DPa3G+PPAoIZ/oJHAsurLvqXi9KXPgXXgG5qWPUERKV2VEoN41UyngpGFljDNrqYFtLNnDG3OFRfFMxk/VaR8TH3M5ivOjFcn2oACDMRCQDaxhOdp03OKIyZlIb9Yb+5Pod11p8Ljipm9LX77jXLmvvbIz+Rf20ZfIskbG8Zusihajxbz3bya2G3UUA1pZ88WP+Ps0YU4adVq+bXYeeVzuuXVrYlESaFEMaHXf4dcysJ6wATIfpMWzyfZ0KeJVEApfGX919/dux0HOVivaXyg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:b496291e3d14b7f4\",\n      \"npc:ff4f0869abb99ca3\"\n    ],\n    \"constraint_ids\": [\n      \"C:e0f596314128e07f\"\n    ],\n    \"span\": \"In signal tower, the council recognized Cass as the Vault Steward.\",\n    \"rationale\": \"Cass is recognized as Vault Steward after Noor was registered in that role, with no intervening relinquishment, resulting in two simultaneous recognized holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "nSGgCtPdWO+mLaUUKhGTVSfwwzB+LzqsOH3FHS7+cOlvpFlqJ04Hd3CfB2zVlX2VKHWmBoMQCamJtAeYil4Qe3U5UWoD+Jz2o/vbQwdB0E+3hE9M9F2wb9vYOlWUd8vPM3fb/SaeNr8lHQFa7k+or3/EA/tk26BnGCYtDFk0ot3tqgBKhA/Kkv43ilXRbBjM+cxBY6+dS+8HZ5UivhKXimJk/lverHUoBVQ9GIg9S5NtenEK86gNjNLwucfw3kdTmvCTfO8b46Fs8/go1qCxc+p5RzuucWCkQcwtBf3fCmv/mTXZXkPJFvk8NpwUiIz7eGUmS4p9qWCmG74n8oJtep23ZpnDesw8ze1GYnsrrHygU8xIlgDYiIeIY6+ovrC5Eu2JYtg2jauHgrdEbYvkihEeSz39",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 675,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 200,
+        "output_tokens_details": {
+          "reasoning_tokens": 65
+        },
+        "total_tokens": 875
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:b496291e3d14b7f4\",\n      \"npc:ff4f0869abb99ca3\"\n    ],\n    \"constraint_ids\": [\n      \"C:e0f596314128e07f\"\n    ],\n    \"span\": \"In signal tower, the council recognized Cass as the Vault Steward.\",\n    \"rationale\": \"Cass is recognized as Vault Steward after Noor was registered in that role, with no intervening relinquishment, resulting in two simultaneous recognized holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 675,
+      "output_tokens": 200,
+      "total_tokens": 875
+    },
+    "tool_calls": []
+  }
+}

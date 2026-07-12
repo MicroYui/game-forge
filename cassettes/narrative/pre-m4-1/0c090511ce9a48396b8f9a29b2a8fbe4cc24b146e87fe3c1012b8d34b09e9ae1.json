@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0c090511ce9a48396b8f9a29b2a8fbe4cc24b146e87fe3c1012b8d34b09e9ae1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4194,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 707,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 253,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1112500000
+      },
+      "created_at": 1783859500,
+      "id": "lvi7h2MFnzpEOyiXSnPUzjAQbfzvujeF0HrmHVvAe4kH6qyiBHD82YWKJaAXsKSjcnb0vx2n6/1a9tASZ+8gdCGGxeYMaakEO2SIuqDCNWuXvDls8OdLq0RM28GVTPBK37f2e9AAgDCgjImEezHgGu8UPJyhUHozqVsgO42y18vY+Rlmd7xdmOvKoK1UbPLrRbibgly07jXMiPD1RulUBXhHAVho8rDg1esDTciA5JnVcpM1NBjRtPd4uBDR9dQrkxTy5IgZEeI2xeGaYrHKeCQOfg34t3Y+86MHZGu+S4nFN4XxBy/IHzWJtXOuFFPfqOCPhGLKLFaMCsm52NjVV7DRO2fTStyAKvYjNq36POK/cUE+OpXndHXQ++pTq9sXfcX+O++1ceichXsr/sxEY0VNW9Bttw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "hQ2amQioKl8Q9dBOWNfUB5YD8Ush4xnaju+aaI1FKn9rAFj6CoE7uNzB+Gk4t0zgGvvbQs72s+fnot0oTfU12MQ1LFLJXQETWXuJStg7krN21Wwk8sUt4HmDp/yKgoHG+dk9alZ1XDro6NXuWpbgM4/X2bGy7fObmm/e6OxwKvNnz1KJH4xg9b/xXausWbK2iHux2egq9UKIVq0m/CBYOIGN+s22OqLCJku2XI+Y34hwwcMv33OEDpaSiYiUKkvfSkY7Uii/n5aNQXBHGcIVH3ShW0PlIOw/EA8EdSQD+TXrJ/cyfW3Ka8T+hStMgJ7FOx16EuSe/w8AG1sF3wxHYK4Pbl/QxRtAnC1uuc8NrwLAg5s7CqCKaHBc/HubEKIpoKt1Ho1V52+E/HppCBIT+JIC5N0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:b06ed29f0f44cae2\",\n      \"npc:c2972e172cf7e76e\"\n    ],\n    \"constraint_ids\": [\n      \"C:7f785a135a6ff466\"\n    ],\n    \"span\": \"Lea signed the register as the Warden at old mint.\",\n    \"rationale\": \"Ivo was already recognized as the Warden, and no relinquishment occurs before Lea also acts under the title, showing two simultaneous holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "8OPoPFmuBvsHD6K+hJZ3K2qHGV/1MMgtqFlhVcI8kESzoACsJj9U9160reFVlfUgnKr0fu2GURipDbhZSWtcZ4f03kH5nICScuJyiD+JPjdCnUcIQAW3h4J2hGCsfrx77NtHxSvhWRd8cFsaDSF8NMju0IC/HYTD++D1MQ+Id+BVRMkJhQNkrjsZ324f8l0vUx7WEikg77+hzfbD11qaNPdekfGMd9srsNKOYRiRZPPfEtXlqxZk282lVmsXHRnD1pvm7I+uzzcksYDY60V2SRSWACdTXagmzgyn1fwx1Gk4NO+Ora8rGoVSVnO6bf+9u6DqyLVl2J0GqPY8BufQMn+hxoZ/te2I76xrqgdC16wM4FEAUnLtq2PPRhqjwBCavAfm/0avZ7oV8J8kLILtV1VUfKwA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 707,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 253,
+        "output_tokens_details": {
+          "reasoning_tokens": 117
+        },
+        "total_tokens": 960
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:b06ed29f0f44cae2\",\n      \"npc:c2972e172cf7e76e\"\n    ],\n    \"constraint_ids\": [\n      \"C:7f785a135a6ff466\"\n    ],\n    \"span\": \"Lea signed the register as the Warden at old mint.\",\n    \"rationale\": \"Ivo was already recognized as the Warden, and no relinquishment occurs before Lea also acts under the title, showing two simultaneous holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 707,
+      "output_tokens": 253,
+      "total_tokens": 960
+    },
+    "tool_calls": []
+  }
+}

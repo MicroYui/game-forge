@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:58e7d01ec70805623fc5a65c70b11fef715ff54617310acafb6cbe8a05db60f6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3240,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 702,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 204,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 963000000
+      },
+      "created_at": 1783851400,
+      "id": "yERwcejE8zYNHknr972Z1ezBKTk/+JXek+XDxFmV35DSF6l6uMLrSQHf4sffrElctMsLR0mADv45INZqEPnBu9nc4pmBp/kN1JDTEnGCTh7D91sN4UWW8hOxSSpfHWdNIgSAS5OHW2JeCBU9uZn0yf5DIrPHz9CcxauGAkPKUGwHHcJnH+6fYeH7kl4qmq1dprThsrt5EFusVKPbC9EmLTJLlu0oNRQcdqZYzPWzGoI4pHHtvsTr0iK8TXJrC+EKyDMF22Mdc8FpYia+pjpZx9dRrnWLIZt/sgYa/5BDSCX/29FDyJpL514nXdzTme7XxXtpDqGt+9RKcFsKOD0K3uZGskl1vKiUevHrLegEJqmTvNvpzv4UkLJoDSv8OazLiN8NltGiGPORcfAWrtbC+olMhGvfiA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "/KJl5h0E3joAIptMOiGquI/8/xAPTlvfBPPrlmPkm4mJPrn8sHoPkzcPEPoU8Uubz+oSUTo9Vd6E0BmyLBOKBw15okHYGBWG/V+owN7lY53ld1+8MHvKo5j/Nu5aszMCIBM1XBoJ7KEkvA75GNAlwCvtKpCYElbzukTFfKX7EQAsuy7LSO147EhTtaGyiNzYLr6ZiDnTeWGRMgjtKtDqRh/adNO0ISP6+bQ+iAKvy89mKidT5m6Id3seKMOitp+2scmQfBkO1CC35bHFjdIAtr/uwRDKSSflCBDan4QsfSrnxrVaJTNCULgNDbyuWJrJsbfHmmOQb77VTXyqVSCnKS92uxnWCltq95ouVhJasLF8r7sre7H1cQ756jsZy5l6lmvJhH6rL8yysb+Cb5M8Pr+XKMU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:3fcfd213eac99e94\",\n      \"npc:ee98e8a7e41aec33\"\n    ],\n    \"constraint_ids\": [\n      \"C:38ef72bbec82fea5\"\n    ],\n    \"span\": \"At north gate, Ivo and Lea signed a joint battle plan.\",\n    \"rationale\": \"Ivo and Lea belong to the feuding Valley Rangers and Storm Company, whose standing feud bars joint commands; signing a joint battle plan constitutes prohibited joint command coordination.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Py3Dyfkr1vLDBezE4tef7dcNTK7iacX0rGUEAETjyXhk5KlwwiKJekxrG8M4VLIgdO7QooJ5F1ElAU8XURXK9jv0bpmID4nLQBA+SEvc5QP96TNHvyhS0wlyHinM2PUs00u6AaqF6zRPxUCAISPok1iGbMW/deAmpXyZZ+WFIE1Lu3ItmoJPXPAfWk1C9oeEPrLCk5XjwDN7ZT3Bu984DikMqR2wJDE9qQacnURtIhlLxd4wJU5s9y51lbxHifTbym8OewSI9HuOZxOInf3D4lLBUMkRsaagFAHazb01oBqkEtWCr5RG2lVKQUoLRmlpQvvAGofwXyskGu0iy3Vc/WH7zj1JLcg0oX9ifbGjikN2+iDmzB6WFRrX3XnNCwl6j7e7Ho3XGaWIyyfoAjfNBTGlicMh",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 702,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 204,
+        "output_tokens_details": {
+          "reasoning_tokens": 64
+        },
+        "total_tokens": 906
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:3fcfd213eac99e94\",\n      \"npc:ee98e8a7e41aec33\"\n    ],\n    \"constraint_ids\": [\n      \"C:38ef72bbec82fea5\"\n    ],\n    \"span\": \"At north gate, Ivo and Lea signed a joint battle plan.\",\n    \"rationale\": \"Ivo and Lea belong to the feuding Valley Rangers and Storm Company, whose standing feud bars joint commands; signing a joint battle plan constitutes prohibited joint command coordination.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 702,
+      "output_tokens": 204,
+      "total_tokens": 906
+    },
+    "tool_calls": []
+  }
+}

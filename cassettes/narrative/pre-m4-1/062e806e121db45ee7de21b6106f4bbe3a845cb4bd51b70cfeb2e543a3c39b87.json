@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:062e806e121db45ee7de21b6106f4bbe3a845cb4bd51b70cfeb2e543a3c39b87",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3550,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 611,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 161,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 788500000
+      },
+      "created_at": 1783847800,
+      "id": "/KBdVHkE4WSZaBDCwk4szThsb8xZuvV688jeBDP6zoK2bu10I6VGkDDhbCcbJx1tgnVnwNs9J1zae7hsY+8pCFs1pWNdKeXpWh1QNSIEcDOzdACKiv3SSRpNqaP3VO8vpRcEghv2Tl3HqEaK6bNIxLBWiZXfozOVChSHMHRdI/u5LBk1L7GD/NK77ML3sJFmZZxysOajLHLTXJy9HgkieTSwEYQGvYpXdI05uqsnnfghiVcLVP7JHBPyDRDVQSz6nD9PCmNboX7cJplaArX07bJgY9pnCWTuNfAlzUcKyKYufHiFnrjdf8EZtcvyfGOcZuReECMFlwPen2V4E13fg4btQVn8CsAUvOgCf5sw5vtfLx/rYUI4Kd3X/HSKHhQz2oGsMwIXTd1jTDHvP0Ybs7eT/apghw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "z0WsTrBRKZb48DSK5cKZ7/I55w57d2647Jd0P9j0NLAnMA/IhgNoSbNZt03Y831gihlPpi0aK2jtfZDQxh+U4iuKCJOl3xt5IUzkQus6Vh+WfLji0Br4gg+m4+5JbKRFKpsM3NWfDyMz3bHeV0BZfPRMGfXQQlCdyPUkWIvYaoqPOxTcxeYlr0pP1S75bXB32qR+/tv8Q4W1+fiyfHHg48gdhXqpAGTriVrlIDEcBq/S0KO5HtW8y0I1SGXVjywrMKM35m/aWEk/FHD/jqk2dkwew2gj/6bDr1gbITufmI02BXfuM1an+EDK6XJ/rFR9x6LBchxSMNiwDcy9MLeKBEJptB6ZyodfZ7hnQ/nywXBQB4hfusAGxXniNoCq3W5oBk9u/qeokZUci0LuICuW30B5cKo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:6438547ac61b3de3\",\"npc:d18e0e8300bfab3f\"],\"constraint_ids\":[\"C:54586220fd9eb1a7\"],\"span\":\"At cargo ring, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea jointly coordinate a battle plan despite belonging to Harbor Guard and Ash Fleet, which are explicitly at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "mfuAFTQX4ZYJTm4t4Npq2UyjRC8uYnyP7fp1FC6odNVmIrskB9d3CBihRR5VOyXZkiGvw+EOE/CCE+oj0ynJhk/ozRuCu/IP8mfuKxJ+A68hfnj7dFeUA6hdaqlN4dRds4ygjqNzK+ooyqFoOxdK6GNnm8wDBHqXkRJYd+uivRRcKujFSCVXyiEDXFcTY65K5SUJaK4tPqY1abJZzIgjmHD+FmdotaahhJ1eQTbCwFE/9k2yy7W87M7YvFBTp/D3VSS/mcCChdAQDxlqo9bZPOd2zg4oka04qBuJPaunItHtrGN3y8bNhgqvjtCyxlneZlmnyuBSB98C0y0Evsf09AKsRHVWiPVfwD8sFgX7ynblehIiBtGFQEGR/r12sOMW8kZJAuyQZt7638oAsxFFvgzdo+uL",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 611,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 161,
+        "output_tokens_details": {
+          "reasoning_tokens": 55
+        },
+        "total_tokens": 772
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:6438547ac61b3de3\",\"npc:d18e0e8300bfab3f\"],\"constraint_ids\":[\"C:54586220fd9eb1a7\"],\"span\":\"At cargo ring, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea jointly coordinate a battle plan despite belonging to Harbor Guard and Ash Fleet, which are explicitly at war.\"}]",
+    "token_usage": {
+      "input_tokens": 611,
+      "output_tokens": 161,
+      "total_tokens": 772
+    },
+    "tool_calls": []
+  }
+}

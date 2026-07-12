@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9697558f60795cb61fcb0a6ca212c0de46765ee74df0715367661f39eaf30423",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5323,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 700,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 286,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1208000000
+      },
+      "created_at": 1783861000,
+      "id": "CCZrsAdksath7iiqtszr9cMxV00eMdfcASjX/rwX2gh289PRapF1SYMDvsIzi3+ngRvdcpdHtO5W6dWc1KY31aPSAaJ3kMHC/wR9b4p3woG1gWqyenY4X53xI7jeFrTVK/M4fSMm1oehu3Ckw0ZqpwTyD2BljNw5cONfDeHQe3BUe6d0BN1LMeGR/qWi0/AE/Q9hc4hssBjSJZp+zpDfb9UDF7Jl6qBdEW/WIFfAmMSiRz/raHNUQNyJLFr87OhsHgl15switqb7HgTU4QEDuld2wa1IknzlH9PWW6WZ5gPAJkl1BnXQo4V9Pn1oL3o7Lb3SApflJXwpbFNKKpQuP5XhDZewh8hBc8FPmubd+PnCLqoKRS061Uy2nQgRJRKQ6Aye8pkxUysFbj34Ldq2dmT0h1Qedw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "T8g3acjlpXpdMFNZajpqjbleVOtAcidLhIXPGtov8E+bu7Jn1ToQ9V2t/OdHhmUBS9ya008M96QIeGqPpKdrm7QFAVN5SkjCylcd+Kas9qKJniRCaKJyUL91VQhTHJD2tNGRkJc4u8wXFVo4BRcFQ4FImDGdI01bBjTc0wA92lE5LmnQV6I7rtD+05ZnAMKDGX9C2Zfk0Be97vTRaP4EEFl79LhkHxe61pf8/C9yjkdkjy5KHXxprWYBJgAAoUpWajkcW6s/DaW1RuD5lPqC3fwygNcyevpWXNMrIy+cvKL8o9rNNZk+eIuEB0YkGLByH2NDWH0ou2jwqt9/85rX10EOOP/3m5/Z/stvBQtjj6SuQDg9OpKI/KcvyYz5se6hl2wDhfdJADNQwcYIsYmv1L2TZ0E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0f04bb8deae0da8c\",\n      \"npc:4ef674adeeef1940\"\n    ],\n    \"constraint_ids\": [\n      \"C:ce68b1951796a1a6\"\n    ],\n    \"span\": \"In caravan court, the council recognized Ansel as the Warden.\",\n    \"rationale\": \"Iria is already shown serving as Warden, and Ansel is then recognized as Warden without any relinquishment, creating two simultaneous holders of the single-holder office.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "wE1kIzUrHGqGD71R/E2RkEgQH2J9pCerjCBU1kzQxflIcubbOCZUDnbxF3fOqj0dCSVjmc07BBhqLV5sQeBdmzkctBdTqmGuDXL1hkHEvGQZ7Os0F20LJTJM7Xm1/JcuHHp3Iomw8tWopS46kt9DdGRqaONGMVotWhuwp1OJgCkOVpJRjjV77u1egpOSzd8ook7bjpUQiDY8rx7FXGEgmxjA6i4sV7GZizYtIiiN3+V4dp2bND2PWJhXgH4hfDPl13pdBD6LfcVE9oPFCJdVm5gTemIVLmm5zCZlVcvkjV0dwXBdfRs0PfLXKgNsGz5Te9IaJC/tAkwvUhAeznSFT4g6dLgkNSPw82XBZvXxkdzKbmiQrPcj+xYAJ9brY8F+d4Hcck1xVd3YzErDafirT2qIkDBi",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 700,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 286,
+        "output_tokens_details": {
+          "reasoning_tokens": 143
+        },
+        "total_tokens": 986
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0f04bb8deae0da8c\",\n      \"npc:4ef674adeeef1940\"\n    ],\n    \"constraint_ids\": [\n      \"C:ce68b1951796a1a6\"\n    ],\n    \"span\": \"In caravan court, the council recognized Ansel as the Warden.\",\n    \"rationale\": \"Iria is already shown serving as Warden, and Ansel is then recognized as Warden without any relinquishment, creating two simultaneous holders of the single-holder office.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 700,
+      "output_tokens": 286,
+      "total_tokens": 986
+    },
+    "tool_calls": []
+  }
+}

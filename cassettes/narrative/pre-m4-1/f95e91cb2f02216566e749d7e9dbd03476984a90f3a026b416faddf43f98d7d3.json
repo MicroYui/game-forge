@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f95e91cb2f02216566e749d7e9dbd03476984a90f3a026b416faddf43f98d7d3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5054,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 674,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 162,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 823000000
+      },
+      "created_at": 1783845500,
+      "id": "MOj70oDwp+da/YC5cmg+uPopzgBlFwGB5czgzAVaE1wYSjFI8MkZnWHguLA2HrtpSd0dsafthreezd/f5RVjDOj/qpxyFNSTQtMjyZKhZSIfcaKolEfOnxTiPBbJ5u0GFJlhhURfUpGYWdbam1t32kCXCo1I3GD6dJ1autGHmO9D1V0cGU8nxpohLw0ojU76I5VLTORaL8fg8acpmcU6DkAm65zmcsX+NKJOTVIl21vANBui8ydklralEgFdyP46YiQy8qBH6joSMkus4uAdmPnAKJwsdro45OD+nP0pzwJNchNJJ36aVRaC9uHZsBpZJ9gRICR7GIdP1bpsxLD0bNsU3sXapCb/yHHne41p6AXUZKQqhc9IIL1JHyXs7zuAcqnbYbBTw/g76OYmEnkNhKSjOYh6ig==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ZeiPX+p0L7evSGxtbIVFXs6okksfcH8MGbjInGnfm/r3tAUwzILCyrQ0ZVceme9MQ1T7hojKyolS04+1z9+548ZUSyc0dO2DoO81hP3r6pXJ0XUSJqcOGODp51vvrgkbfYDsI5RIILs/r7dxCdFMTmzCwxlXzoaR3lJ2iuoEzVaRkZUUpWCIz9C5FLqTnn1OrrvH7BYuzcMssDmnusVvY3N7jLggM5dfNTo9hcUzpuNRkqC+dPvDyPtdj++Fn8L685Gys6X4KDiWyYJG8CzP+0QM9BdFsaj+nopRE/GtWlsEOgVQVv6Ei1nnqGKm5vzb2MwJ6G5/f409r9U6umAmlK0JhHiJSbZ9YK/4N7m/i+65ERtRSNSUgwFSMAP83W+JeiAHMFkCS6BS3T0S6IpBIonAvFM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:261fc20745adad19\",\"npc:6102b5a4ee2b9456\"],\"constraint_ids\":[\"C:33e254f786d31c9b\"],\"span\":\"Ansel fought beside Iria under one banner at archive hall.\",\"rationale\":\"Ansel and Iria are members of factions that explicitly do not coordinate operations, but the quote depicts them fighting together under one banner.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ACgmGKcrdX0buoe5ZI/3/AR9PBcyICV7AMtiXBDT/s06P3n3oWhA+VZm6Hbt0vO2atRbnUIu8xrlwiuqcJRFe7AsyxrsejBiz5rizSsz8vJsujzAA45V+BhI2TFR3LDnhDsElP5HmOFinGCVVgFF6OAzsWJxnWJTmYmTyONfbN1To4s1YTwpxyiszfcuvThGHzQoiy2r9eXlRRjXVgi+51uS/0ZI8dAtax/PZ+AAPgbUwHuF7PynKVicIDYHyCiJlBlz5U1NrlXWh6Hup72TKIRR3UatTJbZARvg8h+bgeHUuPgFItIucZhHoc5CqUx8dpZ7ds2TdSZR/p3MhM/tE8ZZqMicsxM+9s8RQYwKCNKB5HRPY99DmjQJLNQDBoiSWPGN9hxt2+HsuzdAhEoHcqqXl/S3",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 674,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 162,
+        "output_tokens_details": {
+          "reasoning_tokens": 54
+        },
+        "total_tokens": 836
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:261fc20745adad19\",\"npc:6102b5a4ee2b9456\"],\"constraint_ids\":[\"C:33e254f786d31c9b\"],\"span\":\"Ansel fought beside Iria under one banner at archive hall.\",\"rationale\":\"Ansel and Iria are members of factions that explicitly do not coordinate operations, but the quote depicts them fighting together under one banner.\"}]",
+    "token_usage": {
+      "input_tokens": 674,
+      "output_tokens": 162,
+      "total_tokens": 836
+    },
+    "tool_calls": []
+  }
+}

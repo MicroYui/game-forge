@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:185bc7ecd99c599d13c5cf52962b3f8cc625ee8785c48e06ea550a57ef0f64bb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 1930,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 531,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 88,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 529500000
+      },
+      "created_at": 1783851400,
+      "id": "FRUYKK4jXfSYkTFtHHSl/3+d4MudFKmT3iMRMN146tHSwJgX8Jq2W9vLoO/LW3rA8A1HdNrRBTdTKxYYHwRxEtjRFLBtQNWk3RMfxbV+RbfSVLTVR1Kx2tFVJLT1Jy+XkynhZWZqYB5SHR6a/vM1vx1eWDUR8XwpNXeCO0lzdknDp9DS2qCdDSVcOpl3sXA92JYVH34gfwu6ye8f9r1HOD9AWIcIqXwzNVvFjZtIYxf3v91s3SohxRUua6UWeLKAZ7QElfBzUy1ZPn7GKr/nc4z7VcP5Vzt1cwVPySBuZlNrhpeVrrjJWp9602qaWhR1PcKLMu505Nk5juysc4cUwc4zBHGOyAH9theuXWHsjSoJaYCpobTS3N+c4SiVVJ4Dr02G8/HC3OQ/1Dc+I6IWNMqRgvn+CA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:67455797bbad8d0e\"],\"constraint_ids\":[\"C:409df6919b3b53eb\"],\"span\":\"Ivo took the last medicine and walked past the injured scout.\",\"rationale\":\"Ivo leaves an injured ally behind by taking the last medicine and walking past the scout, conflicting with his rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "nkCHys4wM7tMY06NMrhQLEmCUsr9FgUSMEefUnwmEKiPqF00IgBFxqeeebORA/wPc+T91g/eH4HmiBy0kaO5ZATc4YKFIHd97/NANNoI/7lsP1OYKIkBQUN2Q9lrbA0LJJYNpk5P539svJulcd35GwggAWYY4k3MRL0EOtcYvNfQkZzjI2ykcTpYGx0r2K/H9rVo1nmdIEWhaiSCDQO6A3UDIBEbqa0El2gfhmY6rpHgjvixGx3ZzbJYz/yG22w7QfiFYX00WC5HKWlH07Ryic0OXo/PiMEgeeD227D9a74YgMi+Uc0d9tTuRYQLnoZc8Oz+md3YXACRVCD2jP07DMCAYJOLAWmezt4CgcskQBz5RHZ7xnZ9VZt/XCosWUb3ohW6J6qAeMXNH/g9r9uTIVCpm0O5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 531,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 88,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 619
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:67455797bbad8d0e\"],\"constraint_ids\":[\"C:409df6919b3b53eb\"],\"span\":\"Ivo took the last medicine and walked past the injured scout.\",\"rationale\":\"Ivo leaves an injured ally behind by taking the last medicine and walking past the scout, conflicting with his rule.\"}]",
+    "token_usage": {
+      "input_tokens": 531,
+      "output_tokens": 88,
+      "total_tokens": 619
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bba509b47bd7cc2ce6f5e282758a8c2372595c7a7887328cbad5824510b9f6e9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3153,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 542,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 784000000
+      },
+      "created_at": 1783852400,
+      "id": "kCVWVPW1s6Ccq1ndJnHqQy6rAMPRe5E6xe+QQ3LHdY0vClPwZ9IGkz0DUr+IWXHUWE+SHMi6PQ9CYzS5+2+P1eaKZWS6lKCXtQs1lr2ofUvvzWd34BkGYgg0jRIBYTTiy+P0nH7jsxLHMAW8IqowunGbHiRVkmtDmdIGvfTsp0oZ/hMNq0x2g+LOIeicrR50tLfuJ8C6pyfD6NbPkb5IvpPHfHGmaTghMzwoB8hrqpcikJd91mh0sGKK4iYa2VnA8hBE7h4ruPLqFPjv60DhDIjSLA4mZtZkRpWqpUUmrXtkXwD7FL4e7UxlQ2qvTo2vsFWNQ4ETrtxd0n0lxXn8IQewKp4IHyB7Xs+62mRlA7FquyCDxSMVCZyApKfl4fNSKOjIKCV8+EdLiHjmvvt0CcwIymS/lA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "i9+k5Fo5nfdb6Za6EEM+s8x3TVCmWDCbGyH1aefEupdr/LKpvSIJQ+ZAny9NUaH+VPvqaOHYrTZZ7341fJE5zjBhX8kInlsFExFvx0Z1xH2KO+hlijbCCsaW1invGCFkJIC7MbxfvJz9ze4TjSDohvvj2WvjylHgWTF935AIVUVdJZFB4nnAl3fByL3vOsv4zM2QlTy3X9KvWMLYoIUvnaPvBtDW37FoGiuBk2S7XRNMMRcDo/MZ8hWrtaTJmIUhapehRaha1eYTPHuGPtyqkizCJI6u/oEqOHwjmNA5GlQWGLy7gNy2gnYp9fxXPhA0/9g8sH3JVfzvBd4zNKEPaJpNBaHOGaHMBDYzLytJ1rdLLAoiRnlDuQH9XbeIIO1GubFCI4AsDR/Lh493QagEzoYjuKg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5feb61385142cd45\",\"npc:9966a4ca3c58939c\"],\"constraint_ids\":[\"C:253c2b25a539ae14\"],\"span\":\"In caravan court, the council recognized Iria as the Caravan Voice.\",\"rationale\":\"Ansel had already accepted the unique title, and no relinquishment occurred before Iria was also recognized, resulting in two simultaneous holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "PPuRyKfnOmj9wtCjOVgqTnBTHafIugG+zvDLhLOZnQn2bb/9DRYnrXkWBotYRI5p/KVNnjlZmMkqMHzrUwX145tjRUSrzxOFBLW7Jy3gqjypBpP465Snr1H3FzoLMefGtOVOI2jjqyPJY/cIgvFN7DI1GpB10ZjDu8kjXMa6DcsBgutBKEZs5rK20odhi/Pa1T/QTdRl2WUPM4S/RNgbvTNSpch6doTGZ2KWGiuXHDwoIHlFGG9JzWr+TIilR8W660YqYuTaTh7HYbFQ0czVl0zrMzJ6krfh8/K81xUQmZ4FLOhseS3X7T/1AiBjsn8Qv+fw+hNpfMXN/E8e8fnePBnrFoYEvJ06ZgX9N8A7AWe0ceDSf4x3Bga2H4wdkDP0+xLmzOwmYRdGI+v0ylUmuOwFd2fU",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 542,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 63
+        },
+        "total_tokens": 713
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5feb61385142cd45\",\"npc:9966a4ca3c58939c\"],\"constraint_ids\":[\"C:253c2b25a539ae14\"],\"span\":\"In caravan court, the council recognized Iria as the Caravan Voice.\",\"rationale\":\"Ansel had already accepted the unique title, and no relinquishment occurred before Iria was also recognized, resulting in two simultaneous holders.\"}]",
+    "token_usage": {
+      "input_tokens": 542,
+      "output_tokens": 171,
+      "total_tokens": 713
+    },
+    "tool_calls": []
+  }
+}

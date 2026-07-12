@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d2ec3c6e9b7bccd0a67b33f78b4061ebe3b340a13dbe580ef9118c6bd412616e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 8314,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 648,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 479,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1761000000
+      },
+      "created_at": 1783847200,
+      "id": "kSFiceIIYtQ7kHzk8TH9CU+K3xo7/xAhRF4seJJBbmd3hpdE7zVP6eI+6MRx+wolVuqTlQ3FVOmc6FnP5srgpDmgUyx5+UP+kxjOAevoJuh3I3QrUZaX3CJK3ZclkpmnFI2DCfxHNWMcMT/75hOGbUEo4zx8DN+gKVR7ESxd0z1b+846L5kauxWoqXapoLAiOLw2G2sjNHJTU4rm/6OIIKomcxU91R3ScvKhKt9mNqJ+qaeOQoq562N4Kz2JJF9RNxy3GtXMIBqcmBtUA+U7rorD2DmJoEIcZw+kID7TLG7vlbdhy4yu6z/X7b47K/YVjPgWBJpYrRjJzFwT4fOho3q9chSy7r0ZpCHLPxtwSRAwkU0MUwODfXkf7FFDZlqGOaW+V8AVxeSbrkGkwGS9zNWiGN6qeA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "E0k+S4SBcx31e9VyqJBOsY/jOgAnqySYV20EZuPTH0Vk64tURNrmHTM1sRwQES0oDVGvQX8rMV2JhQICdeBvgLvI6eXVRTuhJfG0tpvWT3jO8cCgLbSL/LZKaZhRHf21oWSxf4NimIxcUgIGDabGR8Xn/nH0bejKFWwUeJBslx9qnMnTJp/G0idoGb3aJQ7hoUbLjtJ0dVGL4FtomHHsR/AkQcEfzGLzr4IsS3kUkFl162Ln7W7dMjri/EgHjtfmJDTef/R3gs3HNaBozEifGq3iMyA7aiAyZf5EZ4AW6vJbna4e8cmcCeaAGU+fJhoQkzmVy3v0aIRkq53Pr7vKzjKN5n6raJvfQjLptLPVxX8+kbhGFXAuhDL+Y++JKhogIvLWNr3WEcIEB/2cfliiCCMu31Q=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:ff6b744df50d8561\",\"secret:ae9e3635e4f1c724\"],\"constraint_ids\":[\"C:f148ac7df1ea9219\"],\"span\":\"At glass conservatory during hearing, Ada told the room the truth about the reason the eastern beacon failed.\",\"rationale\":\"Ada discloses the withheld reason during the hearing, before its permitted reveal stage at sealed testimony.\"},{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ff6b744df50d8561\",\"secret:ae9e3635e4f1c724\"],\"constraint_ids\":[\"C:f148ac7df1ea9219\"],\"span\":\"At glass conservatory during hearing, Ada told the room the truth about the reason the eastern beacon failed.\",\"rationale\":\"Ada knowingly violates the secrecy restriction by revealing the beacon-failure reason before sealed testimony.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "C9RS0Ak08/MeUsXSW9bZlMkZN33z+jQ6EEk2+rwCwRivo7UL4zK+ePNhrbeWFIJyKp+raP5/4M78irngcxwobsGDw7LQZuHzimvXnSjbiIWSoHQpH249eU37c4JuV8SD37Fuqt8Tf00iuuA7AU8KmvBnDzwT+X0bCTtzApOy9LwLTMHkfUb/PYncq8CJvtOLzu6pjqORlZMDxwiL6dSUnyyhhQj3BCtV5tzy50H6uPmcMbLDQ2RFNqocemmIEtUYUiJux2peHrQd0NLEoBOQ5XWKBI65nSTAAJ0moyhr4ScPx8FAZ0CgR/SudYFt9GPlD+bB9cbFhG2pxFrLIVlthb584QqOpXP1GvRZRJdkqbFaF8tqt3kj7tVnoN1AiMyu6Trk+0ylZ4diCTLJTfB3u+n8SiPQ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 648,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 479,
+        "output_tokens_details": {
+          "reasoning_tokens": 275
+        },
+        "total_tokens": 1127
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:ff6b744df50d8561\",\"secret:ae9e3635e4f1c724\"],\"constraint_ids\":[\"C:f148ac7df1ea9219\"],\"span\":\"At glass conservatory during hearing, Ada told the room the truth about the reason the eastern beacon failed.\",\"rationale\":\"Ada discloses the withheld reason during the hearing, before its permitted reveal stage at sealed testimony.\"},{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ff6b744df50d8561\",\"secret:ae9e3635e4f1c724\"],\"constraint_ids\":[\"C:f148ac7df1ea9219\"],\"span\":\"At glass conservatory during hearing, Ada told the room the truth about the reason the eastern beacon failed.\",\"rationale\":\"Ada knowingly violates the secrecy restriction by revealing the beacon-failure reason before sealed testimony.\"}]",
+    "token_usage": {
+      "input_tokens": 648,
+      "output_tokens": 479,
+      "total_tokens": 1127
+    },
+    "tool_calls": []
+  }
+}

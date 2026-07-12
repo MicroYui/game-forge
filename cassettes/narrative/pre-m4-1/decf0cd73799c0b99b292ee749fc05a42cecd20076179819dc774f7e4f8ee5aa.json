@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:decf0cd73799c0b99b292ee749fc05a42cecd20076179819dc774f7e4f8ee5aa",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 1813,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 588,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 84,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 546000000
+      },
+      "created_at": 1783856300,
+      "id": "KMGj2+ZNRQa34SJeXWhoZH8za0rwO5Ax7ajWIFQEz+Z2l2NUbSkQO3btqyo5SI6sL94RYTG0L1cLwB5q2j7TlZ4SMVoNvxBmX2+J4FHGpt495vENvSW3ccojYzPE9AEbFRjWKJ1e1xnxb6XPO16qaGTQ14q4Lp/mhefXRTGejW6xrtc+HURAKgGDAmUywJJymgeM+NNXkoevVHYYI2NXeyIM41hGpk+jJmoZYAFJ1B7oC66BIMjxKaUNhjESiWpg4yGn3Nmb9mkRzQUNVLb3hGrLhAi2QiqZbobEvG9ltl5q5A0i+GmgBtajMeMVxUHIRbPakWB2JbhlqKtEpSijMR03k21Xy80iV47GYxEjTezuJzqk1b9JWaHaUa1dFg4+D/1RXssJVlyLl0DIkmvapIsYcXjxCg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ba08075209807f7e\"],\"constraint_ids\":[\"C:7742a42ba3655cb7\"],\"span\":\"At north gate, Veda sold an entrusted route to the raiders.\",\"rationale\":\"Selling a route entrusted to Veda conflicts with her consistent protection of routes shared in confidence.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "AJhYm0hYHlB3XQAsDhIDKIIaK9YoLu4ARL4zTzazA2zk0uJvK9stG/NJTrgsJ02XPatFqw2kxyZu62Tb3465yB5Zwl7RwWQ37bixLRsMOEyWES+Kcn9potGz9i0N8I5AQ/M5LzrJ7U55K94I4Ve095bqOvkM4Fj29bDJeTOzvBoyFfOtt4Gzr36bbfHkNq0+M8rrVp9HWWNvQchNUxrSlniXn/pxODsRy/qVO5p9OyeXFrjaDJsZ8G6hK/Erm2l7b0OdHUO7jvX3P+CjJwG5v03RmKQmnoSy3QJJWARwp48LwzPXfRv7M6tuJsTWsG3ll5amAVmU+0NguH5hY0Rz21vomrLaaj0v70Wb6j8s4jBe3dTysp5w/XK4QdsCAzkHoKC3+iLPJjfEXZAqbMrEXJbVeTSG",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 588,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 84,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 672
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ba08075209807f7e\"],\"constraint_ids\":[\"C:7742a42ba3655cb7\"],\"span\":\"At north gate, Veda sold an entrusted route to the raiders.\",\"rationale\":\"Selling a route entrusted to Veda conflicts with her consistent protection of routes shared in confidence.\"}]",
+    "token_usage": {
+      "input_tokens": 588,
+      "output_tokens": 84,
+      "total_tokens": 672
+    },
+    "tool_calls": []
+  }
+}

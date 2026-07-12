@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1097bb5fbf6def6f8c04b1528a3fd298b4586a964872ab49781345cbcc7244cc",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5449,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 595,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 141,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 720500000
+      },
+      "created_at": 1783841200,
+      "id": "mESi8adHnA/ZK4WKyxp7LiSpX84SRuSu8OCNnsGAk6mzOqGypADABoIxxJ1Q4dsq+FyrKFVVe1ZRCzOkSU52faf4V5LObP7mrUQd1UpUCwCG0SP7mLypxhlwaEoyUDA3xXXAHf1ulGUJxOHs5ENtr3Bul025APlKc6D8Swra2pqTDv1HjlG2EYYq6o34VsRi3iijBstdcXUIHRBz11E1Xh+zL6UBTjHTyG8AP7TtrUUota8+1h9RaityRRwGd2mwucHyd+0XZbx/yLoqac8TdRPPEP5BW125WeIKI14VHHyJTZil73n/eoK8IO5raOCRGGAOBqR3NCeb+g6ufWaWQ0tDedXeWU3KSxlebGznrSUGJrB8Zhebrl0WPVwUUjejly7SMMQvIP4IcXIt+rHSjO1JT/SnZQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "q2HzmIua4o+9xw3pSeza/C/1xy7LV3bJJDPwjqjl3FXRNgvc1tNSh5ut2dgh6dTm70jbJW4zahWuWPcF64wHRV/BYCz7LK3tJhbd1SyEWk2+GdchiqpAaHSZOTL9/fvJGF9TSzBDy9cJ7ZBu3S+rAJANXkOGnoewcnsKutddRfcZ/1aMt4aFEGwzGMTKsSGcknCGUtCJ1rawTZee5K8GHUBaw70bifyxjW59kXY1DNyfU0D5h7QaVptbC5bqG3GOtRN7XCTkxFt9mNPVkH8sGLbzQcHmn2gY1ntRcNuGDWXDw6GydAEn7oh81JQhSkwik5r+FkWodiBC4JLDIkMu5lR5sXsjzSJ+OBSKQi1qWn/WAmP8IO73x1TarR7fLjkFW/GPZqTHpHVE4zTSwGw0Tqz8Uqg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:05937080135cf6cc\"],\"constraint_ids\":[\"C:9bbd0bf5f7943084\"],\"span\":\"At river market, Veda sold an entrusted route to the raiders.\",\"rationale\":\"Veda sells an entrusted route to raiders, directly violating the rule that she does not trade away an ally's route.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "BbSLm8jNppEcjDJBuxF+8skxyFs+YYAFo5bWEfmNYMgHZtSSzo8pnGBF4SFbNckugC3My24lKjAFvoEfuM9bFy6kEFukZPNsE9+V5J+6wEKbosnVHIWX28Jy3sckLxNczdbA9yC4OnT84C9xRaiPA0AgY4WA2vr5H0RzN1mu4LpeCdZaUd9sLuuoxqhSeDQOMVGhMPcrVgv1aXS71EpIB3BhJDX3ElBKHLbhfn98BnOs9GExWb/LgpIYnmKOdsZHP8slWK4gLY+HdhPFG8yptYt+yb4dI35/Sy0rFjzROJDkIAgZIwHRTpcFG3MVPOiSF4eDOt1HzIwx9PknZxQLtoxTXB93LQF+I0gD6OMuP7nwwdYuWcd7DLcikz/7QxypipkHYe4gv2BLTmN1sy4zEn6TLFwT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 595,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 141,
+        "output_tokens_details": {
+          "reasoning_tokens": 48
+        },
+        "total_tokens": 736
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:05937080135cf6cc\"],\"constraint_ids\":[\"C:9bbd0bf5f7943084\"],\"span\":\"At river market, Veda sold an entrusted route to the raiders.\",\"rationale\":\"Veda sells an entrusted route to raiders, directly violating the rule that she does not trade away an ally's route.\"}]",
+    "token_usage": {
+      "input_tokens": 595,
+      "output_tokens": 141,
+      "total_tokens": 736
+    },
+    "tool_calls": []
+  }
+}

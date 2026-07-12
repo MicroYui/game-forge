@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:11ebb36688da72fded857765dd07262aab24f7ad55a838f4c2f6f8e749cabfe3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5336,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 567,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 220,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 943500000
+      },
+      "created_at": 1783843100,
+      "id": "dNOX8XY/lrtkLFEy8wz3agT9N0IAkZyqSU5CM6wEWXI2sDYY/jWib/DKkDNHrdY0BJusbBw5/OPZVPVjaR3dNh4kypSpGPTMP2B9STzNKWXKYOFAYUMuL0FKFmvWyg5UKQwPL0DeITPoilhkuI+AI0v68qupoTVVox9M2EJ/xGjCvTlECThk4wwvNZ5Ipap/4TaJs7E0aq2d6hto/Fl+VgcwUdYgkwcEnpqvoLI1Nsl3WsZeVna8F23a5lMz7A9tWY+hgkwa3hidIrCykq9rXBN4GWmbKxuiUkdhVKlJqXj93Ft9uyL/B2eozXmLyqEDInlmKI3dTab5llQh6Jlgvk+ahRdOueRVT3wLc3TqDxkZGapITn1WP8V05oVFWUglMbgwGENIPzYvsJ4bP+JbQNzZGslqqg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "16texia2Zu+0kAtcqItzEyrxj4K9u3t640THlCcNdGeeTmBUVrXKFzDMdTNqopSb2PSnwzLHvZAUdVTVZwuBlsLkVmflzw2zMfCoYPlaBojT8NoQvmPMCVj7Cuz2O9ip0wI48g5kmEk2JRq4q2foj58Zwu9a7VFphxpR7X28F/qjWvffVHx57OA3crHVj4LD+V2WRMXru4aCTZbkpfip0Tti8D4heRHGjZBTKfQFHsiuHHqEP4sS4F/iR8YoRdyyhzzKOGZ0QQHicJ5nzReJr2fdXfY5TfYlwrYST7baa444G3oTG4LZBDyHoN/HyidBEe/AzOoKHIJzofaMhcuKmWuvJso+sxRSApNjSgpuxiCU+m4cUctr70nG2Eo52gV9mE7GKgMSENiwwNykUlh7S+ZsjzQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:33dffa9609d6c635\",\n      \"npc:f037b3ab6e621748\"\n    ],\n    \"constraint_ids\": [\n      \"C:0212f3a08b8f4ba3\"\n    ],\n    \"span\": \"In river market, Ansel supplied Iria and called the partnership permanent.\",\n    \"rationale\": \"Ansel and Iria serve factions explicitly barred from coordinating operations, but the quote establishes direct supply cooperation and a permanent partnership.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "q092xu/1rRiEBRZrccMA54+VqNMKcGXYUWu8nBnJpFRTKXKsVW9riK/F7QlStTEcXa+nMigkw23SSimSt1xSkmTe/nSZcwRrHCBHo5D2yqXhfSy5BYXUSk5h5cdQcTE0ZUR+I+Nj0EnaLJbjoXm4PJGgvXazWiR/mxfn7ZPAuTIHUXeIBXyORjJmYudAPUtyz32wblHCuOzF1iahPvYYLtK0dLzCVIJPHZG6aS7uvEw4WqI5/n4BV6X2NKOOBuZmkwDduQWr6vEGtmM/V1ZMs6EHDgOtVbNf3z//OFNTtEVOI3hevwnwZhDnjTCMeFx+gintzvKfbwBYTGqksK0Sbo3R7QMS763N8PdkBVglp7294JuL7clI1aj6e8PfWIrYjsEGidCBSfeRL2LohD1VX23vUVB1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 567,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 220,
+        "output_tokens_details": {
+          "reasoning_tokens": 85
+        },
+        "total_tokens": 787
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:33dffa9609d6c635\",\n      \"npc:f037b3ab6e621748\"\n    ],\n    \"constraint_ids\": [\n      \"C:0212f3a08b8f4ba3\"\n    ],\n    \"span\": \"In river market, Ansel supplied Iria and called the partnership permanent.\",\n    \"rationale\": \"Ansel and Iria serve factions explicitly barred from coordinating operations, but the quote establishes direct supply cooperation and a permanent partnership.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 567,
+      "output_tokens": 220,
+      "total_tokens": 787
+    },
+    "tool_calls": []
+  }
+}

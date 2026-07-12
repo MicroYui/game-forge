@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d38942946e23834e85ff524517de588508fa4d185d3195f9c450e8c48dcb68fb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4150,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 558,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 219,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 936000000
+      },
+      "created_at": 1783858200,
+      "id": "0XHQ+WF3nQOLqyPD9zxCTlQPXCalV11PROCl02QUjoY1JfzZxarJPJkyG0QItwAaq5WCS/IXT0xla980N1y4Dg+Ro3il311cX0y1PeBz2/r0PY852SOW0SmiEJhpHnO+VLsxiX/qorVWPPcNv2h/VmApD9W621w3fuF2PXzdghJqMi1rCSQGVpEsYEzrxXuz2WB3cACFlHuGQA5Fx2rx+t47B4IMjj0k4DSzPCiCfB/DSpCMlaWBd8XsBKQlLrkmOPpSUmtWtTAtjhNZPF5CejSnvKxnTiQ2uHoh4cgbsO0B0aeD2iUO8nWVl3efDFlNfhH67naI/RkXvIzPn2QtVcPtF1QBU/IX+N2RpfTg2BQF6g0FEVJU2lWquxuSfMwC3gJc9SEXzZiDbqDoJobAHuaiho0GNg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "n5nbX9DWncDi/VWVaYa49HB4wXtRwzyI7uB3U20wtfYGzwhgPfsk9kWgW4mOUTptUQThWaPkVLHNSDMbiKH+CGaBsWBYVw52NfJfExam0uMMR6g/uIcr6xOmRgwbLOghUaDalNBMIkjaQr2Ud+pUgGL7VaW0Yu5SLfn18IPt0h/PEs6vVQu86V6t0QFRo3haq8R+lMRxwELH/iX4nw6flLkXHNsYOSotyt3Nt1xgktuY+7BmUbKSFgGot0XbaLKa29fbWNPecTPPrIM33ZkDjUk5aBNgAq1GIGCeswcuNQAhlt4OK1bWyqfn5McqQ3BEqntdKvMByyUDm3x1xDu9bOfYUyqCAe6qa6KcbnHlOUIj9rBWW9EPkIeMaS/AxeI8Sz7dVFTW90JY9Eg/y886t96Ri+0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:eaeb21db393475a7\",\n      \"npc:fcc22ceb4671a9a0\"\n    ],\n    \"constraint_ids\": [\n      \"C:43f8eac5b8d139e2\"\n    ],\n    \"span\": \"Ada signed the register as the Crown Witness at lower court.\",\n    \"rationale\": \"Malik had already accepted the single-holder office, and Ada then registered as the same officeholder with no relinquishment shown.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "GIr+FmgBAg2oC+q8STtfmLAyny7piqZgIXoEENJbLmcrSX1FQNs8E4vlZ2ddJ7ofi6QqpTkEzbBkwxDGgwb20C+WY9w0xZ00qiAh20SDFBfW6fUvNcvdgG3jiiXkb/EgJGK2fa6GhDtjkkqv1mXMUlyoO5yMCUqUQN0fH0JskGDwNi05rUfv3FGWd8MIZU3a0f/xvnMayL27mXMvgw5RHZzDUS3jdhqw9P6JN2Xjg2VzKTFonfXpbtfEZ+xeTsQJlSX22HkJgatdaA6GyLc3Itu5emZHKlJxMgE4YgB+1zAwAoQ5JeqAfoRZYgrbGqyHmYm5tKHMK4LeVwYhPbnRc9MiI6g6iSueI8T/VE6/ZQiKOfN1HEfMbfNhj3kqXSsfECuI02HGLh4MPKEDlD0v8JyZHpOc",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 558,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 219,
+        "output_tokens_details": {
+          "reasoning_tokens": 86
+        },
+        "total_tokens": 777
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:eaeb21db393475a7\",\n      \"npc:fcc22ceb4671a9a0\"\n    ],\n    \"constraint_ids\": [\n      \"C:43f8eac5b8d139e2\"\n    ],\n    \"span\": \"Ada signed the register as the Crown Witness at lower court.\",\n    \"rationale\": \"Malik had already accepted the single-holder office, and Ada then registered as the same officeholder with no relinquishment shown.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 558,
+      "output_tokens": 219,
+      "total_tokens": 777
+    },
+    "tool_calls": []
+  }
+}

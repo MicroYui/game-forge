@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7cc823cc0cf85fcc2f61be06dd6c432607a4c564e53210827e7207d9b85c11dd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5508,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 665,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 328,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1316500000
+      },
+      "created_at": 1783852900,
+      "id": "PnD9yTMeyqMbfv54ou+6guamUCxqCxXPtBZM9+iniDJAhQLwdgL/QX6cyF3VBRETB36TqGcVHiIb/5qPOGbAWmlM1iY+t+J0KHoxi2Er/THeJaf+n+gNHEbMWLurB+ga3d1enSJVjdpOH/u048HS9wO/ebIQgQOkFbdhtXTYUkBqtg4RHIIZJib0Va+WcFM/Kxlo+8occDkcuIoFms6D0z19xCYcHU+a3Owu/ZwE/8wejaRSHCmRsMqdtAloX8gIe0Ya+8feQAnx4rdh0BY1A0B7CpOvSmCakuG55Q8xh+TVf5TcWrMWF9vwH1qO9uO5G0X6gEaQmqs54sKJyGD5dJ8/xXY75oip/JOcL/IoHdLB0qbGxHeknI64t3gMh4BmUsGWRiyYeoZCFsOU3aXHxnfc6oqDzQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "wmLPr+Z5rNfFc4l4HTU/mpVWjYcE6/abAKEXYA4cpg74dN/vetmITv/ZvUZDBjtC2w2rsc9nq6wS33IHSI4QAN7APlpHogFRyJYMesU1+m24NK7SGS1Nq8iXw+hajCrvTOslTYyp7wo6uUedmgKDqsw+wjOakpqoh4kaKmccom9fm/xxWFxFCdZTACRbzmTLmGesnhiXu3PMQpDRvtzSMeTb3hNkzCeXVRxTKpKApseZfMH0Ip62FjyOaHd/589q4eKV0OtpZ8mvgwRbxRG1E2EqzsJbuKiu438HaP6oHlGnbO5Szt0GZZFzOsPsTaj2hc8vU4o8MV/Fsk0GVnNLd+9h4nj/0a7BY1lJiH22Mei7sJj/bYcr5vbtyfHAWe/envp2PRBVaK4aIVapZy1JS421cJU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:5dfc84da477ecce0\"\n    ],\n    \"constraint_ids\": [\n      \"C:196dd91def0c3381\"\n    ],\n    \"span\": \"Tamsin disabled the crew's escape route before joining their hunters at salt depot.\",\n    \"rationale\": \"Disabling the crew's escape route and joining their hunters conflicts with Tamsin's loyalty to every crew member.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:7ecaeef77a294ba7\"\n    ],\n    \"constraint_ids\": [\n      \"C:6d7bd1478776a2f9\"\n    ],\n    \"span\": \"In desert waystation, Pavel returned the reserved rations to public stores.\",\n    \"rationale\": \"Returning reserved aid to public stores instead of delivering it conflicts with Pavel's duty to deliver public aid to its intended recipients.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kFr1uwaM3mxjbY09pMX10O2Yn20VI55vypFJ5og2dzpG5bpipIBbo1s72/Da+tuR3oZDATrp9AqfAxK5wkyrD7nmeuC955FpOe3YimJkplc6VqOEfx8EL5MUGoj0bkkXQPByS3qmtJFw2tWs9+ECyjGxybSsr2XnfZ7SNlj9j6BMC0hCwtlkdS7yLQOXsE3ruZc++frw5WoFoAx3eVEegkv0/e9TxNasIrZndQsE9ybcBFVMbyOTQ5PqWdITjYDRLS4kMB+oshf0bbP196eGQN3wMOs++xTAoXsqrxH+pcQWGm5JPmPvgZMHH6VKM8kOKgERdEz5TpcttTxc4zhXUPmraQqrdugluBaAphSjQ6AlhIO3lbX1Dl2F4/lC8mnEaGNsnho7Y9VBODYGWBMc8vLBiEmZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 665,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 328,
+        "output_tokens_details": {
+          "reasoning_tokens": 100
+        },
+        "total_tokens": 993
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:5dfc84da477ecce0\"\n    ],\n    \"constraint_ids\": [\n      \"C:196dd91def0c3381\"\n    ],\n    \"span\": \"Tamsin disabled the crew's escape route before joining their hunters at salt depot.\",\n    \"rationale\": \"Disabling the crew's escape route and joining their hunters conflicts with Tamsin's loyalty to every crew member.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:7ecaeef77a294ba7\"\n    ],\n    \"constraint_ids\": [\n      \"C:6d7bd1478776a2f9\"\n    ],\n    \"span\": \"In desert waystation, Pavel returned the reserved rations to public stores.\",\n    \"rationale\": \"Returning reserved aid to public stores instead of delivering it conflicts with Pavel's duty to deliver public aid to its intended recipients.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 665,
+      "output_tokens": 328,
+      "total_tokens": 993
+    },
+    "tool_calls": []
+  }
+}

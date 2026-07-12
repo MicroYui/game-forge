@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c033faad5016b2913e2a69015f1401b713a66e354cb6aca8c3a89d82e3e99f6b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3579,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 532,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 215,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 911000000
+      },
+      "created_at": 1783854800,
+      "id": "c0jPaP0/Qz1xir5P8Sj1oNrGnfMj3CkmiR5qC/6ux/Rnvg1cBzE9bgUrL/xGYIl/jc6qHEelj1dVX8KdNx+QQ2ETbbU4iDND8QUGVu7yY9cvoJq4izhPDb6G3XArduNGJsQ2ykPPko0SSXMoB8OuA5QZJtX6w367Wtom7vIbkYuKS7+Z1arWkY+cG3bcV+LTXsTIOLeiXDPt1IyFHHnlmhP8q/BQM8RTJ2Tgn5la9o7L9+rBc94193D0vLgvw8vmssMha0zJVsLkx95/7qF+s4cVB9KuwFziHqeHb8bqDvw/pcGC0MkEMcgZXgEYusFhDyZiHd6C54GyJyWHfT1L46LN+3/FPgGm9/v8GCgSuTiYt511UKlpSjWVPVhmOFJsRnRj7BgMkKG9ka+4hPAOTCeS8XHvKA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "B4SqtF1EjMPbccfgUjmgziUhFEQjR/0t+nLD8T91oVBEirAe4YkA1baF/H0AFQzi/bX/zmR67vbE0L+KIsps9k/NX126/2gJL83ACcaO9FH/cJgGmYGamRBKddgmyMq7kkB/WxOp/W/rg5EdmrCrsYZ7NQE8BL5hJ2a+3yCS0+dNOV/MTmFxhKsfrwQUmP08PfG320+z/6u2OhThka8a8w+yf/m6vlgP6xRhzqxAYwhhL92Q+Pa9TnpKm1P1Qsf1MmpXRsp8vJh1AYw8CYhXFTR+pywK15X3iPZchm1KcJ8N+78/teoPHusSVv0oVHzjdFWS0El2wJnmH1C3gWj+tRiwmwiBGFr84u6bf9i0IIU8kI8JfZv1abi19cBwCb5sZUhW1523yyYeBsHk+cvntBkpjaU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:691c4649970f77f2\",\n      \"npc:f06b740f80299ae4\"\n    ],\n    \"constraint_ids\": [\n      \"C:335283ae924addbd\"\n    ],\n    \"span\": \"In eastern ridge, the council recognized Daro as the Archive Speaker.\",\n    \"rationale\": \"Daro is recognized as a second serving Archive Speaker after Mei was formally introduced in the role, with no relinquishment stated, exceeding the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "63C5bd076+LyJOcJ7/Fh8XdEUClZLVikQ9TMsDjEAtzKYAzEZqzvSJY0EWPLYYvdXiCeuwcCMqijtn+3cWLgN4T7K7SZsWNhvXoY0RZTPfZnEDjY1WGictPofr2lasqnM3X1B1PxBxvTScK6Sy028q/fs38+F5jUeVB8mhjSkEj3hQhWmz3CKr87skqHNGwz4H+ikyM03U/T7WdlCkbNIEXyZOVwdHCtvC7/A1KGPnygnNDKT5AfEg7hxtNLn8+0ueC7VB1KyUqeJHSaU7j+Xmg2jVucqmGSX+zm1EHU/Zbh8vpvNJGoaWJKRY8RZM1DDbdRejJiPudFIvmLsqIXDnPdIftiXsxVkUWwBK97iLP1dFMcCOoKcBYzVczj//fOAPciCdoDlFiZcZaEbzy+Z3pDR8LG",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 532,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 215,
+        "output_tokens_details": {
+          "reasoning_tokens": 80
+        },
+        "total_tokens": 747
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:691c4649970f77f2\",\n      \"npc:f06b740f80299ae4\"\n    ],\n    \"constraint_ids\": [\n      \"C:335283ae924addbd\"\n    ],\n    \"span\": \"In eastern ridge, the council recognized Daro as the Archive Speaker.\",\n    \"rationale\": \"Daro is recognized as a second serving Archive Speaker after Mei was formally introduced in the role, with no relinquishment stated, exceeding the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 532,
+      "output_tokens": 215,
+      "total_tokens": 747
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:66d1954c0244de5b64cd5e1450ffd9e98eac9849a707ea13c0b1e04343751948",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3435,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 609,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 170,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 814500000
+      },
+      "created_at": 1783855200,
+      "id": "y0m2ZGc3zhFI1eacGVRmYgIYHNkHto3aGOZ0QTRrFi/9x+DPjma4ob1nxXwFPOTvufNnRjYlc2fmw8vUey1XDpPM5k00sEVjQ55/Edmxbnk4UMbdn7zETM5rrYIU88WnKdT6jTm6juailqGPjiMZrhvqpTwtk7w83HgRBsC+HWBOD7pjdUHFaySNTePMaDe7oIqZil22WjOz+2Qunu2tA21eHI7tSUPwsE+ZHg+Iy35EoIj/6gd4OopOZKbPqNiEpC2Vw90DcXph15oLQV5tVkrbO5ICNrklzJGMUwioc+eIhkhTAUdQGR+tULZ6QLOqJXCyrpPZnpFiJmEXEukt6I3qzTwX7md653shR8I7iN+2IIe0fR9dq9lX3gudnK1CSWqMdSH68+Wc/FSTsrgIp07lUJRQOw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "zZu97rb/zMe6J9mXOwOHD5gB2nKpCG07zmaVaOCbgv8qGS+NG3u6hRLsHA1F5c9l9jlLQktveuY8wPIfSSVOVybafpm7O0AeyN9mrP1DrliZNXjUyYqizAdONmtI0LAmGg8K/MIdQF42QlOMD6rPQAjC1bnZORH4Flawog6RlVs3TOW8nOYTIWstkCmPhlqPwyTjelVnJaf5iZIZZuCStcH5lStxSwWJa1tjY/h8NlSOzWJe8aENnI0VjQGzbvnKqAI7zKaEM1za1jshsmysOjBkKBZN81bWRgekzyIX//HNmWi1kuLSXZ2Ib/Eu74sM5VPOO7kM/aNyZhwVJ0rclDMuSN/q+s0HkDIlmX7FNl6X9NkN08TMOFJDbUDsu8v6POq5uartTQ0SgRvYNMFAAGJ8VOc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:2d4f0e7738deb359\",\n      \"npc:3dad5620b44c1e14\"\n    ],\n    \"constraint_ids\": [\n      \"C:ae1bffc8f42e817d\"\n    ],\n    \"span\": \"Veda fought beside Oren under one banner at observatory.\",\n    \"rationale\": \"Veda and Oren belong to factions whose standing feud bars joint commands, but they fight together under one banner.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "b2hrlndEAI10vYDGbzE8MHU6BHos1SmTk9I44BZKk4nQPbrXNGKZopUJofYI0U+sjbJDBkmtVRobyl76dIlWshdJzCagX9zpXSOl7mlk8v6fLQHp2r05AEEn5t0RgkuI13xTwy5y2SKkg0EF8OeUL8UJ1d+JZ5fnEDUDyzch+2JV53kg4DoUGih9YEGj3/xOPdb15RY5SySrJbMgJNy697qSDsK8fB5SpAWUxiv6+3R7PbPucf416GOf/HozR5kkmtfrais0cS0Pf+Tm761N4oLHOFIzFhCXUKpqG5tsxxICTyhjSEILbijr+3HyHLJihVfspbNDRBvH8LT+rSu5t25zbwWfoigikYe8mlhOAdxST8pcS/bpRb9ZxmtoWA3qRNoSStPwY6wFMaPuIImrN6z3EpHS",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 609,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 170,
+        "output_tokens_details": {
+          "reasoning_tokens": 38
+        },
+        "total_tokens": 779
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:2d4f0e7738deb359\",\n      \"npc:3dad5620b44c1e14\"\n    ],\n    \"constraint_ids\": [\n      \"C:ae1bffc8f42e817d\"\n    ],\n    \"span\": \"Veda fought beside Oren under one banner at observatory.\",\n    \"rationale\": \"Veda and Oren belong to factions whose standing feud bars joint commands, but they fight together under one banner.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 609,
+      "output_tokens": 170,
+      "total_tokens": 779
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:30962d1920dbdbf8b861693e357a9c0d293b34c922214d2aae84dccd19b4a355",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4800,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 562,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 246,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1019000000
+      },
+      "created_at": 1783853300,
+      "id": "1jtwNY3k3QxzsW8kZbcLfwL3ZgAbs4TcRXuf4/ub8z52jHNajPTEAC2BudwheV15QNAoK+JN7id6DjBtXf162y8VIPdZzxJUQI9tL9FyJyNPy23Lh6n1hqCxdrTp8bSsJJcqbYVvaJjUfl+m4qm2e7XO/0u40809TOC5UdNuVuMcktOQCH/lVTc20DcaDDJmUkQ0Oz/BwFAAICh8OHgTqjUw3IQsvlX89QC3N4vIL0KQYQB7D0UclFfjsl9gIcHj1tPaMhlFfKgWroNB4qRZVDU4kn1UB55aZbUI6sQog4qDO8muZP3fmQ8C6wA796bu8wJ63XvHTKz9f080YxcC/h1u45UhDqb03q0eTRLDqQbzMuHNygoVr2Rfr/5owILFJzVqhufG+EJxr9VRh1IAZJnAuoZmzQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "DfTdNGXKpNFZnFYkQpjiJ1DuUUyqfpTKu94ytcQ14LVBkmE5zCqmd7Xnf0DGiAGGBN00NOZGdRlmDDLcnzb3d4/igH91yKKlvM5flxhGiUUM/OwRF7Gia2Tl1qI3VZ8Xa/psorok43xUoEIf3WRQAU2MvUK9btGuykavmQoSNs1z+vAfziXDAoSTZZpxpSo3PCNnpYoxlflit1+wcwtbPv4duDF2G2MIn9yLj++6KdgQldOPhhtXx0XQOfK/ygJGlNEGULngYNc4U5zUcfW1PnZDeTfQBi9Sy/ocdoddoLnw4eZuXB1lTzuDqJm4r9hqItTRb8l5eiZjipVT3/AWCjQOv5Xuto5bW4DLQrRMIVCQ72qZdHxWcuv8gi3zZYIVyhmUGbReAMX6Qap8umCk84CrY3k=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c8d9c58f9e234eac\",\"npc:f51e41d2ecb88f24\"],\"constraint_ids\":[\"C:b0aa589e3ae34eec\"],\"span\":\"Tamsin signed the register as the Vault Steward at caravan court.\",\"rationale\":\"Tamsin registers as Vault Steward after Eli has already registered as Vault Steward, with no relinquishment stated, creating two active holders despite the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "3qwBpXzujXzxCTasi06rAP57/o87lWWPS/T7nrRcKfRJNv3v/tDcqGReU8+JgdMxXjgJs5D4EmnXH2qcey0nfVREwFgCGt9w72VeUkequBctYXQi1BtzabZ6t2yskE2a9n2VkPQltXHsaBE748kfz0jVfeDwxK9HkBvX3TWh1ijYZU6fpo6PV4k3HO7TO1Yfqz1A1Tz0f1Bi5xAGsmyGluxhMmREeVxSWpLdB50cMMKLJAnoCqMQpgnMxWH53b+0Ehp2RidGoCrIysixDcJ/KgFr5xjSr9AvgMSb3ZSiJmqcMu7CSCwRguGMAPnhXM7ZY4DeXWQsHs0rTAjOMzGXzhDGNSPvbo/pHy3YSKlnM9+FIVhg7MEv7zBDHmoLLu9wCQ+tr7vS6xafMy61puKFCrXd5yHp",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 562,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 246,
+        "output_tokens_details": {
+          "reasoning_tokens": 129
+        },
+        "total_tokens": 808
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c8d9c58f9e234eac\",\"npc:f51e41d2ecb88f24\"],\"constraint_ids\":[\"C:b0aa589e3ae34eec\"],\"span\":\"Tamsin signed the register as the Vault Steward at caravan court.\",\"rationale\":\"Tamsin registers as Vault Steward after Eli has already registered as Vault Steward, with no relinquishment stated, creating two active holders despite the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 562,
+      "output_tokens": 246,
+      "total_tokens": 808
+    },
+    "tool_calls": []
+  }
+}

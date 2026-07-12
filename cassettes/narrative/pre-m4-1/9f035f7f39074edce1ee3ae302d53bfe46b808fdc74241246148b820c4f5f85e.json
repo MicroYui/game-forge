@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9f035f7f39074edce1ee3ae302d53bfe46b808fdc74241246148b820c4f5f85e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3078,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 531,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 136,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 673500000
+      },
+      "created_at": 1783849100,
+      "id": "3K7UcuI+/zsuxYYieMyqOiQ1ms4Hzv2CukrVtzcFj7FlnulNwmNTWzoOPLY/pe+OQ/iFuCCQXYJ1ZH3VsSxfzdK1jFgf7ZHgN8E93nZCgoOnkHDmQzsPR0QaiPT0mO7dQ7UQsez+W5wn5j+dMzdh3rRcYsPqGND8Irf9f38RyyGFOENl/1E9+64Yi26Ydo8obzxBssjYvGouMuUt5f9KJNysWmAaiNIAR9Io5nlhEVPJByvMwqYbFJGO84MPjNX+G1/qQqIFHLTw+i8hfOkwYXvRu0dn0AOkd3eANejglNHSrcKE/Dyw37H71YgsM02CeSqQrBlMjkO0O1ziz5ypBFAvihyS4cGoh5WwqxwZ0UbqjMHnp5vn+DltnFbHArunO1kgWEVWt3ULAPt2vmw0ovXXq03j1g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "RwP20X1tv/elCx+FH6InowyTDKkj7F6F/20WinVK129ApEXzK5kuus0pkQAvmWGJV9TsVkRR0lw3afDOfPvXxRejEk28rhJF9xlF5ISAyjJ6yUDn1S8DSQb2ePkm0EMubxlW9O6SGe+0dskmjiHfrFA+z+kqZuF00cTN5vtC9GVhf1wzNHCOTaTpvuDKgungutx6j1A8E0GZSVuQWytjdEiE1hwcH0w2cVsUaEZqiTkIF3zZTMZukD7VQOUfVpxS0ttsguZAC+zflT44Am5hZHo9fc7TWd3TmTAoLSzQZYogRfWMuC+WBN+r2MovjzvVA5e3G52c5T/7EI2lUb48meTuWrMyY59+lJ79oBdn1lQCsFUZV39SlJOUGwUu2od99j9wlob8jbQz4tND0LqGCWMeowY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:2372e2a4ca3f6e0e\"],\"constraint_ids\":[\"C:badac3bcc681402b\"],\"span\":\"In north gate, Tamsin took the last medicine and walked past the injured scout.\",\"rationale\":\"Tamsin walks past an injured ally after taking the last medicine, directly conflicting with the rule that she does not leave an injured ally behind.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "512xpTnqI819Z9TFGaQ9KyKk/qBMTpO3YrHhWVYMBcD8Vc6GIXNHd0WEDX2iS/FvBJLA5smU48IAdRv09P/72jmzSCcvrGQWpxTpycJxAPzHMAAX677Xp3KZCAKvZ6ymHjAr16uQo1qGJt9/Yeub2syihgD32XajLuLAewPz9TvqZpwBWdlgs0fefOfQT++IPoxYXUCpJlaPPAY2jmiV5KwdAQ4zBHEibRceD/tAxY9NAW3rzp2KBxou/U0DGrcqvAA9QmR0+DjXCNG5xSh5sENOAnNRDGs60H1sn56dU5oJFlasv7sybFfepWD0KOpbI7cgMPOUsSyJBm5hM6hiwgIvOA+4MkCXZJdE9MONuQIp8RQfUQdlUBBhQHV4jk8YxrZOCh4Dl3MxpvOvpucYgqmZpDTQ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 531,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 136,
+        "output_tokens_details": {
+          "reasoning_tokens": 33
+        },
+        "total_tokens": 667
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:2372e2a4ca3f6e0e\"],\"constraint_ids\":[\"C:badac3bcc681402b\"],\"span\":\"In north gate, Tamsin took the last medicine and walked past the injured scout.\",\"rationale\":\"Tamsin walks past an injured ally after taking the last medicine, directly conflicting with the rule that she does not leave an injured ally behind.\"}]",
+    "token_usage": {
+      "input_tokens": 531,
+      "output_tokens": 136,
+      "total_tokens": 667
+    },
+    "tool_calls": []
+  }
+}

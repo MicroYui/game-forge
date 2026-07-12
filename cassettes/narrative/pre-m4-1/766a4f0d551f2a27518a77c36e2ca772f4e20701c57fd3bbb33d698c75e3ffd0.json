@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:766a4f0d551f2a27518a77c36e2ca772f4e20701c57fd3bbb33d698c75e3ffd0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6156,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 595,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 294,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1179500000
+      },
+      "created_at": 1783854200,
+      "id": "5NXbzHK13KKpD8d1FuvPPWF2b0wmSglnezgI150JeavgqMsujwAy2E70eVkv7ZNE0o5dmIKc0ljMpzzAsmqhb/Oe9QM+zdxu/8GPVB9CIGG9p/8XYRYIq29bF52pdd02tD/OYuE71Q3om8JYFQdv6d+UoZI9aMV9oXwhKMnAyzj2KHQ/4Jjc2bLLVadSd7/WYpM+GQ/iUo22RbpBTW3Gjjh6MuyVRTebKurvWQ4vkAlYfUP2HAoP7sspEWHNTrH2PfnQkIZ3efbOIKHeWcAiiRIkuF3QRTVjXz7qakwON9qP9mlIOASCYXZzk0/iCDDCD3LLUx+zsD8FsenfIbQXLahjribdelbfw+RF8RsoniAX2YqY4aEAitsHLcCgiOBxhksse2R9x5AhSLV/pwDzrGsTRoy9gw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "2mZaIi9xSRgogAiNJTj7IAL8n/66UTjQwHjr7xXHFu1EpKjAyasm7TDMe0YC7X6QgagBaEW6/TnZh38isxxC4UUfJZVaP9hSfsBzp1xHmWfz+NPCl3izSjrO6K3IOwrjpaDXIyAhQpdWBWBt2ZGBsv0A0lqWUtGOOz/upX3yMEqohYB/r6cM5JC3dsc7+hyNPtgaLpxRPKGG2LXIQC1oqhaiCvCcPG8hSduEZ+hT43GRwK/I/nGESwmXOIZ/PTDFq7Qk+v1LbHEblELEOLARyw37iyLMZRYQRDYlsbTvXH1Wydfou0JcN1cyheqPegfElW99rd1CWbCLIhC1hYbGeka0lJBTgAZ94l7+cwNKYMnSQ92DWjH5qjodNZi654U2dQ99YAF2TWP0qnoq+gbTBbIe3pk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c57a74fab816a5c5\"],\"constraint_ids\":[\"C:3a0d8e836fdcbadf\"],\"span\":\"Yara renewed the oath after completing its final obligation at canal bridge.\",\"rationale\":\"Completing the oath’s final obligation before renewing it implies the original promise ceased to remain continuously in force, conflicting with the rule that Yara’s promise lasts through the whole mission.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "2YwTrQtivY3Book+sICz3CsGCE5wa8nEcjec/hKPh0PUl/hyCYwU0Nr1Xxqrf0kd75IP5oiWNsf3Su6OmSvMKcvPkOGa9daTYZc+LLRn8mf40R7k/H7AV2gJ+IIztuq0Q/pYdQU2lvhV6NqmBFydHZ0wGLCtygEPHdlQ3fjlkhs+myZTG+FADVY4SFbhSemRn9nqlCcC38l0+MmrH9wWGFnp5K/qBVUcLIWGKpFkpizWuO1AD1mpI3xIlfRNUbrbGRaiQarJyrRXV2cunzYBgHSbgWzBa+pmlWiXLR+0OkREw4W3t8Q1TXziJdlnPnpj8GOoO+I/8HWzP9Tubc0iKTmJkSg/p116Z0vBVe41hhMZlWtu0lyIcDsXlJ3At2arPyBbvge+InnBZ2HYe7Aq/98mRlTO",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 595,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 294,
+        "output_tokens_details": {
+          "reasoning_tokens": 188
+        },
+        "total_tokens": 889
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c57a74fab816a5c5\"],\"constraint_ids\":[\"C:3a0d8e836fdcbadf\"],\"span\":\"Yara renewed the oath after completing its final obligation at canal bridge.\",\"rationale\":\"Completing the oath’s final obligation before renewing it implies the original promise ceased to remain continuously in force, conflicting with the rule that Yara’s promise lasts through the whole mission.\"}]",
+    "token_usage": {
+      "input_tokens": 595,
+      "output_tokens": 294,
+      "total_tokens": 889
+    },
+    "tool_calls": []
+  }
+}

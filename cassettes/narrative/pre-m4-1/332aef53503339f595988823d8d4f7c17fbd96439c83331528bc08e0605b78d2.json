@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:332aef53503339f595988823d8d4f7c17fbd96439c83331528bc08e0605b78d2",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4212,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 534,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 206,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 885000000
+      },
+      "created_at": 1783846100,
+      "id": "82JxQjeLEdCoMyBWoJZjTKBxjL3G4AbrG0Nb6OSgyc2x/jFJnM9v9suTIJvHfI8l6GrTmNgg+CxC0G95IFlRP1/KkybwR5iCHorWbhZtKy8smm8JCAd0Kl37TIPvdKVBuj3KnyfSvQb2gXx2poUjbvEGnmiDtBFRxpo8rpgEJv5gjlNcF17QEt1LrNg+v0McsHR7otl39qk0iWelkADvgQ46oxKM7UYcKF0zCmaMeHU7hXaxoPKFcaHRNsNfWfezoLIiH+TyleRGvIgRIxXlklQ477MeK19n+EIu93dDt259acGhcvD2neZEvjopDiQSKbUXg30wrNj6OtiFYsxl88yNVH8RV4l7Tg1XpO/5hLg/ACBK4M7joupUCRIcqA3urdwZgRiBH8m0ni+bOwRG5Y9ucaD3OQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "6MxF2ztJVnuskRFzXpunewZKHFWd9FdUIMUSaSpU/YvEt8XYSCz0Nv2x6wGg7EvFoY69GXjqLdHjQUes/rMAILM580yTzQpxyQBUyKabipj6CbXbOaJetUk0hpoueT5gsADwV+CeBUKxqPVwL/vPrbpd5LKDl0iibpj/pg0+jO3eWmVVXD1sZe3XLya3MbXCly74LvB2ZrjELYT5lf+Y8glNxIFSTMwS3RomGgjWm8XK8NsSHTUEdorGXNXI5vjWPcj8QxtTQTPoL8eVSzFebkou78wac4KiFrcghlZQaPwmkPEEtefBecqxUVYLUcuhgpCIDUzcIDeZ0ktXMnew4neiaepGn7DdKKnDmMLiXv+3onkM1WwtpuR6z7EDFDuQn0g8Jmipazzctc6ZD5zdrC7hw4Q=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:f77c159e38cafb61\"],\"constraint_ids\":[\"C:d5a8280b7970ce40\"],\"span\":\"Qi removed the ally's name from the rescue list at archive hall.\",\"rationale\":\"Qi removes a companion from the rescue list, conflicting with the requirement that a wounded companion remain on it.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "MGlGY+UNxsIXXPq7hhF4fGsDGVQbslEGieZ2UHnMu7xUyImd6U7ocun2XO+SngnoCQPr1bGoLqnqkK25Y/Db1TZR20Or9BC8skWVkXv2xoTdIrZHD2xHk/y4O195oLzV0bkaQ5K5xEoVgfEIrRezTZZwjM+Y5NXSwWQeYva6DMvo5ca1AaGB0z6VHjm/4o3L1FxJCMnCwqiX0KQ3tKnEvqJNKGhrtHErXfCd8y6ZWseQ34PWMF4iZ5bf4XVcaWpnpvwCsPCkZwRJ8OsHBI9/eLhgsEqIoGT4C/vUfOwSD9hAxgwkjZto4HtMhefINEiMYHfvP7v3zrOKbEtY/Maf9lQNxM8ZJbFf+fTV+0I0cfmT6KYKhwIl2z4dSPqpBwwBsyfHqfgTf02tfGEYSKBnIi4+AKAg",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 534,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 206,
+        "output_tokens_details": {
+          "reasoning_tokens": 118
+        },
+        "total_tokens": 740
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:f77c159e38cafb61\"],\"constraint_ids\":[\"C:d5a8280b7970ce40\"],\"span\":\"Qi removed the ally's name from the rescue list at archive hall.\",\"rationale\":\"Qi removes a companion from the rescue list, conflicting with the requirement that a wounded companion remain on it.\"}]",
+    "token_usage": {
+      "input_tokens": 534,
+      "output_tokens": 206,
+      "total_tokens": 740
+    },
+    "tool_calls": []
+  }
+}

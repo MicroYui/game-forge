@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a06c75a172382068edc14b72a4dc45724d1ed207c6a24ed18250b9549cc59cea",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3973,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 619,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 222,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 975500000
+      },
+      "created_at": 1783843500,
+      "id": "bReTr8ggMOhp+YNFCMdCHbNq0+JJ/R/HMkPWvFqEPa/DKifTrVzl5X4t+snYkOXHLBfGuieCkdU7+Y0WvlTmLPDWoOj78qvsWbsnWosh/pT18yfXpjXq3PYhKyYZNhtbn35scidGFKWbZue3l4JZOEJLGzeZyTBHnWABZRHzkAhfwTGQMvW4O57Expklzl1VdslRRhDf8lvlAVBtWZTLtOH1B4id/r4CMwJbr3FfZM2UZCV1rOFstTvPWC4Rsl5uiGEWLQ5rUN16GXMNaMTsLuIkSZrZXQxlzoIl88kxCBnkPxZKVKdiYWJxVlSNkBPjzKZxuluQUpHDdAQ2lJlAIeLiFtHkOJTSERxLDJy6T8hlfmRi/L7z+vYHKX7uw7TX25BNDAjuA35Gmjmqltlqdp4fuJ+8LQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "w8AISlJgwGVAlbhRcuiiBsxAVMbqXktKxFaG6L7BOHEpdMmdj94uICl98sR/2YABzT3GScBDnQNV7jTUDR7xHDksSNTMWgWmmpvg4H/iCpwFr8AWUCF/BqJgjbr1txm0FJXz0p2BVUx0NM11xQ+Pr/yfpFIGifZrT+UPWJqgt6KQvXYeAeFXMXErOToh+NPjarhAbaMeBVPW8tGlOvlfHhQTq8r6xvOrMuYGzI8QFK3LPiY/ToszgML4fmih0OSc8lhAZpX5bB9mAV4YEo+CVMFXH6HMifwzPipEiB2y9KsScJrR4ZdVeE3NburaxNPp3X0h+9V6lp+7GINMeQcU8ULyMskB1Ys1RQq6s1UVXsVevfZEUvnDVsHXxu/0p8++wFaajBkTt5dXkgNNDAUE72253P8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5be40ff85c2448ea\",\"npc:6d200bbcd4fca1aa\"],\"constraint_ids\":[\"C:6a36f85ac11ea1be\"],\"span\":\"Veda signed the register as the Archive Speaker at observatory.\",\"rationale\":\"Oren was already recognized as the active Archive Speaker, and Veda then assumes the same unique role with no relinquishment shown, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "bwm+ysactcn7y1RLiSndnLeV/q7sjz4oM61F+ugf1lUCaTmN2saAzYYEZsjlNsUyiuWbbMIS43JSPj/N+HQJynYTrdoZdFoJGGsjG4HAQj494G+1qiDCN7a73NEeW8tc8Lh97SX51W3HMCdC4vAAnxSutR1I5UIEYZsYd7wYxmf/YqObd0o6oBTBiyign2kJ++VOPrHXGJ6m5cKyHFJNlpPxN2W2ljMMDnX4NKK0gJdTw3ZlbdLY57VMkPbkqX+fXYZlpTgbFgoCSswqayzNxIoPBgtoYnmfAK0SNptmXFzm/qtmgdhsoJE3vIbh+uvPm3qFvtWihKhwOIadckad8SNpes6wOT725Nb2CGM6lD7diiXNfbDSIjaK1NR2uS3AWKd7qUZCQyub9oLUKmz9E0VIbY+S",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 619,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 222,
+        "output_tokens_details": {
+          "reasoning_tokens": 107
+        },
+        "total_tokens": 841
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5be40ff85c2448ea\",\"npc:6d200bbcd4fca1aa\"],\"constraint_ids\":[\"C:6a36f85ac11ea1be\"],\"span\":\"Veda signed the register as the Archive Speaker at observatory.\",\"rationale\":\"Oren was already recognized as the active Archive Speaker, and Veda then assumes the same unique role with no relinquishment shown, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 619,
+      "output_tokens": 222,
+      "total_tokens": 841
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9cfcab5f2ece723c8362f69e7b6cf559014d127a9e371bfa4a097233c158242d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3890,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 561,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 158,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 754500000
+      },
+      "created_at": 1783862000,
+      "id": "dpxft7uZg/47YUwDylXfTucBPqvQ/XzpI5QkGrZrJLP520FO1oHjuvPigQaM8X6U5wzNpyf5IpW2qdpa7uxxdrbB+siPqy6b9rvQA9aDH+bFuEFd7cChglGr6yd16c7XeOXvfsNY+5iuJNiLhR4HD+vsJx6fMNzBCPg5NWiLkruK3eiyV6PKAoaQlPGSDY/zEO1wsVyOhj+ArKOAXpgzY4/9q7z4A+m0hvE1+on783dyEv8JSQv80zZl6AWaOlyjqx/PQYbssqZkWoaYfd3QFid3+ukJ4vNTnHKRSGNUeO1iQX8/c9b9OofuwP9gU2JRcW3AOcSu5Gz6+/Vuk3zNQikMWArDRRGJ9YNZ+QJZSNFsvgBHiYcz77wl1YLVdi9YcBiCnteXjLrX56SjAuasXMqQ+bpfuQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "bJ/1OUKpMvIqQyX+cP4WJfpC2ICkCxveC7RtV8JM4qC3V91PU8fo2A3EPLAEJjfh2yhbnXFyRaKb4pkq/QO23BKQ0zORD7XdJUqTVahFM7QtsIQk0TZiNSXK+OSG0jqtKUWnWlJ2gWvDmXdyGBztcvV5cpcK+QcVh0YxWpBGZRPKfyLr9zYu8Y0p1c1pxf1APqcp0pBmVdMXDZs8piT1XKhK1RyXsIeVlETOJH5AGOBMhn8RroXXIX7ZYljXKWICFNWEhM5hlkRitnz9zakESZ7h6jQ89XMeBAb8v6cKTfYCUg/miHfap60JKolmi+83BRt/O9HXs7HCo0rf5MgNgWtHBHC27DWwoivkTVaLST7pct2hPIIo2fZjrScj5R6tnlwkxgV9n1s6Nqn+dmXyULgqyso=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:547c6538071282d4\",\"npc:8392279b1da80ceb\"],\"constraint_ids\":[\"C:04af3004c31cbbf8\"],\"span\":\"At desert waystation, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik serve factions that explicitly do not coordinate operations, but they jointly signed a battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "wZN2jhzvORDI8lBzG2mbcOrsr0b3ZvifSD9/JRNG81gM4cRYBX6u6sUazvE8Uw1RqVrtLnz5TcKKMsLEdIJsu1XEjcwxGUNgjoWDWx8AYbHBAIVgWuah9NEwK26p8ISnw3NUuOiQn8hlArFzKtF7PHi5IzFKQJ1Xt7WEAJk//qOEE3ctg7TSRGkFfUXGT94HMf2/dLcoW6ZUHgGUtnGSyjQjav+1CXjtf5py6G6dhNKZqFcbqUpsfgwNsuEKMajKMRWdWQ3ftbC7kD+Vi/dQHAwtEtWksVViPWow6Wg4rFgJ2xg6sQlJXT1pnd7gzFerQr9Twl1UGEXOPnA1Pt2fMiYH79L1OxUGNXlh3DW88+wiQgDb2/4sIa5uF6NwRFbmSL9Vef/ppQM1XxQ/o8hbZW5ndCUR",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 561,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 158,
+        "output_tokens_details": {
+          "reasoning_tokens": 58
+        },
+        "total_tokens": 719
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:547c6538071282d4\",\"npc:8392279b1da80ceb\"],\"constraint_ids\":[\"C:04af3004c31cbbf8\"],\"span\":\"At desert waystation, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik serve factions that explicitly do not coordinate operations, but they jointly signed a battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 561,
+      "output_tokens": 158,
+      "total_tokens": 719
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:89ceead2e5a8937e76c5bd996066704352f6c92789486bf367ad50b4b03973b2",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3254,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 639,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 170,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 829500000
+      },
+      "created_at": 1783856300,
+      "id": "TvzvJLm+S9gRaCLjQfj1db+TTPU7fa5NmJnNoEtUN9hvWB9yYirY20VRdK6aIGPCJ5czvk2hpqRf3i+Eru2VoeS5zhby+3RyymqGiX3QtDUIu7ZxV1E76dMLfWPh25TZQXaulhfpz81xlN2zjxcMrgyhAAMCzSPkS969T1H1WGb5tl2zTLqmnG4B502cMARJkdPGza1DU0HhPuTvlh1SH+o4gry1YsHRH43+NCXZ/FQah27ceMxxAFodNRFTfjxx2of16vNfWUU4RYNYr/mMZOeseoKtqA8gLiPQjBeePV1aiB1/8rCOCboW3QL5vFYZ/F258/K802EYPPITcNzI+WaGKQzHb8uDeTNgCSf43KUpnvryj7xvnzfCrNCiM8cmMtD6X1w9lyHkzzVGPkYeHBEtwF3f6g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "syNy2Kt4AaWXJ2CxUbgXMJkzkOvR3tpwGhOqB7yoRjVRFjNCsf7JSetxzX8Sfc60+YZk3XVQ4zBf5WTVcay2FudRnZQh5qXMDutYoVAvGopYJXSJHckSdTPTJbqKEZtXU3GSkHmVpWeIDQlzEYmZuqLTHCOq3x8x94htxeauKNBVTUG5XZmWDD3etDCstOt8glxfiQcHcTlRCfFHIWAGzeU4UoF0DNGXQUXnna+YSXeK9kW3wm2C1kyksSCwy+e5NFSHI+ihsUaBx5qzLoytUNP65u8Q/tmx+9GUS7s+yK5ZOhZqTERNwO3S4GhkGM/U+2qcraH/5Quttj+muAKmVIICOnWKhCAubnIetj5xinVroHEnn39FJCahFRQGwHPl6/ndyhStElev7eg+0KVb+SCTOVs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ce8d9c7776230aa1\"],\"constraint_ids\":[\"C:ab74ace9fd797108\"],\"span\":\"Tamsin disabled the crew's escape route before joining their hunters at signal tower.\",\"rationale\":\"Disabling the crew's escape and joining their hunters betrays the crew, conflicting with Tamsin's loyalty to every crew member.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "R10G0skr/iUYCMZEZMOVoXvT6gShla+Bpf3elJW5Nm19yV/u24ESrn94siVo+7S2aq6tEYliVwdswcwZZB3VTjmQjHz+HCZkrbYHKYEbQbLQ6RMm41iFiCI57vNOfipNC2LVleQQbljKB9mkaKP+VafS+UHAbTiA1Eqd/vfBt0PLIRusYTXOub/zjB42FCnMXQWX5fLHrcw7P3itcm3f1yEq6NymTr2u/q+5yVxVXxT2SgIu0YDOZ7IKWVEOydcKt6vqwZxQJgk/l0HtuhwJ4IdI8+kthUdAii9WspiJUjdFwHUtbGfG67n6uB3zwn9/FGUZqSX0yKgTysNRGYkPfOpnPTp31ObvYatJSUdi+B8TSeNBBvls+d05fJbhgmIH7ZJkWbHDi48BwhbJlBFH9lPcoNTV",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 639,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 170,
+        "output_tokens_details": {
+          "reasoning_tokens": 73
+        },
+        "total_tokens": 809
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ce8d9c7776230aa1\"],\"constraint_ids\":[\"C:ab74ace9fd797108\"],\"span\":\"Tamsin disabled the crew's escape route before joining their hunters at signal tower.\",\"rationale\":\"Disabling the crew's escape and joining their hunters betrays the crew, conflicting with Tamsin's loyalty to every crew member.\"}]",
+    "token_usage": {
+      "input_tokens": 639,
+      "output_tokens": 170,
+      "total_tokens": 809
+    },
+    "tool_calls": []
+  }
+}

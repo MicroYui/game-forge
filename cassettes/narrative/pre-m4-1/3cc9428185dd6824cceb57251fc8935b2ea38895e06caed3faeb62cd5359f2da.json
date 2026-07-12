@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3cc9428185dd6824cceb57251fc8935b2ea38895e06caed3faeb62cd5359f2da",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5249,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 695,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 381,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1490500000
+      },
+      "created_at": 1783848400,
+      "id": "+kmS/O/g604AiTG1N+hbn5vuv4c4X2BKqn5o/kpggb9BFrzrUbYJ9PQLQ4VxIPAVuCrN9goa34nr8E2My2ZaFB30XRPETJklDGvEq4R/d5bP+CGN89/pWfzL29AghkNOC0l5al0frj7xeFA2GFxss8Hsd9RJdtBXGyWquW+JRVs5dhXV8fvw3lH5Ioz0JRNf9T+hyKCwE507R9cKpoE3O25uKdFT4ex6CM0fSQiW/xLgvLk8EtlSOuN8u75p99Tuiwo8M1OwlI55Pkrz8sjwktK4tHzYfeKPYTd97x2ZEUzXWqkhO3I339jryin5hTf/Lt7AFFCslYR4owyFF/5UVWMHvqBw7MZd5JG3q1seHiXANIA9ybSH72ePgvqpVQMIava32MC8O73lxwOhkw99/tNBa8q8aA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pJrajWqccuVDs1MevHLkkJFcF39PgfRSn/fDvaDZZ+s2nYOR914j1dgS3EoBhVa3DnA0bLdGHxvpSa7Xm2D1w1/QOCloRSj+jW4G5cqfqeCX7Po53Ey1yoYvO5089uxiP1q89T/2iP4wSxqoA+PslGsROm+rhWVrxvduyBDgLML2kBUPeu7t7cCp6Br2QRfj36hgRL8niNht8pGEBZRCSYvX6DB9p5fnvP837CnmFklmpUfLXH3rengUYmny7A7qyy2tN11xB3mIUbFOSClDC6GeFaHGImDvRQCZazOeilaexdnz4F4t41VaF9hij/8iieH6rFHqnJBuALmaRttldNPhHS3mBFfqcfxPokcpJCC6SQiSdJBx7nXPzK/sOpin6deyIO5QnlFyg8ZI0s9q8zQ7cuk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:599f4bddc2d88c79\",\"npc:ff7bcf8ce5db106c\"],\"constraint_ids\":[\"C:6db17c87c0f827bf\"],\"span\":\"In glass conservatory, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei and Daro belong to explicitly hostile factions, yet Mei supplies Daro and establishes a permanent partnership with him.\"},{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ff4d2ff266951469\"],\"constraint_ids\":[\"C:57b593a367a0b8f4\"],\"span\":\"In old mint, Nyra returned the reserved rations to public stores.\",\"rationale\":\"Nyra returns the reserved public aid instead of delivering it to its intended recipients, conflicting with her stated duty.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JMDtwVIWCX+usDwTHhDMEZkyIuFF3aqTffdtNg0HNIF+ViVXNhq/flhcmqN1jebrf+jUJBEoRci2jjbBstG1fTpND4r+KiwZmg1OlVCAEMLGNHTM0jbPiz5MYedV7pUfyOlrpcdNcIFG7SL/mj0mw2eGlYRFemv7oJ1ZAS3G4/3eAbVB4bjTC8NbHq5Ux6889HssRiNQBF8MSgESc+P73PctE0E5LKrRlj7mW0zjQzTLUH7E2aLr6ZT3fjGIGJNN7qcD3txDUylJZp1lB0k++iTHa1lMUf/v7vM2NxpBN2UabH6z3Z14+c9hDWynV6Dc+JOch+QWhI9DSqSgG7snq2d26qN/hWwmYxsKPUUVz6IEMXykM3M/VIW+Qq1vP9JuIQhnbe/vXlC6t8YikD35f2yg7SNv",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 695,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 381,
+        "output_tokens_details": {
+          "reasoning_tokens": 188
+        },
+        "total_tokens": 1076
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:599f4bddc2d88c79\",\"npc:ff7bcf8ce5db106c\"],\"constraint_ids\":[\"C:6db17c87c0f827bf\"],\"span\":\"In glass conservatory, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei and Daro belong to explicitly hostile factions, yet Mei supplies Daro and establishes a permanent partnership with him.\"},{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ff4d2ff266951469\"],\"constraint_ids\":[\"C:57b593a367a0b8f4\"],\"span\":\"In old mint, Nyra returned the reserved rations to public stores.\",\"rationale\":\"Nyra returns the reserved public aid instead of delivering it to its intended recipients, conflicting with her stated duty.\"}]",
+    "token_usage": {
+      "input_tokens": 695,
+      "output_tokens": 381,
+      "total_tokens": 1076
+    },
+    "tool_calls": []
+  }
+}

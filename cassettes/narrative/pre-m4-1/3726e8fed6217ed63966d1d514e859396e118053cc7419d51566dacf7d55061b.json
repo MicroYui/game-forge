@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3726e8fed6217ed63966d1d514e859396e118053cc7419d51566dacf7d55061b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6163,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 686,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 375,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1468000000
+      },
+      "created_at": 1783859800,
+      "id": "Gky/zwLdOQy7PztNH4WpoqcCOvNlC4XlGlttge0HtOn9KVrDeNbNljFVFSMnXYNK1V21DiRzKjUIVPd/w4jiZeLyiJX7JxKgoLE4J71BIDNUiPtVINpN0iht+vsffP9LQ6R0M5HTwg9Pb6r+TIRB5VTAp804xHNEjcooTIS8PRJIFVqzwB71UinPTfgklUQPhc5A55oY0nFtHCztPrMHSkfTMn+XqfYdPkUFMOi+KukMTwm1P2nDL/UV1Dp1z8OtdnIbz/yLQ6aJ98zO9sGkOQ4gM7Gr581nQZDUriN7XG39FF2h1k9go0e4fL3I5N9lc4l0jf6d6l/ywJ3KSKsH9bxTw/xCqVyVtP076r13zqnPjFKFPmcqaYTiQWssSUxjkZgcdLSy/gwUwVHzE2kfGVAvBpA7/Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "nxexNVKC/chTZ1Lo/Aybt4b+JMW6L65OSXn+Qham9bFTF6VrhMYgcUUMaq3GWCM3ND1qFSfLob9D4awd0LRjmVidjkdv9CzjASU2KfAM/t6IRkbzswCzNM8GE6WbvQtQyF4NuJktwDFmaXOri8b2XEVg82N9RHKH2kCNReos7lTkrnXVZjB5Emz6sO+p7UjO8b2qd1xu6SEIEFUYeSZph8hM7uIji0RFp5RtPAS+AhdVD8MtWoAm1toznzgRb7AmjE8K8VYEx/ckR0WWH7FSFKce5addvfGRWxEevNvOxSOZL2BHalYrqVtP90kFOcB7o3eCTGdabdzaqf/HhHH6RXQOsM51XgGGaKYE0b6VgojhlQ1NQcM9mvctggHqW7LC1j9RANki8qqT87wbqNWW761DMg0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:326a1d77aceeb1d1\",\n      \"npc:8972200350aa0b4c\"\n    ],\n    \"constraint_ids\": [\n      \"C:7231e81f44c8c67f\"\n    ],\n    \"span\": \"At eastern ridge, Iria was formally introduced as the Harbor Marshal.\",\n    \"rationale\": \"Ansel had already been introduced as Harbor Marshal, and no relinquishment occurred before Iria was introduced with the same single-holder office.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:04924e400dd79b4d\"\n    ],\n    \"constraint_ids\": [\n      \"C:81d5130711851c89\"\n    ],\n    \"span\": \"At eastern ridge, Nadi transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Nadi directs the recovered coin to a rebuilding fund rather than returning it to the required public treasury.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "iQGkJt38lU2C3PGdREP7YQtFY880VLrcSGvnPTtvb5c/wb6QwmLf1cQ/5elQLnugbFi6iicJHp513M3//qr0lxRGF8t3IT6obzX+UoFlMDpXYo5Z9fj1zfohRBkLzSeRhend7bfo3is+eF+C6YH/J48P1f9XxulM8XSAgMukumrPdgvQN3Oq9OCxltZU0xur7gkzyKus3nyFpBubEYABD8Qee4kej6q4LKEGSbItXmsKnvOMd8AcCPaL8r5LfuVYxAZ0VkWIkqD0jl8wZ4FQTF3mdx02wv2i26pczxFBdiVa1rdn67/AJggXPHRXdqVinh3w4JK0XxijVmXsQ2pahJab7ch9LPg5sWleMpPnY7EI3hn3KRqGd8/5Z5V9GLte/L3qYUCoI0F8VgbzQ3A6DvbHh1ZH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 686,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 375,
+        "output_tokens_details": {
+          "reasoning_tokens": 133
+        },
+        "total_tokens": 1061
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:326a1d77aceeb1d1\",\n      \"npc:8972200350aa0b4c\"\n    ],\n    \"constraint_ids\": [\n      \"C:7231e81f44c8c67f\"\n    ],\n    \"span\": \"At eastern ridge, Iria was formally introduced as the Harbor Marshal.\",\n    \"rationale\": \"Ansel had already been introduced as Harbor Marshal, and no relinquishment occurred before Iria was introduced with the same single-holder office.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:04924e400dd79b4d\"\n    ],\n    \"constraint_ids\": [\n      \"C:81d5130711851c89\"\n    ],\n    \"span\": \"At eastern ridge, Nadi transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Nadi directs the recovered coin to a rebuilding fund rather than returning it to the required public treasury.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 686,
+      "output_tokens": 375,
+      "total_tokens": 1061
+    },
+    "tool_calls": []
+  }
+}

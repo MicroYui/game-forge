@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:823490b8b066a34f5651db42cfe96ea25b8c07063193f2cde24239823442fa98",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7841,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 712,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 425,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1631000000
+      },
+      "created_at": 1783842200,
+      "id": "PvmCnjsIkjb0ypC8BTs20Xhn2FFz4qs26Z6WLEYJIo/Q/uhwjlXFLkOlINESdNZLKlqNqtDYui0A/xVL+HnPmZpMtydMo11YH4hGH7agQDIU9+MfrZwRRQ2qAdslm42W2IOQ8/JIJlHFqFirEWdK7ilbeXqYpxeDlP7RYh/B+2boZpv5jSCj+FZLj7mp3slGlo7yMDbBKI7TRzPxRkO+zpg97UbhiZtIU2kx2Tde+SMojA3g57eWXXQP8wfomE0YNnn4/KZ2ZP+3vQ8cAh3h5vuGPdHapglO0uN+uCjymexD8a+smQoxX5S/UZzAWDVCQGEOfgM7Efbb5CS6Uypqxn5tXFxHXEBOSZQ3mFuTEJtVsygGwf0rEnFVyNs4hrhuh2+J2neIfbBFXnYXZH0mnfWRMEtLBw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "CkpMC9mNjUU+PMYB0Zde89zGG+hSQgmHjxPUFOmFFlUw1wMK46LQbB7YUngw+qNsFQJe+gRahrMmapHYpCFR9V51qM+G6ixGJpXs2Hi0LscHdtmRqNnLqYrREP7Oa13M7B2dpV25Xc8gH5MovbtIgMV3ckOadaGrZGW/XsTYwtel9LVCfpHBm7JXt4E4DkuUgUkEpB3X4YJ4kqDDuC+1V0tvCKSIbVgpb+afDFtnMqWi31HukxUSkudC6sK9N74FLiXGqeeXN3jngkWt3dKF/ItPr33+q5bUAmBNhQ8lcvsmah3ErMA1DQtpY9OhKwO6IRP19oUJoOyf7l82Ys3rNt6E93leH11UISJ/S44Dg1kR8Qsg4QO01BfbpIVr+f/L8AfD8byDFS310kuZAWtCI+DKPGo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:15bb77a2bb89e71f\",\n      \"secret:d089db2ecce2735a\"\n    ],\n    \"constraint_ids\": [\n      \"C:79f36c395a2004ad\"\n    ],\n    \"span\": \"In north gate, Tamsin disclosed the saboteur's name during arrival.\",\n    \"rationale\": \"Tamsin knowingly violates the restriction requiring the saboteur's name to be withheld until archive opening.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:15bb77a2bb89e71f\",\n      \"secret:d089db2ecce2735a\"\n    ],\n    \"constraint_ids\": [\n      \"C:79f36c395a2004ad\"\n    ],\n    \"span\": \"In north gate, Tamsin disclosed the saboteur's name during arrival.\",\n    \"rationale\": \"The saboteur's name is disclosed during arrival, earlier than its permitted reveal gate at archive opening.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "phoWQxr11t/PHVFunhBDb7+2+lRfGz5D6/VxBucclqXICn84wg1u5lCFEXY7cKVaHSsoQAJSlCYHyuVeWsXDn8CtrAMebXzlQoZx8PZGVtI8rOxmbqy5FKTDNerJ4iD671U/kpkvk3X3TFTdrBj1QHCfQHlpoS9y2tncFiNkvPlV90pgl3Qn3kDrFsi9LpMQ1qrurI0rpkpxQxbof3grCTfWI//surNi/0uJDqwpG6R6X4OqQCOEzvRNv820DeUyEkvBzKgsxUGchvMZvpyywYyeetY+0xjlkq7A3DWG/VcXa/eVARG2hDhwffiDr9roLuOH9MRov2QeimBSUKZGgsyXkm/EFh51z7hoqOd+ZYWk8Bnna2TbegvCzDVCgf+SPxlxRGgAC/6t4CwA8abS69kdXhps",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 712,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 425,
+        "output_tokens_details": {
+          "reasoning_tokens": 174
+        },
+        "total_tokens": 1137
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:15bb77a2bb89e71f\",\n      \"secret:d089db2ecce2735a\"\n    ],\n    \"constraint_ids\": [\n      \"C:79f36c395a2004ad\"\n    ],\n    \"span\": \"In north gate, Tamsin disclosed the saboteur's name during arrival.\",\n    \"rationale\": \"Tamsin knowingly violates the restriction requiring the saboteur's name to be withheld until archive opening.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:15bb77a2bb89e71f\",\n      \"secret:d089db2ecce2735a\"\n    ],\n    \"constraint_ids\": [\n      \"C:79f36c395a2004ad\"\n    ],\n    \"span\": \"In north gate, Tamsin disclosed the saboteur's name during arrival.\",\n    \"rationale\": \"The saboteur's name is disclosed during arrival, earlier than its permitted reveal gate at archive opening.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 712,
+      "output_tokens": 425,
+      "total_tokens": 1137
+    },
+    "tool_calls": []
+  }
+}

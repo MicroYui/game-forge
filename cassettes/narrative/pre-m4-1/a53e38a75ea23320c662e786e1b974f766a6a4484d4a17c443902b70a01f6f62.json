@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a53e38a75ea23320c662e786e1b974f766a6a4484d4a17c443902b70a01f6f62",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4271,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 626,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 214,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 955000000
+      },
+      "created_at": 1783847400,
+      "id": "YvO6VfUlBfH1BqqeWypNTBPOUlAmNn50mcBWIhw/vHXftrmoptplRqL7gVy7D1fiop9qB1tRqKSWclsc1SmecZIKS03j5XBmtr1TX/z5BVpiH7fDgsHwoyo7IkOlbkR4w9qI3JwO5LeYGBKQU7LmfMhmdgsG5HczV/kAji8l0TXKdw2XTjh9pSpG9gCKlQ3i0bntxupn0ka+pGqV1dJdtn5+k1WF1afRaX3oJ4K3MtrArMbwSdnCgu7aOKmJekB8UtSzzVgQYdtLZtKuqneM6wovAy7fUC6ptHlHFuO0qcVNKf6LE/14foGMiFevn8MRMek+wy+oCCfaCIaI4k23+Vv3wt24lZtMJnrDuwd3y9bKiqtmqh+p8CdPqGYzjGKR3bPScmdXi7ok+0WyetZMtzaR+47y9Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ixFMk3wfAB5DH5JEwa2LEsaYw2PmFbJOThj+SYaT1wNf21y27jB0h2HvU818y7RYSzxGuO4BXfkSwDzHmKDanZAGdNmXKIKftUIXnaXrdbYVWY6FbeNFn5i82fzSVDwQv6YSVGE346ZOzKjz4ALaQJekFLD/tvQqCW7SyyENvjhA8Ni/RDz8kEvvhWd/CV84qB6DWM8AKuoGb0YaVH2iklByRdWTZT4Ctv3BZQA8HA/oKJhYYr64QHXWSgRtgAs5kDg5TAgUWqcmiHVNSkZk8Z3j5fkPZgPIjrctYGacRdNA2bEe++x4sqXBgmBrWKterNcEWbQcJnwl/jnz1gh1D23u3usM0OJ1sWyRBCIbRKAmPc5xYzGErfKGgJgqReFQa4KVYTJ0SWe/JqELNBrXVA6wG4g=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:23d04b7f5a21a205\",\"npc:8939be824bf8b8fb\"],\"constraint_ids\":[\"C:e5a390d73aaeb930\"],\"span\":\"At salt depot, Noor was formally introduced as the Harbor Marshal.\",\"rationale\":\"Cass had already been introduced as Harbor Marshal, and no relinquishment occurred before Noor received the same single-holder office.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "/00MSzwKlXp0zNA8xlhIVFadlUpVUln3+42kBLK7uStCL85P4ZeOedtMMu4zrPZxZpERuMunIZxtTWURvOZNj+/vuu/EeulEklNCtW2uhmkWnIGVU2ebaXCf8UlqskkWWdK39TTGoZyO7rHpoSZHtghe6ilKooSfMGYOD3XWtFWIK+xRFyCLXwru8xsspBZQnV8g+rTyWlBxfbTmFeB6LBepU0vHp1r7D0nNJlvMdgy9b3wEKvpcq+yhp/r5EA9wGQtKYxxqoU1GSFYcyEkWfEkmh9ti5LzlwU7okg4KzfXO9NCHh7jexbtnjmnja4qhjRa9b+ngQ1JB6wxslhLhCdSD1O1FgNvvH1mHbWFixyZPvPtFuh/YAtmM+PeSisuf4p028uQmiMvst8nDYavGjkXE3lE2",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 626,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 214,
+        "output_tokens_details": {
+          "reasoning_tokens": 109
+        },
+        "total_tokens": 840
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:23d04b7f5a21a205\",\"npc:8939be824bf8b8fb\"],\"constraint_ids\":[\"C:e5a390d73aaeb930\"],\"span\":\"At salt depot, Noor was formally introduced as the Harbor Marshal.\",\"rationale\":\"Cass had already been introduced as Harbor Marshal, and no relinquishment occurred before Noor received the same single-holder office.\"}]",
+    "token_usage": {
+      "input_tokens": 626,
+      "output_tokens": 214,
+      "total_tokens": 840
+    },
+    "tool_calls": []
+  }
+}

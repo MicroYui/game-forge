@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fbd7421c3ce3099a3f6cfe5a8fe4f71473a583f7b031a867fb9e47074a1b804d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3808,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 535,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 156,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 735500000
+      },
+      "created_at": 1783846700,
+      "id": "U7HJSkRgcnNcLKZxekWx3i6TlmDgdb4j3I5CCyhW+dQNxt0dwJhU/P+JHWD05b2ezyT2jMgwGOvrYLxNzuDzzN+41M9Mdlvp0iVyfsl2GQJtH8xryFIsis8REcFH+Uqy1KdResSpvXVeqjgx3D/4gDzJrovUTlNrKuCjbAL/eHDBcRL6R5kEK8PB6D7jo93wsZ/bB5P37SqvAgKVJxoedSK/f91LcaonGzo5FYINCB/NDZiTws5W1QaGxR1M3aNFT851fHdCgyX21+ScV/fVfAtNv6tD5apx4Izc3kzxvS/wf6AVjkwR9r5RY2KUCk3T1H5btzVPanUEO4ol1iC6M9jQAucCCUYOiJibef7y2tG/x4dT21Y+9/YEzbd83UEm6lxW/qegS+Qc8/elj/gIlIXPBwVP6Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "e6/q+5Frgizt1jD7RlqGSR8VoF0qOrJvaPe/8JPI674kHzJF+6GrJ6nhwUEhz+4gLI8M/cjuLFTftE683XbU/baDxftyJOvPcZxnJgWseWaumTGCFDXHgOqa81dHPUjXUTcpPErrc9VEHy9c0Smj+VThsHUp3lID7jmxquSK7YOzDpoxNjbpbnbXDoZeoH5oKuzX7nVLRx97KNt9JIl9gWmUX0a+ED8DkL1nG+gIHP59AGluk+OAdR4rxcezA4nCpRvThun3GL32wyyVlcZ4FmossO1utdAGIqh87TIfjv6ggMQiv2BSixqo8dl/P1r/qiRyOKXCUGskQyVOsduYaC/a2yyrvCZ5Nd+23YnjJo2a9nD63D1C7eL1xcwlnJatVF4rnKVkCiGKx9tO77n5mKE3qNo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:10f948d2a5e157e6\"],\"constraint_ids\":[\"C:edf877d8ea77835f\"],\"span\":\"Ansel started a fight after the delegates lowered their weapons at signal tower.\",\"rationale\":\"Ansel starts a fight after the delegates lower their weapons, directly violating his duty to preserve the truce in that situation.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "7DmNqIqF+E851Z06UYun6dv2tOUcWH01Rb55cHzq+l4MjC6D4qEy9t3Jy6Ms+4YU5jgzMrr0Iz7lYPH8pMETGonyqZopzkvIohAkxwk3xaacZY7eMgxsuYFyLUdyURDclIhST1zHhlHWD17WSEhMcW9YPi2bSXKFm5V5hyzmgDCTc6VD1fFKNT7MBtYIJXO+ckJF6sGEfjwUhfL08CjiqQlCpMHfUpoYgJMAwdaTMZEFzYIUWHGTq1wMTaMTgCKlY5ic+o/iGee1EG3+c+b2Q1DG5jrWJQ+1TaWbmA12hddAXBo3R5ro9gOpY7NoU0GpIwBY0nLLn6AVNZZqLQFGhrOwiZOkpAxzTY5Bhs7B7NDHMEu9f89TPOk5Cx1O7L0AX0Kn7PX7Sq4EoE6b0Ue6aO/2i3LF",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 535,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 156,
+        "output_tokens_details": {
+          "reasoning_tokens": 61
+        },
+        "total_tokens": 691
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:10f948d2a5e157e6\"],\"constraint_ids\":[\"C:edf877d8ea77835f\"],\"span\":\"Ansel started a fight after the delegates lowered their weapons at signal tower.\",\"rationale\":\"Ansel starts a fight after the delegates lower their weapons, directly violating his duty to preserve the truce in that situation.\"}]",
+    "token_usage": {
+      "input_tokens": 535,
+      "output_tokens": 156,
+      "total_tokens": 691
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6682f97d7f463da7eefdae1904f1b3334364ebf2ad300cbab6d3793a704c596a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3446,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 650,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 173,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 844000000
+      },
+      "created_at": 1783859500,
+      "id": "dvCvrBWrjeVdx7B36qN4BDitqB0QsH+bS+Qp1G8ype3jFv81VoQtqp9MlK2OvOh4Q53BEgsAFssAigf4zJUTDSrg+QVH9rUto1R2qwuYG0LygfT1we5iJoyhP5tuwOWa/9bEYBU8QYudt9M/XJ9US67dSMJIdLCcCNtqIfjD9FNLzyI8BVGrvEU9NFDRL4ZJBaKEBq0AximnMA/FrIN5gE4iWvMQyYaREfiLwnt9qsq2xFMyTA9RXMJ+j9qgxevlu/bru8aV/5ku94y4rnSvstg0eAXC1Pcz6xp1sCUJuNNxlxijw2LUtA3ATPKPQpWTaX7pr4lI0VRcEaVud/2jm3RnprgxgGNs81uI44GdfXzyR3Jj5su5Jrb9VJhc7FY5qa4xDPRyK6kzkXkS29wF/Egbuj0oBw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "5MQfgq2XFzaYoLWudKMaH87AHMCMD64INRBUtrBl1VsYWwFveWj+RHBb5aGIeto/rlt0xxGlB6GLnRIO8z2CLZEcWH1zpcimszWkz37Q8B/TgvDLteWvZhYc7kAkXGf5sOZ9l+EDWzHahVIQ6rff1vzmkkidD7h5V9+KAwowSTc3iFoo2LwDzCKehBNT+xnNnA2wwlUta7asPxCUKY3QZLqetp6g4hRzDBkl83vfyGaSJNT0noItb13rkrrbm9J9aMazEdSEvZPr/LinFUjHGZE84gscTs9LxwCZB0kdiXfdPzcJZcytiPHtGxK3VeMjPkon01Mb+vt/2WdcDNKDMdjHd/+asld7PwcbmSzR2F6LsivvN3ReaZodOOguQ12Tve7g5BvtqWmFk5DMvMsfCr1FAgI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:8f7c92662b60d2d5\"],\"constraint_ids\":[\"C:688c852d1caed404\"],\"span\":\"Tamsin diverted the donated food away from the hungry district at salt depot.\",\"rationale\":\"Diverting donated food away from a hungry district conflicts with Tamsin's duty to distribute donated supplies to settlements in need.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "4YvoTLUbY/clInEQdR9xn/ySPxLCHygCTS2bdW3nuv77ATFSFo/ztkSw72/MevXbrSpZD+mNxL9yy6HGH2ejBRIbdmCODVR95Kci+QcwCaK6TrboFMRd3yD5+4cdbv1a6jGShxj2SQCbDXWqg1/5SDVljkhhSZOZOIhTvOyv4G1bDyymNG76CeBNPxeapwyELE/S4t53jOryyhP4NLKtGqUunUaDDItNOUog2vGNG4m/1zqpTYgRzUK5Ps4dTelWY1qBEoTJlRcTSOUlatFjPH/a512G0oFCNbM5UpnXOoYG8bBlsYN5kwsFdcEyr31rhIy2zR8MXSx0QSIpfAnnIANTH9XlviDvpok4IV/ldqC1NDNVGjVspm+FSEX2YovIpknrCZbGdOn/lAuIBdCbZMrUup/u",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 650,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 173,
+        "output_tokens_details": {
+          "reasoning_tokens": 75
+        },
+        "total_tokens": 823
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:8f7c92662b60d2d5\"],\"constraint_ids\":[\"C:688c852d1caed404\"],\"span\":\"Tamsin diverted the donated food away from the hungry district at salt depot.\",\"rationale\":\"Diverting donated food away from a hungry district conflicts with Tamsin's duty to distribute donated supplies to settlements in need.\"}]",
+    "token_usage": {
+      "input_tokens": 650,
+      "output_tokens": 173,
+      "total_tokens": 823
+    },
+    "tool_calls": []
+  }
+}

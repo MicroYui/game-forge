@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1472111c2fa6cdb357a73b03f137a0eda47b8fc00bd4ea74fe5c5cad64d41483",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4629,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 642,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 239,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1038000000
+      },
+      "created_at": 1783851400,
+      "id": "5cXWtwCrS4n1gzQKhEcTVG3j6s4+cgXYmn5BUr+0GuDO7zC+rCZZyLsTduf8DG0WkxK6D819GysbiXoNHxO3xb+OU+Qf9xaDvFiYWY/KMIF0t3r2na9bKpsVr0+4CT5TDLOmyMbJEVmQtkeTSLwDHdL4XiapXjaAyw0y1uoIXTkULXhCBfJrspxY23xIrWLbVtmDkdF6hjJ76dams0fSTLKcwQYSriqgPeqA6kqfwjBxo3sI0yU8aU4CM3lA8gM563/S2ZSyVFagSw0eBl4dLHDtfkJU5fiMkrvj+tCA2wkiZzMjv9WApp9yEbyXMBwR6hbM87uGxTu6AFMfCIl7T6LI3pIt/NOqkKlw/BwcJvB3uuCpOHuMXyWGBrabc098LMWJ6oLEVN11Jll3RpZChAAOhgsvNw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Q4sLPYrUsV9WBStDSBjzVcG0p3i0aipFr+MK3Hm8KO9lc+wUnGfzTFmDapPuMSoK8en7tkA9x8SRSyufGPZpwyO2/8/39ocr7aQs6nP2mwb4y3E/Vfdh5hhywWmcur6Y1aXAHJxeT2ALVM+Zg9aCA3ayzpTUqciAlf5NCTSAOwGF8DpDs7p61doBZs2xJUMv6SFn/QestQJQbipJkJPud7kdltUKFqqiqhSE61BYBcdj5zsHQ1Q9x+tkWhSYyiK2/7TQT7h9tc79CK4D+pwzCq22GZXVwpkvUBmlrbLMCDbtmRZ2mRIvystvMDKddoYDtRzO0YeYpiVXH0IQT4TaQJsypCxV4sh800pz1Ir1XE0Y4W9+2fMjkNOFwCC43J+3K7Z2H/teWWLI+ShHx+vcmYw3FCw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2e742535ace594df\",\n      \"npc:30edec3a6f4620c3\"\n    ],\n    \"constraint_ids\": [\n      \"C:183cc0fa31fd68ce\"\n    ],\n    \"span\": \"At old mint, Oren was formally introduced as the Beacon Keeper.\",\n    \"rationale\": \"Veda had already been recognized as the Beacon Keeper, and Oren is subsequently introduced as holding the same single-holder office without any relinquishment by Veda.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "cMTrnbhzRYZeAOj1/ov0I5YmvfS6X9152bX4oaGDmt5ppuKvSHTZP2SP+zc6zij5ti6KciPpLOMtLjSncMaVCDYzQTDC6LypHcYDRF3SdIPmYMCbPZ7Q4l5HjCSSQT+kIIwL/2L/ppUYmEvp83WtO7tVeXWRYnHUjX6RM6E/poq6hBxhhxkycWoTaHjDVymbQbBgV2AOfV7Ng02R8NuFMO7W1LqnRY6W1Ouw2vjPjeZkKtyI8gFovR0XKPzjP+UotxaK96bvh1H0shU75540/pANl6Wg05R8uq7ulSBzLan3GwjihnfeyvuIahOSGutqwvv017meCpVdB/S0jeO7FsBs4QC+73iCNfbmJ7iJQ+UvKAlz7xv0bNc7dTgsHbxKIL/V4TjwBzPLK/zCpU/5ReWG6LKW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 642,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 239,
+        "output_tokens_details": {
+          "reasoning_tokens": 100
+        },
+        "total_tokens": 881
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2e742535ace594df\",\n      \"npc:30edec3a6f4620c3\"\n    ],\n    \"constraint_ids\": [\n      \"C:183cc0fa31fd68ce\"\n    ],\n    \"span\": \"At old mint, Oren was formally introduced as the Beacon Keeper.\",\n    \"rationale\": \"Veda had already been recognized as the Beacon Keeper, and Oren is subsequently introduced as holding the same single-holder office without any relinquishment by Veda.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 642,
+      "output_tokens": 239,
+      "total_tokens": 881
+    },
+    "tool_calls": []
+  }
+}

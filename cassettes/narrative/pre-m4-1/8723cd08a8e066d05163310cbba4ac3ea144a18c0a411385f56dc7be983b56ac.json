@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8723cd08a8e066d05163310cbba4ac3ea144a18c0a411385f56dc7be983b56ac",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3442,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 576,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 196,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 876000000
+      },
+      "created_at": 1783848700,
+      "id": "y/siVdSyZeL41MuAwpy7rw+BUWLToEvJLKeo2hwIoKS7F2DDoRk5zOkGfAjNPxxCy682UBe9YTwqlqwu7BYifWqgzNWA5bcuj7Ve+QzrGgsMbgg5dkC4f+S2MPJ+OMlE/uZEZPM3Q4dTK8CNJVXzb0MzK5W6VB4zUW+2EsuiZAXcOqiAVNfRIJvg62icylFbkx+F9DqNSw+iGbn4pP0MBUz7/W9RyqOUD0XKoqG7SXYOrn1U/3AUpcMJKGEvElWNb05Wgq9YEyBHNdO9Zt9t57ACv2/dQotXME/32zNQHrrJc4sz+8UoqBGrm+lUd+SfYF0YKHyoFyEBXnDfaAkp5MEQdy5gTTF8GbqLKuiqGm86wr5YqcE69580IG8rHM/DDA9PKyiT/OW9+h+9Z909IqkZjTtpvw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "zwCePxbR4n6lChdwdm9iVkkkRxxyHqW+sSw0/zB/JhIiCF0Mmi+jJSTzxRXNq53Z2dVBRom/THwMHldcEnGBy3pVUfk2MM4l0N2Slw5wkt9niguhgClPlOTdX/QWJtVaEgC0jYrKFXGx+b1Kbaz/Xj3Ogua4uECIlPOxotKZA7XTZEWJI+oJw25qVGZ53x0Vff1P1qzxWu71Of0UEoatm0nb3is3A0l3p9244PO+GxS4Pqc/AGrWhzLpPyROqeBi7FoG3PhxCbtXHFhYpyt0ac7N+qdHuvPkiy3TGD7M5ri3CmPdpiixwSQhTB2Jx22jGB4Wdlvcji4J7tIX+7vSGlnD2H18KZA5qIF6OsswF5jLJXRanHMab0P/M5ZQFIhnhEgPk9Q2Ls9467Y/eix0mrKRYx8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:fe59d839ae067686\",\n      \"secret:d566096ea84256bc\"\n    ],\n    \"constraint_ids\": [\n      \"C:9dfef21e93307560\"\n    ],\n    \"span\": \"At archive hall during first watch, Mei told the room the truth about the vault keeper's allegiance.\",\n    \"rationale\": \"Mei discloses the protected allegiance during first watch, which occurs before its permitted reveal gate at the finale.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Sn05P02mYOJjTYbk2T1qUzqGALubDPAz2UBD0y0Kj9RarWpK3hkgcKzqytiAr0qhwTf04EvIQHghbjffIljfJ29WjNh+UoCbVWif7uGtWLDRWbkNgIsS/K7QVoojWxX3ZZtwZ17CG1oSg92Wl8Cbvyu+X2pKPrRHuRFF3e3IfuV8PBSeSAjVszLC4lPg+Q4vL3/JHZBgB9wB3HQ3f9my/ZpXQ+m3iLasFHf5zvhWtO1w5jcWeSHLuMrIVlEtg8a10CtwTlKoI2whZe36Bc7L9uHCAjZ1n+6QCzmuOtS8WnOIxOMQbNEMHpZxmzB8ZDsf460aTwJCB1TuNT2viwVp6n301szE3aT6UBprhT2tByLru/U7V6lWmXAsoF2wFJyyhoEv1zaU1NKNGMJKPRB6cwVJsI2G",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 576,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 196,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 772
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:fe59d839ae067686\",\n      \"secret:d566096ea84256bc\"\n    ],\n    \"constraint_ids\": [\n      \"C:9dfef21e93307560\"\n    ],\n    \"span\": \"At archive hall during first watch, Mei told the room the truth about the vault keeper's allegiance.\",\n    \"rationale\": \"Mei discloses the protected allegiance during first watch, which occurs before its permitted reveal gate at the finale.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 576,
+      "output_tokens": 196,
+      "total_tokens": 772
+    },
+    "tool_calls": []
+  }
+}

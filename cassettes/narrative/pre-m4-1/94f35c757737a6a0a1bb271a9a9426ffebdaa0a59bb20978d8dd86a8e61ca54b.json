@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:94f35c757737a6a0a1bb271a9a9426ffebdaa0a59bb20978d8dd86a8e61ca54b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6799,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 578,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 485,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1744000000
+      },
+      "created_at": 1783841400,
+      "id": "2/9p5wOi2XBxupRNtsyOSg9vNE11pOFz4svwddXzj7SxeN5BwKWVBimCbPSMljHtoEpDcQNGSfvCBii+cyhrjmjfWtLoeFH5ziLiMTTH1wbShSA/Lj6QE7iG3sUfrdN7a5KwXFe4Oypqb2HWEnW+u1W+bY8XdfwUauOkd6ca/iMN80PuHJHuVs6+9ECT/ePtSDgigWB6x/BGCGahnYMXftrxXVM63YoCLviBB1zq0XulDsdva75uyf4/hlrVOyjT2X/sTYYzwaAsWcR8pRixi9wNYYu8+kOSwCpJWPMzg9Han1grByjVbphsYsLKmbqUq/tsnyE2UDzZ12fw6W2l6ZEA6idMVmYqEtxrErSRAnxfYVaayIe75dnmjDKexXotEMOe9UsRg+Hq2z/pIMkl6AiNo3b0wA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "uSBiY7wwu5aboXHmgyBoi+NBXtHyNX5Be/ol3SvnmLV3AOSwxV8PVZqCXUyUiiTFIXGAcLqLOlc54Gwfa0+l6CwiZZOZ22XzC49UWTiVCnk1Pb8RqLE5cc7K/MShxYLuLH4Xy0q1rLK4qns06+q9bSxV3Z1CHq1vfXYmmnYopXsOJ49qp8rKquKLSMSt87yZD2GjLY0H4oQC+qjwNQuVXlIsBUf7j7N2n/oQbWuoycV9sUs30GJTuAvw6+LWzfATsdEjae5dACwBYDqTHDbHnsZkSz9DZR85TamyZaD1DKozh8bF8tMaI/rRGRC+v9jxEBsuPrbwvPeG6FWZpD0NxMhuJ2J9rr1dJ8BMswzjJD9QX0Mn6cO/v7Zybnyii8pzxGHBkSZGtDwRssYEIbwvlZaMvA8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:71ddb5e9382084a4\",\n      \"npc:db979e86556ec43d\"\n    ],\n    \"constraint_ids\": [\n      \"C:b131ad6a541d2d63\"\n    ],\n    \"span\": \"In salt depot, the council recognized Veda as the Crown Witness.\",\n    \"rationale\": \"Veda is recognized as Crown Witness after Oren accepted the same title, with no relinquishment stated, implying two simultaneous holders of a role limited to exactly one.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:cda21ce2b3f6f6e8\"\n    ],\n    \"constraint_ids\": [\n      \"C:d1e9f4090caa536a\"\n    ],\n    \"span\": \"At salt depot, Lio transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Lio directs the recovered coin to a rebuilding fund rather than returning it to the required public treasury.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "IqaVKYv/2C8j84/UfoRjSbCpmcdKPNFsoIcgqD7RVCr5OsuespwSxwzpoyE6dpZYSXgBiR1eWkxYPnPVSGp0uT11dHduac3KIcONy8TZXUVEGKypBbXWBYKz/HWw6zMQbE11OJGuL9ruWf/Zokg7f8ULsDVLdpcGqBulT9ihNIRUH5FOXPtgO6YsOgxOJ4DfIDQEhqC9Xxe4LhK6YnYEH77A5H4f5uM7SSNjqwjDSLHMTecnph83cYzyf6Ur0VZpWR/GBq06L7m+Oe0pdw9s9V2OVYkmu7kZ/0tubpghuBUURQ2szjMWiaIA4PzjxSaP7wWJ0bmRXWbyOjT5mnnN9JxvkQFtRx/PaMz0o027hwPls+Rv08AQ1MGa9RlX6EiBjfNJjgrW4Tmo7B6BGihnbiD8MDOZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 578,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 485,
+        "output_tokens_details": {
+          "reasoning_tokens": 236
+        },
+        "total_tokens": 1063
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:71ddb5e9382084a4\",\n      \"npc:db979e86556ec43d\"\n    ],\n    \"constraint_ids\": [\n      \"C:b131ad6a541d2d63\"\n    ],\n    \"span\": \"In salt depot, the council recognized Veda as the Crown Witness.\",\n    \"rationale\": \"Veda is recognized as Crown Witness after Oren accepted the same title, with no relinquishment stated, implying two simultaneous holders of a role limited to exactly one.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:cda21ce2b3f6f6e8\"\n    ],\n    \"constraint_ids\": [\n      \"C:d1e9f4090caa536a\"\n    ],\n    \"span\": \"At salt depot, Lio transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Lio directs the recovered coin to a rebuilding fund rather than returning it to the required public treasury.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 578,
+      "output_tokens": 485,
+      "total_tokens": 1063
+    },
+    "tool_calls": []
+  }
+}

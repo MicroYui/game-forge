@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:dfc58a4411a62f2e018dc4404d15b470a454caaf3211ecad442554a95d6bfc7b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4583,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 699,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 198,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 943500000
+      },
+      "created_at": 1783860200,
+      "id": "a+WAAtcsFzWA1NGFYlmxltcpZzZSftt/Jr7lfpS10q+thaGQis0G/CP+SSdVaBOeYVfamQBgFcCJom3syDb/4hCTpymilscnT7856g3LzQzkQ0+tiMBhtj1kQ6IPDJhgFtQUbuj+HV79q5jO7PDvnDH/9fDZ9Cmx4eBlj+GM70ybivEgWmui5bHwHL0ejN/JOxPz4pFlcZje9BEFhL6b4AoIOV0VtgrxQtyaCoaHuwvuYLCtdf75YJgfMdz/IriKVsgvJfEhbCr8D15rJk5oAbMoxkUMymlt/++tD3R5f0RkuY2rgPo11QqIEE9zk2GYra64AWTQoA4MlLGh0imLTzXN9LynGTgsMFK4DmQBgpLtj+0+yzSPYh9MJiYKMofnJwqOoOEms0mDL1qrXB67CyT2iTdTFQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "4eGzqr5v46uWmvkWNy5Om9Xch05BjYIe7a0MdpYgXvP5pB6Ez8LgkAmb6Wq8h7Ep+H1IjFcRwTPhpi6PnKRKfZGu5UvLY8EJ9oCZFDubQALeVCBKH5BJ+hdHyuyix1DddIclnhyAOn6bIpGWo+wtBwKGZfqaKPtdnWeM3zpyap7Kay4dBCTI3UfCpUpV5SO3bU6i/zhYD9QgUomxPoij1es9No1Cdp9c++8wliB322YJyIhvs7JVS1hoONl23InYh0cdVd/lRP5/FAHcIFMQM7E7Cgp4hR3hIyFiBSYl35D1dWIxELoxe12xVcL49LV8xXRoiCnQZo5bi4IJvE+PmSxV+rFXw7a2DsFoQp0AfiVdloK/Grrr2rYHpZ+8WrgHV8rLhatRcmH4bYTvzxgFTNDwcZc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:260d1d3a529939fd\",\"npc:d296aa9095c59fa2\"],\"constraint_ids\":[\"C:7d8d2ad56915ceb1\"],\"span\":\"Ada signed the register as the Beacon Keeper at north gate.\",\"rationale\":\"Malik was already formally recognized as the Beacon Keeper, and Ada then assumes the same unique role without any stated relinquishment, creating two simultaneous holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "PEnevCBz/g5+bKZ7t9NCw2qZbBKzRyOsdDFt1+fr+lYnjSGK4T15kAe8CpH2GBaTpPzUtFplI7RALDLo4WpVKVRbK4DbBBwrbiD/pQPtVb/fxKhDI4Kjx6TnMzfXzV5qa5VqpoOaILpSS/Olv1bJhnfnzS6RqAyvrqV3tnSJ74IgYjgMAYx7069Upo3ggvESYPHRGIyw4FG0wGl1GS4iSJWj141gJGEKvY/Rst4BYKRlTyHVvrg4NBzrqclC7PrEyZXPX6hm3Hj3JYAq+uat2mcSqam41w4Pmw/kfzUJJepmcgdzTz6wNnSc0QsciiF9YXoz16b+vN06FgAwjAdJUP8zTRL0nPI94SPZyzRgoRUxcP9e4TzsKILD+rNjMWuptfGCHWJUsJzqh8mUBdgNfpeseKbU",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 699,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 198,
+        "output_tokens_details": {
+          "reasoning_tokens": 88
+        },
+        "total_tokens": 897
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:260d1d3a529939fd\",\"npc:d296aa9095c59fa2\"],\"constraint_ids\":[\"C:7d8d2ad56915ceb1\"],\"span\":\"Ada signed the register as the Beacon Keeper at north gate.\",\"rationale\":\"Malik was already formally recognized as the Beacon Keeper, and Ada then assumes the same unique role without any stated relinquishment, creating two simultaneous holders.\"}]",
+    "token_usage": {
+      "input_tokens": 699,
+      "output_tokens": 198,
+      "total_tokens": 897
+    },
+    "tool_calls": []
+  }
+}

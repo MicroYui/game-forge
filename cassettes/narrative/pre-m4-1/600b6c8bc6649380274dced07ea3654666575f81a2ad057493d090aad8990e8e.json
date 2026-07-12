@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:600b6c8bc6649380274dced07ea3654666575f81a2ad057493d090aad8990e8e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5078,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 707,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 169,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 860500000
+      },
+      "created_at": 1783861100,
+      "id": "+kjVaACfIdQDyQsxYBd+4o+PDvBauDj++eYvXl7vJU650NsfJH2r8Nd6i8toT3Ri2NRUO/5jWZnYqyrBvHCMxhwupgWskQzn44abgNpClE+IfAd9F/BmJW6IW7t+Qk2hiL8gP9eMYvwxy2JY/em4bKjY2aOEBEDTRf9rlVuvxyT89mGhS7qjhcLddZbWikvC9QZveMomTvmRgbUjvFnyBvOy0LTyJxq2tD1ibBOE+BPEze+Nvh2AJDnREbV0f3AtIvubqU20YrV0lTe+ANrCR+u1vo1/r3hZwgpsHp6DvkSJwUuYIksEndXOXsOmlC2q81SklQ1CZb41A+sixwtf1hYDT0JwO7nZog7w3R7szTjVfFsv3jZ/5G76EZWUhMzV2ZXWG2PG4cZkCvyrvDyfpnEYUmSbmQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "rFjA7vPhzBywD+seVTEFPDEaR/2+msLt9Nv5adJS6u0l4sUEpslEo8o8sOdc+7NbOOCOwA0kxwggtBcA0l1r9QcDKJQEEcIWYbWRVPKo9q+f82dEuKL3R3vGjE2HhaJIxVYAYf5t+wEVYh6ALa2l/9vmEmxzTAFNCSjZG5PeOMwgruVWeyEvUXCimBG3dNBHOg3ncFgoAnBFTWGHvdZ0IbJ6JQKVUiNIuhd76kg+ZhAHQJPryn7nTsVD7BuPOsd0FUkTnP2Yw6NdnKXfLkK9PNfN3KPSUxTVmLjAi6kzO6Eh0uPog3lyoyhbiRO2mrgqpiRzv3mtdHQLJe9xKK1vPujwxMPYLi+nv77F7bDksmUhQIO7TI5bc2cIuoSv5+Wko3Jj/QxWO/lw/Fi8G5HxahDobXw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:b8544278f30028fa\",\n      \"secret:8d4d8624944930e0\"\n    ],\n    \"constraint_ids\": [\n      \"C:860471b25e861f61\"\n    ],\n    \"span\": \"In salt depot, Ansel disclosed the reason the eastern beacon failed during dawn patrol.\",\n    \"rationale\": \"Ansel reveals the protected reason during dawn patrol, which occurs before the permitted map unveiling stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "08n9NMhkPqZ7C/ltJdtoUgu3rvzPxEq7FpzGEV/PqcWGMX1KpjmXkgDOCdkCq7DfhVrQtYRVBBlnDRYFe/xkFK5BdeHC420s15KY8/CAh5LQU57HVBBNYL3DtVvyNSlw0d0TACufmm0k971yOAG10JzkObbRSYqA1qfDv6O0JDBwMhUGjPde18qKBe3/WMfE23Zv2Lj9CMttQlUHo/bh30IMZbI+PRbS4twuEFWGifLdwzcHxCFbU5Z3bxYjYu/z7PkBiz0bCQI0+Ts0PmjbeRdg2EhC7V1x/mMItAG+oFDd7h40vkLDOVe0tR848hcjqRYenSL5z2Hr/UirKEyIM9LntrOeTVH8jX+QND0Hk6QU/MIK19aCxKqilCpqUoRpvYtn1oi3dvQYICSyQZTsO+2gBznG",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 707,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 169,
+        "output_tokens_details": {
+          "reasoning_tokens": 44
+        },
+        "total_tokens": 876
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:b8544278f30028fa\",\n      \"secret:8d4d8624944930e0\"\n    ],\n    \"constraint_ids\": [\n      \"C:860471b25e861f61\"\n    ],\n    \"span\": \"In salt depot, Ansel disclosed the reason the eastern beacon failed during dawn patrol.\",\n    \"rationale\": \"Ansel reveals the protected reason during dawn patrol, which occurs before the permitted map unveiling stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 707,
+      "output_tokens": 169,
+      "total_tokens": 876
+    },
+    "tool_calls": []
+  }
+}

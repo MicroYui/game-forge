@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fa4817acdc4de1f5c512d419c0bc8f1dce1054021a261e3b956304b2cc7f0d49",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3585,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 548,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 180,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 814000000
+      },
+      "created_at": 1783847800,
+      "id": "hJixz0lUiLipqgvzgldH8m2vf1n8N03B7JDrZk6yZQybXO5RiRJ1nnb7STcBelb2OgbsSjeX59g+lF84UPB/xwoibV6YCg3xmvv5UGYr7j8a+i52wgehdIBTcnLj30C1CWi84nFaDS8N9MK6lXpI5S1EXGkRlasWdIK7FHiMWuMs6LHzwnWfP2x4Ngk88zXs2rjI3Tondu4WSyl+uy9jW3svMxdz51H7+y9N6lT9akvkvlpa26Xu8J0OwtGWeCGh5kwfzS0KAy2VZeN1mGPae+zuxLJRp4yZJzfbsckAWijU7nO+GPCh2TBAaV/E7KhP2OelDiRA6fs7JHSuJxWWq2e8UNu0VHxQOJ+/qpCmLD41zrc9w9JapUI24aywG+GAVQsoml7GRNLhXPQe0Mvz68ixu36oPw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "mKsAtDUQl91Y37HHVhQJI+WOwk++orwMpdNBpzVujf0epSlsKzJqM/XPXh7aUOx+5D/W0CHXDLoy79dycdwpNeVZZQ3CwziZ3yBxAGIpHC6srnITngg5Kd2bjawENxNYzhzIPTf6WYW7oNZRcK2aumr11170BQZYDhytco9Gq12djbYFE+iPu61RWaoYDYcFuZeKv7+SKh0KQzgci9fJE9tsdZopNMqTQ7QPbEznPLOi5jF4tVvHrdy1dOFWCkG6Ddox74Hd98DXZzaEzd4k9J+8GLhv5CIrLUNLl1dNg8X3RVNADXDbHiD7Woa+AeugLo6T+md2WHSgkuPFEXBr8ZgrRFOLqPLeHptRtsphLt2FTu02HYHCoW/MqHjfAOaXTwZe2lecmhZKhXg/C1AYg9eHjfk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:48a097ec11e8f752\",\"npc:8e5e0154cc5a78f6\"],\"constraint_ids\":[\"C:3d6092ccdfbb9b0c\"],\"span\":\"At salt depot, Malik was formally introduced as the Caravan Voice.\",\"rationale\":\"Malik is established as Caravan Voice after Ada was already recognized in the role, with no relinquishment shown, creating two simultaneous holders despite the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "f4+FJxVfP/bqOAXuKonKYEr9coIRYvgFznZnqZAqSlOi0B77k4M6W+9C26/5FBKLI0M2wNw50y6oJm8hDo03wsbtukCUEp3H81IyA9b39L5bsYaz+dgBid/IbUBsPtg8ZI/0eOzPGtVASpBB27o85OgdqvwRs292pvaUb+T6k7skaPlPECBKVB+j8FaR5Oh6kMgLQIcRYyYaBAk9rMgvRL7GTEkB+4ZDG/wrbw/6ckjl8N/yFOvC74J87wwGSUndO5WiBvt2uBIRUDfuVh2HehmHkODPh2wHgxgu1ANShka7ss9XwZ48LYBFJEUDVYUzf16BUQVACsJnK99MKbk/ByqEHHhN1+EwMDK4+aHO/i0OeenIJXJGxeS/6samUu6tgMX7tb5qyN9MH7+lZQYCUZE/yw4d",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 548,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 180,
+        "output_tokens_details": {
+          "reasoning_tokens": 62
+        },
+        "total_tokens": 728
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:48a097ec11e8f752\",\"npc:8e5e0154cc5a78f6\"],\"constraint_ids\":[\"C:3d6092ccdfbb9b0c\"],\"span\":\"At salt depot, Malik was formally introduced as the Caravan Voice.\",\"rationale\":\"Malik is established as Caravan Voice after Ada was already recognized in the role, with no relinquishment shown, creating two simultaneous holders despite the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 548,
+      "output_tokens": 180,
+      "total_tokens": 728
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3c8b3dc4113920d3ec7ca3db44f0abb44dd9643a9046f951b45c09d12ea02d84",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3328,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 613,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 157,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 777500000
+      },
+      "created_at": 1783859800,
+      "id": "6IPH7Cp1Nf6gz04uh/cxXkIXyPz1WFv3zWXkGhpGQfqRiFsc/Yzvu0ffeo+GJSRFiJaHdwxD3UCXlniSRX3Ug4pwLzEi97brvii9Ffplqirm8aIqLLVphfoRtRtuYbvN0BnE8WRf8is0uci+HRkg/veX+BIt/3dqWzkWLGLc84zRM+7rOAxJChSDSyk9xfOUQqbXbc/95IM5Qa5Q+/siM4iQreDQGQqgLnhnBoducxdQGjjeSCzcSeQ8C9A/z2vRoF1x+WPdssnV/GFDed+jidxwWszfHo6zqdcjjPWHCbDkaG2GH6ESDKq26sK98R7+FREYDeee1jatRqTy4E2NisL9wbwi3QeW6tdbnAvyca0VpedZLX6dnQ7KO0AuFPmesLCk/1GIcccZphkeTv6GAZo5ucStpw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "iDNwokq3FIqL1nnLM5H2QnQS29yd4oM0f4e2NslwDu8iBG2ktQM8WIcTDYge1XzNPWm/HI4GSF0pmq+NV7xdlNesup7hshO18MRcmOtOHvVWXpWWXmufpvt7Nx10M1ZccHftJXRb3mfOVU/c/9jiQr10pKq+oD6yn6NO14jpf+SsNPS4+hppApo5xIoCQITgxYCsn/RRiY9N/bPw94QPzW2sSmRFB0Di3bQ4ByjLV7AKbsG1tlBP+o5Bgx+X04WBkQydRkt0tS7d3A8JoeDBjqdAP/yNnbPFIlFXNdz7ABc4hmRt9+X/Pvr47FC+osle2gWoVxS52eMza01QAmB6OQCKEPCWoJ4SEOO1JjVVqkBI3wh8jn0vg6M5rPStJ2l4MEp/ZZVfI17ooTAN075gsds/Qo4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:795bb48a17eadc73\",\"npc:9f31468ca1486c24\"],\"constraint_ids\":[\"C:f3142ab205a67da6\"],\"span\":\"In desert waystation, Ivo supplied Lea and called the partnership permanent.\",\"rationale\":\"Ivo and Lea belong to factions that do not coordinate operations, but the quote establishes direct supply cooperation and a permanent partnership.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "O/isV4xMe+RMCs/N9qoBUr2aaaK3PkS7Nm69Ibeqpk//OYYaJFxYnMIwOxFdbcF3NkEJkAeFLtaS/Q9skau9PuoKtfHSF+42gInKN3CPQej0V2liCGewD6z9OVmDrL6EpCMkguCTm0mneukhZoe9NwDOC1ouUMh/7R3eZuJ8c83Zuodgg2JOEgikMhbFQM/iMOEalQLhasuaWNXE7YHeR2JqOO05cjVdyRa0N6xVbsuVuDeHUo/dxgI9rLXRCRd1i/TyjQQSsZDS4F97T3c7x9iYbIeC2CY9UjB26qgv4TsEBmuFXdZUl54q15sW4BsgSTsExvZMtqQWqrvB/lsou7wNQJQSMgvT991cunBDMWVpzLV+ZY0EivkaGKTAf2biQRhaN5SHW9w9ksjoef1F79X489J/",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 613,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 157,
+        "output_tokens_details": {
+          "reasoning_tokens": 52
+        },
+        "total_tokens": 770
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:795bb48a17eadc73\",\"npc:9f31468ca1486c24\"],\"constraint_ids\":[\"C:f3142ab205a67da6\"],\"span\":\"In desert waystation, Ivo supplied Lea and called the partnership permanent.\",\"rationale\":\"Ivo and Lea belong to factions that do not coordinate operations, but the quote establishes direct supply cooperation and a permanent partnership.\"}]",
+    "token_usage": {
+      "input_tokens": 613,
+      "output_tokens": 157,
+      "total_tokens": 770
+    },
+    "tool_calls": []
+  }
+}

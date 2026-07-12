@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4584ea5e47507d28b1e118eeacb63f9efd30b55ec118c5dd9eaf259b7301a8dd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 9344,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 604,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 468,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1706000000
+      },
+      "created_at": 1783849000,
+      "id": "FhDOhqpVYA9EUggDDRjVe2p0G5nv8f/nrvhB3Qfhr5UlqnatsFDeBUjurfC59BTJvKk8GJ/W3XWtl5ieEbjv8Bpw62fvhVth7KdzMcnygz/gnJSuMHWq4fzRyPDqv14MoxBcmusm47Sa/qEQ43CZyeS/LuZzLkX8Xt76QJLMGi+B0h4dxAPrPlApMdR8bD8jF5iB6HOGKZzftgeS9RSWWfDlFsMPu4DHfgNCDu8A33RaFhMDnc0u8yudpnypLAMi4ku1iWFeVi93xKgooWl36m2Yh90xzFkXu0uzx795/wmmlqBECyK0XBi7+5Tq+Vg/Nc9jl+tBfDkQJ8MyWKBg/EGwSUqdWRZAbK6mVlS0K+91Kjrgik9Jaj2S9GwvIvvNzTOFluOcd/yUcApFusX4wIsX+X+k2w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "tjE5167/2dTFi07CP1SiJQ5jpDYi6PnMf7CYW3n+j604uIq2LizUT1fq9Yge6Skyhs11AaKlcR4A1Bwlz0SlbLv2rcYPoJqlflzXyETomFN8F7Jf1fa8iY6U0yAaFTQ6MQlC00LCYjl/Iz+SbUZNSo/8NDh/cJ5ieHowNm+fEReN+VRuWsMxJb3iinw1Pb77zsubNWLnUapypAEirBcYMHjzsCw7Hkkkowh9u4Vi2wYDi3WbPZgdpBupkdY8S4T/9nrWjKTBD0IKNoz3/wU0FYyNoncIA6EBuwx/Lytz46wPF4gopxofCU2HQ0VMDOx0pBn2wmxSUY6V5a+dDA7GbXCdnfxueRbVA/ZjpXpCMgotDyRAUCbhmTcShWhCqu+5CVj2oehUrcDQ7YnEnVLgdojVsV0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:2aaad94adae6c27d\",\"npc:dbe0393f34c36cb4\"],\"constraint_ids\":[\"C:4cc2aac5d9fc2ccb\"],\"span\":\"In north gate, Ada supplied Malik and called the partnership permanent.\",\"rationale\":\"Ada and Malik belong to the opposing North Watch and Red Banner factions, and their declared permanent partnership conflicts with the standing feud barring joint coordination.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1lt2EchVkziPzYYiGuFzCPs7LOqfzVudhJsCJ2td3f+//eUaEEQ2hdY5whN59L4/EFQc+Z7GdgQyTYljTejA4Bem/L268Ddtd6lFJ0jSs5QxbS8i7ZaxwDW7v41otHNdjV/uV7YifcvZwsDfz4q4miO+D5UWiGatfHVSEIdTSY/5YYgfGDN9AJbgOQSk1R1yr2aXLFfD3fTQDjbziiSLvz38+jEokhD3cf3cvvmCo3o3prQCadLCCOobfFfc/TbLUGi+7AKOzuCzgFf/HfKLGfXShUY8x6Wb/Mt2TFVLxdKyHThOS+PxTE1EADgmYb8XTpOQjxpdI5ABf/DBq9eG6zJqVcPh/iqI5nAMqSFOPzDsxj5gIHA5qlhyDz6iJWcgc3leYsbRPpjj1SlH+Up1iLF19rkK",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 604,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 468,
+        "output_tokens_details": {
+          "reasoning_tokens": 357
+        },
+        "total_tokens": 1072
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:2aaad94adae6c27d\",\"npc:dbe0393f34c36cb4\"],\"constraint_ids\":[\"C:4cc2aac5d9fc2ccb\"],\"span\":\"In north gate, Ada supplied Malik and called the partnership permanent.\",\"rationale\":\"Ada and Malik belong to the opposing North Watch and Red Banner factions, and their declared permanent partnership conflicts with the standing feud barring joint coordination.\"}]",
+    "token_usage": {
+      "input_tokens": 604,
+      "output_tokens": 468,
+      "total_tokens": 1072
+    },
+    "tool_calls": []
+  }
+}

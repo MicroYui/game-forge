@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e00b99ac24112be28df2b264952f0d64dd85b9c5a49fe3b4fc66aee78a51b3bc",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6138,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 702,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 317,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1302000000
+      },
+      "created_at": 1783861900,
+      "id": "nIk8Cgok1zz2DiHWVeoG7aF5w6bu6nOKUCwRu5L7g57PwKiQd53WUngrGm1OBlnSJbE0TjZ60PUyjnzKbmIVGOaE5WRCaSeHwX98K3J3wvqDdi74Y5+XMonxzbp90fK6mUyRsAjpBrObtIu3uTG8/nDTjMOGvspmp8s/afnZd7oCJrW/2VvA9pQuXl/Gf6B0XgIrqcTmAfpNNx8E2yHQcgC5Y94/x98yY9Fjug2Sa7lOeHYH7KyucHasdTkz3UgX3JmOV9ofpqbZcAfTAacGyeX6l1WT3Vba9kQD1Iu63JcYyfeZNgWnmwphbaljjrvUwl6RkKXDY7mVcNArNWpqfMKyxS2BBOSm4QfGnjc3ynWPkDm7BLBzCq85+GZtXt6Q6ITC4UhLuaJuxIFeIO4v4rFNz/59Rw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Wd1r6brYjSiyuxcxBd3evg0cvxboM53vKWqLTewuNXVqqpO01Sefs964sTiat7oKn/EUGmmZQM+qqZFvrhFxZJxx7CkGv6QHeIxfvC4GWBtF7LPmvV8d7NuVdaDHIzqY7insn3NUxTFvx8QDA/n4xRLvZiXapK7lPpAjKer0wOLuRa6avMMH0RDp7tyqMttYf+SgEuAhBqRRjYY9ju3175E4/ZB5ehkdD8al8ckdrcBs2pmjeW/DJOGTLRG/z3GSuEQuq3T51UHySd20Qlgk1DHiUNJk1pGFVtSBuBRRR3sqh7gGS1M5PSRWzkSGE2HhLG0Oohqs3VUeF1Yt9CVD0C0t7QKOoVLChQIFXToGczUv8IsG0Wfh1iuHsr7nez7xLHThMUSGnX3ZMbyvgXZfnBzl7Go=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:3d619f1bf65214c8\",\n      \"npc:bce7f9a0e281a2fe\"\n    ],\n    \"constraint_ids\": [\n      \"C:7a4fb153ddce4cfb\"\n    ],\n    \"span\": \"Mara accepted the title of the Crown Witness before the assembly at lower court.\",\n    \"rationale\": \"Qi was already registered as the Crown Witness, and no relinquishment occurs before Mara accepts the same unique title, resulting in two recognized holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "6uP70yk4jga+ox85LcS6Ynw8BKRHm6wCacYrq4IZTUGUerkU9wwmvEzS6ytfrtamQpliPRnJpAIb6d6dsQSzd7KD82kr9HjYs3ELTa/GVUoHM4Ul3OaNPYg985sa2NrLvGKBpysU5HsyzQTRiw1R36M7YIWoSvnqdHCI3jPG4YFxCiQl6GdN3wighgkKpOIsKtpASArym9TF3kzQv5MfnNFVhqRm7ZteOEVWBHgVJaMLOPMoqAdlFeLO1idpZ9uJeuzCBWdAk2m+fXWFlyQl5yrZsVBo4Ir7dZ14ogPx8ynlPBBWKFKqvRIy2Wjj76le1OI+rpLCyyZ0Tg32KOcNTtu9svhX4MVAksYbmoGUoOCQovJGuuaKwo14aNvKgUGWwKUMEHhs1VdVNGAR/MY9nZEvC6sA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 702,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 317,
+        "output_tokens_details": {
+          "reasoning_tokens": 175
+        },
+        "total_tokens": 1019
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:3d619f1bf65214c8\",\n      \"npc:bce7f9a0e281a2fe\"\n    ],\n    \"constraint_ids\": [\n      \"C:7a4fb153ddce4cfb\"\n    ],\n    \"span\": \"Mara accepted the title of the Crown Witness before the assembly at lower court.\",\n    \"rationale\": \"Qi was already registered as the Crown Witness, and no relinquishment occurs before Mara accepts the same unique title, resulting in two recognized holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 702,
+      "output_tokens": 317,
+      "total_tokens": 1019
+    },
+    "tool_calls": []
+  }
+}

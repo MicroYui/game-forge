@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:52a98064194c436900530febda81b587482128073a99324db2ee53490d8649b4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3505,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 558,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 155,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 744000000
+      },
+      "created_at": 1783841300,
+      "id": "+Ptxjk/VBMyUPBPEtsfovEN7A2ghxJnhxlW5ZKVLGlwEgsDAjl9pw60oM7lUyOtilwzWyy1yGBYYaN9avBGka3NsMOsn0hSelSbs25b0Qlc8R5ja+h5PIbejr6pQFPiA2G9JzwKW/0llDkn9XnNSUjV6AJ2W8Yw5Ud3Tkz5nkx7GIusI8x0hlxxW1EW1DD95pURHRz/ieqrCLnTlumJVAJQdTyrpHoQIgBPB9QEWGyo+yJfUCO+CBZD8Yip7v7o3lM5ebLCR9Ykx9fCLafaKDabVrNGPZ4N6/reboyyryzk0rTlYP7jyxjnuZFd/0Tm7JYQdsFziCk8mQKQ258A89pj/QM/ZSbi/BVsT9RBG8dVfbCS21HLdDG8HU5Oji63YRf/iUCtfM68i/fE7SgWtnKZPnbzTDw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "g5aRKDy5BU+mOj8CZRTjymjngX0F0RjaQvW0hHOGFfWP57PkAmOTtHVo9lMIyRbhXcOBLlCnqo9IUZqz9+wQ1BwvkQI5Twoqsy8d8u9vmA539GC1k6RL80V0ATc4PAu/IA6QiwAr/U2bgU4hGiNIhaSu2FHYUN31SP8L26GOMtEX1pIXu7DOfVYmz6FKXrMhKJbNHOHjGdejFc5kd20tJRVieLq68+DrgOWgJpeXenTUKvFXUimTzzwfHR2GeAxx9EgXzkLvqs9hC0CC9WMhVs/nQ+IBStcFc3mrxuD9/yW0bYFPopatiPf/AiiS9Uoe+ZQ8ppVQQ8kzMiZ9gEG+skNejboHKE3v/45AAgThjfBpJmxYtnUDHx3fKMobUfqSbDhltY2YqSMISviMOeNPMwCy5C4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:9b946eae8855037a\",\"npc:afa3753be2b6416a\"],\"constraint_ids\":[\"C:070e78a8d99b14ff\"],\"span\":\"Noor welcomed Cass into a shared command post at relay deck.\",\"rationale\":\"Noor and Cass belong to factions whose standing feud bars joint commands, but the sentence places them in a shared command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "N/qGfx8/PqE03FYTp1izje/07RtxrXc8JGbGV32Y4XbmxzkdybD1XllfLK6jqmyP+8/s9XBi2jner7TftnC3t9BVd4uxPfpvtZqQfvuYXQMCz+Uf6KRoXiqEQ5CWbDUWUIM/Rl6XP2EPDQogbegfXxzRvisQFF1i8ItahFvAP+EOnaTn3bjH9QkYpajHkSAGpnxTxV46RnhJAquN44nQLH3Uzm9mw1WPNgJYC8iabMY18Q1sEi/BV+UCvF/fZ6mkIkUjEOGvQsAKIU1SMsT5LdMGbX6yMr/4mE8b1uZtIIVrRcxRD20UA7lSjnabr9uKN8kYA7QNrqqr+KoQl30VsRcJ7Kh5PLGOftOvWEnNRabQval0qu8l4nYNJ5915ty3Yg92bkotUcr10ixLrOIZ2Cd26RPZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 558,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 155,
+        "output_tokens_details": {
+          "reasoning_tokens": 49
+        },
+        "total_tokens": 713
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:9b946eae8855037a\",\"npc:afa3753be2b6416a\"],\"constraint_ids\":[\"C:070e78a8d99b14ff\"],\"span\":\"Noor welcomed Cass into a shared command post at relay deck.\",\"rationale\":\"Noor and Cass belong to factions whose standing feud bars joint commands, but the sentence places them in a shared command post.\"}]",
+    "token_usage": {
+      "input_tokens": 558,
+      "output_tokens": 155,
+      "total_tokens": 713
+    },
+    "tool_calls": []
+  }
+}

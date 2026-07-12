@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:de7e0617597bcfd51f960e6125436b5e59341b98748b13b400ae1ccc1cf050c2",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3415,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 657,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 144,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 760500000
+      },
+      "created_at": 1783859200,
+      "id": "WCvzF2FIsQ+HgovMVs3CdFca7GoFinZ8oUVcjDz7YT7Sn+4Wd3n0crv5ngN9oJvPzTnPDeLjMvcZR54vA4g0gASxljrKo4WoSg43LPmadZSX8VJTCUsr2ewFZenOFKGStjjCWMJtSsNhtOxyElICgVdqDFj3RI1YN0GooIQ5krTKJfhWolpQB9Dq/b9Wq9VLCAKPkB6QI0lk+/tEqwJ2ZuzcN0ANQkjaCPnrq4YlJ79cOUb8wDwDn+2akG5DaJu4K1dHiX1HOR+0j/7eK3A9XH7L2916IiB+AXDMBKR1PnYxYpIKeBk9tQ76amsqUtcFokT8kz3733o5pxr4dagJkBNsqhyBbKblB4fyHiH4jYpREAS71QHs9NoBw2tX/RNkezhWDvO9HeWcM+n4MOWIEWpGZ4s7tw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "QnE3YpRs5t/Ny53sbQJSMRXu3Wv+hehdqxXF7NanxU+3Km4NcOWfM1oSicwd4V+MGG61SCdlElmtf1XqfhZCtjupNetb/neGowyVv9mfDs8CJR+vTsRGGkpwQnSNJWIXIHNZp9GmgTJSwrgmt+QL1LyG4w7WnUo9K/CpnWXex/dKz60vm0hMx+OSuyq/LoPYwOBhGNkBHoLpcRHeMgU+luNRc6IJrqIakdxXoKQK0TW5bvwup9vli0QX1Djh0MkwtBsxgEa6GOBFLHmkVpOthw7ujm+D6ew3ImvEdEP04hF8CjR7jTd9vsCOn4zf4y74fMHXqHmCAlolZcsQtwx3/5ZZ0zappbZ7w7HoPpt6tkB5IjO1vMh/rRARwNMTrvJUmRw2pmqZRxoaEa+k3GoA+0FsLs0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:018f80a44cbc2266\"],\"constraint_ids\":[\"C:7e52b0a30b528038\"],\"span\":\"Veda closed the lift while a wounded companion called from glass conservatory.\",\"rationale\":\"Veda departs by closing the lift despite a wounded companion calling from elsewhere, conflicting with the rule that she stays with wounded companions even during retreat.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "jSxZeowEokhsN3K3ZMzOVDrthqdiBlUlBbqdGEJ+8V726ki4eHivftNu1FLFiB31ikg+FL8fZSBNzDKZ9+ZZsg4RBEErDBuuUyrQWzmkk1WYhS/HA2C5LEzQza6SNkWxuYbXjrSdj7HT+ZT+NvnyK7ih7GPGynRW9Pl1SDr3xrM+bfnTAcYoLLkensQu6lE4gMK016u5PieCZq8Q933rs8YHsdseN6WXJwxmd/HjqiZ/nw+qZzLKYZKRNOjdHY0Y+SYf7pJfzGnpZ3v2k/OiBjmSRJdnnH8miq5UhLrx61UZ7Q4epWoKcCjOj5pdOUZYhn7SDxE/QbOznAxEgZSYt1TKcoTO8VYVhGzKLb+OpivSAAbTDvkE1GXV5+f8cONm1GEfUaucNdVuhBWByCEmsMwQKE/z",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 657,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 144,
+        "output_tokens_details": {
+          "reasoning_tokens": 45
+        },
+        "total_tokens": 801
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:018f80a44cbc2266\"],\"constraint_ids\":[\"C:7e52b0a30b528038\"],\"span\":\"Veda closed the lift while a wounded companion called from glass conservatory.\",\"rationale\":\"Veda departs by closing the lift despite a wounded companion calling from elsewhere, conflicting with the rule that she stays with wounded companions even during retreat.\"}]",
+    "token_usage": {
+      "input_tokens": 657,
+      "output_tokens": 144,
+      "total_tokens": 801
+    },
+    "tool_calls": []
+  }
+}

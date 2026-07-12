@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2c61759acbe9eac734303c3a3d06fd2ba107b64332f3c71eb5c8f87551c7858f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4947,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 678,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 319,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1296000000
+      },
+      "created_at": 1783848400,
+      "id": "Tfk98EOSdrsYdYaOIRYq+MLTnJiupgeTs6fhKN7CYjPzEoPSfSeooRdV0dfaqAYHgMAkyNjbuq9v4UeMzFyJJ5NFCXNY3xzlyhQxuyUsJJskRpkemGwN9aIoewkJjG9GMbTKSbULU+OqTX0VYG8N3Hlbt8QxU2IdwCuF0WwMocUvx4O0driANKQn3SOR8odnvuf1fiivKTbYdsfNebnXt5Z9AOb2oH2DPFfgYSXKQ74XOVwAbw3/k5/KXLTjwU6YmsNnYIqqRFvkYdCuqhFd7HZyg14W1FokJCemVJ4Fd/nwBN7E7J8JBgWAOc5AIYKvppbhi8d+Q/PYZZ7X5b6d7oJ4V7/Rt36oWPX3aaIhf97/Mwd6UiZq4rkYMC/ijs2LVQ+2Bz08hvFd5F3b0MZz6yjn4gEjPw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "LWvF8wzqNRtpR8tTjcgkntRTKxxj7w/DAPaOeZo/ep3eoeUwnSm56EBkHs37h0V+kdnSKclemJ+wrYrhRAB88BGpUUdaqjlBixiVLJMoxUU6A0oHHlmfuHyIEFk56eQJ3WdcvvlaxjodgcO2KClIyb/JswDswAT1atutOfiSJijAoTbzJVQtVgAcUgB1zvqVDq+XUCKrNw2j1GUHQlFyXcNFajWLsNKGwhtGDv4iOJrJzhLERTvgV1kDi3vX88CB96SFjc8fMcD9nK5cjuutPqSaeIjkEICe/PSct+QsdA6gtI0sPqjEYzyogapORSTwKkCmmW5iFiwsSVY1cqzTYBs5CGWEsDW/o+etSuT/6OqIR4Unb4m1ho/AGZLtQpdOAIvV0PeVxx8nT4KxMbPIb6X3Mrw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:599f4bddc2d88c79\",\n      \"npc:ff7bcf8ce5db106c\"\n    ],\n    \"constraint_ids\": [\n      \"C:6db17c87c0f827bf\"\n    ],\n    \"span\": \"In glass conservatory, Mei supplied Daro and called the partnership permanent.\",\n    \"rationale\": \"Mei, a Harbor Guard member, supplies and forms a permanent partnership with Daro of the enemy Ash Fleet.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ff4d2ff266951469\"\n    ],\n    \"constraint_ids\": [\n      \"C:57b593a367a0b8f4\"\n    ],\n    \"span\": \"In old mint, Nyra returned the reserved rations to public stores.\",\n    \"rationale\": \"Nyra redirects reserved public aid to storage rather than delivering it to its intended recipients.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "8RrQp/iU2gNv1QLalLNUAta9XaHQMSG5F8fPe1Tm7fS9FTODMJ5KXU09Ad90rjyogwtIH4CG87ADQB7HWgUC1MvO9dGp1y/+UbK1VQJUPlg/drdO4n4iFjGeOBKjR/bkG/x4dIbPP+hQeTZUfNK0y1lfmMwyVWN/hv6kLQqZ9tu06ifx9XH2crQjgyz5t+4eBKvJB00+IpGKElzXq2Szoc6KgWsM9YhsvV03vZOEcdX4JXTEADJ6SKbMw0+sc8JMFXycp2TOQO78g3vKZJm20r5KTxN+7Gblwou6e50cL1ecK6fMtasEGdwkSNWp6bWNKwl1Y+3skBCSBN4oSJd1dCLv5dRQJ/gRThkKLcF1csOUIJXcuTWTB6Cs3VxRiEpVxPoZIgLcMe4NzEUzdqYtdmhHSW6m",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 678,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 319,
+        "output_tokens_details": {
+          "reasoning_tokens": 82
+        },
+        "total_tokens": 997
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:599f4bddc2d88c79\",\n      \"npc:ff7bcf8ce5db106c\"\n    ],\n    \"constraint_ids\": [\n      \"C:6db17c87c0f827bf\"\n    ],\n    \"span\": \"In glass conservatory, Mei supplied Daro and called the partnership permanent.\",\n    \"rationale\": \"Mei, a Harbor Guard member, supplies and forms a permanent partnership with Daro of the enemy Ash Fleet.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ff4d2ff266951469\"\n    ],\n    \"constraint_ids\": [\n      \"C:57b593a367a0b8f4\"\n    ],\n    \"span\": \"In old mint, Nyra returned the reserved rations to public stores.\",\n    \"rationale\": \"Nyra redirects reserved public aid to storage rather than delivering it to its intended recipients.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 678,
+      "output_tokens": 319,
+      "total_tokens": 997
+    },
+    "tool_calls": []
+  }
+}

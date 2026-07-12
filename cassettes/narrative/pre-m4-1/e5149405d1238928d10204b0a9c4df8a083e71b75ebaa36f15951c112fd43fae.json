@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e5149405d1238928d10204b0a9c4df8a083e71b75ebaa36f15951c112fd43fae",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6914,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 626,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 195,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 898000000
+      },
+      "created_at": 1783843700,
+      "id": "63VaWQC4dVfoQ3ulHFyWbUlc5797ZI6h6MSLnfipbPS5/8KK9LsL1TPoIvpcqnMCyXrC2WmZSOD5RcR8ZLHYCKkqZpwahJ2Jv73u93rIqPro6+418hoORRo0qsLFNVdiubw2aqvTdFlFMYMBvuh4gYj3pcDGRvzyyPtwApNw1KlLKbcML3nIyY69w+4HpM7Z5ilbi2Lw4zGeW1syABIbe6mxDuPq4uT/id4R0YnhsATX25StWh3SYXhjYH1nPOfJCfKBDDbARcJJfTiy0M0gHVExscc4pXVndmS1ehTFWP1wp4R8+9+OILKTQj9q0j7+5WxcyZfBiEC1rL6Zu1EG4GXDuGAuSpiUzGDOiOM4BQ7KEMS/SyRsE4UbZvDExPiUg6YpyccwET7EYXOa0Imm4RJkkjA3ig==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "cNlq425bkm21vpTv0nFZCUGlHPUu0quRQcOZN1MvDU45MZpteq2SkL5Iud9A/lwHa/IGAxpqg6SHcDWdDo5ZRM5c4ADYkPumowWJnjFyCI4Lf93xwFCwSAn4Hiw8f2HrBEJVnoahiVB7b9rCHt1OKJwN34JailNA/8pfXyETHIdeXr0w+ex584OkOO4G/82FkhTHQldMgWZdp741YZMmEiETf5HABU2lRNGfDqlxudbD8QI5HhiH1VYPO2ct0TU0gEtY9DmCRmDGTppqB91iEUQfNGgIPWcPFzHnWDBsZ+/U+ivzcSqBD9t8ELUksG7VtmBMAKumceiEoYAEyh1XYzTI+tr5Sx/hfN2FVSGMyWFi5tBiZfGT1ckR3YmB8TWB6utwJdPaxk7c9J8dT7t10LqNiUI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2f0fd14d0e09c5e8\",\"npc:ad12e4b40301c90e\"],\"constraint_ids\":[\"C:80ff9b383e5979a8\"],\"span\":\"Mara signed the register as the Harbor Marshal at signal tower.\",\"rationale\":\"Qi was already formally introduced as Harbor Marshal, and no relinquishment occurs before Mara also assumes the role, exceeding the one-active-marshal limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QbJyuUHTrRPCTF1P9+ldtb9edi+u1ePYTNJNvkJyrCJKivVMAE0J7VDtpYrUfz0bWnL9+Ql90wVLY5HOqPjubRK4TPgPymPj6wWeW/zYCd1KMpKMYx1MzT5q6o5jq9Bw9+6nDOIJOjkuvZTKnshbInLeLBAX9TGLba1/C7Ti8UjYhtxqT5dVaLF+7t1RIYRvRMHKAWeIfL1mWwT/xRl2R74AJ2lhogvIuimCJkWPF80xMM31P8rW4E8pBxCBV0AQAQsLz0dGLtd5h5Y7KrKSs6Z63sRT0VbjbE21CrLS4ksecy5A4/KVBE+vVyiksV7iCQdFNxhAESxfTDCViuGNbyyKZ37Xesp+QtqfL8ce2oCG8hwpyncM7dedMiz3+cn4QBDVXML3TJq7Cd3xnA0WDVKpnzA1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 626,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 195,
+        "output_tokens_details": {
+          "reasoning_tokens": 79
+        },
+        "total_tokens": 821
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2f0fd14d0e09c5e8\",\"npc:ad12e4b40301c90e\"],\"constraint_ids\":[\"C:80ff9b383e5979a8\"],\"span\":\"Mara signed the register as the Harbor Marshal at signal tower.\",\"rationale\":\"Qi was already formally introduced as Harbor Marshal, and no relinquishment occurs before Mara also assumes the role, exceeding the one-active-marshal limit.\"}]",
+    "token_usage": {
+      "input_tokens": 626,
+      "output_tokens": 195,
+      "total_tokens": 821
+    },
+    "tool_calls": []
+  }
+}

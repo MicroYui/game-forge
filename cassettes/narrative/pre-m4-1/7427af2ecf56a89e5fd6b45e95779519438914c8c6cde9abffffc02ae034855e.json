@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7427af2ecf56a89e5fd6b45e95779519438914c8c6cde9abffffc02ae034855e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4315,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 705,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 201,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 955500000
+      },
+      "created_at": 1783846500,
+      "id": "S1VNlvVo4Q4q7o8y4SRrmt8FA8Pfmmmc7Yo9phODKob2FdK9mcfvHfW4l61MSpR+7E9tTAt5FMZaIpxeMeDFWNmVeu7cv1Q8WF8bLa2Gy1q8XDSq1Fy+2W92di0nOztBmGD9ekACVwXgShWB/8guz23X2RC0qgSBU/qrKhtg5caWjzZDJPE88X8N7wl1AjLHnl7VzR3YU9OER4D7/GDrJC7Q4siHDssv9e25acfXK/Q1ONy/3tVsZKO7oh8+MNvEq7jLDQyn2+r0NmbU2YKiCWCw26kJllhhamB6Yn5QX9ltQhPHGVI5Ix8lDJJIJrzKfxlDnK7gbRe12PsFgOzDoDlECsU02m1umu6sjUf3Sj9C5XZ5KwhAJ5MfSQSovvPXLlGsLdmAygtBpfAr9uzPCTX+DwCmTg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gyiWNaBT1wWb/ZOCC8vbBO9hi+rdJH/Dk51f/ZR5FSLBbbHv1FVYd7w8X7BEubKrWmouPYIimCxz7fc4qXAzVnTHn1wScxgkMkEwqioaVdNFRuhvUga+q32tZQ7MgBdJlLUj41QSrol+0vpbrNtfmrFzbjzUf2XfZyJWofQCLqLRBPKUU6qXyI19xbTG9QJaYpnGNNoCmq5MnA9b8nRXSelibCy1nxe8CcoGDUjbDaaAALbG3PdTnbXUySV+HTpaqZdOHd5tquPKvjn0dT8uKNLv9phR+VbSnML2vJ92iI99Ofenf2CiA2BuI14m0NQ6aMRk+ntASQz0DV10d6xAT9r3d21NbBcGAqA1j9B+gqVaYAob/gDWVzMG3SZmv5XyhKJsJ5VBrbl2qyVoiDMdjqlCmNo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2c00217db4e99a07\",\"npc:8f37f91d19ff292b\"],\"constraint_ids\":[\"C:142d8c55d08dc2cc\"],\"span\":\"Malik accepted the title of the Warden before the assembly at lower court.\",\"rationale\":\"Ada had already accepted the unique active Warden title, and no relinquishment is shown before Malik also accepts it, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "FimxQya5qJze+kCP+0qLjYYUbUUd9CsqWMVXm1Z6rzaV17BNeeQfVk8FyFtiM/l6VBbJUx9ByW3EjYNDODEmm05QH0LjRnVJkgGrz58ToO4dFOrQdi5dpWdyvBikEImEAihrkM9jpFERqam4hbOD5dOX89I6mIyOG8hDbNjgD0O0/LYEyY5Of9q9vzgUcb5kpHjzLfSh0mQh4ULRSp/OemqLOyIa3Ux2SMIo+rAfi7ilto6HmZxpY8OiPEOvzeHYIfySb9apqHhAGlWRBp1oVV/Ba0XcTGMlLd5ZrbJgPi21dzVFbJRRw8PNJXv3rv9X5p6ftUsEVNMmY5d1bEXS5oqTz5dPHaDB62weICt5IUKdjhyIStdy7ua00LY6OMKMw0STJ4Fsn+BIb1M6AGL9qGppzuTD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 705,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 201,
+        "output_tokens_details": {
+          "reasoning_tokens": 85
+        },
+        "total_tokens": 906
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2c00217db4e99a07\",\"npc:8f37f91d19ff292b\"],\"constraint_ids\":[\"C:142d8c55d08dc2cc\"],\"span\":\"Malik accepted the title of the Warden before the assembly at lower court.\",\"rationale\":\"Ada had already accepted the unique active Warden title, and no relinquishment is shown before Malik also accepts it, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 705,
+      "output_tokens": 201,
+      "total_tokens": 906
+    },
+    "tool_calls": []
+  }
+}

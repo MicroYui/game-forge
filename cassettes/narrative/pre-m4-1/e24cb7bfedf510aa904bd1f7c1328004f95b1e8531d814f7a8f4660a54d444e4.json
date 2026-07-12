@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e24cb7bfedf510aa904bd1f7c1328004f95b1e8531d814f7a8f4660a54d444e4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2986,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 648,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 837000000
+      },
+      "created_at": 1783849300,
+      "id": "Xu/HpPKff8Om3xtY614gjhUeIBwRPR0twS9Q+nMcVpvBcvo2zY8SNjRmYC/UlQyC2G5gJEPnXucVitDXlPr6L2ZExCAt3JqOq6t10ONFOGOxV+BB8m7pBdyeoKUncl9wZq+2eD3gVsJpIneSsldQSgywYNibL1+kccDVu8C4iN/3yt1xz5y+j6OQVNNShcD8mOEQ/faRIUMrMHn7y7tkr3zo3VlzrVJ6If3hAnxD+dtv3SgUl+pe5ZoHoljcjo79mJ6pJmkHBCpZxOigp7gWaGrL2R61PkwiisgUQAhogDnNe5vR5DYYNpLIl1Y1h+amwtyUP3bYRyxFGc41f+PfSbgKak5ZKJSwaepbO6ifceaFT0co2YJSF/HIAOhAtxAd9Z0fIvlOLJ9OSTr3wtgyH7uI9fzu5w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Fqd/U9VFSWh8l4P/mptA0HZ3fcwXuS+bBf25pNfwNpEGHkx7A/xrsbbgmQ9f53008n+YAyzBEDKGOTPLEepw3BCMCO7W85DLRLNnhDMvdfSEGM4R7HFPybGu3Uf1/vakTeSq3bTj9KdUMdEbBn9q1nR8BDskGb8YOFhB/Ehhdx2dG5uJSUbKMD+bXcn0oVjcZ6OgR6WPAPngVkjaiXHl7JtmkVCTI8eJDNqeEWqSXVJHnG0dIVwJrAcdc6YGKouQCnlduWzeo41eUJM774X1444Zejlrb30wOiOMtYp8xCG+K/lvrJlkhH2VpGfCcAtZnfExxbI15uCgFwfL7Ma726uGGNkf2p+I7W4pxlEfmbz4bhA/a/APoae5Fmecys1NvaPcKXXWU5yKbnawAF4RQY9hj5w=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ba80c2ce69592f72\"\n    ],\n    \"constraint_ids\": [\n      \"C:04e275797b3a1ad5\"\n    ],\n    \"span\": \"In caravan court, Qi marked public rations as a personal reserve.\",\n    \"rationale\": \"Qi diverts public aid into a personal reserve instead of delivering it to its intended recipients.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "sqUpzVcw0E6At9a8xMAv2E8Hb7PWgbsR1J12P8UyH1oGyy5dvBSGBgReH5OpG8VrpakzNSF+k+c6uus09+oBOQDj/Jj2oXNeM1ldL2xu+2m2z5jzW/TtHUKCkci+e7YNYLryQDDUo83XxwXHu2UIMYmJR5dkYfVIxuopL4C+1C6rq2yUKqzWc24CrNxFODRD4mw4keIrsMOjMluAZYYKK0bYmYwx3ugfTexFoEJ5764kph50ifPToi4yxmcmszuo/r2ZugrIuq4EJ9aybldXy3SXFMRomEgtiuGWSY7G1NNitZg5HMl8szynkMjK0n4rgYCQ1uH77H+inQvRnTfthgqbo8AJuQGrdHgNAN0DYw2TqBrEpksmS1pS0Ldd4IQt03h7aw9OPquhXHCqkJ8sDpi5tr9K",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 648,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 60
+        },
+        "total_tokens": 819
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ba80c2ce69592f72\"\n    ],\n    \"constraint_ids\": [\n      \"C:04e275797b3a1ad5\"\n    ],\n    \"span\": \"In caravan court, Qi marked public rations as a personal reserve.\",\n    \"rationale\": \"Qi diverts public aid into a personal reserve instead of delivering it to its intended recipients.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 648,
+      "output_tokens": 171,
+      "total_tokens": 819
+    },
+    "tool_calls": []
+  }
+}

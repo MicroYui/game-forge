@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:92442ec5220abcb1903cea2c15c8a3060e26495907ad7165b46c04d91145b57b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2513,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 509,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 82,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 500500000
+      },
+      "created_at": 1783852400,
+      "id": "4lAVPoA1DwnhokU7qpNnYnRjC5LVcVi+2shhjSmrVFHs1zMuqqoo363zVdDejV1BrhVabQOFHlxAOIzd2JS9EL7qY1zYgQv2jFNkxIcBSV4gxZ93MUjAOENxBH8MA2kHDpxXiU2tcgiEAcELIMs5XT4Jsvs0FHzniHszJNgadC6UNwrE6ypn6wd4a43+/HkKRmmk26L++UgBWQzVYg0/AQFyJ4v6SM7y0FqPSFXbn52BRBpnVmzsFnKfIS0alhXXuwe2Fn/PJf/hcjiyNGJxFccDcDDUFeG5Dz7/r3hEN73N9KDst0Y+sM/hr8UQpjg+WHASEpF6FAGSxGC9U9I9R2C7CjlvzyV8LRPkVNjsvyc0Njst1zs8F+XU3rwMht9/g7CRTyM/HTrXjAiPXo/cb4lzxqsesw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:5cdf16f936095860\"],\"constraint_ids\":[\"C:dd4fda293efe5f81\"],\"span\":\"Mei handed a confidential route to the attacking force.\",\"rationale\":\"Giving a route shared in confidence to an attacking force conflicts with Mei's established duty to protect confidential routes.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "n+2DpJVrHBsRHxCjzF6rvU82ojcAUorAyXWYtti3RATrhyZ5tH/JwX8tC4CcYBjGWYKSXVZii55MbrZqdxXUbMT/hA2rNlu0hZvFYnexn06/ECiYT+Yf5BbMHCnuLHkHVlRThHUqnp1/Q1fYzMxf6f6POtDnSILDQLBkaj5yduRIDRuKTSGrJrrJLS6jKVMokJZDoavMIJ9nCMI4/mqoa/lAaEeuz4eAcM7Mvw0s3DF2Yuj+EXCn4i2GcrNF+I9wKiulGLQyvJgn61RItaa6lwiI1PXD9Q2EjNeLHuulhRlTxAe0TYTzx1hAd4/l8N9wIBPs89iiq2pSTFdIE929N2K3i+DT7xoXtI3zGmSy94dcdaP4lyT/Fr8u8Qta394jQYGuFZZgGoJm4YmWr43rVcwr6glw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 509,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 82,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 591
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:5cdf16f936095860\"],\"constraint_ids\":[\"C:dd4fda293efe5f81\"],\"span\":\"Mei handed a confidential route to the attacking force.\",\"rationale\":\"Giving a route shared in confidence to an attacking force conflicts with Mei's established duty to protect confidential routes.\"}]",
+    "token_usage": {
+      "input_tokens": 509,
+      "output_tokens": 82,
+      "total_tokens": 591
+    },
+    "tool_calls": []
+  }
+}

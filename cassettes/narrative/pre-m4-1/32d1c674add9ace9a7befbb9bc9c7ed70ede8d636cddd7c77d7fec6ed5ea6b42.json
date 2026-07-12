@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:32d1c674add9ace9a7befbb9bc9c7ed70ede8d636cddd7c77d7fec6ed5ea6b42",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4496,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 577,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 248,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1032500000
+      },
+      "created_at": 1783860900,
+      "id": "blGfaiD2MrVi2cOY5AdQmNJJlC+cePS4pBENezxjWqbxtq1YbSruKAGVhoa08gDFv35k6fXovxUolHmzHCVZyhd3wdi/SNqxmGrWxKgB8tZqj8EkyIcyoKhf5C7bZ576sTBVlYFmhDeGpCUc0RlGIxIK5KOHdE0Ev6vMJ2kdAgqyoqZ0sVUgPih4Bmcn+lLPP1ysfNA0yTejn7eSCmqFyDEqA8tAglTC4eQRu/TdmWaNrbKFLvcU6gut7vAZkkLpPcalsC2+08VE4TGXlHMBzfyfPQct+SItkDbwohZWdxN67X8wOZAaNWG4T1HZM2M6nMP+5ssMMCZ3UTN1rXDBCOXwXAI7T+hviYBpgzuZhg4hSdtcM+r1OiosX3oSRBkLj7jWIyCUHKIuFcyclTunT/2fYLZ8pQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "viGYEcd9FCHmlIiFqIqDBU46dp/7GDkCRp71xDsETCQUuBY0GGrZdHRwSmAsHsnSiS47PSefG4zc6nNLctfa+V/4hBeNoQJMA9JCbhMb6VHzgfRPQ7ARvo12rPT5OBg7TWmyq1PBlskxyiDukko/JNMLchR4les6G5tYLWGPs3myqp+RYQBfhJMfhUN2CUfMCxP3XQTJEUiQwxM38Ci1aDFWIIubniRJgGtWNhD82kGMwl/Q01cSjcmjByDqqz9H/2lTgV2EAfXr54ym9ad9FUC9Mfr8bvRgQP23YQj8tKhxQPylGVtGM1E6MOK9/WBe2xzwISK9qqPl8wQKaT1B0y4sOezcLVlWQCK9tX1KBII78RUmkdqxYoX711Pb5Y6UadQjcJXhbdBh5nGHzxOCQmQi8xc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:7a31353099b7e71f\",\n      \"npc:c8097e776c9af396\"\n    ],\n    \"constraint_ids\": [\n      \"C:bb6d758876fdf12b\"\n    ],\n    \"span\": \"Malik accepted the title of the Caravan Voice before the assembly at canal bridge.\",\n    \"rationale\": \"Ada had already been formally recognized as the Caravan Voice, and Malik then accepted the same unique title with no relinquishment by Ada.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "m/nF7RdRquNlw8eq8XOee5cB8HizZJX2H9BSNj2qCiDzsO0+UzcHV+ux5JnGLBsNI80zYa52TyNi+z8Cvp36k7TGiK3nu5qFcpcI/lDedYxQj2kNb3Rziuz3aIoYV1tjNlHCkQVpJk116jentRVqDb9n7gYemG1cXFblrIuSogiJUYkDJkyDU+zHZZF+9cXHmKkT4z/GlFH+58GtHpuT0d32xpKblEkoeiSjThWQxZnWEWPRjac5QXe2TJk638inpcBmqbgAp4mvDtUubHCelaNO1A6mrrqbCbTdkBncHIOCcWGb9+uL+Hp/l9dq4dZarOlEzrCrJsPs4CO7rkEM8ifxS0kEKarFqPmch92FbR4pB3pZGyntsm6S1+LLG07D1vYdFIn55+NVHeOTOH6ycXfgCCS9",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 577,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 248,
+        "output_tokens_details": {
+          "reasoning_tokens": 112
+        },
+        "total_tokens": 825
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:7a31353099b7e71f\",\n      \"npc:c8097e776c9af396\"\n    ],\n    \"constraint_ids\": [\n      \"C:bb6d758876fdf12b\"\n    ],\n    \"span\": \"Malik accepted the title of the Caravan Voice before the assembly at canal bridge.\",\n    \"rationale\": \"Ada had already been formally recognized as the Caravan Voice, and Malik then accepted the same unique title with no relinquishment by Ada.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 577,
+      "output_tokens": 248,
+      "total_tokens": 825
+    },
+    "tool_calls": []
+  }
+}

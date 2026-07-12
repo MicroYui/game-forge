@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d83702b2cd2e938c65891df1dbfe7601367e0d33ddafb8ec71c124f16f588c9f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3127,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 511,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 164,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 747500000
+      },
+      "created_at": 1783847700,
+      "id": "Uj4tmAQlIV/ZH/if4POXeYaosNiHnTfrLoyN+8qhFycyPXLECpQHoKiEYiToi3cxjg30Joc45xsQGuhqy0leq0p0g9MWKAPCsWL4+5f0JmMWE9BXbqk2WSU7ggXpPLYTCzaZF141lHCYsWEqobuEqRrq83hAQmmnX8T3HohL63sDx2VJAw27w0hU5gvzH+ehE4Wt/AsHiiOqR7gMBgTP+M2jQZ8FZNeEMLiudX7+wE5KFTz2ECptti/1rBjqYvoxDsBJkRfTxaz67QxZaqImW66IWpSHZiruWMKvoQ1jluxSvPLNkZ1Wwasm6eg3iXzoqEzpxdzpBsxqngxdNOj4FeY48CzzeilgHXJohI1aFWT1owjEuDL2PiPSQAh7WQ45RSsdRxBUfWYJD/283BEP8TRKgngeNQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "7fdG1Hbnkf6F87siSAo8Y7L8fZ+wBzl+opaDlH42TQWvqrpL0S2iSzJew8iFSJ7X3Tq3P8hKN8TEvprO9OogGMsTpKAHDF8beiZUecMcsXg29b4vkX2XChs4jhR1OJRjheXeJksbwx2whC438tnlbEKRnpccKZBus47FZDgtdS9TyFBKb/dmTjLKzb8K0d0VVdPqi9Fwzngb7hA3TlAGrr+m14dS7kR7JWQmdTMiJILjI78PF6bUoNmMxzcgPm6zbynFqgg8QDuK06N2LdhoKfnbMjQaiMMces60NbwrwKVJidyCGEhcq66pp1JZsmBuTwid3OPJbwzi5iSjVwYoLAg32cZbSXBN+0J2EFzMUmy9hBLh5ySLuDPZ3m2MjhQ5ZJ/xrvmxOOd8pSOJbTeKLOdipto=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:275b79fe261a4c54\"],\"constraint_ids\":[\"C:4b856b760ccae32f\"],\"span\":\"Ada overturned the truce table and charged the guests at signal tower.\",\"rationale\":\"Ada initiates violence by charging guests during a truce, conflicting with the rule that she never initiates violence against a peaceful visitor.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ZMTXSyeJVTkLzutk3cImkfxV9NyAG9usvK4g/yjSyCbLCHxLZ3iWYnUixFlJYKHQz8DO0Ptu5CM2djXeCGX3j2KM+7v7eZOIJeHbfs0qEWGXYW2Y8PU4EQIU9YuZGEYKySQvbSiUCQ4FCEYvQMaR6XaQ1D/aDxxWrWFe5OEa/1WY5TqWIh74qhJO856zGQJbFAO24M4AjLF+hSl5JHYEJl++0bygjUq+KYJnBr/JUnAp5dVRbvuh+TAIqeLp3p4tb3K8gkW8PbZqb6NJnZbn4LMTlC4DC/y40fdlaCrZxHB1pf8aZmxNTCtwYQd584VGAiJoMGHSZhsdFD0Ip/i5N4DgaRuqHcZ1fIbBFNEJK1dag1Z2uV5qXVl/2NlJd0MtV5A1DUjGu6NW/cIYclthZFQYh1bA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 511,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 164,
+        "output_tokens_details": {
+          "reasoning_tokens": 69
+        },
+        "total_tokens": 675
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:275b79fe261a4c54\"],\"constraint_ids\":[\"C:4b856b760ccae32f\"],\"span\":\"Ada overturned the truce table and charged the guests at signal tower.\",\"rationale\":\"Ada initiates violence by charging guests during a truce, conflicting with the rule that she never initiates violence against a peaceful visitor.\"}]",
+    "token_usage": {
+      "input_tokens": 511,
+      "output_tokens": 164,
+      "total_tokens": 675
+    },
+    "tool_calls": []
+  }
+}

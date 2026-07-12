@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4f77a4f4fbf1d4b0fc8c9708dcbd1c5e16d44fab97067f9ff47eb90385c0fa77",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3041,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 627,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 195,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 898500000
+      },
+      "created_at": 1783855900,
+      "id": "4diy48IWNeZFJk+Mbsoy7A25Re2VuFgk1FPF67Hc9BqBJ5HzQpmSd6VPRTOpNynRvmeSFhONb16ZchkuADKikmKGXr/p/AwiciMj6RKC73w5s25Oyv7ZmB4J37TrEB/awPeBKX75J1pXvw2hcOGdW//61AUvrLaiDEhur1z6CKrNUOKlxMCKGQJ7a0KkiwA4MECGBRbbuyUvk/MySDYf+uY/y6eQ/aOVYRJSMt4/SS4wSfWs3fcOQ4H9caPlYbYjkitHtGop6QMb4vxGJmmU9O39bQQqBsGf78RI1hF43iUoxyqcgUxQ4LyJnbsyk1ShExcvryvqu7+MDAV5ynEH7/kw9M0BKpy4icppBzhdF2n9LngnC7tAhzS6e3KLsG154y4heE24r0bZQG3mZ8Ybrkes8gPtew==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "TDz3mOxuXVgIAxG4/OHShC7jIN6NpIN8t1Lf7OOcaQoGRfs6D/HaP0Li3TB4tzM7A5WXZUsGw+6UNW0UUkRSVgt07ePIIHRloM9HVJoOB4XG21yjkeXVxc/TJGs0yQZZtP4vg8mOWbP6jjZVwtULBZU9myzdPeLvkz9MAu5I0R3jeEVHFKphl49DcTb+MWIIJedJng0HLehhJMUSp8YYwWyhEkxxVk+o4B5dr7xHS1FMM36g7vs/vNlBfEK8xGVuUpgjbpkYhnfwbQKAbqTe4kNXMeBQQkXdcDlCivSiok4ccNv88C1ZgJ0P6R9dB1i90c14aS/o0wO5ONxCLfoRilpi77sPqbT4FZtJUMkcsWkP8S4Bbs3zq4YBOWIzPn1MO58m+NHB5//MR/aGxUKUD4+F8A0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:df37cd9eb2b33b20\",\n      \"secret:a652a1a2f86e9248\"\n    ],\n    \"constraint_ids\": [\n      \"C:5b262068f42392cd\"\n    ],\n    \"span\": \"During council session at north gate, Veda openly named the source of the winter signal.\",\n    \"rationale\": \"Veda discloses the signal's source during the council session, before the permitted reveal gate at archive opening.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KAa48hXXiDxydb44FyYtVaRv+TBYD7v+iGbnagEOqfWxAjc+XoDoUosdbBl5Kse4XAZBxICMrRs9qhKWh5n7yot5s013ThAj+gfj8GndS6SOf7lzYmrds+j0gi0qMA8KXrqlQMBqaTjKJ6TnDopEJ8rmWJZtIXAu19HjntUsU7WJbD6PONviKSFOS0aHe5tNw0buqsEdHHX1nl2mcgGg9RvtDUY5fEmvzlDdOXqefBsbm/XQkPbeoqP/Uk/ejopGpfBQQsMnly4a0WxfXrHxHreE5hKm+ZajDjiPG8MZuxxFH67kocL8lXZbnUhMvdEEOrgGE4dQumZ1tFQa4xePUoY+/dzgPDxG2omcOii3C0UuIa1SzVRnFyw79fkvgjFqACMxbSzCBaF2q2SNjMm18Pe2xWFl",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 627,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 195,
+        "output_tokens_details": {
+          "reasoning_tokens": 62
+        },
+        "total_tokens": 822
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:df37cd9eb2b33b20\",\n      \"secret:a652a1a2f86e9248\"\n    ],\n    \"constraint_ids\": [\n      \"C:5b262068f42392cd\"\n    ],\n    \"span\": \"During council session at north gate, Veda openly named the source of the winter signal.\",\n    \"rationale\": \"Veda discloses the signal's source during the council session, before the permitted reveal gate at archive opening.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 627,
+      "output_tokens": 195,
+      "total_tokens": 822
+    },
+    "tool_calls": []
+  }
+}

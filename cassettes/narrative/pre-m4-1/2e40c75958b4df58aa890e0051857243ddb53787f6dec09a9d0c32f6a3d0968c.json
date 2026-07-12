@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2e40c75958b4df58aa890e0051857243ddb53787f6dec09a9d0c32f6a3d0968c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3145,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 558,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 174,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 801000000
+      },
+      "created_at": 1783846300,
+      "id": "tO7P1E2l7Zglle1I/xVjn/mPu9wkn+XJOGe6rvXYhVNFQVWcdFXggPRZ6A/VAbDHbKXv0tgp+dCc1NsZvw7WlO75a9/ydQ4aHLKFRzeoCBxqeaTAbCbb1Z/aH1lVb4fZ42yhKelagYy6KajTpm7eiF60kvsC2s+nTJh9b1ziHmOLxp19NsDCVN/wY4qT+llATc9axG09oKLg2TL8pPX9cmK3bkcgUTmWbV6jyC89585rqQSEaAVkySigrBwyrEqFqxvHfNO+iY1gX85EoNdWLaNT4Tt6mQkwjzu/JNpnSSJ6IKGXMCWF4wa9CnGPQ5aHWehOYAWdBlCGvHTZXzMjfZYKrc0rNKkC9boBQEjad9yJNe+0I3m+heUvWJkDcyLgP1AAkhMql3J2Y93HF4Xa7F2ipZ9PRw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "hJiF+RmZmfUOZjiwAImJG0FPgUlTjlpMOAJ7/kzWpiQ07Q+v16pyMz9jWF0pobpL9qH6Av+AsnpCukAlctpWMMfMxZZW15j5/+gfPND2rJMqq3J339sO98IM2YGBe3YlFGHiSqWsvNS5vyZjnTS74UAbv+OzXL16KTx/9J1RFYnwUfOBn3sdwMeENDFADm4NEA5pfnjQY//WCFRCfKxXhtcEgu62vGeqKIuReUJt4FzQcGCG4k78PjGidsLFhHKWn801iS3Eg87w2wPra33p6JzQp3mNPjBaFaZesLm5D9AJRIQu5gBh7M+1xkUMXoTcP9kbiiHaMcsU1ybKT/+5zzfKS0LHfgKs4sdnvphLbwhbU/7OP40B8ZgnNKCJjphF2BCx9L92CsvnWDj+EqgAYodwL6c=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:558669e328f77370\",\n      \"npc:68dcab92b5d50101\"\n    ],\n    \"constraint_ids\": [\n      \"C:92975f2fb9170b7c\"\n    ],\n    \"span\": \"At caravan court, Tamsin and Eli signed a joint battle plan.\",\n    \"rationale\": \"Tamsin and Eli explicitly coordinate on a battle plan despite belonging to the hostile Glass Court and Iron Compact factions.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "HIAVQVxUPUXNaX5kV6j1Y+Vu3r3p1k/w8BWYyofm500M9E9mEkppgd0zxKSoxA1IXE/T39bkA5/puQ0pm1PZNylD0dgSKmMfCB5Iiz7YRiHmZlX74ZsWEMmFjpmj1in5sLgM+CoRZJvtzYvxl8JNWAhcK+PyrtclZYg1d8QGMfn7ruglgMrbvCzbzWm6FU/RhUwXGIDFFwDLT22dwgXROq0otCqTRJM8B/xY7j2Zl8ddFyYv+QqHN/ZzSvsXrV0xoNcGfBNZGmammb20kYNOLQGHiz4OvtnvhPPGjtEukwYf9rbN0S2hw35LnjUZZH0EjKWH8uCTbn2kw5o6/91qBVjpONYza1w1iHtaXjjVO2AotVa9Tcg2GFb2DD3zQw0l2MB29k133kOiDmA9IbymcpKMWn/D",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 558,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 174,
+        "output_tokens_details": {
+          "reasoning_tokens": 44
+        },
+        "total_tokens": 732
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:558669e328f77370\",\n      \"npc:68dcab92b5d50101\"\n    ],\n    \"constraint_ids\": [\n      \"C:92975f2fb9170b7c\"\n    ],\n    \"span\": \"At caravan court, Tamsin and Eli signed a joint battle plan.\",\n    \"rationale\": \"Tamsin and Eli explicitly coordinate on a battle plan despite belonging to the hostile Glass Court and Iron Compact factions.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 558,
+      "output_tokens": 174,
+      "total_tokens": 732
+    },
+    "tool_calls": []
+  }
+}

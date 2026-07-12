@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b779aecc10fdd6c485b85327cc0eee895ef2afbbb5ba91cd5c170def21cb6188",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2772,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 603,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 814500000
+      },
+      "created_at": 1783856000,
+      "id": "mg7D8bWEo2TSgeqVYtxR3AnPulBXAkXKaE0YOIvpAwjZLT8xp0A5yyMwLCOeWOTfi/CFZe6URrL9gP102VqEFmAc7v5TIkUPScmYH9WqketoG6IikIIzIrjGMxkuyNOiP1Nidwf+XDXxT83+phc5CC0aXm7q1iYCyfDON0RyU956by/OQ3cjrlyP9HNuzAYAcZ2M5AjJa00W3tt7HwYFT/RunbwNu4ibPxX6NMKUN5t/VNIsjjIZBzxuXYPtdzFJJgJcUb4fFwWROBK2kumzP2MjkMs08qCvHmhq4uEGy52Q+Cf73egefgkDLB1FPzX3StpldH4JR+WA3rMYs6LNe02/sp0r/Uyp0gQoz9iWtcf+w0Ft2p86xyAgkelm7HgM5gGH01h1TLqduAAeN8RbxU3HPHRFFQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "+44GVwO3dLe8o+iM+itJKPT58Fc6FdDCRSiuVgUZczrgA4s8QNBJNEqVqDmbWKO8NO7533C0YylKN4nLGqowK4MiFqhBESi8dfSfO9kgtTAaI3juz/83wxR41UCXSmNv1G/zXIoBnYPRg591NYcl/U3qhwi3MtXC6V3w3GNZ6VhQCuc2hELWKyaGBnbvkhCk/G7Q6BUz9Now++gGYlWOoQyVjLIZAHeYb3VnYeVC+g5LC8WN8MsiN//ITddxvUD6HhOy5NN2AZ79LdDcKL5g9nEqjNNvW/gM05LpGGYp3PHfJ4zye/5shd+Us8NfeDFd8TpFXcN1hkWlptkH7tWlPKhAPR3tCEI0nUgPq4m3XPLV/WYZ1d+wYrLUCd3+bjZ6kQ5OVQj2cT8ewXeR3qbNXS+HUWI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:1851cf35b22dd57d\",\"npc:d7332a29c50410d1\"],\"constraint_ids\":[\"C:5b09db378d0e11de\"],\"span\":\"Ada welcomed Malik into a shared command post at salt depot.\",\"rationale\":\"Ada and Malik belong to factions whose standing feud bars joint commands, but they are shown sharing a command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gt4McI91VJgnrD8St/GkCccq11/cWuVrxEMEGGSqOlPpbCDOi0mxiKHZESIcy4viSBcABQtxmHXEBoq+ru2g7lAHCzJJdUFLh31Ih9rt7+pYseFNqlfcE4+PuN/EwbM6zj7KEzimct//Krb1sL3YVQHmurGiXiczRgjJR8xsymYMk/ZRVt4SjnMzjJe9kSOPPbQHdU7d5AuWZzDrvrT9SYIHXOAO+SFKyOYQ2pm5AXv9vXIKGgVWkXMdydCRg8BOVhXugaV4jlnekilg5AydoOokKBEar2g2k6QsTQv9vgALTr61bK/onYiH0mZ2BpXpvvmyp25k5coKHcAdDJ0SYxaBB09/ONu0QrZCbFpA7bxPNBpVq3rp+kuY7zHRCD0gIUeO5qKyGVdiDklO8OsRPpkgNqz9",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 603,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 69
+        },
+        "total_tokens": 774
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:1851cf35b22dd57d\",\"npc:d7332a29c50410d1\"],\"constraint_ids\":[\"C:5b09db378d0e11de\"],\"span\":\"Ada welcomed Malik into a shared command post at salt depot.\",\"rationale\":\"Ada and Malik belong to factions whose standing feud bars joint commands, but they are shown sharing a command post.\"}]",
+    "token_usage": {
+      "input_tokens": 603,
+      "output_tokens": 171,
+      "total_tokens": 774
+    },
+    "tool_calls": []
+  }
+}

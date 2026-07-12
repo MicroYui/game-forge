@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c28ca152c0a26b69818ebd516137c4de24f1a8c06f4e097bde20d88bebfa6036",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5012,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 671,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 224,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1007500000
+      },
+      "created_at": 1783853400,
+      "id": "ooGW1JfbZGvWRc5Mx+l0QKA3tjXZYa1D6vZr2ItFCBH7fPPkZ20KHfuO3FoYLYd6ds2C7bO7SFSjVX58c0OzTTU0hv8QXLcWVnZJkbPkEzxYSFVUaAeCQWVf0PAqeNKP5+FkxSqsZ9F1y+touwbMQvRHdn3h87Zz7n1bPlqdAveOwab7WaODXAYyIsE32/4eKN9j5/7vqJMcTId7W7mK4ybxYomZIeCJkKF/CckMB/Chs5R3xiIJ/cQ69ryF9UQkKQR6eKwgUqrl5UqN1wJgjw8LgjGZFGuFARQLzdIUDOsH3GGEPf8O/6iaSPz9RIeU38aIHnpidwks5dDmDzsQwPGdXWDkNbAIRmh+CZ64Lo8V7IHYW09RTF9J+DwH6JxR9IXJTfr0DJU3+PTx9eIS9+tAPQJgtg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "oNk1MtRmZG9bjHA4nRbrTBVX1jc0uDeEtZ4F+SYZtzyOS2MvUzMxtVi3dL6oAk5nap07YIfoPLW0T2TT76STcO8o3KbCoIOyqeZX2L30gM6PiNNuwtDvtPNaVdgbFgpzvLzsx9CPXpxa0kLFie92SoCOZOguq3jXwsVwS/X229blcq/5I2shREcNRifPIFRqjySrO8TTYWMkOVY24TdiHRP95Dcfmsj7VRREaVT3w9lw1zbFD80sTXGiUpgvzu1W9xxMod/k9KrVutueVYrMbywk2pLLi13Xd95t5SI2++cHMYH//yADaOWucEKMHEOl4vk6scZtnPaX26WFj6pbDEGrCzyCjLAsrqhjYCqYft/7gkwExRccLnnvfyJIdSobYUD84Ek/lWZR8wFKtsQ/mn5hl4A=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:943158fff6b683a0\",\n      \"npc:cb6bc49d25d0825c\"\n    ],\n    \"constraint_ids\": [\n      \"C:89562e53a63e3d73\"\n    ],\n    \"span\": \"At caravan court, Mara was formally introduced as the Beacon Keeper.\",\n    \"rationale\": \"Mara is established as Beacon Keeper after Qi was already recognized in that role, with no relinquishment shown, exceeding the limit of one active holder.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "LPkT34fCJ52E+yLVx5q0qVgpj6Jxe5mV+E//56SLdI+i46RrlUie0h/zaANWds5sZ7Ey4/hLGmBVEWALH5q3pNunScQYFT0sYmaJ0+8ftHgXD+nejwGQjYCaxoeI9KsppW9vhm+zvYMO6yPfq65XJKecPirbCUrp79jVHv0KcOLs14IYa7aTOnP/ft7SBjB1pkh8Nb0lh+YjEAna4QjkwEEbHOZGMcqtvcNSt0O4X1Pb0Ld0BZSn2qoAIGC4VErdT7qCwYFPapD1Fr2T9EAfH71roz9if1jY4neJ5ORXUKVGJvZss6WO+htdEV4m6D3f+QcMNSRoh8aKqdanUlRAiLrDtUp/Bl8fJ2GXt0vwIWqyGIZVcNeGz//K48IaMKAfxNlEUNe/d77rjnYoq4BIcXCA8uKv",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 671,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 224,
+        "output_tokens_details": {
+          "reasoning_tokens": 86
+        },
+        "total_tokens": 895
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:943158fff6b683a0\",\n      \"npc:cb6bc49d25d0825c\"\n    ],\n    \"constraint_ids\": [\n      \"C:89562e53a63e3d73\"\n    ],\n    \"span\": \"At caravan court, Mara was formally introduced as the Beacon Keeper.\",\n    \"rationale\": \"Mara is established as Beacon Keeper after Qi was already recognized in that role, with no relinquishment shown, exceeding the limit of one active holder.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 671,
+      "output_tokens": 224,
+      "total_tokens": 895
+    },
+    "tool_calls": []
+  }
+}

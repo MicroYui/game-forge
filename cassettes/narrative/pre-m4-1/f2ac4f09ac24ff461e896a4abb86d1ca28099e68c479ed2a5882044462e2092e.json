@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f2ac4f09ac24ff461e896a4abb86d1ca28099e68c479ed2a5882044462e2092e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2782,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 608,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 152,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 760000000
+      },
+      "created_at": 1783858200,
+      "id": "+jZxS96XcZumkCffOYmObDo6OxtEoIA3jTAMIWQuR0ZTx/SyPOIIYKLrkIrWrWAUEJbkEqE5PjhGOI2OkDuhzFB+heV1sctqyxIZDk84DyBKX1FtYDxAxY64O5tG4kYp2FE7jPa2Xjgk8Lp++PFRLckj/xu4x0O/wo0i+grg/HVVJ3bGpX8Z7dO8zp3Nzh0LP17rdcIThrVlIAwEU4/ePMG3NSlpRITuw5/My727OL3++aKFP8GD85w3pJirvihOgbJukrrnucagqQjsNEyLnsjEUHoSbPAcjtA9wTobvj8cF5HiGLAx6rJv0mQ6dDMYqWnbFERuAVz93TMdRt2Z/nmjHUJ7bPGp4rkuzk6ggMzygQAnImvtw7YhzhkHa5j6SqR3MoYG08LIab1zvZdGTS1tx2xLjQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "e5P9CcRq7WlSWk5M6eafABQqMWMKHwnh436GevwEOSdt3ZAb+ocpAY2xpnK4XA4iChYqIiYRG0Fq7dOv+Rod9mQ4c52BQ52knQ1OmY+BG8RZzS8KPdy+yyF9MLeqq+ZifXEqDH/6Y5GROdzXps+t/5rfs2w8hLeHzs+UTiRS9C8sTm8aJtRW88c6GQncaV/rLYj45Pqv1xdKt3FKYC7/cT8b/VUWBkRHy3WCYxbngVRlVJqJ8G0vV3hms815jbzKvSM8UstfpCTrESZnrPIWFRMUkGjyetBaMjBvrxi+P6VN8yMqqAqFw6HIv9YnKDJlxZtzkp1VmDqFRS6zIOvfwknyfvFLR/5nLlVKvFuXWKDZd3s6LnGKzSvcRJy3e3CD471+BfatGjsixYqijAyLphFFsqo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8ba97fb474281428\",\"npc:97ff1baebf279438\"],\"constraint_ids\":[\"C:6e029f393f17b786\"],\"span\":\"At river market, Ansel and Iria signed a joint battle plan.\",\"rationale\":\"Ansel and Iria explicitly cooperate on a battle plan despite belonging to Valley Rangers and enemy Storm Company, respectively.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "RtxGWYenD9IHHSaD4+i+FprpJ185u60AZr8SQQqAgf0bu6gifW6NdPbqj+4/g9LEffrn+WLHgQYZQeZ6Fe3t5u3aFOGZye5hGnqRsAStsQZ6R+svLq/zifqtESO4LBaQS94+SD8uR+axYjX1uYEkkE0i5+VySWlbnDno6cAQ/ZBXB0hrF+c50AcH2jhxJ8FY9C4TvwQxb4icn3Tf4SUUbdanOPL/zTvwGCA8k3z2mvBMieNp85llqwz9czUKmOBKA5YlttDiesEyjNrXBxnHE1U+/fx3tcGOz+FutP9mx6EdFx3B7A/d0ZBVIx20z76XNRlWOM9sA2soGsPDAm32Tfm7J1whBP1qfgWAimQZGmWWrJUqDNbFNsHQoZSh8AvZCsbmNexbXxWD+9eg8Ys/+B6+7hIw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 608,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 152,
+        "output_tokens_details": {
+          "reasoning_tokens": 50
+        },
+        "total_tokens": 760
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8ba97fb474281428\",\"npc:97ff1baebf279438\"],\"constraint_ids\":[\"C:6e029f393f17b786\"],\"span\":\"At river market, Ansel and Iria signed a joint battle plan.\",\"rationale\":\"Ansel and Iria explicitly cooperate on a battle plan despite belonging to Valley Rangers and enemy Storm Company, respectively.\"}]",
+    "token_usage": {
+      "input_tokens": 608,
+      "output_tokens": 152,
+      "total_tokens": 760
+    },
+    "tool_calls": []
+  }
+}

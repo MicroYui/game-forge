@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cc1c15952c39bc08ebf48bb2cc17a92a69da1ee1f53a06d19233a2bfb5f6d3a1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3453,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 618,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 168,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 813000000
+      },
+      "created_at": 1783853200,
+      "id": "n/xfoewlDLOhQGki/TgWgLjuuNzBbgz18tblEh//EWS3rU8W0q+0bLLu6ESvHSgeI4tDneKez925zgjcNJyQ/WAlsDn3F8U5fG8snbljqHXMANwNKb1X2s1GiGJsRU5QzdzN1w5LZdodz8rUM8fAXSB0LxpwT3M0Ry3kpDkKyOPPoqTNP/4b8iKF9DrVGct+EWyhPooloon2SsK5Ll3nI7SfoJfOD/UN3EfiL39+bB+5onT2wZgfHVEEMuh+TYrnfGiYX9yduwlVgGEGMNUhaw/NDPRMR/cAiME4B46ca/wcvAyVMUWfQAL8sc57RUt3fRAZ53HZNUzmmU9rkxpVnEM9EtkYKznSjaocsPNRgwmcBczsc/LYeYyOkqJ9q57bNXfDA3+PzMHmYBWxiEFp2cdfIP4mpA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "NpfN9lsDvrJv+pYcy0bHfbivgnSz36MH9NdEd4yEEx5hfkhwGh2D/4nbZl987CQELeNIf2qhyiVrQaZggWbtHE24Kkbgv7Z4ddrxEt+15UbZCh1mZbSRJMugPwllec9eFf0/J9FAJ4zynP0HLX2LiqAXcNhQ/jWsiqVAbu0xK67c6kfl2j7EFZIphzyxCDLiV3wV5gGVhK+0v1yIhRBtOcB1uw7JBbyWHY+IPNM0z0D8MAxH1G1PXEjpSoQnF58DhhNYNsdsR5/rPR7q047UImGmgdIcfFRw2KNEqlQbukGMMoekdfTkXW5BPHDf3DQ0TYugyehIb+EcaVeOtLofp8lriVBuQmXONRTtGAq+UazLqEBOklEuCJrhZ2vSLtskWDWnbDCMCc9WeNbF9ItASfijkzI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:a4a27c15ea30cee8\",\n      \"npc:ab4eff900211a414\"\n    ],\n    \"constraint_ids\": [\n      \"C:8c89ffcd27c85fc1\"\n    ],\n    \"span\": \"At archive hall, Ivo and Lea signed a joint battle plan.\",\n    \"rationale\": \"Ivo and Lea jointly coordinate a battle plan despite belonging to factions explicitly at war.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "xaQsCIG3RO0L7JDCRESLjYBjra9oOzv7CkxMB5siZ46aYTbz0w6KYB/g9VbYxw9ZU44dYpWoN3JHcx4nMpQE0bLRxzo6w5vFIlYSvGumxIHJ6P9PpV2oY93pmAhq/PyI7lcYcQPVdWAGkTnbb6E3fE72z93dJiHnGBsn9LBE71IBamWaE7hp5RY5XKEwePI+9ozi85/xw6PKhYxlGL9owzfMaNkW0VePiVRhI4XssYmAUhajtrhMLcLUG37auSsqXj8D6Ia2+AUTpWYGl682N8E7tV/jJYs/t7rgty5AWgrq7i9taEjK+U0VT5Zu4b84CKcP8l4RayUOoT1Zq6oR4RaQN7q0vVIrGLI6Z8ZzZqLU2vqLC/S+1YbotkPHfTm4qvdzptSy8u8UogHFkYfpsdsGF72W",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 618,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 168,
+        "output_tokens_details": {
+          "reasoning_tokens": 45
+        },
+        "total_tokens": 786
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:a4a27c15ea30cee8\",\n      \"npc:ab4eff900211a414\"\n    ],\n    \"constraint_ids\": [\n      \"C:8c89ffcd27c85fc1\"\n    ],\n    \"span\": \"At archive hall, Ivo and Lea signed a joint battle plan.\",\n    \"rationale\": \"Ivo and Lea jointly coordinate a battle plan despite belonging to factions explicitly at war.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 618,
+      "output_tokens": 168,
+      "total_tokens": 786
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:65c4ec6c4c9a0a6ed2f69f89dccf518d733e03fd1adaac1470ad9aa723613274",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7333,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 703,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 244,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1083500000
+      },
+      "created_at": 1783852700,
+      "id": "Lnn1S10qCmEIH97zlCoeLMgwI/sIMOdiLbhuGxTABbzCv3LZcoekuu0gDUiTZ6geJVKDlJdU3f03aIZnE8x227DbWNTgKBGylxqeo4G6YkiKbds1A8kHUeFod2wkL/8d2ZyOmbi1FTozw+oV6irizs01UZDfZ0Y7aaW7HdyGbBeNkvV/LA/Q/WjTlYZ16zlC5Jj4Y8LQO2cxzsJAX+69UhVvcdWLoE8oHaSNUx+uVez21JO2tZRlEYXsBciVPVUyBMvKfO2MDqezPpvlsK/VYAfZif5047nCPKrcBpTBpRoMFDW6VKoYC2K/5ygNoJEczKvJjCS8ecV2CiY4B6a/pctv4s6PL0jE3/x0Q+beXoKG/TpXBCtNa/5r3szFMjD3f+j7FGrvmwdHzpH03WBtOEMGOCj2MQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "t8DxyGNW/bP9e4WWpUnygBY9Teo1igNxwx25sDw9XcoKqy9eUhotVLWNTx+cOeglrjo9MGuhTuNGdUA2vS/4gAZNA6L/4QQFLS1ivj4wtQCh2jWp688vwVlRbM8/wYLbNlldX9fPxaqM34+8UliZhpxa1DYF+OAjtDXblJUTZRec4EsRvOGkKUpm8Ubl/mE0301tIUAjRE2KgBqnrzhXUAim+dNew5QIZkmMFeZun/+dujP1T5JNNe1mxjpl/OKYidzZISziDbjgCJmwm0c1z+psZIfOEdjsjmwCglsS9SjNYZPXo6zhcT3oK2ackSYQKzAXbXrl0+m+zHQNDDwT3n7y5l5/a0rBrZ/DZHIaOfAeJJW2jswsPaxL5jRtlRkDHeZFGVDHsEMMA2OOtrhz3Mf1dlg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:ce400096ec5a3a51\",\n      \"npc:cf8ca2fea873da26\"\n    ],\n    \"constraint_ids\": [\n      \"C:7c2ae314af83901b\"\n    ],\n    \"span\": \"In desert waystation, the council recognized Ivo as the Beacon Keeper.\",\n    \"rationale\": \"Ivo is recognized as Beacon Keeper after Lea was formally introduced in that role, with no relinquishment stated, resulting in two recognized holders despite the exactly-one limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "jzBQAzaEpjdHOlHdVu68HkUHjFxlQ4pyV1+BVfvg94dyUFNOtclN2HOzmpumnMcdu2EdWlo5rUyE5cGcPsqbf29EUipzUQVE3vqf6p1IOapEL4kvKV7Xbl7OYQKrWy0E0T7Ys7Uj38fvEE4rFX0hADOKW2V2ZgP06klJ+xWR+d8FDWjd1QZ6IGAhEMWhbP4cJxK63bFhijxxMBgLCZ2QQEEYC6/LNZEc1yKZ0ZiM5YDxFoN5ion80q9x9/8Y7ShDChWIRQXK8sjyIeH+nIauKDQA88O77nRkB9VnJ/obumK0eSRJT3cr/H/kXs4trHEEZO3xOkRD4bhieftTCQTHj2KJCWNwbJ7l1mExKlbyv4oZHTe4x07Ddgk9Ef/YR3LijrBFBfTv6bqEioU5dSsE9dg6m/bj",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 703,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 244,
+        "output_tokens_details": {
+          "reasoning_tokens": 103
+        },
+        "total_tokens": 947
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:ce400096ec5a3a51\",\n      \"npc:cf8ca2fea873da26\"\n    ],\n    \"constraint_ids\": [\n      \"C:7c2ae314af83901b\"\n    ],\n    \"span\": \"In desert waystation, the council recognized Ivo as the Beacon Keeper.\",\n    \"rationale\": \"Ivo is recognized as Beacon Keeper after Lea was formally introduced in that role, with no relinquishment stated, resulting in two recognized holders despite the exactly-one limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 703,
+      "output_tokens": 244,
+      "total_tokens": 947
+    },
+    "tool_calls": []
+  }
+}

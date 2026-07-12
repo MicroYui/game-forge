@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3d7ef9a47e4578b887483a07ada2852c76b6467d477bc2fe23ecd30502696441",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4629,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 569,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 235,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 989500000
+      },
+      "created_at": 1783850800,
+      "id": "Lo9DLuje7LH29zYVu/cuo29Y14wYoDkMvdYQORaFGbZMFVREVxzGOL0rWB9bWTnOdmwPCOXFflt7Mh9jnKfuISQz4QTGvs8cx6MlzByp/jhkAK3/9t6xjqWY1nPEx288AhuiB0q0VCeENUV5ceareEwBU/zuAk0FTRnxfx6B3tANol4Eq19DwWEgHJTFuuUAwdjg4aus7gsVmUYg4ghGNfD0ezbMv2wLrlmzJKiIAG8FvQPa92/geP9lWTbKz2pakX7aM0KAw1HZ12YS2vr16/Pne6hxFg8k9rlg8EVrMP94kRqncaofUS9lPCbRkAcw0xHH6OqkqpM3QTizt3JjOP4bAhOTE6DBxxfByiGmbeyDIih3Ll0H1nAkU1LxMruVkNKKhr6qiJ+mGTJ5K5/aq/Yvgu28vg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vjD/tQn4H9/FPqMC4sU1ltAGyKpaHndjC1I0K3w3A1rHah8oJvnl6me8M7/tpBZOpWyAu8cOSGih4yjnfwvmjSOxZ5cfW6SxYRqKKG3kYGFN6K0nC+DSbq6pQqQjvRMwGDB6umzL6l9wDEeaBsp8XKe7v4Y4v91dm0UEbIuBjJTwMC5ZdkVpsOudcHc+vysXqWQEapFINfwOQTdP04TH3JwGj39ZY4rKzsLbcSXtT3R0hvH59vIFs47JZtfXGIO/m7+/mItGavA28cntYofBFHixFS78gHCU6wgvYZwfF7YUOCFcT54Zk+PKzDaXLsCnwVXOMqTOAP34i1a3ucIqHxIkBI+o19yh3lmmhodcilazsSm7T/vlVSwWfWHCEviJt2xzaN6Agba2Mhg1W+runhEBQz4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:3d99077cba839fb3\",\n      \"npc:51cce863214ae7a0\"\n    ],\n    \"constraint_ids\": [\n      \"C:64649d45bc5aed7e\"\n    ],\n    \"span\": \"Ivo fought beside Lea under one banner at canal bridge.\",\n    \"rationale\": \"Ivo and Lea belong to factions whose standing feud bars joint commands, but fighting together under one banner depicts them operating under a shared command.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "caqCHys0rgZx4gHeIGVlowt2qJ2wqBV4fMWLBp9fUXiytDPHak4ruvarLwdM5RpeIN/avplDlxCq5iYNMxRhumkzUgY3ybiXX7lmPcTkDsMZumTXtMgjnVdVQJ/xVPSJkVobPzLq4Gm9x5v9olDtwaylKV5CMcQ3ES0mG90p3SCoj62qSLweLAo4JwrqnSXexrlmT0C12EexVqO91SC/e5Df/mSdBKMT1HaABkfb4mZuzIFsdftFK4jeKUoNoyV9+ZGO39R5Jbn8TIRtOuiWkjWqa5fmckQ9TK9HC5hC3qj+vJM6q+FriZ969g/mVUvHMgqqwa430LpjW2v0VF8dGNZVK/Oy5RpSmuyUwl4XZC7/J5fVaYg5ZH18a8NoM9vCifYr158VvaaO3P+fGSi+Vwa1LmZj",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 569,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 235,
+        "output_tokens_details": {
+          "reasoning_tokens": 102
+        },
+        "total_tokens": 804
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:3d99077cba839fb3\",\n      \"npc:51cce863214ae7a0\"\n    ],\n    \"constraint_ids\": [\n      \"C:64649d45bc5aed7e\"\n    ],\n    \"span\": \"Ivo fought beside Lea under one banner at canal bridge.\",\n    \"rationale\": \"Ivo and Lea belong to factions whose standing feud bars joint commands, but fighting together under one banner depicts them operating under a shared command.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 569,
+      "output_tokens": 235,
+      "total_tokens": 804
+    },
+    "tool_calls": []
+  }
+}

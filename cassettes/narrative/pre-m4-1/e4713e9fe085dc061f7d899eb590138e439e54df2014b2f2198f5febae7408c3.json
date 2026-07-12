@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e4713e9fe085dc061f7d899eb590138e439e54df2014b2f2198f5febae7408c3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4230,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 560,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 238,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 994000000
+      },
+      "created_at": 1783862000,
+      "id": "Cf18EBFPF7qlqPM6jl7VLx0uVaqg5oH6mKYuqQ5Iuf8Uxb40xqj2RYh4qplct7RvNIlh/zVWO3o3o9SuGGWK2d3qVaPtcxSCQPonGkz1qGLY7ocywExYNIkowv68w+azvVQIUdKKH9bJhaR4FBAAy4GTP66+upD46KKhJhNAcm1hbyDCDaIK9iQ+PGj03bmYPSJzybhQooM1vbkPCRM1h7CPErur+eb0Ict3r6b5fmVCY3ocxVX8TRhGmSck9qfAoSvT4xrLSxKS8dbAisuAcG7GWazPtqudTbOfEYazjiKVqbw6EqwpTgsSD6VKa3zqtVlHpC6oXrrrAZbo2kXyXaQpj9OF4SErQvip/gyvbL2ANiVKicDQ64a0o7VQRESvc7O76uCIf43fwIRy4XS/P8pGH8E7MQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "n12fjsIDHU8ua1xrLD262ip2n9A+co370vZdbsDhuI/4eBUyhjBqvNOOQ6F4p4zs7aDOZWVd8FbzYL0pP7/QMNrWyYwr7sY3nmzjO0DNddF3/iTaOpta3dgw4T7R5LIcnG+TKf2mrknsTrYdMYkC0LrKrUJgimu2FIYeOYIVu8TgfWcenysx6tPRGDrT6o4vpc6I8ua7p8+pdmq2PM/u+jLFirQ8Yc6G4k+B4xoBAwOnx2iFzBTZHOy9b81p2kv7THkNQozLPoTECvP8NTx4FeoMfOzIiTBTOZYy0h4BBno7UEYQQUnN0tm25lNItMdjeMMb056bx2rvzfgknP3HBZEEPJCvXIXXuyaS31Xm33uKSFKrou7AbH4p1Z6XzgBvkTbya8oQAonjRDyfJq1MYTIhtkM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:2b7fbb910842e22e\",\"npc:549633c853d2659a\"],\"constraint_ids\":[\"C:eca0b02bb001f0e7\"],\"span\":\"In cargo ring, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin and Eli belong to opposing factions under a standing feud, yet they establish an ongoing cooperative partnership.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ZE/VSYTWihHjhsmINwOlKd9lWA2NKfnNKeRnmpgKNlAokP8c2sRBqPCTAYvIzrrG1J6nPyG23nRErZSWfzscUHCXYjbla/vSmUUDEYQO1wkO1PS68sTxCdvm3x6f/M2D38VCMfVAeBwNrNL/4ScSN1HS7u+yBl4qs+gR9n2vpfSG74O6c88K5IOmelerCrGdTKMuc0r08iLLx519UYKOrUnrGIOkzABL6dlfxgfDFH8duOrvyyy+effxQW6StYrx2M6mLJ3tYShhqlJV5cWYsaXowCGzlBuryPzmbha40D10YOHL+y+kbUgEJnkC7TPDHxlMa1QAnFD1BZahMDcuSnqU1idUGZITToBtRTF9YaYECXab7svJfSSZmIWEvA/2C7BQ6JqSiqYVX8GBi4aiRmOTjIjQ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 560,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 238,
+        "output_tokens_details": {
+          "reasoning_tokens": 133
+        },
+        "total_tokens": 798
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:2b7fbb910842e22e\",\"npc:549633c853d2659a\"],\"constraint_ids\":[\"C:eca0b02bb001f0e7\"],\"span\":\"In cargo ring, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin and Eli belong to opposing factions under a standing feud, yet they establish an ongoing cooperative partnership.\"}]",
+    "token_usage": {
+      "input_tokens": 560,
+      "output_tokens": 238,
+      "total_tokens": 798
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6868271033f2d582edd2ffe564ab25422689ee46339af1ba6c0fcbe3242d8c1e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4065,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 597,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 162,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 784500000
+      },
+      "created_at": 1783844700,
+      "id": "9GPKGo2eJMX9eT2k9kEcw2ajHNQtvToKg+7EqYjUGrsUOFv1g4rSDCFO71wmF+pjcmsHXIFSA2maWrm0Q+6VVc3TDGoj+K2BzwboTeRGTqS50nAkISnpm8HyODJuBJe/J0p2tzGuhNDwx9TeoOUfl7nhfSyz55cYH+edPrli7vPX2WepfWj7bDXsiOa4bvi2SfXuvwrxN8Jb97WXtIu64oWvVZxD5HYQGuoAy7O/91qYgvA2kzbdBZSRaYsDIDa5J4FlhMyc9iusVyr/i3Y6/x7yjz3YcPTLdEB27ZWBYIseL26OaHUgHKsvvffbHDf+BP1rrzDYlUa4qt7TsDJ6KlWN1WpylPw4f9n+EUvqVV8HCz06N80zz5rj/f2K2rg1pzXDY6BvFNmLMTt329nSMUgrZx4XBQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kVMaHWqsYh/LmXnkyJ7XWAhVR1pNrUq8U358ORm4P0rObotVGzqEvJM5daz5BeTpdYnhBNwOXc1Ndy61ypI0R9ozDQr4D/Jsr+7SKsJuFWcrcsfOXh0m0Ialmp7C76ySZ05GXTRg+x5GG+c1TIKoQCfxt+mI7GItWq4wVlKvqHGqmyua4BRRwjObMvufp+8YjO570RY3T945CkrTLC3QqiYqr1n0giPFfQnKumbmPXRF84lENe60BhOpNUvfWGMFO/PkrZ/t6ahTZ7MtDVZbLHggTGttfF7QOmHcP7Q50itgNlZsXWEHXqaqzhSuc5cx20n5+kAGE7KC83taENCPNtP/ZtfY6DaGkBKp3v1Jd1feAxnpaxU0qqvbNEhZ95ySMtmi2NNaU8Q0R7m/phbsaHRPcHA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:c27f113aad3a1c90\",\n      \"npc:c4641c606d0ecbe9\"\n    ],\n    \"constraint_ids\": [\n      \"C:156f560a008c865f\"\n    ],\n    \"span\": \"At cargo ring, Qi and Mara signed a joint battle plan.\",\n    \"rationale\": \"Qi and Mara jointly coordinate a battle plan despite their factions’ explicit no-coordination rule.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gFLe0IxhzGo6dzI1C2xJX4rhbzIIr3F3SNm1DBJHVKy6FrzmtFlR7bTMOLDP4bcLfTCQLOk5f+68jtwcZioO1v8ZAsaeXL72OeeKCrqHaK5+k7BBA2V/EFxgqzvfFgFClsWG7cU9+ocB0z5Bo9VnC4KN/GD18QK1jqFVqJfPnGC9R1/NMF5OBHRiBfEE8ctOXXJuI/lQTxvn5CHbzhrQ05btDH06ACgMmIZXSxV64cz9tBJeZi6cKjxc8kIAEFPj/8Lyl+C1GYdiTbA+tSq0qBrCscjfac8GrS2KcjKDfOo0LDwI3hRRRxzMrViO2Dpsov4PVbOteZsHc6YcRve/TuV9Vs0mWytLZ5H/rXSJfs+d9VMTR7Dz+ggyw3/XVzJRQpgiQ69ijykRLbd8bjvbJrxFEruB",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 597,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 162,
+        "output_tokens_details": {
+          "reasoning_tokens": 39
+        },
+        "total_tokens": 759
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:c27f113aad3a1c90\",\n      \"npc:c4641c606d0ecbe9\"\n    ],\n    \"constraint_ids\": [\n      \"C:156f560a008c865f\"\n    ],\n    \"span\": \"At cargo ring, Qi and Mara signed a joint battle plan.\",\n    \"rationale\": \"Qi and Mara jointly coordinate a battle plan despite their factions’ explicit no-coordination rule.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 597,
+      "output_tokens": 162,
+      "total_tokens": 759
+    },
+    "tool_calls": []
+  }
+}

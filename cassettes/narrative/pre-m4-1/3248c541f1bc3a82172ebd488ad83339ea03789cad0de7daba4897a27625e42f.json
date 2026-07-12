@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3248c541f1bc3a82172ebd488ad83339ea03789cad0de7daba4897a27625e42f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2250,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 595,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 136,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 705500000
+      },
+      "created_at": 1783861600,
+      "id": "Y5uS+IGu7ra9UQE75osyu/awDQeafaSokrgtsmLhEZl9uCO+Zc7KYJmLBC8ikM/E0eNaNqCV7fU8kcrB8wLg5+wORpSsl9c0OHHBo/mnGfyRohhPRZ0gYqn6GlFEX7wadXO8cpTzsV0Bp5RrSrKgzE3CTEyZ8182HmhvP9kWgvdIFy00OpCP4AX0v6ou0YP9a46Mr0Lxu2ilPC5ysdqz0g/mlevaf3ImufUOtoKt6mOJWYC8R7zTZ+k31+9ZYpFST02l0eAHfLSXvijlsuKV1pJyfplJ9NikDJ2OQ85BZyxsiXUI6kwyeLvqY2bJ5JaEPhwr46WGJuj/yjWuPUSJK6C5RfVJohGm7safy65R+9u1FFsB+GwSvLjc3H1D/VWql9xGKDT2WGHtB+bdjO2NU0Q3pSMnew==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gXTzDDrJj8lASTUMLwhI1vr3fTSaKRb/5f5kgQl11dZdjEwBAliNU96uy3ezsbPdZvT91qCUjWR3Aw9uXLEKdVFVevzv83rcdt+w6G/mxCeWAmgs/3BrUBnc/vGDmPqATCN/gQcFuLyQwwgZGGFm9ytFpoxVW6h7pKAtM0pg1mQFS7HKVuYcWPHpcpiSp+IlF6bUelzOE5wmJoJiIBVsjUH+as7MIeBTf/YwQyiNHruGwpFvhWwvfWRxAoQL2j9Ga+3h40S8dc8Ej/rt4qIff5qpYhS7uNyLz80rr98LNU3czDLowX2/iiXOtsmKu7XLu+ngMbe7jeBK3WWGh+L9PQiXh7ClAe7IwMXX8t+EwQVyrHks34rmPPTYgz8v5b8fZkVp2BaGmbWRxp3Ewi7+vvH+ZMw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:cacc39406e872222\"],\"constraint_ids\":[\"C:53a682895bc8f0bf\"],\"span\":\"Ansel closed the lift while a wounded companion called from old mint.\",\"rationale\":\"Ansel leaves a wounded companion behind by closing the lift, conflicting with the rule that he stays with wounded companions even during retreat.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "81uel9bxnMiF9BlXeM96dpgHwjuz2FUwrhAW2aSQI3qmwhLxGWploBfFlZ/F7jpFeDZOj0DbYGErk+TMatx6OUsZkx+r29kFVhpqGfL2h7g9EznBfTr7zqIX3QzXhL5fRSu2RDNEC3QGMbGPN5Rbfpcc4Mu3z2pDNgmexm3jl3YNHaOgBJEN1SOFUiuHQgEf90YJgnv6Yz2jC2UGMc2648BXuZBJ5d6lpBv0MfgNmo0Q7SozE5ww1hkPQ196CGJpPDE/A6ZiEMu9sn4AtxYO8GbNL80YlNXSlo7LfUXOGyL8atVFTXIhVUbWWppVPJ7dno5ZftLbPa9L2HYojTf1lABTFZHNbQtU/iOTJcP60olJWIevUiFrUuMof0hsBg/xiVUWU2xD48YDU+L0ilAquwTADJPI",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 595,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 136,
+        "output_tokens_details": {
+          "reasoning_tokens": 45
+        },
+        "total_tokens": 731
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:cacc39406e872222\"],\"constraint_ids\":[\"C:53a682895bc8f0bf\"],\"span\":\"Ansel closed the lift while a wounded companion called from old mint.\",\"rationale\":\"Ansel leaves a wounded companion behind by closing the lift, conflicting with the rule that he stays with wounded companions even during retreat.\"}]",
+    "token_usage": {
+      "input_tokens": 595,
+      "output_tokens": 136,
+      "total_tokens": 731
+    },
+    "tool_calls": []
+  }
+}

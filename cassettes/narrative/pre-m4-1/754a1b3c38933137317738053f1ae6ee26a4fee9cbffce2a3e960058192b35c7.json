@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:754a1b3c38933137317738053f1ae6ee26a4fee9cbffce2a3e960058192b35c7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5388,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 576,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 334,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1290000000
+      },
+      "created_at": 1783853200,
+      "id": "QrLtqDd5WI3YpwRS5CgQ9LcGSIA8+3DV4pUC+WmOA3hpOSKbCtLLnB736SWmxFHtMihY703NUTwXzgpf4Hezdj6t2V7PRiQM3cuwTI3ZK46VuT2TZeTJsHSjzc2+JguNUB8hJ2uCBCAIx5INBsiuFUBMXXGXwTVnq9E9xEyx67B0dazjZF2g+/bXPeFbu3uMa7sbLzsZJkxcSXntyMJx4H9tPGKh3qgv9znd59L5Z0qp3jczB5sqYAJbB9ebwQJpnO7Akq07dS6XH+fQw2bnekWlrVG5RGD35e0YUdJB3FfRM84WIDRLcoCe9rwOnJeYoOuIzigrQeNUUXtcFmcTZBLvH9JNgeZG+aifaNrBVvdvhI5hKFpk4UhzQ1RSL3LColMUn3uOb44AAo0O9dGuNfMnTwY3XQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "AkqX35l3v+egAWw2HqMA2fa0FojBcW2s6XsFWYO51VzydItctY+advoLENBLv49n08gBYV1T2nQUzBKkKTJ3HbKxdwx+Tv8V6MpesjW53Ps71Aunkm/kM82YH0hBDeCgjKVGVa6+ApQK1WC+QLXljqLpXccVH/z2GusaKljqVVVw/TPm+PJ8mfkBg+R32glyV2X2o87xWcGsdAx8d93tMJzcjbLEt/52i9iMzrf6U7oQcR6dRo3f0vdiz7MCfJnVQXC45fZvUftfMHw3NIyLLw+i3WhPkj9ILNUkt4t9PMqnM4CBlWJDV2Ymtlw5ZXjjb2ppPq0rcO1wgzVRq3CkVNP1K77xyo9fm9p5mZHAfvWBMJWAuJQzSM8WcJ5qvoSSef/kyDKL0eKOV5eAZnhYg45IhcE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:929327257ec1b4aa\",\n      \"secret:1d90c3586282b984\"\n    ],\n    \"constraint_ids\": [\n      \"C:6de7e34912648bc4\"\n    ],\n    \"span\": \"During first watch at archive hall, Tamsin openly named the reason the eastern beacon failed.\",\n    \"rationale\": \"Tamsin discloses the withheld reason during first watch, which is earlier than the permitted council session reveal gate.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:929327257ec1b4aa\",\n      \"secret:1d90c3586282b984\"\n    ],\n    \"constraint_ids\": [\n      \"C:6de7e34912648bc4\"\n    ],\n    \"span\": \"During first watch at archive hall, Tamsin openly named the reason the eastern beacon failed.\",\n    \"rationale\": \"Tamsin knowingly violates the secrecy restriction by openly revealing the reason before council session.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "L808e3jVmcOhnlxSMwgaVZ96/aAFEHFhrmcQsqb6Oz0Yt2VTI9Ns65KrHbTmo0POiAHlwmpbs4V4JnQx944uQA58gl5YX/6UFTywtGtBog//EyfORvOMXUetJZllcLEvHhcCbuZK5sg5F6Ow5kciYBOhVNLlUfMMvVXngU65WLV7qe5WOGHpO0k6d8ufJBlZ7RPAT3FcNBTruYSz5Du5UnQVWQXDv2/rIAK8KwJ4LdSksYuKXhEkJUV7BmC8x7xaNl+MwT3KGDTAajXU+GuQU8XGA01HJRS3nGoCNpqLjd+LLBawxfqdJZhczp173FkC+v/3JZ62aRjtn8HdMtGHD79kft96y3j0A+anfOWkc/E12VSHXNAzhkAyeyvp4SYpVqEUzl7Jhp4q4Ff/TWbd6FlvwlSD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 576,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 334,
+        "output_tokens_details": {
+          "reasoning_tokens": 82
+        },
+        "total_tokens": 910
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:929327257ec1b4aa\",\n      \"secret:1d90c3586282b984\"\n    ],\n    \"constraint_ids\": [\n      \"C:6de7e34912648bc4\"\n    ],\n    \"span\": \"During first watch at archive hall, Tamsin openly named the reason the eastern beacon failed.\",\n    \"rationale\": \"Tamsin discloses the withheld reason during first watch, which is earlier than the permitted council session reveal gate.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:929327257ec1b4aa\",\n      \"secret:1d90c3586282b984\"\n    ],\n    \"constraint_ids\": [\n      \"C:6de7e34912648bc4\"\n    ],\n    \"span\": \"During first watch at archive hall, Tamsin openly named the reason the eastern beacon failed.\",\n    \"rationale\": \"Tamsin knowingly violates the secrecy restriction by openly revealing the reason before council session.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 576,
+      "output_tokens": 334,
+      "total_tokens": 910
+    },
+    "tool_calls": []
+  }
+}

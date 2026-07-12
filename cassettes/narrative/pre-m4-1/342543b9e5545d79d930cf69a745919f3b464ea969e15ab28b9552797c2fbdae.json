@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:342543b9e5545d79d930cf69a745919f3b464ea969e15ab28b9552797c2fbdae",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4152,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 628,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 176,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 842000000
+      },
+      "created_at": 1783856400,
+      "id": "HEeGs9uwi4Ebh6DyY1lMsCWnsz/2zBrxdoJkkw6FTIBt++ol+W6TcGk3JvN393j3NTYaoQ2sPryEvhc7OGkxIQi5kQAz7upesJYzTNFqgJZr53CqZExjPv7/NxW5gwXSo+WHEroPATSqQ76sj0fWOUpqg1whVJQiYRtsw0NSxsUoyAbXmKJ6aP+4JN7Wrkket71zRmaeNzDWAOGTtmQp86puwgUhSdwux0A4JQxUBjmkb4gBE/zChvmAh83bFZ8flEF9QkL8zyz2n10RJgyw8lRiwCPXFaArLoWD2nQqnstX4FgvPgblN/Fq/LtozHb1HUqSEbiQ1FE0XYnL9YHll80vqQzX6N8anI6w6RTXFKWkD61t3vOtFmU8ZoWIPI9a7Q+LPyQPaFWBrXUmBw5eqg4pw3oVUA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "1NNGR01gXvBCyKgVxBMOBGoVzE9dCsRilz7N37Rvrk9DkC5h6nJ1/8hjzNrQaLjeOAP1/rNERp5vK3YiuTX3KJ0EY3ElDYv9zmAAAnusMxd7ailBISoCtYvwpx0T6lFviZDfAOkYc2LSuP/buUW72VMpgot3goIgBPuR4oLlW092C/GfU2o9gIKZ28xB//88hUmyMYK17pb9YYN9JRsNywlx5l4K/a89Ot1DD7CoEp77JjOUWir0fZqq0cq6mVU1uqbeoVu3DP7JL57PCFTgZEnR9BOvp0P001nVbDOLMZFJ3YGUsi11Nfz88GXrGdm3/wghGFdk4EUw7KCTsPjFPK6oJVvCf1/JnM+uXIm/xpXb36Il2S0xvFTDSTLky/a2+EH9yJwLR1nAhbYj/M/SWbcfLXc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:e4b5c87e0f3ab76d\",\n      \"secret:5c94e5b5e8c4325b\"\n    ],\n    \"constraint_ids\": [\n      \"C:082507ff08866266\"\n    ],\n    \"span\": \"During survey at relay deck, Tamsin openly named the saboteur's name.\",\n    \"rationale\": \"Tamsin discloses the saboteur's name during survey, before the permitted reveal gate at vault access.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9e6+9blXROP8wXVRc8VCYbAxwYM0na3g2e2/fvDJQLbbssQzTZMCV1xUIZ9V1+cSaGn0wGUnu0HhFl+pzwWPcZE+XKfORm18PwDJlNwift/icgnNCkHURNz/vats2fuUcuTbTdGm4+0uWwHsLC1cX2dyTF0iJcJ4YW1rgsL3gabuK2vCPvyFUXOvkoAUsTg0JIc3IG4OVm9pT8o7rXAedPMnyGWxecgCRZHAhJaueXEhPfzA2Q2tCDP4CJzRlk07Rh8AHDmSAbSef7fqwyDx6cQju05F07OXyOlob7eGATy0tC/Hic1rl0ryKYeLYqmvpTy/h4wRnm4xFztrcS+diHrVJKWx53SlipY1thi+mVus9aPE4nPaB9ZLERZEE8OSwzOwyiz2zG2gIWf9Hr1qoV5jVS5v",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 628,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 176,
+        "output_tokens_details": {
+          "reasoning_tokens": 39
+        },
+        "total_tokens": 804
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:e4b5c87e0f3ab76d\",\n      \"secret:5c94e5b5e8c4325b\"\n    ],\n    \"constraint_ids\": [\n      \"C:082507ff08866266\"\n    ],\n    \"span\": \"During survey at relay deck, Tamsin openly named the saboteur's name.\",\n    \"rationale\": \"Tamsin discloses the saboteur's name during survey, before the permitted reveal gate at vault access.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 628,
+      "output_tokens": 176,
+      "total_tokens": 804
+    },
+    "tool_calls": []
+  }
+}

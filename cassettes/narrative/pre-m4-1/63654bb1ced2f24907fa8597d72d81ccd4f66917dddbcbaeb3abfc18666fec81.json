@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:63654bb1ced2f24907fa8597d72d81ccd4f66917dddbcbaeb3abfc18666fec81",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4644,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 603,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 173,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 820500000
+      },
+      "created_at": 1783856800,
+      "id": "Fy5rcDLJ27KANaq/5xviFxV/nYYC0vjX4+k9NNHcnZ//IwzSN1seD25f2bbXRD4PuCS3Upmx3jT5jmsMFa71uqzdoFos80zwo+0vLcoDLtsuoQrxMJgx2nODQA6NB4tDRAY4rGGL4lFO8cOdNdqatZu/eC7PcSG8pNTIqLzneLlPboRoCAajL+Esjpj2jQHC3nF+nWX+/2FWTXSTNcGVFtlTMyxDDBP6GrHIcaT4/0zMLDDtKGj836WTEVxNMnVd2YTfJQxqZgg5KtMAuN/L7SVHQjbO38gAFsxZPM3wxe/azPZTO0j+OL/2TSiqoVDwnYekgWIKzWjZVW/TZEH8kSa6HmOb5ZdjNZllDx6yu/UvmyJCbU9hZnGIUQ0fZzAdtGDljmT90eDyLGJG4IJrvVTQR6YKMQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "CqY2rw9lJkK7AeMi8qbnwP7V9LlvRGHxxjSR6s1FEyPQHhCxQ2WQyiRMLIdacI5FDhh+gbo15d/hvFfu5MU/7yjp1TDqMUiZYzD+9BdFfaG1DSnNzEp2LlcZZtwBaKjtkLKSmjjbbY33K0dwkfqVefuxcWEybOQ73hW+ZBt9MrEbvpPDW5pPKeDh3/ZAqBLZclubrPiGP64dU6pswNMACcfLaFFeCxi1rgtloJ7wj9bCsKa6KMYPoym3CLBZJj8X8QB7ymGlck0aY09sxFGYpIgt+jaz9nH2k8tYSdQzqIaeDAzaFhJBnrtTr0WVz0aUXWscjtPiabvgKIYdj3ccXeHYC5T/qa0Dhzi064ipwFxUBxyuScltIpzz/Ah/h0K7+/SlfBpw6k2icHb80rFAWZNzO9g=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8d147bb4244b035e\",\"npc:b2eda920971328b8\"],\"constraint_ids\":[\"C:1c0901a4a48ede7f\"],\"span\":\"In orbital concourse, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin and Eli explicitly cooperate in a permanent partnership despite Archive Ward and Cinder Circle having a no-coordination rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "bxafcH4c/CTiEtHZpyUNh3Or5WCuNiVn/sLffNQGsq641UneX9PjKj7hODKW4bxLR4/+oeKaYd6pzHsSD+nwNPTcGtld52sWveHorBxs470zWR/p7gBcimDCflBpvlet3LPx0QkbrCib8ma2kI91KBHoRDCneugqtVj81b2vNpLyw5dx1g4LdmQP/84eekoEcVawPN48Wo/JmcxiDJTKilQC1JDAqMXq2oo0r6M5Y5LR880Uayx68hRg2hM3UZg2YcgvjYtRxw7TDiMIQFzprEYFr6pVVqsRq7/d5mCDGSrihAQOAolG4X6OUf93nql1iqX93/P0VucLC/7PHXrKi2ryzS44v5v9rHcia3m2ZXGaaJ9pXKoYMgSIzxFxDou1QtzLlx4R/iQ+ZHqg0igwzfLGTGwN",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 603,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 173,
+        "output_tokens_details": {
+          "reasoning_tokens": 65
+        },
+        "total_tokens": 776
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8d147bb4244b035e\",\"npc:b2eda920971328b8\"],\"constraint_ids\":[\"C:1c0901a4a48ede7f\"],\"span\":\"In orbital concourse, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin and Eli explicitly cooperate in a permanent partnership despite Archive Ward and Cinder Circle having a no-coordination rule.\"}]",
+    "token_usage": {
+      "input_tokens": 603,
+      "output_tokens": 173,
+      "total_tokens": 776
+    },
+    "tool_calls": []
+  }
+}

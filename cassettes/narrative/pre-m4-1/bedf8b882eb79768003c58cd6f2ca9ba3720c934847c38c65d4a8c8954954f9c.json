@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bedf8b882eb79768003c58cd6f2ca9ba3720c934847c38c65d4a8c8954954f9c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7297,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 621,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 440,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1630500000
+      },
+      "created_at": 1783860000,
+      "id": "cngdCvQE9Y9UVzRXwEOBjXgivSXtkaGDFUhK7fGpoJvPQLY4r04OD6gpORqLHw8lSPB8UpX6VI3ysGv/F0fJgjO09gZDF1rSfAzImb5GxuQCcmedIdfi0JZh9ponXlCeLne/vQEvy3csqvH6IpD6Jcx79j1uC6k4D3vZkGa3nbvWq5xSoauZ7Omt4zCeoJzpv8S88S+7mTj7NkKY0KgMY5/WK/QKzQ1RY1Bha5Z7v7RiTOsvzH3cQLnD1rA/EOF1rrFqgB3nWdWdRi5mKqSHIl4qMeWUj2/HX+cBEFdy68/MbZSsCC0TBafa98fSTthmAdjsRhF6Q6/0XluBsDw4Udsd+NRWTw0PAmW4upX8XgSb3/4UNFCEeRlFI9gJLYP0B83RAVtJO+1G4CV/3wCfegdzUkM3/A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ASEsP3v7XXFQMZcuawfv6aASGbmhZsC3sSfD2utDGpl+WXBHfgruMA+TQH/B6/ixgGp88IMtD0KlzENnsYPCUlL4+kvYkeBU2xO0TW4kKZGxzwGjpFSfB45H7boh5NWFL2qOHF3RM67bpiFbVkqD4PzAEhcJKJlaohOG7KRx0cxc+z0TfYNph36wVZBZEszFhb6VcaUCHqLVCZkCGYomeCWXCOGHH7EXH60MGwy2iiJ3LoFHbD+Zqvlp+g4oa20NlLAJZE+A3vzTpJHY8QS9QuCfM66rZxn60bjHFRQenZSlzNyTFK4UoT2dVWtXrD85s0zELfvOcEWbM6HflGR2ggGuf59OR9OAkTXEQAFVnuf0rjJiLSPmdKGuSEUWmSIQ+WoYJQZYLzo0Q8s6kBok8q+bj7Y=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:e1aeefbde898b737\"\n    ],\n    \"constraint_ids\": [\n      \"C:cfe2cd4ed5e5af9e\"\n    ],\n    \"span\": \"Malik renewed the oath after completing its final obligation at eastern ridge.\",\n    \"rationale\": \"Describing the oath's final obligation as completed before Malik renews it implies the prior promise ceased to remain continuously in force, conflicting with its whole-mission duration.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:cff5fa72e2f6974c\",\n      \"secret:5a4bea4d82922ff3\"\n    ],\n    \"constraint_ids\": [\n      \"C:879d027658ec9fe8\"\n    ],\n    \"span\": \"In salt depot, Ada disclosed the masked envoy's identity during encampment.\",\n    \"rationale\": \"Ada discloses the protected identity during encampment, which precedes the permitted reveal gate at map unveiling.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "41rzw9b38W/0CBGFq8c2RhbeWJQvm99bfhpOFw2xIRpVFG2lr8WVBueZ9CLm2ON+K72yaZd3esgz+Uh7I+P9ZBU8RL4SaFXi3HOaX5vXGuv4yDMQ8PI29wtqn/8/5IhdkrrTOyMBuQqPOaw18TG9nWwqgGqdccrxwEmkqvGeD7sFvJl9fU5BrWdmLPy01s66gtsintOmiZ4bG6yRLzCYGKGmuxlVhAGu1sfLkyUtmz7rSlSLzalmpbnedChDrMphACVFNu21mLanC+7U3HcPRcPDsslwkR7WKMSaC5CRuZasfdcTuGuZvGAVN4xMf3K2Z/3WIHNroLrPZMb+mHIzWTNLuj7XSfwjZPjyjgMyMXEJ5U2FP25zrnjJvhcrRdJyDcijN9+rZzyZFv1xh3Zh6zX6YuIC",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 621,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 440,
+        "output_tokens_details": {
+          "reasoning_tokens": 191
+        },
+        "total_tokens": 1061
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:e1aeefbde898b737\"\n    ],\n    \"constraint_ids\": [\n      \"C:cfe2cd4ed5e5af9e\"\n    ],\n    \"span\": \"Malik renewed the oath after completing its final obligation at eastern ridge.\",\n    \"rationale\": \"Describing the oath's final obligation as completed before Malik renews it implies the prior promise ceased to remain continuously in force, conflicting with its whole-mission duration.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:cff5fa72e2f6974c\",\n      \"secret:5a4bea4d82922ff3\"\n    ],\n    \"constraint_ids\": [\n      \"C:879d027658ec9fe8\"\n    ],\n    \"span\": \"In salt depot, Ada disclosed the masked envoy's identity during encampment.\",\n    \"rationale\": \"Ada discloses the protected identity during encampment, which precedes the permitted reveal gate at map unveiling.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 621,
+      "output_tokens": 440,
+      "total_tokens": 1061
+    },
+    "tool_calls": []
+  }
+}

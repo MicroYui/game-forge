@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d737b06272be9b5c2fda03f5bbbdabd109d9f16225afc59c280d3ad9520a86b0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4688,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 630,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 231,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1008000000
+      },
+      "created_at": 1783848200,
+      "id": "zMVWcIyU5I8KYGoLwpr6Pn1mNo1f/pen1NBPkjUmkLJ/2iQn48JiNEYX/GbmAyYzQuTVAdcbjgsBZR70SQa6bmu93bjujMwOl13b+ep7RctEY4gCDld3N7aTSe/O+nVevKme7JYiby2Y6YtZFFMkLPyapLeuhRdsbPoiMsiMcMUecOMxysSayLWtztNh1ciJnWMAOZTxEPn5r/zUFvrG6709fiTdT/hJEIg2uLHudXgF2v5/eWPMjvWYpSBCMsdHOzItGyUfOs1+uTpqpfmSezG9CfShRdeIAJ9w3d74TRIyqZGOkxceoS36CoulC8SeyxuzAQdg/KieQI7ZASiAzWSOWzr4Tb43TFAhMWERmTNUPX9oPlVX+BENkknyuUXMgMKOFCiZoJOUHXx29stOhTBGmC7kUg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "y7UDMgRcXq7a1e9zucbfIvXDF0E8yWYLLnwSWQcCbi2VbrcmzCQ09L9qNfS+ym9cxqS+t4vMMV+TGjDwu6DworCT18Y1WRrUceVhHD6x6FrZ4lZ7OWXDKv5J5EMcov/XaU5i8V5KYKYIyKTOUJtcDdmMEv4+eIgQ6pRy1TBLoxOK2kJ4kCd35bHZUnMnQ6o4piJbxuZ0+rl9nKEX8J39550qT8YqwOed/U15q+kVBiqKFqiBRRaLz+0JycUpEKTfcd+TZYf8Eq0VerHJAauCKawUZo+HzTjupfpfpccN+/n1rc2UFk7yXgPI7186lMo8mCuwXEO9Cuo0LPlkyh3e8geQcpIJSb7ckpoSn7MRzCrBFAXLeRGrdGAjP8k6nInh/rtjNQGNXPFHPPuBggF/5KYsj+Q=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:4b4668d0ecde6698\",\n      \"secret:4a9bb63b3ecdb0e5\"\n    ],\n    \"constraint_ids\": [\n      \"C:128705e28597a937\"\n    ],\n    \"span\": \"During dawn patrol at caravan court, Ivo openly named the saboteur's name.\",\n    \"rationale\": \"Ivo discloses the saboteur's name during dawn patrol, before the permitted trade council reveal stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "yaFNeN9xJXDHAcCiMG0FsZERsjcLxLBUNGmOPDl/8BqxOprjO7iVzcgJS66OPxkly5lTkb7Bo1E4b/lSSyorc56nMqd64qtELkDiCNkb1p9kD1ILA1NgX+tncgJhG7m8zM7Dix/zLhyxXzbtj0T6Jfoe2dTkd7hrXm9lNp00MPDFhw3Da8Miy6IrIFiFsaogxYexBv1PT1zHxA7t4t8nJn5Phem3Qhsi2pIQjTVnQpvbvvF/a5BiV3cYP5ItPOt0pj3mQ4ba6Bm3C3Nyn1uWPML0j1vm07j3otnbEoCn/amajLpdTx3uaGdrQOEovUjahxqtVjNEkYjbR7KiW/G0wAytTIO+RPz/Z9oMLXP+Z4236FggsSe5Oep/+z+8a987YxXXftTbmk3UtBgDBemjn0GPf85m",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 630,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 231,
+        "output_tokens_details": {
+          "reasoning_tokens": 97
+        },
+        "total_tokens": 861
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:4b4668d0ecde6698\",\n      \"secret:4a9bb63b3ecdb0e5\"\n    ],\n    \"constraint_ids\": [\n      \"C:128705e28597a937\"\n    ],\n    \"span\": \"During dawn patrol at caravan court, Ivo openly named the saboteur's name.\",\n    \"rationale\": \"Ivo discloses the saboteur's name during dawn patrol, before the permitted trade council reveal stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 630,
+      "output_tokens": 231,
+      "total_tokens": 861
+    },
+    "tool_calls": []
+  }
+}

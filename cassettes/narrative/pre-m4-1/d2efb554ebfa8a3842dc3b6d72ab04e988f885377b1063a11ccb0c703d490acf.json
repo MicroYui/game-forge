@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d2efb554ebfa8a3842dc3b6d72ab04e988f885377b1063a11ccb0c703d490acf",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4242,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 645,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 191,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 895500000
+      },
+      "created_at": 1783852300,
+      "id": "915XSslAsrM2FfRhbLIuvBoZgg4xz+NlY7/9lIbySzf6B6BdebsAljnZoURY0uoAYSywnkUIUPNaEvJ4t+0qH7A6i+80G5sigKDTHlYu+4Qykc7Annmsov8lEK9JTu/179225qNm2QKcnsvU1dshlycUYFcR1zjlCNT2rBBSltSIvwuX1ZZrcRRskVG+ViHXK3TuIRZsD2BHLnf3ZizJYD8UWIHalb515N4fyJ2CRHT0O9Yr+nYK3Om0a9aDZ8pCmwtky70AicG0ryHPGAzlFHHhHBsnGpCuWjU1nsMTfDXPNGgB0DormXJ7/MfzuAQTHVkmecQsVPS1TLXKVd5/dtdLALLQN1SgT23lZCQ3JxrpY65j3b1fBgXVul1RPrZ6WWCZnrpOk1loFyRYtFxxIWZy0f9iaw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "DyosoGYOI4/Bt2eHSTw9wBiu62cNq5iZFQg88zdaaaSppctDGjDzAniN0D9l8rVXkEydv8ANBML8kwYg/UufJdfwGdzoREN2HsO5bwUAKC4xhB+Jk235RIFepZHdiKKrlL7j2DgsOLCaGXKKmuXKtgaybYkzXU2F2Z3LkF6TUaoNfiZ1wWirGUThHLyV0SyziaRuX+SG0OzFAKGqMrWpy3Cwlq73MeQUsUaot/NPvRTbVQegVlUeXVGX7DwPRdP6FnoK99Uf5/Qu55vHIDTBMe5A9KKd6S5Uce4eVGRQ8la+VUFn66txH3gxU7BA/RQcHfGw2d6VumzeL4qtIq7TJK8xi+ohlHxkIF/JqZ7aM4YztG8KirRzh4zPj6PyulJBBVWMw8/bSaQIG0DBqUXA9HgwR5E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3afc466ad02194ec\",\"npc:92aeea6f6bb8f8cc\"],\"constraint_ids\":[\"C:362c29b567b785c5\"],\"span\":\"Oren accepted the title of the Harbor Marshal before the assembly at canal bridge.\",\"rationale\":\"Oren accepts the title while Veda has already been recognized as Harbor Marshal, with no relinquishment stated, creating two simultaneous holders of a title limited to one.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "sl33WPMg90BF6HHjlsqWfIMcTyZjRoa22TIGctpyMMsAYr24H1fxj/ilKetXUme9y7KMuRKLCp4zNeWE0eoakgdtQ2GN2oxJg+nq4HaOnbmEfSq8hJFK28RObICvXckqAgttekEAnYN98o35WbzWI3K3rUY/NthVo1RxsA5D2nSSo63EZo6SB+nEteZvo6PH3pJa05n0WB/W8pcYKm9SOwe7zQgyU0MNIxrkuS/28q0nB/sqKJOwyG4nNLhb2YrOUTMMS79VpQa2t6rxCJUMuqZhJlc1zauaMLqGw/wv229GjnKqxK0S92IWwaHTXusuXPYsXLzpasrFdRKtSAX6btU2wUxzDt8cTL+E0jgjtTGfQr1NREnnw8fuwqMktPp60z2neiuVbgtmGjTAoOnpWTAoQGkL",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 645,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 191,
+        "output_tokens_details": {
+          "reasoning_tokens": 72
+        },
+        "total_tokens": 836
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3afc466ad02194ec\",\"npc:92aeea6f6bb8f8cc\"],\"constraint_ids\":[\"C:362c29b567b785c5\"],\"span\":\"Oren accepted the title of the Harbor Marshal before the assembly at canal bridge.\",\"rationale\":\"Oren accepts the title while Veda has already been recognized as Harbor Marshal, with no relinquishment stated, creating two simultaneous holders of a title limited to one.\"}]",
+    "token_usage": {
+      "input_tokens": 645,
+      "output_tokens": 191,
+      "total_tokens": 836
+    },
+    "tool_calls": []
+  }
+}

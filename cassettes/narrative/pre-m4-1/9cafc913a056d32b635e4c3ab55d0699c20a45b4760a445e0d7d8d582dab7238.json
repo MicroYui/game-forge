@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9cafc913a056d32b635e4c3ab55d0699c20a45b4760a445e0d7d8d582dab7238",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5691,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 543,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 306,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1189500000
+      },
+      "created_at": 1783847300,
+      "id": "dszUONjAjaomr2TxV2ZSqvAVayh3g+/Vy2S72beqQdkIfIvjyo3/svormviOGq+1Qg2WtttO5ajMELvyFh0ltdTNrZ9Zh/rhOZxOPuSZAi7vAm4w8/yEHSvRhZJpmerPkdh2fEhu3CcWEEi348jB+dC/WNasPURsoBK9Ua7gM1FIaQ4mN+IIohxZ2HgoIm4WdnmJ1cu7iwctt9eNn/JwjVyXC6WEPzDDd8ZnfZJt/wzgHV46ZX04zzX1pzDJ1x+8J375r3vt7tBigbQ+j1p/fPaYAxEF3TbKj0K2NIKs9qOCPxrZRrQN9F4KYtZ+FWxV1DpetxcjulZrJywNLJ3HWHWXc8dhjkgViNeMTdm0cWPFGTaodTn6Qdjmdwzytstd9zntGnbAZw/K3KR0qln0ahfOvHQTkQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ljQpjVdAr2GQRJyhgiFy77obs/xzTfa49CCbjibbi+sa8aOeOf6pVrdbAH3/mmQ+TRuUWOYRqbAPSCdnxF5mc4FYYIe1mHvPdQ0+SriwFOp1WKoQfJyoA/RL3pamVXCDJGylbDh5qphPMlN3SUKEmvEvs76HDqaOM15j+MH7eZP7cK8jvZQtshUa42Z9J/YEtZL0v2z4wnF+PTWO5y6tVXq1AekBTI8lKnw+gMtBTkZshqhOXKl3dyb1t5F/QjL9Q+WAqPvMuBS1Ai4m69K5Y0pkphrQIVR8rLfjvt5Ti3vGwBm21RbCkv/Py1Ux6we212uwo0fDw9V91VBu0C7mkWbrhYXlszFH3VUmmAG8De9UTnlh5njKHeDf/LEvZEHUqvmJOOrZY04VGGL84bDun5MnDlU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:20a2af3da264db02\"],\"constraint_ids\":[\"C:9f4ffffe73e31c0d\"],\"span\":\"At river market, Jora transferred the recovered coin into the rebuilding fund.\",\"rationale\":\"Jora diverts the recovered coin to a rebuilding fund instead of returning it to the required public treasury.\"},{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:516f0453012553bf\",\"npc:881c5941ff60a6d7\"],\"constraint_ids\":[\"C:0f2566f1a3437623\"],\"span\":\"In north gate, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin and Eli directly cooperate despite belonging to Archive Ward and Cinder Circle, which are explicitly enemies.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "dkb13jftV6x5AZU9I4xHOZook5UcqyG2IyxeXi18bycj5y4B5DrUmrVdD4W2k9bNlBhhGsqblvvcdeAMOpTyzloa+Or9TwF0HFaL7DkpzDLIaB5m2TSOaSdJLlmGHY6dZevLwIpd+J/k2Z1sV1kadxFyl7+auvoUBxM/XnJPE8e2kQrJPClQTyUQSXlQGzEN8ff2W3JjWxZ9oAoHxo3/pw/A9kvOTWaDTNB3bcIltG+QfZx/BoMm2pTGFViiniFJjxhHwofWK/CeTJyp+1S24QPuuccL0K+kxrhrWYN7FZO5eAc0i6iUI89uDRk2lJu0QnGFbilBObGIdM+LoWcXeONCS2FOGLwGpIsKeoyhoyDAE9bp11r2hI3zvbsjwnz7DrRBaMLnE6HSmaCESJ0GbTAiYeUv",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 543,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 306,
+        "output_tokens_details": {
+          "reasoning_tokens": 118
+        },
+        "total_tokens": 849
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:20a2af3da264db02\"],\"constraint_ids\":[\"C:9f4ffffe73e31c0d\"],\"span\":\"At river market, Jora transferred the recovered coin into the rebuilding fund.\",\"rationale\":\"Jora diverts the recovered coin to a rebuilding fund instead of returning it to the required public treasury.\"},{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:516f0453012553bf\",\"npc:881c5941ff60a6d7\"],\"constraint_ids\":[\"C:0f2566f1a3437623\"],\"span\":\"In north gate, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin and Eli directly cooperate despite belonging to Archive Ward and Cinder Circle, which are explicitly enemies.\"}]",
+    "token_usage": {
+      "input_tokens": 543,
+      "output_tokens": 306,
+      "total_tokens": 849
+    },
+    "tool_calls": []
+  }
+}

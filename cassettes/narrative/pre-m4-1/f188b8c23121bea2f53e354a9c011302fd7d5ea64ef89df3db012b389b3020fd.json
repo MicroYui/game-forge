@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f188b8c23121bea2f53e354a9c011302fd7d5ea64ef89df3db012b389b3020fd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6346,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 566,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 207,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 904000000
+      },
+      "created_at": 1783857500,
+      "id": "PDrQiZ+s8r5coTW8dAKiqLdIpHzOp6MZl0zpXxmqLkG3CWjzNGdhxpo6jMdB2Yf45kVnqx4OjTcbO72GQIG1Rs63kDf8lWS4/jQ3iobzax6U6EVoHEYVfk+n4yOZ53O4PzpxC8AyPPpJbekNwtfj9EKVnoA2vgM66/R5TrAfEsYinMkreq7gk6E0o0AhWfL4ixjCqE3nunAysV3j5sHaGjbSgsU+7LpD49q/ZnyQVPDC94omvNmdvuiZnBURjaC8aYGvMoQdJNZ6+EfJGe+j7kOf1s54mtTGD9iZ3f45tOWOfZy0CtdayRGC2eqKBqZg+BzJCHkexS8XvdVxUtXCsfaMqnuiFREDzu/4hg01m0vRjtRGHmF1iozjvBHjm9UEw+1WWNqb5cj8TMz7tGpZ2jOQLXWzLw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "1QSTeBznENYQnPVpcYsZrcpbWvggCinx87Vy2hJZ6bWM2E/DG+vd+yDO6KjpX5SbF+UId2jtKrcloYVZexEC0sfV8QTWNmjANMxc8og8jt3mcnt0wYZ4YDZ1jkmsFo5O+nEk8RXCUxXqbJejs5vLsYu4Fpq5vaP9dSo268YZuMhuSw6RIbIeqfKVLe47qTSq74Bg14mJnCc7MpuAbXNGqAfL60mDXE8ZmOucYVWMaw2EQqa+AENKEafD4lR1y2r5k0w+DaoYuLJ8n7CdrAQP6pc2sAuR99Pz7yU2PVErPFdcbFU3HY8vzls8OxkqhLFnp9rL8yfpJH0Myc9GSdmz5d4caK2/1Xl0nEThX92hitL9SGSRP3MfwlAxiLMDF/I5FH0RjP/ijXoEg0zVsiQ3muW52dI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1575ccb6219fce18\",\"npc:78ec361a30d5558f\"],\"constraint_ids\":[\"C:e12fe6b44bbf54ad\"],\"span\":\"At old mint, Lea was formally introduced as the Archive Speaker.\",\"rationale\":\"Lea is established as a second Archive Speaker after Ivo was recognized in the role, with no relinquishment stated, exceeding the one-active-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Ukp4v+RTd/i/OOw8GCrEkTBmz/lRBGNe/DO21kTi0S0OJHEMrg668Qsh4HKKEj/URZC/T0/ZCV8o7uTOAYMgBH1BTOSXOo4GN3FLYtuea0/HHjOFVmRsfZsCdzdxiGebD3YnANbrNleccnT6oJpv3lDZeApuwrJTNJIYs8FWtxkg6Ux3jqDA/UjD9tw6Fn4VKStlh9xR6ZO1GFRXANZcwPm9lrYtAVkZEM8RyllkhNn+Rvrgsw6rGW4HOWQFlMcASb08sBmYFSlvZEm+ucknQxQe0gsyAbL4+jAW3mBvsODgGwfdveJoVpE4cwTMYQg9Y1FxjfYx0gZDOwmGSyTECBlRCed061K59FBmGA3/Er5vbHfMSlHci5KOPQ1UEwf3vR34WzJlBH5eDFD4i+Nv9Jbjl6Jv",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 566,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 207,
+        "output_tokens_details": {
+          "reasoning_tokens": 96
+        },
+        "total_tokens": 773
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1575ccb6219fce18\",\"npc:78ec361a30d5558f\"],\"constraint_ids\":[\"C:e12fe6b44bbf54ad\"],\"span\":\"At old mint, Lea was formally introduced as the Archive Speaker.\",\"rationale\":\"Lea is established as a second Archive Speaker after Ivo was recognized in the role, with no relinquishment stated, exceeding the one-active-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 566,
+      "output_tokens": 207,
+      "total_tokens": 773
+    },
+    "tool_calls": []
+  }
+}

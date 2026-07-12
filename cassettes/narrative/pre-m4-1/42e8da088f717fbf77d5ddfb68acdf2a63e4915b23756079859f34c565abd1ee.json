@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:42e8da088f717fbf77d5ddfb68acdf2a63e4915b23756079859f34c565abd1ee",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3457,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 559,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 141,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 702500000
+      },
+      "created_at": 1783862700,
+      "id": "4alijmOuMVnl9zESKPxYPsoipaTKY8VqJdIiY+RuMyTUxwJ2BthdJSUKr1iMVBQUVVbpf2pYDJFbMQMg6TYj4T6IJV9hGLfsP6aBn62w1cfgOB5+n+0SWUCG7H45Tfjnr9+axs3PgnXpBW8/uVFObxJ7VCRp+8kNuwEvmnEGa0Dvr5W+NLU3Tr8VuNh4F0FHkQijerhb0rmiIbqTSy1IyX/Yz7U6aqo7UXRDSDsmvk71LUiBJqcMrSNUNpQ+C+/yynzvXsvWCUkAOKzeCkFxR8YHJBR53X47IODT4911KW+43P0KeGb3UyR5pLmFBDOM1zsjNOrVOWz9tY5NDrp+QyiKA4k7/gi/NoTxQn1/X5kfep29bPSqvPX1dq1n+wPgN6hZiia/g/WUZVHMzC3gZr9PU4bLrA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "chsHlmtE9AtvU8SXfkXDSagqtpsQ3eeeiqSA/3ZU0e+yK7De4WZB6Rf06WBC+QOWwur1G+YNcxnLyZ6IoTf6kzUBVdcGzd9USmvbmzg8LOC+C/sa+9loy4g40b+urrmxvnAFOr6m53jRZFEfUtf5TFMjOMA+iSJ8z4JJiKmpuss/aRNdIXW94BpgjkQWq4Dm08gz6pV4m3Nk55HucR6VmWoizOlnCAx8K3Bjf8Sdrx1KA+BQ2tb/eP/A+Wj5saE4EHxZpC4VAPbJp3F/1fQuO57bIFnNcuRACyUjBJ4c7Z5GDpDBVf9tfWkR8B7TArO3nivL1pI/T1mG8NSmEHYtQR4av5rM/P7BqzaRbTstxNrdGUQArHKwAJHAIIEaoPQIW/WMVdqt3D+C6UIJscTgCrhMF64=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:36664e8e27a98130\",\"npc:d78ac35224516ca9\"],\"constraint_ids\":[\"C:d2f67c4f74776af1\"],\"span\":\"Ivo welcomed Lea into a shared command post at archive hall.\",\"rationale\":\"Ivo and Lea belong to factions whose standing feud bars joint commands, but the quote places them in a shared command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "GDtg0z5srpOiZqz/MaZ32r/GuJHQZSr7FPVpui9oCFkttuL2Y9vKZ0TXegKvmjaIlNA4RGFQRamTU5Jjx7HV2FJNz25Bq1HOws+uqGB75nzr3KzcgZ0QgeTa2Ii0cBtgBcxqzqy/+sXZKP/ZgnrkmLz8+HU8xr50OQAkuJWm74l9Xvk1Er9BOBQ9K/zIDn9djAubYuKimkiSeVqzGFSm3MOcfjGUJ6O3zMqPjcmCsJzj9Mc7oa0aH3/Wfck9lHT30yT52TOeRXVH6ijLciUHJafnxYA3SQe0Bhpm1Wiajq7BWcf8gXZWW6ECX3eNtnnGsTGs+3vvNW9+hTDINMIC18PO6TorHnJ4k5Jp4OuZOVfdw4Td02kUQ8EvM5gFiuCBvAlb0QrnUPk907hSnOPXhki5yF8T",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 559,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 141,
+        "output_tokens_details": {
+          "reasoning_tokens": 37
+        },
+        "total_tokens": 700
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:36664e8e27a98130\",\"npc:d78ac35224516ca9\"],\"constraint_ids\":[\"C:d2f67c4f74776af1\"],\"span\":\"Ivo welcomed Lea into a shared command post at archive hall.\",\"rationale\":\"Ivo and Lea belong to factions whose standing feud bars joint commands, but the quote places them in a shared command post.\"}]",
+    "token_usage": {
+      "input_tokens": 559,
+      "output_tokens": 141,
+      "total_tokens": 700
+    },
+    "tool_calls": []
+  }
+}

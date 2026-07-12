@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4c150e2c63cebecd23e832559370090170fc3f3a97b8a61b5112e1cd332ec8c0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5300,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 696,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 348,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1392000000
+      },
+      "created_at": 1783854500,
+      "id": "1ua9N5IGfdk9JGba6/ruMLeWtGPi3kvm6OCfEVUOxrObmRY1RC7ZqxzP5WFyq8+YIZw+dgkVbkAwPcjYezo6vCiWS+Wg/5snazpmSzmAj3+4X6/6aBIDvzVoWwAepnu78jjHiQYhClNvv+i2uKoPSzdXQiBBxuNR8Ag0gJGJbAHsvoOQLLvmEJFpnhiMaymZQoQqL2G0rt6dZfvkTovx0qHTbfE5Nynq2jSKi9hTDeGdM5IC9WEB/3ZlbT729c/TjF+4apXO5J8hNYEaFv8SzS/SmKLHFraL/gz/+TW5FYw6qlNQgCc8DVIy+FKwmPEZuHkgi4mgsPw4CeFEM+3uCvScTSZZDbyBUW9cKRe5+nAys0p1HYWeVbhYM9D+1kMP2OzspeA6/qleEaq03SPqrg/J55wtAg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "fvR/JByVlEM/HabYY5oqKDPghnGKm3moeQn343Jcq6vSQRUIk8owe1SLinrMkuyZBhFRAEhxmk72p3O01iBIeyjB7HJ46mVLbUll7u8QzfpInA3rWVAPVZusJjutyOuYD9ZjcYbC2Ri008jefrQLiaY6WAac3oCcIWUZaruq+Pnt9LzzfhcvPOu+sQBJzt6/quLfd9nBY7gqNnw02t/k+Yruqs3GQEQYt41qlvO3pJ2LqdLTqYlkb4SK71/C/84uhNfizbenSGUBVUGc4EyUW5JINS4nof/tOu/qypDYmfhhcpyr9zAMQlLPyimZjW1pNXcok40N+LmQkeZF/tTemehYkruG/YQXzjjQu+HaMWhL8X/gSCgsQycrb+ghBwutaQzV1E5y7bLPnC5qB6UudAv5tYg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:3e41d9dd729f29dd\",\"secret:8379e0ed8b438c4f\"],\"constraint_ids\":[\"C:7e4e3837abfd240c\"],\"span\":\"In old mint, Mei disclosed the source of the winter signal during second bell.\",\"rationale\":\"Mei knowingly violates the secrecy restriction by disclosing the signal's source before the permitted verdict stage.\"},{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:3e41d9dd729f29dd\",\"secret:8379e0ed8b438c4f\"],\"constraint_ids\":[\"C:7e4e3837abfd240c\"],\"span\":\"In old mint, Mei disclosed the source of the winter signal during second bell.\",\"rationale\":\"The source is disclosed during second bell, which occurs before its reveal gate at verdict.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "wfQzki5Cz8x57RAI6NcVbp16cgKa+Bi/YfMW3xl2AbqtJc83TvS6mmtTGa1kxCBdqfC1BQexS/8xCAMtQR/SGiG7vD3E80UKkAppEqctNdx16tCQDcfE6T22VQj8KDHwPpedKdrtpQ0yncR2G6isywevI3fhWkK22TmcEuQrbsMcMvzTDJYNTTqSMhluSL9uW7GGNuQtnwt24vFsDXtv7i0SeUw0sLKeImhbYnOruMbO1hK6tGFmemXGDsAaIi0b5c1lVXN/5z5idrPBxsuc3UNZ3Tx2eTV+70fQasVx2Lam7n1caR6d5KavusssIzbyA911SDvw+WUkQgPiLTwEznzAqqOCgFbweTygY14nwgfmNVh0OJDwzNakV3/K334VZ1G34sDPxk8Ln29hYoVnwyKARW2J",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 696,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 348,
+        "output_tokens_details": {
+          "reasoning_tokens": 148
+        },
+        "total_tokens": 1044
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:3e41d9dd729f29dd\",\"secret:8379e0ed8b438c4f\"],\"constraint_ids\":[\"C:7e4e3837abfd240c\"],\"span\":\"In old mint, Mei disclosed the source of the winter signal during second bell.\",\"rationale\":\"Mei knowingly violates the secrecy restriction by disclosing the signal's source before the permitted verdict stage.\"},{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:3e41d9dd729f29dd\",\"secret:8379e0ed8b438c4f\"],\"constraint_ids\":[\"C:7e4e3837abfd240c\"],\"span\":\"In old mint, Mei disclosed the source of the winter signal during second bell.\",\"rationale\":\"The source is disclosed during second bell, which occurs before its reveal gate at verdict.\"}]",
+    "token_usage": {
+      "input_tokens": 696,
+      "output_tokens": 348,
+      "total_tokens": 1044
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:63519b5f2c7d5179aed7a8c13149e08b619ae34c6d82072d0bc388d58aee8855",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4419,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 614,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 205,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 922000000
+      },
+      "created_at": 1783852300,
+      "id": "fRglPkh3pZIrXKrnZpHl48yL415pWgf3MTYbajvoWWQOZRQPrMHkZYwf4KZip9OgEfJXNBVXFQ55k1ZfsQq5FZqLkIeJC1slpRhIYcLJ3pp65e5SD7SAOTdkkq4Grmkqz+Wd/8UarmL6CMBXn+1cucBuMT83cIOj7VpOzcGaTdYAda17don5bIj0yeET/3FzPppzpJ8xloLRhKCQbzZKoqQS86Br9yVWf7QJllSaxmKrfIX+ghwifPO7yGdj4BullEw4eoXk6xLjgNyjQ+Q66AdNj0CIrSPU6G02tFVtXEG5PB1X0fVBLO13m3jAkV3C+X0EtLrYCol7gLV27J42vjphNIrvFD4j8+QSg/guXLejOHZ+3hR2nAABFMwmc1f3iHPHyoZuzXT9OlkJHq5UjDceUH/ntw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "7bX9wsMhzLQFO779XN9OWmjPG1v8nFI0dyrQJdvxNJwbJJp4ymazzpe93qJwyoeMrjYRDs0ENT9FiObFUn2xHMH/YPIZfgqCz4FB5c7mUqslf/Gr6LbC4WECAXfExzyKaoQ27PIBvtHvfnkbtC0P/sIoOCwmVf6jsQqyAznGTUXW8eP0VmER+lQ8prwrcw8AjVU8EyADiZZubl6Y+fZ6FDbVCsTeGeTElFYE2Q37KajsvCa+7Rhm2neWXHKF3SR2p1uraj3SbkqqfBY47lsuqsuuA8FMIVV6xWLxCTrb2IZf3fyYA2wpOS1z314dDECd0czVBnRDQBBOvF5YPWNhJw02jdtNqTGEiMdUQS6ojcMaKdRKOUMNOKO7KsxzkDbYm+hf7jgB1rmBmWZO4s/2opCj63U=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1bd3bdad6345c345\",\"npc:c6cdf0deb8e2dc74\"],\"constraint_ids\":[\"C:2035436b7c9d36f0\"],\"span\":\"Oren accepted the title of the Beacon Keeper before the assembly at lower court.\",\"rationale\":\"Veda was already recognized as the Beacon Keeper, and Oren then accepted the same unique title with no relinquishment shown, creating two active holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1GgQfGhVl5DVnNV/RZ9FdGE8wWtQ6Wks5vGu3MzbgaZmYuRQL2m9fxyMqDNW1fNymFJH68rWGw+8iCiAZyFpH0Cf2+Q/pNSW+v3EijYIy7czBb6XwcM0GymT9SaX4UAhdhnRJ2N8dWthipqU7TL7BNorkOhdiM6F7i+LCW2RV9t4OycPqAQeI1MPNYxBFKa6V3T0J23+zU58KKGZT1zZVP7/g72ief5zGsZKgz6tIc4UjMvlPLwtUkN/XPR9Rdd3WAjW/2B8SYhVTupv8pnPD5zS+EJbsAUX1btUXNmxuJ2EbmMNydsNfNsV+WwlsvyzCnQaxwNVfkPltoEobS/VDI4AA+vMdFq11A0ZF6Jeie8GeICIPZJBzDqUR+y12Bcgc8Q1yjZyN/u00fhaenVCpDnyF3H2",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 614,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 205,
+        "output_tokens_details": {
+          "reasoning_tokens": 89
+        },
+        "total_tokens": 819
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1bd3bdad6345c345\",\"npc:c6cdf0deb8e2dc74\"],\"constraint_ids\":[\"C:2035436b7c9d36f0\"],\"span\":\"Oren accepted the title of the Beacon Keeper before the assembly at lower court.\",\"rationale\":\"Veda was already recognized as the Beacon Keeper, and Oren then accepted the same unique title with no relinquishment shown, creating two active holders.\"}]",
+    "token_usage": {
+      "input_tokens": 614,
+      "output_tokens": 205,
+      "total_tokens": 819
+    },
+    "tool_calls": []
+  }
+}

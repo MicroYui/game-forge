@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:71446d93cc636642fa208f5a0966d319f0fc2e803e340a19506b3f5dff139d2a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6888,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 617,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 193,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 887500000
+      },
+      "created_at": 1783845400,
+      "id": "Zj1/yn3hThIEQmn8fFt6NMIrH3wzqDfntGVjeEj1y/8APuVM/MO/aQQC25Y7lcZ25Yiu7ovzj+6O8cdn6oKyv6ZwSRcIBNxUJ9gN5//yEoc37FGnNL6rGO/MBSbTz13bsHEjALO5NMTYKRbTr5ISK1omsDcpUS3amXiuqtBaYqNLWdIFfACefdqS6Mbh3vsUUj+qEJNbURMPK1W2YfgpKdN7KoL6TeTWJV1l2Tf2ZnpIt2nUh4wqPRAuC2uvjhT59R9F07HSqTO8vl4+Oiay4u8GIhO0BNBHSljU+bJg5jRj4XG6Ui8akDNBtpy50JFkZzA+GhkpQ7smyKicY8sFlnQmXXKwatn2jTsfM4/nehPYo6M9srdVJcdVr5cXt1USXs7W2TtodL/tbkhUoTqmQJiW+MWH4A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "hmBhpPFa8+WB/7+z8j79eg/hdnzlTm61g2eeB2r/hrRujHhds/MF+lnEhz6no0JsyRDwPzzCb9Sz66g9/SjpulO72UTSgfuWpLADnjo3VCERzfH1Ghmfl9cOmpC2Gx59V47/5f5vCLfHxO/9LaKf9/KdPurLGWFMc/ofecSUSYncGEx16w2lGrxAAk5+Lpm+unz5unleglq1+nvfMfnMA9bmRRwCT9FBFyWmy0MZfRfxXcuO/xE6P0hzPBLivwH8PDV1kQsRJ3iVFieytspnyYnPV2/Bgx4kpk4p+cYyfqDiK8HmaT1Hvquz8zxpV6Ycq11wIwlHWP+7uyUtA3VpcPgDli3TiSX7l4q2mv6D82botp7xPZgC12pMx0Zu1k8g9OKM2tBv1mGYJb+EFeCyxc1QwDM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:629103e1273cc95d\",\"npc:f555051d7170add6\"],\"constraint_ids\":[\"C:c500e19bdcfa440e\"],\"span\":\"At north gate, Noor was formally introduced as the Crown Witness.\",\"rationale\":\"Noor is introduced as Crown Witness after Cass was already introduced in that role, with no relinquishment stated, resulting in two active holders despite the limit of one.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "o7RIBt3CQZd+x2AatE+7DMl6rH6zjAAAGGr5uMXtUuTDiiVBWG9z6rNJnF1Z7dRdG9xC6KpltSTYNc6RyvZJJbCbn/F4RoEEb/b7wcF59fT5LvS3ahfcYtF44MU0jg6mk3G2D2hQWv8EN6O6SK8LgmpAHXuf6DoHqcdyC8XPpSuWdUBK9vIoZZ5WwTNcw777DDcPsNHhmjactGFAA3ZqEDFExmN7VXkQ8k0bhCvfwQ/Z/vhekfxkl+3HFGcGYWof4JS2Kp/AFfXlKB5BDu6DqPDf8zG6FlaUzWdz92XiA0cBNA5hXDRZ5cSsaUOYHjAezspT+1HPvE6zD/rT08k7/EdA2sCZms43ArS2cfvTkclELmsGCFoqXLjiO2xooOUfwLkmV+bzd9n8xPK28ladiPZ/9h+d",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 617,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 193,
+        "output_tokens_details": {
+          "reasoning_tokens": 83
+        },
+        "total_tokens": 810
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:629103e1273cc95d\",\"npc:f555051d7170add6\"],\"constraint_ids\":[\"C:c500e19bdcfa440e\"],\"span\":\"At north gate, Noor was formally introduced as the Crown Witness.\",\"rationale\":\"Noor is introduced as Crown Witness after Cass was already introduced in that role, with no relinquishment stated, resulting in two active holders despite the limit of one.\"}]",
+    "token_usage": {
+      "input_tokens": 617,
+      "output_tokens": 193,
+      "total_tokens": 810
+    },
+    "tool_calls": []
+  }
+}

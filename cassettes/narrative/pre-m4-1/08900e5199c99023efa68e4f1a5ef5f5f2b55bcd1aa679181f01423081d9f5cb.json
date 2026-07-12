@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:08900e5199c99023efa68e4f1a5ef5f5f2b55bcd1aa679181f01423081d9f5cb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6000,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 625,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 351,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1365500000
+      },
+      "created_at": 1783842200,
+      "id": "1ow4e+9XS9CkHRYrlaf18cM39+rfL+f+VY4zej8OaI3PHxflAxGvJ+pFvdGUVIZNrjZJILmG+FkVj6sDiDpPnz8aph9Pqpw40zmpeiH4J5dUFzw+uysCwlk5nNt5G46Lubvr3NSaAL1SBi8Z6cAN6fV7mrJ80EYpsgBwAi0eZzDr/XEmaG007WAKaY7Cm6DzbBMY9fQvtZPY7HlcVXKP6t+9A5fH6AYPq93MfBU1lflkQJqW6n2zQjR32HWj7BgiCzsT+y/ir/UgbCN+dpYEXUly3TmQRRkmyWAsr1fIF6C3b2URvh3zHzg2yeeVVvMOhECcrP5xIEW0bOxLMQ1YdOUWJhgOC+OsrR0BTDBiYnj7MTMFDYjM1Irfn4h2ndK3OWFV45O6dqRMMpTEeqoitq3KKd0s+g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "1ilFNPSOnqHHzAwHFBvAlMc6uWe/7aWLUUaBZ2+Y3rQYr/VFFZmG5TPywRyyEtG7LsdQt1SZTbJgZ87afROD/WkgF0nWjiEHLVVObFgcrujuBekMVtcg2n7jgtrn0axEeWDRZjcBO5f56wqTHaFtW2B8iQ/bnHe3dGv1nUJrt2VGEjxQPbxqQRNF+Erlm5pw/gaT1R4i6ZtfbNc8ySbfuoIgkTMW+djtYackLqAmk15I7IeTwRIaMIAauC8c/Dg68zTdxTt7nJhogISbsp7OTcu9nF6JB4c2Ti1Fo2OANZ6qt8aEXaODgJKWI+on6X4DG7Xfpv2uZyQbSpbCLP0Xin2kCKxQgT44PybVwcDF9A00Csc9JmmoALffXPGqjaOLWrDLhP9bT7Ff3HFMvhOWqC9/jf4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:5367d1a562737e9c\",\"secret:6ad4733329c58ada\"],\"constraint_ids\":[\"C:167f9590f6995067\"],\"span\":\"During encampment at caravan court, Veda openly named the origin of the black compass.\",\"rationale\":\"Veda discloses the compass's origin during encampment, before the permitted reveal stage of crossing.\"},{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:5367d1a562737e9c\",\"secret:6ad4733329c58ada\"],\"constraint_ids\":[\"C:167f9590f6995067\"],\"span\":\"During encampment at caravan court, Veda openly named the origin of the black compass.\",\"rationale\":\"Veda knowingly violates the secrecy restriction by openly revealing the compass's origin before crossing.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "SgCeMRViEfGGPlR2vjuA1dOssrcn0TV9q4L/zKFC5WsWbaU3j/r/yn56X68zEvWNhwoKms0pyhJJozExaqu7qzgd06TNuD4dMQ1Qp3DHG3VX4xSPQv3ptSGUVfPdEq8+J91v/ZId96cahrSzvDD/VgkDTNkJPMGpsxeY2b5ZPHQPwDJelfKXoqvSz6biPNjCBKyoi6hB6UTAHSMcFEbsSKgggC6nq1VyM87tOnTgjFuA+aRO5l4cuVSLhdv0WUXa1IbmEwfPbivImGLMUMJI569LRCQGu92v0wvgym9xDPsrUnwVKwRhG/zOEfF77Ja8yFkCsWE0WfAyMVl41+rkdW353NX26Fq/xFL/MXgKCBMEiuwe0as8QHTKRY8QfNYUcmBS9OBT0hYXSiUW7ngT2VXllX43",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 625,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 351,
+        "output_tokens_details": {
+          "reasoning_tokens": 153
+        },
+        "total_tokens": 976
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:5367d1a562737e9c\",\"secret:6ad4733329c58ada\"],\"constraint_ids\":[\"C:167f9590f6995067\"],\"span\":\"During encampment at caravan court, Veda openly named the origin of the black compass.\",\"rationale\":\"Veda discloses the compass's origin during encampment, before the permitted reveal stage of crossing.\"},{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:5367d1a562737e9c\",\"secret:6ad4733329c58ada\"],\"constraint_ids\":[\"C:167f9590f6995067\"],\"span\":\"During encampment at caravan court, Veda openly named the origin of the black compass.\",\"rationale\":\"Veda knowingly violates the secrecy restriction by openly revealing the compass's origin before crossing.\"}]",
+    "token_usage": {
+      "input_tokens": 625,
+      "output_tokens": 351,
+      "total_tokens": 976
+    },
+    "tool_calls": []
+  }
+}

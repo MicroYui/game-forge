@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:408b8aceb9690e4917f1e6a65b320cabc7f97886ea73d238474875c470981924",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3273,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 631,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 177,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 846500000
+      },
+      "created_at": 1783856800,
+      "id": "vw/Y5QiW9o2ZecOlmwMofxw4ltnfpbhM6VcDNOTmtxK4CtD4kNI6JsZcfqjOcCr3HKYTJYSAgUUwOOVUNSga/xIsefyLMlVI5mZ/H5x+hxeA/UEwU27aPl5ezz4HHc73nZKNNdDXPqwSHyFrZygzXKOfzvvHHZD+FN9KcpgMegOvHJ/2YHF65eJNRWPfl/buHIkVWkBABgA4f6VN0dtb0hD7fJrvNgBhr+p19VLooDHlWIBXmbFidLunRnN3LdguPyAKiuMZAb4GPuX6ebwL2ReaypOHrf7vU1AneDKpUuDoRGr3Pm2avWlZ3djeABJMQONx3Hr+c8gR/yRecYn6z49y6661Jn1ak1/HQZHwCG5L9wodrRMhX25NfDYGvx+zcN8sPxf40e8ebqanCgegJZKnWp755Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0cYOdylk6L63N5oy0QFgFFn2tgHAoA2CiN9DadE+4/gTR2LyAljvA+v4Of4HD8s9s9VXlqvV36ynbCsmw3kJ8NYmQjhLw8Z+u3lM3cIvewd3juAnfmZSW7G2IevY91cJWdnH/9eOVh5CamRbYZcWnmcvegwgldcowXfO/Rch6i7NKGjlNgCKpy9X/B5Chtd3q50f9NIGZ8A5186J1/tdu2+qbeiuhrfWtOb+jJEwnjfDne27diXIUyPW+3ZW3HbZ+n3i36I2jvswtxOR3AYAHYDYRWrDe6LZ3ypB2wDdUlsVcptZqJTBVo1nkLWQFpn5ctq/csoQPTlRDHMCJmW4La9axtCIkShwDj7Hc1qpuTwfgzxziNdeP7D62B7ywTDnMFNcAUizX9iJ9u1RLyZ7tfhFLJg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8d147bb4244b035e\",\"npc:b2eda920971328b8\"],\"constraint_ids\":[\"C:1c0901a4a48ede7f\"],\"span\":\"In orbital concourse, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin and Eli serve factions that do not coordinate operations, but the sentence depicts direct support and a permanent partnership between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "w/9JAMhWDtNkGGe//7VyGw37jNHRHkSahKov9oBvL/xFh4MFsxiaY1QFwOlqvKrjGy58q2y1pur5N64/oeW6QNGZPTGsjM4WyAcAQmxsL39zgWOBw/dcpk2Y0jSjLAFJGGHKiFDjrvY0pgNgyOqoVCweTsw2L+Eu/NgL/Fv4+NlvMGTeCbi1m/yKkBiP0rBpNFJ79K81xAjkOSCL6Or2GVQBBEvpDqbDEHwmsX8NrMA9VUZGX+I2/TVZXG4t9+bMX35cWaYtmP3nP2azv5AG9b8z2u4UBO/nCPTGWSqS/sA4zhFUFBFQOKZOPr/sWw6dlyKujXmqno3Q3VLzZTGvEAlWd1Y2sbBK0tgYwkTkqv4aESPxyGYQkrBsnaC9aoL1vLHgpV1cfo7PvXgApDfVvbaaj0bX",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 631,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 177,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 808
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8d147bb4244b035e\",\"npc:b2eda920971328b8\"],\"constraint_ids\":[\"C:1c0901a4a48ede7f\"],\"span\":\"In orbital concourse, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin and Eli serve factions that do not coordinate operations, but the sentence depicts direct support and a permanent partnership between them.\"}]",
+    "token_usage": {
+      "input_tokens": 631,
+      "output_tokens": 177,
+      "total_tokens": 808
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:adbc569f66fa26739d165e092aa4af248771b65776d4cc3a251246bab280131a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4716,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 701,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 205,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 965500000
+      },
+      "created_at": 1783859500,
+      "id": "aqNEbta4ZNZn7hNvTv3TuzHSkEh6nFRNsxkEZJFU1fn5yhg8pVejSCWpZCBsXJx+3v4p5ZJzC300qicyaD7P2/PmIZs4X8q6EFbEVXctFAK8/9vFsHF8n2atGq4mjB6TsvunZXAPqA2uv0HYN3HHH31mU7VO5WnINVmHF0MNhmWjeZa+CtzvnJlxse7v1QPIgom//u8/aMalHoxXIYBaJFAlxm6l954Pm0qJJwComaGM2/nw93CHS6NL2r8Ss+Yz5K8zUBjBFXQmSELYxB5dSCQq8t/5khhWgCs/Zt7h0UeL/3PX/J2VRTb74lv+ZpS2DIPLJ/BJ1d0ySSJupicFJyNlc1R5JKqa5+WTP9REDLKfj41D8mXSnKZUrd4CBULc34kbtfx2XGpHQvh93vmwQAyI7u9Bsg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "SFqr4ff/yewTLzXBO1jAn50Kurreoa/BiOntO/lwehiDSapY8O/5JIAkzkVuEtdzSdezgIPUlonuWHkwVCAp/bOFsxlG82KOApfoa5rGJpUCDRlisDt40ZIaCwVuHlx1QLfp4ywxRkq6U4Fv4B5LoPotjQDiUqScIU+vBa76Icx9UPSy6unc5ACQ/W2rBLdYyez5RbMjhXVKNqHje9+lWXQqxxhAlVoemtzkZHIjVT3wAMK5ALtBDofGLpAgOkKq2nqFVno6nPPt2KrtALD4zBmcck2EfCMehDpoRFBrqosgzqzdX70NTqBF0kJgzH32htE8kBbkzcEXWFAIQKtr/VHeEwF13c4HSmIV/Z+31c5Ln8ZtN5ZwXiDUWivPRX8qfDB26RNRc/t/87LmSR6wB86BEUM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:30fc51a2d115fc0f\",\n      \"npc:465381a6f497a3d4\"\n    ],\n    \"constraint_ids\": [\n      \"C:5997c73f0a00a1d9\"\n    ],\n    \"span\": \"Noor accepted the title of the Vault Steward before the assembly at lower court.\",\n    \"rationale\": \"Cass was already recognized as Vault Steward, and Noor then accepted the same office with no relinquishment stated, creating two serving holders despite the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "6pFgwnuadpnmduiZwdhlrDKMmSPO50AqUcEzXvoO9kwnfsskbHYNu/29yoD4xERnUg/UMVeVcf9/GosEgSZ9nCkrLmrH1RrrJroZ2Xva9ga0ohiGDrvP90KRUlGJpuQ5hIays2o2yRQbNlULWkvoY721J2Rn0xivP5/Nn7t1hMvPPfWF4Q6LWFSkyZt3tgKCeWVxsWqnMMXzKmSsAWCOeCrsfHMCSNU7FhbMJHBJ/TU7rCzCBLHdhsdt6juf6U9yifSQROD1yX3jVdE9k18nf6HPXrEgVleRJhGI5kkH/aFlS/+g4IzxQeZM32YKIu2AGmwvYUQHdbkihBXwS7MKehscDBXrLaHHNsYu8oFy1/5F8rwzjnwx2BjzPW5qAG/871OB/+gYVOwNcP5eTC3rLQ/G8bjS",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 701,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 205,
+        "output_tokens_details": {
+          "reasoning_tokens": 59
+        },
+        "total_tokens": 906
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:30fc51a2d115fc0f\",\n      \"npc:465381a6f497a3d4\"\n    ],\n    \"constraint_ids\": [\n      \"C:5997c73f0a00a1d9\"\n    ],\n    \"span\": \"Noor accepted the title of the Vault Steward before the assembly at lower court.\",\n    \"rationale\": \"Cass was already recognized as Vault Steward, and Noor then accepted the same office with no relinquishment stated, creating two serving holders despite the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 701,
+      "output_tokens": 205,
+      "total_tokens": 906
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a233e60429b029cf99f902180016472418f7382ed0ab770017973f10ea426e4b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3479,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 597,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 161,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 781500000
+      },
+      "created_at": 1783849200,
+      "id": "rEsmIygdLGEfBTiGHCAN98rJuFm4XTeSXywUw4oPpEg5Z0dc1ohckgdtb/U7EENO4QeZBuoP3QwyEnzxdb/xZPAun/u6tcZAmm4FjzzMSSD4FIq10J3WofAwuEYnAWQGOE41LH1EeM1vG7oUGnuFB6JYnK0s/K3u+pCNGnA0gA4V3CHZC9JN3BKgAXFCfALLPEplQhst4ZN2csmijHG0n1L6fhiMIVxSCplF7q2yevsVmzA76/sea+t6WDyVlWkwwzCNnsP6fgO8q3+CXC2FgW+D/Tyd2u/iIu3hQ9k2275OzTfb0C9MbQddTx+/zRAACiqSTP8I2G/xK4PtMWiBg5nBxup4pp/OSSPhnxrUKGMBSNONQttbc81uZZqcy9h9DZVRHxNrFIquI7TYXjnNZO4g5B+N/A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JkvNjc17o4xyC+bBGqEOQYW/tJz9Qxn3CO5BDR9oDuXJYSnmR3JcDHj8o/sRGU7sUtYvuQrZxSU38drPcetMOioZKgFHT1tvlBMnTMTXQUy3Gfu4xkqSOV82f+ImxHN42qCNk0WW3uyFVbwumgFFDXtOIkYcvyPRApBLXrx/FLKNcx3/k+KGZgkaI/+FouI5RWFK9ADMjU7flAEqrhDKbktnTeJRS65mZTFKAOfQHb/kNUwogl+dDeqp6XWbdeYHSK6/mykGFjBGqqgQ+3jlX4zI0rz5oiVs3XS+7y4XrP7MUDecQcdAzTcB1L7GcdJ05lHfMAVOQViODwqyY6IUbmZzL/J9dOrvGg6yXxPJ3sHFoKOK6+0/Oclu4nMwHGcYVCpqg10Pt6ftJPKUbbviosZnxQ0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:1bdac1fe609930c5\",\"npc:5bbf54d9962787b1\"],\"constraint_ids\":[\"C:4c834e51a712146b\"],\"span\":\"In relay deck, Ada supplied Malik and called the partnership permanent.\",\"rationale\":\"Ada and Malik serve explicitly non-coordinating factions, but supplying Malik and establishing a permanent partnership depicts operational cooperation.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "RvmCJ5S9RgdDnL8lJLR81gQj+zKlxn058zlEbBE7rhiHi3T5fenTIA+LCBmDNnstFx0LrB8+Tydlcf9U3TgxO3irITl+abfjV5B2RMWTYlz5yWna7T/que+QpBw8WILODmjzr02zMr7AnVksTGrnZem7SaPoH5tsLQRsNQNDDOwA/E2d5PZiZbE5a1k/rfXcDj2haQ6mq0lRuskOXZ7Deo1niFJKt2xaICKGiZ8aMZ+obqixjAnaTPthKu0MInD9k/ehE8WAc0+7jgMlYMU2gJCteTbtMNJ4F4zSW2b3/qhNKKWG6r/U7MJKu0GNTDsYwjzctpwUKF98C+Jvlf2eomrER/VBibxppdBYiGKmsJlUgOPOQFnu6XQ0mtPU4JKM6sSt/S3H3nu39A620BRHY23Dbfty",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 597,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 161,
+        "output_tokens_details": {
+          "reasoning_tokens": 57
+        },
+        "total_tokens": 758
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:1bdac1fe609930c5\",\"npc:5bbf54d9962787b1\"],\"constraint_ids\":[\"C:4c834e51a712146b\"],\"span\":\"In relay deck, Ada supplied Malik and called the partnership permanent.\",\"rationale\":\"Ada and Malik serve explicitly non-coordinating factions, but supplying Malik and establishing a permanent partnership depicts operational cooperation.\"}]",
+    "token_usage": {
+      "input_tokens": 597,
+      "output_tokens": 161,
+      "total_tokens": 758
+    },
+    "tool_calls": []
+  }
+}

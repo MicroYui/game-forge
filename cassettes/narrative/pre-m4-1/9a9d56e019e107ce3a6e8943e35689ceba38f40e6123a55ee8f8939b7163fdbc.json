@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9a9d56e019e107ce3a6e8943e35689ceba38f40e6123a55ee8f8939b7163fdbc",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5535,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 634,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 282,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1163000000
+      },
+      "created_at": 1783861100,
+      "id": "odf8neX5pWF/8RmC6SSHwaDLUzn/unJwGgfRcWHCWuilVJUkmxsTYGqWRj5hrc4jxFvO4cnMR6wP0+RgqZcby9xqZmKISCs9EAdnzWLyv4PhTxGg0Y2hqFtOmVvL1FrBZ+hUSMn5Hinnx/05CQ+XRl3MMP8Zis9hnKBaouz3z1iy+mjrt+qlc3nPAEtV4Ikrelf3n3NmTeRpWLACif3OBZZtjAPVWvzwpGs+5nVKxWYJju96JLHWDoIIZJqNvtxL1g2uyqvvGHKspNoj3gfiFeWkLxqtigV5AaGutkhUcfkYR2Iyw8SxVWDYx63C8nDshSWEJR/wFIZTY2ANq7cAUJxtKFP8joDz25SpI7z2COdLdTLUQSYg/LnkYR09kqzurrzbTEFUMcfzyVUXbH3/FscR0hS7Og==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "PCrZTvZ7GouRz4imc8sTBALuj2wi12t45r1XTMz3VUwrbpidWynbicihwDaMrX2NmAZWpzOjima1140VW4Wy+feh5pvWrh8yDBBIJvRakObKK7Zd9dwQhJeqHCGHJZcukcAT0T7W0lcLB90kJauwv8WX7iVPvD5UjrZplWIMQxDmW0C3kOtFz5i8svs3Jen9czWJvAdmyLWX1ithIrqWiShdVSd8Bo09vilXxqfagRyLpodzf4Rxmv+SlDF/uFildmDohLKxJB1di+RPiBlEWlJFlFzWxQxOlPve4g7TsqOAUAbN+tHvZh+2gcY10kFY8RfdquyaIkGrxEQygDcVwaSyOtNNkELSlZ8JbHXyZbrNajH2/97tB52qtEBlkQnRsivCWp2wL6YZgzWHxZwKVnuFBlo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:7b04b567dc21e271\",\"npc:f44b982297b919cf\"],\"constraint_ids\":[\"C:f2cbc64b37558791\"],\"span\":\"In observatory, Ivo supplied Lea and called the partnership permanent.\",\"rationale\":\"Ivo and Lea belong to factions explicitly at war, yet Ivo supplies Lea and establishes a permanent partnership with her.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1ZGyhyml/Um/uiOui6e9Ig/i9K4TTjsOGRpO446uiaoQmZTe1OP8BdY7jx4Y5tcAOBg+0UUxIgYwdenV2mYrCoFMAUJMiOnnZ6LkM/v4JCf1VHMLh5oQSzojW9ZY2ZaaxSqBAfxe0xyRcC5QzE+6JBzoM0TzuQOkGEBsOyLFYnXEEWoBV3tE30UJ8jXwAX+O7zspixvEGv8nk72KtJyYU+WpYSCPVpr788oa56bXJMMIkwvc42VJad2w5yLhkVJCtQAPvP7w0UyhKFT9c4CU2eW8a+6BFYRQE+fwtZwh4d0mmjfHO3RupYFC4KcMT4GaY/QlVBZk1JqIFhcTHOcogUJfgob28DIqn9cajd0kOHShT9SLYBm6ThsilHn5+M9JpdsXIo6n8t/2xpJ1qRyv4LJPUqSM",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 634,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 282,
+        "output_tokens_details": {
+          "reasoning_tokens": 181
+        },
+        "total_tokens": 916
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:7b04b567dc21e271\",\"npc:f44b982297b919cf\"],\"constraint_ids\":[\"C:f2cbc64b37558791\"],\"span\":\"In observatory, Ivo supplied Lea and called the partnership permanent.\",\"rationale\":\"Ivo and Lea belong to factions explicitly at war, yet Ivo supplies Lea and establishes a permanent partnership with her.\"}]",
+    "token_usage": {
+      "input_tokens": 634,
+      "output_tokens": 282,
+      "total_tokens": 916
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f4cecfa210b7a86d38a58508967bb8df301f74077cdb44d0409861068693e9f5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3708,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 609,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 185,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 859500000
+      },
+      "created_at": 1783857200,
+      "id": "OM4g/ptUXw9sSD1Tc+Eih6jtslcHTv2wnw1B8J44aqRQd1v1RzVYrA0n6NnvjiyeOxFDpT2vCRCTBc5LubNEdneWO1onL/hgbPT91NWtbNLABKBiAaXVps20AfdAW1Vgr3VtcZ5I/Csr3Kf6nq/CtcQWfSt88DCUC5ITVt7/bIFDr6nseLj7L1s935PXlr556FccP7oNxkOKz8dskxiU6L+/TLiWMj+EcKTbSiKq+JIikv52sIZDZv7FLxXx1oz9Af2oIiHaBzzK+hKRVOn5b4423DjcJNDabvjsS8Uzs0Rj9rG8snmeQ+kSLQe8M58HzENmSeTp96hVHVGV7ltbKVmb4pH9lWNDPxHMccC4yUsqY+HwEC43a1jfIXoAIwO9DW3vX/cSonV4x/139ItU2vZCJH+FWQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "jRZQ7J5WVa2aSeYRhUwUZK9Sa1xDxpMiNE3fDxxmP0yTBulF0N3pkkcEfHychsa7HodQL0RyrFUuOaGSyCdKZfz0VLOmvtICbnCT5te35TBuxipCE4KeDkC0tDcFY3/sjR6hetE8UwjURdZMoqfyGWibzUl9zJn9Yz1zh/9WJDVPjSVq26zkb9rw+4kkBA2gBRKqZg7bNeTfJovdkmZQklCgd0EDVcD6rbAmVJTT61q/c6Nis5VCSpm5pkNHMR+pTqR0DBHrc0RP988jdFS+kx3zs7plY3M+qG2Z0aDlCJU7yZrtXjE95hKp22u4vEUKaqYWU97SmwFIzD2Ap6uukNBeCvd/kjNjo5s/YVuFBSMCM/p4cfKBbw8zvM8cQHZzTpfCQA9pL60RkyAgh8BO/Us5N2c=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:51fd7b40112d549e\"\n    ],\n    \"constraint_ids\": [\n      \"C:5598d94dbd44e72a\"\n    ],\n    \"span\": \"At lower court, Tamsin revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Revealing the crew's hiding place to its pursuers betrays crew members and conflicts with Tamsin's required loyalty to every member.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "yMt067Or+imhOtR0ypeURr9JE7N+AUDZiyYm8OCY+w70QO4K+24KmniQvGaOhDc9X+1OLiqZH0gdf/2jIgkP/kGJjlYOMnxDEn+KrN0ZoImEibsHkXAtLQ/hZ9BOtTkm6qlnsDCp8tJMgYXZZDFw4pvo3+kemClHwVhJ/QE/kdSy6y7rQITGKL2z6G77PFApcQrCSR350d36Kn0OJ9O+ldSSmx22lfjToZzLQoS+IdGDKK4yiYgbO5aBMWniMvtTEIYiL4ALN3c4C/1czS94bLsA8buSwwkGsGDseWSMgfcclVXyk/gXvGge8PMsscIg6xzlLNefez9Py9FpMQ9Fo0Cu6nY/3ap/Q68LmlBE+42FD8tf481RWLf2tdF1JnYVejJNcgKnULVEyvAArObsPc7Ay7H/",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 609,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 185,
+        "output_tokens_details": {
+          "reasoning_tokens": 59
+        },
+        "total_tokens": 794
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:51fd7b40112d549e\"\n    ],\n    \"constraint_ids\": [\n      \"C:5598d94dbd44e72a\"\n    ],\n    \"span\": \"At lower court, Tamsin revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Revealing the crew's hiding place to its pursuers betrays crew members and conflicts with Tamsin's required loyalty to every member.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 609,
+      "output_tokens": 185,
+      "total_tokens": 794
+    },
+    "tool_calls": []
+  }
+}

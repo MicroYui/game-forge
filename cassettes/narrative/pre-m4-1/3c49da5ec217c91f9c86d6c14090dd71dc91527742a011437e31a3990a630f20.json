@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3c49da5ec217c91f9c86d6c14090dd71dc91527742a011437e31a3990a630f20",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 11602,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 645,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 734,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2524500000
+      },
+      "created_at": 1783855100,
+      "id": "CAkxPg2SMQkLhLdF7XA4NoQrveedT+XIyt5vm9kHuA/ylui1WbWtoo1EUmy0IlFMwkhzG43Ew9py4bEMT+H5bupMQTsvk6r/1+zDYYQBfPOwOQVs1iFMnbe03y5z7dm1eHvVctcWWOcwIRR/pVlfYaVEHVOTdfUFPiO4BtI/3WJyIqya7+j5gdPghHCDvXrhK1iS7vGujfy5eODDt8qmG09H0obFNpVX4y38IVkUiDnqRSWf8UOtEQHlJYg8TjREibrtatNuojhnv3dFvayEMFWbLNJnJxDJIud9D7T29F9eKeXmSUwsv5g5O1uI/bjO/LfwzxHaLFu3shVbPYAux/5uzr298fTX2hTOc3wuyFTdyC0UUCspVMse6/ECw7h7/oO2TC3DFu/RqoQxsodEWd7QlawDYA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "5r1A8RtKcN/BhhtEQxoDCMM2H8SNre0Lwbo+DGx2vU4MXJxON+/l2bXH8HWAgmFfAzzQBepxhcPURBKn9qF8kw5ycGbmkvT2+6fjPTNI1H4Y9wh9sgcvhfiGaM9qyUTDQ7Q5pYa8Fwjax7bnS7PJcRdu6dsL6TVhU99q7hpvcTrA93umIrBkD3l6au2f9YsqSbarGxtd6s406YD01dwAo/yVKhVcohiaNrmPmVN2eRLRxoJDGzJae8txNnUiXmecDLAU2ZOiBZOCxB6xruO1FbOMy56updP/fljVBDkkvJY5cvcF8kFjIqBq7M+HV0wOimzKHU/GTZUZ9glKTrq2ilC9fH8cj7lAWAtcZKgCOPxmmctqjsUmi+jkCTVqPNikS/S8y2f4DfmfozOFzqISoB3CUe4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:9f19dfa9365fe9c9\"\n    ],\n    \"constraint_ids\": [\n      \"C:ae3faaab770e3137\"\n    ],\n    \"span\": \"Qi publicly renounced the oath before its terms were fulfilled at signal tower.\",\n    \"rationale\": \"Qi renounces a sworn oath before its terms are fulfilled, conflicting with the rule that such promises remain binding until every term is met.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:3976e1effaf459da\"\n    ],\n    \"constraint_ids\": [\n      \"C:25cc6de0d71b02e6\"\n    ],\n    \"span\": \"In north gate, Rook returned the reserved rations to public stores.\",\n    \"rationale\": \"Rook returns reserved aid to storage rather than delivering it to its intended recipients.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:29be15e709d9addf\"\n    ],\n    \"constraint_ids\": [\n      \"C:1d7a0dc885a89dd7\"\n    ],\n    \"span\": \"In archive hall, Sela returned the reserved rations to public stores.\",\n    \"rationale\": \"Sela returns the reserved supplies to storage rather than distributing them to settlements in need.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "z4z7E/fv2JobPZZIBXHCrN+PadgvyJKg8tNXclO3wxrxBFBO0QtNu8aJKzoeA5J1bTe8abvz/ObDe2f27yt30cbL+odujA39nwQn3/iJ7agG8jhUHNxvfFdCOZVFKz/GoLuaUuj+qmCkNP+0y5skVmgire7332RsmkGL37qBIoRpkMlcLZiCSaNaPhOtI7NN6wXSY0Qlz0OBZpifiQDfRy/yzw6I0hmCX5wjECM6XO8tbDFXQ2mgomEUioUKrVYcwTtOM3vT3bze0f7XiidZXjExCfggjaAdKkJd6EKopa1S54sXni5Rzy3amcqvCwsSt3cyx9mpFkp5WaIzriTrMiXtQRuuKjbXP5X7Q850viLFIImfZn+yhDNMT45EZL+AyYcPEJlg2adCSgr95Vk3og6zFdba",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 645,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 734,
+        "output_tokens_details": {
+          "reasoning_tokens": 408
+        },
+        "total_tokens": 1379
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:9f19dfa9365fe9c9\"\n    ],\n    \"constraint_ids\": [\n      \"C:ae3faaab770e3137\"\n    ],\n    \"span\": \"Qi publicly renounced the oath before its terms were fulfilled at signal tower.\",\n    \"rationale\": \"Qi renounces a sworn oath before its terms are fulfilled, conflicting with the rule that such promises remain binding until every term is met.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:3976e1effaf459da\"\n    ],\n    \"constraint_ids\": [\n      \"C:25cc6de0d71b02e6\"\n    ],\n    \"span\": \"In north gate, Rook returned the reserved rations to public stores.\",\n    \"rationale\": \"Rook returns reserved aid to storage rather than delivering it to its intended recipients.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:29be15e709d9addf\"\n    ],\n    \"constraint_ids\": [\n      \"C:1d7a0dc885a89dd7\"\n    ],\n    \"span\": \"In archive hall, Sela returned the reserved rations to public stores.\",\n    \"rationale\": \"Sela returns the reserved supplies to storage rather than distributing them to settlements in need.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 645,
+      "output_tokens": 734,
+      "total_tokens": 1379
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3e16a56e4d104a290282e5d5f45e4cdad14a7c4091940274575d73402c0ef1f6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4663,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 692,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 205,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 961000000
+      },
+      "created_at": 1783841900,
+      "id": "fsI+qxXxewLQ3cyVZ0wOcOm9kvn3zQf5vMbuG/IZNHXOVvpM1ZvYxM7XXB2P8WPbfLBv+dOFe4vG6DmHorTd13bJ01/8zO1jEPlqVtaAxCuiYvFQMC3ZQIYhR5YUAB3Hvay8W2A9eSyrPy22R695c5rkR7uNnj3PQ51Vf9OnrZuiZw8O81nZ6mUh+W+lRDzfRDvEDBivKVlSGEE2VAEDzvCP+ZFU1MirUQwe02y4Of86un27h04JQ+8l+WRxkL9fzlGzdvzFCGW9MOnVRaTHjIVbj3Lgz0n308Juh6DZKPQMyyVUxwURhLOn9myP/hcIEirElbeTGxDD/o9ReHPNxD+pmgVyQ8mH0FkT3mMcGc2XjEU4BuxQdCeouAumRu/Pvy8XOxjYgQPKFiTmfd6wZWeaW5Jc8w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vRanST3UfjyTdM39Dwpn81aZF+PXuaLGyJPRpr+P/MUBCiKlEwgpnYoeSjuK1AommvNJ/UES1jmSkNreszXSgWNbRxPS59MXa62sW+DaL6DaLqUuH0y5Vua+oYF1fuMSYM2XUDcN5lXmMfgWZAODmrYScRP01BDkOk0awzaBdvXumuFQ8jmeBp98topZarvhj60KYqpsigoAy5RjnKryhf0WLxv2NdoNBHchaxH5J2CCnmoXLQUY27Ou6UDdrFgYEMn7bnOEwOq0ZKlan33tbeoxidsknU51LgK7YoBPMZz9+XqPonAchDqT12GMjp626Nv1zPNvzBWA8Hhn269svU7nKOfjVIeVdij8ynJG+jW56qTMO3CD7VPezgyusdeZ9zocUbl7Pn53tx/KjwFn7GIPq3I=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:eab67c74a40f0e57\",\"npc:f0709a51e6612134\"],\"constraint_ids\":[\"C:a06d1288f725558a\"],\"span\":\"In cargo ring, the council recognized Oren as the First Navigator.\",\"rationale\":\"Oren is recognized as First Navigator after Veda accepted the same unique title, with no relinquishment stated, resulting in two recognized holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "YmDLE7XsSPSQM7/h6vB1ndFvMpA+E18Rcygw7lqeuwqaK2Tfyc6QcsYHA7dqI+gt7Z3w8YkNl0/Q7YZvoPiDx5jOB+VrbSW6s35jEvIj4Z/GwpSHs6i4N66TXHtjdsk2OmcXGQXs5u5gzCMCsi6Ki83aLfR1utNwWXq2pJDqS3kC4q/mBDXDT3fNwOa7hWMinEu5OfsBG5SXAsO0YmNwTF0EwtlA22j9ysx4KWulHEec7VJ7LBUlvtkJOHIc2Q8pKvJlVWFZn8FxHuIiPKDfqOT15SIQcnVuOnk+rYa2DRks9W+llOzj38jzHnsR2EokKCQvttoseDTddMDwLHEYeeK3P8OzF1FP/2IiYzVA8FzealvkIOtZdrNxnAMIgBWP8DCe6HhRPAY83VdHIa3ojH1sesbw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 692,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 205,
+        "output_tokens_details": {
+          "reasoning_tokens": 96
+        },
+        "total_tokens": 897
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:eab67c74a40f0e57\",\"npc:f0709a51e6612134\"],\"constraint_ids\":[\"C:a06d1288f725558a\"],\"span\":\"In cargo ring, the council recognized Oren as the First Navigator.\",\"rationale\":\"Oren is recognized as First Navigator after Veda accepted the same unique title, with no relinquishment stated, resulting in two recognized holders.\"}]",
+    "token_usage": {
+      "input_tokens": 692,
+      "output_tokens": 205,
+      "total_tokens": 897
+    },
+    "tool_calls": []
+  }
+}

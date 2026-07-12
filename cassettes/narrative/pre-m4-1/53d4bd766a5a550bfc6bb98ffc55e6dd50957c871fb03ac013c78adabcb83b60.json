@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:53d4bd766a5a550bfc6bb98ffc55e6dd50957c871fb03ac013c78adabcb83b60",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3098,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 607,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 142,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 729500000
+      },
+      "created_at": 1783859800,
+      "id": "mwY7vdSf9USzmykyye2OME/uV/fZsSHQtVdLXxq0Tmt8mf0aCRL0DArOG/0El9K4i224EURMDbkRiqJbO446Dfj3HXuARMndSVljfsylQUIEUoJbX6VFdIAdTMytjn6biwb6bQ5LERO/PkJos3Fv/XbAsZ8TfC1uiDIIq7nqn9N+86r2hPUqZFAmS7MxQrIMc8UbdG4mpsusdoHOoOeC+0I4mfzHnA+66vTn8IVVdNpfisH/Dw+nOAEIfqif3Avk4sQBqTCPHJTw+K0TmZsEz9iQkgN7AREyttx/IlI6Uls9clUS6KeaUSmpySpG4lx36Q6cmgJ6sdnZjeVxkbVCRU1yLTJLYbKZIuX4PJThhdaCafSbkQRHJeufMcsSc1SmMTWtpN+SWuW+7nyvnbFlHIDoF60vNw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "rJYt3GCnwFJd7PKhi0rgTnBGopdJkGh8fXQ9B6YN4r66mYeZky7oNOd4MVgNrVIeFa1cucX6c9p4TIZyeQ26dvvi5Lalc36zotnEeM+nolN7eTgVB6URsZoGSZODIKKkcjwsD2U3sefGGOpBjlmGdN/MZA5apsIEGHODphDVIioLOPQilKMfdGoh5FYTMjo9rOTa29MZFDWZtRtnBmKOohRg/IDP6n2w73DwjS0rrAs+tT42sgj14dEGyNkuDXqSct6g5iBxjHjT6/acBjxZXR19pNiI+pHP5j2ssqbuXCVLbK4W/HGnk3RJkxziVJVAI4/4eh2UkE/24bv5D8pkbQnK8ygxEMUcm90DMI4mMnyZnbIHPVlybpejJiwOnbe2dO65sqY1UTw5J30xZa2/641GRgc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:ae8faef139c1147e\",\"npc:f54b6bbabb8f7995\"],\"constraint_ids\":[\"C:809039f1b1685258\"],\"span\":\"Veda welcomed Oren into a shared command post at caravan court.\",\"rationale\":\"Veda and Oren serve factions that do not coordinate operations, but they are shown sharing a command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "haHnw/gdy8ZMNQ8JVX4yqbhfkO7FKtZG32KGjZYVi0aV58DV9GO6gsYVxy6y1h8Cjii/0OlyOyRsxPR3hxru9CIGrZPNiTj8VdYIVMiw5Y5nesvBaZtrhxJq6MPnsJDaNoJO0kDCA43RxbkLvpy5XRVRlwFZJrbSWPWF3J8k63vzfBs8rE2X654Ua0pQ2a+I4W2uQHHtF/NSXwlSNqwcQH4AUvi/yykw+CRVxhiUVNWEQGCGCkTqs3tAC0j5gj02Ryeo4pCwYcuT14xHqdWh73BOM0S+N0PdNpMSvrhn3drfs0JvAdQe/3/ge4RVwt1wm52FDj0Wg3wqs+1KM5IBpPgOYsS1OvfctQZYn0LBhCngOXY9lwOO9E9Fj31P1bMIX41IXd7ng/r6im82DMkjLUgtAvCk",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 607,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 142,
+        "output_tokens_details": {
+          "reasoning_tokens": 40
+        },
+        "total_tokens": 749
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:ae8faef139c1147e\",\"npc:f54b6bbabb8f7995\"],\"constraint_ids\":[\"C:809039f1b1685258\"],\"span\":\"Veda welcomed Oren into a shared command post at caravan court.\",\"rationale\":\"Veda and Oren serve factions that do not coordinate operations, but they are shown sharing a command post.\"}]",
+    "token_usage": {
+      "input_tokens": 607,
+      "output_tokens": 142,
+      "total_tokens": 749
+    },
+    "tool_calls": []
+  }
+}

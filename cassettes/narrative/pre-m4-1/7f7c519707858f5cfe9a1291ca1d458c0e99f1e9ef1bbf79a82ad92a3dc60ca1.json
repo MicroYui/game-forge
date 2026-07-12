@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7f7c519707858f5cfe9a1291ca1d458c0e99f1e9ef1bbf79a82ad92a3dc60ca1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 9720,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 561,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 227,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 961500000
+      },
+      "created_at": 1783854000,
+      "id": "Os6rRtrnfakqcecUchB9s+PlzTbXgD/R7EldZThTJBIk/khBxyzTOtd6ifzDu0g6247K9uVQ2QTmHKZ5ny3kGWutAXdV2D4aEJviaraQEwHQ8Ybb6HKz+LGCUav6JG1QaiRvXq72JQp9w1phbVgeagqPocnpmTusQZa2punkf7RYyXXMShN6p7iy7iNPtjO+wEVrxC8vXIZLOC7877FIVqY0kUe4BbEzs9022kKzUluw0w1QxtIO9kQMveYzulrpBAlcqdMQVYEfEkjfgyXtOlG0rlNSe0kHHWN09MAk87pURLRSozev8FgRWcPBaxFU1sZlsy3fLnqs24794d3ngH3iWTmhccDkKP6wF0WQ5XchH77J+aTBqdOUsXWDdwIm07o/zqR9ElkdcY7fMmeLgJJZVRF5gA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "T2/iRHxs+/fdDl/4LhTNVTIfWR1FVazOsV+VIMRGT48bulZ0Aco5DKlg4lcR+Pj50lWTqQZ8jltobhc8w4h5QNEom6WoSOTHhOu8bEDvLjeQr6faP/7N9AFEWA46FsvBT9jeIoNCKWF5Sh4gGkWDGlGedEEfjLUnPAsjMyx15aGfQH4QPrIuJ+s3WDzC59B1DAHzvYjgNAnHYA7NxhsL13OkDkvFL6aHwmJabNo76qrhDRQy3ubi8PJCxk90Mjn3aN0mrdL+D5FhtuoqUK2Jsf6YWQHdduxtXvmXVZD9frgWhy9yZN2dL2UJP4GwIN98AaaQaB01VzY6O0iZe65Ht6NBSNnvcik1aAAqUcyomciWcTEfByix/t7UCZ+YKxW5g1Dx9Tg31HlG2IZiGtQRa/83PKQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:a52c7e22cd85b796\",\n      \"npc:aeaf6225b237dbf5\"\n    ],\n    \"constraint_ids\": [\n      \"C:eeaec4ee6a47b194\"\n    ],\n    \"span\": \"Qi accepted the title of the Crown Witness before the assembly at river market.\",\n    \"rationale\": \"Mara was already formally recognized as the Crown Witness, and no relinquishment occurred before Qi accepted the same unique title.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Fy6+kNl46XM77t3ip8K00ADw13y7XHCBXXcmNhKZVTTpuF96ZZyUH6uZH0jEqEdR9bSmTy178lLzXZYwtflbmu/ww7n1aZmg+ejnqdP+PJf+R1vtelJIxwJCMj3RTBrtZm4pTsT0Tk5qLSjhO6TR6Kr0rVAo2Jcuf2OMY4453k1p820uizRjJA3FykN5hMsLLFcqO4O5raMTPz7wfl9ZoGzPh+nv/M5jX9GQwv5YNK1rtzL6lUmFfLAP4pyl9O1DPXJHFflO97UQM1iaOhX+hyZYCzAMhw9XvH4g8DfVgG19kejqF1u474mG5vIuIWLAQ5q3UmezcPgRN11mEZL7WamUveyZAlGG85JXMNV/mUBJQMAVPcT7fDjajKamCGB6q+H/jmYFGkCwIIb3ZFTUOmu/Lhv5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 561,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 227,
+        "output_tokens_details": {
+          "reasoning_tokens": 94
+        },
+        "total_tokens": 788
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:a52c7e22cd85b796\",\n      \"npc:aeaf6225b237dbf5\"\n    ],\n    \"constraint_ids\": [\n      \"C:eeaec4ee6a47b194\"\n    ],\n    \"span\": \"Qi accepted the title of the Crown Witness before the assembly at river market.\",\n    \"rationale\": \"Mara was already formally recognized as the Crown Witness, and no relinquishment occurred before Qi accepted the same unique title.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 561,
+      "output_tokens": 227,
+      "total_tokens": 788
+    },
+    "tool_calls": []
+  }
+}

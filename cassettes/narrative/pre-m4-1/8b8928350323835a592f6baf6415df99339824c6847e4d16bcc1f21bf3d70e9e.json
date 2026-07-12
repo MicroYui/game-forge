@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8b8928350323835a592f6baf6415df99339824c6847e4d16bcc1f21bf3d70e9e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5029,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 611,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 262,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1091500000
+      },
+      "created_at": 1783856300,
+      "id": "nelNFEmLEsldjmkTMcJQMFdsd4Vh1ip0IJ4yw99wUojW+I9KamARBQYTSXjSsWSD0lkg40Oaz2aqZTaqAjFGMesRdbIjfNZuSERIw89bOJ5NJw78GAA5189ShfTJxoRk3AHh2AXFScH5s6iel1OL/I3dQzAw7cbnJma88nkC9x3scjfyk0L5Qxg5zuFIEhZtZn7CwNoELs51THwIuD6VabAguZCLpr4RkABpqReTN3hx2JawkTPs8NcDWVq9XC2oiXCwJv5KjWKuGl2GndMoZrCSTw0euTEVcyjavEuuF0W/iMO7waA8xJMamSP7btsFLvUoYMDD+Jr4PQb08U4WKXd3SN2andXXvZ1HuZkGm+4iYuF/qaK5NQcXyn5y384myr5RQ1uVOS1/DXddJplBpRCdc+vI9g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "YLKXr6+/+FDXlPYnhuC0VnhkfABEqx0IXaOIGaUU+W+79BAlOpL+vdUSVEZfHouPATqa3XNq5wHYTb+TLc5hgv2vtyDO9Tg66Y82nC5LBbwnFFGLDXWNpZwweLlzXM4szDf4Wr5D1tjM8IDBar4FgK1u0Yr1s+jjtq1LWWi3Jcd7UFszPxqBsius8PLtxjAIxMIfVg47O9JZ+R7YIvQyAD7wF223MRWwo4DkkZ4MbfDWwCNgMjwqKLDnUh86+IW8mR0oyCrzuV1ARTEVtOlO4qvmztKOFRy6OnMNBs7sCzqJO5Xq00aY++3GumUCv7LL7+K8ZD0iYYczBsIK5FiwNOny6Vd0Srr/sKyemXBWH2F0V9NOrM+hrwpuqK4dTP67Ar+feEJJ6vof2vVbd9iJChSA1Z8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0f6d5233426b4ebf\",\"npc:cd1d29777883529d\"],\"constraint_ids\":[\"C:d94485e8a549d3f5\"],\"span\":\"At old mint, Oren was formally introduced as the Harbor Marshal.\",\"rationale\":\"Veda had already signed as Harbor Marshal, and Oren is subsequently given the same title without any stated relinquishment, creating two simultaneous holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Z1+hGila0Ve1g3dgjZPv2wUgbC+5mLm3UMR16Dl0qrOTKCfRXVmYM/1+Q8zjyjHk4ekg+84xHLZ4K4TFSDaw/BuZQXQ9k+UOL7RWzXhnH6GPXlJDjWD6gOU0HIY87WqyYmac1yUNFniyyAUZKqiqg3ZNaxdiWeTgaoaWwOb8C4EBcHi2qmU5WoudXDcc9UMeDEUAA/uQU2ur29gA9yE7wNJeiJx7NYcvaq4OxbE4xLsoa58NG0jElfPoVj6omP04pPM0xX5yRXpdq+5SEIWcD1f7hn1JVCSyV+Rc10kToLbV9248qslzRn/pJnpcXgPNVEZBH+QMutdumqAZg6LUVgWjytBrTgN+GoQZqQYZofGEienWowOQrgvRu0AbAFgsLQZNZdMJKpsbsz03Ua/jsxUgT2hx",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 611,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 262,
+        "output_tokens_details": {
+          "reasoning_tokens": 149
+        },
+        "total_tokens": 873
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0f6d5233426b4ebf\",\"npc:cd1d29777883529d\"],\"constraint_ids\":[\"C:d94485e8a549d3f5\"],\"span\":\"At old mint, Oren was formally introduced as the Harbor Marshal.\",\"rationale\":\"Veda had already signed as Harbor Marshal, and Oren is subsequently given the same title without any stated relinquishment, creating two simultaneous holders.\"}]",
+    "token_usage": {
+      "input_tokens": 611,
+      "output_tokens": 262,
+      "total_tokens": 873
+    },
+    "tool_calls": []
+  }
+}

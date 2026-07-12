@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d754981081aa151acdfa1e7824c19f539a2f97025d33a606c0ea0dcfedbf1eb1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2668,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 681,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 165,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 835500000
+      },
+      "created_at": 1783862400,
+      "id": "d/HYUamp900RbIirSwoRi92yyj5B5P2qgvbQDWoFbJmY0EwnHujocXSrraMpFNF/w3NHWrqNl1XjO2u9XEbbHZIQoWG0SJoPNseWxPXhN2BYJxLPOq1o/QUwJ+1hBinMwn5rHZMPCFSrZbF6sKD+4kdKSXzfGrkfZuBYR3UaQc82LNyDSsrFWRiUR9XjOYvUHlmTHmt370tfUojrH+cXKoQ2W8ORJVNxy8diV6A848YPqYslzbp6ezLo4uk6bPr3B7H+NJNpPK5vq0/H1mEc8itht/ZGr6+s7zFyas98ByDkIpfxcrc5CQd+G00TsjvaHWqeNp/hkqPw5TGDbabpRtSQD78mconZSZUDj3f8eEH4+mb/AxZVuTfIq+KNkQadPS8UB+inBFptxU1FWALVkKRFFry46A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kT2B/OiMo73LOvteYJ+ZeRepxIXmyBNwLdWSx4403ELL6SPKXATK8XczfP0cV1FJSo+cpS0ph7c+cHhDbcQX8KCbDotFhS7TjfNtVMnpz90WWJ3otCKCEpGfZOrsloBHbIfe2WAC0lsh1syeixG8JwDe72dCyenoJxKM/ZsVT3zxuDmN1zGGiV2Pm2Edsr2h4pc2j0DT4zyNM22CygEUXicgyTYsW/G4k5eAH4bI9oxm2P9TK5B3D2zOotMZVR5uc/YEyRbPWUNU8QxTzueOMTNd4iwyvE309HWZL6o8FyR6I7Sh9kV57VnXWEwP2L9A3y+DlZWYv/++qPtNxGO2OfWARwzu4IX+l4/9RCA2mp0oTh3mW0HsZYr96uglraNwCRS2Whx/gsfBppZk35dWZ5FBADc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:09753e3df43bee1e\",\"npc:81fbf2b4d1228bb0\"],\"constraint_ids\":[\"C:91666996bce12fe6\"],\"span\":\"In desert waystation, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei and Daro serve factions that do not coordinate operations, but the quote shows direct supply and an ongoing partnership between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Z6ZbYjqUwQF0C5mEe0l6Pz5OQqBF3EsXJLVCjLRJhXqfidTz+HBYM6n3sGxlKFb5rFZuNYBtQLpeRMqbuHn7wPUgjqzX+fUsjwcZa2h0J5tKf2NmXi8jkaLbIB8uCIF3sfd+x8FoqXBmAtvS8hpuvEZ/suT2jKX8dsqZyrkJu7CpO0qNWoIU4Y8v/E6O+HDFbserj2TI0hWZ9QrvLoA5dZqimoY7wtH3qNP+AnFTMveUQ+1rNT64ErINCH/IQ13FWvbeEq4BucUda1tUI88S8eVpdvnW3z4JY4qnxJpKaVb8haKm24kD5az6jfpUoTzqNINDSAHT8xcWiAm9Ac5c6BcuFM71rzhrOacDrHzpIg0ZypI13FxJPIBXgFTZrUkbAvEZtTK+yvXplJFIazVbCA5n4+KC",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 681,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 165,
+        "output_tokens_details": {
+          "reasoning_tokens": 56
+        },
+        "total_tokens": 846
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:09753e3df43bee1e\",\"npc:81fbf2b4d1228bb0\"],\"constraint_ids\":[\"C:91666996bce12fe6\"],\"span\":\"In desert waystation, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei and Daro serve factions that do not coordinate operations, but the quote shows direct supply and an ongoing partnership between them.\"}]",
+    "token_usage": {
+      "input_tokens": 681,
+      "output_tokens": 165,
+      "total_tokens": 846
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c504cb8f4bd4132dc7fa3ed47b501fa7926a842ea32e6eab9b2d19eed044fd0a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3256,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 669,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 146,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 772500000
+      },
+      "created_at": 1783850900,
+      "id": "QC77PPvVLrmKnTANzT/n8aRHRD99IWZJVha/g9dr34puw6v/t6cBfiT1rpifgz1wDlsjlqUxHU40fPy5OyFISQ9d7kCpoeK3Bq703WCY6sJcv4W03yieIjzBvOJaWHmocJ3pZR0Jk4z9u/bE51HMn1Y3oET1fotd5bOyl5ldQB1Sc7AGTWfJjT7yg3IxHWRuMiAl37XGDxtiK5ANu8vzC54FMMO//0zoPcQ0X118jBBtrFL+vkoU3NX5Y15ZtKaZV/Ds/xH5yLQnNzk4eQ6axhfIemTZSya57PVIE/kvNr7j03+IhJ4BCJ7nubEgAkPFgeGRofx5jUqZj83yGmAQ45t3IgdZUH5rCcVw70ygap9Maajg4U9zkPUdTKykasGZj0dVoDv2pgdbitQ7rw6wxokGiVVc7A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "PIIg0QvBw02X398ruozhZc3/imEFC2XrvA253QgVPfHdOnkpaEn60uNGrwhDwcZkxuOax0Zcq60ktb3J1xQcDQexUYJhQn97vmOgtVYQy8iLBcA010XylQv85JUjE29Cn/djgXL1PfIX7gCcLx6wvmVxoJcP/dMQ9Eq43wTqVxFmpEPCoADhXHCSPpMZg23WJFpUDTw0tPVs+IcC0YzfRmQPUzYSTwX92xehBX/9obL1V6VBlcLN7Dl2TIwxrr7WPfEDlaRF3OEBI2x1bbP3dYUlkto7IF7CSGoI75bydp3JS0WtxC0vGYpe7hh8c7SSFEEwMNuCycQbcHj+Uk23O8BdoApHfapmdi0U+cjKCspeJ597Pmeq/bqBCcT69EVvcKS3zjj2SJQEI1RfBflAl/Jet5w=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:92b1800f5bb482ad\"\n    ],\n    \"constraint_ids\": [\n      \"C:94528ca78873ff58\"\n    ],\n    \"span\": \"Ansel replaced the treasury seal after removing the public coin at canal bridge.\",\n    \"rationale\": \"Ansel removes public funds despite being relied upon to preserve the rebuilding fund.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JnZlokpUTlDkn41YCLZu4RCDwXZSQ/e9KT62DXJy8PbmjlVEnQx9akCVb/Kp3u0q0c+w5wOPWa4HOl/C1yJj2MUf/AHH/njwMpY4lIY7g7PrF+hepReOv8FerXFxF3Ky31Lf/7vaXegRA7N6J0dcApOppfGw2Lurl/qId4CUcFscbkjU0HjIUlnW5/erDj0LngCyKYNLAExW7hWfLfOCEjrjPLPzlyWANQ3BJ8HpX/hAtx5mi3ARyVWHW/BnZYwq2xcbmhhJ7ut/7tf333ALxHdc6DDQzV9SBvPkdKhmV7I37IuTRnNlXsdwaVDhQ4Wx80AleSF/94630M77niC6WfZ0IzqHw/3kNJCLhqHDnQhpNtCgWUv7U6+YKSbEVhXitlDEYc2pR6qsE480d019/Nju7Hu1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 669,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 146,
+        "output_tokens_details": {
+          "reasoning_tokens": 40
+        },
+        "total_tokens": 815
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:92b1800f5bb482ad\"\n    ],\n    \"constraint_ids\": [\n      \"C:94528ca78873ff58\"\n    ],\n    \"span\": \"Ansel replaced the treasury seal after removing the public coin at canal bridge.\",\n    \"rationale\": \"Ansel removes public funds despite being relied upon to preserve the rebuilding fund.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 669,
+      "output_tokens": 146,
+      "total_tokens": 815
+    },
+    "tool_calls": []
+  }
+}

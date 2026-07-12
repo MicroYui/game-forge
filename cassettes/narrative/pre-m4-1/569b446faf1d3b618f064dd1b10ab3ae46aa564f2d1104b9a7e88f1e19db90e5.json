@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:569b446faf1d3b618f064dd1b10ab3ae46aa564f2d1104b9a7e88f1e19db90e5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4432,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 621,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 207,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 931500000
+      },
+      "created_at": 1783849100,
+      "id": "V6j0naojIE7mBADZPb6HVU2ikR9tkoQ4AvZKmcxMHOnRfhLWu9vPmL8xc0BvKXiWTNNh9dnqsAfMZq3yjqIBVUnJmTehO9eT6SmQDYnneKrn/sqBllZ+8glfuKKLbqZ6R7WokJ0kC4vgtT/c3bJU0CVsUwYfBqgYpw56OXEipnSEWM3Go6DZB6VMlCFS/meGbcGf4XzT314kn2eqtHrwh6RyEOBty472YE7Ji2JegkqZBe3hMMT2oFQrxhVPSwTjC24IT7yzrYVXm3kq8S9B/fkz7WtdYdAsF5ET8nBWVRH6Tudcj9yCk/1erwAJJOWU5rHHpSJAaQyw57bxVrDV/geLKMG+DAgLV89si/iE2miIJ1cWUOmb64vwfkRsaHziLtx3cVEtkgURIXLxMA0ur3ev8bpo+w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "k/kDp5NSX612THSH2Gs5fbewCgAjU0fDjjbT4cYJ/Q1Gjty3v4v8LpDIf+ysS/KnYv0d9R7YZQZH3DjBA4+pN8jE1UPGMQy7L/WMzbuENHb2srsSTdA3dRiz+7LFh7h4XNnmCwVfZVfANd2SsTkKTNObINRYvQn/t0APSY7LRASrDbexRuy3SauPruTavXCDPflEi48LRlH4jj999gKlR5Ef3flC+ay0GVBHbWVRRttR5GizRQF3u0fM/7tFPWPUvLVJHZ/ckseOMBF0cdIjy3GUi68hv97lfwCKGOcfR6WVflOwryFWTGdgJNXrN3dv+bBgp5kFGJsmwdy2LvSYY280stDeAFSfPrkoHzRisuMTUvuU+aOJc8SWTZhilV5uJE12Pt5I6COBPOvh4j2/tuB4X8A=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:932d59b1a8a624be\",\n      \"secret:b7751051c6976d5a\"\n    ],\n    \"constraint_ids\": [\n      \"C:6ca9006afc785489\"\n    ],\n    \"span\": \"In signal tower, Ansel disclosed the origin of the black compass during first watch.\",\n    \"rationale\": \"Ansel reveals the protected origin during first watch, before the permitted archive opening stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Ha2T+2Fy4nWD4kan1tzxzKy6w/RiwTaQ49RodSDOyOXmZVGbSaOh7j1295Ja9oAeisbYMPa8FsvWka96BaCTuNkjx3Vm8ORPq88l16cGUSiPUmVKx2kJ3RDefQojLLF6tyMvoOH0x1Om8ezZeOxJmVugfiiebWNG/qB924knl7udAIo+2T6K19SPPlrCVCNdr7Cg+iIVFn27krR64iwmnVsXauA7VJsNCi7WQOYv4X3/euA9CVATc6rGN4t4hgkZM+UoMnE+dS1ehQE59BJ4rNvYlUNmVt4vrNaXNKxdoA42gbInn52KCmW4dZp6h5lePVO9tJraAMEy3iSaAe0214aFO6zPQs7QPgdG3xeCRNFZmK6q9rLpYe6tqCySr7Yl/uXVc9ECOPYviiMX5cazkXsv/58l",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 621,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 207,
+        "output_tokens_details": {
+          "reasoning_tokens": 82
+        },
+        "total_tokens": 828
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:932d59b1a8a624be\",\n      \"secret:b7751051c6976d5a\"\n    ],\n    \"constraint_ids\": [\n      \"C:6ca9006afc785489\"\n    ],\n    \"span\": \"In signal tower, Ansel disclosed the origin of the black compass during first watch.\",\n    \"rationale\": \"Ansel reveals the protected origin during first watch, before the permitted archive opening stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 621,
+      "output_tokens": 207,
+      "total_tokens": 828
+    },
+    "tool_calls": []
+  }
+}

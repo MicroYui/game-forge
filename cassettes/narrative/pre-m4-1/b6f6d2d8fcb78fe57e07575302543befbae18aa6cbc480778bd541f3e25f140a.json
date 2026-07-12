@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b6f6d2d8fcb78fe57e07575302543befbae18aa6cbc480778bd541f3e25f140a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 9900,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 707,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 572,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2069500000
+      },
+      "created_at": 1783857400,
+      "id": "zQYlxwETrrG/+JekCTII/7YWsd1IhHvHqazYLDQWLe/dcbIdDtRCVh4KvObIrcK+7eoM82QsmD2ExS/cySR4+vA+/4HmiPL/SGI43lpXQf3vdO76d1ajw4hqnfVztUk4HwN8fNYYPkFK7JPn4E8YCEUUcylq4YQqHctIqHDCaDyLhihWSClkUjhcFv1wXHPtHyIYE+S9AsLulscbaIumEfCCopvGVXACzj1bYjBOFZghnB38hUxKAPLw0egC+qc2FiV/XPPaOxTIzN37EBQleP6HHSFJ5QbatTGTklX8a1KV+APYAN974QVSPwvVk8uNi+rx3jC0+NdHu2MwVzIW46K3jHFJSnW2TZfj+/59r1y9HlUv+9S/IxXwYJzDjuzGPuqu1mgPCFA1H7bviF0DXq+zkadyxQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "McEPgXY5xxz3thVWC2wzJiUrdcaf9EheFVATOy3+tvDbDFa8cgZkxgy2Ik44nEGNrQUarnnrTKQc+TIOw0ThZ01Q1ZF7eicQTaC1kXLwVx3Dx+Gtt4t64whnghXsMYxaexcXoC+P9XNm4nm+qlMjyQJKMUsp4uKYYSgTH+bcewY5BPugDRSIHbu/KNw2kZ97j1YlozF+DSxV3iG+eHmQXDEgxBG1CseuLvTl4ntrsKnRz4G3jMovTS722poe0RLNleSdyU9A2IBDr3uXxdKhKR3mCaYC+Z/A9CCnpkjW0ARntR6gQ/GBvksQjStveGOsA21ZCMkqkd9NFMpgDmrh/nJDuKZdedWtlRkzrCqLI8E0J++Hl0UyT8YHoJY8/sZH34AjfRxWt3+9G/ATBtJM/B64Igo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4032c3de3dcb9992\",\"npc:d688c4c6ff8ca4b3\"],\"constraint_ids\":[\"C:b4e53ace72402837\"],\"span\":\"In lower court, Veda supplied Oren and called the partnership permanent.\",\"rationale\":\"Veda and Oren belong to factions in a standing feud, yet the line establishes direct supply cooperation and a permanent partnership between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JqNY0HviJL9+O9u/IXGQTvnRFoUiKlGRI9iXpGrdiKp15S81pTGbChY6L7DqJZ0w9KzQZkffNVcbvEz3mqqMeWizsbmRhyKZKcH3gTIu3kH31pKix8nd9GvSMUE0uxN7teNsYZ2hB4S3fB8FP7ndGzF7BMevxhdFTekK31+oCNBh+IgLfdbHZEKAwyVxZDfUkfYQD1YFL1vFmL8ROP8KcC7RKinh1gtjBS6YLItKnffvFZaukWuAS5O+0JqNFINknaCTdhDV0AfEA+/bUR6cWQqYTcX95ilti/LxeSis/3jJPqEZsv1d6onj1mVAwK5G0s2AZLpAbdotzqkRXlcbLe199ZhQdMO1I45OaVAr+qq1OUhBNHCqIfCQV1diC0Rm1HkNMggIFo0WmO8MDYlv5WqiJDaZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 707,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 572,
+        "output_tokens_details": {
+          "reasoning_tokens": 462
+        },
+        "total_tokens": 1279
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4032c3de3dcb9992\",\"npc:d688c4c6ff8ca4b3\"],\"constraint_ids\":[\"C:b4e53ace72402837\"],\"span\":\"In lower court, Veda supplied Oren and called the partnership permanent.\",\"rationale\":\"Veda and Oren belong to factions in a standing feud, yet the line establishes direct supply cooperation and a permanent partnership between them.\"}]",
+    "token_usage": {
+      "input_tokens": 707,
+      "output_tokens": 572,
+      "total_tokens": 1279
+    },
+    "tool_calls": []
+  }
+}

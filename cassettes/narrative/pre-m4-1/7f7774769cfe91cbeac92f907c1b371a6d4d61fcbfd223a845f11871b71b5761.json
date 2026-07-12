@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7f7774769cfe91cbeac92f907c1b371a6d4d61fcbfd223a845f11871b71b5761",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4695,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 686,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 164,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 835000000
+      },
+      "created_at": 1783842300,
+      "id": "cOLrF3lpm40VXlo4wfxQUKKd7TjCkdPZgr56uKTquszgHPkRj14Kcee9I+CnQjzzn+lS36v4OuuspkFR1kcQmzzvPyLk3vumzy1zRWecHbSPvLRCecZe05tpxPkggQh7g25l/UIwfDRIgxaK8Osh7oD48mM1sj/znEsxhSK5Dqr7kYuNNgT8nGyawniexBDMieIXjcA0OPjNa9UgmWBNrOIlmEiD4YZ2Y3ByIr62TYNk3lQy6K3KJrEB6HV/LeqaronIZuYj84Ph1IKN11ZdxNVFenSPqedLuCncKo44WvFe8XGYtM/PrOeVPEAcBzbo5gL1R37lzANNhUQRRvnFFTsacxftvxTIqBEADnMmba6U4lv+HQgD/bkqd1JX3gn5UGfZP/OjE+vcSA4yWa0cjGjOk9z9bQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "OWmZRMLm3pFeigbDNL/yE+eQCsEvAbUKqNP21eLt2HfJiXvGeVZ6uyh24ODnZLFZRpPbfKEF5kn5/BsmyjzHN3nB6EcaJLADmOcMUKr3Qsz9xC5h+wtTerHNujiipRcqQCu1/oFdAHsjIiuZ1CyMyh1huB5UUOGNU3QstD+SAisAgGP3u/gYeOvFpY9MKb7U1nICR+A2/pcTOvOTsOX2Cfm0puSpcyyAqpDis8NGJwwHYhVzpZ2eePWh8ilWAca0ZEw7WfHejlm4aY2fQizz8x7lTGqDBBbUNLCgVnuiowsPcd1KyRKyVLhTk403BIOfWh/kGLDaiu0Io3JzGUApA1VMFlOY8DXPL7pzIPRKHT6msiUEJUgNcQEHtRAxEv7zOAT4K2Nh0JvRbXGlpSISqF9kKOg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:9e38ca2ffa00c15e\",\"npc:c41fe6d78c397d8e\"],\"constraint_ids\":[\"C:3d131363b9dd2a21\"],\"span\":\"In canal bridge, Ada supplied Malik and called the partnership permanent.\",\"rationale\":\"Ada of the Relay Council directly supplies and forms a permanent partnership with Malik of the enemy Void Corsairs, violating the explicit faction hostility.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9h1nzS56us1sVzXeqEopWBpOY9VsEBfLtCyp5Fk2jdhidSf0VbmS8Y/6mWA/9csGnRas2gO5CSqM81rENX6BEZB4ctcczehu0fY6if2RXKLuEtXGrL18OACJ1sA7MhrqtnQO44jJp0GcL48bnzHTYtBkP5zQdcdSmdYlz/zfHMGNSjj69M32VMCeIXb1X9+sX/JC2RzQ168w7t1SSz3hVBMwM7wiqkU4Dm3vBh8l3XkNfXtthBStEjtnqlCsTXp4fyUY8nZsNP9SpgmPlc/1w8yFT2ruGWTUZ+vEVFO0ItVEJoNNuMlkieJku+XkXZKyf1PKeW3aJ2/lP24s5f7yfoEXlB05Mpz7oSUUZdRfKCRhKiiWvzzxL4UfalEEUs7t0vWMONK/QHlEBZ9tz6WNVeyvPLXT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 686,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 164,
+        "output_tokens_details": {
+          "reasoning_tokens": 54
+        },
+        "total_tokens": 850
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:9e38ca2ffa00c15e\",\"npc:c41fe6d78c397d8e\"],\"constraint_ids\":[\"C:3d131363b9dd2a21\"],\"span\":\"In canal bridge, Ada supplied Malik and called the partnership permanent.\",\"rationale\":\"Ada of the Relay Council directly supplies and forms a permanent partnership with Malik of the enemy Void Corsairs, violating the explicit faction hostility.\"}]",
+    "token_usage": {
+      "input_tokens": 686,
+      "output_tokens": 164,
+      "total_tokens": 850
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:08249f0d80e80b8e2caaea93b193c0ec0b56a5152e2b646baba5941519b20cd8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3007,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 606,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 183,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 852000000
+      },
+      "created_at": 1783851800,
+      "id": "+sgGQ5R5Ubehy+xvGZneD0cz4lANseizCEnjPWI+txzTdTDH9VY+q6tvcfUp8qk0m0tZfy4GB8aRbWOPu4wslpbI5MQ+z0kuy9JgE8vnhko9U2/REtFS9svXhJTM0mLdzXjDSWPMTwvsviT4g5mf+x1lJGB51TBdhX+scX9YtOyaecpfJlVg/3FbKhqycnacsLnNYWl1zxC+ktq7PHOEWgufwjD9MXtf9mAQ+oZIsXwPcXTv5o2+/ei5/Pme06zkKAfB7qPfsr647EDGZ5bKbkndyZT5DKGF/G2F6fct5U2EN6QIJUUvIlHxkLUL2GjR94dbverNCF7bOhhlcAAvH7OQUucRlKit0WmfCuHW6adf8UuLFZBAqDibSg/+FG74AGX+t4CzIvD566jwtHihlGJbm/HMfw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WqKBiT8YbC1bOjIBExoVyOdpJ1mJxPjilFiPOh1ui7EYOjCkihk5AR+sbwl6EUnppltA+U7n1/fLMDlC6SyQa9r0aLydyMOBZU1s0M5zrTzgf6udZklyRy66VO4muFa2SQ/5WOGjz7N1xcPP1o+tEHomtA3KH3lgahnAf//EYvAOhx+lFySQb8pi0EfcBiZNVcoV18oWoo8pj5B+Tjlm0KCzyVxUW+7u40Mh7KRSZ6XJ7aMx8B/dIMOVmKJySlzijsdOXBp21rcKUXNVUK4ukm45WADgM0L02kyYVryk+apDSMxOEObgO8Q5RYYNbVmG4ki1/F7GkWZW66kSApZY6ON0RtEcj6UMDyl9bgBShM6ScHp4mVt8YLVF8EQyLSvvZksEBxYoyUTK12W2SVjnisijHbc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:408ce1e4d63c74c8\"\n    ],\n    \"constraint_ids\": [\n      \"C:cb3c5eff40ba01c2\"\n    ],\n    \"span\": \"At salt depot, Tamsin transferred the rebuilding fund into a private account.\",\n    \"rationale\": \"Tamsin moves entrusted settlement rebuilding money into a private account, conflicting with the prohibition on private use.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "7YwoYWCBwB/zxYhvNgxgm+2l2/QKCgajXkhIOYwbdco8Q8GPMfOddfQ/vmiMABZJgMxFTLrlrCCNZeTMSR51NOOv5Va0Mf/QEV9P8cAc62pqX4njSZAEPBPyxCRzN35gX7YoU2XbSs1uOQzwxPlBO/YWX505hS1S98VAIjsVUkQdgF8vk5lB71r1cw035ZtDgO5qtKIHWxl6cSxRD0IFv4Hnm3BKnC+zUko03hUoAJvLwkq/WmHRfFLZ644MMAU74+dHU6AEh14OWbmO56PHlIGm/1GRdy8ooLZJIWGM8HSNdu6q15Bv5CldP+JMJyXTiEK6amXjud5e9ls1WmBlrjOuTuIj7flqtBh1HkjNT36padAomCQePRPY05cmYTqqlaweUZVi7ny0rFNfOFBUy2dEx/7I",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 606,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 183,
+        "output_tokens_details": {
+          "reasoning_tokens": 65
+        },
+        "total_tokens": 789
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:408ce1e4d63c74c8\"\n    ],\n    \"constraint_ids\": [\n      \"C:cb3c5eff40ba01c2\"\n    ],\n    \"span\": \"At salt depot, Tamsin transferred the rebuilding fund into a private account.\",\n    \"rationale\": \"Tamsin moves entrusted settlement rebuilding money into a private account, conflicting with the prohibition on private use.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 606,
+      "output_tokens": 183,
+      "total_tokens": 789
+    },
+    "tool_calls": []
+  }
+}

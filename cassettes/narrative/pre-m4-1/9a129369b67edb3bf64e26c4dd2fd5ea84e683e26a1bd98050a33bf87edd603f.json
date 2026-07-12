@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9a129369b67edb3bf64e26c4dd2fd5ea84e683e26a1bd98050a33bf87edd603f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4351,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 538,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 221,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 932000000
+      },
+      "created_at": 1783853800,
+      "id": "+kHgAXCMdjC4Kv1UTWIiRQSXY94JxD8cIOMBDOmcnabbdUnOGduvr6fxGFl+G0o1osjo+QWFGXQOrz/TMFKuIhBclH2p0oc1pSBWV9gVmHQKbOON7SSy8iR80rSpXLo7zNbLcILiRDxUGgoBHCjupx5YycgFitifLv/07OC+WZNF3ygRdvWZEe/1mhQjLZQpyV4oJ9qWpNVsSOYvYBhxHQzzSaylmooA4AcuZlTXv+iiKGGnTeVGGZU1ioStZCBZ4wRRa2VKfqCkgvzAz1n65vfOKSuWQwNBjfgnTZlgAbVu0jDzs+RLQP3E9Q+Vhom2Ptmwtgz+HxzIpaUgWNZAVjHJRNOZakj7bUkUTNHmFBQ1BepoNuCIuU8/9/ykgi4N/IiLoYdlH8aVMWb5nvzPzeJMek3Qxg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "DZS2ScrTdg+HUfh5Xk8ZmLtjPCVfwv8byKxFRaaRPA7IhVqntnOmHfa4tz0mx4dQH8QyOIbpH9qW7Im7ilGhcoFIyw4e68LcbttOhjpR1UNOmL+3gzCu0bpCJbaJR+ulDewlpcE3EJ1mEBwDiRJs8UoK7uZCoSlt6LKPZeCJC1UIUqSMQr4bLOFMOZJXiKWFOxrxsgosyNEXwCdurwPCmtVZc5WwzVgpskexxJgjjoNN22q3esq3cYNU1LmMEYyjVV8imWr658s7LTPMsIVrN7AYyZDrwX3nqgKcLu7ShLUr66grceG0E/GInN+wpS6HUD7cS7WKdWGKHL0rQjisn0kp2QFiobSdrXMVjx6RuxN9K8SFc84kOfXL0eQPVbldM8k0lOn3J2LH6GWXE6NeEHroK6Y=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:66ff83dae9a74dc1\",\n      \"npc:d5995b31f0733df3\"\n    ],\n    \"constraint_ids\": [\n      \"C:8f71b75514aa651f\"\n    ],\n    \"span\": \"Ansel accepted the title of the Crown Witness before the assembly at north gate.\",\n    \"rationale\": \"Iria is already established as Crown Witness, and Ansel then accepts the same single-holder office without any stated relinquishment.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1goezBmnpAwDPv47Ag3utyh4+wGQ1Kv1vNZDTvoRhE3XmRs0bBtlSmQcsC06zYr+Qsxz3GRLkFHceAP7g46/uAyMuoAPxhyoQDFGzajzESK9j5CtmV4xOQwMHr+km/WtiikUOUN/nMOZyZK07RHZLCAMCeqF4N49AmvDPQqEXDygkjGKiZcLDJUc2XlZN0ZxMgveDsYy7mVAgoSeiu0R9dQsZQA+I03yfY5nOVRH7pU4f5JSZixjCQqIoCU1kElE40TO9vxUHGYTEYDsFXJTcl1abq4axJEwHNoYRkNK7osX0YuiVKXRpIQucnKajTyXtPVK4rDvzrfpHXji36OWErcKy/+PM7LnGIxM7fP+7BOSXRpZyO4kau+pVYJd/QPkSSezBvKR02zYgmLG4mQUbd27JgGI",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 538,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 221,
+        "output_tokens_details": {
+          "reasoning_tokens": 86
+        },
+        "total_tokens": 759
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:66ff83dae9a74dc1\",\n      \"npc:d5995b31f0733df3\"\n    ],\n    \"constraint_ids\": [\n      \"C:8f71b75514aa651f\"\n    ],\n    \"span\": \"Ansel accepted the title of the Crown Witness before the assembly at north gate.\",\n    \"rationale\": \"Iria is already established as Crown Witness, and Ansel then accepts the same single-holder office without any stated relinquishment.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 538,
+      "output_tokens": 221,
+      "total_tokens": 759
+    },
+    "tool_calls": []
+  }
+}

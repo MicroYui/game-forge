@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:de4181439bf0aa09cd2d162e955dba9657fe91291ca6681ca6b5ac83bc6f05a0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5389,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 690,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 193,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 924000000
+      },
+      "created_at": 1783856400,
+      "id": "aI5jgcvRkVQJLc2IoTBUkpO3n/QEy9dQ6V/bugBAZWgMB3Ig1shS78NBcRl2/U+8/5+GSjtGkQ6zl4MvU5LbVRF+Cgy6PVgRC7BwDHTTKNzMcXDeYOwfxT88LYWaMOXfBTqbWRCsF0ec/LsRRZADJd49mMYEAGc7y1j50mihU04VbZn3xit5I6NhpGBbFD3t9Tdennn/9dfPCbseNzS3l4K11xY+6Vb/cGquxs/Q613yJTJx1uaipO8+KmqQ8g8bLmRAGjTM7dIDanTyUzN1UyegSqVPtMFdBlVYzMhWxlw732fvn9hprkip022n7gpayX3+Tinz/1TrU6ysCsVGqv1o+PrfUP5iKHzbDxxm6ldw4f+whlo8F1ngaN8gF5aldSxW2yiE9P27JcLgYD3p7JHGEY+v5g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "SzJFjWCX3lFvxsr6A66YhJgggLpSircaNXjeW9yNl7SWfljsHbgW4QaEt9u3GPVAhTbp6IKMk5hPDIh/ixRXVguBIitjdV7+BcVwgy23N5KpYzNv4sMk7JYIChew9PgBiJegKJKCEUA/LoVfxrKkjoSnB9dN2YAyAjor54R/NoNHXS9WXzAEUqOqv4uMKaGRvp1gP3HAihJic5BpoTFZukxUb4+cs+uEptTx3Z+QigTKjP3mVhICoSr7TE413blqx98PPGIzfPHbbnIWyQ9SLTO+Jn8nqsRHl5mhJENtx9MQdtzIpyeIx3D/Z+1fvujvRBPor9HTbgCjRAGfGt+m3Hu8BKV97D3/CzHU+Q2jraEYu4VSZ7OVpX1JjmnoWpxQzXmoeUjawW3xQQwScIfB+m42StI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:d5218a5c31cf10b7\",\"npc:dc12358f8e5a0e18\"],\"constraint_ids\":[\"C:7853dca619a4cd87\"],\"span\":\"In old mint, the council recognized Malik as the First Navigator.\",\"rationale\":\"Ada was already introduced as First Navigator, and Malik is subsequently recognized with the same unique title without any stated relinquishment.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Sek168NgTgayUZBoW8t1NNeHBJgc9HjoErG+lxTRbmnSvMXR5ymq2mgxTWA9zIGbOgMf/b5R2D3Ocymrq0jeg19IAKzCjGDCZhT5N2/PvAtduSsfY9T3AjOzbtQQ5A+hgHFFTu+DP0OjPAqsGr3hvsaesWnb0N3Eac27mEjfYo/ovkVS3leYMj8VBJTxJEkHzWVfwcyLtBR8H7Lo8x6bZTap9vMLUJc2QA0P1oTYIu1Oy0o/6LhpmvZa3V1KffmESSriBdzfncoGEgPMRtBimIoJ9ppBhnAYCDPBTJj2PMWalPgLeJHC0hWnTU7c1rWJoOfGKXUvyzd8E8hvZ0gNn4/3JY/sRit78yizks8hkV6xEyyrBhKZv7jL8kRaNBlZmKGRmhZVoMmtwlr9KjXoWnkYPtK1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 690,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 193,
+        "output_tokens_details": {
+          "reasoning_tokens": 85
+        },
+        "total_tokens": 883
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:d5218a5c31cf10b7\",\"npc:dc12358f8e5a0e18\"],\"constraint_ids\":[\"C:7853dca619a4cd87\"],\"span\":\"In old mint, the council recognized Malik as the First Navigator.\",\"rationale\":\"Ada was already introduced as First Navigator, and Malik is subsequently recognized with the same unique title without any stated relinquishment.\"}]",
+    "token_usage": {
+      "input_tokens": 690,
+      "output_tokens": 193,
+      "total_tokens": 883
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:34ff023f3a990a9e9232896fdea66a155f8677894c8bd5eaa89e699104cc6580",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3841,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 552,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 153,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 735000000
+      },
+      "created_at": 1783848200,
+      "id": "dmG6TT7ND0TYUqtGJIVuYihzhdpGgPY/ykkNnrrWPKrXbFT9ZBLy1q5n1pCtJsV3REC788OA1/d/JTLaGcvAYG38zFbgcpCnRqeujJqfdwf7t5v5V5r7X2NYRm3Nv+LE03E7xjF7/SdaWbOd82z/FDW5kSmrYmySTlcipai46mNl91gOJpzhTZNO8iJ65RYmQcygnL1wWZEcaHgjAGJLKDqFPTUfK9nRM63+Ya8gQAYimQJ8Z/9OHadM+bexprcV0AwC+UVnKEMAQcHcXCgGKBHq9nkjT/QmkgxZ4IVKHFqisVKUny1oCBV7bPAQ8VHWXQQDbMnKO3CJadV0C4GKjMF5kdOQp4TP9aXuTLGDENopXWwZXzLPRaW6RpQoPn53PHGGFTxDu3Hv2Ku0a0ac1UcHRvRMvw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "cBV8bUHKV+JuPCZyb0vOxZ3b2DvPSBNyzbF/bPu7YaOWYetMpIDXgIWVhxtwsKGDYO3pMtWwrdXcWTTajDwz3e4RokqvzzyonvaBNvQLgMuBaQrIBoxImnjU2/t9uQXlv9YnGYlzMuqV1AcW7sSmgQFeIlorZiVVL019JxtYS+Cu4AscwcqtEKVj93KjeBiUNJNXKDV2uGoYbCfrLhDUuTOJwImKqXxLOO4V+6m/3SlPZSkbg7/rneYSsK7i+g0Cxg+hTgpIHnSpSrrnJSY+Th5V7ZJBytJdzE6JBZHMde36HgbUHYlQOrCQfDMHx9n0A5DRvyjiNZw1J7S+xeHMfQCEi6O0r9HYxpBEt3Bs5JZSHWdbYIxI3WPR0SUOUTSJ0bUbJGHmDyhWjRynHMW/QUWHOos=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:99f04beec830726d\",\"npc:ba32d1ac226fd961\"],\"constraint_ids\":[\"C:88764cd2f1137ec9\"],\"span\":\"Qi welcomed Mara into a shared command post at old mint.\",\"rationale\":\"Qi of the Harbor Guard shares a command post with Mara of the enemy Ash Fleet, showing prohibited coordination between explicitly hostile factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "qAfKtfNvMte9OLJGCUgXVbKuJI63/RZZxG5KdkLq+dLlyXopMPLn02QXfj6uDTKZYSF+5Pfp0CQHDTxPSjY5sGBsAFkny68VFTehdZnbV7DFZxOsCh1o4vyLdxTj/i6VJgZhFpJzJPTsrpCwEZYAVX+8ms+dAwuet55P6SBaPqNuUEYSHYGTiOSKcfvt/5YMCkDfDl+S9OI+iTWOVvJAw5pwwRG8m+zkdl6EtjBZO3OT5zcbM8PwitYDdBiN0VT5jh3yCVy0/EpyIMNWfa7zuQ94CknjCCAFg8T0tvJqrUlhTRjUGZBH0CEE8HoETe7ePY/ya/rTGJIQPOSoo4gMKPPaRuqhOEAzCEu3cx9nlz80h/bPeLP384Xy+p/MgB0sUzNd+qQmbGvu0mKJQd0uddAV8PYj",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 552,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 153,
+        "output_tokens_details": {
+          "reasoning_tokens": 51
+        },
+        "total_tokens": 705
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:99f04beec830726d\",\"npc:ba32d1ac226fd961\"],\"constraint_ids\":[\"C:88764cd2f1137ec9\"],\"span\":\"Qi welcomed Mara into a shared command post at old mint.\",\"rationale\":\"Qi of the Harbor Guard shares a command post with Mara of the enemy Ash Fleet, showing prohibited coordination between explicitly hostile factions.\"}]",
+    "token_usage": {
+      "input_tokens": 552,
+      "output_tokens": 153,
+      "total_tokens": 705
+    },
+    "tool_calls": []
+  }
+}

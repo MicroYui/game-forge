@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c39067d65f205cff452faf6f171b095b59d498442c91ac7033416246bd2ca642",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6559,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 608,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 169,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 811000000
+      },
+      "created_at": 1783844100,
+      "id": "8zv+caxSDoQ4QywoKfqkpI3mTz/Z7eWg3aHCBbj+FENbCABxtyaWwYz/uc5usKybp9naxeiSJ+ZcN2mZ/kpgzT0J6Q4xKu5ISFqC3U/ZiWJVVu0BFLeJXwOKyx1UbX63K1E4B5zVYe96nURFrDpqbNsY3SSlYAoEkYoXJEkBOnZaN8ZUUpmp10tHfirKX8/OtRB7CMzBaTvx9qpxRSWgLM6jM/1/fBQ+IQu98F3/whsZEI5FOJkRsPSzKRmitENQMEST2WdReebPXnOjcnLBM+xyj/eL5vDh6HPSnyQltuXWigpnQadYh8SehPRbmYqr7CN70AxJrE5By8di2zLvGNI8yy/nm9R+/5NkLKw7e3snnEM8Kj6c6bZFwZe1iDArGHfG1VhYkw6+Wk4X3U+tW65taQF8jQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "wYXk4XGUvnSg/YZn+wl7GFilek4ZqOqAET/SWAuUK9C6SMQjMHrLwqLRHq9IAu93irou3ALcvqZmXf11U6PUhHl5vH7KSJZHBYa9fxaca4m7Wp+FplsRDWkAnLyptW7p5Jez7PpIirfMTBx1iBu4f+xdGmGeUTgBNTLlCVGfz13Kasrrhl00eVo+8HcwovaytbLkb73oZjoFIH8rXMMznvOOcidN6HPLsK/l3ToTl1HtpxxIahH12md+n8iTfjV4Fi/Xg3g1r0azj6g8chScXNioL9sNiRxYX/r6xQKks1XI23chMg5gjGhKC4E1oabldVq5PJMU4JE4kRdRBU9hv8JlfDw86n638DA86QOSs4XGdIhkINWqK0rK+plzeBoYQOteVJhQ771s9XUJ/yYSKdVtFMo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:5d96a8c43f31e502\"],\"constraint_ids\":[\"C:0721a477cbc05e16\"],\"span\":\"Noor denied the pledge as soon as danger reached eastern ridge.\",\"rationale\":\"Noor’s denial abandons a pledge that must remain in force throughout the mission.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vlqebqtTx8P8YU3ij8JEe0m2Q7xJC0IzTNYSCKSFVg+XOEJ0fci2lAF+rPDiWbs/5zfgiMZfMdFbPWUb2+5TDObQ56HJfzPGJcgA90MEEVEszTFVCwdP1WwjzVPokgBIIZKK4Cafl0j9kiWgXJSR0KgfnwNiLLYtTpjPipt2ezO4Ulz9UNyfpeiwU19ELLHkxA4hQk+olhehNPvbxjM3i4mvkTWQQSnGUFzKPtrs3nloYiAGTd+Do/0ygHrD5W567cPrBTvly7QPT7JfO9wCBDlrmKRs1k6jmv+q1LluHBa8VLyhrbFo+5E97ZD9bs3O/eckoTNWrpN12LwNOo3PE1UgL/U3TGxP0WBy+ru6v73j07vd3ze5WaIbGUTYw9bHJoBo77ISZlDssFuAFppIF6Ykhenw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 608,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 169,
+        "output_tokens_details": {
+          "reasoning_tokens": 84
+        },
+        "total_tokens": 777
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:5d96a8c43f31e502\"],\"constraint_ids\":[\"C:0721a477cbc05e16\"],\"span\":\"Noor denied the pledge as soon as danger reached eastern ridge.\",\"rationale\":\"Noor’s denial abandons a pledge that must remain in force throughout the mission.\"}]",
+    "token_usage": {
+      "input_tokens": 608,
+      "output_tokens": 169,
+      "total_tokens": 777
+    },
+    "tool_calls": []
+  }
+}

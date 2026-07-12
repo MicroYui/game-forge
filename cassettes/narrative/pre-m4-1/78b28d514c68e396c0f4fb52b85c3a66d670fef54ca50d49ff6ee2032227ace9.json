@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:78b28d514c68e396c0f4fb52b85c3a66d670fef54ca50d49ff6ee2032227ace9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3720,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 677,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 182,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 884500000
+      },
+      "created_at": 1783859700,
+      "id": "ByLaOe0SWz7XI+0XB0/2NRB6nC0cj+z4CY74y+IKqyPCYjGmPaKJ3RaOdA2FreaM2jmISj/XZC/mI/jreGKqmPe0fUPMnGnSXxl0sTMYtlXzkB1YeZybkLBIOxUCJ+KC2+WHqJUM4xc+kONlzT7QlzdC1u3+87f48dmRld7M/kzqv8Np02UCOWjskmPBLC1E4wzo0VbYbD+2n7qX8ixafY7wZ9euzGRNx1ux9SPnR5AOvGbxreKLVhIf6H5tjo6tKrQobka4A911FAHrEjMpNerNx1fNKdGr8Oo5mFkJd2SrCAO63sa2Xa+c1ViUPshoyjgIQ5pexG2lsWhuYa/xh/mCy8J45ioZ5rx3sghrs1B+uhXqC/0DbvP4gasbKmfXd4ViTC154XWzuMHHSTT3Vn9mku+mEQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ZZXbK+cZD0eDKqQkSQoEFMxhVxlYMaXRkmbz2CVm1/dBQbCO7CFIpvErktDtrsmVUUavqIAt1IkKwZwklorgIipH7bZrpihccuLvE+AeJUZafmkr9K6XGpFDSuzxE9U7soJE2liavGrL0O3R0wjPvCVMRXt0v/LXaoFh2Ktq4fBU85LWPPUtcWdR2kJ02T+hCxoAToj88LH8V4U66Hmag/jSzyfL91Ie/NiURMl4GOE/6wzYQ0eMmorJ+RREYLOHDAp5jCvB3hZnG+xeZV5hzlQOU+Dx8xLFyrPhiQVX0rzSdiK40s1m/aZs+OUmV8Ppsdxasr0nfZL5cXSPj6IZxZRs7ZXig20dyrOPWe2s/F7QIx5znXPRVCSSbGY5bUDigoqcfEW1ehqFqSHC0f1WrLV3kJ4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:13b594698b379de9\",\"npc:166ae74fa1962c3c\"],\"constraint_ids\":[\"C:a411043cafbfe677\"],\"span\":\"At river market, Iria was formally introduced as the Vault Steward.\",\"rationale\":\"Ansel had already accepted the unique Vault Steward title, and no relinquishment occurred before Iria was introduced with the same title.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "PeVj5UsQNojgt4PHYAoyrXl6Xcz59ts+xYvfZl9sKzsYiyKQFwj3GRzMcgb8hKLL3Us6T6/Yx/EOC2EyFCBmT+cBZZ0X6Hh7Nc9UExEBkb9EPWTctuYnf2OWJHOJrnL6nPPj5cSFisPi/HRr0pjs/M/r7huzYZ/tBENGs32HB7WVvqInWJqdMrwIno4vhjoGvDWtnYvIzgqd5QTdNDI9rSrN17NjrXZUK5G5sQf9zAgdtS/IljgrtZYKlgucRUjxoz9LkMKvF5OBJ2FD15/Dvs8ZeltA9ObzL3K8K6v89EEWh7P5qQZIKRpiKkO4rz6ogBIOHdTgOyhX3v8A2jbshWcL0rBTDDmZ98bKH6Is0Ti4oXDT4uO6GnRfqcr6xkt1zsvhUBna2CGugg24beB0nngbP9WR",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 677,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 182,
+        "output_tokens_details": {
+          "reasoning_tokens": 78
+        },
+        "total_tokens": 859
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:13b594698b379de9\",\"npc:166ae74fa1962c3c\"],\"constraint_ids\":[\"C:a411043cafbfe677\"],\"span\":\"At river market, Iria was formally introduced as the Vault Steward.\",\"rationale\":\"Ansel had already accepted the unique Vault Steward title, and no relinquishment occurred before Iria was introduced with the same title.\"}]",
+    "token_usage": {
+      "input_tokens": 677,
+      "output_tokens": 182,
+      "total_tokens": 859
+    },
+    "tool_calls": []
+  }
+}

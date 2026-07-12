@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9190db6df62c017669f65222c8a043a9ddf5f74fc20c96f1cdc864833200d613",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4518,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 638,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 242,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1045000000
+      },
+      "created_at": 1783846900,
+      "id": "5CWlXmqAb9XjcQTeiKEOUMTEBsznnuIQBJ3m/naElOArsiPdmeFUafNNXVhBQW4JK3M+xLRU/sDVQfOdje43QhBpJ3Ipd2cU1sg5Hdc+L6wsqLbKlEetujqKLNrrmIq+qrBOkMTyWlnPKaGecNXgfJqebp8WiK7yENDbZ23bBzdDKuiMBeQdixOpKLdgf136MOlyUiThAwHKMCBThFIvxe2bBXmDotzCASSvx70jr2BLb4tG5zqhCPwPJv0a+NZQNS7lQhsylnlylwh5E8uZtiQ4qKP28pTZN6t48QJaKtBLl5yjvV4P2oi2k3qYWxeEj1wcWMGUbzTRuBywL4iAtmkmp2YPl4r5gbh13wzJlBDukTK0rmdcNr/v0jxJu35gBk/iHVvzhxaH7zFzPh973OLaMnDHtQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "/JY3QzLChd/UmFQBxmVkhEnqjyQEEi0T0nJea5wp0ZiLfJ2qf9Y1GAI69VFxXv/WBfCaLhzD4vXXfXnu7esjHRKhaMtkRgEGZoeTDqXo/0motYtX+MGwfFJdHJzCa143golayAXlGQmSQ56szI6pLUc+BT5ASvnk+WAVH47OymNH2rya31LumTf/55NFYjXZu56PXjsTz2x4VlNK94FRZQOow6rgCocSWI5+Z86JBCAOryrwFJ+ziDQuh+GaJKI+o9JNd8KB873pElQnUHk/jvyPugzDkmguhIku5h5CN5f9Fm3uMZXYAj7dAxLKa0uHOdIULA9VLCYKksQs455jII9/WG/M6rw7i8qijzwvrcyu8ZpdlGiBkgSqYbErlLOaBoo/n3ewRSY3xjeysF17qNzw3rQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:017d7815559ea560\",\"secret:72dc9cb32b2aa0fb\"],\"constraint_ids\":[\"C:e07e26986efe878a\"],\"span\":\"While the story was still in first watch, Ada identified the vault keeper's allegiance at north gate.\",\"rationale\":\"The vault keeper's allegiance is disclosed during first watch, before its permitted reveal at council session.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "GpVmnVy3IHWXUsszl9pHjuXFB8tzylbnq0J+vqlq6Q4qjWpEYI2UYUd/hQSJxwDWPvzBgsvZNphP0xUI7O3hl/4mgb7djMKWJ+j2JiYvQaQ87bGa31CtbKjUE58pJXCzL4cWsTki3NMh6vv8o1r8kXaSTNP2qTa0xgHrwpYW95Mw88+rUn79Fqp94TulWFzecDTJJ+g/B7GqVONzZFl9oUShrkBnMC5twueKVcPquml5CD19/JGqJzUaUTTU6ajmN5v8C93tk0oxhAjYMtwrJk8YV2XmIv/3eyMukfEOeB3s7ENSC4i7Dx2MAaGFTo/rRpTQxY0jCviQWpq5LfC+8EROaJQ7VwiAakmXRVT45e+ikjf6UDGBsAcuxim9WLYj4J9rQsg23E270ZOgsp4jo7ciIvUW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 638,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 242,
+        "output_tokens_details": {
+          "reasoning_tokens": 141
+        },
+        "total_tokens": 880
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:017d7815559ea560\",\"secret:72dc9cb32b2aa0fb\"],\"constraint_ids\":[\"C:e07e26986efe878a\"],\"span\":\"While the story was still in first watch, Ada identified the vault keeper's allegiance at north gate.\",\"rationale\":\"The vault keeper's allegiance is disclosed during first watch, before its permitted reveal at council session.\"}]",
+    "token_usage": {
+      "input_tokens": 638,
+      "output_tokens": 242,
+      "total_tokens": 880
+    },
+    "tool_calls": []
+  }
+}

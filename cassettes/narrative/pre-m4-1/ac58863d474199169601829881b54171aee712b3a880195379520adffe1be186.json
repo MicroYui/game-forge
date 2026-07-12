@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ac58863d474199169601829881b54171aee712b3a880195379520adffe1be186",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5800,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 570,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 239,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1002000000
+      },
+      "created_at": 1783850400,
+      "id": "q3BkZQcRdNQxGSXHLdyIx+6T65YzfxsnAgzGhYR0GKNxkLmi5P3MrOG+2zXJ7zsaoffnNuYUlFHJQwDOP0t8710nM7wi3Cwab0CYjteu3gSfqfZSRYXZ+7+E6iH4U5jxPF1MljwXm9+bBIuH+C7qgiIr5Oyo89oG2OyooFM3QP4yX1f3oVMStWitLozuEUNuAm+w1bOcMWJlgbcrztmBz6TG3ITWM2gChW/72cRajlNzX13YIYgWhAQetx2U42QMWTD32u7F/r/1hUHbMZHB0sgwulrgkllW00jxATUBdts2nAo6FJMpt6NprrT29nYqD4a1sLmvzx4lJn9sNo9ock7TF52exUVnnxPcs8QCLXOfwp8hcbkTiG2ydPfgfeY1vJLHxX2miGLnz2vEqDp70673V54bUw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "avt4DHsizRiGUDiQzuGutHDuaTzVSLQ8S3k6+q845/Hbatmbgq3ptEJD7mBICOTmGeKDdH8cMKTZ8R4UUVaOlbYEq4jntymjlRMton9cpERp7ThCNV9zQsZwiqFgscNh0rSaXKfoMmqDxunZGeDz97jOae0YIQAnS2tkICawFyJuWv/WmyCGDzCrqR6vrvbMry35CzOHeE706mmJE4Hld9diTFxYwg79msLG4UASCEwSbcrQb0InqfR5IQjSH6wOzKC4Qmm/4gYXDVQ46JNp+bZArIweTI2zfoNM9o50mJgApH/NIw2l3hMkPZpUECPPVTStzPz+k/d4JfxjW571xIV6fUd124gc5wZhXtos4ycmumdKASu7Df9cr9Sl99cJa3rnIMLvRBEphboKV85HS3aM1Ew=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:943439caba754853\",\n      \"npc:b606eeb7e4e33d83\"\n    ],\n    \"constraint_ids\": [\n      \"C:98be3595be6aa1a8\"\n    ],\n    \"span\": \"Iria signed the register as the Beacon Keeper at glass conservatory.\",\n    \"rationale\": \"Iria is presented as Beacon Keeper after Ansel accepted the same title, with no relinquishment stated, exceeding the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "CdtTfPdqYlVI0PZEM1GN7Odz+zC7/u1hzYLN3GwS1T1mNDjkWOaf2rXCVRtPz6Rm99AHesZ8+blksJa8vMLF9n8VWzOjYbS9I3l2gRgzy7ZoU9yVVBUEYdqDbGWc+SLhmD1wG9ECnmxbocv8pRDtom2E6kw2eZC0h86ZiaDu6/RMJM9cRxyqY6ueoGkjHDGmATIvAwaWNDZaLMpXnsKHulfvPs/+KiRlhEjP78Y78oLiqKTu3XIK4YSw2slUWfvQL/uTAl1wgofPWp24TqezbjklYfJg4Nj4u0ci4iTZLEDOlx+ylkOSOhEVx3h1PK45Z/BKbc5jBGltqlxqYRWrFpNjrAOKjtXo/3oJvHS1zr7s4GyK5Jei51RflpZG6zVEaHpKaOL+oeXCodo38vPyglRFPtYb",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 570,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 239,
+        "output_tokens_details": {
+          "reasoning_tokens": 105
+        },
+        "total_tokens": 809
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:943439caba754853\",\n      \"npc:b606eeb7e4e33d83\"\n    ],\n    \"constraint_ids\": [\n      \"C:98be3595be6aa1a8\"\n    ],\n    \"span\": \"Iria signed the register as the Beacon Keeper at glass conservatory.\",\n    \"rationale\": \"Iria is presented as Beacon Keeper after Ansel accepted the same title, with no relinquishment stated, exceeding the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 570,
+      "output_tokens": 239,
+      "total_tokens": 809
+    },
+    "tool_calls": []
+  }
+}

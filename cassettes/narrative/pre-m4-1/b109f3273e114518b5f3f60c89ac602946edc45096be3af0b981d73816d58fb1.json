@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b109f3273e114518b5f3f60c89ac602946edc45096be3af0b981d73816d58fb1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3467,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 629,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 143,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 743500000
+      },
+      "created_at": 1783851900,
+      "id": "xOKOK7vEi/0VFqcwyLTqaqqDngusfuDRMRGG38p1VbVXUrE/NLlqyYN9VjXCaxWmZs+Mrx/NS1kwkQvDw0MKZSnSZXwF2i1DDHghyVBB6QsR6jTiQV3JjHicZioO1JPBBzxJCr98mwLQ/0UV9MsGK4S2PmowW6M5TtOGnKlSJzGS3lclKHFARCzk6ZtcvkOVSOh5Huc2cs9rhTjKDub63ENJRIfgswITO4kZZ3R10PudIBxIV25jLirMpsiBHvYRcwsRSImxgQYw49jOJmZ6ddnVeVRooMcog6EpgWKE+x4aEY2coxo1Rmj637OJTbHy2vvIKwW9yTPyx65yLwA9BB5Z+E/t8eCs7Ru1UILqTPJC8Sw6N8KohRU2i9CUNKTmZva9qqC8xquAOhR9AqvcuUVBsv+uUQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "oKQii3Pj59X47brkDA8JhuHe/7ChRbqnHq6gju773ERxPU31bcMRfSGGcTuNNBBKraoFEz/YEMWcxYO2sRwgbNYXWCR3B4jV6G9VemHRMezZhEIaE2YvkV0Mcu+0uMB3iT91YY2cGqdSB37PvzEvjkaCfqjX1qF1TwZdiuk/IwA3DkCwMTaoW+1BvRAdOteK4+l3bI2H/ALpTcjpXybh4mL2DBLLFBQCDeAyLOvJWlw9yt5d4Q/RVIir5vrGueU3lZb8aLfFcHEb+V4hy+WwCUixaFGTYEypDj1KBemd1ST0ZBZecy+4ygRdWNGm0xbpUj9brjnNYxN3HdNC7M82IL2AA5SYG9JIYhVkQwMctZ3zspulB3cztcfm2QB5HQMESSyujqY1xpz/Myfa9tJxdS69nlU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8e7967068c9fd9fb\",\"npc:94d418147cbce55e\"],\"constraint_ids\":[\"C:f513065dc99c031c\"],\"span\":\"At relay deck, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea, members of factions explicitly at war, directly cooperate by signing a joint battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Fbf4mHz1ZnUQ4J7qCfH2/zyANFzF9e7DvDKwjwzsRhyxReXSxwUi1p8DeYqbcwxDIJe1GZqjJYSpIJzfCeOBNoViTpXQ9s9HqKibEfuCZyILDMYtgGhaquYvwp9h5TbNveoUmHjWFM24b/ntL7gSB8lACs2lZOlduKEduUTMVIwK8TI/QCc7/Wmq/ZArvlSIH8k7UAX6h0AgIVoprTRs9aA8UUNSSzzJOHGCdPUovM2DX2JogOACOT1mCw6y2qM4WeuxqIgG32+BqRCWu2iQRPLwd6lPRe9zccBz8DiW25mFRviJVN12yuCMJ8q8uJ2UKuNfPZwVcqHBMMFe+GURoStmNMS73GvBgiHuUYNea80OkwmyUyW6KHZfq6ZVyvaog9n3GGwRqDJUT4tUTT49361e4e+7",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 629,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 143,
+        "output_tokens_details": {
+          "reasoning_tokens": 43
+        },
+        "total_tokens": 772
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8e7967068c9fd9fb\",\"npc:94d418147cbce55e\"],\"constraint_ids\":[\"C:f513065dc99c031c\"],\"span\":\"At relay deck, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea, members of factions explicitly at war, directly cooperate by signing a joint battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 629,
+      "output_tokens": 143,
+      "total_tokens": 772
+    },
+    "tool_calls": []
+  }
+}

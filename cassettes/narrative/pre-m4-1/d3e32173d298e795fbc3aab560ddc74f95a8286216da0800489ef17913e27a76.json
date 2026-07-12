@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d3e32173d298e795fbc3aab560ddc74f95a8286216da0800489ef17913e27a76",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4471,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 581,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 290,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1160500000
+      },
+      "created_at": 1783857200,
+      "id": "nee6PbR7I5OhoWuxGBSD+MU36Bspcmo3cJExsys+fVk0423DXolPlTIufiFUC3Wwp8zPf9FO3q/afoT48BAJ2Sqj5MMl2Pz5QwngQG4mqJSVpTigdqsNAY5qZtOubQO3zKzm+u3IjRo597xmDUnsz6GZ+xpCZCSU62jQZtCI6SQoa8+y+eJP8p6GhjfepqkRzdbNbEssMZ2nFNlA3wknry/+sXbiG2x3Xrz2NFOAVzEm5wrPltvYeOC8UwbEXaf0401DWLEkRR9ZIL17Qtsj5Qgsofkoxc5RnEZ0UYVIWL0Cd/so27FD1Sw0kf+nPy1EDQC+eOhYJ2qUFywMw7h+qiQ3sXiUHtQqwL8zqbxExfYHW3NCaIBJNsKF3d/YWtPeuMC64T8KNVOC39sxm+ePZHjXSNJcdw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vgZzXQ2jgpj3zR+isg1wE7yjkayp64GwtJvkfH0qQqD+ubS6/cEqXVVDEm2AcQd5iHnCfHWu5oZ5CrNtMfHy4BSi41kCjln00IfK3Z5GdHVdC4d6xir7lxOtuG1sHrFLbT3WEI8WeGdznNtBVgq43NxAS4rluorTr6qTGguj1a5dJ5Fxfwhlo02VjkUol+yrBJaUBid8hDMk44PxXE/A68CwrBZzde9s4mk2iWN+PUSh1Si2jcE5euqLKS/mp49Rw2ws4iUYt22i6N1TKzy0fMim5EEQZfKDrIFP9Yw8ludOYfjbTi1LwgJBJNfIuPb4yamv9DCYO9m/CLsWz9kfCJRpVihHKi7S7ZOn3cBVvU/+b9RNHZeZ0M6enFPaNxRS/J9JOzCikQy/ojH0gwSxcjphP/M=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:d28fe7849ab6ada2\"\n    ],\n    \"constraint_ids\": [\n      \"C:f8fe225006f3cc2a\"\n    ],\n    \"span\": \"At old mint, Eli transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Eli directs recovered coin to a rebuilding fund rather than returning it to the public treasury as required.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:51fd7b40112d549e\"\n    ],\n    \"constraint_ids\": [\n      \"C:5598d94dbd44e72a\"\n    ],\n    \"span\": \"At lower court, Tamsin revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Revealing the crew's hiding place to its pursuers conflicts with Tamsin's loyalty to every crew member.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "6rok8EvD/ecB99mfNtqCEEMnuO43KcYOuyOTNTANufQzAkUrrIxIbrhv/4i39val/CIth1t1/JMISTeU0PHYXvK/M2oQgmX8fC8RLgEWkZ2aoV/WVbmD0AZ9v/ZT6gC/aiI1hPNoSIg90uMmDwulasfHAOGoW4ZioXfOCS2rRPbr6CM88x2TJ1Otuo0iQPuOdogXaDnXoqfKNF29F/MTHdSzd3rIcAejD9b29mIANGAqwFSc86lg5nopkuM6rQH0OZ5T6DWYj3J6pHZ5lV1fXSf7cJyEGdIBzLNo+fICVKu/B5OM1OPA2Grdz45ze7HH7z72qli8hGQaaQNz3TsQ4lrco8cLFLcGlG5Jd8KJIbIqu0Q5XQ0IcHSHYxsEuF7igQuVO4aQmpMk1YYOlfzoi6onHw5Y",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 581,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 290,
+        "output_tokens_details": {
+          "reasoning_tokens": 66
+        },
+        "total_tokens": 871
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:d28fe7849ab6ada2\"\n    ],\n    \"constraint_ids\": [\n      \"C:f8fe225006f3cc2a\"\n    ],\n    \"span\": \"At old mint, Eli transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Eli directs recovered coin to a rebuilding fund rather than returning it to the public treasury as required.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:51fd7b40112d549e\"\n    ],\n    \"constraint_ids\": [\n      \"C:5598d94dbd44e72a\"\n    ],\n    \"span\": \"At lower court, Tamsin revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Revealing the crew's hiding place to its pursuers conflicts with Tamsin's loyalty to every crew member.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 581,
+      "output_tokens": 290,
+      "total_tokens": 871
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8f2cd07ee9cf112bff2b7a6d6e50386e463a8fff18216d76489dfcc37a27e3f2",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3575,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 534,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 166,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 765000000
+      },
+      "created_at": 1783844100,
+      "id": "DHylRAq0bIfI9JVzms5jQpGoc3TR3Z5pQnZMFfbJDXZL3QxavltjzWRpuUjJSBjHxNU2lZG6287F49JLuGFL4IqDZMajKj6r8uZTgf0cEiJw/86EC8ity9hqpCUQkQzZ1Ak/Rr1u32+JhLi+jUeD+FK0JCV+XSm3tHK9tFBDPAs4BvaBE1368eyuzZEHpu4/Eh3retEEMVwJtZOABXGvJXxX8Vl3mFVlkC3SOODuPMT1X6nwJtlGTPXsNXm0x1BISuPCbGO5jLhlsOWF8mAu9UdXSUcgwPgmUxW96rYhIa3Xyjrc+ALnfAvZSGs2NEStGvc5FesZIjokymAX48yGXdbuLLED+mDJFnokybL5ZtuKPBAFOHwv6eTLY4kzoyr/D+wSwOHYKx90ykTTZ9C61pEMhfQ/Og==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "yR1Na7++291PSi0eghs2Qbi20prEmN8ynzHgi/bYz63A3TYhHTZwsALvbYupM2G24AWjcpPwNdewt3JvaVygdycAl4TFDaAIA8j3gNPuPoWwI5Nv+q1aOVNxlLDBBW6MJBYU+CG0Q6CehO/lIlRS2KozAs/xQEZng7t9CMXe8BkaSXwXwjCbHRXuoCudBz11F/KwQ5q5lEV7uV3Madi9jHiF2h2jTf6zBItHztAWqM6RJbg58QP7zZRJ6Hpq7Ei1tio4wVRRORPdkUl36N3S3neGnyXXxPrBANHuUevLVOZPR5o6qpQr7Be1UjdizQpb3L8mGOQ9rJzstmklgizfFu6eL70APU3+fijJqjCUMJ0dklksWbrT90wZKrFw25QYWL+SVWbmdPRk5bVqr5LM51SLFtI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:90179cd0ade5cd39\"],\"constraint_ids\":[\"C:4e6f8eccc4c3ea78\"],\"span\":\"In north gate, Ansel exchanged a crewmate for safe passage.\",\"rationale\":\"Ansel explicitly sacrifices a crewmate in exchange for safety, directly violating the rule that he never buys safety by sacrificing a crewmate.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "tjMzm//dtrreFLs5yAj8ndfIHp0eanEWiBfMBuowgcr8OJgGoHnz3AFeoqDrubUkEIl2IkCF/hBfuioIp3ILK9LNBLvz/qnWsYmttjqT06Du1gkRNsq6QAspIRy+dOs+Y1E56ZHHNvDHYt+CwGULuI86iOC+y2M3oUZvuEJIfOhnhdKYpQU0sMjtzAkFSuGyatylyHfzm8+k5FkXblB65dj7dmVnW+07n1mDc/zGzrE1pss0e6kscfw/sNagNyJEMcbF3OFAdLlnZc+HygfLHEWhcQ+OWRHAQ4hU7FyRdvB3JcfKpCvyDfoVg3i16xctMQzHnn9ckup0zTr4wK6kzdcPClDyZIS6wvDzy4JjkmgAaopKcgqRl8lnyt8jG6rXjDZovY+QucBR8rJ/6qcoY+0l/6MO",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 534,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 166,
+        "output_tokens_details": {
+          "reasoning_tokens": 66
+        },
+        "total_tokens": 700
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:90179cd0ade5cd39\"],\"constraint_ids\":[\"C:4e6f8eccc4c3ea78\"],\"span\":\"In north gate, Ansel exchanged a crewmate for safe passage.\",\"rationale\":\"Ansel explicitly sacrifices a crewmate in exchange for safety, directly violating the rule that he never buys safety by sacrificing a crewmate.\"}]",
+    "token_usage": {
+      "input_tokens": 534,
+      "output_tokens": 166,
+      "total_tokens": 700
+    },
+    "tool_calls": []
+  }
+}

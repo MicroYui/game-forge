@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a82c2dd345066d29bfb7d6c809e63d863e3457aea7e0fe091d402bca135c8f84",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4014,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 664,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 229,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1019000000
+      },
+      "created_at": 1783847400,
+      "id": "TYQJcBp3NVY9MBil+a7MrdwHRF9uQ6FGmPC6uvjbCMyzTMrByYABmPvAl25YWscAgTv6c1e8E+6A1FXpIa2gBYs8ZG0msv/rdOlfLn7eimqbB25Rp6fFrSnKwrl+Y0SgaDMzMDj5QtmM53faje9P9HV5rSRWgFijo/KtmHpM3h4Wd3kMRooMWrMiRh6b2ncM+C3pu5EXNS+RtPwC+lCtqBbk2RSv5KAO37sU00UYfHQw32vrS3wXUr4/pllu01ymu2wGb31Jap672+orX53cU1HutANSKLzmbIqtRZZosB+JEWcXJ5ZhSP2jzaBIbfAR34mVIBNr9yZ26Jz86fXBe4SJzx0nDDfyXhfTL8l9d18JKOmSF/+hrY9xZPVh2cuOdGjmK94j3JNk8UASN8XXI+7kVmYhcA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "BgYdk5s0qccraa9HH2aE49AmILiGOZkwdPKrDGEnoXYarMYXr9j9WRQSxUnhG77AmFGPwUGPwNkGCAgIKHm1GIF/P2qsOOzqBywZfMrp5L8tzmfbGRbo3MIb2G2H5RsKNYYhAFpThVQIJ0Lmu8IeKHBSXIizKlOwHoHxQ3TZ+orqLWNhW/hjPim+zt0Iy2FWzV+XQo2Pvv8gztSqa7EacUZpZT1I9AFr7VkA2TpRMSzZ+Pg7cyWjQ6NgxqTJOxrmW4M3vCpjeTTTq5a9rYHfHrhcSJd70aHgk/Bqajikuk1jENPkSZXaq4XN5fmBiwbMjopJsCGF9D8q1kC87MGduhD3//wBF0vd7RemuXfAkcDksAHV2fqkSh0jGfB8ldl8/dkbzxR3uUFLEMjyttNLDGbYZbw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4db0164c90d7037e\",\n      \"npc:70b63c205ce4666e\"\n    ],\n    \"constraint_ids\": [\n      \"C:cd0792b1ce4a8858\"\n    ],\n    \"span\": \"Daro signed the register as the First Navigator at salt depot.\",\n    \"rationale\": \"Mei had already registered as First Navigator, and Daro then assumes the same single-holder office without any stated relinquishment.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ACTJ3/QHtRkjXhlTGUyUFUMKW9z4g3xlLBzVpoyaTJYWwiY6fhvO5VN5pKU+3v+NaI1UHLs3x+RLQ+24eaq7bVyJMre8lDzTIT4ZCs135puGomoG8b1xhmyA0iOe2K5fQXN78OINhw19DYlFsaJRkHSkgMW49Yp56ryi4uvlQZAS8s9XwRIv3J3AW1OHsJTX5A90hB+NYMCGEfmcsesbJyeF0OHxVK6Spps+qiYyrCo1B95VjC4GPxu4DQFIcSBvV52WRRrDZhidNJmWOW5Ch5u2yaMBIWbHrtyPAs6bvx4o5VHQ+AH/YxwIMl6IfVU5e+UI9laVOdLw4im7p6Wq7UuoQyXT+0oJSSQMimaB2AptZLyJFSFHSpYQcQc5u1vlDgDZJbd4HxwOth1wdTZMVQOGIFIc",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 664,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 229,
+        "output_tokens_details": {
+          "reasoning_tokens": 95
+        },
+        "total_tokens": 893
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4db0164c90d7037e\",\n      \"npc:70b63c205ce4666e\"\n    ],\n    \"constraint_ids\": [\n      \"C:cd0792b1ce4a8858\"\n    ],\n    \"span\": \"Daro signed the register as the First Navigator at salt depot.\",\n    \"rationale\": \"Mei had already registered as First Navigator, and Daro then assumes the same single-holder office without any stated relinquishment.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 664,
+      "output_tokens": 229,
+      "total_tokens": 893
+    },
+    "tool_calls": []
+  }
+}

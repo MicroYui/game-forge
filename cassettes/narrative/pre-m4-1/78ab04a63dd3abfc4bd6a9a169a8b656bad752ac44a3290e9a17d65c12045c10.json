@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:78ab04a63dd3abfc4bd6a9a169a8b656bad752ac44a3290e9a17d65c12045c10",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4806,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 632,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 154,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 778000000
+      },
+      "created_at": 1783855700,
+      "id": "Bf2QZUd8qZnvWYZHL+nvN71BmydZH5Q1nZe5EJgsmvhxFDO8/6E5rEA9GKuupgZmB9rsUDWZmj7Oow3w2jao7LpfA5wSrFNMY8a0oG5g/Siform6QHN5jaeYEG7wsvnodjfEJxq0xT86vdXbYEzZm1kfZ2nAlE9SSfQ2iy6xWdEITtQ4hZkQwXWP86abCJmp6cFHRKgqsl6YFckGEv7fTjPFAkp1f+Mozeg2vYDPFCjaY6esD7mNvEbvWsWQR1T7ic2Mmu0wGyAGl8G8Z3N0+Hv8PD2m+bPVgdTNR4E+5CKEZ3mobf4WZJlxacpjzu6MX8I35tp56FwciGLwZfMKO5Y6AkNXazz+PXiMqK2Ec1z9uZXIodWcwqKL+GibrPv4rckiu+nu7VoW1XcLXwS9zFejiKMRqA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JtwTWuQ2i9ogAg36cxepFRgX6AgmbNX754o61UDW8D0vf+VcnE18y1dPHOAShIwJcI/TK5N02dmuLk7zGhS+NA4oopgumbsCDVezWKYjpU0PghNeI2oOYj2C5nZXVkQXp9qOiUhTtJVn/gcrAG8GWgJXpXKabTWXnFp8VHx7BhhL6g7HsJJwm9uGP+u3cbJK6VGdQryHWYaBj2TwEJhPfVxqZK19cA+Xz1AXYJg9o1dUNi5vahHyZKHK8F3G/XqcRZonxv8j4Pwmh+7KDTCrBaGr21dZRHIZ3JYxf+oA1gDh8j8v2r9xTUrgP/dGu8gCAQ+/2h6RTdC2WSczSXrTrrO5tlv1+rqMAoxHN0j+r5YzlTzYD23Gy/19/hNdl9c9Ca/TGO6ibaqLbii6HbGfhUOTHj8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0ff2ff29a293fc8f\",\"npc:c37a59a9ef5ea5d0\"],\"constraint_ids\":[\"C:94a193ffaf3be9ba\"],\"span\":\"In signal tower, Veda supplied Oren and called the partnership permanent.\",\"rationale\":\"Veda and Oren serve factions explicitly barred from coordinating operations, yet Veda supplies Oren and describes their cooperation as a permanent partnership.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KaLu3D7l3GEPLQ5A3RyIDdqnn0CYT+rzpwV2Bya9AJAldcIqzIL2MWhLop4ZxYB2hfIusbdOBUvMp+Egn0bR4zbZMuTuvEtEFBfWQh9QRJLnD6YxFjAL1zsiUeWsVv91EsaKRb+CbssC+WPz/fskKNUZH2/tqHIa5tmKiS1szq6mkIW8AXLBheZB9wyDL5Yu1sc0xckBt/xf/Cu3WGckeG6wI3O7hmXIqJPctduTTnD3BkMlcpV51kUdre5LiO9QU577ECNnpdj5SZtiav9IGLsK3k59zk4PFBa9tEKETm2kUy1/L3Vu4ZKEiqm3+pCZxgyzsLdehktg0Iz0tfZjrGoAhMmbc3CSshqK26IyM7t0+ax3NdjD5AfR0uWmoafr8kHYa00I8WmQptVgjBdJsYQWqHri",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 632,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 154,
+        "output_tokens_details": {
+          "reasoning_tokens": 41
+        },
+        "total_tokens": 786
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0ff2ff29a293fc8f\",\"npc:c37a59a9ef5ea5d0\"],\"constraint_ids\":[\"C:94a193ffaf3be9ba\"],\"span\":\"In signal tower, Veda supplied Oren and called the partnership permanent.\",\"rationale\":\"Veda and Oren serve factions explicitly barred from coordinating operations, yet Veda supplies Oren and describes their cooperation as a permanent partnership.\"}]",
+    "token_usage": {
+      "input_tokens": 632,
+      "output_tokens": 154,
+      "total_tokens": 786
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:768d874c388661482ea41db5db584259928f76be7e54f7fd50cba87435794372",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5983,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 637,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 237,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1029500000
+      },
+      "created_at": 1783848400,
+      "id": "jLf+guyvKrmWPNHt8yHhXvPhlqRg77UQbJVTvoEzfd+x2oRqpo45CmUsi1KcDIRHOaaMlsyzvRa8/sf7g+T5Uqfp74bW0eLx/4tgIW4Ek1hTE/ILJkYc69//pmLaFs5C4p0F9DMjRcBhiQ8I89eqFi7/hisHh9u5mQQGVaCoPJa0cTu/OifSj1PnOKJj0AaRx1ZkW9gRLqSr4O5z9jFRTWZVtIKTxoBUquF5PDpBXwFnJKbXwEplRbs9zZe0Hpv+PpP28Cd9p7wespfD8lGJSAZcznxevg7vjIrOlyMbPBLb4WczhULGiTxRFf/EkoeGUrjQo0a2OPhEh4xfTSAaKLojFlmru1Jct1cUATvwBb4Semo7yeb2l5wToFUGS1rVbPMpTBrYPQSYum4NsXxc24OxyGI16w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "AznOxyPruG9cf7ZJOmASZNIKVrCtfwKafNfNwvc1MYDF9f8sCmGtjJesVsFWMoxkgxfF76HQy31EyXdINbQ1eyBPekGr+q9brtaYyBJIyV8D3sgAkh5FfcieRQV77uj9PY6kxL9TURmLnWMA4ZRVXx2cpV+f4r7A73JG1LIctXtAmy2LnOJZXS+6kQLU/61jHyEJSI/R+xx0BCSEh3DzGwPLpsYw0fYCyx/40bhB4w7THOXhnb/tRqbBY2IDgEW4GIsLHtMNa/QRYYdDWSY4bgKh9oKOBMkd3q+h8L15mS0aM1RZttXSx5OD4YcR87S///nRmpVqGc0CBOhTRlXNOLQSgcg4Xt5sNjo7q8kOFzdR/JMSqDVgmDAd4KSlVHiN5E9CRBtHRxhzSG0ciAlpKs87zLo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4c4deb1d299306f7\",\n      \"npc:feacc484ba6f6c68\"\n    ],\n    \"constraint_ids\": [\n      \"C:f35226c6688ac64d\"\n    ],\n    \"span\": \"Daro signed the register as the Archive Speaker at observatory.\",\n    \"rationale\": \"Daro is presented as Archive Speaker after Mei was recognized with the same title, with no relinquishment between them, exceeding the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "upnuWpG5HN7SYq6ylCLcOMJsaFXMuigvrIOFNMQJOXDqc7jcgY0g4pdvV1p/kIx8GZHiyWVP+V+9hwhvQEbHrXj+ttTrVnlx9G5n8rqvmmxC9KEobOjVkxhUeLCewgQPYYHqQpMzHR5wKaX/3HZOIbqOkyR9vlOaQ5HfXWsGFSANUyVZv8JS2Y+AoGOkTijo1pKFgN47KrNMHSJLS38DoTlSr+sb1wPgKZQSfkEBiCCeWz9ze7uIqHQupeOZHTJ2+lUjMEIx2OVds8SfYhJFQaFlxe4WK44a4DgWk3a0TJvg+uBDR0yPo+lKAF5NOofkvRUNld9uonYoShccALFmNASo2Jgxhd7wvLsQCCtAg06o0W45XPb/FH1Vw0mm6bvGZHSjagzF3Xn9JmRnE8MZ4/eK/F2u",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 637,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 237,
+        "output_tokens_details": {
+          "reasoning_tokens": 101
+        },
+        "total_tokens": 874
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4c4deb1d299306f7\",\n      \"npc:feacc484ba6f6c68\"\n    ],\n    \"constraint_ids\": [\n      \"C:f35226c6688ac64d\"\n    ],\n    \"span\": \"Daro signed the register as the Archive Speaker at observatory.\",\n    \"rationale\": \"Daro is presented as Archive Speaker after Mei was recognized with the same title, with no relinquishment between them, exceeding the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 637,
+      "output_tokens": 237,
+      "total_tokens": 874
+    },
+    "tool_calls": []
+  }
+}

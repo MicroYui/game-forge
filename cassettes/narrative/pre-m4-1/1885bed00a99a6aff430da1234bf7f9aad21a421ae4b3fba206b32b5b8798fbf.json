@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1885bed00a99a6aff430da1234bf7f9aad21a421ae4b3fba206b32b5b8798fbf",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2750,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 669,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 135,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 739500000
+      },
+      "created_at": 1783860100,
+      "id": "76USyhXr9bZBr4uD7xRRPNmlS5SwIu7D3w+c6hdTTE9YsopDSKxUDdlorGEeuIb9GKSG/XGDqZfzsb3jEaZKIVrjgA/R4tBs7/c4BYt9j/tB6cDk+EQWhJGG+qNZ5FJPg4KIq4we6VPrdJoKZAG2UlVUIfb/f83bUujYpiPHAnDKXOa2SAde283LHdD7k5S7kTtU8gGKBi5EqYhVS3MKQ25PhmKGYcp3btQPqMeS45rsB0PnI8LAyII4+0NhYbMQoca5/tx0KKYk/nENhhYlbBrWYJodaD23tNGSdxX1m6EVAbb2Z+SBK+KEL/T+7Lz5x4wd/iYtP3jRG96nTBAFTt/HqE7EOv13M1I0IzoSmQdRK5anly/47JicuuuKxs13ZFb8sjwth1jlWCjneZBGLTVPW6vBaA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WM/ZJBvwv0EqMuj76mpt/yJbekPIP12crl24xyGk85lzbUa4p8APV0pWh3gP/cR6z8E2fktgrCmcOuSzClDYieXbA4MxOXPBnupB5w3uMJndsCk5wXLYDpI9+DIBO/8Oi+lgK5hZIxqdZlDlWrEvrj44AeixJpqqFLBdeG8feLtkGW4KaX++tcx2SHIqLkMytaVJ20C4tHJEJeZyBCL+9Hqt/jmAisU6wk3kmylDaz0kQiNYqB8lG2c5O0zY/qCImsyzO7wfeTUtThtHUC5dzoUp2mB1vqAVW0My5WaWyiOwth/Ec4NvxnXEoiTjP9d+Vb6NA6vjA3CGKWt9KgBdT+PIBDtOOvx7MCRMPpGLiNMU4tO8qUtq0z8K52JfVvla4uETVbQ6JuVssUfRVqIirK+Slwo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:a14ab38898fd561f\"],\"constraint_ids\":[\"C:6f9b6fdfd43f7121\"],\"span\":\"Mei disabled the crew's escape route before joining their hunters at north gate.\",\"rationale\":\"Mei removes her crew's means of escape and joins their hunters, sacrificing crewmates to secure her own safety or position.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "7KSx21aTHocA/FYUHIa3fKRsEm7pzMtsT+iNT/MJMoURIu8QzYSNsRGr2QFamEBaHHsMNVUMIyUKIstTvEaE3ux5c+sftNul57evyY7eCyYtsK3mKUP4bTrjj+GYMm8HUaxGxF5EyeWArb8Nr7NvMY/sadTTsDp4Cx/lE16J9sWD8UtzAAGI3oo1n+9OVQO+ho43jMDjrRQtpG7aaK0WPoKEFum16OqGdu+bvfAPG/whpLJXTTBjHv5pSdwqNLfNWyPjaf1c1AZJozhoMM5SFtjPUe2eDLEGzTKv1xBx3MNOseZL9FEexlWrMnik+CuipfxpRBJF9oN880hld1X4a8dpStN40fXPvZyLBviGOqQp3vkfH2rgiqK0Czvqly7Ewzb853NSEsR3Zw2Uy7eQuECash1d",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 669,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 135,
+        "output_tokens_details": {
+          "reasoning_tokens": 38
+        },
+        "total_tokens": 804
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:a14ab38898fd561f\"],\"constraint_ids\":[\"C:6f9b6fdfd43f7121\"],\"span\":\"Mei disabled the crew's escape route before joining their hunters at north gate.\",\"rationale\":\"Mei removes her crew's means of escape and joins their hunters, sacrificing crewmates to secure her own safety or position.\"}]",
+    "token_usage": {
+      "input_tokens": 669,
+      "output_tokens": 135,
+      "total_tokens": 804
+    },
+    "tool_calls": []
+  }
+}

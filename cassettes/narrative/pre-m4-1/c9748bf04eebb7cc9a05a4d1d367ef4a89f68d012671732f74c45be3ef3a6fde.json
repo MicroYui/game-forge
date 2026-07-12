@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c9748bf04eebb7cc9a05a4d1d367ef4a89f68d012671732f74c45be3ef3a6fde",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6205,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 535,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 233,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 966500000
+      },
+      "created_at": 1783841200,
+      "id": "m7ScZH+Ohj3jE7FwVmqQ0hv5uqt0YtlquD8GGM5e/oLlsyfZwM3SEefAgb0H0wRLIge6deIY9VnUEYt2+Od1biXI+Yr8/fmpUnDxiXfPXxH2nobBHzKT+vJwVy9dWs67t1AQ366Dsb0bgO1JROhykkjUaGtiE+E/VrbDlLc6qCbczM1dWW3W8PH9DmQuKWqhPi/O5jiTntCwVyegj6EKOdJSGxkz901d5nCo8FE+y2mJ9vfUPzDs1zLuqfW8MrtngS3ut4dDdxQGUxbQfaIxw3S+sEUKzBTIOWYiRRI2oDMgogf3qHTWm7N45Og1FvjxPGp8wOeJ8TptewOU0izfWiediG4EKi4E0MUvPGUHHSSlzvqGPnyj3WRdnDMFyBf9K2BCl8S8O4o2MXyWs194wGCRFYJIdg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Gi5+bAcBBh+21NBpmRltRHPa1eVQgUzQ68xdjSsXZJX77BtkjJaMAjvwc+VXbJzQCgOs4JgL6i8JFjd0F2Ys7IEvnoYKEikixtiXM/0IfJ6AwqNrHykqmRwxKol4Muo5f+KSUTlo5wrfyX/GdU/lL6RSnKflmBB9AWG0KI9FDIW/zDwx2dCdJSnHjgxoGEzwfRbrJVN+mNtWmWNebOP9pD5AW+TYse9xIolFnDA9FGEMFriLueMdotNr9bxhZ3GM0JtkCftvSKWWdyNx5RJT/HWekkiwh6hKUtR7r34SnsOp0yre1POL1Kth3K51lhx1qQtWcGT3oxMFyPdKpEXRy3woPxfu/s1oHppm4mzGcV1H16kA+XDi8x1jFKkFRDTgmL3pfSOtnFPg5MxPkSPysV5yUn8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:95326e60ea31cb09\",\n      \"npc:ee22df2ae5d00366\"\n    ],\n    \"constraint_ids\": [\n      \"C:fc7123359dfefdac\"\n    ],\n    \"span\": \"At old mint, Daro was formally introduced as the First Navigator.\",\n    \"rationale\": \"Mei was already established as First Navigator, and Daro is subsequently given the same single-holder office without any relinquishment by Mei.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "V7snT3LHtRxWWa2ceK2Y7Q5s8d1Z454/fPR5PywXCzqS15QpLLVtHgdFKERSOn2+uBRGcQQiLFiphQTsZvyn0YLyVb8VwrL+hGGnA8is8xp76h0ciUfdpwPvuhlywvHfH8KUuqW8UjphpYUUoxbU/inpO01OHvCxhhVo41K01bJ1h6p6d6aBaHm6Hx0mU2Eiztywqg+f3rj6irFLWwfEDFoDhObxiC62wTqRJ+BXAvjzqew78zFM2bOuGOqD6FDTab6jLkofVLz6+mckjr2sylBAE9tdebjc4ZTjAgnOKwGdUBEw7PT0SALQsXARGW3vTfF3u49w0Y6/cmEcyRYy18/2/RZ94cW63pRCP5WIYSmlrTVV92897+gy8zAjz1JIzlO4WGm5Z5AfacyzOSnVqRF9Pi0n",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 535,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 233,
+        "output_tokens_details": {
+          "reasoning_tokens": 101
+        },
+        "total_tokens": 768
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:95326e60ea31cb09\",\n      \"npc:ee22df2ae5d00366\"\n    ],\n    \"constraint_ids\": [\n      \"C:fc7123359dfefdac\"\n    ],\n    \"span\": \"At old mint, Daro was formally introduced as the First Navigator.\",\n    \"rationale\": \"Mei was already established as First Navigator, and Daro is subsequently given the same single-holder office without any relinquishment by Mei.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 535,
+      "output_tokens": 233,
+      "total_tokens": 768
+    },
+    "tool_calls": []
+  }
+}

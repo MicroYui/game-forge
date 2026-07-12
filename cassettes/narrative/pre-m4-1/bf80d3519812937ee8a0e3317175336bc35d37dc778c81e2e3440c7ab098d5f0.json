@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bf80d3519812937ee8a0e3317175336bc35d37dc778c81e2e3440c7ab098d5f0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4061,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 671,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 210,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 965500000
+      },
+      "created_at": 1783859700,
+      "id": "zf3T7PTl/mHaHpEePI7qRecBjazukeabP9JYGC+GJJ2aizFNjF9RdE7zJvOycZHjqyvgMr6oUTmgd9RKbnBSR/suDKHpcDssYJZlm5+hvq9pb6HZrpausXsznprKWIM2FknZHdo92p+KHsLp0W68Y7OU0b/4wZ3oeXtghmXEqNGOdb3r6TK0kyyFtWUqn+vTRvjzwT/aq621friObVKVi2Jx3Ccvm2GeXYxSv/DZBm+MX/6BiioFlPENobIcXPk7W1R0L5G9tih4RubJjWohql0HA48JHC5txaHomH90Q1z2JqvnGg38zfYM3/QFHZOZPX+PYILAZxWj2jsI92PuJMenyeXuRYnF/Kr615Mi4iJE6Jf5uifpPwagbntqlZUu/WpadgzXdvaJLERXwrTUn1luTZst/Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "4MXKOMRnqr7pDYoADTfiGPvlRQs4lCm1OBFbQDhXH8CBJJ7v6jJs79IUgp6QHP9XiFIe/hQcqQ4aFDW6pC0ChLzFSw4GLh58bJ2QQSSFg6s/8q6nON87EZbgt2Ju6jGDuq0HmUYGraDUzyRZ5A8/UbVz35Q2MOTVvoDlln54A/8TQacj64IlmBI+ezvUcVOeT8psELoraVUSNBSoOr01/xVUKbNMzMJrFnRSsXIEVz2+AxUjofD6veWtZbYuT9ZkbVx5+EfzmCrfBTEjfZxbCKJrr1rUMo98yREvQiQSsb9gSn3BK/xzjuzbC9cDVuH/IEjFPhc83Y67emUP/tSQ+TcFg620QjmIUlmCv4pPQexPsJI4RBZZmZBi5dIIWJnpzh+LixpYy4wsVvh92Cig62tk1SQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:ca2b9f03cfa0341f\",\"npc:eecef67622b6d7cb\"],\"constraint_ids\":[\"C:fbb0b9978cc749f7\"],\"span\":\"Malik accepted the title of the Crown Witness before the assembly at relay deck.\",\"rationale\":\"Ada was already recognized as Crown Witness, and no relinquishment occurs before Malik accepts the same unique title, creating two simultaneous holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Yi5IubMOBXsuF6OOD2WUes+EFokO4d2QXU6z19s9I7mbR4PfCHudM8vfNQ9MdHA4i23HJJvVAtkxatHJ2UDwWjh0biIPvjTCvi+0m7e3FP9904/jUmzF0+9h/hYqSKKfMaonGG5w89691Hj2q3z+7/1X9kMq3VHQ/PJD8LIpqqVyOx/hjo46xnn6uXSNxx7chnR7zOF5wZJn+IQglLYCcIhJ9Jhy1eHk+bsng7uFitTPxaTSR4P9HXJNMJm3O2hJHaLKqFCmvtt55uPdm8HQYpxGrlEOWIvNUa2IDRP5trx4e76RWxmTWmk0Ju8xxtLef0RL9OLF7yZVxs8jpSEbGzF3xntTqh9/y/Vm4oOFX4NisJ8f57f8KDwvt479c2NSe1vJYFD9Dy9QUaIy5GTU+1w58Flf",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 671,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 210,
+        "output_tokens_details": {
+          "reasoning_tokens": 98
+        },
+        "total_tokens": 881
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:ca2b9f03cfa0341f\",\"npc:eecef67622b6d7cb\"],\"constraint_ids\":[\"C:fbb0b9978cc749f7\"],\"span\":\"Malik accepted the title of the Crown Witness before the assembly at relay deck.\",\"rationale\":\"Ada was already recognized as Crown Witness, and no relinquishment occurs before Malik accepts the same unique title, creating two simultaneous holders.\"}]",
+    "token_usage": {
+      "input_tokens": 671,
+      "output_tokens": 210,
+      "total_tokens": 881
+    },
+    "tool_calls": []
+  }
+}

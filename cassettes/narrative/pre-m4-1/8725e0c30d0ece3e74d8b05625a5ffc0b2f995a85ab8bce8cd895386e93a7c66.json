@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8725e0c30d0ece3e74d8b05625a5ffc0b2f995a85ab8bce8cd895386e93a7c66",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2769,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 724,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 167,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 863000000
+      },
+      "created_at": 1783847300,
+      "id": "bMtRHKbxLJ8cZLWZAERFCdSnURPIH+AWNH1j/ZSAWtJZbO7iUS4/ImMARsM4V4dqHSYHNCF1o9bVuAeyfEJAQ3Y6o92kI8Wa8NxOFyUWRZ2pCdPNY0o3lKl+PBbInIAdcRqzeWnHkWpSP4Cfq0z6XwtwhXjFt/TgdlfEewUCu9d6rZbQEkVoueF99X/93dueeRGjEdL1Q5pEUIkxc+WEAmBQMsCHshHIjXkxhLiQfnaRHO+58HprkK30YFVC2agH0P75uTrQgRiPIBpx7tTYH2bTS+Z/Q/fIsFbqRZiivAOt6Zxl8MiBpByHmqfTjGu+oxL+ENhYs1jU3IPxiAcbXspzH0St7YFnEAKNUj7XScjy9g89FWIFj1flMAdLC5G6q+t/FvEZlifEZkPqGhApPhPPyCPHEg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "tClu62EEa7D2gFGokIP9s2WGoF3P431YDqzw+3jO9cfZ7YH9ft0eEjJ4oTRCInile64e8ptKVPrQDnFDXDvyrzg1/kIDoRe3M7SfcKVclBatMD6UqH7ddqRTiMBosPPLiSEf/laxct4BSIcvNVdHGEpSwtm6tcOvVP/FLlRmcxC5uZQoma+mD2XeN8m79dP8j6D7LkB7RRDbWFPkPuzDswnLWk750rrsxLF6GjGJzAeCT4BnK0Dq/+KAh3qD6LsYVcFNcal8kUhPpSnkRdCsO2P5NyrlbYKKtLumIEAOTy9apsdsRNg6TSh1r5d6A2FWybpNQhk+2SB721ooBnpnt5+6CLv/VWlX8zHMfRVxN4KruJAmigW5TTktIC5EriAA/W7/l2sM+4lQ4mNVT8rOGi7ZigQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:b3a84e7ec601e9c7\",\n      \"secret:5a4738bda7f8f7ba\"\n    ],\n    \"constraint_ids\": [\n      \"C:bc530740d4d9773a\"\n    ],\n    \"span\": \"At observatory during relay alignment, Qi told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"Qi discloses the masked envoy's identity during relay alignment, before the permitted reveal gate of vault access.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "CIU1/Y/40FeYz8ObRqo8SIrX/wSwa0TTH8D9J5F/qeBosnncdCOQV6PVg78TeUdI+yDwc52XSkWHbnn+wHNVCbL4AOSCKFntgKZVt//pHsynjsopbAE7eWeSk/awAlSwmZjh5tgRSwdQjdU0kHAikpmNFt9PGXDZeTQBWYEOpdoJ6X6tFd2JTwgTURqhblIg65Az1Xaw5K8ioQARcOw6t+/eioLjJe7FaPXhxVJNR5GFj78I7y5M7DrqlQw5yW7EQBX4g8jZf/0yMs4iEWLixfTdQMuuAk4ru8A8BCwllUYBAnmNkIBwOhyAIARuwGtsYwZjPKVGgLrkhwqC5vlKo1QHr82cyE2CfStivbyY3V/1Ly/Uc4n/h9RybeugcldX7MGa4irzUJvkmICYYpIe4FdQeTA3",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 724,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 167,
+        "output_tokens_details": {
+          "reasoning_tokens": 29
+        },
+        "total_tokens": 891
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:b3a84e7ec601e9c7\",\n      \"secret:5a4738bda7f8f7ba\"\n    ],\n    \"constraint_ids\": [\n      \"C:bc530740d4d9773a\"\n    ],\n    \"span\": \"At observatory during relay alignment, Qi told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"Qi discloses the masked envoy's identity during relay alignment, before the permitted reveal gate of vault access.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 724,
+      "output_tokens": 167,
+      "total_tokens": 891
+    },
+    "tool_calls": []
+  }
+}

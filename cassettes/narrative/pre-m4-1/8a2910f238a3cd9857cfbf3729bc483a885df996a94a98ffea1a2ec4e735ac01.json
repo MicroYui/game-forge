@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8a2910f238a3cd9857cfbf3729bc483a885df996a94a98ffea1a2ec4e735ac01",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2005,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 512,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 89,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 523000000
+      },
+      "created_at": 1783855200,
+      "id": "lCwPsKaWI2c3mfDiiLAtoG+ZpJptsHU52iiJNdrIL2B/d2JYjxjjLHbA0zM/GZoHrCdlTGvfsLnvlUE8ae9q/od9EjQK1ez/TMCEuZSwnFUlUk459uhM2F37DZKJO4FZ6Ufu3dIqTrpPLaZp3qI4aa0b7UBHk3QOkLljvktfklMSZqlpcp10Xg4B1/4G+sWcQ6oTPMwXlQ2hSoaPT0lY9Nlwg+WYy4GSf1jlXMNb8P6q7s5dWn8zdh6oB9ofsdHD55V0X3uoy0RpB2QLNCqAneRLF7oI5rpJIOukoOtkUYoKJGqYNxEZmhKqxEzBWM5h4MPUNj/4i6BrKcZUHVsXzhcytlsDlwnU9moVHo9p8m4GedNVkO3i3t5ZuByZlwE8rnvD1dqJk40Ct+UqbLaKN4CRU8QTug==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:9cd461a0f0c23ca3\"],\"constraint_ids\":[\"C:e880eef7d3c7c081\"],\"span\":\"Mei transferred the rebuilding fund into a private account.\",\"rationale\":\"Mei uses settlement rebuilding money in a private account, conflicting with the rule that entrusted settlement funds cannot be used privately.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "63BkOed4ufHhOWeG9fd1g2fJUuGYSlb6yp70JIztCyrbNc77OBW1/BAzLSMdPtpQUf9IHQGgZA/7ZT9ROfcYFVInxVTZsTuqaACaq/87q28hIokFRO97jpMTFCQuJFhBd7IP7iKK/LPdRaGfPZ2elQK50qkKqqlDyzcX2nNL4tNMHRz0cIUCUg1rgYyusZszfIWEYupjBtcHB6RrM9LLW8FxPizB48YZoGCVDPENy/thKbSd3aRga77Ey9QSR1U+a4VXkCLGPmVtDZM/K6rgxK44ehEBJ55eo9IkS3j1BZZoODpDuZzrnhM9p6d/yiFKCYGKNQxGgkvI1fJaapfehOFD5KaMNtuTj9NCzX14W/VPiiVfkigpbvCgSvczF1y9iYoX0MTGsF/JrX3vuCingzShi1f2",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 512,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 89,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 601
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:9cd461a0f0c23ca3\"],\"constraint_ids\":[\"C:e880eef7d3c7c081\"],\"span\":\"Mei transferred the rebuilding fund into a private account.\",\"rationale\":\"Mei uses settlement rebuilding money in a private account, conflicting with the rule that entrusted settlement funds cannot be used privately.\"}]",
+    "token_usage": {
+      "input_tokens": 512,
+      "output_tokens": 89,
+      "total_tokens": 601
+    },
+    "tool_calls": []
+  }
+}

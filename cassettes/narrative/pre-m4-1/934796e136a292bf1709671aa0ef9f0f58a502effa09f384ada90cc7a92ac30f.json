@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:934796e136a292bf1709671aa0ef9f0f58a502effa09f384ada90cc7a92ac30f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2792,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 574,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 164,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 779000000
+      },
+      "created_at": 1783862300,
+      "id": "U8MarNGK4Pj/ItwpYTwGSzIyj7foCvVvUrmm6ZlYpAOOGyCROYVDx4uQb+56gfv45R05p7ScpAcrh9sSzIk4PGG0II69WPcXGoKhH3HAKjSTknVHeG3zNP6Va3B4Jq7kl+rxG8vG3mj0eM8FuQIvJRAqx9OA1Cs1F9Sc3y+xRjY/M5IhbYJ9XPivp56MAbAaU6SNL4esDVDiI9Ocxq7CNaXWxJj8NeImlwVeqRn/wMTFo7XnmaRYRe9QLHDE3O8/wmjRffz3YMutNFebcolT2lV6zg6A/e7CfDpeoT0x4ladQqNTcLnX/CYgxJ0uCceefDLFovZ6XRLSINHRHFT+uZcDZMGoOaQTU5EIa9lD72Vc9NBdcx6APO+8lKlZdKskCqGk9bx0lw6cJa9KDjmD1Wh630pFrA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "NAv0dv/96x1HLhdDVVPYF9Tag40Zo8ASWMFN+mKs9EWar5u7eSvyaF2pdnczXaSOsdSMrIVe/L+G0RQLDpdnKXGOopC5hXNjk0wv2cXbqZjagIYtJtPh6IPq2Z+lx3dTi9OsZDsUX/wM4cvpLeu/yTXxcudCbVau8ZzsviruKdooJcea0mNyM4MPZifB0+nogtIUBPhy84gVI+F4BfMcqlOiL9e4K20P2O3zr9wIANuITg8ySmX2KiKF20GcEiQJ5NsHYg2Q2+gFr2YQHYHLIiZkHIcJaRK58nDefyEE2ykWWBOEYzUY5O2+NOEastHOZNRHxjGy++c6iTCtQEhBeMqlVYQzRxrOI8IdVCw6y0GAT6+73HrJfU50tGLIpGe6C0ruxcNh+57Pod0QftuQuJL1y8Y=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:1ab7f457f8b9ae1d\",\n      \"npc:7412b991b57700f0\"\n    ],\n    \"constraint_ids\": [\n      \"C:61549b12ce455345\"\n    ],\n    \"span\": \"At glass conservatory, Tamsin and Eli signed a joint battle plan.\",\n    \"rationale\": \"Tamsin and Eli jointly coordinate military action despite belonging to Dawn Caravan and Salt Raiders, factions explicitly at war.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ZJXbEdMkrXE9raptrQDww+6IV1m3jaowmWwfu3U3TB9/tH6V6PkAndA2xfNSOwfImYGyGZktRsOYysjqTTNQqo2kvOzO7GCColfW1V1tFAB8EKmW5M/kz3ezgamkX+KlaIPF2JQfjE2eulBo2tn0umrgfK5ftRKHp+Q2vS71bYeb0VgzfCpCYv5ExcXTzlVrxeiOxnIdftq7ekznhbGAkQ6GYyenKtErm46egAj9LSjxbC0iFY6HX8GjpiHlN05MgoB0g4Hyl2EGykKSA+Z9k3neQvFqMxGzdisfC5WgL3lVZpuEp1tdwWQ2IY7vHXKqEMN1mYXUPWD6Nl35WXmi8Z5RXf8QVUQoSXS2+ZXNwALe3daKHEW7SBGFCecXV1fU6l25oAunmQ3kZijEsZv5CuoKBeEE",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 574,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 164,
+        "output_tokens_details": {
+          "reasoning_tokens": 31
+        },
+        "total_tokens": 738
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:1ab7f457f8b9ae1d\",\n      \"npc:7412b991b57700f0\"\n    ],\n    \"constraint_ids\": [\n      \"C:61549b12ce455345\"\n    ],\n    \"span\": \"At glass conservatory, Tamsin and Eli signed a joint battle plan.\",\n    \"rationale\": \"Tamsin and Eli jointly coordinate military action despite belonging to Dawn Caravan and Salt Raiders, factions explicitly at war.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 574,
+      "output_tokens": 164,
+      "total_tokens": 738
+    },
+    "tool_calls": []
+  }
+}

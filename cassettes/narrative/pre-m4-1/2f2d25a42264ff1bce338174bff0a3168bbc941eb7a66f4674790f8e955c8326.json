@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2f2d25a42264ff1bce338174bff0a3168bbc941eb7a66f4674790f8e955c8326",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4775,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 638,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 215,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 964000000
+      },
+      "created_at": 1783855500,
+      "id": "2Ryyl2JoAF2HkoKEWyhAUQ4RNs4772NdUYW1HLSownAfudFBQCOqobRNWWyBGd+VGg4rF8h479PViE7bUbqjWW/a4mumYDLOXna3P/hr9pttdJ18sVMxTigX9l7rFLR5VNl9i0Ejg0JlYggwTFpU++LXTQt74oRRxcIYzZxCYDhzdufCev8whmuNUuCUM1Y+iAtINnkCsg3+CnNyPZQi7f9C1DN1lbtvyIrUGp5J9iUQ0pPy6bCO/sJrggE+juG13dIip9Ly/9VHiXdkJHhCpGzprIr+2AVHnns7ktgKq+uodbiGy6AQEWnRfr2/HHtHqZE4llzsHZv4Cv8By35Z/jlCnPnNCaN8XQXSarqS0moibHfPyo2U3n5KC0ks0YDv4GrdXPLiYOLMRps1tlZN0Tw1VGVE9Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "02AqCCj4aFGfdHKecgO8gTfY51r9RLxzfGOw+vOlhFDERZwvZqQk5iS3uj0b8hYw4bUQrPykE2iCfm3AWYq+zs8a/C7Ya29Bvi5EbBY1x1mobT41KEiPhtF0FyTkkE8CSlpdZO3swJ34rPS8MBPUGyi0T0pTbhCOiGvtjN6w3PYLZkXp+tFIYsq7HnwrnjyI+tXVf1iqL+utkddLBx2uzdIZZ58FlEpaMNnw3Tj8sSw2ObKNXxrmFuh2fnOlG2p2XsmqIyzddjMz2SghUoL8L0diWBsv356PTiYFmEiB7dMtdJ+cFe9AZLGKomoyP3xdDRyFUTL+WQQZuCBwCBN9aYA1QJPffK6rDy3cxsc95q6omcNIIIIelkfoo6EKDoFmJT65mSFMhf/NorR9082ZK/m3RRA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:287d19e5d22b17c4\",\"npc:9fa0aaa3bc800477\"],\"constraint_ids\":[\"C:0280980656068c1d\"],\"span\":\"At glass conservatory, Tamsin was formally introduced as the Caravan Voice.\",\"rationale\":\"Eli had already accepted the unique Caravan Voice title, and Tamsin is subsequently introduced with the same title without any stated relinquishment.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "6XwNQisSRXfdNaFP/FCj2+3LinRNxRq5hRafqv5tX2xcfa5eUdhM2lLz5BdXo3U7UA2CXA3yK59VtmDfxHJphflAigdG+IOfX9KB/7lT5c1Z+Ee76od4FErzWIo9bPrSh/ZVUTkcHcpFcvffOOfRN0FHV1TWbKQ+G6I7PninGhhb4K4YXMuP19qi2VpsiLubvWv+EZ0jkkjtdA6dFrLF3z3R+U2+juu3YWO2e99Fa7FK7P2FMe3/YlcQOTghUey0vSGGWsee2Urv+TEDAZoaA+zmNEBGlH1hr/ERbECoFhtxEIIZoyX4VtQaHMgPRoTqNrSldCGUZCtwysNRvGPmEqYkzVLt5KfVYkQNlvfuMrTU/urUnqEg5NMJZi93blwfi9QINjZo73hYW2bQv0ZT396dXEwZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 638,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 215,
+        "output_tokens_details": {
+          "reasoning_tokens": 103
+        },
+        "total_tokens": 853
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:287d19e5d22b17c4\",\"npc:9fa0aaa3bc800477\"],\"constraint_ids\":[\"C:0280980656068c1d\"],\"span\":\"At glass conservatory, Tamsin was formally introduced as the Caravan Voice.\",\"rationale\":\"Eli had already accepted the unique Caravan Voice title, and Tamsin is subsequently introduced with the same title without any stated relinquishment.\"}]",
+    "token_usage": {
+      "input_tokens": 638,
+      "output_tokens": 215,
+      "total_tokens": 853
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:eeb950026b22e5750bdbcedc956963d82744ce04d5d008ddac6577668ce5744b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4257,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 562,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 209,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 908000000
+      },
+      "created_at": 1783859600,
+      "id": "X/rt6gR6IjWvpwukPedUuGAvZ8sXSLf2J10UebrdnTo7IXab5BgVbgOhveYX4U494sjDY7ZW+rfMN6CrxHDCaiweAxoiNqrum4Vbxz6zpxNiXC8122ILw3Yzv3HiEBJxCicdGGkuCM+DCpkPF8HfCJCkmrePwAd4tdR7jr9o2CB0cvGAY71HW7DZ57Uiayu+P2iYBVjzo00m5+uakrk0aRWbcpQd1q1ZYfOzjS3HOVMwupyum5HhPS0ey1XHU/2VZGMUg662Nl0Ted/HmwMvTGhytXl2qHhj9gzV9+pnqR1TysIlkyWt2todX/ErO05Xm7W9BTo/IQXIJq1Eqze8gK3NeegIkSmIMg5hGzmbkYe/+C/HNxHf22a1zd9JcqbchTV7u4zuwB36kpwHNY4icAiP0Fw45A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ThFHuqi3ekOPzfN+lFx9w2GTLlbD8yakDVGbkt8DTK2Ff349fVlAntpEoBgk1I88ay6r3b6l/pnIi2WiEB/N9PLR8DqF+joHyWwc8WXS6ECArmXKVjGNNVGRKtDiL5W87WpEQe0ruqwCkfvKQCeima6HLJ7R/2n5475wZTwdvyRSv57BweG2rQ/RIw0yjuOoLYkePyds9uQhNP+S2aykihyqKyd1FFRoKSV4EkAbb9ssMd+522d23X/vqCqc7teWmfNjzSgpNjEVrBGSTLUhWc531dNMdDGw10b+w0YJwUpSu7GWZl7gHU7VF4wNsac9RjQvlaX+ruHaNtpse53j3QggPHLjH0jZLlJcHF/jFQ0M7XXBSGpkTiEpmwYxN1c0xBo7dVUojOhG0yeyS/LOtFY6C2M=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:20dc0d159d53b4d5\",\"npc:fde1a5d52f69dece\"],\"constraint_ids\":[\"C:e84644f1b42716e4\"],\"span\":\"At eastern ridge, Ada was formally introduced as the Caravan Voice.\",\"rationale\":\"Ada is introduced as a second serving Caravan Voice after Malik, with no relinquishment stated, exceeding the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "iOCFDZ2bjTyp4Te6sMTagtzygMRfYANuRDxgImp3eMKIHg7oacfddh8Xy3QMV1BgI1fRQ6Kcr9TiXJrXzH3vCXDs/PMwjC+OH0j8Wen1QNah36vOjYleyuNPidOPCSYrc9CY2yZr3PaXU0vWI/KEJj5DVhc0v1wNe0soo3R/3FQ4Mg0dkMthdywJpKegVDVBymLzxpKsXozetTYP8BTDXCBQOHs+KkBuTfxOAPTzxVkEddfnpxywOGEFtPx7eMBDf05zFAjZV0pCVIadxXmT4ZUOjm7dwOpUjuDhkIhr6uWHAAnWmjGAvKd+IK2v0EZcbfysXDaJXilIzOMiJc1AM9fQxoTvBZ2c6z6wdRHaECK8i/Xzu6VtwtzQDU0uQVYETAkCZf4zzOEd0US/M0gPW4Jpntw8",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 562,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 209,
+        "output_tokens_details": {
+          "reasoning_tokens": 101
+        },
+        "total_tokens": 771
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:20dc0d159d53b4d5\",\"npc:fde1a5d52f69dece\"],\"constraint_ids\":[\"C:e84644f1b42716e4\"],\"span\":\"At eastern ridge, Ada was formally introduced as the Caravan Voice.\",\"rationale\":\"Ada is introduced as a second serving Caravan Voice after Malik, with no relinquishment stated, exceeding the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 562,
+      "output_tokens": 209,
+      "total_tokens": 771
+    },
+    "tool_calls": []
+  }
+}

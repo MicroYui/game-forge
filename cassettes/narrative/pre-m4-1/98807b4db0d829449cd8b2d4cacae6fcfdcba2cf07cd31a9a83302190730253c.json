@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:98807b4db0d829449cd8b2d4cacae6fcfdcba2cf07cd31a9a83302190730253c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4009,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 607,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 149,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 750500000
+      },
+      "created_at": 1783841400,
+      "id": "LUIwmkU0WBUoo/rlDvEIqvDax3PN7nqwE8uJewvyjUoFj6SDGBFMzhp1nCf4LisKpqseABYxWVgJMRekF7nAPuhQDBpkEZiGUZ3QplIj4cRZ2tOXp0OwbCoi8fVbPdXJisa4uCUbCb3Kd4SA1HfdqnsluNHnpQG77/+HQB35IuW7MwNrhtCiPBtF/UyNM0m7EO2zz4Sv6mkENll+/yk9UZ0Wrqh6aU5P9GXhdvCNKMnP4+xNztLJ82XLAlsiwZRa7VgTKmZbTphpO2Qp8fE/VsgxQv/A4n8FFM/kTtIl8XyX1Nbkb9fR1zIa+aEgljJ7L7GC3oUUFppmGidktPFpGHAGfX16BF1oZwj958v4bVlfk+6JWXGo+2hzYE55Yrz5CmyEnZrY1Ww18PgeNvjpCQV+oFE0BQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Fz5MhR26FhY07QvjT45iTxZC+dAR64ErjnOPhOS9Z7lc58jESmLoGK8wX1NA+Be/44aL9nMgfuTl7yaVtJ/cbWyFHoNF/PK6rewglrkDgyn7DVcmtwa0oyVmLUze8HGtS1TmkOzzHckVf/tu8/kU2klGTUPOYAdRTONhlNPz/m7tXgM4P27Upl3Iq7Y79tP665dbsf/XluKcD/kQrNu+tzyZTcfuNybD4A5DCBTj2DLH0l4ozQYqYhX6VXjC5qTl60hq8xp8xhKKOHpwVXcXWx36tpzG6CQpPoFxry5Zq3rf+S37ueXPUdGa2Rz3UbgDcAptDYR5cvUQgHw+emnTzzo1xVKHnGW2dmU+WzMtD2YmO+6dpUkrrvECKCCvqeR7HozQK60CAQRCZHO0SM9QgHac5ZE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:f9f2557b700021b1\"],\"constraint_ids\":[\"C:83ee20f52260e2a6\"],\"span\":\"Ansel closed the lift while a wounded companion called from archive hall.\",\"rationale\":\"Closing the lift while an injured ally calls for help conflicts with Ansel's duty to prioritize injured allies during evacuation.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "RrJAM75LQi3dX4oVa2Pk8o0lH1EdIEtZXOHZxuwnXagIjKmpi8IWuoCdgzqIL9ib0tDdv5f/4N/TDDOtsWwIq5WylZTrw8rGtfjE+rp2hzx7WWyErDMxlnCT/fW1KYehS6dagO5o4YsEqWCUgyPiRdaZPPT1OYVVe+ney1JCfoJCuQC5UYyKa7lPBp7WXJLSlHLfKCJn/hEBSvAcXVwH4tIv3bOVqL+eWDICgoKTQ5+brrOamFC/D6g8tNn9JDnyqy3Lua9hZsS8ROjMeCb0Ojwry1VHAmmj/1+auVfo2qcTJVVQn+oNvfparOFhmgqvQbVubWyWGBrKjK0AgsaB7/55SNI6D61B82XeyFAZpaAubYDi9PtRWlfeeV7iacI5G2k6PNB5en16XmUDtG24LJeDBXzd",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 607,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 149,
+        "output_tokens_details": {
+          "reasoning_tokens": 57
+        },
+        "total_tokens": 756
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:f9f2557b700021b1\"],\"constraint_ids\":[\"C:83ee20f52260e2a6\"],\"span\":\"Ansel closed the lift while a wounded companion called from archive hall.\",\"rationale\":\"Closing the lift while an injured ally calls for help conflicts with Ansel's duty to prioritize injured allies during evacuation.\"}]",
+    "token_usage": {
+      "input_tokens": 607,
+      "output_tokens": 149,
+      "total_tokens": 756
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e951a2a097b3fb46576bd72a66102ec1aa53c372c1081353c1297488a35f4d6e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2683,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 628,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 105,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 629000000
+      },
+      "created_at": 1783847400,
+      "id": "O4k1eEePDxajEftzYCqJu6aYbsH8iKUV04bqnuywGpndEZO10z8LVpEhvcqErNXNrNqXvzt/lsvBd/9KNNSNzje9Oli09Q6LV4s3HiLhH0oQaXEbxTUDmwqp4vpvhsZCmTlAgsyJhU1eS8QiG7Pk8FagEkHBPIK0R68kZudBmPU/hn855yINnNksGZwxPI1Tpy8xKu5Lz8BaPApo1Pd17T/rGNs+JcOjN7Bz9F9/lxERjPEZZKWH0VdOAWOIzg/ntqyxReOuE17OGIoBpXillfk8+NolQVQBrws8eO2z5o+vSQprYU/DtNQ+q4BYf06on/GESM/z+EaD2N60co1KAdILBTWIjAMlF6rlM8CVnJIuYHIxhh4z7iqpLdhiuLkZlF9AGTp85Ey/UKBlMh+BDukvXKwlHw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:704ba16dbb2fa52e\",\"secret:9735c08009f32c4b\"],\"constraint_ids\":[\"C:13bdd93ddadf6773\"],\"span\":\"During encampment at salt depot, Tamsin openly named the hidden heir's identity.\",\"rationale\":\"Tamsin discloses the hidden heir's identity during encampment, before the permitted map unveiling stage.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "qxGlNsTu3pHKssxMX+ZltIeMkDbFuRxSBi8wXIBlDQ8O7FMfqn9M7L2vW4F9HH2eQ16pLkQzj3AJy+QNkPYFqmxfgaC3z69Befz79/6H/GzQPci65IlB12iBhay6DXkEoHnjWrOE8Dd/kZSf7UEg0pZJGQt34cFRgm0sl4xofuanqNgV6CS1uhVbboruHNHLUDI5NciOOZjuEKRQvik8iHlT2wS6kcwWW4K3l4Ybc6dQiRqruqRBQ2J5Nys0KAb14RyXDCC83Kfu/zU//ob8ZgsRPIjzHWob9wjL3Uw1mlNqhBYDykIv2BgZuNwcCO7QxXMlALv6rGZn6jelhTp6buxAaMd7cC+3SkT/0XWRU2XVF6OSQ2aTJIyKC9jvBw0Pyd0RqiucRNkXsOrYHSvGjFvvLCAl",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 628,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 105,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 733
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:704ba16dbb2fa52e\",\"secret:9735c08009f32c4b\"],\"constraint_ids\":[\"C:13bdd93ddadf6773\"],\"span\":\"During encampment at salt depot, Tamsin openly named the hidden heir's identity.\",\"rationale\":\"Tamsin discloses the hidden heir's identity during encampment, before the permitted map unveiling stage.\"}]",
+    "token_usage": {
+      "input_tokens": 628,
+      "output_tokens": 105,
+      "total_tokens": 733
+    },
+    "tool_calls": []
+  }
+}

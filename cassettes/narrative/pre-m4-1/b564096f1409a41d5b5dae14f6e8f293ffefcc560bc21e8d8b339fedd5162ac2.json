@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b564096f1409a41d5b5dae14f6e8f293ffefcc560bc21e8d8b339fedd5162ac2",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 8241,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 622,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 341,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1334000000
+      },
+      "created_at": 1783852300,
+      "id": "s2bPngnLDhyDuV2ET/sV6flEHC2khZi4s133PEVK/bwwhUYM9vigDI74HDf/+M3B6OQx6p0CI11MF36xrZqoRBZ95JXQdheP5lGam1zLYIuome2AzeO1MFoSoxB7NXm8V/2a0QCRnTeqiXxHM78mIrH/0hAOVH0wMvA46hHYEgA9zksptPWX6zibkMGsTl8AApTMtTF/kQrHbFAmIf6VD7UpODpMGXwUyRrKNBWw7IG5vpTQXHGaqOQuRbs6qwS0YXzc87DTnAGlrusmmvMSyzsfFW66zzg65n0KFNlXoeIKrhSu1GxTj8UeE+9Uj7dIQbdFIMnmDUx6eyq0ArTThvgFmnXP5AZZinbFRGsC+ocgsuwG6qyCND8shAildP3vp1VBIqvP7atGYRqW8d7Ze2JByzlwRQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "7gq8Y0DGomhqz52aRjGzAWyozAQt0MUON+oDplvG7t3CUHwDx55O6meSOg6/UtHG2kac7cMViWsNDHoFD2Hprk1tc4sBCjytZIzc+BkJb5pAXASmoBSvJw2woJ8ZRoCs64aV/9g861M3i8JuUhRNUVYKow4lWhOTIGv5Xkbei02GuK6o3wpf1a3IF92F0orrr0U5W57dAQfDXkYDlWNnQshrIZl4hRTIaaAZMe3oqdUhBCz3tpIbOppiY3BJV9xfJKiLdCTEZIVAjtYMRO2+dGqg5734A94GJQgbkuyD8dGUuqkKQ449Hn15UxvTLoHsgvIU4LjjxowIAoExtm9OJJowSA7ODwfS/ObR2aND1zkOLeIBevFvCfa0rZFpqA3y/5lUxztCxQQ4F+oLdZIooqscs/U=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:6aca125a6117d8b9\",\n      \"secret:ad7231974a931f43\"\n    ],\n    \"constraint_ids\": [\n      \"C:9c9ce1c9a3cdcca9\"\n    ],\n    \"span\": \"During hearing at old mint, Ivo openly named the reason the eastern beacon failed.\",\n    \"rationale\": \"Ivo knowingly violates the secrecy restriction by openly disclosing the beacon's failure reason before the permitted stage.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:6aca125a6117d8b9\",\n      \"secret:ad7231974a931f43\"\n    ],\n    \"constraint_ids\": [\n      \"C:9c9ce1c9a3cdcca9\"\n    ],\n    \"span\": \"During hearing at old mint, Ivo openly named the reason the eastern beacon failed.\",\n    \"rationale\": \"The secret is disclosed during the hearing, which occurs before its second-bell reveal gate.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "xuHRNzmXewQ6bePYNXrtnHGMHLW9YcHQ//Hub4ew/+BREgKNwZnPYZlPdsE40AK470GC/q43XGXWyGzWdVp6nz21z1T0NqVpKjYDdmrrA+RlGZKBSHOoAjqPulk/DCZEaw9XcN99D0kLSE9LQvoI6sAJbLe7N3kuOaIudcfBx0iIj8rqxJW4rtDh+vq9BlVu+AjjHoigTofF8LAVFFY4WZEqkQUpgSSGmb/kFpS7uCPOf5m8dSnQdGxHoachSmbvVCvsJgXUgj2qwHGbT59lxkaV/pnpfFla1vHgMiJA5xW0HJF/TGB5W5ZZtL2ticI5jZXSeySKmnqJKpEaq/OITppqlUfBL6MCNsOw2fOG1HnR61u7ewx8rYC6+OvV9PVjTYPEC2RS6D8p6iQgpOlzkY4bnotb",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 622,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 341,
+        "output_tokens_details": {
+          "reasoning_tokens": 87
+        },
+        "total_tokens": 963
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:6aca125a6117d8b9\",\n      \"secret:ad7231974a931f43\"\n    ],\n    \"constraint_ids\": [\n      \"C:9c9ce1c9a3cdcca9\"\n    ],\n    \"span\": \"During hearing at old mint, Ivo openly named the reason the eastern beacon failed.\",\n    \"rationale\": \"Ivo knowingly violates the secrecy restriction by openly disclosing the beacon's failure reason before the permitted stage.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:6aca125a6117d8b9\",\n      \"secret:ad7231974a931f43\"\n    ],\n    \"constraint_ids\": [\n      \"C:9c9ce1c9a3cdcca9\"\n    ],\n    \"span\": \"During hearing at old mint, Ivo openly named the reason the eastern beacon failed.\",\n    \"rationale\": \"The secret is disclosed during the hearing, which occurs before its second-bell reveal gate.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 622,
+      "output_tokens": 341,
+      "total_tokens": 963
+    },
+    "tool_calls": []
+  }
+}

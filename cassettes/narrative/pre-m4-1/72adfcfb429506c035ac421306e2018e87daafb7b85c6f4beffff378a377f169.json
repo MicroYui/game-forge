@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:72adfcfb429506c035ac421306e2018e87daafb7b85c6f4beffff378a377f169",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4879,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 544,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 185,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 827000000
+      },
+      "created_at": 1783860900,
+      "id": "93tkf0EpfMWUPpV0vrPhHf1yNyPeoJwzHeQEiGowSAdqu9d+Ty0lycIG/5YUbmNs1WNSlZZw81HpcHWdaOMGsAXnO9nH2FA2h6t/l7UwmcqJM7zHsj7YT9K/Z+u9B8cntabYm8Y57jCzlvsL7+FIHRE1Cafra5DYc4LGZBLo/6UWtu+TNtGD3KGVn8t2xrO2H7vec2kSNYbAyBrGjyKQi6ye1RxNfUZV7NtMtl3JdP/to2fPJmNlPeLP7iHp6e4pjzQgD1a13XDUBD5Gybo2B1VPtNUzUyOWXEx45UnisgyO23pWsZTc8TXW6njRbRRWHycIfTuoi8rDXBjAsBGvAhULJVMlNE2gmPArgv6J6nK4lTqfsKbPtbH37SilzXbA54/cs3fZW4y7oXzjf31i0gEbmN/ybA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Le3VxkF6SxBW6bib5V26Opk/ugLqGuzO8/Vjct2voDWjkF8Rgf25NaLm9BTUtS4d+XJa2Sc+lmtwZ27sH+vhPTFByY0mKvQn+UV+U2pxSCjzvrwhVqtXqIdNTOPojtIp2wAtppnKaezp0XMu7kwHrVmikX5tjPSM+Q9t9NyJtWVxqAWuoDvjnVG8Mx93Hg5/oaA+uMNx2HLKhAdxsMhqpuvPsKGvH+pqx0bbGiR3pwhhHYIusv8S0VTXx4ahwGHyx4eBlKyQp1o9wYZ++empA/nICAXm8x/8XY3c5PWxp7ZVkDNfoMmG77XNPv+/SOmeipS3CJze1fSEBQbVLh5l1TOleoL7VmoOaKGtumTfQPPeujjJRe6Jy7wchDK2FqXQ6WicYGVdT3x6vNNlvA6Egamf0aE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:3de15752a1ee945a\",\n      \"secret:e7db6d091761e499\"\n    ],\n    \"constraint_ids\": [\n      \"C:100f277560f4813d\"\n    ],\n    \"span\": \"In archive hall, Mei disclosed the masked envoy's identity during first watch.\",\n    \"rationale\": \"Mei discloses the masked envoy's identity during first watch, before the permitted reveal gate at council session.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "8kXZcUNSXwRBiZ+TXpwDi7hDbv8lN4HwAzlsozxBgh5eSY1P1uwZYBPafItth8b4h6OhG9yJrVTFY2cgaFlPFxHgneJIt6L524AVnVXn2yQf2Az/nsfeOeFflfbPrhAlSBhmuawejhks9YOcrMrKAo1DFLD36Cf1cIFBKXW/LKM1gMUeZ5yH9G8cZtrG4BlQX9Fgrl9+yfHjHu1YMdFLRYt9VwmvqX62GyWRdzdtj6KJIok/+rSIz5yAREOIaWHNWIwQAdgW+olRt3RFxzvo4i7h1VsEwqki8Iun12She9L+DswcdlZL5JY1O+m++xd0TyG3HfovyFZ0Ae5b//NBr7u2q+uRqwDlArdUeMGbdsketicjppyHXj8J9j0GuTlN2pvNbTrRXo78a0ql8Yh+LUDlw1h0",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 544,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 185,
+        "output_tokens_details": {
+          "reasoning_tokens": 58
+        },
+        "total_tokens": 729
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:3de15752a1ee945a\",\n      \"secret:e7db6d091761e499\"\n    ],\n    \"constraint_ids\": [\n      \"C:100f277560f4813d\"\n    ],\n    \"span\": \"In archive hall, Mei disclosed the masked envoy's identity during first watch.\",\n    \"rationale\": \"Mei discloses the masked envoy's identity during first watch, before the permitted reveal gate at council session.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 544,
+      "output_tokens": 185,
+      "total_tokens": 729
+    },
+    "tool_calls": []
+  }
+}

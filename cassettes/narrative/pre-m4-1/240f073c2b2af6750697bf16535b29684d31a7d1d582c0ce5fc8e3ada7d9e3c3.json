@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:240f073c2b2af6750697bf16535b29684d31a7d1d582c0ce5fc8e3ada7d9e3c3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4296,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 538,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 198,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 863000000
+      },
+      "created_at": 1783852400,
+      "id": "lj7XJX3OePb/s3aByyGkCepDIrN7EwC31ZEjTUxAkpfmeopNvhMQvvNQSoBvlBlGzHcDXjO0276qOVe++OP9Szc4Cj9d0lgmzQhQ8Sa6ySFhYLEX3VB9EJkrzIz7e/medGipmw8WRSHv/3gqGWXbLhChuen5//32YUf92VOCB2CwXlREiSLUu0kZz+rImipe5j9TBrZUkGMgpNy0s+Cv6JEsARP17btD50nJPu5YyncEtLiDfVh13mIOP37uL1i+gkCsNYzgfCRsOuDXs/Yb1qEqMS596rZOs7rIDHKFM824iiXcuyTCkxIH5Ujb1aGWgKvKNUnAZeTTY6Q/yUNYxvBQ5PHzYUdus1jClcN3tCUf9150RObIp42otp9qg5Qfbq3kFyzCw1L0e0dXFn9Olmmn+fsagA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "yRc1uTSrqZJeIYdUMSubXRxzqoJGj21fhiI/nyLr/mAQTcEkYw26t0HhDY6/e4A8KK7jXx3IVg02sLgJW+iaWwoxaSVG/a6YZ3kop27Qa3vHpj9aOFUbOeN3LsYPUtKNb+fhW3lzR57CxSdDL/e8rFzSLNZ9B3vBROdYxSH6lAJdbbxcCH/t873MRThwacsG+gs2nrNCEAZxlFgXC7K9sypx1E5SQd664j+YDoWSunDaHu9i7mXGSjPFjOES7R+YSY3ZyrFNKtj4eVNtid6ouvHmz8GPagYKjPWdB9z8vVKew5hk+W3RriPUTnPWxIP/m/TEMXQ97DRa8aoQruG9KZPRX2eH4+a9h4cZQoj+iwQVEqxNeW+oEsdURp9pqxjQL1nSOnx0NG5HgnJTWKzBicyFsbQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:101ac4c3b9b30bdf\",\"npc:c109eec400cc72c5\"],\"constraint_ids\":[\"C:457ae68115105871\"],\"span\":\"At orbital concourse, Ivo was formally introduced as the Warden.\",\"rationale\":\"Ivo is presented as serving Warden after Lea is identified as Warden, with no relinquishment between them, exceeding the office's single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "SI+brRGeYzmS10/gn8qwzpPqdQxVmXvX4a5KHl3TU6wJe2aNTCvbQGncqYvKbs5Sv/P4ejEN4vTXVJTVMXmvhb/ShDF128NYISSzRIzeviUUPJcPfnFnZnN7V2Z5+nns9OnnsgLCzEM/+VUdp6erzm8j1HmOZHtRCIxUQOvuVeK0n/8DkB9OVSIGNeMVEe/iuwlqNlpKL3ozqDbcIFxaBpG6Ecd0FaEQ3V5NhKzS82SgO64dq3rst/cp/bztajlmlgRTxw1wyKSGZCi16eRblLpPJatRSxJPvU3Fa6XBuBjE26glXWIRNPeMD8nA4dhHzlOYwvE5ev1v5tQ11Gr/cgOeVq+4iKvt3kxhz8GAyl2+2Q4kp1kOXwuOJUvmrA7DHIYadB4YQ6UPa50p3ZgxXRMlb/VB",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 538,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 198,
+        "output_tokens_details": {
+          "reasoning_tokens": 86
+        },
+        "total_tokens": 736
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:101ac4c3b9b30bdf\",\"npc:c109eec400cc72c5\"],\"constraint_ids\":[\"C:457ae68115105871\"],\"span\":\"At orbital concourse, Ivo was formally introduced as the Warden.\",\"rationale\":\"Ivo is presented as serving Warden after Lea is identified as Warden, with no relinquishment between them, exceeding the office's single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 538,
+      "output_tokens": 198,
+      "total_tokens": 736
+    },
+    "tool_calls": []
+  }
+}

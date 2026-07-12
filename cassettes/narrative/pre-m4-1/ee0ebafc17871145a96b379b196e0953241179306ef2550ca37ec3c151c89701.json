@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ee0ebafc17871145a96b379b196e0953241179306ef2550ca37ec3c151c89701",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2760,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 645,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 91,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 595500000
+      },
+      "created_at": 1783862500,
+      "id": "l/NZrmLJo8QOSqAx5owFrn2XBwhgX/23icstkPXk7Q5bydg8jGL5Xx9Psisz5qyx/j+fTjvo8lXALKsm1PtJ17kBk/6ugnPvQzeE4zalSYxDV8yhTEijJEvVYmH9AxOazuM24wDHABzcEIJSBfS1QO0lP1DptCJe1HgaGJ0gr4k0WE3MgjIrevsb9UQu9pMzOQzIc3MTEcT07IgMZ0pua12WLd2H5tpJ6UKIgK7nENtOdGDyQIZYgmlU02KbLEUg8OkRmPhpwGyRup9DTmEPYYLy0frOqVwWdOjmwtBMEkjmI2kUIOgwe9CPURWx3PEqqtWwgXNb/5khFePQL1Ubbl33ocH7BUTwslMtudnkJalnzkskvPsOzg5NtMoKUdM1QHe2Mo+fqE780P4IPPCFPMqQO2rWIQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:57e70add6cee2939\"],\"constraint_ids\":[\"C:481a7980a0329545\"],\"span\":\"Veda publicly renounced the oath before its terms were fulfilled at canal bridge.\",\"rationale\":\"Veda abandons an oath before fulfilling its terms, conflicting with the rule that an oath to an ally cannot be abandoned.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "0580XhbZLx8mAUQPwZcUAKidWUvIjruMUdtvzxUoguPeKxALo0X/o+nEGKfFgt0UAlsj8hs9hWKWOL1OtgW/WJoH3vxo522oG6dmKwNmHGC8EfZJqyhlr64SW6MwaWNYHvi5Un6piThBygXOBa3Z2vg20eN+BnTt1BICwFOaSILdKZjIu1N4Hqp5Ikcq3vsDRb98JBkq2jDSAVEnvDAACAsv0JkRNCtcEqxs+VnVTWIyJs1j6xHffsvLFUEu1YNrQvNvkcGCeTRXIcK9S66EiF7PnTtGWpKaJM06DrMqeyvJsAG0XkhzS4AQeMT5cLwo26knpqS/aoyxUV8GkH7f4NG4t7bfU0aFQSGOvjIsB3EnAhn5ldpvdjVG8E4sd8ssnzeETMG1irhhq6/7d4WhUh5Gj3c0",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 645,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 91,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 736
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:57e70add6cee2939\"],\"constraint_ids\":[\"C:481a7980a0329545\"],\"span\":\"Veda publicly renounced the oath before its terms were fulfilled at canal bridge.\",\"rationale\":\"Veda abandons an oath before fulfilling its terms, conflicting with the rule that an oath to an ally cannot be abandoned.\"}]",
+    "token_usage": {
+      "input_tokens": 645,
+      "output_tokens": 91,
+      "total_tokens": 736
+    },
+    "tool_calls": []
+  }
+}

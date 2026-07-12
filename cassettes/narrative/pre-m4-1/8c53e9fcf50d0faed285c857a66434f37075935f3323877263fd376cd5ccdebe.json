@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8c53e9fcf50d0faed285c857a66434f37075935f3323877263fd376cd5ccdebe",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3973,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 529,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 141,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 687500000
+      },
+      "created_at": 1783859800,
+      "id": "ZQ2edqXegTcG92pr6OGxf8Y/01N9wBAo0ktT1FspUQ6quq8+mVRGNUKeRQS99UoiTlQoVCYaAHoe5kMZxXeSMHCSJqqSS8ETEeXNUyKImlTFHAH+10PuyPPXxFjTjHdVi0wGHjcg2dc9GoBKWp7s88J59u0NmzG6b0Rc6Z3d+9LBFBWI1pV5BkWnxLxz7uOyUpp83rY30T/49u3wE27ZvlA9R6RTU8YY+95eaz1vOEpXH2Qq8Fy0zqrFTJQZ4OhwwcUUJ80OfjX/zSAkZkiA4Br0c0WEgCSryD+imdP1aHq49v9NSQksm4p9pEGdrABUpYuV0yquB4Df6bry0OETiOtaBeQszo0kvuw2lGlAil2FeUKno1a+tIb+nrX21ajJ9Awlxjfsv2MP7IhSjl56kIzGPhJqqw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "PMKo3FvYlRSAHECwGT0ydawe7LXnzOTaQba+S0kXT66SQvoMDgKH158C47nrd3jokUkBKbdHDnBli3woBkZ3Itlrur63xFkqNM/nvPwCma9bZ1tAfEtY0uI2yO0SwyTxPcaF9xVEeSrwfuL80lVtKe0z0CudS1s1rGO3TwDFSxWxy8fhBWpOpYW0tkK4vwz0IjYEjeWpSUnWtehGDMittK2ra/WVodSer2abrRHGvr0Uy/+8z4RVzYk25Bx15AaaBTF9jNtKPVlb4KLF8P4RdkC2OFf28xw8YtTLADWlpe5be/3ttsjqPzLAIDpxnvN/MPJcn7ZSk9WObWGbxY5pEjrTpXJsfIWdDrhiuBHgn4rWja1PFsf4K+gp/qIyTCCz85/MW2tAiH8qALy7ZrQvdfstuoM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:dc800944aeab65e3\"],\"constraint_ids\":[\"C:fa7a74a7976426cb\"],\"span\":\"Ivo overturned the truce table and charged the guests at desert waystation.\",\"rationale\":\"Ivo initiates violence by charging guests during a truce, conflicting with his rule never to initiate violence against a peaceful visitor.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "f+h+0RwgHHkeHDNoxzJKjxsbOQDpJg9TQXFdB2WB12AY9at3mhERqSOEf98WkOCL3ASSfBMBMtBhXhotz0RSOK30OeO+XWsAr/6KyMMV+fFJg4p2hoJzsNIa1WCI3RjZyhwosv3BHaTYGb9Waz4cMX8FY4yX79Fwtb6tvfKEl5tZgExEncffH+R+946pifDuR78afAxl2Q/KusWeHwG1GK678v0gmO1lgmhZIW2hX2Q1PwE3F4U/7qQz5hgC43MmReU9S+EA/AUdspq7W2Hg3+HenasF1U1eyvhhRxz5upDdX1ahjasEanIoeRkh3RTddZLhUwiB7fp8k8obeuIe/jv5m/nS1tHMSWED8XxGPJw+04UzlFWARQyZwHDKGWHWudJzXNB7MoKof4FEFFPnpKqN3CLj",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 529,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 141,
+        "output_tokens_details": {
+          "reasoning_tokens": 46
+        },
+        "total_tokens": 670
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:dc800944aeab65e3\"],\"constraint_ids\":[\"C:fa7a74a7976426cb\"],\"span\":\"Ivo overturned the truce table and charged the guests at desert waystation.\",\"rationale\":\"Ivo initiates violence by charging guests during a truce, conflicting with his rule never to initiate violence against a peaceful visitor.\"}]",
+    "token_usage": {
+      "input_tokens": 529,
+      "output_tokens": 141,
+      "total_tokens": 670
+    },
+    "tool_calls": []
+  }
+}

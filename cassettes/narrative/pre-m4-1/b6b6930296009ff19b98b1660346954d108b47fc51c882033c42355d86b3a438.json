@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b6b6930296009ff19b98b1660346954d108b47fc51c882033c42355d86b3a438",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6868,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 725,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 503,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1871500000
+      },
+      "created_at": 1783856900,
+      "id": "wq1h2izbVxkKnX83Pql3lBHyYKDJs7w3E/u0JJVa2HPTN6u9wrcOUdWctIMo701hsDS2ATIR8QgQTCBTyGJt3OJHUn2RuZ/themJuKkwCjDiHjxC5Z7jLt4B4WHA/hg88/H6ZJqQJXdRZ2s6e0MTuz7ewbPvj6xexX9akMp4sYQeDkB6UL6IHRr4NN4ytPBiL440Z6arZEX3cRs227UtmTi/Gk9IwSNXYVOD9viWwDqiWIKSITr8vWPuDLOG4zM+k85AKaolgmcftJlw6tE/uSQCCmN8PQUKvGqU0lj3/AU2J+iu7u3wYUMJANR2FkKMjGLQ7/S46SDQf9Gi9nR5rYhDIJe4eLznCyz5d7cQMca+e4KNObXmwpyqxc3ZRqX70ZrHN3wMS1P4kgmL8jU2LF/5S8zTxA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0hbTGiqw6HutbnuTv0G1ihoZIgSBX2JLor4frixnpjeDYMAu+/2seSqXEKg5xf6VqiUP28r4nSD5i01ssYNkeC51e111ROYiMzCPmvShU9QFxT7vmDAHw8qfRWspFFuI0er7Lmh1d29C5fQFDD7rHEmwKykujZL+LexOlQ5aW0ZZzdJ1D2s7peFCe2rAZCf3LkDRKNwy8vfMRtXeITk6OWRCz0JVTwcxTtmKk6JQgnppK5JPLN/ivPo+n/okm0hIvYiMQSDh8mJ83J8UsmeAkNTlT8Mgklc6YRcQage11BdZCt43Rpo/Xn9m5W58uC72rOniwiIwtQ83zxEuJezr0DXIkvujiITu7/YtLPR+KPzNL63gnUZt5Gpt1sKeRnrtRB5wdd0kyi2uWhft8JGsQDYifOg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:18f8886e6fc5d170\",\n      \"secret:bf427f587387c4f6\"\n    ],\n    \"constraint_ids\": [\n      \"C:0e68ade47372f930\"\n    ],\n    \"span\": \"At river market during council session, Qi told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"Qi discloses the protected identity during council session, which occurs before the permitted archive-opening reveal gate.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:18f8886e6fc5d170\",\n      \"secret:bf427f587387c4f6\"\n    ],\n    \"constraint_ids\": [\n      \"C:0e68ade47372f930\"\n    ],\n    \"span\": \"At river market during council session, Qi told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"Qi knowingly violates the supplied secrecy restriction by revealing the envoy's identity before archive opening.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "4j8ReOXvz8NEbFcaHJPrYDi8muF2DlA0VU/qJ+E+cgiCKSvzEmn04FN+5TJBKwpRgxtZwoZDmlX+ghDAYjdmu8dVWaFBZLt7BMpD0Bl3JQirVeS8iB/cG4rX+IOdlkjrScYr4PAOPLgogv42PR3NBZNGP7cvaUWpZ6XrEVzzSwFCREaOLEqiIhMNvazw9A5yAaldckvTm7MY1fWA+OM7tHMr4Y9xbZgPDYY7HbuOFLFvTHpj3LNiNENTrkkXndQWk5bVPVNPfG7jOoVuc8NGkRG9mk7P92F29U7xJ3PIH57bjZoCqxh/k3940fQFOq5oLnihTGimZrQ4V1BFE+Pr8Oh/RhqZ5KnqySO2fCyD+4zYY2KdUK9oBhMV6yPJEcuWRrY9pNQQ7s84qLnE3TDOFKDZXQU9",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 725,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 503,
+        "output_tokens_details": {
+          "reasoning_tokens": 250
+        },
+        "total_tokens": 1228
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:18f8886e6fc5d170\",\n      \"secret:bf427f587387c4f6\"\n    ],\n    \"constraint_ids\": [\n      \"C:0e68ade47372f930\"\n    ],\n    \"span\": \"At river market during council session, Qi told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"Qi discloses the protected identity during council session, which occurs before the permitted archive-opening reveal gate.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:18f8886e6fc5d170\",\n      \"secret:bf427f587387c4f6\"\n    ],\n    \"constraint_ids\": [\n      \"C:0e68ade47372f930\"\n    ],\n    \"span\": \"At river market during council session, Qi told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"Qi knowingly violates the supplied secrecy restriction by revealing the envoy's identity before archive opening.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 725,
+      "output_tokens": 503,
+      "total_tokens": 1228
+    },
+    "tool_calls": []
+  }
+}

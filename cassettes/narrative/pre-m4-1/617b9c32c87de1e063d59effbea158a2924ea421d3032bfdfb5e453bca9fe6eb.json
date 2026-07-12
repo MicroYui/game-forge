@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:617b9c32c87de1e063d59effbea158a2924ea421d3032bfdfb5e453bca9fe6eb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2857,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 572,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 799000000
+      },
+      "created_at": 1783860500,
+      "id": "xr4xA876teZpfNMMD1j+BAJflS2NXKLC6jThe2bwn+yYEnfQr4FcaSKQC9GFIUc8lYoYWuEaIDClBdzngg5y++cMrqyAo2IqMLB92URX+lvheJL/5UyjhXg2AST7I5ztVjAJ8vVB76CDpP/I9ED/IVEXhnnSojVZGh9I4oNNMCxj3JS0tPqpFzWMX7CCoKHE/ocYgQunX+Q4BAxSzDrX0jU0ApI8fI+TLEBg//wqGY7x14Uy/1h6FfH9yeFwT7HBG8qwE8cbFWbZcrcGZPoQljK4KSm+nev6znvO9wrxUrZs5XbDvv4m3Y9ZgQQh6SNN08p0ErZJ3skO+MtEh8ioHnvmL+OrxwWbBY8r9qpWCr87hBGbyAK8vUxjudDGgIzAe8YbLN8rjZ1eTt2YG1Ic00sH6YRsQw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "tQx6S5TehwtR4vvU+8TaF5PkDCM1u0Tqyr7w7Wv23N5s/pDQlHFlMAoN2GGe786U/ILeS0SCyK8yuTkD8E+bMhRRGkB9X7yPHi7Jbq6vEGN4cjK1kEc5tEXyOhSAslyMs1KPwQZs/i5sF1fCDH4w5cRiPDnxkGFSQYSNX4nbj2KA1azx3qJg0mC/j6utgRsQP3dumzkBwd4ufNcy0GJZnsNYALRcG04YqTquLQ+FvOHNjAJKQUu9BrNqvthethZlUWOrJ/9oPk1CEhQ6aIYjBi46C1VhtQ+JUQ3Ljp409Zlz0E/8MqWFdTxJuysjWxRMjsZpy49czxBZLoKI3bOr44hlA8lFPkDd9IXBCgd38ajRU/cHBzXDzYgo8aafuAqwBso0SvxYduM23Ny8azA6EPeg73k=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:7fefe68d05c74dda\",\n      \"npc:a5319bf21a094b8d\"\n    ],\n    \"constraint_ids\": [\n      \"C:fa673c9b4aeae8dc\"\n    ],\n    \"span\": \"Noor welcomed Cass into a shared command post at desert waystation.\",\n    \"rationale\": \"Noor and Cass belong to explicitly hostile factions, but Noor welcomes Cass into a shared command post, showing direct cooperation.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QLHXGZG+pnQ0XGFpUijH4iXa3ODSu3Gk9sSZO5N/0mxq1IU8lLqq2zKjzyrsfC+Z9V/6oJ8rcdaqLTt5KTEXioxFhuOF63uoDltj3r6y/u+D+7AR76DE+7VR8JYyG/kUYxsSqmCLVbwI02b2JbEAXpJS4xW0Qw71gnqCVhPR6CfdMC+9o/xNu9FFcm0boUom+EP70V4tFJl0xgMJzbmMIH92CM4ov1gwGT8v0gEmH+u6btMn+ZLm2TnvRZTFR85hh68D4MfO4O2NSh0zbk3h6tc/aR3k3dQTR5jF/FdYZj+2JmDlvsii8TcSSyHyHYPX3jykFQIXWwayLdZ8eufec5wCjmda8wTQTBgswQxr6Y3mBOrQSDTUq4bdwcWPlDSXc3EdP34lmOR552AeNtoM4zovF1+S",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 572,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 39
+        },
+        "total_tokens": 743
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:7fefe68d05c74dda\",\n      \"npc:a5319bf21a094b8d\"\n    ],\n    \"constraint_ids\": [\n      \"C:fa673c9b4aeae8dc\"\n    ],\n    \"span\": \"Noor welcomed Cass into a shared command post at desert waystation.\",\n    \"rationale\": \"Noor and Cass belong to explicitly hostile factions, but Noor welcomes Cass into a shared command post, showing direct cooperation.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 572,
+      "output_tokens": 171,
+      "total_tokens": 743
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:041ffc6c4f2ecd680e1ec8caa6855b53e6a1f529856765b228e93b4789523066",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3016,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 558,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 100,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 579000000
+      },
+      "created_at": 1783859700,
+      "id": "apFhGi4PFO2Y9f7Xl7TnEqCVocpQd0rR0AJ4XgqO01/rgd3fdRn08JZdTvQdhYtGSMfhI/IBDpPDzoYynShfUe+/cQbao4vrJ+noRoiEQFRq2KdUrCJpRR0n+JI+DJI2U8c/s+fFrfqkN96A07gDvVdjaCZS2G3VlWWLmAIj9bG09LehkAB4JKizmbU3sadnAt3mpM3hlTQqZJ8KRojjW0nllpxQy/SeCJU6at/LQaUy3Dio1b60vnOYhzN+cnzCOUucbcH5cnOgkr0uIeFuGkG+et1L/YItVSajl8CLj8BWIwkNrwS0wyRhLxPqX1OUWGAzepjgzbPEISA8XynIOt9GSlugoqo7pwGwzr4RTbDNgoPOok933uoCbEhAUCEJsH1yTcJcMapz5tPyEPwlaA7vHpwN4w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:d1cc2fdf6092b6c9\",\"secret:364904eee2971800\"],\"constraint_ids\":[\"C:607885e97858750b\"],\"span\":\"While the story was still in dawn patrol, Ada identified the hidden heir's identity at salt depot.\",\"rationale\":\"Ada discloses the hidden heir's identity during dawn patrol, before the permitted map unveiling stage.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "CVi2OVKChXiiAxPJgcd6lBoMXxm6Cr2Y0fTDCaBvaKkNe/uY+F1V/H8szGE434XKXdoiKfDOT83CPPHvhGqeuU2lKYyfTHJxeMq9VNlB+MTBkechkDh0KiVhxjoEiKhoif4uEld15rJLbbMBSYZNxewJ1Q6NbCQ3MA/OfYBPTjtY0TDaacpCM0kkMzxlIXBY55faAdjJ3xOzrEGmg114qZ9ate/NF4eNiSum+uKupf9/ekDTUxhD3CUw5nV1BtmgV51Lm/ALr+WhE1K5Oec2a1fTrdvutWzQnvSlH5Gsi888SeLTzFIZKk3NIRb7TXP/zQoyeMmCJ1jaZop0Ru3rgbECTZqMb1nwkO9L7U+tE0iwBCk2CjgQm3slGfRnJMQwkAUBjcU/AJrHA1tY0BQjbZEbLmMe",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 558,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 100,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 658
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:d1cc2fdf6092b6c9\",\"secret:364904eee2971800\"],\"constraint_ids\":[\"C:607885e97858750b\"],\"span\":\"While the story was still in dawn patrol, Ada identified the hidden heir's identity at salt depot.\",\"rationale\":\"Ada discloses the hidden heir's identity during dawn patrol, before the permitted map unveiling stage.\"}]",
+    "token_usage": {
+      "input_tokens": 558,
+      "output_tokens": 100,
+      "total_tokens": 658
+    },
+    "tool_calls": []
+  }
+}

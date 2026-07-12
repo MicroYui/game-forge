@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cf77ea93b4302ceee27cc2de311d9bd4ae5426b7bd02150574ffea5d70b47665",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7621,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 638,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 177,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 850000000
+      },
+      "created_at": 1783852200,
+      "id": "9Y4SkcER7ncXC6U6Yz0lv0/ujVRZDDNTHBQ+EC9aE6NKZ6/fEUvrlBJ0oyHUY7Xv/J+Ut56f0GCTmcNcmCAGI4UzExy5ANcDqnLCUszzKjd+Nb7+6Nd7RScMdytaAkrC6S/LA6JRKkGa14FzuCGqx8tK60U6EU4qsnd/Z+8DuEs3YI6vYAr1crUnXvb6yBJuFVlNhHwMLFzxSC3Y7NmEqNAbIXCtxp8+CdBAIIZY0cYuW6A5HN9PhrmvzgXaYT6droQQGQbFUCwFmAzHKSIjh0vo03FZkJ3911LMLKKcU+YyUUZ06DWtYPvVgC0JOcp8GLVFeo8u+EKRzQRH7/csBPLgSomOgX2ub54sFEKksbLnVrBh+NrjYklF/AK8KYL3dp0VVnM7qZcfdPANu/rUbmyk/5JPRw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Cxhbl2ckrxFxPzCNSbUKb0doKn0TJJ4hUuCgF4My550rywUHKuAYu+Ac01SQa5qi5f4Lkfb5ZfaxMxoSmU4LmTCNYCn61GLnb/gw+Qt0B/ydI3/TcG/lmTbaDqr6Fx1Hd1ptHsry3An0t7rtMMxaaZIQ8xkyg9wQ5bj99PyT+k7aPNcvN5irzH+paV92R6zahTX4C6SOvRsvo7DJXiw1bi5Esv/El3JZRbhEdFncUYB+Wixvd3Hks9xE1rxTZ8zXfLRo/eC0+HUdpq4IGOkiOtEttsl35MXDkjVo0Fwy30HYO4QaVw+19PENTgIYrvPVxKIpxHviksIcMW6QPCLoVORDPXdWVDbkHbQtLdFGxw9sBOx1yHPqz0ntI22eW+QcbpMHtXe66Mdo4OIV96Fvdrs77/0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:7cd9076f3210e04e\",\n      \"npc:a561ea6b763c4b7f\"\n    ],\n    \"constraint_ids\": [\n      \"C:f8c37fc6dcda57e1\"\n    ],\n    \"span\": \"In cargo ring, Veda supplied Oren and called the partnership permanent.\",\n    \"rationale\": \"Veda and Oren serve factions that do not coordinate operations, but Veda directly supplies Oren and describes their cooperation as a permanent partnership.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "q6XsgPxAzeKYAXAeZ1hZs2movvQV+jbjG1EzDPsDhXEAHrY2qKVX4wB3msZhGgue1PXD35c36Bb15TKLjewhpgYdlKV05Xm6yCKRDIlG5/QLyKs5u8j8utMtMRQ0n9V75Z4WdEmimlVLjg7n8QPgPNI6Wx3kM+r08uZvQDN5wL5xHlWkc5LcJc+A9DTR/jdUueP10V33j/OXpLYjC530PZybTzUOQcBrGzFgb1R2pKUNhYj5wg3/Jxm9DuLObxxtav42i+r3yAYN+fsvdMMG+kVAUb3bktXQnExpaDQ6j2v5a0cSIQbcqxPudVnb9hbDsxTOu9Y74lVw1ifvtT0oUfmEaURuysqR1cba82tYyOIbFVD3V3YwtNoOhYudZK2LWBxn4OOt4EHbiBp5XapVDsHVshLV",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 638,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 177,
+        "output_tokens_details": {
+          "reasoning_tokens": 37
+        },
+        "total_tokens": 815
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:7cd9076f3210e04e\",\n      \"npc:a561ea6b763c4b7f\"\n    ],\n    \"constraint_ids\": [\n      \"C:f8c37fc6dcda57e1\"\n    ],\n    \"span\": \"In cargo ring, Veda supplied Oren and called the partnership permanent.\",\n    \"rationale\": \"Veda and Oren serve factions that do not coordinate operations, but Veda directly supplies Oren and describes their cooperation as a permanent partnership.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 638,
+      "output_tokens": 177,
+      "total_tokens": 815
+    },
+    "tool_calls": []
+  }
+}

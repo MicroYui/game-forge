@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c84db17315cf1c1843d16058b38f54e47a75682bce7043dbdcc5db19d3f5bb78",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3418,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 675,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 188,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 901500000
+      },
+      "created_at": 1783854500,
+      "id": "UnqvjX7ZI9DgrCcN27FuKR/pNdCY1JXatjaLr4d3JPBiMlEHoP32NkPxQt2US5yGIQMhNYcUQki5cCDI5lrJwcVOw8pmUQXYnlCjU+O8wrXjZYKZwyLg0OKUsl1JOMtoAngBNLAKw+kSQdPFO7O7YInMCHnCStactIHmH/25a/OAGISEa6nUyA27zaIUl+1gTmSWOxlcUoLY24GL1n4r5mL8HOLlRF4ibKDWYS2XrI/2gPKNmGNGv5B8vlVpqOnII0nAJ/HjKpmdMX/E1YOIff5a8xAcql2tNK5q1NNNz8vzZ9wNY6nmTXaaF1Me2jw6tEicAlT+TNWWI4A5yQdR7CdZ2eUsUDqhqAP4BNhPP0th4zISMuGNBKF5wNP+/oKqMKJUH7L0JRnJzaZF8NEQ9Yr0LZgaUw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "PGoViB5d0LoTNYIhbKhHBR9Ai0jDhuDA9OMJ7ICYgOOhvoW/mbpdrvw+DjHK7QTfhto17/72c6QAOdWy9RS4wT7kGAQAD9RV1s35lhkmxg609Folvt8P5GXsUwGL9RMTHA0WwSKl0QiiUsoOKX6uXPplBS49yBD6DgsddFlQliZTfeTpcu+GNZtz55SUg3WzgJ9vdTPTwfV+iKH47KIdy3sAm9Eb2XziTkd8Ex417VdasGRdvwF2oypL2JlGbvFM5RoGw7kpwBw9Hb0lnqOeMCBlvrCxmUGu93Lbp7InRxadZqPIMfx9DK2V6y74KKyuAfKLk0rloaFs7f4FtTgF4XMVUHxUcea1FzySDu6CAWw3uFrpcBfNts8YfAux18Rla9lI1whb6diCcyGyl4T45czgof0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1169040a43548e6f\",\"npc:67f2d3f95e7a81b7\"],\"constraint_ids\":[\"C:70fe4bb6fa4b5242\"],\"span\":\"In archive hall, the council recognized Iria as the Beacon Keeper.\",\"rationale\":\"Ansel was already registered as the Beacon Keeper, and no relinquishment occurred before Iria was also recognized, creating two simultaneous holders of a role limited to exactly one.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "eCcRmJNrd/eI4e5S9Q6zpWh99jvKF3e7FN7tZbvHHB/WlwUX3WeRbhbY6yigvOhsu33jQRLK5pVG4RfNXRJ8bWITs2w/On6Qspb9sknQLtLPyRWNyTx9rEK0QtWP7x0VAz0dCUR40CInv2NABkvTmzIsdx09BuBwi4L+ydo0U/5jdjTcYGscyMR1wgSuSrNdqOpLSy13l3SpRVaX7ZEUOrWIVj6kQnGGtDanqHWz6x0dId9TsIJGWU+8sR0BOnd22XUF7xZsrfnas3C0OherUktD65WXtVb337Sni/uanqL+9tY5eqnK7ANm/opnIhn67YlC4Qvh/AWndqxwaUQAuR3jio9mliKcDvj+Ca7IP/75UWdXPq9ylrNAcyUVbnhDf/RREaFUgY5tMEsDeSoubgfAI4bZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 675,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 188,
+        "output_tokens_details": {
+          "reasoning_tokens": 67
+        },
+        "total_tokens": 863
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1169040a43548e6f\",\"npc:67f2d3f95e7a81b7\"],\"constraint_ids\":[\"C:70fe4bb6fa4b5242\"],\"span\":\"In archive hall, the council recognized Iria as the Beacon Keeper.\",\"rationale\":\"Ansel was already registered as the Beacon Keeper, and no relinquishment occurred before Iria was also recognized, creating two simultaneous holders of a role limited to exactly one.\"}]",
+    "token_usage": {
+      "input_tokens": 675,
+      "output_tokens": 188,
+      "total_tokens": 863
+    },
+    "tool_calls": []
+  }
+}

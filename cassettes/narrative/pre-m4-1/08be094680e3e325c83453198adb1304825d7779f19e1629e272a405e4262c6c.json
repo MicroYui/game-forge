@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:08be094680e3e325c83453198adb1304825d7779f19e1629e272a405e4262c6c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2970,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 672,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 161,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 819000000
+      },
+      "created_at": 1783848700,
+      "id": "4ox6okJ9CeNgxnX+HhK0wKAXoR9/tc+ozMzl0j3B54exGoKWNTReRgToD9f2TzUP6QOF9T+K71zHFrBb5XIGpkr1/CnXwQxG28AvMv1h8fK2UDZJlUhYbYmAYiuYe+dqzROkCxJ4xb5fi2fCf/DganEcq+mbLjIDMhiwSZor5YstMP1x3Kfr0ryJPoN6xi8/NIHJVdLUZITlkHp2fh2OitH48IhuCHTdxWyTedzgHSnw0BO8EIjJIGwR4VzbtbmP8RvI9QscagfZzJBm0vXVizdfeOPvRGXqXk0h0RCtk3tRhEKgvwQMlESwBY840LBU+nd6ZkQ65SP6TCMGUFHhfyeMdBKOuorYg1zHm/XW2sZV0q23QajBj4SefPN8NkTQ2p9LVb6PX4uFkJMTCiDT9QP113S0SA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "m0LPQJ4mKL1/xRa6L5ouP10WXL1PObn8wTPvo/q7p2ZdBvcCcTvjOyG57jDz6BoPqWToAcghqK7wgOrCrG+wgfAJXROZO0/awPp3MY6AgijjQXti0HB9oJB6FDQznTivQc1XAxkK/mzW4yksqySMWFGv/TzIvSU7oSIg4wRMVot4zm2tBPD2cHKzacAT1diLEb/PoaRggYJRaDsTWYOlUTFhufPhtB167jPSxug6A04qsVZ4Drn63VhepHo6BCFILLcveREZRdwDuwmiSvG2f84qSIer1qnOoowN799RtxkAq3wQ1dGtd69MPOXNZaqmEHMIwodik7qSZXrBwlnnG6+EfDHFeeuKZuXQnMhIOrON5o/eCkAr+KIfd1lztiGfke9X19b1ofWqiXZKai607orWmk0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:4c49a4759ad85cc0\",\n      \"npc:4fc64bc66b46603e\"\n    ],\n    \"constraint_ids\": [\n      \"C:a32833226c7e7aa8\"\n    ],\n    \"span\": \"Ada welcomed Malik into a shared command post at glass conservatory.\",\n    \"rationale\": \"Ada and Malik belong to factions explicitly at war, yet they cooperate in a shared command post.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "PO32o30m2F7KLwqmyaqCrbWKSApqTF59Ag7BD57Y7r/pYsqoVg+K4mMNF3jv04iV33cyx7xugKkPCzzGkkdl7nZchYZhwBaxOcvAih12f/4vbkLw5RlqfXcti8H+8LwJ2BGDAycxlC5uQfbuR5shjNm/H5O2iGD5ToXcnvs5npmNFgGhGw0YBJ0QZwhdan4AS+RYUciO5UxDGx7x14EN6BAU5yeb4s/zgkxNSV1xfEkoeEKHtxBM88Z2cSM8EAb0TuJ2FlShG6mw9YdU2b3EGZEEzgMD5JLEMXkOoCBSTAYrUTSqZX9pAqIDrL4DdXGja2nr3kXocnyp8BTGPs+cH/Y9AuAF0Xc4GlNqaunTcaJF+t4vVZcl4K5+pIarDFCm8AhQ2dFl/d+YCzsG6p0cmDfh7Tqo",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 672,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 161,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 833
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:4c49a4759ad85cc0\",\n      \"npc:4fc64bc66b46603e\"\n    ],\n    \"constraint_ids\": [\n      \"C:a32833226c7e7aa8\"\n    ],\n    \"span\": \"Ada welcomed Malik into a shared command post at glass conservatory.\",\n    \"rationale\": \"Ada and Malik belong to factions explicitly at war, yet they cooperate in a shared command post.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 672,
+      "output_tokens": 161,
+      "total_tokens": 833
+    },
+    "tool_calls": []
+  }
+}

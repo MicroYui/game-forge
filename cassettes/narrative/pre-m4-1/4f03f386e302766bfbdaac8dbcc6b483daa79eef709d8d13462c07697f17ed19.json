@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4f03f386e302766bfbdaac8dbcc6b483daa79eef709d8d13462c07697f17ed19",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6305,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 630,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 222,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 981000000
+      },
+      "created_at": 1783857400,
+      "id": "9/LMrA5sVCGqdOpqPUH11Lefy54I4prhXVi/O7xTuTuQvsjA8BKXxeRuxmWTTYw5dXI3mbKF6HsNz2tJXcUzzWMHHwlrcbDqz0gYb0iRYbkx9CmJKrP9VQ6uxEcC35zk/cgXgCg/t36edBIShY2ird9p1vm9W8SdGIcRYLkX2RXlNbZRO2sJWrSZ2siqbbgjYkI4uvp2QXjc+Tl/uF472Q9ShyHtIvNIKH+IBe9GrDoTXS3m7uNiDxImJ/lodXgVaYFL30cp8YT/wPFUTB68Rc/G3cM0o34auWe11bZRYJs1ka4Gs0VG8ujPHmhfWxQCie4lLR8nlvxz0gL19jt8INyL0enxomfkQe+nKTq2lqacxmrjPFg4dgFhIWtah24R6zqs6XkHGYB6bq93C1GHwlpvnQEl9Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "SEHyCjaJJwCctZeCJ7Q8iRONSRCgb4AaFc3AQESnPOb210Sxzmox+6bo8wzYkryQsBVcNol1knGME4BEiGCrZ8UCdr5hpSCjDIms1L7WSHmqgDwBfHv/lwmC9M3cwWnjh0gCgIZQ45Bmat7sdhJrpx+WF5W0IC6vAh1KjO8szgGuR3nxKvAbJSJuY3R+2v6w3NHEzK0gZ5AJnqnQ3qLBUtxXR3kLd43fS9wYyhH1LK1mD6WnQM5SfykNV1ULw51cGqEPZJ9Hpy6MfxQPllWEkpMyQRjx4+WhMnbKJ2If5QUA0PuDCRK++MfvskUG9NHIh5cxqAOpcL4mWCQFckMNEpju6+SN73tBNMQNy58HP2BevSAjhhfwOZsilFXbaJtzYmHGHT0LpVVtydAb/XvLWaR4tyA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:16293670567819dc\",\n      \"npc:7bf8d67314b4271c\"\n    ],\n    \"constraint_ids\": [\n      \"C:6c170ab0dca93409\"\n    ],\n    \"span\": \"Ada signed the register as the Vault Steward at lower court.\",\n    \"rationale\": \"Malik was already formally introduced as Vault Steward, and no relinquishment occurs before Ada also acts under that title, showing two simultaneous holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "i7he1+FOZc2XjanqVlWyWrdyNqm14cUOdLcWns2jXO65PVvfXfl76cJbyr+3erlgYeM5KD6wB66d/pCetWzM6Rc0mNfpf0LFVlH19ZSuRj8lqTU89tTjj2zTLR6n8zvaanY9qfSDdqcYuX2bAdSh3UsKAKSpkQxsMFS5YSCKnn5g+X4Wtor2tKYpQrySf+madhlZqgpeOu6dxzRDfPyottN/68h5xrLHk0phrfrDl2SM60WxNuLxAr09kwTIygDhOegQhUK6rYBD8M4LrzOwhOgwbZtajUDabkZtazZBhgWCvmwn4F9sucXXk64DQNI5PW0ikOH5sNBM0r6Evh81wxmY69hEtC6Mxc7GvlgtvB2uqDmkpjKWaczNC/8gRmIYRmeBQVcJBrGeWCJVjop9uYURyCPk",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 630,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 222,
+        "output_tokens_details": {
+          "reasoning_tokens": 90
+        },
+        "total_tokens": 852
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:16293670567819dc\",\n      \"npc:7bf8d67314b4271c\"\n    ],\n    \"constraint_ids\": [\n      \"C:6c170ab0dca93409\"\n    ],\n    \"span\": \"Ada signed the register as the Vault Steward at lower court.\",\n    \"rationale\": \"Malik was already formally introduced as Vault Steward, and no relinquishment occurs before Ada also acts under that title, showing two simultaneous holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 630,
+      "output_tokens": 222,
+      "total_tokens": 852
+    },
+    "tool_calls": []
+  }
+}

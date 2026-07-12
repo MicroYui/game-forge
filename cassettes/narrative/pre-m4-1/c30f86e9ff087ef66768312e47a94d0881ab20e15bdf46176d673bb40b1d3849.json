@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c30f86e9ff087ef66768312e47a94d0881ab20e15bdf46176d673bb40b1d3849",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4239,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 707,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 169,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 860500000
+      },
+      "created_at": 1783848600,
+      "id": "sd1KKvY+QPj4g87BirTxdsB8rT3XCLW1qugnB5OTc6mhul/aoxPviFPONb+IeR8MaTNlCD0o/BN9AE/hypvZ43XxQYNl+VAcw77GRPHeE03nqPfRcdFlEufXJhZH7rhMCRGNnJhkzv+iI7NCM2K07SzwF48SrOcsavZVIBHpdHSBINa4FlCUF8Bmjk6ABLOvfsio26N6ellxw6mzX6wUkbzZ52ufR2yZHZNUFMFm9EO6W46lc8i0KQoCmh+8tdaHcpLd6FyMxLsn6VtjHidjBmUtxzhRVxE0ATqYS8Yks5puywh9t7lB6defSdNxVlv2vvt4nT8uiFL+1Qe9JoU0nil38rf9Zl5a2ofyfKTHBh4FuPkZLn2/7Z9FE0vjsl5eJU5Sk0hxHb+IHj8Tv59Rnk2u0vHSuA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "DDWBhLANAPozRu3TWOH5MlDUcsxDmkwjtQlMNMMYwpG+gKSLdKbae5dteLKuLP/cRxNNZyy0ELdGDYsdtxatzxG6nCPAuGUHb7QzZ4T1EdkOonqzB/AjcTEfqQGxnSZoNw1uY0LVPm/Taf18tWEda4lP+VMMMKwM1CY4hs0A8XpJLO8zXG3yM1vxWh1NurUeWhZd2TePa/8Gr83XGCrOrEp+gE+TOsOo9fIMy0LCVsaAgANf3aBkfAS4FMelPB7QMMH0wQY84wrZX80CkmyvSRCtq+UanPTwDIMKK71JapwxRvK1vGzFEiH3xqQ1jc60SB33WgnJHanoR68I6HNdNyB+2Oq5sw93D0NtEI7QOth+y2uXqHQDqxtycNJGJtF54r7n70WUgRx0kE7i1/9pOxKIlWE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:27d4415df460317f\",\"npc:ec57a0ba7d37346c\"],\"constraint_ids\":[\"C:7d6096b531af25da\"],\"span\":\"At caravan court, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli serve factions that do not coordinate operations, but signing a joint battle plan is explicit operational cooperation.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "FPZNXBLzhPJDOSYhCJR2WvXwjOSXl97DW/L1hGcczUcATJ3/E+7SGhDZLLdwBzJ59dFaEyjaS8i0XpetS2hJhNkkXK9MHiZr+v8MlrEs7qB/iTgkMlbiqMd4xHIPblgMMXeoXjp90GG0jlUmfMd0nXSLr+ORnfiC2Rrqxqn17IxSHLe7oPF/rjWVKWkoNUZ0Y9s1W9qIbeKpxAZQPDPGxiOTy8ZtpZt5xW66BfACgvUkm5mN/1VFHMLArUcXr0it+sW/X/72r2H4l2vDTkR5vQ8Oanm+uzaJNf6lIDgXn+GEkfpC/snwNWbLBka6LJ2rPvp+/Ee4GVW7Lt/5Ia7UhKE9n5EOCrA/G89Hl6weCHd5ZeqvC0KiiIl0hgpyDMz+Koh95ZKUU80lRMATwFS1Ng68qJqj",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 707,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 169,
+        "output_tokens_details": {
+          "reasoning_tokens": 63
+        },
+        "total_tokens": 876
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:27d4415df460317f\",\"npc:ec57a0ba7d37346c\"],\"constraint_ids\":[\"C:7d6096b531af25da\"],\"span\":\"At caravan court, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli serve factions that do not coordinate operations, but signing a joint battle plan is explicit operational cooperation.\"}]",
+    "token_usage": {
+      "input_tokens": 707,
+      "output_tokens": 169,
+      "total_tokens": 876
+    },
+    "tool_calls": []
+  }
+}

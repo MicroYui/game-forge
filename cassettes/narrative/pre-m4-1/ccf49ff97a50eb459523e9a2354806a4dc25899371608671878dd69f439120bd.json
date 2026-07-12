@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ccf49ff97a50eb459523e9a2354806a4dc25899371608671878dd69f439120bd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4380,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 610,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 201,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 908000000
+      },
+      "created_at": 1783846000,
+      "id": "l3fe+yiAPilk7SUKS8feoWgEeoXZM/QReKNi36/wo2/uT2BqBfBckJHJLEVVCiC+GaJt6lnilpLFwe7K1BNUf+erK122ab8g+ArtDI2XbzLR43XQDrEODhu3B3RbROia+Se3RCHlje17x3ZcolOD59m4ZxnFDQUahPXUeMQWdpH4g5mAl6tOOO93W8ZTYUh+hFRmTTWUYob09yyqeZPoi/VZEVH3cNmeAZ4aWfhnbzvx8zRNI+aP10DZuYoZYi+I0JKOWX+6NXZikC/Ui64bUknHz90xp99P9el7ebHG8JiMy/JIId6pzk1SYeFd3/t/nbpDkl+VNoBGeSK1ByIVTUM2Z2b4abMWHumZcvmWxPiT4xkHnVtE+oWitkRfobwqkiIjHMJpKN6fBEbdqym9Bj0ah4Usvg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "z/4evgbwF5G5uSmyULWU5QqTSzKVwxyfUUYenlVvOaKj84IfB1a/Ju/Qn7lJrzIqetov5f81cqfvnihLbkYR9T3b4UJ85bLBl17VOhap43xe+8KNPXMOiIGlTc+IHED5cgs+FBFAwHUgphYBng3/AeL6smpI9ePwCte8LwiJ98e9goG7vh2Uxo35fyT3msm/GuQliXnC5g+5odXwp8THlk4f8NfN0arzqCr9Fq/q/kOgbhhroXGUvyLtyI01bjIJ/8AHrmDRIvt/nT6vSKYzO9JYURx7Fj2Qduf5gXfdvpraZINX0v1DnqefYyPxtidhhloQ5ucRkfg3GB1bZGZIulK0TvwgUzCaLEVFqWW7tU/x1rUC1A/YpzSNVioXxkuRbz556DoFH6ToK7Fo9kcAsMByeVg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:317d7a55c5db7ca6\",\n      \"npc:71075c8a0c7e7a7a\"\n    ],\n    \"constraint_ids\": [\n      \"C:7b791b3653910cdc\"\n    ],\n    \"span\": \"Qi fought beside Mara under one banner at salt depot.\",\n    \"rationale\": \"Qi and Mara are shown coordinating in battle despite belonging to Valley Rangers and Storm Company, which are explicitly at war.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "VfdqLux4pGaJAkENXrgAmNnntH6xJOzvMGKU2nzfZN0j7IpoFHCqenxCzYadCqC3sS+327N27OkyriO/RkPn6P2BRn9pglO/uoEkuy4cXmFk3yDw2Y3y0N5Uns0hNy1SlUnfuJWJRxqgV7QGEatcVhEiHei08QyVJxjhYBVVS5zhnia/iutIABxziruDzUw/puGDhXUmlwr5odKQP1VL8Ef5S5DBn8x2RH5REcYPgmQbDxQt96NvlMgjAQXiGSHyXylvh8gO8omaxZYYCG/PvpZJtwGpknKLvu20J8h4OIiOmwMSSRiC82t3iO1z89u0VyffqMy5R39m7kTlIkZaxlyY/tSsiRA3MIvPAWj5Hv0l9az53HKzv+23NIMrzYH7rCQU9B80DCZZD5T2fGiIQR3v3cVQ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 610,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 201,
+        "output_tokens_details": {
+          "reasoning_tokens": 69
+        },
+        "total_tokens": 811
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:317d7a55c5db7ca6\",\n      \"npc:71075c8a0c7e7a7a\"\n    ],\n    \"constraint_ids\": [\n      \"C:7b791b3653910cdc\"\n    ],\n    \"span\": \"Qi fought beside Mara under one banner at salt depot.\",\n    \"rationale\": \"Qi and Mara are shown coordinating in battle despite belonging to Valley Rangers and Storm Company, which are explicitly at war.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 610,
+      "output_tokens": 201,
+      "total_tokens": 811
+    },
+    "tool_calls": []
+  }
+}

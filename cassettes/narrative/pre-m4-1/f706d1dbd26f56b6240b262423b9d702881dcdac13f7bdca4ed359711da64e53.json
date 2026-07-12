@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f706d1dbd26f56b6240b262423b9d702881dcdac13f7bdca4ed359711da64e53",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3186,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 613,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 146,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 744500000
+      },
+      "created_at": 1783849700,
+      "id": "y3WzJn++cbWKgqQHvmglILIkWJPVZBx5rMuhFZMGatFuNFSsI+/hywQQzBcaCIQTJSNF3OdV3TqbCne+OWAM3Ci/YYBkNKkEcLiI+ZnpqW64U2Oie24NGRT3XNRdxokWDGvISMOgYZ/ByXGHOU2cwA/yUNpZcvJLSq0RAtXvQGEiPMm51pDVlWhB/X8pmxV1Lg+5IQAfH6bSqx0PeQuJ5zoxovqm/2mGD6TLn3qATreLZSM45o5dK3uMJmWrFwi8aLXtTqLG2oZ66pvFnSSzH9woMWxgzHkDPhs5o59JWAqouBL2F/Q0Btn9KTDObHXV4QLCSdJ9wzfNCgCxC62xhBDoOYzVnt20ObWwrj/v00+pSXE82g/b1lLMWuyiHSHEsJ8qnZPM8zGagrm+lhEQvKHn/ZeKvQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "QcMZGYhK7uU13fA0QnJNNt7im72Mjjc2+cQtfrzCUF6H8GhIaCVB8uPfAJsOyFjQtHqYButJ+Eoxd5XPeb5KOBpU29hG9hPZU6t2ptgCEpGQaLvSWvACLF8EtowwUCztcBzsQ0S3npcIYpMxEcIROcAX9JoW/BBHnEaZDk1CPtRpykuzQm/UzpdApty1Hc/FIXfjqhIIyh+vewIL+/jMEZD6AoCAn1WTwHpzbXI5tT3L4vsQKCWuczKRgci2F5ho0Cxl5SlKR0i/V+o8X/E1OlXj91eOaazkvuel1/XWK4fUqjyL0h/m2T8nNXPiF6L8oIY9MceIDqS0Kccd8SDii9b8hh8zeDdDi2Gi+9tLiC++qYHhdbxvxHQQcnBiyd8qVn4UQmy15YcvA0mqbxzvuBg6HJM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:27f032371b1d2085\"\n    ],\n    \"constraint_ids\": [\n      \"C:9006aa9b1be45fbc\"\n    ],\n    \"span\": \"Mei kept the winter medicine while the outlying camp waited at canal bridge.\",\n    \"rationale\": \"Mei withholds donated supplies from a settlement in need, conflicting with her duty to distribute them.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "WnLDCcZ5YbN42zZDZQmzjAmySVPkW92bE+HHBJLJyaYJn3ZB9dWAqVLe8PUsf27OPe4VOLVY/pXmcTGz71C5FZiHhOYpAgWlrURtRmGABB2AIEFWgcO0M7SKDGDtcrnARdlATmi1x1MAKzjtDiZEl+MgnlB7oEeD+VweNsEmNRoo9smhxZfYtxgZw2MDg2oRLynPi680TcEJZ1yAc8Z6sIWVcs4vRo7brh1TbVQiHb40WLGb1A+JSv4SceZXpO4ld2gJXC4YDA/lRh6lyp8vtHMA5CIj8TPWzjZ+BRqVEO0xYp7rNZlCfBmtgeZlsHojqUqvDSIH2HX9wvBKsdzrQbAg1gK8k9W09+xpWXoJ6pdkCnVHAKQ+qNypK0mpibZdLsF6oI6iwdYu+Jq0O4d/OiEZO2od",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 613,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 146,
+        "output_tokens_details": {
+          "reasoning_tokens": 31
+        },
+        "total_tokens": 759
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:27f032371b1d2085\"\n    ],\n    \"constraint_ids\": [\n      \"C:9006aa9b1be45fbc\"\n    ],\n    \"span\": \"Mei kept the winter medicine while the outlying camp waited at canal bridge.\",\n    \"rationale\": \"Mei withholds donated supplies from a settlement in need, conflicting with her duty to distribute them.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 613,
+      "output_tokens": 146,
+      "total_tokens": 759
+    },
+    "tool_calls": []
+  }
+}

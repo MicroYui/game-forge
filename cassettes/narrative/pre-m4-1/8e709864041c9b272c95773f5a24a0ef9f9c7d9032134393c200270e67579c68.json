@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8e709864041c9b272c95773f5a24a0ef9f9c7d9032134393c200270e67579c68",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3606,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 687,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 220,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1003500000
+      },
+      "created_at": 1783858000,
+      "id": "Jq5PHnBWwKMjW4wcY+UMd96FmYw7pEfkh80n37oQmlGb7bhIZuBsUFzy+yZlZweVhgRL3/l/u2uqliF2SKhlVNsYPqSt52pR4fhf0FKLs+hnE7Re5D/u7QHEfJKSOIeQlzMPKLvb41LZclgnn5rSh8vuKJsm5erM8u1FFot2fY7AI9kPh9SVO8Uf4DaAwqwh4zs+2n7O1Ydr+D1aDzGyhHpXp3a9/SoJR6qOpaV1V+R9BVi5X+67ByUIRpmCCdS4u1MScWAgwaX8d3ExF1KVn/bIegntd/U+t6t2OcUpNDJeSirCAwKhpd6nOvaSv77qleHgMlWHGf1lMydi8kIy5im+ULG0qjreR94Uw63YrmOl1XVHo6POI3VYjSshk4s4Wbckgia+/yavmgUI16Y4e40DsqaVSA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "EZVoIeQgD4lyvmdcDNF4CsIeJcSz9jT8xf2k/lCkAUmshZi6F+FXnZe9NKaKVT9xIGI4W/MCiQ45/tQTYmmiopwVYv4Pz1TlGv6XpQtyyDZIyejRldQ9lVX8D6CPpkcw1eC08zErrNNgy0yeGWvKhZiF1si+JQZ29l9KoIxUS+qHUhfKo7SAQM+g7nxkKcmaOIR4KfMYhM5cPtlbzqtzGZh+/N/GkbCNucznaAicy4BnE/Em4/axV1LYfqlslOe4vSzDXlVtiFc15H3srjRD8l8eUzt8R5ZAC8XWjm6Qo5WXVjN9uD505AM/yPdgcBDLqk88gN/65ST7sYzH2bo0Km53mZjbOx1Bzk/e5ofPea/w+JurIzpk+UoPJ1EF4d0jOhQK1tLf7qw9GZt0iVhHWieIfQ8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:72309a6fe7787291\",\n      \"secret:4d0baf5f564ea819\"\n    ],\n    \"constraint_ids\": [\n      \"C:136f3b93ed0575e2\"\n    ],\n    \"span\": \"In desert waystation, Qi disclosed the vault keeper's allegiance during dawn patrol.\",\n    \"rationale\": \"Qi discloses the allegiance during dawn patrol, before the permitted reveal gate at trade council.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "C6wmh1AoVMnY8PTKeLguT8Rdr9/eGolgOlHnnB0I00OS8IIPHcCpZxiAFtILhzQi0dw50ErzLwdOXEaIOR4JPs4zwdMTIzc6flE7BjOeT7G/llqShZB1l7RwP1eCKddOwkWucq0qmBCp0rsh/KezUk5+iMbnnZhWCWb6CkLzgN9VPkrWI+kPAWPUPtJgb5IpNAPmEwvQeYYOpjh/AToK/SefZpybJil0q8G+N06EZhYebigF2npt4UffaXnze/aBPgzC3DS+W9SCFfjPPuzJ/whd+V4203Avl9GftnvDxEWYGQHalFPKEezyLHPCZPeGNOLZMg6N6GpSOHythNofUi0OeyTzb9Sl5q+W8T3t7w2Llr00NaWngX0YPpZU08mODc3KDU0UIbOqf9rJQKl1G9f+7Z1m",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 687,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 220,
+        "output_tokens_details": {
+          "reasoning_tokens": 93
+        },
+        "total_tokens": 907
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:72309a6fe7787291\",\n      \"secret:4d0baf5f564ea819\"\n    ],\n    \"constraint_ids\": [\n      \"C:136f3b93ed0575e2\"\n    ],\n    \"span\": \"In desert waystation, Qi disclosed the vault keeper's allegiance during dawn patrol.\",\n    \"rationale\": \"Qi discloses the allegiance during dawn patrol, before the permitted reveal gate at trade council.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 687,
+      "output_tokens": 220,
+      "total_tokens": 907
+    },
+    "tool_calls": []
+  }
+}

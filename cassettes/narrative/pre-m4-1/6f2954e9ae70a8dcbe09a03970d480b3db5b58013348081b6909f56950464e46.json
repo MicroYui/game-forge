@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6f2954e9ae70a8dcbe09a03970d480b3db5b58013348081b6909f56950464e46",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3411,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 540,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 190,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 840000000
+      },
+      "created_at": 1783843800,
+      "id": "5fFKcKTwYjkeE+/TQcZYErFEDyvCoLi6NpHezT0G9jjqKxfsWdjSM6ajsR5+GKiqxtPnZ7jq8vGCW31kcHi/bgDIA3T5mZRNgOYdRiY3syrkEv1RbB6ygQFbD8H+BslpVjaU0aDQNMBL/qNnpxt9EjBEgoA9hDjhlYogk47/DG3EiwUmef9uljQxyccECMo2qvFvX8UkkVwAd185m8HH97fFyaNXjET987C7LfvFTgI+VTJT6qmWs90axWYihahQfR6NQbT2gt1AhKMebqwDgUuT85JxO9vM4Jm598I0G9brTcJZ9zf/6sT3qHpDWqOfU5o1EVg2gLLWuPQvWxvrZwVpKVGZggD/bnMUX0oG9ysbWIwLFuo3vq9oGqkzJC3EJwXVfjtMIVjOF07rXcPv0zNC7RfIiQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "SF0B0XKF9Q1CgaIIJtdP4XMRd6jTqwaOPxXFbqkb3ivXi+7xZSPPAfDmrW1DFmbjFK6gbqCV6kdVDQCUTF5lrRjrDvN/u9dfwiQFT/0cMyaGuiAVjoQY57Nx0FzMnz9KvG+HctNFyOnzthfqNuhwY2GXq27MJl9Qhp5a2WPCxvQe7pqNsJub8OWQKCLfzO+B9YaTuLy5RHMgs22vnqgS78vgM8L7K0oqtWLBs9daKQgPp0B/siVEQ8r5wVzZP8QMc542VBeE2jkuiqEcg5ZevzgktViR0Q3wC9GiljDGXPZqBLAeod+aiDT98Gchbd9t3bSdGLhQNqdP8dskZ9GtIf5Nx3ZOPv2w0Kpm68SKh1GIJaHH3hinZ/AISHi8h+RNizGf7UZ0PFiGPLYFFnkfIMe8TOU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5c20d4cb6916eadb\",\"npc:ed719055c219c7f1\"],\"constraint_ids\":[\"C:a66571443adfe615\"],\"span\":\"In canal bridge, the council recognized Ivo as the Archive Speaker.\",\"rationale\":\"Lea was already established as the active Archive Speaker, and Ivo is subsequently recognized in the same role without any stated relinquishment, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "q8mvdXZeaI90BLsIb5TVUmctW5FirK+T/CqITTVHRrbFPJytOSBWIhbIEWy2eSuUtxzD1dOFKa0IaP9ntwq9EwjCF4oxt5x+DGB87F3FvFZ+5N4b+TmdhRoARK9nTP6d7pqhVSXBXko78ONHXH1yOjs7IbZWM2HSU9hy6RVYSXAqgS24CaKB7WUjBBnc/4qGkVkzDajAbItnMyqTm2lxwui4D8juoIqAJLdTlGgJZFZ4rRmztKYo50SQ4d/tWkPHtL62mKTm5K3dmNSof7jXAHoZRSGmQ+p3/EgslD8vjplzwH204VpkWg81x2AfbAKo0cSunf0Tf06a4L3BdCQRLuvztdHPUFjxnMXNH+upkm5nP2hxsI55vJfbLiZsGH+TNBrZqFZ3M3sPLmGlBh3FbycBL0Rx",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 540,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 190,
+        "output_tokens_details": {
+          "reasoning_tokens": 77
+        },
+        "total_tokens": 730
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5c20d4cb6916eadb\",\"npc:ed719055c219c7f1\"],\"constraint_ids\":[\"C:a66571443adfe615\"],\"span\":\"In canal bridge, the council recognized Ivo as the Archive Speaker.\",\"rationale\":\"Lea was already established as the active Archive Speaker, and Ivo is subsequently recognized in the same role without any stated relinquishment, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 540,
+      "output_tokens": 190,
+      "total_tokens": 730
+    },
+    "tool_calls": []
+  }
+}

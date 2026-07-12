@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:218dc5dedb04d795272d1d3a04401b029eb7ef2f2e68a963a30180a40495a6e5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3267,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 571,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 182,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 831500000
+      },
+      "created_at": 1783843100,
+      "id": "b1jPiN7gVOnSTToXd2NqnSPlq9B5iPQ+X2Mnq7ycBhDWMfNXGIFepQXUQyLjDORcNAq2/5u00AKU1abJaY5qSmq4tLs4MLYAUdjet94gDWsv8xIkdVoVDb1D5RT4YfCjn0i6y03xSfmDiNg0EvQPyGKuaQibWXvOhMP/dGv9uYeFytTW/d2OKh75fHai1jPCsJccsbvNNj5pelDtaxYGG/KU+OY2HUXX4pTO6qDMoMXc/iik3PAwPnK2ux+QvDXKRsS9sAGxseLqALnrZnWT1kDugdrgvTDGH1c193njU8Qfze9Ve25inOH4BmbsrsYVM0m2+8ScANXsVXxMZZwOetsR6ehCS3+3sg4ecFAUChfYHZualvUuJqVl4jAEroR3kbbiN1hQgbG9GF6Z4xm8aL59ptQcYw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "f1qgCXoXBFTJw3te0JCXw+BnDV4wHXJc3ILYN5j5TXZ9dnBIbC22s06unQEDddX+Hjcddk7BQ+0/eEqDSWDBZvKSqepjEERQBm6pO0zVL1JWplQiSYLg/X2bji4UZZsUZP63zqOnuWXsMln0eyfOD9PkwnPtaJVHRjGQSgxiaqKyoDl+44dcB1cCQ0qiSUGKQ4hD3O7aPznFAzJ2kdgkIbJ1Hks/HuL/U4YLipwRJjJMG1BZNrv+IxN3laevLYRn1ioGrgnlGSxN1URkMu3o25kNEe78DTHkQlYxWurld2DT2XUjK6plyszwmWKnsgURX7y6FeHb+bOIbGWViuDreMcZPaAJDv+X0LoWhTNV8SRzSYprk7JZqgjc84wbxunFIkueSAYXiOFoIpAnoZH0jyZYL3M=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:a88bfdbfe3b688c6\",\n      \"secret:fe56dbd17f375e3c\"\n    ],\n    \"constraint_ids\": [\n      \"C:1e95d3bc7c856431\"\n    ],\n    \"span\": \"In orbital concourse, Mei disclosed the vault keeper's allegiance during survey.\",\n    \"rationale\": \"Mei reveals the vault keeper's allegiance during survey, which occurs before the permitted reveal gate at departure.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "qCZa7+Qe+mzG2+czbU0bCZRBdzDeiITJ+zkg7tepvEHPoEXOdheAvamXRXtyYsnvgHNw0/EPHqE8NvfBIdBLueHlDpFF9qrpCqUVAWvwLR0gMnXl1tjNx0hKyk+yAtsZV7HT9IoY0NFipuEnl7m8BZSHEyTaBgHeonNL46+QZReUbGUoQQ0InX/a2Q5uIWnOGjMPGZIDrHkHOLAwHAc9RPmb0f3yRBC0RvcQwa4gV4MP9qq+DKyKl0eCYbKsJuhrrg/ATgn5moaE5lOP1nWwo8HnS6d2ZA9P27aFxLhmXRGkMSWdUK1xInOuUiixEPKRRBVDQ4vl4/BkH9ZeeRX3AiSiAuXWpvDBv5fTJXjxB7lyXta8IrRevKzxO5p+luELcEsTLKVwESAgV2VFEHQDnNlMZhEp",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 571,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 182,
+        "output_tokens_details": {
+          "reasoning_tokens": 53
+        },
+        "total_tokens": 753
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:a88bfdbfe3b688c6\",\n      \"secret:fe56dbd17f375e3c\"\n    ],\n    \"constraint_ids\": [\n      \"C:1e95d3bc7c856431\"\n    ],\n    \"span\": \"In orbital concourse, Mei disclosed the vault keeper's allegiance during survey.\",\n    \"rationale\": \"Mei reveals the vault keeper's allegiance during survey, which occurs before the permitted reveal gate at departure.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 571,
+      "output_tokens": 182,
+      "total_tokens": 753
+    },
+    "tool_calls": []
+  }
+}

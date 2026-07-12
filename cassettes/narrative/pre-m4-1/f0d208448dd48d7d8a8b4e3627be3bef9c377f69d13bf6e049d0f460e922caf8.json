@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f0d208448dd48d7d8a8b4e3627be3bef9c377f69d13bf6e049d0f460e922caf8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3173,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 668,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 164,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 826000000
+      },
+      "created_at": 1783852900,
+      "id": "JDVar/Wy8E0ITgpKfzh8xX+AyMKmddrXdR+E+OuXqlVSshYEK2AnvB1Lrd5tLx+rpYyccm+AFeZB5O9L5KCYsFXM367s3Qw++Uof/IR+GrAg4znQcfRBa5SOJVxmiVp3DqsM9U/2ewWbQUCJFLAwtLJaWrKjesqa0MKKDEeS9MKMZYmv1LLTGxXW8sYg4rM6ZqjgIoYp4gyp41iWLFt0ZLc/m9BkAW1QLLnlZ/YL9v8Ka+xkQg2a6dt749FiJuogj1aXGxWMwnMpIeeR/cmelV1WvNb15jJYFv3bqLL4R5/TIxFJmLVAEj8EUWUMpiTAEA2xe0ayX7aP65CSzyXtS/zVsXMsdBfYtJ3Pr+LlTqXxH2RcoksE/gzpdw8mVc0TruWiRC99zMipCDuE7GDNU014iFK6Aw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "fWTDYXi6VNlyCVu/o0GFrwS0hYA9fnLm2LSD+0NsfeJ24eKIrHOgGFSo2nUZvhsY4hJDHf9dS0cRBNmRAGQ4u5R6BnOUWL2L/wS4SjFQxs8alzEicUXxa9t70lfa/URxQ80VxDFVhQWO+pPTSuh9URUpUhaxPIPE7mAy/FW1qy6R8GVMRuM+1L6exoriUygsHpi0+ahZ279o/rilOkFBAHf40DWTgnTH7d+Ocosd2MKhHXFWKcrYnAHkre8kMTjwpk455UoHmmdqJwmVGoVW60eK8hU3HhyI+UZDMNPFkYjANJwm49vnQIq3yO49vpmvxCgCt8los0VtANMODGSTC1JR0u2etNqXc6HHieO2FivVdRh0QwX+ANPRG2aDJ8jlJFFR6KPqdtWTk7Sz4sxk0eMOPVA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:d4061272db089eae\"\n    ],\n    \"constraint_ids\": [\n      \"C:2dfa140562bd18fd\"\n    ],\n    \"span\": \"Mei denied the pledge as soon as danger reached old mint.\",\n    \"rationale\": \"Mei abandons or repudiates the pledge when danger arrives, conflicting with her duty to treat a sworn promise as binding until every term is met.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "eOhrvwt2F00lnIjfqgXrjOIerkEjLzgFhSa2zdKAnt/Q7TrMocXEv/CK2gncnOyMaPZ+7xeXtPL4GHTcPsmonb40GOIrg6gdyFsbWCJQiSj+4gek2dTrrhKbmS3MdXDzSmLYy7ZbYAabkHTycVDFGY55/tuqN7yG/n2wlKmA4cPXs8fHN639UdBKLT7cMlpEdbgjY+Ui7qU9RXtJNvz8M0hqd5IvFfvy9CNq3Oy/Td8aDwBz8jNkJr6fHMxsgJO4F1y/tfP6tryM+DWBecOu5U0u12tOtWrEQD9aLFfP9mJGSedRX6NRu7mmtSOgi7CtnFKe6FDf4qzp5YZ+7ubjNdKFv3bYudPN7M5NbbV30jYCPx18ycTn+hHWOXn7C7sW+nYxoL81p/HunMsXF6SSO1T6B/kB",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 668,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 164,
+        "output_tokens_details": {
+          "reasoning_tokens": 47
+        },
+        "total_tokens": 832
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:d4061272db089eae\"\n    ],\n    \"constraint_ids\": [\n      \"C:2dfa140562bd18fd\"\n    ],\n    \"span\": \"Mei denied the pledge as soon as danger reached old mint.\",\n    \"rationale\": \"Mei abandons or repudiates the pledge when danger arrives, conflicting with her duty to treat a sworn promise as binding until every term is met.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 668,
+      "output_tokens": 164,
+      "total_tokens": 832
+    },
+    "tool_calls": []
+  }
+}

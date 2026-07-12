@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d5ca9c859beabd4f047002972fdfe0d5ac0438507dad18e826a3b67d4976fcab",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 8090,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 637,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 358,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1392500000
+      },
+      "created_at": 1783842400,
+      "id": "IvrTOfV6NcBIyekrOesXtFEVIjlZZHj13QROGW+1CnQgnwSOeoNmsPd01ALhIMkwj7CvmCjD4WoHuBZL3/CN3vZr8C+RVlQUg17nvyS18leJ91n+UaKJDd27GC+p7f1l8LEtVjA2K2t/XfshmBsQ+oZUjV/JXUH0ZrWaQSXpKR5ipfC071stPfsNZaC3hp0QR+uE/8lQ4UUI9w7g8Pm3GdNP4hiEoA4cB8K+zdL/SR6I49SWUCem1UMfa8o63jvy6VvRxPrt9DnnBX0kqizyXZaFb02xwgvqLoz+XL5QCbT52IzZYGVczdFhdoUvEJxW+ex9CjneNRBoBoGsRod9HPhkM00jN9yniK6X7lzaEKSR00l/iLqscR99CGhIPM80MG1JUnjL/QD/gkA/tZ61ZpaeDcShoA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "xYCwexQLfLqv1TMTxk7Kl4h1zGU/lD956+7HE+H57RhFMe3xvcKVpbLuWpya0ZmM78ZFlUYpn6Oc0/o131OQWSB/UwlWqAIpA1IHauBza0ZRONIjt3c2cSd2PBZXjvL/DD/iJg5AC1AlyWIEA7glBZRhqr10DXovgkAJHoXnXtBFu5TzBejXSHg1CYeQdvF4yfnZuaZegqhuZOU9ndMA8+qaBvw5fK7HG1vZ1r5oE1ToArqI6WOXWeJMXCqMv4ByEuvydxa/sPU9vuTAnq+dDTa3CE2UtZL304hctbdhNhDPY2g2XFPrDxvwzuw0qHAquMST9WeE3B9ySgG7+IAmeRlIfasKjtcYqzmMFQYd5GaYNPgZw+T3XDZ/g9ILupdAQiJ/hyUs+RbAPuXSKglgngWoRIQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:12a9ac70dd6ef69a\",\n      \"npc:2fa598b87ebbcbbc\"\n    ],\n    \"constraint_ids\": [\n      \"C:7f80beaf06162a38\"\n    ],\n    \"span\": \"In canal bridge, the council recognized Noor as the Crown Witness.\",\n    \"rationale\": \"Cass was already identified as the Crown Witness, and Noor is subsequently recognized in the same unique role without any stated relinquishment by Cass.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "WsQG14sjRvsKXUlZ1Q05aiE3KEzQ6OD9O8KbetC4G45uaKBCurP5o8kZfFSGVA8UWkc887d8FBWH26jLUdY/pngBF+QMVkJoSHHMsqGfINTRbddaPKK8QIGOQ5aQ4PoqcXcK8m7dWhi86YN2TCS+04hL0vYULh1Jh+yplE+EHcgItrrNW9F7PpQ/kp/EovV5FpqJI7mIazqeTcKztFT5C5ru+hPHvh46QxtxujPIQvV64SqzEuLMnbuQ1ccDot2lZR1jC7MKT9FQGAMBI1V4E7xTJPMFRczSbqYM3g0hXnAjE0sriOsgyZRIlnobWAY8cDf46oRa2tNXqmzywlhYORNWFWD8lyAHziaElXVgxD7vuGEqn3nSe9mlHP0/6UKu5hv/RuSsGvAqJ/UNlbMsqQ3ChOBm",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 637,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 358,
+        "output_tokens_details": {
+          "reasoning_tokens": 224
+        },
+        "total_tokens": 995
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:12a9ac70dd6ef69a\",\n      \"npc:2fa598b87ebbcbbc\"\n    ],\n    \"constraint_ids\": [\n      \"C:7f80beaf06162a38\"\n    ],\n    \"span\": \"In canal bridge, the council recognized Noor as the Crown Witness.\",\n    \"rationale\": \"Cass was already identified as the Crown Witness, and Noor is subsequently recognized in the same unique role without any stated relinquishment by Cass.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 637,
+      "output_tokens": 358,
+      "total_tokens": 995
+    },
+    "tool_calls": []
+  }
+}

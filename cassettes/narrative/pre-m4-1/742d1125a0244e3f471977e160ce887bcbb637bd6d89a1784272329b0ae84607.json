@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:742d1125a0244e3f471977e160ce887bcbb637bd6d89a1784272329b0ae84607",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3613,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 688,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 173,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 863000000
+      },
+      "created_at": 1783849900,
+      "id": "Lkbzx+sJRK+ILywq9K6IBlWUw2yY0ftO6exCJUG8iLUMuTqXQd0Pt5HuYBC/k1iDBF/UnolPW2klw6P5dHkbrQ4QXzv04F3vZF9gek+yeWp5YeXYnp2i17DIwpQWtIoaOgVJX1CC+kUnmnojQdkmDqJeq1v5U7JoLpYALU9VjnDbMYAE00Pfz9sy7w4FHitrvLvaPNLn+dvWzVMrSPQibitHUju1/CKFUrpZHWutW4sy8QgfQZalodaEu07E0K0HUlAPzJ3tVJjZKCfPLy3Sa8KMCQpyHKfiLaM8SZ8/q/+0EGgXbATNmUUyWcLReIZ6cv1H95tKwlaQmABy43Jo2fAapaQ/sMrQxHyLmjxnIGYWZm3HPBBAUxrdaOtv1FrTkQqRNV3hhgqaZH2/I84AQ3f3Pu7/Sg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "AWZl+/Igx+8AiX8OfWjJ3p9QD8UvvrnAXFRJevOYqzRElNx06MrXDQILyh3vTRdSS4Ib+C8L/M5h8xo9vCOCc7MHSxhLqKmTMGqJhs/CKZFjykAmDAYZUQ6/v7lMGp2JI9YgNPu1+8xpdFn4SB5A+IWEHtgUp3ke9PdXC14nPjiANwo+lMusy8BztiOOpXj+OJ9ggTCn5t8D2umoiXR9GO9n52AuY/j0Y5Xj/eZe/5Evf+sLFlmvRh8jjY0SddviAfekJ6oUhUUZAiuWj+x0JHRLSAsaj/kEsI4NqpV7zvaQqbeaabuhV4ehRU1bC7Z1a0iwN24/1siN8jHQzJjpgDY1aU+EzZji5EQ1BUPpxI5hid5vIZ5irrNL9Z++6u2/+d4DeZt1FqkcphQrYuGaKcO/+EQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:18761b4af637717f\",\"npc:90ddbaabf48c3c12\"],\"constraint_ids\":[\"C:2b0e179ddf2a55c1\"],\"span\":\"Qi welcomed Mara into a shared command post at north gate.\",\"rationale\":\"Qi is Harbor Guard and Mara is Ash Fleet; sharing a command post is cooperation despite the Harbor Guard treating the Ash Fleet as an enemy force.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "moh+1ZeEQygTRsjg8gIhIQLlQa+tYsCVcW+5+Q4zSUKV8+5yucau/26a8ZnvyjcII5UapXEUMxA2e11kPBeQCzcABNyLC1V3wth/QgM6fNqBZYI3KJOeF3NBcb8aGdXmbrvwGdxjzpXoGdFnmLmkVfgxQNhYfukGcUr2TKHezwZ3TlQ7Jug91xpijF46x3LRRVi10CdcQEUOtMrvPvh3VDK4V3yeQi91kgGQGa75v/tNiGhhJS3Jde6IuhSkxSxsp2Qf3Uegqmim0zaIdsYH0hIbYm+bBMp8xLgQUBsKt3DDa3NuhEhELo83AXWKisMOS0FAUcmg6PmnxyOTD4xUEqqDovX23AZfY6nCSwTYxgUpJI9GtIT1QFxDKq0BrOCZ/4evmKgUTcrm0GDE+E3nrPa64Ftf",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 688,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 173,
+        "output_tokens_details": {
+          "reasoning_tokens": 62
+        },
+        "total_tokens": 861
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:18761b4af637717f\",\"npc:90ddbaabf48c3c12\"],\"constraint_ids\":[\"C:2b0e179ddf2a55c1\"],\"span\":\"Qi welcomed Mara into a shared command post at north gate.\",\"rationale\":\"Qi is Harbor Guard and Mara is Ash Fleet; sharing a command post is cooperation despite the Harbor Guard treating the Ash Fleet as an enemy force.\"}]",
+    "token_usage": {
+      "input_tokens": 688,
+      "output_tokens": 173,
+      "total_tokens": 861
+    },
+    "tool_calls": []
+  }
+}

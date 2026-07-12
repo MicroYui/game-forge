@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:447025c5f17d262e5b403c573d464a068c5415434d4727dd8c3d94299a4738e5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3985,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 571,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 150,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 735500000
+      },
+      "created_at": 1783843500,
+      "id": "FaEAWrbDkafuFJf3daA/wEo2TocaSCmt4XQDOT5g3MAQ6kuYE1nFMkPIClHUDyF0uIcffwWtrRU0+PmjzU43jzzu1TjbW93/CfXZjdgd8PvyTLxEMqhQlb8Hdr/3HEt7KM2vtprFgdk2Dhl7+EJC2UTmze1BknlRNX6n04vhfdJZVlPluD0uxGf9DufmFnjUUvo8vFWJnZyMpxnykdStnzm2bqJefZn6q630xeHVAjcUImQy86S+dhnuA824EiVA1W3XbXWNsBKtdFKkaAcLsEzn1b7JJjXAfQ0txsa+2c4ZJZvUSFbeWI2r3ERebru+Yc26KrJFqjFbO8+3l0XLTDNizzEikwpyeIlMipcYBMV/mqtJ+0ObW19rxcPYe9BH4yZFwelP/2Iw1rrQA/SXF/jqsitzog==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "i9zVd6XcaMA0v1qw3lKOrt/4Z28dVFzW7jsdtE1QoS83YW8cFAsqMaYy6+pGBYXSgsmHdEmZ3owicDFg7zOXnyfYIOACtWciUJQ9rB3RUH/BxySnLMvvGlXUykLU06vXAnlMc18I27ZdDhQd/yKRUgK53DwwyoaOEaZCJt2ydWd7s1kbsMeTJbfhn0eugYL+NZnPNawv90QiIcD/q83HcurkwRYFA/+QBpmk5H4hQ7HYUGNkNPCOcLq+QrAuuGxFzane4qtpHb8+weitYcrzpfDGhe4kgHr4hQBMxA7dM5FbtkkeMigaxzSXgwFDjaozG4TpcrZRJaWN7vdOI+OJMqxRPBfmP1ObQO9Ias8OtdW1lqJOiiyZ+AK1dRyH8wruRfQKVo+CVEdd7RGyTDTVVSxWFsw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4eed35eeec61e0b3\",\"npc:5bf6be02b2f9c00e\"],\"constraint_ids\":[\"C:42b83a88cd3532be\"],\"span\":\"In observatory, Noor supplied Cass and called the partnership permanent.\",\"rationale\":\"Noor directly supplies and forms a permanent partnership with Cass, despite North Watch treating Cass's Red Banner as an enemy force.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "01QGabKYSJQBVVuANvEersFK6BNwBZbGt6yqPlCeBVwKDl6S8CZ6eOAxyfbTEo1wduYj5vuZNjkvDMP+Jcu/iRk8w82zsNBlVxT9KPrwGbirWEYKIgiwj1y1Iie9T8SeFnHvYtxbWhPGtnuDAfXRoPf8PoRde6DaY8cVy7SOwAMjW2ETMui6/Pc6tQp8y8sKlPx9CnIhlF+uDMHtprlTbUIygogaPsLGjBTqgXWVjGSZb9PvJaPdtSil+bHkaHM674KWYkYm15IlHJkx1hTnLl7howmpaLXYPp/dYz8FFRMYVhxu7wyMFKoZEwvhnqoD18BuVgUYAbIXHP86ZRGh1zyK1rh0pYSdafZmeESdAOR62puqi8LQtD49Ulk2ghOCFWCJc1zHjhpSZGHegO0Jr+f+cZUR",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 571,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 150,
+        "output_tokens_details": {
+          "reasoning_tokens": 41
+        },
+        "total_tokens": 721
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4eed35eeec61e0b3\",\"npc:5bf6be02b2f9c00e\"],\"constraint_ids\":[\"C:42b83a88cd3532be\"],\"span\":\"In observatory, Noor supplied Cass and called the partnership permanent.\",\"rationale\":\"Noor directly supplies and forms a permanent partnership with Cass, despite North Watch treating Cass's Red Banner as an enemy force.\"}]",
+    "token_usage": {
+      "input_tokens": 571,
+      "output_tokens": 150,
+      "total_tokens": 721
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8044656bbfd1b1753a1c8c802359d8b1a9add6a94e4105bf8336cef5137ea26b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5078,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 693,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 255,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1111500000
+      },
+      "created_at": 1783862400,
+      "id": "2HiwvQVcXvXtQkL+zefbaxgU3zqk3+INxpP4ei9RrJTnD/9Zf5ho0kgcsxwJ8o1SCn3JlVJjF7/PCX/ReaiO3GLEdcJkPpiwxVDeEaXr2Us0co8yHLUvDvYPFLD9mYm+cx4TkYZ3ZvmyhOEJK+NDGjHP+IkOm03rl0oEZfYg3OIWNgErULQVPXU/FMz6NOh1WvY5J2zAkhE/a8vG3Ny5Nl2NcifJQcXVRO2c3JcoGtcNX+avXdGZy54ttuF8AOowLl7gAz/Pt+OyTYPitnOj1UYYhicv9fD2TrtG/A+lEwv55BOg1pbhVldya9Tk8STNcziuJjy6TGmtRlnpWAKWsgqWgmd/nxXwSpNXk61l5buoJzedCDaTRp39a8hAdc3mWsn6os7dLQs5OB+iOBmBY58k4Rf/Pg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JLVv95UOulKv29DOKz9mvX+lgFt3y1FNnHSzTDmPawo+UGLaVOBwqcsurtgsEk9oF322hSfj+EpQI6NCz/4oK0JvgZlkRSCnjN3Y76gPlYPu4KiGKD042z03l+HNlMqKfwEcdktkOdOUhC6nRx50Lh3bBbSS4BRy0AzNPN3Y4btacp96OiSXCiWialeXpl4JxNP4XihDIGZpz2OXTYrtZUQoFfSrI7hvqc6wgfItp4MpKbnyotMvqunf1DINFp5rs8ZPSlLprdbKh3Q3GD2YHChl8SFJv4RUOcCDJ6ystczlQ5fl6DhAG0kSG+I+10wgq9mBpUxHe4vF00ZYnMqTWBoFFaPvXUEjWgg1H/lFE4n86F9TzB5gx7mrm+nQ5Gu48CdNSsnR+VsYxNe13U4yl2kppC0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1173872960fe6d01\",\n      \"npc:2944506b8ebf6293\"\n    ],\n    \"constraint_ids\": [\n      \"C:09f7ebef02152c38\"\n    ],\n    \"span\": \"In cargo ring, the council recognized Daro as the First Navigator.\",\n    \"rationale\": \"Daro is recognized as First Navigator after Mei was recognized in the same dialogue, with no relinquishment stated, resulting in two serving holders despite the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "e3dbsLFNXvsm9DCdnxagr9ydYSl7IFJy+bcf1ZylR1GijderKjb6TmjBkx7U6EaOIH8w/feUk49MrtmZHp3Op3OhXSTPDT5MRBcMG/9SRFIQzmDKyeQ0j6Uc+0laqMAz4AErUuDa2emrykHdtyVYe1BBrntcHMo1sQKvHZfk5bzMTIvrlHAs+usokMP9qXj6tCUeBds102kHVw1G78TWj9eRPsNBaxoLofqcg1XhkodssKq1OD1P8GjDwKNk8u9NjQBeXHS2dqRGhNT3Dya6KvgWjta2eEX5Kj8OBQLpJT1w9jC8h2faiziMFlFPlnZTaI314a+lyI/JkkR7ijgO61F/EoPisTpPdI0p33l9WHgq+jXvjpT0Yen1wrLpYh4QVEUy02V4DJi6kWrb2lIwKBm+E21L",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 693,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 255,
+        "output_tokens_details": {
+          "reasoning_tokens": 115
+        },
+        "total_tokens": 948
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1173872960fe6d01\",\n      \"npc:2944506b8ebf6293\"\n    ],\n    \"constraint_ids\": [\n      \"C:09f7ebef02152c38\"\n    ],\n    \"span\": \"In cargo ring, the council recognized Daro as the First Navigator.\",\n    \"rationale\": \"Daro is recognized as First Navigator after Mei was recognized in the same dialogue, with no relinquishment stated, resulting in two serving holders despite the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 693,
+      "output_tokens": 255,
+      "total_tokens": 948
+    },
+    "tool_calls": []
+  }
+}

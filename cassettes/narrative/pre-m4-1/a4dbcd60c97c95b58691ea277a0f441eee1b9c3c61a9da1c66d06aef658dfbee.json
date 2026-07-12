@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a4dbcd60c97c95b58691ea277a0f441eee1b9c3c61a9da1c66d06aef658dfbee",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4801,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 553,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 199,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 873500000
+      },
+      "created_at": 1783850400,
+      "id": "KXXlLReRsykOCw6kH+2fRe+4geSMQGV4UZmiQWDcctV9qvu9JokI9Or7xnjfRWqFKM7u9wI8x0OwxbG6j3x9b/YrviFf6TyNf3ztQJn9iaQFUrgih4yynhtGrqkzidnIjPbHpGQYYwLMSXtALkqUcfU2FjFadlLzV67qquU1xhZ2iMMD/tQHK3HCCikDm4t+K5dVHpuOpRFTGwNsil+8obeAczYONUwScql7oHjidlyT3bweoXqyGJgiCSXcdMxmNp6f2abQR4SXk/penMjazDg1y/cgl1GP7sdXhzU+BaYaMa8zi1XbXzuNPKU4a9sWS98sNoaN0z6SkytRRY8WkbA5WOVq6D4LIqNQfdOJTi+sgj+whr9zEPtu7q8pwdFbNDLBFp+var6Iy2Ren+NEMDFh9or09A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WpHrBTnbFSO9EkRHuVS3gloqMPIPxn59JG77kTFBuAonQUQ1NKh3pM0p2cl2cqMjY38mYBM75cFxtavzI1Pc6kdlswYUZsNDMbis12/jlzG9qLWdomQoRKIkgdAtYxGh8wwn/lbPVJb5jRiK9Ns3Kbwu7xjIcEt/pJxlHKDgZHJAku9095uUcAmlmjOEonTdgywDTNghOgP8/oTD4noOu6Ps+Y0zyBGKWLCyVQAq9p3+9UY1Tx5Azvald5fRTUOwkVBv0PgSsydx9Xrl1PrayFAOkR5UyFpCv4/I49cRWeUk4ufSwpQc84Ovj0FoiwAUCwzUi8l8pTAhmXz3qfzPzNDvcdsKEDCYrm0SehKBLvPuVl+3oNZ3sfYYZjzLQZtkUiPYqy1pSLfdmF1aLOjJFegvqwY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:71155b173ff79fbf\",\n      \"npc:d919190483540b36\"\n    ],\n    \"constraint_ids\": [\n      \"C:b501c3c835df8ba7\"\n    ],\n    \"span\": \"Mei accepted the title of the Beacon Keeper before the assembly at old mint.\",\n    \"rationale\": \"Mei becomes Beacon Keeper after Daro is already identified as the serving holder, with no relinquishment stated, exceeding the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kllt3K+MCHl0K6Tboud6Pv1pjJ3ptYCIoI/fq2+1swxF0klnBoBMsrXXfQ8n0DS2xVoeQsOUBwGcZB0y40BmrbmP5zMx1FwhD3f0M8ya+S9xdOXJV0enDBM+36CL7BQPCTnaBwoekiEdRYvGF9B+0BF8ZeSkTwHUM4rlX0mAYkK9ocjDPeyAVsa3imHddMgM4tDijXbLehBBc/IxbpkWmUJzWzTUhB17l2mvMihfnbqoz369i+PSQwj5FZWEvuYxrrnsaGe1wMCSexaa3Rf+Z8XprzSpsM1YpnazVcSONS77H95EuxXivdLO5ZCPI3HfKGM2IgiMqivCZMb2xoZIUusUthpES0zLCnSbF/nBVa6gt8vgsbqZLO41VHi56APDG2zDzknJb12Pkan1fLRyxmFMNW+L",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 553,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 199,
+        "output_tokens_details": {
+          "reasoning_tokens": 65
+        },
+        "total_tokens": 752
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:71155b173ff79fbf\",\n      \"npc:d919190483540b36\"\n    ],\n    \"constraint_ids\": [\n      \"C:b501c3c835df8ba7\"\n    ],\n    \"span\": \"Mei accepted the title of the Beacon Keeper before the assembly at old mint.\",\n    \"rationale\": \"Mei becomes Beacon Keeper after Daro is already identified as the serving holder, with no relinquishment stated, exceeding the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 553,
+      "output_tokens": 199,
+      "total_tokens": 752
+    },
+    "tool_calls": []
+  }
+}

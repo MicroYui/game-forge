@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b7d438d3e2b0eee5253a59a0f9af3dfe4540002a0bf37ec6e73a32336cc45323",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4343,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 624,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 248,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1056000000
+      },
+      "created_at": 1783862300,
+      "id": "rqJXIbM34t3FdvJSHAu1X+rSNpbPwGxqMJJV90R3x1mBhweF1yBoXP13cMUqWtw150zWFgiLov//Wj+Twkvk3xDcw/dUgZUsz2oNeSIlTn7zIssjjkRH4id4sVUIR/UfrDG+H1QWpR2TX0db+mJekUNfHL2LGiKUErEJTpK8LfyyXLIc0w4I57NHLoNHiArbm+a96GyXAXTL/a6dHAq+ceYL+hKe2biQNNkPZYysYIm77t5hF4NTTa6p0aQtebgDBxQm1qdGrZzn0wV/w3U5haw4iR0231nuDUSBp81/oD8ExUPZel49TdD+4wi44V6HLIhgjo2cmjK4M2LwzHIpaLkftPz55ALt9N3vCH6MIhVorhKvd+GKj0ByCKxYxnr2GH3e89DREBKcLQGHJCveDso96xUkxQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "qaWnGUPjYsySByBs/SLMJfGb4us2HHGRedWXe9wzyDtyC6c0yIaFqm2HKQzdbOXCBt7QCPqKQygE91t8ktmkOj5Y62tVs8BJ2lHmfByepND4IeeQCq4Fe7Hv79AS5eF0rGZA1MtL+UZRB2wS+f9Jg1iTS19c61Rv5BIYZtCOoKaXU0HBjRsJiFCFNCx2SwITnKxJqzP+UgAwha3uHxpf3PRkfXgh8yNfcAESNCScLGDb/GSeFnPnGS4MTisCzJM5/J7LYXqHcrBcHpphiPIyPpW2Bw/ymWNiB6Ir0GVjkO4/wQOtWNx6rLj7Od0w9Qsx3V5q6pKQcEIr9qlWVZ+L9Te+7jcUxMeW/m5Viu3bCfnhSchLCjyYCW2xWmbSboAhcTT5lYKPvvD82XBqKz0wo5gKCGM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:6ceb659fd9008833\",\"npc:9967610266b803d5\"],\"constraint_ids\":[\"C:db2abb65670c3529\"],\"span\":\"Oren signed the register as the First Navigator at north gate.\",\"rationale\":\"Oren is shown holding the First Navigator title after Veda was formally introduced in the same role, with no relinquishment stated, exceeding the one-active-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "+cA0IZdIEv7zUH+d9nKu6EJe2oNrkbDDstxhLHeWM8ZSpjEIrP0q70s/FQpF3iUQ73+wuWxVHKaT4TXp5sRMY7R70eZpEUOar+T6Q+Sj491fazBYGt0wQlGqvspfaOhPjOhlQOUrMz6YzZ3Fro1PsjdkURtYGsWDs0kOMBZ6Z3+gDpnaGuTtOMDAJ/+gq3DuIwMQFjavvVSEjy9WEHMCGRouK7Vg3LG9nFU2lUU4f8drfP29Ex6VOeUr+20B9dK3xw4HX8ScPbUcXTDhaKTR4U1dUUL5IpgrKk7hB6xhQq3mkHRhJ09ALco3qELUPz5VKDxHtdfV5kWmPRUaUpxpv2FpFE4O/tIH6Q35X/spfIqYzjpQQAwvlMWX4zxVIxxGw3QEcdzBHrVdX4DFCxdP2uE/X7dp",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 624,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 248,
+        "output_tokens_details": {
+          "reasoning_tokens": 138
+        },
+        "total_tokens": 872
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:6ceb659fd9008833\",\"npc:9967610266b803d5\"],\"constraint_ids\":[\"C:db2abb65670c3529\"],\"span\":\"Oren signed the register as the First Navigator at north gate.\",\"rationale\":\"Oren is shown holding the First Navigator title after Veda was formally introduced in the same role, with no relinquishment stated, exceeding the one-active-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 624,
+      "output_tokens": 248,
+      "total_tokens": 872
+    },
+    "tool_calls": []
+  }
+}

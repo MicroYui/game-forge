@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1049bf65bbb33182140e4f5a5b317a3a41813ace52497cde67b18d135a83065e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3172,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 580,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 196,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 878000000
+      },
+      "created_at": 1783853600,
+      "id": "Siym7xYnkaknIyW3VmNk82Ssj9BfzvMvPHkLsrhtINa4Nn6b17S52SKRa0KCay4+Z3J+MYtZUEXEY6CcgudineluVfwl/R9OFB6L3Nkzn5WijWc0GDYXxgQOQxvAlQUQ9ajHgTLnZ0vd7LKFKjKbajFuPNqHHLOrftGKCEFRITJVflUGtqO7PYnsp4HJi7ntuTGE+9l45ENh7RqCp9We2SdoxgLxvFg8RBa9Fn73wCvh+OC/7JP2hdcSQawykmLRLx6SVDTAKwS9JylLg2pRrhKdSLqzyoXHTmJaMXgzxeuMje04sVDlJ1Fb25nAJRzPEMQLr3EEeWYmb8Uw96mgScDDbRvscvy5PEAT/KzTg++3jlhuOCxQEe+IFoUpNfq8xRal6vPyfM8v/0SRdv4R7tzfvSNmFg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "l0SJKRawWgVvnO3qWTAgDvXiloK8DSOmft4XxzbnfADHvE/OseRuVrn1j6YYgw78TGE/KggUjiUGJFc5rGWsJGC3PsCN9wPBH9om6871YO+5OJGrTKx3H6Q/KK1rwkphbdTYU6ZQ22xGVdNrr81e2cwY3K6jVNoZnMItR43D5R9fSsPbYMpXvQEUDcy4Rouo210mIyDUGU6VL2S7IskqWS7SfTzMOuM107aJYq8TXT5N+/x20oXAKFcsb7kPNlH0Bz25o9pOUzbz/cxgbQFzrMeWNKaPsoxT5aAmJZG7PX/Xev38C23bFeE6meBsmizX4s54m18paAe5N+BL4NbwaL9WDAkLTufIsqdGZqxdugfCnq7JV9X7Q1n9b0MBKgR22lJd3EcqrOPyYpTJOT+9o83oRTg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:645757eb78d7dd46\",\n      \"secret:e2bfd17eb74d2c80\"\n    ],\n    \"constraint_ids\": [\n      \"C:a22fc075f0f4958e\"\n    ],\n    \"span\": \"At lower court during hearing, Qi told the room the truth about the vault keeper's allegiance.\",\n    \"rationale\": \"Qi discloses the vault keeper's allegiance during the hearing, before the permitted sealed testimony stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "6Mg+XB4J1zD/FwgxEAcUrBE0miVVWYNTxfF48G5x8ZmcJzi961UaadI3JPqGyxZu6e3p5nlx0jKyErqNP2zfpY3EJJO2uRyvfLb/XnPtna7mmkLl6m5MtaZbyur70eJpX4zEvVYwHNn1R7uAxUVLkqTKCbQQaFSSxR62dINxsXk9u6N+KTbrB0eSkb3EWBv9x0swUxF0Ol81X8SQlo2Sk+H+lDmO8EKFC1GFcs3nTaFJ50wrtUgWgO5y0jAgQmF5KfYTWYHbm7CU4a7xtB/Z0f+cKX6JirfJR6BF/IF5Lgj2Np+AcRkigOqUlsBQePv0e6NMfLXofesp7TCLuON8lDcJaH8gkn1WUUVgkNORR4LxBsYNmNn40jqiZvq6a0WWKAoEeaWYQwXXNuDQSkXYjaIPSfou",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 580,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 196,
+        "output_tokens_details": {
+          "reasoning_tokens": 67
+        },
+        "total_tokens": 776
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:645757eb78d7dd46\",\n      \"secret:e2bfd17eb74d2c80\"\n    ],\n    \"constraint_ids\": [\n      \"C:a22fc075f0f4958e\"\n    ],\n    \"span\": \"At lower court during hearing, Qi told the room the truth about the vault keeper's allegiance.\",\n    \"rationale\": \"Qi discloses the vault keeper's allegiance during the hearing, before the permitted sealed testimony stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 580,
+      "output_tokens": 196,
+      "total_tokens": 776
+    },
+    "tool_calls": []
+  }
+}

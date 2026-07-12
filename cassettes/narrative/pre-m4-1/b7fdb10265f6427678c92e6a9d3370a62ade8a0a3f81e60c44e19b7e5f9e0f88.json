@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b7fdb10265f6427678c92e6a9d3370a62ade8a0a3f81e60c44e19b7e5f9e0f88",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4121,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 631,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 221,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 978500000
+      },
+      "created_at": 1783860000,
+      "id": "iY33D5EGrHdAOSpU+kdH7g3qzCbp0xVxEDDtl3BLc2X3UblX1QhchzK/yrfO2mgv8Cm1F5EbkUgl/yrsOiwJz3mQbk1F2NhsXeeL5hewpON2hgcKSCeAPNLaAQpCoiOx/rs2N0YTGia8pWo8HogexEBVS8FqNc+15Vz7O5sO70ycCPEIVeFt883OyjADty4y52E9DRAC5bO2pmEu4ypKOrA1Fp6XNo4GKl4+bMrZrNjhWW2vjjc0ftf2why+CzbD2Ygx7EMkJTM3nI8pWCHGdpYvG1Zu6nZ3JEYlAhp1L2lhpbCNQYV2Ba98MWYYLWmBeyvUJEmCy7kQSwCOIhAuzDq9AuO7/cpxG/3xR9F8DHb3FgbpxlIJvWE786phooyt0avkI8mFs5RQTeufgwFpk62fGxilMg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WYNW+Jw9issf24pcpvKW7tnSGTt3ozsju0zVVDOXIjDrrmW2l6361RTXc5EvYvoH4OUBKixHDszZBV/eQTz7knVBzZEAt4qwwuJTAxDKbWAuOM9ZhZVgXP6raXtkqUroCZXD+219ESPYcNhVfZSIv12ZMJ93QDJvyKqa0bSm/xpwJEd6TxjVpUwjC49XGXpNxDVFiRiPL+SuJ+ZLJBxq00lDrKOeKAFtImaabW3uKoc35tA9wzCavlcJ/wTQ31ZVi8iCt9/eKV2pMZsgCmRy1liEQow4aPTR9qT8Yt23FccEE6eABFNmVuXOjKf0YCEhTMizDKhNKFCPHMU4SvehZOqrlqpxK+V4dvqjnBCo503Gi9qHvgpBhI0pnV5PqJz83JZJyruaosEWvpBPgmw/C9Aj7TU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:1c8b2cf38f3899da\",\n      \"secret:84d15d34e4d397cc\"\n    ],\n    \"constraint_ids\": [\n      \"C:6fe25f1aa20c446c\"\n    ],\n    \"span\": \"In orbital concourse, Noor disclosed the vault keeper's allegiance during vault access.\",\n    \"rationale\": \"Noor discloses the withheld allegiance during vault access, which occurs before its permitted reveal gate at departure.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "54/OFTy7XqTSfHqFXJdEHpUCRZDepi4pV7dmGQ+6tHPyR8o4RfAvEE/Ghkb9Dj2lng/TRfdnByx18eReXSVvHFIhrjAa90dCaPczdkhO83QmAuxM/GxTVK+lU/QG5vNxEnk6TZhkm3S1JTZ4iOjpdEjIHDmGpHPUSRpL+swxGYUrWvPSy4CTgNRQyRyMs7weVjwVcXnfoaM1+FfaRz+2UER3wbYLeq0Ab7nzAgD+9AUfKp9eF4Ank298MWY2eGI0Oyii2DCSLt8GwW8fV3E1gQ1Y2YGX33q1PyEJYOkw0DNIV9nAuRgnYk944N6AH1jNfVJhoWMIknXFeOSSiyqqV0woHOC1t8LHMfEiN6KXs6WFi5sPMak2T8rGvPL/395Je8uPeyUUDcNA8oquSyXEVpxxTkMH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 631,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 221,
+        "output_tokens_details": {
+          "reasoning_tokens": 88
+        },
+        "total_tokens": 852
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:1c8b2cf38f3899da\",\n      \"secret:84d15d34e4d397cc\"\n    ],\n    \"constraint_ids\": [\n      \"C:6fe25f1aa20c446c\"\n    ],\n    \"span\": \"In orbital concourse, Noor disclosed the vault keeper's allegiance during vault access.\",\n    \"rationale\": \"Noor discloses the withheld allegiance during vault access, which occurs before its permitted reveal gate at departure.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 631,
+      "output_tokens": 221,
+      "total_tokens": 852
+    },
+    "tool_calls": []
+  }
+}

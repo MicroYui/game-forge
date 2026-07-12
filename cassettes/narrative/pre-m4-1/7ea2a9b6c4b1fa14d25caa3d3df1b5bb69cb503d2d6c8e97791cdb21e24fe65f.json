@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7ea2a9b6c4b1fa14d25caa3d3df1b5bb69cb503d2d6c8e97791cdb21e24fe65f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2957,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 668,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 180,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 874000000
+      },
+      "created_at": 1783861600,
+      "id": "jJNCGlOo2eWZFlXkUZSaQT9PaqW41VLC++Co22hYjKBXPDj30+OTKg+PZk1lVnsQHjViSzfo/jhooqrNe28GeOFxXd7jfgm1H2kkKJwMBcDlrPp2GyDnjC/vMP4YcbyhKwnMPQWqVr0XpQk1eySa8GVbSkIAwiPk3unxZEo1C9g+Bgf/0IP6QkHKL2fNzZuypqevTD4I5I+w1sQqxnzLyd0TXM44LgOKV8itOiLghHET7TZ2nVQRnTEXJZ/+5+bx6ddhQZ8S9/9vdGJl232xSf+vzVOBT8EUkOtE3ty/PIy6tD+iC/vCcCxoCezi08sWWm5xmZtPKB5jQj1qzfhaFgBQxjVgp3OKx2zDqmydIU+iy/dmNlvtLR+fXENbWZ/kgfy7UPzHxWoxqIrctClJnrpA3cvkTA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "asUkscEhnIFCGk8gmOgDzBZAY6VcujLMmIy8W5MXq5+XRmnbVI0XHf2U0IK+0qh2Dms7nI4AjNcqoXtTiyLWPRr0J4YSSW8nH6NTbtHax9sKmQXw1B2Q5R+uZr0pnCFkQw6RwQ9iRaNjl4/p+7/hpH/hQN6a1yr3RX+K+hRtC2GrWyKcBkXaglz7NEafkTX+UtnIINgvd1KBEiJ7WEI3o3nUFhNRFcQjv0cGJaCK1FfjQDkzLPxkGt6eC/0LR0Q/K3+T8VX1EUGi2qF4GDG18Ipxp1eg9bnSBVwkEuV/aDKlgzi0iPplhk+F/FsFD6edKAe6ytDZUAU4wcQouW60GoHwFK3rXdk3k3XJ4KMUJxBfCixoVCMcpM5ijSxgJXApSqYTcOLX/9SQkyZanrWT8XuJm+E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:7a26f161f9704479\",\n      \"npc:a1848cecb99e7864\"\n    ],\n    \"constraint_ids\": [\n      \"C:4442484e084fea17\"\n    ],\n    \"span\": \"In desert waystation, the council recognized Ada as the Crown Witness.\",\n    \"rationale\": \"Ada is recognized as Crown Witness after Malik was formally introduced with the same title, with no relinquishment stated, resulting in two simultaneous holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "k/rIRiFME+Shd7eM0w5E5KNxqA4EacDhUhjJS5lRpszY/5UQTlKevrtlCAfTHkw4eG52LlNCbTT1Z4JcMWB0YaOCHIXWuktNrA6N18Q84Yx5mv0BRSbfjOykJG9XkZ+SlOMKJkvCZWyJTGnvH6oDpfqOcN81+pjtfAUp367Vl4KdFJ2+NEtP/gdxe1BW6H1cF1LMTWKiXGbSvWG0oM8J/zDKihEYuKF99gy61xVLPpt3O2+Z/yD7sX3xPgtwen21A0zD4EBYG2PPKet5yhBpSRUPPz37Tglz99vydLdUZ/xg0EABeM50dc2BtsmLv7kDcroGW0UY6d9+M89nOoxSqUVZp8+9J+QXfKtEwgwTVXZKxm7tuBepyRa/eUm16xeyrz5WGA2tBSNCVzVGkpptmNziIKvf",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 668,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 180,
+        "output_tokens_details": {
+          "reasoning_tokens": 47
+        },
+        "total_tokens": 848
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:7a26f161f9704479\",\n      \"npc:a1848cecb99e7864\"\n    ],\n    \"constraint_ids\": [\n      \"C:4442484e084fea17\"\n    ],\n    \"span\": \"In desert waystation, the council recognized Ada as the Crown Witness.\",\n    \"rationale\": \"Ada is recognized as Crown Witness after Malik was formally introduced with the same title, with no relinquishment stated, resulting in two simultaneous holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 668,
+      "output_tokens": 180,
+      "total_tokens": 848
+    },
+    "tool_calls": []
+  }
+}

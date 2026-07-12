@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:12da46b956916c737cfd5ad9a669b6cb7a10cc1f3636ecd87663fef6009136a5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3683,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 532,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 143,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 695000000
+      },
+      "created_at": 1783852400,
+      "id": "hwE3E4CbCnVoK31H8NU26CSyJR4LwQMX/7mxKqx8zikKcxkfP2k1Whq6QhnF7YHdOF1f+K23RvjQbxf/ldXFv9HurLttRMX380joihtDspN4cYbMRYSF5X2YaIC1iRVJZf2RAUYdrCJutzZPZszrkWQbC/TepZ3FM34qNPwOEQvnxCblHkQ9kolgTD/kpMuTSCb/QFwJH/2XrkQSBJcjgCtzY0bbciwQcmw7nMvecsxA+H+eUJFVeA5VYBIOh6B/KxNuKhLtorBLvmuN3WdCggT3u2oEcV0iqmDNQNkKGnZgwQQzgcltkpWfPUPaGn9hLdq8RWKAeHkjOJJlVvH1TXIMvty4yOvR8BBFdslhWEZxKHawtOHPOcF+QniGrlg9jLxT4cf4YpRQdHuSOWBWnWc/niOPIw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "EGtSDJyb65CDeKAIB9F2EEqofmoLj8TWz5le5nCeKML7Znbq7LToAkDrcP0TmvUtzsR14T3LxhXosLPeOvLs4Rfw+R2PL3Pg0MvdP+ye7WipH1dHfCjYybK4IWB9ASwJ0c1uyRfWMhRHWPG2PTsYNBVycfkkNbvN9NqdJmld332wMtqlWIzNPOQFpPA57NUnCLGC0sNS5xRiqa/yj/cOnrbUxJngC6cziU15a6m3pFGKOrwGOVVYjpuAAlF7MeILxeFtlyyU1UanqrfYb2wSvQeu8TF567iQ0MBWxKUKy38dhm/oXMkwF58wSOhVB3zj/kTCMT0OoiS+g849IXZCFbtMNOl6QMT156JUxUWTPPNzelKRYs2HVtVtpBgnqCi1qFAuhDguagSUsFexLKYr/67sgDY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c7dff832a11a9301\"],\"constraint_ids\":[\"C:f18cf769d546c99c\"],\"span\":\"In relay deck, Mei handed a confidential route to the attacking force.\",\"rationale\":\"Mei trades away a confidential route to an attacking force, directly conflicting with the rule that she does not trade away an ally's route.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "quK4Sq8OYDNL+Apr6ASWdEb0/T9gnmJGgEpBIHPXEFRJ1OK64/no9GVovOOUjrLAo8zb60q5kXUE6F/M+lf3/1GCFWhdF2L6JuhsHNsjh4Id214Mib9kq+sjv5AF2U1UJ2Y9LoHlUiJbHFq3dqa9dbC+XpTVQsXqw6q6l8J3t5E+/0+tmWGe7/3SGjbWSU/wwYz7A+SMgxbIAzJDeut+axSpmKRP3WiV4QvGQjIeGL037LzmMwT54OeeUDpBhTQ7kl48SrWWNGQAAuUkB5FWSvD28zLVTbyj+EUzyjXSCSyfcIUEJw9LWTE3DEWCUORyQQtCbKChNmmL/58A1S9UmBjs8UO5aMXCF6kVBajMDl164bcZfSIVmvinISzZ2BpxoMbLU2ehtbB3F/grtYG1eg/KGVJu",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 532,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 143,
+        "output_tokens_details": {
+          "reasoning_tokens": 48
+        },
+        "total_tokens": 675
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c7dff832a11a9301\"],\"constraint_ids\":[\"C:f18cf769d546c99c\"],\"span\":\"In relay deck, Mei handed a confidential route to the attacking force.\",\"rationale\":\"Mei trades away a confidential route to an attacking force, directly conflicting with the rule that she does not trade away an ally's route.\"}]",
+    "token_usage": {
+      "input_tokens": 532,
+      "output_tokens": 143,
+      "total_tokens": 675
+    },
+    "tool_calls": []
+  }
+}

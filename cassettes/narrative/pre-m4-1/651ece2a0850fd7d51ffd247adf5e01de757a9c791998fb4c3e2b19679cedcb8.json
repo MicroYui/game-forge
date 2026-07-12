@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:651ece2a0850fd7d51ffd247adf5e01de757a9c791998fb4c3e2b19679cedcb8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 12380,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 613,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 719,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2463500000
+      },
+      "created_at": 1783855500,
+      "id": "kgKbCg0lhma992DDLFJZ/G78zblywdlpJBo8UslyCGn/QsNnxN7omz4mJ5Go6f39stEOCT28vobvO8wNkNJhd874v4KwxZ4XgfwGhNClxg4Xo44zjZ18KL3joIRDUuxzc85YfpT/1bkBP9tBIPnipN4orMv/SFZFfprycdjjp7apMSFA7qZrp++pPerq60/ED7MJLGppX4BlX5DeHBsvfSUqfiTNOtxgnfoyEbNHxLeEkLjRV+7bPnrfnzS+e03marCI9tpPtIrun89ApZU15b+35Aq2PpiEDct+PhgFnbJkroNur2cIcmRvRY80vK2o9cpm4IFyQUMxi68/2w+ORxsFCsFgeN+5aP5GQKemd7a2HeRAPXl520yL+CcW9G7oAY9vpRHFOK52aWMZ6mraOpOXbb0cSQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "b3BRQ12krPbfMTJr+KtXds13sXn8iH1QWVxIyd6UKIIMxJMvWfL/c2p/1XH+CdEHzsf0qrL6CE0hs/pzRSsPoQXHJWj9X6DP48e6v56UOtk4KnJLPsRxSmr6KeDE6oG2fX1x40aGN1loaI81Ub7ShE0U7AMne7Lf6SOdE2t9tbJCIkjiBS3Bja7MGLZeUb/sm9Nl8CFMsie5fIQOWVkLn8FOfNi0Bx7znjVRnSB/cuKBvaO0PxInyD6lc3R3Zg8tuRs/GCS5PapZhspFAnRvx5eW8AiPSn69Ef2aqmPYn0+2n7Vxc7yAzaOio2rg+wZkdeYxk+gHx00Uarq4ToTCtmdrrOyjOzz+bkcN3TEtaJ3tdTkSiJbeNnlJfQVQzqePDtLyqYqnlVAu/lzEAF1KtwjBIn0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:2f2d0e57901e8ce0\"\n    ],\n    \"constraint_ids\": [\n      \"C:1aa157e6dc5fe874\"\n    ],\n    \"span\": \"Jora renewed the oath after completing its final obligation at glass conservatory.\",\n    \"rationale\": \"Completing the oath’s final obligation before renewing it implies the original promise ceased to be in force, conflicting with the requirement that Jora’s promise remain in force throughout the mission.\"\n  },\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:846ce7cbc155cdc7\",\n      \"npc:8849d8618deb0296\"\n    ],\n    \"constraint_ids\": [\n      \"C:ce8760034663fd4b\"\n    ],\n    \"span\": \"In glass conservatory, the council recognized Eli as the Crown Witness.\",\n    \"rationale\": \"Tamsin had already accepted the Crown Witness title, and no relinquishment is shown before Eli is recognized, leaving two simultaneous holders of a role limited to exactly one person.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "L/W+FKOI49ugytHh7IE3FHhezwPFq9HevIDrRDQU8Crlf6l1pOQu93tft9iQfOlnJFKbW+YYdOPIfoO6Fu9P3u1iNFHWspSLaKh5BhUXBo1PvZAxXUPpzooyGbC+hrzofyhZh6X2kWfqau9tT/4osxcOcF+YgOrl5khb0uGyUTcsDJ07/CD3Jr3UG7jYRc24tvVhVFeD+P9f4SyY+1NyFgrko57O+zaR8F8PfjxNjkTuBhlavNwiz0vAoSChGhHLYNOuLDPMgw1I+qYZvj/GzLC2YDj2Oc9OA2mtc0WVfnzDZT2VE9mfXS39kFW/otkQOmHGdtHmv8o17WrCbDXvleiZ9uoL5IRevMjZrr52rGgYPrca5twZpgzeTYtnx+bqjo8ZCLh7FDZ3P6iVLWA27AlwPpD1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 613,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 719,
+        "output_tokens_details": {
+          "reasoning_tokens": 456
+        },
+        "total_tokens": 1332
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:2f2d0e57901e8ce0\"\n    ],\n    \"constraint_ids\": [\n      \"C:1aa157e6dc5fe874\"\n    ],\n    \"span\": \"Jora renewed the oath after completing its final obligation at glass conservatory.\",\n    \"rationale\": \"Completing the oath’s final obligation before renewing it implies the original promise ceased to be in force, conflicting with the requirement that Jora’s promise remain in force throughout the mission.\"\n  },\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:846ce7cbc155cdc7\",\n      \"npc:8849d8618deb0296\"\n    ],\n    \"constraint_ids\": [\n      \"C:ce8760034663fd4b\"\n    ],\n    \"span\": \"In glass conservatory, the council recognized Eli as the Crown Witness.\",\n    \"rationale\": \"Tamsin had already accepted the Crown Witness title, and no relinquishment is shown before Eli is recognized, leaving two simultaneous holders of a role limited to exactly one person.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 613,
+      "output_tokens": 719,
+      "total_tokens": 1332
+    },
+    "tool_calls": []
+  }
+}

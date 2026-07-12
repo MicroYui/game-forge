@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:764d9ad1aa1b12d008873a123e252b3347636f95c0732126b72744d8aaf7f737",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5418,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 675,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 200,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 937500000
+      },
+      "created_at": 1783855000,
+      "id": "39dO6YIvQQuLdDrg3RpKeJxlp4GAlWONDnPWkjM4+aRgsTq/+6w0uFf+p6cSmFhqBOuR6LWlXqm9j+XKKybrrkn0IByhh0XMFlzR+qnpL8LA2Y7K0PUy9Zo+uMnzIslJPOA9tX0O2UQktxet3nr4FPqOV3iFPztTXhS4JJDIyQpKMsjYmyXHXoiZBrO5REF3pK5ki6x9w2bJbWq76XDQySFoxMvvqPLwKus+19U+rcxZEOM256BCj0EEyVPpPZ9IuSQkZYybTDOfqhJYLWfl49YW+h9bTyP7HhVu/HMQP05nb3OsC8+Ed0wNPbb2cBt/rm2r9V6PR1q1TBTwvX2QIh03PR45JYLeDWu+BrVFVf3YQpNGY0oKtnbtWDIF2jF8/JyntE/Ro04lRJeOub3rcUrQ61qsPg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "BMRE3ZZ9/HXzVDujBWUTm3SbxC43tRVgy2mEp4tkn7lrDsmXKHZDGn5Ui5kIjITaxpq3NCXTWzR1fMC6lzIC31vtEc+TICoMT5gy8ikR9a0k5iE+6vD4TQUllSH/HZzGxPYm33DBURnry+Xr2I9AJ/vvDz1QDLpTZG89bMaEnHWpnxf6vHCUIwFrs1tzETiLqOW/gOFELBIWPJSYmIA5nrTzWFBefI0hGhOhxR1A6Pgf3OOcLXO2oqjB/lgd06lmeNL9Xgkzh3olUOm4jtIvezz4poHGhmO7DF8tFVRInZ0ccvAFUCC3aA+xeuXYebt0XI9mylglkIzBS2/Us9rv5gKVGirm1s7kwnco9nIaFvQhCROq47H4nTIBKBw9xIdIwfqRWl7e+54BYFkkQ3gJ752lnJU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:40dc74c15361fc21\",\n      \"npc:730d767038985cd9\"\n    ],\n    \"constraint_ids\": [\n      \"C:aab0cc619b17b40a\"\n    ],\n    \"span\": \"At glass conservatory, Cass was formally introduced as the Vault Steward.\",\n    \"rationale\": \"Noor was already introduced as Vault Steward, and no relinquishment occurred before Cass received the same title, creating two simultaneous holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hSiZ5UJC17TQYddsI65/HJuqHgJaxYeKbmcr7kD1qr9Nrh+xo4QRbb7au7OUOsuGd1sN3/ajG7WplpAUbGZm+y5h7JZM96mEfysuFD26SNRx00KpT66CEu0fH8pPoLU/89pXBa3qlaSSptgHIyu/Uy/BLY+RZ0vIdYHljZIRz99hmeeoVRrPTccBc8eBjSvCB+DPSf3BD/gyHu8nuC8woGyH6DH2bd7UmfbhlAVDeM2kGBq6JcJCnrsR35zz3kTSOue7E7chgFmlNpzT2JYnuwvBM9Ybr98eyyzYPGQWk+1vWSwSkU969bSJW+JaitN5s3UsMqTqV8C5Ow8aXCk+ke+xpRGJPo28U+cHz1gBsXR0rqaFBZeagBanl0knMtcG+cGPf2dj3U2PRemVY1QFfBNhB+Ck",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 675,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 200,
+        "output_tokens_details": {
+          "reasoning_tokens": 69
+        },
+        "total_tokens": 875
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:40dc74c15361fc21\",\n      \"npc:730d767038985cd9\"\n    ],\n    \"constraint_ids\": [\n      \"C:aab0cc619b17b40a\"\n    ],\n    \"span\": \"At glass conservatory, Cass was formally introduced as the Vault Steward.\",\n    \"rationale\": \"Noor was already introduced as Vault Steward, and no relinquishment occurred before Cass received the same title, creating two simultaneous holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 675,
+      "output_tokens": 200,
+      "total_tokens": 875
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5c01927d0d3968c5c5c97b2992e114181649625145abefecc3e00a4697f24b2f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3232,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 538,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 157,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 740000000
+      },
+      "created_at": 1783857700,
+      "id": "CAMsVhYt/gUcKlyRaXMDMedEm/uuMqEz5sN1jpQe1OSwkSkfE5w683dhinhSDolXL9v9zCxLEbca8c0mKCQ6bLCttor4TarciBxooprp1mhNy/Z3yKYTs+5XgEkNls26ZuJ9wCXj/n/n54ffZyiO7AUro/BvZ61osAGiO5ZnVr2O71MK5IPcDnz6hUsBn50QihC19EtxNt0yOq5lE+whbIXJfGW7Ke/INFp2FW7KC/sEYzh6jkwhrmYChOogdxifFdEnLVeYQqVdwgHpZLn3d1NbILGEYhR7ZIC8ZgPqUDD98evgzwSmfczSkHWV+rp68D73VjTeGNWuyccn291lD3j5d/J/kk+2u839TXn+Xq+6b+Dpyq8JTU9OEH6mWCnwwDduxINDAmi6DpQbwZK67nTqNUfrYg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "BNp2WnINJnk6yetg7/tHcZHU7cc2qf4JYTnfQiEN+MTPL0RvoUgeZz7nuebrGcGtD0X3zW1zxDF69RWQhMRT4B5t9PpQhUgU1mH+GnS080zoLiQmX5jCf/iFSK/VGhy/yO61iKO9ZeoENRyPjq922hnGkDERBFgIq5sS2zb9cw7VZF7xiLY7QtIbuo8kwa2IM7z3yCY0JbmQ0VjMw5qR/ol/HjelESETdUUZ+LTC54eMA/avDBcUi902vMJsFCqJ/lZ4kU/beJWGm1aXLcYqXWU8qg17cWiUCmkoT/82FV1a3jti++6nm/6TGOMgeum2dTJHy2h8PACw+x4S6E+C+2YAEMg56Hlg+uzI+6Dsr0oXT0xKYPeTmWlZIeGCzitMGJZkxblAQ1iJUnZ/RszuEXDuZ5c=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:9985a793a3399f0d\",\"npc:dc62e5c30addf937\"],\"constraint_ids\":[\"C:0390083447b83c3c\"],\"span\":\"Qi fought beside Mara under one banner at salt depot.\",\"rationale\":\"Qi and Mara are shown fighting together in a coordinated operation despite their factions' explicit no-coordination rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JOrSd0dJCGiWfQfTqYCnXy1hRcRCXlK7S4BChMQ3s/C/LOy/lPdyGjDhVgJnyTJ0Lt888E82eopQk2hSAsYGGhvzKmv67n0bfe+flmE48vVG34JOMnXIWOIJWjLIB3AuZbM2+Dtmu2iIdHWvByKCJmx+UJjadMBGmNOMlxDpTZ49TmAWQiNg38zDqdFkb1xK5qvanBUbSFmwE4n2FXERB8XdfBAJsW17awppkDwd+7sbMWwse7oNbjZCP7zKxDK5s9t1qJ/XmVmk2nzfZLb82xcOubeldqRf9ShYVq3AlargQOPqF+dYPfx+eKZuCjB3dRjiZeyMCU16wLC5JkO8tBwFculpdUhPZiLlIziKHMcG4gPmrRWbbZgn6CA/ROW1d6VyD/0WcX/VxGh+l9bm6sP5rKU6",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 538,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 157,
+        "output_tokens_details": {
+          "reasoning_tokens": 57
+        },
+        "total_tokens": 695
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:9985a793a3399f0d\",\"npc:dc62e5c30addf937\"],\"constraint_ids\":[\"C:0390083447b83c3c\"],\"span\":\"Qi fought beside Mara under one banner at salt depot.\",\"rationale\":\"Qi and Mara are shown fighting together in a coordinated operation despite their factions' explicit no-coordination rule.\"}]",
+    "token_usage": {
+      "input_tokens": 538,
+      "output_tokens": 157,
+      "total_tokens": 695
+    },
+    "tool_calls": []
+  }
+}

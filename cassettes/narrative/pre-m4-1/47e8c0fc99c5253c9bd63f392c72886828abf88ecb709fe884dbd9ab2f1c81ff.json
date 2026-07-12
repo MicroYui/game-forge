@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:47e8c0fc99c5253c9bd63f392c72886828abf88ecb709fe884dbd9ab2f1c81ff",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7054,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 574,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 413,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1526000000
+      },
+      "created_at": 1783859000,
+      "id": "BLMmc/PbJt1RcZyyOx+6xyQ8RFKNAMwz0Hh0GXspae3CMOSI6Hss7BAveRWZn79MK1ql6zOBYZPBbrQzyXhScYyAZUmasrdyYNr+HU3D9//f17cz5dDmTRbLJSB60N3iv+cpQUBVEkCL8xm5rsnhwGG7M0d7or/qsTo/RMYTmXuEQ0HBmMLJWEnn6c0hWopFDcnuwmLeupwYWuQhdVG83BwQnAf/DB2n9W0kmK0xWX+41V/EPun5FqLWgySPK4kd3oltfpPArqgel5B1nt6834FUmRMSbwa2W7mHw8NeD0CoiERcV2k+G1v1H9zN8kz5Ia1gbTrK3CZpOIUqJFhWj/tvOFOQmOOA4Hvp+YnEhrsCXq2+keQG8iCKBeX1VPGJEHp1NsjdarSKvS4d03QDpuMjVv8U2Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "w/I764c84VWE0HY7TuUcqa5Yb1YIbZ9aU6Hbx6MSUtrFrBGme9ZISnPjzo45yaz6doLj+7NY31fRdeDH+RByfw9xMc6p52VI1Zaslpd68VPnckGUbxKFEqwy+H2PmJEXvgKvD0QQ6d2wFaXeUll3Py67taKl+pogCsR0RMjKCtdNZDhM4oL1eIHWy8tFaJYNjTYKCLv5N8Z5VvNgm618ctMtr/t3knkbBdkN3jCcKz7mSGftRk2U40blBv264DJcOxQlxH2xyMMnoKJ+Vzh4mGryGKul4WgOWvvMGnE/qrrg9sUcXBPBww3NAhpfIL1NO6HeLXQqpspdjnuMjfWMZ0AHPbKgV+OdU1IT7mD8Jv06B3WhowA/DLTyNzDDHfPRUPjmPY13tFRYrQwqM75nwnX4qr0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:3f5e3be1a682186a\",\"secret:b3c735077f2b9860\"],\"constraint_ids\":[\"C:53e3909ef5132a56\"],\"span\":\"During hearing at canal bridge, Veda openly named the saboteur's name.\",\"rationale\":\"Veda discloses the withheld saboteur's name during the hearing, which occurs before the permitted reveal at verdict.\"},{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:3f5e3be1a682186a\",\"secret:b3c735077f2b9860\"],\"constraint_ids\":[\"C:53e3909ef5132a56\"],\"span\":\"During hearing at canal bridge, Veda openly named the saboteur's name.\",\"rationale\":\"Veda knowingly violates the secrecy restriction by openly naming the saboteur before verdict.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "/solAc94IQONdy8MofpTk2qjbYR6KFrWH75T/5wpmDUWuMOCbfXIyWCwPzlF63eL6kesCjRWlRoVFO8Hh/EAiqEEGjPPKheRt5++V9i3aGFH56wxFUdavYOZwOMak925bkeuqvasmyek8mR3Ba46uTAGn2YZTd6Dzst7awBltJaoVsBjeue5UUmksBie8NNbhLF9W0J4zGhXkP4x9mubwGvcCyAeMhsE85WIQ+VVoSaMww5CuKpxJXXBY0XdJpngoDjhWg/r2UZaMdPMIqtLBX0DpvKBMUEab//ljyv22jDdNi0HnZ3J63v2vOcYDnE/mCMReIQ3Tg4b2pIAKrzg6kZKcLc7v9J35tWcgb77PhmriFWo4CnuKnMWsbZPl4w56ZTJvteSTFdpUfWYxWyk/R+7qP0h",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 574,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 413,
+        "output_tokens_details": {
+          "reasoning_tokens": 210
+        },
+        "total_tokens": 987
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:3f5e3be1a682186a\",\"secret:b3c735077f2b9860\"],\"constraint_ids\":[\"C:53e3909ef5132a56\"],\"span\":\"During hearing at canal bridge, Veda openly named the saboteur's name.\",\"rationale\":\"Veda discloses the withheld saboteur's name during the hearing, which occurs before the permitted reveal at verdict.\"},{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:3f5e3be1a682186a\",\"secret:b3c735077f2b9860\"],\"constraint_ids\":[\"C:53e3909ef5132a56\"],\"span\":\"During hearing at canal bridge, Veda openly named the saboteur's name.\",\"rationale\":\"Veda knowingly violates the secrecy restriction by openly naming the saboteur before verdict.\"}]",
+    "token_usage": {
+      "input_tokens": 574,
+      "output_tokens": 413,
+      "total_tokens": 987
+    },
+    "tool_calls": []
+  }
+}

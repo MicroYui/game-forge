@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cc63f82ea6db2d3a9dbc093c2244da954d7eb101de78b8b786aca0be2642c06c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4091,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 643,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 210,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 951500000
+      },
+      "created_at": 1783845600,
+      "id": "JH4RQmcwUGSbDeX5bnjPahgEqpy+b1x/KzqF2mLJBplc6ljKGWE3/OiLDy/AlMbVUywbL9M/CZbddEPaYLt7Nv4Sq12aEI+Tpi02nsGOoRULUJKnnnnONQhFvFpNxfHP7h/QlahqeajgXpNC5pr4y9j55vsfaRZpNfDPxy3oWSkAum0GXj2sngm34BzmV+rQebOxuXreLcPZDoFXQcTwig6v/+kYqyRGmwlQ0YNGq47e/2kZlMX5v62bY6obWDqRGTGjoQB5sLMIE35X/ADbMYoKQQybi8rv8/SaxTiHoshSr7HmojOq66k0hid4xJGuq0Wd49FjEKIIpmehknPwLoqz2mmED5qgcm19uA9dz0IDbxrrE9h/9FJEEd1uX9FodZt+Dwgkn3qDB/ZWt/IlsBFYqIYZ6w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "O8z6VnaoHJIklvIEkGLu2wM0iRNaSaCI7VUknE5ZpEyJmJN6r5uHzuqU+t6TnGxJjnuGcN4O99XgJf/4Ixt4AWhXRR7W3QUIGlyFP3mQw75UwYq1kAXELQoNcUYQKp+N64qVbe6UYOzugNtGZbic33XrtWNG4T2NUxTdYbLCTu/US2NBVGDSCbfVtJ0LlZyCUrLg3KvCE4XiWCnmjCjkYwXKxQ5m+yRGCCpY8iFgK2LD/hAw10mact2qUfWbkglZAOmA5LLVFcP4DV5iYQLQ6D+TzMBVbPYU0XarJsIjHkq+oj+i8SRbcD0g0pQwb+ECv/DkY9n4YISAUQ1n7hoKUzMmPquDmJO3IO17M7Dhs23kcojZ6fI/lbWiKhEVKEsUxyDUiqj4+K5PHHYMvb5zvlWMujw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:8bc5983556bfbb30\",\"npc:e8468308b5ae1b7f\"],\"constraint_ids\":[\"C:1af81fe5c8eace28\"],\"span\":\"Ivo signed the register as the Warden at canal bridge.\",\"rationale\":\"Lea had already accepted the Warden title, and no relinquishment occurs before Ivo also registers as Warden, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "RrBlLjh+CTisDryUmjkew+H414IKvOBtymts20IZYd4cqL3oHpWt+IbRHusMZ7eI37rQE0WM/nUme0zG5mIWkzWI3AXT+NQ/Kes1XUKSzm5vIuBl3xs2z/j3wBcWhX31tAt1PiswpMGeLTP/hkgVy8vJn4cRt+ZnY/GxkdFQJzW5mw/rGVDsHJN1VjafANK7JNyuvSy5v91IIeRmZV6BcU0mTASPFoI2fxmqdZK+BD2NP8cSYk0HGLLNbMtjrxNPQZN8Nj8TDd66TyCHeV4EfHyKksCFB8OaRXtFFI4ZST4ODhg039ko3XS61WVXGKSnG1qEgcVneZ7WLepe3yItpziP86t0RUAnRi+Myeg3TSirGvl+6bDP7Xki99G/xPcTMcAPfpEFv8KWgWrWJLA0XvVhcrqv",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 643,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 210,
+        "output_tokens_details": {
+          "reasoning_tokens": 98
+        },
+        "total_tokens": 853
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:8bc5983556bfbb30\",\"npc:e8468308b5ae1b7f\"],\"constraint_ids\":[\"C:1af81fe5c8eace28\"],\"span\":\"Ivo signed the register as the Warden at canal bridge.\",\"rationale\":\"Lea had already accepted the Warden title, and no relinquishment occurs before Ivo also registers as Warden, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 643,
+      "output_tokens": 210,
+      "total_tokens": 853
+    },
+    "tool_calls": []
+  }
+}

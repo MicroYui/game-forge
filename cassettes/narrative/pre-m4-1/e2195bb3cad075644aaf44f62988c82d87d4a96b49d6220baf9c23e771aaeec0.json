@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e2195bb3cad075644aaf44f62988c82d87d4a96b49d6220baf9c23e771aaeec0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3521,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 568,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 214,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 926000000
+      },
+      "created_at": 1783859800,
+      "id": "ewZiVQr+VuNnBWa8YNlEXTSQZKiGfkFyYvJUnBAoW4HgyF1pOs3cJgNtqzfCMpApoxJ2UOs5V1ar+jmiPCsSXhEtGBVJFC6oRlYpkp6LBYJjO4BIpvuS9bx4D4ACz8tFY3dphdk8C4KqVIOB5gKOB9Ltp8V+aPn4ATrV7adhbk5einuH8OHEqwzjDKATjROOji/eVXusYgcsuI6fc9a11ugiFB2kMXnSuI3k6YRwmT8XljdF8HdE8os3oXTcdUxVeI/m6ly1gNz0s1AuhxAt+lJA06tX9swaJFRRUrJlvM1BkwfhejnEfC5NmwToVoM/JUyUdmw7ZoIwMTkP36TphIwfncYoHBW34A/MbdWeGWA2RgehEXYg94EvEwZMO/OBugCbdpQCfEAwSP2n4onnZDoWsPwWiw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "2BcAia/KTLHNzEpr50Dm7ZUJ+fA0cwSEMRIm4+t65fUEPx60pf0er0P4LWFI8m5/K1tjW44vjUeeIssX4v0Lu4KYdy/S7LpgxOoCLTrwCxATPBLEp0hmWlHt6JBEG1bpKUJZK6d7xL1J6M87avbq+isPKauFH+u1p3HpyKAFWyEVay819fM73fxLVdEDDbzufFRLmAydBIHNfYplHIpErjw1zZ5hOxIl9Jmd68ez5izuJQy5eoSd528Cs1qjcIxedYTiJ2lrQT1f6idKKUKvFQuTZ1FsL5QG1NF2wt+KBAfOqpsYhLyd5WXXWU9KT7b58X9ihJXkqNQL4UqdB25h0FPkfZ4qQiqIFtM6RVrH1s6MOc2DY6t3Qlq4Bk4oVj89IEokIUbvJGnrhBZuKdVHORzc06E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:26eb4986a268c094\",\n      \"npc:537b35c69bcf96f1\"\n    ],\n    \"constraint_ids\": [\n      \"C:3d2b14cd64b6a493\"\n    ],\n    \"span\": \"Qi accepted the title of the Harbor Marshal before the assembly at caravan court.\",\n    \"rationale\": \"Mara was already formally installed as Harbor Marshal, and no relinquishment occurred before Qi accepted the same title, producing two active holders despite the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hDKzATkDI8oxT89kx+CpXlG0Ca8GIJjB01gXLjdpGCy1rvI0FwrjheXBOgoT9J/0bR6Vqy2svjuhU8NbPOPImkBdXvK5GG1eWxFYGxfPP94uXOAKCmoH8535edrw5VV+HJg5watY3IpGLJGxRg1MPEXT5Idb3/tnChhtEMNzyoSvSYJGcQ+sLLC/2/GfxRlPGL/0nW4a7BXyQLgLo80+TKKh5b0RFcDEKtpIRFWfGEB55gSl8RwT6YvlS/ZM7Lh4E0NvjL2gNo9Ku3vL+kW7O/oZ8vXRE/oc0kM+6Gep1SWfS0VfcF5wLsFMYj35AAYR7qoH5JGEluErCuTqR4L/qwyLobu0OWNXEzc16aD6OJLosofD6nYaQ80GTJJQQVXy+N+daBXDK03A86BMQncJStGMEWm9",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 568,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 214,
+        "output_tokens_details": {
+          "reasoning_tokens": 71
+        },
+        "total_tokens": 782
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:26eb4986a268c094\",\n      \"npc:537b35c69bcf96f1\"\n    ],\n    \"constraint_ids\": [\n      \"C:3d2b14cd64b6a493\"\n    ],\n    \"span\": \"Qi accepted the title of the Harbor Marshal before the assembly at caravan court.\",\n    \"rationale\": \"Mara was already formally installed as Harbor Marshal, and no relinquishment occurred before Qi accepted the same title, producing two active holders despite the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 568,
+      "output_tokens": 214,
+      "total_tokens": 782
+    },
+    "tool_calls": []
+  }
+}

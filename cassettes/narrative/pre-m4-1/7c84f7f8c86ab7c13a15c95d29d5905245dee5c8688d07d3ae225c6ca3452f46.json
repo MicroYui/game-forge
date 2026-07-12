@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7c84f7f8c86ab7c13a15c95d29d5905245dee5c8688d07d3ae225c6ca3452f46",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2712,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 506,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 118,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 607000000
+      },
+      "created_at": 1783850600,
+      "id": "iLLfF83WiFgqSMHaiQC9THo9g9wYekJkDvINQqpWsAtTkSQ+M7LG4kCoOtbyK1bmgU+Gf0AsOJ30gxv9gp4m/bfN0xCGE7v51xSu7Jh8pT4QAX6K7U4r5UYeoe4x/oEcXRjTwmvcCCqKXmwjfSFEC/92iLo4uoErp14c0mU5vlGlYnzxPBeuwCaKYe5OY9OtXuOzU3tBfZP20RcOGPFiSK42C0SBhRK8iIkIymXWbAqz8pjcVc0d0ymbmbt/VfE9fgDz11ybQY33ylCohVZ3GD5G623VeVegpXD07jbyMhurJNKHS0ZwY7v3GqTffrooOqnTjxGLzrMl1M/LtgayUss4ntkM/HM1rh9Lpku9F/NKBY+e1t+GnFVKPHuJKr4LF6GrzKHtcPYFi+05NA0dQ/v3VwC8OA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "aIpMuRbTAZvZbrlZp7YV0eLK+8XVxqmSki+1r9GXzSlfrP0XAL/CwsX9JG1CnCtfSrlqogLWGnjAX19ipZu4LsPLAWgl84sxTryhIhEbha58TzWpgWexcJnrZZ6xll9XxdQXSJwC7SMfJh/W7IhXVSAUGTy5WmTaweW3a4PfZ381wSkbpfAQHSPEsHmJuhKBZeoKwEMVABYEsr5YQ0ptwlv2TUCZWwMPnfLfbBEvRZ9GGjBa1B1oeWc6ztPSNXxNPFx/AvWChHwMtmmeEc7vac+eHMgxXYA4Lpfhmsc3ulEoEPFF4r/QF9q4oXbZv5FVauyZT4s6++S3c9bRLoJEsLAqajIg25lyrdZHhVmAeC8luO+yCW6c3lCzjnp9MztDN7KPkTU24CYuUIYhnzFoGDXYk/I=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:e6072dccea981584\"],\"constraint_ids\":[\"C:784d0da822ddcddb\"],\"span\":\"Ada denied the pledge as soon as danger reached desert waystation.\",\"rationale\":\"Ada abandons her pledge when danger arises, conflicting with her established commitment to fulfill pledges despite personal risk.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "bQFNIsps64SuFulfkdEMvv3gN4Ip43bTfX7BJ6e5dpxASdZwkCuBgo8G061iZdQutoIcOBdo5mHNkV0QP3JaqS/RAymeDjmAwH2ke8ihNEIkH+Xt8mLmK/vlhwm2/l8kw6LSVeAoygOkttc2rkXd+rrRCdbyTnA261Hn7UK+77IazQ0kJR01sfej26w5YtD3NMmWN/XG3KObUuzJRsvx573Kufzk2NLHE2jWgewz2mLPBcHQDKEVn/lTfSqRD7vU7Pgyer0bTYWPbs3G4M6LgVGBIr7IU6eMcUqJzdpwa+xDC8U2LOI8bdc0XEWdGtz/aWFdzl+iIHz2/n1gcY0/hFMbDzi0IXHXzwThhJ0eezaqhIMCRLWyNhpOUfNXIANWGLNiD/UKgdzC8YgUYHlmai9SPrJY",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 506,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 118,
+        "output_tokens_details": {
+          "reasoning_tokens": 33
+        },
+        "total_tokens": 624
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:e6072dccea981584\"],\"constraint_ids\":[\"C:784d0da822ddcddb\"],\"span\":\"Ada denied the pledge as soon as danger reached desert waystation.\",\"rationale\":\"Ada abandons her pledge when danger arises, conflicting with her established commitment to fulfill pledges despite personal risk.\"}]",
+    "token_usage": {
+      "input_tokens": 506,
+      "output_tokens": 118,
+      "total_tokens": 624
+    },
+    "tool_calls": []
+  }
+}

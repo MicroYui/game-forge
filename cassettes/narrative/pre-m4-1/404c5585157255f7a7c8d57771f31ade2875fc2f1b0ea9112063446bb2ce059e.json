@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:404c5585157255f7a7c8d57771f31ade2875fc2f1b0ea9112063446bb2ce059e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7907,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 647,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 457,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1694500000
+      },
+      "created_at": 1783848200,
+      "id": "S1x9gEbw8i5yA6tZh8LpU9zhhJZaohsGxg/rhU8bxFQ6HQL1VKeBmIN9ASMNhnWvQ1eBDbld+HuANfLMCurv5BcGOfIkL/LZfQJgLfYHXL8KcwPkrzF73I3C1kLxsLpFaKuhwdagGQGbKnGW6mNlLnWcNiZf2KRGSQKkkGaNjar5h+9ntEy+SIGol5swKbONmriQsbKE8JmAlPp1dBuCYPqpJKSvC0CwSVcdaC1XDbVlwKh4MrzqdAv9oXaUJ1sowQM4qMYTbVv24x/Xkhis1g53Y0fsuD4JHT7TDZt01lf3xbJR/9GSHsM+qiPOlHB2qI0IR3GSD0EPobs3KybKD7nqupSuQQeFhNk53BA0Y6zfJ8vWV4txyDigeqV8TlZPtzFQLp1NE7Fh8wfnkBqBis8RnP5ZoQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "M/Rq+GRt04nD/c772OdOKqHIuveOCEBqAcM/L6L8DYsu/RFNjv8Za+lqrt8nPYsYjicaLHn2qyB+i4eCg5b48JBPKz12NJ2T6Mdu2Y3LuuT7+HzYzETErXxSQsLG6FfrBhg4cCEvZIPrsWso07IcDB9WLCRbbk1QJiJKY+3tUzOZPs/vSkX7xJ1ZBSdg09Ms2JUEFIK2d3a25EdAdjvCxwjrrmwcVc13R9tpx9emYbRTwTS1oSoVGbOl0Mnfb0lotRbXtApal6IujgcCBvmUZnlwa7YaUFkYZnz0lw7mJ6Gjkg8G332a7MUUoO+kSMhoyrOkeshO7yt1J+7TKKDeysr43zxs2o56HPMur1Sf26tKOop+TY/nyuCWKf++n2+NHWCPuatbsyEW0/CsPOTJeYjOKQs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:4b4668d0ecde6698\",\n      \"secret:4a9bb63b3ecdb0e5\"\n    ],\n    \"constraint_ids\": [\n      \"C:128705e28597a937\"\n    ],\n    \"span\": \"During dawn patrol at caravan court, Ivo openly named the saboteur's name.\",\n    \"rationale\": \"Ivo discloses the withheld secret during dawn patrol, before its permitted reveal at trade council.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:4b4668d0ecde6698\",\n      \"secret:4a9bb63b3ecdb0e5\"\n    ],\n    \"constraint_ids\": [\n      \"C:128705e28597a937\"\n    ],\n    \"span\": \"During dawn patrol at caravan court, Ivo openly named the saboteur's name.\",\n    \"rationale\": \"Ivo knowingly violates the restriction requiring the saboteur's identity to remain secret until trade council.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "g6UFSYjgRRywuLPclLnWtacDbeG4yV66BznG+hLU+wWt40ZBrn8AU0xJeMoe7D8c8w3kXpeUzinL4dCgv70aeVeweA0XuJU9HZhybpITpl1KEEo729Obgpzb/0KFBOMULXLa3Xn8qirCYo0PloLp8kN4UuxWdZ7fbTypU7e3mfTxeIc+7b+Ymi2ox0956OO/RBiwGewnRaRIQ/xYtQi3gLwiCmOPvZ6KbzGO/N6Q4ltkuIsCEXu87sYA6E5RTvplWj6BNgB1VwRyakk4l8pAmuPnMxsP/oUqTqHxsGQWn5hFLYVE2bquWP0vyJUevCGy8MapeeTsmhAphcDK5C5v1g8CJwGiD3UFEeH7trqZhne4PaUB2DduCWQoXNKUNMnCLlnD1sn1Z/7h4YWkka01QiPrcP/H",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 647,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 457,
+        "output_tokens_details": {
+          "reasoning_tokens": 202
+        },
+        "total_tokens": 1104
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:4b4668d0ecde6698\",\n      \"secret:4a9bb63b3ecdb0e5\"\n    ],\n    \"constraint_ids\": [\n      \"C:128705e28597a937\"\n    ],\n    \"span\": \"During dawn patrol at caravan court, Ivo openly named the saboteur's name.\",\n    \"rationale\": \"Ivo discloses the withheld secret during dawn patrol, before its permitted reveal at trade council.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:4b4668d0ecde6698\",\n      \"secret:4a9bb63b3ecdb0e5\"\n    ],\n    \"constraint_ids\": [\n      \"C:128705e28597a937\"\n    ],\n    \"span\": \"During dawn patrol at caravan court, Ivo openly named the saboteur's name.\",\n    \"rationale\": \"Ivo knowingly violates the restriction requiring the saboteur's identity to remain secret until trade council.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 647,
+      "output_tokens": 457,
+      "total_tokens": 1104
+    },
+    "tool_calls": []
+  }
+}

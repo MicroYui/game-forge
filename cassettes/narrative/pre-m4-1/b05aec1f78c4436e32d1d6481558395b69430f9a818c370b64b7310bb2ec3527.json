@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b05aec1f78c4436e32d1d6481558395b69430f9a818c370b64b7310bb2ec3527",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3068,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 562,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 166,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 779000000
+      },
+      "created_at": 1783854200,
+      "id": "AYzyMvgZqf0NoMvGxIRgR7+PRgO9QDf40PJ3T5OeTdVK6uKrKelUh9/FRYk6ZycG1RZmhLUgZZq7dDWoa6KX9bsw9Cidor2qaxovkkILew8iSy8NzD80IHp1J+kqh5C/IDj03DhGGAGWYz3AFCFAQ1JcAN47qOtg5uCOTyJE2U4tV303vDlUajRWyU+xdDp2KnVaoSoZv9dtGRhfgpoXESAI+c77z3URwE/xFUU8OmbbiMimAsyGDOzl2FFkaqyx0s37bCzRlPNMoNXXcvoW5f+9bmJe9udU7hKQVpRThjDTrs4GMEodSuFy2R9dismdNJLa63hWYpLqSku5BXBzj0Nrsm98ItOjRDCSpKTjL/MIhTGpdPqgAtVRc+3c3S5tyPnEHyUGXTqjr1ZCBngt8ky4b+CYZg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "cQg8B6Fld+0sOw7+3nt5lypNkTYKUJdOti8FGZX3qJEo0PzuqYr4ZnJXFsPlsBiY7lOp8tG8yqVpbq2xCHBJDdZhz/sOKQlYXKniH+69EDpDRoN0TE08nn8PgE2CEL6eItFov5NSWOeU8hZ6VYdVu6O20msu7+4RqXZb6urb+a1CgxWvv1yCIiKOqKSxSOFA5PaAbobNebAhCDsJGhjBRJ1uLXENFiyylufs2BuDO/mXnECsL60fz4zJEN5096u6X2BMlHIEQWJWs04cu0hCOO14rDlkxOQs64Q7mxcVgDOSC3s1trFKShktfxmaX0YqLE6RPy6uSLMJhYhBJ71fHyCO5fsfnJUOJov8WIfy8/Gy7qfgZEGTEk3F8DVUETP02HUfo+XUwJAQWAFER2Bz4QW3yyo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:b42f54a7897b2c49\",\n      \"secret:4afb3c9b4e3ce2af\"\n    ],\n    \"constraint_ids\": [\n      \"C:f26b485f5142c99b\"\n    ],\n    \"span\": \"In desert waystation, Ansel disclosed the witness behind the sealed testimony during dawn patrol.\",\n    \"rationale\": \"Ansel reveals the protected witness during dawn patrol, before the permitted map unveiling stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "cfBxzFqclgVBurS51HQqs+pYk78N1GF5NzTRz7kF3E6fiWKqrcSDcXALVzniNVqf3tQXwIGXV8+dMlcovZrE1u3R1m/rHScVxxemoWlijC3b2eaxSl9f2Jt9V6Yw2hURZhWTMPaV6vsZJUccJ+0Tj4oiqOWRCLLQvg3cCVAgOMTNjj27vHCiG/n47de25OO/dngWSnBSg3yP8cVO+AVYAnXh+cdY2+H6/dbbRRNdaDubINtBRh6omhWI7M6TdlZCx7tctm7XvcHonW4Cd/vs+gHWWnERkGHDrnQ2VBcAn0OKcHEdq/TEVlp6rtoEdj1AFleEwDN9NhE4MRfQ6/pFDd94b53B5atu7nvF94/gHMPD9UQkmIA/VLrcDumkXwL4wIjdTjf4Qnn0CqdKs+QHJQaltSwD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 562,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 166,
+        "output_tokens_details": {
+          "reasoning_tokens": 36
+        },
+        "total_tokens": 728
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:b42f54a7897b2c49\",\n      \"secret:4afb3c9b4e3ce2af\"\n    ],\n    \"constraint_ids\": [\n      \"C:f26b485f5142c99b\"\n    ],\n    \"span\": \"In desert waystation, Ansel disclosed the witness behind the sealed testimony during dawn patrol.\",\n    \"rationale\": \"Ansel reveals the protected witness during dawn patrol, before the permitted map unveiling stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 562,
+      "output_tokens": 166,
+      "total_tokens": 728
+    },
+    "tool_calls": []
+  }
+}

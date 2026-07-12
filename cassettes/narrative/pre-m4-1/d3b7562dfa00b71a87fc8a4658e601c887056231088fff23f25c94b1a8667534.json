@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d3b7562dfa00b71a87fc8a4658e601c887056231088fff23f25c94b1a8667534",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5137,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 692,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 261,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1129000000
+      },
+      "created_at": 1783845900,
+      "id": "0tybzQKMyPjXfEyj+8jNMUdoNmZA9UX9y+7BAh2gjXjKfiAg6HqpUiFZ4d6t40p4/VGuSWqL5IQDbStX3lQCbKl9nsbVmMlmb3iH7oANVu+9P/1+Vg4SMz3RKSNPKBzG//iz7rXa3e4GuEnPA6yfP0YGEH9oee1V92ye7xyCVGeXrSqh9s/SQwUu5jIuGRsul+A5NCuLnFooYAPAJLC6Bpg2O5QDUCWUlh4K3wBLd2QR6g4xi3XrWQHOSzvf3bLtusZHUogigR6YPnuItp1Pxqwk1adttDCunCCRuft8ttjlAPF1QfZ/x65rb1X9qhFCey7mfjWseJMfjhGAm1p5Cgo8ZETeN7cqU6RO585nAK4fbJMO55yq3ych4wUT6DhuuLCS1Uf4NQi+w4MFuHNrcvcihtglOA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vDuPn+ahWpunLlCZUmzFjlhk97NKcZ/LiMZtHlsOIaCRriMpSWSHSpQzOjJQ6Nb5Zf0BruNsCRY/fNkkT1ly201SphRMadmaIFuSfSIe/YN4ymbRI8j/LZyar5rGXTR6Na0rgIrSoMI6gzKxv0BV4h/CTvst0AYECRX3efIPVIHEPmH8kQkyMHolsOXfuoVsPpv0g6Jj/uLgAnTBlwn52srU2ZjkI/YjcQmMWkEBRQh6pp18HpWxaJKAAEDRNuTaJsugNBVcDQ90OPB4Vb41t6dl/xNciEqdvxmuS2Kda0wvS77js0/oxUnx9Qj5P9UhCR77YWTQX507uTprZo5bnfSf6cyt430mf3v5JJDwYYK1s1xP1ejUhJfgnkDIzSNr8iW6hzMGHlqM8RotaIeegI3ci2w=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1f807cb5c500d8fb\",\n      \"npc:54fc4b814551c19a\"\n    ],\n    \"constraint_ids\": [\n      \"C:bda66f805b89a996\"\n    ],\n    \"span\": \"Veda accepted the title of the First Navigator before the assembly at archive hall.\",\n    \"rationale\": \"Veda accepts the unique office after Oren has already accepted it, with no relinquishment stated, resulting in two serving holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "C6cWTGKeYrRVaEAydie5ObULv8nf+nkPBAVslqELKpyZ8f3h7Ho+sgeV577cJW8j0pbUwKkpsNpbKzWAcInR0/OeMq6SY5VlNvKFZkD7uFXZN6WsKvE/1G3iqcYdx7IXpnOZyBnw6EM0VerLZUBo6W7MD2cBcKx5QCUIj2CNRbeKvH7K8WFm4Fn9Y60f1NnaHpqETbL4zJ31y41elGBRt33MXbQNsBCzkJ8oXej3rWZ8I5sKXDl6qBYwNiS+SnFWeALMIkoViYhMXcGh3s9+MBGYjk/NjCsDjBhhkPge7ghSaAxN5G6oENTNRjWhXTG+s5/Ca2SPDnzYuDLmLeLRDhAo8v+TPBnnUmC1QoBVe5jvB73k4VjOdUH3kOPT1vQFoIc6bQ+2S1YC6j7tfV0icJXR34Wm",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 692,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 261,
+        "output_tokens_details": {
+          "reasoning_tokens": 125
+        },
+        "total_tokens": 953
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1f807cb5c500d8fb\",\n      \"npc:54fc4b814551c19a\"\n    ],\n    \"constraint_ids\": [\n      \"C:bda66f805b89a996\"\n    ],\n    \"span\": \"Veda accepted the title of the First Navigator before the assembly at archive hall.\",\n    \"rationale\": \"Veda accepts the unique office after Oren has already accepted it, with no relinquishment stated, resulting in two serving holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 692,
+      "output_tokens": 261,
+      "total_tokens": 953
+    },
+    "tool_calls": []
+  }
+}

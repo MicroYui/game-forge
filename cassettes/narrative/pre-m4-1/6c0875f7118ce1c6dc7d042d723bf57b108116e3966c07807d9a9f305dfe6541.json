@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6c0875f7118ce1c6dc7d042d723bf57b108116e3966c07807d9a9f305dfe6541",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3353,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 611,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 174,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 827500000
+      },
+      "created_at": 1783851600,
+      "id": "a/ysut4XqRfF117Eolwn1TKd4js+QdxpuHuDjSUsAZoIazmtvh0OYI5MduNWX3RGOtsgRVh1UjruTti7qmbWwSigetp2PUBPsesUlAK66VSK+DFbVksUFSZi8KftWtGBVguMaThXNnNdfRvk7id7ks1Ny+jrNIrqpC3SxD3uTxytYiYXgXo3f25Kfv9IQGDX1yvXVWGeYsNzJHO8cryLuoPrbsmVQBTUrpGGZeObjU1f5xlpqhxJbEKHWjiWU7gqJ+sOe7900P23q1rRdfKe+VjqU/xsteg5+Je9PqCHUSF/dtBsaRZIQnVyvjWDX5G4mJFPWKNUNeTJdbChUOqXy8RiQp7KzXTEirO2HZRl6GQjCQz+OH2Vt3NJdl3l+FUrAHvDABGAvj74l7JJrNEY33vKopeRoQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "1oiKddyeIbrMaMU/PrzJeCcm6IiRk57TrMKi1hbFQQUz3d6Og6ddzfGbtkDAuqHZss0EQHgJXcr2ey/HyC0R0YEV4L1CIH8HntM9yHbOePy3dR6y0hzn+e5j3r2H6LrSMkPz6BJtBlu6eW+8eSIYVvlaKzb0O8k833NNlHIcZuj7Yj6x7rBO7/JsmzeVJjI/B/NUqmEZiOJxFWHdRgBh0Gb9Rg7QGojqN3mi8+Pokm//s69WwIpElunhwRajAmfcCxSrfB2k1A4DTdK+Auoh5rhtSgz8ol1/jEUIueulzqTi6WKNYVtvKaY1cSDKkcNBLZcceT3QIkAiKr58erjEdHDFK74EAFxo9mGAqV6AOqpr7ZmjTHzVs+ACG6ivJRftzZ3MZ1iEmr2wnETt00mGNM0GsGA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:24f6665f2dfe1ebd\",\"npc:b496c2058d35b1a9\"],\"constraint_ids\":[\"C:22939031006ac930\"],\"span\":\"In caravan court, the council recognized Mara as the Archive Speaker.\",\"rationale\":\"Qi had already been formally introduced as Archive Speaker, and no relinquishment occurred before Mara was recognized in the same single-holder office.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "T+IrR5aVWNzmsKNvtCEY2ylPUio+oIHURz7VIpQRsG+4BwoJBG4NWn98LcwT73jO1OZcHMPoThZKbLtT48It6a0O6UFz4SeUKtgqTP5tJEHiDYyFWMGRl/6Km1t8rwe84MeUA2ik4uZNocfM+68X8XF4AlJT034Qa5+E9gvRGQiZsXfeq0OvuvkV0w/vVK9gS3GGF+2PIU//A0NfK+KWMEzzRmcblHON4qZi6LO9ByYO6FcRElzMe0/BzHXq1HNAJi7/6MoX4xH17PWaPl2debKOJ0WKSMnoTkaDorFft/f/jQV8294ZvUjpoEDzINd09Egpd3RG/unRBjmT1rbXJZKe9z/p2KGyPJE3Uhrutx2aIDPwqG41FE2oeP0sXtvlpWEX2WpEe5ufb2qc4dMto9x5NIJy",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 611,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 174,
+        "output_tokens_details": {
+          "reasoning_tokens": 67
+        },
+        "total_tokens": 785
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:24f6665f2dfe1ebd\",\"npc:b496c2058d35b1a9\"],\"constraint_ids\":[\"C:22939031006ac930\"],\"span\":\"In caravan court, the council recognized Mara as the Archive Speaker.\",\"rationale\":\"Qi had already been formally introduced as Archive Speaker, and no relinquishment occurred before Mara was recognized in the same single-holder office.\"}]",
+    "token_usage": {
+      "input_tokens": 611,
+      "output_tokens": 174,
+      "total_tokens": 785
+    },
+    "tool_calls": []
+  }
+}

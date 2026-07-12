@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6786dfa5eff66457b19720958483c9e72ec33784b61bc56bb631d83f358a870f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4096,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 565,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 96,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 570500000
+      },
+      "created_at": 1783843600,
+      "id": "Li2TA+ED1JSDlgg+2XI4lTdZSstH958MD4Vc7PBNFMDYWKuYZRlQ1G0l95HYlAq+K4t98nO352woHZGvmzaUCFm6yxps3p/Ski72MbI1JIc5tFwBapaXjhndrriT0NmK8Cyy4RvbVUpl7IMW2wWmkq0K586scLte0NabdGMX/GcOdGMzWJdSYxItRuut3BG2lotwJaLI2EYYexKRLg7p+3gE6/jNi7LvDgLhjPDEwAAyDiV+pRIbV7rFllihUgEKaYVkJjkD7bpxbegPFaW3Q3uVlZ56akSL8CglyBXqKKDP2K+R7suvI3RPzKD7vGm+bjPO/uS+M5DTnTXgoDRz0ManWsuU5/sm7gb9JoOAKGVk11obOeDtuBskuOtva6MvGSH58xWCoXKi6fh9h/9sY8WKKq0rPg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:03362e384a26f643\",\"secret:0641061202e111c4\"],\"constraint_ids\":[\"C:7f96418c3a31182d\"],\"span\":\"In old mint, Noor disclosed the hidden heir's identity during second bell.\",\"rationale\":\"Noor reveals the hidden heir's identity at second bell, before the permitted sealed testimony stage.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "eirwfIyod/511bS+jNbHfI7bnk7glFNZBlEJZn6jWCULvzWdoTLnW+azCK355K/FLBYuV2ruhEZcwq7n9BqwTaQmNjtbd0uWtOClEOGcRRYjhLPw+cxGyrZEf+Zv2o3lieBno21+x+oSPBv14oANuSo8diPfZyYK5t6oJsN3gnRjJAeghMMFdcNloZSJKJ6z+Q3ehLtHY+Y810czoccrHUghUSo2mf2RnvA9SVQHJ0piE6a9Leij7y+iHiRSYkwO9xQiUhsq/8Ru8iERDS1ZM6aIVWeVpiB3Vgt1yt/WDDJbJuQAZwWfL1NqfHfx3C6+fSJ9FgbhwPGRir6Yw6I1jwo5VqibWmUlYDCB7c4dByDFYSeRZ2clng2z2jie1Qb0ugh+y1zGErmFExKvBX2cgI9VeyPA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 565,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 96,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 661
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:03362e384a26f643\",\"secret:0641061202e111c4\"],\"constraint_ids\":[\"C:7f96418c3a31182d\"],\"span\":\"In old mint, Noor disclosed the hidden heir's identity during second bell.\",\"rationale\":\"Noor reveals the hidden heir's identity at second bell, before the permitted sealed testimony stage.\"}]",
+    "token_usage": {
+      "input_tokens": 565,
+      "output_tokens": 96,
+      "total_tokens": 661
+    },
+    "tool_calls": []
+  }
+}

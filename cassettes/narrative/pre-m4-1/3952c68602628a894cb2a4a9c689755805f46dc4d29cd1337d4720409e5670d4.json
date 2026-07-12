@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3952c68602628a894cb2a4a9c689755805f46dc4d29cd1337d4720409e5670d4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2760,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 618,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 156,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 777000000
+      },
+      "created_at": 1783856800,
+      "id": "ZHY3+EANrLX3QiXeBPupPnoXkWdGIqTle7D7HQT3xcP1cPN/aUrdnJCyt3Lx4q5aKJHOUGRndUCO5pZU2Z7s7zbCSC7b/qkykirsEAjNcZxSFkW+ydeNQ3/adiQ4Ys6w4uNmLW7o3JfIr0HPrakcpounGlnoKxF2pWmdf0bvDe6pyqr1QkDelgAfl+F0wT3bgptV8D+f99eXs9fBNWnJsarYsBt6mnqrEpSu6wHCmi0hjcEMG6UN+/dJi3MD2OImMZPaUIVjkaT/HxRBLX20TB/630oiDHb7z3Mh3RVEYyu3xKil96g7/nwa6ao8hvt4nzayzBnhW/y7TTnOkfZE4gz2CsiTc/VKJGWxLjLo4RMFlJCSXKtvbPUeTlQcj9RGuEhMqpgIr/Ahs7r2TgtmCY4yXRAMEQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "n79QsvY31cYg3hsep4r6eIQt8KvpjJxqhbiQVUt5amlPM3R5AXBNQtIykG0jlfDGPLjv2pN0ieNtrdelDsWNCuqqIUzAVaseSh3sAuFJKx+q01u9k5uKMe9v6MuPcfiw0ukDeFHtLzMVQU4ACv0ub+lUiGk0BfY+c1AzzbxStaQTEqdgMXKWDz3KgicMphvs0hcXO8ZcLouShhGuSTpvRy7D3BKgOO7Yy6DOh0j5qt+lDlE3zuvlyGc4cI/Y9s7dOLb0IBAiMi3KRaXOm7iMrI+anZf1XdWPMG750c7S1tH3noqIltcVvvYBPU5R1S6O0NuxgnQGDXAbgdxg8QSX0gDtJCwUOKi9DagcmQyXs2LJ2DanS8hujSzzpqJYAqgfiUod7fW/bRt+edDFQ4Lsx1GlQrs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:17d68f6d99d37ef1\",\"npc:91c4df9cf99d02d1\"],\"constraint_ids\":[\"C:bd74a18a2c2d810e\"],\"span\":\"At eastern ridge, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro jointly authorize a battle plan despite the standing feud barring joint commands between Free Pilots and Obsidian Wing.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rDMSm9PijbnyFOPqmFPQX1S+t3e8deWt3LaWBjLPSnBWPXVYduGZgd+/dh+dNYPz1Nep72AYFqxY2vZPpVUz8cBFtTsj0D1qUbC9WFy6/KYvI+erTiQPJivP5tRc63yXOn2ZnxeHWAHZfDKPE9ZQupfuwGsGD2RIsP7nszkjPIE9BqdIXcIwedAssWYawf5j1CQRYp4JV0HOh1o7JSPoILR0YdZLZ2+BRczgV4VA31Di7gKLEPdnmccVqJ8DODuSdc02cAhbtVaK8/5AVY0nLXdt3DIYvu3HCKE1qWoDD723o+lxAzB6Fypz5wRT1PU9BTsxtc3/ws5E75BQp0DiTN/dm3ISdtjLd8bbcB4+snv9VZiSbxuFAR0BRWdjEHPP19JoPH6JLi7nTd0Hcng4+yH0orvv",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 618,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 156,
+        "output_tokens_details": {
+          "reasoning_tokens": 41
+        },
+        "total_tokens": 774
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:17d68f6d99d37ef1\",\"npc:91c4df9cf99d02d1\"],\"constraint_ids\":[\"C:bd74a18a2c2d810e\"],\"span\":\"At eastern ridge, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro jointly authorize a battle plan despite the standing feud barring joint commands between Free Pilots and Obsidian Wing.\"}]",
+    "token_usage": {
+      "input_tokens": 618,
+      "output_tokens": 156,
+      "total_tokens": 774
+    },
+    "tool_calls": []
+  }
+}

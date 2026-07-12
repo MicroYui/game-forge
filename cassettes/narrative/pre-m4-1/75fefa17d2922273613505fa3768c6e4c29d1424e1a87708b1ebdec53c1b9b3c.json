@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:75fefa17d2922273613505fa3768c6e4c29d1424e1a87708b1ebdec53c1b9b3c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4109,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 607,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 207,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 924500000
+      },
+      "created_at": 1783844500,
+      "id": "Djmwlusgpzv3hOrzFZyjNQ8Bdn2BVc0sDlAFdgKov2bVIkKgnB985R0gBkN/k1TgKcWGpxL6gMujue1vCpUvZ5UUpvKzjNkTX6xr+WVl1zxRkB5IqE4w9XwA3A9dSRlPix7gy/evaglzmtEJkrPsVGD8MU9mQ0o6KvG9iK9VyZ5rzzCTDvFLYaLCGLIIFqE90tLfSdb/bOJsFSr3ZWiOCQRMA4vweCipiYl3wR7sorc0NCvNvvc4YbFL1nriTpOC3xQ4i+cVzuPqnPZXGFDlNupAe59Y2QWdvsAx8JzvSJJ+h5LyRY94dDvRvh4+6edRjoeM6+M3ppko+ShfbpTSwdcVUy9VWwxGeDMIX8iEX51rnaPuigUwBz09sRVOCvDEScC7jfAyXZ+mk/v3jbEfmVU6Cpgaog==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Ux37Og5rDsLCTc4O5R8cgS2lXrR+28ZfdUUFdryLV7AOE4KxMRX32apfFcv2B5IODjFtZip4NolMM+plJtjKaj9j6Hm9nNYNHdljh1hlLWB4iMmz0kxskdBLvVBE75L73pyJ9ZcPbb8WuoYKBwEb6B5FVwn/kL/qH4ikzIXmG4VYY4ceZP6rWazSTRCPXGtgvdp/3dAq8WFQSsTuwwgcY1Zq3qYBxi0Riz7dC+5gP+d2/JX9nkCZdMrDqGJ/VXZoWWzKOD9mVG9+xGbsOoOqmS0r1zi/pF5f22jHm4APWfbTl/eNpJUWoVKED0yVqpU4cgbweS0Izv1Omo+mNjF8Dxmrt2PW5zB4b2+8zpflYhuba/Y+Fl6Un2SEg9nJweHUyBekOstGLj3knspWdIX9fCgsh/U=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:d584c142cd6cf1c5\"\n    ],\n    \"constraint_ids\": [\n      \"C:9a664ffd161d1e27\"\n    ],\n    \"span\": \"At glass conservatory, Mei revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Mei directly reveals the crew's refuge to pursuers, violating the rule that no pursuer may learn it from her.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "II7znjkixCh9rY7/5gSmMhZdcHRLk3tzmQUb+YHE3g4bZjgilhxvUlzEo90/sAjlptcjBNJh9J8IIxSoBvVWOP9y4Cy0Ck05cpYgCgJEkqdrLer2gCdwX+nsUuwGti5b31Wn+ifrlLgdOWkuwgyfW/MFw8WBG71qKqZ9CmSuoyMn2Etg7AHEOescPqJIM5CI6nRClnNV1AREZAzts87dizoST0I/I0sTBVVONec0tMfdlvssGuN+iPYKm98AB3BZ7igXZzwfg3lPg1VZTaJZMvOGqQGfL52oq/olOfrNfQ6hU3+5W2hjLT2t1s/ryXPqky3yFtRfVHFW2ikOSivjADllFo3Ltj3oRVZOrtnalLJUR74aTvc+mtU/4bI6eJX/5Ahas0TXsQUE9CPKW4ic7sNAFaQE",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 607,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 207,
+        "output_tokens_details": {
+          "reasoning_tokens": 87
+        },
+        "total_tokens": 814
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:d584c142cd6cf1c5\"\n    ],\n    \"constraint_ids\": [\n      \"C:9a664ffd161d1e27\"\n    ],\n    \"span\": \"At glass conservatory, Mei revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Mei directly reveals the crew's refuge to pursuers, violating the rule that no pursuer may learn it from her.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 607,
+      "output_tokens": 207,
+      "total_tokens": 814
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:09435cc201e73ba5fbc7ec0cae620394d79b1d368a28d4768be58d8cedc5bac5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2528,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 636,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 123,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 687000000
+      },
+      "created_at": 1783860500,
+      "id": "F2E5MbwByMd4i4p6Tc9uQQDsg9vvkKpZnSjhl3viUpKyq8FZ090ri0xDWsmsC4F3YKeL5AFl5jkB6uCeiD/GrF5Z+TQYAB1Twmllhwvrj2DnVw5FhNY5fSRhaabX5f6vIfBUKLi0oqR0OmgbQhIyTC6xWIW0p+xold1SccZwFc98VsLa/F6toXBmpNj0c2bJi7npmUId4zDMhAmceqa60EZmcMEkMwOd/9zP1vJ2H5PkY6GCSKy3YaRIofCBIp8Qy5rAkKm1bZdaHLDXcmX+WIyy/DC3b2am/nZZ/QPqQmky7xuwRHNOSEi4o2nF92Ow2azXH3/FRqKLz8qWds+3XuvlIKy6wk1iqGfvzadWgKDKfCqE17ztBrRxUc7MNDbv8lw9TkIv1MqHok9NGgCZKDQstPzBqw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "6Kv3dbTCepLnutb2cF5rSKJLaxAPkje9fsCTz6g1klmL6nDBHenPc5+C4WRgGuACl39uE030GZjkM0mJ9O7U4b3RU1+bBj3DPx9/Di4wvsSF1HmYspnxf2yhipfqZnPZEuq/jx7e4tfrsUFaeNJexoHen6GhbGNznrIJcPh82earjlX9vk5ILp3cCaY9VsmDzqxYlN6C7PbuPY5icevCW1QG4IX950dZmnkW7Wag9Ut07fcLegXwe3TssndpeVe2t9K9X+qHlbPHFsmFeys1moACbVPAlP9Y2w1l1fSd0YEL94pe1v3KyI5luXCJB2hDt5dn3v9gCoDF1US5UGC2lqr3ZUwN0CZPVL2erJrK++26ZFpi8wLJVBidZDSoCJS9kLZKTLqznJWvDva6W/WsLn+8XFw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c9928edd18e99547\"],\"constraint_ids\":[\"C:c72f1f0059c268ee\"],\"span\":\"In desert waystation, Noor took the last medicine and walked past the injured scout.\",\"rationale\":\"Noor takes the last medicine instead of prioritizing the injured allied scout for aid and evacuation.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "b+JHo72UU7e9yct3obW6qgzAWbquhhdHqqw4OGjU1KnfcYWt0E4QtotWo4aKWjAijoIPACar9vBUanH7Tq310pw+Y785vOFi6PRryqK8oVTlRpjQX5P9MLSNpeB5+RI86j7qR9ZSs1HveCdDb4lolYC0K59KjEmRbzw1pPeh+WHxms1nMT6N1trfda4IQ4Alw+dc9Fm3V+jq/Iq6WJObaxxMAEG45BwdiNuWNtcyH9jZNplCXAmoyTwo/PwuJdujwhveEocLLT0c3IJeUvmPC+DJgTzghNGQOygvhAoY/rftVnqvP2R+spsgoUkga9LO6A+if1g2Lf2yzoNFBnJlMk0991XAABCsiMgD9Uc/P7MKPEZbai3K0d0T9afZkKr75jrtcLIdYUaOqReeidOAfk/JV1Bm",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 636,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 123,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 759
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c9928edd18e99547\"],\"constraint_ids\":[\"C:c72f1f0059c268ee\"],\"span\":\"In desert waystation, Noor took the last medicine and walked past the injured scout.\",\"rationale\":\"Noor takes the last medicine instead of prioritizing the injured allied scout for aid and evacuation.\"}]",
+    "token_usage": {
+      "input_tokens": 636,
+      "output_tokens": 123,
+      "total_tokens": 759
+    },
+    "tool_calls": []
+  }
+}

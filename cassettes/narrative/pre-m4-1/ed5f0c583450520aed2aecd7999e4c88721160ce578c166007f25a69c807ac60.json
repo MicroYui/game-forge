@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ed5f0c583450520aed2aecd7999e4c88721160ce578c166007f25a69c807ac60",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3633,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 558,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 205,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 894000000
+      },
+      "created_at": 1783861400,
+      "id": "TjS0dw5IChUzpsxD78WUXrg3rMus1wOkaL2ppTYM7WQHNoKQWJkN1DA0pXiAMMzp2C0I1IAPv7D3+4k9obzVtTRZGrN7C5imyFRvcIVf8douAoZAiT3S2Tj3QBJn0XLZi1pV1ZcN5ph56MEUnYHp6YYx5C2RLZpdhwN1aGrGqRpUq6FwHp4V1JkUmxGmS+F+RCj2CNXlxaqC4HcsBPd6TrwvqBc+2eJ0sUPn3l0shH2jdaCCgfNd0NI7hmgRx3tNnJytATdIJHAyAA7PHZ0MDz34tYs23y6/req2LdL/l6deEJmDUDrcozNGDrT9ZmeLxNDs2hr28rGmD3/g9PF39HighVMC1dNC+oBhuSzC6x1L/nMCvoA9NwsIE0cl81FJVdeCZsBy9LDB2Q5bFS3QDJiYTprVBw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Mzf+1xoRW9fpu72E8v545u/J6b65Hz6yP0uoXYGXrJHAkqTEa126o+MtPe5vos8x2b+Ho6p9avrZDHKS9aqcWCSYU/wxFNBtIngvt0CQezLDU7G+Njez+i+BcTCzbXeSgK5XzqlA9hxeKswpIb9zIhOd+0yOFdgrxvHPc62vB4KLAzjHPTxt7403PREbwOraJwctCoZJgNUiNsUQpGHNTygr2SIlklyH3dnKnxr3WZKRo56MpbjnH0Mhm1NyM3YRYPY/1UMaJq+ZG/iZKxki/wp1V74aYCz9fxLT2fI1D2G+UtiiNIqipLFhFHfoo1xvjKSGV46m+0s60L45ktkChBLsHvFwGXbJpw91COuOGFflGrWT8gYRRpIX7N3Nb7zHIJY+ckOLUkHO2915W7cPEUK3vB0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:067fa5ebb4d24b40\",\"npc:fb2fe5bf3dfed0c4\"],\"constraint_ids\":[\"C:84493fd1162eb029\"],\"span\":\"In lower court, the council recognized Cass as the Crown Witness.\",\"rationale\":\"Cass is recognized as Crown Witness after Noor accepted the same title, with no relinquishment stated, creating two simultaneous holders despite the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "2a8yd+/P9F2hDBkdTTuuf/+FZeZaoDPAeIDv7v5FyQksoGlBz7fu+v+z0C/I2i4dUE0KLEWIhuaOVEv/2rVbKikzghfXVtDEtYsXy2Krbagf8qFoAShAGTq1J2baWbIRsqVdmfCGW/EcnUCVNhKdzM7b/3fCfRbW2F2AbWftTflSL3hJLd6V/RHLBzSf4Djw/IywxeHX5TEi7boYmgHmF/CIU40e1RpgcX20w3wMyDfMQDuy/MfAK5gJGAUSXdwweLytbgqla5FIowdw/P62ZiGqjPTuY5xrGkexoIv/j0KsnEmgVo7g7RRlLCZzEMEGFPQZX1XaowxgAj9/AMygEOOd+y5D5+f3FoBFdg6WM4wR3KciKLDaLq4mKT50tdPY84YU2uvGpjwYzUkCHThqVyo/aaVx",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 558,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 205,
+        "output_tokens_details": {
+          "reasoning_tokens": 95
+        },
+        "total_tokens": 763
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:067fa5ebb4d24b40\",\"npc:fb2fe5bf3dfed0c4\"],\"constraint_ids\":[\"C:84493fd1162eb029\"],\"span\":\"In lower court, the council recognized Cass as the Crown Witness.\",\"rationale\":\"Cass is recognized as Crown Witness after Noor accepted the same title, with no relinquishment stated, creating two simultaneous holders despite the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 558,
+      "output_tokens": 205,
+      "total_tokens": 763
+    },
+    "tool_calls": []
+  }
+}

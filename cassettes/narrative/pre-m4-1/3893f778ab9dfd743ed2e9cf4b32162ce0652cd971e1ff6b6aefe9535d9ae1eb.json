@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3893f778ab9dfd743ed2e9cf4b32162ce0652cd971e1ff6b6aefe9535d9ae1eb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3012,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 520,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 127,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 641000000
+      },
+      "created_at": 1783856400,
+      "id": "UfdEomUaxl4asfI5291v4NRSC12tpMAiraXcLAY4dCW8Ejj4VeLN+0BnXPKiZUA50OFhXumrZOcrOist9QEI266xEoMYESDPk5B7Eh5av41zIRXUjEf41RP3z5KhL92c1ip2THflk/4DTVimaEJR/clHrgLFZjUDl7vG7YMWbfd4EKCVv59bCxDax3KtfciyuKzHwYSatSKk4lwre32qPjHFRVz7rJ5LKmPeeJfz5qfgGOJ9b0Ybj7fukBXA3g6G2IdU5Gq85qSDDouoYXxdgd0A720x1KzDPYtBGI910GF/L8oI9fFXCtkxbZNrLP8VrUxM7dz+EWgLNkgIHtTVKSLowyz/caKydfCkSpnh7PYXs/YFo8kV2LDvaUOlWpBwAHrlQRYURcOgTMKmLxhWlfrCXVufzA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "rWKNcs72k0/GZJ8ahEs6hpS9B2iJVbAzeIYeI9c5hbxoZgGry3QUFaJrhZHdvyZ6SeUUOu1G4qaZODbdsomRBtwEBe30xxXaLAFJiE7N6JAomT0YY7hPgnSIYFjEYGuKdzLBxkHf2vUx86VhXvGlJvFY++zdvWeFMK3PWBIXkwFsyA2uzcBYMbA0eMQLJ5v2tdaiGK9MFNkscEi7RcOkQ+sFE9CJsFFSPqRQpX1VzHvQ1XNsdb2VO84CTbRvuwgpIJQr2eIPiH84RG26ZPnIlc7X3urvPVsTXtRoP/INBJoM0JP+lvfKqEZ6J/F0dsmhZ/VZ0c0Eb1C0EM73tPoJBSYzvAX6NV4L3MX+A1A/2+Jz162/NrZfK3MAMdW4prvHkmjSx/mG+sgEoCjQPbcFnaD7G5Q=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:688d72ec9ee0d606\"],\"constraint_ids\":[\"C:0c833cfa0298d680\"],\"span\":\"At north gate, Ivo abandoned the ally named in a sworn promise.\",\"rationale\":\"Ivo abandons an ally covered by his sworn promise, violating his obligation to treat that promise as binding until every term is met.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9f1FjswULXCNnvbxEwZ6tgCXmsZwxRUx1vCambMj5wo9Yl3ghat6t2hceBzTDdObHCmEAPD9dTARyT0Z/o/PIAcjZB72UOaPvsmE1qvdgo4ZdMHpSs5e5A0Lv3W+fPdm7a3muajY2hQDpiH4n3dH6cYSfK4olegp+pQy2NGDXAVAYmA5akAwfztSglPyuXI+dThgSNDJ7yeSI/MZTfRKPuiVic9riYh6nlxGWko8B4IguGlZENCy/joKvgj1LlVYTGLFtOzx/IWLfyRMKmlOz1RjFffb47mzQSBmNS1jhXdgIWaN2nkUYdUjWE78LPDKkRy835sNugjlMSYFQyCn+nnEbuuTFWXR1UN0mOjq15+B1OuJwaVgrCK0qFgsklQmF0KFTeLcv7UHaMw2FOc/vq1CRXVq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 520,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 127,
+        "output_tokens_details": {
+          "reasoning_tokens": 31
+        },
+        "total_tokens": 647
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:688d72ec9ee0d606\"],\"constraint_ids\":[\"C:0c833cfa0298d680\"],\"span\":\"At north gate, Ivo abandoned the ally named in a sworn promise.\",\"rationale\":\"Ivo abandons an ally covered by his sworn promise, violating his obligation to treat that promise as binding until every term is met.\"}]",
+    "token_usage": {
+      "input_tokens": 520,
+      "output_tokens": 127,
+      "total_tokens": 647
+    },
+    "tool_calls": []
+  }
+}

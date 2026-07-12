@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:00d2a37e951b020204f89c95aeaa49748caf2d10701109baf09199b74d9be101",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3732,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 686,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 231,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1036000000
+      },
+      "created_at": 1783858200,
+      "id": "jRXwkCoEguzcuBlnJPd1hs7q+LpvFtSM+J4rVwOKfHxMjYDNawoWCN3HQBpe0msXK5MbLX6mjtyl1Iqh4jATDhT0f9MOD6bKsiZ+FlvVgpGL1DFZ6XY/ZKGj0LJlofO0exRrHhxBQ2jSNEiiGHWkaE2HQzoAWpuhQ4BGGdXU9eLVDRPRarxb/dWiDUkVgqheemMRuOkJ5Pfq7fL7q1skeqDV/3Ki4idJq5ohtEMbBEcnrc6jmIJFOpZWYF5RDiFwEwmO1PPTRH+8Mvi/dOOJO12obtFhVzDQAu1hqco6VTBFhWSe4EZy+wyQQWf+a7awSZbpVYB4UhTstmehIJxkJ184j++m8tDUe4Szde3rU0nQKpCgeaKOxKvtIJsyvv5NRR6Oe6KoK+8EJ2e+lLMZW4C0ZVv0uw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "4rVm9LG8QHWTv70VOhDCy1sUPJ1S2ktlOnE55nhl9GUR8scKbQsDtBH5w1ofZsmVJ12wAKhpdsRBHLii9wYQClNzT3lr8nhGb0qzH0Iilh64lTgWUri7DQOMqzDFsBHtvFZKKMFcSaRQdGySX41U46WxJnFO7PA+IlXAZFZkHrFi3JyJqdrsMRr9AM/6ot6nW+wLcKxGkEWPiicAQV0QnGq44olUv0LAknvd4dJ4cMiFwf22so7AtlLx1CTQb3iJe69yTet9AVZVSkQlwC/7+agitQiXJjnJkiJ7/q/oB4+Qee9cQakmtR6KRqVqvjbj16w76elFfCqWDpT3cfGcz5b9TlMWY7nZc/Jkr/xpCbvfmxpFBvvc5BO38ETEU1umHPXpNSatbVpQWie4zQCX5C8dpFQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:af9d17038cfe87d7\",\n      \"npc:b144de13e4866bc2\"\n    ],\n    \"constraint_ids\": [\n      \"C:0d5ecf6d920d5fad\"\n    ],\n    \"span\": \"In glass conservatory, the council recognized Noor as the Vault Steward.\",\n    \"rationale\": \"Cass is already presented as the Vault Steward, and Noor is then recognized in the same office without any stated relinquishment, exceeding the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "8z563NJ8tpKAH74H1GUmfMFfVtvaJze7Ctuiy7gVrSg2Xvgxi1zy8D8P+zpAW9itvJHK5xQ/tMeiWRllWA5uup3ycCgBTY13LBxePj6tpsfbq448kgFLZs5aS0OwIOaerwbppzj/RP+zBqBeof8Tfwxb9g5rA2EwuAu3UWl92Xk7sj3WuJj3I/1dQJyunXJUTxxnKUv2bXyRAzNlVpHMuSiae0X9jrXPbncYTt4U0M4zPKBdwQbwhCX/7lvGf2DfukNoxTG4Z2nHyM//wsv09GGwBD4nso54DXHaFn02tB77lvthceEdWSzLU4ep6GDpGxJ8lVzEFD84Sa8ZGF/jZKAnexjSeDkZvqPzm8uFNQw/oAtYeGjEWUIhq0gTQhbXvfuoQ7Nk3B/nZxt3f504KSJ7Rl7w",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 686,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 231,
+        "output_tokens_details": {
+          "reasoning_tokens": 91
+        },
+        "total_tokens": 917
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:af9d17038cfe87d7\",\n      \"npc:b144de13e4866bc2\"\n    ],\n    \"constraint_ids\": [\n      \"C:0d5ecf6d920d5fad\"\n    ],\n    \"span\": \"In glass conservatory, the council recognized Noor as the Vault Steward.\",\n    \"rationale\": \"Cass is already presented as the Vault Steward, and Noor is then recognized in the same office without any stated relinquishment, exceeding the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 686,
+      "output_tokens": 231,
+      "total_tokens": 917
+    },
+    "tool_calls": []
+  }
+}

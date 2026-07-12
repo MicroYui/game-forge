@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:163f05bdd7635f8a604fd335f45edc174a5fbc73b8fb79800551ea09783bb470",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2920,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 551,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 134,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 677500000
+      },
+      "created_at": 1783849300,
+      "id": "3vAJgFVoD7DFY6K1BMwaky2AF16G7v4WnDzcyeff+jD36woZhssZAdkaC94/iHlkAXGwSB6pTgZKK290+uAlLeCZdncEqqgBPJdpIDkS9stKSJ9DcddaBkbE7Nddy3cj3+XwDhMMfaycNfSZLlOUt25k70w1qSsK5N2qfy6j77iFoiVd0qExfOnmrjekcqBdc/AiYaHomrCzJ5wd735a44IYIvxnA60kusSDdFNWvYnlCtBSCWbbbpFbTiM1L8VYVI2MNfmptITjo40n6yD0TDb8vdTFuqVj917+3Yjts8Zw8cSvSjjz/K9e41QqXBgdPno8FgWN5gtgSp0Hyp3t3qpQjH6NsxYp7sRPmeD5n/cwgKJnEPuOZGnUYXpFMxmzBrpETKGwd0CxMn7hyWtrzcwo1c9mpw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Cvv84k10uJeeNH9Zz/9Yp9fXGC+y1128b19BybgIGoby32Dyh9WD/496vXhTBs6d4XuFumt8W5iDAEQpuHTU/xCkcKlO8g8KZBuh26phzykX5jrcAl9ImdCTNCombJQq1XpYsTVnSq9dpD34PoKr3mW1VmJs10jhFyN4BC6lPUcRiaWOx8cWl5ylnnFZvdBvd65euvdmN0u5Pom+mF3jE8Ad6swEv2HkDqeYG41WCfut/Vy6D02v3Wb++zcS++jhRjTWfi9wVozsQpQFl1xiIwMmXGeQWaSOuWKVSRCBBvlhI1a83wOL67Rumt3HqokTjcf4PL7jDEkl2QdAzUZAXuNKdUFESdgiANUpQXclLbg8rjQugS7b+Q1LJwUafoOgkAX4jEK8qbPPU7102M+wOQsoeho=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4723ab408f95b3f6\"],\"constraint_ids\":[\"C:132e83d88ca95a14\"],\"span\":\"Tamsin started a fight after the delegates lowered their weapons at orbital concourse.\",\"rationale\":\"Tamsin initiates violence after the delegates lower their weapons, violating her duty to preserve the truce under that condition.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "dxHfWpv7LTQOxTawf7oQfZ+7+ZZLvhErUpJkbGb2aPd2Cqkg3/ZRUPyIAAK+psB+ScZkfkCE/D6l7kcFxBXWPUeFy7fPtYMwO5dCQDC47tUvSpmKKBP442bDwKR6NEffsaHL4LvMqvcRl0cND61NnNd7He6nMcbmLnuR0RquNQ8q+UdYpbUs8ZsZeSGVxAmE6fqB+BL4rANGnQNA5JlWV96c5l7NvNsei6w3PgQqDn7W3ufCXW43mPTflINGJZA2l1LbkFMeIcgxBMz9BXZrnT8uhGWDhKTDocJIuruWRAIRsN7gLv+3naw3Zy60RZaG9L8fD/yjasdToDdIdTpmjMHbYY+u4Igj8gRZDXv/waDcUb9WPKUQ/7H+0rlmaTNBXmYzGX8j86GcrUcN4H7zU9UzwPMR",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 551,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 134,
+        "output_tokens_details": {
+          "reasoning_tokens": 37
+        },
+        "total_tokens": 685
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4723ab408f95b3f6\"],\"constraint_ids\":[\"C:132e83d88ca95a14\"],\"span\":\"Tamsin started a fight after the delegates lowered their weapons at orbital concourse.\",\"rationale\":\"Tamsin initiates violence after the delegates lower their weapons, violating her duty to preserve the truce under that condition.\"}]",
+    "token_usage": {
+      "input_tokens": 551,
+      "output_tokens": 134,
+      "total_tokens": 685
+    },
+    "tool_calls": []
+  }
+}

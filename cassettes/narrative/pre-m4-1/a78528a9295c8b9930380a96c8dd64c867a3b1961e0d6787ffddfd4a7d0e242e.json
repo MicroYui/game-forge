@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a78528a9295c8b9930380a96c8dd64c867a3b1961e0d6787ffddfd4a7d0e242e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5145,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 633,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 178,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 850500000
+      },
+      "created_at": 1783845800,
+      "id": "R/iIjDnv8C9pnqV98FEIiT00kKGN4YnBeEOdxUMFFJQl+vXkfvDK5KWE83Y4iEKkCl+0yoJJUYM3SehAWBSfdbsfVHqPZ+nqbHrzTEZiQ+u8D8gOWQQPBFHL6B/x461dvgVcFPc1x7rfM27YD3K1v47fJj7gaPjHYypnJrE1v5In2XevM+lLqhxOdiHXPA2L3XJ/tQvAttwHQ7EMNxFPLbn0gYhc7QAR0IA1z7nO3HJ3E7zp2q3bjmH7wMr8mVALMgbKiR1349gVJsJyP+mNVPMNVE/YSAzz3KsnaCudXH6M0FR9r10xdEm4UENNwgEilp0J9VYgll3RtjzhkyFRca4FBB4TR9Rj87mZyqL1jl/SMrr+Sj+xw5y+xuVfx62C2gLoqpnU9T5c8Htmjp8H+0IetMZOXg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FsKkgtio4mRDyhHGy5bpXG9CXRU9z/xX1j2snqjgtZVH5a8ZgIHL3q46zF4e/5n3fTpKd0Gwd4MK6Ls9qOqiXnyQie5UkRPlrn28dL5ekzO1VB11D7XrKMrCzYYBVItRO5AvuSpZIXnNNY75sotB1mvkuvOeIN+hL5PjgzlYDb9C5OsBUyqhls7DNwaIV/bIykJpNPqsVB9KwGlhdcRD5F43fH8ioJp7dW314MZ1xSls1GN+C/CldJBpZ6FdgNHh6oETgndBBnrzsbJjeb76Jhds9lRurd0bUG+qw2U21pQ4gJOaodm+uW4nnKBZcafeL9C+Fn73/tPLvsiZQV4B072VOGEqHhduuZmjqlGP5PV6WqDmbcKHcSoNU/H/bfXv3x2Z4OgR4vAEp8k7Bk86HUcO634=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:228c191c2bb10703\",\"npc:2948aecf3da9c756\"],\"constraint_ids\":[\"C:a814f6b4fa8df405\"],\"span\":\"In glass conservatory, the council recognized Ivo as the Caravan Voice.\",\"rationale\":\"Lea had already accepted the single-holder office, and no relinquishment occurred before Ivo was recognized as another serving Caravan Voice.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "RCvspGwWMB6tQicp7gYArA6hDpVSLeMIg+ZqvuwoOQNBwzqctfH0+C1u/HDZIrr5P+rRQMRGc6xM5NjxPR4qP5swUn/OMGcbvEPCk3T5hxkWiexSTeF7hSGL2aSdzVvgjktWEmtFIcMeN9bmx85BROH5TkS33IYtv1X1DoUZh5WFUhdCUIHAq1Qlg4L3J1HQqO7ionckjDq+w1OkbYtVfwX6miiQbiFFHieU6lMm7+6WJGsSSu/c4GQX1H8WZQCSkkmrj6lbyx2mlq9jNgV9bcM4a/1YHgEkjd8VwF4cqJvsQ3AmbBZx4gpUbAiHZ8JjhbZyKPGkzFRBSgCm8i1YvimeWWous0kMR9fR02t76olSZGKIx4A6C/mNgVO8/fT2QBrFf/ngsErvIFVRIc/GkbD/C6yY",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 633,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 178,
+        "output_tokens_details": {
+          "reasoning_tokens": 70
+        },
+        "total_tokens": 811
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:228c191c2bb10703\",\"npc:2948aecf3da9c756\"],\"constraint_ids\":[\"C:a814f6b4fa8df405\"],\"span\":\"In glass conservatory, the council recognized Ivo as the Caravan Voice.\",\"rationale\":\"Lea had already accepted the single-holder office, and no relinquishment occurred before Ivo was recognized as another serving Caravan Voice.\"}]",
+    "token_usage": {
+      "input_tokens": 633,
+      "output_tokens": 178,
+      "total_tokens": 811
+    },
+    "tool_calls": []
+  }
+}

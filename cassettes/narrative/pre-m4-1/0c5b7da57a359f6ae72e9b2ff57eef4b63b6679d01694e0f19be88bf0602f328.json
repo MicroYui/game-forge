@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0c5b7da57a359f6ae72e9b2ff57eef4b63b6679d01694e0f19be88bf0602f328",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2676,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 612,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 155,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 771000000
+      },
+      "created_at": 1783861800,
+      "id": "e1Kq3UBLMm6Y1C14/t3CJ12gfq4wy2K/2xn8BX7Xcwpw8r4B67mqYwdhpMkvIh1DStZ1nCg0zl2gKTFFVSGHeOotdfl/qEvdEjFCvn3jwsQaSIFNaVRxKO8pald9DAE//T5GguVNbgfkvE6jFU2quL6yyslPxLLkUkHtgr84wJ34oLYLW1tjaor3pnSgD6EGnR2QpI2h7wCItc1k4BSQSlaFxJcaU18tg0YGP1vBpu4+qxtDNQxylkh23wS9LysKPjHWnoevlQ0oYI0OcABk1KUGpWWk2XjkLO6c05PXFkwMAxD7VEqPYw+uc06bLewZiu+3Pnmt9NCAP7AU8eXyU8M2E+jbkK8faaB4g6JqdtJxbWVtZ4aZFG9Z5QcpEpRBiKMIkqk8y+kQ2/Xq+rPFZqCLa+4cTw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "1b3W2zcTJuuGO7Mn1BWIhwe9FpR9VXdRL9UWt+BBtlZGyHjBG+iUu2r5eAiGrbAaJGj2LfBnxBihWyn0ZouU8J8YFAzuNQY11ZkwtG+oB5tXlw/oegjC0yaPVz9LXBMJoIS2ROkFRpVHkr9JECVccFMGqGC1H2ittOJVJv+7jCWxH+O54Wsh1bzkXO1GOJDxVS4+ncuB2tvRi+kJBzogsRnrXEd/51Jc/ClGweUNeidCZlH9k+9F6Ee1d/LOcjJeyOInh35iiK5Kyc8JkcZd4MC8t2b5iUgWBGSOX9rfW5SE5yG2FIzK8rL5fufsSykKCWSjC1/KxST4zCw9OALaX/Q6al+qVHaRgkbfgqnO+4A80PuuW7xgD0i+llQSm8vtvgYajw+PNEAjcHxMAuWliXA+ylM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:fa10fe72d2988e41\"\n    ],\n    \"constraint_ids\": [\n      \"C:116e44cfce3f8d24\"\n    ],\n    \"span\": \"Qi publicly renounced the oath before its terms were fulfilled at north gate.\",\n    \"rationale\": \"Qi renounces an unfulfilled oath even though the promise must remain in force throughout the mission.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "5whdoW4md8KpbXsvCMKbnGbO+CPVQSroAghErl3ctyOlEw5U6ZWbZDwvpqNg5jTK9Lm1zrtTMd9A4tkafIyynTLkQBPiyIYPEOcXcRFxwsekdXtaeWwZWJsVnplzSQH/jWPF/pOzj845YzQVp1LBMs/Q0N1eUBLVe3HYPXKFYd/Bw5OMbKsMjjf/WDCiuK9pFGY7o+vHxpRduKytUmIR5S/EGE92tzTQJkk2VtVhkXm0LY552PqACD8jk0T8ZCe6u3/8SaR42HhFX5BMew5wMmc3CakjRpUijAbFtdH496PUOvr+4097Xx8HcXscoDmHK0X7jUIR0E64iUpQpcm23AO/jQgBYQM/6fGJ4ydLmFUYrottbVlsJvEcFf7Xnm7MxYbsvGI8x0qY9wk2JIDpwHp1Zgys",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 612,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 155,
+        "output_tokens_details": {
+          "reasoning_tokens": 42
+        },
+        "total_tokens": 767
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:fa10fe72d2988e41\"\n    ],\n    \"constraint_ids\": [\n      \"C:116e44cfce3f8d24\"\n    ],\n    \"span\": \"Qi publicly renounced the oath before its terms were fulfilled at north gate.\",\n    \"rationale\": \"Qi renounces an unfulfilled oath even though the promise must remain in force throughout the mission.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 612,
+      "output_tokens": 155,
+      "total_tokens": 767
+    },
+    "tool_calls": []
+  }
+}

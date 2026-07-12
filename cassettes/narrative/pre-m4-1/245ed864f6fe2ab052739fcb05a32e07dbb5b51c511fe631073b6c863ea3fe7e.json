@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:245ed864f6fe2ab052739fcb05a32e07dbb5b51c511fe631073b6c863ea3fe7e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3307,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 697,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 147,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 789500000
+      },
+      "created_at": 1783858200,
+      "id": "H2ftff7C6CutiKBXUpJirROGxSZXel2jBH+wg25gau3E+Jjw4zkrT/df7u0Mp0stZ5OnclPaoacNEi+UzCipiT18rnGYqcSw0UAulezQ75TDGe8JbzbzBoR8Vnmcds8mZU0/gtjI5N7wP/8B/8GwYYneNuYG/t/Kcub41adLlwk4JqsV/VVVGEheFVtV8Yo8EHdV4CwLfEYBVt8mvffeJUHJvJk2AfBHbSuIA/EJh5Xsy/mhqQ6/wFE0Tnd+odAbETTIxsGbSERlpUk1aijh75+Jeglwoff+YaROQUsC7PMul2m7ENS6iy0h4UZ/iVYedvyvb3jIricoDUcYFOUyBflr9imILrSERtQlvryG/D7Ls3VV4l6RI6RJAQl4LPfqr1Xu8t4ZOryJf+RIWNV9fy7PEhSPtA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "eJKcqeOvvq3tX0CNioJ4WCNLCsYIm21BxMEwcUKB1o3RKeqH0vptcDAdKKWIva2pDOMYoXD95hU4yEtIddbmrD6VDSxrWme1SuFX6pZH4fixbSsBbgBPyDeYSyXsCoUJZmRygWUyWrRpdFpaFm4zxgxG/bsUv07Ze0IWchg5vSnHndjBNAZeL5CUS8ybLdTOlSpzWLieVJiLU/6N6s7Am7+73NfJlaeb154/I0+HN7jpRM6LUAoIcq90WskzPa0xZIMYqeOahQtiiwNCwKNAs7VeqFGHtxNoxO6shGdwIFw3E1mPXTysuxfprHAaOuWwmmbNa+Scg0uThx7lyL/J6zE0kohF2Mv9yQgum2CX10fjoDlyTVbA1nZC7hm8tJ6ZchZGwgDBEIF2be7bgneXBwlBZhg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:cd7aba166fde6917\",\"npc:f19cb790a6feb37b\"],\"constraint_ids\":[\"C:04a38e5014142c0e\"],\"span\":\"At canal bridge, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik belong to feuding factions barred from joint commands, yet they jointly approve a battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "mXFOJBNNrQ4lm0tnpfTgpzRqNW7SxgcDSQYOZlnckbXiZ2uPtLeFpCWFjc8/BsVbGcpt/G948juz/AiJ2GIL8bPY3S9WoHT6XmjfmnX+awumGgLsznAt+zzKcrtj4LWcXM6BbBRdBEZ54WBz7c9D4XBImCf6hL1/02gdAdBMR0qHXH5ZCipWsq6YTAsu3zSHi+vWErXwBwdIS5y5KKo1EIofTKIcAg1W5RM9FmHsPnsokQeCxP85a6wAGnUNjH4NcAFX8mNVlRx9UgT50mmjoaArrtlj99QE7ly/SiWp9rWRI5uYOxWo8hLUswEZ0suoGsWKDnlQ9G3Q/1TPldtCiRwwTvjEdmWBLzwwEpwHf3e93XGuimQ6mleR1SCJJCm4soGqFjIJXDzkP2P+ByaN3/kWFfJq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 697,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 147,
+        "output_tokens_details": {
+          "reasoning_tokens": 48
+        },
+        "total_tokens": 844
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:cd7aba166fde6917\",\"npc:f19cb790a6feb37b\"],\"constraint_ids\":[\"C:04a38e5014142c0e\"],\"span\":\"At canal bridge, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik belong to feuding factions barred from joint commands, yet they jointly approve a battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 697,
+      "output_tokens": 147,
+      "total_tokens": 844
+    },
+    "tool_calls": []
+  }
+}

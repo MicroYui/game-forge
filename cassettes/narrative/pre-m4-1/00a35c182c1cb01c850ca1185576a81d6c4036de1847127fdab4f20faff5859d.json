@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:00a35c182c1cb01c850ca1185576a81d6c4036de1847127fdab4f20faff5859d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4401,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 616,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 824000000
+      },
+      "created_at": 1783858600,
+      "id": "YUt+XdOr0gnGfecLRDWHOv9A7YZ/muQVdnMRqw2xw3hDeBWYvpiOg1npH/n3jQtrK+nVZi2g1FNNy8rJNnH8jCt7cTBrLwAj0uf93svX2WwLQmv7etc9xi3IRRcP3VgdTza3B98sIwXE31fx0Tgsy2acwx/IrM/OFiQJNkMIZUrhNfF/1KN2yLnhoJhcOPIXM4ckNDyrPmyxVMH6P68gkTn7cefu4yB3Jf6MHMOEzJaukvQDu1S1eAJPGSf8smxsHHz1/qbvjGQThHlXkncpgVuA2mZ7GzfAg13pSE0m/rnanvoGFv8fvzJjJDndKo/bcbH7OvZZ3O8C7TdI+N9yjJUeNp0/aLbtW++vdnAt8RuM2Yl0iAF3B6JIDdvFl405VYFQhEyKVF2+scJb2bwVRQRadm4wsA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pw4hEbwfuU5AD8W8SfYOCKkuJ7LYBk4gJKQ6HuBD2eyHH9LZgmdMSSafhUmyi+zIR3sg9bnGxF8anNhwdGWaIzvwM1HT1trPaeCehTSh1k7Wv4lecdrn3pPSKZLRxusREc9kIPlRHcbQWx1MYbKmK2H3W/k+C9Ug7hEgff5eTMyvTnAYU98NMfnFF3uQ/IwvB8fO1hEKlM5lqvZoMLEz6qUcs5rdOiEfDfraL0RAqXZca/oyjvf2CvwZouLJodm8Pf7zMwOUqj5IQ1jH2ZlxmKg+3QB7YOcQDifUrQZ5ryQOOSKK8iZfXF84mtqIlSuhdisEIwK7rZG/uhVcvLqGOGXqKMZYi24Rymd4o2TNP/XjS3YaY2Qu5AMxMyfpQ0D8rLCLXklRDzfyqdYIt60/xKyp6VA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:6c12ef9729fbeb4c\"\n    ],\n    \"constraint_ids\": [\n      \"C:288cb46a6865f0d6\"\n    ],\n    \"span\": \"Veda quietly traded the allied patrol route for coin at orbital concourse.\",\n    \"rationale\": \"Veda discloses an allied patrol route in a trade, violating her duty to keep routes entrusted by allies confidential.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "FKeDT/XPBKQRzLLPtcHV+ELEGGHXtdVseaZDjoe5r+AKK4vX5AtCqm9tahX6aEeKnXGT4wffqOYUHWGhURmTrKrB8dOgVStkO5OoDt4sZy/Ms62alKR3jQVCA0qz09NHBUElJjqLX0SZOZmD8Xisyk6dGTB532r4+PTWi/0QN+12Dobt8hEkN1ZVLOQ/Ta8RXjGRRBl6rWFmhJ1Ru100lGh+1artdAn4N5gha4F0wrT5Xe3OF1PQC8+OhVfUFdRNjeUYEhzTicz0l3ZCi9DKorTZQ+rLgHukNABFG1enKLWbfgGMykj9hqbfnvrre7WENHaP0rdkrAGKfnR0opm+dhsv0j3T8Z8Df0SesabceRdEyIUDYgc8Ew7qWAuB6buDTv65WK4exXZHxeyD318eYg/VTxV3",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 616,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "reasoning_tokens": 53
+        },
+        "total_tokens": 788
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:6c12ef9729fbeb4c\"\n    ],\n    \"constraint_ids\": [\n      \"C:288cb46a6865f0d6\"\n    ],\n    \"span\": \"Veda quietly traded the allied patrol route for coin at orbital concourse.\",\n    \"rationale\": \"Veda discloses an allied patrol route in a trade, violating her duty to keep routes entrusted by allies confidential.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 616,
+      "output_tokens": 172,
+      "total_tokens": 788
+    },
+    "tool_calls": []
+  }
+}

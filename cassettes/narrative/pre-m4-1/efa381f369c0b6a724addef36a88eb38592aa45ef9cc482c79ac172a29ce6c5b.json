@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:efa381f369c0b6a724addef36a88eb38592aa45ef9cc482c79ac172a29ce6c5b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4666,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 568,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 165,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 779000000
+      },
+      "created_at": 1783842600,
+      "id": "2aYfgcXMP6NrYd109HtgZgp4GQ/byDvc6zapgj6TQTtn85+gWfeedm9lAmxpC6zSm26Y6t+cAuEjX4sqP6azANXeL4AzMeHo18AsLoNxQhJglXnVcxcOfkKVz2HJJDHGP/8jCpNiBfr9Z0CuK5vNcjUecJNPekAJGW6o0Ew/71hyOAF+Chw5t7KKHT8J+W8O5gra9r6WT6Z4wYFnDy0GKubM/GJnb8PL1JtnD6lwSVK+e2R/mcCYGDzoTflMLgV6i/3S7Gk/4n4quCm3Sk6dbFv1BeczRYG7e4woPKBc1tUiyaQ+BTHaR1w53En6BlANE5vyG1akoibSRkiqraRgWbEE5gqoolkKkV9fJA+lDYXeBth7sAY345o+dZ+XCwIDtuKxhoqzFb6TFQ+NZzgG2dYoLducJg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "RONSN6f2q1qKGtiySUlSdtqPN7If9ugBJYG/7q5LO9B2TSOta3FXl+9PRQ8qqgMJqrpAaf7ZMFYYuux6pacobnBpb+8IhjfjbJpbBwZVniXEMJKSL2Y0zdJDLNz1Ot9edJm38ubnVP/+aPSwRj8NZ6LAOqu7ux7NrI5tMKJnlKbf9L8B04rQVhjX8KbNdclpwD/yk0ysBWT3IgivHJ8jeob3/S1F+dOq8Pi9Ih7YyU08UnM6SiJCMafw5Wdw0/Jau9Gp0BfghYR6qacBlOl1t/gTwjcGf0AvXdwQVMc9ZoBbAjUEJyzSYH2kt9iNDcl1QqSuNcNs9xQ4uW402/sWEZkkHzrb0NCDMKAJ77MNzDZYy1sjmagaMGRe9HqwweqVJkSHvARxbklSd73LMVqDh3ySrvI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:3152e44cb0bdae9e\",\"npc:5e9dba965a221211\"],\"constraint_ids\":[\"C:302e788cc131e5c1\"],\"span\":\"In desert waystation, Qi supplied Mara and called the partnership permanent.\",\"rationale\":\"Qi and Mara serve factions that explicitly do not coordinate operations, but Qi supplies Mara and describes their cooperation as a permanent partnership.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Mn4mV6sTAYulQOJgxrvo2sJZ9NdaZ1Z5XmvhOdknhFs9tzLLd20JDJIqrgJwl19e+uPvb8gyrJyycaypqT7QVvvaUMsAsdfgY69vRWmGlZ1lErjBLdFIzudd6c1Lsr4PK7DFGfsevijSr2fAEpuTEX6GNkxTIwxj67GIFCJxkvWhT9qvZkDLGVEToS7wome0IVOXXCopbe7PMfpN7KwshujHA9YlnqD0usNWlZvyCa+HxT+Rjou8njBOtzHwhy7iWsPh0/+vRd6UClLIlLBS8xNk2BB/ieDIIUu9PfdeUGZRbkO+8Mz3aBtVYjhPo4kSmLXSm+ET3c8v6TRaajy35387ChIY1QKCg+NrueTl5nq+WLOg8T4Xwjq30dbjWd9jTCIzt8qy5D3ezPadtPhBXVS8VGUZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 568,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 165,
+        "output_tokens_details": {
+          "reasoning_tokens": 58
+        },
+        "total_tokens": 733
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:3152e44cb0bdae9e\",\"npc:5e9dba965a221211\"],\"constraint_ids\":[\"C:302e788cc131e5c1\"],\"span\":\"In desert waystation, Qi supplied Mara and called the partnership permanent.\",\"rationale\":\"Qi and Mara serve factions that explicitly do not coordinate operations, but Qi supplies Mara and describes their cooperation as a permanent partnership.\"}]",
+    "token_usage": {
+      "input_tokens": 568,
+      "output_tokens": 165,
+      "total_tokens": 733
+    },
+    "tool_calls": []
+  }
+}

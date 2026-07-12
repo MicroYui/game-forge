@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ea632c3aca2acf10290e3bdac6dcd8a1066922de3df3584d0d952a72e0f64e7a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4296,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 691,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 248,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1089500000
+      },
+      "created_at": 1783849600,
+      "id": "OrTGI+uG47NYGLN/4htUQ3sXNg+nllKhNmRHf5m5sr1tI87gBlW1bq5qHRW7K50uHSrawZJxA658/7NsIs3HbD+LScjQtD+mm5bALvd1Wj5RP+C6yDBHjzLynYkM84pWPBjg0ch+u5kVbXaHdGJPAEXWzb0/Ad6NcgLcLoa+GWJCRRdbmstGEbzQB1I4fG/0hmFl9avJ3J2WJJA2imclPjP1WzbyITLsbjfktARDGXxkakY3YWvDS+JK3ecGYqSLPWManJN1jobfAuHAxTpCrJDbjECNRtUb6RAYIAOI7c1+GxKM6MrKckIQongfcq7S2C5hVPm4fW6uDRmhsoZjVLhOtCic4Tma4+hI05itEJhZ9izkdWZJx0fhRo/EHeeVUEBwMg+gTHzY/09Hm0r0AIYj5pdAwA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ukct4EfARBTX46kfxsCea2gGfxLDU15uZXey34hTl1xXOnrtXydqByQXOXlGZEMepxK373xLfNfxUOKIM4Kd9UVpiHqkJsWLXkZxKjk+wiwajbrW54kxU9BPVHHxB8j1L7u/zMT4B85NBhwdh1mm0dVlPWUI6ciNwBmPvXZP+rwT3JDHRxuvPVzUAVmTrG43+JTQRwUAiUzhUJHWdPDa8UoAopwaUnL6KNoSDlcpKSnWjtGBhxNvJnGNXyA08C3jQibYRvZy/4ifMt/3gdhDOaHglcs1qY/m6k7Sy3o0Giz9DTUv1TvjauXqpkWWhVT3Jtp6iCYT5Ehr+qBRU6zv0hO6q89zH6HRdRqg9jJH0R80WShBujrjnKcRUvLaMzICu8CRxRpnvnSpB24Ppwx/2ivL/9E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:55c048b9051e4cce\",\n      \"npc:aac2b6866155fd64\"\n    ],\n    \"constraint_ids\": [\n      \"C:6ab0f92c822c28c7\"\n    ],\n    \"span\": \"Iria signed the register as the Warden at north gate.\",\n    \"rationale\": \"Ansel was already formally introduced as Warden, and Iria is subsequently identified as Warden without Ansel relinquishing the single-holder office.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hyJZLhGFcDDP9slvsYqzSHgYuQcNhSGWMXWsIrQ2x9xn6qey0p2WFxo7fbsXVB1v1fNTJxU8I2/y8ujunAbGTbOQDAVIC1mRQjLEuXZHXGkCOyzgtzC/xIzL1mEVEYEiI9GxtTD6YaYYh/TfNkpRKFfDlM3NCFj6RAWs9Rr8Dsoop+B0otCc/P7qd7fjcnxYqGNiOP4Ss/gDn2qRTU3FXgXksPeVJ6DRQ9Av1yGXwL+GXq8LBmp9Ub29ban5gDksOtlGGSEIPp8V5g/wRJJAxFiQeKVoas82/j1YWSS0y19UfzO59cLqMFbAfexi23ZkP/iI4AT7Yy8AMePFnSp8saqISVjg3WY3WzaWs4uZ5+b85I/wqP3SJiPNz2f3K4k5FGbKr297l6iuorKC/VuHdpVw30pA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 691,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 248,
+        "output_tokens_details": {
+          "reasoning_tokens": 110
+        },
+        "total_tokens": 939
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:55c048b9051e4cce\",\n      \"npc:aac2b6866155fd64\"\n    ],\n    \"constraint_ids\": [\n      \"C:6ab0f92c822c28c7\"\n    ],\n    \"span\": \"Iria signed the register as the Warden at north gate.\",\n    \"rationale\": \"Ansel was already formally introduced as Warden, and Iria is subsequently identified as Warden without Ansel relinquishing the single-holder office.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 691,
+      "output_tokens": 248,
+      "total_tokens": 939
+    },
+    "tool_calls": []
+  }
+}

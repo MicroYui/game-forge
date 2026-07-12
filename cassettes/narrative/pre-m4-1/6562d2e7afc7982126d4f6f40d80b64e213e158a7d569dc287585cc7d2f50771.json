@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6562d2e7afc7982126d4f6f40d80b64e213e158a7d569dc287585cc7d2f50771",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3554,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 602,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 210,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 931000000
+      },
+      "created_at": 1783849500,
+      "id": "vipJjtyLZ7iGfwV0tl/gj7dYk08UAqXrb8uypRhhNibZ1InAmvCZ46uIQ3oilUure9JdyUWUu5TneOxdBR812hSr9FzsVqXH06ZeC07QqXE3Rbtb3HV6v28DHsk60sRdQNX91yTdP9h1HMSLy/Mz57wSQVyuutZxPODplG8ulQ4EOMx5v/B5+bpwMdwbE2Wf6pa7ABh6mU5xmL4Ydn3H3Y7hYKenkjezzkSq1VcNaSR31fEdihF1rfFB8uaKJX0Ue78Dv6qE6weFUBXsQzX5/nyU2EzXxUfK/M+MA+2r1l4VOC8pZK+XnZBFtWmXyBJGGTrFQyhZcB8bkGpltPkI5JvbsS0/CGMov8EBuMozRD35FvK5tTUfIJ42gf6/6pL3IL35Hcw5uiOcVb0vlRJL5AwDUaJPXA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JMhGikk5fcAIaVIHSfpp5XYpPgc5vKAOz5rbqCXWwuVFsrJm+MYDJbo+CWVtgSR3MuvlDo14vH+RoDArvHNwGsxJgsQf+h/yz7bRwIZHerYb0HFIX3YTW8S5NvwQJS95opB3zTffDpVsRxdlRR0G7QTGKRsh+CoWKGfp0g18PFGjMXO0HEJM6iTOI1iHhRUVYDjW71DgqpUHJKxFgXXWx6qmW602ZusaxwpphJPEoFKJYBwOpMG6Dpf0jHhKiSBH5DLR/VYt0DAAyG1HQxA297Nmc33UT48JGFXdckFb8IZJw+yX9X0NznsLYONsH+Do3HligiZD4/SYi0edRgtsAHG1AaJ/sIwViX6dROldMJnuCsZ0G+gsV8NgcLNGjwDc+WVjaeMvSDmKT2pVl8lGBWgdPxQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:97116b8bf3838f45\"\n    ],\n    \"constraint_ids\": [\n      \"C:bfccf6c9be86076c\"\n    ],\n    \"span\": \"Tamsin disabled the crew's escape route before joining their hunters at eastern ridge.\",\n    \"rationale\": \"Tamsin sabotages the crew's escape and joins their hunters, directly conflicting with her loyalty to every crew member.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gsU2c1gMxs1tssVzsz5kblaCSclR7ofZ5DnqeZGyEHJbW8pmIWsp/3BaIptjCY0VYoNeV5OMAxScr0WWi3Q7l+dsonCdHDjG1iPnoSECcGFjYezKhDuNOdeJi0Hgj8ucfN2YaziTbk80FrxEznghUbBj5Migl6wzrFjeR5vpSwvvn+RWfo6kkFvXjPSOsq8BPbzIuykPPj4LroIJJLseZorDS8cGSeTmuYYYnkoNJmI5l7ahONJHC74LxY71753VwfrfBfTp1xJ1OIbEe55KYFTSlPWmYKA+UyqzNNbVc4kjXU+ictol8cCp941HD2HrpAun1dDkg9UsHSSNNaD8iZOJugS+AdxARJTzXuApa82cor9yS2L40s8FsNeetEfNgFMJYSml4HmTu392E+ayImwifpBT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 602,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 210,
+        "output_tokens_details": {
+          "reasoning_tokens": 90
+        },
+        "total_tokens": 812
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:97116b8bf3838f45\"\n    ],\n    \"constraint_ids\": [\n      \"C:bfccf6c9be86076c\"\n    ],\n    \"span\": \"Tamsin disabled the crew's escape route before joining their hunters at eastern ridge.\",\n    \"rationale\": \"Tamsin sabotages the crew's escape and joins their hunters, directly conflicting with her loyalty to every crew member.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 602,
+      "output_tokens": 210,
+      "total_tokens": 812
+    },
+    "tool_calls": []
+  }
+}

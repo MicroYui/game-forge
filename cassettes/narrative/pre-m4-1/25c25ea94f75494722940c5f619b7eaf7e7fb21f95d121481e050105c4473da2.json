@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:25c25ea94f75494722940c5f619b7eaf7e7fb21f95d121481e050105c4473da2",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2758,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 710,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 178,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 889000000
+      },
+      "created_at": 1783861600,
+      "id": "rJoN7FieZUwP1pLNXVpnaW+vNcPIFop2aRQ1m+5m0C9C8yeUSiRQgjtH/iCrQ8UrKCK5GfOmWHdLDvKlXStMLncEmlER4s7fz4tFHZK8XIB/uB1G9DMTQe/26u3sPkJ73piQhiCES4FhXgmtvFPLGQ2Pyv4UeVc2XInA5HrvEdZ7TvLrpRISjyCTJVGRxDmzi4j6zS08xAYkJ3C8w6ROoGZ5/N4g5Vfjru65KZyGx47/5SkwpN5MBrcNquJjNA0OJpaVxgPg0bANHEoWibPTXpz7KV+JNam6IbrMXexoRq/FX7OQwgRNRXk0zVc4pY4O/PvzeDU/ER2jdQ6wnHacW2CsUTTPSHrG0mwELOdsCFPpasMAQYoQsr3FGsXuV18i4kjDabRCu0wqq/5+kHrf7uRuo7Tayg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "MZ3/C0INvG3Z7kgvnLKqRkS1fSyfzbNoOqYwNrkSyCIvnA/8qDld7zS2Dsn/WZDYbSvwD0hnBmHqerdEhgZekz0zrVOwnK3uKOMnL+U4Q72w8koF0kwEDA9LtlDLZiD592n8/VEkr/ewFdSDAbAxPmveYB7rcxjoS07clU22nJkme1C4M0uRMJweBgFlTiZDbjxR2ak1n5pSloKsS55FKpzCFHwXlkWKywkDC/YiEZDE+o+7mY0340d1PoFQhdNHvqZQ4TvU7NypkFRH0A0Kqp3Ob1l7aV2dNZGfzcVu+MplZ3MmdBhugkFFmlCSdhsVThZYMamk+MoLWAa0FLOw0KrkdnhBsAdNLw45tsGVcliYAbLTdfVNdYouaVq7fUUgVKYLvHXfNpSuPhZEOcf6HQE9mSQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:9a5d0079e93002ef\",\n      \"secret:d319d9bc3054a3f6\"\n    ],\n    \"constraint_ids\": [\n      \"C:9030a088d99f832a\"\n    ],\n    \"span\": \"While the story was still in encampment, Ansel identified the hidden heir's identity at desert waystation.\",\n    \"rationale\": \"Ansel reveals the hidden heir's identity during encampment, before the permitted reveal gate at crossing.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vAi8tPQ4FpBijfVho3XHOqcSHdnBZonXjxSXKDGZzTk2ZxpMoVABG8VxCg3hvI4GVZeSACw5CNP3xVXiQJZOjtCPQc8kffb6T2VoWB1G/6wwk24c9nDWvG9ervVm8EH5tFv5pOuMMZ/587tzBLXdapvFnA3F4WPI+8A1WlvKt9dZIH947XwjNMrxIm4sAZXCuWCdtc+T8nvO4hZ6A4hcRGOVbctscP1/vYhRoCxRYmeBzmbQ73/MrbaLoxkHHkd+SsQrHUXN3AzAhw4lxTfyMPsq6LU6/vzgx63ALVcGVYGuzbCSQFdmoDzrpSnsRjahVxi1d9G9iEdQKbIZmVkceYO1CL3iSB7mMWQGHbxD4M25CroYdpFon3zzOx4lhnrq3LnZtFTBGRlBpcXHGkQ3MUYlW8CP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 710,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 178,
+        "output_tokens_details": {
+          "reasoning_tokens": 41
+        },
+        "total_tokens": 888
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:9a5d0079e93002ef\",\n      \"secret:d319d9bc3054a3f6\"\n    ],\n    \"constraint_ids\": [\n      \"C:9030a088d99f832a\"\n    ],\n    \"span\": \"While the story was still in encampment, Ansel identified the hidden heir's identity at desert waystation.\",\n    \"rationale\": \"Ansel reveals the hidden heir's identity during encampment, before the permitted reveal gate at crossing.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 710,
+      "output_tokens": 178,
+      "total_tokens": 888
+    },
+    "tool_calls": []
+  }
+}

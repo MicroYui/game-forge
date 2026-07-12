@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7e7604b7d7681e02cdfefa56c741fa1ef0ebcd38e0e3ce6f6da27a2a9d4ecba9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3168,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 561,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 167,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 781500000
+      },
+      "created_at": 1783857000,
+      "id": "/nsaS3xxDOQIWaekTWzpvnSzqRcCeA8ztzvfw/A2v5gSYgSLGrmc0gdnNpB/preYGQC/AXugBhESsVwnr+WInGHt3SL8u0m72EqnQOY4eXWPyln4ocLH21Z/9UZcweEUeS1+S7VJOUBjM+7pj/vkijTCCIMJ4rmDuXe1/nzylPgUsb/KfDP9a3qoAbxLos1RGfH4LAIq8RspW656h6u6yVGU3JHik9Zu8OLQS5ThZtOWS7akLtaCYsA41QsjZtOqyZTEgx6k3QxeHo7O9ALP3SyVJq47uOlgUeKmXJfS0OlYk3eusBvz10a93XebTUtMsdkDG5JGbRhBvt3f0gnj51E2fqWAWUuOf0cahvALUfu5rU51/csr5WMbZtIrzbXCDuSTq1MhsfXupT99c3NRgSW6/E2bPg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "nZu5UVYlwRV5M5QJ2cqaIiZiD1RvjiufrzwjAnBn/kNwYMuhmD9ux0ulDFKdpFd1fEQpzaI78f7MD1b8U0MoMvZgTyC1K8Z4xTUNLFFhkQJ2D/Su0XekCvuIy5aqESA8iSr6CXboq+BBoKs2AFRZw3+1woec01/8pamUROVj/WTA5Em0NMsx5Vic3oHQ+5tc3SnGRaQb4DnSRphtBWCeugT4tsnAyZ/whqlNIe3dYN8Jv7BRsu0gI1e7Tky2JCFYiVCy64XUCcWJm0iZbaM2/L7BNFCjdMD0F/BHSr2qCfyb8fW8TEMWqTBkJrm6lsZzX1ssqYGfdg78s0gr8eoNMJ5UXgm8xYv/K5WbRlMXPFhpiR6fOZlL6SYD8DQ0bPWYHfibEBQ4xommB2I6BaLZ21iho1c=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:29c7bca1eca11221\",\n      \"secret:8720bb5f753f854c\"\n    ],\n    \"constraint_ids\": [\n      \"C:85e0f0a7a29e3e4f\"\n    ],\n    \"span\": \"During council session at north gate, Ivo openly named the reason the eastern beacon failed.\",\n    \"rationale\": \"Ivo discloses the protected reason during council session, which occurs before the permitted archive opening stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "VhpHdvYMgH2AT+SA3tuSJxx2FfWfcEHq9y8PYuXsXZqeOeeX8OJDQizIbFzWCmwlJgW1t05rDU6hjIazDxUuHrT0IDq8l1js5NjlvSn+f5nacUlImEHyX0vEasPgjy5y/+esFQ2Im3DflfwYag5JjUQ1rtXxUQjdmQfimSp+/h9ItMvvIs4BbAUSc/gd16zN8vOvv6DKeau6h5nV9nu6Fj/AFAb+0ljNnBTd7/J3WWxNL8fOFP1M7oB13KcaaY9Es1NVMejlBnOgoe6dqH7vQUsdl2G5iSsLmvai7NQ+V3X4TDPPlGOIvH8dIq0nPBMw4loDCKoXFIOTgjq+g3g4m0RoN8xuQvlXAEpqhtugy+JQ+8LuA17fMETSXcchox4fPS4TguPax0qv1Ooh+LFckmKAjlMm",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 561,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 167,
+        "output_tokens_details": {
+          "reasoning_tokens": 32
+        },
+        "total_tokens": 728
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:29c7bca1eca11221\",\n      \"secret:8720bb5f753f854c\"\n    ],\n    \"constraint_ids\": [\n      \"C:85e0f0a7a29e3e4f\"\n    ],\n    \"span\": \"During council session at north gate, Ivo openly named the reason the eastern beacon failed.\",\n    \"rationale\": \"Ivo discloses the protected reason during council session, which occurs before the permitted archive opening stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 561,
+      "output_tokens": 167,
+      "total_tokens": 728
+    },
+    "tool_calls": []
+  }
+}

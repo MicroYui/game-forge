@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f4115aa3e42cfd408b598e27cd7585b94dbc52ffef44568515d32ed0d0fa3d57",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7576,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 540,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 263,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1059000000
+      },
+      "created_at": 1783847800,
+      "id": "cssv/8DsO3kFf1vW+Gw/T1sNcHh5BcnPw+ZcEWxhfgaJjZboTbie5b2MtT0zhAcAQBUG/t/u03dRHMKkq6AgUDQnShvWf8LEEhaDDZGhc00FDoH12PpawJ/o+gKoA74iGtP6RVpZuVD7yagG3HwiU3f8LDUaWE40vrwAUMk3s/eHhpSNWTldFEVA4cri3Oq2wbTSOiXDiKuoyarlRdojzZqxMc57otzpvFAEPoOozCbhdCt8t6h76CpC4Wv1yPgGUTtOSTkzffOR3sCenkyrwDnB/xFyn8UAZXAghgt65lMgklCMV6WGJIYzHa1KOsX6WybzVW4rXlLSxg4HITLUqDiI1t/Aei7C03r1aFPrgTZahXHDNa+oxnMNRuU857FWivh2Yt1AFci+BuXzxqgCYutlSCnpyA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "4buGC15l8tj2WwcqabtvKRTk7lno2+70TU+EouyVmFpUPvOu1u3G7Q2vBopBjcOP/VbSCXiRSJvdq3bnooPiGJsPanzuLjnGD0eF5UjV0NLxHwvRuBbSJ+3qBxEYR7Psdq+ld8kGG9wUGamorhkpFFQDUHzZSPRORJ6HNo8D86IYixW/hUK/EZQQ/Bu8njdJ34MGv4p6SS/vixdJt4njzG5U6tvgK7F5mJvLR/ix9ET+VUQkZi2FQu3xGSzzCgpj86Y314XUNOsmGsIjeXcRyl490gIAlw/aeKnlW+O/9oQenGS+Nx+mrEKGQfzPgaG7ubdPMchW4YZj+ZWwgywzLAUnIDZApQkHeD+XjemabNUKR30A0vHUrTBn7KxUWZpgrtjFwBMPm42UvnYyEhUZAAGnYUA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3de887f947fc2b3f\",\"npc:e99bd47f52b6ffbf\"],\"constraint_ids\":[\"C:90c8dc883dd24e16\"],\"span\":\"In archive hall, the council recognized Malik as the Warden.\",\"rationale\":\"Malik is recognized as Warden after Ada acts as the serving Warden, with no relinquishment stated, resulting in two holders despite the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "wdoxrT8Kk9xlNURyUOqr/4bJUz5epGbd7oCE/0cLLHl9kSc3AAlku6OyVj3vO30UFgU1K+0IiRxQwTQVm2to6muBeN7wIJmX6+cf9L5kG4dpMdVVNwSNFLMQk7ZTHt9Dudi9wznMRG2iJkDV1PcXWZO/8QqmpEoE/+rN4RC2FZPFn1rgEAkrUzARGTFM8TYfZdld22Hack/XLzAFsqtfuaZ61dMNcI0Prlms8tyIvueVJvnNWaQrN3kb5YiiCZvDd6f6LH9TEuLf4PLeUXKjpwj3so6HGefLDCiaJ2uZMKYzKzFxKxz0Ed78CkSiIiH6Gs/x0GmNk3CV1mDvPoQSg+ZZ6jsH99CgNTMEFvlky5KUaqi7py/Y20JmNCuy++X7GCy6abJXRLfL6C/+5S63Uokc+u6e",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 540,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 263,
+        "output_tokens_details": {
+          "reasoning_tokens": 149
+        },
+        "total_tokens": 803
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3de887f947fc2b3f\",\"npc:e99bd47f52b6ffbf\"],\"constraint_ids\":[\"C:90c8dc883dd24e16\"],\"span\":\"In archive hall, the council recognized Malik as the Warden.\",\"rationale\":\"Malik is recognized as Warden after Ada acts as the serving Warden, with no relinquishment stated, resulting in two holders despite the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 540,
+      "output_tokens": 263,
+      "total_tokens": 803
+    },
+    "tool_calls": []
+  }
+}

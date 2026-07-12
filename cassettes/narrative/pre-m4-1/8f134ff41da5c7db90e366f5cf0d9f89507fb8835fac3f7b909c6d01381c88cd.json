@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8f134ff41da5c7db90e366f5cf0d9f89507fb8835fac3f7b909c6d01381c88cd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4047,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 638,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 246,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1057000000
+      },
+      "created_at": 1783853000,
+      "id": "PAC1991Rcmw3g5IeJPq3nYi9NIQrQBJdGZRxLISIW7f3V12P0tYkbMK1GJGQGcDueR9W+E6MQ9owUqZ4Lag8JojmVbd7vWiLiwUoBdqNLnzStEBrMb0C1IWuUWLtupvd/3DoQC2/Bwpi3n8fO+Qz0iUySq3eOiR224gM4iP3n6v0VDstKkj36c3E43odQx4jRKeu59I8Ssjpr0ltP0JgUNtxzTJV5LvV9M20HU513QcH5zmqZjbYUfy1ucOJEkY6oMtPhAYvfheqg1iVJ5vK+b/oZmqx9DSiZvKOOyvpfyHKKQV27xzEM+f/lhGcRRDv0WuwpJAOBZ/suNdZN0z5fOA65qRmy8/fDJrojJ7Z6mgDNw8H2bSw8fFnsoTaXBtpiPOWA2nCGSBcO54BoCFwXnirRibRlA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "2ixkPI6MJ8aLXOxDUojEaKzxMyCdMjo5HUBcq410AddbJQ36JJ2L8Jvi0nilheKhz0euNs+Lyp4ELr5vasY1h9Ko3rQU4SCSesRty2tkaJ0dPUnVpU4Fvmzkp1bPVvSifhADM5ilIBxl2yXujZMal5yxGUPAWOx+48m/QHRs8A5OLXPfFkKTobyvKOf6/NsqEyuK3xi+yIs94+99UIVvNiMrIAUvKcGaN6cveXi7xI1T5GXsJu1AnomYjuaIdKl8yYNM/i01XI/lrRel+iWycibW80wObgXGp+2HQxCqOQtroYUAxd0+Z/TDyibYfz0tMDJML3ZMXUzFqK/4/c5n/pijaqtgEQ63kPylbjj1ii7H+Teq47xlVZXPYKKWszAa+IV98+g3WwL9PWPV9M6KrPC9ZBM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0a444cf2d4e587a1\",\"npc:fc83b0767a939cb7\"],\"constraint_ids\":[\"C:1277e485f0d62d68\"],\"span\":\"Tamsin accepted the title of the Vault Steward before the assembly at observatory.\",\"rationale\":\"Eli had already accepted the unique Vault Steward title, and no relinquishment occurs before Tamsin also accepts it, creating two simultaneous recognized holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "HAnA/wJUu1obwDWS0hZ8VsmI/EfqIeL82taG/BCQf37mb7qmTU0qk3gg02wvbiUSv7K7nLyaMTB9YFZ7fJgd/ccNB6Z6k1PTO8ZOV/SH5maqnR+8eW8q3FujXvf354rgi4qH3TiNS3VWN0+56QcI9Rcfc4/Mz8n9Q8dvuFPoSN0kl8awdzkdx2JdNmaX8yjeH6XG8tM84oUt8WZ0MY1KUAV1svuY2iDn+BOmYbbjt099Qd7lkaAS7pd2V6YRdewCIo6xrmDzcbxBYn0lU3YMZkd/MCOlF2WS/f21a4/36IIwTLQYatyPAL04KPVWOprtAKdzoJjdPFQCTRhJo1vBf6HwAWP6S0jexWrs6HhdwTBoys0Kp7419MzS/VtVeSPsqR+Tf+UPYgO6cZUcKB1LoSXrhxhD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 638,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 246,
+        "output_tokens_details": {
+          "reasoning_tokens": 128
+        },
+        "total_tokens": 884
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0a444cf2d4e587a1\",\"npc:fc83b0767a939cb7\"],\"constraint_ids\":[\"C:1277e485f0d62d68\"],\"span\":\"Tamsin accepted the title of the Vault Steward before the assembly at observatory.\",\"rationale\":\"Eli had already accepted the unique Vault Steward title, and no relinquishment occurs before Tamsin also accepts it, creating two simultaneous recognized holders.\"}]",
+    "token_usage": {
+      "input_tokens": 638,
+      "output_tokens": 246,
+      "total_tokens": 884
+    },
+    "tool_calls": []
+  }
+}

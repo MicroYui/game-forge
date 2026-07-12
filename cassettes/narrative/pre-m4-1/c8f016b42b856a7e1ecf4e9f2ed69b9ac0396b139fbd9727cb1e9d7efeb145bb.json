@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c8f016b42b856a7e1ecf4e9f2ed69b9ac0396b139fbd9727cb1e9d7efeb145bb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4081,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 603,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 146,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 739500000
+      },
+      "created_at": 1783857000,
+      "id": "8xO/jkgVuWFI+5yq0loNuKLQZF7OP3h5bIoElX98Mc5PeVMnohprwZC9CK5MYYKecDZwpXyy6gVmW1lncxieKh7Yvte+hXuenIpx3XC/ZSVKUhRdDHGVkZwFIznlHeKKZF5pPd2aYdoSP5+xtYY8CfIWbDfa9NCEboKmPxjgk0iWo7iR418KUu0dHZ0o0EYIrsWO2hrj8x2yq4La53Nxsm3UyV2l2VLxVOLoA8GX4kTFfKhNFLKTNImSjHMh2xDe822SKdADoiQVYw4eiURZETfl9bYUZopo2e2UiDe9K3Nag29oXiqkB1M4B6kLs3dcmRSTQQaqhk9ZK65qk6ROLdNjFRCcg2RPyI9tCKiKwD2Xk2oIj6/ZAvUERqHoiFSz61WA+liKYlNzVfF1LtQwEXwmer7F+w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "aQAJgLYQnxV8GiIKdsLjPV5assjD4us5Ix3Y3C5h/oziVlplyHwqMAJUh8SyxphQzQkdI3aEQW/lmW91EC6yx4nalvjT3S665F+5pkFsn9iAwoBvTr2R5T1j8NA8tCMWq5K5XMICDP4QDyXARjNJLPaVq973acAvDozB2MTWKlgvq0cTLraicy2C9L0vqwlH1rfq/P/tfiZVaAoYZ5HWnLBL6EhCh6T+ScwxR84H2k/FSR3WmMt0u7R1jn/1uVFG2s6IcjLBvQJE8n8V1PIAYeB/e/YNhNURWQQ1E9qTtf9wGKnRoSMEAkcS1opOLP3fyJmq8SOi58s6+YPgp8+r2tRMRxr4nzkyNL6qgymThetl8x4MfIb39Ol8mh9EHUDbsmX9csX7e9RmePAUZOVV9mZ49fc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:090893c7592d01bf\",\"npc:c85cc64315d24d90\"],\"constraint_ids\":[\"C:df8cc184aab0c00b\"],\"span\":\"Ivo welcomed Lea into a shared command post at observatory.\",\"rationale\":\"Ivo and Lea belong to factions explicitly at war, yet Ivo welcomes Lea into a shared command post, indicating prohibited cooperation.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "wVDB4Ot48VWMNW2ElkqEFYsjgTr3HyOLQb0R3C2DqPdXLEtd3cHVpQN3dhw2Mv67Nocf8S1PS0axouGWhokvH6LaCX0ix4mwS3eoZxxJMLKgTFctX3XdH9fS16D4lRHi1ZaPoI6TuA0oPV41uiU58CNgTQTbYZd8e/m45efFq7Zx3WKo8d7DQ1YN0u7jlHRYeKv44tCwAGYIpv5s9Q0YbHZUobW3E1f1Awp84baZ/BUKcD/5u5rqiIgOdddcQrjasp+pLiqistnoWuLVENF/mEfm0EQf8f+cZPFCcZXjI+fFx2BJmKQ8pXLrNsDdq4yFlkKezMTn+eweV6a+bFWyU+YUa9fO0CClaLScVr7g+rR7pCvA2Id8CKtUeAqkO/j+V5+l0xwWc2sdhCH9b+VSbKzfBhIe",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 603,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 146,
+        "output_tokens_details": {
+          "reasoning_tokens": 41
+        },
+        "total_tokens": 749
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:090893c7592d01bf\",\"npc:c85cc64315d24d90\"],\"constraint_ids\":[\"C:df8cc184aab0c00b\"],\"span\":\"Ivo welcomed Lea into a shared command post at observatory.\",\"rationale\":\"Ivo and Lea belong to factions explicitly at war, yet Ivo welcomes Lea into a shared command post, indicating prohibited cooperation.\"}]",
+    "token_usage": {
+      "input_tokens": 603,
+      "output_tokens": 146,
+      "total_tokens": 749
+    },
+    "tool_calls": []
+  }
+}

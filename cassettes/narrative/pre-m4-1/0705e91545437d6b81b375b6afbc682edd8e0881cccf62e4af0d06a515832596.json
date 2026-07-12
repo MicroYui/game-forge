@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0705e91545437d6b81b375b6afbc682edd8e0881cccf62e4af0d06a515832596",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2944,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 708,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 162,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 840000000
+      },
+      "created_at": 1783859600,
+      "id": "gMrA9TxlZMB1V4jDB1LLOLylxMViHhFwnfDxVvooyqq6zMCuZNhNCa3WHeLgxwCRilcdjk5+M50wa3unrtbVAnZW9UvsN3hvNUWFHSCFgFSCIYu5rR96oNGG+GyDAKvkDqafSN3pfOxKKpq7IfxSiYUzuxhKlnIoFUdKfTcTRHkTij4sqYNHtjsdOhGkAp1KPmhKONSzI/Y4x9//qSmonUcHCLRAKAiyilaBOF7N1YdpY5MgjUECZmgPaSC+FyMCmTsPGD43YpNikwf0813HCtpi/PoUKwQcPqqVFf07vHgPKfg/U8Fkdd9MeKEno3caPHYTqa23GtGo29ALKex7RTZxM8jDCFD1o+QsDc8AAMkk5xwOlFGRN4ZfAIaqAgwAV7ke51I2qrciYz++ZE4C0IHjVAaeZw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "qu0ehZYmk42ej32hi4bcygZb8P8oaZccpCYMfyYUQ+/JNtbyaS8f+iBEjPlgwvUF2i+/v1f9tJ1P60ULCJQmVs5jNAHzR6O8rqBD0i/lcZffBkWXuxojE3HsKZhAHmqcGQ70/OiXe6N93ly91/pFqk27RQrEsbjPTiWj48Zb6O9xWaI0shUpo5BBtle0Q0pGA8mkwuHCtPLLEw/TCdP5MLeoDw/ra2VLPhv7P3dHwpjB6ZaXXEf6qFPStOFRezxWlXbXYk+cYbhM+DGAGQi/DXxRJPkvaVKzq6MvCiH9cFEZhAqJ1eYECS34cq6/KFZ14CnMkaxFz4EXMw+C78sRCeU7xRduGY9Ddk5RvPYT9iQvKJVB88eWi9QYcBA5RCE5YkV2ZrY7EAgXej806XQqwQRFjeo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:c8f5333eaddff0e4\",\"npc:d896c70f22d9603b\"],\"constraint_ids\":[\"C:4deefe983d58810f\"],\"span\":\"Tamsin welcomed Eli into a shared command post at desert waystation.\",\"rationale\":\"Tamsin and Eli belong to factions whose standing feud bars joint commands, yet they share a command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "3LJ/v2aWNU7ssoBfsHOVJ7cLh7YS0jmaVAFCaYcJrJiRNzXHTi2bxbN2+uqAlmhqwdG0GEPRvS69cOzGczPUzHCgNAxfaPxLLdRGNK+/XlmEYcqH9nFjJtXp3Gpjh4C27mq+FmUGkQY7nFQG9z6Xs79k23fhsa6h/jm/HsBgCr33xGVU9/08mUBZ1Jjpu5TGgxXYuBZa573ljL5F53bm5d2iB9SQhuNSSDiFnB5OtpysMMiFLAozr/ua8lQkmV8WOOtlLGyrfHwlvUkdU5EyhO2vH7XxK08g6tfDn5VTPxLno54Uf6Hl5gChnyMEYbZ+zQjLAfiIvxenvYu4+6cjROiB38El0HUt3wbnSPuG4V9jmoGK/SwCp5o3m5sX9NcRyvwJ0J751ci9te55ef+6t6g6Fxc/",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 708,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 162,
+        "output_tokens_details": {
+          "reasoning_tokens": 58
+        },
+        "total_tokens": 870
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:c8f5333eaddff0e4\",\"npc:d896c70f22d9603b\"],\"constraint_ids\":[\"C:4deefe983d58810f\"],\"span\":\"Tamsin welcomed Eli into a shared command post at desert waystation.\",\"rationale\":\"Tamsin and Eli belong to factions whose standing feud bars joint commands, yet they share a command post.\"}]",
+    "token_usage": {
+      "input_tokens": 708,
+      "output_tokens": 162,
+      "total_tokens": 870
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4ae6b247965a209a90e1a89fbc0186301e8a0fe4cb40b4300b0cbda31cc4fc9e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5244,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 515,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 375,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1382500000
+      },
+      "created_at": 1783856800,
+      "id": "5D3efQLv0v/WQnew4x8gJ5Sur+b25DFjPGnojJ50gFwAkI5Rq/07O9TyiVKsVEzN0h8xVFpv63BGMW1ubBxLpGuB9hJxOv+9w5GcnEVaPcHvLr2pmILy2xYluiGe/OfJcZCbkINw0FIqE2Tj/5L5mGKk3n4ks/9QUq3KFGePwVQYuSfFhDPa0dYgZuxv5f6FtzTHcmE/tSYZRSG6YKNfXU1G/wB/+swYp2jXU4tMPJ2bi1yXpQubBD4VOP5GF6HwzJb/PCV+Fr3kUav3eNwVxUooODcHkQ/q29XSSAWKHSAtdCLDZYPmbp3rCLUVMwql5ASLqtyNgWw0/qhQ+YWdbJSd6ZlM3DkpJGSdjfkFHN0l5yFKWTRL7Cli2xB/3f8w++syjiFp4g6Ox39ctHhMajT9DHzNog==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Mau5/FH6k3+l0HBrOW4Ums6hZERwkW6/Zw5GpHKTFlDu3pM59gJpe/CieTrhPXfYVfLjxpsqnDMU8+LzYDlBIk2fJ1UvwKXNyy3rNkMRf4lALxYAHg5T+Np2KNbMmgluXXL9IyPngaYk0yAYp80Idf1gD1Kq72aLgw2HsMq2UEry/mMZ/8dC6SE587gBkj2Fv7j1IU11U6DeuK79U3rVFdI3LedT2vAsPD27+QWAHi0e9zhJEaRk5KrRWwkoaSia7sZikydEm0gnPLNGpYQ/Wd7OYXD90y8U/bp4iMsY1HdOQKTPpUUIuJvBLLrR7T4s6nOE8E3I5oWAB2qUMs1XGOXeIZJRYfn613Ly0fR9onz5nh8t7ZJso1JOpSbJbjKxfkpn6n0MplP91j422y4uAlmk0NQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:5585c52b0a6c5dd9\"\n    ],\n    \"constraint_ids\": [\n      \"C:cb7cc1e718a60795\"\n    ],\n    \"span\": \"Daro renewed the oath after completing its final obligation at north gate.\",\n    \"rationale\": \"Completing the oath's final obligation and then renewing it implies Daro's promise ended during the mission, conflicting with the requirement that it remain continuously in force.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:14403eeee79fc201\"\n    ],\n    \"constraint_ids\": [\n      \"C:73dbf75fb27358fb\"\n    ],\n    \"span\": \"Mei disabled the crew's escape route before joining their hunters at north gate.\",\n    \"rationale\": \"Mei obstructs the crew's escape and sides with their hunters, conflicting with her loyalty to every crew member.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "pFoqd0lMcunA0BL1wzW1OX39MJVlK+qvrxjTuGhehoXh+To78IwQwpP8+FZ6N6RJ873bGlJmnC/uNogSr9nW+F0c+G29dnltsgPR1cDPrXzlfUC8NU0uog/Vb2wpklW2HRYxr1a69n/QA6omA1Fp5l3wTXzRgQlLgsoJlW2JAH+fkgowhut3Zqfdpd9stBJ8hoAcjipaNBMH0TSs9WZ+1Svx8aKBPS9MHmKkCI6g+e5cGIiC1WWmTJnNr8GzwUzUkTlFOFsbI5fCaF2SDcc5Ss2MCNypB6VP0xsI8l1rDDGhr//qJEz8Ebg/fGWEgB1ArOXx0UgWchg+CTVJ2RZK5m1SHeeSdySEtMRTvkdpo2jYw7geaFK6MYnpz/i3ds9d0/nX6Pyoz9nvWyR5Q2uArpTIxjiM",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 515,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 375,
+        "output_tokens_details": {
+          "reasoning_tokens": 143
+        },
+        "total_tokens": 890
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:5585c52b0a6c5dd9\"\n    ],\n    \"constraint_ids\": [\n      \"C:cb7cc1e718a60795\"\n    ],\n    \"span\": \"Daro renewed the oath after completing its final obligation at north gate.\",\n    \"rationale\": \"Completing the oath's final obligation and then renewing it implies Daro's promise ended during the mission, conflicting with the requirement that it remain continuously in force.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:14403eeee79fc201\"\n    ],\n    \"constraint_ids\": [\n      \"C:73dbf75fb27358fb\"\n    ],\n    \"span\": \"Mei disabled the crew's escape route before joining their hunters at north gate.\",\n    \"rationale\": \"Mei obstructs the crew's escape and sides with their hunters, conflicting with her loyalty to every crew member.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 515,
+      "output_tokens": 375,
+      "total_tokens": 890
+    },
+    "tool_calls": []
+  }
+}

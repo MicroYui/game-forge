@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3eff496fb1e8bd3538f40b0f89f8850ac167b2e4f0248be56df9e8dbcf95f2f6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3219,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 571,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 201,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 888500000
+      },
+      "created_at": 1783860200,
+      "id": "tFZ1WlNAOSsL7CAIolHe4tIkiCEdGqmWMjkLSOPWWStCPDaKxJGU6C0wenwEmrAFRWvkuvrCzVXzhyYfE9imo5+cw+5pLToRJGF400J0gF5hOUEl+TTl3G9N4qWThrk9nK44oi46lrgdCpp2xFJL+bD5gjKtO8qr93LQGx6tJZ2RPEVfTstK3EM+10PO4WUL/lxqV+FDtec2XIogsplVC7P4E2+Fywrlmawla1W7A7BHnxbDvktr9QhNx/YC7skVBBmJU/3+d7BviFR/57mgPjXgFMrzzsODXlK7pEH7LXitQ5QliEyzhVQ44cz/2QrbICTMqwRkikEHEhlc7drodl30UwgbSID5JHZprddGCG1pv1r8dU+k9u/BmSlzuuTUEsuDM16t4atO+ZlvaCQupfcivOlYcA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "tL2w+bzGfmSiwum827DUnF+SiVFeNng5/DZsjDDCQscgT6vDYot3kq+IRAk8FcuZvQndrL1inWSyQ/VFD1aTmyQSbxM0XY7joJAZqOiGGqi5d102NiskfTIcW/1DBr38vbYCpQ+kTi5Skpwj/kI7lNo6TEWdG0JrsjK81KVflZzd3y45QCC7iaz4GllbGFS8IMfuJwKix1J/L1D8tX/Kb1nhQbp1RL4xh25oJH308jt6OgRAnQ9IYOyKIcIaSW/N/RzzuPsofZc7GhGyIDPbocvTtfjKynRaxWishcdDN/WpV/cagX7IuLBWHm+1fUK18+wh7iL/6+7bEoS2TdSLTxzqHcf8xqFanBgDfXpFL+7Cqs4mJHLm315AAYJCynN7P5U7C/DyumycGP3HbMir8aPgTuA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:e6490cbdfcdba466\",\n      \"secret:03dd1df694549d54\"\n    ],\n    \"constraint_ids\": [\n      \"C:58fc0f1e8879438a\"\n    ],\n    \"span\": \"In canal bridge, Ansel disclosed the origin of the black compass during sealed testimony.\",\n    \"rationale\": \"Ansel reveals the secret during sealed testimony, which occurs before its permitted reveal gate at verdict.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "dicvRFDuw7LdCVCGdedjDyjfEnoZZ+ahlA5dsA/CP9u6+NrTM87SIILNpSTYnNfZutqTa1GmAHiUAHtJLrMJ0AWDh0qVgpD2wMASnyRm3s0Mgu1OJu92Yen9qj8lfpI2u/4TyS9gtZNaF/7HPAaGGGMOQKQecvS+qfjflr+Uh7mnaHVidCIWBNfn9Fk8quVUKoQzL0xF4nTcEHxwjIwQ6VWJvW66Kc033VqGVQdA5bOs+v01GDpnLUUW6akpr0j0P42mA+CGAEYiDyCilBxFhsGbJB5Cmf7a8ZTgaq7M1yrCt8q0RT3ZS0GCsUEiZgDy2cyRC2CQ5zt2Miha3foQSxfTbMYDoI272xfvAWMrnnpEI4n2xFyr7bNXgAtYFMVXHzbqFYrczlFLr1R9e/OKIojCtFDw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 571,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 201,
+        "output_tokens_details": {
+          "reasoning_tokens": 76
+        },
+        "total_tokens": 772
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:e6490cbdfcdba466\",\n      \"secret:03dd1df694549d54\"\n    ],\n    \"constraint_ids\": [\n      \"C:58fc0f1e8879438a\"\n    ],\n    \"span\": \"In canal bridge, Ansel disclosed the origin of the black compass during sealed testimony.\",\n    \"rationale\": \"Ansel reveals the secret during sealed testimony, which occurs before its permitted reveal gate at verdict.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 571,
+      "output_tokens": 201,
+      "total_tokens": 772
+    },
+    "tool_calls": []
+  }
+}

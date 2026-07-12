@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:93f0a2cfe97e796e4e96c8cabd146ccfd9757715dc34e41cfccd14e66b987a5f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4081,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 634,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 238,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1031000000
+      },
+      "created_at": 1783849900,
+      "id": "PzO1q3RMiR5V5SWwP1/SzTGLIzGmrhpZZfJVj9X9AUR/wyiWLVxVqDRiCqzFxDhvRh6op8Vl3Nq4Te1OEFdk8Il21PmN8nGGljubM/jVq1ooGo/32PLNcOVfDA8C0hDYPD/v8TQE93b2jhYBtRRfjFextTHkGQWkwBKmfhRu+dtQupvx3JTHa3VbnLgXU5Qd/ISS9IOLG4JjvMAM7FXQt4NWse4VOu3wBTqY1uBW+NKMRSdTKvfWg74JIj/5Pt4688lLxOh2KhK+CNpgpRLXQIxU5XnJny09WaEwI1h0WY0FbwbvHtRR66N4qDUKi5N5t8sh7c/EZEH9OSGsahYhXonbB780+pheGmx4KyQeYY2yOYsnXCQHvIJjVBJgXHUj2i7S+GG/64RDQXeryQK2mc8jQgFETw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "LYV5c3Rmdfq96l27TBDrYQgS515xDQmkAVF+OAC4zBsvIp71QeLfuhcjTED3nLJy8+xe8udo3yvOXcbqOvvEtyICiIsu+YjJeSUKo+JRhkAgmcFAnWIk5oK9NhtQnwCITXgQ8pccAKT3jxqpQi1Lvrvj7MkSFeQbZh+T1qyE+bfdOucpLapdLzFcDZ3AKslrQbK3pXV9GejYGArulY1YA4fflc06XAFoVBc4e4x3Td0BHIXC17tXcpOapYd27xJJOIUYGFGINPTpemr2TVUT1glbs1ijAMEd9HpkbevE5J0c3gRHnIjgK7/2CrySiUsZLkjbQk6PnptSH7yWMnwarwbUIMIKdTpXxggp0v/DeMDlDw44jQEUIVECEGeZuGe0PR5CHlA4oBeRBq5joF9gVTA/yTo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4a23de7466ee4a64\",\n      \"npc:703ad5780dbdea7b\"\n    ],\n    \"constraint_ids\": [\n      \"C:2a086d3fd202f7d6\"\n    ],\n    \"span\": \"At caravan court, Eli was formally introduced as the Warden.\",\n    \"rationale\": \"Eli is presented as the Warden after Tamsin signed as the Warden, with no relinquishment shown, resulting in two serving holders of a single-holder office.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "NzdS5PLSOvD9LJHY0hYfTkcgo0kpL4M+RO/FMhEu2WIJPkF7WHmYmxP+/cTOPIByqgFjTu0ONbPOafEf0ICFf6/r666qzvZI5LX/oODiZ1+86lSOeGKC7KQEKdKEIXaMbJhSoFjHUU4TTv2mGTHmRRAlk6dPfHpPoe7PYvZ5x2oQ5aqv1+bQDfEEl7GkqB26LZ6a6SXYK0Fm3tx409X4IC/9K9KpAAXDfzG1sv0cMnLXBL1rN+vdgs9R+3zb8q63TA4UZMCm3IjSfWGge2Z1S6qz2buQ/Z98J/wXJjvgi3CrzeKNDIOIjgnlCNeJ1arI9+Dx8lDmAM8cWwdF3Y3Q4ZjP3fHENmrlWs4HaccYc5yyqzEYT2Zbt8z+S3fsyTwBjAMnS5kwy/qfwrHwuiRVp4RJytKk",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 634,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 238,
+        "output_tokens_details": {
+          "reasoning_tokens": 94
+        },
+        "total_tokens": 872
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4a23de7466ee4a64\",\n      \"npc:703ad5780dbdea7b\"\n    ],\n    \"constraint_ids\": [\n      \"C:2a086d3fd202f7d6\"\n    ],\n    \"span\": \"At caravan court, Eli was formally introduced as the Warden.\",\n    \"rationale\": \"Eli is presented as the Warden after Tamsin signed as the Warden, with no relinquishment shown, resulting in two serving holders of a single-holder office.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 634,
+      "output_tokens": 238,
+      "total_tokens": 872
+    },
+    "tool_calls": []
+  }
+}

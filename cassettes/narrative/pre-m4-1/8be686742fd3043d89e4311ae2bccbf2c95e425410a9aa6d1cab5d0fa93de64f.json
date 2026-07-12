@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8be686742fd3043d89e4311ae2bccbf2c95e425410a9aa6d1cab5d0fa93de64f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3699,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 540,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 167,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 771000000
+      },
+      "created_at": 1783842400,
+      "id": "ro+jxe76alQlKgnlAJmhgRT2AjQMDeF4aCrIw7lpUg/MVMWGgtu5+mjQlZh3746r6EF1yXyjBAxgCrw1vtL9zpOThwFZ7kVfAim0PBAH3tVrw/d/5zLIj6Xzp7/ocFz8TAsVbmEkZc/aoqKxUZTceJoGGLL1I+gXAhOILzKx2WvqqsDbtQdVhg4vhUUs8tffCdzD7nbC8DVCGamjbikelvvlzJRlq8SCHeHVxZucoIFGM6R4Ks5yx86KBkWnAGMHS494QwjIVUjfWXuvWMzimJloUulz+fmpUJ5WdiHY/6/ntN0TF/qgrQbqcCVNTmL4c16jJJFWxEemLHK3jZr+vIzTwjnAxVws4ukNf5PLhIeGGJtUUU0dHKRUb2em0Orr2CQikceMMc2U32NrySC1VzlG154yqw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "tTU8MXz9hdqqX3A1ZGb0lddPsfyavZD4MJ3JJ1Qb9PJGzXshcbsDKPENu9SkgvDb4FqBAH5HoyRhR+aCFZnqZA53M14v8NYapEoX/4dNBFv0omi4cEk7JGfNCMf6KKaO47/szW4XOj+vJIJcSGBRqza7HoJtyamsk51pkLuDsbLp+e0/OJaAC2zLzalY7UpeNY9VVaaGv6a6wydtvOHXctepRUug966a2hSRfo5ht7hCw8TfpuiSflzz1eOA8FlRRrMZTWjoy0+/83zwU9yljdIrZQT3TBpPdGKjBJogAuyMhSuWxc++1zkpkrtyRHQ8iQAVfPboE0EcRMYbr4cPR3HCeQo/DlQKlFRNsCm6FfZG/GimnrzrgiJUAi/o0bX4995puvdJxwcr95BrKStXD8PqNF0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:ce0ce0f51e540221\",\"npc:fb9b8df987e5565e\"],\"constraint_ids\":[\"C:c410422b772e28c4\"],\"span\":\"In archive hall, the council recognized Mei as the Archive Speaker.\",\"rationale\":\"Daro had already accepted the unique active title, and no relinquishment occurred before Mei was recognized, resulting in two active Archive Speakers.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "I9gOQdQBMc1ZAYjYDxDmhscKrB5eZljUaBfunjaIbeKMdlA+BC6vR7D4QBVYdKV3FKrVwt9C+WkQdNI55rn3oreXhBFuoZNmTf/wPqi1xGfX2jMUJxCaT4HI84gCJ3OafjkY6xiLIUBm69EU2sh2t5c8+mc2zIJ9vqcu3oHZH1pcQorGruP++1ewRBiHtY4e6EFdMsfgBlzgZgeWqF0F5Ea5f4nYeiWKqSCONLFK9jcyuLEvlD9LL3Gx3l9tSfsqlbnH/idR3VLZsYhH3Q3cT6h6Oo5qmUN/rtSlc9kDJzL3+ctmtflQwOeeHKEp29T25huYQtao9Ck2i0IGYcJRyzi8mZY5pZhnEk8hbRoGJm1IAaCsx75ofOellQqmMpumN21wx8+j6U3Cqbt1r2WSdkvDJ7vA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 540,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 167,
+        "output_tokens_details": {
+          "reasoning_tokens": 59
+        },
+        "total_tokens": 707
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:ce0ce0f51e540221\",\"npc:fb9b8df987e5565e\"],\"constraint_ids\":[\"C:c410422b772e28c4\"],\"span\":\"In archive hall, the council recognized Mei as the Archive Speaker.\",\"rationale\":\"Daro had already accepted the unique active title, and no relinquishment occurred before Mei was recognized, resulting in two active Archive Speakers.\"}]",
+    "token_usage": {
+      "input_tokens": 540,
+      "output_tokens": 167,
+      "total_tokens": 707
+    },
+    "tool_calls": []
+  }
+}

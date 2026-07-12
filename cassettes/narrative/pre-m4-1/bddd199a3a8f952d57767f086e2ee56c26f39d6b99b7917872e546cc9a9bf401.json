@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bddd199a3a8f952d57767f086e2ee56c26f39d6b99b7917872e546cc9a9bf401",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4553,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 539,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 236,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 977500000
+      },
+      "created_at": 1783847700,
+      "id": "zoSLZCp0QgB269fnJunLfyOTKPjqBaz6F50JlSI4UOHv/g2CpOXw1ywR23LZcHo9nJOLZVnwrAJ2VAgvtNDHE0/c3gZ2SqS6tknVxo+WOJPGKpTEU/p7mKqt0/RrcRtdiWAuRQ5NEp2tHVpz9Oh/55Tnz1zQtFLeKaWYQGtADI+W6iexCwZufsaMGJAGHlRon65eWUYaZ75f4RcC5UbHkPYeKYLd7slUi2FdTo14CDwNH6+EflLG9B2294X7tiCbnY0REs55CaobSCpJ8HEZpUPX1upIhMJ7dnY/jnDWm1zLt8JhlfP6/x0ldQvRM1x9BGnt6/Rvtd7Hg7Gxr5Q2a8d1XPTrsGVE+B0Iw9pLJZ7NCvGM4INmx35kq0QTxoerQyxkWQeaR6e4SVVuPMVOLkYY9ieIgg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kn1PRQCbkJc9EEWA6uUZlQVUHGVr7tLPnajokWDGB5OjJ2M3E3w6mTERyPK0ze+FGy5Rd2AGliq2PsjA+GR6KIy0nigvFMYcQAYqyX8NMkniEbSxXadRb0mbK+xdBu3/fxdgiktYM6VMvwLC92OnglcbYw/R0xQIYenifMlaOU0byTjDcOzspObP0ICp92OCRIL5Mqhqx660Gqv0TSXO6KwcdZX6hWGrrwthLKmAZpGKgso5BwKHJuP725MeCxYTItrvEiXzAFAgAXkFoR/Sg0yP6JSGJCCZvjdON9BT77fseWV40XZNG7QrJYXk5sA4EMpcxEoao3J/ubCfzW4Q/KdoDN4q7Z4l40D6OucSWg9u3dIbFXJVaeOxnQG8JsoMZjosZH3eu8nj2zDV5EesTISTo+4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:ba11a87f7dd458e0\",\n      \"npc:ef8244cec6326a1c\"\n    ],\n    \"constraint_ids\": [\n      \"C:37d4755f3d271fff\"\n    ],\n    \"span\": \"Oren signed the register as the Vault Steward at orbital concourse.\",\n    \"rationale\": \"Oren assumes the single-holder office after Veda was recognized as Vault Steward, with no relinquishment by Veda.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ss7eciivIN2cFaYoNF5xMRiBcNlaasLaH8k3YSipeYszoWRtYV1qpcARAXf1gPwE3UtUGl3TQsu9n9fNUlDzCvGcPfAA6eCgboR6912z8sP+NvRneU2CSQ1wLeHhsxDdfgODbFk0abKr2lrzbxNP507fZ/Lm/CY/KKmUl/6WV40VpUtxKX/DycOBfVEMlK72G4rxcCkHyko5YDRVJd6eoR0hM6o6NQUqzWoeZwito1GAnNLWo2Cj5Ma1xpW4KWNdwyRdtkmWcFm/oMZxGEKvy8UmA8oPRfyrrQJ3Aq6ifY/ScGfqgE0ON6ju7rZcV6ZauQRehXeEQ7cY44D9iOXePLbNymjf4ptZLUUqSIe+jb593kFbNV0s8m6958+QLZ+N5lHuTY8/BxqQf6m3a1n2KjYRdnEX",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 539,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 236,
+        "output_tokens_details": {
+          "reasoning_tokens": 103
+        },
+        "total_tokens": 775
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:ba11a87f7dd458e0\",\n      \"npc:ef8244cec6326a1c\"\n    ],\n    \"constraint_ids\": [\n      \"C:37d4755f3d271fff\"\n    ],\n    \"span\": \"Oren signed the register as the Vault Steward at orbital concourse.\",\n    \"rationale\": \"Oren assumes the single-holder office after Veda was recognized as Vault Steward, with no relinquishment by Veda.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 539,
+      "output_tokens": 236,
+      "total_tokens": 775
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:abd23e24f6b99e2009b8d98c9f127cdafadf75320ad2316c2babc72a7a78707f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3454,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 608,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 159,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 781000000
+      },
+      "created_at": 1783841700,
+      "id": "I83mNfDs2JgGtB3VvWmilG8wsFNMTLvVxeoCHewpWDntXX1cTr9FIBqsUFHcxMSHASp4QVr7RNvFp4hFjfmaAfftsCEJgGDuH4YQvtKUJRV5NVzngXlcXyQetiDRjHzsE5qmQI+qkI5bwdo2LkNqmDTZY4D9X8oYSjxyTNWV+7vxHUi16C1wah0YU/eUcwdoXnZeK4vKHHwbRQtJCcRY/iIZBM07Nsrxd1j+b2ENMpoNj2nj09swdRI3hiNkI1myUpfjIWEKEa8g7Ff9Ek5Nb+07ozIgB4ZfnbwOS0ZR5Kluqj1FAmWVJKiowh6kyXfpdtmt50l8BH90ds85++vpOz4eXsv9w2RJhkjL6lzltXiSkJqJr5rKYG2vVcKrCoIRvinvhmT+lYrFw7KXcbjM96KnkYwipw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "wUGxbRQ1pHB09GFjSUelghy0tiOXnZWUTv8dzq+vVFb9l2Z2vpMgROthkER8SrDQouYVa6VPDiKuPGZycuSWs2fwDTJiNYeo8Vsoc1ksEHiSwDw2rqOiVIjoifaE7fO7PIjdEKepuqHLjZrsRf5r3FpUcm9pnp1XPdgdHrdy0wBYidQ3S4nz7sGVKkYbqTdwMFXZw4ZXvaCVjfU3z4lXy61AcswxpU7FF5gvWx3C5i+rbuihkNtBJcdBikbH8koU5LAXzpKfu6KxMvyRcyIKUSEJosRQ2TIJbCWnIH27nuqAZbuKcZs56Rd/RbJR8gtqexmKuHwROZC0F5fDm64akZXPbcntajNxBYiV0C8CgGkbYqyGPImcrEF0MdIdTIFalZ/KB/C5cWbVNSIUFcGK9g6byiw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:952a73e3b3f3d0ac\"\n    ],\n    \"constraint_ids\": [\n      \"C:d6086be8c4c3631f\"\n    ],\n    \"span\": \"Mei quietly traded the allied patrol route for coin at glass conservatory.\",\n    \"rationale\": \"Mei trades away an ally's patrol route, directly violating the rule that she does not trade away an ally's route.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "V988bMPV4ScVqNYG89VBfzh9G70w7l7TzDcNzKhG8Fqa6AtCuzJLVr1FWbzKBf3IBEF2rRYqSKEYMEh84QsU/q22HGVHLy5ueTGw+hjTvOWguQxF5gjl2pqNMiw0l5025R0xIZN5+4oHENZ8tquDZC5aTTwkKqrmCZ+YyHASUNpLFnTiwARt82LbJZlOPs9aphgZLPT2DY8OYpVIsRu34lWjVHGZdIGoJizZXmoSZLvRwg7KUrxQsni+tKY2sCIJBAKTS+LniMCVqW1NyJ/1QKImwPQT9O9FtYctnjRf8d/r1h+zwrfGp/GoPG975RWATJODoAbmHIN6Bryl31SWWMx2wBbQIJPn3KGBp0Ko408YuNYmDaS02rcf/i2juuKzmXfeB1p1CGdS/YGSf1bQrEDGI2wV",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 608,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 159,
+        "output_tokens_details": {
+          "reasoning_tokens": 37
+        },
+        "total_tokens": 767
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:952a73e3b3f3d0ac\"\n    ],\n    \"constraint_ids\": [\n      \"C:d6086be8c4c3631f\"\n    ],\n    \"span\": \"Mei quietly traded the allied patrol route for coin at glass conservatory.\",\n    \"rationale\": \"Mei trades away an ally's patrol route, directly violating the rule that she does not trade away an ally's route.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 608,
+      "output_tokens": 159,
+      "total_tokens": 767
+    },
+    "tool_calls": []
+  }
+}

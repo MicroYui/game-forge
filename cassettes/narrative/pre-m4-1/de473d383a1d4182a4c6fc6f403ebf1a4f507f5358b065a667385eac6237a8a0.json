@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:de473d383a1d4182a4c6fc6f403ebf1a4f507f5358b065a667385eac6237a8a0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4029,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 699,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 229,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1036500000
+      },
+      "created_at": 1783860200,
+      "id": "IlN7Mhg686PX23sRjOouEnt+indbQP3f/H16czIBcaXondPRDRTmFBz7plcpG3mYjmtU1otZ4+mt5g/coXRcj/k6lEq25DAy1UVxc4LtFDESZEOblJlmmdELXQI+w5B364n8sLRCFgzogIJd0fgYHmRvKWkrxnDHgoyw9ENpt3fTfBhuSG0x2MktXGtAEdFOMbkg9h6X/02Mv641Wc/7ulo25EVZKuCZ+pUMZ25KCiGbuW5nK/X4nTHiHz+Hd2FepC7YttViNd+LjGCZCe6X9jD7zyGG8T9T/oS/1Joj9mE8moYVa8DpEDCs3kjb7jP5w7B2SKEw/vuw6MZQHf1q4Y2Q9+ownIb/VauwK7zWoDbIJcosbmDXDstS3ouirwRXwR8n+cDK0Lpo3HWQtmqAesGtst+J+A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pO+t+6fkQly4Hs7QRwFc+GLku9I8qAc495ElHZ9L94WlZQzbahH4MtOFgWtITMYD2SXk/AJzGO4BQazrIn596HIfrt0lCuZ+Joyrb93zofXirHlsYrY/GxvqLPKKo+pjGlQEd8R1yqssVD53/jBiQV4e1r7Xirov7rmsW3nOieD0s5xXoB6/VnOH57militC403dhzR2qTQpQWUQbdZzI0J8Y6DY8M5gObeG9DOnyOo4jXlwzV1Q7UdEB9nNXPcVbQ6v4g2rEPf5LG8BlB8GWZwYL/TgqW7vfBinVWuDTIKfSPX1Xyt6ej15FTPVHCyDbkqlrmRSCOl5ycilfiYWv+ErfbsrDmGksQ8F/5tHlz8SN63NAUEgGR75BaXJeUl7Kj8I3Cz8NyMDRXe76KhBqRPVr2A=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:aa70fbddede581ae\",\n      \"npc:b12e6b27edd953fb\"\n    ],\n    \"constraint_ids\": [\n      \"C:ee2f541fb7351363\"\n    ],\n    \"span\": \"In orbital concourse, the council recognized Tamsin as the Warden.\",\n    \"rationale\": \"Tamsin is recognized as the Warden after Eli was formally introduced in that role, with no relinquishment shown, resulting in two active holders despite the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "YUKgfngosbeJ7ntj4YnnU7WJXPJMnQOLN4BWYYC+1S1+2CYrQcgycS3O90LEtt232mhD1KkjExU+s4iZTMZTxB17y9ljBqEOk1crTj6BgcKk3pJ3T5YDLiEI3neY0i7p1m4Z4RSYpSZmVaYgHQiR1HphFJzwwsTo6QQEtdbZYuJVFV/9mLrCPnmerxHfELEZTcl6TNFydreIhaHXCo5pIxgsAj1/hPF5jCn9bj/Bcu0EYUpnJwchVgGYHcUGlvhZxSx7YMqtrrS8cyrQq04Zrv5p2MW61owSTOMIuNT96tJcY+0LXtdDGsR1DtL5g2PFbA68SIiGk+fz65X7vBCjVTbt2M3pXthFuE2shdcDBLU3q78fPjEt4h7ki7hwVyswAl7k4/eJh/8zAE2ulUGRyA6kvXe6",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 699,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 229,
+        "output_tokens_details": {
+          "reasoning_tokens": 88
+        },
+        "total_tokens": 928
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:aa70fbddede581ae\",\n      \"npc:b12e6b27edd953fb\"\n    ],\n    \"constraint_ids\": [\n      \"C:ee2f541fb7351363\"\n    ],\n    \"span\": \"In orbital concourse, the council recognized Tamsin as the Warden.\",\n    \"rationale\": \"Tamsin is recognized as the Warden after Eli was formally introduced in that role, with no relinquishment shown, resulting in two active holders despite the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 699,
+      "output_tokens": 229,
+      "total_tokens": 928
+    },
+    "tool_calls": []
+  }
+}

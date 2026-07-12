@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c76a301e1b871a713e007d193dfa81f0cf923c046a666c38fd8263959e49a7b8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3364,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 530,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 142,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 691000000
+      },
+      "created_at": 1783854300,
+      "id": "/CAmJGcjJjjinCxnZ9+jHZrbDYAX/nMnBKCVlArfvhRyZtpeqVuWMWeZmaaoJX1z/D2EwtGcrLUZyF4kaNUOt2rLjtgLM/j6imrYuNRUZSv+FF1vWe/s5pmvLTTneLVO9E9x+URHGZx7NNhCleB03lKyEmhkbNN5JkdUyFDHjpFRio/5wp4wuvQIED8wTKW3w54Kz0lax530OSbeudXKnYK7BoIG7jgKm6B0i15Hw5K2Uh6mBaNDG8HFN8pOofEWjq5yPqjFPUK7mrti07JfxSy0aoRr12kBQ63kilB2VQd6Y1aaH1p+rICJs+BvNak05tQcE/8XRxouhIQD6wrGEOrFni06GIPXE0gPWKYu4QGb176TuJhXbG2OjqYVjZQrHXtWpNqMj6eT3/n490meT8LIunne2w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JzLd4rd0h5/lU2bfNB/q3FKZXwsxxTqpbzsVfwevH0zK943kaWq+Bfj9VSbVVaUSjaBP8LA42d/PUgo2TaduF3BoVLBCDl6srK0sDDB5vxSpYuobcLydW0D7wGS0sUk47ZA6FIIPZZ7JjY3INFrkQl6z8Sf6I9qQ+g8+n87fRZV/41cPCC14WJ1rOkHa7FW63g2hqkxny71ahJav3++P/8+C+u8lwnIa6KXD6BJcfLIrULXCOxmuIfdbuLNiUwPfTaKFw9A3P37BNbonz8oS0qggXNheRVacWiZLVijeVlM4F4ZtpuEo+0rWW8fkvMstID8r8Wanc6R3XJOXq3SlcU/K/Uz3ffJWDmY2H4gukWvgs7wBwvhF8UpO7IbcvStTOzBtOTqUtp3gE57gKjbclw3RDUQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:f2e31445fd390534\"],\"constraint_ids\":[\"C:b505e928275eb313\"],\"span\":\"At salt depot, Mei abandoned the ally named in a sworn promise.\",\"rationale\":\"Mei abandons an ally covered by a sworn promise, directly violating the rule that she cannot abandon an ally once she gives an oath.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QWhkQbyQpq1V+Xb9kNKSRywB1A2RAtOSQmCojNM4QydJQkNNAZtCe6OayZqK/Xn7tFVuH7/xo2KNeHfz9DI3tnDLf3VGls6FThryzOr+3neIYozLLyxDWA9SEMbu12PXu8vLAF3sUn7G1XC2kD1nb3jYuFd6fE0ZIoqxEgYAy+4mBbZUmOdn7tfWTZ8pat0gN6owMXCv2hhu4oN81D1W2IlJwES328fBlu3fxP1WKWwrBr4bCVBaKP1JggWEQvbHjnNz2ZbImBjZRsHKwcXezoTNmjybN9P0gOL/scTtfdlF/ElTsbLW6F+VkzHq4vXtmH9diURXdeLUNysXBQqL7GZNk30C0IUbmfBUcMy50bDweCotVf4D56VS6OgsrsEFd3+Uod1IEoGSu7YNP2UJPq6xlmEa",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 530,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 142,
+        "output_tokens_details": {
+          "reasoning_tokens": 51
+        },
+        "total_tokens": 672
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:f2e31445fd390534\"],\"constraint_ids\":[\"C:b505e928275eb313\"],\"span\":\"At salt depot, Mei abandoned the ally named in a sworn promise.\",\"rationale\":\"Mei abandons an ally covered by a sworn promise, directly violating the rule that she cannot abandon an ally once she gives an oath.\"}]",
+    "token_usage": {
+      "input_tokens": 530,
+      "output_tokens": 142,
+      "total_tokens": 672
+    },
+    "tool_calls": []
+  }
+}

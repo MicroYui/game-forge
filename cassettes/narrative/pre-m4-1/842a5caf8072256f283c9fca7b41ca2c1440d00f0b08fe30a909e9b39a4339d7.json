@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:842a5caf8072256f283c9fca7b41ca2c1440d00f0b08fe30a909e9b39a4339d7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5752,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 700,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 266,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1148000000
+      },
+      "created_at": 1783852000,
+      "id": "btAEa4Woe17VTdxBOiGLy/eYcNznDZwNRzjz3kQS+8zJ0Kd2IhDNeRHK0SfWjuATjmuV6QA1sRRAcOHC7ckOGrW1K8QX3rxT97sPZmfjXRZNpWEPI1PuYV0EDgCJhtzGrFSDIiIJZkR//rqHOhNDJIUHeUO843CHJ3ZWa6Nxxc4XsjrC4E+8N6kvBg2NtPw1NmScaCeWMvBUUwNpBJILk5dS0OK61gegECJ9vvgI30UFM5vmaShzkLv6pWZAq/C5GeynA4ruksrH3GTbuyUQhTjs2CeZNuibXjc3CLk5u5Nf2HJ5+OOhFN7QQIDVuB2ye5V4nZzhFPt46K9LlO8TDaBEi+kTTvhhSdrHhFkNPpHOp20eG/ds8HE4R2UmChJRYE2VyR7ItHLPBKtPAsELzNxtBExiqQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JKtMDVULl1xbybrJ3bCMplqbgVS+hV+SG2Dut5cENZ9x1OkVIwfhP6Fo11aw11sE/6ncPONNxEFWGuyd63e6B9efk6JoCI67Fjn5KApVELX/tPJ0GiiZ0la0AAzMDFS+h/TcSKpnnDnvXelfl5k20E5AqTp8xZl+nDr6BYB/mjzqi6uwENU9BwmIJDuB8XPKjLUBPtVXzURU6ylzOB8z0GOTXX921CGd81K2NkvEgKrwtor2wAoRywFdZoiUM+QMdmuRaByA1p0vigvahM3a2o8+h/JS5iWYzYvyXGctr8lyyfNqBtq+8wpto4W8qWm4Zb0m8Khv4M1Eh+T/nsSuKJDRrBRuW7/5YGFAw8lWUJeYoaLryvJ+mgTwhIjVAd2LNRHaDrJ0bzvz3gloNt/lZm5ZdeQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:a83074b8cc870afa\",\n      \"npc:eb9544ca10b5013b\"\n    ],\n    \"constraint_ids\": [\n      \"C:9fdcf33e27c414d7\"\n    ],\n    \"span\": \"Tamsin signed the register as the Beacon Keeper at north gate.\",\n    \"rationale\": \"Eli was already formally introduced as the Beacon Keeper, and no relinquishment occurs before Tamsin is registered in the same unique role.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "yk+3oNbmXuMxQyF9QesnKYUdkG0lyfJoCW01++UKLe37fghL4y3Js4nwKuDb1hPgs9ioTvz7aI/yRBYncdN5b+nE2+8NpxrRRUTYiYa1uQXx8WQm2H2bQu8pABtXk+BxS7IbROYBIz3/8oRuYANEzbUgn8NAiq2EnYFA8q2k2en3V3aBEgqGa3YiFgMO9dxPydb3JE7k+cAGxf0VxmQ5ct2ewwiz+zDkFDd3fn1S0sS8e49f8hxKSACS4wELeGRqKIXa8E2q6MkV7Pb4gKJYkUymaJkTuMRhuboY2XqO9qXD9kbfdrHtDBdefZ+cVGl0kkK7HR3kwJG3cHDnr0LE+deL/1rmZmG7whgyi9FwGpI+ya6yKaZypv02vnC8QAPL7x0THRc+R14yuidaRJY1p4mkjSFG",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 700,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 266,
+        "output_tokens_details": {
+          "reasoning_tokens": 131
+        },
+        "total_tokens": 966
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:a83074b8cc870afa\",\n      \"npc:eb9544ca10b5013b\"\n    ],\n    \"constraint_ids\": [\n      \"C:9fdcf33e27c414d7\"\n    ],\n    \"span\": \"Tamsin signed the register as the Beacon Keeper at north gate.\",\n    \"rationale\": \"Eli was already formally introduced as the Beacon Keeper, and no relinquishment occurs before Tamsin is registered in the same unique role.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 700,
+      "output_tokens": 266,
+      "total_tokens": 966
+    },
+    "tool_calls": []
+  }
+}

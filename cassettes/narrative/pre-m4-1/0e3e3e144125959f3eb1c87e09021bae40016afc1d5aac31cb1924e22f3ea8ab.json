@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0e3e3e144125959f3eb1c87e09021bae40016afc1d5aac31cb1924e22f3ea8ab",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2292,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 508,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 121,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 617000000
+      },
+      "created_at": 1783854600,
+      "id": "m6lWRKFYomcUFMv9kvnvKnnj/9g6vx+FiPbu0zXPdXEcl0hcHBpx1HFkdSgbz6muMMR38ENHZQInhMHxMCrI3y1fHSnJVbJx6pCyZeUa9Nd/1wRJf0cB3WtIBjJCndr5zJoSEmmnIhpNaik9VmGmDBa6FB1YmvfpbyaA4dmN2YlgiNUSZ3QPnfgPHbvg4vY8Dqx4ErDVIR4+4a6ko2im90h77qb8fFeeqXB49IzgUHQc9HQbdeHyMHztJ8W1Y4wjoayplq3uzPoI7i7xOW6kb2pSwAvKc3cJGknfxB07F5H2IfX855ybsu/p8x/irAygEvs5Yl9whgrRiABqjUDW7tZsfmShNb+PPHN4G2cvXQSeXbCMhhRapquzCcFafYUj5TijAgH+jONdszk9DyBmiL9xvvuGpQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "954qi2GBeeRz2D02FF0+X0iLDwDrijpPFguCUL9CvhKDMUyBnBR41OEW0ILA4lKZilHy4qMr600EjL5kNGyzck2kSj8fOuBz5ReT40MC3eUiS1Tqxu0NFGLdBhQFZdMnzfEjquAVdgdolu5s0Oj6OzEvLIm+1QuabhX1WwWkd984fp77z+5EtCJijHQh/Nj4HC9/eJBlH3c+ItO71MsFLeprfYquXNgSb+w0zrPbltZkzyAz6kUvfD7A7oYQ9OV8sv6y1V7K1FQ7DteiI9/HXvhD7C6hByGWAmJHRqBYVFSslOKY6GtMV0oTUSko2ZwUm1b6H5HcfocdVFQ4eJCeyKi6nCegKhZyNncALuDD/5eHwsFN4zaIKi174bq+1JOSd+RkyJtwaqDvZbtYhp7Kqfy+Q+4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:a061e39027db8b3d\"],\"constraint_ids\":[\"C:36656a3448c3bf9f\"],\"span\":\"Veda removed the ally's name from the rescue list at north gate.\",\"rationale\":\"Removing an injured ally from the rescue list conflicts with Veda's duty to give injured allies evacuation priority.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "andKe2sJTUjUxbibN1ytV6OqqE0Vmu3s8C01dKfm827s37ow45JpYIgisjaN7T8BGCCpd/pVsMt14x/Gw+k3rxKHDivDgYRgDv9/rf0pPfxPrKONe7RZBjEvk3zhvc3KAgYffxEntj/RIgtgHnAwMa7yPqnC8o0bd8KhgPXowqfYcCENd+2FwkYZKIDdLC2Ur2k2c1Cj8JyrerIJy+CXwfe/hBGN/9mJD/dLoNpuTkxaRpOUrLucsUCeVaOQR1kuVqTNYJ6JLk3SWm9PJd6psD/6yDV5qvtFCrd/U3qYYzdP73nhcl4DmlnFkxKuNTSlQESupjO2qp/Q+3QcySP520BYNIWhCm6xr/B2Xi5s8x02YJyiDED5iVxbUkFxaMzPDhoihmK0sTyC0Pm5rFMc9eHvXYqD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 508,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 121,
+        "output_tokens_details": {
+          "reasoning_tokens": 30
+        },
+        "total_tokens": 629
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:a061e39027db8b3d\"],\"constraint_ids\":[\"C:36656a3448c3bf9f\"],\"span\":\"Veda removed the ally's name from the rescue list at north gate.\",\"rationale\":\"Removing an injured ally from the rescue list conflicts with Veda's duty to give injured allies evacuation priority.\"}]",
+    "token_usage": {
+      "input_tokens": 508,
+      "output_tokens": 121,
+      "total_tokens": 629
+    },
+    "tool_calls": []
+  }
+}

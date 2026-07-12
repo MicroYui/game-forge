@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bc76c12bae33a6449f02dd2ee17a21bc6b88991e1404a67e38b4f00eb75de040",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3158,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 707,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 177,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 884500000
+      },
+      "created_at": 1783858300,
+      "id": "eTnQRwUpmxn+6fBLEE3DScWS6dHdoqHgeZHcGXs9WjF68bAfdzDkxR6i9L6ex10DR8WJyjl7v9OHHamsIET25Czz6C9uoQXj6yE61VW9z8FXR6c5AMwIUM5II4SAFZ0nvqw9dbfyGD1QwfHZE/SvjmKfNDJU04cjUqbj7lahhdXa1ZGII3UM6fS+ocR+geyA3VyrLL513q15jt3/TPPSPhgW6egM6Yl6aEjSzxM/VvvvsCln+S1eV/qCih5v6QJUdoCU0qkhYXx+lSd2vZ44EppL9RiOinR3pfyDqqwxiAQLpQMj1KU4q6odq9AdAx98iOWbkb6bons2wjmRjibd7M1enG7mnw9G4BaZvq2sOgSz9uC/lqLEsaEi5wWcCvy7KP9RSy3MlB7vOuWUf5w0A84FArezFw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "nlulC+d2nFuT1FmweiJzfM8xNJBiaR93WOx94RFtNCGl6kwM/WGbkMxT/hzxNQNQzUK5DZ/sUZhoNhMVKkeptO9MaStfZKT7iuR/UJoPGr4yZnmGaPjZKbKgKRi+9QdH3KqjeEMO0Rz/02utgrxeb4xDTpglTMGGa4KUER8bxR7+4eU6D73Ac3gQy6NYFUSx8r3Qa8RqZb8InY8rxCF8mrb3ZEabmmEqb7RzoYK5OQdqis+DZLcyh8l5NjBRIN3y47/KL8xIkpkvr5bw59LTEfSm2GMTFzxMOe1VpdXTSSdG7aPmNIdZ5hUElYXuK7mSOTF8k+H5BZ9NNgH4e4nX3nrxW3GRYYl0DITqDOj6Qj9DpL04GjyOPlWOva/bHetVn7wVo5Cd6sCRvaEnC4FgG9r0FSk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:a99974dcc4b79f73\",\n      \"secret:4065a59d07c5773f\"\n    ],\n    \"constraint_ids\": [\n      \"C:eb80216e8ed3f968\"\n    ],\n    \"span\": \"While the story was still in docking, Ada identified the source of the winter signal at cargo ring.\",\n    \"rationale\": \"Ada discloses the winter signal's source during docking, before the permitted reveal stage of vault access.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "tmWL5lhg+XUVt7KBHhLfbku2y791gbe96WgGbHxL8EPyFjf6Etyd7VZOb1OziaPqWqTSAmj+9C/XR3uyay2cE3mtoejvh+uLzHHFn23yVNOlw/vlXM+KoFEsWn7dDHPJqlvosUuh1qbZE62GwakubnmP5IymwDtJ6nM3Aoez5qOgrdxAlAbjFbKH/88jqtmR9MLX6p1TCfSpVSTHe7oZWMrywkUjAVEim2Sy03MR9P6uD2mKn0EUQA2LpKUgMWyvhjUVnTcIrD0MHb4JEY1Up1wM/T8u42cCslXSULueeqrfTwG4TZU+UaPPt45pVjiFbd/6fPJ1mTBLlulUFwk9kVTTaVcEjMxKyFv6e1IOwqZW8iLGmAqVg5zlgeIJDr7orutS3/pzZew6FSmqZbMkSRA7tz0M",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 707,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 177,
+        "output_tokens_details": {
+          "reasoning_tokens": 45
+        },
+        "total_tokens": 884
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:a99974dcc4b79f73\",\n      \"secret:4065a59d07c5773f\"\n    ],\n    \"constraint_ids\": [\n      \"C:eb80216e8ed3f968\"\n    ],\n    \"span\": \"While the story was still in docking, Ada identified the source of the winter signal at cargo ring.\",\n    \"rationale\": \"Ada discloses the winter signal's source during docking, before the permitted reveal stage of vault access.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 707,
+      "output_tokens": 177,
+      "total_tokens": 884
+    },
+    "tool_calls": []
+  }
+}

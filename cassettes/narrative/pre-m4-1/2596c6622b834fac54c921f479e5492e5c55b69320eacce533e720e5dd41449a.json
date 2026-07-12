@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2596c6622b834fac54c921f479e5492e5c55b69320eacce533e720e5dd41449a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4838,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 698,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 254,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1111000000
+      },
+      "created_at": 1783850100,
+      "id": "AgQF0hNCZCMGeyuaFVVGdoNIStXbjPs73zIYQZ8POhDY6znCbkMhifeAsQPDYGC3j7xoNkL9DKMgXPUPRht4JDzc1Z4/TAsnFuWxpq6v+7O7mvFrDnezW3YSRsBBReo50Ms1bGMozsJCVTtZZ6Ot+6DJBw2i7vHkJS7sMv6JSp0nr1n1MZjaw9QEmR1rp2V71c+cd1uXoEigGKh7nWzPAIMZ3RlUhSJWDFmUdHNoQNM4/nWMx8PG/Oi8iZaao8sCyK2sRRFTwrO7lO/jKy0ToTuvhVzmkqPsIZrNoXOVpQ3WisB7WAo+w3kl84iwuo7CKcl7vGU52sIKrwQakmL7YYgCljyK4CRw0niIpdIcfLkXShcVBAHFt4rhwCPRQN8T+q/addehHS9yV2gjMWl+rCsas9df7w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "1sSyX2my1nBJVhRF5AkAYAOzNc//ZamAW3hKMXPahOtGwVCm9DikJqY+iZYQ/JJ0QczE1YiJk/teRkWyUcWyNXHxLFBD3Y1PWzvUeeB3WLVpema73desP15bJKJdX0O8cGrJNSd5AH/OA9Itkqj6OeEwZ1bhT4cTIRiAaya0NVjoHZlLlNBlDIGNKgQDnaenT4k17lx1czmyehdihJpXhmaJui72EL286NW4WOwOvijYVk4ygMjAJuQcvSHwv4GmWkv8samYWQcbkqIl3HJr+xSzqb0lAqBHYlrqYo6sn+BnbwXxEylFPAGjotX+7Is8trzCdtfPSy880DKg3FW7oaAh1LAOu79NMgr/2sst4l1K4SDEv48NBG5hYNumQCHGlrotvQFqzus13XzXMDH9d5yuBxM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:b3893914a7bfb58b\",\n      \"npc:db893ba0d0a20e3d\"\n    ],\n    \"constraint_ids\": [\n      \"C:fffa8570f362bcfe\"\n    ],\n    \"span\": \"Mara signed the register as the Caravan Voice at eastern ridge.\",\n    \"rationale\": \"Mara claims the single-holder office after Qi was formally introduced as Caravan Voice, with no relinquishment stated between them.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "S2k9MIRNrHY9yRWFbZYRhg7Rvt5r/BR9gPdiLqdtt+pJUqF6hWvwrwlejU5jxTQai0vRrjkhvnyrGPVFFQu+6DgVpAb/zUT2jQn7fB2fe0Iah0mxKD4lBj5EVzgvTbQaGiUkP/CJPIc7a3tWGbu/ajgvgi3NSm/yw4JqhUxPcMdVQmr6T4EIvDhfKF6xdGrqlaYLK4GmaC9saXWfa2dG5HvxDAn52ToPrRtH2GPmhVqGPUL/NgPBl0s2Kt6DmnypAzbhdm6B9OkY+I+io57UM9jWl4+oyyIBZiDgDGRrs39TTxtfuRHSRk9guLaUuYmHLDAP2wefwIlmve+kM/Qdv2eg0R0YrQW/Ms/WbsRqhC8jFu64pPy7mmzlL4U0vh7oIqYChbEosTeeWGkZ73VmWjX0GdU6",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 698,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 254,
+        "output_tokens_details": {
+          "reasoning_tokens": 122
+        },
+        "total_tokens": 952
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:b3893914a7bfb58b\",\n      \"npc:db893ba0d0a20e3d\"\n    ],\n    \"constraint_ids\": [\n      \"C:fffa8570f362bcfe\"\n    ],\n    \"span\": \"Mara signed the register as the Caravan Voice at eastern ridge.\",\n    \"rationale\": \"Mara claims the single-holder office after Qi was formally introduced as Caravan Voice, with no relinquishment stated between them.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 698,
+      "output_tokens": 254,
+      "total_tokens": 952
+    },
+    "tool_calls": []
+  }
+}

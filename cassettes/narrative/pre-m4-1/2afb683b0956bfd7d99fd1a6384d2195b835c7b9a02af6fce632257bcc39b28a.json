@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2afb683b0956bfd7d99fd1a6384d2195b835c7b9a02af6fce632257bcc39b28a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2844,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 530,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 157,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 736000000
+      },
+      "created_at": 1783859700,
+      "id": "swmbURUwfC95Xg7o6Z5oTYRuWBqI8f7SyusDmH4qouNRju6uPLO5bj+kdqQ6YTfVOcm1tOUOCrbJCnnjNifVq+Ys587u5nLGVW93k7e50FzVm4iCMEduyb9sN1UhxOTpTMz62qQCbg786PHkE6Auqv5OVYn2TsOIQL5yG6whtzjFsl5hXgUvZX7CPi3ZvHV3mokFvOr7CSZU788xcpH4Anc1jDY5c8daH7CXI7tv9QSg0PSzztrWxsV3E7p+Ggp6TdH1ou9OffEXqoUD0CYaLabsagwqjtdkjDDP+QTIZO6itVQ+ULGpb7U11iNJOgP90U2EEpg0UNRIz/+3XtcatuZARgM48e6kPKgRY74RB1cr7aBiZbY/6rh/7O3u2dWMloNIMGsXRi8XwC9QdT5BMxFgkjEdwA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JMh6EUmfw53u83zm0dZDB9Nlk1FHF/dkUKW3axpyzsomR3VHmHvO/Hcqwzd6r1tJb7PxaEiP0M/t7sHlIybH/3PNaqKQpKK7Jvdyfbz9F4EdOevUErXqoa+4afvLtpfieTVjFt0xQnm15D7iPT8GOcxaC77WnG6vhJJlj4Ibq3LQHvBFTzcDhqtZCHvOwsASewyKgQyYkBspDuvNKvskUloRkk4nDmCFlcS/joE7Nvb+K1lYS4YP4e5RqSZin7rPNWTqcnH7buwUkJYCGkPk3S6p+61Dkw4YivlKjTFlqkyihxk6f54tezT2372sCNL5GJ4Xskdt/xB4UkzTuikyCvIFrR+Gg7tAj+77PRF4Mod4mu7Rbk4rDhxfd1eIiGgOw5hNFBPbQWkpBpGpxInxXkBy+yI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:90607d09f18fdb00\"\n    ],\n    \"constraint_ids\": [\n      \"C:f21114e966633817\"\n    ],\n    \"span\": \"At signal tower, Mei abandoned the ally named in a sworn promise.\",\n    \"rationale\": \"Mei abandons the ally protected by her sworn promise, conflicting with the rule that her promise remains in force throughout the mission.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "DJF5N1a6lqf8mExowQl70iyLQEWKTWfJJdXZRNMJqhcyb0OdkHwst6grWtxrqpQBGZSYwmENTP+7pZ34kvlr/kVjEYJlukEXHzB818971WfrdVjxnut9GD1lHdQQlA0hNvCoAO8//leN4ZghYO6P6zbtfosb0sCxE49y7+kOppj/HB65yNQP1dmA0+cm5gmCD+0wNQVHK1EXrZ99dt3KUpYOJlOFhEw3GMV0UoSa5FPBjtJxAGKyB/dykNYwSwIDQsi7zDDHSDPiEEpHxyb6DnlF3CQQFN/U2Z3iVhkTx19+8K3Ikw+4NjodIPI+Ig4XaidbsxPExzegpTGbLQ+7csxw/+mkivTg+0pDeoULzd3pPlygVHsq0gXrDJ8vMZ5KnHFE33gQxSUnO65qO2HqRJKFw+VU",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 530,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 157,
+        "output_tokens_details": {
+          "reasoning_tokens": 42
+        },
+        "total_tokens": 687
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:90607d09f18fdb00\"\n    ],\n    \"constraint_ids\": [\n      \"C:f21114e966633817\"\n    ],\n    \"span\": \"At signal tower, Mei abandoned the ally named in a sworn promise.\",\n    \"rationale\": \"Mei abandons the ally protected by her sworn promise, conflicting with the rule that her promise remains in force throughout the mission.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 530,
+      "output_tokens": 157,
+      "total_tokens": 687
+    },
+    "tool_calls": []
+  }
+}

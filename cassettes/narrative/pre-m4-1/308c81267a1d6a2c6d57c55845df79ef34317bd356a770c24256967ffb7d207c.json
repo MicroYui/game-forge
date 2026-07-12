@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:308c81267a1d6a2c6d57c55845df79ef34317bd356a770c24256967ffb7d207c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2831,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 606,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 146,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 741000000
+      },
+      "created_at": 1783856600,
+      "id": "91SMTv1yewcRZBKQNJROHGFfl9a1jCJJDsiDBbqYpANi2+NAVivNGX0I344AZYILJY4TEePfGc60JWp3Ij6mBFwoCYzPGiU8sR/stBdj9GeI29GFBSYyQvaWA1+pE299bZYIUPQMZ16Swj3Ivl9JpgBUcrKjJJ9VzuEDlCh2JZdJoSWw0c19bzcdLWtFSsbJ8yjwWgxn5KDOf5w9S/5tE9SdmUo04cErZa0mifAZx68l/R4rh1XQzGUYzQp0WNEN1Sq7LSM+98XHXX9gDqC/MKpxHAxt5PcG/KGScS9O/IsiHbD7VFlvVN1DITtQuVojblYvLzNJ9iZBXVs9P80wLEMJ60fU2a8vZoM+pN5ICH2dqMyqHBIksbqwarabOWDOO/FLVB3AQs5Py1eLsTs4+J7Ea59yXA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "YWNGkBDqyrNwcog/ACNeXeThtrq5JtiF/YFuGeEhQ6jskWKq7FXYA+Z0Jy9myU0gw83o7zLGVz5Qs3GOH8Ua7MT7sfcIamMQVaNi4dSUurbCkFjWn8qk3W9lCdjPA+4sZtfS691mvxfONyYPLdTczEjHpT+x3kgAT9kFC5WXj26bea3XxNZbkjj7iG4/o8pDGmcnG/AekCk8Fqhj8lcZtL9XLc0RKTbyyusYEztJ1kZFgRykVg6aviN9p8LddNwNo3LGFcajT0Posb+rMRD2guCvuvEsVi9G2cWGP1mHl/v+AnxUxc6+cWUyGHSHF7Ylo0wJLLCJD7vAYDt4m78MOV2lwrSWcXrfrlSJVahQ4S/m+W24cAjBwW0DBnVdn99h+80YjiKNpa9+IX5LOHNktedI6nk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4447d42309ae54e3\",\"npc:8fef42ff508a06ae\"],\"constraint_ids\":[\"C:4549cafc2750f0ff\"],\"span\":\"Qi fought beside Mara under one banner at eastern ridge.\",\"rationale\":\"Qi and Mara are shown cooperating in battle despite belonging to factions explicitly at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "F5eQLvCXhmXl/OZOfm0vkAFD0o0a+cYD3/WT5SCJO6PQZJWBESEwHxfhiAWzi6R9l1fzx2UuSEXExUwjGfGJPIXPR2iJ/z69HP1f+y0lbpoEO+MWOc9S7cPhWOC68RTIfBIOf6BbpHyDrxpXnpRmNpw3gyX7duFfTJzxyRKylWX/1SmnErYTpn8LPNNN8mehzQOcIw7WlrTrt6dqKehPa9/asCDK/uoZVlrQmViVQ6BhYoUsD29qUVDvszdWjh2tTcAjOHn+CnCtJ6I+3+Uoah/cUPbr0lPF2h5BAU9i+rWolY/LXpM8vC0Xqb5aPLZGyCWphmDt2bcAUc9uWSlC9Vy+7rVHAuI/xu6mQ5PS6eIh2rfKazt3JPI+2nI20piwnrxTslQ8tFNVf1wenH1o07G7XkY/",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 606,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 146,
+        "output_tokens_details": {
+          "reasoning_tokens": 52
+        },
+        "total_tokens": 752
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4447d42309ae54e3\",\"npc:8fef42ff508a06ae\"],\"constraint_ids\":[\"C:4549cafc2750f0ff\"],\"span\":\"Qi fought beside Mara under one banner at eastern ridge.\",\"rationale\":\"Qi and Mara are shown cooperating in battle despite belonging to factions explicitly at war.\"}]",
+    "token_usage": {
+      "input_tokens": 606,
+      "output_tokens": 146,
+      "total_tokens": 752
+    },
+    "tool_calls": []
+  }
+}

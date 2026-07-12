@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1202690e0774c4ee5b3ae4d6a520a2d7201aa2792b85cc9a767926e4de1df0c5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4927,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 559,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 198,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 873500000
+      },
+      "created_at": 1783858200,
+      "id": "UmaUtQcZfb6fnqLW4xKhHVrd29c1mh/nEJ1j52CpS7SbHbAhJnmP9y0MjLBMDftGnlDA19PM5Nbo413tL1ijhGS08h7A4BB9SxUiJnZlkMyUibjNpmCP9WulAAin8nWuhMU7UaPeWxMP+i6bFM24gnQ6/ullFIozqpOWd4CUEJ7hSU3OlNC4tX00x6QXH3cTUX4gCszhoiW7gFFndtiSVn3N/Olsd8tf7Ajn0jSKEPX3DEM9QHV+7SuSk4+h2HL6Zk3zL7vAE7v0/etxvq7Rcg5PE9RkXPJohGqj8RULEiPOQ9W3KgRPuTuELhf9WWBCUrQ/ofE3WUeuRWVDlEwHM4Gdo0gH10rfOPNDZ6LSoqudy7aSo14Dv4bDOqnck3Y/ki1Ljfw5qe/bTTIBS3xnZzHPdrl9yw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "fKpS9XG7am362uCCAXOeVQkYtZ3JC/DfFv6WqB1V0/kq2r9T6MdZNvzGBxFHYcdZnjVar/w8C0w+WaA7CN9Y5kZ9Nlu9sqqzBv+4ziQd1Pn/ux737HmDMthcAfy1jtOPW10C/z2JFNTK0dieRWkQ5lqm25yP6cr7+7MuRAR9q6XBc1zyWNbez/W9w97U1/y9APr871LZfb0SdwEtENQydQTA69NsT/6dnUoRBrByg0OaO8jM7fwG0dNW/3OPB4/ckfR0x850vdrnwQKSeWnnJdUJ8QdOvke1Qvg1nVVWKr53PI1veB6HsK/4PjedPCXQmEuvbOVhpSQbKgsKF2DciApdRW1qORCMJyRsimBu0ISsHepXbNKOAwM7AkrzZ7n+Crx8qB1WHBWssvgJBfSpqaQpiXU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c44020c8f3c1a705\",\"npc:dda51e050b0bff51\"],\"constraint_ids\":[\"C:2bb6ad65cafa3ad2\"],\"span\":\"At eastern ridge, Cass was formally introduced as the Vault Steward.\",\"rationale\":\"Cass is recognized as Vault Steward after Noor was already formally introduced in the role, with no relinquishment stated, resulting in two simultaneous holders where exactly one is permitted.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vXDZt9n5/AND5kyRaQ3Y1fZNdSuRrzgrJshLlnDU4jT1KHT9pxKP6roqEw8XnTUfj9kw3Ib0ToQ0V5nPC6j1RiW3Gxb7AoHbgx1iio57jsq8FyF1/D4NkPdA05+Wy94x++6U3oMz2+j7QjpmTgpfErOomg8VT9+0bdmvkKMAI/w6XkuND5L4bQ+MPGU96RC2O56yySpRROd4tvlIw2MCBXBy9xfyZsudRQkVpDhbUT9Tkm7DkeLjp5ZknJTDXVJglVwfUk24ajQG0ZRThUgZWAS9PJxDd0sCupaZ3MLQoH9p3TUqkjoPcyy0GQWd9UTjoUcuEzqGJbjQTRWNuih5Kno4f882yEnTAANZnxCLmy3iYqZEqea/bajskv59HpcMMUOWIH46RVhSmRaDgEmgoQNEinQt",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 559,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 198,
+        "output_tokens_details": {
+          "reasoning_tokens": 82
+        },
+        "total_tokens": 757
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c44020c8f3c1a705\",\"npc:dda51e050b0bff51\"],\"constraint_ids\":[\"C:2bb6ad65cafa3ad2\"],\"span\":\"At eastern ridge, Cass was formally introduced as the Vault Steward.\",\"rationale\":\"Cass is recognized as Vault Steward after Noor was already formally introduced in the role, with no relinquishment stated, resulting in two simultaneous holders where exactly one is permitted.\"}]",
+    "token_usage": {
+      "input_tokens": 559,
+      "output_tokens": 198,
+      "total_tokens": 757
+    },
+    "tool_calls": []
+  }
+}

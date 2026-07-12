@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2176263d0a33e4aec5d59ab1f179db9e964c09f1a2f489a5ecb8d3b0855cc21c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3280,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 542,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 167,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 772000000
+      },
+      "created_at": 1783857000,
+      "id": "e8Gfd7aTRydStnnV7KyEpX6TWZcru+TEe2wGnx2lC31QldXkF5BKRrUoBT2XEU7/uqbeY0ZCyZSLGRzgEsTyJX4PySlpD72ip6Wqr1IOGsBUZU5SeR7F+mluk3GqV+UEX0/Ow7J9NPJrHOtFnCO3GQfOIDIxx9V3rLXdGYmvYlpLRzwii8i+b7Iz4g9W0EBQqzYpQYBPrA4rA3iWItUItbPxHG8XFiXDCUnVy5eaC7IKi4jaXNEnRT0vUQHWy12raq7evokx3b5cybT5612qdBfjYIxhI5iXP8tQl6kW0GelI1LJeUJxiM4AL5KEZwLIAJa+FvretAhKYkya2fzzmmDFG8ggX01YNLCZAM+WzJz5/zPFmhw/B87F4P4m5TFMMdJbsoY2OfKNEqgiXHMTtEwhPQBtyQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kjFNr6ofSQu5ReanxctG+DdSFl96X8gxXiWwz4h/OkVHqnn7cU2iOPqGq2VaFmeu98WUpk0OlLPnbanfR4XtR54j32nuUNaPH/TFZSE3RYErfcvys19sivUDZ3s47TkIEtkqsRLarKzgFKzVDPKjGdBQQXgPlNEIa1cEjjfIrMw0ciPdqDIPsF6CPGSJ31Dg7Dnf/ufHkVt241DCa6LgQ8awry2IP3H5nP10g6UBfIRtP50lFw/v2H+ixA5KlcLPSxDIGwfUNv636b24Fsz/EhYdyn6JsPsnCosGBOwtgfS93fOY6n7c5wcP7qSCa/EcIT6EZ0u2ACbO16c4ltOpX89xTGsDn+2JbwOJWBa9oPK+kAEekOxgq0VUTCGTgHDgp5rgKdXyBL94KeRgKCitY/jzD18=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0f3f7d34eb88a8db\",\"npc:e06a1c01c43dba99\"],\"constraint_ids\":[\"C:84aba9ac83fa0133\"],\"span\":\"At signal tower, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik belong to feuding factions whose standing rule bars joint commands, yet they jointly sign a battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gPbSMANCZGxIPEj+scfGLuchJ59MyUh75XI19ceLUGoujKsVdtI7ei7AA4FdvSSj4zpMN+J9x0tjC95gSXwgmrZroBZZyjRONrMW4P8ba9n50ymX+vep+Ifbr6f9+0Vgvf1cZGvIvSQqKxWabnsTLvDArCGQZ/0DloFXDcEVfGVCe71hO+bq7yWDh8aK36K8uYnQ/8ALtM8ru1DgN3WPCrLR3GmJyRU9p1cvQKvHDltumyBe5I1oHy8OaY1FjalNXmO1j/zaNJHmU43ij4fk9JNzBHcNpTETnujbgEyiMlXfAgTatm71lIiUJwqIpvFJM22Ghu84nhdmU/7BWXk54NdZOxorSX0RVRlh+04jb+iGnWQLZu66bzUrmT2ubA6UmTWdJ+PCBVIM3j6eF3t2LJJl/fbM",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 542,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 167,
+        "output_tokens_details": {
+          "reasoning_tokens": 61
+        },
+        "total_tokens": 709
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0f3f7d34eb88a8db\",\"npc:e06a1c01c43dba99\"],\"constraint_ids\":[\"C:84aba9ac83fa0133\"],\"span\":\"At signal tower, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik belong to feuding factions whose standing rule bars joint commands, yet they jointly sign a battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 542,
+      "output_tokens": 167,
+      "total_tokens": 709
+    },
+    "tool_calls": []
+  }
+}

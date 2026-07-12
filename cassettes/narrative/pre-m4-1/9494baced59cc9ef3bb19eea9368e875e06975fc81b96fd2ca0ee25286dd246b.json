@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9494baced59cc9ef3bb19eea9368e875e06975fc81b96fd2ca0ee25286dd246b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3208,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 682,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 857000000
+      },
+      "created_at": 1783862400,
+      "id": "g79QkJoSqlzwX0JY3344n/jdFuYR8DSal7iku/8Tjrbace4CnLiPL9UPukd3j7/UVMylgEATkQ/G6C1esn3vbTlZd1te57Aao4kPB3LI+2d/eC6bw40uWQB4s8xCzpZYw3RbrvW+CribCa3agNydFytv8JMyvnKZFAnJjxOcvGm/N+cthv0gmi6ZBIe7InGqj5R25T0ei1yufBn6arVS5bnlaYkaW6tGbYySS2kjDopZz78Pq2IhwnaEMSMKPUTOkLTx2+47srPgsTJEpO1aq23LZBvJCgH75j3WkiWHm6dlCrVHB48kvMALO4pnwl/v5CGvp8PwGnv2InLTxMXVIi8PehV4fYAa/IFBeaJjwPB/VuKQkV+BgJhhl4yL1P+TwftbtjEdXofoZGmTrfzcVZ4QEvESQA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "2BHCQsv68brCd5dwgVDgfXTWVf+FWu+BbdVQJGoqlqZ5wsXBM7nZNSDfSchQsg28MItIw2szhAGDO02C2YMVuTI4bBu0F8vOi6riq//o66UZ9HIxFw3ZcEIYgtlN5wh5+YcOAgyIWcIttimLnn+2vlPdP+UgrkfFhV+yvxxJnLlE8FTyzjRKiDbcr1Mn0gqIrR47AGKKJrCoMHtM2HELUrb6IwthwnNv5ZWs+FCwyRQ5R0257z797DQp8Tm41obVsIVqrdktq+4pflUWr23AaB/uwtxf9MYseRw1GN/s3LdTXyDZnm997DNFUVBoaCxwnRPfmJJ8vdUJGVRGXmLvkJI53ZWxdNJXt9M24a4lW0GyHoNqXpV7fpvu6H3XhRGTGfmCqMBFev+yvH6UFy1Ct20lTbM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:5d2a467a31496059\",\"npc:f2cdd3295c17146c\"],\"constraint_ids\":[\"C:7823a9192f972bda\"],\"span\":\"At lower court, Veda and Oren signed a joint battle plan.\",\"rationale\":\"Veda and Oren jointly coordinate military action despite belonging to Free Pilots and Obsidian Wing, factions explicitly at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hMliI/66ate/GiQIzvArgVWak6Gl7eEDgBdFHNwNofdQiLjYwb9QiSi238UYPAhAfbhaGxjlDCX4gf+ZmK4nbyM9AzBsMqPIkqBHzGiEfEgTol/3YXhTSAGvpm8KJrzzzNT8qp+twJONcCV9XcegJpfhz/q2ATdvZNK70gvjPCWIDN9ya+c32tHwmJ9CwZ1GgduiOuWn/MZ2wkRDT1H3r4ZSfWWC7TEwfkJXr+udk1CDraDle55LTUjwZqiAEfU4n0JQsKrcIrTe1gOFFltI6RqaqTDqZlkMduo9MHusPIsYivD1KuVKDbMTdNuxfKRtNv7LufZBARjlNT8pj2TvDFUCjtMdISL2F3581ElJqo5KVObG9rixExiG9WYIi7xMvPGHBpT8hn4d9Tb+5+ZgsYT89unD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 682,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "reasoning_tokens": 64
+        },
+        "total_tokens": 854
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:5d2a467a31496059\",\"npc:f2cdd3295c17146c\"],\"constraint_ids\":[\"C:7823a9192f972bda\"],\"span\":\"At lower court, Veda and Oren signed a joint battle plan.\",\"rationale\":\"Veda and Oren jointly coordinate military action despite belonging to Free Pilots and Obsidian Wing, factions explicitly at war.\"}]",
+    "token_usage": {
+      "input_tokens": 682,
+      "output_tokens": 172,
+      "total_tokens": 854
+    },
+    "tool_calls": []
+  }
+}

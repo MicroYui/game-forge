@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5a10956328bfaca80dab7b9c8c93e0e3f6d97f5370cf8bcfa5527c50aa40c961",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3121,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 564,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 160,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 762000000
+      },
+      "created_at": 1783861000,
+      "id": "rhHNY/o2h9DvEXoy+mId7VMDlmHhgMyV61tq1q4bOn/Sunq4TKcJSIwc91dTX35pCP1BAFjWHQXS34l0JhUspU4OLaMPpYPJKdYwdO2Z74PtA3JFK1BpiRojfXI2FmoO+TiAfrMc6Qtg74iDkasSkifq/E0ZzacpZw5Y2gXBOrkd5nb8x2Azn4yOXrngTeT6tSgl9TqjLgypQtjPrjqXkXzMWwQ8eNqxL88TZuXEJgQv9GkiLcCcTzl9JS9Gm9jY0/PO72ftdYkZibLMIsHvrl8HCz+qmz94y2bHqGB3oyFV/moOHmdpqEYTI4rDQdOSa2wYqjjGjQZ+SBnm19H4YQyhsKkZVS76ehWKUehQrMFkQYtXia3QFh9Hs2p7ejYETK8Hk2FJUDkL6Xe9pv5AYosG9VR94A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "evhRAv7HDV2D2q+I6DTStDkt0rni7lgdH1lW1rcMqFpivpKxeo4UOabq9EjKeTlDkgKNluvEmpTJu/aYq7iQVAMpI6CoqpQszR97fNsQjRa1JZkhI6JSRI6QEQvmwX4XxKxvSWiuBjXRsqPxvh3MCwlTn5QbO874dsFGn4AEKhaL8KcVR1c1XI/4mxaE88EcLEuM4ItWLchSrqEt5IzpadvtWvS8GinObuHtv5zEcdUAar/Gg0Cs32aRqPoG5uTJW78jfMZnTm8zN7kb5z94zpYIXWsFQW7OP4DA3Z9aBi0Don4zF8Pece9kD9TJ0PhnioaxfshmtWQ8U0ehJnJSCIc4H6hsHqeGOs7OLAVbteXXn6lPxjGgd933IT29JvK9UAm0SHI936kJFcunjsMmrcRXKDE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8494564aae0c6444\",\"npc:88ec1917810a21c8\"],\"constraint_ids\":[\"C:9fac0be074675e95\"],\"span\":\"At archive hall, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass jointly signing a battle plan constitutes operational coordination between Archive Ward and Cinder Circle, which explicitly do not coordinate operations.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "oc3E5+wMHrX3F2pHhaudBV7oKzJv5WS+e56ciMCSgMbipeo1Hw9C1HLd8jRn5sGq4iHPyZl6GTNFdA2hAYJGdJAi5/WDXhlhXLxDJdsCb/eWLw2figzFVpssoGqhajHNhioU1ndBszjoDeHSZPID6FL15vBvLmqMXZT5bzmrbwJDeOX7lih9sN/6TDldzzIUE3IPiThaJRcM0ZGLe3bzDGkt6oG7GiBNNFklj7tMF+eSpdup68Lu5nNkD7pln88vSIGDIxObQNW9e4hr/P8IMGk+QPkiA/I+HnTJ/11iyJwdWnyxsqY51bJWHcID4WKZCiC3jDWciEJIg6VZXoRwRDKQJGu9ovF0QDtHALjbk4+Z0Yf0bRL53fHkLQa8wwoV3UFxXSl2wDHq+xSsABsVDfxA6nsJ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 564,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 160,
+        "output_tokens_details": {
+          "reasoning_tokens": 55
+        },
+        "total_tokens": 724
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8494564aae0c6444\",\"npc:88ec1917810a21c8\"],\"constraint_ids\":[\"C:9fac0be074675e95\"],\"span\":\"At archive hall, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass jointly signing a battle plan constitutes operational coordination between Archive Ward and Cinder Circle, which explicitly do not coordinate operations.\"}]",
+    "token_usage": {
+      "input_tokens": 564,
+      "output_tokens": 160,
+      "total_tokens": 724
+    },
+    "tool_calls": []
+  }
+}

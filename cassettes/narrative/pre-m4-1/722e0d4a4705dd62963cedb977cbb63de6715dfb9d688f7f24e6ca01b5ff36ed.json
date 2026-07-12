@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:722e0d4a4705dd62963cedb977cbb63de6715dfb9d688f7f24e6ca01b5ff36ed",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2994,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 556,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 791000000
+      },
+      "created_at": 1783858300,
+      "id": "hmt711IDSNbysLmlVNGrSt0D80yGlzktSMLAiPgkyvLnpGAj3XzabXtl+bXrvfAvy3n8Gsc0YbQR2so5n1lNqtLn7drvkafIkWuCOCkt7cUBRwfRmYEFu4LtDZ18FTv9Ml6CsPYdEK+Vfg4sRpS8ag9cgafC0r3t6xzXABRSFcHe6XAdouF1GBRV1EFKP2OVI+1yePM0p7WxhUhHP6yCPaAA9KsXQ6O4ZBDHcZWEiNttifXrt+6IB05mENhgdaJnX8QtmNJhqE2rpt9rGO/B7HepCwQKA+Sm5LJagqpfnhvhcUVcqmNVGHajFrdaZU/jqg0Lib7NmLCkmPCbsbGUvp3qkzve/LiKV6KVagulnXZniIYWs2zPLpYGqfXdEd2s5ODYvxlHkfDVCBkONRajQHy+T2IZpA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JS416AWReuqPAWIPuZSR7arsQqE25r5JV44BLqZJGyjVK9Rt/YEzCfLQ0A1gEQw1PJ1t/NTBY2H9REvE5T9SVKOYEUUT4HiFjbIL6D1Km/eXcFjcpbgF+/R2onC39Lp8A20aveaVQ1nB1l2Tpa6u8ap9zbKo0upkNnwHGyqJ+rTaHp4ATzl/tDT/uyFhUQ/0/B/UnJLIwSGmN0sXxK4OYB3mt+HO5aUPlIb874CR2Sttv3mrt1ulEqy3OwlnZz3GaC4YmscRYDIIz/Id+1TsrzSWKIqIpI6N/HI5StPwDuUbSejkgsCy/FMxSFLiaP5hRILZq4KBDJ2WxEaGPwrs95tyCcojFrGbQ6c4FL/uBPvHCjdq9YOlpmjMX70R4Pn5rxcqUzgIjYLsyCMH6zMXtAbdOco=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:22a855d07dfefc31\",\"npc:f84661d11e5af4f5\"],\"constraint_ids\":[\"C:73847ca51786dc71\"],\"span\":\"In glass conservatory, Qi supplied Mara and called the partnership permanent.\",\"rationale\":\"Qi and Mara are members of factions that do not coordinate operations, but the quote explicitly depicts supply and a permanent partnership between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "fC7naEuRglcz4lB7LOes7T58yAz3GboMQqavkWDCqNtThIZyKCHmyJCR8JAjQY5NJOxA2Yr+YoECsuwrXzAu7ZUcQkptf1EcfaGorgbp84UQi9IzoRkv3o8ji+lZkzfMOT12rqA9pE6X2mkgCUpXgTwgYKDX6u40sqYAlT7mM2Wy8XjEygIBpCSo7SRUgdicLkz4WC7frTYsWKQt5yQnlANl9MR6rzQmiZM5iqRm4b97uJCLFfFgS6ehs6O7AvVlcjmUNl66s5XGe+gWcYCVyaEnH+64pqteU2Vda/MDwY1mPNt7i360bMyZ3NiQ+ZQH10Gah1wT5wcm3Aevi03ZxVmERM5FjJua7Er3kJRk+DUIKGx0w3CoSmPKSvLQTpYFXrgTXSColQP7aXNVdcESBV4bhJZJ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 556,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 65
+        },
+        "total_tokens": 727
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:22a855d07dfefc31\",\"npc:f84661d11e5af4f5\"],\"constraint_ids\":[\"C:73847ca51786dc71\"],\"span\":\"In glass conservatory, Qi supplied Mara and called the partnership permanent.\",\"rationale\":\"Qi and Mara are members of factions that do not coordinate operations, but the quote explicitly depicts supply and a permanent partnership between them.\"}]",
+    "token_usage": {
+      "input_tokens": 556,
+      "output_tokens": 171,
+      "total_tokens": 727
+    },
+    "tool_calls": []
+  }
+}

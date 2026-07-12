@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ffa28bccf6c860b62faedaa2ffd281e5ecf12b7db7caf2734e31de678633e3b7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6776,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 567,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 179,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 820500000
+      },
+      "created_at": 1783858300,
+      "id": "LRR1kJJ05xwuWq6JemLNMY6V3S9PSi9koo9O2cATScJxyZ/LKJaVkX362OH+ZnVmgKrdsDThcdZI41t2ezYn3LsI5cw8K4pAPp2cJvAR+q6yiARGxcInSD5HhMPjzIXz5OsH8xbzqttVqKevJz9MOok0FoeKQUgXAoNmk2c0EkRh7TnKeNXaM7QIIhURGco6bmID6zP0VJ0cC6Dj832D0dIRcBhmOlRCkA3YJGkO0lDH1i3btDSeVidji0ySH69ARQDBTcYKDh8fXxzbSU24zkGZbmTU2HAzSH8Mesj678fu5xWD8/tIKI4nLJC4IC6c24qWDqhXLKBB/mCM6fXrBXYWlNjr+fO3tZ3scHD9RU5tsEqacFrGVVGjqPVyObnNOWrdNv6vMBCk+pUhY5t777RHRK3sFA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "H53tuK75IGREF22Wga7NysFj5e7SGTftCZ/9g/fjdYNwIxxYy3dQzvZk2itJULlaIYxbHtkmyIupWkm1mcuk1hA+QGCt6bE7AQ9tArIATla1Hn70ID97uiIF0LTyEBg6gAEY/ZOARCqgqkHjenu0g0+gyf9IsuIHe8Ox7vh9zoI2qB8X+pjXVAhn60U51Y84sJw9ezVAt/u1kk1dYLovwoFlDgWp4gjyVSPpxnCp3iCZLfAaLiOZGF4IaT0XKs9SuNVu2meI9HWRrXem/wKkgaHL1LIortZHJSoSWkKsdBq99k3j7DwHcdx2kBlKPJv800Uoh0at2xhelIV2RfK7ztl1zRh8uvADLINOBZZvQzi3C9XFNSHW6ZjIPfhGLk0Wm/Cfap4LntOQxqnsIoQ0TBxAaeU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:22a855d07dfefc31\",\"npc:f84661d11e5af4f5\"],\"constraint_ids\":[\"C:73847ca51786dc71\"],\"span\":\"In glass conservatory, Qi supplied Mara and called the partnership permanent.\",\"rationale\":\"Qi and Mara explicitly cooperate despite their memberships in Valley Rangers and Storm Company, which are prohibited from coordinating operations.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "MRwWDu1DKXqXeu1agZQrK8mlq9eLSEdJoygrMqQrYHu2qvPXZb+GBvF6XCqUzSnPiNDR6KkX2zj96kYgyxEQZbDk2fhXc18D9jmwvpSi/rbrG++m7hgHXYB5d9YZlYPbVbVQmZCRW1ltkLcVd5HGLifaWwfX8ZwSWz9rEg92oZA26pOtMG20/k4HgH5ICm0FyHsibvvOsM5ngGMVB+mUNgFXBzgFl2Tae04D3k0jKeWVy0oF9zSw5kMlnW4L9NYNKk6gEpXRaze2oW7bzxdQxOYY95PFuOQaws2mufEsPhDeMo4Erpj09gDtqGSRJw4c2RosaiswUG+h73uo8R9WxSBx8LuNCCfGALkLSfWt5VyFZNtA2ZFB4XcahasToSIlrzSyFUKmaAliHAf+noQ1ZqcH2VAX",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 567,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 179,
+        "output_tokens_details": {
+          "reasoning_tokens": 77
+        },
+        "total_tokens": 746
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:22a855d07dfefc31\",\"npc:f84661d11e5af4f5\"],\"constraint_ids\":[\"C:73847ca51786dc71\"],\"span\":\"In glass conservatory, Qi supplied Mara and called the partnership permanent.\",\"rationale\":\"Qi and Mara explicitly cooperate despite their memberships in Valley Rangers and Storm Company, which are prohibited from coordinating operations.\"}]",
+    "token_usage": {
+      "input_tokens": 567,
+      "output_tokens": 179,
+      "total_tokens": 746
+    },
+    "tool_calls": []
+  }
+}

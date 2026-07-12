@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:742686d4bc4081cbe6ef372aaa3fe0e22460ee064a384ce5d0fa860dea33938c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5319,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 552,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 200,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 876000000
+      },
+      "created_at": 1783845500,
+      "id": "q6RuygIgUqtV+aT/bDpzpySCxueQWksf9HUsiZw5zvM9oN+YGSNoatcGlorj938ay/oslh/h8Eic13G8TXOn7KaFw6PQNe7BQp3J340XmvpNUnsbVyBRhBwmVAawY/wwWaN7TcyJagyONau8rR+EfP7O5fNEpJohflG8z2Ncu7sMwGDr8fN2wzYtFWEQw0lWx/Q1qVfl/gsWyWDenU5wLyUQCE+BiotRJ5Dxvk04SP6IaLuRocbs8lt8pp8WEFHx0FrfO4YoTUM+l1GyjbLFt6YDLH7nFJ8AcJoqehw8lm9YTiZ0iSlBnV1hucBCiJwSTGzldhK8bSIwfQV4sJ8uA2ffzX2AtXMiGELl2TG22TVlzMDMxg3/ycKdBWmb4vVkOGP9ywacvg+qETAfTIMSwoCmFFsjDg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "8fvGQKI/Hg+YuNsgttUtAjXAQZ/A4gPmZe8fshdgGI18V9I5qqKz+kmtQPDagzjc9OE/U5uP+sJeiNzIX5ZRQ2220ZzgEFSpr+effacRGlTY/y9pQN1OHjynBvW8p8UKej/KBvrAVr2QulcMS6i5PWDUY511AuFJvhfBbxmSUGB8VFTlRrogMkgeX3pf5oKnTJBD5h11234k82xYJLP6aYw8ke7AbZxjPgQ1aCap1imZljZqaPTGM74Ul2rkExklFhp72An9wtfLBA9OZq0h/5BeR1Ps1Lg2ofGLdtfKfPJxfcliKws4AVkiVPqHb4im2lztxwxkxTIjbdWc9Wk0bOwVbWwFQaCFujDGJBYGSQgcqaZ/j3wvTtyIzb3WPEO78hQ11x+5GWjYp+DvcfQdQz/g/L8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:163ce0ab908528a8\",\n      \"npc:5a71f369e5ad3e3e\"\n    ],\n    \"constraint_ids\": [\n      \"C:c1777151ef019436\"\n    ],\n    \"span\": \"Iria signed the register as the Warden at eastern ridge.\",\n    \"rationale\": \"Ansel had already been formally recognized as the Warden, and no relinquishment occurred before Iria was also identified as the Warden, exceeding the one-person limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rojLi3dXirlvxuCIOxP5JjpFUmZr417OWDtsW7uCYamgTnw0o2hBfxiIi60OBuAfCLxdBT2i1qsjPJ+LEWNlOAAZApvmUhDlNUQ9cGcjleVDp4hyxZGqB6iNZf7muhVkX4Cjn9AW5frCoClveio8SeB0A8Fd4fzBgKj5Y5+mAL4Ex4P3rWljKHkAyYo1dMXy0w5EfC399mVEKiE7hQaP2w//kwVssFlzTHtV1VghkrjTD94RnM3m9ew2eLM6L3kJFICqxBr55ZSKqEoZ4LN5hK6VR1DyoPVjtSCWKq5rlFmJbR7H8Z0FunrPp8FJy7LnGO1gaVNxIAg2CFMkqii/RHBWqpyzPGcDJV95HXtu1BcTsW2+XaXutoHvkp73DX/SBfE63SsDaS051dF0Dd159rz0ds0P",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 552,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 200,
+        "output_tokens_details": {
+          "reasoning_tokens": 60
+        },
+        "total_tokens": 752
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:163ce0ab908528a8\",\n      \"npc:5a71f369e5ad3e3e\"\n    ],\n    \"constraint_ids\": [\n      \"C:c1777151ef019436\"\n    ],\n    \"span\": \"Iria signed the register as the Warden at eastern ridge.\",\n    \"rationale\": \"Ansel had already been formally recognized as the Warden, and no relinquishment occurred before Iria was also identified as the Warden, exceeding the one-person limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 552,
+      "output_tokens": 200,
+      "total_tokens": 752
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:adc29cc6f5ef4b284883e970bfe89772443e9bdff5308404e1c3655f0774d13f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2874,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 726,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 174,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 885000000
+      },
+      "created_at": 1783850600,
+      "id": "uh/z6S6LWGatV9jl3mWBHTRgsqjL5NHAOJGUqCkmm+32TOubL+w4dg3Rlb9RJ7qlINF/DHxcKM4y0455GlI7gFI78eyKYoeYwBFb0+Puw09112oPscTVweSe/04UnR8umlR7DjyYN7p+6QK5Kl0guhToBd9iFOOOsXPqNuQyAiQ8IHpxUjzxYZane3F8ZHQCbpmT37eJX3oHlgsbGNW+qUxcZELqqkgYNe0MF3AWF69dqO0mQKzf365bN2mAcszFEh7A179Xt3FUIVDCJuPoNhHs9N+7ID0dycl3MWWvBdEgMluVMi82jGheqVsI/D72EHBq+klon14YD6ZE+0BzAHlZJcKn0W0Zf/jy8ILoR/SBglCqTCEvvDNMZLjAIuRu9KnnzGq2rO3oHDfDrM7xX5r4hTqvcw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "wry2pVOvqiwCFH6Vs7pqnuXDIohcm87f+aJFJvsLw9B5i4Pic83EDBdqJgU0kpswMX48TGHq0Gm/JMr+lPYbDwI40smxX1H+S9UESNCh7yvvbFK4SC92+xZT+K/6njfSI9yCcyLtGPLqHCMRbGDSwAC6OZaEbgML8KQeh6JKKf7Su6Txqi764BXV+Q6MrRPxY6Fv6LELw2Mdhk+YrKF2MObdy5SKd2KU7to6+iGeHFXngghcfKDZNDpAu/ZXgx/95a+wVNWrM2NKZOMp7VNGABMWY4iYwJWkJKe08S4IVoqMWPwfpjDk95ViPK7BX5nHErpwMoXPpInZoGrRhb6iQTJnHkJ6Dg0AIh5PiH3rIhnCwkBEVwAOWyqVJAF/HY8dSaV+AbO29YSMYExBSGnNvUb5d8M=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:8db61d3417df6f5d\",\n      \"secret:96b73118ca8a9c4b\"\n    ],\n    \"constraint_ids\": [\n      \"C:1e4c6fde43e0d5a6\"\n    ],\n    \"span\": \"Ansel disclosed the hidden heir's identity during first watch.\",\n    \"rationale\": \"Ansel reveals the protected identity during first watch, which occurs before the permitted finale reveal gate.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "CT3kJXl/1K7kWOGFIuztXbgQdKOIm1H+yUwJCGWTx2J0zN7ZgWP7uOKVTmAKAmzHq6dwnPgA7d+JREfNAYtJFqtBY/V+9eaFingTrktAo31zyiXp8xLKdYcwXIFjPyR9xIgi+mb53AV9EyhRN7/ipZcOjb3jem7XdifpWH8Fbnq7tQjixWd9dnIDdCKFOwZYPSONPGOLcH4moM876dX98nwGNeUvLsbl0JKc9tdrSoEuaFrsSsYYW1ljPey1fjcA6WMkwTs7e6WUvf2u2rZ1tdH2MzcSMMjvFhOus+gqKsXp09L7kv2AmPNSMUCSyEfTk4qfurzX45wxUpG1Gc1vXemJ4uMoJjnMzY9UtOhmIlGjPOrBkQiZH0Bi50J12Ip2yml8C9RFqFtrcZPrOqfNQvic3s1s",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 726,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 174,
+        "output_tokens_details": {
+          "reasoning_tokens": 44
+        },
+        "total_tokens": 900
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:8db61d3417df6f5d\",\n      \"secret:96b73118ca8a9c4b\"\n    ],\n    \"constraint_ids\": [\n      \"C:1e4c6fde43e0d5a6\"\n    ],\n    \"span\": \"Ansel disclosed the hidden heir's identity during first watch.\",\n    \"rationale\": \"Ansel reveals the protected identity during first watch, which occurs before the permitted finale reveal gate.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 726,
+      "output_tokens": 174,
+      "total_tokens": 900
+    },
+    "tool_calls": []
+  }
+}

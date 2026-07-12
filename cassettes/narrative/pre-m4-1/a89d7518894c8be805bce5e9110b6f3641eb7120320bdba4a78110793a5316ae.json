@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a89d7518894c8be805bce5e9110b6f3641eb7120320bdba4a78110793a5316ae",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2005,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 658,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 90,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 599000000
+      },
+      "created_at": 1783856500,
+      "id": "v4lxN4CweBkW/3Eoytt8gKAgbI5hLHzgaIYaZ43NyFlIx4zalnjTW7r+F1KKDPQHvBAiTG6982e0gdWz2RVpcoqYC0wSCuXHXwKK3r1TRwbwQ0noQSOy+9FWcdosbIgHw3lZs+ikiyf8cvpecm4xNFDVWuiWIy1AHPpNZWyBFZTVTkQoyqLpdTNkJoFKT3rXSXGN74lutQFBCSm+up1aaHPeOs/Ul3GyAj2nWrQV7oFp6Fffd3P1Pu0Iw4CjkpNpFUmfNbwbtTU6166VRPkRzPoTODBpjJMfdEFwb8qs72Sb4UaWxPXtA/cBIdEWOVJcq9DP9yhNepcKMeeeU0xl7xMfMT2eSleHBsgUKulpwZRxREznr80q1QSdVfFvfQIrgqpA7F/UWX8jxKFhMldC+BjWLBd1JQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:3aabdcc40f539255\"],\"constraint_ids\":[\"C:00480bf5724b45e3\"],\"span\":\"At river market, Mei abandoned the ally named in a sworn promise.\",\"rationale\":\"Mei abandons an ally covered by her sworn promise, conflicting with the rule that she fulfills pledges despite personal risk.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hPHrihn87sWMWq9o5hT9E3fefsJI1+H7B2uV2QtrXmMW9KBeYxQ2rwJlA/1rF0LCqqQkkeNzdo/QesejUZqfFvkosESEGaLqa148sGVBS5HI1e+fvsJZ5Qh3cld20J4NOvO7WvmBHnzCb6QhpAi9sP/77aKW1MVZ+Lr+d1LOb/z8MEr8vyormS6tYVzCtH21ZtfqCVobqnUgSGIDF9BG9DITpCNoO/y9ykOXqd4Aawx/UP+a3ZT09C+/kLgAwEXui9sexD+mUR5YfEGJR0aMpxVUSQDZmMUJXfpmf29rtOPIaYXlqf7MfBD9Zm/xwcokquySRtEmqcnwDDPKjP/6xB9z10UusZs3soVdZz3Kj3FQb9+EXgu+gHzDkjlKDKHD8rgr1exSQvu9hq73G9fTi8536IiR",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 658,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 90,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 748
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:3aabdcc40f539255\"],\"constraint_ids\":[\"C:00480bf5724b45e3\"],\"span\":\"At river market, Mei abandoned the ally named in a sworn promise.\",\"rationale\":\"Mei abandons an ally covered by her sworn promise, conflicting with the rule that she fulfills pledges despite personal risk.\"}]",
+    "token_usage": {
+      "input_tokens": 658,
+      "output_tokens": 90,
+      "total_tokens": 748
+    },
+    "tool_calls": []
+  }
+}

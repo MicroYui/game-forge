@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ba453bb12deb2c00e6e22e521184e1923c202e8a1bedc4e0ddda280a9181161a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4526,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 627,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 250,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1063500000
+      },
+      "created_at": 1783862300,
+      "id": "S1h0steEM1nGhlVd1w96/U9tYAfnr6f9rdQwMXmW189dcDxoBxRhUfoL/OWKBZN0Cq7XQOwKvd5S9o1HmHCclZ1pqlHvacrUB7YHFGCrgn0fkhSEXZSPabkyl42AmGmQBqiD9JAw6VtBU+3LWxmBk5t72C42VJHHVljLk3XD1sQojW2auYsf5pqrwxXBY+8rEFrOgSVz937yJXinjcJcq1+/cKXIEzNz72CFUGt2DWg8DUrrJaql1UY0/ingfTsBrG6kRuIXug4CSD7F7XzxlTgaZmYl8vHjVXkpjRiD3KGMljYjD/25ERA1OEgVybTqBBkwj1jEezEUhT9HGGOvJk87K2JZK2hfE5GzF7JJI9NlQtfNUQVSI58cRnHhJtTqCv5oOHj9gGvYzYGiu7cNOOrnFoZc8w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WyQxYCrZAZijm1lqd3QxNFlXDMyFKWBbq9lIGvfD9HqPOEjCOsWy/aB1FahFEiCHpSsKUOUIY0ZfBRy84gXuhdqIpzMgw4At2IUIpFqERIRL9YNDMGsavP0xJYWlrXClYX0dIzWzHULdtmITEJ38fR47luOYc4vrS+fq5Me3opWteEWJKvFyNVFMVWRfCAfyBD20tcnOEgtji2cZdamPMRRSsp7uR0r2A9UbJ788UHe/e98BlxHv6wfbeQH6Op7nQSEdiDspzqjuEljVVsnWzddge61rwXpeQPwnW802aNkwiU0vaFUCuR41CitpOUhiF0lBOZXERy3P9pHg1TI4ylDjHcUupCM5EszssMiCkDlQoYytAJWccgFY9QA2/5fmJcnynZdPVCwCuQVVV61NID1ox+E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1607415aeb7bf1f6\",\n      \"npc:6b3675559d86e434\"\n    ],\n    \"constraint_ids\": [\n      \"C:6b4efeeb00467e95\"\n    ],\n    \"span\": \"Lea accepted the title of the Vault Steward before the assembly at signal tower.\",\n    \"rationale\": \"Ivo had already accepted the unique Vault Steward title, and no relinquishment occurred before Lea also accepted it, exceeding the one-active-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "7GGvw0FZIr8/zsNguwrfVTPojAsWSAtRzJDumSO6MrAafCPQbh+LUYiEAgazYzI2RQdJwfHBQef1OeZlbzPnQbcVTRbymzvQCeHti4DkVxaCrTDvcbaN+YR5Iz80f65TxpdKUfSkseH8o/tbmiOskB5mlKrE1eWcZvzipfYydr83HwAuOu48rV3VALWhPJA42JKUuojOh8rzi8cX5bmfLUZk7BP81H0pZL+mL11iswn77cdYIqKREIxvqp0BeMozOzIKE0q66hU89Bk7QQaZ+5/2jNBByDu0AEc/6dIwz3Vl+D+bStFMKZqoYcuAACpP/ZBzlkKrNsJTlg3/V3Fq4y50AL1+CXLHsNvaMBYShNSI11WIS5cjBD7CpwC4+uYkP6s4zHFV9Tjf3VKfhlTan52Qwexo",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 627,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 250,
+        "output_tokens_details": {
+          "reasoning_tokens": 110
+        },
+        "total_tokens": 877
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1607415aeb7bf1f6\",\n      \"npc:6b3675559d86e434\"\n    ],\n    \"constraint_ids\": [\n      \"C:6b4efeeb00467e95\"\n    ],\n    \"span\": \"Lea accepted the title of the Vault Steward before the assembly at signal tower.\",\n    \"rationale\": \"Ivo had already accepted the unique Vault Steward title, and no relinquishment occurred before Lea also accepted it, exceeding the one-active-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 627,
+      "output_tokens": 250,
+      "total_tokens": 877
+    },
+    "tool_calls": []
+  }
+}

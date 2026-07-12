@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4092abdd071a4a27f77e5f93ecfce52c1b840585f0052e4e57698e3cecf25b9b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4260,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 558,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 227,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 960000000
+      },
+      "created_at": 1783857300,
+      "id": "5YiPla4X4r7gKQJbTvf34HGAVra934qcCv18K+4yOSxCWfaWRXXIt0Heq5+c/+WM14qR/N56zwwvhProBqgP7rMJoPxw8qzbT3Coq/ypG+5MjE1UQGpy+xV7X95gk014zf0VWoOoz1LHYxMOl/vdsKoaun35+nC7+hLjWyW2HYNj1OcSi8jk39R6cniDgwI9lMXHhMQ/uNlYDEu/EgpZPz7wiW5iwVN8JIGwumIPTzl3cxyvG71qhjwQWtaaOiBrTbPcSWZtfhbhyRHWdYpQcf9LBPQV52ls+ZJJZz+JrW7FBql7BN6CDF4sBWo/5pgKECA/FbHD4aPz8MwdgTzMmUE3LWbcp0dHjF+mf0yNAnbUeF2Sp0MpNksoHaRDO7LHG8H2jP78wMC7ATBv2z9+wHeWvar3pw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "/NirC4xgAJ9JWFqolWklPQVvcNTItXwn3m0ezVMZzlB+Ctx6E//XGU+KkncCQygubTC7CeTevqhnpC4Fae5qFP9rwnK3zFWffaQchiIToNrlsfKpEG4o7XDj0Drt1GBLRMCPSrDaFx4LUmnn4L7g67LEU1/imqgLf1ftjF6YM6ar7rI35jjCSvB6BJFVG8xEOmGj3A4o7QyypoQkbVd6vOLnAOJZ56gMbKt6VyAfRfvwy9MmBXnqQXx6ZiVAthhbwssVteSZgDig9vU5aZhX8Wo6Aj50/ej3Uvi6W+mWcRsss0tuw2wUIIV2r2E85Ex2apYhWX+A6QUkUKiIxsU+wwe0uKN1ajc2f7cHyRs95SsVKOjRWVHtfboDUMc4GNs+5/lBizJJfcYjONY+VSrWcSD2NUw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:00d8b87834b14c00\",\n      \"npc:dafcb0f829b62e16\"\n    ],\n    \"constraint_ids\": [\n      \"C:576a8bfcf8736c57\"\n    ],\n    \"span\": \"At canal bridge, Cass was formally introduced as the First Navigator.\",\n    \"rationale\": \"Cass is established as another serving First Navigator after Noor signed as holder, with no relinquishment between them, exceeding the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "wOOBqZc7GZpwhR/gyc9IM8tOXG74wfT/eBAIqsU+Ykht0W7kjlocfnSAKCP3Vc2jytZVU4JihKXuMl969cIAIJxnWXGFkG47rBxljrIQSud9GgfQDMLFFA/UMuWYSq80It9JP3E7679gKJDjmQJEMWVT5yt7icyNW/WlvKEvL323r6KzTpdqo15GnHkwVdCKzqi2nJo+AjQ89cQGtiqbq2fisUQSjpb884B7jlRnCz+qBWK/uwoesSeSBcqF9GL9Q2jtDWgDsbiy8J5HXHX+7gfq44EzS/JLtlw7vKibXDHs+s928ME/Hijw2r9nUa82UinxTLc/vbKn9A/wmA20Yk0FxYfpCGb2RV9/tQHr3WaJGKpZJYIEk7tv+JL9Dx0P7X+9VF/zoM1Hgdbo9MH/36n48+Ic",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 558,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 227,
+        "output_tokens_details": {
+          "reasoning_tokens": 91
+        },
+        "total_tokens": 785
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:00d8b87834b14c00\",\n      \"npc:dafcb0f829b62e16\"\n    ],\n    \"constraint_ids\": [\n      \"C:576a8bfcf8736c57\"\n    ],\n    \"span\": \"At canal bridge, Cass was formally introduced as the First Navigator.\",\n    \"rationale\": \"Cass is established as another serving First Navigator after Noor signed as holder, with no relinquishment between them, exceeding the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 558,
+      "output_tokens": 227,
+      "total_tokens": 785
+    },
+    "tool_calls": []
+  }
+}

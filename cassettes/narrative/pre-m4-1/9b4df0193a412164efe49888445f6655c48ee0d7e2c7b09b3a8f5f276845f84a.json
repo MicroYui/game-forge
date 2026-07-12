@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9b4df0193a412164efe49888445f6655c48ee0d7e2c7b09b3a8f5f276845f84a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6933,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 579,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 406,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1507500000
+      },
+      "created_at": 1783860000,
+      "id": "M3Z2TtDZc8Ohb71Lk4CH4V56QULgfuEkMh950A/vM9hoFylCCDYoNaHIRY6XieUX4vdj5+nsixOwIC8djrhLPt9sjmMxCVko8EOrQ9XlWBx2i9PG9o75VrDXW2t9PaV5nWxuOAh1eDZ+ySXLQT6W/DG74YCCoYOFt8Giwku6X21+dzLRVAgnpEAX/WLKaYC7gnuV8lhYVkcuqGEVufUhbgkCZLtUF9hmvCQy2bGdY/cTTYvqdrZbjQM7fbnKCXDNavep2F4XggHdycZi4cWJE4nEiToJWjgNuAyIbfXeigBoY/oVsXWjoNKli3M8Q06qM2U/qNzY+pMCIztu498sGGVg5BSL6RXDOgGpOEZwAMWZKWcGcIJLEEQ/EsyOShpz8sHCJv+Gp+BUBJK4JAz7siCWRWxgJg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "sl+QrESj1lcfe66DxzRI+gMRLvPlARfwHKwXgQKc7iCRZxxQS3thSGaXG56LZW9nkFpeydAR2Llxy/1FKp/v9S3/HweVf3GYFc7frrouQ67Hi9aJSndlVSHM+iMrL7tz7Sv99r8Uu3OjLBrrHweYezdwBlfyco9sx7LLWemYFWd6WpI/loZV1lF4DMkAaDO/+itq06aHwNx1uQAC9FWMuYVZ47UiaLIv5PWHRgeIIZghUEGxFi7X78HrmZuJUmw7CfKKxtbffneEZf3qhSQRqHgxhPapz4udrDust1Hrv3W+T+RnAZ9AlnfFeSN4Lg584xmlDNxRJHSPDTJEFzL9QPi9De8ohy3UJ0cmWjLKbpovac363XLXufb7nWOFVgsX3dfonRSEsgYxFhOiaUZiO+TYhI0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:d7325a53ca1a01cc\",\n      \"secret:630162212a5a8779\"\n    ],\n    \"constraint_ids\": [\n      \"C:a633e285caab1921\"\n    ],\n    \"span\": \"While the story was still in hearing, Mei identified the masked envoy's identity at lower court.\",\n    \"rationale\": \"Mei discloses the withheld identity during hearing, which is earlier than the permitted reveal gate at second bell.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:d7325a53ca1a01cc\",\n      \"secret:630162212a5a8779\"\n    ],\n    \"constraint_ids\": [\n      \"C:a633e285caab1921\"\n    ],\n    \"span\": \"While the story was still in hearing, Mei identified the masked envoy's identity at lower court.\",\n    \"rationale\": \"Mei knowingly violates the secrecy restriction by identifying the envoy before second bell.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "k7Lhr6xxyQgHgMkg8uRORLot/aDRr9Fa4jRCG8CarHT2T5kqpWphQS60YvkGxLDxmbCbluYkSt5hef9oy9FCFeuDbiSFqc6YHu0G/R3D0iChbdzbLn0NQ5xBEfiaMUg9faXrMKQKm47+/vq6RKCePO5Thspk5YzjgcqXIRhgC3SlPo9GoC933MUrhBcPqu6yd4UwyrLpx7//B9UBnBEbWL/Kh2lTSXiHWdzTYXXlMnpWtC/lv/fX+Jv5s+uAX2QiPoEMy9AyonynkIre33g3073z+rCH/6fw80X+Qrv6jJbVvHOfmEb7iIhW5VRLJinENDI4oCtTE2UsyS5ATDighqchM67atoF/jXdqZQyodVM+eUcLft443GBOJXQSTwiBpiN1Y+69+O0dHjQN8lRc6pVEPscv",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 579,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 406,
+        "output_tokens_details": {
+          "reasoning_tokens": 161
+        },
+        "total_tokens": 985
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:d7325a53ca1a01cc\",\n      \"secret:630162212a5a8779\"\n    ],\n    \"constraint_ids\": [\n      \"C:a633e285caab1921\"\n    ],\n    \"span\": \"While the story was still in hearing, Mei identified the masked envoy's identity at lower court.\",\n    \"rationale\": \"Mei discloses the withheld identity during hearing, which is earlier than the permitted reveal gate at second bell.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:d7325a53ca1a01cc\",\n      \"secret:630162212a5a8779\"\n    ],\n    \"constraint_ids\": [\n      \"C:a633e285caab1921\"\n    ],\n    \"span\": \"While the story was still in hearing, Mei identified the masked envoy's identity at lower court.\",\n    \"rationale\": \"Mei knowingly violates the secrecy restriction by identifying the envoy before second bell.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 579,
+      "output_tokens": 406,
+      "total_tokens": 985
+    },
+    "tool_calls": []
+  }
+}

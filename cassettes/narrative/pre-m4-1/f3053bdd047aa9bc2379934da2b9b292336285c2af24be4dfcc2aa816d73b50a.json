@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f3053bdd047aa9bc2379934da2b9b292336285c2af24be4dfcc2aa816d73b50a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6963,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 671,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 232,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1031500000
+      },
+      "created_at": 1783862100,
+      "id": "ckx9OwxV++FOJSQpFCxwJetx832B5A3sJjMLVkUoIBVk7pqQUTm/7ZfotXvUHe987KHDQ8TAYRaq68fcj05CE5N9P0mDNKedejbTebMLFcisY4T283Iy8Jkp8Vg7OhDaqHgfpTTn8nWufqcquHNRDBP8dLy6XQcGL07fhfin8zCjjNE2WWLMz15VGekOcDqf4CowjkhnUkftPGGWIsXwYcIPWoiBlkH93hexrea7RlGdS2YP0TWsCHrlzOntMA4ewUZFO6utSdhPDtjnOu0CImukbiMRwqxYgVVrFUrN2K7QFrWEL1pvLzwIdz25e6t5CxBgt7by084MAJfhLkh9H5guR0gsDCVRg2HcclPiAPs0yH1l0i0/R4Fl5IoSjTAmR4gGfZTMz5afy5jDPtXyZVbCwcPUBQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gganZidMOGrt2EKC2Rs1RMjJ6F4PatduCi8/tU0gZxkLU0yZ+9hMX0xW69hHHGPZRYzHViO37byHkz2ilXyjohqcGbCdEqX3jga0XM3S7mbZXDRowa/PJ3d7k8PXiEnZGSokKd2d1ldvRz8xikGwp+1WOyvOnEGA6mmwPhzeWS+qCxz62WPYNGtu4IWQHQzYpmsunTBg5iziVbOLWUed9O2Bpjn69eczyv2EI2nWiVmE7HSNQbTvve6vRWZThutpmLgTrVeg5iH3ngycMpaI4ri9q6dkFonuZiR8JjptO7+EfwQLXRc4Ix5RgxzlBBG6z2s0/LFpLXVbtSBxraOCXXjFcmbvBS43RydUoysbRjMaRoHkKeAAtqpRfmUGz6LVmqY9z3fyAh47SQKChv6oEeA8nJ8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0c3895b7f0cffc3b\",\n      \"npc:46c7f83221ecda5c\"\n    ],\n    \"constraint_ids\": [\n      \"C:3dcf946ae11d78eb\"\n    ],\n    \"span\": \"Lea signed the register as the Archive Speaker at archive hall.\",\n    \"rationale\": \"Ivo was already recognized as Archive Speaker, and Lea subsequently assumes the same single-holder office without any stated relinquishment.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "UIGlVeWKDu/QixzK8PF3dn9tuqvOgLXjpzG6CBo5h6ShlUYVibvC/p4WFVXdqB3+jAkIv/vPTQ+xfUM+i539s6V79fv2Vbtj1HQNNkJGPC262RI0cWiKJ44PCG0CP9oXMG+FBlePy2DXILeFYNcryY5wbeX7YN8dr1XDJmPyJq7t2hCJ21a59Ept3h9EsFViHRv0FEXZcsjyZdA8JFHf6XfzgA05d46rpZKD1ZgDvjMwhkVIAZg+3b3KTnsQ9+BuD1k6CAbp583bkFf54dIBQgH6csoKiGjCuO3l+QxwRedVpuuXrTEMuRIhrDw1m+busVT9nMEY5WJl7YrmNS2Gy1lCTMFnIdBgFDQSj8vq30xeetkFx+OxqG08h6I+Fzm6H4syidW7NPUNd5aiPn+AoYKodVui",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 671,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 232,
+        "output_tokens_details": {
+          "reasoning_tokens": 97
+        },
+        "total_tokens": 903
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0c3895b7f0cffc3b\",\n      \"npc:46c7f83221ecda5c\"\n    ],\n    \"constraint_ids\": [\n      \"C:3dcf946ae11d78eb\"\n    ],\n    \"span\": \"Lea signed the register as the Archive Speaker at archive hall.\",\n    \"rationale\": \"Ivo was already recognized as Archive Speaker, and Lea subsequently assumes the same single-holder office without any stated relinquishment.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 671,
+      "output_tokens": 232,
+      "total_tokens": 903
+    },
+    "tool_calls": []
+  }
+}

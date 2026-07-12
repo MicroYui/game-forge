@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a9478c5269eccf9cf4381fb2cebc4065a8bde9f9bee785373792f8ca2f13d364",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4295,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 538,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 207,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 890000000
+      },
+      "created_at": 1783861600,
+      "id": "AVOIcIf/w3Wpk9eBpx/NXNqLUFAaP+kKwnetYqeBHSVu4OuIs5T3fBfyyPPDVnh/+QKoAD8uWn/iupTlsw9iK96NLwABn+YjilPJD6+8rg/UfwX1RnUV5uGeykCMzQmvkt3wDMV9q3msrKz6uvvRfYbHCY/v6EjmJOr92jEEyZK0ZarZn94PF+TYesVOcsjD2U/Tg1VR40HZW2KOBZFkqJF+P3R5ntnnsQfzE/iaX0LYp+7mt5vQvXE0jMxeHohiWIjZlkZG5pbm2/Vt/WnikXjOrNAZVT59bMV+K1uMgNfijCrOiFludTMPNUGtySOle7ik8vF9isngQpBJkSeGAS1oFmyn/K3jwYbqQXGP850IR5TIi7q7pheSeqyQ2a/OHolU21d/wOWihe81F0dVS+EXi+Monw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "XfVjP4agNLc3D/Ih7yTIAPe05heSR/VybRnSFzC9SNqWFR1I1Vy8OlqzdTPlSsKiTqoshfroU1QMQ67gh0nJHR4LoRYVC91PnVwgdQD59tgeqn6Pgcq43qdD5/ms9y3dM3MKvCdqErHcnPgLQ8z8WviLLcX6NAMYvEIqJAaf5O1MEMGu7O/tADDJXNtRdH7jnt+eQ4rnWEyoh52VWx16+wWGI2P1pvMprkmMG8nCo0Pg54hHMjIeEPtoovcVF9GW4haK0BFHLylEgCN185laLxKBMA7PP+d2qwVVhb4W66pJ3jasKJcPemG54DphDC5SJauhHIOQiGyS0h1/GYVjBayOzUdKYbpicA4a0QJv1+nQzm7pdGwM5wPeRDx5ClcgSDuSej886dpn6fMTR9vvCcIFY6A=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5e078cf00395937a\",\"npc:6efc0c4baf7641d7\"],\"constraint_ids\":[\"C:01e64f1a4fdc7ada\"],\"span\":\"Ansel accepted the title of the First Navigator before the assembly at eastern ridge.\",\"rationale\":\"Ansel takes the unique title after Iria registered as its holder, with no relinquishment shown, creating two active First Navigators.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hiUF4cPz579g/WpmWTt8dhQIFMVh7mRlsaDNo9SDcvu96nGxuOPE3jwaafVuansUbk6VsEAQV3u/WQ+lsyOtZcfVCoxuJioxxgsWUdfM3QuapYinhx4Lqz/7P5s5PS9nI5yZdwGkdelEDr+p6ceaG0psiWUoH1YohAnvnXwhB4of6o0qDeg7g6r9tpx1s4GCXNVD/swiJiuDLprIxh5RYdHMH1fK59OCtWT0b18XiwRtmi00XdgWPcQWt/Ao/rmO6tpbo+OqU1bAkjx5RGJYG33HfwN0AqsYl7H6++oUc0G/y0DWT5gKNavEkmO2ZYfMZc3frITQKwCBLUl7rL7UERqhnfqDSgTAZVMtp85fk22xyfYDFmZyTpV1d9oWyiTx35tOyrbh8Dfq4TPx0m9q5p+C7V+x",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 538,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 207,
+        "output_tokens_details": {
+          "reasoning_tokens": 92
+        },
+        "total_tokens": 745
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5e078cf00395937a\",\"npc:6efc0c4baf7641d7\"],\"constraint_ids\":[\"C:01e64f1a4fdc7ada\"],\"span\":\"Ansel accepted the title of the First Navigator before the assembly at eastern ridge.\",\"rationale\":\"Ansel takes the unique title after Iria registered as its holder, with no relinquishment shown, creating two active First Navigators.\"}]",
+    "token_usage": {
+      "input_tokens": 538,
+      "output_tokens": 207,
+      "total_tokens": 745
+    },
+    "tool_calls": []
+  }
+}

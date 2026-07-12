@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:797ee8d87b99b1dc24d3a61a70efc1a898ff9fc282a84d979288f93cef095092",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4215,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 689,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 226,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1022500000
+      },
+      "created_at": 1783852800,
+      "id": "ypIFmWHijEGyckWXsVHbDtxrvmGDwFPypOOo0eK1cG2wp0xWnyg/ZrIhD3+I4p032k955ElQ1nnFBx9utztY8xBc5GKhFMQgLzR8v1weOy7x8U6ieYNn1wZekHCEocg5aw/WBBEZSCGQiM5WC983zM7xYjMF+Qys2S2nlf+7yQwD097CN1bmhtskNFWI62v8J30oEGuHlL7DEiWGnu+WiLWCvYIUi/puw7vjgD9vNsSRSjOWTadTPcl7IXJKqlExDSGpca+LvnJ5dRGE5ErugoVIHdr61ktULNyq4JvNRzkoAaf+21WM/s1p6s+1xaITUim8V9yzHB1ZRuBlDDpoDRZK6Fp18HUYEJUgeoazTAXk4eSDKwPW/5JrWRPGncAWF6VA64DSG9xW9Bdc8z2NmoblQxDOzw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "jz7uIktddhujFuRZ5N+AmE7bw1T58zPdWECcwvL5s+pjgKDOLZ/rEX5g9qluNgMVbOnY0d/A2LLQWLeURrX4cyofYDwpB7r6s9IiDl1tDJ9j1wwiDO4vbnH7J97YfgExlbVIQTH/cKO7k2Jql6f3Ize2v4MLRzDop+YETiBXYdRbctkCwpZb9xZc6XB6M+T1attPJJ0xmbDdzbMB86Z6prHqk0seQrt4+wuZGpoYZZ8G0bhK15nlifI0DajiRSV4iUsrOd2sqema5l+WSpp1+MeGReIw7K9k2lBAV4Bk0QT1ndiCIoZVXW56K3bcvCAcIxRAOY/JSOlDEWnJ8sK9Pjr5FAwAu1oZEcMavOkxchbZCHdhapwFT86ZrbBtVhsxfzwQkTkuQvm7EgrVTDXP4lXgJ8U=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:8df84e969bd64d11\",\n      \"npc:bc47788548dd35ce\"\n    ],\n    \"constraint_ids\": [\n      \"C:cea7f1c54265bef7\"\n    ],\n    \"span\": \"At eastern ridge, Qi was formally introduced as the Beacon Keeper.\",\n    \"rationale\": \"Qi is recognized as Beacon Keeper after Mara was already registered in that role, with no relinquishment stated, exceeding the one-person limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "UR5Nuri9FDUQMnV5ADbryNcMvsP3nrMoSBmScvp2jV0Zx8QNxl8oKG1NBH51kJPW6g5JTJUKRiyVYl5XVnkMxqRSPFv/+MAWe2h4siejfOC1e0uD1CGbYhEfSfVYItjUA9i9E1zvdVnuVyto5LrWT7n3taxaRmbWTb6x9MC0jHqq3OB+66YWhDF1ewneahvXbYLvd+Z8yfDe2LEAN4vMLnQTG1KGLC3OD0GK+Guwq45fEK2Thwr9DvZl9iNyJ6ReNM/XDjSPwtl3Vcdqfsj31Q8NHEQZJD7pb5p2EGxxcqGPfm4abS93rXEtqe9vdAueKJ3FlvgmgFJ+Q/RJRgakBUad4rVRtXkKHjpING41uQuNnVboJag4OLdP7OKW072AqjW3vpixAdYgYcJBbwhaEsN1F2b/",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 689,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 226,
+        "output_tokens_details": {
+          "reasoning_tokens": 94
+        },
+        "total_tokens": 915
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:8df84e969bd64d11\",\n      \"npc:bc47788548dd35ce\"\n    ],\n    \"constraint_ids\": [\n      \"C:cea7f1c54265bef7\"\n    ],\n    \"span\": \"At eastern ridge, Qi was formally introduced as the Beacon Keeper.\",\n    \"rationale\": \"Qi is recognized as Beacon Keeper after Mara was already registered in that role, with no relinquishment stated, exceeding the one-person limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 689,
+      "output_tokens": 226,
+      "total_tokens": 915
+    },
+    "tool_calls": []
+  }
+}

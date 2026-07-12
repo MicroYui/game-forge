@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2ff7eb031d75e0d81a7e41c4f3b9063e1a6c7c307c91c264a63aa7e4ebb46be5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3634,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 692,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 147,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 787000000
+      },
+      "created_at": 1783853600,
+      "id": "6RLygyh5bWkQPHclPA3b+lDQ2IxUi62LkYQDRFcZxEh2V5QWqEGv7qRO5gOyeYOmv3pxGIyihiCWv/P9DUYpocdR41XM+iMMM2f+S/8eZvXT/WJ5Brbg3oT297jUdauw5cqxcCFVgi1v90jBDVImxwE1pyKaLbA7vzHW01XXSR5vIwMJQ/q1ipRYWdsNCU0paziFPGZqI84I1bExJeYDj6E0PLx1C7/LGU8BBzpRYpwZ1GLPWq3hqUsJQRkecx7ijJ6zQwn8QpGZaMuK83coGuCKH1hQY4yeLR3Hfh34Ns7ScoQaj8ru/diX24KRhvJE8WGtr+kSLUHs5PlnTroo7lVEHpaR49WliO/1VGK39sJYVz0O4Ru2B0GhEp4D1dBDTlLu7tWpNlZrvC6IMAVFyLiY2v3bJA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "7/OZuqNsrJNIcpfCcRF9fLwuexLtsEUfqqnouC40jyxQ/6XzVJjZPZIhSdtAsNhwktiR4BIKST1OYbd1ZA7SXxlGIZSFHvyABrqM1kGs9lllOlbdEwKkK0dIjn5Ovfiyu1IkifiHzmpPddWK61CwkikZFTCO1RWUbJgo+yH2x3XY4bFGszIzdx+Y3cddxnacR9ap9moRLgfuE2oF1mG+LwrPi3cea2BmP5nhndvMgbL7YXRQ6yIUX64h6nnsDXTfLejQVE1ykePoqN5ojRK/82MGFZMWEKMRZxjHEfb8FmH+Ry5vU+Wjy8r3sPhudOq8AyuemOzER7+m881Cl5GdUtAFziQ+tWvPbrm/7i501FVE3LkkZHUT52K9uRzi2I226p0JICMrf+B7S/UE+ZeMpg1v1rM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:2846a6bd7f41e041\",\"npc:88941397242d7fd5\"],\"constraint_ids\":[\"C:1ee3595df8527b49\"],\"span\":\"At old mint, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli jointly coordinate a battle plan despite their factions' explicit no-coordination rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "60sUN6tEycFD9hyWFx7KK6nfeFRFxxp12JylSlCY8EW+o/gEFBUDQQtQUBW+lY5FQKzYTM60N2NcG79BSfw1xnPXKTiGvATcD5NLDH7yGGUHuzW9z2wnHXiFHvE3Du+OW4wGihnbVb25Ncm/C5lGlC4CZy8ZB+ZZJ3IzaRL7J3xhQqZ9oo9H2UxwKUSdBJbrjlqrfJw6l3x/jH9adn2lvIsbAzWt++g6PHCb2DTvKwWWpXJdqsVVVgoBRDYNOuhPWVxP5hF6OLSwRoiks0S3R60naj1FgGyICyVotfyy6qJTHKYq2TLy5wB0KoEOilpV86zjnaKvsNnu0SjBWtppk7W9/pvn1iBtP1Qn1qYVj4SZonfMcpAbgnC0YeXXKeiIFr6xZZKzmrSEcp6BmIsKOl/InxYt",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 692,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 147,
+        "output_tokens_details": {
+          "reasoning_tokens": 45
+        },
+        "total_tokens": 839
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:2846a6bd7f41e041\",\"npc:88941397242d7fd5\"],\"constraint_ids\":[\"C:1ee3595df8527b49\"],\"span\":\"At old mint, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli jointly coordinate a battle plan despite their factions' explicit no-coordination rule.\"}]",
+    "token_usage": {
+      "input_tokens": 692,
+      "output_tokens": 147,
+      "total_tokens": 839
+    },
+    "tool_calls": []
+  }
+}

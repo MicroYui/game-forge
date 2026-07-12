@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5c2074112f996cb557136d8fa3d3c093e7761bcf309577fe4c889eb47ae50e78",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3170,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 596,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 131,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 691000000
+      },
+      "created_at": 1783841400,
+      "id": "iqNnKk5UG3FsSp3BXQP8MQdKilRSpnt1zp4buqI3QMF7aai3QZ2xXR4X9OmDiynfbUXrBx35sCC9/J+JsvbMH34QJFn8F4b6dWrUxsM6bPslGYr+4g4ltoOnNyoK7zdJUioKHTy0TqZqdRSNS5DtyjC2lGRWW55y8p9d8SjNiKFi6poU1SAwlgEN/CV9d+hwu+dI+PHkDpiDeEFaAuivU5nE7erLMO50SImnlSmSmCaPTT6Y+fjPBjTDV5QS/E/aY9bK5HpYCzcLgVTq6HSZsCLHLSnGklJLPxTrPE49q38YZOPmGx6X8554T2OFpMRvtfj+f41bdjV4/ZXdQGrKoCvgUDzut9ZDRnkK//ueUpVc+44u7qmFbTj7smrecAO1bKQLG7V/XMc7NussWUN9rQu3tFT/aA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "z/46SRthPWJLetCPG5CFa6DxL3miTdlKWtPdN5GJdGevEn6sMNr/qVAJAbkeHGkl6oPlhtdJjsT4f26TSPHynirr1M25SIzphRgm1a/p8wp9MOOz9G0pOZ5YWDOB3li6xCCQwLOG0qZ5g9XdgO2FpRkFyMQsZyb0eu2i1JmlKQFPU6DvjcuvS6XqZqkPZoV09saMorjjc/eDWSlAgOiuaUbDfnGy+YPYNBQALcEqvsJF8mLRJ2mthbSi2CToWLXEFO14VitP0/b0yPTbYMQ2oWvCBU+wGVSncL9SjrHedNDkDjDaD/rX8a0UopVRCj9YGiFFqIEi72UOpOR/91RdazOJTQ0YXqXEUiHu2zmsl+zC5DKT5GM2w9ZktWo5q0vAMxgnxpu0aGPqhCjif8p2fPWnOaY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:f9f2557b700021b1\"],\"constraint_ids\":[\"C:83ee20f52260e2a6\"],\"span\":\"Ansel closed the lift while a wounded companion called from archive hall.\",\"rationale\":\"Ansel leaves a wounded ally behind instead of giving them evacuation priority.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "24smwqANTEeJgSuQ7eQxkutrbO62yJ8oHLR0wqvbhpD7/0o0lcU4T+VxttMkrv3bsdEbMShZOe1FxSmJ7l5tBdglfw06SEXiEcfu8HN43h1HnTpoK2VPr+e9xV+K6zEYsGwztxnFlsYwjok11ztPVue+3vlaGE24xBelsORi0Bh+W/DgSBl8emUKHgEuOnBPoBZwWuHsu4XK5LogDt8/Os+3hBRlBGmdRzkhLNrXmLyfvluQCg+xp5Ymqdsh2hHXHuLquaFEZUaA7Hhcd4Z6XlmnhD72IB4DOU4ZlXtdSq5GePFopVkgaYrCExIQKN/TouO69hfWCJmihOBMjlJ9lZVZGH2bD3vwxgeGS4BSWRMuN/RtC3nrRFFChjW11mAbLPyYlLOTtgZGMrXmCU3vUeFzQKeT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 596,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 131,
+        "output_tokens_details": {
+          "reasoning_tokens": 48
+        },
+        "total_tokens": 727
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:f9f2557b700021b1\"],\"constraint_ids\":[\"C:83ee20f52260e2a6\"],\"span\":\"Ansel closed the lift while a wounded companion called from archive hall.\",\"rationale\":\"Ansel leaves a wounded ally behind instead of giving them evacuation priority.\"}]",
+    "token_usage": {
+      "input_tokens": 596,
+      "output_tokens": 131,
+      "total_tokens": 727
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:43f2a27e9de5114c632193876733d0060eae88e23115c734a4f5fb6e568a8fc9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5245,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 608,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 191,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 877000000
+      },
+      "created_at": 1783841500,
+      "id": "dhSJHdQ/vlc9EYWde5deipLpkb/jayCmIV/FAwG9rKj78TSXFe75lh+APDBsC/pJPDdOMMdnUfvo1XWMaQqcYZhbhkivKFt0V37afpDfB3fOXiIg+uu+Xm0O2R7JJAsOdBQv3IhCWWBYvANrqNAWj5+9N2aIvGVvaVu10yLt/odK5BFig0/Wr5IgbTUPTdx0upOT2LxIb5Vkiid/q/wRutKSZG/WCEwAtZpUWlZH0qZv5NfSPVP3jwpY7hl85/SP13L66DvgsIm6vsLqKC6MgpvuqcPeahglgImL17W61VnzvJNhi3hF8uVDA6+1xOv84KPBGeedvLQy0KIllyKLpFlFkfE41Eh0c/h+vQHMhkmse6IDCilhMT+AZgOTFTYHEE1nLqKeaIoI/1jIXZnqfAM2wNmTLQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "i99eeluDI+6j9KkF3T1uKCFXz0WKkS0EIEIKnLln7qUuAaldmx/7IJBh1c8YA6H6qwv7Wroe6h4tK+1NIyRKn3xYPWtY64eQTdFzjIl63evuyz6w4MU08ch0LNtD9vEbh0/NBQuEAtJ5n19ia9rTtADiISXSJBgqx/nR4Kuq48stCdUqZB+rt7iUwUhoLuADdSrCzWlpQjM+o5Dkbgxo5e9yH4cqIAOJhYOX/3z6U4+71P8n75XJgHK/BmabvjrnpG6wuSbQbs3a4V7OmEuUyukXZYUup3zFeNBSyjCFjG1RQfSPEsh4LqZGCmy7phcraPx0CJB7FdkFcNI3JOrqo/nHw8Q7EH1bzO0ELgmWR0JiHa9EJ8PLVHrIOKqCUfyeezR+VLJWRlPpwuY1piCvKwrxXg4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:6e27e0c8bd99b5db\"\n    ],\n    \"constraint_ids\": [\n      \"C:f2a51e1844af620f\"\n    ],\n    \"span\": \"At signal tower, Ada revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Ada directly discloses the crew's refuge to pursuers, violating the rule that no pursuer may learn it from her.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Ii31jIMLgaxCcEgJmVEtkoJeaCKEv10EsSDe76FMsq4nkscgk78OHd13L+Rs6RyGPOYLnVDleIP6rKJJXriskQ8gvkLFaFe3y6KgtRJe56dQA8IxMFV0u9vnGKQelbu15q3dPugXOJCggJxnTNwbk4l9hDSPNhEjb7FcXOce+keLwB9C/Q5ciXElQN0ZzlNNXQNQDNqtBUDAyXEirFMxjs/laXkefXA45PHOtqtsjbeS92LDh6ibH1OeqAN50o3GocDByHcGLegj16EAeg9G3mztqtBC+gkR1AFo5lbABeDp4g7+PWlLlESgrnSELkF+ryYGQIWKbf3rq1NPDhx1oVY/uJ3TqublPG2Apuw6qsCkRqIfi/r4vSKw5O2agnMrUYxumv3suDXfKvI5MEEQF9WSt05s",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 608,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 191,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 799
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:6e27e0c8bd99b5db\"\n    ],\n    \"constraint_ids\": [\n      \"C:f2a51e1844af620f\"\n    ],\n    \"span\": \"At signal tower, Ada revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Ada directly discloses the crew's refuge to pursuers, violating the rule that no pursuer may learn it from her.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 608,
+      "output_tokens": 191,
+      "total_tokens": 799
+    },
+    "tool_calls": []
+  }
+}

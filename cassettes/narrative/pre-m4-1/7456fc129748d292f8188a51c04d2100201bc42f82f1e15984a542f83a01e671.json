@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7456fc129748d292f8188a51c04d2100201bc42f82f1e15984a542f83a01e671",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4350,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 629,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 166,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 812500000
+      },
+      "created_at": 1783853200,
+      "id": "uSoDazsYdZtl9FuukYTPXeg9WaHUwZirvbCERCUOZaQsGpf/uMrqo8s60ZGlJJgdj10CsxmgZR8qspc9r3Dt4n9PbFc3+pf9g3EDr3ffeFx4LngK8W1Ey8wJJgnD7/6qOQ1ZepLR4NUxwo8DvGYQGt2bG9SwT3GLJN04D6vMdGkMB8wSs0WylG4P+dO7uqOC5f+ri15+kKv2RjrwsfDyEDCGoSMuGO6Z0JaBwaO7TwtWi7FfPtffRS/3FoGGUlYO5vZTdlmQAyqt2jD/4pIG0EkFe3xHFVPSqVSScBhOmDHUp6zGbqytlI5bBct5j96BXTckgxq1vYhkKU3ys5rpDGS+qazULVMCU1T0TBR+r4bY9Pu/urykSbIAaB0NMa7Dsla5O8m27FzRbSmOD/gT42FIUpl9yg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "HuvEkPdhLbpd/RjeOHvjTQTgd0m1wsX9ePW0hAno1wlgB0VaM/xsIy9dhc1zkWnYZssWLJ6If8DogHD7B5vI/opOZ1EgEpsSeRfMM5L/apliv0sy1Vi3b4tBdZEEy3gSakiJmHPzZ69RBqNwFDgkOd8mxpXaYbJYF6/z/nOu6fiJ1yiLJwbZpaxy7Ya7i9bygv0Lh3/0y/2ZZnRyaWcujE29lKiGU8TqXqpo20nHK/ipPQK7Y/rAIaLIfKGvgsOuB48w4IjFN82Iw8k2IuPqMfe/DXm6ABVYRQrgwqlm6VJwCKWvDImS8aFKeTHNx2UbODT2WmPcr4Ab2w7zTpr1o3LeyizDpeJ3ACrFa+Tg6DTCq+zO0OWf2JfnXdw+9rwbN9kGd+8h3SCISNuPc1kZQZULo+k=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a4a27c15ea30cee8\",\"npc:ab4eff900211a414\"],\"constraint_ids\":[\"C:8c89ffcd27c85fc1\"],\"span\":\"At archive hall, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea explicitly coordinate on a battle plan despite belonging to Valley Rangers and Storm Company, factions that remain at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "BYW68NYMxjnFj6vxonYPMZnB52TjKTrZvEenOyOfsvvf6TIltNp3TLUnwv9OOS11itrNX0mDlxUghwvEIp3GaPLp4WqZ0a6ONY8187X241L5nNgKYOom7e1MouuU6o3dDgr/P0vXHKwUS5+i0gb/FMG+BgjYDmlXLcGQ6/Jf4N/Cn2iBBeox1WzhkBdTx/KSUWT/XpzNyl4TOzCe92JtmNsS5Nz4H7UizkIyrwJom1KTLY36/dUmLAaSAOfXTjLrg5K8A+gJQffzyKt/+q5rnDn5Y0W4JXU1jmnXWe3SQ84hHklZI1yNkiE9x7dnvG/bOH2H8gn++vqiWo02lXnGrR439S82tAWvVCC2k8l6fc/wW4TMv/b8JZW0M4YIVlEKygsBfRzibkiAVgsxiuXGm+5LU3Kk",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 629,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 166,
+        "output_tokens_details": {
+          "reasoning_tokens": 61
+        },
+        "total_tokens": 795
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a4a27c15ea30cee8\",\"npc:ab4eff900211a414\"],\"constraint_ids\":[\"C:8c89ffcd27c85fc1\"],\"span\":\"At archive hall, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea explicitly coordinate on a battle plan despite belonging to Valley Rangers and Storm Company, factions that remain at war.\"}]",
+    "token_usage": {
+      "input_tokens": 629,
+      "output_tokens": 166,
+      "total_tokens": 795
+    },
+    "tool_calls": []
+  }
+}

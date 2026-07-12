@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:120e958a304a36c8ed1fbfac4a27f438acc94a72e55a97fac013ea9ede2ef7b6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4421,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 559,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 214,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 921500000
+      },
+      "created_at": 1783853800,
+      "id": "fJlwuQB/TkKpWOMMeTkZAHwhKk9wIweRTa1+4RonPgzbntZ/Yg0fxogYvDnliQhfA4HW6bicnRnwYD+tB6qvmo3tLXM5XcYkkCAxL8Luc8nwWCmureq2L8gBdE/cMMqhgoNs7Q3Hij9rQqE2yJj+TlYo2Lt5chCkyOYnSo6WoXiL4g3vp9s8GEj+DXzn7bXYQE0oXlUq3rhfPSjuHfoyj/L/NuCOXO4rLhNjxL/vV1hdx7BeAtKb31rHj2Rr5PlwSlWFWPCzQzBXPBPkT6qN260MIv5NURGYmd17bp6OkZ0KAWbPnrpldw/UpnKucEPc/wEEO5W+TVMbRqeXSowFcoCvbDzH8UM+4VkC0lvqjnqcabG0Z4++psCQJFTocivFPViA8P0DU+2xn1ikxx3rE6mPMb0xKA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "8r4fcbUA7kEcrap0nLBs+YylPSH1mSTdIsokoaGL3V4KKe7pbmYzOCSNqZxt4fDIxuEpcrhW80VzcfrMh494M1yr2kMOpfvxCQB7YUUCyUW/PWKQGrnlnUiH6mFbQR7b8l343YDRwg5VR9bzkhxPig9oJFcDsn23fSR3ublVY0K9qElD/hcWgbNOBW/EGHXKfWsZK6qNTlwpgRi+Evn859r5qO2c8lV50If95mPsD6/PkkLdSJJ4SbUieqLQn01kUnVViEtGfGALyLmj6h6KEpOdGXYe9SQsQGQQOBsxVwtuNGlKskCMO5MxcHWe0O7xdCV2xHz+4BEZV3/sRTl8MJBVyeAz7XkRd5LBjZ5/9l1v7eJ9ESWyEJ4l0dk7zhpr9evmo7GLrueIPFUJR/eWZYfxL4k=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:074a97a9e1223a30\",\"npc:f5148a6d3590b82f\"],\"constraint_ids\":[\"C:13b81ab79d5c6379\"],\"span\":\"In canal bridge, the council recognized Mara as the Warden.\",\"rationale\":\"Mara is recognized as the Warden after Qi was already recognized, with no relinquishment between them, resulting in two title holders despite the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "RZBtcPP9e/bbTQV1eAMsGOR5j+nbZx1WvsddtpuaxCSJeCYvDdrWDtAyelHjuGJUbDy3bA3u0TPpaOog/OHbyKotQmoWKP1U77K9HbDo0EuHWHXsGTwJX8CwLNqiruFPXuxak1ZZ8KAPZmqusQQ/5tsIfTa92CRK7LbWhhagL39PjmsIceBesQFj2A7XW0ffUl82CNs8l2nwlKTv5Vh7v1iGz2sC9ORhFBusgyuvjqhj3uIMfzYh9GzT2+xOUJAqo62LEdZCLpotmiKtS9Rh58sQm7jTXi6FdG811iBMQOVjdKszDBiAll8C19DYxxeg9kMwdbqQe1CgseXCsGXrIdkJh4VOznsbG+Ll84MkNLgq04WNohxi7/v/eUpIzDdGRx9DArSWyFAVMaunoyNoNIk2Q+Wp",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 559,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 214,
+        "output_tokens_details": {
+          "reasoning_tokens": 98
+        },
+        "total_tokens": 773
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:074a97a9e1223a30\",\"npc:f5148a6d3590b82f\"],\"constraint_ids\":[\"C:13b81ab79d5c6379\"],\"span\":\"In canal bridge, the council recognized Mara as the Warden.\",\"rationale\":\"Mara is recognized as the Warden after Qi was already recognized, with no relinquishment between them, resulting in two title holders despite the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 559,
+      "output_tokens": 214,
+      "total_tokens": 773
+    },
+    "tool_calls": []
+  }
+}

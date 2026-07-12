@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:45227b7697eaa202c19a1a507b55b5ba3a7c56b193c1bc53e6f57237af7f59fa",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4095,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 699,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 215,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 994500000
+      },
+      "created_at": 1783841800,
+      "id": "o60OZZLQHL+8sHc7oaYnGfBrqkZPAEEVyFnsFFn1x9f91+4L/VH7OcfMiBN5cZvyRUmeUfT3zzBNXzoat0HA/TchWhnW+nFVfh2oV4PyDW4HpHw/8SO0nZ7dWwfu7bDj/B61sI7Exr6nXSm7VXS4+xT1A/MQG3YG8mla5bPLoaETcgS1v0ZIBgsqUAow/Os2lwdyoM+MRS+VA/zALJCxGtdA7WGFV+enkL4cQfamASCh33tkY4+r1ea5oS7QgfyssEULbTyWv6zn30z0PCgkndmaoDAF/Mk6bxCzRjWIWZ5Qikk37w6oynfvrH3L2WycDLV0mInCIRtRBMA9fCUbkv1/SeAdW8Cw7OOB/JeyYQsrBxlLj/kvBRswVj3z3qDeYhWfmRS4GdYWLDe3RU4VSn+nUPn3PQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9b118tl3PSQ+1SrAds3pMVjLywstMyUsz2Pe5RJg2R4gzjHKoxnz29aa8jv0JXU5JrL2FA8u7KNFasre45pLXXYO7N2KnfW3F1fxBkDtB7sYjx5awfCuptajD4UZRxYwR0Yh+c5ayw2rmm2FUpeSMTw0hcMrH00E9ZqBe0gqt3/8kN2zT6fEt+LsodJUpHGMLepT/t3JDPYmoxNQ7x/7v7aNznYsByDUinXh2gfBgOebIktSL/Ej0vh0dmRp/weofQijjwxLSkjwFb1PsswXIXzRZDsZUQMErYJPVtUuz85bW8E6gzeTXZc+RvDSYOXdIHSLfon3DDue9nIWHZT+Nl7CiR2rddNYFKi8ZZoodTDZ8D5DTl6OLN3LZSrlBKYFTvXEYmTg2uO48dq01gvJbH+CERg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2dc94b6bc1897bcf\",\n      \"npc:61ac6992ad521ffe\"\n    ],\n    \"constraint_ids\": [\n      \"C:398800d9d5f4e23b\"\n    ],\n    \"span\": \"In salt depot, the council recognized Ada as the Caravan Voice.\",\n    \"rationale\": \"Ada is recognized as holding the unique title after Malik signed as its holder, with no relinquishment between them.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "LDKCazHnM1+8iz1vamAsYpVrTBHc97/gS/Sdlldh0qo+v/tUJoxh3dM1PLWGDzP0s7aDKzJ7St60ZFwyl1v7dArJe2+i/L5iFVYBhTA9pZIDWY2hcembGmeH2HHIPZ+JVRV530tQxc141Yye7/KsfpYQjPdxVP5mFaQIxTrnGpPt5xfph/PgsLo8YQkoCYRXp43UqJGAfo9nUowOZnITC/4y6cfI9jZPPVqGqi2tjFQwy6eoKyNXFAAjDRUwdIWq4jF3AfJtYmsCTxLq14PNWH8+CPDMWNM2tCSLR6jgIEfV3C/c4NifUPh0YEhasfrLBZ5auxEEp0mkVgSbIe1bxf5yHAtYoe3gcNKwkf6EiFvVwfy4BAG5tn+KSDLrO/ZNNvJaLKip8lHzGKrouCyO/D48nh4t",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 699,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 215,
+        "output_tokens_details": {
+          "reasoning_tokens": 85
+        },
+        "total_tokens": 914
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2dc94b6bc1897bcf\",\n      \"npc:61ac6992ad521ffe\"\n    ],\n    \"constraint_ids\": [\n      \"C:398800d9d5f4e23b\"\n    ],\n    \"span\": \"In salt depot, the council recognized Ada as the Caravan Voice.\",\n    \"rationale\": \"Ada is recognized as holding the unique title after Malik signed as its holder, with no relinquishment between them.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 699,
+      "output_tokens": 215,
+      "total_tokens": 914
+    },
+    "tool_calls": []
+  }
+}

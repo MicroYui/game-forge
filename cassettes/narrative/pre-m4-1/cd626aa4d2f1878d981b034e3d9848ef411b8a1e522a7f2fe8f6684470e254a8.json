@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cd626aa4d2f1878d981b034e3d9848ef411b8a1e522a7f2fe8f6684470e254a8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5082,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 606,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 208,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 927000000
+      },
+      "created_at": 1783861200,
+      "id": "liHv/0ErDsmMMiMEd+/LdO1FWyoWICoe8R7A4Mxs9ZiFbR7+ISIuUC03aNEE3Mo0z7LfWzbuNPIc4lvEH2T/OG8Oblnq+XiQVb3hss5RCqB4yhRgLHMrl1ubx6YE4NEenzy/9V2O/39ouqVTbOn+DrgjFnGC+WD99+fG+d8newC4ycJseOWoxXvtZ7AM0eLD4n+JaRglE2rbtZfV4m2Zgq4UFpzNneirigse2JIdvwhs6toO/pGg88Tc8xz2KvUDQlaABSDJ4ZQKNbhva+DCSZOlfZ2tcXV2Ti36H+GyQO+3LjNquRtEfA9I7idTvS7If1ASaUnGVOmMlOrK09LlbV0P7N+R9IhkyfP+x05JtnkweRZvaUMwlTutOWyPmV6TQYSx3FbGlN94Z44lQag1CTTiM75DWQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "OfpyUtZzV62AxnVO3q7w3Njobgo4W2r9oDUDMgxFKv/iKLiho+QIOfzNA2JaO/2C12uA7q49SZ6GxBxjjA4wKg9JvfrspM0uJ7RNdOcPw6Ebiure3KZTyszrC8rB7FU0R3djxmvs3nr4CwqjWMWQfd6IivFY6e2tGu5oWH+3D8JSQR8eLOTdJ/mpmQh55KQW6b2dYdcA9uRZeIHbd+YGUufV2FZZTVNv7/A4F/7eS7BzYRJ66KhMsYJhy/2VPUftPPTNEt08MO/4qi2LaiAFBlLY/6Heqk+XWiI47gp5Pfe+NeY0ZHwnllREPHHPOn6EeqckcYPIt763eJ9yPffYh6arlBYoK4sUMIqAtKux+bKu6cce/2SUCMeIJVN5tJcFVO91BJ3R7/m01xjOOy87lzYqcek=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:6d396a96dbb81d52\",\"npc:cbe60f3ac7228ce6\"],\"constraint_ids\":[\"C:128fcfb062cc2775\"],\"span\":\"Ada signed the register as the Warden at river market.\",\"rationale\":\"Malik had already been formally recognized as the Warden, and no relinquishment occurred before Ada also acted under that title, creating two simultaneous holders of a role limited to exactly one.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "zHRaHsHFi6VnpFsXOgYCNnJmriq2VxAoFBZgZ/O+wVxEIeTnfrrZST8DWltn6wEsAF00Q/3AKcD3HF8aD2wWTm49QahQuLg78P11TqH/gSsO6hNnEbg55jlCdqmW+g8/kQg0JjKwDwr/lMYlEEcWEBlcM4kJeljzg6ME+lyfpvQl1Zn8zSd3G5Ga4F8cYx8TcaYX4V6JL+kPJ9St8PfCZ+AfsY48BZon11k13QkbR6Ehsgea6o1y2IpJF+QX9Gwxzhp8X3P1S0Uc4KLn6oYGlDg5Y2RLwtkZVtUufs4JQr7AwHnkY/dIlyCbCmRSQf63kPI+m4X9c+dkRRjoy7/7NkEQTMPRmQKAl7NR2VYESfY4CWmhq4KfQ6dDk3IaUq5X+zrz7NpJChDC0UI0f8aERqew/O57",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 606,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 208,
+        "output_tokens_details": {
+          "reasoning_tokens": 92
+        },
+        "total_tokens": 814
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:6d396a96dbb81d52\",\"npc:cbe60f3ac7228ce6\"],\"constraint_ids\":[\"C:128fcfb062cc2775\"],\"span\":\"Ada signed the register as the Warden at river market.\",\"rationale\":\"Malik had already been formally recognized as the Warden, and no relinquishment occurred before Ada also acted under that title, creating two simultaneous holders of a role limited to exactly one.\"}]",
+    "token_usage": {
+      "input_tokens": 606,
+      "output_tokens": 208,
+      "total_tokens": 814
+    },
+    "tool_calls": []
+  }
+}

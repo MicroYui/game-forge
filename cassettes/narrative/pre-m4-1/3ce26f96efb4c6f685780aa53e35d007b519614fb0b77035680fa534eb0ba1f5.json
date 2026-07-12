@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3ce26f96efb4c6f685780aa53e35d007b519614fb0b77035680fa534eb0ba1f5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3244,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 616,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 129,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 695000000
+      },
+      "created_at": 1783845800,
+      "id": "gWt6iEodVZlEWLW1vBy2b+s8Qnyp+u2tkbNVv2RGU4kQTv5RXzMscnfUiVHK+Es91lgmAzlLU+p+9lU2GwLZG9mDmhNyXmzliLQPgVmg7a9yPFOKK/HIMe/EMD2n99lERnHohPGmkDehGSe82/mzgNYqXlkug4DW04vQGk7PCZKYSGQlz4r21/g+odsjXwMVjiaxfetdFZFo09AiHe7zlIK39EiZsG0t4IT0tsy+KIuFXXfzsbt2/4fodAU+bz6fowZmHYDjsI3wyZ2TPbaBBMPqPXmPwDhJXNdp/O94ml5L48uzwIzqRePontjtJ3RPP1Nw89kz0cwa7EtSF7o4xHiq5+nsQWRrE5fO/YEtoWouMIFRVkQDEK782fxqdhBYLXLYnGWMhsnGeSKyd0bIQaesxGyKPQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "wgD1MCxkBUnkPpTN+HfCmiteD7nAtEUQoOxPgGPw03FcAY8wcCKTnpPVTBstp+dBblw0Ohp7SZ9jB14oHMQqRZg8qutZKAu7MEtAhRwaPN0GR/OJzSl6dAONnW8EBL1ATO8hX1GKCa21uBRsOr6Evw4rbugtV76GJQCbwPEGTLI7tfJzBo7nftZXRvM4MZ5N4jxw1v5ZJcS0KRiRXn+700fWG+GQ986Vs/qzYnT5UJBo/SzWpZhx7GL2ZOmWVl0IX9ktn611Zvq8qjxe+GEz+xfMTGmIPYqSg4E0nfLL4Pnncz19oHWGXgTsY75pAr3PNqpZqUTRRop9JqhVjtBYHdi1P1Hvjm8QZwdo278USm4SaCDSLxaADcvew91xolsMnQD4cd/X6zaXGXmPfteohZxxHdA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0230da3718b76644\",\"npc:4d5d18093085ed60\"],\"constraint_ids\":[\"C:5db1b43423726e5c\"],\"span\":\"Noor fought beside Cass under one banner at salt depot.\",\"rationale\":\"Noor and Cass are shown conducting a joint operation despite their factions' explicit no-coordination rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "+S7EC29msoVF2ANtHm5iTtWpszl4jf1+jlR4p0Uu78Y2gJ7tGaFtfsTaRuesaKfnwRYoGPhNs3zFUx2dQohUX/dMLtYxHXCXX3vZ81//Za8H6lDRrMtvANV8u6EN7Kn1YifhcqfDbn/xyEAVlU28AQh4SX5RAd3BEGVaI78H1VLJ2tl1NwD07DNkzeDND2FXdaGQdqOGCTxvr2ZxzMXCpqrMFugBHRfzCc1XqFZGg2H422xbZpvQ2hNunyFd1HdUi+h39f7s8D/B4eyOTrv3gcNjgNtzKUyB9vCPcW9E2nbidCsVRt2oOcsITq9Ay6+YHVrot99UvYLGyvMcMlwhppjXuFuKGZ86HrCyHcZqH9EDkSyePv6hQ1lTqHuvd7IcRirMXtiUYSFLBv7onwcIIT3C9lnT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 616,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 129,
+        "output_tokens_details": {
+          "reasoning_tokens": 30
+        },
+        "total_tokens": 745
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0230da3718b76644\",\"npc:4d5d18093085ed60\"],\"constraint_ids\":[\"C:5db1b43423726e5c\"],\"span\":\"Noor fought beside Cass under one banner at salt depot.\",\"rationale\":\"Noor and Cass are shown conducting a joint operation despite their factions' explicit no-coordination rule.\"}]",
+    "token_usage": {
+      "input_tokens": 616,
+      "output_tokens": 129,
+      "total_tokens": 745
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3fadec4959baac170b438f4c4dd1207db829c20294bf75aa9bea9938e13a2899",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4534,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 691,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 243,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1074500000
+      },
+      "created_at": 1783859300,
+      "id": "+MXO8+cGULBNW1Dyr5LSAgLEejdWdFY/mc1fNQy4ZR2lQUoZ2iToZV/pQ1LZIre0g7enGdufRZIWJdv4vwCFaXWCK+Fr+EQwcjQm0LLioMsDLDMVWAKWUrFViiRYshEZoO69PuY4HYqC38dTDCAILIAj2zVdKn2z1FGn+UQntxhP/klxE+zn8M109iRQKaA6ZoMIua9pupIWHZ0qZHpqIwefNflhaFQnDwuLY1NlsFfkXOb7fQBZfasgxHoew3icA7pZ5UOYKEPBobEn6xcp56UNA6yxxrdedCRWkdVnkFoIOOoDZX/cctjuGwEbs+lEy/6I/flTGrBTNV4dcPaKjLGj/ctS7XXqPPDTUTXYeQzOo2bYE3hsW8RifVpM+ClfeUqrhI8eCBf//z5hLMq/G31jC+keFg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "fi/lzemnt5BzDbBuEUm+rgiRN6NhYGtkh8R77z+u7ea7VfMTPPr9NxHNJ94kWbtqDtfABBpIuOxXI23yKYzm6mOiIyLEBHJ2LX+yTI2H8nqfQ7BavJEVqM1nuCaPA7wG2xSWY34a8Wfiyun1/Jw0+zcEvHGLGeui9qBSF/q1Wxfet9uztUPS4C3SqjUHHPjydk3m9swonHUcFbKgkqvyAOp34AeVENkxDHJnbJm4ZhrwT4txp83iflE6apjVV9EJccm6g1VxJKbeRTGLnd8SRopMXmE6I7T9uTNi5KjYHNwfxE9yYnfBsYNvqM2TUKY6ELPuqPEtQ+rXac6vSRtWTKg1IHGmnOhgRcXQEQtjL3NXxVG5PxTieWNSunMrJWGC7rRfPAavvdIqXCIyTJtBSOYWs+0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1f4355f2e66b1a80\",\n      \"npc:3f32a082d11a5a8d\"\n    ],\n    \"constraint_ids\": [\n      \"C:dbde14d682d5dc24\"\n    ],\n    \"span\": \"At river market, Oren was formally introduced as the First Navigator.\",\n    \"rationale\": \"Veda was already registered as the First Navigator, and Oren is then given the same active role without any relinquishment, exceeding the limit of one holder.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "WYfaEmMHwDEpaWoUvB3ARaTTfXIaER04PVM/W7CEtKxZxuhPdkN93bWw6paNqj77CU5ZsDKEAPtJodqQrIPhchrKIriKkjvjb6vIRzKynVDGkQY8sdjWump/dLzeIhJPZan92dt4sMYt7SbV8KTL0JVDl8FnS9d1JZJlJDpNxm8PaKm5CWDROYtmoMba0paGO7JGDSUjkTcFKO1OthvhpYNXl2WefmolCnH3qiSDx4YdqSC3aZDjOIMO1m7Ii/yZvGR/163SDLWPFRZE6f6fTc3LNPasEcgDNUxjYvsdyk8p1ARuzymflgeuTn9JJP435stRCGX8LTcVozOn7VVDTKiHBT2MNlbOnty5KBXP1XUtX8bli0TYjratMF2pW1qCXXNdIP4XWIK4/Ev2fziIvfywnT78",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 691,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 243,
+        "output_tokens_details": {
+          "reasoning_tokens": 97
+        },
+        "total_tokens": 934
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1f4355f2e66b1a80\",\n      \"npc:3f32a082d11a5a8d\"\n    ],\n    \"constraint_ids\": [\n      \"C:dbde14d682d5dc24\"\n    ],\n    \"span\": \"At river market, Oren was formally introduced as the First Navigator.\",\n    \"rationale\": \"Veda was already registered as the First Navigator, and Oren is then given the same active role without any relinquishment, exceeding the limit of one holder.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 691,
+      "output_tokens": 243,
+      "total_tokens": 934
+    },
+    "tool_calls": []
+  }
+}

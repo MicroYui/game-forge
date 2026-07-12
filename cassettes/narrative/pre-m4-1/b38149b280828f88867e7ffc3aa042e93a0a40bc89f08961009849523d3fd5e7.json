@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b38149b280828f88867e7ffc3aa042e93a0a40bc89f08961009849523d3fd5e7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4231,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 576,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 147,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 729000000
+      },
+      "created_at": 1783845900,
+      "id": "c5N6fIDpFNlN8r/PkzDaVJr2CGsRnDnajzL5YfoxODKmUUTb/O5vNV9Y98IspIiwftncszZkJdw4hjH89TxFeRbp02xaWzyKpd3pA5ZzIzBrfKOmXgbAkJca+zWFc6B8H/4Gk0UEzHgePGRR9FyQNHoIH4thGhuXYRYkkPbC+Y7yHHfykiO6Y+oaVOPWTqaXNi7JdPAjDeIBxvRqzrvXJZ7yaDjA+EhhXHrFTyFiGcIz+6dLLfVh9W1tiRN8NByuggrcFRHSXlDZPpX8GgZAQEg1U9wkP0gaHP60JqEMoORUVj1XzXEUbEyPluSXzxnWlH2ITH1faIv7NCW95Aj40AFaQQtfyYcqE87GWQ8f75C5XGprSdYYCHLqzHRqdzuFXkySHxjyVNl+K4VU5SLL4t1X7S6tzw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "m0y322n/9o7sXGSz4K1UhmrDN34cA1Xjr4YEpJi9uv18Ti4VdmVXiZLAyCwxYnUKLUsaaAV6lbYzMzhBi1sdHSb5zPoErRTPxLNJu5GuQAhqk2L9+Y4l6dLjOXzomn+s/qxs84HRNdt2L0Tt6k3IJNkXojtmwzlOTEPrqGeHrQmdgkp8uezpgEvarUpE9KAJzTd2RqOFOHavUcb45rTBVvGwKeITka44aLy1kOx7rrQa23PVWcXN70mzPr0FjdqXW23oEnoajlpWiN5cWu4aBb3sMG0+iMPVuEFNZqYytCn5You49Fha3OXN2BNOuU88rzKp0Mrr2AdjKDzwUpys3t8+Q+qrNYTEds/qVV70jL90Kmmv1YycPZPbGIxkdPcxVp1XdtTxU/TXeafmgGCtjVUuCrE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:669b8b54e8440dcd\"],\"constraint_ids\":[\"C:fb2667a86b344d8b\"],\"span\":\"At canal bridge, Veda hid the relief crates in a private storehouse.\",\"rationale\":\"Hiding relief crates in a private storehouse makes supplies under Veda's care unavailable to the public.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "5aRmPdnlJxR051Vtky38zFlWYJiswK1N+y7FNx8nJhItEVKYgzDeBQl5xr8WciNr7Mp1s6QrTVpxmicBCfbkDVOxhuJ014dUvuFnzfWVsxThER+H1wDfWn/TTRIOQNe40MqJf3MVMbSYxCyyaoOXgLR0kQYMHYLZhW7/icfF5sZEtc4eYA8wC9b0ZXxZe08tWwTW9uxV3JBsLUQCssC8/xDeG65vvt1bsr++uGv/E1ulFKPvbxmYP73lzTCOypd5x/liAuUWw0bquWrCBbCWaw6UT0y6U6yYvYtFpRwsO9mFiX/glq7RRnzPCj/Spf6EwHP5H3WTGg9olWgYqI8PBvY1ykStlYZtgroeYKyFh6Ad/GzWf2KeDek6QS0c6zyAF9CpmonOm3NPhQUZNwekSMG2v4VI",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 576,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 147,
+        "output_tokens_details": {
+          "reasoning_tokens": 54
+        },
+        "total_tokens": 723
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:669b8b54e8440dcd\"],\"constraint_ids\":[\"C:fb2667a86b344d8b\"],\"span\":\"At canal bridge, Veda hid the relief crates in a private storehouse.\",\"rationale\":\"Hiding relief crates in a private storehouse makes supplies under Veda's care unavailable to the public.\"}]",
+    "token_usage": {
+      "input_tokens": 576,
+      "output_tokens": 147,
+      "total_tokens": 723
+    },
+    "tool_calls": []
+  }
+}

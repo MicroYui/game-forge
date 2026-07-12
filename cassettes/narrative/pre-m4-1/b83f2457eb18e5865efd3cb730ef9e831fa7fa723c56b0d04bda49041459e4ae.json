@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b83f2457eb18e5865efd3cb730ef9e831fa7fa723c56b0d04bda49041459e4ae",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4451,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 635,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 222,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 983500000
+      },
+      "created_at": 1783843600,
+      "id": "clV0Tqt56g7FHAxOWcjxG21Ae9D+LHBIissNFwSR7fuv3T7wsGpyiKc3aDy7lU8SNGwxR7g94HYohIXh9fn5qQe18faLr3Ss+BrO1TUqiLz866AlfByow1oYgA3pa0t4f5BAfkAqlk4brlkQH9IEZ1d6Pv6SXiHHk/Dg4zePB7GBPgySVp3i+ZWl1ismw5DyJno6c6pl9ObVU9n+KvYJ84oWTz4HoOVKqd/fk+HEhliIwVkxbZD2e45TEqGW/CY+jMkMgqIhHgQzBWUWm3PEYEAk8H2YnLkZBiQDu26Cp6b55WTn/pdjsdTimfG5SS3z72VukawKmz7PSpTORhXaPcWs346ouFc81Au0Z6rBF+Al3BqPZGYzCJ+lHM7+/X0WDajkUj00Z9KYK5wpHNLyT+M9hyTDXQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Jkm+spqqQviSYcLxgirrEuvN+IwrFhd+d3e4ZpCDHNRDrH6yt++I9IkubK5aMTJJ81ijhAAka0Ti0wzhzqqQAJ62SqEIb7Fm09gVeb/e+4vxojTB3I9LLdQgPnsj+cE6JSai05It+zUe3G8cEW9LzBKQoyiCRDxjzbWWmFixSUnK+UlwVq6dDwdljBSeWZyQliVKUnju/P4isw3MwcDR450E0HxtuRBH1knc3umkZ+gU/e6VBcvWBBi/qg/I/K+ja6JM/YesbLaerbb+S5JrSv9dABK4yTMXv8EJ5Jgp7s1gNj8aZguXsE7NzMj8CPF0jeaSTCeaoPnDG2EyvMfE6PKpt0L0JfaFUkKe4QGIXOHAf6aUyYPW5dY77v43W+quvTq2NRR8FnI+4Q5qZ83dLd5I3o0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:16290ac0eb861fd9\",\"npc:c9a6e466a6c466b0\"],\"constraint_ids\":[\"C:60efe5fb4a1abf91\"],\"span\":\"In salt depot, the council recognized Eli as the Caravan Voice.\",\"rationale\":\"Eli is recognized as Caravan Voice after Tamsin was also recognized, with no relinquishment stated, exceeding the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "7k937adwpT2PRWRCSpsen1a980Oc4+ZOWhvTft94uklAqPnMdjtUFMOWYNOp59hJsoD97SnEIVhcE3bx2eISQuTb2+DXYahh72U+zq3tUvWVQ+RzMNma86LNXTVAZvwI7NzR5Q7X225NWvhHJZqeN+kB2qC2tM8TwFKzk3UOj97FPmFkSw8Vs5O/n+cd/pTQeqeqhy9Zd+1Hafh8ttbrVMG3lnChECfXsP3ylTXghwxOGR8EiZBKmPEILBPNu+K9kNmcO8bH5ay7rKAJ1GrkStMjC3McZxRZdIuX8Ovl2AKY59NEDdqqnEtUFlgGdR7UmcaQyOrWYIJ7f6BeVqxwfqDlwJqNl6y+LXhInGAWuTgrYw4HHan3pdbycKZHzlE5saBVvqJcBM45LJYI6/NW/cPq6NIC",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 635,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 222,
+        "output_tokens_details": {
+          "reasoning_tokens": 112
+        },
+        "total_tokens": 857
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:16290ac0eb861fd9\",\"npc:c9a6e466a6c466b0\"],\"constraint_ids\":[\"C:60efe5fb4a1abf91\"],\"span\":\"In salt depot, the council recognized Eli as the Caravan Voice.\",\"rationale\":\"Eli is recognized as Caravan Voice after Tamsin was also recognized, with no relinquishment stated, exceeding the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 635,
+      "output_tokens": 222,
+      "total_tokens": 857
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2a692e939de76671ed1a2f336ea1afcc0f9f6adb9e74fa80e115265e0351cf8d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6413,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 699,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 225,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1024500000
+      },
+      "created_at": 1783845400,
+      "id": "cgLBzt3FQMva4whI+O+vrAQNbaQ2hQene9yh3kWKIXNJNABDiNOqx2KV0I9K9C5YsMVPMxkWo17npB9Ecgl1WgR6QHFm3cLo8QB2QG9MNL42X+xiFDJapII668WhnuK38veNzmeSZzzsghrgn8EW2gBSj+sOiA9OyVgBHn33JLa5c+mN9faVBr/7LhIrIwYk7iNbAm320ePXKcxwYuJQXIzYQJ21EddZ10FkjJe+exSvwkkB0ozuQwggkzfRbMPYitJ89507hkL4Bm4ztfiRKkDpvCLD75f0vq6IrHurSF6WQ70ELam86LAi52YYcVJt7s73IMUMqR4PWm33BTwqTQeHnkpyRTebH+kyZwR3uEBU61uipJCgPsWUU2/QvoRl6cSyvKUUTi492NmQNXnFZKbPJfUDxQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "YvmqIjP4iHg5sr6GrQWCoDfgIlcwuvIVj3oImYb7mfQdTvyol4o/9TrLrwPrIZ1jyd7JsEFv+kGFR7rReaxDhaAWy2ajgX4X3LWJ9oHGBY5OnH0yCHnSs+eRnSqbPbYztMnt0Enrdj5qdXChiwyRfEQuYvKq4o6a7WvvFYv9IF4oeyrbvx0itybswsv8MVD254QcyxMfuyHQX3WyoePrZByk91A1TVVT4WC4+/49MvxRK3KYDYv0swISHrKhTTd1K6n9+mbAKLpl46J0bgJFJ5By9YzoCaEBuKkB7BQzVFuDqdTUdEeFnzQr7GTg/N7HrDu2SYj/ZZB0+feNcbEc9eHIUQgwtHPjgOzwaBYvpLalSVF2HRqb6YknkozPJB+h+pul8N7BZGhq6SvK3njvhbgxwI4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:aec4a79afc3e52d0\",\n      \"npc:c6c5d02724398c7e\"\n    ],\n    \"constraint_ids\": [\n      \"C:90d066d1ca47b6c1\"\n    ],\n    \"span\": \"In lower court, the council recognized Lea as the Crown Witness.\",\n    \"rationale\": \"Lea is recognized as Crown Witness after Ivo signed as the serving Crown Witness, with no relinquishment shown, creating two simultaneous holders of a single-holder office.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "jRyww+I5fTbePXrMSDzUQmansKAFdNu1EyL/7eRk6hx/pzOXzBvHgEVjoUQwTreUalxZay7LCtIg5Ze30iB9JmTrBX7pMBu1O/80gBX8zqVl6kuPARWb0pb4jhmAuBVHXevveCLf3q5mGGVA23pn9Z+NpGBN0810fGoNM7rSy9DRA3RmyDvh0TspX+sQcZcQpcsBODXhGTI+dE1MM3Ksbp3wTW0rwoloBJ6e8KYXd1v5dJKZS6+G9ssxfnBJpjVoNmV+yTHSK1vb/69kGf3hzbP8YKnnSLE3kYpqPSjJH02GgLQ+H6kfPLe1pMFpArB71pX+R43ctjvjrQZ7fnn9HyfdHOHXO+8oq0ccFlWLPC+LDaTFEK461ztslXUjc9SoA/EadbqOHOVXG/lxQpaqZWY/6ekn",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 699,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 225,
+        "output_tokens_details": {
+          "reasoning_tokens": 80
+        },
+        "total_tokens": 924
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:aec4a79afc3e52d0\",\n      \"npc:c6c5d02724398c7e\"\n    ],\n    \"constraint_ids\": [\n      \"C:90d066d1ca47b6c1\"\n    ],\n    \"span\": \"In lower court, the council recognized Lea as the Crown Witness.\",\n    \"rationale\": \"Lea is recognized as Crown Witness after Ivo signed as the serving Crown Witness, with no relinquishment shown, creating two simultaneous holders of a single-holder office.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 699,
+      "output_tokens": 225,
+      "total_tokens": 924
+    },
+    "tool_calls": []
+  }
+}

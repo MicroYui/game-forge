@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6e2fa042469dc4d39f400db23b769f25e136a2780c945326599de6eb7c9cc1a8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2697,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 522,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 149,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 708000000
+      },
+      "created_at": 1783845900,
+      "id": "qOWBGzvogX8iZsXUdnSZ5ByTbqq7RkhuM2NEhw/N8nUpi0LwEg9TRS/qPzQEP5Q5lHJOLonIT4i8CesElxrKgTbrmpy3iDu4nRgvdBoUTwPQfzMK9RyVlPJNomvng0QCv5tJJeRzIG1K+dP9tU6X4b9F3MZreARWjkQMnMUyxvdk+f7Esyv9z6JXRH19aJMQGrID2FgIeQL7IYDL5XdalWmxmN9jK6dcPcQ2VC6mPwxhG2zmTGc+UEp6U375+X+pbmTw/X2bL9Ycq5XM/KubrajbKMC3zEHdX4aI2P7dfMTXLcYkLNk4/3EHaNDIGf3IJwFbsy46btM3xccAfqOx10d1bM9NOcpG9fH2vdVDNI2UzjbLLWEaqqWO8/uLerV4lQr+43B7auN8ZkBKukL5vP+vjOXQwg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JahLxrSOt8sOoRfhl5ma3qNN0Z8uQ6SzOhrr7pkbZKHsWktZK/vcqkctsxxi0Zzen302nktvrB3ztFneHQjjr0/IKZVin9dJ7LFJ4IYokg3OM3PyPumnH/muL52GikFDIUBtrtUonD5563xrAce/BhFjle5dKZNxT8+QLBjTsQACm0wvXd9GAB/z0g8zHjkudFkNQwcQJg93u9KCnFkAN6X9jt/MOAmT/l4ekrQWcAx1KKzUCfg50gV3EkuNuifyT2g2KQHky12n2olVuAHZXv6a1fTqybmF4FgyEr5O2cDA4WIm6iPZbhkQhsJKxMh8/hLxa9hbj5Iu61o7ajaGkoHwnV02HoB77H9Zb65tZt13kjZaMifE77RKFhJjfSooo6lBKl+ZjkRf4tFAgMiWUUIWR8g=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:c925878959b07937\"\n    ],\n    \"constraint_ids\": [\n      \"C:ba7d021b90fe85da\"\n    ],\n    \"span\": \"Noor overturned the truce table and charged the guests at desert waystation.\",\n    \"rationale\": \"Noor initiates force during a truce encounter rather than resolving the dispute before considering force.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KwDdtSdB5gQNHmaWu5I5Xf054QgEeG9lGrXR6kNZ6D3GDKnOAGiD4y37d3SIBd1r7lPT4fWyxn5rCepPCGsopnSDaKTosl4iLHFo0vo4f08JfgDJdCWJg0vvLzJYO35QVD1jwyMTIpCHGDCYWQ2ssXqJT5C45Qr7cXeTzqPhzfvMulfuJk/C9DbRY632sK78XYbOOluUYyFtU7ZYxxWVP1FmtOwDSaCZASuv5lkXiXFeOo2owh0DtBCdO+wKAKG6Y3oLzZcyG8N6Qhxg88nwifLEug37ccLFTgbHHguUTpw3JuU03ES3JTLLyp8qJBPhZLTGCWtgjZvlo6yBpQaoc6qifRxmR7oI0CDKwmtAOBVxy81LsP+xOjTfzWz6H7favpvAo090EpJ+5qzMX/6yZV2+WsmL",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 522,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 149,
+        "output_tokens_details": {
+          "reasoning_tokens": 39
+        },
+        "total_tokens": 671
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:c925878959b07937\"\n    ],\n    \"constraint_ids\": [\n      \"C:ba7d021b90fe85da\"\n    ],\n    \"span\": \"Noor overturned the truce table and charged the guests at desert waystation.\",\n    \"rationale\": \"Noor initiates force during a truce encounter rather than resolving the dispute before considering force.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 522,
+      "output_tokens": 149,
+      "total_tokens": 671
+    },
+    "tool_calls": []
+  }
+}

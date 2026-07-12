@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b0e0fcca4218fe868544b09372dc037a016143aa6084a51524e453573ba7f5df",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3370,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 208,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 923500000
+      },
+      "created_at": 1783841900,
+      "id": "oeEcaQ1ELWATMLd9rw0UhE/1dTUJ0CiFzej4/rdrZa8xsqbR2IcVrC7K102oRoXFkjFnpoNtpy/z9mumtzUz+SxcvZIks3ht9EjN8wm3uEX7H0o4t08yKnniE8xYsaIVW2+HqMSt9/DL5V1HpC8mxIeZy2TIGWYOYnH7QuNsYBad1/5iK8RSNcq5dqeEDV/vH5GgCI4qt7DyyWjwukWJxdoTv6jdLEf5dOuZy0G+5uel4KX+ZvHZzPel+U6gVagwD27J/hmngAIuj+ewOHXTTVWoUdRYXoN8Cfoz86Js3U2cYL0FuazCp/Ded0gJgumaAL7mb6t0y4Y0GQJmaH2l0XJFIbbR72lEaxORMkyI0qn79hZBYMt7JJzNAuV6pgxy9UVC33dhECLrzFPu+FBP90Y9a/gf7Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "+e1Rzz0tkWC7gm7WDBzDavbhwky9cEfIvZ+Rpaow1RTIntTEbHS6rjTS5kl1fRbKeLbeWZV7TekfHn/fco7pDwM2ioyxjkD1nWyDRPv/dHeS5ySJN+i745IGd5TYaukuslwF6NY7t+TDqw074O6k7AtLBTzS8IvZb3AM8EEbRRHTsggccufjVWxsavthsvoM7lQeuvE5QnaKNfwvtOFxN33QD/wZlvk4mw9d6qow85ytfP6HL+2t1NDXGOFNBsG3Q9FtF39td7QtAs/cn5lDdqpxgpveR2swVrVGcUHEq/s+liVF8pkN77hGl/Jjx11wcWPd2u37NfeMpp2wwNH5lwANwDJ9DaYudV5IuSoyH7vvwnbPLnwP9MGjeC+OnGorFDi8r8IQyVil99+IxXd5j784pgo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:505d5339eae15afe\",\n      \"npc:9dea44f963c05883\"\n    ],\n    \"constraint_ids\": [\n      \"C:76a467f20df7e087\"\n    ],\n    \"span\": \"At old mint, Veda and Oren signed a joint battle plan.\",\n    \"rationale\": \"Veda and Oren jointly planning a battle constitutes operational coordination between the explicitly non-coordinating Glass Court and Iron Compact.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Q/PO4eD6XaPOSVnQBb4hGgakN8rsFjTcdOq0nerESaWXpEzIlxB542XCcYxOTAHd+iED9kVrvtG5BweEkF+/p2vx5tNMJNtMHdDYwyHSp6IU/SwnHodODwBtjb7alddb1nbd1vsChvsdzSTPUgzX5lM5MBp4YtLi+pgnYF75P+fBzxF+Y1Uq4DC9i8FrxaeQ11qcN+Ig5jN2HuclrzNGq+YGmhnobpwGiu+X9oRoIS2kvSc7dSqNFnx1Oez6wpwamPdny71L79jcOLFpdyP3qABv7lVu5AKJdj7G7C4BHi1uSm7pdfnIc9BYdZVC2mW4rTsjl4ecENO+DT6T15Grs9KDR8P++hOuQCMeBC+L0uGVWY20ATBXADvCFg9qNwfS7+ws1rlosvideeo59hsSoMNgw6ed",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 599,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 208,
+        "output_tokens_details": {
+          "reasoning_tokens": 77
+        },
+        "total_tokens": 807
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:505d5339eae15afe\",\n      \"npc:9dea44f963c05883\"\n    ],\n    \"constraint_ids\": [\n      \"C:76a467f20df7e087\"\n    ],\n    \"span\": \"At old mint, Veda and Oren signed a joint battle plan.\",\n    \"rationale\": \"Veda and Oren jointly planning a battle constitutes operational coordination between the explicitly non-coordinating Glass Court and Iron Compact.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 599,
+      "output_tokens": 208,
+      "total_tokens": 807
+    },
+    "tool_calls": []
+  }
+}

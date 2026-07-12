@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7e1189a9c48fba030551166fe62c16daf55e2c1963831d7ff36b56b21caf52ff",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3742,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 576,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 229,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 975000000
+      },
+      "created_at": 1783851900,
+      "id": "/eyJAAxXeCjh2y8n397Ksiqz6/+y8QuJ8LkSugUoa3/VHwrirBMheg/ZnLu5Pz2/Ma7Ij17MvLCRwr+8xjPC5boBVvtvZVBtdS/LyxquKRllcVx6TNokqpDNK9KJpakanQLfXLA0g5lc5OzDlkboCcE+hnnFO6vcYwJC76bL0G4klDOsQNgkv1hC3KuaWZrcccmUpgXwhYx7EqOiWaHQgXZZ2xZ/sEMjwYyv+dnm6TdKWK4Ga0g9975ZhdiHK3E9JVbFL5AKPM+iihEdYFET3FChHso1ZlP3dQ7InaNUQQxMGVdBpicgVGVKVEuyseFcKEdrT0rxxLkuFYs/WW3M8yQD/2DYq1eh0xChwl7AqaF7te6rSI55CFzHMLXwXCI9dlOLglr1ayYXirlvdxlWmW0s1Xza4w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "O/NFusJYI3Jvtl62zvOao6UaQmshqHXGjqbW0fawmxI3HhUJY/Qw+dFrsAidsix5AgRoxDqBBn+t5QpHDYVa/8wcc1gxAfxhdlusLvlJABQz8YXhON6jvpoTv5/uylL+gaQgUkB6z+nTmamZGcWOPWrMPpL7Erqp5rPjcLoSDEaTdrAO7ZCNItfxI+1nGLzyD58351stgtK8ueoYI151iO/fGFtPZR/RHqYfENK9ncsLCf/yDo3EtcRyWJQpcXGT8wU5rkc9qN8TEIPP9oF/7NNFz+OqbNDcMmo0q2sWsPo1eSviyYcmMWa/FKkdmgJJf+I3/6gTULeqVb1Q81hsoUPO5/6vU+9HOKVCSH1h+7PhxSpAkCRdK9pjPhDkVmAgHrglsvWdBsKxr5n7QtYsGPl1Baw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:8ac4d15728bca90e\",\n      \"npc:eb4e2717117391d0\"\n    ],\n    \"constraint_ids\": [\n      \"C:552b19afded77c37\"\n    ],\n    \"span\": \"Daro signed the register as the Caravan Voice at glass conservatory.\",\n    \"rationale\": \"Mei had already accepted the unique title, and no relinquishment occurred before Daro acted as the Caravan Voice, showing two simultaneous holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "+TwKIxeZ8YKy4yt4BOxDZOKfQNIN+sJze0RdTymO41fFucmYVoMsthiIN7mOPUsjLckA5vDabWIz02ZxyTG8OzXqUjhOzGas4361ACCQrFiKybY3g0geJIuApqHBAx8hG0qH0BzeGovT5xqLowaKehw87ts+LaJDQoCATtxLeI8NDxOjwbm7hWd8xiCs8cQZNh5CtX+Jak4AvOlDkZ24i2KIyT/HAjuf7FOTVWUl3VDS9obsT1ERIswvQLK5k10kCqiso8p5/ogdiFoRg/8BFq5owk4hq5PCQBDgV/RN1wWZ6t/6zHeNQH0+/d8001AZM4UWu8OjU0vml29iZ635z13cQNcPEjP2oSBNUjrS+AB1r7HmNJRNGsmVcfQWDAUmTsdSyxO9RQXoTz+z7uPcie9kFgje",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 576,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 229,
+        "output_tokens_details": {
+          "reasoning_tokens": 93
+        },
+        "total_tokens": 805
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:8ac4d15728bca90e\",\n      \"npc:eb4e2717117391d0\"\n    ],\n    \"constraint_ids\": [\n      \"C:552b19afded77c37\"\n    ],\n    \"span\": \"Daro signed the register as the Caravan Voice at glass conservatory.\",\n    \"rationale\": \"Mei had already accepted the unique title, and no relinquishment occurred before Daro acted as the Caravan Voice, showing two simultaneous holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 576,
+      "output_tokens": 229,
+      "total_tokens": 805
+    },
+    "tool_calls": []
+  }
+}

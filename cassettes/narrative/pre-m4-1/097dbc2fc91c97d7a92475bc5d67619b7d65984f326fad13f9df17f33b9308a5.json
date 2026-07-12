@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:097dbc2fc91c97d7a92475bc5d67619b7d65984f326fad13f9df17f33b9308a5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4094,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 677,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 175,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 863500000
+      },
+      "created_at": 1783855100,
+      "id": "CA8eWXJcS+ekdyK1CgsWl6z+yaW1KQ9NG0cAOOD6WRKd4NjxMKrRiOzWQRW1RPZaaToPdxz8KGBigB+qe0hT3XJ48eKeIaw1a0V/uVceHaC3K4xhtMgeQa43JmBF+H9AWN0SOJiHTq8W+dejN/BArnN6rHzFLL8NGQ1v73Nil2i6Yu6KqP4AoVzh8U4aw81pOAKYOnTL9MV2h2uaRQTpBoMvsIY5R+IJGW9EY7EFOTE5Tq/p85uWQRaTI2QSeeqiK43s6xNXD5kKsXGBnF+h/DcFJZgJPnVyhl/usqN8+jBHyHRrq/ZlG8Y0DJ4hD6edXR5pCguzcCnhzUORrYj/9vJD1CmO7t2fBUgfmhVShdjRWEMl3qCZQ7gqezLXedKtNb4nY5cAM3oN7Fyph/gn9nPADeyjCw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "1X498CYSQVTy+XEDCZHwWBczDvKoz932r3cXIyhoG+/+2DYYzgIZm2whZwLH1++U/+GS2Bl0n7/C1llsUR2DoGD4PXEMhpxJJhphToSAtLGQUhhLis+iDh7yQST/+cOJlqRqoSo08gc27sS1K2LuQmTsvB7WdXQo6vt5hGxOs5hrvF/5+OuDEkCskG0OrE6u8TJyBuhm6XRbkrKFNWJDtWu7lw9kq4i+n0uogEGtaz25Ibl+4Yzao18FiELM5s/v9MLYLPQX9O18fl7+PkxWO7XaSzHVUVWUOo8NNAOPGBB9yzl6n211gUKYC32INlQI3AyNJZfQnPo4+11thKTUV6b9ZZ1WnzmFgDmCyx2bfExiv0C1m7aMAP7pMt+4J0xBYsDJlvMwz9HpVTFim8BCITkRr+4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:820eb5c54aa749a9\",\n      \"npc:8f0c7e069b112dff\"\n    ],\n    \"constraint_ids\": [\n      \"C:42cb575764ea0f8f\"\n    ],\n    \"span\": \"In eastern ridge, Mei supplied Daro and called the partnership permanent.\",\n    \"rationale\": \"Mei, a Dawn Caravan member, supplies and forms a partnership with Daro, a Salt Raider, despite Dawn Caravan treating Salt Raiders as an enemy force.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "4U5l9ZE0M7tCc5zXtKl4EV25Zin53mFur/0Uid82C3AgQ6JnmP0fEywisAbcBpwGXqpXUmDW7tsN+g0o4VI9yofzI7QtsZPX9YITvILqR6G/ITeCluWAHgTCAcGRBs0ZYTeqqhAIGNKMBJf6CLfjwXWWWWKdjicWHoaj/3NyXHs/t14vcv0GfFTiN1fVZtjehiGeSDIEg9SMge+C9SFrNnPOnieHwrbFyuEexPjRakf7xqSPK21ozZga+3gtERWa8B/RIYztDdC03FQpEZjoplAZ1Qd9YsYXvkmG7drfYqUaUAEJA9vqSF2U8Iu0NwTHB+hp547KVGEdTxVmV3INZHGn8them8IFG/ch41G06ViBhN5SHOP69vR9Ayxi59Y4H6emKQqSWFtXTerFLPAKlhgn3lSA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 677,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 175,
+        "output_tokens_details": {
+          "reasoning_tokens": 34
+        },
+        "total_tokens": 852
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:820eb5c54aa749a9\",\n      \"npc:8f0c7e069b112dff\"\n    ],\n    \"constraint_ids\": [\n      \"C:42cb575764ea0f8f\"\n    ],\n    \"span\": \"In eastern ridge, Mei supplied Daro and called the partnership permanent.\",\n    \"rationale\": \"Mei, a Dawn Caravan member, supplies and forms a partnership with Daro, a Salt Raider, despite Dawn Caravan treating Salt Raiders as an enemy force.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 677,
+      "output_tokens": 175,
+      "total_tokens": 852
+    },
+    "tool_calls": []
+  }
+}

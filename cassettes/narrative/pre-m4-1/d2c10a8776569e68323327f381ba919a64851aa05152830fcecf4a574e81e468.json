@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d2c10a8776569e68323327f381ba919a64851aa05152830fcecf4a574e81e468",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2901,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 611,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 170,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 815500000
+      },
+      "created_at": 1783860700,
+      "id": "0h0H5wZOEsmw71uDOob4EXuo4/AgM26Ssi6Z6oh3Bsu+v9RslmcxLxiQGjXorhMqqANnTboJJowmVcS0S5ciDG9YZYL0foya1TyLSElLEJpOudjz9vhtdrtzyUl+zaWmuTwrwYUTytSnn5RrJVKp56TUr3PbrIVoKcItbyYsK6i/KdczUF+5JLP7OSjsQ45hgF1sdcBOo+cLjZBNE8qJjD59HjMQ7Q5MA+Wr9MR+uui4bsdXkILqLSPGe4gWl330k58q6zSpB407glc1zIhIqfxv2AZtgACg/3kdFwFmY0QCdTz0NB9sX2Xnb0qYZSLBmfLxx+XGNCndVxbtavmIxyrACzy3H14j1G4m8UIfKSyVrGHz4qWyTTBRXgKfwnPrmu4WuOyJt1PD/6+TZGC7FBSyVaNLxg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "c3/jvKDf3RHmInuXSO/5KmrXQ6I9l7cL7bgOXuV4dJ2Nk/fl95lWySHNsXPKwZo/TnPJAndjaK3lFp3O/ufht9kjhTtqP8q8d7JoDFyXibWXVGblSDnqDkU1U6IxT3aMmr9tC8PtMmhotUdXqcJTeraPrsKany4xVE6V/cNaM/4uEjGNQ3inoIpKkrLFDi+gg6tB7+tasupr1SnJ10Ntarkm8zA2jtd6zYzg4I7hn0kfhIE/ZnpPzMa6YPa+r9PbYrZxboYk4CVL26Ii+KfFHkvm64EUO+uMEhqQvvD1xXsqkKufSKpIEkiz/btMuJ6x/GGAhEJpN6WGU9+RawG5T3RxvavockO0uf64KHggYgGucGe596BiTVIpAriLU03xr/1C1EPD1qUuUfSrgErnTz6CkgU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7ddcfbad834c26da\",\"npc:d8fb7fb483036853\"],\"constraint_ids\":[\"C:da7d719b0c98123c\"],\"span\":\"In orbital concourse, the council recognized Veda as the Archive Speaker.\",\"rationale\":\"Oren had already accepted the unique Archive Speaker title, and no relinquishment occurred before Veda was recognized in the same role, resulting in two active holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "tase8rcueG74jIJByLX9fIHU2VvZAVIuMbyfIbC1VoH4GVbSzVdv7s7UZdVSbaacon9Uo4qTXm2yl/BnRQclu6JBX88PKiJKsfKBIYbS34utMRqlCzaXzWMS90DC321FZCNAq0PC8EpvbpBncGNlg+RG04QKRwO8ooIGhwAV5QOTUZTFKrrBsMe5i93maRc5Lpc4U65cmgm2XUEqoNgXbNiBEFGyZkmjOU+i//S1y7r7uw8Jd3gabgOQt6fI3d7z0slesS7j7k4QhucvAYMmCZmJ2qm/mPg79ngSHN8HvfDpCmhT+x21HEV+A+hFmZFGmHrHMGWfVRTINYkZ0ZU1Sm0grQJ52mgp2Fkb4P2n41I1LFqKctJt5EyMdEHcvrdQT1JZMM2vLFPugiVdqWhQRFLR0nEN",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 611,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 170,
+        "output_tokens_details": {
+          "reasoning_tokens": 57
+        },
+        "total_tokens": 781
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7ddcfbad834c26da\",\"npc:d8fb7fb483036853\"],\"constraint_ids\":[\"C:da7d719b0c98123c\"],\"span\":\"In orbital concourse, the council recognized Veda as the Archive Speaker.\",\"rationale\":\"Oren had already accepted the unique Archive Speaker title, and no relinquishment occurred before Veda was recognized in the same role, resulting in two active holders.\"}]",
+    "token_usage": {
+      "input_tokens": 611,
+      "output_tokens": 170,
+      "total_tokens": 781
+    },
+    "tool_calls": []
+  }
+}

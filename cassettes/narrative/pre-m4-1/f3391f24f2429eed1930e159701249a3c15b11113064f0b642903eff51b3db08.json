@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f3391f24f2429eed1930e159701249a3c15b11113064f0b642903eff51b3db08",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3476,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 616,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 169,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 815000000
+      },
+      "created_at": 1783860900,
+      "id": "1FTv8EDj3V4XSzDVrmHEdA2gCfL0TiTBBTYjalHrclZ3tDDt4UuFQiuOkVzI6sYjokkBmKKfLo9XVA140YZ+JL+47IMs0wQCU9FnUIlAZJTgAQtSurwNLMaVLgyBeNiGudbAAPnfXUaS2gr38V2B587a02nsSIxtX6hD/EBbBG/z7wx4nW6VtfuMQ6FhRhnJJ46xcvWsYro/uIcS641nEfR/1AWdrUtqUwHcmaupzyQm3LQ67y0V+23DXpRg/5zkTxbB7PKKdt/KYmcLGSWpqDHUDB5nOt+3CM8pNwD4PX3S6vFAmYVgF93mZGRHXunqs/sj8ebfNm+58v/VOH3NT6GkeDbHxGnQko9pKes2dfXeqhN5VE3kudx/KKd7bNwDPKpV9jBBhs/9QD7eruj8tmUHj3M+rQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "cpEMpABN0NzvYNEspW9fjzzPps2T2V+XhFsgXmSVo6Y4QBXumRxQig6EMLxAHv5V/IcI3PU+Wl+AvpmRSXvPdiJrh5f/lpTQm8WD5Tkdm44Bf74m7ZVdd/4R0hlhvBCKcRkAqzTvOqWphG0lQlu8jfAQAWMFYpXTBmbgnGGUNWVGj66ShKnB1YAK+IlFtIqMnLJJ/keJdGmiIu4LUb2bUOcghLT+QtBxF5L3BAfW3Mng/bDdSVoVncYM0+h26AEZf416gE4kavhQWEaTu29WVrwSKg+/4MORNT/0HtGfhKECnD4Oq2anCYZ2wdlgTRxCslDZMSNjPx9lfyXpKx8ZUeGMMnTrlWMaRNd4hQVwdAVwi6pPaIQLmh+zHs/BPIarqp0ZA2P4z3tTrMhGCY4AyVI77k0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1069b17df1f310ec\",\"npc:328d4a3d9bda6d61\"],\"constraint_ids\":[\"C:cd0573ccaa2e7480\"],\"span\":\"Ivo signed the register as the Beacon Keeper at observatory.\",\"rationale\":\"Ivo is shown holding the office after Lea was formally established as Beacon Keeper, with no relinquishment between them, exceeding the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "EXPxH0Cw7Lvc/fJp49zxvpyqdLKiucQBkSAhGbIZu7yhJEu5sK85I2eSBHTiX+JC9BF+6EWd4lRZElhnVWiHFLxvWatAGQ/8tdtpZl7oLa7IhgkFmg4phT5XAgTIq3cjOoPOI6Joo0PFoi5zEx1bBSr0L3JxxhvYudDSIot9RV+c8EJr7l1ftegt2w7AE1JCkxBu27o2r1EwaIhJRgTwqc7cB6L+P6t5hjRnSUE7/r+eMnAzvCgAPDMsOEpqJmLmfCcJlIFIUiRRtHUpgtiLwla+BGU7joMqXQsichWsnDBzRSFjfyAumv10oAPrKYa/rbiuqW9vzsG3+nj5eth/+R2rezAQRenl76Nr5n5MndyJze/aCZXp1E+pfEYinliKj2mhYbzgL8mwstRovwaZi+32tfiZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 616,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 169,
+        "output_tokens_details": {
+          "reasoning_tokens": 56
+        },
+        "total_tokens": 785
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1069b17df1f310ec\",\"npc:328d4a3d9bda6d61\"],\"constraint_ids\":[\"C:cd0573ccaa2e7480\"],\"span\":\"Ivo signed the register as the Beacon Keeper at observatory.\",\"rationale\":\"Ivo is shown holding the office after Lea was formally established as Beacon Keeper, with no relinquishment between them, exceeding the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 616,
+      "output_tokens": 169,
+      "total_tokens": 785
+    },
+    "tool_calls": []
+  }
+}

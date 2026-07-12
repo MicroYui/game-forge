@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:73c41b175d755146b0947ba28f50499ddea95f33c84653286c334bde3c2b4022",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3059,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 538,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 123,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 638000000
+      },
+      "created_at": 1783858200,
+      "id": "FcIJiDdWOULA1wzMRckU0QuduZkCjgQvOa1Rc6sNKemcr/I26SB1Jn0zqmVKCG0ipte35HJykRROOKvohg/VfvE2N2L163c1FluS7qpgHOGy9KEp0V2AZseWVr0G2A/g9+L+DEsjBDY7reUgVikL4kAxdwy7bN7OaNBn/0NpCrH1il1HCz+Yry2qn2e015VNA5DKe+kPnf5IkvAW8dTpvYeqgv2COaQMiz7tvwXVRCxS0oBlx+Cdq2RXDk9mIq6ljl5jEi3paDPKLupxgczkrWWvHbQYe3Vu7Ya/dUG2/KCYrhHC1QxNv/tk3nmoaGdo/aWPxA6JBixMwkc/mB8KjJ9xX/Wh9HQLleWlEEoicmV2HDEOkpFeL5iGdw3AomK4TfBAt4qFH0vyCOMao5ENookF5T7tBw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vTnHO3LRDyq+6S+rlJ9JBB/isnx5MuTB2yyzNY1WS1eW5BcwF7BcY4+Fjgn5ICWWv7YJwMwx6qs2csFuJUSKWLxEiCVIlq5LQlRxK8wX3ZfyfE/gSSfX/9TFCvxZiRKPeuX2cf3wDniNkIpK48zcnlDr0PlHefXJzmm+eVkUu4w14vRyEyE0/ye6JFWalmQ0qCdumPxpun044e42ugMc3ty5TJSbEJ71XOnGS31cTztU1M9YIUHMc1cWUuqBmBDiFD/EhjHMYlMckmtiy+oaDj33kL9lnDl7N6u4BB3JwTS2TJuFL8R7lcoINv6ZvZTyaKMS9MrVEXGlCGhkby+1+NQB/Oy2haz6jGqi9X85pM6G2eLgISZYppl0H1zzoul0ZXu7erHSll6wKlwvHhZqwMehKck=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:3662fd86c45f4456\"],\"constraint_ids\":[\"C:debec44483aebd31\"],\"span\":\"At glass conservatory, Qi left an injured ally behind to lighten the cart.\",\"rationale\":\"Qi abandons an injured ally during retreat, conflicting with the requirement to stay with wounded companions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "UT9h3ImeVy/K1+OGg9KwO7viDNKyiirum/Z+83R+jl5tdX+GA1L2zSlC6bxvNpLtgmt4c1qQbxiSvsnvqCIh2mxqdUHurgq1Sk2mL3GrJ5BpGutKVzGxBQd+L1F4eox+WpfqhB1ylk/x31K9dVnKOE65r75JlZ+dJ/6I3N9WA56xEaDc67rAD3M3SPDm4MvmNRZkc/OPjEqA6LLyrOZXKl5MYe0poemVggr2DvaLsUQUG3y0KIYpxGjKpZzBpUsYVAFj11BH7Wlu07hIzGP/ct5UItRrFhxBi6xt10bQoKv6lyhT16IrRi4XJvV8qX8Z1ufZ3KKO5MQ3EKXT+mVKpEvj28lmpNsEhTEzyGF0yCFjSmf51u6Am0Czur4jZK49yb1gn2yd274dAtLJlQce4eVpq9L1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 538,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 123,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 661
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:3662fd86c45f4456\"],\"constraint_ids\":[\"C:debec44483aebd31\"],\"span\":\"At glass conservatory, Qi left an injured ally behind to lighten the cart.\",\"rationale\":\"Qi abandons an injured ally during retreat, conflicting with the requirement to stay with wounded companions.\"}]",
+    "token_usage": {
+      "input_tokens": 538,
+      "output_tokens": 123,
+      "total_tokens": 661
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d7b4684f43ce53dbd85baacc62ff96ccc64aa44b1a0113a8fc8549192569deea",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4530,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 623,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 226,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 989500000
+      },
+      "created_at": 1783850500,
+      "id": "W/RR/OwywwrAVaBYh41awm/3GSJsNTC2T36YQwCGyYmdaeUUV51cOsJFRLcpALmj836QAzweEcSMfr4WFBa364rkFF/DIIy/gw47ywpGnt3BWizdfc/ukhzCmdFFpT3a9Btj6qcTM27bKIz35LsPWBurfLAaJhsIoiFVxqaOfd9GiiuBPlIZVp70+s1Hh1QnqZlHCmo2bph3fFejcIbrl5xZh2GCibzkjJ5ij5fDHUoLO15BWLZB2UyB2MPznW3+bNNY9sUUc+d81PoEjhtXCfisnPmXuyhrbA3yJ8c3psux04bcrrC7jpYhtB7XGn4QxSCaHv2AEl+MOWK+OLFgaNnZubwrGkiq7LwFnrwOFvEarn6jmmSeB3k6KHGTyiC6SaSjjJ3NfxXN2RNYpR3MegGe58nuxA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "HsoVJfCSwxsD2CNHH4P501Lcp5NHid5xiIQXYDso+JLMKCVlPMeZMk65ZSHosNNv709DlKyXQS144NGFv+aMOnAxK+sAhI8dNY6a5/jKV6WrlRaz2utmIsKBMT2OiqmevFK2LzZWJocvWUue2p3XfaedXK7/jGsg4DhIISccXo5Z8Sf3+mDbOepaeYtomtvE1cRMviGF9eVJT5FVCeL6S03cOsZPaOdVvNR4xbmWt+rmTRDBWPQjKqxFQW5ZKwQWkQSqnFmKugoO1JzrPxU7JWK0IOJ/zFKUbaLMPT9/cubTQW11Nh96UzyMKPNY7y+IWgnBsOxmQt2mwwWoYFwvx0G/eEhxDscFZcvuWbvsgHx5pECPZzlx8XQJQ3/NBhgJa0UZnLrKdHxTBnOKhoLxR0toWDw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:127638f8b993c920\",\n      \"npc:d562036fad2bb599\"\n    ],\n    \"constraint_ids\": [\n      \"C:0628b8b77682da4e\"\n    ],\n    \"span\": \"Cass accepted the title of the Crown Witness before the assembly at salt depot.\",\n    \"rationale\": \"Noor had already become the Crown Witness, and Cass then accepted the same singular title with no relinquishment shown, creating two active holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Tz5P0idplIOBTk8HuWs+n6MxW95d6373bknHgltSn9xuTzPGne3btcVhJLFt0E4b8jOQm4NubQLdgUuvqVfAmpszUQa+BlFeSr/ay8qO7RfKBLLaf4pEY8b4M58AEr5NNYPfmlW8AYuEgp+FLZv0/b8GjIvLro7AOZrde6G4c/31nuhjTnEDF+0wEXW6QRCgudYjXHZpZLMU7ZBcVIcv8sCVaBf1OhYNTNTt/5AhrOTzrLmkfasQtY3Wbv7l8uMUCIecQZOWKisdE0wQ9i0ig45EjkKbmDSVVItaK6SHvZF49xeNH7RjppvreL32xxRj0Ogz8FC7rD/hIR6Q5aP6xFCz6FXGnBSX1niIxcH/ZoGtlx1UgmG6vmbvEwkgQGQfWMd6D2XMGeD+4zrFxwIJ9oN6w4AF",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 623,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 226,
+        "output_tokens_details": {
+          "reasoning_tokens": 92
+        },
+        "total_tokens": 849
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:127638f8b993c920\",\n      \"npc:d562036fad2bb599\"\n    ],\n    \"constraint_ids\": [\n      \"C:0628b8b77682da4e\"\n    ],\n    \"span\": \"Cass accepted the title of the Crown Witness before the assembly at salt depot.\",\n    \"rationale\": \"Noor had already become the Crown Witness, and Cass then accepted the same singular title with no relinquishment shown, creating two active holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 623,
+      "output_tokens": 226,
+      "total_tokens": 849
+    },
+    "tool_calls": []
+  }
+}

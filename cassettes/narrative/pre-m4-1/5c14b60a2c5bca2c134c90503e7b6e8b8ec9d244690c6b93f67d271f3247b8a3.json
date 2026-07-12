@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5c14b60a2c5bca2c134c90503e7b6e8b8ec9d244690c6b93f67d271f3247b8a3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2746,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 669,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 177,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 865500000
+      },
+      "created_at": 1783842800,
+      "id": "/ZBOItpqioJtiSjY7CKOKrnpwu3xUaGLAe91LuJiE4R9V0i/tX+fGKl4DxNmZllJTPY8wsR7GdoCNFBeg1WlasfLqRt1iDuFQSCsrBmEnXczuPF2gk2icoDkbYK6coEMTNp/DUy20Vls1TJrOQpvuDIGh40/dHByUEzjpr3aPn6nXy43lbaE2sMVHFwiOazTsHZei73Bid5wA3Mob4ddTR4cIbO3itmkVsFLwBwTI5ect4ljxv6LvuBcZZwSOqekNDOnlONDv3EAabsXD2sJChJEoa7+qBtgc7e3fSjyJGBLKnxzTIfrB6AQpeBLcOw3NMja8pc63PnQ5qJaRIT6RBPbK0B6IbsxLGdjn/atmaw1nkGpXaFBo8BDbqoSHllYobnO4FVfn99gYvVzSG8nHBwRDMlCdA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "bGGm/u2DEBcwnlF76HVAk4bFvigD7N9/DM5MeDx6CZGxD4PjxZpxWAkvdgaPk+HnoZDD7v3IaQt8R38gV9mlkX98NREoCZTwgHX1i321D2rnsUHCOjYJcYZOZww92QoX6RR0FK8H3GzdBz1+Xg1UXgz/9opObR9s8CJ/lkPr1gpaC8ETAt1fXAxkATWx8cGzdU5c594Slw+9i8+oub7x6GokiEAfWHLmByBr/TQ8y/TYmDHE1ME8TU5zXSskknpYp+rQEzixYscmvMa/ZhoEh2ONh+E2eZyi7qtv8r+caGI1dxk+vW4Oi7r0hjalo1iBninEWV6xWFBUB30s7NuZ/b5bDZuo9fmPD0ETyQjBJaD4S49lSod8+SgMoR7oaU2XBV6CqOD9zB4pi0xsNacAstu/0fg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:17c03467157117cb\"\n    ],\n    \"constraint_ids\": [\n      \"C:5ce04b9359bb1d0e\"\n    ],\n    \"span\": \"Ansel ordered the last rescue boat away from the stranded families at river market.\",\n    \"rationale\": \"Ordering the last rescue boat away leaves stranded noncombatants exposed to avoidable danger.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "BXz0ENUnkWl0sLrQNne0TLXbot+cdAxLn8xG1xlaZGBjK0bmzt0VdqppKHdVq4QZynQpEo+PAPeZMHfX3C+PokkV8c0bRC6HGEEsBg7UyvaXD+FnfyozjQ/WZpJrQH7cq9bEcex87slSQs36SoTEAkdlNZUNef3VOECmHx/3UqzSObd5U9pHkHfyDGd3bsRYW4eH/1m3BKiYBSbvyo2kqZIrMbIuYVg9AGmQ9+vwWbZmI2Ht73KtFI/fkDqB8pCoVRWlUWpzPV/oKoWJWY98NckyoAc71hXXUqVgGJ0BwDiwGj9gb31zM8/qvQbC02rCGOoHTqUgsZyluhqryhIycCXQgYwkHAYnfrctbtOOUYeLNzIgoa+qTt9Ua3FUld+yDFAXmeFbtrfcc+c+bhMCAdfVYC0B",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 669,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 177,
+        "output_tokens_details": {
+          "reasoning_tokens": 66
+        },
+        "total_tokens": 846
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:17c03467157117cb\"\n    ],\n    \"constraint_ids\": [\n      \"C:5ce04b9359bb1d0e\"\n    ],\n    \"span\": \"Ansel ordered the last rescue boat away from the stranded families at river market.\",\n    \"rationale\": \"Ordering the last rescue boat away leaves stranded noncombatants exposed to avoidable danger.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 669,
+      "output_tokens": 177,
+      "total_tokens": 846
+    },
+    "tool_calls": []
+  }
+}

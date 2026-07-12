@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6375a3e8fea6cbcae9c62f42da0101b20512c6d82d833ff415a990dc8d1f8b40",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4314,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 570,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 203,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 894000000
+      },
+      "created_at": 1783846900,
+      "id": "wGolykOAQxIYBW4WgGM9cof99QLEzEu3u6TPZsvZob0hctwW4i6q7b3h6Hhr12ZiYNbZaukmo6ltHrpmM3r7nHm8mp/t0JVo3GhwVe0yvaJY7bjLOVfg6goIUvlxZYgypqU8fdbXcOdoIedV2pMW23a5NLaRPB7wssjFyFXMkIjPEgOiG44g5V+V5+dY4PBXyuD5sXkupSBkxhjhnO0KFRCfUbvdnmyt6PSXWx59pkvh4QiGhMxWg1R97XbjGIZZumRDy0tcLBQph2jbtMqafd4rnqWPYjL2yuLO9FgKcSNWJY2fF/HF5svr5xaVGuotxD4+jRcAGlg/W/RdqsM30srruciYXZoAdkJr9xUkDbW06AlZf8uwABEa82FY39/BSNTDr+jt3yHCwViegbKhDJlrcjwIqQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "x9U0JzN0fZK6OLpgM+vf4Ri6ZS0BlqvPPU5i7cmbglKq0ZiOBKdv+XHdKthtnqZtNQkusfUhI5a+aTuT+WOal2rK6PM+i5iIOBtg760KJMLJaqLbx0tizYYtQU2RnhY2JzjfC1fEqM0kVUByTTlh3XQ+IEkoS65g7Adjm4yGShBtmCXKSOYxmYQuAKoUW00ATGha9kgAippibANFtsGO4MVOYgPhPlyLeephOPfD6UAWlxIjwyAoQZFqbKPV6qkfzBh/Q6gPpBT4IUdAS9QREDhBnL/opEAqTEpMM82fX2nZtMd+b3cQZyb3Qg60kfMpjAf/7owaW8uvXD6pb3W/Us6ngyn5emg0nz/sSBv6d7e3su8liS1ShEjoG5bLVrbubnQ7q/+MFl62/gGdb72Up+XegC8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3037569ee0ac30d5\",\"npc:ca65b25175738026\"],\"constraint_ids\":[\"C:8a2409fbb043e819\"],\"span\":\"In archive hall, the council recognized Veda as the Beacon Keeper.\",\"rationale\":\"Veda is recognized as Beacon Keeper after Oren is also recognized, with no relinquishment stated, exceeding the one-person role limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "lcPMjvtPiyUuHHX+hqMp0kUoWZINYIg7l6L6OYDsiJ34RfyNqvfy/6CBFkNKcMJfM4jKZJ+GkfZnHbSHxZ0w6pm7Treuw6LpauUXtyGC4CIPJd8LD96ou5pff47DfuCxkc/ziYBcwpXTcon3k7EHgiufBbg/lOxXqnMFOWazll78DDfpTf41z8i4/HgOmprgGoDk4zb7KbJxS9z8yeci7kvxdl3bwyBUelX4CJal5Kk9s0wk6atKpwy16Fgzs1uG6zKbcRAcgoC/i/aa5k4AHeMzaZxDJinhryAgDiDzRIc8LGGBBEvB8wGYvZQfDWDUWpEeDNGtjVoJXfN71p+M3ltOlT8ilSk0/XhCNy4gs4gdOocTROd0A+HKr1hXczpazN5SMwng0xBHTS1YKJzqmVkLXAhM",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 570,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 203,
+        "output_tokens_details": {
+          "reasoning_tokens": 96
+        },
+        "total_tokens": 773
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3037569ee0ac30d5\",\"npc:ca65b25175738026\"],\"constraint_ids\":[\"C:8a2409fbb043e819\"],\"span\":\"In archive hall, the council recognized Veda as the Beacon Keeper.\",\"rationale\":\"Veda is recognized as Beacon Keeper after Oren is also recognized, with no relinquishment stated, exceeding the one-person role limit.\"}]",
+    "token_usage": {
+      "input_tokens": 570,
+      "output_tokens": 203,
+      "total_tokens": 773
+    },
+    "tool_calls": []
+  }
+}

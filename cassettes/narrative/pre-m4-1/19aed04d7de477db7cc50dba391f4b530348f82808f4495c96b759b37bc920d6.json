@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:19aed04d7de477db7cc50dba391f4b530348f82808f4495c96b759b37bc920d6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4950,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 536,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 215,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 913000000
+      },
+      "created_at": 1783856800,
+      "id": "XR3SKm3FlttYmD20xrwsltfJM83hTaU6jRA3ixl3PHedGR24DBEyB0Id7TP3ac/JooZowStL8YVUfKpESlrOYnMIAXJsbA8HT/7ACvWy3563GLyIfPNCzE5b5S8+ejiCp687xVRkRXNhsO9XH6U8K9LHSp3gIgdXTGAJ3W6fiUb0UZmYZfp2xWrk7ZPh6QRtF0O8UpD0wd6I8RaVD3BCYm1cFTUzs5nV1VRAsuAe5Ap8FdD7qWZB4tGocMgfnLAG83hH4CfCMyaDSSSwDW3JdnuKjjzwHoh9oA83oJjwdt6QyaFfR2skeAhordznaBlxNXnuPINhRVqvfs0M0fiFNg8boA3Fr8jWbJLJ3Chwq6v8A1Q8WrIVLJlgwO2FocfAOREnC5iLtfeyTabADjeDXvGJ+bo9dg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "S8SR8l6uOkqRYTvuFhZUxtLAxE04GZZ8nxN4OCkhrkJcAz3I9opEG614/RSI19JC4f2suuX04ONXn8jAgpEknCOUje8oNa/nCAzlGau9BtkmQXujRx1FyGDzSsi+8/aFKNT9AYlHhsxm1+crwm0ASikRQZNf1FGKgh22mV/Mw6zvbQ3PUIICEs7K0PbrHzOvqTLWFU56SvlkXeN4nSwwr12P29lAZQt/auUodIw4wCG+C+RreMXGcW9YgQ4QMsBQegTfaoBHygzYe/wXxDs0tpoOeUYWMPNA9facjtkm+saM0F44NC5EFN9cTpfBZgMmO4vqLfaipaCKgDtNtaOJFaD4UwED05CCMcp/m1F/sc/tMt4HW4zCxGEDYhtyncJjGqx3dTOdG8kw4m25vEd6OlflQc8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7bd007be59a46e0b\",\"npc:cfd83bce0ed92373\"],\"constraint_ids\":[\"C:3d89ab2f619a5e1d\"],\"span\":\"Iria signed the register as the Crown Witness at lower court.\",\"rationale\":\"Ansel was already established as the Crown Witness, and no relinquishment occurs before Iria assumes the same role, exceeding the one-active-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "uFK4K48Dumpp12Vqx0xjetACStyO0OPmPSnk8hUZqSANkwBveMvzspqK7mTm3sOZs6lXn1uUEaHqix6mr0O9n4dv0CzdF8g4QSl+v4MjiKEIIeW0xaFO0sTsUuHsp8bbLAwbBwTDGs8EhoszziRM/CsYm0P0OBRc05GCJmpSv+RZgbHxiJWR7KLCkYhdY1LyaoRp20I645Ly4X1iSnlaPXYXCsHxAy0BsQ1CAH4cTAA1p4i8HsSPHtBKiyIr6EHubHI7sV6ekKTR1SEOWW/IoZY7MscDEuWY/MZZamFRDT/4ow9L5XRlxljh5Gb/1BZglJe1eEgg6yXKqA344RR8B2qcFs/884RH5KFmZl0IDTnYwHsva6WNXAL7ypN8APG9OW3P9Y6iQHwxRofmWggIfQZ+ksHo",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 536,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 215,
+        "output_tokens_details": {
+          "reasoning_tokens": 101
+        },
+        "total_tokens": 751
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7bd007be59a46e0b\",\"npc:cfd83bce0ed92373\"],\"constraint_ids\":[\"C:3d89ab2f619a5e1d\"],\"span\":\"Iria signed the register as the Crown Witness at lower court.\",\"rationale\":\"Ansel was already established as the Crown Witness, and no relinquishment occurs before Iria assumes the same role, exceeding the one-active-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 536,
+      "output_tokens": 215,
+      "total_tokens": 751
+    },
+    "tool_calls": []
+  }
+}

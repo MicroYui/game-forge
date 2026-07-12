@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:01a626b3c1c4505d6487f897d2f166c451f596250bd39757bf433c09dfb389fb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2817,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 659,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 147,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 770500000
+      },
+      "created_at": 1783861400,
+      "id": "zsIvIR+sG5lr5n5HK3b7CH5RzUuh6x6TodR3MPW7DtFAOix1jrQZmt7uEyq3UZJPbb9tv6CwTvSw5Fr5l8OQlBYbBFJi6NV+1F6zPn1JsShCAjgVRkYx9OXhPs2xcd+NkH1SutBGzX7GDgrCovqfe2opTSfFIkqjpjMIBo7UjIqM+Le7p1Y9JSJVUy9H+ZjBqyP/VpZKy0g9FckIkUacRdlwLwZWDkeUbcmdGlSjCdIZ3tv3ekf6BZKe0X/sj/rp/xBLp8Eh1pg75iLV2VpVkJL40YfChzzyc1yMA3ZkWKyQh61t12tJ6PDKQ7BzQ3xQnb6yFp/9otqTlOFHNnNW8fy7waFaE13azkK3j7c+4p0sLC+OuHkOdMjVOaTqAd1a/830r6Z5Nv/WOJopcuNipij/puz8vA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "VU39pDnK9xhnpuPChKgrwpTkbHYeyKQqLFt4XyXQAapUftg+e3znDSrQvxinTpZHjRvgoAgYx9JqZRwP9MDOrAwBeeta14haMmaDJQ2DqtbgZQ/nCUYUYCaJt185m4uQ6bTxn1fUuKLwi5Py1Ly2J5Itb5pQCPOd5wbb6QiEqmoaWl8SiN8thp2coiE/vUEeOfU1k5pIFFf2MobJ/WX0zRlXqVjx9YSHI6JUQCQaHu2EvzXEIUrM/aurClN2sjpY+q4M8UB/ByI6XbT+eUgAbC941oT1cZKt+8ru9A8fIAQvrqR5ATUnYea4hCWPYh0csOkDkPoPPihq2KaysIlhnR1kxaOM9CGtprOIwUuAD2Op+HJpi3bQvj8yEqCWuvFSb6NN8/MMCNat6Dd1RMoDA2qxCWY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:d38bb697553ed248\"\n    ],\n    \"constraint_ids\": [\n      \"C:208f9d090acfbbbb\"\n    ],\n    \"span\": \"At north gate, Mei sold an entrusted route to the raiders.\",\n    \"rationale\": \"Mei discloses an entrusted allied patrol route by selling it to raiders, violating her secrecy duty.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QmhI88SsNDbrNtDlKASEzZShHiiGjnlWIEQ4fZXQZIM2HBPnNFh+JV+FfhguLgvSLzIPtSWJhVsJxP2LojsRBobJ6IWwMQ2Iyx4eZmwdZzrxx8Aw7Mu8ZNuVZI7tXUaDZvAeM2tSPdj4opGfla/ss0Htc6XERo9DnlXVtmjLTI1vK9z4wLEe4UIDC7wJdyu0kfQnGYojTmnKocBIZ+kzsgfdsL/q6TDC0oN6tQQSvcmlg4cOc26mTPfEBVECUxOpC1SfvToytNKJPNWx1owLFYR9iT+53L2WT6OImeJyH15c4jb0+ZTpdn2chbk8mXwp/Z+151+vB2r57pYBwmVrYk4z3Iea83Tvf2i5dV9/SAU3tuYix3gx/t91Hi4xgPpGQQA/WZWa8Smah/Ri3QqoUfZ2cj1F",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 659,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 147,
+        "output_tokens_details": {
+          "reasoning_tokens": 38
+        },
+        "total_tokens": 806
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:d38bb697553ed248\"\n    ],\n    \"constraint_ids\": [\n      \"C:208f9d090acfbbbb\"\n    ],\n    \"span\": \"At north gate, Mei sold an entrusted route to the raiders.\",\n    \"rationale\": \"Mei discloses an entrusted allied patrol route by selling it to raiders, violating her secrecy duty.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 659,
+      "output_tokens": 147,
+      "total_tokens": 806
+    },
+    "tool_calls": []
+  }
+}

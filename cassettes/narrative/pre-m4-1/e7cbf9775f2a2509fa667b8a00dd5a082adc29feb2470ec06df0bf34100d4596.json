@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e7cbf9775f2a2509fa667b8a00dd5a082adc29feb2470ec06df0bf34100d4596",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4027,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 646,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 158,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 797000000
+      },
+      "created_at": 1783843300,
+      "id": "5e/x+64uiTKKmB0p5gEKcn3NF8/XmcvzYVrEabziWJHlem3lTXZL8XfUVtso1pfwSp6AFHU/eMvXRnNdCGL58Mz+xbT4rZUzksJDSodNVHEjBcA8tWYLIymT1POlNZacxuwFNFRnDU60p1P0otIEsHUCCIKtVkWsEfohaUWgAbl4X74VYoFJk8GQr6KJ3oJO3WnUVQG3jkQAJ5tTEH6vcYNbkFJV//9zWspVM8V/g80PN8n4FwzcvQcpD2ZBt2ECYRENAsJkXVxCaZpie+BkZFBv1AlYhrvD0BWtS/B6WPMQI0oFSaLkzUF3/R0a+U2TJcTXYZYIy5dHXWHh9SL2KkI/yFTmpzeya2ZMXH3cmtwJC5d6MCJQCOodIEwjHmeZOBI2cID9FH0CfjS6u6p9PcWvWFThTg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "OLuICdRhxVILGxh7dn+BE+IgYLPRaFRyk2zNjYcH5fy3jCcxo0uVMHghtMbnjJ9jtziD8WwF2EWIFHKkZa4MQcsHKUW/P0Wozvo/oEiuAKf0PI61S63FLoSiUyIkxJ8KNmsj95aquCqIFMp7aMD2rkk7Kglu0Al3pnCttY6i3S6q5XhAFqaDw+PJO50CSl5eyVVUYrPMDnRvBMbF7GDi8zRExxIGvPJQlLpZHlgLWKlSICrSArbwvWZw+IOev5g3HNxlol2m5M5i5SOPOl6GVChgZJSOAQ3gZ0o1QkKC2AwVFQoFGKAQJicBIKg0aV03mLIoz0PAlWf1khVE0FvXUZGCnxNFSQYQPqwcPrTpzk4lWSLKp3dsE+v5T9udKxQlzBeeidxYiPPNZiynIGe0F2fA5+A=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4f3302ae06b9e5f9\"],\"constraint_ids\":[\"C:09268a423ce610df\"],\"span\":\"Ada publicly renounced the oath before its terms were fulfilled at archive hall.\",\"rationale\":\"Ada renounces an unfulfilled oath, conflicting with her established commitment to fulfill pledges despite personal risk.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "nFtnMYXQJgABI2DKT1Thdk4hS7Xl/EAq1bBgbkbZ5m2ZF7xHJbXiUqiYHiR3wiD2hAnzINwn+eTKZCD5S4n6JEoi1ZpSeOntzYX1di/ck2zjfABmm4qk/Cas7Uju3mxfQcPR/58ILjFNTqwvItLZLW8KpUNA+35Moh4A9j+1VQVSFq/0pluuzBwLo98/Ai9gHSTIyncGfI8adcJ/CRwoXjelx64ODpVNOZInDSbruiJ8jorOP7YmZqClA130nVyjcUjyS2JgyrSeAqBiwPVLoSZ1coEf3LsRVydL5zAursVE7bXkHdFgDXBazhC24QgHnnGAvlcONHmZpZzCKHPHiUqjKllcLDwphTmzyRj94tOw+2/deSIKypcEsdFCEYS6NXmj4hqmQNK+FVRtei0h3x1l1FMv",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 646,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 158,
+        "output_tokens_details": {
+          "reasoning_tokens": 67
+        },
+        "total_tokens": 804
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4f3302ae06b9e5f9\"],\"constraint_ids\":[\"C:09268a423ce610df\"],\"span\":\"Ada publicly renounced the oath before its terms were fulfilled at archive hall.\",\"rationale\":\"Ada renounces an unfulfilled oath, conflicting with her established commitment to fulfill pledges despite personal risk.\"}]",
+    "token_usage": {
+      "input_tokens": 646,
+      "output_tokens": 158,
+      "total_tokens": 804
+    },
+    "tool_calls": []
+  }
+}

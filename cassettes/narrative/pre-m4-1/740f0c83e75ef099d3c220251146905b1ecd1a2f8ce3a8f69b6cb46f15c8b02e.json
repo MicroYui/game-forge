@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:740f0c83e75ef099d3c220251146905b1ecd1a2f8ce3a8f69b6cb46f15c8b02e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3839,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 535,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 173,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 786500000
+      },
+      "created_at": 1783841800,
+      "id": "Tohw/o091lYdTP/9c8uAe7GT6Ofi06NDvQri5zf0aZg7FlrOiU7+wu4bm3M2eW2GPo0iYDzVnjXTI/qZh2q5ZN6ojX44UeNOpm8SJU7O+IfenM35J/ieqe2dj/A40wYJj7Q0qSlSxQ5ZaVyxURmL5IO30lpHvj8drbvI78K0AoUha615hy9iegCAHUKLvjSJmKYG7WA3RK9jYM8NfyPv++/BVX+KjeA02bo/by8gyzzNDuH/tj9m99USKBLjbZF+p7+bo8oQj+LcGXaYoJk7cMPnZFzQaavqX2DUOCiN1LBvR3TUi3bygai7Rctro77lfci5oxDh0ya+cTX6Evj2JIEftSjBczAUJiZdnu3CS+XQuYWqN/WFxpdQlU4GftZhX1J9/rY2VeLNu2kNAIq6TPXbZo7EFw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "zdWFbNWssM1Iw/lap3X6BnHkVYtgBNtkerhcDidl+3DDVTOORVcYiwLYZQKrsihnSVNWIKkGd85Uam9GDYpGk9tEcWCNSgHJ53aITlTQHKi0sbog+RuZtvG7ycKwo+MOrpmlOy0FgA3CObsHxRiQIi7faKLx4SAIBh822DxyGfUH/QliFOvQ0uNXKcTYluCYdXes64QpanWHCBkSPHS8rl+mKKdWLRrFO4DNql30la0SrjW857bEv9yH+bprZgOEj7dSEuXcWsxvOr/CrCApf1o7NtVaOfXknFSLoFCHihSB7SAsdbQgMKUq6DXAqf2GheA4tDVQlUcEVphNWDRFb2JH1SGV1/7pV4pAHFrVCJPY5SsLjN80Nj5KhipFb+6Lnkyd8RWbCrKxSADtyuEdYWblsek=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:71199aeab0797a55\",\"npc:75048abf68890fee\"],\"constraint_ids\":[\"C:28aee34df066f4cc\"],\"span\":\"In river market, the council recognized Iria as the Crown Witness.\",\"rationale\":\"Iria is recognized while Ansel remains active, with no relinquishment stated, exceeding the limit of one active Crown Witness.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "SkRkKcrFznlvLotzgO1BhmyttwgtmmWsog0ruOk/igiXDSQ4H1MB8XExl6x7jIVhL+Bv2f7FGibAlsXLrPbAJneZHsYQRpCWmXq8WsYmlwA0m9hueuF2+gTYHKOgKyUOXJxdTm9aLtpXrHw4JjckrDdrxo0RvQS1XBTa0L3F60URPsPh0H6vv89FaMWfFnOp4qdHwq5X/Fc50zh/+pbOv1/fnqQyIU0itviMCGQOQvoZ65IM+gHpv2i27/LzBEoq8CO53GZ9mwIrmrJ+Y0IyYjIqwZgAarQcpd9CV0m1EVRurIc92VmeQi/d+JCbdSdEbALaisMBY4HauycfftSgaDw6k8Q5Ix45kFAWMpeGeJWxTtmFmWp/EXxeFmZwixgvC/6G/1PhdP5bLgg6dVR2bGcoZakx",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 535,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 173,
+        "output_tokens_details": {
+          "reasoning_tokens": 69
+        },
+        "total_tokens": 708
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:71199aeab0797a55\",\"npc:75048abf68890fee\"],\"constraint_ids\":[\"C:28aee34df066f4cc\"],\"span\":\"In river market, the council recognized Iria as the Crown Witness.\",\"rationale\":\"Iria is recognized while Ansel remains active, with no relinquishment stated, exceeding the limit of one active Crown Witness.\"}]",
+    "token_usage": {
+      "input_tokens": 535,
+      "output_tokens": 173,
+      "total_tokens": 708
+    },
+    "tool_calls": []
+  }
+}

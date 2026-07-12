@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a26978d083d1cef889ba7934af9ebc1e8653205f0dcf80a9400fb504612eb593",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4816,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 703,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 250,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1101500000
+      },
+      "created_at": 1783848300,
+      "id": "qcMjutD0nrgA0Ajt4BY1oKvQSOZLXMCxWIO+sy7iqwuqLbNkkm0zxdObFcMFUtaj+gvHWB0/e96uTa08mLKUNFHEDaWEFEeqJF8dqOTD9hHEqSYjL9gGHRGnqjOH49ZMvdxdSgIWfUJQrRqctDc1M1qBnQqLExyV/4AZEdyfBNQRg2vO51uIbkHgB+AcP7htaF8uHj3C2Yqmmc91gP7aMvHgkg6cEjj6RLq6mt1SltrRSWngRwRVVXdP6xxwN/Y8Ts3pfBDh7lM9ZdjOEMGy0/28zZJ2N5omXfX7CTNK6LVanWS/4gFjp8fGNQohf5tQyJzADyEJDmtVLuzeKvO671DQ7Rd4qantX1xekYggY9sNgjgtOaSwVflHmMerrKd88ubIbEzGuVAMt0IlpDKU4CV0E9CLZQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Aohvd+mnsSeAqSEX7I5VVSlhOjMl6+jyErnoUbl3JOroyZPAT4cqBQ0qLOaSedhw7CguR23aCfSwElBqd5e+pO9x/SVrHxtM3lF7LlqcXBZy3pULwXvP5/XvN8Arrtf4nXT0du1aGUVOCegqXcFzheMMyfthymkBgTvpZDs2WHli3Ndul8auh6aevLaVtmfNOWMx2tAwW44JMJX0syWiD3dMjxxznAeMHJK81JAAJjfX3N/vrC6lSoCZXuhcQSGSlM6a67Lpdu8SEi5enLDD7eKFepttnCa5Zdy5j6r9WO7vrBSVnne3HqkHx/E5/F2wnhStPJ6yGG+y/09fiTrROz8sL5fo+j4gRftp82TXPBv61ExBW7yriShi5IFtEjY43rwWAOtYBZt9cqmjllM8WiWPQts=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2f0059d680fe380b\",\"npc:5840edeb042a49ee\"],\"constraint_ids\":[\"C:43d5b9c716e5d6c6\"],\"span\":\"At archive hall, Oren was formally introduced as the Warden.\",\"rationale\":\"Veda had already accepted the Warden title, and no relinquishment occurred before Oren was introduced as the Warden, showing two serving holders despite the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "/ycaXseyEkDH1OU30J9gUKxW9IWXrx+UZMxJ8mcI6Sotte4Jsr0MlYnxwwHSB4I/Xs2FpwazD6YVGF1LdMT4kAyvx3ylRrbr5pdcJA1bl9QsQ57EspL8oPksnj1dCG5uCmvQ/nLaspHQ/0kAAsuLHI6U1cFdMHgKFNQWK9EbjbHxjCNOj0HNJa4LReTOENQQZ/JZPneAKBLOe6nuE0/LSg2uzsThXe5JF6kX3qF/KJ1fvMzLvQ9eT0e0bf/uZ053p5ue4+SHmt04aUBlJb5hrlF/VHiR3mf4P37ebXA9Y910ZXb7H89H91JQHwyulyKjiNYY3N3vmJ/GwdAmobMkbxPMx2z3CTZE0GX5U1a++pZaorkIRzcyCwfCmnkyZMjnBmM5x/p2B4wH26iQBHDQYl/svekd",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 703,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 250,
+        "output_tokens_details": {
+          "reasoning_tokens": 130
+        },
+        "total_tokens": 953
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2f0059d680fe380b\",\"npc:5840edeb042a49ee\"],\"constraint_ids\":[\"C:43d5b9c716e5d6c6\"],\"span\":\"At archive hall, Oren was formally introduced as the Warden.\",\"rationale\":\"Veda had already accepted the Warden title, and no relinquishment occurred before Oren was introduced as the Warden, showing two serving holders despite the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 703,
+      "output_tokens": 250,
+      "total_tokens": 953
+    },
+    "tool_calls": []
+  }
+}

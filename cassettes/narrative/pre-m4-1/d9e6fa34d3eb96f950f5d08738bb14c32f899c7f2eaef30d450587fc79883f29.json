@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d9e6fa34d3eb96f950f5d08738bb14c32f899c7f2eaef30d450587fc79883f29",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6380,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 624,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 247,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1053000000
+      },
+      "created_at": 1783861500,
+      "id": "X2UUdlAn48xFoTg9HyviXXMfj/4fFPp/rQKw9jCUae2ZaREm8CeJFp+JwuyLBPEIzaKM8WyKiodffj+ku851FrOu6WhqAcrREiFzzS9c8IXRM/JmMBFLptHO9n2//feTqSmIgyJj2cgiwWeeq24iI6beFeo0y0Abrdl4IVwXTHbxs6yzHT5FDCkxQ1H5k0O3FYnna3e0WPBtpLbj8VBisy2UgWpua1XWdPNBPGRU1OW7obJhKFw8gm+GsSCwCDw5v5xHLXozzCrppaguFyhB09m71cr65rHs29cM+XipjwTBpS1yBsO6OGIOBqP9kn1esZW+Qnhcg/EsxpmowadSOBUjDjJnCJfK7ol/r8Rkzb0IbYcAhq82RgRhXeQGuwMEWv1lZJaf9tv0cAfeyz/bFNE/q0aypg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "mFVLzFcXZdJmTwUsXjQpUgeofmuxg0T1ysc9833o2d6ixeRjKdtXCEjsFJR2puQMPkpNNLqhA4CONoWZHV4GcKxAThb89CokbDOG9BLIbfRAP9SIQEiMtjQuzi6CXobU+9bm0i6YYeR8u4IZXREcYFOmIFMvL+gtby3sgtUESrTKIxaa5Btz6tV5FLCABmRgcVtKp6OBRpdATJkSy8HAzY2hojpNcoMiJB5LA1SH2AXYxIwSccugG9DkCloj1zpXGKiD3gKlU8yneZmEdjmmvwMKj92YhMC2/NMT46t0EzHjQykpwM0MYNrlg1nSsf27N09eJpP30B1/+xbKrrtYGXeyUE5wnkrA50rsG4wy5k6g6K6NUg7qboiMlG1rLjKj0184v7uSimSi+DvWdiSbnyN3xIs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0519d8cba2f86325\",\"npc:28d5352ee9ccb056\"],\"constraint_ids\":[\"C:802046d2d6f82be3\"],\"span\":\"In river market, the council recognized Veda as the Archive Speaker.\",\"rationale\":\"Oren was already introduced as the Archive Speaker, and Veda is subsequently recognized with the same title without any relinquishment, showing two holders despite the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "lQnbh/1N4uGvjQvr/R5ORF3M1G69U7h8K8OXdhhh70ALFpg6BofTg7CZXj8qxoO3SMaBBLOO6Y7jjTOLPt9U28qQy5InoIa95aUZZWQaY7O9UnD0mJQ9txekzh/vMdwQEMlMpX8yYbBx1wgzgEwjE05Uzi+DGKK5bgbcBj/bAQKLLsfflSg8rXdf9KY5ss6nAlf1ccas4Rscvbyr1uEf1catm8HX2aX8J/1YtcDvnMgBq39+kfYk9U1wzmx/u0DNIckK9OVNT51dlunG9bpyFFmoFYeqdft9nThlMX+6Aks2RjwqUe/LNula3acy2ydyy0y3G53F1P+5AaPKebDN1BTk1hFv8NQ3IA+QriYvra0E5hnxZeFGmM1ZyMo02HvZ0bGnXIRr4GCGl2UMrHMCzJs/lYc8",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 624,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 247,
+        "output_tokens_details": {
+          "reasoning_tokens": 130
+        },
+        "total_tokens": 871
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0519d8cba2f86325\",\"npc:28d5352ee9ccb056\"],\"constraint_ids\":[\"C:802046d2d6f82be3\"],\"span\":\"In river market, the council recognized Veda as the Archive Speaker.\",\"rationale\":\"Oren was already introduced as the Archive Speaker, and Veda is subsequently recognized with the same title without any relinquishment, showing two holders despite the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 624,
+      "output_tokens": 247,
+      "total_tokens": 871
+    },
+    "tool_calls": []
+  }
+}

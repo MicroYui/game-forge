@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7ecff5f63b853aa6a18c24853c7023b17ca3f7dbad6a5ac7027262c6697efe81",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4634,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 700,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 231,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1043000000
+      },
+      "created_at": 1783861600,
+      "id": "N2oKooDcFJW9tHm9jEMufIM2aCtxqu548+rTHrXObQT/qy7lglYUwlpb8RFt7pOdV4I3Y4RamCmp/CcEjohvUr8/lb6d05ChM9NnjhoCxeT5TDb7z6gGlVRr1DPQNoWdTrpSKNsH7vRdPO4Frq5hItjuKW/uEQ6QBAXCW3OKpEHXJhqH7/4YQAmiiF9caXFZW0a0KMM2Yp25Ugjdxg8V0LVuNAk/KR9CvoUhL857aglrJcgGO+7ZNukV6O7yj+mecRu+jGwTRdqcJ4Eo9Ul4TyDeTSTfgA37tOGByV9IhUw4E2VcRmeOW0byYIsjnSufz7YljA2/6EhCcV5lYplvHuvhsnClvhJQZ8j6wJEk3CaCj2KdTAlqXvLbEyCcIEddKtrLoqjLWo92kvi+HDO5lTM99BXOhA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FOKDA9HvIxfH1GAAqwuOVxqqD0CcHM5Z2IEYPnNUQIJDnW+TCg01uVLRj6clG+Q+fTA7bNHW9RNQieqgrO+t1T3nCxTJktqw1bcoev+CTPRtC3rmifIar+TNx08hGaf2K5IJPX2R/vu9DPDhar7ER8RU+0Np7rMm88hp9kfgpdP36vcVR5etzwtmZ2rCaab94MOsE0N6dVpMQ54Ca+1k/+95plFBfY/GDBS6dR3LAVSnBWCSjcLZVQWplWZe3qT1RE1AspfKoeMOfqRqXdMOtRwgjX6/s13j1WVnDNHAZOZXz95A/rbnW2DhD9ptIpGt/x8zbdBcnTQowAtCV4VPNQsyb/rnKzG/byTnvb7/pNvQnYpOwzoPM/swhSQXOeRPUwLYiryAFLueV3l/f8sTjlVeOxU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:23d18af1759df6bd\",\n      \"npc:6c6c861cbb21c8ab\"\n    ],\n    \"constraint_ids\": [\n      \"C:639bc50b71a773a1\"\n    ],\n    \"span\": \"In orbital concourse, the council recognized Mara as the Crown Witness.\",\n    \"rationale\": \"Qi was already recognized as the Crown Witness, and Mara is subsequently recognized without Qi relinquishing the unique role.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hiLWVA8YtrYRmdLItgRcf2rmUhfznfbWkkh+MVqDueNMo4MDuJNAQkmShWQz43EogGx3JrdZOHa7x4y0SxwcAM38eWJUqwWWa5ayUrZoglwVCBLtGr/7tDde/JSot8JSr/otQxT1S0xTThbVM3slQ2OSJPYTT9nrc6Uj/Wgr+WEm/hvJ0nAoeC7ox8sXl1Mwt0ZSFNwgJSbGu+yAfrlRy0priBL1C8W0YmfdoaAIC7qXsWBMZ9r0RM7DB4mdl/8dTs7cLuvBWymGAZmFow1L3EUELYpvyxTfH4dZSJEGekb5qFbdqRXv0QWvp7YlPDEDlH1KibrhRRfpuDd/TJKHSpaLkyQGKeuj6kHeBvG0Q4GpYi8V1vX1k6cTadzsY1hXyCnRrCYPdpy2C6qoC1IsB0juCpTA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 700,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 231,
+        "output_tokens_details": {
+          "reasoning_tokens": 99
+        },
+        "total_tokens": 931
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:23d18af1759df6bd\",\n      \"npc:6c6c861cbb21c8ab\"\n    ],\n    \"constraint_ids\": [\n      \"C:639bc50b71a773a1\"\n    ],\n    \"span\": \"In orbital concourse, the council recognized Mara as the Crown Witness.\",\n    \"rationale\": \"Qi was already recognized as the Crown Witness, and Mara is subsequently recognized without Qi relinquishing the unique role.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 700,
+      "output_tokens": 231,
+      "total_tokens": 931
+    },
+    "tool_calls": []
+  }
+}

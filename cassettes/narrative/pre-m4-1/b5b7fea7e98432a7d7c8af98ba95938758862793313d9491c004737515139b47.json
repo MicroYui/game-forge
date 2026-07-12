@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b5b7fea7e98432a7d7c8af98ba95938758862793313d9491c004737515139b47",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2990,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 691,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 144,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 777500000
+      },
+      "created_at": 1783848300,
+      "id": "1kR4g3h/aQm5Hlw/O6TO0+e1TnZmV7F3c6vaRhg/o8Pd/l0lp09nYyZOJv7b1eejIPsrDbjJXavrxPQjdSRvTdNEjCaJFuTt+eUWb8LopWNGmJ3HZRt5WtBR9CnB4CzUdE37SPiESFdKG+SXiqDyyTwQ7qNA1aqeVeDKbqEMrM7EDQiFncwQV1jUx7NfvEXY3gLudN1Y4CvspEQRqLP9sE7QZfHKlApjKifD31OUu/B2cHu1S5Ott+ex4qfTk3YWIF+6h0NHzPdRchISsgjZHbSG/Mc83sUe5BYLbfGxpyt3mpzor7O+GGw5Y2pJ32OfshwSH90y4X85lv9P+RZkCXR0hhpey936HXf7spOd+vDeHQP3Yi0mXGxfNfI60GumFLjksFB4a6+4ubiG/9HyddlF1Ut/bA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Qv20HTmWJvTQeqi652+gdkAxQ8ceCyuI2dFkp6ELOtjheILTyecj3bczJTtT7CQR0tkc7yFrHYXIRRoYDYXiBeOmm09cQw90DCri981l8HFRaaSh+fIn+FfNEJ7udLiQmDCUvTyNEuZfiko7DKNS9jafOgFjpJrM0hapPDGcwCiqVo/RmC6VgQHToo9Y/JhY8kWezJON5jyZ1zGB3uLn2D2vfHm8DJu8a2Kbx+MepUTf/ErX/iLp0kiHdxGjQ3JHplkEsiSWXkNDdbjby4KL/Kb9xOUo3rxScu40pcC1mvSZo2Pf2h4GolmOwAq/xtgP/X3A2ajvi9tbQ3xpjFOABLqaNHbRcucPICyizEU5hwMes+4gYtk0H8r5acqD3YxyRHG4C4KBfSUzpACgJhezuW/qojY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:04ddbae4bdef404a\",\"npc:fa491c9fd772b4f2\"],\"constraint_ids\":[\"C:69f6920d56b9cc10\"],\"span\":\"At eastern ridge, Qi and Mara signed a joint battle plan.\",\"rationale\":\"Qi and Mara belong to factions whose standing feud bars joint commands, but they jointly signed a battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hfu8EHvBUmVmchRtfDkyJ/kmJg8vyh/9TOuVGBClLQ7hIJDL9T5o8UH5olzso5BiVk5OymqMmvm86XH1OAkjx3dFrzesk5LiWUVStRb0g7NHnSYpexDImPopHEISTRRJh20/OGlErjd5X/vw7T3ltMM2aYxKjGgPivWq6uYrJ4bnPjCzgWlyjWE9Rt2WzuyBr2ZZdSmjWBFVkDsth57HhZ8YjFoqc+FCni+mpyrlM/G+iZmVaPZVCPDhAfY2Lby8GV5lIEDN6uHSxmDgVA7sZn4i86mxJdVW5gWyzcwD5lAgVAc6C30itM61RCEj8B+92B+spLgyqdg17/egQFR92/zJkVXknKXJ2pI78cJLtARd9oHqnckm9QRS2/EBE+kqA+Sqb4Phh+oUIWzAkTcsPpgq0QAZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 691,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 144,
+        "output_tokens_details": {
+          "reasoning_tokens": 42
+        },
+        "total_tokens": 835
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:04ddbae4bdef404a\",\"npc:fa491c9fd772b4f2\"],\"constraint_ids\":[\"C:69f6920d56b9cc10\"],\"span\":\"At eastern ridge, Qi and Mara signed a joint battle plan.\",\"rationale\":\"Qi and Mara belong to factions whose standing feud bars joint commands, but they jointly signed a battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 691,
+      "output_tokens": 144,
+      "total_tokens": 835
+    },
+    "tool_calls": []
+  }
+}

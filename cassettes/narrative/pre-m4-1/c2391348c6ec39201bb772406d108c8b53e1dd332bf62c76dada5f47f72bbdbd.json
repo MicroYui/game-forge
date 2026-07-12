@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c2391348c6ec39201bb772406d108c8b53e1dd332bf62c76dada5f47f72bbdbd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2709,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 567,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 166,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 781500000
+      },
+      "created_at": 1783856900,
+      "id": "MEaIApP0dh/jiZLtRfpBrBlBMiNwdFCTq4akOA53fiGQi1i/UHi70cOhK4VLU+ZX83vI9HsZU2kVlfL3IzsW7+CcL/0Ji5zU9OHnbvi3I8wCCWBPYXHJ+lnPMklEnW+E44DrGVHmC2YIJ+Ut4p/B9wPWcndqHptiBkEu19fDpeG2oAlU78BKu+v9aQcRSvKlKVrD3K9X46GhfG0U4cl1Dh4e/jG9zm18JzRL6Qe5rf/AoZNq8rNPa0Xw+R1io0vQfkt49aiueWQlb+dPIU5jePUX23DLbP/pXaMQ3Y3XuYV6pLOS29CTHQFVOyTFRP9ee9liPL290qwTnc/NBOI+Np9tBWE//0GfEEv94tUUlC85bzYiH1+gYlrLTYlcRklYErhJ3u7dbglQgm+jq9q8mCUF+tk5vw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "SYtcKMjx8pQWgOGzPyGvXSBX8OuOAeXZO6c4W8x+i1pKrISM7prkjhRiIPFm8IJKr+VbifcvIVsHKgznrIdJ8YXNgVA/AjO2IP/T3v2aOON00cR0f7pyPe4CFeSJJD6sLZ0pLjz9pqoIbW24nwNSNWVhmMCkXXxrMQUOhjllOWLfFprVahc4V0QAT8O9J7ptSsfYE5z3rai8NZeSi0jHXYmL5AMNWuIGZnAAQSjJq8wE3bl27Qg7at8KKUM/akNMVRTlteUGaqBA6OmrTpN93WAswrj7gg8Q3BrvnblYDqfveIdo7KU8rQlgEgMSrhnqUaQmTI39Rym7Gl5SJY1ZPvAzbYO3OUEws9doGjA+kiZ20yB++r0ScjjaJoIiHDwRqj0SrXjPmbOsk2bDSmq+06Jm/R8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:65ffe278209abc77\",\n      \"npc:bf43b148edb6d6ad\"\n    ],\n    \"constraint_ids\": [\n      \"C:d1691508baf3bbd8\"\n    ],\n    \"span\": \"At river market, Ivo and Lea signed a joint battle plan.\",\n    \"rationale\": \"Ivo and Lea jointly approving a battle plan constitutes operational coordination between Free Pilots and Obsidian Wing, which the constraint forbids.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "dsRaC3pxoJO4NVkNEp+G9m69KcluUlgXPTI5gpTOBl4oQf2WMzOCP0Ce8iwjNVqHti7UylR/LnuYxtb7VR8tNe9iaKy8opScsHe0LQYMFFwYUlXGaHd0quwOfgODCNr4l/kcNT93W2EPDCTXtxTpBgbNcJkdDgVXSwY6Y4Fp1vswyt7HBvNVv+hwjC4+zsPFD8SFoaYZ9g4BpXrzKvhC+JCSzUjMpIZNxDS09F+rmpB/qUQ3JLSAtbXH3za7qQ72Vb+m50TTUt6wKAPcnNEIQytL8UXHSqUV8klq5E1I2jL8e3RxC/tgc0h/RNv4yL8GUHpUKlwj9ppQHQL7FncDGxP6ZErNKxKXmaylIsDg1pkioPOkkgJvHyDKrPwi8pa09lVyvbK5NW3Y6zJ07Ng8m4p1FN9G",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 567,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 166,
+        "output_tokens_details": {
+          "reasoning_tokens": 33
+        },
+        "total_tokens": 733
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:65ffe278209abc77\",\n      \"npc:bf43b148edb6d6ad\"\n    ],\n    \"constraint_ids\": [\n      \"C:d1691508baf3bbd8\"\n    ],\n    \"span\": \"At river market, Ivo and Lea signed a joint battle plan.\",\n    \"rationale\": \"Ivo and Lea jointly approving a battle plan constitutes operational coordination between Free Pilots and Obsidian Wing, which the constraint forbids.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 567,
+      "output_tokens": 166,
+      "total_tokens": 733
+    },
+    "tool_calls": []
+  }
+}

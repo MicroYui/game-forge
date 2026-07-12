@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c5a09656cf84155b0c883901e5a2544aa8a47b3a432e8efa7859720ed11d3b68",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4536,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 669,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 202,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 940500000
+      },
+      "created_at": 1783856500,
+      "id": "l2g0JwwZoLCNYsN9z15ljvwLH5z1vBckbODShXXKRCI7d0BWuq0Bnzi066t21AS5oxWA8XXwz8QQgbPw8SXcDzRjnXXego2v8g2OZTDJlzeu60FCd2yOainmPWwjv+pvCliGdrBF7Y0cU/2LWcIx07wC7F3MsSkOPYRL0n16sHnAov0YbE8sNu63pYTCbwWmkeH6BkCAGfghgxHjUwne0XJrFvpQYxZBYTZqh0IIzFv3zjSghrtZez5ccQQuSB0e1c9fr3rQLm3WyO9TdqtsDBP2njWDHKRT863svrzG4eVaBVigSt4rTSEMGa9LKbFS2sxjaOsYtCIy7dMq0oKmICxn21pchSkq+71q22ivGCqqTokOAadz6GGcI0BHdypHV/LzJXBuwtaCxIfko2YbgctwcLonCg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "eD472g/1RvKqxtEsAjN+BVSi0ser7VZ6OvbqjkWn+Z4zt4dexPEKMCvteL3/vcNjIdZ2nN0Ia91lQpiHd6PiDh2SUCPyFpuYx8n4ZV1KdXGStYj3jkE1gdLDMrIlYR81oCJi7w2ZnyWKlvqbrJ5xQk1WtnTPRh7vAuPQAbkwSI2amOdyoLpHcnKmUYupfcFgIXyxRvWyzfzONt1zClcg+7+R21gtN2/1RFH5XI1uDotttvfWZ9g1MBWjCcs27BFfEfSpetjkAzuuGSqM9YO25DKS/AtgFBflLXJURSHUkBTIHscZyVXzmx1wpnOTq154zqmUETkTByuN5RjCb44ItQC0dUNhsD3rBrW8TKIkg6bXVGMmKb+Vvs6nLLjSnaocYw50EsDtg0DGlZEFUfotl1iPycg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:b473e5800d83f3c5\",\"npc:fedf57d89441eec0\"],\"constraint_ids\":[\"C:df27cb0cfd15cfe7\"],\"span\":\"Malik signed the register as the Warden at observatory.\",\"rationale\":\"Ada was already formally introduced as Warden, and no relinquishment occurred before Malik also assumed the office, exceeding the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "5ZM+eF48ZlZgMeWONE+J/cTWl3UKNF8JfsUni3gVkDKRhOIcFBlXOY/HFwYBTGX1U2hAejnImxPQHm1ZWgDYrxMPyMU0bEXN4hAaHjW03wR5OmmU9LsQ6xlh8DYWwK+HHbgPz4MVLAvJutpmOe5zyAVx3EP93aZUsuPrjLMjM1TSkbK4QCZQYx4oKoT0iLkOt5w4ROAnj1Fay30zztUluczpu/mWMdaTaipSdp8Q/rsm6KY/XelR1hU292tWvWQggXqEpL61uPihUISWQbUElsRRAS/c9y+rWXxwR68SREX9O/Tunl9TniZFAYJ2IA2+KWDSv7X5RY7WRh2iDFa0Qhi3IMJNGhE5kYX8F4TLiPKlmvb3aMBXkysS6T1Bbf4MmtiJE/vsmVSCYQrm5yZnHiDXC41r",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 669,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 202,
+        "output_tokens_details": {
+          "reasoning_tokens": 92
+        },
+        "total_tokens": 871
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:b473e5800d83f3c5\",\"npc:fedf57d89441eec0\"],\"constraint_ids\":[\"C:df27cb0cfd15cfe7\"],\"span\":\"Malik signed the register as the Warden at observatory.\",\"rationale\":\"Ada was already formally introduced as Warden, and no relinquishment occurred before Malik also assumed the office, exceeding the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 669,
+      "output_tokens": 202,
+      "total_tokens": 871
+    },
+    "tool_calls": []
+  }
+}

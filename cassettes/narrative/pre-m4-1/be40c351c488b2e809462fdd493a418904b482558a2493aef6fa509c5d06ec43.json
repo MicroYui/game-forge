@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:be40c351c488b2e809462fdd493a418904b482558a2493aef6fa509c5d06ec43",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3972,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 625,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 828500000
+      },
+      "created_at": 1783846400,
+      "id": "u4zNS263RtYKW6Bj+qGC40PybOln1PU/Ef8FexI1aQcMGJ4m6WlbWnkifxotxDJH8Nbw6WmKJTr2Ldd6FItsH8jzDwWioIQhu0FYUDqct4eZNvIQ25fSS81/ZU2AltbnLJ6YP3pwer08BIBPDnePOsOrtyEOQD7uGPCNzK/Azg5C2KsJKo/sr7vNyxaL9qTTAZWOmBQTZqN0RXcpavI5sNqGau9SeQlem95d41YfTQfr0SP6EzDgJVU0FMso12N60JWzGFQFAYKHxFTi4vAbCMsO3UjLhdVyHFXorDyCEz/UpOs7i/f9wqORbZ7EadjZxfU7ay08VWR1JPQVwtBrjg6p5Ci3GAZ/H09sLMUKcep9jFs15+FMq2bCQ5YdE2/XEKCwlxA1mwtJzq8ffq1VeOusZg4VqA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "BmNPNKb0N6/eAICpD5v3xbz8lu6ayTyt0hsJg/UtLQc1MURC3TJoi0YnFLuvF5iZzNHMLAsWHEYQjHvNSBWXnrSLNY3e4JB9KrEGZjo5iq6yarMVkbX4HFfj3ky5jRrOMCyf8pJc2NClOqJel2cTImuNuu6i1xzo/UEIXzG66ubmG0PM1OtzUwjeOJlCCrMQf6EPjWKkTOMmxXqBr9E2/aVrOqXPsMwGJH5lNL6ciy+6CO4a9oM5lgCDTHFf6BjnQ+xLnp/ud9YQv7iwwxh4CSO8emjTaemU7iYSrtNlH+n3bbDOoFg2jyZHTLraBNi9jX/yzFaIpXYfSJCwH8iS5Aw7ca1lEWPYhwbBgrDkgw1AkLgRFA3Wy6IKzFnddc4QPxyRPoTXcnCVdl/UVCjs58Am+3Q=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:22d08e722345b058\",\n      \"npc:d1051190a56a81c6\"\n    ],\n    \"constraint_ids\": [\n      \"C:837dcdf26006604b\"\n    ],\n    \"span\": \"Veda fought beside Oren under one banner at glass conservatory.\",\n    \"rationale\": \"Veda and Oren are members of factions explicitly at war, but the sentence depicts them cooperating in combat under one banner.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "fkpwnC69h4/nZ5wBeF+6BLDRp0BI6EIO/IPyE9nLdz89n1cSVx6PDIjDFjorTurjF/61Cy84e+lTA1Dg4WrOlnYofvtBQSMtdEjdBJ0QlWX0MAnGKAmp9+e4CD2t2K4ymEKhyzXFN0C4gF91rP5bn4ALHkjGMZeqyKv8cjMePuil8UjpYfSr6mWIpavBwE0qHKMY75m14vSYyBpP8sFin8HNW4GNr5MgOMbrUzJCsTjMzP1Ffe4xwZRB3s2oIDfWOeZryUejLDXEZXfycnIynzjnoGc2E449pTDNg2KOUwhEBM8EZqrPA15lajBjjTmuSTUK8dbFTlh1b2LSpZq4FbPB5kiMro/vZfTTb7OoT5Qt4HRrlQsCMxHrmVlsQz+hFEWCXLTQz14sX1JikSNTxxF2k5SX",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 625,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "reasoning_tokens": 43
+        },
+        "total_tokens": 797
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:22d08e722345b058\",\n      \"npc:d1051190a56a81c6\"\n    ],\n    \"constraint_ids\": [\n      \"C:837dcdf26006604b\"\n    ],\n    \"span\": \"Veda fought beside Oren under one banner at glass conservatory.\",\n    \"rationale\": \"Veda and Oren are members of factions explicitly at war, but the sentence depicts them cooperating in combat under one banner.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 625,
+      "output_tokens": 172,
+      "total_tokens": 797
+    },
+    "tool_calls": []
+  }
+}

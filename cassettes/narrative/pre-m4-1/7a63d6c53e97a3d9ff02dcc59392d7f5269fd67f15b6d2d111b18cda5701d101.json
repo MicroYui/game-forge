@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7a63d6c53e97a3d9ff02dcc59392d7f5269fd67f15b6d2d111b18cda5701d101",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3301,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 560,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 166,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 778000000
+      },
+      "created_at": 1783850500,
+      "id": "aloDErSa2K883ya3UmT7gh+h1JqVRMH4u85hoj3gprFEMQA425RrEYA2vI5rfkljaYQ7GGsCyA3TS0BdWm8ked6ebs7X19IPdz2K9uojrNHmx+ubyRT7mRmQNGrWqPZK4egsho2bDNsZmjqmebEpNLPfFelQsPmkSLriEFpJVpaTTTlyzhV29/rTkBhKYUP0f7jJZzkkOI6MDVVg7xVPS/qWXJOzmzfK5UUmniws7pByfYsrF8wpG1KRUE8j/Rd8fy41CskplJYFInq6fEGVRc1UlVGv41uTrXfnyZILcWdGtnHx/EvoHG70kiAEaafTWBKW7kv2c0QE1PgDrBV1bU9R+ihq9EOZSIPwux2JwLyOAnOl7h2cNrpZ5vAYJ/hwUenx8HiXNcG16suAi2KqiHzplbgl+Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "O3u3TcEHqLEUyvWuyqwYlxgGtdqDW/OeS4kHHaO29aTesXz27LGn9jHwsfS0pkvaQO8Vq1aZt8SoUBn07GWJHrN4RxOy7vEurhHzus+YBtGhzaK8TqiYtwPO4xU1Nw59eUVgwU23i4u2ghO+v2wIyYnNnMDhM55oZAWfODZCFyqHZGnGDLB/a2HMvZAEnQWwd7xD0gW6poe81wj3192oqwM3QvrzlKsIm246vGwUbjNSikOXQgXkQoZ0XarTzdVwmLrW3KdXNT7QkuLAET5shw0sAT3kLjPY0yxPvsG8XUOI08ApOhy8Q0a7VvWtW5n+urs5HQkuMo0rY4sM4c0Hj26p9ZTBo3iMR13TPOcaiMOTyoyU/OWf5qbNbFYMZblbo2VJ229BuAPbSRs+Q19Q8ghLBwk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:e66bd27c57070aad\",\"npc:e7c46aec54cd7483\"],\"constraint_ids\":[\"C:9dd0cf7fc118494e\"],\"span\":\"At desert waystation, Ansel and Iria signed a joint battle plan.\",\"rationale\":\"Ansel and Iria belong to opposing factions whose standing feud bars joint commands, yet they sign a joint battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "q7npql/G4zKPJs9ttyyaqcl8X8EgrVZ4WIYNKpPXZugOBo1qiyk9XmDMYZQlh49rr4OHKQ86Mqm+llEO9fvsBj72oory7vXBQtoQIbhVq43SKnRm91ruVgf4AZK3kDhwDypuQ8UrLDvN+NflHaUR5+mzMacTFzekYle6EpgMj3rirnGfNEKE79GDTyb5dDIbkWBbMnTYy3UOVq+KnQlaa2klXm6wWMJ6uJYxjdBZlAqhsTPSAJXPQ0q9HnQguEP5xGDaXioa35x3q36ioD0Ytues4iDpAso3nSXqs5VyK7H7MLeC3Q4P62dMxwyM71c6neQJC76vEPAh/Xa5Q9HfjZSfE3kd6MgyMMhuDxD98pcmfKd+pn810UHu5JZ/9rNcQz1rBDkFWNxjgn/LnnZcMApvoQOz",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 560,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 166,
+        "output_tokens_details": {
+          "reasoning_tokens": 62
+        },
+        "total_tokens": 726
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:e66bd27c57070aad\",\"npc:e7c46aec54cd7483\"],\"constraint_ids\":[\"C:9dd0cf7fc118494e\"],\"span\":\"At desert waystation, Ansel and Iria signed a joint battle plan.\",\"rationale\":\"Ansel and Iria belong to opposing factions whose standing feud bars joint commands, yet they sign a joint battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 560,
+      "output_tokens": 166,
+      "total_tokens": 726
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:35f9365ab60c8ec777faca80d53509a63850716f13538910f3d4adb8124c1a41",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3287,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 697,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 205,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 963500000
+      },
+      "created_at": 1783856100,
+      "id": "L9ijAT9G1bwJ1GIO6xSvm5I8vljSr+W9kzZi3zfgQVowNZL80vfPcmyeGiIi+MFd4C/UphCkTzLlpg89lK1VeSWEtnoINMrZDBbAg9dvobl+0aLGcjTEmKpW9OgUebMJuxFkN23n976xj8/9E18MvHk1T/+03TzaHluyEhGL3QZKv2A/q+vRAMU/qeZg87nVg8Jf5syP+vi7yYjbtR1vSOQ0yLSx17+uUqpzkgh9JaxzsNuBjxsJ6ouBcO/celbj/mh5nvW8w5XN9nMQOaCM4+PG+/hj9RIVdkHoPtpniZfVpQXA7THYoCKdm3sZmmTVQ6eflPjpH7HpkY3sq/TcAW+jRsSEJ+/JykPgLGMITBTEGAhjjlRYbELo4kqN5AHjYAQth6RrNUtVj050Xeerm/Eb2RWffw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "+xOHLGEwyolaZKONx9RvhseFtdqcmpFrlLfnDzmhRekHi2NMygeaMY0TGLPH6iPiGC+mYs2pnOg8HTKKrvuElisbMC6OfBQDlM6ffaMoPjpDx/UHu0Mw/GLyKZn6vgbAXuH1T5eUOP47cpws7nJk8omoSvyau4hM0Xpnyqhopp2V2mhwTUibcM2TOUrfMWB2cJGqT6X9KwkrGNRoyCo+leCggxFXFDbVK/6cufbnp+2uAFPqAknKcTCiR8rrk11dwxTVbNax3ZvbA0xsxlMwQpNKEUduUhDfRVqPXkgtn09ZMq7bCDeo1Z6HTf/W2LAMXv5YVa22b0jvutk4T+K1C9JGnH1wm3PXto9VlHZ9kDiFzpq/vzoRfLADMXjRn+ktVqvqSwxxCJPP+8wMuwhqaCaGnTM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:98cd2719c86ce300\",\n      \"npc:bf9bdee8e8f89e52\"\n    ],\n    \"constraint_ids\": [\n      \"C:62ce2ac807388bc6\"\n    ],\n    \"span\": \"Ivo fought beside Lea under one banner at eastern ridge.\",\n    \"rationale\": \"Ivo and Lea fight cooperatively under one banner despite belonging to factions explicitly at war.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "o3ycE0P73hfyZS4IQjfS9Pgkss2g9eGAn8zwbjmpUvc/nrXhUMRJbYclFOFqLdowti2a9nzW9b9Dob00RyyoEvwP64NPgXzi+iC4Xtlxj1lhqM3VCB/iRjVxqR8yTOFhabUaGGaxoFICJ6UPbIKaqEDFYWmuiFpMx8dXqybdFv2mDHIdy62NTFU/9CmRvc3dzeNh7P+IdqnJAXqXuVqFQMdu6UA8wqV0wwThe+u/RLExA+7l3GZfed2RHWKoXECmwsOqL3nmUxdiR1OUL3oHjgPEXkVk2poacKFB7Orz1suDAyZcMZecZPhR+Rpmz5r3tebeOBkjd1LpTv7q9uqgp7/bT5j5YnYD2U0LCTvcd5MTSRSOxkTxRy8QG9HylrDeekHTAIGeIvmyZY3qMjMol35ZN4Gl",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 697,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 205,
+        "output_tokens_details": {
+          "reasoning_tokens": 82
+        },
+        "total_tokens": 902
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:98cd2719c86ce300\",\n      \"npc:bf9bdee8e8f89e52\"\n    ],\n    \"constraint_ids\": [\n      \"C:62ce2ac807388bc6\"\n    ],\n    \"span\": \"Ivo fought beside Lea under one banner at eastern ridge.\",\n    \"rationale\": \"Ivo and Lea fight cooperatively under one banner despite belonging to factions explicitly at war.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 697,
+      "output_tokens": 205,
+      "total_tokens": 902
+    },
+    "tool_calls": []
+  }
+}

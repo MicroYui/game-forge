@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:85fa5c10d2dc7120b17ef5bb04169541fcfb8e7b2ebf5c95e1321a9f5f5bf77d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6352,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 546,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 163,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 762000000
+      },
+      "created_at": 1783846700,
+      "id": "mXcX/14CW1UCx99o7lJZpXa4xfL/JTVm2b2erpmVIDmZ6G/Ou1x9GwsnbVgaSm2Viwqfnu7s3VAjLBKtWa2JG3YhFzafrQHNo8bAfCEgWbeeuwxHqn2kVQ6W3CvOKME+XmxXWzJfuXuRxoPoWWUfTVnpt5tQeh+ONFP6CRxAeqD6c0NjViNcd6PXtfMItZH2iFeqPTP2QNpfZevMJCsO0o0Z3DrBWKZkmIp8QBNIK5HGLMOYBAWV/1ROTFlTKrxlXEJcnvCGiSTjcuxjb0whGk93/0R7Bqcxm/ESML65wt4uiP/4BGCnD+2tiF/S+uBTxTLpJ8F60xW5AgdmN1FtI4IqYPi76eI0vocW3tycUxNo5d1fC/LOE/fIG9R5u729xenB+TqKbbgutvuOAS2ojn01B81dgg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9WDMC5UuiBpPHlI1BF5SnwjYdzt+8/N6Y4YnTbtgbb7wYPB9NA9WQH4JSYrhiP5SMPNglLj0VJcMp9Q9olPzMKgay7uXZXaDd0t1rPxY0eqD0zi9AmqvDPkrPPgj7b78rfmUTYwC0LL8CPlO/TA11Foiq2JWUuBIhowNVdR3wjPW0N3b3pbHUStdw+AAJpcAct7aObDmiY5xkmyuBc6xm81ZWgsTNJskNfCspXY5TcDpULGVu8dgMGT/tjalCL3DyU2A+SlJZ3rGR4zWJMbiL9+KSlaLEdaT7zK0+HfBxmSGeBisjK/ou25c30e9kruM4q5XA3IN2v0njyLcZy4ER8E88/AAQh8jQoTzCcB/YGPfK++5LJj4HxVd8yD+wfoG0yqZ4iN5qhl/0ZNUSMOnZMECLaw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:10f948d2a5e157e6\"],\"constraint_ids\":[\"C:edf877d8ea77835f\"],\"span\":\"Ansel started a fight after the delegates lowered their weapons at signal tower.\",\"rationale\":\"Ansel initiates violence after the guests lower their weapons, directly violating his duty to preserve the truce.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "pFfknWLgTuS3DQwAM8TuZviOjIFvJDFVqewhDa1EKzgz5byIaKKnJ9ObYFjk2xSFfRUmyBT+CIoex9gqJ52UZnlpnNeJm9fFcsZNNtEYcNTbUw++yYSBw6a65klgchdiaXQ4WwapaOeEi6w5rHAxS1FvKmfGIOYMquUy0HAU4NaJfzX+L2MuGO5IJnZMSeb4jPe/RLHSVUgTAIuSouGUVDlutdg8t6IIDVjBz638X10i3SlwahHGedhDnzNQiQbCxm+Nmc4FkJ3vOj46NnsK/0LDRT+WAOdoKqzpvJ3s1HcAlgfShW3RaTduzjyx2akSeaX8LGXQcjoKIKlwljL5pNcnGYIlbCDhJ2etpEhVLFcW8G1jVxp/tBX+zlqiOo/b1HRcX73r4z8+rjpT8V19I5Vh83eu",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 546,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 163,
+        "output_tokens_details": {
+          "reasoning_tokens": 71
+        },
+        "total_tokens": 709
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:10f948d2a5e157e6\"],\"constraint_ids\":[\"C:edf877d8ea77835f\"],\"span\":\"Ansel started a fight after the delegates lowered their weapons at signal tower.\",\"rationale\":\"Ansel initiates violence after the guests lower their weapons, directly violating his duty to preserve the truce.\"}]",
+    "token_usage": {
+      "input_tokens": 546,
+      "output_tokens": 163,
+      "total_tokens": 709
+    },
+    "tool_calls": []
+  }
+}

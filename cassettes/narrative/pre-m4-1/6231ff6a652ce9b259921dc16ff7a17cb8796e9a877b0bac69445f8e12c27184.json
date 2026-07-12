@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6231ff6a652ce9b259921dc16ff7a17cb8796e9a877b0bac69445f8e12c27184",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4945,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 573,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 214,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 928500000
+      },
+      "created_at": 1783859600,
+      "id": "87t5ZRoQuucUWUKuCmLD4wY1vVP4j7JcAkurmq7OwaDsKSYsfX+KLUomRrIVak/GBjnF8sChNolw8X+7pyP/40s1SDvrcumqmKYAtp8RrfswkgV3tEsDh7jfidb2cYJzoix9s/bIdSoaVuzv/VC5epQGnUczVI64h9YjZjuZoYXgCQXznEhqi9miBI6PT7N7cRkVynNYpJlwp+vI+iXIbebCdDXfwOR4akk37TTOyMCdadO/nSZ1IwmgaEElmjdnF96AQ91+A7z21m85gHj/NlS/PmJuYuVWx9cmJuv8pr4j3ymI2myYKrTZ/XXe8VeceNZGODi5GBcpyWC608z+hilb60nqHSVmLCWOm1qM7KddCkZXNxVPkcDRfImlgSt0RBcKs7e7NCDoldIMUlTcXfz2bwRNSA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "miyRJRHuXOJ7AcfJXaMppQRGE7C8rUfAxqmapzu8kxkJZxYlHcbyaaePsqqXIuWWrP9DZwKGnFNGwNeYYC3s3QgM65JRmNIG4FfJtvad2m7LEuqmzxZyjXj+2dI1R4690KuCfOTmZjERHUDlqkFHPR0RXslkb274cno0Zwdv+5r1te1uk8XmCkKoXwp/WewOoebcpZLl5rkyjwrN5+92FXBmFUYART3mImqwm1mTaiu/5MJDBpulaDgbL0WURILoG+c7l704uYgsM1a0Viy+crUG8nRENHF6zBWvrtFaFlsJMRbfDE/U548iWiyredOEUnIA98CbUNjs2+oyvYswC6PoWsl33j/dSarU0BPg1o6Dn5TDVWRtb30IhouhuPy0brAnw8vyzlUQrg00q0JtZTeVxmM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:20dc0d159d53b4d5\",\n      \"npc:fde1a5d52f69dece\"\n    ],\n    \"constraint_ids\": [\n      \"C:e84644f1b42716e4\"\n    ],\n    \"span\": \"At eastern ridge, Ada was formally introduced as the Caravan Voice.\",\n    \"rationale\": \"Ada is presented as holding the single-holder office after Malik was also introduced as its holder, with no relinquishment stated between them.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "7CjzfQDdbv8Ze/QVyDmawNJU5l9x61AiyxPfkPot1s8HR/9MfpE2okHDODB9wMBHT3HcWfEI4QPBHHG6QV1ikrJbqCq5mNHCP29YcR2VxJEq+Ghdqd6mqpWpcPtzZvtuaUf89EUhsI+30lOgVbAwyOfUk6s0l7TxWvZIvvyI6R5aJD69p6Nv+P8dD+CKm86oLLND93kSHjs2CjJTPmT2/4Wd3xfkvfiJ5Hm3ywN+WASxUVXswQB0C0Gdw/rxdlAkzak73uq1JzfdctNY9HWzEdxiEYnlV0GZE1FANgrEXT2tpdVdT7Vi2/qoYp97Y1QAUnM9Q29MYOmK4JKn9QWAnA+qYCWuI3vZZkTnChdBJrl2UMW4yRCT/t7Yeru/NnGQdhKrsf4FbNo/V78QBJHqtiSBUlZo",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 573,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 214,
+        "output_tokens_details": {
+          "reasoning_tokens": 78
+        },
+        "total_tokens": 787
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:20dc0d159d53b4d5\",\n      \"npc:fde1a5d52f69dece\"\n    ],\n    \"constraint_ids\": [\n      \"C:e84644f1b42716e4\"\n    ],\n    \"span\": \"At eastern ridge, Ada was formally introduced as the Caravan Voice.\",\n    \"rationale\": \"Ada is presented as holding the single-holder office after Malik was also introduced as its holder, with no relinquishment stated between them.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 573,
+      "output_tokens": 214,
+      "total_tokens": 787
+    },
+    "tool_calls": []
+  }
+}

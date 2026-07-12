@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b635c3e2864512f46868cc56f358348a83f26916401c7150ca9d304e5a9fc675",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3408,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 628,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 830000000
+      },
+      "created_at": 1783860700,
+      "id": "vQFa9EF77vS9AGHJCMlZxyDS4z0L5MwuH3r5uF+Mc+Nj2FPaDYVT/CVAEqd+ypf1GbknLmtBq0EV2flFtlvd3CENbaMrK/UA1814NJ94BXyew61+h/fRPO71yB+wfLEa+bJ3i8POFNyC6CcXV+UDWjoToMk/Xzpd/1FCOVMO5dzF7rRc+JmJnwxJagQXk56HXrOOb7B4SKXv3SppM3NIGkIH2A37UY/s4w/LtRVQiHuMxAPG7jWCqHLuDqCqgeJzfFanyiJcajJprAhRNit3L6KiA0SxdszsrQO/dCCWb97E7trBHJjJYg2Gcv9RiS9sa4IWF0gLCO9leeFGJ3RygwOE77ZEo73arpV390YBJWLYNp0MFqPnK8Aek8pp5qTJkhweCnELcJlb+Fi/dNLftlCcZxJBhQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "f+TJRczX6E8pAUgJN7ZM07GgL7FN6HORgIZ1g8oyHfQtSUqJTKZfCBl/mix2maTBKlfIwlMomEDDm6a/Lzqirg3uIIYD8/8Vr2x5Z8yXUMXpDuMJQ+rnw6OMIF6EargV53m0aUNPHnN+e989Gsn4OD8xxDuGjpMqrQXTKMUKkMl3hYBMjTh04kyXmE6SfGF3Ts/nVKpXD9P97VzfBAk+1tGC581nPx67W7wsIR3w+C0rRnrOXmAQtluY4dgn9CT0NpDt9/6bVlijbYtka6kuHb4ilmpl/iW8MSYGsgfaPOR1iftzonU4EC91HVLaiWdDqCQci3tKJHZotd1boySNoWCU1DiyIjLkoQ/MCGUYD8XjEXkAp2lTqnEughWbyf08dZLNnIq5heZaXiFKlgbejyA+pxg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:ade81d982a6c1dd5\",\"npc:bcd51d62200e638e\"],\"constraint_ids\":[\"C:080f09d226a13cc6\"],\"span\":\"Oren signed the register as the Crown Witness at old mint.\",\"rationale\":\"Oren claims the unique Crown Witness title after Veda is shown holding it, with no relinquishment between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "lU2V/LQh5DtFL7uFIoOV6iVcSA6vgZ60aFHruTsHBfC0TKmrS6O/ZByJnX6qU7tvmgPJZwty7mRS+7HGsUWibRkQXFFL+0UjECmAXADSiWdwXBptEOibeCqdrjogUzfz+tDRrhwIkTzWEvYIvAFDcWJlSSy0cG4H/8t1TE3WWXiPiX/UlRku91jR6RZfvHeJXWm9ivmVAvJAx25W27KXHn8L3oWd1NNcuuHrFyDfw7hQ5rr/GHyL1UXUuRf0riltY38NEdhQ9wx6mCYX0qz5cEIHHUNNPBcIdWysymG/fjMp2pA1X+0D0s50lWPid6Ajb+D7gdimrfq6EG6GMI6j+DnaPWaKHycH84J6D15FN7PvNf+parOnv8VdZ/bx9HIN9nCA9yu+UGeei1Im29fcczH/2Std",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 628,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 800
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:ade81d982a6c1dd5\",\"npc:bcd51d62200e638e\"],\"constraint_ids\":[\"C:080f09d226a13cc6\"],\"span\":\"Oren signed the register as the Crown Witness at old mint.\",\"rationale\":\"Oren claims the unique Crown Witness title after Veda is shown holding it, with no relinquishment between them.\"}]",
+    "token_usage": {
+      "input_tokens": 628,
+      "output_tokens": 172,
+      "total_tokens": 800
+    },
+    "tool_calls": []
+  }
+}

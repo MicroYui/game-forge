@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ee94372f2afd007e83b78c26bf7c69051aa31af45b3af9b85e7865f259e5ce24",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3036,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 545,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 150,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 722500000
+      },
+      "created_at": 1783853300,
+      "id": "xox75O9ZOnShWHMq9xSlBc2FY4dDMRjpnF59r7C4MgbdduQH78Xd6FL3NbAt8EcGD7+w6+2xZjKmDaxUJsIEV+4vkBeBS+M60yojw4itgLes7ZYSn0fu4F58P2VfXqgdg6oFhiDgf6ZGTV+AEn9pfqlte1Xnkpjpm1w6cg1oBAnOske0qBeeYcaZoJdMz8I01c5tiwaQbchqj98CMjf7lwmo5jfJYudZsBev5S6gDden2x5q4pOqpaDIBe1SfVRndkQnSgS8U7BPCQ9ZnpqDjU+Ts2wh5ZHfO+GzF7fUHd1VgAvrT9N5DNFUdOvBxqaG3/zuPjoqoHH8fZuUGPMWgNuru1eM1LgjSLeR3/BIL8KwHGKNerUR7HXd6nV0JrkN/CLNCTCgcucpflT7wx9jGTXae7jXnA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "iqFOFqlQysfWQQrUedDu5Pzn5ztZhr2uxxTMMmKOwHXVazt41P4Db19uQKQZ/rNii7CP9ISgpUYnmvquu0Ron0djSFEBklHPAcmOKpUVbkNRt/Ac3yO+L1UO6IvkLwMbJizlzBsTcQ75wYyJ9DDzQoI63Dd+rar2gZ37UOPD+Esq5sZBtrwSKKCoUIxYRTITHn4RWTinxVfAn/b4iFhfvdZ6sAiRCdocjdvQMycZ8hKFWPK+VUddzXOU2umeRQWN1sRULLkKp1oH5YeHVPuejjwUAEPRqrNYc79QMoQM9ddebEXcf9Oo6QZBCNezBVegxeDojR3z1ArPpNVQR5C7wQRZbOzDVgTBWtahZVXXgajfApizDy0WizNdpwJp9Ri7gd0vcuR+Rjtmb8kaeGz5T03yIIk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:6c1cc61b58dff856\",\"npc:751a87f52c578820\"],\"constraint_ids\":[\"C:ae1725829d1f4ab1\"],\"span\":\"At archive hall, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli serve factions that do not coordinate operations, but they jointly signed a battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "nKMI0S/0GxbqoVjSLZKTYhvITikyyz/Y3FCgq7x5dmoeA8DzS8kP/7Esl0tHENlNeQ7JQ6BmZOKHimkhOMrZb9nwHNsS/CoaVUHqAeLeeZAiLJ/M0kieQqgEHf7wW/XfQJ0R+JdC0aJf6HhQEqr04t0pcMsfTR6TU7onKxoO2/zy1RTuTGO1X8oqOq1vI666uI2ftVUPbUAWCTH4vXU2zJyxPfuGeS2B1LlZI6rDtU24oTeGzFphlWROiEWK23ld+/K3I5RyxX4lO175p8qT0PIznULVr4+DtTC6U7cvaNCaz6eQavUJ6RcioNZawMetSiWdC6/vby/+3+kXLOBW2R2vlifXZxZOFEO9jam1vXwIOalKHf5CALPFE7HWEytY4KpvdkbcRijIsqDBnMxUNGcxOgLC",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 545,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 150,
+        "output_tokens_details": {
+          "reasoning_tokens": 46
+        },
+        "total_tokens": 695
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:6c1cc61b58dff856\",\"npc:751a87f52c578820\"],\"constraint_ids\":[\"C:ae1725829d1f4ab1\"],\"span\":\"At archive hall, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli serve factions that do not coordinate operations, but they jointly signed a battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 545,
+      "output_tokens": 150,
+      "total_tokens": 695
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:aca84c02dd5bcc77e7695fd196f5cf198e98c640b46305bb23299b9f96c7755e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4148,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 696,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 231,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1041000000
+      },
+      "created_at": 1783848100,
+      "id": "RYJQv67t5GMsQfF5srFKdXTZ6kQsxH2dYSN7dBnZDsgdiCQaO2rabELkJLaCTv4sFu3g/XxMb9FCHULaT9tDFUoE9Zv7bqtyILWMK38ryhzWWBTYYhcuGl2tiURQyI4znhaVTGctUivLKLekeBbbouLiAZIpy7Q2W6TdA1RCDeHfAWhP5mmZIMajXYzEYa+hBPDP5syGLgmFbifnAxrF2JWeX0EM+no8t9T670gbpgBaoWXXjiSA+Ybc5eATxVSuu5H0MDhrl2alBm5rfS0lNCQ41oUnPUKQU2jNQpJaQ8wcRQ+EvGAM/OCRaGKGM4njfGfxNZzhlTpbKD2iF479m04fJAG8sMUEynljxNs0Idm0HNzXAzxZrYXxr69TdjyAibn3QCU5txuWbXcAu4PT6MFJ3sDCgA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "yEJz2p9N1Twnhr4dO7SMlxZU8dJHHzxEETJlMlT+DWvY/W6OGzYjwiwoezdLHM+//XmgS50QNeHo1R2dIk6hyiZkMzl8m92uYZE/Weg4KwsMI+6xUfYtYALG/vqabMklv7pr1xGEGaa5PhnYSOaRfENeFwnFjsNj8NqBw/owLTEtXTh72vZ9HyyBenDAeLVb7hl7l0zqigVJyM55meV/bweACjG17yQBauCavwr/Fh550xZkC7RQPDH/rjGWc0t94zIEuBUtGdFISHuG7FN3LvqDI8YnuWWUCoTmh3nKHUD5D4BWr2fPV7IqrUy/aT6rwmUIpnA9FJ/Q4ysYGevAw/ac2sVQ7EHhv943LkuYeWpsEUL9ASN3k0Yox9ipLpuJ20axhWUkZOvl8mEoec2cOyVD518=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:46780e8ac1334da0\",\n      \"secret:13bb28e3d825421d\"\n    ],\n    \"constraint_ids\": [\n      \"C:ff83e49674de15ee\"\n    ],\n    \"span\": \"During council session at north gate, Noor openly named the source of the winter signal.\",\n    \"rationale\": \"Noor discloses the withheld source during council session, which occurs before its permitted reveal at finale.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "5xt7Pc5sx3OSxfiMDZIyU+oo0IS+FfJNpfbVtd5VinwCyIae4Tw6CTTfjISDgQUUtBHnCCLZW07YWDpw4AFngop0e1hnJKqnluc5ANAJaKb4O8+o0Cl/0uUMjKSVvUaDHeCnPd7rj1R7ZbhC6KTmhJVybQ87O5bZ5F7pS38go694xCSeDvI5hewun9ux2DA3OeR+F0dXXfHlrQjTTKJ69+XVcBCmJhwyZJlVd0f1w8vly/QzsH1nM4wSzkTk2VgIs2PIs9GjqmS+Lg3Usxk3E0Yov/+EJ/m7Qf0n6kl33kn3tsgoQ9T0WtkSQF195m5Yu4D+Nvrv3g+GWz3vJ6agFE9jsZprztsh0WMeuyFOL1xP7X1f+eFLJqY6fbtcKzVxPu91vu2l7Yxdha+Xtt/RSclDPEcd",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 696,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 231,
+        "output_tokens_details": {
+          "reasoning_tokens": 103
+        },
+        "total_tokens": 927
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:46780e8ac1334da0\",\n      \"secret:13bb28e3d825421d\"\n    ],\n    \"constraint_ids\": [\n      \"C:ff83e49674de15ee\"\n    ],\n    \"span\": \"During council session at north gate, Noor openly named the source of the winter signal.\",\n    \"rationale\": \"Noor discloses the withheld source during council session, which occurs before its permitted reveal at finale.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 696,
+      "output_tokens": 231,
+      "total_tokens": 927
+    },
+    "tool_calls": []
+  }
+}

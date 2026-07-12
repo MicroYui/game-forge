@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:dae746fe42bd4b741dfde4e211625b0a5b49fe0d8397aa4db1daba2acc3b3c1b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4673,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 583,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 158,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 765500000
+      },
+      "created_at": 1783850500,
+      "id": "uAFZ15sUmh5loSkxXYm/HDCmurBgWtn9DGqPtHjO0TtqS5VGrauNvOx9auuuwVeV2BMwDrOL8On/y0Sn/QEZLjSvMRc4lITvuPAaPaPcp8cKd0sofBicnKKPH7s+ufYmVmTf05GmG1tfGrJEr6A8ssod1uPsPx6EHKzywwvAwWN5OPiOk58wmN3jBdDlybBf5wKh2ZxDRADYjDXsbaMhdfSUhgG588i8gvDLD9bpbkbj9mYkqMuCy5zQbulYHRl+w39spOA3OKQrdnhaigK2eAzhYLQKyo+YJRNU7Qi/UP5fya4kHWUj5/xtKTk5CHKkBurA32Wx66rqErkNV7vIkmJcYRSHBUjaIANgtrU4LNJscR5/nkdhhlI3i6tSE76QpUa0htBnHrsnaXG4Shuwf4wn7TL+TQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "thn0H2GVSoxJa5dxx/4uSS54cde9eYC38ABmDvDk4JY8D3Vh7kGa4zKcWepHA8cGfBKSuh8AAAUssWmIi3AN2wd1JBQzAPPmKV94vptt9eOcRmhqLoT+Fo9s932esEd69ahrP25HnXmJLecuqogDmOv85p2EImzV1FE66UGi1Nf/oVgdOo1OMX0NF1b6EKtmoEiS2lx1qq0STP/dMc2gxfOl+NZKBVV6MXdNRFIePbquOjdlIFK6LbApMtnR0WUt52KBwn+5sJe56njPNfRET2b7QJ0RRA7XKuNmqIKOuMLwmNMKhCWH+aCWWcpYtdmIATsQ49EdZSC5Y4bS0KGTjE4rNi95SaiDSxb1ciBok0BoLY6uGuCAE4B12PkNCMg4bj6TdUGLNbgpOC5iPvn1E1ptOaI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:d43dd379ae99bf7e\"],\"constraint_ids\":[\"C:6070451f770ba64c\"],\"span\":\"Veda disabled the crew's escape route before joining their hunters at relay deck.\",\"rationale\":\"Veda removes the crew's means of escape and joins their hunters, sacrificing crewmates' safety contrary to her stated behavior.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "cxfVa8gvJe1XnEE1d8sWtLiqnBQn2lRpsRcNfC2gUHURipvch2YvntPwdUF3w1vrfbupUfYuKzl6+h/5wi8rTQQ+rxe8AT4b9yL+hgQ7FqqJTDOgWOrGV/gn56z9NzB6cUhDREqXQh/mcs5uCL0JzBF4jADOj+w6gSw0FMrCbUJYKVU/YSGvMm9gM1P3Uq7pHYH9mZw4vshIZ23Xg2IZUiyw56aBbeh1kCrdnQVW9O61CU9Jr899HTPOumQZU8Wcxu74rxvrwcxf0YKMTacgRcMFn5hAikAmFH7Jj05ebo9Koj24oGwofe2JUIYPHg/Na/cANDJXEFHc+7eY+FyM7ujCahVqZUeiXieuj3CHTq/0zk7gPBdbfBWsPF7/fXp17+sHu4WbIihWTXq9J2eTO1fnO2Mg",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 583,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 158,
+        "output_tokens_details": {
+          "reasoning_tokens": 64
+        },
+        "total_tokens": 741
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:d43dd379ae99bf7e\"],\"constraint_ids\":[\"C:6070451f770ba64c\"],\"span\":\"Veda disabled the crew's escape route before joining their hunters at relay deck.\",\"rationale\":\"Veda removes the crew's means of escape and joins their hunters, sacrificing crewmates' safety contrary to her stated behavior.\"}]",
+    "token_usage": {
+      "input_tokens": 583,
+      "output_tokens": 158,
+      "total_tokens": 741
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e9e8ffddc33e2d25405f6fa66dfa613ac22ed0de419f1ff753b4f2127fd1f34e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3767,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 675,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 147,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 778500000
+      },
+      "created_at": 1783848400,
+      "id": "cuaRJm81c//+wiyKJWBstVaEGjUVnxO+2VR61DrP0IQ4+cNI3B3zwRqS1K4navpCqRc4jG6CGsXbtkA+E3u1R0VoCrv6r05clxXFvy/k3Frhdg2E7CA+qriR9xw1cg7jFZPYfQt5Ab63FcMQA52hry5EVOtE1ATKV0kUfi3NsmDfoR3noUERrqEMK4enFcPnNKs2AYxjR+1a3F3uMswaMwGq3c8dNTurxrPqx32l+vsUwv494/1fG4gaAS2HSEM2QbJA94nklEaXhrO6bIBVCvd7TG7Q1a3+OC9h8VZblRBsuZtQmN+mYCiSn3h3A2MKQNFlIchJLJGARftkasxmgpcjqjRiLm/LDiuXBmNbQykiDPnUzOfPUDNKm8U13jLFhkxz0KW5P9iaFQ00KkaQGVJ7PMm1wA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "MrpzJNHb+4b0avj6rljNLd9zQ9hjTKgN85tQyUadgaq4rvogkTW4IgAK7BrNOyofZnWPlv4NO4bCuxOwmQ5BOBrrybRE+fVKXF/lQ0QAu/RyBtZLkhpCYWTa/XNXLK6VIVhINHQkGl7VoW8haKIICJ9jhNWwsR+WYfTJZI8rN/TiKJmzn76eCGgqg6zu4sKE1tbIGwZvjOUGZzI4DI7WMYBjvaaD956ap9AXKEuSoVFPudXxEAuXe77ioiXYtKsdE16ChsYKvbYqnQHw27kGbWQOwe0RFD4W8/cQX9wQytofrSD1rWmZuqZ+r0JPyBkbovSCSJGazY+1Gsc179jHsG1EoXs6CMjVVkRscAv1FXxdx4/xuZRMdJ5E6xx/JKqtBAKvD+UIEkAiwtjmvdlgQn2syik=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:25e9e7c38e9c7758\",\"npc:6f457e73bd9b98a2\"],\"constraint_ids\":[\"C:44540c0ac336646c\"],\"span\":\"In salt depot, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin and Eli directly cooperate despite belonging to Harbor Guard and Ash Fleet, factions explicitly at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "c2bIiIuiPPmMA0tStWHcm2wrnlHfxnps5tCjw4FSgPJ7ZCFPcfLLea0r0AvMIS3XdCy+NvJTx47KcmTmW9wm2HKzoJVp6OrvPStcV7kof0vmZMCo8HBs0aZcF7D5s+F++gNtzIFNd7vC/WbYIXgA4re/wkPLM2f03CJ13AThlWx/QuARo5MjdYmxNyzGvQ9tCTVjkoIjntD6GbUwT/vK9VWCKQsULlr/NDz3CGX+dbgi0nXXIKJhbLU2VioKY0iGCAq2vnAlTe277wW1gWlwAq1OtCKGEgYJcS4dpF8zbio6Mn280lQwEodif1ZJq1XBa7ZmYt9TZ3FfQyEdQWwO+HMTU8ZyqY5wS6ZfDC/pn4X2HFKK776tQ6UCKT1t6i14cwwcQPMciUeHrkLZs2dIillwGqMJ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 675,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 147,
+        "output_tokens_details": {
+          "reasoning_tokens": 40
+        },
+        "total_tokens": 822
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:25e9e7c38e9c7758\",\"npc:6f457e73bd9b98a2\"],\"constraint_ids\":[\"C:44540c0ac336646c\"],\"span\":\"In salt depot, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin and Eli directly cooperate despite belonging to Harbor Guard and Ash Fleet, factions explicitly at war.\"}]",
+    "token_usage": {
+      "input_tokens": 675,
+      "output_tokens": 147,
+      "total_tokens": 822
+    },
+    "tool_calls": []
+  }
+}

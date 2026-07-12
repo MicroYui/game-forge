@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d48024109a17d4e30b4ad59f4e4893273bfa546030988de74a55f7c8d6e4ecbc",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3681,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 704,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 188,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 916000000
+      },
+      "created_at": 1783845000,
+      "id": "adTFZShBzsHjMnLpVYeuqcDe7HPS0Dkr7d1tPacS7P/m8drN/PFHHBp/yEHhGlePNcPvssahZLkgU4EJtEmHg1oIxdWOU8xWsk9bsr0eNwZkN8ZPeedl0imCiAdDzEt0FGRbqbV0bJ+HHAMZpE7zK1Blh9WEIzQacLeZHcIJwp7uzeo1n0RmtoqJJYhAc7UGwILEcxObLHNhp10hSfiEoLojzMJwgkpCSOqd7JBce3MwVfhRXsW2emO/6mD/Vc4S5HGKyefkmHsjU3s2gjV+MyLXoqaiORofpVatUWS365PGqHm/NhACNslV/WZBY1668FzQ9fiCXJzxlqA9eSSCo8aHpR9tTseQDm8VTrD+74EmzEmWfvl4HffkgplO/CJ+wKfLdbqk/hHEZscW4dzukKE+WTHjUw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "4JW4VFQhYMD0SEP5wxUeBlDUlj7P7AEqQMfLjj0VCbit5AgzrcmALhz85aBXmMqi8YyTNs8jQ4Xpk75ZYxxlq53ryWoLyUv3J9UIODt2panOn7qpueLx2vJotKEVI7hDW3sH6AbyLCmLSWk8kJ7pDOI4yfb/tzy/RKhR2Pf5u9brZE09sl7WG+dmaPT9FdFlBJNIHsdxsR/WpkVka4bf50uObwA7W7+798y6OGy4ESHDw6zvC7al2uO6NDA5xj8HJ/8r3CQekgfs7zm8Q09hmyza7E70vArZ2KOeCP6HO3qvy9MsJG+3gmS+72REGMg1b5iYwcSISovWPrt/9Ck2YbNNfanpl699bG48wwoGvJMTFFCkffCuxzYTWFfw+P2ndCXeNILekYSNGqw3CRN/NUtfODM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:87db1a61d52aa346\",\"npc:a30c6383124801a5\"],\"constraint_ids\":[\"C:67fb781a249846c3\"],\"span\":\"At desert waystation, Iria was formally introduced as the Crown Witness.\",\"rationale\":\"Iria is presented as the active Crown Witness after Ansel accepted the same unique title, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JMXABcQe7q+FRcq/votLGgDea/26SHt34Q3sVm3vMW+cuba+nw26hm4T+aog4RhVn2rbWWcQUe2qDrjZGjdQG+onppfxxYQaEB980hLnNsT5dz1vNRzb4JBPcFqpvjSAXyEKgz03ZEy4ZtsWT3IsHHM0DzW/bL8+/t2S4MHgrFPUi5fN8UuDH6nwzMouWMK4CUiKKAGPehPRhDGyEpPeP1RWIoQs770X8blqiM5tP1BodtrRfL3AGqx+Y7CjY9s9MIrYr+icO2gcjjoUqVrMrOwWFC6gUrdQrqBg+3aVwF60+fTGTS0pSNALnHf1HOPdjHzPDU91P/44TCM6p7UJrC63XdvALnl8TaYbIV+R8qclKsBfg+sa+Zard7qjvzkSL85HSuAo4JkPa8/av5AEeONKmt1+",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 704,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 188,
+        "output_tokens_details": {
+          "reasoning_tokens": 77
+        },
+        "total_tokens": 892
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:87db1a61d52aa346\",\"npc:a30c6383124801a5\"],\"constraint_ids\":[\"C:67fb781a249846c3\"],\"span\":\"At desert waystation, Iria was formally introduced as the Crown Witness.\",\"rationale\":\"Iria is presented as the active Crown Witness after Ansel accepted the same unique title, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 704,
+      "output_tokens": 188,
+      "total_tokens": 892
+    },
+    "tool_calls": []
+  }
+}

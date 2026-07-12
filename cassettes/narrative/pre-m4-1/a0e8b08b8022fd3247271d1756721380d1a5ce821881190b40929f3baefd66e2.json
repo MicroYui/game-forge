@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a0e8b08b8022fd3247271d1756721380d1a5ce821881190b40929f3baefd66e2",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 9206,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 713,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 578,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2090500000
+      },
+      "created_at": 1783849100,
+      "id": "9DtXB7/tXc1JO7NACfhDN2yqzes05JNbQ7/WM+3FmZmD3ltVK1Vyj14Hq2pzK6dYBhip3lLqiJIveH8Oa+M1qlvt0WInNjf0cp4UPc/OtQsq1wE3Cmj4W+1dum3dYq9IfcydzaY8xAaTD+Tnnf2cnZz9kSodknKfQ9sD4ti4F8ckirPn77qdIU++yRX1V0sbQ8EJjwVMzVcNvABWL8T6oxfNlqNY4E+sFfInQgLOmQB0NWqVceDzr7e3hNf2uVsVfhZvEYmhvcaDwNDqm8XIr/8DtO5g59x3mXkVhsaCkl/uTViVnHZTLfzqY5W+K+Lao4TbFK7eEfHWD/EAsihNo4yg+0RLWH2Sei1r7+9+ZiB+rklor1KOzOH2asMxwbHf9NP/R/7xsZgcPm5yhThQCbrGzIb3aw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "A+AmbNJ3a+YI5YsP96qHZ7IrP6f8u5tDAvxmPVIzVslpBBnP1O3PCP7fgNsp3KiQ1uOKssEZpTyXWy4w1SB+bq1ozrtOQLCHUs2FpLb4oqo5zy0zK6R1weGCypazbeAJ7t8OLMh4v3a6vbEXkaRxoOMj0CH65Fv43rqb9/vuIMuzfPJ0FvVN2MFJNorEuAN7VzJeJJPZVPZ3ennHORg30MHwlFFxq2UXyZfAJx5wVRH9z4cIPA6QL5keV6KG+lT4t+/sToyHXa3hZSLPbXwBszj4QdgGkEGp68fsR/C/2zs8ELA+puqcLapPubmitJ1hNM591/A1kFlHM6sUpCxiNKccQUFW8TvTMVqxRZSN6mp+o5FY1TmZHHI2oChRRgrNhNEIWXgAFnJDwutbyR5S3eVpXXc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:03afc4a3283d9b06\",\n      \"secret:9bad08f3d9398045\"\n    ],\n    \"constraint_ids\": [\n      \"C:1390a0ef63bce865\"\n    ],\n    \"span\": \"In relay deck, Ada disclosed the source of the winter signal during relay alignment.\",\n    \"rationale\": \"Ada reveals the protected source during relay alignment, which occurs before the permitted reveal gate of vault access.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:fd634aa3d1dd4cb4\"\n    ],\n    \"constraint_ids\": [\n      \"C:b9770252835067d1\"\n    ],\n    \"span\": \"In relay deck, Theo returned the reserved rations to public stores.\",\n    \"rationale\": \"Theo sends the reserved public provisions back to stores rather than delivering them to their intended recipients.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "jx89/BY+7XPKH2c9de2OAQL8Ssq/b6Kns4+ZVNPActc4ypcs3rKt23Mzv8SErXdq/myBE7T9E6UODzmRD6XFTS2hVTI2HEpCD8qJKLNlmhgQpkvNrrJ9iJHsQA6wOy+AGhG5lLHlVWW4E3NwXrfWYFmlzePThiGibjWr0itPiA9mmNhX7wPByP7xfrYSwFdq3uKVFC+D/3fPlSVs8WeROFZ1Jq69wf/SCg7G42Q1YzdrDL+I5IawqDnzmw/qDG1bJ93yNWqHZXDbovU0kLRaDyjYSQm1Kw72NUd9c/bS7PkTaqP0itQXFOSBNRULzytUUbdsIWuHXZcdiTrUB5InbXUuSFNTqAicMdlsxfh/3vNfd/EXn0EFbeRRFnHaevIKVFerfE3g5BQno7VHSBliFzQrKz1h",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 713,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 578,
+        "output_tokens_details": {
+          "reasoning_tokens": 348
+        },
+        "total_tokens": 1291
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:03afc4a3283d9b06\",\n      \"secret:9bad08f3d9398045\"\n    ],\n    \"constraint_ids\": [\n      \"C:1390a0ef63bce865\"\n    ],\n    \"span\": \"In relay deck, Ada disclosed the source of the winter signal during relay alignment.\",\n    \"rationale\": \"Ada reveals the protected source during relay alignment, which occurs before the permitted reveal gate of vault access.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:fd634aa3d1dd4cb4\"\n    ],\n    \"constraint_ids\": [\n      \"C:b9770252835067d1\"\n    ],\n    \"span\": \"In relay deck, Theo returned the reserved rations to public stores.\",\n    \"rationale\": \"Theo sends the reserved public provisions back to stores rather than delivering them to their intended recipients.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 713,
+      "output_tokens": 578,
+      "total_tokens": 1291
+    },
+    "tool_calls": []
+  }
+}

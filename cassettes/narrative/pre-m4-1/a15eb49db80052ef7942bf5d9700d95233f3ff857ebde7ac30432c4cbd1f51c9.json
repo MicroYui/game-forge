@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a15eb49db80052ef7942bf5d9700d95233f3ff857ebde7ac30432c4cbd1f51c9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2893,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 619,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 163,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 798500000
+      },
+      "created_at": 1783848600,
+      "id": "pI+kJWlxz/AD+QfsaxYqDHaCYc1aHMQAWU4C+OYnkS3hOGTtZIn5Vg+jGPu6CTfKdfPQ8k/uG3EM9gDi8q4Zd49Rut2PcK/iAV+rCuNlTyv5q/+c+uErXApkJB6jToJR8+TURZZaGfwi+rDlictZT/QebdlO3F8jdUTcVQZEfQwhqhg3T2IwF11LNBV9ZZvaUSyODvzNh3W8q+c6FMLBbqtugwvVuDE17cMPmQzwzWKgRIM2bmvGsG/lvPv/opLZ1CUBiKISEbyorZ6g3s/U8owi4VgMnGuEVqFymVFOjfDGm9rUrUB+ATTDdJXoEtGvWujZ4hCICDrjPGC2g08Zw3IsKakqgjxrwL/3zhN4r+Ug/gqJItkiCMuHGUQfsnyGgtqHg3nYavtPuxSgrocOh8VmjmwkLA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Jbn4GmAxlSDx5+PmQHfQY1+To02qxrvztAmHo8KW/HZnRqQnx5C1QrkHyuVwuX7WBz6XGoZpZLODK9Gh/Fh4bF99Fvu61XJTgbEV/DJ2/pZjVLJWe9AIpMiRzU/hQI1ZnkXQcp4988NGEJ0El3GMAJOoRLoxVydbaeQxcFo9/NljzHhsYhHT5onKhaWZr828Zj6Pz8S58amZbGWLscsGvx7Y+rO0RsQNN1A6gsOy8uGg1jCI+uZzSEtz4cW/VplrGDc8azlhwEeiTBJN3cY6fYSnU1YRgR4nx1a2/NBMr+GEHsUo8jCYXBo1N0yhbE9S9MWcqoY0+i9VZXXxb/5zWgRk8mkzHHOMNfkL5q/TNUfk2soIjOApBTD9PPtK/rhN5TuuOEa/TXDUkLdKLv9JameXhlU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:400f7cc6b14e1ea9\",\"npc:76c21fdd1ce1ae0c\"],\"constraint_ids\":[\"C:6fe5ce62cf09bea5\"],\"span\":\"In old mint, Ansel supplied Iria and called the partnership permanent.\",\"rationale\":\"Ansel of the Valley Rangers supplies and establishes a permanent partnership with Iria of Storm Company, despite the Valley Rangers treating Storm Company as an enemy force.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "D2BsuznsWho6/kHbh4hD7cCCHR/E0W1a3fweOecwvEL5W4+uncuDS/pQmLrwBcxvGxe9VOHKYc4klZP5aL98mW4sk+BxJJacUMbXnrL/8Ug7borCzPNQhrDeK4VVP7NH/oVd/3kqdf331CtD3ulnSpAx4CV+cOnU0d2m3E25P1QHw47lCY6Qp5GrlOo9Z3dsFTjbk2hQ0i+h62MEgUBDU786d8+ewbEHIzYoUzj+d+ARYzxgpgBD+MXKv1kHF3PmSHdbJBAwR8ZAW8iQnkH8Uol9RYj75g9gfPGKfTukopAtqPI6JnA8Vd9raAX/XGQByue/sCC8v1RCOMtxTM8OPiaBTEh1nQXhjPBquM6Yy6K/i1ROdVeW8ghpdqz8qhPHhjbFAHHPOMZP2gMtf9QALhsnPQdz",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 619,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 163,
+        "output_tokens_details": {
+          "reasoning_tokens": 46
+        },
+        "total_tokens": 782
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:400f7cc6b14e1ea9\",\"npc:76c21fdd1ce1ae0c\"],\"constraint_ids\":[\"C:6fe5ce62cf09bea5\"],\"span\":\"In old mint, Ansel supplied Iria and called the partnership permanent.\",\"rationale\":\"Ansel of the Valley Rangers supplies and establishes a permanent partnership with Iria of Storm Company, despite the Valley Rangers treating Storm Company as an enemy force.\"}]",
+    "token_usage": {
+      "input_tokens": 619,
+      "output_tokens": 163,
+      "total_tokens": 782
+    },
+    "tool_calls": []
+  }
+}

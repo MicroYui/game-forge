@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:68ea6367cd1d8f499f8d568d68fb563e1cf7d680a8c72d434937cb1f9e319663",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3836,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 580,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 170,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 800000000
+      },
+      "created_at": 1783849100,
+      "id": "CxQ+n/utIxnXenEH95YUYjb2+5qtQMkdi3kxgCEARZOPJ+CfZ4i90nekPhACMdx7Joa2T1NqnU8unaMEKuArMoah84VIxkA7o2FyahCAk3PSk3Svss58/bQAfyhwXNunoycnEWVmcARQW36FoOaazGUAhhI4E/sY14EklV59SnM+qS9ynqwr1KBZmbKn+oihucmXdYoAciX3BIHK9WHK3eUnuCtFUWlzgIbv36vrsX8e+OH5YYgFWH2HgHugYNE0OMUG00r0hnJe9AHZOw66oWhpgJMdE2MzZE0R31NuvjTCtC1hj0GEec5JibCiu7VYXpJTDRiKf1zgjob5E6VskcuApHOlhMlS3Wda9jPWgl4D5I2CYSBwJwwu3eUaibSdUjYcURAC9/0TH+Ka9GHoEgaqw+ZeCg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "nuOUdJMaEWFu9l6epDwr+404Zh3NVd174xEyPHrB/RrlwaJiHu2Eq0r/84gmVo56DEHQM+DaR7kqieTPJK9Fmo4Cr0pgi/dn6NZrs9+e2hjswxTwddLiNTpnpZlDIMTCuTBnAy+3R2o4oHJW9XHa5oWtCFkVJG0fqVGOZJWaXu9kZkuNRMPt80rNyAhgH3h/TtdhyoMt0tQCWWWORPWzj3bcYPtO4A0SvqyAMW6tvcq8R7pMAkjWNLSid9g+MBRpJ3tjwv0sP8Tg5Ahhcp1b21ocyH0pqhTOMAOlTkx3lNTgdIzfBxgNaj2iRY9aznSwJ4WUWYQFikhf+69pYEpoecW6oKehPlNF5xvDoObU9i8z6RDr892G1PTS4dDWIHEgl5m0xxcH+vT1KbNIU469Ku4gjzc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:18f1bcdc206667d2\"\n    ],\n    \"constraint_ids\": [\n      \"C:a559a82258f5bac5\"\n    ],\n    \"span\": \"At signal tower, Tamsin revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Tamsin endangers or sacrifices her crewmates by disclosing their hiding place to pursuers, conflicting with her rule against buying safety by sacrificing a crewmate.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "4ex2mSACCycswBJOPJ2yw/PlFBuZ3IVsDd8KCDot16twVCg6Nm/wHHb/zFqZQXb827a5RXlwBIJudRcpIy4UuW0sNGvRmt4xN7jkuKMvGSgBL4K0pxtjhUIzy7MmXW9J1/wH4/RKDS0HAYXmn2LhJIHXKPHNubBgHZdav088evYNcJZt5pgqrRs/EUzFcx+h8BaViD/vZt/WJcFu5A2wteHUjc84pXQlF50+sPMw6Xzb84utOSLd/AsIcGIJzzJA3iyaA+DVw1N3GiICvdlfYoOyR2GbpY73lgHcmxEfgRBWhraMmP8jIbTVOkTbUZuqxVISHUXIvjQxhuKkOVn04vsvzsfs64PUD/GQ3k3/3ax1U+xsw3OqTpRI+JZr7g9sj2aD5SpnGdE4RezFYaFjCUgJ1Hu2",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 580,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 170,
+        "output_tokens_details": {
+          "reasoning_tokens": 40
+        },
+        "total_tokens": 750
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:18f1bcdc206667d2\"\n    ],\n    \"constraint_ids\": [\n      \"C:a559a82258f5bac5\"\n    ],\n    \"span\": \"At signal tower, Tamsin revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Tamsin endangers or sacrifices her crewmates by disclosing their hiding place to pursuers, conflicting with her rule against buying safety by sacrificing a crewmate.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 580,
+      "output_tokens": 170,
+      "total_tokens": 750
+    },
+    "tool_calls": []
+  }
+}

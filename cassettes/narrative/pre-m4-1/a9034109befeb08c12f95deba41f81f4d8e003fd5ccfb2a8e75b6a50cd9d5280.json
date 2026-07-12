@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a9034109befeb08c12f95deba41f81f4d8e003fd5ccfb2a8e75b6a50cd9d5280",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 9789,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 662,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 477,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1762000000
+      },
+      "created_at": 1783855100,
+      "id": "BX5nuGH7uTVQ4QvLB+LpestecvKEpyv8W65RjIttPfDbZmpTnybxQMCc8UODTV9oe6CwyiWUYf/5pf0hPd18QxcASZSjqChwQDubeMWBFwLop7DzOVUiIIy9Rto8VRNFv0qbX9afsQfzn9ha7nWge8tMZDpNv1Ql9U7nTbAYdXULLtm9vaAXCSVJB37Jan6lxjte2lVrIqlUwTCEX/HPiv48d8ppQlRMe7VYeAL78HTjuYrcoL7YUGP8ExaTMGLStpMC2DkTcs18rSYvWNVtGsj15mxpqWSs2FPCuZ2Vc758asa821PUkkw/y8wabOvpK0O0wagTBalGP8t+rCtvoMB+w+mbtv2B+Fa8PH+Zr0CKsQCupBiWFpwP2R9Pvi/FFrwideK1VVaKAyq0/Y+TE+DyIOQWOA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "w/k+ZLEDSQPwXh9Z85vjsJi+QOgC68ld1FqD00agYOQpHwWYxqm9q7CfY0ItI+FJKbnkwmlBrRDyDnVSHNX6GTOMXi8YNZmE/dTflk9UZc5lKj9S/FxETKp/6l05jycwGtLJKzS1NbMIP+kGjmQZmKDHCO2kNYBG078Fxzi8ai24VURkUlWWginFwsJ/HFjoO/BI3ogzSuiBFFixLRc2IjnSZ8fpc1dzEmfwQdp0HoWLYTAOJjeZEvhFk3Qe0JE6bqApbchIqz3i8HItZnu0nRuKPOHUUXe7nOn2GWG/FjIiKUV/SzbAdgw5DA0T65qLhMZK+AO9OUVknP5bkCfm/EqcjxddSlbzHKJZ4hpHX9T9kQQj1M43GhtVhxtVonyYpHixqHcosMNPUCwR2WJ73E/A4U0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:9f19dfa9365fe9c9\"\n    ],\n    \"constraint_ids\": [\n      \"C:ae3faaab770e3137\"\n    ],\n    \"span\": \"Qi publicly renounced the oath before its terms were fulfilled at signal tower.\",\n    \"rationale\": \"Qi renounces a sworn oath before all its terms are fulfilled, directly conflicting with the rule that the promise remains binding until then.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "8zf+bBZiEaEelLorfzqlDLLn+1oSP99mfAtVn7yYSZImF7YpzuLXGc1TIiU+2QGJvlyqmDLbjKnyZS86xLSLfV5F/f6v3ZcWx06GSja1+YPKFGT7ZjueGVROWeIEZb6tQ72qvx282xNadtt8n3ik5XOoCtmJ4JNQdDTWCSqSH6HE4CZROJBlBdqc0DxeLJjXTadBsiEvsMDxbPfLXdMSMnOMJ/QOoNjfomAlThJYvCpjPUsoPptnZTmFp8QYrSyXwDTaqCURhCpa7PjGfbxCaEiOzN+hsidKqcMXPXJ2q/p1t0RdKxGqUPeq1+iPbT5UCxfxtEh7kWSBsfBftEeLQo3PsafAYP/dwbR2Xnd4UayKvM4Lpj+JyEQ+9MozK9lBnm9WLu/7NEKsUUoMZv5N/DvekAZA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 662,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 477,
+        "output_tokens_details": {
+          "reasoning_tokens": 358
+        },
+        "total_tokens": 1139
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:9f19dfa9365fe9c9\"\n    ],\n    \"constraint_ids\": [\n      \"C:ae3faaab770e3137\"\n    ],\n    \"span\": \"Qi publicly renounced the oath before its terms were fulfilled at signal tower.\",\n    \"rationale\": \"Qi renounces a sworn oath before all its terms are fulfilled, directly conflicting with the rule that the promise remains binding until then.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 662,
+      "output_tokens": 477,
+      "total_tokens": 1139
+    },
+    "tool_calls": []
+  }
+}

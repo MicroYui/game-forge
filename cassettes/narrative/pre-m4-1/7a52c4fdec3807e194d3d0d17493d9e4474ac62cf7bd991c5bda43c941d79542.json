@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7a52c4fdec3807e194d3d0d17493d9e4474ac62cf7bd991c5bda43c941d79542",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2535,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 671,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 145,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 770500000
+      },
+      "created_at": 1783861800,
+      "id": "QIxr8xbLVM1XxRKiO4If5OSf4kzM/u0CFLfPQUNsm13pFSwO4ZnO3SfeJX/OMNitP8ffjQJTkWGqj/Sa3v5kxRqOAOhHbMnx/0gZ5pvkhNnCgyCzEGmSqauHGnx6KSjsmNYq7bIUMx1ydiC+xsFnrFPVl3s0Lb+wXFlPSu8tI1x5tcCiG1PjGQKkYrR1EinQGe34P2ciWgyS7Kb58QE0IWzhAGIMrdpkAZNMhCeeLjQK6XRLoF7kClPrmG5i5abCBWeyn4SQQgPK7n9C2qbLDyBl5kQ/iuCtpT0OIqi4cjvcUceLzMtDDIh5LFPBe0Zbold/5ZVc3bsK1wFDzHLXp0tCUJV8fW6CLgAy7Zhefkrx6lw3IYPD2734rBdTsaAX9GETchVYljlI0tiiCRTTEjLZGew3Xg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "YAVCJ7ULpyfzwP1DCVs4oUNHOXyZgy/OFAEvNsJznm+WaR4AaupyJCKJR3sPnkZQF4N7ck5qiX/xRqdVi6tC2cz7kKAyzydaL2ooHYuplhF4S77WyLA/CpST3yt6yQZckyHHpykNaRNN+EIYV56/jl7JjsMCUiTW2hoC8/ync9BNRL7h+CZrgyMc0BGeHPIqyGXtPbSO+/2A1wrzVDGYth8f3zGZwvtgW/Beq5xJFSAV4luFv8F2LdefZy4IwTCSxkNOgCej/ToO4WcXVCWMsJ677XzRkRE65+jK1JVr3F36/8Gp4Tkt8y9u/ryejJJtnpkE/dsEHHuT2/YK0Gw/DLPZpyqln2P/Tt0KpnJBqNrjDlcS/mB4IPOvrFj7h+DmGkZPbsZ9H2Rd+28uVRgSSu28t+c=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:3698fa6bc2acaa81\",\"npc:e0c969b427e7abf1\"],\"constraint_ids\":[\"C:8ba796e86ddde2d6\"],\"span\":\"At salt depot, Qi and Mara signed a joint battle plan.\",\"rationale\":\"Qi and Mara jointly coordinate a battle plan despite belonging to Harbor Guard and Ash Fleet, factions explicitly at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "6yanvEUBveXOAW6tgM0BWG4bI78gqDpAjiFgsO+Pw11dgjTcLYQ0nGvr09XbRyQRU5efhvJ8cSo4jfH0KafM0LnurnOip3Bs8ZNFESVBJYCeiJWUgDjP1CnyhkkdWFC1T0iqP+8ehSB4NlgVQzeApHO6xbuqkrKaOeBU903f62++VL/vPZLCZdRa3GV9CNsawiVA18y7A+kTNuTIMQDVHuDpRMHcfupfy/1neTpM9aMUkko2kVTLRUng0dCZx3UQrXxKM9feSUNwkl4IAyrnS0ZSif6ND7Cpq6OGK6BMLiXIhQ1cw/24yLb1deJWI39EciOma7paFQN69moEaCOgQy6A8n9hUiP0bZbJ3rFfA8lkBbhfHuFFkdIHe8VkGCStURkGoXjfXMj99DfAGNWkH0EVK3Is",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 671,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 145,
+        "output_tokens_details": {
+          "reasoning_tokens": 41
+        },
+        "total_tokens": 816
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:3698fa6bc2acaa81\",\"npc:e0c969b427e7abf1\"],\"constraint_ids\":[\"C:8ba796e86ddde2d6\"],\"span\":\"At salt depot, Qi and Mara signed a joint battle plan.\",\"rationale\":\"Qi and Mara jointly coordinate a battle plan despite belonging to Harbor Guard and Ash Fleet, factions explicitly at war.\"}]",
+    "token_usage": {
+      "input_tokens": 671,
+      "output_tokens": 145,
+      "total_tokens": 816
+    },
+    "tool_calls": []
+  }
+}

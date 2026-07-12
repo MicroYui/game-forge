@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9f7637e3df5e7348c68e9f1312cdb2b522de2c5a766a953f3b5be7722d228f1f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3350,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 614,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 166,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 805000000
+      },
+      "created_at": 1783852000,
+      "id": "0oveFUPTzmj1w7PuFQVY7l3Q/UhqVKaQ4T+Hx/qb+M8LOVpKJAdN6ytyVn+A7tQYMjlE7y7DJHGvmaAU9L8FhvU8pMy2PIuvrAJQCXkGuIJaInt5nKhE0Im4OGhClwZrp72skNGBOITB3C/m9AWDpdFpERvEwEeLKPuT8mYEflzw8++kLPbmYTXz3NDgrjXRR0B7szUsf3i8aY7R8VpZUramzQ1NkL9tAF7CE8J7mN9xh3mZGUyu4N3a0vPLJT2p4ts1uWJ+K21jrAD/3qXqBEaVi7ZB8zqgEyoaOSpyMV5+XnfWcgXlyO6cA4GySShVWF6EN46SIftIFQ6jnQU53VFxRM/MI+gPNnDK2hQp4qQqPmx14hvRL2DMY6B33dm+HcRgzw4esljoopHeZXHPswIcYtHIJg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ssI1sMN1RtkE0rVUAREgzud+TZs7o1Q+2l7nhMnxCe1FAjYMytzmY82/YSsAneTWn94AttwoyQhY8LVbYEhx3yTNmZSKS5oNg5CaQr85H3rpvfhaT9X+MPd16MIhWn+5+IHNbxSdIZY8bqSBC4s7khwOFMGX2BwEUKmn8AkAcceHOBeha5H+IpoHUT/OcDKjQn6EDZaiJsMO+EL5SnAtNY6BZykNCs6hVoMo9PJFpAGtbumf+SzdXsjCTksiupDSwz/O/7erE8eX+eOOqzBIBM0Pq5YN+SGApPdOsclZ/24oMoP058/oZd+4TLB4xGdIbDplkaQZrvS2yozSKJYyICF4s+nHaGH7VLYNn7mXpS9zS4S424BHDrqOPgQavSDYEmwT+iSYMkozI3UmQ0LBcvDZlyU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4bd7a0c7bb271e5d\",\"npc:caf38724f33384d8\"],\"constraint_ids\":[\"C:7f8a5812ddee71f1\"],\"span\":\"Iria signed the register as the Harbor Marshal at north gate.\",\"rationale\":\"Ansel already holds the Harbor Marshal title, and no relinquishment occurs before Iria assumes the same title, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "IDpbqL/pV1l4h7BphpbsjsGuFhqcC+8vPOpgRjXsrVU8sLrYNT0iNf1i+2weKYakoOEtpi3fSGXoAJehW/VZQ91YmMfcix3hMCrYxw9TuFF3FJtaDb2CQ5ydtYKIobo2RnaROJudsWVaDf+rENR3zUN2wkdK+nFPZXUR+L2t4T3rsk3oa5J5+kIG8MNfFonWtLb3Id+WQ1A1JaNbp0YaDcH30wzMQxBI4/1MLwz7TFIDsUrMgO4XYDvEUlG0McJYtYFb7NwReYPta6LqBJfauEiO5F7GHlh+2mS6+F9BxQeNXRH38yeNG11YJBOHZSDj5h4zj3EdsZMmcm6VAa4FW597ZwuTLmpevF3rGBm+9bzx+8pyX9DQzCnoZPcSAxzezCijDlKCvraR00FqKkJvgl5LOxXE",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 614,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 166,
+        "output_tokens_details": {
+          "reasoning_tokens": 53
+        },
+        "total_tokens": 780
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4bd7a0c7bb271e5d\",\"npc:caf38724f33384d8\"],\"constraint_ids\":[\"C:7f8a5812ddee71f1\"],\"span\":\"Iria signed the register as the Harbor Marshal at north gate.\",\"rationale\":\"Ansel already holds the Harbor Marshal title, and no relinquishment occurs before Iria assumes the same title, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 614,
+      "output_tokens": 166,
+      "total_tokens": 780
+    },
+    "tool_calls": []
+  }
+}

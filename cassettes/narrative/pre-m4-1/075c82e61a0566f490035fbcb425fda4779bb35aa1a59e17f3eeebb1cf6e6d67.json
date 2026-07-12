@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:075c82e61a0566f490035fbcb425fda4779bb35aa1a59e17f3eeebb1cf6e6d67",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5751,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 568,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 234,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 986000000
+      },
+      "created_at": 1783854500,
+      "id": "LJFh7MLz7sBCkPtK5BpzG1ThqIXa6CfJ13QOWZIe9xB+Ab42BRSoqr0b7SAe44kINYlF354zWXx52JxMFpIyqonOOROBwajRZ+Otrp24Hu7PjdNC4pNfsUe7Q30lPoEdGl/26PsSU1Ze+jnhbchcQVaMC3rK/YOqNHJie1ODUCmoSm8ncIT85khKtNEM8CZUq9AP5KFnqm8dP5nU1c3ZYdlfq8p3+1+Bk/mcXUhVynUrvlZyjJ6VwlDgCrX18bbIIByQP4ml7oceKSrTPPLKU+TVc7GPKvBF0nLhe+7fBewE3rD21AC20m84AUtfgXA6EvcAFO5Qvbh13MUfFLTYWoQfBc2LXxktgW3umetwzYXcR5GahNGy84SIM5ivblVMNcPQ9Yx+tNYoTlbD2lpDXZ5xofJdlw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "sJjsIoq1crvo7uOJTqWgBsPCk8Yn+r1BY9BDBiN7HJtiU5YzT5yzl4LWGx6HxsffUOoxLF12py4D3Twei0h7dTmZDL0UwCwRkWjG0X1KaYyHj+ryLzlkK2Cel7uwFHpZE+V5yDMTD2SjCLswuhg7Z6acSUlvcI++m2QTwKE39qU0ciV37VhiDEz6Nmd3HEmDl4IJ+aszydGd5YK0kVGbYYaX0NXanpVdl/Y432Fiwt1RkAMOky+PiowiW5EG9IFjvUPch5N7C8cFoih51bUkMaFL/GIC2Z2zKK2CzzuwIRsFndiGelq1E2Az9vcyRJvHU9pk5W+uM1nfxEV6Fqgywz/Kj0xgx+GlfCsroiYUhP/7XYVWYR3UWFR7EoYeA0CQI1FYxYsZ69zWxxeOWOcVgp9PD98=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1080c2f3b07f32a6\",\"npc:fe43afbd34f59c17\"],\"constraint_ids\":[\"C:31850e0e8c1004fe\"],\"span\":\"Iria accepted the title of the Harbor Marshal before the assembly at relay deck.\",\"rationale\":\"Iria accepts the unique Harbor Marshal title after Ansel already accepted it, with no relinquishment stated, creating two simultaneous recognized holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Y0f9Qpby3R3dDC+klOaFytRkQDtm0Qe0iOmEl6VU7pO65Gwt/6ZI6+zV+laspZQzispdFMI+VMqlQnEn2GkP0v3jIxVjhYJW9abJXxdnhDLu6ISVjMECs7KCbK2O7P2S/VwVO2Yx7yt+prRCOPKzZOnzAPKfPVXx4yA4KDeYXBDj7t3X4etQQFprqDyIQJflfnqi04E4fKGldm9PGt2TgBTzZVamDPI2UOWDqkwnKGPfuQKXziLVmhSyrt00w3/xhdYZ0V7l+G0FK/tAdroEj0GZu99YGYr6gOLbRMpdXDA1ccGq0zG2t+ML+OlohgEDufhJr0gJVMgFFqhXF1G2JxF6r3rxtaBPBzrwuLYvqvP+E4jCWmvMQPzloDsUkJuXUCGsUQfKOrKHeWJDWay3noNVEeIm",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 568,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 234,
+        "output_tokens_details": {
+          "reasoning_tokens": 119
+        },
+        "total_tokens": 802
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1080c2f3b07f32a6\",\"npc:fe43afbd34f59c17\"],\"constraint_ids\":[\"C:31850e0e8c1004fe\"],\"span\":\"Iria accepted the title of the Harbor Marshal before the assembly at relay deck.\",\"rationale\":\"Iria accepts the unique Harbor Marshal title after Ansel already accepted it, with no relinquishment stated, creating two simultaneous recognized holders.\"}]",
+    "token_usage": {
+      "input_tokens": 568,
+      "output_tokens": 234,
+      "total_tokens": 802
+    },
+    "tool_calls": []
+  }
+}

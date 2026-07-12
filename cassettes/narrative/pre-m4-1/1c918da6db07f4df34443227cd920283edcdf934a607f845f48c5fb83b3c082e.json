@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1c918da6db07f4df34443227cd920283edcdf934a607f845f48c5fb83b3c082e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3845,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 565,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 109,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 609500000
+      },
+      "created_at": 1783860700,
+      "id": "d6g3e/9+q/iFOOXs1cWfibAGMIWiBhsIDGXex/Mvdxdq6uYpHW6crRijcO+KBc0zhEi8r9Ai0Z01yNWELT8gQ2NS88n5F7QHAsYDJBrNeYNvB/f6sYQKwtCGLkVYEMP9tItRPuDZp7Ca7dXG3sAhBP1Qi8iayo7eFLoUB7scSXz4ucbEcKxqnaeO7Ya1Ixd+fL2mkuu4wH0bMu8ZyVJ6nKcbJfeMLIudBFtrZ9Yizz+At8RfIVauo2orSvXPoeN11gWFcoBVWFQBYbg+xIFMAyQ8fCGXsQLxOmpCFS2KV06bPOzvDcEBWY5VhW19l3oUnkriAOm/Tmkjgl1X6OhNW3fkmAsxZS+RQu/LEWwapxbwg2nAaPegC/cOKk4eE7eXgZ/aiEPHDivYAkY6oVuMEvv5xNxSbA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:85a4ad76f65c976b\",\"secret:3f6f1a3ad226c941\"],\"constraint_ids\":[\"C:0e24f50daca29d6d\"],\"span\":\"At observatory during docking, Ada told the room the truth about the origin of the black compass.\",\"rationale\":\"Ada discloses the protected secret during docking, which occurs before the permitted reveal gate at vault access.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "5VNV47RTquQZ2xz65Pp95u/JPHRd4VKrn2h7Kzbnz3eBWrwW0ysz/goLfqyzn4lcxJqc9l623dm09XOH1aCKJ11ZFflXjBEiBHy9MaZj8zBjfbn8Ih7NLfgRm8n6xoEd+DAceqc0Bi1EPMO67FrNgGrvbEaUDIxvjy4wSmCBPgQ7Qf7N8WVLkbsOjFYFQ7zbVyct+T4DdYHUfWIqp1gWlAEzX2h/lIP49o5NABspa90Zh+DHmShC5VuY73hhsgNuHjL+l5ClpK6VIf0vN4en9HOz+PbSj8b4MS5g1s+DhPdW9/2p0EOtneEKl0F0oGKXTqBmtKsfQeLc8uyJoz8LLhP9cy7TBLza7fWUKxAjvcWqE1eKimexhONmcpL/mvpKgWO0OfH+RYlZ/l+vgfSy8ifx0Ftm",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 565,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 109,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 674
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:85a4ad76f65c976b\",\"secret:3f6f1a3ad226c941\"],\"constraint_ids\":[\"C:0e24f50daca29d6d\"],\"span\":\"At observatory during docking, Ada told the room the truth about the origin of the black compass.\",\"rationale\":\"Ada discloses the protected secret during docking, which occurs before the permitted reveal gate at vault access.\"}]",
+    "token_usage": {
+      "input_tokens": 565,
+      "output_tokens": 109,
+      "total_tokens": 674
+    },
+    "tool_calls": []
+  }
+}

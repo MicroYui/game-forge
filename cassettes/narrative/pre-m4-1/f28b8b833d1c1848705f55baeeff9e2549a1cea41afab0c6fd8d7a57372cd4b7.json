@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f28b8b833d1c1848705f55baeeff9e2549a1cea41afab0c6fd8d7a57372cd4b7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5949,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 718,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 176,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 887000000
+      },
+      "created_at": 1783858800,
+      "id": "40tp+l47tmca5GnSutx545O6XX2r1wj4LI/cNWrGVjJqOlW5e7xABJvlavr1VrvOy0JSxwNEAbgFYKNFjkKnums0/XiMEnp8pnyXNCiS4mz7+MOM4xn8Ji/+u3BbGPJUuF4h7lWRXk9qSoPv64MI3gYzuqPvha6g5Gk1hD3yt6vXw93qeFwwGcJDrxRlk0SayF6TcDkZoF5lPQxFJvEkrvMFUx79kaETHivuG5LJ8kW+V8tDBz6kipRUAJc9TgMV62Z+FSJyh0RFLjzYh8+lfSGdHpb86O7Ajlt7JNGAVu1qhUwpuSL9ei/vcYPKLmEwyJot6bJn97tPQke6hAWgt0E/iToPDsIG8fsQnzsU/i7jnPyOjFxG8d+m/RSrszRHWApMluYTQGZv9jt6XDURrsctfZsyKA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Qi7hAp7GIiDxG9SvnwyWT3xjn1iiq9Mft00RAbay8vMvAkduOvGvzTI0PUuaGsupgmJet15qIUVBCzUdFxjpRSI4Ug8IGemc04lrIURe5QZMH8y7JLLwWosEV3xPanO3Tggn3MvAoBfkL12waNQZA7/mev/G+xmc71JYOK/jQrCJym3KR0yHoXT4H05KPD8vhiXX5+ziRS1dxdkJdH6Seob4kVgEo/iVOVnR97c4Sk7LcvUmvfD13lZGGzJ3yBQPjK/SQmLpfFobj0TAatIw+IXi/A9+p0EgWtZt3d5q/q0g7/0wFfVW4LGHpgretjszJ5TsZlQ4ZkfGxerXZtWy7CJ1LVegIPoeVq7Al/yvD4UOMoLP7/uP6x1HPhKuekjbAkjJJhOxwT+FGTrsxrZPurP095c=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:179b37a013b77fb3\",\n      \"secret:93791b1e84b18b83\"\n    ],\n    \"constraint_ids\": [\n      \"C:d89492358dac12ef\"\n    ],\n    \"span\": \"At river market during arrival, Ansel told the room the truth about the vault keeper's allegiance.\",\n    \"rationale\": \"Ansel discloses the vault keeper's allegiance during arrival, before the permitted reveal gate at council session.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "uSslQInn/smsD5gZ/BVpGifOz6Pn1+JPljj3cZq43Fq6Zdt9otRrXeUgAps3AWaO4h753smfvgGgsc8VHafbtTh0bm0vlQ/73DhI6Z/MKjuLAKdCLzJSGeV1EA4h4HbVeToaULk1GbxXUAXfuNd/c4BpYCbtkKIehypK3gsY9vph1IJlwQ3OWVZFSRdgXXq67k0h7Jdtm3ftR4mKzGYJzfwSXsaF2h9GHmGqIEfEACTQ3JS6/Rs+Qxo+dpLC1GEQmoJbyAzyzpW/e9OrinjW7bGkTIAiIVq+Br39qW9HmbVplI9z/k8ASclf0NXblzsjBsfg6YWdQ+0+9P0n11VUzzQzLR98MJKcSM8fY9PEHO5TU3omiNSbd/7nyvGYk9WyRQNtFDBtVp5I5gRMwKyVbQCRX6/v",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 718,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 176,
+        "output_tokens_details": {
+          "reasoning_tokens": 45
+        },
+        "total_tokens": 894
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:179b37a013b77fb3\",\n      \"secret:93791b1e84b18b83\"\n    ],\n    \"constraint_ids\": [\n      \"C:d89492358dac12ef\"\n    ],\n    \"span\": \"At river market during arrival, Ansel told the room the truth about the vault keeper's allegiance.\",\n    \"rationale\": \"Ansel discloses the vault keeper's allegiance during arrival, before the permitted reveal gate at council session.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 718,
+      "output_tokens": 176,
+      "total_tokens": 894
+    },
+    "tool_calls": []
+  }
+}

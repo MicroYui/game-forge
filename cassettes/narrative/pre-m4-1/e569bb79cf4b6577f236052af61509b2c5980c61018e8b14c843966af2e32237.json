@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e569bb79cf4b6577f236052af61509b2c5980c61018e8b14c843966af2e32237",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2947,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 606,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 150,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 753000000
+      },
+      "created_at": 1783843100,
+      "id": "o1Q80PEnLsDPv6YxZLMmrVLVrOyEhpYdk4xHX2a1at3GgiWfARbfZk493iR2+NqWUzafFHUh+cwLePTGeFzvlIuw7pmKhvJfw4RKZ3lghPOfE2PudQhqLeE7zH/cW5DdURG1tgqt8558aw7tevRcoEbUzDDsvPJQqPbWtEnqTwVPtWPobVO9RXOW9YoTRLnvGGzcKWkgKDdxlkHB1nLClKR6pYyli5yw5ddw9+Xc/a9eQbc0hu0EPJF2GCi/VSXvJDaY4fPaoBjcKVzrbVyD/E5ZL9qz6LYBXuoTyBAwRxSHw2by779fY4fX6GaT7sBVcx5PRILxidnk0j6R9yWX50uPGFQ/UJCJWJkzTtLJL26UWR+pBBcfqoP+TyHEMRjznY3ZBllm8AJvJlkty+aQljmskjoswQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "x7yJyFI7osDRhcwdF7PUwtcHY2SiQXlyRLQvQlkMQMk1cd+tzs3h59bMNBdNO6fDa2vB5G5a0b24DhTH4Uzl1GPH5PnOembbX0ElJaPm+7RM2kOVviu8kIdLX9aNjRnir2o0UwLKrvb8rfTLxZ/rn4bNdktlg+EzmJ4+ziYvQl5OHFvTHsex71xzVHsVxPM/hmvP247Z3QB5w9qbzJ7DY2rkppDBXg2VueDvOw445KMlXzlh7a7npyyyW8YMXrRRERuoD/jhm4VoCqni9ErdeFytsAOXdOYc7JeYHVtSqdoiQy3B2VsLiY8UENzMeSyNgFe2UrZpvlSkCiK0hBhvM52+XhlSsV/aenswJW2LYYY+LLKZ42+fEAV9nkO6Yq/H8jP0YNLMHq6nR/KJ8eMyHlCnuS8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:b29fbc9309007af4\"],\"constraint_ids\":[\"C:8160c87411d7c5ab\"],\"span\":\"Tamsin publicly renounced the oath before its terms were fulfilled at north gate.\",\"rationale\":\"Tamsin renounces an unfulfilled oath, conflicting with the requirement that her promise remain in force throughout the mission.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Fzl00vVKRGeQ24kqxePTtziGIb17DX4G+S8hlIPpcwR1alYKQ/FoZuTdAYtBYpVA/itzRol0QnUp77ADJAl+Gxv4o4hRfs5xB3Y0xUAiQGUPPtyARO53E7zPHb0CrswqSWGXfnowGs7fFxq5baSY6Qh47pHMTRBODcW+7/2hGJoq5Tp/le7IQEI8+J2C9zjMK9Z+ZCdAnrqg2gZjhAKUqHljO7avg1vIhNnkbtSdQ2q2xls34kbzy6TITPAfll8Hugz36K16mv8HGsI5yNd12TbFgIqBBPzpp+suGB1L3u1p2aPxBenjVsfe+9alMOR395a48MGJZ2A3mtZ1ITZ/jdJAThP01RLDgtok0XeEl3copW6+uZO1/0aQDwpUJKMxBPA+PVdYxA6/sLH+wpiogpjOAN4W",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 606,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 150,
+        "output_tokens_details": {
+          "reasoning_tokens": 55
+        },
+        "total_tokens": 756
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:b29fbc9309007af4\"],\"constraint_ids\":[\"C:8160c87411d7c5ab\"],\"span\":\"Tamsin publicly renounced the oath before its terms were fulfilled at north gate.\",\"rationale\":\"Tamsin renounces an unfulfilled oath, conflicting with the requirement that her promise remain in force throughout the mission.\"}]",
+    "token_usage": {
+      "input_tokens": 606,
+      "output_tokens": 150,
+      "total_tokens": 756
+    },
+    "tool_calls": []
+  }
+}

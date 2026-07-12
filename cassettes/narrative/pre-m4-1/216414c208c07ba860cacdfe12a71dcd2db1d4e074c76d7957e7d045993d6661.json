@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:216414c208c07ba860cacdfe12a71dcd2db1d4e074c76d7957e7d045993d6661",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6301,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 700,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 277,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1181000000
+      },
+      "created_at": 1783855900,
+      "id": "pZSK9/iP4MQ3XbyCaJWG//FdAysvkj5+BYmoskawLVG5qpmjMBmrS0GN64scuNM7bisPerqqMGNQhWvAfycROaX8GIJQT03iPcQQuFcMIppTT/Uz7LKeKQN5qMxmdFX4EZWedle0Z/GvFGbCD359ARM6JJJxk3bdOb1oKim4BIf6tv/kVddUq2VsUPdqXYMMnk3vHUmfV/XWNQ7PIoXL8BzAtcJhbWBGEajCcjwrCGImPNgyAGQmoXMkVrZHrMWrripdaVwi88qXlDT/8HtU6+nzxeH/QaOZL/aA/LSmqLEqX4cmShkeOcd0YtNDeaicdKyNhxDwQk7JhOt0fK69uYnk7E6nw48PFo9Xe/HCBRebuTaSdlZIiKXGzNfqVufZbZ0I3y07YZVucoTShQdJBKnVm+b7lQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "HRcFuFJR5lN7/4jzqnYgCnvWWArajuiGh+3XtQnMn/2ACBt2NposYj8VHK4NNiY3qE/Eb0Q/YcU2//UkAWT2BYs3obyDHUiA/F5kBlF5FesLWIRbCDrygmqDDcnVJIyLjm5n/HDc4rfVenQRijnwy2ieT6hINvJ2R/2rF/+NftTzZEo6Koz7I69UbCr5XdQbkRPFVgLXRr8VZzb/jWt6w0I9Ll94BtTzknGfV8BePtp1P2NO28F8SImOKqlUYxC2dKk85Gfyp1okS1Gay0Y7xhTz0a0tiRJGN3p40SV57b7iYbnrb8H0wJVIEUBs2Jj9Wms3NVR2QxOHmX/ayInW2zY7+g8iB23TTD+5AoqgNDxfjJGzZVVZ80TmwtF2w+Jpd+apk8lcHkp7yS+dxtuPFbdibCE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:6918821ba10d521f\",\"npc:b75d7577a2711dcd\"],\"constraint_ids\":[\"C:2b0ace49520f3e63\"],\"span\":\"In old mint, the council recognized Eli as the Warden.\",\"rationale\":\"Tamsin was already recognized as the Warden, and no relinquishment occurred before Eli was also recognized, exceeding the one-active-Warden limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "cyKVigUpHfor4L/9UDE41KShxTQyd/nN6EfUbMGGXi6+4K1OJ9fzbxjB7QR4Wih0GDkAjbp+W4i6qH2cWSZNgtfUzNUDNHN3meT8m+1NrgVlEXLWpcctETsDzRsg32dpRwNX//XGsC6K2k8F0DtF5anvkgJzMe29aybvhAt5h1mJXS45RXNx0qbNA46to1kBDdBzFHJS3VU3nu3bJw81l276I2JN5BxL4iamQg7LLkS0m3d73S5oTkAIsMoLIWk/kyuVu7qlVBH2s0m2xBCjPZg8CYUCpsEg+U4esC07cMAN4wkoSfUmhflHNIhfaUniBlreRb/k49Xc0YTdOOysyL2/s68G4iAOvOFGbrbB1mtNco27zc7XKgKxxuLY3ragEN8YaZGmceJjLIVfbZX/D7TtBtQP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 700,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 277,
+        "output_tokens_details": {
+          "reasoning_tokens": 166
+        },
+        "total_tokens": 977
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:6918821ba10d521f\",\"npc:b75d7577a2711dcd\"],\"constraint_ids\":[\"C:2b0ace49520f3e63\"],\"span\":\"In old mint, the council recognized Eli as the Warden.\",\"rationale\":\"Tamsin was already recognized as the Warden, and no relinquishment occurred before Eli was also recognized, exceeding the one-active-Warden limit.\"}]",
+    "token_usage": {
+      "input_tokens": 700,
+      "output_tokens": 277,
+      "total_tokens": 977
+    },
+    "tool_calls": []
+  }
+}

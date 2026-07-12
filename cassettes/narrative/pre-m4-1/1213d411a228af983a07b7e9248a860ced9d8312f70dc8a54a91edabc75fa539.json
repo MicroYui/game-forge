@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1213d411a228af983a07b7e9248a860ced9d8312f70dc8a54a91edabc75fa539",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4933,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 673,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 204,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 948500000
+      },
+      "created_at": 1783841400,
+      "id": "b9JwHXbtXGWSejtBgnr7FBm36dyluEmI63yfywYJiwFadbGHlX3lUFV7dnVd8ck/SBMFUtU6hbAa6vxhPMXFxfXjeMCf0EQt9YwojBdr8ozz495To5UTfSgnVRFgT6sOfoelYDK+64NNJjVHwmJRrZmFqWraS6CVw6qlMEnGtrscgNIiDpcynoTDY2yPsZ4cmN0Ve54ok6AT0A8PoBR3KnUgkA08oIGB0QXykinXqyu0/e7SWP0lsd4WxfvXahOaRrtc9RrkpGYm+vIV3HPREimqxEdZvh2bDD9zLQCx80cSGpOJIQsW0UuPL5KYg9pSUqLFQlwQLDhbZrrmnkbHvNcY1cfGWacjZmqYVeaObDpw4eZeo0s4jWDCrJTwJ9/7oNle2FR3y/aTGABnddIibLiXURBvJA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "BCpoo4BxqUhdGnk1tKLGqxhajNCikmAlUlXvctN62wHJzPU4rXHrICOHKtNpnNI3Kcw3+/wc3AeQUkNHUFVJoJY5T5VnAVCXZskQp9wpZAkAJiPYETZ6KORUbNGdSVrV2NRMATh2crbF2RZTH/OwTFi+Xm9xjVCdRBfIePsUJceqpOGxpQOn52B62231PcfHLaJsadTf5vkEkEA08yMZqhpSvqq//kTWFj9GVoZXb1v84oehrCPsrlyIhdHtOplSB6zxXVAWIF0ihe+iqi/7x1YUawoTYrZ5b68viYchwFqFneYVuGTpdSj7BYkNm+9NCwnQg1owth2FuESedcu5w2cOl7zpmmxRkGYIVy4fqCZegPqa5swKs07VoAoTHGpk0NzFvHBuJNI3Kp0VpPWu0wT/5CQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:773752bd18a7366b\",\"npc:f0f3b7baaf3be409\"],\"constraint_ids\":[\"C:3658b3d40575049e\"],\"span\":\"Mara signed the register as the Vault Steward at desert waystation.\",\"rationale\":\"Qi had already been formally introduced as Vault Steward, and no relinquishment occurred before Mara also claimed the title, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "RbC+87ZcQtObcCag/mspUKnmf/gfd/5z4Z65AFi1VH5HCfZzeFoCi6nSlJ2aLLKq9XagG5zYVtjxx3V5HzLtzARIyw7ubDK1TthbvTgNBUUvuK1fV5Xewl1W66CqKwdDNL7vRnzgFWak1CcDDTVXI6ei0YTlFKiuykrMTi9DqsWL3vKaLVWbfdqtEbTK7sdkNBWQh3PEMHOnlLK0AxoAgw5X1NPnu1cs8x7ale42Wc+lkH9hRiThFmNeDrEjjW9K8LToVqbPBQpMlDgTyZVxmWLdcTc6VzuW1eMbzeU5Mb+xauhRH7b8SdpnuTxh5ds0R4I0Bxk2ttIZJuzWF/0rbuy0CDJMLGA64lesYmHXIpfNt46j+lvPiVPHODH0QA3umVH3m0UWzNaAdcYwBwf9LcVIHldK",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 673,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 204,
+        "output_tokens_details": {
+          "reasoning_tokens": 94
+        },
+        "total_tokens": 877
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:773752bd18a7366b\",\"npc:f0f3b7baaf3be409\"],\"constraint_ids\":[\"C:3658b3d40575049e\"],\"span\":\"Mara signed the register as the Vault Steward at desert waystation.\",\"rationale\":\"Qi had already been formally introduced as Vault Steward, and no relinquishment occurred before Mara also claimed the title, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 673,
+      "output_tokens": 204,
+      "total_tokens": 877
+    },
+    "tool_calls": []
+  }
+}

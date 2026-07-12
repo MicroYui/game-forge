@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2bce407bf614c2705a04acb24b53bf34d913f70b3b62ec949879775c1b1aa72e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3668,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 593,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 153,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 755500000
+      },
+      "created_at": 1783845000,
+      "id": "l80BEGIPZgf+NLxftatlKgjWchiHzzIt45PH1vRhtufhbda6MKwiBh71YGzS/HcwZiflEtPHo+5IITnB0fNdjN10xW65nOzOXn7xcbkMqGWMYbN7197W+TA6icthkmj2JLBak7qkScq6GjgZ/zy/A2a3O5B/esl8l6Pjtm6ZUnWO4XR7zwZkDAeTpnOVWUpT2q2kmFLwL4dFX+Ram/+wH8x2xpyQSzBBxWqdUyHmCl/1BjNawU1zdwdJxf/w4NOkqsgb4Wqc88u/DhPftdTtIqFIP7ZP0sLTGTFNLeYBXmJi9DKtcVYnFeF/LVwCdHEAJRxjlcMvPTkgQdxwccD80m1hNwoTj4YRjA3QmW2sEweBSge/iOCQvRrbArDlGiylMc+sJwT3gZNjHREjer5ZH01yY+sF4A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Uf5Rf9hz1bnRs6bQUvBraFQhxxdYOQDBtCUJZNzNRtTyD6JaTD2HdvE77L1Fg89gB6CR3tUXVtJGmPuYhCjbJxq3o407ooWOKaY2whQCtVF09bj708NVji83AfEelPe0g1GIg9EA0aYCpyKhl+Ac2nKY//w2sBziD20oxqTHDPX9UvdLe+FrpbXwCatt8l8PJ9MwIA3mhY7f8wqiuNJTVxU8GxjUiwtPijgpAdvnpRv2NZ6aiKhkxaxp4od8C0PRiuTw/Jr1wOczTudc3nr6wOSbt1qCZB1sahVL3VVRxpp/bJSqRTcRIO+dsbUiu1xDHQ36giSF3kedPrrHyQZB2NPkFCCi8eo9qpvcr6wn5Be4tmn9Xkqrz2HsIOFQObos5cNCl96IVKWIv36KoHrhfhAuJ98=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:0efe6d9348b377ac\"],\"constraint_ids\":[\"C:93ef5b4ccd848b3d\"],\"span\":\"Tamsin started a fight after the delegates lowered their weapons at archive hall.\",\"rationale\":\"Tamsin initiates violence after the delegates lowered their weapons, indicating they were peaceful visitors and directly conflicting with her nonviolence rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "mz4pr5kQfTawnkwdgLBLkaLqViqyw8hA+tS7xQm0Vo/ecT4brD6QYjk42zxt36OA+e/JOYymRcDX5AcSM9ET05/d8HoB58r7rTjlEjNLMw7EI37PUVqtzePRsoLG+LLYTgrUjF1FTsw0vn76HtrIwHOFBLYExqxJ682iKgWQ8g1XXfH6zE8w/npLfZcpHLJVod9MPPxtQhYfIHqmO6zdtBbG0chSOKNC84CAj9txyqGBnt+7wisXQEMVZ2UIedSWshme/Pqp72/o0d51HjFaIlgqlMkgePhDRYwG4g9R/v0Cn414ZTlYm9JndD7EvXXX6UXlYmO9QIefGlCHHzPKeTuP62dzQ5cod1QNAajzXeMRhLNstGAO0UeE8BnHz9vKGpbnQiOVlqIaimbr67bGvbrmoQkl",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 593,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 153,
+        "output_tokens_details": {
+          "reasoning_tokens": 54
+        },
+        "total_tokens": 746
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:0efe6d9348b377ac\"],\"constraint_ids\":[\"C:93ef5b4ccd848b3d\"],\"span\":\"Tamsin started a fight after the delegates lowered their weapons at archive hall.\",\"rationale\":\"Tamsin initiates violence after the delegates lowered their weapons, indicating they were peaceful visitors and directly conflicting with her nonviolence rule.\"}]",
+    "token_usage": {
+      "input_tokens": 593,
+      "output_tokens": 153,
+      "total_tokens": 746
+    },
+    "tool_calls": []
+  }
+}

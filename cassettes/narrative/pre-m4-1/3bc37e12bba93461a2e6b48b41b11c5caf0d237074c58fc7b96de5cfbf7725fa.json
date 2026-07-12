@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3bc37e12bba93461a2e6b48b41b11c5caf0d237074c58fc7b96de5cfbf7725fa",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4395,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 642,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 245,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1056000000
+      },
+      "created_at": 1783843300,
+      "id": "X4IsK50uMK6HRc9Za0L6q0q4vKJnh6qCV0byDor0qYYvkR4hZTAidJvjug1FWpdRnwzRlg33Lv+qRnXwr5EifyJBLeGxCZPD0aoOXZgvlacZ9VNDMoM8hl9dn/PJmFkMTmpiE4dcEUZHNqZg3MBLjwzZbeEnOOVm/+mp1TdKGJv44xfeqHUU/Hh272ft6O4ZmFj5unp2T4nhzty5K98N2BULT94gbCvHZJtJ3RnM+As88VopujmDbkadvibNo/wanB9xmXmA3mkqDhbF61onj0ia2+6oVMpt3XGvXqOheFCtP1FWz/5KqPFyO3wYq7IM/P2DSREK9vkj0WbmvdkNz05/jGj6Fw6KXKzLApVHPPSpZmgs5WaUw2zmcq9rOhHXsTJYdY+L/TaKeJhlsG2//zSmJphRcw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "LsHBHuBuPxskzkimPO5Z2UM69NtPGhb6J/1lKEAOrweY8y5Sgrpxw33hEou+YMhWy/4SYMZmP6pvm981hcBpvWyViVsgo8BURtkv1utF836Pk1snxo3IDSGhc85YzurGbZPe1nufHvi6BSteNqEDuRzvMLkHHXiZZNC4v4YhOJVI1ycf5AMUviu4fMke8B6+MrK/BJwTtbkkYZC9pq5wc9lDcPBmY/Cxr7lB86i0d/zdG/63tnuFoENOj/834y3hyZalLJefDhhk4R5sOvSfv6rGQkgZ5YLXHngAULU8MqIriDIKmU9tmyV7Y+YmbufGei8bRYH+yxLRdEfAARRlhDZhyF9SMGyx1XuCRc97/zObw6m4+axkuTapxi5/AUdWkCxZg5KKPPWlJyMfSVzeofEpt9g=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:60d66a2faa539cb6\",\n      \"npc:63d140a50f5f0397\"\n    ],\n    \"constraint_ids\": [\n      \"C:83517dd8f67f266c\"\n    ],\n    \"span\": \"In desert waystation, the council recognized Mara as the First Navigator.\",\n    \"rationale\": \"Qi is already presented as the First Navigator, and Mara is then recognized as holding the same unique title without any stated relinquishment by Qi.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "CHySGdVMun+bsvyatNF5ppPK8K+jealdrasSBx65uyRX6u9IfzYc78YLSRpKl5IiUUnM0GbTRss8PcKr88lwe7p/DpKQcC1iShA2Rt6HDCEguIN+oBVg5irlQ9YOr1Fk3e0xfApjNv0RVsDxwwVob6PAraFb0rDxsNGh3ToooSrfqqGZ/OkE9POz6JAnF7RVVfCmJ+L/SSxn7fFDY7Mgxd4HlBpWrAhSA1A+rmUUrvBr6GfnlszkaZK3xJX3/EJ3bmJDgtET4PFhGGRNu8FrehWbANFpsISYmNWTPWreTconBGEV/egcafGFQt4spi4IS01Ws4UJ8BH04vxRJGtgRdtryJVWypIac9Nt3VX+b2PgrfLxrUS6+yaQOopRQeHhiq493IQodmrwx3EnPM3ZlpxFurNz",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 642,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 245,
+        "output_tokens_details": {
+          "reasoning_tokens": 108
+        },
+        "total_tokens": 887
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:60d66a2faa539cb6\",\n      \"npc:63d140a50f5f0397\"\n    ],\n    \"constraint_ids\": [\n      \"C:83517dd8f67f266c\"\n    ],\n    \"span\": \"In desert waystation, the council recognized Mara as the First Navigator.\",\n    \"rationale\": \"Qi is already presented as the First Navigator, and Mara is then recognized as holding the same unique title without any stated relinquishment by Qi.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 642,
+      "output_tokens": 245,
+      "total_tokens": 887
+    },
+    "tool_calls": []
+  }
+}

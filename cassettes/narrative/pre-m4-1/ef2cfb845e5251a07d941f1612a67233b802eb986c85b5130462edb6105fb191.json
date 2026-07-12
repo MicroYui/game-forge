@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ef2cfb845e5251a07d941f1612a67233b802eb986c85b5130462edb6105fb191",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 8414,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 672,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 424,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1608000000
+      },
+      "created_at": 1783852000,
+      "id": "oc5aQNws2moJ3N5vhJTjkjLmhASM7r0obUqicVgyKNAqn9K+TSfQdnCjZ+MnpC1tPjew9K4aEIYNEjVHZir5rGDWlFQd9doEX+6rbbsOk7HYxl2fQwCQGLkBw6m3vNJQNmI7wHlsNhWDtTvFoZf8kf3LjAllLISOxRwCVTmKrV0oWSNnX45VvdGUuR+4f2ux+klag/dhZQM1GlcSHJhk1c86gPgCDUUh6N/1a9LIDCm8PMb38HEITeUcLox6WINBdkcn1wm3mNntfKxHwfuNMcQ6K/J47Dij1CTLR9xT+UM73bjF7YLZFIZxx74cOCcq3WIOSOWKzUSJo7J4IcvTJ8VRd5jfTMA1Ny6xTinwmSXVcTsBwvaB7iWlP6eEDC8Otf4GUi9kPbBJ/SRvVvw44OpflC8NTg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "fwB/LUZ1N4CnQcco33YgdE10BYHNTs4nh8zNWE7yU0bS0A70PuyUgkL6LlYllwGs2n8hHE5wPoCsiSjPLGxa93Ie0YhuPBD7Ol4GQmDmll9vWdkrh7Xb+PNpfjUf1pR6NeFacow6qKRW8VPj+8U+gZm48s/7GN8q9rzeRObYwLr4fuLB7EIIdj2acTFWRH6VeE6R4bJdroWQ842TYUU+n8EY7gx3SqxeiXUwKASJm2cFuo0nIaBSi+hgbNmr4KBJbYmTkC+rEv2Lb1dTDcc/VDrFbG8S9UPD1s250Vy7yiPrCAWRWLbak/I+ICYCCv2x+CA1dtJH51gd2y1JvCA5EZlb7bOAynbxudIopllHyC3hGOYpICw9MtBsrAw2mtwPqo98Oauy7b4yEZXkdjGcoQd1zFE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:a83074b8cc870afa\",\n      \"npc:eb9544ca10b5013b\"\n    ],\n    \"constraint_ids\": [\n      \"C:9fdcf33e27c414d7\"\n    ],\n    \"span\": \"Tamsin signed the register as the Beacon Keeper at north gate.\",\n    \"rationale\": \"Eli was already formally recognized as Beacon Keeper, and no relinquishment occurred before Tamsin was registered in the same unique role.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:740abc51483ee690\"\n    ],\n    \"constraint_ids\": [\n      \"C:84e0685c78a30882\"\n    ],\n    \"span\": \"In river market, Jora returned the reserved rations to public stores.\",\n    \"rationale\": \"Jora returns the reserved public aid to storage rather than delivering it to its intended recipients.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KeXB7QhckX5JX6rBPl5cYdIUUq5wjXpXYmPKrbZstRgc1f0cskB5YTFySunpZUrvT2p/bRc2/cwrmuIidU22NbttbH0znEfUwDVcB5KP7bKgVzspO/y/TdD7FBpdONe2Ye6qMk/1ulRyG3F3lddhrFZnG3pEA690mB/vxizd6bXN/ACLykC91/AEyYA97Y4HxPAkxX44IZposGrizqxyfill3+zcUqV78u+xYJgtEhYpaNzCNd4JcQlDt7PQeG/9UgK4XYRTQwikw7kY62z+nzD+c6DZwcNuRyLsRWJgiYZ6XuV9Jg+fq3DB07q0ty5XqtwJl4Vi1RJWkpzQdN0hjwyt18pfF/D3dTIyQV7J6SU5FqDIgIi0zJMn5ptHvAE59716GP7OjIJbPfSaZY6sFsp0B79E",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 672,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 424,
+        "output_tokens_details": {
+          "reasoning_tokens": 190
+        },
+        "total_tokens": 1096
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:a83074b8cc870afa\",\n      \"npc:eb9544ca10b5013b\"\n    ],\n    \"constraint_ids\": [\n      \"C:9fdcf33e27c414d7\"\n    ],\n    \"span\": \"Tamsin signed the register as the Beacon Keeper at north gate.\",\n    \"rationale\": \"Eli was already formally recognized as Beacon Keeper, and no relinquishment occurred before Tamsin was registered in the same unique role.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:740abc51483ee690\"\n    ],\n    \"constraint_ids\": [\n      \"C:84e0685c78a30882\"\n    ],\n    \"span\": \"In river market, Jora returned the reserved rations to public stores.\",\n    \"rationale\": \"Jora returns the reserved public aid to storage rather than delivering it to its intended recipients.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 672,
+      "output_tokens": 424,
+      "total_tokens": 1096
+    },
+    "tool_calls": []
+  }
+}

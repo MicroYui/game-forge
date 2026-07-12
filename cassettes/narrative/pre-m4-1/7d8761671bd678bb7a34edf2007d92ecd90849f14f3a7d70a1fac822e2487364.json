@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7d8761671bd678bb7a34edf2007d92ecd90849f14f3a7d70a1fac822e2487364",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3273,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 641,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 188,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 884500000
+      },
+      "created_at": 1783855600,
+      "id": "x0dI4w7vy0c49wBHHGHmHgW//k480i7pEVrjsF3DRoOS6Ux7reCSTjagoqTNzApuSsHAhJDiLzyLHkYKo/GaWw7Hmnjerp9cDYzXGqheGoDtZI0+mS1qcbdV+2SN2gGbOEC0HrLj5l/2NFyP6uFo19wH6OCAsmA1DCVsaIiYx/beoCFXvCi7d8tm/w+vDFq/bDx2kSWI1UA7Mfy8BtK9qnY7CmGldXqXIqZTU7CpAtBuCkbF1k9AZ7EWDrB25HoeSmVBlNpwhlKt7bzZsjfdTyawyLYZF/wMqnjG9wLdFq3ltyfUMcRo7gucGtfI8nRD22qeNQSMwCRfsjRkY5+lnb8YxhJKJAstaCsAMKZiDXViqBh2OYt7vBzh1dMAWvbumDoWCXmgr5CAOCxpDlM7b0ocO40dhA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "OGZ9MbVPQMWKWzTPdpYNLiRdUnNnM1foCCvO8XCqngz+tVRPUbBBEL5mnrZ2xHFQi1xu/AgOF60ToZay/Q+vuMqevNWLKoLF93LN51lYfHSbFn6daUTwUCLyJnyEUlcz5WyLhHrv8nVMVYA34qWjFh1f3HAfXQKl9aFx0i6UG9d8howQqOFLN83yAHowAkiekzdmYlH3Jtz1pxazdMotnyf7Qvm+6q7HHV0LynX4x7TOarl2W4MM8jUwVf5VN5lWX/zSC59Hdw3lGhlyJLHKL4KDnR2Fis2qC5kyCZhfmtYFcmG1vCo0HGRBXGWCHZ4tGnV9QeJLwT14X2kvhwNXlercy45FcCaAzqdZFACRweK8YWjc75YwHKNhO9VRaKlpmevUNMkpYG49Qd6evAO/B7BRiHw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:6652fe7554e7fa2b\",\n      \"npc:6a52fbff5256636a\"\n    ],\n    \"constraint_ids\": [\n      \"C:684e3fea4f946f7a\"\n    ],\n    \"span\": \"In eastern ridge, Veda supplied Oren and called the partnership permanent.\",\n    \"rationale\": \"Veda and Oren explicitly cooperate despite belonging to factions that remain at war.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ZIFEV3RUpnmlIvajCO2haCG3KGv44xc457hh80mGwKe5kBPjvsZVvKi/y4gEIR5Fghp7HErooe3atDrAa/WxftwJvOGKYvnZWXuk9Tiv21K69nPr2gZOXRpfp288oQdtrEhVwfTe9rBivQPAqCXPTvB/RquOYlNiwhPBgmKc0++nfML2WDyZ869dc9HfwviuCB//yi3Owzqfny605sXppi+uUeCYCsBphNWrrJL+AqU/JrkgfAipOBYq7KpcigODgrgawpYsgWttjesCmrriw3dB5xOOTMLG9J19TKt3rdur5ebflFtz9W7v5I+ENwqPZOnMRxF3I/6yF2WUy7j6NKZ6p0mQ+r0SkmEL7EkNHU7HMyhVi81j3vdxH4Mn5e2MATQFj9JHTVYlOhKhmnt2+l2ut9RZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 641,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 188,
+        "output_tokens_details": {
+          "reasoning_tokens": 62
+        },
+        "total_tokens": 829
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:6652fe7554e7fa2b\",\n      \"npc:6a52fbff5256636a\"\n    ],\n    \"constraint_ids\": [\n      \"C:684e3fea4f946f7a\"\n    ],\n    \"span\": \"In eastern ridge, Veda supplied Oren and called the partnership permanent.\",\n    \"rationale\": \"Veda and Oren explicitly cooperate despite belonging to factions that remain at war.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 641,
+      "output_tokens": 188,
+      "total_tokens": 829
+    },
+    "tool_calls": []
+  }
+}

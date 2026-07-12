@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e933c341b361b7f42407f3f310b66b3a742f04d45bc73a3e0259f0e347791a01",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3078,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 694,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 179,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 884000000
+      },
+      "created_at": 1783856900,
+      "id": "1idTVhB9+E82F94jwbVWF/RIyzqXf8ri+jfj2Xtu91unbw6L+7UClAiFDezM2dJ7xyG/xnWHzZ7nw5LLdkCgGJu06TE/SAC7IcyQvD+AQw9EpxmjjscvXZAGAqyJoSpBLVuu90xnYgAEqzZwMnVZII42eVIlA3yRt8j9lt5Qo/o4yGIMvat0KVegzqW1wwYYq3huS/s0m/Xg5o2KYgafM2+4u53UB2flHNK7BYI4VuaG/02TPRupmQzQ84xSx/Vme/7FTi1RKBz/SZgkOyHIMyLv+uMjyBkh1tIz+jTLY2BPID70QZmyb84OVqBcHN//ZfLMBStIr0AnK6disLDD0crUA0GfSwC6576NVk48a/Neb81dMRomlbjIyEbZRwMI+6sYzxexQIdxzI6wUXZlf65c++EFjQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "K+gKDL+MSVjeqx2sivGJNrwaA48mf2m2qHvNFDgCTrC3db3OXP07bcQIf135+3TopQPyQ2/FiK2tL6hugyXCv9/3+T+Z1edzmwsvUL1cPRSe7cJCSb508SGV8IU9qaRoPpEgGRtPGR9dLdgJACBbFciFMcuhIv3nZrpF6seOIiqZsKTqAKdtpkxUjmzhCbjutJJ1xkpNE5wfaRFoeXBirONScVLBhW17hj1dv8c76N+e/ma07zZTRmvY1PnmQDZnggfo3MroxhMtPUzyLkqzZoUsQfCoxGHyV6kNVE3fm2EQ+VZuTz9fqpxU6JtzDTsPlrJsgRyGKT9RVvyg7mzsKXBR1vHmR5r+hap2gfhMoMD6kAeO7wG6tauEB/+XrrTREIX/+fjGOGDetiLG8Vus7Cb6mkw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:718db3ffa77ae1d7\",\"npc:c1fc2d0470891c5d\"],\"constraint_ids\":[\"C:80d26ffb87e4a40d\"],\"span\":\"At river market, Veda and Oren signed a joint battle plan.\",\"rationale\":\"Veda and Oren belong to factions whose standing feud bars joint commands, yet they signed a joint battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "BqMvD8VtvjrS+/e/CoqVuhwB1DrJli/TZO/o6dir3lxQROO0XKFaDloZqlCnbas2j0FzIO3Xck8AD8DGR/4hBILVV1dQd28TD40Ihmgn22erJAfEVFi3UhqpJE3doyCvOLCgjAxZd5G2z499eibvJiRD1jAdNy/bqpAY4LtiYFFoE1pB/2HrkjX5DQ0LBxst4YhuY8zmjsSHbCfvVGpxofOKGuQj/iQzn0gNGdEd0zq3JlkSuF6QOHE7bZb5Fng71iudB5byNxzzrD2+u7GnwkVgeZgMh3dR9ZdJNPMrzCB/nDKg2RAM/AV2+yL3Qiev/YlG2Gj8XVdMXE81ptrz/X88h3FC6RP0XWkc7FD3Or/9h+p1mVzg21VdbbK0qWzISn3KnmMQYjv1gmH56K3ZILJInrhs",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 694,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 179,
+        "output_tokens_details": {
+          "reasoning_tokens": 71
+        },
+        "total_tokens": 873
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:718db3ffa77ae1d7\",\"npc:c1fc2d0470891c5d\"],\"constraint_ids\":[\"C:80d26ffb87e4a40d\"],\"span\":\"At river market, Veda and Oren signed a joint battle plan.\",\"rationale\":\"Veda and Oren belong to factions whose standing feud bars joint commands, yet they signed a joint battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 694,
+      "output_tokens": 179,
+      "total_tokens": 873
+    },
+    "tool_calls": []
+  }
+}

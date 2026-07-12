@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:acbfcf3d8718d4915f29c838f3cfa07b67e1653b881d434366b985c0c7d1a3a0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2807,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 633,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 161,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 799500000
+      },
+      "created_at": 1783857800,
+      "id": "l33S0uUjYyZkcguu4k0QDJrZyiPZ3Sx2NORzMzSScDyIbSh/C9U5XnAkDkH7WaL+BE3gxbqIPwhebwgwPndx4omwYzOpHpm06gF110xuG4O86ACCq9ouw212vk0x34cTyHMLV20gTw7tUtqWG0u26MLXCl5xGx3clGbnFgYadOPQ3cDL3R5ckXeE/p5jQW1yMwpctmVN0ASNL6P2CGTSDEV5psVtTg6JTBAielozN61XHRKYvhU58cOz8HXCq9vTA5ect4hN15o9SXGGd3U7CfLG0MwlwA6Rsdq32Plpc/lHZndO/lFCcCmfO6c/3bTGrwxbeheuwKh8qB5/Ot2qwEoRIhLpc0ucqBVYBJTURzRZ20iR45cZfnD7e2W/JJdL3DXAPLHo7qNAqndmHpKwLJFWKfxDyA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "apFcz+IrcbwPLxbhdKvbLzt5kxyCrkmabZO6zmtH0ZEVq0XG5UHDJuEaxv9hhv8BND3MWSpbuemdZ6pBjXxjmj/tYkbyw2lqZ0Lg0tUUbeMN7mIFvd3hvDK6/xIis3g7lS0455SSQZsMwX9a8cbkeiBvx5DpnRL+LxB1WK1sBRvjG1XKWY+xpiyOxRQX3yGMABFgHCsczDJbGjg/tZzhKnDhD7TcJa5/1J1Q/eSbVWU9EJ+uEe3iFpw3abBWK6yCHbslJ1uS0IWpnmAL1SAopyarlyb3dhwbCebfFfSML9k3GECzOIBt1f2PPE4qCZ+SKRAUBIWnygZdQXRx+zoGWVhswMvbVy9f4yBjIpQ1Cc+/yMSWq5kEPCe/wO7+khhxxqRSuTIujmhsJPpHMqdCje4+kG0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0f225a621ce321a3\",\"npc:6bd477edbe900e8e\"],\"constraint_ids\":[\"C:93ae630c060809ae\"],\"span\":\"At orbital concourse, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass are members of factions explicitly at war, yet they directly cooperate by signing a joint battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Xq2ErIxclu/qfPDJZUke5Z1ALO9VYM6PujhLSeOJN2b3SrMZnFGQvm6wcM/p8fJPx2CrvWX7j6hY3kIt5UaTfZeGBiUAPfOpvkguurkSwA2JYe2qvGQETVA9ueQcg0Vig7P1Z03AdLQKS9ZOMbTz0iE4YhQmo9PII5tyP0r76Lc9SgtbF9EAGOCQPbux3bCGrmYV4sKq62W92HQI35lFt79p4GaRkoyeqvBS6to5HMoDBC1wWaEET7TQfS5Tqagg6WXTB4HVPxBUuAlHYhWgsDoyJ0JD1JXxgS3L2zJ36lq9cogPkn5/wcZQ97KFUtLObis2H5hDjfnWBRr8RjFocOQz80D1MJlciESPMlSiNoCrrkNCCEil4GsUAwU5/yl5aqw9sTriXjTvH/77JxztPgSg7s3w",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 633,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 161,
+        "output_tokens_details": {
+          "reasoning_tokens": 59
+        },
+        "total_tokens": 794
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0f225a621ce321a3\",\"npc:6bd477edbe900e8e\"],\"constraint_ids\":[\"C:93ae630c060809ae\"],\"span\":\"At orbital concourse, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass are members of factions explicitly at war, yet they directly cooperate by signing a joint battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 633,
+      "output_tokens": 161,
+      "total_tokens": 794
+    },
+    "tool_calls": []
+  }
+}

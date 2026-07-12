@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ae9c54a69010b645a1e75543fc838b4e57d1f69972980b925af7e280092ebee8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 25397,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 627,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 217,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 964500000
+      },
+      "created_at": 1783847300,
+      "id": "Yh5qq+sLs6NaL9RDY7cAnvpO1KLPPWWh7GwEATidd2q+YIlp0xAg/PPTqNFABdTaS4Ts7ZhvXBwtx0mlG06/avjhB0zkFpWa2zEtprTLoEx7vGjaW/DofpmQcbZ9kZwDV4yAwczjaCobBpGT5efpZXtceab0mTsKHZVmP96lWmM+QUwxniNm/0NyqgXdtrG34DLYwfIwlviFTfxX6zT/Ht35Uluh+HSrpKdV57npNMU9Eop8azXW3h6tQ5RiF9VXJm0Bsfl6N7vv7bVSyRekdczmO2felIFJ6vsfMRQm6MjFGt4+evuCMbQFPjHcuAFUNEjWz81x1EjARG/t5mXMGVG3rSc3WmFv91tPhDGqqBEiMwozn+dxWAEtXqIyunic1uGiMO1BIPjYj2de20tSz+l+/XMm9w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "X/ASLY5yco5z71LOpohuA4mSHCNtGRjsWBYukVS9QJdf757DrkMHJL/biHzUuTYWIalz4yGrRkvhtsF/ihqeZLuQGow3tGpP1SyTJvhC/fP0juVQyQ7IPbpSNAeqDMwAVthqI/TS+aOJqH6K8JJUqjTEK+mDtPgq6rdbvNZws8IgRXdCJn3OFH65tpdkpD4VKa0JJz+haq/BE0alnNPRv4bEFVPnE6BBoIpOHv0GH3iYw6C2IdVo7kLrO+WzOAfbLKZyCEdAkAwFC9EdGt7yuBErw+8yu7c6/A2NTBhDhHOEa9QVk3BPFP7g/M+963LdKulDj4QjOpsgrQ1lmuPPM2kpyt0cyDygGaGMyxxBfKengg5D9mZ8RBBpDoy4hJ3BC4Hun2TLN1F2oddicWxXS1g5H/0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:774cc02887a274df\",\"npc:913f9e7c4754814f\"],\"constraint_ids\":[\"C:40704193b3fe3500\"],\"span\":\"Ansel accepted the title of the Beacon Keeper before the assembly at orbital concourse.\",\"rationale\":\"Ansel accepts the unique Beacon Keeper title after Iria has already signed as its holder, with no relinquishment stated, resulting in two simultaneous holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "eZV7vbhIz5JRKlQYWh5AWdeZBeT4tWqCdJmz6QmxefRm6NN5CU0kWHagg5VCN30Rhj/HL+mip4NQJOAprWwurQyURRgEUkt76z+J2J/uMOkhZdBYbXCU3zsNliZoyMEZ0dNSkDrsnSl0xyxzv8kSzSUUk8mEvF8r+Xr7TetMZQ4rw1g3vetV3eRfU02Qns3I3w6F//mLITsGZFSsfd25omUpa4uPOsXBbDl9nnkoYvrat5Usdcg8rkgCxkCO9mHWTkth/lDcH8UO9Z1PDi3yJEqfv61nxp6uNp20JOqh4fj2FScXB/K6scVe763OFQkcVvkIH1nxZwIbhtDqVFVseyKa1/HDqZLEjCqtb9cF81MTcGZeOTOtwRO1luqhEWIrDLR6PbmC3L95k1XSm9Jv7+QipgGH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 627,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 217,
+        "output_tokens_details": {
+          "reasoning_tokens": 104
+        },
+        "total_tokens": 844
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:774cc02887a274df\",\"npc:913f9e7c4754814f\"],\"constraint_ids\":[\"C:40704193b3fe3500\"],\"span\":\"Ansel accepted the title of the Beacon Keeper before the assembly at orbital concourse.\",\"rationale\":\"Ansel accepts the unique Beacon Keeper title after Iria has already signed as its holder, with no relinquishment stated, resulting in two simultaneous holders.\"}]",
+    "token_usage": {
+      "input_tokens": 627,
+      "output_tokens": 217,
+      "total_tokens": 844
+    },
+    "tool_calls": []
+  }
+}

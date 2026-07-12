@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:461e17315476eb5cd6a07ecfa76a39240e7a5b8e1a0b409d0e7db24e9c244e27",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4590,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 619,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 195,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 894500000
+      },
+      "created_at": 1783858600,
+      "id": "i6hNJ7yIESEojOT4WbesVPYP+qqOqVIbMByHAbUPYZ0oDBFAl26m3I1iIdMYVUlVdFXwx5BfBH2OoUm8QbPEDZC+xfZgFeBcygVojSRsRVXTclpa3FrAl15fJ5Fm61590O+HwWAtxtLx7IgRNztX7b0fqj1k++gicbtWsZEGGaOSECqSYbxhGbIn7ye82MzzFVTRcd90APU3aTfhMagVyCls3OpdA6r1EqygXsjW9zgYLCixw0WrKpA6lJt4P9RoGKhDdfnFH7MyuVcaAAc2Wy1vFO7QHrYUFJmBmLH5amwpLGrxUL0E15i0ySzFlLlWwGCUtZLomDIw09qaH6blcKpzmOMqqqPufLCYURPWW+u/JvGTDsQK/hUbMgQlQO3FkW1P7MST+Q29+7n1SVt5qsVitmSUzQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "hQLMrHXli2VbkbilBH31HqZ13wVKDjof/pjgsekbODCyBhavazBD1PPFFOzlXIiIB80GqS5n98+YKI2zaK1AVNBk7f2+WUDcYEM5uz3EBD8U726eRepJ4uPMQAuQikSuiLOIXen4Z91qm2nMKMUJAj9lvmwnjk30XW0cSkEQB2/N58ohjj+tpwEzoOQ12WqO5DoNeV7W/47pKelxPu+Yu5v8MUVlBsBDjWj82HF/7IetaptsGI9tR5jhYxiRKfBtNWNBeqYHp9DytalSCvAB7rTxggyHVESsMlcmdxo0PrBmvV8YC5j0+YkHtaC7y0XStVSzP5wbYGoJ94GKxlASKgINblUFHlVddVphWsFVe40a2tYs/I6ODxN4+KNC49F6+MWcfdeGT2dmiRuHbSXrbcOxiR8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:bed63e47509421ec\",\"npc:d27b1fbe676c2aec\"],\"constraint_ids\":[\"C:5bec8cfe116c3501\"],\"span\":\"Mei welcomed Daro into a shared command post at caravan court.\",\"rationale\":\"Mei and Daro serve factions that do not coordinate operations, but they are shown sharing a command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "heCIyk1be0ZMA3jbGCSPSCWJ/+ohHkoum8zJ/HrS1eKOaOXNCV2iAimmX2xUVdJTIMr88FnJik57T4/nPl9oV8hZ1A0VMaR3rn4lUZwJTauwehSR/685ik0a3wiO+l5rIZX4eor6qgv7qZLIQOydytNSgAyGOjXdlN9c2YCrYCYMubPNTm9pl1+W9SFAIf6dc/mwGqPLfzcwtqDiFUrq9eNDnQlR+I8rr96I40KGTfUQLUeVoWnyY1Knh+KDGCUgEcHPdZUUNn+7+kWcn2+DbAG5fDk1VLqEAPOCFPt3L2lAaN7b9A720xadxCg8yyZUNFH2sDq/AKD9i9n1L0hMeTnLEAUW4fOAmukvSfRn1h7ozCz676YyUo4NnhxPVxXTsfVIvR1YcfGo4AqWp+T9smcni6PC",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 619,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 195,
+        "output_tokens_details": {
+          "reasoning_tokens": 94
+        },
+        "total_tokens": 814
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:bed63e47509421ec\",\"npc:d27b1fbe676c2aec\"],\"constraint_ids\":[\"C:5bec8cfe116c3501\"],\"span\":\"Mei welcomed Daro into a shared command post at caravan court.\",\"rationale\":\"Mei and Daro serve factions that do not coordinate operations, but they are shown sharing a command post.\"}]",
+    "token_usage": {
+      "input_tokens": 619,
+      "output_tokens": 195,
+      "total_tokens": 814
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:14292a09519656a952458c63aec2b850d64ce7c7b34ec5eeea90d28ad17a436c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4310,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 707,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 223,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1022500000
+      },
+      "created_at": 1783846400,
+      "id": "9ZiRWJgcfguqGjRUYaIbTWeUe4OcTb7y0O7vpgfzJV+44h7YMszJTSWl25/o42wclXkbZUSv/WjglLOdNgIeAgt2nLEy8S1knxoGCzwGVZIcD6KZWoJIWahRFCOGp2c/J0dJVF1LWLdShPiKQJFG1cFsFmqzhCDdGRjC1Ct7cNza6FjjyYQKiCYyVTKI0tPplTi+cOf+JGXimNXSNeasi8HbbB54BkdavscbpsZRfDdMf88uJmdnuYFYtZx4yHp3slgV99xE+Y8eHew/qRDPzN6rbkIhkaLgFW7thw0tja8LplwKct0KMfi/IZldcujlh3pkZvwSmmaVecRG1eF6+jcM0POTuD+WkqfW3TU5yjGJuftSWrRAarWVCelQdBmaPVZFnTdcxyncz0MRAVDBS/swdoMUGA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "LZxsVjPhJgko5KA9bw7tlSoR988lnDjJekbVKldVdCJnkog08EIRYEqqVi6GmSuT2Ej5mahGrxbFJ4gumXevGMMUS33reLy34mxOjYFbtTO6I2dE0UZXMvoR00hX0BP8PdzR7BnsU6k0YRSGU6MQMdEyhKmplJVTQ5KGoX6UgfWCGpp8qQT2uSLO+hoUQd3cO9ntTx38LcVelNncAPPxbywEVncKZyO4lOZYl8ZDfBkIeAilz2Z9d8KaOYlxsL7vzKMdu317LrgzsR6YD+YhfGh25d+iqlzBBdvB7IDa6MA1P4xT+fQ7wAAr1TM+mMwBEsi4/gUcm9F8Ddt+nVW0bmsY+L/djxTo1eD9RQmtfoHtsCwxX9GaHFF5q+lugOnSwuAhDiqgmkpHq/mAerbsUCGnKYY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2aa6e8e102b7d1ff\",\"npc:c57c9f7757ce97b6\"],\"constraint_ids\":[\"C:f0a2669a864d98ca\"],\"span\":\"Ansel signed the register as the First Navigator at river market.\",\"rationale\":\"Ansel assumes the unique active title after Iria is recognized as its holder, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1eTaI9881OVIiKBG+vTpf9aiPTJqCMUprPxbdxNCDiNddRF7iVUt+FQQglqjiLh674bw9bgGNkutr4kXW2EIq6qvj9EHfhiwlbfJuu7+4dKfM6yr+ZdzIMVBWqck5GTvNlsG8q6CJOxRgl1kww4L0Ts/yu0Cvz2BRn3UPdvNxwihq/UWju7IXsDRxiHccIxMdk5N0oMEz/nIHKwhqmYtpXPU4p13vyD4tLOFLj7RWf0GIHcgW/UKSe4+eKpLZnYa14MBM1gO0Z8X6IscwBF+w48UySBgb0WZkJbkVUhYaaKVE6lrRu5syNjbXQuSYNCeBp4/AeSpNjV7De48tR/TXs25ffhs1nzpRIDqtgqZiCPw2yS5IggYfhnbJGD9URORPjZ/r8MEKZ31H/Haz4wFvvfo/dI0",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 707,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 223,
+        "output_tokens_details": {
+          "reasoning_tokens": 110
+        },
+        "total_tokens": 930
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2aa6e8e102b7d1ff\",\"npc:c57c9f7757ce97b6\"],\"constraint_ids\":[\"C:f0a2669a864d98ca\"],\"span\":\"Ansel signed the register as the First Navigator at river market.\",\"rationale\":\"Ansel assumes the unique active title after Iria is recognized as its holder, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 707,
+      "output_tokens": 223,
+      "total_tokens": 930
+    },
+    "tool_calls": []
+  }
+}

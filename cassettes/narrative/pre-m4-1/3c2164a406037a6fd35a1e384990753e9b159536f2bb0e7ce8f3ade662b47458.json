@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3c2164a406037a6fd35a1e384990753e9b159536f2bb0e7ce8f3ade662b47458",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5104,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 695,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 210,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 977500000
+      },
+      "created_at": 1783852800,
+      "id": "6iC2SZj4/T0pndPSHggbKzybnbKJHgUiO3Fr8i2kJeCr6jDqK6R430lYIO+e4roNYxFyWHn+Cnu10i+i/M9DVhmcK7kYVYTD4CEaF9eI+EhO66NKVfZOkmxniqAsvwS+WxaTpJo32NLQV+4a/HScTqdSTi+5j0L6iL7grYmlcl1WS9i6dbbNYkyyXOOcZavqrqYIRDcOMdhJfohsb/CGRKbQnnJFQW7NsdTiPrYbWRsoX7IauVJOQlV8z/v+jEEBf0f7efUizfhziytFBezh9C2vGY1rUCqiNROgVeuatDRFh/Yb+y3bAy8HOo90BEetJJq7FvgvTMEdwNF63jqhz5j5YM1f1iLls/DD7sKYX/f7XjyKFXrAhAmm/2Mpx8r6tmHNJRxAKjLqgDWka7a/RQ2vsFM0CA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "YOFkyZW1Cm0P3R7PgYzMI9KaZNrGc7mA/rf7pUdy1b5HgvzMYPhM50o6ul/tbN2nv94pa9nTq6ZD4T55Dydp75sgUOySSXfS+Ra1JNdqGOTOjUbTEfFhgZ9KCVgDNEsstNl1obNzvrqVFjrCvSWwhuMua1/HTq2ORLP8mKU1texSCNV80qUM+4daorzwMCdYGkKOCz70yPFtDz91YEIcb/LTJX5CyLg5hGLa1h22AuULn8Pk+I77AUwGIB2eY0XShOEcOSDgYuZe7L8HVBA3uiXdJwRPMf8yUoL+S6b77IC3r2FHyNmVMTsAP9sWlkdY5tSATKMpGzYd2CPmG4GSqGblzyPXozyr/DfPMqUJlyrhnwGtIEptjysHuiKYoGfukvFMZcmzMdNWc8PIZ2N+ETrX/7Y=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:9d08eda3cbbe258f\",\"npc:a142914148ad56b7\"],\"constraint_ids\":[\"C:181db9e1c7b54704\"],\"span\":\"In signal tower, the council recognized Eli as the Caravan Voice.\",\"rationale\":\"Tamsin was already introduced as the serving Caravan Voice, and Eli is then recognized in the same office without any relinquishment, showing two holders despite the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "BZlbStvmt5R7oXKFA7O7mOByjG1scd6QucAQo/7SgP13+xSsDct6f0K/t7YoMDZ6UVHpwi5veCiw6Gs23C0XavRtWoHsQcx3nbSASYrT6G1rnJo+OYFhAGA1VhyRkcttmn5nwkRFSXZCDfrIXU7xliSWaGLUqfgPY1CfGazHA33nxKcKGlgLNqAYWCCoRDqb6GuafoDUNDIyIJkfcJanjabclo2YymRLOCapPw51XMMUIQqoBwnO/ziF0O35S+pDBGaBqgVtzlCNB6GOEa5Uq4VCksddQk9T5ZwAS8tK8lmkKkVkwtguqMW5VOSiMl52G56X0q1psEXIG+CgRLF4PMl9I2+4xGvDM3a8RRPntTlYd+2EvpgwPJeIRN0egzDo3Rsx1hoKpNmACPLLk9WSr/aQl93x",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 695,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 210,
+        "output_tokens_details": {
+          "reasoning_tokens": 95
+        },
+        "total_tokens": 905
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:9d08eda3cbbe258f\",\"npc:a142914148ad56b7\"],\"constraint_ids\":[\"C:181db9e1c7b54704\"],\"span\":\"In signal tower, the council recognized Eli as the Caravan Voice.\",\"rationale\":\"Tamsin was already introduced as the serving Caravan Voice, and Eli is then recognized in the same office without any relinquishment, showing two holders despite the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 695,
+      "output_tokens": 210,
+      "total_tokens": 905
+    },
+    "tool_calls": []
+  }
+}

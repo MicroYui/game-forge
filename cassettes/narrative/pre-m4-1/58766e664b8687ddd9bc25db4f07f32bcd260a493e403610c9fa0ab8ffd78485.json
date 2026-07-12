@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:58766e664b8687ddd9bc25db4f07f32bcd260a493e403610c9fa0ab8ffd78485",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6752,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 571,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 341,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1308500000
+      },
+      "created_at": 1783861800,
+      "id": "KoUnz2oN3SjGVKqboEmmAtbjlFRxrvJYlrvnHp57b56M60MBUhowh19i4yWusWTqz047KqPF4/IWJk7mjvtXL4D1UvmOYQDkLhCP4IlfAZ9MPkG+2CdUYOI0boUX0rh7mfRqTJJWYNWbBmDLl6Wibnda+x657zscEYcZmncYK5H9XKzMRpYYeIwddxCOAEeKioeGI4EDzlYgFywaa2kw9jz9DqzcrFocIUNuATHeezhGtqpdPya2hP1pwGASscEJUKH+Zb7vkKix5JnoKqsXSoKjf6idothUu/2jzvyNPBNSvKNUZuD/fPjxcXEHatd4q2SnkR48e8LmfNdpPtDCSLloiL3AGiADXezgmFhPiROi0duKWT671mCmgDPRTMpEeXsO31OdAPuIr/FFlMcbm6EIedKa6A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WdU+J807OAsZHibgvYW/lkvTmWRg4HrEVdRkbTnmkcuS51MxEaJdvAsMO3Z9VzfNgE4fEXhPgMUmsi1FkMGfLXB2uF5OKIctfAhyW1MKQiSFRsRvlHsS0/Wt9iUQs0Pd+b+dNCofLr8Tk5Sb1j8qdvv/Dl++ioM+F9TcmAp7W0QSdmFmAzDHor5TVuHM23lfRE+RC2+x/0ovzgHPzOoKxV9cKh15Dt2U27UP69NLkC7aOO8lYToZeqT0hd7gM0I+eHUG1jM+7uXTYrVmuWSMiaosFsyFitxGLmETTaWmOYQ6brPhB0lLzrEHnljEMbWvpP9HG7hiLUKntaPR9UsCe3eMjr6Y69oXrO2L4rqZ2bqiHSlGv2WQHLyD1UVR4/x0n05oENb4hmpIpcAWelWrn/gkJYM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:75d9e23de17291bd\",\"secret:b40320deade8f680\"],\"constraint_ids\":[\"C:533d7834d953c955\"],\"span\":\"During docking at relay deck, Qi openly named the reason the eastern beacon failed.\",\"rationale\":\"Qi discloses the beacon-failure reason during docking, earlier than its permitted reveal gate at vault access.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "mICF9UlV/S6p+MaD+vXj7wV1gnynNIk7Cu1Yu3fTm4dD1yTHB5AHu6Z3bw8yyQsILostqeycAln6zjg1x6GxMt1bWx9oquCx9d+L00oLRAvy+qMldtLjS17wvq9sulMTrUHQICwrR6bJw/YsCfQqe2SyLX66SUkHgZOGTljULOL6FN3Mw7LIw0V5f7KK7mVXkrT7WDrT+qRKBbJpX6kPExo/82DYbi+2WLfDsQOZdvkawUvQOWAQ/OFsHzI1Vid9EA1POMnEodSRPjwYvxuL4VP6GkZGAvy+fBV3IihE3BnIo/s28zVZJXKF9o61rF+Xez188PWX4Gpw6AsxHCa1Cbj6njJjVdYVdn0TDcp2I9YQxQnr0FdANSuu7Epz0xia8GIzOdiPTWXs5si5vqYhZGhubu14",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 571,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 341,
+        "output_tokens_details": {
+          "reasoning_tokens": 241
+        },
+        "total_tokens": 912
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:75d9e23de17291bd\",\"secret:b40320deade8f680\"],\"constraint_ids\":[\"C:533d7834d953c955\"],\"span\":\"During docking at relay deck, Qi openly named the reason the eastern beacon failed.\",\"rationale\":\"Qi discloses the beacon-failure reason during docking, earlier than its permitted reveal gate at vault access.\"}]",
+    "token_usage": {
+      "input_tokens": 571,
+      "output_tokens": 341,
+      "total_tokens": 912
+    },
+    "tool_calls": []
+  }
+}

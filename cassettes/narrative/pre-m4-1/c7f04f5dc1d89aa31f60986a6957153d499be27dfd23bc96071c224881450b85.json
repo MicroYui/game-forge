@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c7f04f5dc1d89aa31f60986a6957153d499be27dfd23bc96071c224881450b85",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3081,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 581,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 150,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 740500000
+      },
+      "created_at": 1783843000,
+      "id": "E8havAEbMEMRA5uvosFTN6XHjzV4KoLiPJBnK9w8QXMcBmsn+KZiMPyI6BslZcy6eXssxxrCXkMl9zH7m/3VaTG6OwrBalhhKzahWuS0jgilklOk8SKqMx90JV0eTD8yeGd6W04VK6InI9VaeVrm0eq8IjFSD/Nakj6AA1DnHDxQ+FU01YXuQLCmjpxVVzaUFrlT6h7DiwNgdyVC8NX+aGWRECD/zoxbLEyJm3QHae/ypgeXOX8bka9IJ/3KxkUohB/HlqMNH7ponh/dG39SXCGo6LS8DLmXOVpnFllb8xqC7CVmghvuVV8FarBw23TEh1eDkombvQAD5jUSZA79vEt437ZuPk0W7VV+75CqMf/gF1OnAY/tVxE8d76k8IKpDRwstZBln6TDTiwIsuFS3CNCaRpfxw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9O7EOj5ubzY5XoWJQnTGXpnHjuFx7fe7qIjFAsaVAxqOMUS7RG2EsR+tBBQo9k1aaGM2Yw43esa2eEPM2xtozlLVqhilI/SmE1826JggfU2/8OFwUQlheYEug1YeFDWsEoEo/yp725uHmeZDInMMy5ymvnY0pSamC9d1Lw6luG9nD6eaZ5trw8q/atuM+16jijxSTmwWXxVNuntTsdf6TE6oghaKF42AFNRmX8mpHTe9yhixa+Wiho0zqCIrupbcCFq5L+OWOD3ABjSVJ7Mh6D2G7/k/6BF6iu0v79qlW+owsQr6YKeb0GlDTFgyBmVKfIZfU3MgpGGSU9T6wQ8ZE8+cIue53fHj764v9n3fEnCt4OlOhdFm93Q6vVCdckDHa+PZh4Q6xIFoTjZCHZlhZAHimQ0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:b5ee79306d8025be\"],\"constraint_ids\":[\"C:69402e20b0a5a73b\"],\"span\":\"Ansel sealed the crew outside when the alarm sounded at orbital concourse.\",\"rationale\":\"Sealing the crew outside during an alarm endangers and abandons them, conflicting with Ansel's loyalty to every crew member.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "01KMyrgG7ylhSMYY6sl18K04SaC5MOPCgj0OAQ76FGUA4qFEkxmHI3402oK1u5d9MXPz4W+ASxZllgeC3ukUZkwNyJJKcvptfz3Tk5JmzW6vP8km3c9ovtquP9618LDsY1oplqm7RtWxowesRsbXKREXRCph6/h21HZX2THb+sVDI8KOI+DD3ZR/Esi+sF0WzYTRYXTe/HnuZYu64v3ROvMqD2Acwx77CaPOCc4wfEHCJ33QOi/egiNb52eqr+0PFt3RncSbmys/fbyEe8I8MD/UWfCQD9sxQe9sr2xjW9K4u5jfk+IWicn4bU6+NZHXrKShVaBwm1EhfiVAyIJsqRFXE2zWCI1F2ItO0LWirWOkYqXMg7Yg0LeaqRAvAVmb9vGy4zy9B1hf+Yb3wS0crginGqXF",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 581,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 150,
+        "output_tokens_details": {
+          "reasoning_tokens": 54
+        },
+        "total_tokens": 731
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:b5ee79306d8025be\"],\"constraint_ids\":[\"C:69402e20b0a5a73b\"],\"span\":\"Ansel sealed the crew outside when the alarm sounded at orbital concourse.\",\"rationale\":\"Sealing the crew outside during an alarm endangers and abandons them, conflicting with Ansel's loyalty to every crew member.\"}]",
+    "token_usage": {
+      "input_tokens": 581,
+      "output_tokens": 150,
+      "total_tokens": 731
+    },
+    "tool_calls": []
+  }
+}

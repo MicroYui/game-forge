@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:da1250aed9de633b6baed617b44b3c274b5921726773479487bdf38c00aa2a77",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3224,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 657,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 187,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 889500000
+      },
+      "created_at": 1783851300,
+      "id": "2TMyWibltgpuR9JH34zszSSKS11IRldFj3ijGIx8WFSUIGoF6buN79JH+ud4jXdzDwJFxSrVUn5lQusZ9e2f7Ny2+tDvAVYU1uQyc/yM0u4qmhvpJ16DkHuddLefDRkTI+I7N0Xaycb78xfPJZSzhGYg6C6E0s1EwcAOQHZcqDFBOfWRUkQbfmr7HtvggXfmv5vFMWbdBwNXFDIHBnugxLVqiO21DUe3zXnhYYmPDEia1btM4YiQIPxEbUdOV9pVuYoO/JyMUlE2Bxmex+VLxarx+EIhe675qWYjPhSNpxrZZjeWTbLM62HMeEXzuMB/uWOQAu/NBBVlKqgF9fWoQMmQi7AzVQSEhoNLXo0FgNZHKGbkdvUt3jUt06CthYkrmEcfjlciwHdZfeLKrPlm+GhwkZlXIw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "J4rNcnyjI1wXSQfcRcfDWbqGt5Bt/XBoSNr/nkhxpPHCrbZAgqNKXKo6PvyzdvcJiceUlB5OnJrd9ngkldeHaQlk09F8HDol+LoonKCZ+F6WkUbTb+GM1P5SLQ5khC42kRNy1x0aBhg8x1OeQ6+9j9aajGrNn+QQbF4QBxoi+NUzwlioKwNSGNVj/OhBzmby4o2/y+WMuR1sKSAtOP2gVRo/yJ4tAx4Rzn7saxKKKp/Tgcd9gs3W7jMvRbFWrB2P33NnDmyT4O6AL0U5GPkPTdc42+X66nXqpci/w1J8acsRY0ZhgwFWvZgip9j4H5niiraiRs01D9UHLDGnz6fhP9pP0mCiBmooQi5CKahk/4/VK1alhAo+a0+4HqkQd57sBLhpqGdTkh485wc/nv3fDMQZUVs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:a1148db8a530bb73\",\n      \"secret:f820b5f4e21fbc8f\"\n    ],\n    \"constraint_ids\": [\n      \"C:596f9cfc90c871b9\"\n    ],\n    \"span\": \"While the story was still in dawn patrol, Qi identified the vault keeper's allegiance at desert waystation.\",\n    \"rationale\": \"Qi discloses the vault keeper's allegiance during dawn patrol, before the permitted crossing stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "W5x5aecCtPAQqGxFEKqihwINzG0ssivE7/N4hn23Lu2F0lWJi9T5jOtk8wIEuRgFYElSlopf3u5piYd/gGgAgXPDYKDixMDjTiEQ+Eh0wmufhWzrmtvbUUQnUScZ7aExirpPI/BuDQGBIxVgT5GA9OYVbnruQ2m2b/tc8hAz+DOATsMB8zI1uQAs3iL6v0gbP4uc+xeAtThKy4iU45B3n8sYjqj0oM/GI7LEXy2WDr5vmIiw0LCgxf/oc6M4re2ntXLwU0D8Uxb407yyBL21FyVUfbXlBIHVj3noxFQEI8HaYcQ0MeWlTL5PthW/GOqkSKFPP++dat7Uol5HSk3fswvlt1vb8z6vRmNig0mKX3is3EBv75gtlbwSXz9W+h1c/XMPhHE2wDV/BZulHTr/u5HyQUYQ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 657,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 187,
+        "output_tokens_details": {
+          "reasoning_tokens": 54
+        },
+        "total_tokens": 844
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:a1148db8a530bb73\",\n      \"secret:f820b5f4e21fbc8f\"\n    ],\n    \"constraint_ids\": [\n      \"C:596f9cfc90c871b9\"\n    ],\n    \"span\": \"While the story was still in dawn patrol, Qi identified the vault keeper's allegiance at desert waystation.\",\n    \"rationale\": \"Qi discloses the vault keeper's allegiance during dawn patrol, before the permitted crossing stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 657,
+      "output_tokens": 187,
+      "total_tokens": 844
+    },
+    "tool_calls": []
+  }
+}

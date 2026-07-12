@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:43fb658b1a795cc4a5d6b5b547f4dde3005f0d3406a9b73162df4bd0cf5f11c5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5730,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 662,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 234,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1033000000
+      },
+      "created_at": 1783844900,
+      "id": "R0H1vb5XAM34JvflyFI4FLiZL9L00J9noWkiYnEQkyfE7stmLA0M3Jwfz4ui8E3WkWX868O4LQvE0zuzyLYLMYTOPz7CXWUbY6c9lLHpXEs+F1BEaCuL2rtsMQNIc5r5Z4VWSjeFxit2YVSbgcAEJ7ElB+zpxwXPJWwJrCaViZx6LnAsD7tYYBJGRFf562Rp5DlgiJL/8a/OEr2D8RRfLJ0h4zJVRo5N6oLAb66CRncLhBBN1IS1si1mCtm2ljYE4dZfTG07KcCING+i81HSmXuK6053QX5u2rXEmrjJa3Gdg5a5leJ5wdy+YpT/FsBogB3psdc5eEmQLvLjWgKEXv0pwqV0Xl1v+DO3LK2SWyJtnBjd2IZ1X5j56ns9ElQEFOLhs4iazyUx+K7zw/2nv/D3yUeWqQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "MNljviz3fwSgtS8etpjdwbNtEI6EzsDPm0GroSUVLupLqWVKgZXtKVP9lZ64wELEHr328QaG7XcAMMhYwp0gwL9LF5XIIQuFqgb77lvhUtEVmEwBdVAIFg7hbG+R/+Vue+wOCvVg+FbtDnyayJNPp6+jmMLBJQJzb/wqZs+oMhG3nflRL0nNNUAszIxOPZSTDOUxfvtNRshvpPTNyviVnNJ9pYoI6s0neDWHZ/HBZ6EU10vlnqWpT3UMqWac7RfSax2vwBlIp1IjaWhhKpNNGww1Q0sedrOjICsmu+ky9xWAvkj0USFdeF0C4jrWhBD+u0NuK0jjTAiHqSe1AFRr7NgtEQxF++AzBFAPUXvr3JOUrt9a2um2i1+Be/cqW9F8BQDn4aXzoBzGH3nMgm2xhgMGF20=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:010788f4162b799c\"],\"constraint_ids\":[\"C:32b7f69b89d17804\"],\"span\":\"In eastern ridge, Ada took the last medicine and walked past the injured scout.\",\"rationale\":\"Ada passes an injured ally without aiding them, conflicting with her rule not to leave an injured ally behind.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "oM3gAmkH/4qZMO3hSVpb8dL03oW6sbig3n88K7L0b7JCqsAfC7qlb8b/E6YsbbevrtIc8HoHaK7Now2JrLB/DyTsSEVt47kCtX42lLmhVI3ybkE7WKnnOu+QD7aGJE2HFSKxGOLzRnAl1T13KKJ/XacORoiXnppJyDMLxhCS/PLZ9SaVTpu0aao44Q27K/W8FWzfVchEpeC5jGHcXqDUBYKLvwJFP5cKuGe2YoKRdh77ZTMiv5ShOpPy63xZ/FoPgQGNN4e1SnW3gO8/Rp8dmBDu6439hDFnjw4vuwPFHlkNaxqtZYVKgomTNxrKk8aIwemxXORln72BLEWATeG7FtARPI5l4uOBED9BNXPNU8/brzl+Fs0jq8d27a9f1ZLaNhRMMs3VHJuvSI4KmUpS5KvD2N33",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 662,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 234,
+        "output_tokens_details": {
+          "reasoning_tokens": 143
+        },
+        "total_tokens": 896
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:010788f4162b799c\"],\"constraint_ids\":[\"C:32b7f69b89d17804\"],\"span\":\"In eastern ridge, Ada took the last medicine and walked past the injured scout.\",\"rationale\":\"Ada passes an injured ally without aiding them, conflicting with her rule not to leave an injured ally behind.\"}]",
+    "token_usage": {
+      "input_tokens": 662,
+      "output_tokens": 234,
+      "total_tokens": 896
+    },
+    "tool_calls": []
+  }
+}

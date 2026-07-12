@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6d07c916f8ce40eb9fd6692cfe82ce8f868a33306b0a6402a8723e5275ac4f0a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2994,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 157,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 770500000
+      },
+      "created_at": 1783859000,
+      "id": "/jfd7g3LF08kVduYS1stemG2J2Xd49K6I0EQCDFRZzzwgx6L64kuX+t3hu/uQkCu6n/eI6oyzINlZEpvYQ6glskfm2ExRhQHA6xFqR4fqGEZaVghd64nmmGAKgHnJ7zcFAtBlQ+G53naE5YdphHIk2on2Szg+iKSd0cAJXiYfVarOKHDZfc3GjpR1znp+v70V+1BKVU1XMvFvpgUKGhRMg0QmausbGMtM8T36NqxbvpH47cJaxXCGH8MQUOoeCrFXyUZPtpKFqXm947CuL1rQ5kp3wSBPwlZACO/wDiQ1OkbgZcXmi50z22e85DbRP949Prxe+yXU8jNKnetQzor6lURoSbmPRNGD0FzIgrOpM5U7N0Qhg6Bw9yEYnMVX2UXn7Xii/2Qh7eAHh/mMC/eeUgAhxicng==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "u6UzdhoZs7SvlNnNN0iGup/j5skrR5v9d+BIgAngl1f+lkvBihRMjZ26BwtwOQoZv/MV2mKF/adReTnYf04IxV+qByMqHFVf62owvk4qN8oTg7jyXrJYqHsOLLDCwmc+/rq+dYkzkv9zPO1GlywV5qljXdCT0IYAbKN8dvhjth3yGWW+5zPy0kuTSlOw57rNPdeYu++CkdKXdB5KLsO/plAJfoXbwXEYZ9T0gGZaAR1Uz+Y4Kyq/BnY0mj/q4S0AMm0ddRJTM7vbpy+2g3MhYPCf+h1OmsBojWWAX9OuIC/fnFgxvXC2f3D8kyFUnMcJJrATHsudgZD16SOMC7LYMU3aYyFO539wIReC5ZYsiHDLQ+oKgUHL+XoG5C1y3uzzz304aDGcsiM1kkrChDJqyR4ZN8U=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4ca738cb3499cc2e\",\"npc:5b4deb2b9fb5ed61\"],\"constraint_ids\":[\"C:88b740540e34171e\"],\"span\":\"Qi fought beside Mara under one banner at salt depot.\",\"rationale\":\"Qi and Mara are shown cooperating in battle despite belonging to the mutually hostile Glass Court and Iron Compact.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "5ea+c9xw2T5ivGGCFVH6wJTnpb7PkieADBjlJr3pX4J35+dRO89tuAiVLjMvs0DWONoVNNmitZFTPbj5iAOJD6k5NnRukwYj3syEaE1Hyip8yRFTzObeugj5gNTtMIoW2zjrdKpHDEFQUCjeHQEJyFu5lcMFoggxvffJdxSeznSzSYmmsGtCb/jMM5+GftPeTfnMtqQEPhJecpufaizF2nhNTogXnzhNo1LTNnF9v0xD0kubkb/toohnJkWZYcBVLb+sCu8kctPv+WyG9nP2xvwJ+vxILrnZrPcYful0nzQwvxfgjngnVHGxhpZwHmUk13U4SYVqcezECjIN+s+jrFA/HWrFNqOZmflxPYbp9Zrv49tGo6OhVMB5ffLdLwzXKGb1SKTrgF2aaX9nhtypzYw7DF7O",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 599,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 157,
+        "output_tokens_details": {
+          "reasoning_tokens": 58
+        },
+        "total_tokens": 756
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4ca738cb3499cc2e\",\"npc:5b4deb2b9fb5ed61\"],\"constraint_ids\":[\"C:88b740540e34171e\"],\"span\":\"Qi fought beside Mara under one banner at salt depot.\",\"rationale\":\"Qi and Mara are shown cooperating in battle despite belonging to the mutually hostile Glass Court and Iron Compact.\"}]",
+    "token_usage": {
+      "input_tokens": 599,
+      "output_tokens": 157,
+      "total_tokens": 756
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3be24d10222ebb0e201252e6b5bd578ae60c52f6d6aeb7e30720be1800c19713",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2442,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 635,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 141,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 740500000
+      },
+      "created_at": 1783856800,
+      "id": "Y7/+n15KsLgHl1SQd7qcRsMlAMAIKEuQDPodaj5VBRMa7yq0rIFgLv71sz+9fMUKz2J1RmbbnFWKYTXksfnoMX4SCea4JHylO21EUuBWjnGmsd2pU4CSKukD8tUD0Z6oz1z3ePKRTD/tCleokCk2VmWzX0ZyyC8tBodpm7ockFqF7bBjHT8JzOX9NKG79EPY8lCGzNLXB4ucTAhp6zWiatyS/cjSBj3vYjeFz46zkiOzlNGYEWhRL5qcaWdJ7y/JqBEXo/LiJn5RB9H+6IfpXuQiTX0yeC2jl+DeJT8KwtoMpOv0YQnFDGTJRRfNBG1egHauaVBjikq03Vcw78r0j0biJHvzid1ziHlvOWLqJGqwmng615MAY985u6g0oV/KWlEjgxGkdy9itX/P/HVWSlEUopv7aQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0SbhAUd0/Cq/lezewfhg7pMXkrY96T99rI2WcmHdSMeXNXygszsfFyhV8R+iR28iwjWNM1HldpX4DQkHM969ZazvReJmKJ7coPOlGMIEATEyJvxnMgGGD+4NdLaV5ccyzMytpxOA346UppYzwTKstdrrMGtO+RLhBG4kYTDeXJmg0z1iyUKC8Y2Bxgu2Y85IGfTDYSCVZ6XeXGVIkLbF9cOeGXYUSQytfOjMhHeVKbaSrlXVDdrCVSdfy1x8eS8R08s2aAk2mALe5Av1r14jbWd44qps3YhjfOBv3pvCoQ1sdOQkvcv44nZIdHzYW/xhp2YlutvS/sQJfhAtlOluTKzKVKqarjlHJA5K301Gi9zIiJEebL3+K6XINLcrj3n2NnODcXYhZyw9siYOmBmejvomXPM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:17d68f6d99d37ef1\",\"npc:91c4df9cf99d02d1\"],\"constraint_ids\":[\"C:bd74a18a2c2d810e\"],\"span\":\"At eastern ridge, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro belong to explicitly feuding factions barred from joint commands, but they jointly signed a battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "P0WzOIVgwcmb/afEQjqMcYaLBDcFlMbnHPZlHb1gTbtTTrWoabHcy7ElmkxxCWp6nd5epyKBDCF8xv0jEpG0Ig0M9kV2T3nuEiypCkPdops4gajPBjHf3bIRcNoBtQnhDbAkdwGqAYDJ0Z3S1toO0Oz7LvFiXeNPQ06dnNFQhBDu1E/+ywf/VrIcIqU4hmsi7Eaph8yBkxnPrGBSdLNF4Gk7LcW74VcsaJPhyOHba9avSBhk3m/HSKJXju76J+3Znc+kGWcsWqXYciFGDnyswtwzbn1wDy0NcPZUZRkgXZkQqHCqDD3OFD9eoEAyv6Ge8jJP3d7v7qDPG7OYwOz3QZ87kSK3vBHz5/4gmkNheV2Z/BiO0N5VxVmKOUmH0UNnAMntDGfy3jY4nIJGh9TKzh9miPTZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 635,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 141,
+        "output_tokens_details": {
+          "reasoning_tokens": 30
+        },
+        "total_tokens": 776
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:17d68f6d99d37ef1\",\"npc:91c4df9cf99d02d1\"],\"constraint_ids\":[\"C:bd74a18a2c2d810e\"],\"span\":\"At eastern ridge, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro belong to explicitly feuding factions barred from joint commands, but they jointly signed a battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 635,
+      "output_tokens": 141,
+      "total_tokens": 776
+    },
+    "tool_calls": []
+  }
+}

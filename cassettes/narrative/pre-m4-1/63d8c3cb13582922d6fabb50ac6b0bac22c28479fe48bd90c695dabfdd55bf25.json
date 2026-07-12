@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:63d8c3cb13582922d6fabb50ac6b0bac22c28479fe48bd90c695dabfdd55bf25",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4090,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 681,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 212,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 976500000
+      },
+      "created_at": 1783860500,
+      "id": "+4zBGFPtfqzzDUQr8aDmsBs/5yE4rOpJZeGe0lpmbkU3d3X+5YdaAkJZcN0Z3wX454j0ar1Ww25iyv8U7og93t4HddE43xyOvrFAZ0SeCDpNLYjNAfCE/phjDJatXFoSuKM83PqkpUlyZrOKFxoJNNDyDBVV8VtoMJD23wCr6vwiUnkS5GPx9gmhTg1Qyhd7mHAS4tqUn6uFKfwYphNGk5v7aW6XrWuMeDdQJ9X/XVl+7U36cQdFo/WghwcTJjVsVBjDfWCj8DKd7Ry0LJa2HVw9ZTBmCsyv7N0FtXeGu2uH+q3hUPMMgc/3QPxqAWXu+gsU67m8KQCiY31HMmIGGS56tJ1HbPo/W94b5obkBUZrOr4ZsLN421B4G9HF8r4PH2JY4HcCgEatc/JUyc9psumCA9X+Xw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "X2ikFuo24kabFVCd0/5WnmqIP4b4eCB7PN52RkIry8sKLVUbpeQKkK7+Gs6GAensKqKejzRtz0ltesh2a6zBW9Cri0BBggpiKwQAi33syr54/BWkzhQg6pOdPvYFOUiypok8qoKk0sz+fbeo5NjQuglDVa3jVVMtJZodoahNL2SK5nV1SZP/gidgllC8yFVYZHtNMJ5j2kSFCTQfZybqjZxsT01zFOiWqo1SDMMIBds+Iqr3dwrHp7Fo+yMHoDSe/lPT5WFLSh6iWMQo1wfetVZF99mJ6ACGcKk5VYNr5FWixZayuGH9O2YyN3ukhlfDYypTo6wOrc0v6U2eE7FpXLgJUQvrp1qSQzlm/N3ZdoTf6+K3JBSFhNqWD6dMyIOozwX+h7+eUQfRlfhVlJ/tugM1tZU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:5115f7d6ba29dbfa\",\"npc:a94605c25449012b\"],\"constraint_ids\":[\"C:8010a60e6598500b\"],\"span\":\"Veda welcomed Oren into a shared command post at observatory.\",\"rationale\":\"Veda and Oren belong to explicitly hostile factions, yet the quote shows them cooperating in a shared command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "isLkg7jOMbdNO0Mx1agIi/PX8bTHqYLmdAUgf5blh3A0wPAzfznEZYTymmoEIMG2DV2EcU9MMFW2ILZahIaN532awGWGTtdYjzUp79O87h7+cL3+/cLZZ+W6GF1CPgPzlu5Cd2e0iBOO0KltojkRpY/vmg2dwQGDh37jG1TqIIhaCSV8QWBp4llfrijvPEgRCJUS4g6qeFWA2ziTU9Q1B1XQ9UiHkldwOFn3W0JlpuP9/p8qv/YLDHKBLZpTGMFFvOYDaw072xpr+hEcM6E72b6B7eStHDXeNRYdOkwBwfTPtOBnw0P0JKXkcnYB1wsCqiU/sW5ynfhhwZBdTSSp7eOHT9gTyMPBUWW7sjyEncdjQeLKbByF8RYoZ33iL3Jwfl7BNKPNalJ/MC73olS5PqBw51jw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 681,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 212,
+        "output_tokens_details": {
+          "reasoning_tokens": 109
+        },
+        "total_tokens": 893
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:5115f7d6ba29dbfa\",\"npc:a94605c25449012b\"],\"constraint_ids\":[\"C:8010a60e6598500b\"],\"span\":\"Veda welcomed Oren into a shared command post at observatory.\",\"rationale\":\"Veda and Oren belong to explicitly hostile factions, yet the quote shows them cooperating in a shared command post.\"}]",
+    "token_usage": {
+      "input_tokens": 681,
+      "output_tokens": 212,
+      "total_tokens": 893
+    },
+    "tool_calls": []
+  }
+}

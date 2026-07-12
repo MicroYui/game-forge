@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fe07ad7e4eb6ef43177779c74d66bb729fd57bdef3d81583d13a300273e54a66",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3847,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 540,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 209,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 897000000
+      },
+      "created_at": 1783860200,
+      "id": "5PFbzNRkMTvuORmtTb+a5DZGcTHbm1h8uRuyNlRd7S5EYaH0oKDKAEdppc4thiz6KMYxgvPDyudpnscc2Xr46r1eeW2KgxckLZziLlq0ey3fx+zCHFmB64bP/zH3fn2up6L3MLBxPCsRqdShQgBG+aXJR9QSSKSvFC3k8jSRfyVvyN1JkuG8mIz6GjB0wlGAte2wABqdwkSQvQuycUaSBLiz6uZbhGftZHM5HZShEcwFMCTMf/G51fnFZktXMznyIilzAf6gyHYx9Yo+msNlygtVUrFZyWSh49xrt/Axm0YWflk8bH9bqtSfsnsrxtLKdQ7TyQo6o2SZc1z9ihi49mE1ePGgImYFZKKkzIzaIKyJX270lCItunsR9Xrk0ZneyYZ9z9U5ppLjNt3x4GzAFtScHDT4rg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Izz0NOyZ5u5s/Dcpb4jrG8lt8rqnNZsWIG3kU+BQni1GuppzzvpnIDGmyFTyJTb1thBiLj9+K8aqYjq5vBzuhi/HuacU5GHsC/KyVitpPekoqBwxClbCd4JzCY+BOf9zjO+YOgXJeoY+f0BUgyPsOeZGpiU98iA5rRGurTgsnFlb75JfsSLaQxE8QqscBoRNT7zYMgfGELBCGRRijJbXji6xHyg2c5NVyhHk1wU51uIqBmp5Mzpt/s0vvGtW+i7fNbgRGOy3y0V39kDLBGpoUn1rraQLBbt9AL7gCMyCb6s0jCgCPE5Xv7t/qJuR27yqA41/2+dvip13Tuf7bP89r26lQubgB7N7z0Y6ZbCjFrIgMhzS7FgAtzS3D/2vvl5UF3+Bu9F+RBA5w2XUkaC8cPIMkKw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:38549f18ea5f4107\",\"npc:efa53b71387f886f\"],\"constraint_ids\":[\"C:4803c03221ee9394\"],\"span\":\"In river market, the council recognized Mei as the Warden.\",\"rationale\":\"Daro was already established as the Warden, and Mei is subsequently recognized as the Warden with no intervening relinquishment, exceeding the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "mIZOk6HoQZqQLt+IouCNUFfTfswiUBQIYf1UEuop7TOHQEr3k20Y7uFG0HKmCc24inRw5HmYqWmCuO4Ok8tC14bcdsMO9ipg2QwF7R65RwXtEJBwJSll3Ky7Vv/WRQ5wWrZY3hjqzzUlbspgv7j3Nhu1XxeIe77D8MkUOSzuNz3TBXMOLoQb/ZohSymdXS08qowr6yxod01JBmc7OqekC98BEktEcHEcqvq+DFs3FUFqCXQ/XtJVS4n0QQUx4OTaqauAHc2CdylBOflVzVtktU2J3o7hCQCZzfU8zObOuuf40ua1/33KJcsZqaTFhKnIcDVt2dDUWfTlzcIPsAAlQU/hvzwqn76VMfNwippvVXJB0ogKQSOnYA6tteHQC+04xRX5kYwS2f40ZQoCl2RoJUhdeeze",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 540,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 209,
+        "output_tokens_details": {
+          "reasoning_tokens": 98
+        },
+        "total_tokens": 749
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:38549f18ea5f4107\",\"npc:efa53b71387f886f\"],\"constraint_ids\":[\"C:4803c03221ee9394\"],\"span\":\"In river market, the council recognized Mei as the Warden.\",\"rationale\":\"Daro was already established as the Warden, and Mei is subsequently recognized as the Warden with no intervening relinquishment, exceeding the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 540,
+      "output_tokens": 209,
+      "total_tokens": 749
+    },
+    "tool_calls": []
+  }
+}

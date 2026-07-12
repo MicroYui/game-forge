@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d7c130f5ad920e9fe9eaea60757a42ce08564c93044f8c4eb4b62bcf5e8281f0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5953,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 680,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 246,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1078000000
+      },
+      "created_at": 1783848000,
+      "id": "aq80cswhshksVyFxq8hG2krPVD54OXmcYUPyTHVwV4MFPxtFjwIfDx0ENx8jyIcFL+gXsFmAvaQIsjsEUNrON5c6/Da7X8sR++N5mQIQSJznQq0vi9EwOK7F2uTeT1Qvf3+3+DuXIoIZ4XGyLd0YHgbXXFPJmGkRuI2QCY9fKBi3QhLVbJAE9liWdnY9jauEZG1I76MACeWccKOlgE4NWg2lce7w+OYKqXySmdYB+1PTTWLqnl9aSP666srvouQSSBzzG3cGxsFQ1fr/kMltnUTZ/llhBahi13g6TmNr0FrSpnIyzulVJ7y87cJITKEKYXSZggYMZh1ijLmY/q7YtsvJ90fz4i8kQYgobP1YlCvSqNYqAWB1EkK7cHk+yZN3Ehra0UnAegz3nQAbyE7qdFM82tH49w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "iPCP7axdYSB9+tCcZOLFmnNLz7KkeeMti3WsQWVLXcgJsxmHNdc9+coVPG62gbHdym98dYyL0cTc9hEDzX+BTc0v+KpaX0I56WaE1umPC0aoovSq+xF5CSAxxrY6DBwuYdTq/jYmO9ytK+9+FZ2IRX5yabVwNkX9FN4yvXCftNuOvIfSAiem+tV+OaTBB5vkXJaSWoxCEFVz5Pz2QISpa1xXs8p79WhZh3VbDDmveBB8k+pp252kkryuVNPeOJLxnWEARh8grD7fU1UINrBzFbFjdIYhkJyGSBK4hjl360GSZ9EUBBvq0d3HsODlCBvez/V9k984gNGK8V3fqWGuZh2eLZml6dQRRC9TpWGS1soZxRrkWIxIlkw8f1LNnd38r+y7qifFnhMZ9xkPVV3x0mt+Mxk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:435ab86c5fe5f621\",\"npc:80a69497e043d042\"],\"constraint_ids\":[\"C:12d5087d7bf9fc59\"],\"span\":\"Lea accepted the title of the Crown Witness before the assembly at eastern ridge.\",\"rationale\":\"Ivo was already recognized as Crown Witness, and Lea then accepts the same unique title without any stated relinquishment, producing two holders despite the exactly-one limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "dyWbSbrC1jSO1Owl+ZcOCv2lK/GfGNbXXkFCTXnFsfAl2Vmzx5WlgkA609XftZmZqEJwxu8LBvXVk/A7TihXBPGBectx3n08IwSEPBAfw84QZ5Zo05ibmkkytZ3lfnKzdWn6fLX0yNVcTEdFNsPsQI9QSpv8SuSO94ddGKtQ7Q0LH4B1atX0f0GDrUOJKvX3o2LrGcH79VOd6BLFHi4ol/o+gYnuBFNR2mOYzetioohURbuwjj/5s23iOTtqq5MIF6zpmoif7Ycg8JWQaeOmZaDKhxplF9Dyd47ifB7I9ubr0e5nkuKkyT77pLmRCTMuMQEbLoCoHS6VdO1WwKK2BZm0pFxMaMPMV2H1MEo/e6sy7FaJEq5u2LEP061+vyi0c44RGTpjJ6o+m4kVobe7a8pXZ7Ix",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 680,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 246,
+        "output_tokens_details": {
+          "reasoning_tokens": 130
+        },
+        "total_tokens": 926
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:435ab86c5fe5f621\",\"npc:80a69497e043d042\"],\"constraint_ids\":[\"C:12d5087d7bf9fc59\"],\"span\":\"Lea accepted the title of the Crown Witness before the assembly at eastern ridge.\",\"rationale\":\"Ivo was already recognized as Crown Witness, and Lea then accepts the same unique title without any stated relinquishment, producing two holders despite the exactly-one limit.\"}]",
+    "token_usage": {
+      "input_tokens": 680,
+      "output_tokens": 246,
+      "total_tokens": 926
+    },
+    "tool_calls": []
+  }
+}

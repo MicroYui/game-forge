@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0d6e41c584521e9f1e2e7f89bc71e270087897acd2b558ad6b1341a043674d44",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3503,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 613,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 822500000
+      },
+      "created_at": 1783857800,
+      "id": "MujjDF8vWg+b9pD3XDFzWkmk2Ab2umquP/ZSK21qdaj7MEPdbTlGDja74t2elPIxwwTX2zMq9gYYdMwYznfB/tW/NwM/RemDzVB0XjV+reK66QMRHQZKC/CaLoVMldoTyvlJnqNH5ouLIN4iVO20BrAcfGNEA19ywHgpCFJAaQpPBb5xQe5atBG9JrW4H6OlikLgznoex74amLXqUxyoKuclnwGriLDNnAbNSKSxqEEiIHKvGaoCHpYSrvm9v6zHzvyVQN1LOUBHVQADHES/58f8d+2oI24Oxj30ja0Vqg6VgVQvkFXTgX39qE3fBAupeQYNUReiHXcq0/37IPiOJxaLHL7X8dwfjo3RVveVdQ4VkWM4Sa5ZaOGNciwH63oniuCrPdeoK6Qw+wToZQtHtBzkf2Dkbw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "EoxXDTlQnvAGLcO8wf7UaGdR04f8VLEGA/7/hmIbflS5XS/iNzLVOBDl0E9a3VQMFzQSMJ7eDqwPdVjVVsD00UZXhbLFbPtajsfvhdc7dHxN8rVmyWuTcIESR9Qi0EKx23YecKpTFixpIWVqWkqTi5lPnXsMnR0aNy5Et4XSnLIpnCVSYVBPXRPPTDMaBj+eSklCUVfozJMbIkiaZNH8PbtXlZTB6zzXwvfUwhqtvWDHrslCrOXNVbttFmq0A/IiRDHZZSdvPC92TSb7l6A62EO2RvYUV/8f3tTuIu5axRIauBTT+LtM0BY6v+NmqfUjRqZh+U0M8bqHecQ21uhtPAXIZRVb8iXOIWKy4OGiPnKF1aXmyRFEMYm+m1+I3Oxbc038NmNA1Apq7fYFdSg++TpaKGk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0845dd81fa1c733d\",\"npc:984b3712a8510394\"],\"constraint_ids\":[\"C:f246fe4575d7dd13\"],\"span\":\"In old mint, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei and Daro belong to factions explicitly at war, yet Mei supplies Daro and establishes a permanent partnership with him.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "e7zbrFiKRW9UaHrZ2HVPFT8aeKvGCORh4olA+q2J2xOIqyDf4/gilEASNQC0QGNlKfkcHyYlunSkNAm7XnFCc39yEgv0vHMK++ffZEADoltM3B/hqWLxSoF96fkfppqZCnWCKu2FEAKyPwpGaSTayTbKkZNPHmaoYLfH8tyjZImU71a9QDKl5RRbc9yxKJ+tq9Ov469FlCKTs+zAlBgqX1eFzqsPB86DrKNcMSayJAltUaleZCBpMSc3onl7tblE49DEnCAMC54Tfh+DPnm9s8KOvzcP3U5nsQzHOvEbVCIVPqe42+TmAt1sBjJS9EKBvefq8AXE39WaUBr93/32JIvBOKp6aTxPVktVDCYxHroqBj7nVTxzX12mo0/mOjNtrZJIdf109gLzCZGttOqIC8iIzeWu",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 613,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 785
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0845dd81fa1c733d\",\"npc:984b3712a8510394\"],\"constraint_ids\":[\"C:f246fe4575d7dd13\"],\"span\":\"In old mint, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei and Daro belong to factions explicitly at war, yet Mei supplies Daro and establishes a permanent partnership with him.\"}]",
+    "token_usage": {
+      "input_tokens": 613,
+      "output_tokens": 172,
+      "total_tokens": 785
+    },
+    "tool_calls": []
+  }
+}

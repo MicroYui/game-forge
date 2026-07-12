@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7a5e9733b9478c658a5e9ccdff94bec761fa9d8c3cb12967951c923dbef0adf2",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4910,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 628,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 222,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 980000000
+      },
+      "created_at": 1783847400,
+      "id": "BLDZ6IkQg1bhE2SRgvuXtnLNBdOC6XwmRP0ACjCkrj5lxqLQbVdr234xhuUMwQHuqcMcvqE6JEmiLu4ymztv0gqpIR/RpcpSYdqEl7XnYak/PlQCB0k2nig9BZOKUf5MrlT1LRA+sXiEzNA+oZDRp7FbULF7bnPfjBPf1ACMjAa7JmQTx/ZPeieB5iDdj50yGoPJPgHLLjC43u00/4di9+ad3O0bU7M21LuA/ajsjX7MpZAhWbhCMCTUpcpfK259rPisZOEX1I5k780PHSVTqpBRoBnNcUQI+nNKUDoC+8C6fOsrje2RGz4657Ax1DkG18PFEGIE/2BllUUsjM0xkdt0wBU11iric//B+TdpFJyX3d82KoR7TOXyfkCqoZ9W0UcrI2ttoSVixGeaKIpS33kiGd6MdA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "KPZJYC/ez35pBH5shctZGesx3ezlFgzyYtw3RRiWSUpQT/8FEWUdCvSfg8oQbZ51Q/nBK4iIsvlutprZdby5DSGsvRSKGBhXJeQbNr5zIquhPr7eL9IKDQZw13Opmgn/d3GeTPXfP+iFovV/UrM9qjLD758AI3Vcxnv86n+rEMernkPNZpPWHrmwDTf807+gQBev84hTEIiG/cig4Z8QLXm03X5YVZ3hf0+EF4qoT7ux/g5QBrIprneDwrQD+jitenga3yAHWC3e9Mb6gJrsrog4zeiLH51aRZfHGUZO/kVb/LlgGFN3Ytoz1aWDf4R0ouHzMg/bRFs8k8Sh9MXP52NOWjlWiuKwzzsJU169zfd5sprfY4fF4fJ4uu4E1eAemdQ4gW5tlUJ8cwUGJT6iKy3mHQY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:71be9edf1ebfd464\",\"npc:78ee9d6a9657a836\"],\"constraint_ids\":[\"C:b24de814d7de4bcb\"],\"span\":\"Qi accepted the title of the Harbor Marshal before the assembly at river market.\",\"rationale\":\"Qi accepts the unique Harbor Marshal title after Mara already accepted it, with no relinquishment stated, creating two active holders despite the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "PQ7iIrqmANAPUH3DNku/gijvRHpW+7ZVfk4VbHxRwb2OAu57EePP+hy4No1XR99SPTx9YpxhvMbiRoeAEnOF/AsV6LYXNYVkuoFTkEgT1b8RTmYJMKmPEbompSPiU6b6mx82D6QelTwbWFNv7a+tpMZ2QFobnPmGVznmqDrIycGdyxSgRLiO6r8KkhHXNvoQiLeXA3cjbPguNMV/ToYZLztR0Z4RmTkePnd+j4GWwDgbt6p3S7YXfSGG0RoKojIDQq19ODdxOVL/bhnSSjdDW4kIpZw/+4bc3qA5sMD2yqhyEsCfXqlK/5GPKrlVR4N3rv9FWmINbi8PWCRWJVmZl7qtHgefk5NLpyoVXAkZo5erx/pU9OtsZVFZemfMlQ/AuwRQxCGDYP1jSTJFDO4J2cuoEBPi",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 628,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 222,
+        "output_tokens_details": {
+          "reasoning_tokens": 110
+        },
+        "total_tokens": 850
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:71be9edf1ebfd464\",\"npc:78ee9d6a9657a836\"],\"constraint_ids\":[\"C:b24de814d7de4bcb\"],\"span\":\"Qi accepted the title of the Harbor Marshal before the assembly at river market.\",\"rationale\":\"Qi accepts the unique Harbor Marshal title after Mara already accepted it, with no relinquishment stated, creating two active holders despite the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 628,
+      "output_tokens": 222,
+      "total_tokens": 850
+    },
+    "tool_calls": []
+  }
+}

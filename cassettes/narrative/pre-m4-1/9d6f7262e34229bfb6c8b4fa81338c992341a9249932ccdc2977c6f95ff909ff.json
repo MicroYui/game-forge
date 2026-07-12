@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9d6f7262e34229bfb6c8b4fa81338c992341a9249932ccdc2977c6f95ff909ff",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2254,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 642,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 107,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 642000000
+      },
+      "created_at": 1783853300,
+      "id": "xwxKsaEGC++jgkFTCyO5DlQ6+Jki7nPp+R8wdTVoi7s/6Kyy1W+Pcw6wbLttLjs6SbRvLPpj2QillXyWD8rP6dopVXvbdggi+D+cfGeg+jEoP1qu2uB29v3/F+Y65qE4jd6jbwm0KAI3gviukmMe7CH5mRD2YO/qT155sQpXJgi7D1Uwthv/9giEGr5XoJi/UlIIN2ERP6XCIFzmss0qY8El6qbRRT0ZW4g2MPngQI99KfhGybkHaVvpSL4M19Hz/lldLy0EJFJ4cxDZrhWQ/+Ie7weqztUq9NoqO3J7jHVBJvQTfBw/iN0PWC/0aTNegILFQ9BX8mHEIMyeog6bWMmtkh6+zAIzgqPBbQmUQnVXlpKnRL/mf4nYQmNiocwtVZEZwjt3zlrj/0CVNm/kdb3dNLQiJQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:3aea351f7d72e2f6\",\"secret:d54738a401f0fc5a\"],\"constraint_ids\":[\"C:ea8a8c595612c87e\"],\"span\":\"While the story was still in archive opening, Ada identified the origin of the black compass at signal tower.\",\"rationale\":\"Ada discloses the black compass's origin during archive opening, before the permitted finale reveal stage.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "C/GBB7Sz7QtTypfQl4s2PiAtwkItrq3VH0LOJOTYwx/Sewjlef3q4a1muRamlNVP8eh+NvAPuzBYKbYdCyJL+vyGyP6+tfNtH9EtD1+NQ+uimEuQcONl6KfHaxZmB8rJk2W8W+/6siRGNJfN9pFhvilfqQKI8G37xj7IlHAKeoxhARhvee5gtAmjBDSOXTxOPPPc/FodRYjNaNXvMWAGL1z35VGKSrajMYN3tdsmnjqlb4viG+BNKNGxStzjKS9bq93nh7c4BO/oQq+b1QchW9hLH4/ElUP016kkQFQuV/sa//NtGPUO2SaGNDrzOkF5rxxRkZ7L88r/K9DcvMi0X/fXgolBOuE3yoqeZNWbBfLLXYX+Aqz3fgivMKaBZ9/K6amdTdB8M+Rt2zh/FJzGTNoOdO7V",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 642,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 107,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 749
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:3aea351f7d72e2f6\",\"secret:d54738a401f0fc5a\"],\"constraint_ids\":[\"C:ea8a8c595612c87e\"],\"span\":\"While the story was still in archive opening, Ada identified the origin of the black compass at signal tower.\",\"rationale\":\"Ada discloses the black compass's origin during archive opening, before the permitted finale reveal stage.\"}]",
+    "token_usage": {
+      "input_tokens": 642,
+      "output_tokens": 107,
+      "total_tokens": 749
+    },
+    "tool_calls": []
+  }
+}

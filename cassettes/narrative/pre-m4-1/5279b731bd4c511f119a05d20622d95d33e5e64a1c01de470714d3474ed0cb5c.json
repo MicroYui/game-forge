@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5279b731bd4c511f119a05d20622d95d33e5e64a1c01de470714d3474ed0cb5c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2685,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 692,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 146,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 784000000
+      },
+      "created_at": 1783847600,
+      "id": "oCsrq5IysAdcmMyjq6CpZDpINickAGAEB3e0hpoIn8zdZmEgAqiAo9zY19ltZYRBjwfK8I2M09yMQRoW0Cc+pvcioCRe9RfzW1o5gW+Uba3h+N2xggh6/F7gwG/zlVq25j3rFQfx2HBrLJ416jR9sACePn1L1pCPvEZUGeqSG177bvSrNdS2KgPsGhBUplgv5q5aTGRI2QGQYDF5AFN0SGwxx38+OvyharDb+gWI9uI3WtL9qLeM4WmuAU7QeuHQO0kVD2fVrVPnLjaommbJnYemupln1NUKYZ7BOs+ntRGNBVKmId2nGlcBMluyF8BS8oOqm3LCUP9JdacENJJbccPT1mllg1A/55AnveupLpX9EsiNTXgAnxM2jP6cZoRL/zAzevuYY4YuAqXflq9a8y6lAOw4UQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "VcjnFBlS6c8er8DyFeCYQe4WdoGo+BqTqfBiAAiPSuSkD96/OKK+XuYSKN37diZVFIaT+gk2JYIn5FE9WXdc5RSv8Jtywedhal+mHdMf8lyM1dnuC6xjZtJCoS43OcNwb+8EwpFCLGpZDr1ZtGnVuUFiBCcqD0/vkDofHepwpWbyH8NRpNOrY4V+dYdnMjkyVhMUB20CDNjhwPOa6YvANpnEVRvR4fBmMfzJd0jAfWOG2yTxYejSl4H8ebtqtkwhf+y1zR6Pyd6341jKCqqLvbHevuF4RPwXZX3Cec35tVm6Mv+6dPic+QFvrKagHC3kEOXIeCZ6HRQcCWei86Ekj136t6hqe1tMrqFEHs52mQyN6uVfjiHYacLNeioPqIpej7GyAb7qcJ7KcIWE2IYQnAqju+w=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a0ddcd2e019ac9d7\",\"npc:d3ca243e1d90965a\"],\"constraint_ids\":[\"C:c2f7138cd72651ba\"],\"span\":\"Mei welcomed Daro into a shared command post at river market.\",\"rationale\":\"Mei and Daro serve factions that do not coordinate operations, but they are shown sharing a command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "t9YVtT44XYnqStLZewSwfgkY/ROtqiZzyzdUrMQtyykXlCZZbGTvOpu+9lkcUdjOcRvW/hKAamOOdyJCAg08W/3UA6/ELDgYRYDozxNTEgWzscQuScxwmB6qy2J/7FmsNTeG3YpHn2PRwiElVo/5kd7FPHik/Mckll2fcW3AKrx9vPMtyWZnGvnkzFVU+1lq+LZmXDBLf1yDLKgU0ejMlYHd4u9QcFEGwe7YBKsbJOO5YJyihu0nLTx5/DWXX2/q1DtEMRaogMQ75gao12VgOV3r0dIh6ZfofHtTz7UyAc8l6gbeEEgLMQezzj19rJbyflPxy5GzaZsAjUzCK61/0eV7xdykXO8ubtN9Muj8gA81g/tA5x/FlkWeIiR69uNGk7zsn8OswNnkCWk9vk/awubNFb+J",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 692,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 146,
+        "output_tokens_details": {
+          "reasoning_tokens": 43
+        },
+        "total_tokens": 838
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a0ddcd2e019ac9d7\",\"npc:d3ca243e1d90965a\"],\"constraint_ids\":[\"C:c2f7138cd72651ba\"],\"span\":\"Mei welcomed Daro into a shared command post at river market.\",\"rationale\":\"Mei and Daro serve factions that do not coordinate operations, but they are shown sharing a command post.\"}]",
+    "token_usage": {
+      "input_tokens": 692,
+      "output_tokens": 146,
+      "total_tokens": 838
+    },
+    "tool_calls": []
+  }
+}

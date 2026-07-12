@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9cbad1925fa4d278e4b1a423c78c3d550d2e9af393c7e239431eb259b675d50a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5906,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 641,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 313,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1259500000
+      },
+      "created_at": 1783855500,
+      "id": "y3id1npXKVLRSl+2pIlVF1WQA2dMt3wUo0w/LvGdqj8DehPTQ2Cxnef2iKN6URBS2u94BkcH2/H1eCRS04vZtNkek69X4DG0VlPKOpC5nfd1Sz8A0Hv+HV4Z6OsmgxPrxYysMwR8H0uzJJhZgeseEU+SlgFRPMpoVeFF/W1pp0K43GAJZ0nT67if9AjLxUqFUUUTgKreYdKV1NOVSCDr2XcwRodATo63zDXpCo9PrXcU652zJfeALjE9tR9DY0sl1i6+gNK3ZoJeiX1t7Hw6HGfZeDgLRo0z7QFECYbMN3ecPrmkJxshpF7t2tfWmX/b+NxXYsfBwtAHvyh9LzFgGj39RaDr8veGeYTQuZu1e8y5Wy22CpeQyAQrO9lNsLAFFaakCc0uIiEFOmhrmSIF0RZm8+ryXA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "TIxmHEhMgSte26MSIQ18HbGreZjhsYRTZ6FsvzzEtEBmnNFNSEm7BrDCizPzi0Ap8Y/Xi9LVw0b7waqfesfozDjz+uJrN6p7TqK6YZ6kpEgwZl5Zlx8pQP0/npWLaCsiaVvC7WzbWhuQ6IEe6JOBldinEXnEcvx2ZFqiMrmv8YHeshu5Uimh9+kvJyqO8bHE4dlFq7ZLTNsbMOJ/ntl+lMEROXD5wqb2frZ2BgfMrpJu5tWnjWt4LZNP2OyVDtfcsUWQP6Zf5Ftlyv1KLuuYOLwWTjML6YcWvEeN15Vn4iBBkxffAiutk1z5BSzhXehwwCREjlLpaLZQ3kpfiV8NUp8onqE8nJLs8qzJORGZlfeb95UEF0QuAKBTJHMmubq0AQldXcBxtpBfu3KdRcDguc+bGuc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:846ce7cbc155cdc7\",\"npc:8849d8618deb0296\"],\"constraint_ids\":[\"C:ce8760034663fd4b\"],\"span\":\"In glass conservatory, the council recognized Eli as the Crown Witness.\",\"rationale\":\"Eli is recognized as Crown Witness after Tamsin accepted the same title, with no relinquishment stated, creating two simultaneous holders despite the exactly-one limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "YAHzs+2i+e2eO2gHaRufUmZ5U2h+3CQmbAmD5QOgO4Adv59TGLOpGv3IhhgH9Kr6xMjRV2Hb7xOJukXeql3hNsmldXQqfJ/NYVXRd8g+MELSPXOl0JqSk6LgGriySjFurijWxH1aCbPgwItPJzJGzUo8T3XATmAfXja9aU1zvCsmxGJ9ew7+atkjxowKy4UImQwP5Tsz2hbGH/6sfo1yGnh8O2J3OCOdz6ZxhUeXRy/Rp5hYbCCl04CQrqRIoEj222Gq36M4tmkk4Vf7FsWyF1knUmJ0kBMRzF2OICLhYO/mfUU9joCLvVF3XN75uWR9g6NnZie5jGMeapzFt6+PGlnNnKUwjju+gEZOHG4ezK2DNCbV9SzBP3wcvIB8cO1IUhrtjQf0jQdhQ9xY9R1H9nS0c4SJ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 641,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 313,
+        "output_tokens_details": {
+          "reasoning_tokens": 203
+        },
+        "total_tokens": 954
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:846ce7cbc155cdc7\",\"npc:8849d8618deb0296\"],\"constraint_ids\":[\"C:ce8760034663fd4b\"],\"span\":\"In glass conservatory, the council recognized Eli as the Crown Witness.\",\"rationale\":\"Eli is recognized as Crown Witness after Tamsin accepted the same title, with no relinquishment stated, creating two simultaneous holders despite the exactly-one limit.\"}]",
+    "token_usage": {
+      "input_tokens": 641,
+      "output_tokens": 313,
+      "total_tokens": 954
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f3e99a2f06ce8793e2e836a0f4855e2ed614c66912ee1239f4e5138d86a574cc",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3018,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 665,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 157,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 803500000
+      },
+      "created_at": 1783853000,
+      "id": "3DZokk0UZUFy4ut+l7ZzexitECAsEAdQ69i5/6XnY7bUeJZiQSi+bdpSr8O3TG5lkpMazf5PL/UYhdb8hL9P+N3RbxeRnfZId97fU9axfM5PKROISVijrTTLrtMVB3AnGYdJJtawWba/m6JBL4V81a/qCxO3lYcKdGeVA96eKRguDqP8HNB5gWGEXSWi3LvAvUZkKynXX18/lvZAgIwfuEdJZHg0iJIcZ4Zenoc86nkpm0kIwP+4boyNkcLGbsfuD21MOp4iehNfdrOHEY2EEUgTBJORV3ABs+z4jjLJ6/BnkBzNiH4WMwiKuruz6GQRPwrkBkbOciDYIRQytVaeFdilC6UdQ8GSswkboZ2tVplo46p261y54iwwJZ3pwJ4GU2D9svXxqApxqUy9j1/3InIgAO1aNQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Crvkp/Ebt0zv9E09OmtVWObwP+fLccOldnXOOf7I4f3Q30mmef9paOvC7FfyYaunlwtJt9EjKg7j3yAEIW1GgQ0+l615m8L6I8yYLCn0jO8Zagwgs1b821+MZtlcVGVw+prgQbmzf58CFcGE2FiDwCRVxMforiM1OicCzN36hLKdVXWGBNq4CSqELukmmiVorV7P+FvSe/cPIaIi7iuAh4APP/QTkbwZeu250kbt84jDJWUbJp/zbzdFAcQPtxPM/7uX5BwGugfDBrQnGrgeH6ORHxCyN2iQDL/gsyQ+WXWacThH/vvO55s5Zj7eTSDQfyd+ZP+91KZnCrtHhvtqC/jH8U41ZDeWrTua7Mw2Ca5S8Y+efmYQnqmsIJ2vznJbgxddCdMJTLsJfvss5tPi5k2oIVY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:abc607263792ecc7\"],\"constraint_ids\":[\"C:cc312de0c659902d\"],\"span\":\"In signal tower, Tamsin marked public rations as a personal reserve.\",\"rationale\":\"Tamsin removes public relief supplies from public availability by designating them as a personal reserve.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "w5NxvxV1RxQQ9DPUMQ/gVViYrYZLaAmXVU1UxykjbClxFFywmIYYLuRmW/RG6c0o4TIdGYiW1PZNoC4TPPWJe+clk87Ij0Pv5RxOW2bFeCdjgoZ8EPiUtp9Vz4xAMA+92vPT3Kfkm8LT3UzZQbmynWR3FaklnN3LPcawwiEKfH1J3Y60cGmdlt6cHz+pDxk3TLKZ/L/RfD4L0vPP1vqh8BuT5tvTXH/cc2NaZOxjGTYyycyHv3L0bd1XqKWSejGjeC4NSMnmLRk1GZnUd6Qjr+eUNU49O1NeAaluWF05WmYJB/ZXB/uHM5Yz2zM9nOtVbqRsWxyvRBmGSMDNXNA/d8RYomMqUzFIC88yfzSyUdpDZEHi7AGoeslBgCjeH45gkFP4NyWk4GtmQrwNIg7oLP1BaxMw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 665,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 157,
+        "output_tokens_details": {
+          "reasoning_tokens": 72
+        },
+        "total_tokens": 822
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:abc607263792ecc7\"],\"constraint_ids\":[\"C:cc312de0c659902d\"],\"span\":\"In signal tower, Tamsin marked public rations as a personal reserve.\",\"rationale\":\"Tamsin removes public relief supplies from public availability by designating them as a personal reserve.\"}]",
+    "token_usage": {
+      "input_tokens": 665,
+      "output_tokens": 157,
+      "total_tokens": 822
+    },
+    "tool_calls": []
+  }
+}

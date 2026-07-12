@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3b9fc7984a50e7b45488b6182f9bcd6387c388422750e13b164dd2254e660d10",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5561,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 631,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 206,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 933500000
+      },
+      "created_at": 1783844900,
+      "id": "6dJTZ4rWHC//Gzv/UKUuimMaI8DbHfOLcq9QX0s62NVRF5LK61L1VvXjqzdlKb3Ww/Fq1+TyCMoGn05z1M8pQbr3vwDKncmsfQi16F6M57S8wjjsK+0a74SoZ/B6Xo7VIU+4JwGR9q9HATJSWQv/BvKki5tMxKm6B+/NsQeq6LbDCxS5lxEP5bp/hbPqzsAV0t97fz9EhyRwn3F4W0jFvAvs6kZjaw94f5TmfZcgJDmScF+MdfbE4sXOQ8Hrvly2TZpTi7TVrA7ELMcmZBFFgRi5FTViq6iPwzxBldXoEgIZNsB8AZmVc7MFk7iO2gxH3GEVcC+ew16ol2VZKPbBla4DEYX/qAauXGyvg7R2xLxioGb8lWUpel16yfrlSDHvh1oJTrFGv/KlSmSUAbQsjUElTlnvKw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ot6e0UI50/MSEy8eHtqe+JtsLonIf2VZV7naErPl+W+SWGRqvz9u3kt9ICCEgQgyw3ubfvBmWWVFLJVKNhK1U6z5xwCOx0SR1X3TOM38Why7UNXK63IvYyhoeMxSfb6Zt6imze5ieVnrKkeQYqVs+RZGA2Lpx2kvOpjHDEFc7BaaFHErTs7f4HwGRZuevEdjZg3Cb+mjJ8PFo7fMSHmahNkMMFQZgB3h0FpNCma1JvFlR0naYloVFcd/+aSH91onv8/yaejYtloRneEFCTDhTzzC0PUIrRDHFVTAjytOvV7oeiO86koK81SUWS+zB+uqmM1s866DDC5JvLQ27N0X/GhvmPjRcGih9JpRRgWrjBWUyEit3AeX5AqkvpFDSUeNVUpT0rRHjDwxqKTz0DgXV+z37ew=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:877f089e2739958b\",\"npc:f49950aeac5af194\"],\"constraint_ids\":[\"C:79417e8f5c716178\"],\"span\":\"In desert waystation, the council recognized Mara as the Harbor Marshal.\",\"rationale\":\"Mara is recognized as Harbor Marshal after Qi was formally introduced with the same title, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Vaa2Xa9Krcg8qRhH/XfS7W3MQ0ouCRuGBLzsVcvijZEVGGcY1KUE2q6WX+4c4f06t0c7uM7z46gZeoQn+77JmFvtFPHVOMlwzKN7vdNgJoPR5kxWTfTyIqFfXmDfnQQy/wgwwSaVr30HWnt2MwKKe/oaeJQYNHkQc1FSdPSot8zsWcdvlBlaDUn5nd0kp/wwviXiB9DlmHXs16hHS3Qjh0qKupYkdJMnc59RmC1Kg1cbdbCfLoBG496rwrHnOtEn07hsImVtCBzjfrClSWOQzO8ZZoDOr8o4PcdRHZW/HFPZhlELn3wAzuj2GcMgPG2WFJz74FgpT4HuZtcvPmJaM5U9hHoKlEL7M4H3HRwXAH9trZW+2yOafadQUxlppB7KipKPMJlwARJoXGwtYO5yWsyFma7C",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 631,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 206,
+        "output_tokens_details": {
+          "reasoning_tokens": 98
+        },
+        "total_tokens": 837
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:877f089e2739958b\",\"npc:f49950aeac5af194\"],\"constraint_ids\":[\"C:79417e8f5c716178\"],\"span\":\"In desert waystation, the council recognized Mara as the Harbor Marshal.\",\"rationale\":\"Mara is recognized as Harbor Marshal after Qi was formally introduced with the same title, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 631,
+      "output_tokens": 206,
+      "total_tokens": 837
+    },
+    "tool_calls": []
+  }
+}

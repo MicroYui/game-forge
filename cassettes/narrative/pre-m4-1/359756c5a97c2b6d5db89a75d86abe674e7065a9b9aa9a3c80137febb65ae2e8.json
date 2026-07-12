@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:359756c5a97c2b6d5db89a75d86abe674e7065a9b9aa9a3c80137febb65ae2e8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4416,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 637,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 290,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1188500000
+      },
+      "created_at": 1783862500,
+      "id": "N94LCHUaOROy8gG6PHK1nVLEV3ppFeV8nSIQ95bBzAl9VGVKwY2yxgf/XDBPe8oit1a4AB13q3+FMskes6YZgup620bvjYmp+xGfpA/lAsEOJEuV7TTCwOIQM9PKPiQujGEbGpB7joh0pzEUvs7BcPnsJWB3pJhuveQza2Xce+scT4VLJMjiDPX8y7CL1ikWJETm6t91Wf3uaRWZ0l8Je3lIGGH58tkKoDglcqBSsbXjwQCTN6Y2xYcnalZZqAPX+ud02uD6V76VutIPfPtMNDV4Sm3GI8x9U/3jrqRkBIcwb1FNlA5BK6BKY8vdQR5etQEPW08A4zhU8RhXS9PcqW9gc5E1LOGlqaAh87w3V4zOPm0zfqkSj761NvNDXdBXMgSxRraAJUNX4p6JxEFH5WVroDzJ/w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "HRio8XReEvh+sIaDaSoYI/KFmE3eFEu+GHEv85NXkXjzDzPPP3v4Dhft2aTGoqMhkCu39F/My5ynshNjp4nwCL3HboDaD+wrZI1Fx87bihrPn+vpLsPfxDPB8eNecnXg5wwPjr5xEMWssIIxReI5jQ8DWS14q3vqXwiSEVgMWYdf1lYzODsM1yqBHegfXMaM2KLmMcyJ94/bSVyiK71JuTEpvT2xQ/2BsVmrxFaZg49V+UrSuExrocZTIvDPp8wSP49CQpK0M73fe5BdW0byt+RG+DjogyeQBfNhZYkMoAYaS42a5gz+wUHQ6ha4p3Z2KsG26pU47gn9m7JCW4Es4i8+wy534roxhZSyhbr7fxllv608ftAusG5o019rZLd2UBf9E7ZdWU8o66eR/ovLKBxYjco=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:146245e37303c58e\",\n      \"npc:5841938ca82089c4\"\n    ],\n    \"constraint_ids\": [\n      \"C:586e5fcee83a9a0d\"\n    ],\n    \"span\": \"Veda signed the register as the Warden at cargo ring.\",\n    \"rationale\": \"Veda is recognized as Warden after Oren was also registered as Warden, with no relinquishment between them, exceeding the one-person limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ei7nbJcn6PRColTcb+Ej+wcARvvFGHsyiUBIFKxs10QfDkl4C2h0UcqmZMxG9em17H+HEtLcqboSU1Uv9ugc2Pdx/5p1nyaJualGFCLXidhXBCvtP9rT6vxpAANwl4kNUF3aS0mUb8BhwXOIIV3Ej/v8F/u9yGBHBuP38LvjUfnQIFFCkg9Dkdxpui9xKPj33mqHBhPOslmflPVxxs1iSYej8mIthWCoxEEWjVpt8RLc/9w9Gdb7YOnUTh470fJ6daytJ5W8W34Fa7kYYAHsiQ/v/IzvrbqZN2JCxfQz5lMcCgsVYHCc0nSLI/KnXuHu8vaFwtUtOKwa6iHfRPnK897EC8qZ3R7swC616p5Ee+tqaQxNZbBumHZSSen+T8dI/RCq0EzMybEk7nQuobFaFOX9j0AD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 637,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 290,
+        "output_tokens_details": {
+          "reasoning_tokens": 153
+        },
+        "total_tokens": 927
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:146245e37303c58e\",\n      \"npc:5841938ca82089c4\"\n    ],\n    \"constraint_ids\": [\n      \"C:586e5fcee83a9a0d\"\n    ],\n    \"span\": \"Veda signed the register as the Warden at cargo ring.\",\n    \"rationale\": \"Veda is recognized as Warden after Oren was also registered as Warden, with no relinquishment between them, exceeding the one-person limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 637,
+      "output_tokens": 290,
+      "total_tokens": 927
+    },
+    "tool_calls": []
+  }
+}

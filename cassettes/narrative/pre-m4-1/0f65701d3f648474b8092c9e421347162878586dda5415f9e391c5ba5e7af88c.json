@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0f65701d3f648474b8092c9e421347162878586dda5415f9e391c5ba5e7af88c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3387,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 679,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 160,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 819500000
+      },
+      "created_at": 1783846900,
+      "id": "r0LHWydJJYGvjQYKDKIkp7iZuJ0CuYjMiyu668ugfLsxjiPYQOBIYNT8r7EYAUmPJL0XTTQZ69XCH0FMLEC0HV8J7dI6LBl2rnayWbPH1EYqyKm/IZq6LPCT/ki21+yyYKZZGwgiOwxQr67O1SIYeDN1KK0q5JyPIPe/pxQC96NUaFa6ieBdxNbqEave3TrI2Kt96VaKYdUnMdeZ91ddWbBJ7uMrvqMl7fz94ukRe3heY94yvEK+ijJvjnKtCMgYrb8LNVKmFKBP+tRQhajSKJvAE8id5Nyg7eyvbiwYk5+Vify0yT8qKL1JfjRRkp+z02H2p6e1YwAs4Mbpu5YmBd6q+f5AuIkHWNm/Kk3sx8IZQEjf3FiAs3RJ7U78BCwjJUcKpDOoouKEcfItBd0i2MhvHIEmhA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "7PQuEUaTlPLRBds0qWR3AKzmUQqltI3H4K61POcojKt+ASeIfGEy95d316sk6lVraqxeiKCn/uu3LD+CWGil+QjOdFW995FnYRuDqjEynNkwS19/Hw44xMvsbh9ioT2u7GctMDwnVNOChRqYncTvRRsGruIarVViPyRE3ro3JR0JnCxR5GkL9itWYkjLKBDJ6oh4gQHlS+C6mmBYjnXAq6cb5y/gM2jGMZ46LaP6yT8ZwawpZETORjKT87TzKRbEPx3JaGMJILmAKmzzJoZfd3YvCTKv/ftXNtYErJEq4h7T9EgLU3u5Hjjnmu/eGi1iEyVwn6IM4ULNxyWhH+gh77YXeDmN5Ag6T8/dNS2R1P9PLg0Ag5zfcmwMKmljYz08D+6aM6tVvOlzfbKU0OUOciPCeVo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:2bbbecec4d64b621\",\"secret:b5cf33a1976e1331\"],\"constraint_ids\":[\"C:2db2fe4ea967d503\"],\"span\":\"In desert waystation, Noor disclosed the masked envoy's identity during map unveiling.\",\"rationale\":\"The envoy's identity is disclosed during map unveiling, which occurs before the permitted reveal gate at crossing.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "+ta0EuwOVP8BZjg3fUL4rzi9cqffJRuw57ywUyPGIQmCnEI6mkuzCNehf2hkW9flRCLrnL9HtfP51pjUZbo9NNSu7RIYYTLe5UNofyc/CNBSU3iWKlJQTKlzmbM3N71mNhqZmWhK+hY/TacPc7i4wlBtKc2JAUiPWU6veQ+M9CqN+2Cj5pAZ+1DIqNxpr+NczCeSY6+bjFFoGilNiiDpr8MzhCUoHlbXBsRKVpmDxylX4KR+ud5rPl2FEGCA++jBoqlsNLFXli9ACbVs8Vs/13wvDRlhdmYAARUjadIPYHLZqTTi80kmj/T47cjNZ0Ihca8DRTLyFcqI8tiY6QweP1ybu3QU0sIGzm1P05ZU5btqbbPysX55mGZV5u8B38ds2AN20FcKrYQ84mjQon4m6oaizT1S",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 679,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 160,
+        "output_tokens_details": {
+          "reasoning_tokens": 59
+        },
+        "total_tokens": 839
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:2bbbecec4d64b621\",\"secret:b5cf33a1976e1331\"],\"constraint_ids\":[\"C:2db2fe4ea967d503\"],\"span\":\"In desert waystation, Noor disclosed the masked envoy's identity during map unveiling.\",\"rationale\":\"The envoy's identity is disclosed during map unveiling, which occurs before the permitted reveal gate at crossing.\"}]",
+    "token_usage": {
+      "input_tokens": 679,
+      "output_tokens": 160,
+      "total_tokens": 839
+    },
+    "tool_calls": []
+  }
+}

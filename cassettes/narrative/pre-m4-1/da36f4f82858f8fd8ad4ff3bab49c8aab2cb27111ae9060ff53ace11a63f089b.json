@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:da36f4f82858f8fd8ad4ff3bab49c8aab2cb27111ae9060ff53ace11a63f089b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4172,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 688,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 102,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 650000000
+      },
+      "created_at": 1783844500,
+      "id": "3wozSNNLHX8aF+vQ36c0I8slI9jEZJ+zZ/j6nGusQMIMJ/ICtd4wSr8bmeJWsGdyl9BdFnOB+7OI5vFz1FuSXWR2yXqeD8OJBzua/mQpsrWEEls0ia860TtuWtWYArhztS8pccTYWYDhd++ECCk9gx0SDfd4LR0ox1jp5Euk9ZWNU8z3AZKt3rz/+FFfcQAjSMFJYk9v3TRlnEIyj445UwHN40phjQXULZZ7uE8DAC2trFMclef64m+eKg7j2uUJXZDRUHzPu+1WI8Bfdh0vKm8RyzT4YK/00w0E0j4pyqR3WN8KR8j+eRul8iUVAWrHQ2qGddvXurubP6TAFxC0RJOIe0pf8d5Vl1hcQBStWSTeOy8AvPn7xunR5o5VfjNSBl2MWxkrEAIt+wK+ozou19kSjbQm9Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:28983e5161a7ae64\",\"secret:9b9a6881045782e5\"],\"constraint_ids\":[\"C:60e9c8995d866f0e\"],\"span\":\"During docking at observatory, Tamsin openly named the hidden heir's identity.\",\"rationale\":\"The hidden heir's identity is disclosed during docking, before the permitted reveal gate at relay alignment.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "3ry0Bak49hM/ocJm2b46YZ7fedXS7NhBhGHCNWc2FptmS1awGzctZPvTBS+8JLAWcvdLo3VtBXbOeQGKe37pOmgMbhuN5LWMKI6x7EXDOPZCz6jHPTkF9UZzGpEagEIq9jQWwMmyarZPEx2wtvY1xasJdar0P4z/sCbyk96uS1AK/nnEhltrtdZOzVzDhmYQcy6fpZksQO4eWIfyQ6sj/FwwrHIDOTfUfmuU/8YDb6VexEz0x8//CiIH4sCeIKe822rGnJdvMeWSOD5WhhnY2OFrwKXTNzEAPw/eotZJyBdcX2bIg0v4cw6cGbOiKuGH1q39/wYMpLBYZ5mcpa4xK/b1R3M/aNgZJ4fQJlMCj9BEOd502oenMLkYn9xWrKBskbr4cE2yjMbO8lP5YLH68vyDFMY1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 688,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 102,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 790
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:28983e5161a7ae64\",\"secret:9b9a6881045782e5\"],\"constraint_ids\":[\"C:60e9c8995d866f0e\"],\"span\":\"During docking at observatory, Tamsin openly named the hidden heir's identity.\",\"rationale\":\"The hidden heir's identity is disclosed during docking, before the permitted reveal gate at relay alignment.\"}]",
+    "token_usage": {
+      "input_tokens": 688,
+      "output_tokens": 102,
+      "total_tokens": 790
+    },
+    "tool_calls": []
+  }
+}

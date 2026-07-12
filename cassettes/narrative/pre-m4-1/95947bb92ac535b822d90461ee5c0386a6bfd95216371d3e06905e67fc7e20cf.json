@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:95947bb92ac535b822d90461ee5c0386a6bfd95216371d3e06905e67fc7e20cf",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6869,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 709,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 451,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1707500000
+      },
+      "created_at": 1783842400,
+      "id": "ciRNlsWtlNuspdA8fimLfdLm4zYlylkhRKj4JnflIeLLK2z+tpZrhA14akuuuZiXQa6Z0PlqzD0K2D9gf5NOQrIGwpPUYg3yvRP0f1+1UbCJKMh2Qabf+UPYFQ7/e0J0EOe5qnMa+cRaW/hqfZbZn66ZxszHv8gyB5pizJ41pqB12tIFUyvmM/j6z83lTOTQPEpOyCDlb+A8NodtqIgJVk58p/xw+TekKs5kuzwkFs8hNZEWtUXTZWgEKpmZD5rOFlhRRtNm24I9nXshqxDYuzThEEBmWRBjhWPo2HtU6R1cJI765g7xh48eaQaklNuPpycRrJ5KbApl0dTmg+RF9tUNjyj1XijWONHHolNjPQSsfUuXYyLh9dqo8yJGqXqFWu7p31cOT0Vq8W5t4hPAoPX2yLPTdw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kBIKXAk+SYkScJSGmvRRRgUiTLJ8V8Kk8cYcVXtfOJeDWiuZWxjPzKtGlpFRNentgGcsMEaL3W1oms4z0g1R/fSViUlXm2Xd2RwN4i1HOM7Eo5tWgYI79U55DKO5CFhl4GJQOnzs9hIwq9OqIpa/bZ8lu2+4I2+TZ0r5/L4+o1Xt2qzgpi96VHhIRpx1KyONIcE8MDQPqBw03uxOUTkHsYILIlNgB8XRNsresZcqMkvl9a59gHAieXfDQJQNd1YW5GTZR/g3q5O4KV9cynzKf5wgyjVmSJJRdpoH6gu08giL4ntbwNQPia6SasgNoUgUpgn89DSUNasALPREulCfsZQBoomAFFX2J/Eac/7IrlSCkEheWO0evJPIGeH7RkJ0dSeZ1ykWfCBQ976fu3QDViSYpU0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:afe2acd64d2bf8d8\",\n      \"secret:98ff9c11f8b58798\"\n    ],\n    \"constraint_ids\": [\n      \"C:3e16fc09a12242d6\"\n    ],\n    \"span\": \"In north gate, Tamsin disclosed the masked envoy's identity during council session.\",\n    \"rationale\": \"Tamsin discloses the protected identity during council session, before the permitted archive opening stage.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:6e3eed8e10d8b04a\"\n    ],\n    \"constraint_ids\": [\n      \"C:1949e46ec376f14f\"\n    ],\n    \"span\": \"In archive hall, Eli returned the reserved rations to public stores.\",\n    \"rationale\": \"Eli returns the reserved public provisions to storage rather than delivering that aid to its intended recipients.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "a3MzEXWBtp6PMOA6fobShFBp5vTROCXhlk/fPWDSy0yZI5Q9l30fu358fxytDFgFAelewgd+aNMTdpBv10qUC6I9L1613f0o9JoacLYUPnNWTF01wjiclK3d9WJr87mb+1TcCzRFkDNFVNBL8o9ff4GBfCP/JIY6O7wM2vweQCu3rBqsYwnGGFlePyvclV3Y4mkuiXbj8NyAQ0hI6OqTdprGBWr4fH+UabRNer12b7IMeB607xyhh1DRn6mm/Ex8MjpAobghm4a4sHvxT2GUMw4gjMo7kEUm4nsQt6L05UZH/1cVeMJMG9eaGIyAhIlemCUzbbv19yO+1SBL/vudjB0VQjgp7/4Gg182rBIhjO6BbO5qd5fu/2cY5WdFQ/0Xj49JuRLITzQ/novpF/oyl5L+Fa4z",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 709,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 451,
+        "output_tokens_details": {
+          "reasoning_tokens": 214
+        },
+        "total_tokens": 1160
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:afe2acd64d2bf8d8\",\n      \"secret:98ff9c11f8b58798\"\n    ],\n    \"constraint_ids\": [\n      \"C:3e16fc09a12242d6\"\n    ],\n    \"span\": \"In north gate, Tamsin disclosed the masked envoy's identity during council session.\",\n    \"rationale\": \"Tamsin discloses the protected identity during council session, before the permitted archive opening stage.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:6e3eed8e10d8b04a\"\n    ],\n    \"constraint_ids\": [\n      \"C:1949e46ec376f14f\"\n    ],\n    \"span\": \"In archive hall, Eli returned the reserved rations to public stores.\",\n    \"rationale\": \"Eli returns the reserved public provisions to storage rather than delivering that aid to its intended recipients.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 709,
+      "output_tokens": 451,
+      "total_tokens": 1160
+    },
+    "tool_calls": []
+  }
+}

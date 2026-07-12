@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:71a429dc7c99ac63087ecd2e8d43a5d63d46d1cea94030de2e5b8d13f94b50a4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5917,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 561,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 222,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 946500000
+      },
+      "created_at": 1783843200,
+      "id": "oAs3h4MWcsOuILjhcs8ArtKEmKCQptL4lUgWx9Xr6cpbTbJpoGWPp8CAvaf9g3ZtSF45eZ3LDAIiQ9ENqYocuB1P/oHRCbujLrn34v0mks09KnVkpqEw3g4ucJCFpxcZlI7O+AZFy/zJGtdyQCBamWMoPOGdr61JbiKWjsz5BpAr8AU1vddHLEk16669aPksxMrVjGqTnXq3JMwqE5TqAqslHa/xyUmkAFzYYWwknNPp04prTA7S/NcBgx0L6Zl2HLxtfOlj0VOw+6K7OIVJ2DYxFwo296vnzAeIb4ZnAphU0wwiy5o/6Fpz6Jt+V3zYaTVYKqR9WgZfCl3FN0DPLXmfQBEsypfTBjxXP/BQoPO2IPa/Ba8KEulF71tnxAsFBeiSfwR93OSdkqUxQG3sATV2SqKBwA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "zju7bXPKvwZ7q4052H7LoIPQS86qiVRiaeU2K9gwrtsW26ickcQnROVePfYP2uROS1WezdiAzrn9AgLo/mTXgz9fMkgv1BqIAAn1/bU5/nxxoCfxKM3fzyWlwYk+BCAyO9u5+P5AsNTWuoPokHu6QpUz9O5SGRzhdUzA15BBEviQuNmYUfEIEUpaM6JyqHBHL3r6RW7JvghfeE68smIypAHCMAuh6R3HMSbctlv4ekOU7Hby6j/zLGOILcC3itFSBdOiopZikbV4pzNrq66JA4UfUfyUFWx1FJRPOSvp110weCfxfYIR5de1JZoDBo5ow9MI1idPbijIbLseDtK/S1eKFrlaTkkLeI+El4LHXELTWLlpjkBGWzAm+dD6z8fGTXbdSjNY6z1cRKxtTkiSFmRX3OQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0fa15011e35965cf\",\"npc:33e0da0617516395\"],\"constraint_ids\":[\"C:4ffeccf4e3eb0a7a\"],\"span\":\"At desert waystation, Ivo was formally introduced as the Harbor Marshal.\",\"rationale\":\"Ivo is presented as holding the office after Lea signed as Harbor Marshal, with no relinquishment between them, exceeding the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KjpqxoSPZ9g2Ahuh7iUpFwi1Ogvm3Dmikft+c56mdDY7LjcS5DjpUeykb2G5c1BrfDxuNKV9hN+69VImvYBOMU3VGTGGdBf36SM/zLEjclgVBMkatB4kHc0mdnhGtCh4cHHmu1meN4wt3O96pT8SK/74EnJ8ln7hanI2ggVYCimhJ+2F9CULImc1Ninn9xd+L+f/7NnmFXwqPS8S5+V5Ervh50tRDHzCblKdCUOh1quaXCZ/cp4sidIXD2wkYV10nH8PVCpeoDygJqjdVommB9k5cDzKSaFFUNwDB3rCFPiwUWNcmC5rH8DaYszXCjf8qXdAiN0MvIc/oAiF9wMjimehOwB9rhJaKoHU7aZm7NEDWRRFVHr9yDisTZVda69AJXNJacTyyCMV2YbyGeloHFBCJEMI",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 561,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 222,
+        "output_tokens_details": {
+          "reasoning_tokens": 110
+        },
+        "total_tokens": 783
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0fa15011e35965cf\",\"npc:33e0da0617516395\"],\"constraint_ids\":[\"C:4ffeccf4e3eb0a7a\"],\"span\":\"At desert waystation, Ivo was formally introduced as the Harbor Marshal.\",\"rationale\":\"Ivo is presented as holding the office after Lea signed as Harbor Marshal, with no relinquishment between them, exceeding the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 561,
+      "output_tokens": 222,
+      "total_tokens": 783
+    },
+    "tool_calls": []
+  }
+}

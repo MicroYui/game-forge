@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3a7a29375f680a75394fe040c22def89815f2135c20539c08760f205b32bd70c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5644,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 624,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 233,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1011000000
+      },
+      "created_at": 1783841900,
+      "id": "7ZnjmsDkjnRsnocehrcdPgD2GDv+ypDz2POBCYTSqNAZo4J1eCYe342vUqQ0COI+3gFmiwRzE1c9Hm68XbrA19rw9GZ4RLmasj4zCti/cXFjf069pS9FvBHn81hbonAt93mrG88S9A0D6QgesMtDCNaBIhEiWTgSBjywZEabRAvpwG+WaKtr2bFyXDhW6SCZ068VbnWjqpchPS9pXUE/eGQpHX4hnA9ZNTmq4aAtLqO+hUxKIDJm1mla+NI0mkzkiHk41r0fGcenbSNQ/3wpCDqLfcSRqsnIZ6+YylivK9WkHdqjh4LGmILrqmKtkUCrz2tl9CcwgnrOunaYBtLqyiNheDGs0dkZa9U3HnSm9uWt08PZ9lWNBGLoFuOewa8aKEJ01G+g2z7zP8tx4bvNRUAr3UzRdQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "PQMH4dk15gd5l6T0AeQZK33JfuWgQZZDiGKoo8xNDgEXXRT3ZKXd0ZG/Nf8m2rjtwjgRw/vxJl7VNotmlNiJWWRG7kxgiQlIeEnylC3By9jgn3OloPtwAhwr5aMNb6PCOHaUkYYITiDGqibvC7Mrh8ZmCkBTvXR/picj4g1Cj64JlEstQhLbkttGb/KY043AJus3VkKe8ooN+IYgiFJgw+BDRS++7eWxVpQSWW2W7DwHevQIoTV+bjpcdg3lmN+NHDaZ1ws9jLliN4StRg6NHSZHZkF/VpuLnSir334EoOpcHDD26YtzpZcZtKk36BPXBHWxB/ZHA+lLgA7T+UPIfTTQHHM0XoCa92YNNj9q957aY8UUKSqAF6d2h61zb8iqW8iIgVZ8T3J6aDjOMRmyB0nrdrc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:497da8b56b8197b8\",\"npc:be28d74e3eeaece9\"],\"constraint_ids\":[\"C:3036293d4d7ed9df\"],\"span\":\"Malik accepted the title of the Harbor Marshal before the assembly at canal bridge.\",\"rationale\":\"Ada was already formally recognized as Harbor Marshal, and Malik then accepted the same title with no relinquishment stated, creating two simultaneous holders despite the exactly-one limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JPOJnMkQqeDfcfb04KjPp1L4OeacTuOP1m4EXYngzc3PUgV2fqKn76obQGez0R61wglyO8rGaURkbZvfR7DNbGeZ8Ds+RUSfEMs2Y0y+fGLBsqp5Ur12J4kSwjLgXZ8CZUtJfJlKfO2q/JcQhjEhUaA0oT+qGMmU1+cBF4KI4iXRyqBgs8DYcI3Y30oUAJan5j3dANyOt3LVYdd7S8g+RuQysEuIdDnRrd7VjMZUDy3EWaVxhvFgt5cXWc+1o3RVQPqI/vMn4ptcGWnwAO48XeDy3/vNsVP+s2bWdFL1T9eDX7r5cJ5+pjDL+1CwZmHv9xP5TWLKmstLAzDgzaijb/wz0F3xapBR2IiKTe/J2RQHpcN3GzuY/KgayTwZ9w8GajIcKzbHEEAEDDMVkN6HumtAACzb",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 624,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 233,
+        "output_tokens_details": {
+          "reasoning_tokens": 114
+        },
+        "total_tokens": 857
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:497da8b56b8197b8\",\"npc:be28d74e3eeaece9\"],\"constraint_ids\":[\"C:3036293d4d7ed9df\"],\"span\":\"Malik accepted the title of the Harbor Marshal before the assembly at canal bridge.\",\"rationale\":\"Ada was already formally recognized as Harbor Marshal, and Malik then accepted the same title with no relinquishment stated, creating two simultaneous holders despite the exactly-one limit.\"}]",
+    "token_usage": {
+      "input_tokens": 624,
+      "output_tokens": 233,
+      "total_tokens": 857
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9024e5113a8fe3c8143651625ccce36bd31ceca38d537415082c16b125c84ac8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3785,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 517,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 150,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 708500000
+      },
+      "created_at": 1783850600,
+      "id": "okbmySFdtzkYJdkOJDTUgt3T37SoJ/Zmyz/8V6OuAh4KKHTlTdqzIv6asmt8Is2r9bq4mVGWiUW+GUJhdLLlLDilnbRapksDF0PenQoVDMCC6MTvQHCN3q0Q1TCEOdF7OIpayLqt+JtuD9WXpREO56RGmnY3FweKILbVIaZVCXROdJKvPFyhZ857K954kR3Evgl45512zXxJX2w7I6WptpwXqO0ssEllQ/DahwZFoBBZwlE9heHpClEVEuabQ75qfHYVtzMyE+oEdv/7cGCrgO/BzVF2aXg5qEyrRmHA5GMRfTLhfLMwHY/5eYXuP/JdxydYGr7DF3twjeQA5g80m33pa3r1ARtB+Y/1bNGrO5ow6mqmeEVNXo4gLjjloMtR7r4MDKBX+XZAyo19dFLvRCzufuU8HQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "p9DQJrzhWNTNnPyQesTbhrx5SglLeCNvihg5VD6x0HXa+AOmRmBPqv12mK5nidiHxa0feViQF4nrqfMOfu7ajPkC66bkGzrhKc0GZLglrymlu6V5hBW7DhwDGQpMikrR6ICT/H36EF+juxPP5AQwiPwUDt0/NyG3Tg4Nl3tljcoAF2rmbA6IKho4ixcgVjl/NvA1Urykh2rwY65QzlPtxmgqWZ+BZfKSCa5DG5MLH7jpB7xthMNspKtDjnurOTnp45sQOw4K2pRjWbc1L9xWTJ0CgeHQEGfajUitYsWLuYMO7O05LGziWW99XeK5gUp+XSATAobwdgVpnv9aLPVo9CdRRlVMI/tcWF4aUMsGI38Fp5usEN1mPIohKkMgzlXT/jvNGZYHE3IZcP718vz/20y0iro=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:7d8730c4ad09f8e2\"],\"constraint_ids\":[\"C:bb3aba9e55a07570\"],\"span\":\"Mei disabled the crew's escape route before joining their hunters at orbital concourse.\",\"rationale\":\"Disabling the crew's escape route directly conflicts with the rule that the crew can rely on Mei to protect it.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gZSVqzn1ArMeKOrsmJpzH0Jbc+HEg5z1dvX+wXYopDtgvS2RvJ2abVy1Dxdf/IS+51+Ihgq1Q0Qi7Zts2MCrKNsJcvV1DOnFfXRP1+sI5z+CeOHmaHeaVIybXWq7KOCn1k+nDi48vrRbkDUCYu0ozacTH37ykf8X1DbQsDIOJvomjGnH+j3H7KdvtJ/CNqm72A4Cq1ApfWYhVfsLEDFm3H7j2Ju79txDrYsQAn8SA0MP84G/AZIEmJkMrtYGTWCT4dP6yTYSuI+uV+bm7yepAGKGFYI8SHBAbpGDTv1YSEXfuEKkzrmyjai07Ol7wrhei7uWjLopJ2g9iQ/xFIxPls4847afTzk5iBSKz/rBIrAwD603TaOt2gO7Po14xb4/LMC9nqJu1rn2eTaQSBp8SC3wSHxm",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 517,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 150,
+        "output_tokens_details": {
+          "reasoning_tokens": 53
+        },
+        "total_tokens": 667
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:7d8730c4ad09f8e2\"],\"constraint_ids\":[\"C:bb3aba9e55a07570\"],\"span\":\"Mei disabled the crew's escape route before joining their hunters at orbital concourse.\",\"rationale\":\"Disabling the crew's escape route directly conflicts with the rule that the crew can rely on Mei to protect it.\"}]",
+    "token_usage": {
+      "input_tokens": 517,
+      "output_tokens": 150,
+      "total_tokens": 667
+    },
+    "tool_calls": []
+  }
+}

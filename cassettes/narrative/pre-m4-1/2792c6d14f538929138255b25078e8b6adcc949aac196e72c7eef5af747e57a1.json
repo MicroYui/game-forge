@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2792c6d14f538929138255b25078e8b6adcc949aac196e72c7eef5af747e57a1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3447,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 680,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 173,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 859000000
+      },
+      "created_at": 1783845200,
+      "id": "vzvWNELi2C+oim+GnSNVwxaolrWTzdXLeOM0Zb6GHPrvKKzZiMcQCiYOcX4AIAzevySXr/NfUmuyUURxRjhrCSwD91lySh7L9Sf4h2M0Ip5vkiR1/oEayjD0GxPX2QG5KJmb4/ZeqDyyUmb5wx296dTAupl1Ly4k7pjzGiGhw0CFOOp0pWfO4Y3YKG5Z+6ZGZVC2BbPOx3oxbay7C3cnCjgz3pUshCh2t7BqGB93FxL+W9VjUw2lqNll84BAG2hut3VFIuA0PwgTpF7QSdStf33oVgumr3tESEh3EKbJCDL5VG4eoRoHWJ4SkXd+RyQd8i0UYK1L64KVct1Ga6sMYv6/HwCtE/9dRaGkH5BaN8ZGrQ2HmFSftjNpvhuxOsORJ4Pv/2/lMTHsZh7xeJ2uf8LyY7CTfA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "fU8hnx+sCe4GxjfusZnoa/9rSZ+xHXNT6KRxhlMGHHqqR9raLfDe0q/Bq/fKBV1CyIBXPHaI9oU6Stn11tB5AHJhbMkcPw6K6gIEIU5TwS0lLPDrxdsIat7gkdA8cq9UCh7nopXlieWC2xvoKwz0gZ5HXp6uYJHuz1/5JsdHkIm/bPk8nUBIQgUvDzKNkrhvMra9e3hpeidTNKLi5aKn73ju3LeDjbTkOetknFJAmguqliou6DQRIUOf7FtsH9Ly7Fb0/WDWgw6RKE9K5Yj6x4nO67bB3NMR+kHcH0jJW6tOtENdd+Wt2oNZwl4YLZvj1vFFsFPnpu47dO1meoQTVwvItfJW09NJDoHDwAItvTPaII8/qDDfe+eQB77mvQdbRm+cY/ASvbOggwJt8wBQEVSwSjg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:521083d6b4c1847d\"],\"constraint_ids\":[\"C:e3c52398fad4c861\"],\"span\":\"At salt depot, Veda locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Veda prevents waiting civilians from using an evacuation gate, exposing noncombatants to avoidable danger.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "meBKTLBqP2h9EA0clFzUWQxFBoviabHKMVBH5Jo/9DFBx3JR9yh1/nWAYGVr7OEkrVTsKnXSI8kFdEzqmb49CaR2/YZIjNWU033zwvtxQRn6KMKvmGPQR2ggNiL8IKXxh8Gccd1nc8cHQ8B2CSVgQ9i25szmd5lKhvVHoKGj8kMmksA1n61L8iaTd4PQu3dZj1Liu7pkZOjolHmdMO1f4Ncu8jUajKztUj8b4zhgXgYMh+SZrPf3mcDHAu5T5DJi4k6LDvR8v9qXwiOG+vKT3qG1p538x1eYsfJaA96i/YHFLA9RRBbYxIbzMrZB9vp8OSFiNR82rp0SVvXlyvb/0oXGr2gp6zD6AE8aXy7t3zUoMwfwxuoiTzseMAmOBf+qPeJn0siPokb7zpbSsUBW3UORr4yW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 680,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 173,
+        "output_tokens_details": {
+          "reasoning_tokens": 84
+        },
+        "total_tokens": 853
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:521083d6b4c1847d\"],\"constraint_ids\":[\"C:e3c52398fad4c861\"],\"span\":\"At salt depot, Veda locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Veda prevents waiting civilians from using an evacuation gate, exposing noncombatants to avoidable danger.\"}]",
+    "token_usage": {
+      "input_tokens": 680,
+      "output_tokens": 173,
+      "total_tokens": 853
+    },
+    "tool_calls": []
+  }
+}

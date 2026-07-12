@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a5c30a469b2973a62762396c09a220f1e7da57f19373be1113fcf9ed2a030358",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5612,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 701,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 240,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1070500000
+      },
+      "created_at": 1783860000,
+      "id": "m9L+xXQi2S1mgPGEyJzi/vxI3UzGVUWquGghTiR5l0sX+ttiUHV9HvV/T5Be0perO6NPfh0emC7PX/35O/N17Qs6XMlOSoQ2l2hENAFd1rsIUX85mtJUNnKrXZSg70T5bJQVnF96ngjhJcnFqThZfPHf0aRlb2ZZLJk6ttxzqdoGbykNsrgOAjHFbQCDEGMVBG+8PnlezMDSptLxlizAo/NTthSoAzaq28L66en9kPgzlrmeq6+IWvALw6oBQi2bQ+H1URnnAvJ6WmmTL9b0hW6Zu2zndHcNfGIf+XD8qQIcBd/0X15C+GJaoQVCkquIcULvtaU0tsvNbWooJ03XIDfnedbskjKjt+ZwzYKzW7gEfn6K2ueGvp3jEAr1cjIWCY2Xdr65zrdpjVah/Y2MmwbDQVuAmA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "+V/7l12sWIiHuf9RzFztw9WxXuquarfwg+D35Kez8lki0WaQL5Tg5oqiHnTHicDfZvRnRBdJzxp/S8g0OfJMGgtCVioJlOsSRL3YPdp+02RZ7FtjryjiFg9twpC7514qw4E5h4r5LrWUwZQlRZAZk0XqaOVmBHtblXlZLM8/VUbiGy4zdjJNM2pQu18EhXmLjgnmO/8Zq/TsgskjxmetXykYkP5tWAy+Gvrn8HwMkfl84e0i3KZvlWhwK1w4dkdzPsPV8Qi5IYEWlINK8oRDwdwXb2fYzVA+INx0YxXMU4Hxwc+9+hMIAKnzc0Slvf24SQ5Z3OBC6QEiEC+IFnXN4bT9HvqQAi1oH/be981btIiJQjEcl0gG4mMG3Ln7FFdwm7/aOAc2UCerxR8BQ87Zdvad5KE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4ce6faaeafbb27a8\",\n      \"npc:c6587d0195da69fb\"\n    ],\n    \"constraint_ids\": [\n      \"C:bf99710ee3856478\"\n    ],\n    \"span\": \"At glass conservatory, Mara was formally introduced as the Vault Steward.\",\n    \"rationale\": \"Qi was already identified as the Vault Steward, and Mara is subsequently given the same title without any stated relinquishment, exceeding the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "jxOVCKuXtw+8yBqBblcKMJtEbB0NRQ/cW6MAM1fRtwoPrM5hf+QgstnJ+rg0vHWkY17U3/gpQtJuiNJJQEy4Yz2OsnrrWun2kRwKbfVPHTnegouhBKFaxJNaHmX4WTEXkr6YOVNUsctRwXbkHHDygozp0yjcENvma/VP1Tdez4WEHeIs0fwLhYdq8Y+MvbtQUOjqJg+gjXpH+A+UHsFPtU7OLfGq7jPMD/4l0cElJA5ZsvVaZnvl5okUF5B/HfMQ4aKZ2+nPiloSaloUxbwlFEnRG/+D/cgYRygyQS4hvjjvvQppVw07rmPwqPeu1hyjMi637cZpyaquH/kb3mX3GTxta5pTmkhg2iyufZBoXwJTJgMyBh5YkxCBk13PBHLhS5spjznbhxcngO58UCXBqwUsE2Hg",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 701,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 240,
+        "output_tokens_details": {
+          "reasoning_tokens": 105
+        },
+        "total_tokens": 941
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4ce6faaeafbb27a8\",\n      \"npc:c6587d0195da69fb\"\n    ],\n    \"constraint_ids\": [\n      \"C:bf99710ee3856478\"\n    ],\n    \"span\": \"At glass conservatory, Mara was formally introduced as the Vault Steward.\",\n    \"rationale\": \"Qi was already identified as the Vault Steward, and Mara is subsequently given the same title without any stated relinquishment, exceeding the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 701,
+      "output_tokens": 240,
+      "total_tokens": 941
+    },
+    "tool_calls": []
+  }
+}

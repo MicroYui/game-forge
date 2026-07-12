@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:58e62058031e9307a77840a284ac33b0ed0618a420db5ae4b090439a43300c61",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3623,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 695,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 215,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 992500000
+      },
+      "created_at": 1783848300,
+      "id": "xACRqp+xfelnT5RLl95A1Qm76kPHw2TsrWWV8piOH0O/UExa/oUwVDOaRWcQZWpNk4RpM7LlJHJ/NfaE5oZW/S8kx6pAybdtnX5nITj3UXYe4CAqWlN/Cve+xnIYs2pldIV0aypBt5wV7d5KMYaDfYRkyYNyp7wbO2a1An3Nud7jVU3swptwzPO3cA7yJ9wGYnlrweh4YGuCd88bExdDi6QHAZCnfCKsVAx6sE0tjb9dkI/tZDT+z/si2LVkkG84IVMYfT3uHFXN8hjiUQRWQhQYEJupnAOvYsK4/pfViZz7AcZOGv2XE9aFfC1fOjZ6fovIZv2M38cYiHtqt/GnKw6Qy5tqVBUDrAIACrU0IE2cK3m71mHWxxiA1AShIjhzYRsZsjNeTVLPnvu+yaorg8kafIjLaw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "zdRnZDuLPlGvAm5u4PI9ahmZpyzr1nA2DelaLEK+MbS00wXCp3JmHFFTBREsMSJKYDQ9gfxkd3w5UKXuKAm8p3dxpS4yKOUzEssSZxFRMFRm3tLMr5ukPt5MbeZ/9rJTCXRDa+2FfteowgcipnrVf9lyq7YUosjSghmdGLwgVlDkRneRy1bVPym7nwiSWmSWe7RKQAb/O0agshGorzN/ScVoR5vgpbLIXzIGRNYedS0h69TuL5wNqxyvUJuTdDS9RqmkNxrdFdKTVqf+2VnleYLLkUjEKqlNPn/3YOtE5Z7dtZqexGrATfOcSkeQFgJSaUho82bZr15FJ6s5NYtJ9h89ck7DY1II7RixHU/K+5EzO2YMzDikkHjBgFAu8lTFhHLS/Hh+4/KJSUCG68PnO+Boqhg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:94d3ae1bcc2cb07f\",\"npc:ed7791973962277b\"],\"constraint_ids\":[\"C:6413584088f1c7a5\"],\"span\":\"Cass signed the register as the Warden at orbital concourse.\",\"rationale\":\"Cass is presented as the Warden after Noor was already recognized as the Warden, with no relinquishment between them, exceeding the limit of exactly one recognized holder.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gAPU6TqH+1w4ogFAgdG/Y513YDICLTUTZFh9ExM3I3rm/2OHZClTlYdSjEzf+K+UVupPt5VGBMHtrS5Ydt+ufvGrKa6mWwPQegandtVp9GyBDF6Ff/poAtu6EmJo0jrBp7fjUVCACwc+5wRTsffBHuLoAhAiILfAji/h6wwsQTI9LIb/mEI12GxHuiKSwOc4Qwjfw6jD+htho5o/4GtQMyU39xAKatdvKPsKCLZEfUA0FUG1oxG4gDMtuh3odV5dy3yXBUwrR+56fvQ0pr1rGGHRGe2eKCBrAuREwNTTTX3jvppVzHLtnp0rHGh8bKcJmCyBI0kEOaPccYE6GIrgtLufSdhWpJodDmoa9UciJeRTg3G+XAE3FZRkUAwZU5HGC3T7PoPJ0urZdMj/KDjhCiO5amA5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 695,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 215,
+        "output_tokens_details": {
+          "reasoning_tokens": 101
+        },
+        "total_tokens": 910
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:94d3ae1bcc2cb07f\",\"npc:ed7791973962277b\"],\"constraint_ids\":[\"C:6413584088f1c7a5\"],\"span\":\"Cass signed the register as the Warden at orbital concourse.\",\"rationale\":\"Cass is presented as the Warden after Noor was already recognized as the Warden, with no relinquishment between them, exceeding the limit of exactly one recognized holder.\"}]",
+    "token_usage": {
+      "input_tokens": 695,
+      "output_tokens": 215,
+      "total_tokens": 910
+    },
+    "tool_calls": []
+  }
+}

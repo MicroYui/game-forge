@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b48649c67235dfae9b1896942f43491815dd91906d11448de8d7bcffd82df069",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4098,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 626,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 189,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 880000000
+      },
+      "created_at": 1783846000,
+      "id": "C3XGaZ9ULgyvNKN/E4KNddjjNV+QkKjPpwqB+QFeywcsEFxZvIM7XZeoYzo4W4Xr4KBwm2uLk0oiUUtpmMTF4UKWW0V7IafmjMjxsaDm6MIfkf2DXnOek33EERhvCSk6AV2eqeRnK7tbldraMPV3Zb+79sW3fiFHZK1jkJ+MUO2k3yPUyxpJIp7ouCAoOYSkk6Qq3nsImPjg9upvDnAcQ0mbKObB4ft0QIPGvnNp0Ct5xsq5ctYIu42HqUhcfPfv7/Xlc7exbt7ico1A27HkbtyNH502n1kAGBIkbinj1A86vdcOo+KdGbkaOwWxZJpD9EnC+pZDbA9E0RDwNT/qWSX4wfvMFIZMjFXfFJIZvHJ78iFCMrbmY8uVwsZnJ9eOdAJlR3B+Y9q3Eon4shaNNnEWCKIwrA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "6jC8IE6noYIQmJAIHQJCLdp7JEZmm6wCpEghrogbq58nMB9C2OY7C/FoJr9+W7mFTM5z7HBv9b4+3THMcPy0/B83NiASeSMvoiqYuk+N8nINSqjeK5U2ShWxYvza9CyAH78d5lSyOYKFTiNWeTpoNZdeOCNtC8bK6wpKK9I0o83W/7xMocF6E3X38G1mHRaZuaAwxfskgZWCcp0Hkg/82zqBge6j+vmucUpSCgJe/zbDas2YBzHr7Z3nbwpWR/OECeS4UK4O1WF551DzqJDL9j5T+znPeVirrnD7GyjWJDFAINb2IE9qhWWq0T2gOKhX4buDvUvIl0QgR3B7vjO9+nyY0buMbCQyHCADaOfYZ/OVrRljvZvs1VEoZeyjo28LHMEZgE9mzUfc4u0XNxp+nwWARww=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a1f450a0f2914507\",\"npc:df1acfa74e1ebe44\"],\"constraint_ids\":[\"C:d489d8da83f27648\"],\"span\":\"In desert waystation, Veda supplied Oren and called the partnership permanent.\",\"rationale\":\"Veda of the Dawn Caravan explicitly supplies and forms a permanent partnership with Oren of the hostile Salt Raiders, violating the stated enemy-faction relationship.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "+7LDXd8e+9mVj22akgA/7NO3tB+Yondvtb4RtUGzWtPP/x41Fp0bEj64CtoFhyIulrwxB90aCv2SPALNeCUUhuURI3m62ZZyxTChlH8MR49lS7qL2AVZvD06EuNmJPmFuIMHAvNZD4Owyxqf6/l/tP23CLmjnKc5eI5oatHdygLx1BVaVpQBiTz7mlIFQ63PWtQDoY7+HwcAMrA+RFfgPes63XpMj0AhpFcWGMAbHeYFVYBe0ufe09ZDJ4s0LeCVeRCJmfXDU0SiIivIGAXYPL7oLNX6lrq4KIjqxWrm74t+j33wAtY9hgOjx+D3SZ9q9ID9ncWpQSQ50/Q7Rb4gsGlwyknV69a5vMyOhtxK4OOMFcEz4sHBSacosWZHbW0HgmTo/RXuzYFT7dkc5njYJeA7KJ7c",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 626,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 189,
+        "output_tokens_details": {
+          "reasoning_tokens": 77
+        },
+        "total_tokens": 815
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a1f450a0f2914507\",\"npc:df1acfa74e1ebe44\"],\"constraint_ids\":[\"C:d489d8da83f27648\"],\"span\":\"In desert waystation, Veda supplied Oren and called the partnership permanent.\",\"rationale\":\"Veda of the Dawn Caravan explicitly supplies and forms a permanent partnership with Oren of the hostile Salt Raiders, violating the stated enemy-faction relationship.\"}]",
+    "token_usage": {
+      "input_tokens": 626,
+      "output_tokens": 189,
+      "total_tokens": 815
+    },
+    "tool_calls": []
+  }
+}

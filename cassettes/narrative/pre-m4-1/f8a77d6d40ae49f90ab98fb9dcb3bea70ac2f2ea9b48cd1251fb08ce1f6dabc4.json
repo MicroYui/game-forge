@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f8a77d6d40ae49f90ab98fb9dcb3bea70ac2f2ea9b48cd1251fb08ce1f6dabc4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5519,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 533,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 293,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1145500000
+      },
+      "created_at": 1783848200,
+      "id": "VqE2wzGAKrSETM/cqC2of56w8u1F9qJuQV5NrIp7L45oihBWGGthWFa7urWKbyk8qg2RMHXmPhfOg4YttVSYg0MXCdAiLHV5FYOTJ6LQjZysnKAHSBUZLKCYTnLCuX+Fb0d/nvqon8rZJJ3ORMreumCi9bY1TtYHNFGHKwsykd7r+6NDmTIKe4GSyuLDT3X2IhCys28akGPGvFruc+zSEi9rQOxeclowWc83cDoDjuJC5xwtyuil5vZ07v8wdApVQtt8KdWnFAMw26a5Sw+jrXrRcbbu1xLc6J5CtgeIDBaDdwBXkjQijLBgUcd7zlLoqWA0ugQ7B8+4PFtpcy/ne1DymhCHRZ9J8hv3XWdida5Q90TjxEB9qDLUl9B4dNMXtxq2EbUuDJW3mIfDc3O6YNRZ2sDx9g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "i6UiE4OgA22ddsaYri7jv4Yqi/KPIods8Dak4xwMrUOg0UdbYp72xR25/O4NWNH3BwCL1RoKWZ0KyB+hvmzdWXu/FWRsYSpyRGfhkMnXns3dpqWNN2OCCSl2AiHX/oqf6nwCd/s6XM/LOcfglb9SM7KHVIWF6NKYQ+OBf1U7jZjjpOdb6fhb6ey/MpqvwE2V6cFYHc+HNwWW7popUuof4SWMOxuqzDUqI3Uo2nKnPig4lqRMC8Yv4cxjri/dWKUIxfsofH7cI0A2JwZT0QkdKH/PBB/ILEzsxumpnNKxAXnILlKmhFSFSmwknh2Vl4TOghhRMu+d5aJvLx7xSr/+9BbKkYNY4h8a1f8vFHAfAoAPoKq+oV+vt4o6ttyvTs9BmOjDrEkB+dT+ZszDXDBdgNWodzM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:f34012535a5956da\"],\"constraint_ids\":[\"C:a75107db7c0eae28\"],\"span\":\"Ada disabled the crew's escape route before joining their hunters at eastern ridge.\",\"rationale\":\"Ada sacrifices her crew's chance of escape while aligning herself with their hunters, conflicting with her rule against securing safety by sacrificing a crewmate.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "7LIjkC6gc2KALyDL6pLBsH1ffzHjafpZD9gJHRfI+TMi7jwo4WYzIKf1n/w22hpnHqhsVzjhIPC31yqd1Bh/BDfWaep8H1o6C6Clm37xbEkfGwmxS9SqGmgNmLdemwr6Mbf+691wfTwqpxyu/2ENFmdX6I8e/wyumK7ip+33DvAekzu6YP7OLlAZGNxqe45xClBSMhjgUJQgYE8QeeUAAh9IJg0WCtt1cBhCdRbTYLHkaLp0mo5R8TA8v0bbkfNwGwi6T9F76Jby5JwefwkUjd5WX1etjxvUt358BRw4AsCoOBFMPz5PYqCIiZBlhY+5huNuDiNlJPdgdEwh+qjn9XDrnLgcNvvMp8BeUq1/2oyvrmTQPdUa+bmFLXyXaxDvCZXFayN+S0Tq9hkRj8XiDSV6wj8I",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 533,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 293,
+        "output_tokens_details": {
+          "reasoning_tokens": 197
+        },
+        "total_tokens": 826
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:f34012535a5956da\"],\"constraint_ids\":[\"C:a75107db7c0eae28\"],\"span\":\"Ada disabled the crew's escape route before joining their hunters at eastern ridge.\",\"rationale\":\"Ada sacrifices her crew's chance of escape while aligning herself with their hunters, conflicting with her rule against securing safety by sacrificing a crewmate.\"}]",
+    "token_usage": {
+      "input_tokens": 533,
+      "output_tokens": 293,
+      "total_tokens": 826
+    },
+    "tool_calls": []
+  }
+}

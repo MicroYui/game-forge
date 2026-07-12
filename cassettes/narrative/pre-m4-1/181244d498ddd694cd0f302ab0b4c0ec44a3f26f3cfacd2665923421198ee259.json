@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:181244d498ddd694cd0f302ab0b4c0ec44a3f26f3cfacd2665923421198ee259",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2864,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 604,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 148,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 746000000
+      },
+      "created_at": 1783841300,
+      "id": "2rzUt8ZChPYvIBTqm3wYJnShWnG6j8Bd5T2fOv1HRr1HovMDmh+/Xv2SRuWNK90Ztc42Bs4soe4TxYzNs3gvooFE8up9Dz/kENYgi2RM3tpbaUs/gY2eBQiixUzAHxB/03q6weloM4K/VKj3du3IPNtrFytmZRpAont3ABfajZEU5VdQLJc1+kRoVfPXVY47lgJ1vek55uz++KdgH3s48EuF3TNxJ7/cgKS80ha5mgTLp544Y0zLDxkcLBAmDmHyEMw7fkpl7LrpiwMj1l2hzEAzYomjV9PTEULi9E1LY6jEboWHLKAv3nGlX/KQeL7vlqlhMGkqcjJC1s8Tup8Vua61BTP97rNalApf74IFohMrz9Alk3xRenbewHDXNsySbXy/fv9KiZw2suZ1p5VC3OmhFYncFQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "8TDvKZE/hXeIxfPbhh/mZkKDaJ9xh6d6cZdH7JjMm/urqZG3ALbJjo5Se4ohmW0DgEa7PFkAu7qwWtdxvZ6NaxuRgfLQgO7qhcsho/QOcMfiT3qe9FM2+7IQnEzy4UWNrbM6vKfSm+XdlRYP8NGUkEyPTFvrSkFnyQoGaQSCsZl90wEmsKr2DUrRrDiwFZ3A5VCFrmewsK+8oBb/6x7E0zI8eX4L5tK68wI+++BM+jRWKiSYM6D1P85VomjtmMpYrhF7YT32XRrQ1Rgl7CdWU3yg8W3QSgD+HvPJR4Sdf0b81apT4fRupUcO60h/cYV1zMagd2gn6SfVxpu4e817q7SkFRJHmcMmkokyPB8YQOwOl0Q/PaGAgP8rkhWsgCpZ+Fia6oVTpdkzxuXKp2S/20p6fCA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:fcdfc552421c30ca\"],\"constraint_ids\":[\"C:8ba9af658f74aa8c\"],\"span\":\"At orbital concourse, Qi sold an entrusted route to the raiders.\",\"rationale\":\"Qi trades away an entrusted ally route, directly conflicting with the rule that Qi does not trade away an ally's route even under pressure.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "TUISwC+iUOGWfBDlm2zGTTVvViSO1qxGFYqrmEQ5p/sM1UwJb/Mhu+ye5skNGOD5+nupzxCQCRZM3s6xfRTFg3CAscbRhtNIqmnmkmKRr5POf8f2Kvu1i1iXIx73IbLjJSmUa2+7BnZZbF7t3PxPBiRwYL7CfjZn1lOQ/xIumQKWjmZqTecSpSCQ6H4zSIgKBnEXygEK49HLGpQG8lKtgEHcdBCiD3GwhcpmzXLYoUMsaIiF7HaxGddsjFFoLuDYE1jA8KOs1Eu2f8QE9JHOyUbjHUihLoYpPeZMuKRVY6tNUH2V9xa6F8vXO+j0OjJevGxts2/7IU8eRl1uSq+izEQO2SqpmiQcem2/sPXfYf2bvdDp2gSjAqt+++MWkbyfGKCT8FVrBCKlLcg5R66fugDRBYGe",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 604,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 148,
+        "output_tokens_details": {
+          "reasoning_tokens": 52
+        },
+        "total_tokens": 752
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:fcdfc552421c30ca\"],\"constraint_ids\":[\"C:8ba9af658f74aa8c\"],\"span\":\"At orbital concourse, Qi sold an entrusted route to the raiders.\",\"rationale\":\"Qi trades away an entrusted ally route, directly conflicting with the rule that Qi does not trade away an ally's route even under pressure.\"}]",
+    "token_usage": {
+      "input_tokens": 604,
+      "output_tokens": 148,
+      "total_tokens": 752
+    },
+    "tool_calls": []
+  }
+}

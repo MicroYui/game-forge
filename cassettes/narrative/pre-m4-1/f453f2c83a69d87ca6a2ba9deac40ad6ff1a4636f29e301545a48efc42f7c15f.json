@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f453f2c83a69d87ca6a2ba9deac40ad6ff1a4636f29e301545a48efc42f7c15f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4231,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 644,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 209,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 949000000
+      },
+      "created_at": 1783853000,
+      "id": "iba6ca4g7fykou9UcaZRYNXL1A6SNx8W0Ji1kNt/rdGsKSBtLOGnNyLFnwGnks/6oW4VLItc6wQ33qXd6S9y9B5KvAxv3RgttFdSRWFsHcVxWqNPibQoxU+t7kg+iEbzMh4NNWlD8pcQWDsMUVwibfkwoR3yymttMo+R5Xskbx8hY3R79hA760IyOxlqSMSQPnlT3NPMrya3rdU7tVwSq+55YrYTc65cGGlSvDpQE/oJzYDOH6M4a0slJn1u1Fh7lMe4TEV4JpuYqsicUX8imEjmvDY9aZhaF03rNQboYYhOmIoQWVkN6c9jHZgcHAxiSntcpqYMOxu7ESaO654gFgJcvMzMav7+9MKvCmzLG67PaipTliWWUXlH5DKMN7uvljTSvjlP2b8TK3FkxCctNY6KBtM0NQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "cjaxRSVg9aXNwN+h90urGvh48T3yVT2wF6sZ2IYCiWY3JS5wHTXn/ci09DQMXugBhJbPmP50zAPuKRIi4HoVFPlwh/ISXGqghWTkS69Z+jPMkWxu1gzLhKV4uTXIDM7BIZOXkUfptasmKfBx8EiCIbLpxTwP4buQ2EvgY/y6rF2ihF+auUY10duDKTD1dtcXhwGKIpB4OndXzNY/HAXLAwfm1E7K6ZtjyP/qMifhwirTK7xI4q7sRln9cyhjuu/bOjjwXmz7EWMApnXvC/y0htvO43jf54CEOaqTGvYBJ2oLL1yiNouhJo8oto9frqi3NqZYMlR13ackMPvvncrELC4FUUxjKdk6E1Mqz+/lUnXIe+BCEB2//t+5NfPD2RMfxymD2Ks0QZp4PbKRn5XHnjaxBxg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:9fbc73b58f0f43e7\",\"npc:dd5106dea73b9d56\"],\"constraint_ids\":[\"C:065c567d965d6ee3\"],\"span\":\"Lea signed the register as the Harbor Marshal at river market.\",\"rationale\":\"Ivo had already accepted the unique Harbor Marshal title, and Lea is then registered in the same role with no relinquishment shown, exceeding the one-active-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "WZEjtq20uKGwDyscn9QrxFiaEOpxkAMywjOQVyv8Zchxq9ydo4uU9YjMfcZCaUWAnSdjjfpz7CrEmZ32Nt5izE1zOt7vNWj/u++UbqhVvuNzeOBnK0Y7O0PqRJVifQ2+e23541B+La1f4TTW57mCjIf9DuBP6v4kD1/6fMwfNv+RzMMXclWt3xbBRyhgO/gqpw5fRcBlvrPPducCirLZ8MEo02Jb1RGhlED1wWkIIXUslq58YkGL4hm5dPjqYVkCjWm20jkCDf/3wLDJEY6RKuC1OCWNOa0JifaUIwXi0jM/tHd37xqY8tmBda6trYo4o5dlyv9w690ca4tqCLmg4oF7dG9gb6l1RNVvduf0BAwJ8k3v4UVNdfdzA8wRjQ47CDGwC+eArH2Sw3vq+aDRMHWDMjhV",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 644,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 209,
+        "output_tokens_details": {
+          "reasoning_tokens": 92
+        },
+        "total_tokens": 853
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:9fbc73b58f0f43e7\",\"npc:dd5106dea73b9d56\"],\"constraint_ids\":[\"C:065c567d965d6ee3\"],\"span\":\"Lea signed the register as the Harbor Marshal at river market.\",\"rationale\":\"Ivo had already accepted the unique Harbor Marshal title, and Lea is then registered in the same role with no relinquishment shown, exceeding the one-active-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 644,
+      "output_tokens": 209,
+      "total_tokens": 853
+    },
+    "tool_calls": []
+  }
+}

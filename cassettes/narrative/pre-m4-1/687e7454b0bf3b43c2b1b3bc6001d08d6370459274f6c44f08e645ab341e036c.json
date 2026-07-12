@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:687e7454b0bf3b43c2b1b3bc6001d08d6370459274f6c44f08e645ab341e036c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3489,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 704,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 168,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 856000000
+      },
+      "created_at": 1783852800,
+      "id": "vn5srt9g/COBSj8ybQnyylA0dQXYkqGcCER+a6Szv/PeeuFNTnbHszOXLxUkLWyuwCMAGjwEq5ILyeVCH+mkJMDQRQul4jLp1LAisRanSiFmMdOXDg85CgAPdPWl2PeDLTI+mwZH/B3uoHH4rIh8uZZynpbBsb/HU6iPD2RIOcb+SrPaGnQoR+O8ss4VXn5rnJ9+DK1ctKeZcCC1jKIKvhlYTC5pdXDcoZwTXtQ0ASoBl1MuAMcgAf5dfGp0GzstOXoX+lkp7c2X3tJTr0cQaR8Qph7a2+HEISxW91FpRMUAxNEQTFWJ1HkMDGhxzpj9KBB2EtnIlBIAAornOg5517AdjdZi6BgfC3tLEz92AJXCA3VD0zrmeBc3FOXETtFFyvgKzQ1GA9FCXG9TjdeocPyEDgp4tA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "96dMOmk+XWOLYPLRDiUaVpZoKutahJzHwUAZiZoYHcYL3eb7RmSkBc08yBu7tZv9pkjW5qBuRrKz44MqnvixTRIf3AzvBqzrt15+M1lIPkHDdEvcdv5e7Wg3mbw5H4TsWL+2hd72pMnjFvFGxsysjcgRuqvazl24y1VoNFQAAikUUeFQZExyyvkicr0AD6YjEmDOpNVmZjEAwPluDYJZEzlUDoAO5cNIQpB/7m97tauXDhZZcRuslchNxueuoWjJ6kkq3i+b/GYT2iDk2hMRX5i1LQaLcagpOvg1Di1fP4kTWGoxdtAOGbWUYJZaiDD5D30sIJOclQTDWX7O805c2WYqF50mvMXutssxOKvPSnPXc8TG64x6z9PVbh+0+2lgLRwfOZoen1UflITFdDqcAoJmigQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:b93b3ce08cca50fc\",\"npc:f7848abf93368322\"],\"constraint_ids\":[\"C:83e6c2756ad67689\"],\"span\":\"At river market, Mei was formally introduced as the Vault Steward.\",\"rationale\":\"Daro had already accepted the unique active Vault Steward title, and no relinquishment occurred before Mei was introduced in the same role, producing two simultaneous holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9B+skF+QHfiu+flgO8/WESlC9b6SJtZnONwn+Mla5mFx2r08oBVffoAQUFe+0LIrve3V6EiYCjbf0YTx73motZ6833lHnvAYmUC06O7KP7G7S1PahG2fSWXphYl1LPuP9C2cENuq6Yyb36EsXfXFHSBd5tdOCf8E8FnWjt/TEjFznr47xNLIym53qc5hlJde6q9KOPKEi2bzBVB5Hzg16dSD7X3qRgir+C9qtrWIWYO+JZ1znXqXS4Du/xI5wnA2CBaa3Vn4N4/K8FE0yiliMy84kyY3qgAiHpl21sRQs/mU//XelLK56/fC7jEcMPwlb6i5Puy3bTiFtTcu4MmtysI9zE66TK3yPz7syFNb/hPa4bRmFz6G2xlnlnu1Bp7TZIpzu/GXjGAB6oz9xj8/k8le9sta",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 704,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 168,
+        "output_tokens_details": {
+          "reasoning_tokens": 59
+        },
+        "total_tokens": 872
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:b93b3ce08cca50fc\",\"npc:f7848abf93368322\"],\"constraint_ids\":[\"C:83e6c2756ad67689\"],\"span\":\"At river market, Mei was formally introduced as the Vault Steward.\",\"rationale\":\"Daro had already accepted the unique active Vault Steward title, and no relinquishment occurred before Mei was introduced in the same role, producing two simultaneous holders.\"}]",
+    "token_usage": {
+      "input_tokens": 704,
+      "output_tokens": 168,
+      "total_tokens": 872
+    },
+    "tool_calls": []
+  }
+}

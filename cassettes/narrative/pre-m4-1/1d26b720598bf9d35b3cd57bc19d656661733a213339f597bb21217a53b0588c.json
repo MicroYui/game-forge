@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1d26b720598bf9d35b3cd57bc19d656661733a213339f597bb21217a53b0588c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3527,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 666,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 192,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 909000000
+      },
+      "created_at": 1783854200,
+      "id": "ywGP4rAZP6NkSOaFUWHFw9IiGblmzMam5oh/5BKrvQfoqWEGCjCVtJNutY4w+yaqhdAznkDijm52xwCo2kpX3Kn5x1AR9hWkiX4OZFv8ZXo74dgZuHZcknGNJqpV2g8ngA1Jdhxs3fqnVXPPeELzzKZnQV3Njj2HKyPk/Yuusns32k14PrmurvzaOpgtCGPoC0plMnuz1V5+tY+gsLlS64cfMgsiwE3Hx6xfNTm7mJ4hVvRgJehzM5IVClTy2xOE8H6cqifsnIwBTGtBY1D9INpRlSHpbjORs0g0j97YKeLBrz727nmhkQG8gQErpuMouIe1CMzO//zOYv47OnbRGSbljRPvfZEA7Zx22uhhbEnxnwPfEhpjM0cww/bFxMT+dT7Q1FXLxB02cB1GCGcJKv5LfoIcgg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "HMRvWINoaiSRqh7I+eciJh2VcQkZSfX6Sei4Q9JBhzPNZLF0ggoKC21avbCwm0Q32q1dNqwL+KLU6Bp8ap/Xs8PLXXMmplHN5B/LDgZC2mqR087dVf+fP/MXTuS9ioyiHU1ixhWP+DIWEMhcvNJQuYdZQpGecIq5AotUX0/JQU8qVHmj01eIwB6Eo61690gk1glimt81upsBiVz4l0sN9jP6lW5RTBmzfCDmk4R9CnPtvD/S3js95AjzepY2GC0GAtoVh9VRkU1HPJLL3wbcyIk0726QGYg9of6KT0izbXrlvGeFXAyhoJfz6V48hYyr+IvlickYmPhsSL9yasRSbG6jAX/B1WyDDhwm3xcQp4ztQMifxsaPYnbFo4uBNTtw0EA0uTUMTi+tP54X8vBnl8ZJCPg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:687c302b7aa67534\"\n    ],\n    \"constraint_ids\": [\n      \"C:ba0dd99fd8ca7589\"\n    ],\n    \"span\": \"Tamsin erased the public ledger after taking its reserve at north gate.\",\n    \"rationale\": \"Tamsin takes the public reserve and erases its ledger rather than returning the recovered coin to the public treasury.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kNL1XXk8yAGuhMV5AfBOik3lulOH47fNku0VkNthlLGvCqQ+IdiYcZ5N1ApBjNo6MoZFViP1AEEIyyVBdhXWyC2oqK19ZV0ADvk3gsibvVbmcYdXzV5XwdmfpSI2kS6udiElmgsNYps0gqsyUu3KfMI+EGIh2FZiGQ/2dy+FWyQoWZ+hHXfCDdeIULVbDGKShqsz9C5o+WPjHMr/2mQ+M9p1VESiXA2RDUIdXmVW7pcdhG+rBk9wd6rfIHFKgxsDtTf6t7hXr8A8y2fmZbaxcEqZYDwUHrHHjcAgEd5Aii5Y5ErSfHGqiw4fVCpBWUZYSkrLpcBsK3Bg+Y1nN9lY2UsoutGTuSYYCEmYqMVEbf6cKrB/PPxeSAhpYAmWIs7qT2gi+riDw7AdZxg3PbAvS3OcWFaH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 666,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 192,
+        "output_tokens_details": {
+          "reasoning_tokens": 77
+        },
+        "total_tokens": 858
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:687c302b7aa67534\"\n    ],\n    \"constraint_ids\": [\n      \"C:ba0dd99fd8ca7589\"\n    ],\n    \"span\": \"Tamsin erased the public ledger after taking its reserve at north gate.\",\n    \"rationale\": \"Tamsin takes the public reserve and erases its ledger rather than returning the recovered coin to the public treasury.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 666,
+      "output_tokens": 192,
+      "total_tokens": 858
+    },
+    "tool_calls": []
+  }
+}

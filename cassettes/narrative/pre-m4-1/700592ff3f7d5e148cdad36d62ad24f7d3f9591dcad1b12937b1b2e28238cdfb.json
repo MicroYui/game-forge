@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:700592ff3f7d5e148cdad36d62ad24f7d3f9591dcad1b12937b1b2e28238cdfb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4217,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 681,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 255,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1105500000
+      },
+      "created_at": 1783855600,
+      "id": "5X+FwtAQO9AG4Wr9q75E6FHXXpJw20+MAQ5HzkI/h+vt7wkwBwQDei5BEmRgot8P+X65fOe6PiI4x2C2PsrNlfpNU6Cap5l2tBkHMFwudioFkK3/0zDPwe2KD0DWFZDkGsDtOLbpymezHtXpFNKUIiSUxTdHyZEpeyeP9XqAZdD9zVYk/ci0hrzYyN21xE2cJv+e/QfGeJRUKYgzk8RMEusG/xL4iaTFPP0qxLnXCebOKD6MvHX+2gMHX2BPWpB755yWrbFZ0r2SB5t7fJ3XE+wvXI2Bz2mEppNWG9KG3eL6XYZzKmJ15xgS2/uJAON7fVRN3dHY+YIyBJPYgjwa+W8cSVA1ivls1NhXYIErTLtRDPhYEJF16YAMAauMtMoDLOkJ0lUTToOWOxRmWzrgXkUtMt9RIw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "49qSHbxYH59qt2zmoc2V52eGb++RXDnNH9pYWPA6SU51vQtQJbpNBkg3FiF0UEVTM2TO02PRwP8r/+R8tKTBJq6b1md/LMxDympaf29kj3ub9xZYjxDLal0+fqD+jOK927V3GE/Z/dtLKmwFSqqt7WjoX0lNUJa8ZrQ8oppAq+8kd1rjVQl0Ap+IGyA7xrYv1UkgBzECrHrzFK+8Ogo4UKyD+S4v8faJ01bmDnEgPYKBEPMXo0t8iSwIWnTZQf4JBbJ0+IBAQNWum49hfT2sJdh5hMqgA2Ic3MtLY/RTRGWead+wa4+TLCPdL3v+nkwW+vZ4YF4EZmBsFq8xI2JtYA4exvp+QgOBOeHY7u6CL9ky22g8M2yBNFIcN7FfrNvs9JxRIg8TDJFutcXSKfwZLb2KtPI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:411266b5fd7ddab0\",\"npc:d8f34609c21c410a\"],\"constraint_ids\":[\"C:3514d66343735b11\"],\"span\":\"Ivo welcomed Lea into a shared command post at north gate.\",\"rationale\":\"Ivo and Lea serve factions that do not coordinate operations, but they are shown sharing a command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "WG5vGpfW/oLWtv/zOIBp7SgIzAM0moRLwUwUAXkCg+etzsNIYwQtv2oZWGRHYMSxL2MqYN8/6U3cJB4FXyUHvoSt2gBg+IkrxgV/JaIg+wu0A2wTl2KCQBooePfwU0GwB8BF5XmghsWOJg3/9CiCPyb+vu+Xijj4eE3dLMttjEYJ+8a3i+Dwgfn3dPPkmfjw7sV/EDjwnBmP3MdO2gFQQbeG7+N5Y8N4VBCakem00nnsxNzrlHtNUYYZitpdtDSdTYYJiXO5yLvCsw/Aml42hIgfnVe89xS1STMzhRhzAwOvJlcfTiODeMVJOvx5eBTpabBFu7lYSlPq5XpOci51xWBeJrO4aV74wDAGdnD0okRnAmW6/EDp7GaYswy+LKW/oR9LXFAtj6rgD2KHcO3weGsw5vu9",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 681,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 255,
+        "output_tokens_details": {
+          "reasoning_tokens": 155
+        },
+        "total_tokens": 936
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:411266b5fd7ddab0\",\"npc:d8f34609c21c410a\"],\"constraint_ids\":[\"C:3514d66343735b11\"],\"span\":\"Ivo welcomed Lea into a shared command post at north gate.\",\"rationale\":\"Ivo and Lea serve factions that do not coordinate operations, but they are shown sharing a command post.\"}]",
+    "token_usage": {
+      "input_tokens": 681,
+      "output_tokens": 255,
+      "total_tokens": 936
+    },
+    "tool_calls": []
+  }
+}

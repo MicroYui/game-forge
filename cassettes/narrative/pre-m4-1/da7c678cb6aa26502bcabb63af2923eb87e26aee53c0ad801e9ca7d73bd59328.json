@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:da7c678cb6aa26502bcabb63af2923eb87e26aee53c0ad801e9ca7d73bd59328",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4651,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 711,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 245,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1090500000
+      },
+      "created_at": 1783856400,
+      "id": "zGeFkJ6wziwMGb/AA5ET+mx5aBQhDqgOtcmxG9YVNtrDPIWPIP53RoTT+5jcWi25v5pMJH3VSxwPpqP4BnnvyIkBe/EDIrCvcsiEK3oMaADJmgQBX8ibv8dEsM015Evq/2hG5GqtCG1m9V3jBEOdicwqJ5jZk49DGTH4aSH+Rnkyhw95DaoF/9omu+VsgkYkRpZE/Qsv4MSV9NX+420DFLahhTVl2o//LQQxBOHBk42LUWWwgrEgeTSg3i0OFc1kh4k2Y34nlLhv7QK0lSNK/VHTm3K78zsjp+LIzxAxAaZVU3W8ZpwvffeikFk7835r0XcxI6q7s3DhJDk2OHeip6Sxk+c4WlG17xe2UL1UnrfukwI2aiHI5V47GdYQV76Qcbw8Cw0LQG0UHMkommaMxEFbZnDSxQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "y+Nl/j2fZMyrxRaHajDh2yeWKZ6iZyALHM5EdBLkopW2GeGIefGxMCIJnGLcObF7kK0KdJ+fXXXgUOJ2sKQ+3SiApx36JD3/V8g4nSH+xD1KCxTAeEVtIM7yga9isd+JfCewIXpOXElKYyLrOuVEs+2YzVvXZdybQHuV6X4vIORXk84y9tePwtmf9R5uTgnkTlCCw/kwN9zV35SPFlqeYYQbxp0gI9DEJCM2f2GZAnyEp80Fzo+jmFkJZLLHHO4hPOLqcV6Ifn/A4889nB1857Uz88Ykkuzd+E6WsvjY3qWskj9aqcfPCj0bt1Oa5nxecFhoEisXObxv3jIkKOlRJEXag/7HWUqFz3r0kIhbBX5aLRxHzoa1IKniDpmbdBYtHYZVIbZeuQECtZ+z8LXG+PkMPYo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:351d7538eb268585\",\n      \"secret:ca56f9fe61d831b3\"\n    ],\n    \"constraint_ids\": [\n      \"C:633ae5db38376c2a\"\n    ],\n    \"span\": \"In canal bridge, Ada disclosed the origin of the black compass during procession.\",\n    \"rationale\": \"Ada discloses the protected origin during procession, which occurs before the permitted reveal stage of verdict.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "47wZb6D2RCsygFQfQnSRT3TOWIbQqQFh1cPc4WiW2qs+f5HrtorIpSWMSJIkEurxRb3L+1fvmzhZpWjkQw4866RKbXrGWbUOqI8CjBwizR3Q52rFwlqSZet8axmMeAYWVr57E6pmTij/krsYGL6fP8yGstj2gj2bSs3coehJMPCnYUhEwRFtXbn/nvjLYQUBmGBc8yGkeSCBj5TncRtN6Xndoc3G92TTRlyB4FkvbcWLQx4cxbR0fGfn2lZxkNNoUdm+BAYFWMOr411XjdS5yYIkhd1eqdxwXDh0fjYzvavRVSqFwUJmVtKBQ8JYsZA3JRgY00aFIQKl6BH/QxcotBQgIu6z+tS5MWq2FE9f4pVQFw6ZlHxITKSGcyv7t9/tA2YcNeDoX+XmCEiT2n4A1vX9Rgp0",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 711,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 245,
+        "output_tokens_details": {
+          "reasoning_tokens": 120
+        },
+        "total_tokens": 956
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:351d7538eb268585\",\n      \"secret:ca56f9fe61d831b3\"\n    ],\n    \"constraint_ids\": [\n      \"C:633ae5db38376c2a\"\n    ],\n    \"span\": \"In canal bridge, Ada disclosed the origin of the black compass during procession.\",\n    \"rationale\": \"Ada discloses the protected origin during procession, which occurs before the permitted reveal stage of verdict.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 711,
+      "output_tokens": 245,
+      "total_tokens": 956
+    },
+    "tool_calls": []
+  }
+}

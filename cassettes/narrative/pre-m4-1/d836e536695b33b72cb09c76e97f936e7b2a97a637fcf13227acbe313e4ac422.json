@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d836e536695b33b72cb09c76e97f936e7b2a97a637fcf13227acbe313e4ac422",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5698,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 718,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 247,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1100000000
+      },
+      "created_at": 1783854500,
+      "id": "kk27SUuSh1Zl5vaVNPhSczX4VwS9O3ZkzHGG+FupeTRhcUiGaX72DAtP60NBSAXZz8TDe8MWKW0P+nXEaERNxlr7cum42vXzQJD+1n2TmZyE8Mj8uvx4pPADws98nVTHcQkNhot4l+WgCHqAYjatJFffjO0xHDUmOt7cvQmnIBX6Q5vB6vqlw5/ulIMbxcjSj73qvkdUowu5X0cbmrcHLTKmxyFj+LCqpMB4aRUDkMWZSxgxxpOV7XMvScAA8nJX22h/38TsKwo5bUiqSwQHBq369KNEQKdLOkgk5uyP67sLuC3K7s2zf3LvNlA4WRbo4DPLDv0PAbP8J7IMik+yVMAxk8NsRmOVvoJtt2TmfaxeWodWQqkxdjmNc0CoiTBpzxd77ZwgcFHv3or2wCM5fEkJurTnng==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "HrZP8Tah6VC7MDPklhqVUSOmOr+0vqRkUYHdmquNYmBOcNNZZP6YkKxEz5cTFvjlWHL31UvvJFBC9SzFQuDrSMAot0cYklFIIbEM/A/EHX++nk9LfONO8yci6yGgjPt8GOoR1CKhLYs3KQHuxC5/UMkPRSVbMp+5PAyTXPHezSPKv12YpXVqbFiryQgi46JH/arCp6m/KJ3YTvGwX+06xq4Enf3Vl9FAH5cgaLO6vTZEtdbfP3G/+xYeRm9W7r/G5+FYqSa4edEgVmZ9bBS35Jjt7EPmikTRdm2eYxGmM+zy6a8VTavDrcdRD3Gw7rtWIzcovwADZOFhUvhElSphtS5PRcXhN2DWYy6sDmyVHyHC/bughVYpKk/lrx8Nbh5P+qao9fundfYpK6nhFIKgDLMmGvE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:2e77c22caed4e66d\",\n      \"secret:8bc1f5af70769e7f\"\n    ],\n    \"constraint_ids\": [\n      \"C:b62c652c51b45a0e\"\n    ],\n    \"span\": \"During hearing at old mint, Qi openly named the saboteur's name.\",\n    \"rationale\": \"Qi discloses the protected name during the hearing, which occurs before the permitted reveal gate at second bell.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ueKhFNP59AYeaPmwVz02ynTaYURITgDPKAOzpsbAth33e3GLe9CSQjvfyvYA85n9MU7+INFaZ3DOtZCVYaPagrLX5UGoyrRBP6d79zwyVlXZpeehh1Obr9NfjbenWzRe+NvxO3nSFKiFK6hhY8Hy+AwdHOZ98LYk2fYgFZiWxE7c/dARXF0wTu8wm3dZZjFZ8ya5KLuPyk/sAXnoXjZi+bieNwFBuVGz9cljlOnR+uz4rZ8a0QdIOwNFRs+s+Y61Rq/Fus+hPj4XOTnfI1Yllimm8hCxWvtaNp/87W44C51yfpkd8uXupNlpi4QcGpJPBJh9oZjtHqjxaZ7y4SwyG88xX/kH3r5xK/h2UsX1yjLBwgnGOXxbFo1KD8Z6Jw+rut0EIUuVAnWzXpKBh8YyFpuLgATY",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 718,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 247,
+        "output_tokens_details": {
+          "reasoning_tokens": 113
+        },
+        "total_tokens": 965
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:2e77c22caed4e66d\",\n      \"secret:8bc1f5af70769e7f\"\n    ],\n    \"constraint_ids\": [\n      \"C:b62c652c51b45a0e\"\n    ],\n    \"span\": \"During hearing at old mint, Qi openly named the saboteur's name.\",\n    \"rationale\": \"Qi discloses the protected name during the hearing, which occurs before the permitted reveal gate at second bell.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 718,
+      "output_tokens": 247,
+      "total_tokens": 965
+    },
+    "tool_calls": []
+  }
+}

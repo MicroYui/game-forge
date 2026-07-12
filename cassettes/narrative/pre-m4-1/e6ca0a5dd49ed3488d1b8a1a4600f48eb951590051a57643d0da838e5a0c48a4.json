@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e6ca0a5dd49ed3488d1b8a1a4600f48eb951590051a57643d0da838e5a0c48a4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7128,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 693,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 255,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1111500000
+      },
+      "created_at": 1783858600,
+      "id": "HOdRFJpdf28+br7s5TCEyiznCHP6Ak2tWtoq3wrgTT8YNSJ+szi/0axQwRrnbXNbJ9eczmd4547dtQMmHoWXLEks0G2eLkyIyyQKufBEdiKmPwp8ygHtU15sGIXH7LwWzUhlyT8reKRhdLpkPKI7wIwtLObl+4hFKgjhEzqlVRSgCEAXfe6obq1kBxBa8d3aWAhyYp84K8FRxCFSEn9OZUIXOvIX6Lm/qfO1Hi9bmM90Lk1M3Wqyz/5euofBHxhY5Q0MDQrcc5HTAO3b7bmFzOHfhVuuaggH/1sw/E03P8mFGglJHaMeNS+giU/ESjDAJFCFd+4kpMP/pNYSWwZ6+KLXASnf845wvPxL30C5g1Q+oCM3K1YGy97pEAQcHuTtei9uwrbK2kOeYNhYI+TEWXjejVE5vA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "jY4g9nNeN+nAUSCnV4OSHxSjqZeY+CG5U4YSphkm/Cl21wY16FbJ6caO+o94z0rb713xlhM1Xvw5BxvDyl1oU7zmfGTMeAIwgERXeo2pIHWR3/XmMTnmiscayizUklcwKnpt/o12mVxBcLCY9P0fujyuNb2QNjJFIUpGiZamADe1dSmAT+Yb0tGdUxTFQLc6p2/wI5OVMg2TstlieqJAr3xtPofjG5o3IyW94FcDNWaK9fRawEzSdWK2OVhAl8JEvwcp5jTjpDhDlRlkDbTZFFo+OIBljFhEftaDN1tW1fvvk8ofgM+TJdrJACdcC8Pa6RKlowHnHxP94d2GC5YkA48iWG3ZxZK1KFfia2fnTyfSq+LF4dUBkFCQ5AAGKsiXFOtJ7IHMbnrcOaZh6ZQlZ+RWecI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3b44bef8ba52ad44\",\"npc:484ad6720ee8de97\"],\"constraint_ids\":[\"C:2f8b474e0b90b322\"],\"span\":\"Tamsin signed the register as the Archive Speaker at canal bridge.\",\"rationale\":\"Eli and Tamsin both act as the Archive Speaker, with no relinquishment stated between them, exceeding the one-active-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "GbUyz0D/7DYTjLjN1GhjdhiIAQjvlz2Dleft8s8YiNdnUyDH28HoXjvBdTiW3o6I+bAGADNdCjWjaVWnqaNGrui8OSLS5NOZqsgwI3uAudCI7NbMPML7vUhbugv2TNIy98ycTQjIMFa4tVVr/b9/lBeIqTUOjrJSVGm1vyUVe2FN4nCzTrrzzbgBNGdiIzJpRJAsmmywf40FGE++bJTpzb/yaTDaT7kx5SAZ0mGR+hu5q6XNwH4QRsf3IPJ1AGTHJGoOvmjg2NwrUedDK9YK1W5ts+yeW9BLJu+NahGuELcjOPMOK+sJr8Zt6LpmRVWppVG7PZVmCCJQ4vERkLsVJZ57nMIugiEsFmpdxh4QHSMg3fJoMQNeab2eyFJacxtAPJT2NzTn1Zs4c1GlP66NZcYaLRzl",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 693,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 255,
+        "output_tokens_details": {
+          "reasoning_tokens": 144
+        },
+        "total_tokens": 948
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3b44bef8ba52ad44\",\"npc:484ad6720ee8de97\"],\"constraint_ids\":[\"C:2f8b474e0b90b322\"],\"span\":\"Tamsin signed the register as the Archive Speaker at canal bridge.\",\"rationale\":\"Eli and Tamsin both act as the Archive Speaker, with no relinquishment stated between them, exceeding the one-active-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 693,
+      "output_tokens": 255,
+      "total_tokens": 948
+    },
+    "tool_calls": []
+  }
+}

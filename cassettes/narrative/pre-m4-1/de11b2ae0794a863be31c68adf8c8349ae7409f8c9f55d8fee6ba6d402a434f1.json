@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:de11b2ae0794a863be31c68adf8c8349ae7409f8c9f55d8fee6ba6d402a434f1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6112,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 622,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 213,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 950000000
+      },
+      "created_at": 1783842300,
+      "id": "E2liLrDdYTyCOmxU6gk9sesCTQ9gkD40NlOcXb+B+PPbpeEuYnAI9RMkaqibj/hxAE5zwmy7LIbIBWw6NaED9b7YMO2rcSwAX64dD50Z6QdIQxeK8QPtO09xSaVpH5266m1XciqWKvPhCXHcyziWlFdlNv0Mp4iCUEMOOAIllCBiwnBUGEw9xwt45EV4KMU3NMOJvRn2o1QP7Lpcx5RyohlSm/WVijaB/mBHTwKOmYfScoxmdNeDC2moSOLo+9lnq0QNSij0Z+h17iDOg4A3/DiMDdWrUQXHLGDhe8AIKNVbrpLiQkMoTsLj4EWks3qFRuBVR2Y2Lhk8ulh3fbdfK77o33QVDOULV+YYsIBWtrwZfDz0TofRrNcN30/5FLbY6IpTFO7MffQ7ZT3ND9yzUu9PCmQq8A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "knNl6betRDCJCEMAyZdv5lK38DC6rR1yFFiCpgZy8s3MI3YP9LfT4rDoBacsX4yue4PTVj1dRzQumKiV5pF7mO6Nn21WMXnvFOD9LQB1wPTZ/Oy4pcGHFPnCrYvgaVK/ivHAAoUNyt7qGNp3ZXEniSYSLTNM/1NGz/UcOyRrEpinAAS7k9ikewxl84FG1LpJLRha/FN105C0m7w8RefWXgtPbb9/0lvnBuSESyAwSyZWETGEEeEEQd7UWz9/mchuNG53sfzUnKlkdWPxbgpY1e3Swkybmgklzd4LYQR5yVxEQAsrQ+jq0jHg43N5FvNh10LauYToRsKBiuxEwsgh+rkGGIU8qZFOOJb8Z0Q2nDjq7QclcG+XnsUebW6hi8qv6BbqH0YHkWoqYmnZ+/3KHcdEvxk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:5cbd1c76c3d1e867\",\"npc:b74fa075d9c16028\"],\"constraint_ids\":[\"C:08b4a4658f78bb07\"],\"span\":\"At canal bridge, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass, members of explicitly feuding factions, jointly approve a battle plan despite the rule barring joint commands between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "mzPxJ1ywg3BWq/W9MrZG8E0nG9slghz1NzVw5eEzDJD0PVCqN9AAI2Ivt59KSplwKk/5gCmhjK716Y01+F7D69hhrPPeCsVVtXFtSyw8aQyRr7BxpwMGE7S66xzORzx7qEGMAozR0LzjyaqtyMf7LU1ZtT66jNlUHqNpWzVxo2n6o6KgBE4jUz7fO2bTq9znm7ZJGEkWjsN9G9icA+V52ykmY/MPO2sd6hnCiaMvvK8kBi1+k2H77Elo8yE9+s6w6U4DOMZEr3rHP6jmshbIWru9dHm00h71cZzyGz2kv7zwnWzFShZfToJfDxO/IEuaMMUvWKBYjgl+dzc3wwFweVuaJnOApvflNpO9eIbQd7/kvhfMbyOt7WQj5fiw4RSh4q5D1bNQIuo/9q2twBvsBugK8U5y",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 622,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 213,
+        "output_tokens_details": {
+          "reasoning_tokens": 103
+        },
+        "total_tokens": 835
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:5cbd1c76c3d1e867\",\"npc:b74fa075d9c16028\"],\"constraint_ids\":[\"C:08b4a4658f78bb07\"],\"span\":\"At canal bridge, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass, members of explicitly feuding factions, jointly approve a battle plan despite the rule barring joint commands between them.\"}]",
+    "token_usage": {
+      "input_tokens": 622,
+      "output_tokens": 213,
+      "total_tokens": 835
+    },
+    "tool_calls": []
+  }
+}

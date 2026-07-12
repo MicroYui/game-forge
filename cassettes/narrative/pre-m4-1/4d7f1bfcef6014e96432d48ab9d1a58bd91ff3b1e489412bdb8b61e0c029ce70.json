@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4d7f1bfcef6014e96432d48ab9d1a58bd91ff3b1e489412bdb8b61e0c029ce70",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3511,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 635,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 167,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 818500000
+      },
+      "created_at": 1783843800,
+      "id": "I2y1onRQhuUffs7GVrAKLnuDN5HLyJ6oumlr5abanyHUbH50bTiCDjHkGQwiEDuf9wGkcvuqH3NoxlpjElwjsUVMbRnk0mGR3gzoBORoi6NU/9laDqBkrFMAmxwUHio/gV7q4DipSRybGlnJR/4pjZ4VQO9ATSh2LQYkNksv3dyf5z4fpeeGclyRFneQHFyfWz77WhX1tDrfW0ZGlzXU7FaPgvQWipdzozWLkKsthHI6wjUFqXua7yu1wdjYXM4+YbIBeUCf8pGcq3UqErr6qZj/qt9dTbPxGGGcjA38dnp2G5wnd6/e//V0fiKyonSaZNTaiF+oVcbVNkmAFAUmV9gr4KYnEMfv7att3fy5DgnC8ztI0OYX3GMQh3Cmo1f3KyUJ5uhQt6PBG+6oeI58Ay/VAWxcgQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "RO1NrTbREqYA6LrDEDxYLi7MrHknyBbNRyISbvTUAG/A7khnn6N3mdxRpECPg8nRMb8whmPGmKF0paY+FhB8EUm4MJZ4mSX+b+ypgl6F74fR/x0Hf7W6mTzJZLUrMecXBlqiFsaILSVOQEjv4AbeMzcKZLeVpcUyJNEXYwCtwcj5qoc4JayVtGQ4/nxJLfeBAn3HOVVVzKMaD13gqw+0tIb+rl0OTnJIuIaG3w8gR995HFDYpnObpeNppDOJ/Wi2x8lcp6AKSdB4BOgWiKFWB+KObiYASCFS56MdAz9N3xdkYcA/4r/UpyTvwypDttJ5kKvraGFGZNZt+uKfwMmJSNhfkypJDl3UNDr8/OvVAdv+QAfu7Euw9ObZ2Lo4I1TCKLVmE4rq5dtsBNAainSEiqOgjaA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4e46a3f83e43a880\",\"npc:5cf5209d19203ff3\"],\"constraint_ids\":[\"C:b10e3c504529a774\"],\"span\":\"Cass signed the register as the Beacon Keeper at desert waystation.\",\"rationale\":\"Noor was already recognized as the Beacon Keeper, and no relinquishment occurred before Cass registered under the same unique title.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rO46gDbvIcS4GsLO5Gygra6+KqS3K23dK9n1h+s4GVtfYvsyyiyWLIMr2YriXmoR7UqFdAPnu37uf4ZabBC+knbSHC5elhq+SUpxrfzwpGAjzWQCn0XgKgohYM3AWLJGlk+SMhN8DaHGVaT6+nMZ8i2tNYXCZW7ACPvalYginqMPhv1kZZW04Q5zccgdaf901EATUuawduBeK7FvvwibZFjpdr/DusfldnFRq8A220U8Xjbw6TB0lAdOYkDble3pRvM/vkdDS07MMdNw2bQDdOFbuNwcU4RNK5rzfBqXKC8lBxrAyq5YKGNK6chsJ1R9/f7Jp2+594fCeNsgN/AoTnlpDhtdJHuwSIDdwy7JkgubfH+kre0vNVDwHBPpSk5paCxKxcWYo4D1sBkJwzk5xY8hZKqB",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 635,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 167,
+        "output_tokens_details": {
+          "reasoning_tokens": 61
+        },
+        "total_tokens": 802
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4e46a3f83e43a880\",\"npc:5cf5209d19203ff3\"],\"constraint_ids\":[\"C:b10e3c504529a774\"],\"span\":\"Cass signed the register as the Beacon Keeper at desert waystation.\",\"rationale\":\"Noor was already recognized as the Beacon Keeper, and no relinquishment occurred before Cass registered under the same unique title.\"}]",
+    "token_usage": {
+      "input_tokens": 635,
+      "output_tokens": 167,
+      "total_tokens": 802
+    },
+    "tool_calls": []
+  }
+}

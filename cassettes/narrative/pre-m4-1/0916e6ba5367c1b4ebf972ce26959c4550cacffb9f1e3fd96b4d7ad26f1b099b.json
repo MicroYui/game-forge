@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0916e6ba5367c1b4ebf972ce26959c4550cacffb9f1e3fd96b4d7ad26f1b099b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5122,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 652,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 217,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 977000000
+      },
+      "created_at": 1783851100,
+      "id": "HLVexLSNh17k8yBnY4de3niPWsGsakmEIfUnIUq5DFENJlj81qNtQxKg5adhp6rHejkvTMxE33t0aujqgBvuV3CplYatJLMtGtUNVZBziI2sH6uvr9FOpptL62m/38TxoV2eEOACF5cYDcdqPU7DVbDL+R15cbvjif7ZNXkPgpNJEFebbFaqA+dq8Tqp06wN1EhS1VZsekHsFnFl4rWUwjz9Tqhk3OxvrtJjqHGxNSnhddE3m5qBNX21L5tueKESZKrpdE8foEEAruFEbovhOOTP8X4qTp2GE6XDEDPaTYKA0LyDKRTIL01Ewj4kGYlowEIavd9im+iz4hupm1q3CJlpNUC1c36gHJ+vnZ9LZkH4WN53Ml9FRmBfCmf5e3dFdZ1+I6wemwPm7x2UGDDk6V335OqEuw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "sEqW6pvTp2URHSFzFDx+uH7kONJmOi/sNyP12m9xj7rCsGW+aS5JQVz+78t3jNh0qhwS5znfUIjY4XYpdm3fqb2iiCmojfZ5id9734WYtarLBy2JtD2wSU0ls3MwOlZWXZFXPfwtjpYwLd60zwoEDoqzoD6+kkOnBjXGjstq2LnNQIJDoWHpVG0Vna1yMsCV7JmP4kdeenMqcZNZSkUJgr86bYkIz0Q7b6QzzrJ53tbQAjI7pLb8djaAC11A9BMvhTanO2dqOr0khe7NUgkav+FmcDF3crYzUnHPhf0O7akr1Cq+gbfYqXww1fnFahjihOUtzmfVN4IIPfTMAitTIYsr4qAt2BKy7FuV/ypN3egbNmU/2ZSlcyWcTX2rPnjNy0p75WibCPGrD0b6VWqiIOJhAX8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7c5678a1c2f0f1c4\",\"npc:fa6313ea1936d559\"],\"constraint_ids\":[\"C:b2a3f9b091f812d7\"],\"span\":\"At relay deck, Noor was formally introduced as the Harbor Marshal.\",\"rationale\":\"Cass had already accepted the unique Harbor Marshal title, and no relinquishment occurs before Noor is introduced with the same title.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "grWImAxT1mX9K3AlNi11rbQs0a2cXxlDh65cuwRY9eNPVwOQ84azMwynCXF4kOQ/Ht4QA/jqpCvbHWMfH4bXgtzYEwPL+M27IlDaidYrLa59+KGvX/p6B4KQjkBPFN89C+HUSts9bwO+FnT78OBhBjQIOqUfJeaQeXl86Fp7m3pRXlCyBzqD76ZWHrbU8W4D4ea6aOvIeWv/1DU54XZjGknU95ky7xehaC58CHHgKegQNW2RxhHRcPRRj/pf2PzXy8XZV45hcD2zMh6Y8EPVnxHiuc9mZeQ1AT8QlCEycjyf4Jez7eKjWoyfedluVBEpGJoSh7GmrVED4ALvLPf9ixq/ddJlCyL25oVUL+sasXZpiN/YdPexhEFYB6HlusOzMi3jKzhTv1v38QeLJ75Y/vPk9Qoz",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 652,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 217,
+        "output_tokens_details": {
+          "reasoning_tokens": 106
+        },
+        "total_tokens": 869
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7c5678a1c2f0f1c4\",\"npc:fa6313ea1936d559\"],\"constraint_ids\":[\"C:b2a3f9b091f812d7\"],\"span\":\"At relay deck, Noor was formally introduced as the Harbor Marshal.\",\"rationale\":\"Cass had already accepted the unique Harbor Marshal title, and no relinquishment occurs before Noor is introduced with the same title.\"}]",
+    "token_usage": {
+      "input_tokens": 652,
+      "output_tokens": 217,
+      "total_tokens": 869
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0c626f95bff7b080ed1b4c20cef23a123b33d390e818fe3a4ffa7af293c8a9d5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 8371,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 630,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 247,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1056000000
+      },
+      "created_at": 1783849600,
+      "id": "E/dWNk1pT8YafFs8Oz1Uhl+LRcz3XAMdo0gIlTrknjF0Vn6S6Ju1OrRdvqQcMxB88wfcyonjeoBwx9ys1mlrgWqMU/b2PkCbB9j1lHmm+d6i9orkUNH6gQ/HFppyprp9caaVg9dIMEP5x2wNypIIenN+T4qRC4t7k+xsnyE8NLFiL/ppIewtk0R9b9pReSRZ/tY9ZW/YyrQDUJ+uUXgg+P3cXP2DgqfUdSqqADNlsSwAba5ALiIZ9EcP0Rw65UjrcdcneplWomA2+a56CA8gT0IjLM0FlhwyKw8pjw9QV54y2mpLqHecJ3lZEdBMaao1MQkMY0pxBrqXvBv36lqZDxeSgh4SO9I1MDEpIO/ThKHHOOgLWBEjMGqPbxkphqyXifNoGrwlgNQeED4cNVuqdPbJmfymAg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0mV7Gi7OODYjGgLEwd5d4a6FAGJny81JyG12Qot/KTbPXTcukr4JkDclTJYEmqc+pJZpG+ZA6jtYaQpXzmRgXRYgj9Xlf8ysiPV32ECVXL3LrXjDNhYR2Ii9urq9FbmO7Y9b9f5pHJWC43XXTtBMNh2s4X0heDYLAdmc5/O3Fpg8fluBjHQ/WbvYozuUk65eVTLTmeY9wC+r7Be6zFh5SDOqZA6aackO+1Res7Vx7Zq+A7xZtV0s1+FCW7d+4ilnoruMfLfDHu4Kc1slhT3kP8ZxhbiAUEpkI44HR3A0o2Rf9WSFacXScD40leJDxUgETI6TMFYp5iJ5WNQPx9Fw1g5R+diYVzJaMWuW25Ykfq/sGDm6WnzGhxI5GISFtv6Uy50V0hP8cBPt+yKkBFS76JgINuA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:aed84ea05b9dde73\",\n      \"npc:bda029bb0bc69d50\"\n    ],\n    \"constraint_ids\": [\n      \"C:aeb432a9a6f38131\"\n    ],\n    \"span\": \"Noor signed the register as the First Navigator at eastern ridge.\",\n    \"rationale\": \"Noor is presented as serving as First Navigator after Cass was recognized in the same office, with no relinquishment stated, exceeding the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1Eg00MW+l66Y3GebyBEovWgX9xTNL8VYtbhfX5612iOKNZKZ5GQpUexYqqxd8RBes/SGFoEhJNP6mXCLY6NCdMGdXCrwauVML7Z7HJQNdxPna23iByfttM/F/3pvNJSItdnUzG2MyUocATBRArGPRufiEBmjyEfL3ySl+LACyLEYSybYL0T09pkMq760a0EK7SQtgJeRRfYg/knkJeAdT1hBk+tHWSeWtaPCWqSi6/m1i7x7mYiCK3Xe/Lcwbq5AOZfqRitRd6UChZ62qtn78meejV2/8rUgQZlGdJZkzaEQmiaTwyGz+3AkiGg6ADcFKBQWjxT3XCfoc5j3XxgkUk6kx7A2RgrCq3G/Ti0briOo0Y0l1j0gEqdP3e2uzbLYvtiggeD85SDmjL2VyblYBXmzFMd1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 630,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 247,
+        "output_tokens_details": {
+          "reasoning_tokens": 112
+        },
+        "total_tokens": 877
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:aed84ea05b9dde73\",\n      \"npc:bda029bb0bc69d50\"\n    ],\n    \"constraint_ids\": [\n      \"C:aeb432a9a6f38131\"\n    ],\n    \"span\": \"Noor signed the register as the First Navigator at eastern ridge.\",\n    \"rationale\": \"Noor is presented as serving as First Navigator after Cass was recognized in the same office, with no relinquishment stated, exceeding the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 630,
+      "output_tokens": 247,
+      "total_tokens": 877
+    },
+    "tool_calls": []
+  }
+}

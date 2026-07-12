@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2f44c3e503d515188e4f7bb580699117800b25a38cc218b280ea47030c7b85d1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3635,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 663,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 184,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 883500000
+      },
+      "created_at": 1783844400,
+      "id": "wI3Hi/TCIGyrz64/CgA3IoAH9wduvSbH9E4iXxq3p61TKRMcxGqonkTAwvZoRreHzgJWdqE2K283zlGpys6d3ooGd74v4rzxnphOjP3Y9KbY8lhtImbBdj8U6ESXCQcB7gHiRZ9HFp947N5dDv/T5eyKRssg9AxDRa+cjYzAsSsqSsLqIA6oI3BFtJjPZp3tvZFyZ/FtiJvfyIi6T6BAFEpBg3O0+lx2pehddbII8698lZL0q11xEki3mtDsVyQsuztKXn+CiGV0uEgRuXB+796oJIX7bjCR7s224hnvVrv8Jkb/Ld/kPwvcFUhcM52C030UTKuCZ1XBn/Z8ku8AWbGzxmUlxBP+4C04TV2+ZQjqChfyCvom9fsb4wvPZcgQP4pQQ27s2ov773/3xhZiJM0gyhNDzA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "x3gYEscvLcsDDNy/UDdOOE2zk2rOh0IoFw+98X0eqZZYsQFzj8dvBZdm94kbEnvZBvGAfYlY1H3YG+SPptAbfAXbG0pqPg8I/ImNvWRhqOxYpbD7+AafOHuqreqQZ84SmOaj23ciTqGYJdz44oHO0mgBhqVoRD60h0NN7iXwhf9vqA1lrsCIz2TQqOLjbz4sh4f/qigdzMq75TxmUjBqi4sbUW2DdUUUEFYLKvwNL6uljQZHZqTgzdJKBxQ18DJ2/ZX57V1v/IbL4vQ87TsO0zFakVoxlxb8mNjNVBGK2V+L4ebp3XGrDsPgQVcxkh0MrdfZrWwKfkQwYCekUvFuvhFonXubSEavQc69PPRGNGiU+z8Z03uSBehSuD3iRZZDDstasZQc2DdpzanEkwpLiTw3WTE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:244cd6a991d99dfc\"\n    ],\n    \"constraint_ids\": [\n      \"C:422fa0e67752f695\"\n    ],\n    \"span\": \"Ada replaced the treasury seal after removing the public coin at orbital concourse.\",\n    \"rationale\": \"Removing public coin from the treasury conflicts with Ada's duty to preserve the rebuilding fund.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "MsFgjlkDt5ILizn2YNS53whUcibGjjXYID0nhcfjcT4SyprNaVjszpDWffpLnuTniKA+pu0vv70QeNE0ezmvDnCXI2FfH3RAsnB0/3iZuXG/TUUWm0JLyOr5TF9riY/LWtZCdSJIuI0A0/41oa+xFvfGFQNMhNIKESGnx6pqSbtxawPLFxeGyph2WY2VPP2yOuYCzmTKCcOxOS2SsM8Sbc0ecnqGFMS21pp8HG7ePKBQld3vE5DbAW4o42EvdAWzj/vCJAl+1Z36sCN/RM5W9xulckvZxH/hMDchizKOIKc0dMa8j5IQ+cEY2kSEegKxQLN198D+9J/D2DxkdJC6cxWsU2HDBGUPStf5HYvZSLogA7i3c06Ev/3z2hkmVTr1TziWhDW1gVgbclPsVnByPhZYdiNA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 663,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 184,
+        "output_tokens_details": {
+          "reasoning_tokens": 75
+        },
+        "total_tokens": 847
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:244cd6a991d99dfc\"\n    ],\n    \"constraint_ids\": [\n      \"C:422fa0e67752f695\"\n    ],\n    \"span\": \"Ada replaced the treasury seal after removing the public coin at orbital concourse.\",\n    \"rationale\": \"Removing public coin from the treasury conflicts with Ada's duty to preserve the rebuilding fund.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 663,
+      "output_tokens": 184,
+      "total_tokens": 847
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3ce38cdcdc26f32927f13aec0facce77fad5aae3388940a439fdfce54d4b0e2d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3471,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 612,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 188,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 870000000
+      },
+      "created_at": 1783850000,
+      "id": "IF9dfjDOgX7drUtEnHbjS9Tr0ebsgpw9//ROuOoJwzYD3kWE7VoISz6GB15V3B8TuS1zBhq4xK8Gjz6jLnqrAFW8QJQKCEGWVV5L4KUWOepCpjbAMjw8zFimWuuf+10UZnqlhGQcAj5O8dd6k+3wHehUPDOfKdaP2mHKbAH9nVFr8XsLyBJBLRswc8iHVPRsNBHoo026MwT/iTXPO9109GFXMmPNpZpAgqHOT9rQGuVABKPtpitn6VE1Xiwj65GBoJHKkO1JXWTYiiyG46n3n47Wy9ozy2Qc2QxzjZwXKkD/dfP9g33W8YjNo7Dhwr/5kL4CygyHFVoBSsr/OA0OrznWINEn+hxW+/Frw+CXu+FzOkakvEwknF81YjtGBee/XO70GlkXXcdo9G4Vh15chUCX6aYVHg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FqhanYpf7k7W6XP/Sn1FYQdXPqLmjDRQVNwU9qTC5APXv1o2Zd78WypLIlzpLG6pf0pacoFilOKsfnm/WgiANOS55KKkgurd/unThhFo/sO6MMWDboIRCnKOLQ4ZBq13cdXcbNvDXe8C7vtPpMUzLsC/ypU8fC7xpZDX+1UB58eODZ+yOiQLrYJjQvE7coLFFlFksV3zXKvsGbZOmfitMxnh01tzr4pZJUwUYrnaC7+9UnYUySLKsuJ60rNV4Xr4u8UcijZwT+LJvc74s5NK++8ns/tdBT6JQvycMh6V2BkGfm3NfiXgpVto8rtu0EnuaIHLLTQD/WGuVbQRONyNE4F9lXdiAc6xOspcejoJFO0cj04OFQQt38JAKIDx1EM6HonMLMGqy+QsgP58WHucIQt3D6c=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:49686c1bcc3eaa57\",\"npc:62096eea7e2377a1\"],\"constraint_ids\":[\"C:3a9c28931e5e12fc\"],\"span\":\"In glass conservatory, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin of North Watch directly supports Eli of Red Banner and establishes a permanent partnership, contradicting the rule that their factions do not coordinate operations.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "aJPet3NRsWyIweS5ea5gkjHH/5MSM68a9dZlj/ILGzXvyyBOPDpQQTOSOU9EXYwsuqN53tQnmmQUOcu8/VOm9dejmdhpI/Xi5Vl0k95FhNjZ2gn6pMycqgCtcck0RvEu19ruqqj/nBsKUsTxQwA1w0+0ZWpzkiR7z6yIpiJZ9ZqEhWNLvEowdszpKjAJUSw7rAMIUktaNPLlZ/ExENDkowYq2an5yTGRXPABAcCZoMY8j0XEHQ9EXZjmDjLVeHUDOF/85a5cI1spA8xLRg/LKLMaTpxxay69bsyzpuuyO/qbgYxcpGwIhcezpFbip+J+sFSCB6hiHUklQLNBr4mipqCZUck76nZxNw46uZ1eANrc6PyYLE0aTbH7NKWGxhZQ6Ln6TiluUUS/7wZntnLjwo9wJ6EB",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 612,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 188,
+        "output_tokens_details": {
+          "reasoning_tokens": 72
+        },
+        "total_tokens": 800
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:49686c1bcc3eaa57\",\"npc:62096eea7e2377a1\"],\"constraint_ids\":[\"C:3a9c28931e5e12fc\"],\"span\":\"In glass conservatory, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin of North Watch directly supports Eli of Red Banner and establishes a permanent partnership, contradicting the rule that their factions do not coordinate operations.\"}]",
+    "token_usage": {
+      "input_tokens": 612,
+      "output_tokens": 188,
+      "total_tokens": 800
+    },
+    "tool_calls": []
+  }
+}

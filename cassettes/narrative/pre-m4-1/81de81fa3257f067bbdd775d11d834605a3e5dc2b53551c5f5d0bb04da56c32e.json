@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:81de81fa3257f067bbdd775d11d834605a3e5dc2b53551c5f5d0bb04da56c32e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4858,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 702,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 279,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1188000000
+      },
+      "created_at": 1783857000,
+      "id": "Bi/FgpXNOnnfxFlfqpO4h4bvKCGxMxSBniFoScStexUYENJKPJWE2ATRwLWnyHisCb3wHXCvDpuX22AzUpXpGrKttge6MzqpFWuR6LvPaoRhHdKJsGIYX/S0S5NXBqhMH0Cjq5gMbLaJvSTUwANbvIzWRXnVLU7zj0AtQk6YqIpMEZmVn0Mir90otYfe1GCtKUU8gTuidEHNKIX1P3frYiPewUOz/8xhW5Gwd8omGujzhMC4SLWq7Z/uNSgFSeaGqyCf4hmb2pW5K1W6yNSgD1tHNhkK7SP4LeTVW8RBlh3+K/hh9T7XOvTAtmMPkfynRk1Ha3U3+7UpBkupUvYoCVoMHpNZtn1lHTe6JEA/di8KvlgSwRsL15ZzImvaRN+kN4vk0u1SyM/l0c6GDFlsj/jnXVUKng==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ikCoKp+NJihmMGz0XpB7B1QZ0B1F1m6Djh/sFf364eCwJlENkLBmcuBOhT+8SF8Fd6xe2L5R587E9Z1IX6pNa4TIFrKG1q8fEC9Ivs3aspJX9ZFZ7mKF/RnJBUef3By60sIn6rDi8LpgfxnsSMoPKLZYoKhNgtzA0sYYGnKbrSHQ1hBGfx5rhptgGSabKvLEvkCeYXbUhTBRBx06pJwFk8lb6SgzkpdVC02cRtnBf7YxWWr5PRUjgb7M9I2keakje2v0eISZuSMucL5nobcD+J+L0XXQiEsmp8poIOY8qO/EwVNt4oXN0HXFVj19kmYzQ/0kPYxY+QBpwj1a0XrKrKpFCDazyiu2eVXIr2d5ZsZUm7NdK0HVKEePTltOILDtY423/0cP0eYCSNj7YZvQxBCdSQg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0ae2b47b44d0ffa1\",\n      \"npc:0b3523c649fc1fd2\"\n    ],\n    \"constraint_ids\": [\n      \"C:57dcf48d38d2b154\"\n    ],\n    \"span\": \"Ivo signed the register as the Vault Steward at lower court.\",\n    \"rationale\": \"Lea was already formally established as Vault Steward, and no relinquishment occurs before Ivo also assumes the role, exceeding the one-active-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "u9rnpm1w2R5C7bMwobPsstsX0/GRxu48GRv+268RkPJlJGQR5C2zoJsqobO0s24ax0OWenFtHIXZaDopfFHF2MTARbOb8XjfOAd0ah68xS14eVbEPzrWbPsBR1bqdAPpWA3pEdlxRBLazgI+mdF1CF9JOIXmvCDE4wXjI9mahb5tOao4EXz4b++BIRvETmR7xAPGoS4pP9UN1GmJrjygUKvtpmbk2ubuGIEs1nDI7yDD/OscUz9bqLXz2C4frdC/juR5AOTzHX9ditjDPXw6Cc7S1sn3+wTvYskpJEusaKM8GJu5z++9+6V31zKnV3xCz2ChQMuqk7yHtBCL2ac4p2UkJ8MaxYKV6sv3+qdGIYA56kboPfoESKL7a3kSVmln9R8YP+GYuxnjYy7/Un3qfsUqEysP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 702,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 279,
+        "output_tokens_details": {
+          "reasoning_tokens": 138
+        },
+        "total_tokens": 981
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0ae2b47b44d0ffa1\",\n      \"npc:0b3523c649fc1fd2\"\n    ],\n    \"constraint_ids\": [\n      \"C:57dcf48d38d2b154\"\n    ],\n    \"span\": \"Ivo signed the register as the Vault Steward at lower court.\",\n    \"rationale\": \"Lea was already formally established as Vault Steward, and no relinquishment occurs before Ivo also assumes the role, exceeding the one-active-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 702,
+      "output_tokens": 279,
+      "total_tokens": 981
+    },
+    "tool_calls": []
+  }
+}

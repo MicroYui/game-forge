@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c73ec719e1b85f96d1f3ec1b9399b7ecfba3b9359a5acd7a0be139e486150017",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3498,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 630,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 129,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 702000000
+      },
+      "created_at": 1783860600,
+      "id": "2T/cICpzzNt/7kakbW/Z+fJ4ivZnJVMzJzvMJb8piES/kp8i/hunbvj146e35ULJ4fCr/XMPYPof+exAcOiaSs+KYfz7nxnukqdFznYxb0bnBGiV2kZgjmLdRrwmZN7E06L44WN6PZZPKzkIpDciUlepcNs38Lcw7JPiPaseG/wqK2wxHJI4Y2Go6dW+RDMVi4iQ1oeaKPzcoNI2SiIuusC+i3s5tCwMoXJstzfqnxXl5pSZxJsogCqHiwNE0zDQGfgI0LhDkysUHmxdiRe/yCWD/OcO0RlPYUkRM90BakaRzisr96i384tJRkfXRmlIfP0o/zluP1IBUpPVx06P9MKr+8g6aXJyAdTgtnQkmI525dfJXjvU2d+XMobCB2b8iFRPRGXZUUjjhwJdJnUfanOb3YPCVw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "OLleBnmhQwUtWnHsXEmJwEcPRYcaZHx/m/Qzzrf9OpjmZgEGGJO13VYWO4q2bi7w47foLRJFTuwHRAPy7m+PgR2wkw8grmdPKulJqYcwYf2W+3TMG2vYxcL7b05IUdhxcv8nCMUnaIHL6P1LvFwXuZw4Ja6ed4bsPLT+yVDb8kzJjO0sAydMaqrWGDPGkBj73aF6RvszVQ+ppA8rNYdoKpmVtxhrpYlJr/9bCPSVjxkbk2LDcABfjnnbvLi9FiMGYKM3bmYPkKewsQ5EqBrZB5Z2lJTTytzVT1Rov4miO2hkVF0pplacX8VuLXixizgVaI1DnQX9yy6DHN6Sj267buVzax5ugW1RMv3b9W8RaAiMTZXwdFRApxAEThKBnRa5L7kWyqoWMMAKYRuJR3CN3zyuQTo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4b778dbcea297fe8\",\"npc:717804737c652254\"],\"constraint_ids\":[\"C:fe4a346db743c137\"],\"span\":\"Ada fought beside Malik under one banner at lower court.\",\"rationale\":\"Ada and Malik are members of explicitly hostile factions, yet the sentence shows them cooperating in battle under one banner.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "4UBTbyNdlZ3dVStu6tVSSLg0u4uXtROFqj/oay8W/pRy+WIr8la91L5x4Ze2c116JxvED6xGInIiHc07kpNSOsAiVBL1gycacSGFWukLiYJPJ7/dp/XJikTjbwSIJzExuc17O+dSEYmi6XaRYbu+uL7yW9jOyDEU0nbc51g1XDI9udlXpoBS9G8sejYViFJnAr5ciMzondbyHOg7/tHKRU8d7TjVw+q1RbLnzhFyQh/UVMkInxChGZ6rPcfreKyGFV+zZIQk51E7PejTEmBeCbUBA+NIFkuz0TpSLxCrj7y6/dB9tp3Xe6yako49xz9tSHV4mG3TUnioL9990cBy++qFsWyDtuJaFpGDSwuON+LFCnbwDdhqDbzOmi9HZJsZs2Pj4FrvimoClNOx3rAJn1yUWeKm",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 630,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 129,
+        "output_tokens_details": {
+          "reasoning_tokens": 34
+        },
+        "total_tokens": 759
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4b778dbcea297fe8\",\"npc:717804737c652254\"],\"constraint_ids\":[\"C:fe4a346db743c137\"],\"span\":\"Ada fought beside Malik under one banner at lower court.\",\"rationale\":\"Ada and Malik are members of explicitly hostile factions, yet the sentence shows them cooperating in battle under one banner.\"}]",
+    "token_usage": {
+      "input_tokens": 630,
+      "output_tokens": 129,
+      "total_tokens": 759
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0727ba8f0cf7489ec861c786f06e1a68a0b33518542a368f332cd151c64bd8e9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2943,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 544,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 145,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 707000000
+      },
+      "created_at": 1783851500,
+      "id": "TBX1tyokV4Zr6J98qNCvdimfhImP/G0Dfq5lKjjpWZ4xA/CBNvRekPhzoqZxU/CoxFZ26wK8SugVjcz2eFdYmk27I0g1GUJHkAad95ad/WE5LJWiPVfXS46AoH+kHO1MUBC1dmUYwR10/Jdx5JCAfxw+aruB6FcQeni4Fo0YJx81cjR2ZalclP9BLeeFPklTkKvCM9Gfz5iLNpi4ASqC+C+xCMDw3uS8U1/JxgDXX/fZxDZyTBn5iqbQN7ss50cqWO7Di0pggQQb67+22OqnR+NWW51ZrGBDk3LWaWbUdknRHO18QRVsTgPpt/2Dk3DZwzbgEWKkXmP6rwekDaE4nEDLZ6T78h9TIvVyf9pSeFGJ0Z0m6NxjzndrsJ2MKisVrnCvVF4BVKNcFHPQSItE7BIeSW+zBQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "LOI34ZsoEOCM6vDTjpsa3hY/HFJnt697JbJhEeLLlwTl2ZdG1sHrimnaQ+XhOr8Wv/iej/+ZxZjnjPNo+Nubq55TWYTow1ivnbefk1JjevdqLD9bHJscxif6Kz3IGSKC+nu04qYlMUJwGfZq/3+mz5xqi+besmtejclOWIGi4RVw9PzNrvu8QSh61ysp6q0MddWrVKktfmuX73H+qFnCG17oy16NaFScUf/Ld8komMLkOvXvgJbXclCbFx8jA7C4C7NwmkQxXZGz9XnoDaYWQCZfb3yU6y3+RGWu2XcTaOWxUeTSP1D00PdT6QpLrXk8cZd0pJ1WenOwD7vhLEjdJoSM5GYENg31pXQyEUFB4/1LD6UBju5MA7qm2lcZswD+28uYJ0uOySvG2kDSmFbhE0aDgI8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:02790b14c531ef04\",\"npc:1a0f558f4493e288\"],\"constraint_ids\":[\"C:9cfe3ea60e6befd7\"],\"span\":\"At north gate, Veda and Oren signed a joint battle plan.\",\"rationale\":\"Veda and Oren, members of explicitly feuding factions, jointly authorize a battle plan despite the rule barring joint commands.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QRiEtYtbkKiej6jeVceRRUPmYJkwEDGaJrttuC46xOTvnSkO+IXz//V5rNUzhPoXfN5Hy2uIw2iBqosGfk5H9nQrX6hOdx011lryvvFBt9g2YldURDjCKkVJcI7NTCRQVdAI9uNUjMzPdO23sIZWI9sJTgb3rqbrSCRDeUby2O4c/kX4fq3pvBjS2zsV2JQwGReURqtnMUGxkzsQdIoSmc9v09ZkhaUdgxvr8OP2Onfd2egtSqVltd88MvD+/FZ1Mc1dq6vFJHoIc8uIeYvKY9CM8uY7R1X+gOZjg+BXhNLJvKqm6NgFjyA0EwM7gdK6tUeI/0+ru2yysbn9oqe0ASxuux2dktQ2PvwO+Payxw9WHknQ8yeFEznIRHC6zL0rec9765L689T2xh/BVMS/RBZdHcJY",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 544,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 145,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 689
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:02790b14c531ef04\",\"npc:1a0f558f4493e288\"],\"constraint_ids\":[\"C:9cfe3ea60e6befd7\"],\"span\":\"At north gate, Veda and Oren signed a joint battle plan.\",\"rationale\":\"Veda and Oren, members of explicitly feuding factions, jointly authorize a battle plan despite the rule barring joint commands.\"}]",
+    "token_usage": {
+      "input_tokens": 544,
+      "output_tokens": 145,
+      "total_tokens": 689
+    },
+    "tool_calls": []
+  }
+}

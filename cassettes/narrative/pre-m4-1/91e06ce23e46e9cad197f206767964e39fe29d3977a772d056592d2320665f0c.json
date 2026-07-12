@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:91e06ce23e46e9cad197f206767964e39fe29d3977a772d056592d2320665f0c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2143,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 623,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 102,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 617500000
+      },
+      "created_at": 1783849900,
+      "id": "CHEfggQSJWJ8Td8xJwF7ncJglGOZ2EcfxeTeDVazQyUFQd0bJZoRYmu/qm3Iho73+fh/PCYL5+Igm6DT2KSrR5f4UlPGO0QyO9FhD1qG3pT4tEIekK13eCQfTvdrG5XqaRzNbqbxB/JM5z/UqQ2ZzljTy221W0lfBePGcqvq4aPEmItCTd+xO7KUKqFAUkXrwDw0l/lgv8kxQu57nqG5CnSJWljRXLJlpCPoOZH1o2vmcOhaTHvvZ1g5Yjyw4rE9Ak5fI0HCBIcRV/i6eD7KeDkxZOAjapAkcpp69tRU1RA/Npo8CmUwvfWF8PwtlQefwxXgfYh/LcW6VfkbCvHXhHYt547vGB8jTM0rHZ9t/FF77Mm2V8ZKyczUVZafQsproYAgjJX9t2NFctM8kR1zwiEyIjk/pg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:57ac033b343228e6\",\"secret:12e6db08fe398646\"],\"constraint_ids\":[\"C:c2f6e14b02620e37\"],\"span\":\"While the story was still in arrival, Qi identified the reason the eastern beacon failed at river market.\",\"rationale\":\"Qi discloses the protected reason during arrival, which is earlier than the permitted finale reveal gate.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "X2PKADNv94FiZw3tL7e3Z8GT0jgcIRBQM13+4OOgMSnl9t00cUDRk5nlEvPBKLBh142bYDlXaN3/tBuPl1Z3zutRfBvNSKSeYbldewSTOKoOln7rMSKLWEbD0nGWkPzAB5np3NfhlrdrAeYGHyy5NXK+PcumXltrHVfap1FlQ0vJLcmU+IsUbKop82FStWB+Mg5kZG2KD84U0aijuveZ5CbPFjcCOVNuytFx4gs8oVDSDw8W+YFZJJyjko5u5b0OAxNiiDuBD+3MPcnvhiek0bhyV7B1xraMLevcBuOhc2TTYaj2QKlyOzdievuv7HlhHwQXa3cYKzdJPp4O7aHsz8f8C+oYTBYyrpIvixetTYyWEnh1gyI3dRJcc6x+XE8rcbBU2wO8ZnW19Ih6h2AZvmjkBfxl",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 623,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 102,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 725
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:57ac033b343228e6\",\"secret:12e6db08fe398646\"],\"constraint_ids\":[\"C:c2f6e14b02620e37\"],\"span\":\"While the story was still in arrival, Qi identified the reason the eastern beacon failed at river market.\",\"rationale\":\"Qi discloses the protected reason during arrival, which is earlier than the permitted finale reveal gate.\"}]",
+    "token_usage": {
+      "input_tokens": 623,
+      "output_tokens": 102,
+      "total_tokens": 725
+    },
+    "tool_calls": []
+  }
+}

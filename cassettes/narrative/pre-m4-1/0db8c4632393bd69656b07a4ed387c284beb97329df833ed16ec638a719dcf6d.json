@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0db8c4632393bd69656b07a4ed387c284beb97329df833ed16ec638a719dcf6d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7206,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 637,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 417,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1569500000
+      },
+      "created_at": 1783856600,
+      "id": "7hFVIbHnvN52kc6Qc3Ys7LdA0+1zRSN4+4cqnuBdv2QT7EI2YI4R9eNl040wfKVhseOsh96CZnRsze9JUC82RRYuwBfCTlaRZsKqgK7lydsWGTIOgZSlobDKke4j5S6p1i8nKYIPxJEScrLBUsGyRH5VHhtGMKhDVaqB1DV/A0H6eJ7uWTTaPXZMUxMhn/1miD5wfe20K3sd0Ex2zP+SYhJrfmHT9616cCK7/wERiaX+Nc1oE1FFPJ+Js6vTDHbcnkk1jtPbe0hDy1QpKkyQZSXGYKdJUUQGLSL+7lwcCPE8W+c2Pu97pXQHZAOQO7V0oQbz9XKRjo7r7hLBkat1Xex4WDlOsCi8T2AuoCaxiA6CjRL5B/cnW0vQfkqeODUAlytinvH/Cu4swXLa67i1ct43f11fWA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "sJetU1lB+BxqpR8+sNdOm7AV0VUp5DOt2dIy0YOkxQ+Y+zsYQj80p2ZDsBACWSbvCA/a5KrIUzaWdvfm6aGQh5vASbrLRh5l82JvuyNxl/8JLfl+wVEFlKzueRGv1PeqgPLdkbL76Fg0hJCHUdMFGpTsy0Rn668MxCoiGB101HWqhxskrBJlHikVMds2z9hgdTsXDwvwO//S1W0IOsWe63R53fg1y+5LbocyvQ/qTys47oGO5XOkkoA/I+ntWA3zYOqR5R7SOK9lpZNxYlcA5LApHXVk1paOoLmDrsgpg2grzoIijm1BgqfbR1nHlr3rW5oXnUM27tNlb7fAMH2YvmNzqtDfa3Pv8TCcPxaoX7lqIQT7LFh6h0+nUIL9tmhmJG2Mj3a5ieSMopRyloayn+B8ISs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:c708a1e3bb959825\",\n      \"secret:3b3141cf8e50b509\"\n    ],\n    \"constraint_ids\": [\n      \"C:ab5cb1dead55fbe6\"\n    ],\n    \"span\": \"In relay deck, Noor disclosed the witness behind the sealed testimony during survey.\",\n    \"rationale\": \"Noor reveals the protected witness during survey, which occurs before the permitted relay alignment stage.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:6c7acbcb0bd4f759\"\n    ],\n    \"constraint_ids\": [\n      \"C:f2afdfac603aa334\"\n    ],\n    \"span\": \"In relay deck, Cass returned the reserved rations to public stores.\",\n    \"rationale\": \"Cass returns reserved public aid to storage rather than delivering it to its intended recipients.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "T4TZLlpTNlrt7gX3I5ylo2rRSlGVMlgnU8Yz42gmDHX4m9EC5j0i8zjOLHwy7rAtlku2M2n2PdzcUUHuAe7c3MF0Un3cKEL8dwwWxDOCETmMb5A/qgOloboE4SOPSRupsmCQRmm1EB/LbH8J275hyIxv9Mn6XJRZwc0k67aEEE2dI6Bpcsq6okeSIdp8T+tZmI60CA/tHkoi35qMWKbrgamh4d0ad5nYZHWYXzcuh4R4VhtDFwGh9AnC+oOUhBXxWUsbAbdu15WQPvCGy7jxq+uwJC6dcVmgT3Y6l4O7ZvR+mPwN5Lmb3Hj2iIpTkYGZvwdsZSgW0FxM5ZCEJlLRKdWpcv4KgmhGDWFKwlYstj7peA3gSTovwE94kyNYfbUT2Bs9c2e0dTmtmrbbKfG80uKqenZM",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 637,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 417,
+        "output_tokens_details": {
+          "reasoning_tokens": 193
+        },
+        "total_tokens": 1054
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:c708a1e3bb959825\",\n      \"secret:3b3141cf8e50b509\"\n    ],\n    \"constraint_ids\": [\n      \"C:ab5cb1dead55fbe6\"\n    ],\n    \"span\": \"In relay deck, Noor disclosed the witness behind the sealed testimony during survey.\",\n    \"rationale\": \"Noor reveals the protected witness during survey, which occurs before the permitted relay alignment stage.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:6c7acbcb0bd4f759\"\n    ],\n    \"constraint_ids\": [\n      \"C:f2afdfac603aa334\"\n    ],\n    \"span\": \"In relay deck, Cass returned the reserved rations to public stores.\",\n    \"rationale\": \"Cass returns reserved public aid to storage rather than delivering it to its intended recipients.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 637,
+      "output_tokens": 417,
+      "total_tokens": 1054
+    },
+    "tool_calls": []
+  }
+}

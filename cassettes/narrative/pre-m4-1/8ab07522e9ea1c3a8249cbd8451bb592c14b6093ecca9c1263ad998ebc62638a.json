@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8ab07522e9ea1c3a8249cbd8451bb592c14b6093ecca9c1263ad998ebc62638a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3134,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 654,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 148,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 771000000
+      },
+      "created_at": 1783842700,
+      "id": "D0ep1zHPFqHNYzv+mv4H5z9a0H21vFyR2U7rZXhGdv4/EoaHdF794leilQ6echMlly4+gu64tkshSCu1MZ/SlKk0qLnqNLaTOh5YBJdCMO92Ed3IXkQQxR6coRo8XExrs38sohSqkEbeSOylSelwxS65j5/0HhXsdH9UYES/R5fZ9wLsJB+iXtTnSJ4xs7UB2gT2rF42ExfXPJaPi0dvXA1VWNV+Gh7yfopWuzgpQ3wm/2cJSUxkcD/dwTizjLwGO9rqTX3cM8/Vp3581dK1nOhb8vstqyHNhvZQhADb0gvyTzV+z6Vgo3ambE+S2Xzaqlan6T0MFhX+GV6wuzo8uckFKdRW+fBd3r1SgECp6MjgZriaOyz4Qp4MSANAf7Bb1hRnmhw0+vMOM8E8ahHEMX5R4LRcpg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "G+9uB4Kzjb9lDeUsa2f8XhG9weVDkFonEfGrswLTXNVJa6Hw1Fa+qXt/egz2/td8qP1AfiyVXv4ZRotaiVKEMr9h6I0fh5BbVitLeTb496O5tC+bjU3OtsnQKI9Tjjh3yJKnL6ro0nW73noRy0pyimc8u+KRjEpMaM5X7Olo43dV6/AttcxVcwDJ2wJk/1y90UjJ7fCl/Z7qgB35zJVxxy4TAYmNBLw9Od2WSS7W31lfw/emyZwEj8pIt9YCrluH5d3MoG5mxeZASyyQyn95jqPin7u7Mr8s1jcV63RjK5V81cIB5/nL+I7bbw+gJlD/k/oi9TMAbOP+O8grpbZ+do6Kfu687QAPDzlliS4bI0uFrWt/u5nUQJRtmE8cjsk30IUYTfWwN34U3Tp/+jkZeI4LwRc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:86bc76b7fc94239a\"],\"constraint_ids\":[\"C:5ff3f48f6d4c089a\"],\"span\":\"At signal tower, Noor revealed the crew's hiding place to their pursuers.\",\"rationale\":\"Revealing the crew's hiding place to its pursuers betrays crew members, conflicting with Noor's loyalty to every member of the crew.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vzdqQ0J8SQnlkRjXxDOL/G2X5ALAepsMnCNRGSwzRQY29BiskkH+kZXOlBVPnEUvdbcdY0xZkxl00YjZGJXryXYUwjUOZu2wQsS/6ApQ0RwtZXlns02cwCQ5+x3/rqxBn8/ozW5eqNTDjFQkNa3dSRqMdDyDqKo8E9JA6QpCfKbiMxVGOhey+Tl5oNptx9nOeYJzdpQ5SYNh25GoQzSAFRvttS8qSlUZiEWlP7NNE/ZSHeVs5vbladoj+wkBWdb8xldV5mfLNQ7XuLCDHGnBhIAts1Xk/PViYtaFbMoMsbYyYFS7qbzS+HU6OQC0vfsjnYuWUPVZaQiZwBN/Oh6yl3zuskE7AfZgG9npHqT4r0WpHS31Yr11MtCqZ+HLHbFL7/BzgTPh304XoWR9Y7Arhz8BwKC3",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 654,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 148,
+        "output_tokens_details": {
+          "reasoning_tokens": 46
+        },
+        "total_tokens": 802
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:86bc76b7fc94239a\"],\"constraint_ids\":[\"C:5ff3f48f6d4c089a\"],\"span\":\"At signal tower, Noor revealed the crew's hiding place to their pursuers.\",\"rationale\":\"Revealing the crew's hiding place to its pursuers betrays crew members, conflicting with Noor's loyalty to every member of the crew.\"}]",
+    "token_usage": {
+      "input_tokens": 654,
+      "output_tokens": 148,
+      "total_tokens": 802
+    },
+    "tool_calls": []
+  }
+}

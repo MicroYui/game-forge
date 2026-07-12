@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:75eee588bac30a1145c41bc5841b1fb1c9264b64d0d77f19e091da3f134c7bc6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6486,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 559,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 420,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1539500000
+      },
+      "created_at": 1783845000,
+      "id": "ONrSijAwyafWibITVGSo4LBqZbr7j+S+kOMKu9ouCfIogY2asjrRM/bpYpdSmSufE3hXzdVp0qI3QJ7MmW0jbLyNqevdFhibDlxGqG3Dj9eE6jWn26/Bl0b86xzK1wTMweI+d+Q2/YwsU6SVYR2Ltkm+bBfLE6hujrlLhTuKM/D6be2vw0nnIOFGB7SMnMQfeUP+IWx18jX+djMWkZn0GHf3V10f3gbFVrJ22d//EHC44/o2Fzes4wLYkM5oRcy99n50jbQfSlz4mMlSeamWBcFjJk9k7jafXHvnxlFDSbnMwwuWuOxSULvJGGW57cn2l+o9YvYDdnmhpEGE7zehvCTd//h76XBC+Q5CemJL+CPYq/WZFH4Y+QpllUyXPOZ5D8fBRRsyLUasMl9IhCQKnwILFDDy3g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "BgedkkJSgElwXlo10EaIW6DfdyAVXKGDj0fwfcaJjT1jFPny2I2KR7kHYO/wWP9fihuFfwKbPl1FirOwsv3p9T9ATeilZPQ+UhxDXfY36LOwx1PdDTXJN+dm6WmlsjexCXVSlrXUTJQMLGND/Kk5IyD2l4Avyblr+WFjtzw0fY0uyFIRsUkA8MwybVXKMDxCkcW2vh5I8+WUyyyW5ZLeqcwOfsbDv63yE5E/gPhOjEJ/8keh2rzvhCeXZ31Oc7Hgq47l1UC7kuwiyUFYY52dzP873vOky671SOb0akv8YkuA8W7S8nYaPYSEDdBNBSTgEG1L4d6mtsvYnnGVtkR02Nm6nhqL7P9e0w1Br2GZ0FtJTM4Lw6lbuXpHSQf0sDmw/zje1UgPFei4/+86XmoF87n9jUs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:1c45d999b69eb601\",\"secret:981f5f87a61b9a64\"],\"constraint_ids\":[\"C:95b4153c80bb84e9\"],\"span\":\"At signal tower during first watch, Ivo told the room the truth about the masked envoy's identity.\",\"rationale\":\"Ivo knowingly violates the restriction requiring the envoy's identity to remain secret until the finale.\"},{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:1c45d999b69eb601\",\"secret:981f5f87a61b9a64\"],\"constraint_ids\":[\"C:95b4153c80bb84e9\"],\"span\":\"At signal tower during first watch, Ivo told the room the truth about the masked envoy's identity.\",\"rationale\":\"The masked envoy's identity is disclosed during first watch, earlier than its finale reveal gate.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "6iiaqy4he1CV9gzXdNlsn1GLTzR6ROgzsXRZhjJPBI1XSJC4xX30Z5k2PMPjcDHRjx0XT0Lw3scikFdD9SBUfj7MIUqK/YLFo1O9pYPi/pYRkSE86Jzi41fbhNnkrWbDp765zIH+Wo/prhg5sRyU7gmYOh6J6IVdy6N0cQLZVVkym95ZJdayXMzp4y4ZIWpTMysAlmwlEcJlUPJuuTISYRp7vYOk0g8zyzcQAVlY1V6dsDi2aGjKSzLon5NAfoTowJ9FELCTI2qBPZAm2wZCY/iJzR1cnwL/pPT0L4DDfDBb5x5Whgbg11heSObyzUL5Y0JQthLgzHVi+OQ5qP/DSJv6+kfSO72Ys3eI5DI0zUgkinIPqVtpvthfSf9GcI2g1JozUNfomRuSNKzQWc5EFJ9eQyMD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 559,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 420,
+        "output_tokens_details": {
+          "reasoning_tokens": 213
+        },
+        "total_tokens": 979
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:1c45d999b69eb601\",\"secret:981f5f87a61b9a64\"],\"constraint_ids\":[\"C:95b4153c80bb84e9\"],\"span\":\"At signal tower during first watch, Ivo told the room the truth about the masked envoy's identity.\",\"rationale\":\"Ivo knowingly violates the restriction requiring the envoy's identity to remain secret until the finale.\"},{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:1c45d999b69eb601\",\"secret:981f5f87a61b9a64\"],\"constraint_ids\":[\"C:95b4153c80bb84e9\"],\"span\":\"At signal tower during first watch, Ivo told the room the truth about the masked envoy's identity.\",\"rationale\":\"The masked envoy's identity is disclosed during first watch, earlier than its finale reveal gate.\"}]",
+    "token_usage": {
+      "input_tokens": 559,
+      "output_tokens": 420,
+      "total_tokens": 979
+    },
+    "tool_calls": []
+  }
+}

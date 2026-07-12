@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b5c62dbf90c84ea1cc68f3d0d92226a3c8822c1228ceebb0f4c7d6569773f56c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4403,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 696,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 203,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 957000000
+      },
+      "created_at": 1783847800,
+      "id": "3XNMkBHa/JWpSkJTS/k4+YSciF2WU92MIixXgF61hc7I5ht7bu5SeuBhLrnK+k2yYDeaZ2XvpWz5WuK7N2qoBvdtfYiyeLeBjPfsiqYQ2cWZQ6fsZ/cIL69gtCy0Bj09Erd3sUmlXXVbtDRwrW4Ny3AXzqBJlI0DUebbGoPMEO1x50ATa9o59lqqzHjfNYMCgdQzCJisP2O80GlaOoj4rn5iIZ3bRn73mLUS5bEAhwLxnImgYtezPArzY4q8w1VZN4RrmR9iV9+gnGMOC1a5YnbYfa7I5Amaz8b/KnQRJ51DwMO9LRiFX2BCcIkGelRsmgad26tUiAAz9PLfCdq/EXc97SjiMsD44s8iNHIm9ZRLzNs7Ca3q5IEWAGsqqp1Ix838Agr/ZdB/ErjLEQ/EAMUKi0c/LA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "iLq0tACCuDfxqsVOPrQidcKu8e7RQWrQX/QAwqRRau4FQfTJUOjiHLUImmJ/8evGxN46gHhWqEaVUMMFC9KelgjP0TToOLyLGKCFk2r/yiafr0PQ7U4f1wu7DPptYNyVi/sOs4zar6ZKkhIG0dFs+VVUM2ucyZwj4vGmJ2MDptzXSObdfY4Y8Gj19mGGxtBgRJ3Pv9n64ZT+nxffirSBdJTNYdZcHFOWyQQiB8RcMwxjyCWEQ0L26KWEhCvKvw3usP5wg+d9Eb3jV+YcjEpVMbRB5unKWyBGqgYAyxCroRc15La1GF9Bi2z9+DTFKr8ZEv27UYAoZJLqXsy423yd4MvcaXYh9Q8VOxSERlimPU4Q1xjayHQFSoBjQKUvm+69M4+Bl2eTCJSg4ilMlbLyRfHquXs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:19a1c3d436c5bdb9\",\"npc:ba227712086bec71\"],\"constraint_ids\":[\"C:d4649ac31081ebb9\"],\"span\":\"At river market, Lea was formally introduced as the Warden.\",\"rationale\":\"Ivo was already recognized as the Warden, and Lea is subsequently introduced as the Warden without Ivo relinquishing the role, exceeding the limit of one active Warden.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ZI6guqClUdD4xiSKhrM6PRh2PbJVcnyCyY9GftfHpq83Us2UqP/RpYD93VoSoPj6DQMuypQQbALMbAJHByb1qnRv4ygAcOGMt4aYshlJuKCGE7/g1NeOi3ggF15+heoFM124z4GlRa9p17lKUSqV5uw9Avqv+SFam5lMXxn9KUvExBgTsMe+yMKEEEV3nHDEdjhkCSdKha0eeAdeh3HUr85jKoy6bPSMrbwpX4j4erDbi8TmZc1HuffbsmTL+LG4aB+XHvM707/m3k2WL7tIPLFBpry7ApBtQN5qS40yab545wMAbTmppghMIeDbDVhEEE0dS5I+kRVJGfpNsIx78YndwsWdGIS5kbv7oOOIjeVIGTDuSU69z22WFvxrG8sNv7YHvbULxXMazW9Z57y91nyabnvZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 696,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 203,
+        "output_tokens_details": {
+          "reasoning_tokens": 88
+        },
+        "total_tokens": 899
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:19a1c3d436c5bdb9\",\"npc:ba227712086bec71\"],\"constraint_ids\":[\"C:d4649ac31081ebb9\"],\"span\":\"At river market, Lea was formally introduced as the Warden.\",\"rationale\":\"Ivo was already recognized as the Warden, and Lea is subsequently introduced as the Warden without Ivo relinquishing the role, exceeding the limit of one active Warden.\"}]",
+    "token_usage": {
+      "input_tokens": 696,
+      "output_tokens": 203,
+      "total_tokens": 899
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2f19852703f9bd75303c7806f32fe05fa7ed95fcb15145958e75e5a1c686a4e1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3693,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 674,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 165,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 832000000
+      },
+      "created_at": 1783862400,
+      "id": "TwJmFx/xdUfow1Xvz/U4on96f41tPvV5sMtIhOKibPCYnjwYWdjZVuvoNvz/eZSelN+Kyyy6Djm+cLrxgfIzFhDGOcoW0E52O5DNM7PJehwnbRO3Zi0gezmP6LOc7TQuzwfEIBuzlJGJSuXhWYC6o8z7JDCgUOTQYX2ajQR4K3PCkS7QmmYZo4W0tYt4sunUM4h5DTeWC4MIoXmh6fqziYeG/jJ1RtFZ1+Z9ugvZ7QgZC3VgYTH3/899gYfSNrZwI9LrONRW3OFQDqBb0j951qaHJxOgD8A5+mEm5RMtnAzgecZ64K+gLez9IOO2tFz3ZXUCtS2yH/xj6Q7WO63UkXpzmumx+saWHRtvDPOfAWncsRhkeP3EbFRf5KlgbYTD+0UrSfDKiWzxtsy8zuaqhHVvry9ypw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "IzmYHyQJkWIcW21jxR/XS198RKb7rQ2TrV6dwQA3RPfYxQBWvHzznhPugdulkV6l63euvLLNd+zEzNFnK7aFXOPnoAJpAop1Bg4m5LvQyJhApWKuSKRCmh46+wkOG23pP+s1oEnly8TX6hSl9AKt9k/XSDtjJGdGDjYxXZvcq3QcJ4c8iaJ2bbi2W7d8Z9FQ3wMi3xYHrSCzStBHTzsvT6hJpps+gtn50WJ6Ct4dszOeO/sgaNEteWkZ5LyyVTAtotOkYE4TsRexYl2BoQxhn+5+YKix5wC33PxXhRpgTCpLI2tNOBeVxn6Xx/HJpSByZs6cmipfzvoS82r+xZD7It2xvRREMMJC/QscAH8OuLYsT8nGa75MyZoIw3xqygYkBJv2NT/4rE/g8EWlSRJl0+bBRms=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:1006ad17b6c84335\",\n      \"npc:35ef6eb4d5b1598b\"\n    ],\n    \"constraint_ids\": [\n      \"C:f5c384db45b1bc3b\"\n    ],\n    \"span\": \"Noor welcomed Cass into a shared command post at river market.\",\n    \"rationale\": \"Noor and Cass are members of factions explicitly at war, yet they cooperate in a shared command post.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "xzR4D8UdcBsJl0m2SfHLF6z9Z7nSt0ZbAr7Mfo4pg6V03DDSxpvkvZmet26nLvmOCjAV8Jd8jr1n1Xjq+L6aMAi7/UjKVD6b1QFhYf63HoXyInXzFOuHo1RofJoeO5AIEnKzecm9eRjChstNW1fcjeuRkGfXGVNU+sI6DS3jC4C9B7O0j0iQ2dauctwKO4TJe6Drz7s1GZcSrQ3CiZ4yT0mdhdkT7GwyLoBrJtlWB4gK2KPfJNE5Ek9K/igR1zq8XDCG8kqlAnL4KSMebD5LVfnEC8yzTM2bHttCcQNKDP/dQW29eEVh/Up5Q/swPZVdVC333G2/pGGJufXzbGOM8DZkvKMPBEXztHUDjxRySl3r30c5/bfErxvL2X45x0E+QLIWuYCBdApNRhCMkKCIOg2j6rgT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 674,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 165,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 839
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:1006ad17b6c84335\",\n      \"npc:35ef6eb4d5b1598b\"\n    ],\n    \"constraint_ids\": [\n      \"C:f5c384db45b1bc3b\"\n    ],\n    \"span\": \"Noor welcomed Cass into a shared command post at river market.\",\n    \"rationale\": \"Noor and Cass are members of factions explicitly at war, yet they cooperate in a shared command post.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 674,
+      "output_tokens": 165,
+      "total_tokens": 839
+    },
+    "tool_calls": []
+  }
+}

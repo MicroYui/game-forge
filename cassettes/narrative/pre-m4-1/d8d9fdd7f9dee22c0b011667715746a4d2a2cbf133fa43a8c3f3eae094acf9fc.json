@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d8d9fdd7f9dee22c0b011667715746a4d2a2cbf133fa43a8c3f3eae094acf9fc",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5368,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 621,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 216,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 958500000
+      },
+      "created_at": 1783852200,
+      "id": "nvpGpcTVr+Z2i6uUro8bM1VJN32T8bofxq2233p0KzeumCgIRhVwAB2SUYR2SdKUv5NeI3za7NBFbXCMzz00+Til1GLZ+LoPRwMl1eX30mZOKhgvmrlivXjDF9jdaDLeZfDcAAV9UlbNB8qJ6+fVMNNylSnhEsJqiz1x9dRbXUHoxxf0HvLISTZ+9xQa9B5v8wfn8quY0mYSryaDxDCAz7XiklbVt+5t8yFWNuftde6RzNMmM9DgL0o0x80KoTCfAnuDZLVlQEyZVke7MllFQ8/BZ5J3XV/5UuhjbLlGbQ2T3D4R+/cf2AoEWmdH6xtIbPKO8gmANSJ3igzIAtEsNVoaMP8DXA1NujflqH+7sp6F2cK1k6oQE7ZFn9PYhm5dtmipwT2yy0uNLY0dgPm3sMgS/UKUfg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "K05BZBSByG/yvnBiAyjSJPOI6tS/4EtuFWO2/d0VNExMcTHCbk3db0/rSj9BUOryh4ySEIAentmD1Cn92oEHy+dXZpzuMweKXvynO9UupcLnAJq1TTxB/LxqKE4xZBd9NuqBU38FuxvVIVPulXTLjormUwb/uWwU9j5w6KwIRY7u6wRlABbRkmFiMkwXMNFUnKnxT+8ebIDdSCqFLpgLHTxsA9zGMRn+9FriydQNc6LGBvFI09ArVAQ73skCj9FJRXXakAQQYVVmwspUI6H0aXkCWqED1ZFEdRUqnStvrLAz5uvlXdG6ncjpAyOBfPxoBPeXsx1iOl+O2S6uFsTfxdS+Fgn1OM2yU/KBfTV6mhIOLWvO+3MkOsSod88IAovSy/6PWU+c29jQ7pbErWzHc6gvL0o=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0d391e03e6aef054\",\n      \"npc:4d1cf276ee321fe3\"\n    ],\n    \"constraint_ids\": [\n      \"C:e08f17c49c0c6353\"\n    ],\n    \"span\": \"Cass signed the register as the Harbor Marshal at cargo ring.\",\n    \"rationale\": \"Cass assumes the Harbor Marshal role after Noor was recognized in it, with no relinquishment stated, resulting in two active holders despite the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "zMyZQ8W4l4zjxMsmTLkLcY/EKu1UXHFHua8TmPUy1iypkmScvL/Lhx7E9Ccyvvr4NbChz/O0qXo+6bU7yfil972vGa8T4wCdZk2Cb4I/VsDnp245WJ1XXJvQn0YafQMf6Y7+pJIsijDaSAD97YMdExdKKSLuq/Hv/ns0QfuoAJx/FvnEJ/4iVpBFms3TyK4Y9lf/IuYElwZndeZzhGLG2Y8HyA7cU8jxh3sQrPtsok/XA6p5/5/RJJzo+MjaTDd1Vq5SLwrT7H3hOP6cSZnvo5Wr/kFPwinguNnif1FXIEmW9wAgbPhmFUpb95aGy/OSK2aYkbbGMA9ViwSe1hN4oEiiP9ZRJj4a9p5Kz6zPT1++6uOvecYVx7/wf6NGLal22erAS2K67o7Ss+Uv7Gl85guagZzH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 621,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 216,
+        "output_tokens_details": {
+          "reasoning_tokens": 78
+        },
+        "total_tokens": 837
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0d391e03e6aef054\",\n      \"npc:4d1cf276ee321fe3\"\n    ],\n    \"constraint_ids\": [\n      \"C:e08f17c49c0c6353\"\n    ],\n    \"span\": \"Cass signed the register as the Harbor Marshal at cargo ring.\",\n    \"rationale\": \"Cass assumes the Harbor Marshal role after Noor was recognized in it, with no relinquishment stated, resulting in two active holders despite the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 621,
+      "output_tokens": 216,
+      "total_tokens": 837
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4c3fadf34e2a0cdea25e392ea56297768c8dc7efc505e15f8108509257a9c544",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2647,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 535,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 139,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 684500000
+      },
+      "created_at": 1783848200,
+      "id": "5wT9sRM+FObS38nIY2P+B7FRiXipBV+w7ypzp/c4e2ZJY2ipq7ynTxRKvE7s823OqixCb3WEiuc0CJiliFurUEnl/DhB6YYdFUNRBNvbjPIaHhpPpgZ6ghVF7NrR1tYFqCvwUV8hZ26T8RQKq8St8ay458g7gAa8q1AVDOrqwAEZDlp6ij1C4sX9L7nuBeFMTLq1Tliag0+FrDX87fzK6/PlXNqyG//dwPHEtbJ7CFsN30ZxuybFYcr82JdguZy6MYsuJENYb0jTVQBon6OmQNusOd3LnY92LcmzWizuxQ37EAjLyPvXJoYJOa7GX4weWaKMLu9LHV7qlThA93Lkjwd2UVZ+oLbewZhxsz01iuUrqd9ld5gGozy6TPkZYQd3eZiXzBudBC6jHVukyx9gZYRghE83Bw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "87fzIAQmSxIILhQJ40q0F+j6YdNC7KD4QFrVmZK6Q8tZcJFEYUb2kTLZW3ryxGhP+H+OgcdL9UEjb4UFRZ5fq9zkKE4/Jlj61HTvyrL/R86eYp5udHIM3FQrZSC44G1AJ9ki8wINtVXhbOQYymkaGl8hyTpklT/vyULiei6UzmSwnYdZMDqzh4ejpIsK/ZObUqdxUrU+w5y6vAiSUvSqYLqqvhAmiaDi/UIBc6VuBNg6xqAgRdOseDenipSmfkXy5PybouB1LQ+rMWjf6Q2ZSzTAXQVmmYg5GhRv5BgLj1s4u5lOaCXPdnBvMSbQOwzTY4EJ3pv6i8PqbE2qge1gBCDdcKR5m1WOgi49Mhgluahi1M51gYhDoVJorsLL5jn2U4Kbn3T92SUdB13ymyEsVFlpslM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:99f04beec830726d\",\"npc:ba32d1ac226fd961\"],\"constraint_ids\":[\"C:88764cd2f1137ec9\"],\"span\":\"Qi welcomed Mara into a shared command post at old mint.\",\"rationale\":\"Qi and Mara are members of explicitly hostile factions, yet they cooperate by sharing a command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "wjc8U/Hnk5wJLMP0Ku35A2EfdiFRzkH22LVkNN+twVxojk+o08OIe76OYRpXdUMCh2rLq4+D/D8OCuYxaLUEqd3po8UDPkzA5zGiqjs8D3aJ/rwEYW9eKUw4Rp1xN8BuBMpMJDyfLFDTH92yz0P+5Jz+CMxwVbV/4JFJTgBwgyqrJ9cp1vGCK6XqLLoWxTU7t5jJlF6Fn7TVIg4HgB4KNiXzeHIVWD/foKKQ8SRLyNrjyRAuZgYS1lxdTTohx/aAkUy4qNZ81liUWjEs/iyI+/fWypdGYx2idunloL947EXKWwt7My0xvU6NgMvr7cWrDRu3rkRMTaqCYFqWgn+lCgQ3wT7fgyoJK385meT+wUKrhQlhMZrKVbRLxgYpZMhez8Z4NH9S7Olrvuo+kYX/V4JVlni/",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 535,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 139,
+        "output_tokens_details": {
+          "reasoning_tokens": 43
+        },
+        "total_tokens": 674
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:99f04beec830726d\",\"npc:ba32d1ac226fd961\"],\"constraint_ids\":[\"C:88764cd2f1137ec9\"],\"span\":\"Qi welcomed Mara into a shared command post at old mint.\",\"rationale\":\"Qi and Mara are members of explicitly hostile factions, yet they cooperate by sharing a command post.\"}]",
+    "token_usage": {
+      "input_tokens": 535,
+      "output_tokens": 139,
+      "total_tokens": 674
+    },
+    "tool_calls": []
+  }
+}

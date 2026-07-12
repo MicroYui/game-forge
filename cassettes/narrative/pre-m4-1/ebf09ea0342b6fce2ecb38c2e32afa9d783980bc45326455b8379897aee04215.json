@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ebf09ea0342b6fce2ecb38c2e32afa9d783980bc45326455b8379897aee04215",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4400,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 667,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 180,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 873500000
+      },
+      "created_at": 1783851600,
+      "id": "9dqf/bfOKB0IE8uBnpgKRX32Eq9UbZuJdiInGjITK7Srfc5F/F9HFBU6KxfxrxlqM94ssOVzRYjk2C2aB5YufTY4P/WR9pVwrEp3gmQujosECeYnwSWJ5dP8m0PoE+aXztU3L8frTwfe3AvC1PgtCCjpyEfVdGbBAy3YAdPAgFsungY3K1M0moZkmX1ysAKiwJr7J+PgFdW9nBJ7JYEno8zBliIiMo97/O1X8NqDWgyfUYbtB+DUQtZeWVUUXsECxF5vCdup2oMN+MeSZDOHkGFm4dQrQUT0AlQFp0fzKleUbnIxpeDrz3SHq0xyqutiorZNc5EA4aCNKCuBJPfxAYXStCl/q01fTGkXNg2qXvNypz+8uKa//KRYqYg2BTyN9HK4EZp94vKWhrXe+ZNq48vPI67wBw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "+7s8ykpu/oWtqEz8OW7KTLEo7hyYc57a/o9Mjp+k5kB99jTwdE69lyscEbPSc3uFqY6jeBUThCkdHg2ebKRowMUhNaoIvKMnJa0Sk4p0cJmBMJZkQlWkVX8GcBZ+ZRB8FC7NKco/hMMrShSwF1AVM2RbYnkaVG8nnHmcBbzICG+0Ueu8lylvukhfdGLTuFTOWfcWxRdfR1A0rVK1tc5J7iKYuH/CwV6WQOvI2jj1wT3QzT5ifv082VbrO9+FiQ6u/GM8KG0UL5El2CCJ36mpgecMt8x5g00ANuRjDSfjJfNCNvorsOiBoPcMvudznt1f3v3YtnoE+8Pr7/+eM3CV0+PasGMycikhHkTk19Enk2eFQkewqQDzNLd1x7U+g7D+Op7jIbH2Ve6DW+G93DJgezO0V3g=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:5d5df4d160b2e432\"],\"constraint_ids\":[\"C:a6249afab7376fb6\"],\"span\":\"Tamsin erased the public ledger after taking its reserve at signal tower.\",\"rationale\":\"Erasing the public ledger and taking its reserve conflicts with Tamsin’s duty to safeguard public funds and record every transfer.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "IIKkawrqvtw8McZQ9sXYHrQbUBwESlBKW+N84OVXrUo3yCvUakIeitb9P75TK/tB8ZJVi9Zz0e3KjBFeKS32he8rojRRdBIHOiZW7jW79i0z1GkIx1WbFIFxlHPIKBjAP7DWzpHdpb9FTfGLpMzRq+biFwDQKZp9bHCHK/cLlT2HmwSThQ85Hq/U9oZx0en8WYBhvbCwfbNoZrn34OY7fyh3PCgUdcC2DXODR3iqK+LgKR/1mWqzc7oSDNs+tp4dZ9zwe0qdSS3ghCzGXU31VPK0m4lTRBdr1nsONv4dsaUWwQN7GVqCaHUN7nejDqJ3j93ZdUgIvBnbE/eqJO+T6mCVN9Hb7XlhRytJWO8A718HkRpK6T7NGq9/u5+oN/KPMNqfvOwHz9kCvZk2cC2KbYokVNCQ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 667,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 180,
+        "output_tokens_details": {
+          "reasoning_tokens": 85
+        },
+        "total_tokens": 847
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:5d5df4d160b2e432\"],\"constraint_ids\":[\"C:a6249afab7376fb6\"],\"span\":\"Tamsin erased the public ledger after taking its reserve at signal tower.\",\"rationale\":\"Erasing the public ledger and taking its reserve conflicts with Tamsin’s duty to safeguard public funds and record every transfer.\"}]",
+    "token_usage": {
+      "input_tokens": 667,
+      "output_tokens": 180,
+      "total_tokens": 847
+    },
+    "tool_calls": []
+  }
+}

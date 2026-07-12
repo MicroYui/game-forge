@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1525f385de8e4196901035a417c5509c77663ce1977d30cb112e2299d4da9928",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3892,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 680,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 153,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 799000000
+      },
+      "created_at": 1783854200,
+      "id": "7+FJjsgqIpeXNZdXxzAA4mkwauQshxZ6tqCUC2qJZfJqOgPb5NJtQO/9k+bGmzaMT4IkWupv9pnDjLaYueGS+5KRPE1HayTx63HWi4FTGOrRQrlJkHKQDfmNhPsK1f3yvUgm12aHgIs4Z15pul0LoPjqo2YuzJcOQhQYC9RAbKqgM09WcseBb4X14/wkRkwN9fmV/GDAyGDXt9nkbYwkdj3OtXgfUev37wsz4lae8zrJ0XaN3si78AldNU4WOXQgnknF666C8qsyfvMs0h4aSSZMLEsS7lPkwMfo1lT6DHvCKsAzzcdqSOfb1BqsAjrhASJnu2uQaIWSFuEPr0tqV86DOG9WufaW8qkGl9K6OYJf3B8Cn1beX+vRxsJmVCYAMDGR9Gokbn4X+GbGTLKy2WpaflAG+w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "CVe1hcsMij4P8WRKNAoFvgNMvjFrr5qtultdt6/t32RdtSvGUd/O98mvHys+JWCKKhzH7ik6H+lN3M6WbgA+V/VSgdIl8TTHTSAMhDxu7Uy4AwW+URof2K35opPdMVg800hIxiOCSlp23KS4PZA6E2/6C1RnOLVRfZOZP/yofsFTx5QkOIQp0KMbejW7WxM2GvFa1mDFlM9PXVlfCEPnV7B6eZnTzyAqOlHmFSm2Ji2Tfwg3SHYQ8Nw3JLEslRU9Qxm03zDIpY0cdDO4lhDIgUfEd/73I80Myudgu5kdK8ILr4srNEywmDtBdYjS+DuOBxPun5ovQAHnJo6O9EIQ6lejqD3N9oU8B6Bkj2qYvr1ZaK4l5TnDJ9fIgOOFdNVPBceGht9NXI6NqVTGXPMLgw6MSRg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:c9853752ff96b3c3\",\"npc:f3c200d24bfe8578\"],\"constraint_ids\":[\"C:a19682dbc6af77c9\"],\"span\":\"Ivo welcomed Lea into a shared command post at glass conservatory.\",\"rationale\":\"Ivo and Lea belong to explicitly hostile factions, yet they cooperate in a shared command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ymdUgR6LQqxLB+q++ewn34fPmFwS+0il2vwsz/HQn8h6qyXvE9ztoF25L70fSxo2NGeOD96uVID+sAU2mVSgHsl2k68/ByIJ/zeAR7cu5vdje0k3ZwyjbMDA5swO3EoetZsZlSs2Fp3GZqQCPZRR88jONu6uZCyqtJ9R+iolMeLeuubSJ+eddtTXZD526Hm5eTQ5f7Ih9kEKFpw3ulkYGWrYnxF7j4DekRFyzSHBuTo1Mw3JC+t5Sk+heo71Nh8m/OklmRPg5+zW1zt7L/0hMBel9aCQ+qP3EfJXzoLBsAbTiunJLsM7rLdlcgsxve81tQ8fgnZXKLdKIuLf8Pbmq6WSmkn6TxZK+qElEvALDFHoCfO6+X2jNf4mb7z3KOZQze8bzt9Nk4yRegG2HeQUjGDcRsHP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 680,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 153,
+        "output_tokens_details": {
+          "reasoning_tokens": 54
+        },
+        "total_tokens": 833
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:c9853752ff96b3c3\",\"npc:f3c200d24bfe8578\"],\"constraint_ids\":[\"C:a19682dbc6af77c9\"],\"span\":\"Ivo welcomed Lea into a shared command post at glass conservatory.\",\"rationale\":\"Ivo and Lea belong to explicitly hostile factions, yet they cooperate in a shared command post.\"}]",
+    "token_usage": {
+      "input_tokens": 680,
+      "output_tokens": 153,
+      "total_tokens": 833
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3cca6927789618178413e20b7a4c4013dabcacd0759310034c2169be8b2fbaf5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4802,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 599,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 207,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 920500000
+      },
+      "created_at": 1783844500,
+      "id": "UplIDZanIBpj0mL1QADb0BP/caGPdzi5378ygQGunaP8TgMSEgwOITyTeT5JnrIN+K3cgfsSakLyqafH6ouEuREXklXvjhAYgG4CP8QigWf/XNMn9E/Y68Quj9cPFKcYg+znWU1CO/sG+LgsebjD8Zo6xfpDet1stAOpMwB2ZB//4585dXJ6bFCanp/3yH1rbZpA3nx3R9Uor9Vi51g6RYuYeX7FHgF27TyG1AIfT984k1XtIT0Sff2rhw0Ky5ur5L6inT/YA9//x31flauFSF49kDjs6DGeAoF43rK9Qi3z2lEfO+GYmzVrn/RjAIcELOFh9cCwCM55v/0cdM1cYBKv06U/qeIrGxIFl8IeDTo4ks5rFcQo5GX9S8ZvuUgTTX5JrRRF/+8YblH8kzhdCz7NCtqoSw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "yuE1yTIrPo/IH1qHyPYTHrdITZ0BKPEbVuSRBg4Ifb7gnu2pnGsGwHEcBZfamv0uvtIeUulZ6Df6FoRIGC1+pCDF7hOn4/BhvbsevT2uYxWP1cch5T+IOmxuDfYEet07jzfBVM6LFurh8rMEKyJPYOULDunwvJTrt5IiyjZnzl2kV/PFCsA4JZcTdsSiTuChL6sIbdw89mCogZVrCVPN9voVt2FtH0ee2j5ofd+Im+TYWx9PIQdIQzfHZPrVDZct4NRMdrJLnxMJ9wB3Jem5LTQr54UDz3OFd55xNeg9NC0DfDXgBftMi/+cb3+drnUDm0N9/7iRIbJKgXvYfH1OYzhxxJVVNdCtYeBZEkKiDNjd4aAYZbDXcj7/5kAxeWezt4iYLPArlJSH8Ms33ZXvX8jzynE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:92a9d9ca93e6ed2e\"],\"constraint_ids\":[\"C:a614fc16eaa1c7da\"],\"span\":\"Ansel disclosed the protected route to its pursuers outside archive hall.\",\"rationale\":\"Ansel discloses a protected route to pursuers, directly conflicting with the rule that he does not trade away an ally's route.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "dOyVccVUoKMexOU4osSUaS8fTSFaSrHOnsIsbTvHLPkCEOxbaGSji+cu1LmWvHLUotvk+KCKgnBAl9DgqOAJml0/bnmlCF9G/o4ubnxV/2KyIX4oj+XFD6GLwJDzkRgMkzx4S1XLRh4vUXhTOxbLdRJJVEvugWgNBBjeYP5GisFXWCfAHr7vDVGgUoI7lBScBXz7Vu1eALvvGtcVT3jYazXY5snAozBTQHJq0eQNXe3auW9BttyxPNwnED1SEN71dVkoXZrQJg1sWyyT7uD7HHJm1CnGzRriJPWLHES9uU88rZdt5zTUvTFxu6wQC/A86gHdg/6E6utPnVKEdL/I93sl19bGHPpatZXglN6+z/IysgWwHr/lV75mlAAXhYD/N2pfpe+WUHkPnsJnLzMq6jdyng5d",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 599,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 207,
+        "output_tokens_details": {
+          "reasoning_tokens": 108
+        },
+        "total_tokens": 806
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:92a9d9ca93e6ed2e\"],\"constraint_ids\":[\"C:a614fc16eaa1c7da\"],\"span\":\"Ansel disclosed the protected route to its pursuers outside archive hall.\",\"rationale\":\"Ansel discloses a protected route to pursuers, directly conflicting with the rule that he does not trade away an ally's route.\"}]",
+    "token_usage": {
+      "input_tokens": 599,
+      "output_tokens": 207,
+      "total_tokens": 806
+    },
+    "tool_calls": []
+  }
+}

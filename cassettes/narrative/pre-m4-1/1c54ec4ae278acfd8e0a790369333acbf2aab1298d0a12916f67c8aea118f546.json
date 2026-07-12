@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1c54ec4ae278acfd8e0a790369333acbf2aab1298d0a12916f67c8aea118f546",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4318,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 692,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 235,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1051000000
+      },
+      "created_at": 1783847700,
+      "id": "gnMdvRs3EIHF8m9564rULHZpsMVye9y22u0kQqlJSzg/Kktl9Y2lGV6R6FZFU/YkOFMc4BrzwWRElLhZjCM3+w3VwtqfS5iNiNxapK/nlEwUGf2mHNjRbwPYyp0XMqGtvQyNrqSTKc3g9dsamjwAZpliPZSfeKJP+SLPTt0s01e7Gc9NMnLllY0+XrtTZIQG8ijcrJtQDXM01z4ZJ7WXddXQG7a+PbE8DY5V33cnUmZMsnRmOY6scpPNqJhXc8foPhTW15Z7IrQJ87dzXChTK910VY1FksYn9GybXZtRK/8cTYs8xS1ALFJHGdB0E+n/6S/amSkm7fdn9W5YaZOh2URAVIau+0v7aDiqR+8Ws3GW9K4rol8q1uM05uJBryqp/P1cbQYNYnhZUnKBmF/AWYHNS/f42Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ZiHIu4+IxZlkB83PGqj8uiRZFRF1tpz/ZBWqTzQrVBqhTiU98i5RUnUhqz2DuwWN8AhuQsk+/q5iqcVxtq2HcY2nkWc5OkiIEBxHLnbyXpPCQ1wPGnA0G1qvpY66+KFb94Q0KUsE1k8alrwiSr+7gJ+GiniDDaDcF8P8/2mAh/wUjRYGIN6NNvOkstcbrJEKHDqgKWu5QS4Bp4Ri8fdRcTTWeRIDCCO2czap6/X9+g6yOkJbQtsY3+Wmw0cg1FuNX+81T7T5sH/Mrd7dko5J6IFwF6L+0VzAZdwQUGUSYL+HC7fFwm2oDIs6Y0i5bW/KizlsffJTDnl0G2VYySAw7X60FmZ1TXe05Hf4yiLqw3ZzFA1uOVIVA6WU+njLfpQ9cXI7ppvEbniR5He68EuwmcASHSY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0cc0917ff9fffa80\",\"npc:b46d8f061975637c\"],\"constraint_ids\":[\"C:409dc0c502e33a60\"],\"span\":\"In caravan court, the council recognized Cass as the First Navigator.\",\"rationale\":\"Cass is recognized as First Navigator after Noor was already formally introduced in that unique role, with no relinquishment stated between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "se/FU0yD5PvMMNGFpY2esy/QyB1Oxe4Q6RR0a3FRMf2X6zHvsvevCOq5u7nlOWsKw3i4vhvfyUZJZkGym3AkLJm+XvpVNIks/vCiYtFx8lc/ty45PstmHEkXENzsO01yji1E1sUv4RrUqClV8s3UlnXCbL1YqpZ7DcBC6kmCMrAFBlxGc7XRNQnHSMXsV73fZRQy2e2bQP9geefOmilwRNQRR4ZL2R2M1kYVQ7GxTTHL9aEzWDO4c5/JHexr8vpzJph9FMr6SDt54Fald1Rp1r6UvhFjW3Ws8+v4unNOf2hrLpUcaZpPHUe1EA01jLSHg8ZDiUSBM6fSsyGWpUL8enpTdmBpdn8GpL1no5R7hJnKrb+gWNIKZlxTLh3jRYFRw2rlF5yRfSzt37RuIhdpziAuNtff",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 692,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 235,
+        "output_tokens_details": {
+          "reasoning_tokens": 130
+        },
+        "total_tokens": 927
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0cc0917ff9fffa80\",\"npc:b46d8f061975637c\"],\"constraint_ids\":[\"C:409dc0c502e33a60\"],\"span\":\"In caravan court, the council recognized Cass as the First Navigator.\",\"rationale\":\"Cass is recognized as First Navigator after Noor was already formally introduced in that unique role, with no relinquishment stated between them.\"}]",
+    "token_usage": {
+      "input_tokens": 692,
+      "output_tokens": 235,
+      "total_tokens": 927
+    },
+    "tool_calls": []
+  }
+}

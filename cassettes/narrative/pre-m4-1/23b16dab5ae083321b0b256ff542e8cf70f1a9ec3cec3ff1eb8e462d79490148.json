@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:23b16dab5ae083321b0b256ff542e8cf70f1a9ec3cec3ff1eb8e462d79490148",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3280,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 607,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 184,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 855500000
+      },
+      "created_at": 1783844700,
+      "id": "r1duMF2ubVaQLtNXOfmdKbn0bx/sbUAAdfYEZWUhqa8cl7lyOuFHRh+DJSns8PbeRjRGPTbqky4zRRsmFqRBGg4VXRqAG8a6uxQCoheSORyJEALqRL4tsDB83fMBAvqd9uTYS7R8uYYDE6LrdswUowBCSGk3ieoGxSBSRa5KF3AFLoiBog2X71tmGuJNq3uJNfPFtZIpjCHkXQKRjtTyIhyHwFDj03Dnk9mCipDvZAWfw5sCNvtKyvZrr3iVPKmyBabf34kmtc7yGGLi5Y81r2JsPMCvLY+mrfN+OK2/43R6Jn4E/bpF20xZOizyND3OpKVop2ig/Xt8A336M5Md2CkUEgFrnnOAQj/Qpa3LtxRoVP0aJIDh7AmKeXINrvwXTABSP+He/KV9klwomUvuXHU+oHkwrw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "8vsMMb51yf9gzjevAKV0PxDvtFpK5NYzVxkRpho62CXUZFYDHr3tz9+DEUpUrcrpQB5PCDjkJ7w/IQLeUjemxMQV1AU0rx/m41Z96XN+/ag30bFFH5by6Srby4z2Ar4jyzVip28KmSx/smsA7EhzHQ6ALHsjFKrm2snHUFcw3sfdcQrpE+J0l7taTTgiI9llHnzZk4nWbuYCSCDZ8mMwOK+jNwQgjzH4uF18zPZvvrPPTAGZWf3ckEpBp6giVNjFUHdpljx5MsctdDqOOwBuVwzIdADEmxVyraZmbVDoP+KwwFD0V3koprFyRbUGfJov77ttZw+1zaUsbk8AaPlhBfUIBQzJBdz4D1G1G5taONyQ5hGT9IvYQ9fBGsN0tKeQXEprgyd8UVI5CgOTYLj25l06ok4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:54d4bf7be3c6cae8\",\"npc:ddf47ea51beb13d7\"],\"constraint_ids\":[\"C:abf7f8c4051bd6db\"],\"span\":\"In desert waystation, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei directly supplies and forms a permanent partnership with Daro despite Valley Rangers treating his Storm Company as an enemy force.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gX53db9zbOZc5ItaGoXU2HpvkV82sPQbBBsS+aHA5pYDInzCSgFE6VVNF93QyGdPn7hH4jHCpGdtWV7Vwt2YoCj1+6xgsEFYOLzfah1OkT+fvW4dG9qX9c6/3KHyHSn4tERuiGXp7y+qqHT9SDdCLUx4Ubhr2VLs3KUEZyNxk9P77fZgZG5JvfIhbL3EhscI51mKYf/6DX/4jpX8asdKomMysrlorTSyP2+Uza/b/6TfdZM6/1skGLAMHOWdWMbjccji+EvvdOWfsAaJgElNdyBLoih6hZB7l3ujawvKerI5JdPBpO1fGJ0e7+9PyzGiv8qkXPPmHwJTNK0V3hmehwdWLgVJfs4lNpXgB5L0ut6C4g9MUjjfVBaT1HWvrrFG+hYdL87H/8lrBue8HF3kj5UNn5Wk",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 607,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 184,
+        "output_tokens_details": {
+          "reasoning_tokens": 73
+        },
+        "total_tokens": 791
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:54d4bf7be3c6cae8\",\"npc:ddf47ea51beb13d7\"],\"constraint_ids\":[\"C:abf7f8c4051bd6db\"],\"span\":\"In desert waystation, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei directly supplies and forms a permanent partnership with Daro despite Valley Rangers treating his Storm Company as an enemy force.\"}]",
+    "token_usage": {
+      "input_tokens": 607,
+      "output_tokens": 184,
+      "total_tokens": 791
+    },
+    "tool_calls": []
+  }
+}

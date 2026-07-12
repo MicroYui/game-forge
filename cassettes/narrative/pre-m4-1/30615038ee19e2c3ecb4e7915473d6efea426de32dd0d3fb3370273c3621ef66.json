@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:30615038ee19e2c3ecb4e7915473d6efea426de32dd0d3fb3370273c3621ef66",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3266,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 628,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 174,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 836000000
+      },
+      "created_at": 1783852300,
+      "id": "kpgxZY6G0f9E5eNBTzhcZDfa0TrJ32kAhlRkx4cCS9eiWUuIkuufwRsEHA/eqIeosBsT28MPYnSElre6KqCiTFh3s1DHTr/bGU91e6ZGdRDLFZvnBmzAMR0GiVtHtmdYnWM5crxf1+BcRYjUuzkr/6094SzRwG24uONXuvfP7vg2l4z0jZd5rsl8tiJTPHpclXPT+ZCPpscKYQNyBkxlp7vAHiL6k1wQcLf2fnzlKhqwkDMjGYRZ+v+aBQ4b0kVuw0BX41057HP4xyJNPtrk7lPlc5f2skxY2NrzzyEuKJzNaHSo61yT5AN1MzTDdNDkPPDbt18fUNCwYFORj+qFWu/XHhWr9dNdm4H4ynYxXtNCLTc3CRu5SDo3iRK+c01hlqOncm9FAV4SrzeU3MR44ISWI48D1Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kp9lioB/3X+wP5Yjdssl6aoEuap9xcGULlOiJuDknWP9vQg9hUphOtmwyCQD29StdbYdp5BC/7sGG/6G7B21dbpB3CtTo0nXkXGHiiPNvfr597RZjbZVAs7tywzf4kisGD/ojV6K1ZxCC9I32HIf7TzGvCNi9rKWhrv2DX39JDacktm0iR2PiNHrC0LgoyhjCkEZOnCVXJwJq715FDdedjEyM/Ip6WVHZf03R2UwlYaQmC+I3tGkpmKsDRb0+L2G46n7fhwxg8TMCYrUCNMOR0bny7ADzs+C9TRTWioUBoFVE04aF5t51QimSHLxFy0cI1bZn2b0Y3myXHskM7Fp4dzP0KqOlo9xLxXEpkRPmJnqgBO3/KymN5lnrrx1vbrh0OfaJbyjCxdMlaB9orCqT8D55/w=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:9d73fd260d4684d2\",\n      \"npc:be37d8ac388ff63a\"\n    ],\n    \"constraint_ids\": [\n      \"C:95ec40aced8d919f\"\n    ],\n    \"span\": \"Mei fought beside Daro under one banner at caravan court.\",\n    \"rationale\": \"Mei and Daro are shown conducting a joint operation despite their factions' explicit no-coordination rule.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "lWk7VYPw0+0Um9KrJVFoRLS64viyEZYRb+uDs18nubc3O164ibDeQS93uCK1tfFBGAgpnKWdKhDYmHlsDD34ts6+huICmNDcupDRBZWZnfoQkDjFRHB0r5bqNx4pvd2K5WrmzmiMDXi8aZ8I+5J6Gucf7OCz0+bg2Pv98bZuNkJwHallLqfK0jS3wCHkrGn250YUM2958vqwNQvCZwPkAYysWRTLGxdC4QaF60lFdHYH0qiizZS05nhYzANbKZYzxTYHY7/FnWe8D7+l86K6O9fJTzcLqlwyPKBT0Ld0a5Ka1TVZ+iv62ROM7+8nEI+6geGdMa/Uc0HFF6o1Kl0TUB9GmXm0qLwJntjreMUse0SAWZHMiuPisXoWTzOADR7P5j+XAnJb/mF/IRGzel1sfNTruCUr",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 628,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 174,
+        "output_tokens_details": {
+          "reasoning_tokens": 47
+        },
+        "total_tokens": 802
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:9d73fd260d4684d2\",\n      \"npc:be37d8ac388ff63a\"\n    ],\n    \"constraint_ids\": [\n      \"C:95ec40aced8d919f\"\n    ],\n    \"span\": \"Mei fought beside Daro under one banner at caravan court.\",\n    \"rationale\": \"Mei and Daro are shown conducting a joint operation despite their factions' explicit no-coordination rule.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 628,
+      "output_tokens": 174,
+      "total_tokens": 802
+    },
+    "tool_calls": []
+  }
+}

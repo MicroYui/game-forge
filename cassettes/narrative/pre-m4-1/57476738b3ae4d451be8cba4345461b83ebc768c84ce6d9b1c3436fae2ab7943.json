@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:57476738b3ae4d451be8cba4345461b83ebc768c84ce6d9b1c3436fae2ab7943",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6004,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 560,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 279,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1117000000
+      },
+      "created_at": 1783844000,
+      "id": "vdGo0YdMFYBUVqns2z/bvUU2rWzJ1Hr0JJD8sO0YxW1za0GTZtwtmQ9/8raDlLUYBcEn3Xa8g6T4qGTUFA01xsqbBjb03DHg4kxiriW/OnpKCWORGVQh3yVHGhH2TNTClSrHoAHjzYLH5tBMdh/QWH83qGCZs3jk42p0PsLBAl2biu3oJvp/cfRb/rwIt+jBUHhnOIgy092xg+y30CbdwGfmBFWXtGboVZR4a8PFOlbGsIipmXM5rqvt8x0oSe7T6s3OmNmdz0i/44MdrhwIce+heH/azrvNmFivALBZw05am1oZBGvvBSMygyXYR7oTfwN4wj4WozznpcP1kdDTbOYA6R+pl93yx7CcplcKJwaU/C55s1iJ61nlv9nwBmcqtUWCmGce76u7dYWPa4XWch+ARx4OcQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "F2PciH9nrx84fmwkVl+LQAZfrIU62u8CdmSGsluZuhELr0EIadQzd79Q6B9V9KqLwfyUkdPvWcbvN9w2m/5pdBvyuQo34K4emTLxyI0UKncwB3SLJtZph+vJCJ5TLNMuvBrMw3mh6E4PNVVJjNSrfYMmIKRdPBD5BtW+Ugm6srpm9YxGZDCMahmI4liQa1ru9c7jWgCh5dWZFfGQYYZh5SgW3CutfBDzK30DSWteaI+cV/LjzqJ6OYrD/1AtOlOi3Sw2znX4VQXA1wQnU8xeorzLjtAt5FHbF02raGXWIxFRTfXUtQQH3riAjWyhiImroS04JqbCkPEVtC7Vh0xbXv34XjgFlFQZxwjgB2nb9fWJxiJaJkOcuB4AcJ2bp7a0GLju0o274W/siDc6xie5mj3PMik=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:6c23f7b31dff7240\",\"npc:b425ff9f6d69c31c\"],\"constraint_ids\":[\"C:b8fd7f6dd7997768\"],\"span\":\"At river market, Eli was formally introduced as the Warden.\",\"rationale\":\"Eli is established as the Warden after Tamsin accepted the same active title, with no relinquishment shown, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "+aZRU77+qWO+tsT4zTKxU3IdjKm755CYCd+Na0L/WwNsE7x5P1jICtbxT0pivPS36mBglRYVDBRCYET/AiaKdwjlw2FGhUTL0sW39wXZBwX1qSlpELagCJkwLE3xC28KdWt19poR7kcPfv+80UCHF738eg8yCmF0eId91qxyn7XwXW942plocUOWIkCucRAtWrLNeHVxsZvJkIYwUvJTU/N52Dn5HHD+UM2RIpnnVYt+k3IWKXv/gZ2LYZcKYMiCIL+tR9M6bAfUPUrwltvL+Zqart+lrr3GBtY4QNz8bxWdomqGd1bYm82e4nz7gMWfIPR+ob5u32GDfbyjLMxT6wix6M58ToObw1ldQ5px5YUB5bW/manlBdMeslTUprIT3G1gQ0JdKdocD4cB4+Iw/sFpE9Ei",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 560,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 279,
+        "output_tokens_details": {
+          "reasoning_tokens": 165
+        },
+        "total_tokens": 839
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:6c23f7b31dff7240\",\"npc:b425ff9f6d69c31c\"],\"constraint_ids\":[\"C:b8fd7f6dd7997768\"],\"span\":\"At river market, Eli was formally introduced as the Warden.\",\"rationale\":\"Eli is established as the Warden after Tamsin accepted the same active title, with no relinquishment shown, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 560,
+      "output_tokens": 279,
+      "total_tokens": 839
+    },
+    "tool_calls": []
+  }
+}

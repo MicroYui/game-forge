@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:612a47967e0c445e80285939751212e6475fb132581623ca583c4ec508f06128",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3608,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 514,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 144,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 689000000
+      },
+      "created_at": 1783857800,
+      "id": "KhzLLuDZWWhLgnUn9+63xGjFZd/UV9pRCsrI9VqHG+QiRI4bRXFOo397dKmL2hSRC4BEhIamrRxgSFZGNgWDWkxs/mRP3Qcw+bq+kV4M46nEY3o4D9fFwQZi0fmjxN0cJChe3B+sII0eSM0PZ45WG4xjQ1vg3j4UdlYePEERwlWaQSRLV3jMfYZb8AYmxgOzbeO9se0N/YNwMPK8SZ8DrXeB13WnjVlBYGJ+NF0rKQir1G1XpnHG8h888BPZ3QQWp9eUGsetkO7ICpFlBK/QrDGiQgxmI67QLcOUw2IMNMY1fQOnbq1tQ3W/5NiIQxdZBMzwtwlzjVOhWpvdHGPT9hk+KIVH/d7PwTNGi/71F4u5VobkP5G97/wWK8oNsDZGyn51w8HqfnV2sTB7QI5HiEa1Eqbsvg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0B5V9boZaJdTW+DajimOAZmiGjefuNW6nZnwSEDxka/Kn/3d5eogXcPlZC2nadEiSlaS1lFj80HsUWKWGmOJhyYGxrDzlwmvQrRJSiNp5G48GSUW0PIMbXkmhGZv1lt+jbi3Z5r05v+0KWaTj2/h6tBL9jxkyZlW5CtP8l49W0v3ZXnkN+0Z7m2Dv+XVQ8h9hC1oea78wDyp8EBBpNLrLnCVSlhq3zaiDXlHK67SE5Lmsbn0H7tvrygEDMsNW4wulp3NyyaXqDWHn2dg9Ee7Al8OVHSEinPiZT7KpGaOY9mSKWOVmhbKneHf0iDP3HOd1ms3pHL6furvz+tMO2FtfMh29MVAbfIlqCjQ7sDwjQp/rKG6r6NrpK6AKCGftAa+3orirT4OscTKn36S/QX1U1L4D/k=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:da2b852085b8c673\"],\"constraint_ids\":[\"C:9460c47e07486765\"],\"span\":\"Mei publicly renounced the oath before its terms were fulfilled at lower court.\",\"rationale\":\"Mei abandons an unfulfilled oath, conflicting with her established commitment to fulfill pledges despite personal risk.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "3fCDwA2yu47hb+QhKQNMQPEfwcL3Zm6zmqIW5xCj+QT8dmWOiD21MUG8YGQmPWUIkl5cIz51kjcji2mnj/xb7K72tjwmwxqOUJUhrBRFidMvMmc4HHR/6i5WxAknZJVn3uMKME/ZF8/oPiI5iCo0d1iez3EtLLZVM/g3IZt8bcLeCgtvjAEQUAHG9t4WTgXiqMFbB/FlYIo5uKTgrZbCIrv7IKeE9GWSgESA/gMQR2lZYiP7S6jwOlyidT5QKSXv+OifgK5Y5dlwa6R4icLjaO+U/r8AUMa0LMNRPgt5Ds9RAv9xEwv0evGCEOz3Up6Sskf3+Oo88Vs4o3GnqdFe+LVROYMYkbGskXFgoPCLy70tBNTIZ225mcF3GUuYTK+KM4S3taOoDMQvhXqsvQTdw/HeeOVI",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 514,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 144,
+        "output_tokens_details": {
+          "reasoning_tokens": 53
+        },
+        "total_tokens": 658
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:da2b852085b8c673\"],\"constraint_ids\":[\"C:9460c47e07486765\"],\"span\":\"Mei publicly renounced the oath before its terms were fulfilled at lower court.\",\"rationale\":\"Mei abandons an unfulfilled oath, conflicting with her established commitment to fulfill pledges despite personal risk.\"}]",
+    "token_usage": {
+      "input_tokens": 514,
+      "output_tokens": 144,
+      "total_tokens": 658
+    },
+    "tool_calls": []
+  }
+}

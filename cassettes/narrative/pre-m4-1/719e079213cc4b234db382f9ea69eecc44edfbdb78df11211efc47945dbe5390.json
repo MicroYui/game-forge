@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:719e079213cc4b234db382f9ea69eecc44edfbdb78df11211efc47945dbe5390",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4000,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 568,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 167,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 785000000
+      },
+      "created_at": 1783845600,
+      "id": "LJlKqTS04o+sncqGy29OiYNQYBGywytwBaG5h+Io0DsQCk9BUv/OQwMLH3aXftAkNkkDEuOhWGB98NHYIf4TC/SyabovYk8IH8JyL1KsujMAFBBe/pp0FOrxLs2tCdNMACskqSQUa8INyTlWpSfMZ9dSQitbzPqv3zXCh84miT0v6C9QW0hCBZie9wbxHhLIrps7RlKI77IfqI+Z48idK/GoIc3tYVwF/orgsrnUIzF1B2Dmu7BbgoEKeXAgJADhTFoAp6el7zMZ9fOYrUrOHGe9p/zp4OCcdieiJKUDHHRx5VDCb2ZqXYkb2bCmNX8iDnTJkYIofN2LzVwGeUwLRp3+TPq3Xmii4iia1Zim3CDP26H9hpto7ESY5996KOpxM1ZltTYBna2/IA39C9YxlQkH5Tj6nA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Zv3RzYTo/kvOrCpssaoAmhOjB0prnLqjpMGa9XRpHnEv5qJ0zJKLD3wbw8qQgysAd9OcuduYmYbjtBKmdjravauayKeMNoPA7YQ8eX3yoNeAIheSXemGwuITnXQmGXDLa6z2WrCZW1hy+/kYwbwSS/WEY/RY8bqZqFhfwtfrA9VAB/IeIoBS7UXKV/Oa1EjF0x0sUtShHqBiX1tSTn2CU2F8PUGuDX1syChHHWP/Ew73FvN4lwn/zjuPT/49RRDl85Of0njx73bCJzAFLzUMKszccO+5hRRo5msPWdCeaKgcsestezYmpMFpbx4Ie7OSdVZBwp9ZhNeJCiI4LFtuqbEUIDLSKQd2siYnpL92owq8hpVzm5ZWBbzKWHFv+PGBRdra2jImB41Q++iFHSaXeMJUbU8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:7c70b186b57b55b6\",\"npc:d404979921fc3e52\"],\"constraint_ids\":[\"C:65a56375c084e34b\"],\"span\":\"In glass conservatory, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei and Daro belong to factions explicitly at war, yet the sentence depicts direct supply and a permanent partnership between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "zsBA2CLXZ7WoJIvtEtg/eafHZgJrc3CkAh350SFzrQdtIT6Hnmd9dWJ1DUyb0AT+OUC2MAiIJe9NTGuQjbzBE3xey4b/ocOmqfhvFQzcGwo6oTh+ZNane1bjOLVpES5FzhwwqpoSOjY/ro5350/43givxgyGZ7LSinSNpTlTwRcx+G7/joLEKn0d+uJBETeFxxBisY10pIZcY1SLWUDSGgRUZPLnvrc7fC8Dr84oPEp/0qlcypYTXVhsTb3mxL7pW8yEW2P2B1iiyh9huPnHej7Ma8AcKNL3fzZyYX8ICu2/xrzTxCR5E0jWSKA6svUbXDjDjCu3SLOUVjzS3aXxtrZfVBwyaWiI64OYdR7OPV4JPtYLRL44433b2Ea1k307+xCo22uXXgTIcKKcP5vLSbC+xCAS",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 568,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 167,
+        "output_tokens_details": {
+          "reasoning_tokens": 60
+        },
+        "total_tokens": 735
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:7c70b186b57b55b6\",\"npc:d404979921fc3e52\"],\"constraint_ids\":[\"C:65a56375c084e34b\"],\"span\":\"In glass conservatory, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei and Daro belong to factions explicitly at war, yet the sentence depicts direct supply and a permanent partnership between them.\"}]",
+    "token_usage": {
+      "input_tokens": 568,
+      "output_tokens": 167,
+      "total_tokens": 735
+    },
+    "tool_calls": []
+  }
+}

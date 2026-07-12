@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1aba59dc9fead6034430a8e80daacc4ef173f214152a063f784ffd924b779d99",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4952,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 577,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 250,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1038500000
+      },
+      "created_at": 1783854800,
+      "id": "16EmGpPOfi1y5fRy/G2A9vW5dhxBDmGwgf2gGVzmRqrgcpJOF+oIxf3PscFzRVAC4lAAGSfBgd5wjKq17lq1I7bJtia8CTuOkkbYLVVuYlSz/8MX9VKIp9RWYvSaHtH7pmwgswP+C4IqP7yjP2Yqxarpl8Y3tYnE51VKe1VEk0QSuaWNr2nGj6Zp6T02hfU4K6IlX9fWPpNg/zp1rcEkRrZFsm9gQGAqqrhoLD44Vtd6qcxUSz9yCoGDmax2itgvzY39zfu2+H2XOwHx3Apgx7MAKd/nYBjPONiLmSoQISGlQx5atmrGNanIn1t1a88awlfbWYSpUq8yKFny6XHIQC13G6TVSOT1G/hZNMzmw9+dCbHB1+jyroU3GbYLlvSOgN2Y84NQBOtnA9z5GnRqqyYegF176w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "SVt0vdXEu62ZtYp9jPValXJsQzjn6psm1LEbm7WMHYMNgfmwEC3RlT7pHcPzdjKPH+HkuFXewxzd17NDZGVklMOziL/Lcplkq4/XTgs90GJcS2Sft8jeBviuc7dqznLW+Cs9UXC/NBgr+O+Mw/Zm/o1xP1CJqSZdOyY+/mtKuIZoH/9j04xYvDAzu4dFe4rlivOQnYQDnP+DzpQ5a5Optre7CZ7Naz1B5Kl4IKFybaFa4lLusSgM10ywCGEDa82TSra/5YpZPTd9yI9JnUCudYANghVGXNKpzbNbZHxJeIKZQ9zOFPeBYGlgx5ZXyKmQujtZldyitc1EbSEVrVlp4up4W741QFZRR6Gz9tYyAh2Hn3z62jlG+xWdwFqMXZoSVNAMzhvYHimH+l7/TCnC0UbpmV0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:d89abc3d9bc4a8bb\",\n      \"secret:7db5370772c58d03\"\n    ],\n    \"constraint_ids\": [\n      \"C:c6a6beea0e8650a4\"\n    ],\n    \"span\": \"During procession at canal bridge, Ansel openly named the saboteur's name.\",\n    \"rationale\": \"Ansel discloses the saboteur's name during the procession, before the permitted reveal stage of sealed testimony.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "7Xb8Iw/ZMonFxOjqlYNtusc41DonaTAuaxXHAcSTYMjaURTp+GoaGB2mmHREAC45c6IXV4C0LCjhiLOZx4PMJSekq226xgqgtlvr2FfVEpFyDIbhGbo3BdTcph3bE+WBfsEmS7WZHqki+Gn5rm/aQ3gg68clg/yVyDRNU8w4Ts8CxIbTuU70kDg7Fv9UMa7fLy31Vv1GJVk5cnYhJs5cYHfwTE6+GMYLvfmpa1p6oT+GfxryksurLaw4Drbk3xgnHwt7uV/iZS9ckho/JU60Wlgs6nJr+kc0Cc1YAlpBEDb8aVmciEb7b6NOLFYnx4Gktz1kF/VbmuCOSfU0crR22tVasuICU/zBhTTY0QbKWdiedL5WS4FkJ8dCRQV9Q1g29gSSkXE+di8YP3tn9jL3haiK2tFw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 577,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 250,
+        "output_tokens_details": {
+          "reasoning_tokens": 115
+        },
+        "total_tokens": 827
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:d89abc3d9bc4a8bb\",\n      \"secret:7db5370772c58d03\"\n    ],\n    \"constraint_ids\": [\n      \"C:c6a6beea0e8650a4\"\n    ],\n    \"span\": \"During procession at canal bridge, Ansel openly named the saboteur's name.\",\n    \"rationale\": \"Ansel discloses the saboteur's name during the procession, before the permitted reveal stage of sealed testimony.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 577,
+      "output_tokens": 250,
+      "total_tokens": 827
+    },
+    "tool_calls": []
+  }
+}

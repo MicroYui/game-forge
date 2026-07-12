@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:882412ff4b7016ad3d26313f22495e8af4c7370e83175f1f52f61ca6b402b172",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3171,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 672,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 155,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 801000000
+      },
+      "created_at": 1783856900,
+      "id": "d4IDbpKeU6S9AVdXjBnEs2HG9whIclQbNm0W/R/LoygwGC92YjwDgxfqvyk1jZooh38gVfRSnZA3DM6UfciYUrml9S+5D1z0vFrW1+jdlXuhz7oV+QRIxPRYg7+4cpcZQx0dI2yps+z7qHv3S2FzUYZqCHUjdM2E86f2trSEMxxaU1ZAkl/4bdgKxJ3eSLP9ejbnO56TBt3rT5CAkiWVq7iZ06gVLvJN3hty9j5Iktr7PeHdThroxbF3d1gSCMoOXb4Wk/b7txNC4XhwjX+3+2D/8TMCU5KDCPELaDz8znl30glsj0JGN8Qo17C9xi/DC6MaW5jc74rfsTMX9dgHeLKE+Kvho36zsQ0Sjbfc3WoWgCYg8wcmVhORVLWcpMjNx5Hl6qsfrEPORssemwz7frjyzKJxpQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "MHocBIAmbgeRK3ELI5xocwiPrG7zzfuxD1mmkCq3DvbXI5h7qx8xjzjgKEJv6zNuYCgpEOA7kK2han/Q4DJgA3BdWFBp9+HI65uo1ExL1CcgYz/f0HFBXKP10rRZJ+Q51IsGgZjgI85Fx7Sc/t47BRvrI/o0UQbvcCDN0pedJws4mxGG+v/JmNvjbWFjM1sdTaVlwA5kIwx6Y8zekm14ohdwQmtqcpEewtmhlBLpavrBwj/noIJG943ADhyDIHI2NN2uLQO3f/G0kjOjyvHMWcp0oB7+SgscVaI8LynZR6eFUR+nc9YGHBT7jlB7Wc5fKzTkxL/U2plmAlIez272ynxG8damaWhwhrgccYfonNRdHMNQ6vB696Y334aTJhhDU0VLEAG+5ZRYEqocaTEoGXwr1/M=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:13b14a580fe645ee\",\"npc:ecedcef96faa6866\"],\"constraint_ids\":[\"C:6fb1533d16790d0e\"],\"span\":\"Ada welcomed Malik into a shared command post at caravan court.\",\"rationale\":\"Ada and Malik serve factions that do not coordinate operations, but the shared command post depicts direct operational cooperation.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "f5wGHpAvryyrP8k3p+B50KcB8f6Ac4ZeO3x9iGI5I5T0IC0qdJedDKURQUpXvBcTwaKWrlmVdJY1TLYmgERLxjBu0ZMm2veeHQoRsgIiXg74DE3UmEiSUs3OTtphO2A7WH/g7bdSZfwVf9pu0bj6SMCBk39q5Bj3H6iBA0jsYBHrw8bVS2Ufl4ysAC7qDUVfBAw4AEfNNxpPQSyTNBVqSQqSO3NFN95qQxQivBVxAnKTcNpKGTBz2KnEMiC8qcu3jE6SMqpj2GsztNt4D0PBRB9HMupzWUVlghM8gQHmX5bgZ87BHwoK4BO0s7YfGpwuPTwJyTgppYolCq5A7F6pP+hJMMgAr7IEFJ40yz7nMxeKj1ZLyABt2SwEYHIzXF0abEZ6xem24q91nfB0eiPDHqGGqDaX",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 672,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 155,
+        "output_tokens_details": {
+          "reasoning_tokens": 57
+        },
+        "total_tokens": 827
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:13b14a580fe645ee\",\"npc:ecedcef96faa6866\"],\"constraint_ids\":[\"C:6fb1533d16790d0e\"],\"span\":\"Ada welcomed Malik into a shared command post at caravan court.\",\"rationale\":\"Ada and Malik serve factions that do not coordinate operations, but the shared command post depicts direct operational cooperation.\"}]",
+    "token_usage": {
+      "input_tokens": 672,
+      "output_tokens": 155,
+      "total_tokens": 827
+    },
+    "tool_calls": []
+  }
+}

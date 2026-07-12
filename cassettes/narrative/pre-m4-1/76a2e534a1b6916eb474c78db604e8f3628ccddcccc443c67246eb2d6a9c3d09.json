@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:76a2e534a1b6916eb474c78db604e8f3628ccddcccc443c67246eb2d6a9c3d09",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3123,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 557,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 173,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 797500000
+      },
+      "created_at": 1783853800,
+      "id": "F6WZTnoVEJ9YBYBxr30IRMo/k4GCmzYSQB7A5OG6nYoaZsk4vO/A+EViOLgGMPrRoRrD/YFm9HaEDOXGLeihwluRX5RskfiKSsNgrEImaNKZ1mQ0GhAzJXVz1dO3KT/9E6iuNpFNuN21Dk9AJ2eBQ42Zg7R4AkkB9op/rffjXR1hgl6CDSOBUVHewIurYyCtaPuUL64imzgJJMfNx6RhPgUUXYb22LD1AJILWYXpjmlaLtmOmKtWHJNhj5miCrWBxMXWAzYoGr8zNwNgHFi/OufYSbkMK8BXeiQztwaz1FatB6IfpHEAaURFRkaVni9dDVgChMMLnZjx//lurhKK5cJ98f1loor6mo96IOnINB466Z9MSLsXXrFR1FUBnM2GpQOGUzf5IUfIDucC/c14q2LJO3V5dw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "z/uCIeSANKq63uz8EEd0Biu5j1isquFsYOXenvV2E2mSnHcFjifL2FkDK66ToVoRgyB8gsQ1WEDa0Oy6oxy+Sdv1NqNCb1aw0Gvpg8jdwZX1FN5vj89zlQQcBy/aQOplG5W2o/kPN8iREhhV1nhsql82tX8sfz8MoWB7VAKWkhaKEG88mAJlX9tpF4fnKH0MUv2jKCobxIyirNgRjmgvpgV083FPVCvmZLqxj6O8eLNzGGfP8qG1Yt1j4SICtSjHom9V8biuL5v66Jf0g6qLbltkOsl62p+ycGqk6AXaFtQSQHg61gbLGHVHirUTFQJmcZSSnoE02+LmyunduS4cWmE5gdjAO2+Bapiw8WzrATn0frepk+hzl3WxqTk2CRso5h0ZaBj5M8zZNfBrPykno4ziZy4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:5f8b71fc7a236f89\",\"npc:aca261855b5dcf8d\"],\"constraint_ids\":[\"C:3b6c8b018571a2eb\"],\"span\":\"In signal tower, Ada supplied Malik and called the partnership permanent.\",\"rationale\":\"Ada and Malik explicitly cooperate through supplies and a permanent partnership, despite Valley Rangers and Storm Company having a no-coordination rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rHTjbx4ckh+Yj+2Jhliv5iSwDzOlTjsCoWzYbopweVsLveqAQfdCxIeE0biGLIQjGvAx/mdRe3dBn4cuRYpC7RFE4ns8CjJNJG6FV7nn2qdw4vTY19hbYHM+M95rVZZ6sUpktOlN3WpYbxgQxnuHaPXxJuYm7zu4fBUvj4o7zh1EuBok+/I5HKnVp+WWXmbQO2BvhllbLn3adT811+rDbZJPJ893F/XysjhwKrl5xH5YXYz/41Kj+8Y/rTsJEVEXnGJEz3B2FDnlqactoW+vMmySiDLjYnm/cycMqM5pEBzw/zp7E56YffXlwLSP92yWFvfLMDi190B6Vr0siynDwXmdIGvSO+AbHISD2EAPoNGzNH7rM02c8SyzQT0DRS4HPWHeGJwGyG6553cbDooJKpkWZOaI",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 557,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 173,
+        "output_tokens_details": {
+          "reasoning_tokens": 64
+        },
+        "total_tokens": 730
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:5f8b71fc7a236f89\",\"npc:aca261855b5dcf8d\"],\"constraint_ids\":[\"C:3b6c8b018571a2eb\"],\"span\":\"In signal tower, Ada supplied Malik and called the partnership permanent.\",\"rationale\":\"Ada and Malik explicitly cooperate through supplies and a permanent partnership, despite Valley Rangers and Storm Company having a no-coordination rule.\"}]",
+    "token_usage": {
+      "input_tokens": 557,
+      "output_tokens": 173,
+      "total_tokens": 730
+    },
+    "tool_calls": []
+  }
+}

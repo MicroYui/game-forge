@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e57267cb130266d3d963e6d7a9b78211e516ca3540f76b201408fd1345871a08",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3019,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 665,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 180,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 872500000
+      },
+      "created_at": 1783861400,
+      "id": "qx58DqLkdF9W6yElvd1ldMiLU3fkrjAeJF5h3MN9Gxz3Z9L0DvULk5iTVckx6rCV052cgXo67uBmlw/FkMHAZ/0TWCI9ogc7IEKhUZlLjX6Uy0aUfj/4g+RZR6IuybnPShYtkszI2mpRX7THJ1hId/jhZnLFrM8Q4OAaZUWNOcoVYDIB0wWUQ7ARAVV33YkxQZe2TS1Rl8LA8tyjpOvYB/JJoz6pb2l0GPRsWZd04Fp+1Gp9iDH3NIPu3xpchdshm2XR69bhYfApGcOCuR+ySxF6TXzLcos45DJcrfJzX/kM/zT6Gv3oyvjH2EmZJWIefuKTglVG7B2GXiKccFVWw2vvp7A8Ezv5w7V0FsJWp6KeoNfp42klUyVeTFEdIgRMfH2T+8OGAoeo48Cg6UVuyIXpfG0fKg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "iQ7vcI+X4gbvxmNkshTsCf3oio6d2ZTENBo8PODlWQDC75xEfuxzVfnkhwE8BfTTR3x/3EVyw5wbY3N1KO4dohV670y7hIupc8gjlLRRE1xXHaffyld3qZdb9za2bABmbA3oXPQa2p0P+FNPpAJonU+05/9JeW/sKfdKegB+H+NjZHu4nQFwiyFLjqequRJR4ncT8DmUJkZ6U2kJXTp8TLijMJBep4rYTH1knBY9FxjtpNuv72SAhMixXgSZGk9WSCrfEvoJarCMn/b6bZSVx3qYTaUna6VQTqoMyfknFagFFWnieb5bProJMIZxCBnALbtIGb2myDO3vDl/gsZVwW8t4c+0ah78+B1gKNNgopaU2Wc0UvwkokTShrsyJ/Aay/f2QAOrjF/0q8arFgfYDpmaHBw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:0221c86564c2e9f5\",\n      \"secret:21d14524dfec05f5\"\n    ],\n    \"constraint_ids\": [\n      \"C:cbd8f8702604b3db\"\n    ],\n    \"span\": \"In observatory, Tamsin disclosed the reason the eastern beacon failed during survey.\",\n    \"rationale\": \"Tamsin reveals the withheld reason during survey, which occurs before its permitted reveal gate at departure.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kayQIYU1DqQLnWYbKHmXoyc4AsMLNgbw/Jqe85+zwOYKCrA8QMIznZxO4p+G3U2v4MmMvjvSIrrVlbPO+qUD5/8Hw0O3EMJmpNLGFl31+k93AbhRx0+M60U5jDu0udFGF9FkP9TOOqKjyyU8dZs9Xdy5vr1hJFMGDg+GY7SVdNSJM40jl6WoRrjAFXxewzbQwdfxj27MrEW1MUelYuWfdf9B5WK6umx1ZCH3N3a8CsFdiAksX7NazkUJalbNdsoyWWBYj0k1O2UwuMzbIORm8Akxzw373i7OTNykOU2QeuD5Jzg0SkXU7cb4bqq/Ckv793/unF82g1CHV4gdpPRpdSS5Yec00aF1f/NhhliQf7Yt0IJ28+KFK28rDr4OxeBN6ksPRU1Hnud+WCU8awTsP8u/ebSH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 665,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 180,
+        "output_tokens_details": {
+          "reasoning_tokens": 50
+        },
+        "total_tokens": 845
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:0221c86564c2e9f5\",\n      \"secret:21d14524dfec05f5\"\n    ],\n    \"constraint_ids\": [\n      \"C:cbd8f8702604b3db\"\n    ],\n    \"span\": \"In observatory, Tamsin disclosed the reason the eastern beacon failed during survey.\",\n    \"rationale\": \"Tamsin reveals the withheld reason during survey, which occurs before its permitted reveal gate at departure.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 665,
+      "output_tokens": 180,
+      "total_tokens": 845
+    },
+    "tool_calls": []
+  }
+}

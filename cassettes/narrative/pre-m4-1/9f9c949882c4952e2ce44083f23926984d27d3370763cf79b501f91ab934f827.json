@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9f9c949882c4952e2ce44083f23926984d27d3370763cf79b501f91ab934f827",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4740,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 551,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 258,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1049500000
+      },
+      "created_at": 1783852700,
+      "id": "yc6E9e2l1+0sFNUtfcewjn3KlBJ7KM8xxq8Qd9K4byxx8hFd8DY7zocF5ernRBX3bd6N0u3cnzplf428ek+PdUekpfGQ8nlpwzE0ua2h9L0QPRS5Cbm1D3HIye+3iMJoJkMnhxlb+xjsHzJYOM2tEQVaCCFKy8ase+ntM+/sx6iz8yoJAbWZaLsYlM0nDaVoYPUxZK6U62HoGb71JZslQrsDsex/C16WQzVJ54tofZtQLVPxBO6AjZeY5UPNX6quw2vyVQDfQA3Cf/OGh7nOXhqRw0iUiOc/sV4i+bi6iSBDRr8VQnpkUtqGr7C9/p9E9vv4c/yimwc4ZW0jjTK3CPRxqg6HP7F1X50UM47nPzxBp7U7x+HupDogaOXBHF9DnCPJ9fSsH6KNU29QTg8SVekFwGogLw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "qvXj7vX389iaAfGFxJNbtbZB0uTACc/P05kFfyiC3A2vYGmAJtBKHZnkWvgfwx8MJfT5PggsC23io8rstWQWcyW14PSv5UqnLumfdn/SiWyS6SlMGrGcULON/bX2Ak8Sydjp2xlaZ50YPb8TzFEdrZ0JEBA2hiVHPzXP4TcO4PkdznZ1TBqs2Mw77Ze/NxZ7zaMn1XcNPBZJxf9oeigDJ01O67XkYUKMwQHUfZfdKAWq+0XfRmQqBhRnL37GzlzTmsfRK74ztUH5UwHYe6/ljS2aFHHoy5mYB3lLCGZdgQW3vljO14GbWWACzR0mJBaJ76Yk59mzDzbM10z0+2EuERpVISrcrLML2ZvL4sCIl8nZBPOTKuaUslHtTffI+ROaGF3MHmFg8CZlTNDLw+1sNKVKlkQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:445edf6f47102131\",\"npc:ea70f78bb6468c72\"],\"constraint_ids\":[\"C:a4127554d96c8a07\"],\"span\":\"Ansel signed the register as the First Navigator at relay deck.\",\"rationale\":\"Iria was already recognized as the First Navigator, and Ansel then assumes the same role without any relinquishment, exceeding the one-active-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "++pBis74U46XGyWtig18ovPiNXCGRyTam5WAorZgSCnqwiHamw2ex3bmbPszyI9I2ADHfXZZg4FDSBNvphDh+PqGmAn80E7RD7Qq7dgCEfWNJPEFAONb1vpWrK0stjVLul3YbhFcpPwnAGhOhNaZnnBwJj5iGSRjMSvZE8S5PTV3H0jX5yO9d6K06b3X+mylhfsL9WhT5GMD0NSmp0LKlsfzG58fREhOZ0VnhR30b0991j7gnWUOfIg8CaB/w5Q9/An/QhP/Zjj7R9AQG9B4W30IZP+2x5tY5LN/8jgNDQJSYCuwWBFfT18dG+B0vf9q1QXE94keSceM41qvz1Sr8KHoh7tTYhlF8MD8E74KGH4RKPCNU+F7NpM/S59hVyWNCatLOGL+eHY0DIXFb24/W2bzxo4/",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 551,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 258,
+        "output_tokens_details": {
+          "reasoning_tokens": 149
+        },
+        "total_tokens": 809
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:445edf6f47102131\",\"npc:ea70f78bb6468c72\"],\"constraint_ids\":[\"C:a4127554d96c8a07\"],\"span\":\"Ansel signed the register as the First Navigator at relay deck.\",\"rationale\":\"Iria was already recognized as the First Navigator, and Ansel then assumes the same role without any relinquishment, exceeding the one-active-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 551,
+      "output_tokens": 258,
+      "total_tokens": 809
+    },
+    "tool_calls": []
+  }
+}

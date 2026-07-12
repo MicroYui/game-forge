@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:12448e14caacf387f056605bacfb6f9d1cb48b62f743649e60b82c71e357221b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4562,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 562,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 179,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 818000000
+      },
+      "created_at": 1783843200,
+      "id": "LqGk3vzOlySgXCQlF9joQJo+BC/45NmOcWZLDWSwZO3JPWr82y6bFW0wxZjI4CI700pVWC/MRTTC3RG6LSdul2VRjEDC1eGfk/EnvVfn7zIWUGZxyGARAjVhKJLj8hjTLjrazvjLwpiIsrzRe3SGUU5kdemqJqGwf1kXki/ggLDEZMpb7ts2yiyhEM6gKID3D/5UsOgbI+ThW8gGnu3ztO22k7Ppcnrz/Scu3yJyZIE4dt+TTA0tBBiVbbkpYBmXkRDQvfmGzqCFejKlHCpNeJl68eX6w8UU60Lf7SPy9dHR1o9i9/Hny4iqYnyWFQ08NqmViy6g/DVd2UpIT4yYiqvfDTBAyny2/uON0nhB6EZRbN/BaPy3p0e0gsP3lqRgv7M6axY5kYtjwoOiAw4XfSx8lahNrg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "7D6zVcTCmKRY9MabaICFkROEuLc6UdfLZkUkiBXuhb6v5maSmB4xEio0PkI0Iqih6a96rMNmxrf2e0ZHQLr6NPw8nft1t12YEBEwtJVqHveHLncpJPV90IdqGjGlaPkMGISb6gTXQ66/KzVVM2raqQjEvuJQwNkKlGc/wlRpGByspG8lSDBUhLbE6FoOxjVUdP47sPcIGI5J6bbIdu0PxEOWAy7GmdFpA+DM/ma+PM61DiWfUASSPZcVPyMM2q1IA/tUuTQX7pru9WV//Dr91MLe2DUxq5eg7ClM/zEPhrxdxwWxGnfbGSMRiKN5n9bpevzpgHN4gnuCtMWLlY61H6k2XgGWN15uA2uSaESshZdnbuf19dFvwBB/Z/Wu+tT1y4a3hUi/XK4RAwQUM34tKnxc8ts=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:41092bd9035d1ebe\",\n      \"npc:7166e1626222bf6c\"\n    ],\n    \"constraint_ids\": [\n      \"C:a644ab906e45c942\"\n    ],\n    \"span\": \"Tamsin fought beside Eli under one banner at cargo ring.\",\n    \"rationale\": \"Tamsin and Eli directly cooperate in combat despite belonging to factions explicitly identified as enemies.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ifO0DxIDmOkyaOA25TFg69tlUFJ/1iU4Nft+KlLeMwx7Wjf4L6UHZhtjCMw7M3d6iKZvzegVQ+IMH59bOFU0hIX8hBdaDgnFFXJVuzWF+KROmRGhQKS8q9Hx5KR+XP6oRteJAyFuzWD8rMldWH0VXiz1zIuG0NzVMAo3xBkEXI1Tm2GKOnKxK4taJNILb0QrPskcXuepDn4PXBSfSHhNmEuenzVJeRQZJA9H1GjDrAS3WDlZOVevS2v5ddMAH/Dr2KL1g4qx1NcBS+LMxpvAYbCOTUNiPUnJaQ0zmCbIdfj0si6u+AoJx+IH3Eh6XRaE7NEWRsvw0p2Unqv4mn2T3vKK9O6omZ3GCvagnP61kV8O0VRSMgzys0wHDpypY6oGxclmEx6vlT2RDYSZUOoA1FwVeL5T",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 562,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 179,
+        "output_tokens_details": {
+          "reasoning_tokens": 58
+        },
+        "total_tokens": 741
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:41092bd9035d1ebe\",\n      \"npc:7166e1626222bf6c\"\n    ],\n    \"constraint_ids\": [\n      \"C:a644ab906e45c942\"\n    ],\n    \"span\": \"Tamsin fought beside Eli under one banner at cargo ring.\",\n    \"rationale\": \"Tamsin and Eli directly cooperate in combat despite belonging to factions explicitly identified as enemies.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 562,
+      "output_tokens": 179,
+      "total_tokens": 741
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:30b1f7f215e18c6421a298622068b214573f294df4c18ac0cd8dafea24d3d8bc",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4078,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 647,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 194,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 905500000
+      },
+      "created_at": 1783849500,
+      "id": "WgiSMc9Eh3P1QSB7hfkQMDrhaH5zEZM5kzht/HR32BOIULuo/Uyq0Vn5h3RH0BLwWiaPjpy29F1lBmfwKjUUUkONO/Sn9t18FdylEw/C1zh++EpcyRy1+gSvl7r6wwO7dgdXovW9/i6nTt7j3+RHomCn9xE6iG9dox+2UdIIa4dP9EQaZXqlx9cpH7basBuiz41biQWaZ+tnnLEish79cqKrsYZFRCikAjRNc6zg3l6PMtulHxmgijb87zbDMA0N4W2n+mbFR5y1yDO64Jy4HEYBaZSbQV816SYiD+9XNMQrbt/E6+JBPWmqWzuYGG5Z6JJ9Os/4mMn2gq6AdKWusHb7yisImv5/IQZjDn7nLwuffW/7TfiqTjkwFBz/inqjRiBqhPckbqsXZSq2enHvFiM9bRJA6A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "lNTU5fuhPUic00r+jfpkO6036Na2wqnGhN6aqVsihYjsCwvrcpD2qpugrpV4HqWylgrPdslh3SAVSUukUWwEgWC9VvfXDgNt+9T7QDu00tEZtTPuTxNiiIcOZKmYyNsCHlwVPj5tv2PGAEeUwM+NMWqrKcuovb1OsxV5LpO+T9qhEoDRx69j3i89Q9myIwZOzw3XmRz4p5QSymQ7vD5Gy8w89RTBZpWJ300XVhI+Cef8PfGx2kzlo6tttF0kcA42zUA+ZTAHsHiPBts9bIboaGokt3ZrDA/j9U292u3sqSqYYpHJlfoPxIZlIHsPI2sJvv/JcRLE43OFFrZ4FHJvcHdp1tiki+g+G3cLeBG6tTLfg0H6LsN6wcQa7ef9yGL6dMFaTfzq96/JgRRoh0PQEYviXBU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:bb555392c68cd52f\"\n    ],\n    \"constraint_ids\": [\n      \"C:bea03e7fe712a913\"\n    ],\n    \"span\": \"Mei redirected the shelter convoy into active fire near orbital concourse.\",\n    \"rationale\": \"Mei deliberately directs a civilian shelter convoy into active fire, conflicting with her rule to prioritize civilian safety.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "YqyPVsWGAyhQduwpsgT5lUCC2gurMQnIpPPxj2plu0hmW/H4v2gOzXqK9Ns9YDEPQQV5l+k99G+8upPEiYqS1crjnS4+QLdbDUcdm9zpzt0yzfsABI/fRLxhmhOyQljnPpBl6luDR9QnyfG9L2yh61coQ51UZMsuFQ/1Syb4zeD5s4vcVxDBQ0yOBgkOH8X3aXhEADu5NmwE3Qu6Ysum4/pRYYrcZsOhml7K4LAp1WlUh1BxoPjLHMBm51+s4i5RIV4eSImGPFVB7Q5yO5EauZCbCCP5DtEoxpmWaYYa2SQOOpX9+aM6p66Z+Z5AV+015JuB276DVxn/6wAh1ca1PoFKPvO4jQVPLrEiW8JStKAsLtTleWbDXhsn/A8e36JxTQO7+9TOLSdnfEE4oYhASpFAVA/W",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 647,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 194,
+        "output_tokens_details": {
+          "reasoning_tokens": 83
+        },
+        "total_tokens": 841
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:bb555392c68cd52f\"\n    ],\n    \"constraint_ids\": [\n      \"C:bea03e7fe712a913\"\n    ],\n    \"span\": \"Mei redirected the shelter convoy into active fire near orbital concourse.\",\n    \"rationale\": \"Mei deliberately directs a civilian shelter convoy into active fire, conflicting with her rule to prioritize civilian safety.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 647,
+      "output_tokens": 194,
+      "total_tokens": 841
+    },
+    "tool_calls": []
+  }
+}

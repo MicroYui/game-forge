@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b3c265c92184e69bf442bfe98f1c145b882eb1ab1475a6f05f75a2e4b5a9ea5c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2939,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 619,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 155,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 774500000
+      },
+      "created_at": 1783862300,
+      "id": "f8/UuZPvpRQARlZB0b4fX7PNwPyxdebah9qpjqkIT7T3CEh5lpxb0523gigwU6x2Y35dIk+9MjRH/JsyrSHXjiUYJLv8nvbYEjHDhaQVx+6N1VrRQd8TEILsuB+187GEBwLcw7f8T38d4urcIAWBlMhTHmwt8zY8JAVnRmy11kpWa7qJg9cCw7ak1/Anu7acO89yZPncBfxA2csc3frDq6+e71T8tr8hX4BGpAynL9Dfmz79HeR6o0xj3GwNUZXHSE6EodeEXitV9C9wOrEFb29wz2p/DNTeYeBIIJsbwaWFuSOoN+ugCduE9/mWjOGPbwkHD13B07iYf+BPvhhTcu1EIePJTpznf5h136hgq4xeZVMcxlLuFKZZPQmcD9JZWOIHJd4nC2HjjNMiZfRtoSl3hwGkbg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JTiWOI9q96fnQeRw1CYa9eoqzjAoaqlAzfn9VCF673TEV7ObBZUmtkGb4YzTg+fdPYSoY88ltlj4IGNnwAI8wzI5It7/1g/JGWnq6zg2RO1xgg6bI+EG2uoB6E2jrA84GNuasyRkTwR5DFWXodY/wXRZhYxIh4zLCTj8xlt3A+j1jW/XH03xEqLVoMgbT98Uoi3dvY4ovza6BrjXtFglK6tlP7EYDAdqsU4YMZpWq8/AYu3fEGw8b7QBffZzS7PrK9yIejq4suKZZFwbDvvcS/62a3jMRr/hs52JmrBC2202zD9oFjhINfNg43+tvcFSJdZ/tyVF2QW55coSPOCO8OobKAGA8wP/IxPp4R4ajzVxTMABCU8r/N9lqbODugzGFg10TJEdZtay9JvLwGrP2ozP6Ko=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:11b2238ecf744b41\",\"npc:d5e5786dbd34a7e2\"],\"constraint_ids\":[\"C:5f752b04c91d9abd\"],\"span\":\"At cargo ring, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea serve factions that do not coordinate operations, but signing a joint battle plan explicitly depicts operational cooperation.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "H9deklODEGec3LMHxFK3r6Y41or8khA9XdCg8txcZILfMig7QzV4NOlSM0plap1/7cWo/TbKZjC9z5y3tt1RDjScxNNxSMfCz+mJoy7ThceX4f/ZjS5l9cF4/YmktwnUnWG7pS/YompKBQld8FxFbPH0GKdEvOSqA1blzyVTE/mOs4ulIdHIPABgiVTCmnBIlWflAjevhFpu7+AdFWLwiwJmI5n9DXF6k01onyyEqCL6dFoTLfnRvEiE3296FlBLpcU7LRjFhx5tQ05bPX23FpbxErSVRshY0sC6zQ3Z5DyyTc4z/Taelmf5MQQmWNU8b6jUcppFI8qhm7rneEWdSswYE6qPd7k+L7Yf5/hKRVZCNNzDTceCdKfEYi2tXOdZea13NAfnooRxOYY5lrs2Gy8P7dNt",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 619,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 155,
+        "output_tokens_details": {
+          "reasoning_tokens": 48
+        },
+        "total_tokens": 774
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:11b2238ecf744b41\",\"npc:d5e5786dbd34a7e2\"],\"constraint_ids\":[\"C:5f752b04c91d9abd\"],\"span\":\"At cargo ring, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea serve factions that do not coordinate operations, but signing a joint battle plan explicitly depicts operational cooperation.\"}]",
+    "token_usage": {
+      "input_tokens": 619,
+      "output_tokens": 155,
+      "total_tokens": 774
+    },
+    "tool_calls": []
+  }
+}

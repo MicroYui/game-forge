@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3a74e103f187f757ab2e8979edae0173cd0abae1d20ec510d90c0a6274967ba4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7150,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 642,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 331,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1314000000
+      },
+      "created_at": 1783841000,
+      "id": "9NM/KGn5rbbTQ5e26JiT632GDEQQCdiR9o7SgX6vJrPSfnE8ylGoRbsdhf93BjxLZcMlLS+lusn4fR2xj3CmNqIR89LnR3hKHbBmFvRYrQzc1CT+yv8pSxMkDiemeF/i3QRwZr25jDr452p6Dfle1OoiunQN9SMX4dy0GVk0NTvC8cPSMJ87emXX2RTod0lCNP1vQxRwxay9Fj6Kb1Fe+4744nxylWH8ECX3t9KwvHFGzaQ8MuxWXYRC/JBLxcgpxKuRiFrCJwx4vuFKx67o6zCHChJdhwNxtkwWxXJTFZl1nhfMfNQtPq9fAvJ97/gWmMcC6xJFVO8n2mXEo+nJ5bLATukqENEPttF3JSxQDmHDNbsvq/K9HcS1benhzyNcjWu4bOzjVcjkjrxklDo6xUdkJyzZJg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "IjCm1xfWfmwrJLaJjI5fDIh3IEl4/ZMlsSKtYHfrSvp3xlZOAWfyT2JnWA1OdAucTuM7l+JpPi1hVQOwgS1vwhJPFEaCCaZ9YQpx3sMMXVxY6I9EtK0lVXegZ4zMG+TjA1YyCEzP1/pVQI8xlx4YjWCyeKTLHnjv/KdJDqlsrycOjGAB++/f0sfZCidT9ELlZpzHxSVMxfWYa9+GXPLoDZVxIk1oifA7E+RKWgMgVH1G6ripcNBxiXrscznkpfUHGjaXi9NwL4WXyUjatkJ5Eur3P5vyAkkl5CcL60goZGFZIBpTw6KSnA2uLIFZqHQu27h6LZhjk/luafYtoQhFrbi5u5x5c5FnDwNh2TFMJUcAbxvT2aiykl4apmU9RMK/ndYUYoEqgjBUdA9YBFvFMIPQ8O8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:d1ee247d8240512a\",\n      \"npc:fdc9ca53dcbf5796\"\n    ],\n    \"constraint_ids\": [\n      \"C:388abdb6c11e838a\"\n    ],\n    \"span\": \"At glass conservatory, Veda was formally introduced as the Beacon Keeper.\",\n    \"rationale\": \"Oren was already recognized as the Beacon Keeper, and no relinquishment occurs before Veda receives the same role, exceeding the one-active-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "lpigJ1GVCpLwc8WAnMzDH0BLUDaYsrGpKvx+j4IUkn2L6L+lfKXk5BXN9cwKREotEF7HMxPv/u0E+EzqUjsZNEqgMlZ8vXjF4PR51QqfY4kR+iGPNH4IUrDFpKNTo7UuxHAuEgXPt4hmYqdktlkMuYR7GCeXPpPzNnvdSbbSV3y5QSSQVpgKaSQJJzvoDczJu7h7dhdGoumPTwhNTauYQ0PnNjCk4U9hMy6iHshVdErkUMDA/dLk77Sy2iEImvZFhTkiPDrkFQnZkv6p4czpHMk5hx3hNPG6uVYAQafyNLDoesqqX1W3RTjMXPyhzwQQ0kQYs8Dm/B1mysiVx/l6GXzYPJ5RruCuceC0VXSAxJug9Desut3tAHmMJQnX8vbB/7xMGYM0HRsIN0l1uwvySy35LxP4",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 642,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 331,
+        "output_tokens_details": {
+          "reasoning_tokens": 192
+        },
+        "total_tokens": 973
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:d1ee247d8240512a\",\n      \"npc:fdc9ca53dcbf5796\"\n    ],\n    \"constraint_ids\": [\n      \"C:388abdb6c11e838a\"\n    ],\n    \"span\": \"At glass conservatory, Veda was formally introduced as the Beacon Keeper.\",\n    \"rationale\": \"Oren was already recognized as the Beacon Keeper, and no relinquishment occurs before Veda receives the same role, exceeding the one-active-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 642,
+      "output_tokens": 331,
+      "total_tokens": 973
+    },
+    "tool_calls": []
+  }
+}

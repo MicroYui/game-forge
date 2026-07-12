@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:82232751fccb119a2bfb50b4da06b5fcac4e43457a7103abe87ca2e5224a88d4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5870,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 653,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 200,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 926500000
+      },
+      "created_at": 1783842400,
+      "id": "cmdWRN7FDP0BYcmHyJW28n7u1EJc222tcK4IULVWnKcO56qzjvn+fTkOinWT1ZEocmZpRYBMmzX1No2lT4eVyo2rN3eMsLIFS2Zu7MU7hoKukx+sU0ucoKtLgfMnd8ttbF5fb6kiNBqkOH3qf4bgiCYXXIkUehMO9aHJ2doxn6sOm2477od63xchlqVcZv0Lsg62UoC8VLzrzcWK6sLWryCTgdE07VE2BYWAoYo/eWArgUQWL5+mGeTaUUpsVxdR2PxK0dOwYKmXjsdF1xutiNs+TZaordrHsKS2bL77fhg+irdyd+m2/0BLzWQCObR4RtuceC7nbuiwhVtbj4+EG+6Z1ET5TzEcSc0njqlIKYnsf45k/Ob5PaJYMzKx9Fo0/XzXH3/KEGLjha4BK19ZS/JNQF22YA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "xUNdQJfUkNNKN2OT4LcDx4IS2z7FOSFmOSiYlFYr10QPHk/xIDrTnRe2VgJe9TkF25x0XNYagW5VfJnMfuPN7rBFFt3e21Wa1m+XDkTik/GJPjIzQHKbXJAPIEBgggfPr7ZnYKAizm2DOSUoRY8z0F4gjy1Q7sMzDvEf1TmcdLGkZNBFCVKQktZ/KgAdGC1qnE1q3czwtWHRS1CT0PwFjhTFcrHZMZV+WRcxbd7EwMwesxlS1u9cYJYm5IXN2gY1I5PnBNc214hfy1rWROsavoQGR9DXps3qJpa/L5YXj9TMNeeIRei6Wp0fsexH7MmbTdmdf4c7p87KqFIsSpZ8Sv/F8W/wT/I6CoITxFl4NnbAmNJktqF0plLrDjRvWqhy6SmRxKfeTxaXdE/FonxavyTjiqk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:b43ff0ebbaed64a9\"],\"constraint_ids\":[\"C:4dde7aa1fbf2d751\"],\"span\":\"In signal tower, Ada attacked the messenger before a word was exchanged.\",\"rationale\":\"Ada uses force before attempting to resolve the dispute, directly conflicting with her required approach.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "L2Qf1+Y6tB9uiXQFM1BHR7z6HNOjhi0HYCGnPlCtW+yAISJnMGpcDqIYu3h1i66FButeBhh+5Vq3fNTBAYBrrsAhjwMR+KQl39pDWSykM0WawmjDakvGaAFipG/XZ7jenrLAw646lyid37gEK0p6t9vPz1Tzy8HLX+/9FGB2WjehZ9ESgI+wDq2IRQgcH2qu6EhrQUnrFBq2o9kqtI+E9slK3Fh1qcBlV1JFZlSgOAYTtD8iJdD0wfDdAh7Q34IZ94Z4vgeBfiWbnSC4nE18gkElxm9yeI04i0UD45OI20QeWJ4BdVhmznv8K4IWKuWJ2oHQYdgPVnO1Gb9RZZo5soVtnhAk4Ta3fme2U+OZGwI2dBFucd2SiOBNTzbt87mps0BfYWNOi3JrLDZnnvu6XCJBs2je",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 653,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 200,
+        "output_tokens_details": {
+          "reasoning_tokens": 114
+        },
+        "total_tokens": 853
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:b43ff0ebbaed64a9\"],\"constraint_ids\":[\"C:4dde7aa1fbf2d751\"],\"span\":\"In signal tower, Ada attacked the messenger before a word was exchanged.\",\"rationale\":\"Ada uses force before attempting to resolve the dispute, directly conflicting with her required approach.\"}]",
+    "token_usage": {
+      "input_tokens": 653,
+      "output_tokens": 200,
+      "total_tokens": 853
+    },
+    "tool_calls": []
+  }
+}

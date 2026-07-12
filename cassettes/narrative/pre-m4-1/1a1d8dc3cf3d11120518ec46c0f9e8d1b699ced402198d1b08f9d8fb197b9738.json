@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1a1d8dc3cf3d11120518ec46c0f9e8d1b699ced402198d1b08f9d8fb197b9738",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4689,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 575,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 229,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 974500000
+      },
+      "created_at": 1783861600,
+      "id": "i0v7+4WGpU6FPb1DbVZPAloJNnjLTZXZtqypNLTS5kScxNR+YitisHsEtKX6dxr4kL1Cg2yWd+adSHkClIAEEPmJMaRc9VV/VXW0OD8f7asXCy759vS4NxzzsSJUjn2+bXm+K2XJg2HcCakAlo+8AG47gHg7ia60/19RJscKCLIyaAfChbz9XKM/4sSQrCuPViSRzTYiolcoUkuB7Dlb9L6BdWSxsmovMqkkDOzaNfptCuzZO2wBuea2+BB/t+stc/hCpB718TedL2oNroMZz1lxieAGjjGW5TsZvH/ahNg/1hOq2mdvQaDJ2p5BJJRVLqPLSFmXIIXK256N2EUI+2YuUTdAc3BG06lzqTl4AMJg7P+0hwTbY56YJwYv3wwR8qFDhlGZVqPcH0F+qEhWBexv5fZUvQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pgnAMWM5cVl+0PTaX/mdebVG1uE0Z2SCOrLzg3HuQVlGNbc+NXMgmiMszI2bzi7GiJ/VJ01qOhsGEXYbxSRanng1WpjnkayWWtsXFOJmoRHusDbIuKQievQceCATvQhTwgQSYjdfXilL4Ym/pxdUyoAo29pX6Rh8OwQzdtiuA5e8g78d8JanudWgwRAt16+Yc15aQeGpzQIlP6NadPEFX0RamfnwKQlNimOYyXX7/hJ4+unM4vZ2Ifbnqw/OSmazByWPXdgQXYN72Vr/ff5qe0tyYQb9GGMfc7uE15HuCJ8y58SlC+QX/p1Ro/wyDnxULk1mBpuz7qhl1OOrj2FC8v3ZxaHoXkCviZC0rX7G1kefrm8Cavk1weMB35zSWSOZMloqDeSyULHuiFlG7rPpXiDik9k=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4f5b5ce0852277c6\",\"npc:750353cf44d13468\"],\"constraint_ids\":[\"C:4c3f28ba31a9c782\"],\"span\":\"Malik signed the register as the Caravan Voice at north gate.\",\"rationale\":\"Ada was already formally introduced as the Caravan Voice, and no relinquishment occurs before Malik also claims the title, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "0rBr/O/xFXIo8b8w+7IgSpwTEBeRYRUP7NMVTp6yjAoLKRotWFfGu9lWnxEMWzwS7ev5TU8jlYvDoY8rvXIvf4cTBz93gGcjnqQBN1w6EI04HHMz7UMptcR79t5EiZHBLjrgRh4vqZfMRUMOE5wDg9at+CHuA3gMAbCPXO9h4Idraf0fqX4IJv+K0kw9rVuHc+IO/5U5uiTtcBeW9zAj2Hl6ej1RvlkZ/dCfYea8BPZodK0AlhmHKEgbZMbTvmjIFUSdvFTWascGwc4KmejbBEO3Y4l0DV4q39mp7BDmr4sGUKkDoieukKzF32jDxOS6xHhQJH0Cd2xZGoje5B+zEVxL/EJ7FmOqmhYUXjzt8/r+ShjYIynKcHKrG6pznF9RQgqgpLKYEOE1p/ER3oWw3s438u3n",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 575,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 229,
+        "output_tokens_details": {
+          "reasoning_tokens": 118
+        },
+        "total_tokens": 804
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4f5b5ce0852277c6\",\"npc:750353cf44d13468\"],\"constraint_ids\":[\"C:4c3f28ba31a9c782\"],\"span\":\"Malik signed the register as the Caravan Voice at north gate.\",\"rationale\":\"Ada was already formally introduced as the Caravan Voice, and no relinquishment occurs before Malik also claims the title, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 575,
+      "output_tokens": 229,
+      "total_tokens": 804
+    },
+    "tool_calls": []
+  }
+}

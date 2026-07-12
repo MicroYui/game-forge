@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9dba61265d2b21d1b6d98d893dbabb710d27755a21bfdfe005430ab54d56af5d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3997,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 570,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 196,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 873000000
+      },
+      "created_at": 1783853600,
+      "id": "dzSC66YNOlSCnpa0sAgb+yNybgEbiurLstSbQfvIUXKnYcbk32QSiiiPe5XiF9JE0CGdawIKIP4+r4a9XitZTz0lt941sYV6KFdFLT7AF3LNHIJDr+007JKk+WB0DkRCo8xbHmN2ALUiEw/Us97bSRppJGab2m8/nuaTts743PqTDpZLZsSvD/9U8nqZoPhL/iC76PY7wTWYn31papU8WVJnBhWLnZuBIFqOUOaNrpnfZoXq6Br29IVaef5IydBn2CTzpNqLAgDhZqVMQIFzFrEXnc8qDJtDwj1ROSVjkOiJNwV5y5b3cHPBbYHLJ8FH+jotqUT+x4JwYwJKztDCjRFUSDZBvO10nk4T/nz1ECVFdfWkJwvTID4kd5gALA1QqnepEoRfdkZj6drC//BG9W/2kKpd7A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pCi/njolBptGD4msie+zkrDPggK19ikS8/O08uU2w59ZVXOeSXbYDROSVQPZALm2nrgM2PQLGarDirjnHTu5l5EVDbi+JY2tFwMO5AOP8ClWFZDPWAX47i0SW3VFrpAZAFsVoguAnuuv6UCZWe3KPkx3FQuju7KpNkWwErOXG4CoR/70CvrzVrETrtQbeO8DOjZ4r/ibh8+1XWpiZpypsNEIVx6XNrE+ipoNr7Hcz1UB6u27vNwR5O/EhoSzBfBvZrEGGgTyasDC+4D4BQt/EJKTZkkOENt7dRxRZb2yz4NN65iNMLhZ5ZRQiaqFXjLqk9sUClhLAhd0pchW81KIYYQ6heq0R1a5Mcobf04Uxtek+i790tk7jYbHnlP12istQe80wewmgyXmQBu8MMrT/cB0tU8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0d1712e8e4e32bf4\",\"npc:3f4cb3177a69c5f2\"],\"constraint_ids\":[\"C:c4e6658f278359c8\"],\"span\":\"In caravan court, the council recognized Veda as the Archive Speaker.\",\"rationale\":\"Veda is recognized as Archive Speaker after Oren signed as the current holder, with no relinquishment stated, showing two simultaneous holders despite the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "mfottfpOkE2k3VDPufzvGFennV8lkrGs2+uiwQpflvLQXpW/fId184V3/buh/SDxXy95Znv1rv1oKGrS0K1pCtDnVQECgQyReU0jP5CuLv8d5FJihYT+O5hzOwWhCa75Aiik7nhfNbvftHusnWv+5cDFS5bZrMPqPfviQpPrdcPBWkIT63xmNx2zJfxieMQQTqY1VOtqLG8Gp5djeIARtaeh+TznmUJKmhNEGgCnIoOjro4EXQx6AAuI0D/oeCim92KpJ+cWpQb4QNzrp1AFq4CpRVCuvw2O0DWcO1V/XVik3tgKzL/UIKdA/Ti1X5xdg+j8TePhDivfTL2XB3bYxOmEeVbbdi69aLv3NkobYzCIAJuG9bRkXOGAM800vLjVdBSfMnWvNuunV2ZnlaOt2+jBvIqL",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 570,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 196,
+        "output_tokens_details": {
+          "reasoning_tokens": 76
+        },
+        "total_tokens": 766
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0d1712e8e4e32bf4\",\"npc:3f4cb3177a69c5f2\"],\"constraint_ids\":[\"C:c4e6658f278359c8\"],\"span\":\"In caravan court, the council recognized Veda as the Archive Speaker.\",\"rationale\":\"Veda is recognized as Archive Speaker after Oren signed as the current holder, with no relinquishment stated, showing two simultaneous holders despite the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 570,
+      "output_tokens": 196,
+      "total_tokens": 766
+    },
+    "tool_calls": []
+  }
+}

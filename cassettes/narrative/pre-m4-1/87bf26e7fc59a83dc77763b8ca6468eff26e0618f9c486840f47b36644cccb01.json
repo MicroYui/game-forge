@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:87bf26e7fc59a83dc77763b8ca6468eff26e0618f9c486840f47b36644cccb01",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 8633,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 690,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 340,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1365000000
+      },
+      "created_at": 1783844500,
+      "id": "CJGx2g+flj9XdmMZ4XyIm7HLuWeCVa+QNyEMvujppTihWziaHSD82cNWJ4+kSvmz/sNWEwN28lXYQiZdevPgf9HOqs6GiKRp4RC4hK7YIQZI7OP+JpZPuQSsM/US6mBHARbFtdVnvVi6hfo32O82hLYGyXN0eMUvNqebUqNTUrPi/ShCIbxAxKwoty/27aTdhPgPBRFlWtySBeBdeRDDPWdFWvXQ/oAl8zUHIhojz0LXzhBYynoazlXrQ3UM9Zacg+FN+d4qe59no6pxRoQlyVhw63Q5d5ryL1bVYuJhRzCC1zqhMMCh1nBXDSHGkOZtQz3BP6K00vKIQx8jTq/2TYZ5P+JuyDbclwQ+RCFyil5aGnr0TNNqkfElmlnjSmlCdXxvTHIcHrI9SdS2HEXRRkrXQ5AuOQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "73mP5PG2yoi2LR71NTMq9j7r7dizqq9VdFptefSy1RqYyZvcFbleTWSz2wQivfLrdNAJUPVyini5Xn6XzzB8fysNm7x0jMlLowIEZ8yzSA3LhD/QHVDekx7QBoGW+K/iL5EPNKV5+/25Ou0ot4EmuFyetbWbfNncagYk2os/eKGwWOxOpOb6x+xX1GfEte4Knxjw0Vw/2wp0J5pyk58qm8Y0Aw0l9OgJLxYKpSTqf7RaVhZewnDXirA6Oi9OnYzTe59fXD0FzJHeHBFNysgbu36uti1Qa0ECWBPuzw5ECysUE0/0+Z7oCHg1WIo07wlOebFHsUHa0FTo2bcJhnrsFLw5YwC+avJJb/Kvebkl5+CN7lloNL/j3liA+vtC9AEKXABDycrysCWMpPbXHDtN5p1smQk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:a5020ad401809b86\",\n      \"npc:d65120b76fe04196\"\n    ],\n    \"constraint_ids\": [\n      \"C:b556a990c66afd91\"\n    ],\n    \"span\": \"At orbital concourse, Mei was formally introduced as the Vault Steward.\",\n    \"rationale\": \"Mei is given the unique Vault Steward title after Daro was recognized as its holder, with no relinquishment stated between them.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Noij1cOQSOG0cdz6eHSFi09SaKpy9iaACMMxymD6K013zudRPGSxx63Txtgbqs4T1ynJcB+L8LaFBZ6ZDwxqGk59q6kEq7LeKKy7iw4uf9BuNFLaF4dzC7hcRtI7imo9NrjU19GwjfTAcxRA+SXbvXyLLBlCOoeyjdFegj43UWntEiQEIzubQAE9B0Pc9Un2U55ZEHmBMjaNyblG8CJWeB1DozCYW87HN+ps6LvJavxPVoO84bPy5w8IrWaPS/6r04cepmzwEu/+23pPkCNzr7y/WkdVPc4XZqoKXBX0jXULR1vs2VTH5zOl+QrH4wfeIQpcSQa7EqbIr9znwTwTSed7SfXhy9Dft0B5NVjwtuLeWRita4iGKIXkdDDxPL6sej8Hf+0+tJlBkjKtrLsAzBjJDLlK",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 690,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 340,
+        "output_tokens_details": {
+          "reasoning_tokens": 212
+        },
+        "total_tokens": 1030
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:a5020ad401809b86\",\n      \"npc:d65120b76fe04196\"\n    ],\n    \"constraint_ids\": [\n      \"C:b556a990c66afd91\"\n    ],\n    \"span\": \"At orbital concourse, Mei was formally introduced as the Vault Steward.\",\n    \"rationale\": \"Mei is given the unique Vault Steward title after Daro was recognized as its holder, with no relinquishment stated between them.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 690,
+      "output_tokens": 340,
+      "total_tokens": 1030
+    },
+    "tool_calls": []
+  }
+}

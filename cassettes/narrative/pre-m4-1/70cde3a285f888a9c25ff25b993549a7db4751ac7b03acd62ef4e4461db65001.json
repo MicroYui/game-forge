@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:70cde3a285f888a9c25ff25b993549a7db4751ac7b03acd62ef4e4461db65001",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6510,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 619,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 198,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 903500000
+      },
+      "created_at": 1783844200,
+      "id": "d72AI5T67LqE9tTou+i1h9/hAtA0r9DZAKtC6eFPtRXQdrDcyCb+8X8/D/JcMAjPsSLxMNDEjD9UykXsIDkiZWvUq+pZlUuuvrXizrPEcu5vMCGsb7ilnDuXgPufhgQOGw7ofN1EFoQflOnfiXIg9mze6maANX3rTbxV+O6eoeuvblq3NaJ4HWFpAQgKkH/kOvf0UfqfOAr1Pl7r1SPZuIs6EEj53teWkXx6H8GNGbK4GNLAhOrx8K210gRhIwnQktgc1oqyBGUt7fm1UTvVuJZbbSbePvZXYLjKOGkHlLHHr5W4OZLP293C6+sd9tTpYTx5fleenK9h9qtG6e2Dm87IndwNyWsxbmyZqKvmzdIBLSBGy5fUFNKel/36E7WXrv4Tui1v+qOQ5W8b58kYjCAPWr7qYg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "DfCQxWPqhHgr2tWVhHVYIFFxoAXhVgOHlt04ZdzKijM2GH22bAv0JvxScW2fH/e+DBHwr4uzwSvnnRvQQLM0FQJdvS6slQwQFsaERzglp+oAH3gT+dYoXKi1cFSg3NDD0cK8OWnncKM/kU1Jx09dqXsF4nb9NCE3jLIJewlNYmqAjqCbU/tDjcPyznvj3MYGYtxdMCWB4oS8ZBhCFacLCCGfYkL5QiXAtQ55xaGhJAiW1HeMfMZWmmqDQO5mmu8E0vfegmocywveX6ZgKBnXisgBm4SoM1SqBaKPXPmvZkwViL141aMhxKB0JRdGTgTkf6leIayXQbP0uqepvbBn0CP/VzxXCZdahF7Gq+bKsqpzy76SYi9R2vWHkNKtX67tXh3oyux+8QmcywzL3UC8e4Iv4G4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2c5dffc5dbbd11b3\",\n      \"npc:f66147f7127db013\"\n    ],\n    \"constraint_ids\": [\n      \"C:b655454d36067790\"\n    ],\n    \"span\": \"Oren signed the register as the Caravan Voice at north gate.\",\n    \"rationale\": \"Oren is recognized as Caravan Voice after Veda was already recognized in the same role, with no relinquishment shown, exceeding the limit of one holder.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "IuNZ/NvyNu+IpK/3wQmy1TxDZ0jWVUPCuwSxNGKxgUhBmJTfvEdqtTCHt5fCnbkKvP8o6erUyGCRrSF5PYH1TLZXxdmMMpO8UZaPvYx//iZN8mpBncJZE0DI9yl/G8fqntRfhkJ0SNvzSe5EkD34DRxWaG71KJwoXzZNx4BnCe1a+oA6zwmtZEdEEm8rnmyvyn19SFGzH8Azo88h/5l6d09F28Vvt6MxcGOk4ybC/Cy/o/r1ruF/qYTbYWwyhyKODmFy9VwEgyXqOPvyz9WtfyX603LBuoxEDNP0r2rVwOEtGkO/xhlbCdY7m0l6T87jvknTioku4XsCqOXAdf0IG/21oneOeF9ZLt9u0jEh5sxRhlGETjaieXPU6RHUnxsrn2FcgzYIGxLIv9QDYDa6sR+j0ePJ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 619,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 198,
+        "output_tokens_details": {
+          "reasoning_tokens": 63
+        },
+        "total_tokens": 817
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2c5dffc5dbbd11b3\",\n      \"npc:f66147f7127db013\"\n    ],\n    \"constraint_ids\": [\n      \"C:b655454d36067790\"\n    ],\n    \"span\": \"Oren signed the register as the Caravan Voice at north gate.\",\n    \"rationale\": \"Oren is recognized as Caravan Voice after Veda was already recognized in the same role, with no relinquishment shown, exceeding the limit of one holder.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 619,
+      "output_tokens": 198,
+      "total_tokens": 817
+    },
+    "tool_calls": []
+  }
+}

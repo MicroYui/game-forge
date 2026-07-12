@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6594d8701b1a6a316ee5882cc30e46e03c3b0753cf2604fc6fc6e8f1c0b1ef8c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4073,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 603,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 241,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1024500000
+      },
+      "created_at": 1783857900,
+      "id": "i/e9QUFpfnRnG8wcMnuSe6qalWRgNgfayCHlimNFPGVT7H/4KEtclTOEzc6H/s0kWARP1WI4ekledp8jZtYlOUgqgjDYbkUfLh69GXEEztEc5+j2Oo8OctBnD455WnsL0QSSFn0LGr9s4WjKyJBZOMmfyBygRxZQRcfgcYjR0aq0tbPK296Z4rFyNGbw5zVToDm5LyWl1Hu7FEteKwTNkXYW2I72HdL4zWaUT+OvidSMZNUJ6Hd7zva6wjNPhpioaVORQhn5I774BMiizISANzIN1JGhyMQAJ1jpIOxKiXTuRUjtEtIuD/FvYXo9NdimwfKqfWoZAbaUSNhUDUSqm3Ku1cgKzqUGMMRSb0arhELI91Th4mmERcWbMQwN088RGFF9SOlNHWZ1IMwdgBcJoHkpjsdNqQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WoUkBT6MGTU4P6auuwd2UmVZh9Gzwybc5syte/JUb6KTMvJgfNTDFHDDhdV539AExXBAXVcLYwnQvhmSpxVmk06Sb4NQ4zy0SMGsRr/nWAekhV5apx2t+NxbyAsLzRLixwp8s2D4GpgkPWoTwbPUwiLjnMIjqh1FaKSUVtll+sHHrI7aRTChDQM6SZhEGONosFT/bewqGalyhhpwAPnNuKBtnZOU+XcRi+17gPcZ28c7h92zwaLDZDCV9lP255Dk9lIUMllRevdUi0kFqIPSjXH7lmj1YvDQdkbEAP23Umz1l82RrUX5QbJFeNi3EYpmaQ66HCJaq/bKEcbASVnk8FZ7IVB8XCvUUfGGrbJHE8chbi5/D983CZ4Pi5V28KNW9+g9ayjxbeX0SkZQUxCNWVy1ToU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:32d52121d6dff9a0\",\n      \"npc:792344a91b059669\"\n    ],\n    \"constraint_ids\": [\n      \"C:614845e3bbda19c6\"\n    ],\n    \"span\": \"In relay deck, Noor supplied Cass and called the partnership permanent.\",\n    \"rationale\": \"Noor and Cass establish direct, ongoing cooperation despite Free Pilots and Obsidian Wing having an explicit no-coordination rule.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "WwSJJbJ6UsnzWrXYxXktNueVEOJLx2otDViAGMIwuPMBYIA8iyGB1EPvqPmhu9SRvQ8/SxklRIQSng02HHrI/xYjXIHaTnnoy3GDyhdnk6L0jOY5Bii51dvz6emxfzf+k8Kqor+jrV9EjyelCudro04Eoupq4rEkKuM/LrE12qes3BtFq4i2gaZk9Er6YUa1wjt0F4fpPElNqJIw3KkZTUGYBNyW/wsGfGtzbDY2cY5RmYk1+GmudwjnbMVAYlAAbFOE6kAgVIXnDqfibpwFehNZabRCcLh80lKJfJHw/6JSI9ZR721KEKcgSo/brskcoUSau2bK2T7r+NDn/KzIjtq13H3HsjE+cxd9JaQEO6rWYBdIZWiCBjt8NMCMbbQVYZ9hnydqVjU6nh4zh/6XwFmEE8+2",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 603,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 241,
+        "output_tokens_details": {
+          "reasoning_tokens": 109
+        },
+        "total_tokens": 844
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:32d52121d6dff9a0\",\n      \"npc:792344a91b059669\"\n    ],\n    \"constraint_ids\": [\n      \"C:614845e3bbda19c6\"\n    ],\n    \"span\": \"In relay deck, Noor supplied Cass and called the partnership permanent.\",\n    \"rationale\": \"Noor and Cass establish direct, ongoing cooperation despite Free Pilots and Obsidian Wing having an explicit no-coordination rule.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 603,
+      "output_tokens": 241,
+      "total_tokens": 844
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:23f7cdb10b12c03b528ea2dfc38fd4045a2c75390c59fedc077ec72b22fe264b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3112,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 566,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 175,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 808000000
+      },
+      "created_at": 1783860100,
+      "id": "EpnPxvwxngKEyhNPenfG2ClCkTYp4Dn0fVGmsDMHOB0Do+1h9+ExviucTdAdGFqPns2nDCd0cRM6YasWkGusnr8DGMHJjgMVb6+xdycPGMo2+c3sRjpxnmhF3HJkhs9Qoa044E/8AB+hXtPdDiwJkHqjqlb0WixG9KLSxKGhTZQagOOxK7tmmeCE21MwDfs7iLB7D7PkIQGmJDqHwq4tuT/OnCUIhYwBKtTv1xH5Ml1ydtRHnV2Hb0Ptt0CrvPnezOi2ZXi+FO9xWSsHKXyhoPTY+Ayzdi2CRzvLJtqMeLmZS3hSAZcx8wVjnXzkzrt+GehwxOWLneeH4EiCgN6pcj6d4ZhDDu4G/53SsgceTkcdd34YGNlMmljelSfn/fzJMmM1hInr/hu//N8deH9M2DE5+HbzjA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0o7Mr0iMzJkB0wdkInLDppgUPkP5VdeGoW7+w8THyBsn9LIs7exbPVkfYGnwH6rtU/BbNs9Uj7l9fOliVqph8X/PC60Hhwcwd1D8SLOPg7ClS7P0YqdJsxxTVJ2zHKom+JMViSlXAHiAvLwsF6ZLf0ZLLsde1Y1ipZZqeCDzEk0r6W8boJ0iYO2gZuiniJ2d6bnhaz8BFj/UIabJqWX0Om1teqHr4kmq6OeTfSwWW6QKc2GUH13miNTyoATQ5UmEwPJDw3jw8pH7hABiz38RnnmjrS5Xpqq+8n+pxAFuacACsYPOlWfF8Ap/xanhjB9UMLxAcHVpg2QPEPXDtZE1aGuik8OmOOnnFdWZwl+8mFvRYFROVxRrluG0TFqVawuiEvIHKGBfoSzg/oz+EYZgbVlpdYU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:c94ea1b2d373576b\",\"npc:f180fa48ea0e2088\"],\"constraint_ids\":[\"C:eeaae010146e1e5a\"],\"span\":\"Qi welcomed Mara into a shared command post at glass conservatory.\",\"rationale\":\"Qi and Mara belong to factions whose standing feud bars joint commands, yet they establish a shared command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "P+X6IPAPKwN4qrbQN5wmbuRp7lt9Gx5OmZfou+vgOaImWejJ5FKIrEy8qMWgBwjX2ylvmtd2A7StJFg3otgDPaWfqOrce7BXBOAeREWZMpxwkb7Q4dRikrYYZF86AJHlMTXe1uqSzj8gqeb9yCy4nnPHKs7UmqdrOg5bq6gz0VHVy6R18O9Qs0SC2RQ96W5KpUmbaIb+vuXc/F7X7N65TPEm0/ATfdFue+BBGtAUl/+VZl+EavK87KwnmQJa186ekla/OXXLUwmdHwDQiZzOwqYP1O8f0IJsJznyJRbx0wGWADSjaGIXewGBE8HqOS7nG3tTEpL9pDEEcxbhP+R1geqDmbXdinXGBliB8VIxJHi1sfSI0XywG69lszjozwDNte8tZvR2ZlRJX8i4Oyp5nFPZy4lV",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 566,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 175,
+        "output_tokens_details": {
+          "reasoning_tokens": 75
+        },
+        "total_tokens": 741
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:c94ea1b2d373576b\",\"npc:f180fa48ea0e2088\"],\"constraint_ids\":[\"C:eeaae010146e1e5a\"],\"span\":\"Qi welcomed Mara into a shared command post at glass conservatory.\",\"rationale\":\"Qi and Mara belong to factions whose standing feud bars joint commands, yet they establish a shared command post.\"}]",
+    "token_usage": {
+      "input_tokens": 566,
+      "output_tokens": 175,
+      "total_tokens": 741
+    },
+    "tool_calls": []
+  }
+}

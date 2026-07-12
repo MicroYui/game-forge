@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:14fe74ab153b3e8bae68f2aaff8b3812959c9a0df6b5216181b437f43a4a466f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3939,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 577,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 157,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 759500000
+      },
+      "created_at": 1783847800,
+      "id": "fVWT5cjuib8Fx8X8bylGW6J2iJylBGR1NEVfiua2nML9sNdy2B2S97HM3Dq6h4xSLE4geFSkT+VctL5SP9WT9RcjkMcIll/0YCqImu0qaieMjEFlE01EadOOMsjU6TKsAXAmaHEV5/ykZKqVGM5y13o1YwqMqlCOoXNh3dVUIeoQqHdHcA1lAsWPZGi2nBn/QPvpn8/TwjEoIXeu5gxuI8+mRs8b2r6vjqePGldv5WOAnSg4zvF5wisU1I1tKzllgwRqVF/PWvk6Kc4GD7MOWIFU4VOSqEipygt/h+iAnQcryYkSlZsmFqmu3bHDhh+lJ7re4s7yJCxo4IzOTPMtkUvm3UkHUMMACHdcQEC/hDKADnucfodGZP5l3z7AGqySKSWY84iv1tmrI3KXiFOXk+SOOKtJgg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0nrPhBZ2joWWMqmdZ7ARKue1YpfCeFSaAFKuIfnR99vgy5ogIpIU14pOI0MKsoV4ifxNo8MY8E+taRHH4WLmU4xP3DfAoXD21IoGh9UCIQEKSJbTeYc+lgZoXQqq7prARKcNLCookXJgIw/eWjaX1nG8EaRN9r7j/QWdm0VvKdIaf+D2Axa3bXAaj4+M56dfhC7YudfrSM/uLZEMivgGtDgxSnP3VYlWi6FP9Bjng738og3MrMBooI96ZWjYqBhAV07LyNOV9D2dBUanwIUf7V/4T7WrUp099o1/21SHaqO8eH9PV+RnESWrIzXhju1cHBs2dQTmDSQ47KLZJEYZ/rUHKb3O2hUxRqmIvk9kX4Ir0X0AhuSXL2soQE0WArkLOiyLoe1j0c+zabsvM58fZPxolZY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:8732b90e537d84bf\"\n    ],\n    \"constraint_ids\": [\n      \"C:9246c9239603bddb\"\n    ],\n    \"span\": \"At north gate, Mei revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Mei endangers or sacrifices her crewmates by exposing their hiding place to pursuers, conflicting with her rule against buying safety by sacrificing a crewmate.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "cZCZS0Hw8WmP6EUtwQ7qtwZoJQBdmZBAYd+v2pRhe+9PvdTK61rZzQV8tbUzSUsKES43fhK+4kABvMYtebxrsC46mLXMSzcLJLabnfM1EFMcbehgehllzSEIa3z+702WVa0K6S0MosuYaK3eaZVSgpHMD7udRkHsTcb2GCc5RyPEdyNbi8fRZI0mWRgTisw8jAuhFH1gRTx3ION7PcGOgYl43+lSP3FbqlHFOqgoa7M/esazFYqUUBl7MZ6wQXZhz/jPjRdyzH+FqEv9/PqWZDtWBT+HMU4nk+qgl77m2HLmDArc2AmfiIRQJEPs2WrgSmuQ2wCOTH+ImaCIjpQp9woSKY2fVaeMIkH9X0zD+z43CF3vuHLNJsdv4huOLSf4eYoWzrKt7vJIwHz7WFrK8bkxDQzH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 577,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 157,
+        "output_tokens_details": {
+          "reasoning_tokens": 31
+        },
+        "total_tokens": 734
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:8732b90e537d84bf\"\n    ],\n    \"constraint_ids\": [\n      \"C:9246c9239603bddb\"\n    ],\n    \"span\": \"At north gate, Mei revealed the crew's hiding place to their pursuers.\",\n    \"rationale\": \"Mei endangers or sacrifices her crewmates by exposing their hiding place to pursuers, conflicting with her rule against buying safety by sacrificing a crewmate.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 577,
+      "output_tokens": 157,
+      "total_tokens": 734
+    },
+    "tool_calls": []
+  }
+}

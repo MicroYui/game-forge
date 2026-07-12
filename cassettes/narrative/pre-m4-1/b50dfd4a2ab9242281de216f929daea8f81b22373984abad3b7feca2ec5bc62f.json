@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b50dfd4a2ab9242281de216f929daea8f81b22373984abad3b7feca2ec5bc62f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3149,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 724,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 191,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 935000000
+      },
+      "created_at": 1783854500,
+      "id": "1ikUhe7bv2gvfMLkJItUl6P1q24cF9QdKZ2cqwDy9RkAI4X8xd4wL/nWTJHGlLkYywnL5QLXxxRxytvAuyZnPYGj+sl+LvTIowlxYiW+Y2fqJVRwrlZIZA50qvRnt4yj2PVgrtYhhdiz5pfxJchmZZASzLeblFoLRhNL61OW9v8/EpEODEyuxKlBb1LaaFNV8+aBhrrzPnhrHFpaxZZydAOSCQuceyLaljfdKOCQ2+sEBV7qCfJPapZk724oSOzbqJLjb7OphGMsNbPPlE2i7uA/M7So5D3xTs5h0KU56SFVjDuQ9VyMp/uhNzBtjMy3Tv8Nyux3GEh76IbJWr/EzQzRcBAM1XJQ2vRT6z5lJyY9W9SHl+02rhij4m/Zw89IT57957QY/ZF9rd7UgfeKOy/UI0VMBg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "I8wj2P51U7+mOkvPWifyYhRDVaBRbebs1f9HscVwhxRR6cdbOcXaoH6RY2H9JRXfJ1mOJ4/ZNiLx/+Rv33M1RCol/T2SyNsr5WcYpCLEZQpoJOmp9xZd4BHzDw345VtZ84e38oVL2qxhL0mgZFx5D6n5XL9Hs2mubmq/g9NxCw6Gvu/xa/IyfZdM7yPAOap2cv7Gv9WJWwBmOCO4F2+hQLZDHQPdTv1g4Le0yM6xdBXKesRiA0/hAjsWYobZIVVVHGW7co2HU7rEd3dZ343RRYdQznimsNxzzbQT/QytdLDUpdFyBMOyCrDn0bZQUn7Z7EM8w8bGcziwhi6hjr93Hi8CWF1tgOeDPoI75yO5ujI26A7fDiIiroVOVvhT3RuYGTHWJk5aDBRPdDYAXKwSkeMgngs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:3e41d9dd729f29dd\",\n      \"secret:8379e0ed8b438c4f\"\n    ],\n    \"constraint_ids\": [\n      \"C:7e4e3837abfd240c\"\n    ],\n    \"span\": \"In old mint, Mei disclosed the source of the winter signal during second bell.\",\n    \"rationale\": \"Mei reveals the source during second bell, before the permitted reveal stage of verdict.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "n+x2e0SzuR547CkoGM7N961fsjdyMe+Cy0ySNI/C0ANtsqrz8SdQhKoZDUjqluF30Hq/nuhM7NTNxvvUE9i36dmUHQ8MSvU5PNDlVi1THS9xDV2zEjXoXHzKDOh1KsBHMmqZODiPTRqL0mo4+ni7ZBnTRLvSAnO9LI5npmzCkJbnx5yr1MwWayVl8l//C/7FNDuPt1ARR7mbWX+RUDYWearKrk8Ubk4Vw6g9nwSBpW//a38DHvbxlP1u1g5aZG4UIwgbsmfpV0yvN9k1DLWKcCZJUHHM4+WjzfpYOnrKVZS9H3P6c/oGQIkdKtra8x/nCEoE2mmu/vgr+lEwWzR6x33rejrKjwEkQa32EXn2sJC6+shv2zbtbrpfo4f/p40CxvBw5A87I56fRu3YSCEi5xhx3vKs",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 724,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 191,
+        "output_tokens_details": {
+          "reasoning_tokens": 63
+        },
+        "total_tokens": 915
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:3e41d9dd729f29dd\",\n      \"secret:8379e0ed8b438c4f\"\n    ],\n    \"constraint_ids\": [\n      \"C:7e4e3837abfd240c\"\n    ],\n    \"span\": \"In old mint, Mei disclosed the source of the winter signal during second bell.\",\n    \"rationale\": \"Mei reveals the source during second bell, before the permitted reveal stage of verdict.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 724,
+      "output_tokens": 191,
+      "total_tokens": 915
+    },
+    "tool_calls": []
+  }
+}

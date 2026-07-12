@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7080ce568ae4cf49a9d8ef988c308fd9734f02029c6e6f66937f73875f177c8b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4911,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 568,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 207,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 905000000
+      },
+      "created_at": 1783859700,
+      "id": "BWsOrosHWPZ6LtlOkQrIx7C1vfDYkRJQklchKoNqxZRpJ7qA9Dv9L8scCY7Jp3fm7/Oc6G/yJK7KUDkDoPoj30wSLPdgl/cpp7VvdUK4LilFZ962vCotxzILFfj+JrzcgM7k8Cu7SWlA6Na8M0ydxPZ2AEHECrP4Jjw43VhQT76zXU8SEpWsPx1jsQVOsP4KyIEkiwJt4Eav5BmXbLgg9yjRhsMr/IKmUatHyQT++yOk4p6MOF4EqZCBr1P0KlJ7NPs2/wxFh0SsCmsDyDyk40WUidy6iuQ6k9BiA72BLlmvKSR+BODG4zyjHG6dwjUhJUdSw6htVn7cdmMvywPpIVYz+yksCKe3tKWI5T8lhwfI+kUkyUEQdzEr7njevX1XbJ7/vBz9kOdKvLAbNVMbO7vcWIFztg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "xGydqjDirYD5nyeAox286YIW6lH1WGwpFIrFB67J+0c71Gd7rco8NAuanC+DCDdDtjVB+jjTlq07jMvtoLKrHcf7YP/bTzJVzcXTnwufiSZSvYHAlQggJ2xkd2/elv0XK4ll52EVd7dSMAPaERKAM1F5jRsUl9Ms5D1asMX+AwF+gV8K+BVv8CIFE+aftnCgBmurWI/8GdDa47WNu90GWLpNBg6MarZLvo3QEyycuhx0dJ/5OLICHwhKRE9yy7ZE0sEeCcHObI87FCku3BST9LFNT8GLdnE2ziTg1ABEVKvVMGNFtGycnaRE4U/Qo/p2AbHrlIadoWmKGJ2tr7msYQtXRDw50lIhsFy//mbCCgv9qQHdecwqkgsdeMg2hbVBoxD2aIwedNO9C+GBzPv4EKidK+Y=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:9ec8b77979494c2b\",\"npc:a94e1389f4245b3a\"],\"constraint_ids\":[\"C:e69fd584aff0cd2e\"],\"span\":\"At river market, Cass was formally introduced as the Beacon Keeper.\",\"rationale\":\"Cass is presented as holding the unique title after Noor accepted it, with no relinquishment stated, resulting in two Beacon Keepers.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gYaTlF4LhceQCpF6lo1ECAJLRMy4yVgUGuzztG8oz8zf/kVgqT3g619BHSKcCM8NjBNvyt8wjef+aSR646XDOL/NYaI23uGovQxCQE01oigJrutH8TqwdnWhS+mPB3GE2I0wITfAxc51fv/M9b0Zva7YrAHzwBsv3DDqCzzkha6c0OF9lMyMBYW8dwGUCFF409tZFrYZeh4B7e2tlbP+46ahRfrT2b3ZkDLauPWohVHaq6SyndYdzh0C3lwM+q9Rj6EOPoO4p7dyr+sRUc1EAReEf/6Ehhw/b0YfHDwWQ5+kv1UtK7hp8alztd+lNxaFwJGLZ2gFxDhjS29eBDUPONajy1f3nvrhkCld/us43XwTkbdB/+FEHklhL9UC+K2L15AQNCrWRr4VyKNTQtcCGN7WM/Tl",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 568,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 207,
+        "output_tokens_details": {
+          "reasoning_tokens": 99
+        },
+        "total_tokens": 775
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:9ec8b77979494c2b\",\"npc:a94e1389f4245b3a\"],\"constraint_ids\":[\"C:e69fd584aff0cd2e\"],\"span\":\"At river market, Cass was formally introduced as the Beacon Keeper.\",\"rationale\":\"Cass is presented as holding the unique title after Noor accepted it, with no relinquishment stated, resulting in two Beacon Keepers.\"}]",
+    "token_usage": {
+      "input_tokens": 568,
+      "output_tokens": 207,
+      "total_tokens": 775
+    },
+    "tool_calls": []
+  }
+}

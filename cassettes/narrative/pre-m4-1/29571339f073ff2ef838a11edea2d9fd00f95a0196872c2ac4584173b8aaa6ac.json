@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:29571339f073ff2ef838a11edea2d9fd00f95a0196872c2ac4584173b8aaa6ac",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2527,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 582,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 141,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 714000000
+      },
+      "created_at": 1783861200,
+      "id": "zYiXgfnjyrqvy45kleYOBiEubtFq6axaz0/k6apIsr3GrKUh5F7gUI1M9RYH6bF/qTiM/D3vFSZPcBp9sFG+66+UsVG8sIUj4hgoLrcerH9FqhBZM8WCt9iqmlsXPjviT/Au/jNn8WcTbAauR2KfYXYJ7rTb75EiZ1EGV8kdbAioTF446uTcDvAUgSaeq+wp+SDYT/mJZUosk+4YR9GCHiQh0IviQfKwKR/tqNgLt05KWWCAaLXVktkmWPxN7hX2czXa8L3FJPUC9bJa3dnKWyNxjo4A0z9t665+zYpf5G4lrSqinfJprxgTthIlT/W1WEUTkiowG0rRqnwn9qw3K6GW6JGfm4ga3mh1rgUoES2c8+MisasoRBAZaTLBw/wkLVVI5bV+s9F5//nvpx3oGHNXzXfQxw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kpoRa3kCZDQp3cbLjbcBUyRQbbCW8O0K6NTGgTIeBUu/RK/a79RqDPHnDeshWA1Gg7R6IHiCYOqRZNwo9O8crY3LEbODbDCQWXLesr6W5dRF07WYogpW4ar0VLx0Rna6w1Ssf+6opQ1dlUSkkFRc2GVlCkpBI2t/xbWDtGtO7TIRZcD9UVLJ/dUR7CGRbACKAJJ3ky3VPy/fWbEhVD5VtLHTmOqYAiRvklkSNW6RG65qwjLkqhboECqBHvFcmsEL9LC4QPDwZEb6pYzhmpmfCFApuakwDsHGxSZpo+VQV6x3vR871MqpC66m0PeHTlTkwk18vSOGshniqtg6hM9EwApMdsXAb/6Q24lQuTunnOREUe4fPm5g6exM1zY4ed+rkL4UCc3QY0TcRSbkzm5CEOe1hvw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:bfc0ef3152d98af6\"],\"constraint_ids\":[\"C:a239e68e437ab341\"],\"span\":\"Noor overturned the truce table and charged the guests at salt depot.\",\"rationale\":\"Noor initiates violence by charging guests during a truce, conflicting with the rule that Noor never initiates violence against a peaceful visitor.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "31htSWPvnHMm30IblyihC9F5NDPyeydLDsei2K0tA6/awDcu673mQejVjpmhAZpBwOkn3gF7YCT+lkpFUgdu3GhLut155Cv5VAKiet3S4xzm8r9edaaP3LNCT+wKdzcSLFBa6gq7Sr0wSaZBssgsyI8NV3Ia5ax5krvbCP8utie56qqoSBkE23qwyTYHTWe6NbMznxr816HMe7+Ak5fH7qvz9f3kHC8yI1sHpF7pgJJjx9ZU7kRzr05T4na+8x7nrNdzBZPNgqNA3ckuIkY8I19G0ZdyvMhM5g10FSJrKcA0+B0bh5p6McGpUBvUxjtKs++6TLyRGLC//WUTXvez61ibe9ubxTF74/+fPiRQ8M6UZwMiWApapyls7/iRrv+VBgLtb2uQ+DkTdXcCVJJLTOwvIdCf",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 582,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 141,
+        "output_tokens_details": {
+          "reasoning_tokens": 46
+        },
+        "total_tokens": 723
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:bfc0ef3152d98af6\"],\"constraint_ids\":[\"C:a239e68e437ab341\"],\"span\":\"Noor overturned the truce table and charged the guests at salt depot.\",\"rationale\":\"Noor initiates violence by charging guests during a truce, conflicting with the rule that Noor never initiates violence against a peaceful visitor.\"}]",
+    "token_usage": {
+      "input_tokens": 582,
+      "output_tokens": 141,
+      "total_tokens": 723
+    },
+    "tool_calls": []
+  }
+}

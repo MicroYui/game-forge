@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bb10de859161286dcfbb12fb194f48e52c417ecac36a20cd4ad577dcebd8386a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3698,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 560,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 154,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 742000000
+      },
+      "created_at": 1783862300,
+      "id": "1x2O4v9eh7VnJxD4v2VRtLiPJi7mo7MBOWrohIyKoi03hcqlctSgGxdnoaUJLFEk3ASkMnjxPc/RAIklNeYrMqGcMoYUqmHnziqf8LuZlKhd7uuE6+XOJWzpbzg8hMn27KNlm8sHCLgfDd2OHjP/k0e6GVuSK9glvdIuFaSepCcMDkFqKoXB8rHvbzhLqEcf8qufwfdoArNU/oRmJ/fPK0otaNOtwKpXuYwq4f2KZbofkN/t6BsOCC7JUpET19foYe32/CvxfCfaCjKEZiYnVFHjOGRGSEUA9/75PojzLYJhP/5BnLrSQo/ikpkLajqMbksfjjCE8vjQHnZwjlcP6ANuFHtguyZpAG2DYMQHIhASg+f8LemI7KNJv2Gap8AC+CUkoqtDjEPy2C9Ar+ZMxNtyl95FLQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ma24oIrUmDOzUVBRWQydCowY780hEf+PWT+IsQ/jjgjlpg75krbbpMe0ukXr1wPeO9I+qjAeYB0HeGucjTJxC4+W0tmEX/JTOgL+OPM8Y2NzAleZ5ru4cBhuxeQ4UC9CJLuq5J6U1iKjim0De2iWBgJhL6ZdYnlwjILHeJ/Z2zSbHB8Yv7e+ijVrl0tkTAmoIGdIUNKf9NunMcfR+muA1jAc4ewn8avivbsbd3SXjzF9AmSSwS52myY5gAcAnsyJcUpLMz2AxXa6JjYhRPv+1dKlB9IsbjbcDtRpv0JHK93FIwx/EeIQAfwCyer0p22dtrBwonjLNg/kCKWumTRiTG9erEvKTBFw7wEzAf5MqHn3l9gt+QShRTG2AqcOESVdklUu/cnHlLoT4jPmB1Fn0zAUn6s=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:616f33a9b03772cb\",\"npc:8a8b824ece4bc6d9\"],\"constraint_ids\":[\"C:02ca903a1d7ca63d\"],\"span\":\"Ivo fought beside Lea under one banner at signal tower.\",\"rationale\":\"Ivo of North Watch explicitly cooperates in combat with Lea of the enemy Red Banner, conflicting with the stated faction hostility.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "fGtS9GCDikzOnbdwLjZms48uG/TgxCP2zZL1lfI8opa0GfgSvmGuuJaSc79TgTjSo6sMeUvhFX/1+AmD3CaFxmjUkJF41Yik+JJcYRuMC6mMe+RbS7kVOc4l0uM083lkjAx3J4MiAkeWUnzJsgwjlaaVFCmu+dGTIfzcM2C2rH0SMZ2nKMZB4Yh43jZ6qnQE165i94YiQVWe4tDzW2O42yJjzgAQqJuNEPej0jrgJ/NaDt3f9chkri05rtpJGqBD0BNargvM3kT812d0PRRR9tnkX63JDwIeLqDVaD1qdoImLTa7d8H23iwWGygV30indbzbWx5m5mOKpgUz5mCLHdDkOU6RlN5V/4ok1TwXFxw4Z3vQ+4bciZu7sjHQ69KZP2z5iqVXEvGVNPAb7F364cEmA2Vp",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 560,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 154,
+        "output_tokens_details": {
+          "reasoning_tokens": 47
+        },
+        "total_tokens": 714
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:616f33a9b03772cb\",\"npc:8a8b824ece4bc6d9\"],\"constraint_ids\":[\"C:02ca903a1d7ca63d\"],\"span\":\"Ivo fought beside Lea under one banner at signal tower.\",\"rationale\":\"Ivo of North Watch explicitly cooperates in combat with Lea of the enemy Red Banner, conflicting with the stated faction hostility.\"}]",
+    "token_usage": {
+      "input_tokens": 560,
+      "output_tokens": 154,
+      "total_tokens": 714
+    },
+    "tool_calls": []
+  }
+}

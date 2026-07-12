@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:194da18897d2e8d76379f2437d3c96ef1d4d339da7ac6237ce66046bf7d0921a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6477,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 693,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 247,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1087500000
+      },
+      "created_at": 1783846800,
+      "id": "OwYRHWZIOyrjNE35J0dCT6UaGegpC1YIWWGwOT9aHjxvO2S7CQ4FB0Bx/HSPzItcqgNHxLK7YyHcGi2g9PUnOHe8HoxjKsQ2x55ohj+mLzLtlpWdzucyQ9Tfv/nfUBNOznNryHGt3VmzNq9bCEK2wbw9l0pks2WDoeMGBfLNA5DLtTaSx4F3PA7/x+CHk9Ujy5pgkNS6kukCZkPkqU5Ni4FYLkjCTKfTGKAs+isaVPUXp0YW/g2W0IXbZTNka+YDMy7CyZFRZ3kt2HDuBF+tVcVzsshGoZM3tO1WxiuO3lZK1RsEDt2Oc+6Qri1EwoXEHMQrZ0BpFaRJryQ1uVT9rqpy+o8RNx6nxzp5tyU+7ZVex7zq5MeVZt2zePukiO4081J8DTRXXES+sC/bWLrV37skkeYJ6g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "YpGd+xdmxoWkSugADWQyfkRntz1PYrmMSycsfTVQ6NJa/eqBA0ejLMEY4E7ucBVBHXM8N+i2rbExWM2BRgcGyJ/pow0RCye+8Mj0zVZrFdeqHouMVNcminZEOlCaufDqr6Q4QgSB2ByDEN5CgOD2bVtHZnObfvUaz/jd0MNy57ol4jvQYGaXJOynJ63QM6KhNUxPeW7nbd0EKHaTblZOmT1AByN7KrD5sw4lSJcF7ed4ZjiKBxcXiieNG3LDfxlKfMQ/7na2vCaGZdmi08HVmX9mIIU5D37z4B8v3cL1NKlcWLydPkAA95L4n4DO9wX4b25XCwIzzysPSIuzBDbLDUua6jKlKtOKmNbg0jsyr54GHwKCLov/R2ImJbjQ3q6tanQIRHzg0VpNWmTkJjQZd4fJonk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2c9e844548d49675\",\n      \"npc:9eae3eeb919fc8f7\"\n    ],\n    \"constraint_ids\": [\n      \"C:75d436c92f9eb585\"\n    ],\n    \"span\": \"At eastern ridge, Iria was formally introduced as the Vault Steward.\",\n    \"rationale\": \"Iria is made Vault Steward after Ansel was already recognized in that role, with no relinquishment stated, exceeding the limit of one active holder.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "fG1cdXdsfX4FRuclg9e/+FBVSEo3UaDktboGJ+dt1HGVemc627cTgvKMTVLAnoX2uy0rzbMcZwBCNou92yaYhDuxC8x+0NReRKqGcaGTIbINkt9YwGi2ieGWOedniM0Llm32nxdP7P6eim5hTJ6Gm8EypE+VXIic6Vi6qr9xoyWfEobAhbpKdgnB2Mr+/O1EWOwbxmlkzsOGAoVbhxabeplUHlyijYcNQUBD/IDeZeqhl82V7Zxy/p3ujqBsYR/gcJS1n9D21BmTFlp19E9ws/iGz8jGc9GzuVC4SbpY42mVvW0heiVdYPiV59qG10O4pcf/UgDhbFTf+eXKMfy29swGlpi8BnNM8yCZ4ZQ9zk4/54W0pi71jseV+Mk3QjSJvu4MKaaxZkcWpWfVV4Yj3waEondc",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 693,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 247,
+        "output_tokens_details": {
+          "reasoning_tokens": 107
+        },
+        "total_tokens": 940
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2c9e844548d49675\",\n      \"npc:9eae3eeb919fc8f7\"\n    ],\n    \"constraint_ids\": [\n      \"C:75d436c92f9eb585\"\n    ],\n    \"span\": \"At eastern ridge, Iria was formally introduced as the Vault Steward.\",\n    \"rationale\": \"Iria is made Vault Steward after Ansel was already recognized in that role, with no relinquishment stated, exceeding the limit of one active holder.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 693,
+      "output_tokens": 247,
+      "total_tokens": 940
+    },
+    "tool_calls": []
+  }
+}

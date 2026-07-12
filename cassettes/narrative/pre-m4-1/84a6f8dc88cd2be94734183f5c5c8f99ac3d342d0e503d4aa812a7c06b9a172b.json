@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:84a6f8dc88cd2be94734183f5c5c8f99ac3d342d0e503d4aa812a7c06b9a172b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4001,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 631,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 203,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 924500000
+      },
+      "created_at": 1783843500,
+      "id": "9Pa+PURp68LOvmV2EAq2Nqi4MmTYzHIRR0S7m31tOZFO9aA7qtan38T1i16isIxLm931fvcaY4NNtk2+TTzlJnsQ4lMbdBzchtlZTUrq37esLp5QOkpXUjWe+HM+a+pKfA6A0VC3vJpo5BZX4JNXTxuY/8J1HyIkzuMNG/QO/5EgJ8JoKUuqxA0rhTY9vWA7e10h1d+mgdfDJ3gAE1FfXPK7O4ONzPK2N549mzFApprFQqRf+UbgvuWd5yN4pQjShUrIwLNPqnMi4miS/QEdaum5XfOcXc+BreKmy2o7BqZw6MtHxD29S1ggugHnUm4N9Xd4/owTBDqL5XnvJzrRkWdoQUZ6J2dOcPpgMDE6nMwACGcg3P/nDWgyOQdUYkKx0wq/V12us/aU9ie9AJtGfUlQgi4CsQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0WEdRDFmJpvSJF7KYVuPlsxK/WpyckxhFblSsqrxFni67HblNh1SW+jIy9atq1y6DwC06XLRIxNEwEdBDUrwNHUIchZRHVBf+1f8AnHng+3M9ayqACetNuVpxxmTjagyoFvNLGy24eTAX3PgfeMLjQBNRboFye5u4nvWdNeOurNj32K7+1pLBkh+sF73RStQeSdFT1bm6bASiak07mKCitThdsmpzCnxtoGImST3XP++iOof/1q86sMl9/DQJmx7P9GtPHEVIdGdr0pq4vjlw87FMFuA59Q5b/KcYJTmzZuFLLdMOkcdNmLuq4mTGMcBa3lkxm61flV/Hdtu3oQ7AnTMf6PiSsB18kZMCupeMqGT6PHzImA8WleZGPCfbkN4WsO9Z3iqYzaLVUpg6Zb/sfSZBB4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0c9adf926a4283df\",\"npc:fbb4e18c4ba3fe80\"],\"constraint_ids\":[\"C:075e30b0284e7ecb\"],\"span\":\"In north gate, the council recognized Mara as the First Navigator.\",\"rationale\":\"Mara is recognized as First Navigator after Qi was recognized, with no relinquishment stated, exceeding the limit of one active holder.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gkLX82zZs/pd559TS824hNdeH8jU8wmKXM0fGRn/dlQwJ0CP/mU3q4EJwTU8R3ewRdmwdrC69oYLlS1rJmAumHYEyteqtqWc4/nkxydLkW6JbxTeqc4wmjHhpMB20ydW5KFzlEn6CBeowMIvqzyo+m4pcv7WwfCUkYen7p4GVzPRoRh3er1eGVe4KBmikEV7ODq9H2iljFg6H3o969cSreZui8HxdmWpzz/WXKjJDTcQW3mfjKzIWbdSUJBPpNGNgX8vH1Jcht7j2ZSOHr5sIFGBI8lTdfDVOS9wX4wQj56HiblSKOLhl9g5ciZfSCVVG0mCqGf6qhTGkGUS3i8r8bISG7DR2PPoqG8R94o3cCyexJRxHKQ3nwjwyjH9wse0rqg7DCINNZc+ugEgPv524gHpsSnt",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 631,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 203,
+        "output_tokens_details": {
+          "reasoning_tokens": 93
+        },
+        "total_tokens": 834
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0c9adf926a4283df\",\"npc:fbb4e18c4ba3fe80\"],\"constraint_ids\":[\"C:075e30b0284e7ecb\"],\"span\":\"In north gate, the council recognized Mara as the First Navigator.\",\"rationale\":\"Mara is recognized as First Navigator after Qi was recognized, with no relinquishment stated, exceeding the limit of one active holder.\"}]",
+    "token_usage": {
+      "input_tokens": 631,
+      "output_tokens": 203,
+      "total_tokens": 834
+    },
+    "tool_calls": []
+  }
+}

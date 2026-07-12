@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:99a578839016832459be75519dbec1eeafab3e5642178ea44c6a4bebb9969b27",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4269,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 661,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 137,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 741500000
+      },
+      "created_at": 1783848400,
+      "id": "xOlQqk17nBFKmXO6z2fiWX/QFCfvv4pvZ71kEKp3Wthgx4g62TbJpnjQ/k4RGwE0Zux9zIv0hFN9bReRwmw7zzhZapESGciLZqGjJSW16xGcp7PBLK917MMMUreLSZyy3dCu3lG/u2SX9p15NwqmzcEnXH0IccMXj+wCQDBwar+B1Wwb5CDrGIlKiKjSCibTHZj4Idmf9bYDYZCoFxejau1LRciU1JFCbRWyZPIb4e7q1NH4VOXboChM38vP/EnllObpJsbjlFFfKZeS03qlxpQ8y1STh14TdzbkC4BvAxM00aSlphO2Q/yXJvWGSNhNXE2AfYTFQYZRYieOB9aFpYtOUrpS8wP042ltgFDqH4HLwnKkkRinQSS3bpPm+ixstJd9Zn93VvTP3tr4BA804zISJnWcrg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WZYEpOS5RVI6/fgosO9Dgb4vTg4odBDxk2bZmZ9cR96S/uHX2G5zkwK2iQAltGEb1hQYsmZXUdCMRP0mz9rlihZYZSYlhnG8QnhZhXE4XDJFK6iPegaNKrjzxg96q4l9tEwq8l8mLXiwlNYsN1CDymCcDdQj6WjY2AUkByRUKZVxpvE0Bnwg5uclrEsXhCFUQ5GiDN9qoFzRbQ+7sDsrYzhJjxbEkRqyTQycvVDmqArUGbYiXHFw6KzOFIzl1V4aWPjF1x09vd2RJWVCSVySlrhuD55gOVc4wBtwUdRl1COo3TV+rkN0WsCx8g1p5hwQknaDWr62O2ftcks22+k0wGGJbVUWtyfuVjVe9v17qKrPDGuHwHVwXmYgh8tpSzwRlfvGA/tkCMFo/X+FFS9COb1QaTg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a85383b49f1dbad3\",\"npc:dc48ccbb1d632212\"],\"constraint_ids\":[\"C:3b4aded1dc5cdf4c\"],\"span\":\"In signal tower, Noor supplied Cass and called the partnership permanent.\",\"rationale\":\"Noor and Cass belong to factions that do not coordinate operations, but the quote depicts direct supply and an ongoing partnership between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rjXiCVjOBTXOIRXJzNK4zdS7kreb9dMV2Qi2jtwgIPjzyFNj8F/OWz4vRTT2GEXpTQHLfCdAyGczj1/AS0l8bB8PTUv9W72KUQlIipoiT3TW4k0r0MTN03lzXyR9LWD7oFuXKPpHsgC5zt10UxDHSVpjXa0crHd2xTs53QDNAdY4CeJEJovXTYFlyMBm7arfIAm+0hwd+qI0Ai9M0Ni+iFQ5+btuLfM4MjvwAGdD3kSSqm7nTW1DcOgnYHhBl0IJ8Ey/vc3OBazCKy4q7IcZSJdBxs17/GzFEkzNidmXu8K4P5lMvOvRtu+5KWuERjR6F/r1Y9zfDGej9CLwAXMqLWM/CzfHqI19VRR/m9qUhJrVz+xyqcIAtMK168iluqTCg0JY5RsSg91JPXnqH0pWScDVFkkL",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 661,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 137,
+        "output_tokens_details": {
+          "reasoning_tokens": 31
+        },
+        "total_tokens": 798
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a85383b49f1dbad3\",\"npc:dc48ccbb1d632212\"],\"constraint_ids\":[\"C:3b4aded1dc5cdf4c\"],\"span\":\"In signal tower, Noor supplied Cass and called the partnership permanent.\",\"rationale\":\"Noor and Cass belong to factions that do not coordinate operations, but the quote depicts direct supply and an ongoing partnership between them.\"}]",
+    "token_usage": {
+      "input_tokens": 661,
+      "output_tokens": 137,
+      "total_tokens": 798
+    },
+    "tool_calls": []
+  }
+}

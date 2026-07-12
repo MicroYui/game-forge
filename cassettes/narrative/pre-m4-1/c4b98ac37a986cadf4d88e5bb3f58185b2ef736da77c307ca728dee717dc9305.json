@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c4b98ac37a986cadf4d88e5bb3f58185b2ef736da77c307ca728dee717dc9305",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4736,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 670,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 169,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 842000000
+      },
+      "created_at": 1783857900,
+      "id": "ybfPxnJnpkoeIVnF4uPX1ejoZW81le6E2kCfbDt/jjYrVkNxky4pxgW4KPHtWL0GcvbN0gC+f90LHety2A9I0/1VVWsRpUfGVy5LHJJKAgi2FsEmcJur+NfCvmRpFc3lfpLPyfaRaXcF9kZ+9StcSvHDxrju6GBXgQ1RaeXrmvACCNR08r5FobVfMBlXDnEy4OgZDd70A/XT1/0IhS0xy0n1r3wqjMQ4eI02bLyH1wd7TEE4lMd+ZFmu1fhRBNzEpQrD4+Mvhy2xpLBgHkEHYMD1L9OQfVUrRF3qBxRGCpUsV7gqP51s4YRQmdbbmxKrEg0dCVrJhrWlA1QzWskqB7pdZI/EFx7W+6ThCtEq21mXoV79zFUYOgmi+czhziHhVoJVwHCfp4WQvGoJBjZn2G7EAAYkwg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "PWzEtZ73ox1otzGZh/TW82VoaoUg1EDhn8khkJNGj6Zm5WSxI1y4pzgd6/xXXJI8zzG4pChUkO25qoB6Kr74ZJWT1mahIxhiCEL+eM/9fQjEKVNwWWvqPgUeljPRglzxKYTJt0A1SsnvovLZljM4GlHXuPqdIJQNB8ocHsATRu+g8xH2ZVFLU7r6YWtP1Y/ewJRydintPOWiLYOqVNqD+KT3nXEqlYRQOE/iL7TT8Uk2d0PtltCXPY9LSIIrCKLCvqa8sHAJi0U0FkerT+c7Bo0ZHqbz7LUt+GUl9yhqjO4UTOB4rGnWoNNpQi2DWDKOS4rP18u4vQ8thFSVqTkPItXWpQf3QQuKs1XPuagTodMOA7PG7YgJSYZjXWgIyMMwts5h+2X9jfgxoz3mtXRIHWPoBY8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:dd8d059b1db22e0c\"],\"constraint_ids\":[\"C:83c8f17a8ce99a4b\"],\"span\":\"Mei disabled the crew's escape route before joining their hunters at observatory.\",\"rationale\":\"Disabling the crew's escape route and joining their hunters conflicts with Mei's required loyalty to every crew member.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "sLdDRwro5Cp3j08LzanWWnDYuA3fdpATpd69wWc0Ur/oGUFirpi9dQpBBFJP5QIFLmOA2Tuktluw3Fa2NExOZ0rALB958JDK+U5E6qg6cUnSzYk9ALA3MIMyn+As7jxszknfL9RVAQtWllQw32GyIHewa8nAaZqbSOQLLfU/FpjyfCSlXZR7TsRIX0FbPDQTvnE1XGNSIbElXiKQTtONfhI12DRPmxbZ1HI4uYN3bKHl8TulMFgifmLUT2XgvRf9klEh8kqLlX91tB+Vc9ptZC6ytCzvDiTqAu7tYNYNZkfeLeRxUyow7OIg2pkn2ZiRjKPcKo+g4vnmGRzFTaSGViC+QA7PCznbO/TO+QrIntNpUWpbSr/wxUpmIasRr7ZayTmb4k+1/H5SIbznwN4ggk4iwSNS",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 670,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 169,
+        "output_tokens_details": {
+          "reasoning_tokens": 72
+        },
+        "total_tokens": 839
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:dd8d059b1db22e0c\"],\"constraint_ids\":[\"C:83c8f17a8ce99a4b\"],\"span\":\"Mei disabled the crew's escape route before joining their hunters at observatory.\",\"rationale\":\"Disabling the crew's escape route and joining their hunters conflicts with Mei's required loyalty to every crew member.\"}]",
+    "token_usage": {
+      "input_tokens": 670,
+      "output_tokens": 169,
+      "total_tokens": 839
+    },
+    "tool_calls": []
+  }
+}

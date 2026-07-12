@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:09ddbcc815bea83e1c7a973d2f4dc88cad82d2c3aa81b82d698f1c85de3af224",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 8401,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 729,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 444,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1696500000
+      },
+      "created_at": 1783845600,
+      "id": "vtUAP2XlsZAT8I3EbPM5jBqJkHbL4KvMYalRviADUm7Br6lktcEcTSqpRp1KgoLTUY/myPShFBRwDreFMB/0A9vJkyeqLjLPsYjrLwgo9p9BnqTEbpqqL6yNPkfne+KKjIMq09AEuDR6unrJt+Vo0ql3lBcSEHC9II7B7QkTz13pDC/v+RYV7eBufNBcosA0sBLkkao6FqpZ/ig5NydHYCjtN99ojZ02lFfm34ODmg2AFObjOw0g54kttypdFY3StKPLnj/ZhvI2lzKYCo4B4h7bgbXIXhM+70fyLKPdfBtph4JvHrutTtlih1jg6axIfQYePAO631/MGFBwssE6EUKQGoKrKHvTd0dafUBH8AaJu6sCM7tDOtICA5uNJuiJqxG0N0BVQZwES36paEoxd7lsKjcPxg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "xowW1QDmI7zVyxb1U0l4k024YBagrQDMmYefb2QyOxgyb7PofQsiwwwolNGJflJ2587/optAwbYvOFkWgjXhMeyMLE8f3A+7pQj6RUh3Q8FMMASCbWy0eS6fbH+Xuv2EgfqDLATBSSWfDPSaEcydAYzAACltxlIumrRB2ZC7C7P80pkwbGd2XZNDQqco3qHQWWhyTCZoRjXSGcX7mQdApNsIEwn8gE4vMIzwbu4lxnL3IsMBIwwJUYstF8o5CX5xgG/os8jAINT6qm2zCGzU5u1UCooxUAqNEuJXpEEJQ61A73k8Lc04SoLOVoL4yEhMFoy8NEqHqcnu+B8dZ8c4YHo2RWooftLxFLUQalazuseU7zi5JxxOmJc1AATmyQJjyOIq+NtXhtUZIl1mQuOTzKr0ook=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:8c196efcbed35094\",\n      \"secret:3956d8c32be87ac0\"\n    ],\n    \"constraint_ids\": [\n      \"C:f9e725cb9869fab2\"\n    ],\n    \"span\": \"In eastern ridge, Qi disclosed the reason the eastern beacon failed during dawn patrol.\",\n    \"rationale\": \"Qi knowingly violates the secrecy restriction by disclosing the beacon failure's reason before the permitted stage.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:8c196efcbed35094\",\n      \"secret:3956d8c32be87ac0\"\n    ],\n    \"constraint_ids\": [\n      \"C:f9e725cb9869fab2\"\n    ],\n    \"span\": \"In eastern ridge, Qi disclosed the reason the eastern beacon failed during dawn patrol.\",\n    \"rationale\": \"The secret is disclosed during dawn patrol, which occurs before its map unveiling reveal gate.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "b9ZEnaQr4dS1dsR6AeYiJHxWMY7maGa3krkiFBd9l38l0JZOOsjs/t5y2LOmWJPKBeaXjbo9IbJOsF5Prdrc847+7io3bHUKbD3rFFDCKxQfrwqq1yY0SgvgWl303XgClifKpMVWCLRk/F3yaEkdPakDiXIPMY2J91ophJaJOR61BRO2OMu4354hmw5vTSoz9Z2wy8KbyQycJS2HjaV95SZsJi4goVNBjC2f74hBL8nlUAjOCDJ8HimigEbkPqf6wMxa05+4fkge5YqzdcvE5YpIM7Webnewzt3WIE1LVFQ/ijvKw+pcYp7qy9APmQM4duBEKCZMZBUNjOJFyTldLO7iP5mDvkpbn3kEM5Y4G7czCw3D5pAIDFQMSA/DLXEtwW4uUnbT2AwliHb8mqRGGmZzXysp",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 729,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 444,
+        "output_tokens_details": {
+          "reasoning_tokens": 203
+        },
+        "total_tokens": 1173
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:8c196efcbed35094\",\n      \"secret:3956d8c32be87ac0\"\n    ],\n    \"constraint_ids\": [\n      \"C:f9e725cb9869fab2\"\n    ],\n    \"span\": \"In eastern ridge, Qi disclosed the reason the eastern beacon failed during dawn patrol.\",\n    \"rationale\": \"Qi knowingly violates the secrecy restriction by disclosing the beacon failure's reason before the permitted stage.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:8c196efcbed35094\",\n      \"secret:3956d8c32be87ac0\"\n    ],\n    \"constraint_ids\": [\n      \"C:f9e725cb9869fab2\"\n    ],\n    \"span\": \"In eastern ridge, Qi disclosed the reason the eastern beacon failed during dawn patrol.\",\n    \"rationale\": \"The secret is disclosed during dawn patrol, which occurs before its map unveiling reveal gate.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 729,
+      "output_tokens": 444,
+      "total_tokens": 1173
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a366a1cc7dfc450030749d2beb6d8f9f81b41abe3a836e6718d541954111f5f4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 1973,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 580,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 88,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 554000000
+      },
+      "created_at": 1783858700,
+      "id": "cttj1GtgVW8MEokt9HP6/vQaMnX/s4TLIOqUsvnWjS6hKJnllI6KIsOemV686GO1Vf5iXNNKNfSidYeFUvspDERCbfsZFwFt3KLMlxt52E8F9LPio7VukGzjiRB8vpq+sZe+NamRPVpSiKwzlgxP4zWJSG7iB4mnMMVVsEM/Ng+vwfyWanCBsfcz7RZHylQWYB58OrYz8xsWIKA515XZqczU/GcK21Z7WlMjlBDchC9B6rAcj3PiMBu9u05awPQSqoBWYBuAiRikAmacs31P5CagOCBhRDVRcJpZ85KMs0KUe9uEeT0Dg45x4TXwpo1m/HAqTeOvpw0QsVJYYXf+QOTvrztyDu3DWUvyQ++lRoJfl2NPfVu9PVQCTL28NZnyGKtbOr4XA1TFjqZb0xDMuOP9o1ijWA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c5f54a1493f10c04\"],\"constraint_ids\":[\"C:2e77cdf2d2489195\"],\"span\":\"At eastern ridge, Ada sold an entrusted route to the raiders.\",\"rationale\":\"Ada discloses an allied entrusted patrol route by selling it to raiders, violating her secrecy duty.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "b950CJ2jiykSME5kyTDSdJOSJmSJAo2fMHZdh74ZepHTFJ3BHoijlUC3f8RUvgUdfMeOrOTa4gKLITEPpl8ds74L619GH4o73keX81EnqfleL8zrD9V9t9MvZehdYSswnXPhJPa1UaCgKJj4qJ2/13dye428NjhGSIl+sF+FbZmyw3gXGbl8tGwIleW8ii8k950Um6mLTHv+JNoCP8820/f/IUN3yH2b6N76aJEUf5hysHZRYDYJ4IyWSI1kZrKG2kB+gfNuOwJpd+rA4UIjy+JGsOUPvOOzYLgYd20j4J+Xth3LABe0zCzO6TPAMGhg96FK3QXwFd3nVLSUhV0znmiqdWyQaOLXxnkBLbeb6N4k4RbKNnk+LzHfWqoZ1laDlqI6SaUtwyGELBULu0GpkKLjX0Hi",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 580,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 88,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 668
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c5f54a1493f10c04\"],\"constraint_ids\":[\"C:2e77cdf2d2489195\"],\"span\":\"At eastern ridge, Ada sold an entrusted route to the raiders.\",\"rationale\":\"Ada discloses an allied entrusted patrol route by selling it to raiders, violating her secrecy duty.\"}]",
+    "token_usage": {
+      "input_tokens": 580,
+      "output_tokens": 88,
+      "total_tokens": 668
+    },
+    "tool_calls": []
+  }
+}

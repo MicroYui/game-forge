@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:62013a6a842839248a5f1bfc00bc96770925c83c1cf01a565d40e2c4dd4c5377",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2575,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 581,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 130,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 680500000
+      },
+      "created_at": 1783848100,
+      "id": "xoBDvKzdG/wMxkjHmnGkGrl9ZNkwnHz2wYkO9oQfK6qkYMH2vrwmnrTGDkACalVtC1S896E1ehukIbFphxpdMpHwDAsmILHKKLfynAgNlB5AVQ/CIgiqgoHH0nJ1YAeXpNHW409wRV5zRUyqIN3KrUq0gz/d1pJqez7uJya291Hq0an/Xb19+2QM27SkiEcAkC4JR+ku62GWKNFTYU9MWgXEgdnjINVLRvUIGcpgzynclXbk67DMzRS9chReDT2ScQUdLKLZ5fuDwDQdb497ymXTJtz6obUsPlaojvGTcQ4/DZX/OxomkloC4wz6Xbs5rer7mZVQcLLuxMYeZGPPt8wLhfEhTkUkRNqreCbmb5fyxMd58/sxwtVoWBENji8VnShfOCM7Rd7bUatLZs+ckN7N3iZjyg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "NGznWAWqqEkitJLMZfddTSGYC7t2DJBuEjEJKFyX+AWEMGT1079RjC53Ouqb3sWxdUfAWwcHYQyhd2drS2W3nPmkGR3t7gW7eX2PoL0kwr+QKX2Ec7i7oBPTWyYhkKdcVC2KuSyQUShF9SKZPy7+s/GjHtCS04cPr95fe6KyTtaNW4BzVqUJEroUbbk0C+DRE60lTFLucQBH2MiQTcW/MeIZXzQC1/uSgGm4MELC5LQNVt0k/stKCipuRptJgmH+T2yYXk5FmyNY0PfVV+DH1O2Z6elRmME3PdFsvagWE5Xj9k5fTgP7XsWYKeexXEhD5uVaoNjqWE0SIva/9PXkKKsE5Juf3q1wQj9aC7qxV8GvzGQnfmBIU35TdM4peW0wchIqrEeBfW2S+n6IhJA1bgyhqBg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:78edda97262a54de\"],\"constraint_ids\":[\"C:d7da3519c015d3a2\"],\"span\":\"At cargo ring, Qi locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Qi blocks waiting civilians from evacuating, conflicting with the standing commitment to protect displaced families.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Hto4S1vTupeY0FNCgu4dyjGPePjp33rPOVzbeNi3Ot0HK01YzUe1RG3GZC1BKGqrMNZniqwRyGYGzZq1VMPYNaPCHwpOXHw4v175NbCwox+aIcJr883TGEx0YXe/lgbMxUq6hZ3pQpfJVUZ6XLy9xk2g+c3frmIGsBgsFpMpu2qw5j/ZufUUHc8InwaJzQcMoOPmqqMIZkQjtr6QCXUx60MGP0EpHsDA3rA9kzx81noPkYtl4QsQi5veCodZbrbqVrGQ7tALMLsJ7CmNTjwEkQmUgeE3hVKph+667TTyLFrQDIUEEqfwENQtLMWDUGzzWQXebT/oxyMwsX0ot6YfBCrkFTtt+treOxUMhq1cEQtsrn9FGOXqwQpg2sAzemv68TwF5wiSuZn/KIEuQV2ehFrgrbV/",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 581,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 130,
+        "output_tokens_details": {
+          "reasoning_tokens": 44
+        },
+        "total_tokens": 711
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:78edda97262a54de\"],\"constraint_ids\":[\"C:d7da3519c015d3a2\"],\"span\":\"At cargo ring, Qi locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Qi blocks waiting civilians from evacuating, conflicting with the standing commitment to protect displaced families.\"}]",
+    "token_usage": {
+      "input_tokens": 581,
+      "output_tokens": 130,
+      "total_tokens": 711
+    },
+    "tool_calls": []
+  }
+}

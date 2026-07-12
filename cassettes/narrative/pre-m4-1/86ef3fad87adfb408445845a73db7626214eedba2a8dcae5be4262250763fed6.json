@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:86ef3fad87adfb408445845a73db7626214eedba2a8dcae5be4262250763fed6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3477,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 533,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 165,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 761500000
+      },
+      "created_at": 1783862000,
+      "id": "+rr7RmSx7FLUdPNHZ7/qQ9fOEDAfEuFnUVa+xXcbUcdP/OP/pZhIHakCsL35ajdzJr+uKbAlGLh6avmGHpfw1wjAviYDuUjS5w8yBHPVuDykregV6WTct6a3QQ9AhXWTtz57wYyvkfH97ppgfy/+U5c02jlqDEbo5SuLeKJmW6zIyQ8ixNfk81E8McqnZajI4dFI05Qjy2B0qmYwlcEb6/HxXg/fchrPquV3RYECGgXMLYS3M6z2TlLLqLg9jVX+WB6UErH1KxvKJu5IJb7OEIDBdNn675hooOzHK/WjLzzP7sjsigmHEmxcbCyQat9D93kCiH8gmeWSUqK5c9n/pa0J+oui1hyhaVfDtfHmNnZI3m4L6V0Hkr7dLY0LxuLogECFL4SQj5FKn3dA3qXBlwUhPUY2CQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JB8h4LkoiUevKtZWOxylfGkLZW9++wuI5XCigDCc2KAtsl3qaJ3yXDgYjEkJQPmW6xCWGgPmVyx6x4aV2psLXecBLlXVikOuHwkSf7OYgi7V+QyqYt2aitS8PlfxwDrbmfXdgXVbUOf/LYh9TW7kkGgaRknYIHxCUOA29zfFL2lgyd4f8MIu93ufpfM5W4iaGFNcdGjxef/mZOgt3wFl1QN0qBG6CBv5im7YYHYPvwa9DtlL9C/BNsoFd9SuPNq5mtOG624hKtEGrW0LTXBiTMogHKrbpBNut1rYgpKWVs99ps0JoJ2AvrH4QPzyyCkPJNM8Lv6ARuGXPm6OMBlIxei+O3DOvfpXfCm8RUqgI1/aTVypt0MnDHIHpOSw9Wgc+Pz/BKn37kIxjdcMSkNjh5maFHo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:547c6538071282d4\",\"npc:8392279b1da80ceb\"],\"constraint_ids\":[\"C:04af3004c31cbbf8\"],\"span\":\"At desert waystation, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik jointly planning a battle constitutes operational coordination between Glass Court and Iron Compact, which explicitly do not coordinate operations.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "EyOqfxG2kS8Uj0+Ol6VmY7+oZs1IN1YhLk48dcCkW0XygeTtVHmkWbEm1h0EELkmttoLhLXGFuiRgqFQpcG8WMmIlOBU7mnozCJn1gnka7HkB/4yFvIPpbOWS86plrPyHMfTZnxvI6lxIMDOveYQqA5LcSVi9HQSUDrKOk8ekvmcKJAsbZe77bUDL24o5E+yUPDOhTAYdC/Dk6Av//J+9Gfhc0GI8k/x9g9bQn/D+UBq8VEZvuE8jTO0QZxmhvcEWeOpuoW+oOIk81qbh4iXQ4hlLOXl8OtdXoestbagiwYp6orCokHX3OkF8LCluWfzOQlUCeg/rIx+jjHYJyqSYbU5j3dVXlRri9u8u8qJekU9aR68nHlvJWOLyRUCIZy2AV37sGwUapa6EmL7pzgodvHbQRdy",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 533,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 165,
+        "output_tokens_details": {
+          "reasoning_tokens": 61
+        },
+        "total_tokens": 698
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:547c6538071282d4\",\"npc:8392279b1da80ceb\"],\"constraint_ids\":[\"C:04af3004c31cbbf8\"],\"span\":\"At desert waystation, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada and Malik jointly planning a battle constitutes operational coordination between Glass Court and Iron Compact, which explicitly do not coordinate operations.\"}]",
+    "token_usage": {
+      "input_tokens": 533,
+      "output_tokens": 165,
+      "total_tokens": 698
+    },
+    "tool_calls": []
+  }
+}

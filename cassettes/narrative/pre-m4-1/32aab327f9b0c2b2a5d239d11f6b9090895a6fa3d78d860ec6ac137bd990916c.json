@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:32aab327f9b0c2b2a5d239d11f6b9090895a6fa3d78d860ec6ac137bd990916c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3846,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 677,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 851500000
+      },
+      "created_at": 1783843200,
+      "id": "HpKtN21rd5gsXYDPD99WQ8jYmir6AUyMpIduxOtEE45rPz7BI8iG5YTP1Fiq4ZVPMSzdGz6NCuLyq2APrdwooc7nH48QgoiZTIZ4MwLvXLNpCPvRwS0oxq7xk5advCrTILO3FQlfKjqyNYeJwwQOvTPMRHiIZzoXJPSpTNj1P86r3h3AlBltGvH2fvvBkzx6xArenoy/uwNAxKW4n4fyfXOczuel5iP/nK8ZliWyI1GCZWqns7YrCpByHdsR+2rqQP64u72VDogL6/F45Ftnq63Gnd7exqWae/hqyzrAOxqylXwJfarc6ftwowYgP5hOQT0lnOM3l0IQaLFORiRAIi5pm02BLKg6WH+buJiVV4x9qmouP3A3jBOQLnXu8MGPqReQutbHBillQAWnEe5t+7ydCVn9mw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "NfnUY93zYwKV1AXPfc9mB4mBzcQxjJU/gnazZ+IMAQHaqeqGALg9QjaUYhtnpsRQk3mGlkAbfJaBMcF5RiB7JzKLLClO8fnWvvXb7Zn+whimkd/DZl75Ye7uJOzHjj43ahsNinvXav/PE8MrI60VpWMUZ0FwjAZekPUAgahLwz3KvOng7HHxYwawFpEt420HXU9/aghgp3BXMuBKao9fhQ4X/CICVEbwRxgMjJt6FyqCAXpkLmax7siiH1YgmB4jpqH7OX/TDnDhbE19t8tC3OFyu/ypiGusUMV9x4RSDSiZCoroW5EvWc1BJrW1FtzRYcul9BW3mr1jfLz41MyCqzVQ4lbmr/ykWQx+EunNeTg4ISs235Dayv+667DSKII4U9F8+/Vq/UsxwZPg5dCZ27PnwWI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:675399c25f22c8a6\",\"npc:6beafa131e14bf37\"],\"constraint_ids\":[\"C:dc1fbf64afaf0ed7\"],\"span\":\"At north gate, Veda was formally introduced as the Vault Steward.\",\"rationale\":\"Veda is introduced as Vault Steward while Oren already holds the office, with no relinquishment stated, resulting in two serving holders despite the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "z7sEtfCzA6XBKx48+GdrctMLqex2aLVTFMb4wbzdqrtajEmgDavwZHHKC0vnxcAiPWwBBaThppFVtKuVmrxK6/Pzuxt3me+qaBiSpItqB2FXjNOiFiVXZQUMvBN6MyKW2ybZBTqXnB+5EKSyMSwUzDmv528Alvp/JLb86UhG/vcFeRFUQ43cLB+TYTztaWp1JVCalLyqH14gfh8VQLD1i7aMV1MTQNRJUx6LWUyfJSEKwPQ9QFNaWtVu5RAvEJj8XfQOBbLurzB7/F8p1c1m70Y+EKY0RoTufZDmuVMuWYLMebPgvrwn0AdD/jq4PFqF15n0CNERbMbcuCYsokfwi019uB8XCcIRhgceA7R+67t2zvZmEmLVheBT4+kAtHT/9My6FI1x9usW4YyI9f4GCoKBcNMs",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 677,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 56
+        },
+        "total_tokens": 848
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:675399c25f22c8a6\",\"npc:6beafa131e14bf37\"],\"constraint_ids\":[\"C:dc1fbf64afaf0ed7\"],\"span\":\"At north gate, Veda was formally introduced as the Vault Steward.\",\"rationale\":\"Veda is introduced as Vault Steward while Oren already holds the office, with no relinquishment stated, resulting in two serving holders despite the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 677,
+      "output_tokens": 171,
+      "total_tokens": 848
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9a2ac4346dd9401ef63021dbc06d4c715e378035b3789807996969a0a31cb1ab",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3245,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 609,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 179,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 841500000
+      },
+      "created_at": 1783848100,
+      "id": "xayCEKYFgm0CDjup5r8yCRWxyOGwB7acWBvyirqUTyTsqp2scwyGk9kCwMbDF9tijsD1mm7HdgLbjKrTXlIrR9Gt4HBZDFmMksq9tH+BKqcqOlEXNr7V1zwk1AIeRkGefLGsANcmGkpM3Tpr6Y4yqAXt9CXk2wI0k56oFPO+X7xTmSPnj0xP7XychuD6jmGltO5viIixxG3+h6UjUgOZyo/JLPkbwWHL0p6aebANmVFR7ViSvHitN31d9SRI1iLPtDzdQoHKQkFe+S2RyAeK1yt7WWixj9oIX+O7YWLSxqAbwsuzPhRsb0FUod4TR6wsyUaMT0xlBGvdRuZX3SBUu+TRgdNNEyIA/kq6X/5sGF3vs06Gb7YVAL5gCknQmudCgEaoH38EHKl5nxVJNtit6fJzFNkFoA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "NKgHg38D1IXaR4/q84U03grQ1VKsRAHr5c4UmxhawRKcLuGbl88fLV8K51sgk65bDzNkVC4poOsnUATlQW0dbO6phshFPqaeq1ZNWD/xHKRkbWP/KWJZUYzjtJT3Tk80ht7o1pIfIM4grpfugCXJfLYs1rwA05ag7i0i/QRtDrG2jTsFYBnKs0fFAITIXFy7HvlquzY6ID5h5xiyyMnBj/6ZTZRnm7/qrFgu141cbflemtv3TE9DfZMQ8vL3bsRFwW3ho/YETmaqd+mmb8uYCgCGIGRY9BD79Dg0CFVcF3MT2T09aaTc2LlhmLjVVlk8os8QJQQScu4ionuSFYWCYX066w4OCOwpq7NgMKJLOYLwFdhKHl4aI0g6zssMCWXK2hqZ77MJNUV+UA8cBb+QA+Z4hwc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:46a70496569dda69\",\n      \"npc:c00176655ece30b5\"\n    ],\n    \"constraint_ids\": [\n      \"C:55da4ae0e8f669cb\"\n    ],\n    \"span\": \"In desert waystation, Veda supplied Oren and called the partnership permanent.\",\n    \"rationale\": \"Veda and Oren belong to factions explicitly at war, but the quote depicts direct supply and a permanent partnership between them.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JmbpJ1/HjyVEh7gP33vfIoKdMCvpgXsuB6i2IcHGYOXI1w3hIZbGMEKTMo3UIwaudlgk9ORK9UJQbSss0GfE0xhYVznf/7ITil/c2m8GH20q6HdamjARj6X6GMufjONCnO4ldb5kpf18gadrEYri/yuJrSzJZUm9ER4eFNCnkHlGJ7kE7oirsbFiRI10RQmn9+GcnXzcBroX3Nsg6+8fAQJlIKxldcVi/CUYNfYvpH3+ekJf6jlmvmNckdhP+yXM6ofDkR6WfrlBsKqNAC9DDAipbDCwP+e63GjVV+gh0crVMLPIZV1wixWyWiqxwXZNwxpLPcUh9svvWfbXgWlfdF0etX2LXtyAg3dqWiY1WaIywgODbgzWZSMEkhA9CoYkM9GTDodfr85Pru/T5kbVef2oCbfZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 609,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 179,
+        "output_tokens_details": {
+          "reasoning_tokens": 48
+        },
+        "total_tokens": 788
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:46a70496569dda69\",\n      \"npc:c00176655ece30b5\"\n    ],\n    \"constraint_ids\": [\n      \"C:55da4ae0e8f669cb\"\n    ],\n    \"span\": \"In desert waystation, Veda supplied Oren and called the partnership permanent.\",\n    \"rationale\": \"Veda and Oren belong to factions explicitly at war, but the quote depicts direct supply and a permanent partnership between them.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 609,
+      "output_tokens": 179,
+      "total_tokens": 788
+    },
+    "tool_calls": []
+  }
+}

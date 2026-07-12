@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6e28ba3be6652e78824d843a81ad9a6befbc0f043f15002dea662af571c99029",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4038,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 600,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 226,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 978000000
+      },
+      "created_at": 1783851800,
+      "id": "dgSNRep8xpQBCw1nDBiAFdHQvdeeVpuJDaVFvzMDfhwZPsWxkgImNO0qTgt/nuG6OdNeLqTl3PlFEE4mrtVdOFOVbZl32DdXAS7q+P07uXEh3oyCwiQJAJQY0cl7xinzOmDSqnxHaUVgvRTujpnlb45sipf6OvnUi3Acz+ACZfJXxBf8b3xH6TLiLxMcmCJBWqu4knYuuRmZjvRZTVasbmjmsfZemrh5kP2bsKt64zfzqmvx5rfg0z8IXj+aELLV/V3yscJoS9aggWNLqlGLC5D/qLOPA1LVAZSyMQ6YHWVxq6uDxWFfCkzJooyerM9co0pu88m0i640iFNfavwiv2BAX9qCCibqQrg9EX9pqCbwiZ9+cec1SnwyZluAVkb8dhmfc70QoksXhUlY3R/cxQ/ENVuTCw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "NC2eDgqCYfaBNp22wHNevLUGF8qF4Zm/OM2xSINQR4PBZGI3WFU1ruDw9KEmLbpxjOlndCNtPwLsUmu54+mN7Mr6ja21D7+eNPTdphIy0xLunBIn0M2OrReoO8aeMFqfftydtbF+eGBSBHA3eUPEwc5P2g11/sr7CuXvQ0fEB5rhEtVNgfum/B2Hm6rNDUc+HtdkNt2DoEwbCNmT/sR6TrQsPHzEfU5uA4YGpKhjX1cuGjFPmqbTFCgzYjS7SH9rYVkKqBfc+xJwMQ1+g3G4grvv/itTdGQnK/ntDxHVrTUMbnQDRddGOFInJks6nQf+cIxIEPjwHe673j2FO2vH5enY6/ljnBIq8VXGKRrjN4RAFcLsPBVuyT87DMxGtX6Y8nvqwa9kHWl+l+KkFK65ZeiXM20=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4bd91a7da2ecad23\",\n      \"npc:e36d12e086c66edb\"\n    ],\n    \"constraint_ids\": [\n      \"C:747962e0b1e55cea\"\n    ],\n    \"span\": \"At salt depot, Daro was formally introduced as the Warden.\",\n    \"rationale\": \"Daro is established as the Warden after Mei was recognized in the same role, with no relinquishment stated, exceeding the limit of one active Warden.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "e5CBOXPh6uJRsMCSbEVf/1+CCH/lfvwC2WM60ZRIrHpXMtAx38pzaOUFMRAqZkfvQb28IS4RYTjz7IsLI931GrwjhUQ6wwxjdk+KPwlzxigwnydHf2hPG+Ej+n5OLmU/PCRXYM72EoK+rIzoOwHuvtFgSlR0uZyTR+CwQv12tYkFoHl/VCk8m6rZdRc1B3k/ZV9tRD7igpW6d4wLJ0qveppcOFfGey7QHMGbrWG4v1zIAHAkK60Hus24znA9zrFSa/3f24JKP8j19esUYu8DC40SS338/fWXF9/ZASemEdITECqz00WON/ZTw+bihoOLfsIE7QG6bL3fi8Tpin/VJ0RKBLElqzLMP82qNro1zjD1v07rxgGSFfc/x8UrVmSFLNMzKmfLSpGcOb7G7M8VK2KaOdFv",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 600,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 226,
+        "output_tokens_details": {
+          "reasoning_tokens": 85
+        },
+        "total_tokens": 826
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4bd91a7da2ecad23\",\n      \"npc:e36d12e086c66edb\"\n    ],\n    \"constraint_ids\": [\n      \"C:747962e0b1e55cea\"\n    ],\n    \"span\": \"At salt depot, Daro was formally introduced as the Warden.\",\n    \"rationale\": \"Daro is established as the Warden after Mei was recognized in the same role, with no relinquishment stated, exceeding the limit of one active Warden.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 600,
+      "output_tokens": 226,
+      "total_tokens": 826
+    },
+    "tool_calls": []
+  }
+}

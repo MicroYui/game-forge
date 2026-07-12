@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a64741c26b6f6befdb8dc1a9cbddc60537d3fbd19d059cf0eec160b3c6cffd68",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5537,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 531,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 299,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1162500000
+      },
+      "created_at": 1783860000,
+      "id": "4efomJeHHbSJvGOVmbGFUIuJu4+ozZv4pAvoixmcJseYKkJFBDcOtm5K4nkAsJVoIBBCUVaCm/fIgBRMTZWRPqtZR9h5ZNxuCgLG9Uk4jPfvDVljXAecNMjWcKGmdMfHpPBeWowEx0NCmJFKGbaK941axzOvi3LeiuiH/hTlGI7mjYBRfr6DgPj7qIJZsH84ogtayV9cGTeBtOqLqcnXuop9f6Y0Uy/1BAHfZc3cL9U8SZ3e5/j4GjRPy57kZEeDo/95vIglM7i5MxMQ1JwrvBUe58WNG0LkiLOuBf6uDOZTOdVhowvCWwk04CKgA5PRckfL1kykPUaLeCNU1mmCTxPVVxBhsF5Ku8/F/Hv84CsgnsLjXKruuUi/d52OE/U0IxMz9xEm7zSvjRsdAa5N8CZMUIVLnQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gcpxeyhmvDpS22+KSANibT4F89UInzROesdKrM1JJdRe5bNi3wm3UJ1qHhyV54V7oUj9Ymq+f/UKZ7Zi1Ty3PZL2/D++hq77n/hToKiC0vopQKrRl50XbSxg/F+80wlv7UKFx0C47UWGH4/PCZt4cdRf8KJDP/uKsuqgCyao7oKIk6oedPRS7tx+C7azqbEVzt5QA4p5WRFrDzvYmpieU8PcPQU7KXTbbRC5bbD9k7MMWx4cV+Dy30ni4Zlq5TeYEm+Xfrm1eBKE9EELZZL7yeh2o2XkejZZY5MreOGJmJmDmjoqGGOdGgeZFw4Gxe3SUgQ7X6g5ag4Y/BGjCTUloALd4Zwv+KzS55m2PLi7ZX/FcfZ3KYLyk4AOW5lH1I2YxGN8EAdWWc0yZUl9ZAAQNZZgqww=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:9bc7564eb39de80e\"],\"constraint_ids\":[\"C:c2ad4802577af2a0\"],\"span\":\"Mei replaced the treasury seal after removing the public coin at old mint.\",\"rationale\":\"Mei removes public coin from the treasury location rather than returning recovered coin to the public treasury.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "xHL3OGjHKDQPpRRq//1h4Wwyotnb0LP3zvTES+3oRFbonmJR0ZbjRfT0md6oOkH+ald6bFXPkBwLdTZ3aDA/r+CS5wvkat+Zqa9nEdHuH5ly6+28OuuDV3fuxzHHrmCov3gYV4Nl/MoPx0I168U/MwvXeJvQ+iDlXqXXRUEeW/gBRwHlfvInU8DcPerfalzyMAzfbiAKfdg4frhi+cLJpUhABn0EXarsIcYQwBzkyXGXrkCAHewnIumeEAuWqMF3qTj4bdmXcNOqmJiBCxc9FNiX085HR5qLKrnyQg16+n9hslr4D97ggB059BRejlEpBxYgvxCnPy0MqPjeU2juy41NPgMV0dVGpWb/OajL1ff82DiVJhZXeAJnaiTNlHuG26mb2zHX7tYkAhefgr0aE6jG/ZWr",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 531,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 299,
+        "output_tokens_details": {
+          "reasoning_tokens": 211
+        },
+        "total_tokens": 830
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:9bc7564eb39de80e\"],\"constraint_ids\":[\"C:c2ad4802577af2a0\"],\"span\":\"Mei replaced the treasury seal after removing the public coin at old mint.\",\"rationale\":\"Mei removes public coin from the treasury location rather than returning recovered coin to the public treasury.\"}]",
+    "token_usage": {
+      "input_tokens": 531,
+      "output_tokens": 299,
+      "total_tokens": 830
+    },
+    "tool_calls": []
+  }
+}

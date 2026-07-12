@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6894a43af309f0d1f5ecaa035e79ad0a0a51649723771d9f495f6d09e053a968",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4021,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 517,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 129,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 645500000
+      },
+      "created_at": 1783854300,
+      "id": "SoW15eau6xHjPK8OYI/EkaXzLLd3+E3VLC0guzrN+OeEqE8AKSHszWdTlSPJLX9pqGKZthflf78PUr9mIMrgq7oNRcUrgLvLv/uBhcIDx29rND2hAeWbjhPiMHvc3CCeF9jSBIXGJyOeJBIN1YCs1mVUEYiG09iXuAsgDI2KvAIWyD3lSogW76bpuegE1jTvbhQcwx7ykz88s/DG6LIly5oZOqG1CjjlF7Jn9TpbGGeoEZJcCq8LymZxle4tBbOW/2tkWyBLGrwTyf7KFVn/rFHdQ+CNVkfFinbAL7uij8WhNSop3zwiXxOGkqY/qnKR+qFXM5dqOsbVp7fv6fHEEt4L7zeZA3HAIxRUl/RykLIWevIeM3sj12XWtsb+kPsphGLypqQOpu61tqr4U4tKyLgCnndoPg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9d67NOgQD75hXgQhDaHYWGh++QkVq1DkpWUiWRcRrKsAK6TefWeDRVdM8fvE99wXzEbVIAKyzF5IysBPWJVIrG/CdfXk0pBQwqjo54A6UqbVeLtKpt0BiQUNjuGf+ATV+BUPgY2CXaT1F239B/MxbtgAJVrSQ+DvKrSw0LVGElnJdi6FxWZLG/3L4XqH8qJgO8JM3r2MZkacx9fwUUwqNrq1LyM75L59UrObCW5eOrRrR06buErlVbYBc/aBTJ1BwENrGcWf+R7HtafEdEBTDh5+w2gbuXi7Hdt4P5kQPJ7CSCt3XPbKT/7yvJEez4+0cpeXnxBVA+Z96Lp3GcEkK+b+GCMXopJ7XwZsaaTNfPbfn6KJ9KdwVGckiKTfBjlsBOWA4e/Em1cHX0rKg/7t6OAWoUo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:da2aa27c9f6bee25\"],\"constraint_ids\":[\"C:8fd44902f5abbe8e\"],\"span\":\"At cargo ring, Tamsin sold an entrusted route to the raiders.\",\"rationale\":\"Tamsin discloses an entrusted allied patrol route by selling it to raiders, violating the secrecy rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "V+GEQ71n+PSySL3I7Zl+XVSLjH65Msm2mmegCXgbUQgsHi9lDBLrkk8NsE0qXVIyuYx5NmgOBk2U7Mn1dKBNfSZKr2A2rcq2HmB61mlABIXeIWHScwgvanJtJzzRlBAqDJWggkW8gxHIqSaFNopYUJRATFKO6D92Qeh4NCbwXqdaTylbHMHnInoUUiNM3QDb0OOkDWPM4S90Aop4GE7TUPZ4cfWnlb1j1d10CgjcNcWelbuH1scy/fD1FXw68GyyrRcWvny+ELE0AJEgUgbthk8aE60JGgseclUqQuCY/wjRpoWGK2xtortrhB+CeNDZmlUZruw/MfAO7r+Mutd+ntAOjsuPL/bi0KNwZo1m8abAiACwF11+ScxdVhsm8scQYyrgSCImStK95fXNK9M7zgM6uSHu",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 517,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 129,
+        "output_tokens_details": {
+          "reasoning_tokens": 34
+        },
+        "total_tokens": 646
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:da2aa27c9f6bee25\"],\"constraint_ids\":[\"C:8fd44902f5abbe8e\"],\"span\":\"At cargo ring, Tamsin sold an entrusted route to the raiders.\",\"rationale\":\"Tamsin discloses an entrusted allied patrol route by selling it to raiders, violating the secrecy rule.\"}]",
+    "token_usage": {
+      "input_tokens": 517,
+      "output_tokens": 129,
+      "total_tokens": 646
+    },
+    "tool_calls": []
+  }
+}

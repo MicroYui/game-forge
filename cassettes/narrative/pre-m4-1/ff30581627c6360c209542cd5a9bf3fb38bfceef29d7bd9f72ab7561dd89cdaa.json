@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ff30581627c6360c209542cd5a9bf3fb38bfceef29d7bd9f72ab7561dd89cdaa",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 8307,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 555,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 572,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1993500000
+      },
+      "created_at": 1783861000,
+      "id": "7nRv9z43wbMkfD1Yoz1P0N46Gj9THsj2ttAu1ooFm/GB1JJo9VV04TJzHbiMV4e2L03EsDhy9KksHijSpN1tLYnebDbHlWyRJEm7jN9SW4LfqCJtFUvkZb2lWHFoY2SiSCJSNn7L6rCb1sGhf2T3/g8H2Ir3ZjVJh4zzP2TcBRNMvKsvu15Bc1wsrlPifmtThQwBSec00j7XjkslK3mBNlv32qiA+Ww/zOWdSfyP0rSbHdb+WDS5k9vbHjckgpIU3uOMWiEEoYuz/JJ6LmaVnRP+VvGq2SHkJdUQ1WNQ7RQ7rSaxDCrytZMc1+xtHPA1SrSxbQTMs2NhmVOH+FbMTzxZvaixfEfT1oOCwl25w+Eo1uawWJ8qYjT6H5e1AW35qF2JLjGJUekiRPTrAtJWbjtrOggoNw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "CqErxOMZHU44cUYtmTv/nZgfiF9PAb4X3Pen8M7LrO2qghPiyJLOwX39En3HHsYSxKFatVk9hMYZoPhX+HecHqFd0UTEsJ6yODEkuMqx1Pl/JgCuH/EFSQ4vbMtF5ZIIgIBYC1uisaMjZO/nIKcrbDTcUObu0Ikw4IHPSK26ph9i6RTJd2SS8xOhEG8Tglx5/T5EOV58mbZtS6IckpN8qEhGSaBowgenAaS1thi1nrZhx26WbwktN/bxpNYN2JsspWkRb/Fe8Z6zNtP6zpzRpEya9LN8jJ4DBiOvGOsdOhMJLeSaQb8deRsoATzJ3y5uGOIT0UByNEVevb1pz45iGibqdJZLyYLKoDCJMl6zjKvCUSX3DNB18G40Qy3b3LQ2QN+Epo7DkP3yNp8yy0OMuaE+6pA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:0ae47d384553d635\"\n    ],\n    \"constraint_ids\": [\n      \"C:358a52e1b5884710\"\n    ],\n    \"span\": \"Nyra returned the reserved rations to public stores.\",\n    \"rationale\": \"Nyra returns reserved aid to storage instead of delivering it to its intended recipients, conflicting with her public-aid duty.\"\n  },\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:593d7f21043fea22\",\n      \"npc:97f277e682ee6085\"\n    ],\n    \"constraint_ids\": [\n      \"C:142f188ed3c0f61a\"\n    ],\n    \"span\": \"Daro signed the register as the Beacon Keeper at archive hall.\",\n    \"rationale\": \"Daro claims the office after Mei has been recognized as Beacon Keeper, with no relinquishment stated, showing two serving holders despite the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "bblsvPUuv88mf5OazO4SWzKn8lsp41iiX0wsHqK4Z/w4q80nRLaIDqtu52LdV+24BSLgUsn77MYXI3bYZl5SewEdt5df8gZ172Fk0181ltOL4hInu3yxiSeDV/7BRFmlV7I9ewklzcB/G3jPB6ORyqyZzHOawMrNOIRRd+h0qY/Ko68bbdiMSw3QDdnXagFaMmtsm7JUnThsEZ1bflvdND9dx1psmg09zVHeTZxR1XP/QdCWPA9BIp5yY9jtotVmay/Oh09CH0tlRgTFY0bkfTRx3y98I/QH7hXGNRpCarIyGYGlOdlOoR8zm0leLg5MMw2YUoNicKXronoHp8POJXp74JPPclYBAo+mcqnwGkctvG7RSmSoq/8dZa6rB5afyo+A+I6q9AP344k/nCFPii2USOWE",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 555,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 572,
+        "output_tokens_details": {
+          "reasoning_tokens": 332
+        },
+        "total_tokens": 1127
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:0ae47d384553d635\"\n    ],\n    \"constraint_ids\": [\n      \"C:358a52e1b5884710\"\n    ],\n    \"span\": \"Nyra returned the reserved rations to public stores.\",\n    \"rationale\": \"Nyra returns reserved aid to storage instead of delivering it to its intended recipients, conflicting with her public-aid duty.\"\n  },\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:593d7f21043fea22\",\n      \"npc:97f277e682ee6085\"\n    ],\n    \"constraint_ids\": [\n      \"C:142f188ed3c0f61a\"\n    ],\n    \"span\": \"Daro signed the register as the Beacon Keeper at archive hall.\",\n    \"rationale\": \"Daro claims the office after Mei has been recognized as Beacon Keeper, with no relinquishment stated, showing two serving holders despite the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 555,
+      "output_tokens": 572,
+      "total_tokens": 1127
+    },
+    "tool_calls": []
+  }
+}

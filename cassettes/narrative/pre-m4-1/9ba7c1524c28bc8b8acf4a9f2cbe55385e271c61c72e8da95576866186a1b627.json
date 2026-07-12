@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9ba7c1524c28bc8b8acf4a9f2cbe55385e271c61c72e8da95576866186a1b627",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 8976,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 561,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 432,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1576500000
+      },
+      "created_at": 1783846700,
+      "id": "iWdFJvKPnwUKZ7KAAQxza+EgFcmxJY92DJOtmWEAjBxF+dTjqVlCMCZAHwi3V8H/bAUtLlPMxka0rvA9oh6WiM68Z7QKg3WP+qPVAf9TKia/7ZrCSJMDtcNmTa9CopvvPb/cYqWGtPhmn4SmIKzQAna9OUk7KPChq5Fg22CGXlLszA/Wkl2WlxREpyfnYobzDlfLc/dh1TBFkXroVNsZfEjKMZseycm2lecqcqDM1RD2BUPk9+IyA6M5380M85YZkrTu1vzTWul/dowhpGM5rP3NQsr9jX8kEPm1peQAsuD5c/jHYQvPXCehIwQrQuiGgVQFlhCkxNwa9jdtF2V3NvnUMIzT9dVLBr2M/V5GoBuXvkNQrU73BpXZSCWemeEhmpf26HWYnflJK2Eb5nx6spWg22jm9g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9oykdPx5udJBNW3iJFl97Nmw8s82TMfVs1pmk4zknC6a4XQXfSuQKJkTLuAFWjJFxdG1f23aptPo1ujDhRysaSHpTzgeAfn+WVgyxc/NQGNq7nDSnnJZCF6aiII+A/R8j7M+SQ6ZZfdRt3D4lgENV3TcA6A7JA0jzTLBIFTN+QZ/oc1v+XPash+l0+u+2fUA44Fy94wqupUulfGb1gDXo1cxGHkGGOQTr23NUl78H7DKkDSWd3LYpO26vps1NycGRCzrmFxNZrYsayiBUKXH6P740ipvXk7UeD7QxkhlpQIP60YJ+f0PhV/ijUSiv1M3Fy80VSNVvS8nPtmtmPngK1Jp+aGgO9PkR+ojRiFusnmmPt5OVq9rHZcATgBN5/GtZCsdUSVzlDHClc/A7/ijodZ9hVQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:54e6c26f83477263\",\n      \"npc:af07435d2d7aa7e0\"\n    ],\n    \"constraint_ids\": [\n      \"C:3fe4a6f7a8cf4497\"\n    ],\n    \"span\": \"At cargo ring, Iria was formally introduced as the Vault Steward.\",\n    \"rationale\": \"Iria is introduced as Vault Steward after Ansel received the same role, with no relinquishment stated, showing two simultaneous holders despite the one-holder limit.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:e2ac19ad0e6d9624\"\n    ],\n    \"constraint_ids\": [\n      \"C:f9804e1594ae4974\"\n    ],\n    \"span\": \"At cargo ring, Bram transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Bram transfers the recovered coin to a rebuilding fund instead of returning it to the required public treasury.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "I8mCvgoxFQ1+WYgyDW2chKJXnD/eZoaa4XC4zj8TK+/lEYbWEK3CreR3MBqUjoyNgefYMcB4iRkf4RcZu8DmuZjYG+L7ehuJAr7Vo2ifOQmfZx5c5mfdDgh9E5X+F7ClfbKR1Gfx/I7w6owXvcIfADIVydY/i5ojYz6dbIQHCNjZ19d9JERi8iQhB8JqbOO+hNpfHyAUuB33hsvaGrHwCbIIKXoNdcSwk6NiwVRamuJ9oo0+zF6D6sc4yGt/+qOilxFtLvn0Vxaj7NT5nmNIOrobB6ZpR1vVXiE3h0dILyU3X/Chbhx1g1WuDeJye8c6jmnK69ZK8LuoibzYvqDzKAuTz5eSkcWU5xoEIQevlfVU9m+wLm2L7TpcOP2pmf4Wdi4he0u/gbpq3BfW9N7nAQES38Fe",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 561,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 432,
+        "output_tokens_details": {
+          "reasoning_tokens": 184
+        },
+        "total_tokens": 993
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:54e6c26f83477263\",\n      \"npc:af07435d2d7aa7e0\"\n    ],\n    \"constraint_ids\": [\n      \"C:3fe4a6f7a8cf4497\"\n    ],\n    \"span\": \"At cargo ring, Iria was formally introduced as the Vault Steward.\",\n    \"rationale\": \"Iria is introduced as Vault Steward after Ansel received the same role, with no relinquishment stated, showing two simultaneous holders despite the one-holder limit.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:e2ac19ad0e6d9624\"\n    ],\n    \"constraint_ids\": [\n      \"C:f9804e1594ae4974\"\n    ],\n    \"span\": \"At cargo ring, Bram transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Bram transfers the recovered coin to a rebuilding fund instead of returning it to the required public treasury.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 561,
+      "output_tokens": 432,
+      "total_tokens": 993
+    },
+    "tool_calls": []
+  }
+}

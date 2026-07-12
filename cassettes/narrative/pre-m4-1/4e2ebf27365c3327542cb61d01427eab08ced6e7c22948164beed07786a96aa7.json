@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4e2ebf27365c3327542cb61d01427eab08ced6e7c22948164beed07786a96aa7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3319,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 544,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 167,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 773000000
+      },
+      "created_at": 1783854000,
+      "id": "tgiZFqZPcHBbBG3DT3G6kWOdGQiKNm+d2kMZuX/8iPb1t29zL3fsgay3jqi/8faZchqbDKHgZz4pG1g1xNtAEH0ynQeDTOLOQpPzbnZAMsMA3IAiJ9iApti11WkXX60GKXx3MxbWNUJWlXp2eiVh8OfbMOHMcBYYidC+1XMWDV3/hr5qnGsYjCJVX/dmx+W+/uN8+k1FU0ZGCZBN6iThlbBi9hkD/d7b+jwZkQOic/jLFv6PE3u6Cz1aFxKn4bjBQDOOMwd9ZpRIW1fAk/e6OVQ27hWsBVEWd07HNN0g9wRJfPnJs/+12F449R8thBrARdv9CbDWlJgk7UPxqaTQyGWkCt+FuJp4EaHkEDWx826UKEUSXG6tp0KWr+k/8x5eUKbP22AGL/7Q/S7wTPXv4Dre2+sw8Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "sgrU96Y028ALnOpO5iRA+1HD77N+AN7aCSu8Y1ltdv6tMSLCr4QZSQvRYeNK5x0pagFHxkstq9N2nGnHmKo6rKlR1uV74+/tOEnhrUnqAdPBLMTZq03P3y86wvxxsUbfgQNDDiuWScPAfygS83CYVKR6ao4xWMfzBWqbYAbwZOXlcwOLNb74zpQdZkWr8tCTsTHvw8JXi7IQ4fiO4bdp8p1zwla1WnLhBiwZQ/dhG/ly+hJesx9VbRHOkbFN/A+Rfc57hDfE+EWXRcNjdDUjbQ6adl3ZKHgw0+CDxJT4HCknPanlNGxsjBdk0AdzHfvzvsCignn/W1dALOWi8qUyk7MM2+qiiuOiomoC6VZU+WQHK0TEGaRJuQc22K2oEaxA4SYZwolxH6X4C02vOraXcMUqSnY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:a52c7e22cd85b796\",\"npc:aeaf6225b237dbf5\"],\"constraint_ids\":[\"C:eeaec4ee6a47b194\"],\"span\":\"Qi accepted the title of the Crown Witness before the assembly at river market.\",\"rationale\":\"Qi becomes a second recognized Crown Witness after Mara was formally introduced in the same role, with no relinquishment stated, exceeding the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "81P1U6v32XJidDk7zOb296w5i+b7ki/R2eSEjfsIgFGO/3HjqnEeCj/PZjavKnz16JdCzooVoixfr4gV+m7jnCeodJma0iwxfJbSDJPGvx7xxddwGGPXEnraVYNcaexITWlJoQ4bSks6Yhai7XDeg/B2EuTH/X9+/xfNXchHRJbpOKbY4txzndUgKrqXGji4yzM5HDKjZtcjLxebcgXU8FMgkZJXgMbGOf/82SJUJuFN0GCDxE4culTMteF+Ai+aNzV5O95PNa9lqSRakIQooRUEhC7ovTbWrPSySzgIM7KrnxUuQWu8sZRvNX7Tsh2YlN9DYvYWlQNAjs3ybCYm2fbusjeaFx3Xe5RcneTp6xEFIRQ8utr11YEFPHwGE4JCXUdcbtpd+T/62EAp7x7bL52OKawX",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 544,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 167,
+        "output_tokens_details": {
+          "reasoning_tokens": 55
+        },
+        "total_tokens": 711
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:a52c7e22cd85b796\",\"npc:aeaf6225b237dbf5\"],\"constraint_ids\":[\"C:eeaec4ee6a47b194\"],\"span\":\"Qi accepted the title of the Crown Witness before the assembly at river market.\",\"rationale\":\"Qi becomes a second recognized Crown Witness after Mara was formally introduced in the same role, with no relinquishment stated, exceeding the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 544,
+      "output_tokens": 167,
+      "total_tokens": 711
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5c68afc23124ce05293fc080010127465c24d1f29a585201fce6300d6a84d6d2",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2903,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 605,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 134,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 704500000
+      },
+      "created_at": 1783854300,
+      "id": "uSoIQyKsJypELnWLbwNd3XdARWtfAuORUqC2lYlF3RxuLaU3MfgUFH/rM86iO50QUBKBF6nGAbyR+/EqeltkQgP4bsByvQTJHfIW79BFTWq+QaQ3jnFRzVVi63uF3CBDNE5Pc0X54+IrxdDnItBcKQsI/v1vZOUyd+e4OFaeEL56TpxCkradNfgEJuITmoy9lmGH9Sucql/bvbBCFgagteBodfrqMCAS11vF8KnGd+5oh24D0aMtULipG+zpdTgTmEHK8iJiGTAwbIs117PJE/LAKH3nb5PTK5NlIEmsst8HwpOuBQ0WleTbIoR/o2NrDbFqaiUduFzuUI8eeU6uJ+yORmtUPz7ilI6ZLsVr2IlQPZ3moBxfsHvs5f1DzleC0dP9iQA9MtrG2VSZedwmzOogvDWRMg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "xSMrMGhi3ebIXXJXlyYaK0mXjwg7qtpOUs+eVcVr7OpXMHII3mJRZU2gAhQAbd9IkZytTnUI0Wa6pwzsKCggIxuYM/q1Gxf9h2ZD4Jdbp8udv+neU9ysPdUkBNLWWAxC19odwb6Hv5u8PuVLbWT2Pvor6NFPA0B23YKlpcYvMfGGSlZPcG141/KdJ8qDBdFcd2IuSlalBH3qd6cQWipm+COEDM4G/+lEe0toLhiWz1ZgZ8Y6QC9MhkcXlx3119zexs77LbyHi9bmlyg5h+Ca9xuIb9uu5xpIrgHufztSMFsr33K+DlPXnUZfIcLfJdgBpBVaHGXXDsKgyUVQT4JWEQrcItLhMzCVYbqa2NCdP/GdsViF99Dpu+HC9M1VhF+mWzhyX2E+Ho3qmFkt/gYFomVHBEY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:61b8d597a25ed72a\",\"npc:b11678805223b084\"],\"constraint_ids\":[\"C:eb596c1a08eb3409\"],\"span\":\"At lower court, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli jointly coordinate military action despite belonging to factions explicitly at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "2ypVcGQpUOwEH0BSLIZpM//zoLVa3go4eSCq2VsgwBDjGwTwor40yQxmPALbchPYDPZhE6339F9NmX9QvnXi8SaxpPt+bGvJmNvv2TgfCsQLq7YukQsHftl2kH7ZAPSpU0BprCLlzLlxu+M7GE1QPN9Qk62tipcnn8Dp+cowfCy7xA4z/tPhPJblqXCf8XVV7hSOp09Xy++I4+pP2D1vsUOxLNPEl7OLRsMm+aqCuXhXLPKwEmp8E8wego51o7en5yOXz27EVuvRsS/7tqUxpXo6eYOCDGl0Kli1bWXccdaPxX4rXtEUdpX/mZlWkhV7xHNLr1aKJ4NZ3WmFyQO/uTySkZ85rP8pJryyUkG4R9z3MBccyQQ4XsPc9yM/2Li0vzyHEBTeZOOL/L4smpgBMsbue3og",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 605,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 134,
+        "output_tokens_details": {
+          "reasoning_tokens": 37
+        },
+        "total_tokens": 739
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:61b8d597a25ed72a\",\"npc:b11678805223b084\"],\"constraint_ids\":[\"C:eb596c1a08eb3409\"],\"span\":\"At lower court, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli jointly coordinate military action despite belonging to factions explicitly at war.\"}]",
+    "token_usage": {
+      "input_tokens": 605,
+      "output_tokens": 134,
+      "total_tokens": 739
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:79470ad119274a574db7d9f13b26323d0961365b4c23b3b86fba5b79a29e577b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6506,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 559,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 179,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 816500000
+      },
+      "created_at": 1783841200,
+      "id": "+EFVyrkAnzFs/ec7GfhNIz/eu1xqNWqFFX2WOQVebJ0rrsxRONjoiWMtsle5iKaIrIAyibZmQFMVr+NXG252oIgg+A/hQdFYO9ebpea9vWORlVm96cIExr1RudT9sDS+o2Ii8QsJ7rYE/IVp8wrcfvPS06h4shyDY2dBxMevllmBEHsHLetj/VGtZMAROI7NsJNcO/tOVDCy4qUKBIT3WfwdbMrZj5eAaNgW1KTn78OoaI3bwMR3HUQ8Ggy+yDlWKFjj5WzxcXPmqE0Op7UllxSPUz6s6hzoQVU4kk0YrxXycfrnd4lwQhNu+P2zlEmAZX0Bn3PUmmnfqqPF+fd5iKA5fdGzNs7ipjXVCRCgdyBiExX7eRFXgPhHyYUex9e8qOv7699gy4murGTtoqh1JBnWzoPBNA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "wNK7wi9/ooiBFZws5iajaTz1fuImR4VN2ZGKjQI6Czf53y4hhrI0+7hWmOiGnWc0OWLf4FAwgoF4TCSYZZBaqiw9qmobQ24udSPBhe/2lF8BblgOlnKZikp0j/sxiascV3Kk8OTEbAtffIuE+IDJU9zabM/sn2joFh5L0U391fp6VbmWaT/cY7dGJdgWKZMDom8rwKXHkJVeVOOXSGQZIixmpSCFe23o7CQyPMA4tEYF/7JQuvTi6Kr1BRfpy1H4cb4zjXVwLxnY5EpJP8wI4Ox0fyNmtA44D5idi5CdKlNUeZg2OHqEaTNxoG0zRfVlkRGDTYmUITjtYuer/DFwbkAWqr89y2cRV+dNw1fm7UPsdP499p2fWdkStSLWkEZFJe0ZLTrZBRpNRAL+V6dJVbwFjQ4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:21de96697e09e1f4\",\"npc:f2224aae692585a3\"],\"constraint_ids\":[\"C:0b0667aced535d81\"],\"span\":\"At relay deck, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro jointly coordinating a battle plan conflicts with the rule that Archive Ward and Cinder Circle do not coordinate operations.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "HCFoq+GleIs6BICCFlszq4Xbkth7C8A8oXmdG5alaxtL7Fz0nWLjLRb1F24AhoDl0nbRrWF4uqmiC2Y/dgCR8Z+d/yfiZ/oFMZFZIwmX6lUB9Zw1iAxTApNbWoWAwoOgUrOqdUiVi1E6N+6HSSIzrCUc+urDpYsKCGsp545tuiIQXdHFTufafPNJZIZiPQMNuZWigoQfagOA+3YQhcU5HdEIrsqetOKHVy3meaVcJOJph8sgrUnweqoDUJCErB0l/FeQzsCQ+5qBrGAXX4oz32tYFXGovBti3tbkg2frErWqE9J9hmDo0lGOrV6424QIbpJJGaKEWyu03Bqu2fMptHRJJpFrt8kt8ejBl3yHrpPr9ErEr5OASNuCvMVcU0vh4xRqVnxxMy0wdY+Dfqh6mlertvom",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 559,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 179,
+        "output_tokens_details": {
+          "reasoning_tokens": 74
+        },
+        "total_tokens": 738
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:21de96697e09e1f4\",\"npc:f2224aae692585a3\"],\"constraint_ids\":[\"C:0b0667aced535d81\"],\"span\":\"At relay deck, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro jointly coordinating a battle plan conflicts with the rule that Archive Ward and Cinder Circle do not coordinate operations.\"}]",
+    "token_usage": {
+      "input_tokens": 559,
+      "output_tokens": 179,
+      "total_tokens": 738
+    },
+    "tool_calls": []
+  }
+}

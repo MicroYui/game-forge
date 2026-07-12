@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9f15732bb299bad2e5ab946ddc5609fc347eb5de69f0df50d8b731f081219e9c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3811,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 611,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 224,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 977500000
+      },
+      "created_at": 1783843200,
+      "id": "5xaxePiwccqWxfpjFEjlyX+1pq1kMd0XjosriyHNqSLNm7sZdy0MsHRJ6k1E2OInnb1mhweFHi5NqpfR/miOHYeaJnMIiwiRvr3NBWziilXCggFfII4WPUxbsQW/NL4Bg0zfNetw81Sln2026lwOt6GtPyYMYGN+6WfwJwVw5pYgH8jqC/HijnxX5+85ZMYyh1r2gQQv4WXML9bzeGTAr0wHwp/ugJ/m3gu2jIDuUq3IBdxWDR+R10YfNAZfdG4qfGGleupoYq2sJ36VLTmok4efm6QuT9fTh2viI3VVAIWOP1GeozTg9kk8ShIwVPgOe2YiNLHw9myHUf4L0s7NXHbxQuIHmzvjFki8v3H2P/RjsqCVdcRyGttFctQ4nHVS6shm5R0VKqy1I2plni+oWdzswIvGaw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "TAXwIk+Qm2cGoGRUj5zK1iglu/yRWfISsslZi4TLQfpn3jDk/n4O0tFOoTQewcJrwS60sNSoGecowF2lIyNCuLXJl8lpkOA/J8SUdYIPvLGGM1Q+0WUFeaGI+2DjtbKBTQoID5ozJOX/kjnpN9vQCihBsr1Qkz2nnykjdgnYQfLQoUGA+HgZMyt39nQhLNIKDzKNgKwZLW/iQSfMz5Vpzj0J6ShLgcrkc4urFxMlom0njit/wbJ5IN0mOSW/jxmb+C3vIF9heIF3Lfey82Ow0spxd9lw/pYujsFukw0HOyGbnVi5WUK0fpCDkWbBM/EcZEsLjeSi+Kf0SVay3NlV23maQwyot0rKNeZjokh19ZBsoZ+a3+W7iUBJ+uk3XlQvnoD5sT796LfKwMxcBgjFxaZYtyE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:f72c32fdefd7af2a\"\n    ],\n    \"constraint_ids\": [\n      \"C:97d4d4de98974201\"\n    ],\n    \"span\": \"Veda publicly renounced the oath before its terms were fulfilled at cargo ring.\",\n    \"rationale\": \"Veda abandons an oath to an ally before its terms are fulfilled, contradicting the rule that such an oath cannot be abandoned.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QG0OyGel1Vmv/hGRCiB69xggtIx93cPQu4PCYnQut16WPz5La2OVFSEHY3jYWZgHPK7pfKjn8yEfyDmj+WaSoQSvYqfSeI3SrqqeZPiqAUtAm/UygmR66Pg+0u2tRVaE8jncQ+EPTwr3rcTYbEHRoEuUqva3WdJu2JANp+mu9KPAJj1ujgwSMtl5NrPrEdyX8fWFjqf7Q1RpUjQCdm1AD0yLrfwxzQKeJ8G0GwHKH490G3lrPytVOWtt3saTR6Oe1MI/6IzctkR5xMkAv/t+AFrQnb6X15/2v7MARo8BLTpJlkAyA/eCam3Y+y4lgOm109/ffUw3OxW7Ie0MSLKb2NIs2pRNeIUwUiGLNZo7JbQUGfPL1Py7V22P4bXoSu75EorI63hvF66VX3uWg+iH860mDNZ8",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 611,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 224,
+        "output_tokens_details": {
+          "reasoning_tokens": 102
+        },
+        "total_tokens": 835
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:f72c32fdefd7af2a\"\n    ],\n    \"constraint_ids\": [\n      \"C:97d4d4de98974201\"\n    ],\n    \"span\": \"Veda publicly renounced the oath before its terms were fulfilled at cargo ring.\",\n    \"rationale\": \"Veda abandons an oath to an ally before its terms are fulfilled, contradicting the rule that such an oath cannot be abandoned.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 611,
+      "output_tokens": 224,
+      "total_tokens": 835
+    },
+    "tool_calls": []
+  }
+}

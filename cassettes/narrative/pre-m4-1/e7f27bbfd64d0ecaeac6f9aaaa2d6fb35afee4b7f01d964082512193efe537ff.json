@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e7f27bbfd64d0ecaeac6f9aaaa2d6fb35afee4b7f01d964082512193efe537ff",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4299,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 561,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 258,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1054500000
+      },
+      "created_at": 1783861900,
+      "id": "82YztSB6gDXhkmQKPsAY/+hAtVTNJo0dCK/3nuxutDBr4SRAfUe3zKBtxSf6rhOa3tF6gAHNvlFBjn9gDE0zNjM0E0IMYEucAQHwaek4sSj8Exgp5Tjy1ClJOHPLGt+XeXXlf43Z4x9rBCN4aDn6W6z+ZvjNNbqR+Hp9KKFfmwtFrZkbr8rxLlwn+k4OGjH1zvGESARz5Ahd/QthCOwROiADk4+0MxWA0c6NBHMcNMdFjFACxeFRUvY3tuBvs4xhGbYCdooucbuXnxtVfDvZLWMeW/CrYJ7z7s20/W20tT6GjYu74fywQOA05O9ALUy7FLu1WGJTRXYrKjG8UF6zE5qZ3Ur7dHjgqIrFxEi0m6zBf/SBqGRlAoHgQMTHv16840/IcpLoD00GkpjpcrEE/D7aK4ED5A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "sHCQbuiXKS8HqCZa7jnnIKCqf3R885DyaHYVNNYTek1Xy0AFHxUQZ3EO65Kaght2yHLDSAiUyOroy/pDZ0nHfDwq9TGBphQXLazEoCDlOwY46KZ7sLU303deQUSaP0N54O/rV2wdfwgB3Ped9QBjNY3l8pLB9/h4zMOtT3vZaOky7Onq6/LFeEMfo0p9IW0iuFBMFWVSeJ84YgpeEdnkqBFyaqkHmh4tqbXxf0Xxz2ntstCql+G77WGLc/lml++3ph+0mc+ZQk80MJoFt6JVhbti93XlLYtMTzgTErnH/So+W67YNwgtbKCjxIdeY6p/2dKiY4YQIAV4QAVsuHU48yxnnGCOGwcICd0O37aJa96ZjNiaH3isrDJ8yxmzWda60dILouaKrQikbgwz0niAOZfwxYI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:6205cda839e7fbdc\",\"npc:bcf2a903c412d62a\"],\"constraint_ids\":[\"C:cab63056e24787bd\"],\"span\":\"In north gate, Veda supplied Oren and called the partnership permanent.\",\"rationale\":\"Veda and Oren belong to feuding factions barred from coordination, yet Veda supplies Oren and establishes a permanent partnership.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1iU2moZQgP8VDG9p7XQA1+v6G36Sgt9KSCLCXDh5rVv1oelq6tz2MBZP/OR+CUZIN7hTe+hbQxgZ01xUBMRd7kPLEjz6auDE6VGHQDH+W3hKeF1EKrSWNpZvQjAIpqS05yNE3AXeGcCuBBMCfqRa/8jGGIoobaURD6C1B104Q3m9gGz+6nCaIFl6tllNAc7iJIe4Jnih2OvB3J9POQNcjeLNeITSFAQYkn4l5vemKckBCo+xSd7reTYv+XUNyGlw0VEywoj1fbhAg7CLlHbcBV+sesWwDXpfHs7Sjg+Qgv6xNg7/ZjZlvosw+2S+nf0BAb4UTf+SMQ5ne2dw0iy5mif9rC677AjhAUFQ/WMp7+4UCJQNSGtYl52nmHfVQQ1a/dAlrh2zI8+eUsRJ97FLmTFPWnde",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 561,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 258,
+        "output_tokens_details": {
+          "reasoning_tokens": 150
+        },
+        "total_tokens": 819
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:6205cda839e7fbdc\",\"npc:bcf2a903c412d62a\"],\"constraint_ids\":[\"C:cab63056e24787bd\"],\"span\":\"In north gate, Veda supplied Oren and called the partnership permanent.\",\"rationale\":\"Veda and Oren belong to feuding factions barred from coordination, yet Veda supplies Oren and establishes a permanent partnership.\"}]",
+    "token_usage": {
+      "input_tokens": 561,
+      "output_tokens": 258,
+      "total_tokens": 819
+    },
+    "tool_calls": []
+  }
+}

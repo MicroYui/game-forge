@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ceac360c278168026804a57a7956eee55b5ce10550a9b7fbe52aa1689a56205f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5489,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 610,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 223,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 974000000
+      },
+      "created_at": 1783848000,
+      "id": "EXarqgNgRiXMNrmDBOXz3KdZKKEsYGL1zt11VnzwX7Z7fEjrAN32FvBqvHXnWJ5VwM1Anu0G4dEY+zPsm4U60gbZZZf4Vit1v5QlOzwHH4Wfh4aOkbBDDCWV4YUPE0X/PnDBdTjgVRDL2S/LKGwYRI8DTS0exFzUtl/siC3cFlg/nf7v4BRAlIo0pFzn+UdpU7px6v+OrH8WGDVPsHQ+RDarTiD9+hz6IJlao+2loufI+syZ02R5LQJPz2AS6T/B9cFF7L84O6LFzx35P4pIM4ZGhge6743kNIebZ/bTfTRY+D3gehgpHyDRVIIrtAEralToat8xHU9EEQYqFLB6RoJrDECDYPMKPh5xAEfRysxfWDGXk4ZnwPM6VmphHltZk5rMpF4KPgE2Sm0gC5JiGTWztedn9A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "K8zZweFEDqO1a/qEF4gW47IR7TbmqHIFQvD75CgWCz/CTS2GjgPWczvN5Zqvl9PqqXaFOFsYArqvsjeyd3YDszoFwxoSjLtwwwExV6/K5z4QNeqw65WNLoOEnqJRtxAE58bZUW9SFYQZ85hERpUinUsE5EX2nkDxaTmHFl0aN6bs6GmPeNXJr8m0KpHTpRuNi4X8qZj34ha98HynGVttotwL6OV3C6aXsap1Y22HfYhb+etVDzaDuEMsy7DtbDko78XjIarINormdHyLUdKcH/YILsGm3yzrHKwO3f+vjuGPtP0LejNsND/LlzLWEjm6Hkj+b6yliAScBZ11ZtBC9RS7yN2DO/DABluvkeZwY+WDTwVHYid76dqqRGs3gcl3VekU+0VV6Dj2MDHOCiNR920Cyxw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c7c761dcaf180941\",\"npc:efa85a917e49b809\"],\"constraint_ids\":[\"C:6b73eacca448e50d\"],\"span\":\"At glass conservatory, Mara was formally introduced as the Warden.\",\"rationale\":\"Qi had already accepted the unique Warden title, and no relinquishment occurred before Mara was introduced with the same title.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "P1IRSNbN0jr/kRvRL8uBkhkeIyxOLeC0N1o1T5Ikh/LMMHJ5NkgFp1Fys9CGmxkKJ6PRvMdGY6wFHGIQzF2rA81U2HfnDNeY6YwczMShdi6rTfmMRNStgyWLFtb32SJSg4Rvh7cf3pOTHPFyZqZfE9Dk/6ChqWLOGh1XHfvBlljjx99X0nVjE3tYijpak+1T9//vgLZBhwWFiR+LhtdhDVQQ/jUbX+KArTiGDXmsCiIkkMlu+Cg67zxoR+FL0gOURBJ0gI89Qf/XqIJQNDaDawFiSXsZ2IRciqgxVlYiT7hb/c4QBLDTy3vAEZ5cQwjWuqoabc1dQHJ7JZpDD7aqnQgqCaz26rwoLcXpWZ60C+afcyN1dQuDoObrCORczLH5Ea5RjhH2plqft+JJib7y0V7V68st",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 610,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 223,
+        "output_tokens_details": {
+          "reasoning_tokens": 120
+        },
+        "total_tokens": 833
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c7c761dcaf180941\",\"npc:efa85a917e49b809\"],\"constraint_ids\":[\"C:6b73eacca448e50d\"],\"span\":\"At glass conservatory, Mara was formally introduced as the Warden.\",\"rationale\":\"Qi had already accepted the unique Warden title, and no relinquishment occurred before Mara was introduced with the same title.\"}]",
+    "token_usage": {
+      "input_tokens": 610,
+      "output_tokens": 223,
+      "total_tokens": 833
+    },
+    "tool_calls": []
+  }
+}

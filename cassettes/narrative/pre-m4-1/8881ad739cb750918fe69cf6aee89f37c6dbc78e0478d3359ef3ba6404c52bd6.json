@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8881ad739cb750918fe69cf6aee89f37c6dbc78e0478d3359ef3ba6404c52bd6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3933,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 672,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 203,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 945000000
+      },
+      "created_at": 1783844500,
+      "id": "4WCiaFV1n+HNo56MDRKJiQev0ZctfbyaXtxz7LZnp8/a7l7VbBJ80mdGX/5G8G8uLm0YXjE6V5UeTHIRwALDJQzwSBkRK2X7Y45y4GcKDRPMADaAnUC01Tsq9DHWtAngWnN4BKO/mFrWYGG2d8yG3+b9ITy9CiwgZsgWzlOaww2TWarTRjxisNuQQ6hM/DKHF9SNxXPgW8vj3opJllwOdMjs8IS+yJaLAl4LeB190qI/2N1Ap/5Upc/7lOTsMY8d0CXq54y56EZCx/7SKSl8CHoV5143qFd/w6xPRrrKQulB+R0iVKpTdDkXWS5x/0x+1vbqPF8YE5j3r6OEuZ5EyLBt7T76Q3w295NaXZi/RklzCtb0V+PTpJ/XnilueFuX7k1h887nJJoh0NPldScVAVxwDJTAaA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kftwvNSge1G6RVTkxuvDCV31nju5c3RCxihpHrPClp51o/oNvNEtpLn4z4cF4fyL1fF7vM2lVt/9PrfyGCBdOn9K+zpL0Y3Ixs5TEai5+X2i1+Pdd2wwpSTUermCCFf2GMepC2lr2VgpEr6N2VqT895ggmZRVc7QDENqkaQO2zOL9aRjXcOkdZJFpO4rPr9yFoWRaZgjbBtwjGVREvqKPSv2Ce3k5le6bNtwTrR8DNG0vDsEFXlVWbh9B02Ck4Noux710qYaKRow3C9B5D/LIxR2RZTWzpyQmpdELEjQ+vYVsnIsckmY4xWLQgKavEoS15+f1gDJt94hcN2bC/DtGuJ6dR+QCLIDYw7p9PJlAWim+lPdAeZRFav5OMlJ7ZVwOD2tKJDFISgT1+dMryXZo344mYY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:5901b407dc0b7b8f\",\n      \"npc:cd240dc64660717c\"\n    ],\n    \"constraint_ids\": [\n      \"C:85cbcde86be7723e\"\n    ],\n    \"span\": \"In lower court, the council recognized Mei as the Vault Steward.\",\n    \"rationale\": \"Mei is recognized as Vault Steward after Daro signed as the active holder, with no relinquishment shown, resulting in two simultaneous holders despite the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "8o+qb8op0HcTeoLLgAqfniZFEvtqAjdwcnhGRU2EDcTmUaYGuh+rci430PeXzxd8b//382g5glu/iZvPUJQsa+NG7qHWypQdlVZo17cbjyh6yE9WYNqE14UcILYSKImVPQ8tV1mDft5VHl4ojplIp7LU5oiviIT961cOgjwlFT6U/ciqAWtQwpgGOZNalmy8G5SKoVmcsLYk/8MLIxEk/G3AsJz21NMMLtx/po4/qZpaiKIejw+yDofHwS8f7AVv5VRoUal+h/3FFbNMAxx8Imfw+0+HWBvTL72d+EaKjsKeUh4DTJDdbShH741CShk4V5Aos6oIV1cPIO7IT3M0b8BweItdQD/+IW9wM9dKZMCU0NYZC6O+K//A3n44QvLI74Xqm4H7l1Nh+q/B9m5gaWPja3ro",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 672,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 203,
+        "output_tokens_details": {
+          "reasoning_tokens": 64
+        },
+        "total_tokens": 875
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:5901b407dc0b7b8f\",\n      \"npc:cd240dc64660717c\"\n    ],\n    \"constraint_ids\": [\n      \"C:85cbcde86be7723e\"\n    ],\n    \"span\": \"In lower court, the council recognized Mei as the Vault Steward.\",\n    \"rationale\": \"Mei is recognized as Vault Steward after Daro signed as the active holder, with no relinquishment shown, resulting in two simultaneous holders despite the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 672,
+      "output_tokens": 203,
+      "total_tokens": 875
+    },
+    "tool_calls": []
+  }
+}

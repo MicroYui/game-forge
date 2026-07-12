@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8f95221c4f179d24c8b449abea8e98addbf26341290426b49aa85ab8f6074246",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4637,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 704,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 220,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1012000000
+      },
+      "created_at": 1783847400,
+      "id": "dKb4suuLrd+JAVtviiWXLnFUNdn8eYFUm1RC+2+Km8+/PqUWLlnPbNKNbggMUaaGiq2YZgfTbDc1bffumJ2q1fWzXxt/nqim9J/SKjInoGyhB9H0/sFTnuRxKaRG8qiQq02OH699Qd65o1L8eNEByMyz3FGF9fEgils8LiH+gzCHINg4huJ21u1JGnc0wOT85nPYiOIppDbtMtwzwp8bGm+Aomop51MNmYyzeJQOBjDeb1F9bKYq3FPv0T9xT5er6H8q1RjHJA6zzT1s0fe9l/wrJIt2yL2+FK4O4aUHDbVFTG38QHznAxotULMHarElxn99n0rs6X9Wg9pyXdjFBsVYk75EprYe++GXGCxePx54ANzf5CZxnxioB68xqyLD6wbAFunn0D5azALrVg3xwcYGMRQ4/A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "56t7CvsJRN+ry3bXcHkICtzJ+diWe+41KtxWgt7haFQaSrvNRcNW2Gbm934sZuPPUDMYHALYlFj+GN7FrHumvSqQewyPozMYuKogM1WbeZVSAe7xVinoRWiRfxzlRkzRAJqi9hg5mxQbYEc4uUrQQcUTToW6HW/dx0Aq5QOj1nC96/3ZsYH0tg+MbVC0VOsJ8HzR4QUHuRb3j6RYJRal55/q6sMZBj5Lr5U4+5iFo0AU7jbYJYb0GaKpWjNwAvgMGVCbuBt/Rphy7Ynx73DYa/i34J3X5klmc4RufG/bOApCX1/UvLhVfO1ewnhI6QJ8PudYD2dvg9mSJVS8F+mjzOR41Qj5sGCZ8b8ZYo+n+jZYyzOVzfZhtN0FaHu0yvQV0o6/wUFVGkRIzeJDBBUrzYN/m40=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:0b882d4da8ef4637\",\"secret:8b3f49d084c89a4a\"],\"constraint_ids\":[\"C:a0a9245214f8b47e\"],\"span\":\"During council session at archive hall, Qi openly named the vault keeper's allegiance.\",\"rationale\":\"Qi discloses the withheld allegiance during the council session, which occurs before its permitted reveal at the finale.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "f1WXi0vjaRW/loe19R39DBgpUg5u3/FsJci1SHJvwN6NrE8GhzkIlMedqzsjo00lp5iV0HJTYKQIa8VeMvtJHGRuIUXehMcqwY1RqdCUdjAYeaQfNfEdsoYgpw+1/czHHpDqYXdG3rcA5hiM9am4lNvSeeupqc2aaR4TVEcMN4g5YwNutnQWfRaCY1BEfCk43JxphXnbr4WRdy5ifefQPZJGLmAlXJCZSKoU8EK77nkmF7Ng7O1AHCM/S/NZ5xfhkqJVIz4j25dFLN6XQddC/SpqRkI+4pR6WK4AfYgYhBoy6aFodlqWIQEl3Ixm2CCZ+QXzOMjA6Bt0pdcxPAr9z9kA5LdoIC+XRW8/Cc8FTeTKqe8swCzGVFhOUKIhAD47Xc+TY6tP288iIoM0BKnhWZdCyKs1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 704,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 220,
+        "output_tokens_details": {
+          "reasoning_tokens": 112
+        },
+        "total_tokens": 924
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:0b882d4da8ef4637\",\"secret:8b3f49d084c89a4a\"],\"constraint_ids\":[\"C:a0a9245214f8b47e\"],\"span\":\"During council session at archive hall, Qi openly named the vault keeper's allegiance.\",\"rationale\":\"Qi discloses the withheld allegiance during the council session, which occurs before its permitted reveal at the finale.\"}]",
+    "token_usage": {
+      "input_tokens": 704,
+      "output_tokens": 220,
+      "total_tokens": 924
+    },
+    "tool_calls": []
+  }
+}

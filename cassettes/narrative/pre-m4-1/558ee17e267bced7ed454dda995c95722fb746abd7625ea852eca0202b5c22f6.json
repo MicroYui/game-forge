@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:558ee17e267bced7ed454dda995c95722fb746abd7625ea852eca0202b5c22f6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5748,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 698,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 223,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1018000000
+      },
+      "created_at": 1783855700,
+      "id": "cd7eL1oyhLTHCcBBmFoQ0Yag1CCjNHgYMvgduo4bxrw1dRt+Zcabli+BFHcKzFWBj2ePwvYhQrz8RKFGznFWkbmuzfoE3akFm2r6QL3eUSdXsBCxdpyDQMx4Qx7Kwg7lG6Re2if4MzDSiWvkgzE/iXw3wLtk7vMuiLuyAZOjS+TbLCbV5Fr/46cyl2c4Npi9dWCx0ULCKYqqkAziKIBTI1r/RGmwgGFdb9VfKcErT9Ek6803TUpWJAi3mclCRzSHRNu8uqCmwrSQQHEtPknNSUD/UGV8K0PkKKxjzNRpHV5RY5fWzXfEiRjVVjW4L5C0lSfSZz5F5nEZuj6fefD7AqYRT9dnVq6oP5CD/CBAn1tNM33RQ1N6tyf0+qeIxLTHIZVWISR6DYSo6/NFl6Kjq9Jx5GDJxg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "55ZfWem6WGDKNa2eyYEJpOgcx7Fk3kXcx/onWQwC+nJ4gsNBN7eZq2MJuKBJddEGOu0PmT4F09UYyPd206B9Ljb3vOOoikF36D0QhYq4vPqAUkGMq33VpOQoNytO6Vz/WuiAokUzoharBQNKOIeBJ9V8hnJfKna79tug4GpToylvLbMrTTCCa6WhUTB8MbVWDPTAISv6Iivv9YtpfJowH9rKCOEWc5M4pZeeIxiCyTS9tZ83zkwcA+adG5mgWjA3RWh07cGJgfYpzfapKqQjKvFZB71QOpXpvBByZkgtoXcPCUGhMKxNkgMUoDGaip9oDgJxpNQOLSEzlVu9wGL+HCKLcYihU72OeP5B28NA1FhGVYB7YVFmRQzH3Ss7+ik+xp8Ck/qsGZjSEVGU4oc95jKyWzw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:d2eaa8701a005af8\",\"npc:f49fd4e726165baf\"],\"constraint_ids\":[\"C:d083917a88e99539\"],\"span\":\"At signal tower, Ansel and Iria signed a joint battle plan.\",\"rationale\":\"Ansel of the Harbor Guard and Iria of the hostile Ash Fleet jointly approve a battle plan despite the standing feud barring joint commands.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "uUShpXC0DnxwqXyd+yF84GCR6y8GXmMkrgwSMeoyjEdGQjMYlCpXhvSKfj2r9uTs9U4n4/qkkW9Ok+pnepJvVc1WQ+lWnaoW16qRCaVECSEJjSspko5fGKREYCi84+m7iulIjhKB6qVO1eghz1QFFhqx3Vfmv9xhpZi1YzCIMM+7bPVuLnzpg8k6GhX3YW4zxD8ur+Ad+FP8eIctPFY0V0BHs8RFNYMxJFRLxPOh+4eLgswmDVpM3lkGmqxQYZp35eKzBCmCjkb3+VhyYUzM6USWT8es9IbSTXTsfbC+moX+GWhsncZ5igh4jOOTsEw4OoCOEpOYPEMVSB2RHgFe95i1C7TU31dtSeRD7/47y9gHmHAEmXl6jqWTi/e016zeQBLWVoDA4AgTbUdbwXwr9ItJRcmz",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 698,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 223,
+        "output_tokens_details": {
+          "reasoning_tokens": 116
+        },
+        "total_tokens": 921
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:d2eaa8701a005af8\",\"npc:f49fd4e726165baf\"],\"constraint_ids\":[\"C:d083917a88e99539\"],\"span\":\"At signal tower, Ansel and Iria signed a joint battle plan.\",\"rationale\":\"Ansel of the Harbor Guard and Iria of the hostile Ash Fleet jointly approve a battle plan despite the standing feud barring joint commands.\"}]",
+    "token_usage": {
+      "input_tokens": 698,
+      "output_tokens": 223,
+      "total_tokens": 921
+    },
+    "tool_calls": []
+  }
+}

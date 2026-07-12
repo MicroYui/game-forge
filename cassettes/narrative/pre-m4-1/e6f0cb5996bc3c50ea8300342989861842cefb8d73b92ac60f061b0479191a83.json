@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e6f0cb5996bc3c50ea8300342989861842cefb8d73b92ac60f061b0479191a83",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2294,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 543,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 125,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 646500000
+      },
+      "created_at": 1783850800,
+      "id": "BHsq9Tt/IxmDkSEWRlrA92NhX90mvUAzQZbS23tpmOM9/0s0Q2crlpL8PbPnitnwGlbTnWajBakPOpK/LWreb38jCO3eSymJkYCmhIEYOMNivBMX2k6DddOG9c6rgf2I4B9NGFwhyDoIV7onlxXvTgJOUFoovQNe4Yco2A9FTBud4BJ9wFswV/KSYH1goppO1pt7rLqilCkiT727hVHVi2KOq1F32ojsMijOiyM5szzXQUW8cR347XI7lue0r/WedJ6oK4L4XHZ47ptUQs+EdFuInwhzbKoJkAoMGR4sdRiTryBVx0UmDld1IyEXkMOvz5IdYgymQVpHdSszrGfvpbG1LQzIpFW5q4G7nPw3jwVYgJ212oPTjzL9xFPse4hROc+Or6R3io4oeW0Ax2Yck4R4HrLt0w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "XL2iIrWAot2TCyzyMfkJrXoKcJovxbiD8BqFJSLY2QTs2tg4L1g8TB3mi5nlUU7joLY+QNmKhLDMAeEn3NiGnnNJ684ZoopksutcmbN7P1OZRkxUjqTlwrBOn+SEG+pkUvxHbggeS6u6DVUD7u4j1QzBU7C4hliF3SoQJjny/w8EaK6yXRt1NMS8xiVNp18FwXTRjqu+sFoa7zHYyYsEXfsxcDZvbxhC8dG79mD4eZv0JX3ShlyIgLacH1Or9kK82ncYpbSoZwTZ3jCUp1DdYvtIeuz029vztLpagFgkPOpEfmtLZ/bm+UVCwbaEGuWo9wMnFYuQn7UnHkhQRDyHMAifFPdjO1vKjIhAd4vdVrbHYL5FYh0yJzlKO2jB4FCqnmouHs/GMfoeNjmH5XlwQeLrc5M=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:e31a0c46a3d302b7\"],\"constraint_ids\":[\"C:4df2b71a67db7432\"],\"span\":\"In archive hall, Ada handed a confidential route to the attacking force.\",\"rationale\":\"Ada discloses a confidential route to an attacking force, violating her duty to keep ally-entrusted routes confidential.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "nZP+QRETHeipLcnS6TEBGEa27bxVJPO7+sf53LFcpq/1RCQQenKNucEQp8Hh8ArlH0oKoNkPCRWypDPb3H8X1UDFITT1huoWlo9dL8gaRmcSowLx2ldDhPdhWgHONIzCmxDdy9e/u3znXo8a3krMhWTZfTIA0c4FtcKQ1dnu0EI2/0Tv9iTUh5ghuBU5rU4R9cTEsEpYsLoSOLAzHYpA8hYD4ftLFpuC3Ji4ev7gmNzbGVxI6fcg07zBI5UiOCslyVmUVyiRsXF7jUT0V/OLAxII56ldsf9A4SfBt0u8cl/ZS0mL3LyBYmLq1nTclEY+hmhI3Zwcjr5bAicHQBOGQ4gsQmU2/dAfm6dO2yttwzbFleU0u+0ba67rWQC2PEb4kVBaNhR/yGqz6M6RKCi7+3aouwWL",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 543,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 125,
+        "output_tokens_details": {
+          "reasoning_tokens": 30
+        },
+        "total_tokens": 668
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:e31a0c46a3d302b7\"],\"constraint_ids\":[\"C:4df2b71a67db7432\"],\"span\":\"In archive hall, Ada handed a confidential route to the attacking force.\",\"rationale\":\"Ada discloses a confidential route to an attacking force, violating her duty to keep ally-entrusted routes confidential.\"}]",
+    "token_usage": {
+      "input_tokens": 543,
+      "output_tokens": 125,
+      "total_tokens": 668
+    },
+    "tool_calls": []
+  }
+}

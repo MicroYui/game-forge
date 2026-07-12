@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f95ae378888c8ce0673ffd6e4e72d9486f4b6649b11deb91bada17db937d98ad",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3967,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 684,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 162,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 828000000
+      },
+      "created_at": 1783854300,
+      "id": "SfOOTt/CbPgFUQdXnDZoVzviX1ARA/PxLUh8EEqnhMldcc/Abt0tUZBE+vzyz+B8qbrXVFRnJAhOtcX5L+m0cCtqdIfjEzGMFBP9JPfAebMfFUkSyN1b18fuXBx+Ls7btfLfOiI7L6Ku3Z6fsjrJbIevp1K9JhVU4306s0XvlefDqufpShXBgH+DouV75M8CBtQR8W133UZB2AkJuse8MJik6eciUGG2GIZd4C19z6wGdXTaEm1TxYqY0OdkgIXn4MG3REQp0Vnt6bHwPsQlwGplU+gQE0t6gorX6XvMwVPKGrNUpReQblXPVEba4wAF0t65Zee+57semTKHTSIL7JflXStPbPpoNMS/kFyKRubayi1ZAw/U3Sv55Vu9jYvIfkuPu7B2jQT5tOHCkD6ijrf24dN72Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "g0190VDNO+tzVeRfA75hJcWc3wgY5DlYpfgerKhrgNBRJ4KtRZm834jbOcyV7Yeozp5uSlDb/hO2MI5nAP1MoPURLdgLI4rhLP4VOg04yRvTqxIGDlbq6GNLeoKg3TiRDpuDHIcW6AK56yIbcqpym+XjaCM7hPicw12NJT75ldNVqClyyny3cE1QzWn6/T66xleJzy+ZpuQoMsQA960fPzUqNbUi6IdOICRaszyiAV06FDR8Q5hBHG7UAjTwX8ioupxhRsJ58rFWFT+uzRHMy9bfDoWcnhp65RZS814jG19GjnXT20oQmEu/WjZUU13IqaGt3kiQu9B7FnZYXJcKRydZJLbjx0VK5inHK1guwG1QtRVEDOciaDu7oFXLiLhDTkqyLu9wfpMGqdhFk+AZrhkmgow=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:716106c34bb1b2d7\",\n      \"npc:e538afef7df6013a\"\n    ],\n    \"constraint_ids\": [\n      \"C:18e57ebf9aefeb02\"\n    ],\n    \"span\": \"Mei welcomed Daro into a shared command post at glass conservatory.\",\n    \"rationale\": \"Mei and Daro belong to explicitly hostile factions, yet they cooperate in a shared command post.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "tQYWqo3EBmgtedhE6t6aF6TMEtFY5qUCDsAPZQQySUel+La8MnIL996c9fh+qZbhB9F9wYAiGU91Wl17nR2FcKUFU6K1nUwlp9n0FsCzT7Y1pBCAzd+KvobO3JxGK1OdM24xMyb7XAnsWWEcH2FaGEKoOAnF39qROYY9HdP+8FbNnmmnZN8flGBHjxa3YlU4TawtaK2rNHtbvhRZALBw+2CgLEZLFF1xO2gKllp1JdGEqxDeakmtUbB99bCLyDJseiC69+3eS+aVeXnomwGpGtO2l0MddJzrNoAQuYWnkOTFY9fYTiulurb+/FZHN7bPwM7Jmr1yP7E6FtejQOTo1QBC4nYi/GtqFQ1r4ed6YGfC2+vKYNrTOikBqXnFZ07rKgYq8b6sZAATP7HwlAH9vVlmSKDZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 684,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 162,
+        "output_tokens_details": {
+          "reasoning_tokens": 33
+        },
+        "total_tokens": 846
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:716106c34bb1b2d7\",\n      \"npc:e538afef7df6013a\"\n    ],\n    \"constraint_ids\": [\n      \"C:18e57ebf9aefeb02\"\n    ],\n    \"span\": \"Mei welcomed Daro into a shared command post at glass conservatory.\",\n    \"rationale\": \"Mei and Daro belong to explicitly hostile factions, yet they cooperate in a shared command post.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 684,
+      "output_tokens": 162,
+      "total_tokens": 846
+    },
+    "tool_calls": []
+  }
+}

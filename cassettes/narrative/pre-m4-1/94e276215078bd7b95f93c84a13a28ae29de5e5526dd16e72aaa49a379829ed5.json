@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:94e276215078bd7b95f93c84a13a28ae29de5e5526dd16e72aaa49a379829ed5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5066,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 667,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 262,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1119500000
+      },
+      "created_at": 1783854300,
+      "id": "EVdMAESVyXt2TXU2m1VX/dXsrr08dc9eXT7f4LXrBZaUvd6ZUzBhluBaAql2/a2TfOJj2/kXLcUSmiPSoPRWZ4H+1lT7vJnRllNBgGT9kFJ40p/x2feEkvE2LKa2UbHXJGGOyD9fosgLbnVIgsXeeznfYy4dq6XN65FPxeXzj5wB3wtE8v7v4nMCnpUcONuUX3kdID5ASAQC+kX3wbvxsSzk2LoJLuchVt517bgqM8apuB7aBIZDlJ3TxGAo6txZ05uXobJhWuUYQoOvK6LVem1Q9RcVr2jVSnjW1YUp6eG1La3vMXOGgO2H1JFc0muYWfJK8R2BvhUIF4UHbvhyd/Pr/fSdmMNQpDhcmeOY1xWhq0ABGsKXpWXejgtxg9RRwhqiEgjMBAZ3QmpAsyYbc+6IIx/+8A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Hxabw2adgHzIxmDFki9PxdLlcU40J/p3rTjQWgXtXONvOhH1yzUFyFmqQGHAIfyyQffUD2i5yvkRzhFe8VRHS924f3MkRPf+JegCtK8swcfOv1cAsepnhLaxWh8HcF92M5pIrQDBLoWWR14UXooQ/Q7fpbqhJmgQn2G6XwEpFR8DGZ+BUsceKmtU/nUPK0EnLDZhiZv59YIG8HtrGO2O0BGNc+U8ya1gC2vUKRzleLErF7ECQmuGgekIqJtGgRPQ+wZndfshucs2x8A/2xlPKZ5BM3yvuQAzW1XlEic9QDNwAZW1liiNY79g+JpbyaExPUwhesyyZA6gTT7tL2RUenLd7spNVLCiO4XrJpb7VxTw7RbGJ9DKoH4p5kEVDJqZFXvx9Pb9+PD4ISNLD/jLvfLS2xU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:74cec805a4c0d25b\"],\"constraint_ids\":[\"C:71bcb6d357956aee\"],\"span\":\"At archive hall, Daro transferred the recovered coin into the rebuilding fund.\",\"rationale\":\"Daro directs recovered coin to a rebuilding fund rather than returning it to the public treasury as required.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ofVX9U09rjfaFJLzOuTvtQdJIR5CCJgG/YSW/Ksav/27ChpR5C7XXJ+v2Mo3DjFq3yaakKxQaHeJyJlPmZHWNh2pjWgjO5QfmNdJdS6cpiNipiiKdf3J1dF0TokUNJWrrcNRT9rx/eO43O398n0CHGJ5FW8P2ERSl7wAx6GmanVYeyxb0QUej7ymhcGWkxYDvytE6nyRqrwIdXN0x+/TSYmEtE4g3revpitjZGJiMd5ZtYfXP+R37/YOKiQo1tbSs/Y0LEpazRwdzy4n+uikIXcLFkTr1hKcuDCTXpGxui80+zEfo7wvhQx0THRmIc5CQLIaeM99JeF6pD0GNYvidTxWzRmcrtd/GhmSDHBfxNJFtzd55u0bE6mpMwoVHWLfpqF8LoIaPqEjY5M0lhodGrmaivrw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 667,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 262,
+        "output_tokens_details": {
+          "reasoning_tokens": 172
+        },
+        "total_tokens": 929
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:74cec805a4c0d25b\"],\"constraint_ids\":[\"C:71bcb6d357956aee\"],\"span\":\"At archive hall, Daro transferred the recovered coin into the rebuilding fund.\",\"rationale\":\"Daro directs recovered coin to a rebuilding fund rather than returning it to the public treasury as required.\"}]",
+    "token_usage": {
+      "input_tokens": 667,
+      "output_tokens": 262,
+      "total_tokens": 929
+    },
+    "tool_calls": []
+  }
+}

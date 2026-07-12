@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6f1180f7cd9c792153ce231fd4fd6f528242eb54b38d4a60a05b88f6b565f70b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5170,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 534,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 241,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 990000000
+      },
+      "created_at": 1783851600,
+      "id": "v3KwWzKBO93tHnewdoBdTyoWQ4w2okx58ZB6ZRqwGebU+Yp24T+Nlg39vEhxxzf76WmsTfhHLrW3/x/E2r7AwaM+CHHeHMjVPLoHyKkJ8nopAKghA7PCeJgYpagDkriuoG0a/I+8olcx8zzMGXZcFO3xRj6UqpV5ws0jWlILuglPnC47O/r4FCTu7rCELrdYGNrZCqLoPQt7kZ4gCXstTukLfJK9dodCvb7cir1kfIiOO2CInsGbi3ftn6AjFgHt8NPUPRRseN9UqRAwbedTGdShcNR6/tkZ8W5PeoI2i8uM/oNIArPICFtD7JiCDt/UqDJE3qI32v7JTyKlVOqHF8o08/uEIGsGCQYxtmaCkFazRVNvNprOT6PMUEZMw2V5g0PIjh3nBiJREqdOwVbpQ3zTjikozQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "dHCBTVqv8iu+IJ6ivlBlNoh8t+TnZG6qe6kf0gMbThjIxG2rMDactXjc9kkBtcm2/hqUjt9wYfF3JEmrfFLhXp3+0/y8AcAaFE6lnTr21s8xFRRU0QVzEa/rqMHV6VvD+fYjMJkxhe3+bQnpnF5lTjfodO6pl9OSay8BEM7jFFsLF8naBGzEKLIXdp3cbZEBg/1WWdJCap/g/mk4FurJ71827Av+Ty0aWlMKSmpwSlZpcA2gusUmpXTk/jdbIqaFfVD/cLG1l5NcfbMccEsNQr5pIb9SaM8GWQXaI4kRyvGl19mJPCzQLCHQYQt9my9uh9j8MxuTx7RMgHD+9wUddHjlcx/xyL1s2UhGaiDLkZvyqI8iJ5GTOaiCOy3zFYFAB5cqJmEjJgKwCvrbGdjvl1CgUv8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:43aa150229064815\",\"npc:f141e72d0a61df90\"],\"constraint_ids\":[\"C:9388f25948d5973d\"],\"span\":\"Daro signed the register as the Caravan Voice at salt depot.\",\"rationale\":\"Daro assumes the Caravan Voice role after Mei was recognized in it, with no relinquishment stated, producing two active holders despite the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "0+zeo/v1fn8hAcB4OALhF4qWGYyQo+MwSUqtxf+gRCDB0nhts1O8XknBVj0u9gSXwe37TRGFgtmIueD6PH43OucsXxIvbEHyXUtrzdMrlSTE5VN70E7luPZwz2sAvbMmGHPmkRJg7VWVkvY89lWVcRfflKpYJSU2p2MGCmeVvdvy/fm3BR7o82W1XzMKSV6r2YJvLaIf9vyCD+zwdXyNoEjbZObvA4zQV9nzypyCzc2QQvj9jEVbBFLQXwWMPWTgYtF2USoGM8uw/flkix+yP0ZNn6LypCP8VQUp+onjYCal1Ae6RCmmM/hw6LkNt0OqC3H8LR7HzuTBFoW9+1msnHnun2Tjf4BRxQLrOTWtMKIMixqAys/EIv9mOS4Ok3/bBy7Q039G9K6+mSN46/aq58LxUJPB",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 534,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 241,
+        "output_tokens_details": {
+          "reasoning_tokens": 133
+        },
+        "total_tokens": 775
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:43aa150229064815\",\"npc:f141e72d0a61df90\"],\"constraint_ids\":[\"C:9388f25948d5973d\"],\"span\":\"Daro signed the register as the Caravan Voice at salt depot.\",\"rationale\":\"Daro assumes the Caravan Voice role after Mei was recognized in it, with no relinquishment stated, producing two active holders despite the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 534,
+      "output_tokens": 241,
+      "total_tokens": 775
+    },
+    "tool_calls": []
+  }
+}

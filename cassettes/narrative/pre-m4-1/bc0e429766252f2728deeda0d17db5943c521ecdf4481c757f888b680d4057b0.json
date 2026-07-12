@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bc0e429766252f2728deeda0d17db5943c521ecdf4481c757f888b680d4057b0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6213,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 546,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 236,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 981000000
+      },
+      "created_at": 1783843500,
+      "id": "RnStrq/m64inTRFbu9J//lFSX141RyQMrxNzHrHqIsQujUSo48RDiazzlvF8NS5IL6WmC5zrOKMGZ+uhbxTYium99sN5ienKz7NuSah8woVNNypBKksD4CJ8DSqeeeoUz70w+5UCV39u+F26TInra0vdeJM501E7U5RdrpdQfN4lJQ+44wCJeTH+wDLnQ8G2iuHF+0ipwbii1bT/VIAABQNF0JDRdynHrNslrZHu3t/nTJgPBYcP3h+5o8jKStIe64WLOvexjd1dNDpQC7SxNlsvcpD1YYSJOVeRgjX/eFLSJOHkktbdBeBAbWALYS+BEZHsVpfHk9w8qkv0RHpLnOutpHkfJ4C3pB9x1O/3lHdLMYR3kJOVPZ1YK9jbCmgaiG8rltx9IJSmIHtPHPAERMC5FcKPng==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "PiaFNU8pLIw6Ponfp9+KDdSPhDbufHNBi+LmCY6XSpr+9EVH5QvgRGluxMXB87wFP3ShfMy0cE5RqvUPzqDVNu73q/hAaGwrsmTES58i8kVxA0BuoVa7JfFVdMznRBLCUaq8+lwTc5eYAi+5UGpnWQ4PSOpDAsZW1aRXrry+GKDe9cySuX8sanqm6k4LMPWjwxo51IHuPsRY0VjxM8EvsbRLIUSYeL1dJO8dcC95C75rGtYbkyKETRlx1TYbkGentGaKYjpdUjtWt4rsqB7TW4dwaz0o+TineMXOR1k1AHqkb+WR0ZQov+5ha+Xc1cVCmEWWj/qDBJs4vwg1tBeK7/XE0fBNsqBL8op+vU04gEyCLFnqqH0gBAyW/pVwKGekctPxUov7cryqLfcofVqlteBtXNA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:6b04602e500e1475\",\"npc:801a0806589a6509\"],\"constraint_ids\":[\"C:0a52eeed7e9c60f8\"],\"span\":\"Daro accepted the title of the First Navigator before the assembly at signal tower.\",\"rationale\":\"Mei had already become the active First Navigator, and no relinquishment occurred before Daro accepted the same title, exceeding the charter’s one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Xje1jxlEtt/9XQzBldZHQSEzHzfi3oOlRqv5KxiE+WMAbJdPGaJ1HkFtl3Xo9VallV6v8j72U2/EqCyib8SA/SrhqgWv9K78sVZchHq5O7B3vIMLPnDt8va0qlHBcnK7BLDprkGsfx1tVl+AgNDnHzKZ3FjmYLN+/i9FeFq7gLIYQuT0kFg5mSHnQRC3v2SZPxHotZ3qjg/zhfrPQ2q+OF0w+O2MnXHhIaZCQzu4HSu1gjCg9hQqDmsuKLpvbXB7z/+qjJXjm0GaKdlWf3xHrJ4pOySZmyUPS4iIiFDVpnxlVXmlXp7PdX+8yYrQaMRcWtq2WscFTuDcLW+VWhHFstF10V4nzG/GvDhpEaq7cbUgtLft0ckZKVC37MzE0h0Fmf7zCjrEjSgjP3QuS/zcQaroAvPC",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 546,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 236,
+        "output_tokens_details": {
+          "reasoning_tokens": 119
+        },
+        "total_tokens": 782
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:6b04602e500e1475\",\"npc:801a0806589a6509\"],\"constraint_ids\":[\"C:0a52eeed7e9c60f8\"],\"span\":\"Daro accepted the title of the First Navigator before the assembly at signal tower.\",\"rationale\":\"Mei had already become the active First Navigator, and no relinquishment occurred before Daro accepted the same title, exceeding the charter’s one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 546,
+      "output_tokens": 236,
+      "total_tokens": 782
+    },
+    "tool_calls": []
+  }
+}

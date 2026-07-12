@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:efb65cc316b7becd8d46d6c50bd34f52f3cef05c686c9cfe63be7a10e386b21b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 8298,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 515,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 524,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1829500000
+      },
+      "created_at": 1783851800,
+      "id": "CnF+ujdscMnpKG5HXikBrPw7TfSYzE+Hfdx+5OJj0nG6Rovns7QiJqF9yIvpuF0ruu8r+iu5wgvAfpHPRb3ZMEqTAsHLD76XFfalzLaaNhjeK/tTKsh83ITfrb5QkZRO93co0YCY4skbkovYPeaX/UslxdBxwS1UFgm5VPVztcuQXkFhJfyUdcuFqZz+Z+fUSNi891U/t4v3VYFKEYH3ZaMQuG9JvEwlZUZhta/aRebekZaDtHHPuNpgdxAYTJ63pD8MVsid138j1JYwXrpT/3fA5rTMiUYRpAY6Frs+/3MLK87GCs840UZSBIYoJYiURZPo8xhgI5N+nAUXY28dpe0EnPq2Ska5j6Yq6dRjlHdzFSLaKfF/CIuZ3ec203YXd+mxALI7Lmk4MShrcBUSAJ8WrGbbAw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "/cCWgy39huZd05yychMkh8/cD24KADXq/CQgBlyitOjR5b0b9SUIDgoXaIkTbI33gRzT5pejh6DQmJYuYhrMAFihcvCuABp30Ozegti3o0zqf5UTjlBj+RQ0Z6aog9kgSiZcQYDiZG6NS9LhvrpBK+UIp/ttyzlSkSYkEAv15GVHz94I+Ipxo2i6wA34vtycoku2Eg/RJ8cXe9pbXBtSgeAQnfLUMmj4xkz3eMQibzes5/h+pKFoAs7VdBNR4nvBPA6cGOPdyGAT7sZcSE0q8GxEEJOd/f5s+DkUUJUkwPjiLuxndBgk0znEBk9SQeHGejIHi8ERcAhjWFP/bsrkTXJkaTtum/fdwBTCPE5rDlpYc0KeypI3QA2TyS+vyd7RgjFYIz0IZm5n6A3IsIcRPZb+r/o=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4a5562c6097e9d98\"],\"constraint_ids\":[\"C:7e7d905ad2bfa410\"],\"span\":\"Ansel replaced the treasury seal after removing the public coin at river market.\",\"rationale\":\"Removing public funds and then replacing the treasury seal conflicts with Ansel’s duty to safeguard those funds.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "XCidvYmhKyfkdnQvlUscaqhm1BAk1OQtu/YoC3aM74Kl2idhrcWFpN+UxiFDDkFiftRgzr69wHgDTpOhJr74RRW4dLE1qmj43vgf9QYXL0JKbzi66so04ADQVLQM9LIfhHJ1RWScypuPr9SUDtxnmpd+m/4aVlUiuxhOxLCkMkJhfhuDeAB6C/S5NQ2S6Zy3aP49x1YyN3ZFFrkxAR2qGlRtwjRk/UNs2/qCg8OyIay00xlj7YOlJRsRgo8pnS1+ZAZEXwUmaVdpINhpZpBHiWl8fv6w3PyquZ19DQoOSQsE9X5hN8Z1vJ1LC7nkq+uvAPO4KubcgMNUyDYb8zRV7/Z6t5e6rnbbg1910y1iABz7MDDqWXOM/DwQUVgw80HgYmgMwrbo+hmF3TDt8DHxGkBPuIpq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 515,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 524,
+        "output_tokens_details": {
+          "reasoning_tokens": 432
+        },
+        "total_tokens": 1039
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4a5562c6097e9d98\"],\"constraint_ids\":[\"C:7e7d905ad2bfa410\"],\"span\":\"Ansel replaced the treasury seal after removing the public coin at river market.\",\"rationale\":\"Removing public funds and then replacing the treasury seal conflicts with Ansel’s duty to safeguard those funds.\"}]",
+    "token_usage": {
+      "input_tokens": 515,
+      "output_tokens": 524,
+      "total_tokens": 1039
+    },
+    "tool_calls": []
+  }
+}

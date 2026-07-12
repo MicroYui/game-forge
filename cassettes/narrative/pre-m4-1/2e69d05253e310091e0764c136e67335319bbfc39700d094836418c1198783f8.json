@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2e69d05253e310091e0764c136e67335319bbfc39700d094836418c1198783f8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2536,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 579,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 152,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 745500000
+      },
+      "created_at": 1783857300,
+      "id": "r/atnpBVOs7gQ1LR2/AFS+HLTRp94SUgTXQMu+6f8k87p/52det4/3WMJJpAQBz2uHjogPC86hgAehQ4weXWOSqmBWoC6CAzo6FtZlcM8vKBPvvaCD8T/UqBcGQfox+3VzWvqD/dRs1RF2RP/gt615fstkUcG0KSoTXpyqWVRKp4Xq8JQXKEj2Tvrz4z1NlX3AfXPjAw0XBDMP9XuPSr6zXqsGGrhzdkkT98Xgn3X0j2xQOh7OjM5BQvinxdUk4GIu18TP7PrlI3mEHzOxBv42iWfI8iixdiz8rJwz5pBdb0nGbxP5qJ7tkXhMEXOiOqKHYrved9Hd5f6/mlVto8Z6JvhBmWVr1BKpMlMTZuWdhpYPuIMHPxGeex3vCo09tWQvkNUtMJanSU2k8ZEpSnrSnf1BdgPw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Axzy3d1UwMEpQcr+TQ01snG+X3iniZCEzooJkPN3nhgv2wZhzaZIfjCt5ehfjsAvFFzLZgIvCJj76pDKqIeClUoAtTa/ukfEcIbklyLroQDhC51x0Vj9VTinIx/RJfCIFMc+Xau3q/cQ1B+aq44gCCP3Q0Fn2YKjfMvHe7TEwE4frvj+Bi6ysUWmz3Iu+7PoZFT7MxmYT+xedIOkgjqiHAd8w1Hw1D5Pl7CFKvUji7tFHRoIo7wIcsdLtJKMPqYOP78qURNwuA9n/zE5Cjgn8Cj3ziB3vBnBb2ejsF6LhWbgKAT1q6tgpHv6BykfCOCfu8S9i/rMZm9CJw6rg+ghAqWalkWndINHkiPTm6PgojFxZqkLt2fxiJ6VpiRoYoqZpobffaUW2PD3JgVcvtb516hpNdg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:f4e66b8f0a05c5a6\"\n    ],\n    \"constraint_ids\": [\n      \"C:7776abf195663920\"\n    ],\n    \"span\": \"Ivo quietly traded the allied patrol route for coin at signal tower.\",\n    \"rationale\": \"Ivo discloses an allied patrol route entrusted to him by trading it for coin, violating his secrecy duty.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "bXZBXw1jkrHQRBx3Cs0zvrtN+dlh5eIt50K5MU12pUY6X/5JFnMSJjzX3htkMxmh2AxqMQdP3ZHe6CAesWXuEd3k2bMJu9sfZVqLKWrQ8atAATOXh2VynKMH4AOIlXMXgEBuV+6YNGnWeOUemDrla2d+gCNyfSqmz5xtZZCMcZhSUTqT4YjomnaH3dVRjGWiQTdj3cGvEYIW6js7LJe6SHsZ3uNnA3vpjKz+VHeJBwwVaqV7wf6gweO5yHR42SMlSAEmPVwrl5Gmv8vmgpcmAVwHuEd5VW6wh85eeg78Aeu/IU0t99Ei1+wR6C9gaM22L8q7Okd5QblICxlLYTo6Mrud13IywCBIZnUeQQY77VEcQuCwwjVPAu9QmlebkLjBTdgu8TIT81QdD/JVl8lZ8t5Qud26",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 579,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 152,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 731
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:f4e66b8f0a05c5a6\"\n    ],\n    \"constraint_ids\": [\n      \"C:7776abf195663920\"\n    ],\n    \"span\": \"Ivo quietly traded the allied patrol route for coin at signal tower.\",\n    \"rationale\": \"Ivo discloses an allied patrol route entrusted to him by trading it for coin, violating his secrecy duty.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 579,
+      "output_tokens": 152,
+      "total_tokens": 731
+    },
+    "tool_calls": []
+  }
+}

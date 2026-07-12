@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d5b3f2eb71202c70cb975901ee8b1e0baf5403ca1924d131cf18674542778384",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7131,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 630,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 281,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1158000000
+      },
+      "created_at": 1783855100,
+      "id": "7gqzo2Mqa6iyFTN2AkxrHpso//pRjCY/Bokco/2sXLpwmY+U2rkcSAGJQRS7N+8PIQ88zi+oCbYL0bnZT4g7HXUIEkx5mx0sslXKeSfNvA3mFa+uLnp/HXtPWjlwUvhteoNUBOKtkbiglV7QAOBQVNuAuRj3x3hVZUtnpZPnpSRofT6RWj5n2UVeEUBo5oYhnV/YNhkt71C6KAwfa/ulDphw7Sp21cEPSqIYEJ26iwqVLN52R6eybtxi2w6VwI7lq3tY2ZLA77hrtY4o4inYyjgVnMuYee8ZhMRSstAvlMP15InaRrix0iscb8TsX7tojSc/BcieY6GuKqUpXTkNWpytuXdujjI/nBghO2Cg2jQA2aWH0DASzo8XTHzBhwdc+wbNTwRQK0XppBR5STcNnhTC8vPRkg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "HYFe1cZ3l/jXECiUnIl57AJgvtP5FeiaYjZ6Vl+c9AGKC4/PMJfVs8DnTPjib/imuMs9/LkfKAlUyTjoDihaPN7S/weRM5hZF2yit2jUmvzTr1CjutcNFmado1jEYtbNVBh/Fbj7j8Tgq8zAatOtkbPgc7tJdsYNx0XqBYcHBhh3IyqIiYzS/MJPCPgbFTBm2WxyrltKuE+mHm9tGETZg8oKq5ls0+ienMGpO05SUNse7WF0r9dRfe2eTxMtnraOggwHC3nAhHJKDAVJG00yLUuv0n08qM/Yu/3mWaH7xRlkFOlXzHGytTyMXRqOLmGLqULpxoG5hODO2o3Z8oq626Md2e1RsWNsktOKP04nWNdmuKkmnuOXL6URm2U8r+0L2PrRCzVCN3Z94caUuPwjQYjXneM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:dd3a45890a5f9e0c\",\n      \"npc:e786f998fff62c43\"\n    ],\n    \"constraint_ids\": [\n      \"C:0928e5b367cf14f0\"\n    ],\n    \"span\": \"At north gate, Qi was formally introduced as the First Navigator.\",\n    \"rationale\": \"Qi is introduced as First Navigator after Mara was introduced to the same single-holder office, with no relinquishment stated.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "R32/+OmYFpfRO/EznBAAy1J4UrfLy6rU7gMcMgFTvzwgdiLh84NbgZ94ySnNygxw+1lm6a5nZ9pc6Ne8fgK4Xml7yzLgcN/rAKbRB8qigLfm7C+8LxUtZ6zdw7meIJQGQ1uIH84mt/+9yG3TjTMTjDfu8dmQ9hsdOAoa2ykvxbBDPVD68mbJl+MEJJlwz20HwfTwHt4GkRw6TqkHeyW6m1e3qAYx9QC5T+yL2LRJ97Xs33QqUjdJizhEtfh2o6shW3HZGwKQR0jdvrlaWH2zEQTkoh88SeKLdn0codAVtJlCG0Ld0gfawWs9bVC1hHhjBCzeHDPBDeeFEKVdYOpfkP32ox0U3MCC6ZZtov5XXb1ko8rX+WD5384UJOQDkUwcuAA6BdEaJlRJchKf6c5h7+6rodFJ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 630,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 281,
+        "output_tokens_details": {
+          "reasoning_tokens": 149
+        },
+        "total_tokens": 911
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:dd3a45890a5f9e0c\",\n      \"npc:e786f998fff62c43\"\n    ],\n    \"constraint_ids\": [\n      \"C:0928e5b367cf14f0\"\n    ],\n    \"span\": \"At north gate, Qi was formally introduced as the First Navigator.\",\n    \"rationale\": \"Qi is introduced as First Navigator after Mara was introduced to the same single-holder office, with no relinquishment stated.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 630,
+      "output_tokens": 281,
+      "total_tokens": 911
+    },
+    "tool_calls": []
+  }
+}

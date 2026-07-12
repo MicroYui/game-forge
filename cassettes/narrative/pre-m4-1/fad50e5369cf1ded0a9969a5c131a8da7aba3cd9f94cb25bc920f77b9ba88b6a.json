@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fad50e5369cf1ded0a9969a5c131a8da7aba3cd9f94cb25bc920f77b9ba88b6a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5224,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 623,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 259,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1088500000
+      },
+      "created_at": 1783859600,
+      "id": "EFuM9OcmwgGWVFRBfkLfGGR6WTMKfprUp03bRJfP8BWhKe/hSMWPhXXXPONMWP5/7udEqQvQIrMfBjbMkJc0/5wDVw3QK4gdDATLvzW+6unUVGUhq4gyq1O8t7Kh42ufBV8qWDv0cIMw/58i/TCNEsNRWSDE4SH2EYlarpmK6vZAZQTVektJS6nnrA9qpfR9ADn1bHhSuo0k4JPxokUORYUMa7xYM4FKKB2MacLmCAMKy/ANqqXfGxIjOFYEYkSwJrmOwPUofteGHLioxxiM8dxD2r320jo3xoFLaavg+zA0NNJvaeBYU2uBVjxNcs1829DtAMYpNG2xRCeqlwGzul5jERrMRiOUq2ojhRASk+/L7LdGppzUFKIRdwYvojG7RWTCHhTj0TCtp8ST1/Mv5W+wdKhnRA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Qt68CmCuEe51He75vemyxuVeN8wNnNRnqZFk6zUpW/yqysm+PtC2BnhhwMI6mF+mIeLlZWUtTFPrbknik4j5IltITPXA/xJmI45UaeXJ/tCXI6gbIsuK5734I08S4mmJRTYvybRcIBeWjyYBvRob+0p31cbqr0bKhX0/M/QyL/uQ7eSTIc8nuuZBMGm2nwVE89MeiTL+vl/gAeLN2tBCxGi6rTxGg8SX7FUotHlsoVKt5VNQuPGbTqIInghbDabyZooqwHikcYfgcULclhjuKGAQA5NsB9LMpDZx38BtLQPAKgpa4QUhYqbO/JTZ0bRsA0beIDkxDojzc2e6GM6yD08Z0DDAHZehNdv07D0HJdEiwG4vxONdc0SgIqw+uJW1xc0Z+ysdf1MHKMgS5b8mQCr8BDQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4b63fea2824bd7ed\",\n      \"npc:f3f9a746a2e87ceb\"\n    ],\n    \"constraint_ids\": [\n      \"C:ae904aeca7bcb36c\"\n    ],\n    \"span\": \"In caravan court, the council recognized Malik as the Beacon Keeper.\",\n    \"rationale\": \"Malik is recognized as Beacon Keeper after Ada registered as Beacon Keeper, with no relinquishment stated between them, resulting in two holders of a role limited to exactly one.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "5xaBdH98ZAdCd72+X1rxBJZ1gHrNqwbIuKJlGLrrZ75XbP4pKchBhdTFqgxfec8wFGS6RgyOUGAXJ/xyLeNv5fybYzU0hYe8Iz3ZY3B4WFyP3E0Xn4OvGVGv9HCGRrufxPcg8x00y3xBgf+UD8jqaKxpRxCFVeFOz4VJHf5xJjRxXxrFgkCVM6FbBTnKrGCKGasW+pc5n6U8SKYxDb4YMHayEC7TD1bSkwPnMGxO0RYFBsrMmCs0r1ZBV2KlXY0oL3KcorS/qZhkd0rq13nq6TgP6nzOZBU3aDp3Uc53Ny/cmfjM8qzkAzWJOpjgeyDDwvFM76XT06dvYTGnH0kRe7XKosJht+/Km9L7h90nvEv67LBYNUrujDepy4p9MUk6AJcTV9i6htKy382p2WKzBEFKwKIQ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 623,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 259,
+        "output_tokens_details": {
+          "reasoning_tokens": 117
+        },
+        "total_tokens": 882
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4b63fea2824bd7ed\",\n      \"npc:f3f9a746a2e87ceb\"\n    ],\n    \"constraint_ids\": [\n      \"C:ae904aeca7bcb36c\"\n    ],\n    \"span\": \"In caravan court, the council recognized Malik as the Beacon Keeper.\",\n    \"rationale\": \"Malik is recognized as Beacon Keeper after Ada registered as Beacon Keeper, with no relinquishment stated between them, resulting in two holders of a role limited to exactly one.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 623,
+      "output_tokens": 259,
+      "total_tokens": 882
+    },
+    "tool_calls": []
+  }
+}

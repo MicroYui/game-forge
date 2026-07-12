@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:074ffd7151ef6812457c8b5f9cc79452753cd516460c77228d0e5d8e708a3573",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4526,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 705,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 264,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1144500000
+      },
+      "created_at": 1783847700,
+      "id": "4YSwe+rcHPKUgrUa/GnZcBGPVgMYAZ2+kp1RaYlra/5xHZgNZUkA/B+abDXC4dVrL4Kb6lsogTcfXOJaKVr1yATWZgR2TY1iv2lNviUwRPCKVy7J6Hhh1E8RwORaXLpFmYIi+hZuKPovFBOUUiuPiA8eRb4PpngUKGgUsLemCr7IIvVAIn9BF/nNC/e1QRBB0iFD0GDxUpgQPtjr3aKpW6QPJQlrunnOY1gDL1SY90n9yPB/cbeLW0f8wH9IvZ3IXleDqT/2+xywEfSoESCjcH/pvBKwNn5GSK11WFosP0sskG+1E0/jtkDynfM5CxBxRcchtjizKXEOFklfbCPBf0BZDVf43tOB+AxseFHFFdeGdeCYohfI9u+ZPGJgAx/VtrH76eS0nwsufYGzkKDrGDJkg/MVCA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "uqYJYrRDVmUAe/Vxb3pay4hsASMZZ+NKEOR+1AnqrCvvlBj9/kDkHp44Hz5tikYx/cbzLF7JJGJCfnOc0nlq/cnVkeBngaXHD946GCdOTH0CGouL+PGNBLC7Gi1N1uG83CRZVC1E5bCI7IfIgPN4OZ1dtKxR9HPDD+QJmjswH6dsZnAybOT4oA3iP1zMzyaMwZOzwu+3Vj7p8oKz+NmmZ2NrBJCt4TucbtNgTC6JD00arm9/+FEVl39TVQHpn6clKNpe8fIc3h9GdDji2aCCmV3Tfvg2pwmpopjSeXrXj25L1vDQnuUq2IuFb3UUCTvHw9U6RjmB1A+6S1PPomGhnnC8LhQX1vIYrg4+Hk9v5x+YKvkgUUaOna7B5dhO0xvutSlISprgNW5PYjlOtmpRErelkrE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2423ae1e243c6674\",\n      \"npc:8d2c9d1c842fdf1a\"\n    ],\n    \"constraint_ids\": [\n      \"C:0fa751314ff4a42d\"\n    ],\n    \"span\": \"At old mint, Eli was formally introduced as the First Navigator.\",\n    \"rationale\": \"Eli is introduced as the First Navigator after Tamsin received the same title, with no relinquishment shown, exceeding the one-active-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "PejDT2gUqVDjyHVN67RyhHkT2jo92Cwb9NTXG28wlhOennjAb/72oCYM1eeSXJ0QWfyK1C7GKh7xu55wonour2e1o/NXyPh6CRfySBZz4qzn6bBRX1ZYLpCGoayaymYLGwgVM2/d82uZNq8Ru/44d1FHTfNhYwOmUAS5JTcmmzOwLMDQ2thOvyxo5bMqfWnO4uw3/LaGHEdNrZf0xY2oW1pTlDEids85KeCwx6VoBJEujJlQwMZmX7EFH2x87dh1uGtUfEC3nB5t8BgHcJblGvM5ZEDASCFQ71NxdFxWH8G3F015CkQAP7iFXKYr62jg9w8XsFzlPh0dZIhU4Qi1KNJQP5t9iUb59u11BlmkBqxpcVzNlLgag5rTj2E1MMLLk4l0PYY+VX0NNImBpf1M3zTJQaGq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 705,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 264,
+        "output_tokens_details": {
+          "reasoning_tokens": 123
+        },
+        "total_tokens": 969
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2423ae1e243c6674\",\n      \"npc:8d2c9d1c842fdf1a\"\n    ],\n    \"constraint_ids\": [\n      \"C:0fa751314ff4a42d\"\n    ],\n    \"span\": \"At old mint, Eli was formally introduced as the First Navigator.\",\n    \"rationale\": \"Eli is introduced as the First Navigator after Tamsin received the same title, with no relinquishment shown, exceeding the one-active-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 705,
+      "output_tokens": 264,
+      "total_tokens": 969
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:810934e26040d5c87c87ab74881e77402c2df8daf44d27468cd3fad83d574788",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3424,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 582,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 162,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 777000000
+      },
+      "created_at": 1783857700,
+      "id": "hbudBt3O6bq1FhSjf9vme6zU2xUICWNMAkXRefgNBJN0x5ReqjfFRp8dNKpz6NVpk0UEl+znSnxmYW2yr9qcfdlwWjtEgXHC8qFWhjpdhh7bvle4Efpona7ubgtzT1N1/6zFtSoFa+7Gt8vbj8u3pvkS9lPbHyUrYCAHJV1sXhfNzbNattjyyY0BI554nlovtcNLjWuW1Emj7NT/5YorhOLEGuHeAs7rrr096JJ4Os33XY0qrDHrMgcNS74WVAJFtwbtLHV/lFRCwxsUCBaEdb/IrE355HVQ59WKDobEP4xwNs5FM7BZS0+ypEh786z+EkICxvSKUNu1QFfIYqIVyFl2spSm49zlKZFk+6sw2j1z7KytFHa15OX1R4SBBEMiWxy/T/P7TjB8+5Dj+h9fWpVqDLROvg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "jdOW8enLP91oeJWb7BQRnTa7XwlSV6EmTFaM1fldo2tMiJf0n+ooaE4mZLyo6sa+D2t3v4SYQVeRC+v3VnOgeWo11w39/Jpw1zxEXepNhRBkjIuhpy2u2xdfmysdZ761zlBuGHVaZ9/bHgwjuyjmJKEqrdydu1lm14KbMo5iL9RUsY6JjjTaiGRnJBhi7s88uEQ5/YIzvl6kAffGESUiUy5i2FwqOqUhADXGh+s/LgthUEqIbZE/11ZT1JmNnfGbcK80OK8/6h9afk/WNYFyi1D2cMLhrPyxQLdfYqiPBaCo6yG8ys/mtle3twWyRqZ+eQNdJo6Gf9AjbwV8s8yO5sz1pUkMqAiat1nvJ7O/SLNJwN0uzP1ACP6h2NkQqzX+YNof9F43e/rYzRpbAfukALhRI0s=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:6fcd91deef3c03db\"],\"constraint_ids\":[\"C:0b40be0890173927\"],\"span\":\"At old mint, Mei locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Mei leaves waiting civilians shut outside an evacuation gate, exposing noncombatants to avoidable danger.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "/Tp14wQngPciO8IOquWc4cXjeFYNhJGzCxHxCCNshqGdX4tqOSp6BzK3VoxiBlf8TjqZ5huGlGkymfQ3K1EXj7gQSDAaeF3+IVxp+iyeh906PdHy6GckUZBNR/d/ovTRn5kSIH+b1HKGGLL3FN+IgbD+buikS2KN2ZXguQPcf3EdhC2aM52TVrcSgtwP4AmlPy5c59nEkFjl1I/J4enbtdSVp8dT+ICJf1jiFa4auDKaAWIUasVxQsBZcKFuF2MLGuwXN/536MVEiAlpg04CVWUkhtEhk6RL9tMdyXlW8AVUt1eUNEt4Vp+Cgf9vNtQgEuh4CsEIpOUXrtTy1QJvNOxtyl4UkkhRZlFev2vXaDt2nz1Kl+DbzBc84Gtx0koh/DDoX8nTtf5Dhy4Zk8WYFkqumt08",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 582,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 162,
+        "output_tokens_details": {
+          "reasoning_tokens": 74
+        },
+        "total_tokens": 744
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:6fcd91deef3c03db\"],\"constraint_ids\":[\"C:0b40be0890173927\"],\"span\":\"At old mint, Mei locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Mei leaves waiting civilians shut outside an evacuation gate, exposing noncombatants to avoidable danger.\"}]",
+    "token_usage": {
+      "input_tokens": 582,
+      "output_tokens": 162,
+      "total_tokens": 744
+    },
+    "tool_calls": []
+  }
+}

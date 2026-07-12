@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:24ada0bda312e4e2c03a5362758227ff8037099ea43ea7702e93884d81384a48",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4014,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 564,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 178,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 816000000
+      },
+      "created_at": 1783841700,
+      "id": "W/6XI0hiVpgG3GDXCh4MDFYsZH9GA0PEtr1u8GIVP7geKPIHgVf6kcHMzuoPRCtbQwdUzY/5T/bzoQvTfYNwlT58KiVlF8Pt34XTgQu/kT5/MDZCxnGsBIRBSluNrd9JcMs4wyrg78iFrJ2snD4Sw/OsUqnglGTARyyak1hpDRWdfac1AT4rh0F7yQ0sbpsp81iyeVTwqZgGyZVKWZjM7Jj1XSm2C0XmRbRKUr6GwpDJqHd32XMa3aubYx1wj4IWEiPCAeyt3VH123eHd4AC5569faAFt7RtLEv1gxxM9xE3MjCwLWzuxFqTe/+WIEtn0D1MD95nEj11O9IPSsEdi2csM1574POdBdmB6dZsQFmQzXlx4+8MPuo0kSoVyL5RcHAeicYnJnk0DHt/YC92bINvqVUmYg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Enh1nCPyyuOqBY62JpsTfDi+ZitgPpeOTwGypFvzor+FgsYhhx5gT4KQ8MxKt0VAqCiM5N8TczH1Y6/E5tlKoddgj6McBD/YECKIuZb9Qfz8OvTB6DANRmmeolQuN371Ev6A4X77sbIaOI1KaLunoPbEZXP+GSi7Y+MwpWKT1fSn/TzUbtgUvZ4vJQV5bCYr/UePIP8H/3lZC5H4qLqptys49oq31XB0FZJM12waHNVyfAY/cFRMfYbRIUpuWlicdqvHKPg/6m0vfuUfQwxF0Fx5CBHAHU/w027JQexthLCu/EPrGykdx3Xj2B8gX31Ok7spCT+OoKxRkvrqQI3ATqEtDbNVU0w9vvtm4P/aFz/Eyp+d7MDAdUjloFDolK6twZuQG4VhEXgEkgzoHVcu2erho7I=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:b7e8ebd9677d0084\",\"npc:ebbb72e549387d6c\"],\"constraint_ids\":[\"C:18affc393c4ed543\"],\"span\":\"Ivo fought beside Lea under one banner at relay deck.\",\"rationale\":\"Ivo and Lea serve factions that explicitly do not coordinate operations, yet the quote depicts them fighting together under one banner.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "uZDG7HiamiUpZ8yP606WGyZqYjKmrrqzutoIAtPaYf2IE8ATXp8rh7PwhL089HS9qhaY5HqIM5isFuq10E/Xcs2HoLytDic7hEJQHHivg39Knh6eOj2Ge1kJweOIwLkxBP9jO0C0pOPZPSvcFix7xZhjuaWeOq+4aROnaIG05yrk/ufUzmcqrAzJbs/9GNYIUPS5VkJsVgdcMvDa8oIlFH8b5XwOxYKr4ykbQThd85ZXWrWLV+JZ2SsdaeKEBVh7yfjVrMC8cr3zBBgtVtkfe5jIZ3tiZXGVAXCMlA6FdoOB0KbvZPHTAEpH4i370lI3YJ+ftLkS2iBboY9NFZlgVuRbU4U+BUwwhvDhuegTgmnbM+UeFbK1tUbJ3MmpjFGxZ7Ln4XiwIfG2sxmRZJgxDNqyP3JJ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 564,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 178,
+        "output_tokens_details": {
+          "reasoning_tokens": 75
+        },
+        "total_tokens": 742
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:b7e8ebd9677d0084\",\"npc:ebbb72e549387d6c\"],\"constraint_ids\":[\"C:18affc393c4ed543\"],\"span\":\"Ivo fought beside Lea under one banner at relay deck.\",\"rationale\":\"Ivo and Lea serve factions that explicitly do not coordinate operations, yet the quote depicts them fighting together under one banner.\"}]",
+    "token_usage": {
+      "input_tokens": 564,
+      "output_tokens": 178,
+      "total_tokens": 742
+    },
+    "tool_calls": []
+  }
+}

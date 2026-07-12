@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e8c5329918586b03064a2a0c20c63c5e5ec9fa7502503ad19337b6e423dd09a7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5525,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 630,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 200,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 915000000
+      },
+      "created_at": 1783853200,
+      "id": "wKEiPNerWVTecQqw0T2U5/Kcls7NER7kJF79Xvp/DfJfkyDuv+pdYYjmaS6z9ofSRxM4xGj6qxe72TrB0UZ32RvPLKmyLHO2IOty3diE0pbGxIL+rpIhXfBS/NW1NiDGuwKywfHsbboY/V20NAVora3at7o9gKFPi19i6OP3OFuZ3MVr1dB9ABHXmN9wBAkDUJnHJZJkgua2IQiozXAs2YL3+ZsEUOni93FWYfltFt0FEwpJGZTzPEwuknkBtYwVp/qt6V3HD63r4pA661Y1Z+mxjUOBsq6WIiiFwpccXf0s3OogOqf/MeY4NRwLJ0MbZDyGVTtDRSO/jzuoeF+xqOyHiXwb+yS5x22Z0IWgef/WR9AlDdYNwESrvTApCfFPLatxA4KbRCJGx5fWO4ef7hBkdqfpdA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "NKkI3qtZ0Uqoq2dSTQQjUIKSHhi1RwShZdBxWbuNabqtxVQhHfGQ1NnwVgxgxYzzRD1XBtYHVdhdAAaxDDjr80k1Ye7OnufmEYk36m0IB0aKHWk2ZoqeAjCR/tWcQiiChOQ+oEKbJGqQAk6xQdZI3p/IfUSh8BLCX6v75AmHfPfLzCUQuQzUwlxzfwMQVLZlQvFhjxfaDyMk5oTmMiAgU/UguFfWHs3xsBWFR9IbZq6ByXgVDhUqdQDucAqjaYj2CzpMqKRT1nk8qNxZYCnj0MOA0nnp9qHTSLXd3cpvm7iPrt3ua78v/k3NNiirypDrjoabZfoBrN7ZYDYyGlSU3oq+yV2vCInD8SYQVsbEZwix8I2Wn/ssU1/Jae3d+reaW+LSauGromcBngEsyr1P1Lw//Bk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2d1c13ee273e2e9d\",\"npc:86cc371d9f77fe6b\"],\"constraint_ids\":[\"C:4f221d188dd42616\"],\"span\":\"At eastern ridge, Ivo was formally introduced as the Vault Steward.\",\"rationale\":\"Ivo is introduced as the Vault Steward after Lea was already introduced in that role, with no relinquishment shown, exceeding the one-active-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "6MeW0wyjdygHxMWWeivihxV0IKBoieVtbnFHMP2oRaq1go5+S40SxRKMLsFr2wSqQOU9IjYBFO4G15cof8YB02MSyNJDXmGEqEL+MBDVGFy9d7oU0tRh8MHaFqW3pjNJqaMvHhcXQQ8pp2RHZb9AO60zuWiUqFZe0c5SECeTD4BeA7FvkAI+/R1JR2fo1JB/r+onl9wZT2IIT9YmZ84f7fDByW/R1u/VYR7IdLkEuPPyOXn5tJDH9+1sYqdrWQAt114DJYjS5urbsPHQ+VkyBZJxIK7/usbyS7ihP5TeukiOVKafDJQN9M17Mp/xFrYmHWsFqBS+FBpTMJKbSNMToyLxfpXPU0AU+rSHC8mlYetyi2Hsbpx3vf74d9bCKfpsQizL5JbDDSE0UWTkVa9MjvmHh1U0",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 630,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 200,
+        "output_tokens_details": {
+          "reasoning_tokens": 85
+        },
+        "total_tokens": 830
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2d1c13ee273e2e9d\",\"npc:86cc371d9f77fe6b\"],\"constraint_ids\":[\"C:4f221d188dd42616\"],\"span\":\"At eastern ridge, Ivo was formally introduced as the Vault Steward.\",\"rationale\":\"Ivo is introduced as the Vault Steward after Lea was already introduced in that role, with no relinquishment shown, exceeding the one-active-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 630,
+      "output_tokens": 200,
+      "total_tokens": 830
+    },
+    "tool_calls": []
+  }
+}

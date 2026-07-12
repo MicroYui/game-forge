@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:761ec3b202dd45c2f40651c25e010cc25fe2fa79af875877d2925f969f402615",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6962,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 611,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 423,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1574500000
+      },
+      "created_at": 1783849500,
+      "id": "v1g2JTNbEADUqrCkNr8PkJOZIt5xmvweXJSYVELiXiM72MLFo9TBWdAp/RZoC3lTRlQqXUG1e/wnRXkLTIUO9E7LUhoi2yV3JfH8jt6T3xgnXy+0Zjl6Z9T7uRe2w6nAA9GpImGGIDOiL44ImueEyx7UrRlstPbdzqmsjchneE8GeBq64V/Alfx5eXW6aC0Q7yPfppOmgPqvT0QnQ6QtXgZ5FPBPeKtkyV9K5XCWVXMTj7c3Q3lkjhvw/xzu4xw3EOptEIFZdyA8sAD+PyY/MJl8YAmc7BOV+r4w+CGe9Wjjmbw0ZxylBw2aeLn6W3LBWLbYTJNUO3mLygQ81is5rYWohftootDjbUKzmNF5HzowMo5mG6b4aeXDKr79dM+2fVulgb8UxkORttN1mBKmlKW5tmOjAA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Gjca1dS0LhuTizg9Wm4Hjy7Uw85Vg4M1X0ucB9RF/C5bNTk0EczaM7Y64P5mB1vMOAXxwVLh8YeYatwCSHoM6tb2/+GOlgkXiaokFeV+iek6/eiZMOH6obMoTtsC0TA12LfWw4SPRvCaeEW8baWuJSzWsXl91zqf+9wYYklfIp9Gd0vgv0BRJZXvKlzVWrLEaPC8G8xivFD2D3qsY/WxhWq1lgCWFliCFgIDPjiQIhmvEfkpoORVfZ/msZxiaJmT6tZ9q/5/Go/WRWX0Fr0VX+GzA0b2IxhK+0u72j6zTNWuG3a3wgGzC6BewkqfN6Vw0FazrFk7KzEcQwjfMwqCP2EVIBWBLS48vJnZsfHggBi5yNjoCPgZ++YyaNCi1OxwT9E8WpawUBImGOzRApeoJWRqQ4E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:fd13b42c4467f613\"],\"constraint_ids\":[\"C:1ecd0231bb3d0155\"],\"span\":\"Theo renewed the oath after completing its final obligation at desert waystation.\",\"rationale\":\"Completing the oath’s final obligation before renewing it indicates the original promise ceased to remain in force, conflicting with the rule that Theo’s promise persists through the whole mission.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "yzx1BTkagX9OjPHd+NbNTAXmWYfnSbjbXHocL8YmtrbihaoeQTRtzrZEbRvy6/okAWvHZSuqiTiNLCLWwEBOe+wyac5qGkQkVwewDt8HzFXwI0ITtceY+LebYP66bB88KGhfVoe1y2xOZP0/NPj4cX5nBLTRSXJixNWjCrYCSzLK5EXRWaGhh/PjLWRRMPvEiGGUtZ+q3cm+2nZKQiWf9n20w9RExAcZQzcenuGV2C25TDPbOsVqdw2c1Rjarl0bcOJzcBcMIBtZWmbH8L2xoYUA/5ZJFv9N7lCRGaEZQfD198m9Lj0GH6xXkG3xZ5SQrxS9Vc3vRTim9Ld48yeaKKwDz8WzfFKn7QgFXD5famScf+U/kIRnPrDlheuYsBSxg5QXWwUR9CNgaR2zaFPVBumSovxt",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 611,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 423,
+        "output_tokens_details": {
+          "reasoning_tokens": 321
+        },
+        "total_tokens": 1034
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:fd13b42c4467f613\"],\"constraint_ids\":[\"C:1ecd0231bb3d0155\"],\"span\":\"Theo renewed the oath after completing its final obligation at desert waystation.\",\"rationale\":\"Completing the oath’s final obligation before renewing it indicates the original promise ceased to remain in force, conflicting with the rule that Theo’s promise persists through the whole mission.\"}]",
+    "token_usage": {
+      "input_tokens": 611,
+      "output_tokens": 423,
+      "total_tokens": 1034
+    },
+    "tool_calls": []
+  }
+}

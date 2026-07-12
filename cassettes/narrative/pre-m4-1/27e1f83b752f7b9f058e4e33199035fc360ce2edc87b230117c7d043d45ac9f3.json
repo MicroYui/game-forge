@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:27e1f83b752f7b9f058e4e33199035fc360ce2edc87b230117c7d043d45ac9f3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3293,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 609,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 137,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 715500000
+      },
+      "created_at": 1783856000,
+      "id": "m7WVea+zYZet6MTGfRDi3L+Yfzyo0SSovrOWrnIROZazSygdgvhqCbrkmu7zhAClzyBO22k4D9+qYbkYCWZNUiLclNw233ufVxSxQTxmrHJDrKj4Xw0iAzo/cWv1YmJ3ZQFmVoqpoZPugd+G06ZdbCkz6k/oo7MFvHMLhC24PJf37K/RD8WU5NLoUR0NvlZ1xMXU3ZP8CCbwLkM8FKrfZnuN5UOzQt6zi7zf5tPjmC9/vnfwBb6KFrvHVbMdx8McMqMCY9hER4xzsNgJa62v/T/rRPoAQrP0ifZroLxWEkCJrj4D3ZH4pZnrMvsxw21qH0jcs3EQShu5PmliBiff34F8/UgV8ud0GTTO0uhjNMb+mLl+iyfqIONR0ttfRsxfJu9VNc1gGSLv7iK//kBjvFx0+k4gyA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Sq0s978oGpbrjNoYQ8bHPhqrbiN/kc5y+kUhuJupFqKTozl1EH/BUy7s4/7vy9UGT7uWa6b1SNyCwbi+C8ftJ0hPk8Bab7BLRxXx08CJiricw3t5+FFpDxU4oAfdnqtuYrlMEZOEHcUXy4ClbYoQ1oChKtA1Lr10xpyykpS0g5NITyUAPdvgCRpQ0aY1y17Os4f4utH7OUyqhb00sHK71LOsAZWcRM7+TPhLmfuncIAX5yjUAS1KwhAHLe69Q0dqk/AifqHbkcsU6m7nIHSR2BoLnfnIYLYQMnaeZ8JI8Lds/UZdlBHVUktVdcOebvsJpIsaL+SFXr55o3hawMygU5EbNIgHYO06kLrPhHwgEFmjPgFLhScDvQtaX7KF3aMGKios1hjNZiCtrSPoreangcRDRNQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:755f2a905029bd0b\",\"npc:c3b9dd0b8f49cba9\"],\"constraint_ids\":[\"C:627ae299aabca088\"],\"span\":\"At lower court, Qi and Mara signed a joint battle plan.\",\"rationale\":\"Qi and Mara jointly coordinate a battle plan despite belonging to Free Pilots and Obsidian Wing, factions explicitly at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "cN2PLOoekwdw2M9HyQf9Ncsk0O4dj1Yu0DXLPARjOAG9sMlAu2U8kbRgeOAGbwz3fF1AoDtbh4lI9Z07F18/NvkHgRfHNHoQ8z+7al1UwLwB4fTRt9V0LFqrKmLQ3bSXdbs6Z3ZGAzga9WW1eydCk53eSIMkEfUoW5DmAwoPrI9NMFtT8bapT62E02iL74fk3bMyYrA7nEC4/VEPAty/fjBFXHkR4PZtl+JJ3mI6+qzapl3RFLWgaPo+e17KJIfKxKipWl0rctHOSMNLoURKX2f7WJLavXr1baqsiIhLTBynUKQwErOv+9LAxfI3iomJ6eLXeycQuApakVJXUZH0oXwO256hKeOfnJJ5xXmnaQGcl/06UfhlpxLqn8OPC2vb1sfZbMM8vR//TyYwPU8OyzsulJns",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 609,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 137,
+        "output_tokens_details": {
+          "reasoning_tokens": 31
+        },
+        "total_tokens": 746
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:755f2a905029bd0b\",\"npc:c3b9dd0b8f49cba9\"],\"constraint_ids\":[\"C:627ae299aabca088\"],\"span\":\"At lower court, Qi and Mara signed a joint battle plan.\",\"rationale\":\"Qi and Mara jointly coordinate a battle plan despite belonging to Free Pilots and Obsidian Wing, factions explicitly at war.\"}]",
+    "token_usage": {
+      "input_tokens": 609,
+      "output_tokens": 137,
+      "total_tokens": 746
+    },
+    "tool_calls": []
+  }
+}

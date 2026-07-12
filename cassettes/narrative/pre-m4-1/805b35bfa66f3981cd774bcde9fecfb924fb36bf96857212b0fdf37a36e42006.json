@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:805b35bfa66f3981cd774bcde9fecfb924fb36bf96857212b0fdf37a36e42006",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5523,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 552,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 407,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1497000000
+      },
+      "created_at": 1783856900,
+      "id": "MbLBL9Ga5YBOnpv1IBcZG/IAqV3SpSRzX2Uj94N7mtCQcy14UMWTd4aU8J/Q9z/M9cp7aM3FOMiEWygDNegni1eURqpC2DGVl6ctvxf72jsmm3bbmWZpBAK+HkAA3e3Tv1En52ThUhYWQJjXYY79fKtEk0t/GUKmjppeDHYe8mSM0wQ9BBCL624LtDXhCQVOUJDkQ9SHVQWpC/p4/pprFKPOIu7YgnodSG3tINAh5ZL4/DsTBCHB5G8h1kDlcFoy91H/saK+Bu6JLOjNL3q+RBhJ/XcZgIpA4DvuNyqVEonevY9VVRH0yARj11jV5rruIFiif94AAsD/Fcr/YDmRegOSRPLoh672kOCRoobJJ3O9n4MOoFjwsXZ2PplUBwwe0z34q/rw0Omke0zUAJ+RvSpP/6uRpA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "MdT1wh5bVph4ga1I8ESu/OSGgf7mpGA9hDq4PLIAx7vXVE3O0LEU6fNKFP15zPHzch27qG5MIQmIeOl6jIBiKp1tco0A2OgQu2gjs+hbhKI05BAtx2BKBNcKnl5qOn9pp46CdwO28zKS5QFXT253ZKzIQfgAIHwt/JqrslKE5mqqIxswoY2q3NAx3XPPzH8s4rWV0jGa8onvryLRKm+PJGhWBQv4UeN+0tBnB8mnhyMdGfHtu0SV6T//bz1qXW+QeE5O6U36m+58TI1y2aFFCoByND53TKHSA0KrOwkaLWh3M1nEz2kCxXyfoAeGvQ8zBMcn/FKePLzNdi+K/wZN38ePw1voXQBUaLyFnHukM+vygWNtoTHIDTF0//+/1hYNd50NsSsFpzfnPnrp11HDInILhR4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4715f2b601a447a7\",\"secret:6427485b2360c8fd\"],\"constraint_ids\":[\"C:2981fe069ecf95e5\"],\"span\":\"During relay alignment at orbital concourse, Qi openly named the vault keeper's allegiance.\",\"rationale\":\"Qi knowingly violates the supplied secrecy restriction by openly naming the allegiance before vault access.\"},{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:4715f2b601a447a7\",\"secret:6427485b2360c8fd\"],\"constraint_ids\":[\"C:2981fe069ecf95e5\"],\"span\":\"During relay alignment at orbital concourse, Qi openly named the vault keeper's allegiance.\",\"rationale\":\"The vault keeper's allegiance is disclosed during relay alignment, earlier than its vault-access reveal gate.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "D5MdFzyahALgLRiWYg/+O60qUurM0JWIr1T3M8lTZSH5xi01Me64GsP/D1L4FaTsFBf4OSlD8ZQZJWKcClEe51jj1Bte9QrlhiIeOonuVt2afC/PYL+b7ICkSRhw53oRcwiqa2zp1Biv9hOBiPit7e+ziKXM8uX/baLQ4ECtToNvAdvBxYjAjTSGfBHjdHWgjipOx++yUJlPrbobYC9w1CflzXRXT/zHloV8fuC/XaNbo+rZpAwAHDt+p2qrP5TV5fJcLWhkVoAGxpF01UllacL3IVHgfrUNVEP+J9An5ZIy1m2+irDduZYeS6K63zc1dn0/L7yVrf4G8i7lqqJwxYcuY7BV4qoc3swLoye/6oGReW3LHrrox5szrDcLY7tsbRpPmQlSULSPtI5MbX2dfxnhCUvZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 552,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 407,
+        "output_tokens_details": {
+          "reasoning_tokens": 213
+        },
+        "total_tokens": 959
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4715f2b601a447a7\",\"secret:6427485b2360c8fd\"],\"constraint_ids\":[\"C:2981fe069ecf95e5\"],\"span\":\"During relay alignment at orbital concourse, Qi openly named the vault keeper's allegiance.\",\"rationale\":\"Qi knowingly violates the supplied secrecy restriction by openly naming the allegiance before vault access.\"},{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:4715f2b601a447a7\",\"secret:6427485b2360c8fd\"],\"constraint_ids\":[\"C:2981fe069ecf95e5\"],\"span\":\"During relay alignment at orbital concourse, Qi openly named the vault keeper's allegiance.\",\"rationale\":\"The vault keeper's allegiance is disclosed during relay alignment, earlier than its vault-access reveal gate.\"}]",
+    "token_usage": {
+      "input_tokens": 552,
+      "output_tokens": 407,
+      "total_tokens": 959
+    },
+    "tool_calls": []
+  }
+}

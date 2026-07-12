@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9748e4e492989165c6c3afc54a1d71655afbf9546e2e8eb19ccb971bb11d0e7d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5054,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 558,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 243,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1008000000
+      },
+      "created_at": 1783855400,
+      "id": "racuphciL6pIsWu1RtrDPzJQV9ytdjrI7E7HNwco05aRG26AnzyihoI2KOhzc/CCXJJRBn+lIFWT/1Xl9qKTLzVrrrs3VMDH8xfEHq+1Ly2Lt3jEZj3RGkpDLCp0gdsML1/CI13CijbqEF6fyvmvC36AKou0UafKIFJwb9ieV/Y6YJCrLG6usHa98ThmTwGfqC8+n8IOMGa9jUbqKyBOZHGXDXDQl3iffiXWuEsdCdw05EdnXFfDV5GsM+3r1RFeDyIcM5LJqclr1slBMv07EMWdxaF/hjVB2wTgwW4wYV1DYwyfk4VWBojK8MCBXET3AtC3AyNKEsaeJChg2nY1mm68zy+OwgEJnToUjkWi3s68sjOesswAjQLcx4FSoum+YocE07nNemEqTW4K4XlAJa2Vs0EwmQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "PZXMHi6CHJKtkzk7R9CHuLd6YyOp1sqkrFg7LuYn53U1k1+WQtwbl9uojHK+Q+SDX/5DyoUzNRHZArbl4clB0jhIUeeCTpMoDxDzR0VihryloZhSdgPRYW0S0YydCTIj2JHT4hY0uNqR4p115xyNPoWbafGSf6MtCfMVnzjRRYe8OUHLPAmg/UB8JndkaXZ40/TVmxYs1a45B31Hm+CzmWodEqAYJ0RT/rsUH5TSmk+TKyOJf99ipGJnKhqftjKpWLKSFYyMqQiniLNWEyO9NBp6Nbl8qZ0JCcW8CQ6iL6ngoktFDgM8ULuSeY8GGBPWznZiM7z9KtE5wklrCAi2DEoZRPie3F69AmW+9044NhTwHdZOsw+9uuHyiRjMe1jotc1l9A2XXw5JKaF943NjKnPrVMo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:03686df07df087ea\",\"npc:d24807cf90c9065b\"],\"constraint_ids\":[\"C:d27f9a41753e9024\"],\"span\":\"In desert waystation, the council recognized Malik as the Archive Speaker.\",\"rationale\":\"Ada was already formally installed as Archive Speaker, and Malik is subsequently recognized in the same single-holder office without any stated relinquishment.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "yVt0qWVhKKNuFT8RkEv2CPXhrqtB9QnyaX2vdaSLSPQSkYDOYunq5L0Vb1FfQKHRS50v11oi13JAAF1HljRa8TcnIN8gyDuh1yTzVwHHvi6x7kVvTS3t/hM2Z8pyvaGNhcDPqErVzwni/ZMXUkuIU9gdcW5kDj3euWFTLPeIkI4UNs/tZ/Y6Oa/cmTyCeTFa+x3fsU6SafAOsx+uAPLFzUlmrU1btMJ6Gx08aNP1Uf4M7VyACWWflVLyA7HsA2+qF2FjnXd82nhnau3/d099u9vUtg7CYm+hd5xRvuFBthUEPv/CgIxDYdxaZX+QKzWYI+6vixNbuPrUo0sKVQJNJsVNvFfUzPSbOF5p+bgoFefTvluA5zbwkeX3jeJQ3e8I6YDKeA2Mt0GuGHTBX9i1RGpX2mMB",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 558,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 243,
+        "output_tokens_details": {
+          "reasoning_tokens": 138
+        },
+        "total_tokens": 801
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:03686df07df087ea\",\"npc:d24807cf90c9065b\"],\"constraint_ids\":[\"C:d27f9a41753e9024\"],\"span\":\"In desert waystation, the council recognized Malik as the Archive Speaker.\",\"rationale\":\"Ada was already formally installed as Archive Speaker, and Malik is subsequently recognized in the same single-holder office without any stated relinquishment.\"}]",
+    "token_usage": {
+      "input_tokens": 558,
+      "output_tokens": 243,
+      "total_tokens": 801
+    },
+    "tool_calls": []
+  }
+}

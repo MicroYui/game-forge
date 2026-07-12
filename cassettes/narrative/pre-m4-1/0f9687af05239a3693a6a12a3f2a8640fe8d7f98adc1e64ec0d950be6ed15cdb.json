@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0f9687af05239a3693a6a12a3f2a8640fe8d7f98adc1e64ec0d950be6ed15cdb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3750,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 650,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 136,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 733000000
+      },
+      "created_at": 1783861400,
+      "id": "phQ6KFgAHGerzlPZAIO0UtLv7t/abQxoXuAdRs1TghgxA+luwiBvTeMYfq35URoVlDB7w93LlmdvS52R0KGt9/wWhnhtUofMsTsqaqnO1HngAbHkLeqDH1gGq+eoSS6OagIsBfzuZmDkBUawD9Qiv185ewbakfaTa7mZZ5vYHnuJqcPBuwIB0suE9sDFChWNvO+tS4D90wQdZSA8YPTn4r1gn3aJz/mY0/qEbthwf8R2Wm7WsAIBink7biQJ3J/3rtqr7n0Vfwpr+GJHCI54ROc1r0o8Ds0GfZ5a2YRqkak59a/pE35eM1GnoraXAshOnkksrqJjA314q/NvitfovOj1LzdK9pd//aH2FkXpHtE3rea3vMcJ7FWV8Hb+rh0DR7dDAkjQWfD6wcjO3EWMaoxJOrQwzw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "dmAEVenYM1KmFGIro9k9wvgIX2knDiY4J8NywH4PjgN/e4NcMCCQUkXnpzgArnG7IIuZrSjq1IXrhuxrT1RnTSQ3ZMNAKlYYzOXvvqBXVfpfoDyECNG9QMPzqJkmf282+rCCk95WeN0NoeLeb7LTHm17wgpd62MTFmTWhTeKMlBG7Kr699d1L7SO9nBukevyDUhXQFYLQ+jb5z5dYyl8uwIgf3qQFX075QnljOMg48/hkRaya7wVI0b7G3uWpf76dkfvwRm6vvA8UA7k+f5VWprKR8nFTlsD9qsNnWqf2FjQnNLkXt0EBHJTGdhl9pRhBSZROdkH4APshmZDy7TB/hlBP9WJsiNvxKCeniL5AJkNHTo1L3+0f8ScpSH/Yfqki96susfP+FPeZhM6v4bKgMA97g0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:52e5e15bdee0d37e\"],\"constraint_ids\":[\"C:10333e34cf1a7536\"],\"span\":\"Ivo closed the lift while a wounded companion called from canal bridge.\",\"rationale\":\"Ivo abandons a wounded companion calling for help, conflicting with the requirement to keep that companion on his rescue list.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KCk88NtYEnbyRcUq2UDXO7QJ6yn6yPbpdKnVXz/v9KZrZ6WAKUbnJFhrY4Y8KiMCLX4CD/EYO0Ktrq3lSTnbH61DNL+o+vdxvW4G+N3B8H+GgwrZxMnebU8e9CaZskcPXnNeQz56qp35KWuT02JpUVVMif3uxs6q78rzUC+duthO5h5vyIQo2re1+l3yQryS62wyWfXWWR9gv3fo5KgLKSZvDZK7r7Vb57mtI195LRsHJK3ODfuI1oeLI1RQM38azTNT7bYzTtqYhNPXWm5MuN5nALRuy8BdHe+iCn2d9x0NV4q3yfOydhMoh3OQnjTtc1Cd1t5C5P/duHoiDQQdj4ZnuVbtm5QOr/HKO0yUlDp5Yy3Z4qQG8r8w7uAIGFdUOrY5+sBoRnduYp6R10In3zcur47S",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 650,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 136,
+        "output_tokens_details": {
+          "reasoning_tokens": 42
+        },
+        "total_tokens": 786
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:52e5e15bdee0d37e\"],\"constraint_ids\":[\"C:10333e34cf1a7536\"],\"span\":\"Ivo closed the lift while a wounded companion called from canal bridge.\",\"rationale\":\"Ivo abandons a wounded companion calling for help, conflicting with the requirement to keep that companion on his rescue list.\"}]",
+    "token_usage": {
+      "input_tokens": 650,
+      "output_tokens": 136,
+      "total_tokens": 786
+    },
+    "tool_calls": []
+  }
+}

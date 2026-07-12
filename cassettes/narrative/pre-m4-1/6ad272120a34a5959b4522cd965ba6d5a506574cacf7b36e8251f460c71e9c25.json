@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6ad272120a34a5959b4522cd965ba6d5a506574cacf7b36e8251f460c71e9c25",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5904,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 538,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 264,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1061000000
+      },
+      "created_at": 1783857200,
+      "id": "G8gZpBLF7STfAsMuWCZDktAqD2FQsiJ47ClGh4uG7ovh6l/+8rJ1UagWZLBkNYJ8DYWPDOAEOu77V0X/eQFaCjenpwFE1+kxWhrmMGRi3GmsKR18mYf8tVqHqbfY15arVab6lP1mTERmIPiCNcw3WK/xYlDTcFpe8f+wucYWKntveZe8E9rKLcaVXg0LCv/+vIkG5ehGKQDZ4C1rJkk8mzliNX9/zD6wsdMP74tTnur2JVfbsmx/M95UCreGZm+Y11I0VHO5nACnOycGw5FenFseqBxy4rKdhfwMRxZQG3CB99LWxMX1PQ/wTGpUjRXUyDLcnJ52ywr3QV8NqgJGe1JyqJg88rgC7XeN4UlXixXA/Bbylsl1zvJBpq09pV0wSJzEBYB9svgIQ4SjODRff+Be5Za7MQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "3cpr/gzMSEuumheZybhQnjD37XHUz1Tw89xAlAJoqDBUOsABQONBiwCTxOhiZHqp4eI0DMxqcN9wJ/uJR5tkkuTjifR4OLKIid/4lw7Dyos2wbrChshWIiG94OemjgJXIbVF/sfoYqk7war6alD502hI1/OgnF7jFN53tcwM0RnK2k9v+rnP4x71oEZU5j8QkKOVmUBYI4PVgZgrK3zr0Y3ZkEmbgFz+5Na2ialTmGx87cY4cNedKOK/M1MHa3yjsI/rQMWZgFNLN+DYSE7Zu2OTXv0gRrFHgRbzoPAk8nBp3+VjgtPYIEt8aKmdWmnQKr9KvwpSzEbX1GFzWrQXMAb9Jp7gDHSFQvS8i97WQZ0BmlTKNveem9+KjgDNkcvr/FtqE4JWAeKGpl1V+JzF4OZruOM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:39282619b12816b4\",\"npc:7120d1c75c73351a\"],\"constraint_ids\":[\"C:8c63fa344b84e715\"],\"span\":\"At cargo ring, Veda was formally introduced as the Vault Steward.\",\"rationale\":\"Veda is established as Vault Steward after Oren signed as the serving Steward, with no relinquishment shown, exceeding the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "P84wFvsxjyXDhsRLjv7XejpyVTQ61s8xgoBAMH0nd7v4QZaMdJWmdXuFQ2vpSHh74UB1fRFyKYgBqp/wnFs28XVaIkvsSZNAcqp79Aq41oifHdeamirwX2buKZPQcVQc87DGle+VI7ObCQm0V/r+oBNyHNKMaXpYyQdn30/NJIrESyVgymumTI9DA5c7Nu44b7FX0j2BhbdyvzmL6oADB6pN7xDDnYCnMNiFPt6RsmuexPV+mVjryFEk/e3j0zX2KRfxQzKNklkcPW1ORMxeQA16S1OSleKei9FqyQ0BWvbzS/g0IidtAv2pl3ClubkA0GA5Tk2yh/ZTlD4I5g98f6g4ZN6VGrwm/6BaVi+I/1OWfEk1/E+sV/AXs1v7fJpL5f526YAqocCFa9Eo+bXaP8r5+gr6",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 538,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 264,
+        "output_tokens_details": {
+          "reasoning_tokens": 154
+        },
+        "total_tokens": 802
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:39282619b12816b4\",\"npc:7120d1c75c73351a\"],\"constraint_ids\":[\"C:8c63fa344b84e715\"],\"span\":\"At cargo ring, Veda was formally introduced as the Vault Steward.\",\"rationale\":\"Veda is established as Vault Steward after Oren signed as the serving Steward, with no relinquishment shown, exceeding the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 538,
+      "output_tokens": 264,
+      "total_tokens": 802
+    },
+    "tool_calls": []
+  }
+}

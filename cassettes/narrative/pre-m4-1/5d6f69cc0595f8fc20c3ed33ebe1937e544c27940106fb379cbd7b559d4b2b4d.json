@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5d6f69cc0595f8fc20c3ed33ebe1937e544c27940106fb379cbd7b559d4b2b4d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3486,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 672,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 192,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 912000000
+      },
+      "created_at": 1783853800,
+      "id": "8aBfyl8iLo9/ILP4nAIqLgCjoVEaYODeAP8oYgXVi1AM5KWi/EM+n22bKMv4Cm8bW/sM9wLmM7iG1M4EezZeOBeQp8G1oDqbMijj3tHBdCxL5ELza6cSDZwJTxSjg8laJ6mLbdiCRm+4OVeLL2LC6x9ekS/eUE3o32VRsEFyfKqQjpCiDtdBXYVUxYCtp+casufHzHP8rQoWSD/GjrhNaxvKvW4prY+rS7MPVdXxidY709BT7HCjhO/vqSfYjW3QwjgzMimD9XCF68vhQz9wKwl2UbDJKeZ/JYEb4mgM90GXsFsQq16Bv8VykiVbmcxfW0c7RPn+wzclEEPbY8tmUszLaVlNevdOh0XYJ2MpTqiosMyyuuEGKbiGjHtk9lUMsU0JXOqjMynKS1N9AhR6q76i9IOF8A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vmIJkm1esbX+OfzWfx1AE4jd7yEwY4s8vedenEtM14/hdy1THRA/Dexkq2LF0TNlPH3cL+d3Bpwz08DqSAbXL0xwwzGadVLoEh6ZPQWLcW67EVyLZtiwx9fUi2pvAnqgJtzMl0+WzG6g1WFO8f4aeSDeUtVdjEW9MG4rXkm994mD1NAUid5n1pb4OTKYjI0igls5Za8JjGCEt17HZqqwelywmey8BIXbLOnu0UnObN3dvTUajIkRgq8o5q63yYowSYM8j8cK1wxemaQohsf66xPPvby8xSqt1kLgQrymQy0yL+A6FRQCptgJnh8L7DDqFFal3m+tUm2tZPmxpuiTjaM3ALBf1DuvCocCWyUf2+8GijXMtr9txtIEfKyc7q5h615cXtveaslh+dfXfE1Z3/YaGXM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:99d36bb7fb5a1ac7\",\"npc:ebade8fef26cae20\"],\"constraint_ids\":[\"C:8b231f16c43dc979\"],\"span\":\"Tamsin welcomed Eli into a shared command post at cargo ring.\",\"rationale\":\"Tamsin and Eli belong to feuding factions barred from joint commands, yet they are shown operating a shared command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Wc08ONbQuTiTqKl96yTkBX2/Tjyn3aXcDwNs6ldydxetUuLs+LNyi9v7kOsASARw3tVnfczF7ln8EySgh1MigZlzS+/KkhuDVg6Cd39xtIEdVR+SebnvbgPgNBcTkxrUAz3puqqVhnEGhObOskvOxAp0UT1C+TGAF36ei80PfvGUdUWAVxHlMrZX0Y533TeBuC/AYx/tHCANPVbvfx1WgsSo6KL06FPUPjpIKZKa4RgLuHu93v8rqJRjQuMFipeVbZU8ieoBCZgivXGFohb7o/s5sRifQJnnYgJxUJe6m6ZRIkszVQuxd3LCFrArHzHUxzmVeDU6GF6qLHdsrDe16UXBRdwZqeaIS2BkkdSEC/EVyN5AmWoZbSM+C9XtISecWMdfzFAB6IlsI8c3NnvqG9RRTnu2",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 672,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 192,
+        "output_tokens_details": {
+          "reasoning_tokens": 84
+        },
+        "total_tokens": 864
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:99d36bb7fb5a1ac7\",\"npc:ebade8fef26cae20\"],\"constraint_ids\":[\"C:8b231f16c43dc979\"],\"span\":\"Tamsin welcomed Eli into a shared command post at cargo ring.\",\"rationale\":\"Tamsin and Eli belong to feuding factions barred from joint commands, yet they are shown operating a shared command post.\"}]",
+    "token_usage": {
+      "input_tokens": 672,
+      "output_tokens": 192,
+      "total_tokens": 864
+    },
+    "tool_calls": []
+  }
+}

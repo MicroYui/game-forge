@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:911f6ebe807bfbaa6c4344c1ab436891d66d5d8057565c3f5576cc2068a087e9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4083,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 559,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 199,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 876500000
+      },
+      "created_at": 1783847000,
+      "id": "mVD6N5w8ZwDAq+83QEW0VX0/SzSNU9pkmWhEtVuk3Uc5hbJ8ueyrmgmuIght1cXCtflK6LwzEOqY3N1rkujfjZNg3NB2DJh1a9V8jXRorqIOSJwimnPPefb9hFGXpSOJNO1YoGKL3cTuWhLoxrgET4x4CiBo2oNgDrjJB904jD1CvviiDWyuQv8BjSrGSu4hJhN8+Ly7oSxBQlDyRjDm5QRp+Zbn5w5eyknTg1Gq9kWIdZWOnjfVcujGug3gdzoUBmp2OKOcUkx69mXEj8nlttD/uDDJSasQ5T4gErQcfXGSEQ5weeUmTKFswsCVsV+m5Ky5uSh+UW+69lNJ1NQiWQz1hY6DshPgZpiwjbrkbnnZDPT/HyNDp6sgS5XLxvFw7sSSgMqfrrTLRt7udYUUlonN8m4vpQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Lu7e64fLg+RxXZXhZ0PIgHGE01eH4Q8x7dsOQY2s31OGAAEJS6aMRK7Xp71QKU7yng1MOj9b7uX4ut1AwWsL6N6DknqdS1aKUt73fqqVF0hNag/jaFcPO5AO90dMoj0x1cZwc4eOKeXEzSgYBfXgqG9TIli8nyo5X5w85cZAeOujCXWJM0L4BZ0sP4LuQ8udPw7vTFlkwhTWhirgxYv6YUP6rfxbQU4g5RViEHVS/xZufCB2XnIoln/sd0n29d4wqxMVLABgc1Zs1W2MvB3AJ0s0Tm934Q/O0DYx5gRsEDAff5pJfHyuP7RiI+6K7tNkrqaT2+NnPIjLCj5Z4e62XZudD5X76Eg+KFdn5NYwzt1cdHa0Qc4DTX+NdnkHWorkvW9gV426fjVLmmlUTCauKfI1K7E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:e88a4e295878e14c\",\"npc:eee36c09f63045dd\"],\"constraint_ids\":[\"C:ea23d533b3904dae\"],\"span\":\"Ansel accepted the title of the First Navigator before the assembly at glass conservatory.\",\"rationale\":\"Iria already holds the unique First Navigator title, and no relinquishment occurs before Ansel accepts it, creating two simultaneous holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "wWOWRT0MfQ6Tb6OOdM/AVAuUvMIzs+H6DosHPAUiPTNasMtlNUgFzxJBFrIvvoYPhVCVPygSmQECch93oXjaBS3ZZBzYH6AFcy3vUh622ap/uo9Nh/FYJ9cvmwThWaE6P6aFbk/Dt9fvAlbVnFOxUjWBKmUmrexQJ6rFhRsMHhf/h5vf4fjf1Sg/mQWQIyjqaaHYOxGmVOK8XRc5RW/QKnXJIZG643SomWhJIfJVHWxzMHPCn+ZStwuNDfz8i4wUUGPQR3poyHfh2Puidkg45GGCi5Dhs7cfYBx6ePfgm0602mI4FtUxREXefs2A3P+XmiSlqalznMdXNjP5GqMmPt/TLENQ0vKo0u6zHFfwNMgbvughjY4UsfC5I/VZ00BzXaSTxTbHDHzGLf8Obdz7GdIV1X2u",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 559,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 199,
+        "output_tokens_details": {
+          "reasoning_tokens": 90
+        },
+        "total_tokens": 758
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:e88a4e295878e14c\",\"npc:eee36c09f63045dd\"],\"constraint_ids\":[\"C:ea23d533b3904dae\"],\"span\":\"Ansel accepted the title of the First Navigator before the assembly at glass conservatory.\",\"rationale\":\"Iria already holds the unique First Navigator title, and no relinquishment occurs before Ansel accepts it, creating two simultaneous holders.\"}]",
+    "token_usage": {
+      "input_tokens": 559,
+      "output_tokens": 199,
+      "total_tokens": 758
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9f13a5092a2ca0d4039b77c0cd2f4a2fed3681b19d7e8cf994590a97f51c6243",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3177,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 549,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 168,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 778500000
+      },
+      "created_at": 1783858000,
+      "id": "8ZFok64sb4zjbr831d96TFPhK7DekIJDCpY056IerToZNhSb95TTHCJS1lJP63WPLXIn7xUkvriACoj2Xtb5kZadtVUGk8Y/Y2q3ZVxax3HhsChzHtTXrhoEhrOx3auPSiWcIU/MMgyn6Hcc0FH2zfA+XSU2oB267pklB2wErjPpTqoVBCyI1wlBGibaz1KKIQzJQbedP/sWrlJD+cUiQsUP0rKtJX+pJ6GNJ7k8+vyFU2dvk3NNzyVDvXnQ2012t0wB5jRleexZN4503se/kRu2mu+eaR7zq1NXTbUVyamnRwPghOa6zclbNyeFE6/ofze96Z2XJ4MrbbDaVlgpS7skKKlmHD7fg0hWWxwS5Pw9At3bgX//99TqadO2s+AVrMDD0b/gOZEL/OOszwuWpty3e7Q3Yw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "aX6MUHVqrYrUm5BGpPsQomwbV3mKvbC6qNRpgsworDzf0IidrIjHHT3OLmu/JTAhcBOZbnMlw/+9vhR89KqeY0H03OK0Jk3Jskx/1H1GwY9LNHS5Pn3cgBRq0sQ+frDGXNStleEyZxAlPrav81cZa+3shLj+SsTVWtmxI4G5s2h2L9oigKpPrt6oN3Hk0wHxxGlCdTBBSFZD4JZrMBusm1j/ZighX+ip02oSZwz1c0m836f+IDEVE2e1pgLWjwbQcp2g6+3k9DgW5p0elsBFkjyTr7cjIohF3Lh+PiXYtcqfgmMRMU+8pNcMTc6ih1aIm3qr6V+FKcWycIGgR7K6c8wkVJBwWda2rXWNMgAPKBI34zvfF5mFpHKH1lw0SYQIXMNj2KcTI01P5oiA0f7FwQA6nfw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:36ae79b045af7ef5\",\n      \"npc:d34a0ccb6237e203\"\n    ],\n    \"constraint_ids\": [\n      \"C:a97602617b537b02\"\n    ],\n    \"span\": \"In cargo ring, Tamsin supplied Eli and called the partnership permanent.\",\n    \"rationale\": \"Tamsin and Eli establish an operational supply partnership despite Dawn Caravan and Salt Raiders being prohibited from coordinating operations.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "OVpN0Kj38uV/Rss6Vejj0VKmx4yWEU3fYk6vbaXmFRXnUe1wZbb5FLQTtSbJAptaFTiHwytTR4sXjKsI4EJBL1EfFcgMAQUYuhEvKcPtQ6CJl5gRmf9bV6SC/EyW7N1qP5u6VFQcgZZU/9nGkv8M7ELwmnHcXl7qBwkVaaEIj/myXEOPaumjXoBh9aaSrxwoe3EbnSnk0Wcf8pDDvjEuiq0e+jxynYWHeRQ1BU2Bs0eyMgSFUvS652w13iK4P5Tx6QmNUSo3IewO3vYj2xgtG4bnH7LOHEsY1WRxxYSg5iru8d0vLGAbLPiw61hgydqbAagwd1C9n5W2Agt7NuBF64CpkMDT0Oy5NjzNW5ap5jL6bfn+YWJGD7S+/Yc3K0uzymt00p8oitZkvqOJxSLXOR0BaBSt",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 549,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 168,
+        "output_tokens_details": {
+          "reasoning_tokens": 41
+        },
+        "total_tokens": 717
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:36ae79b045af7ef5\",\n      \"npc:d34a0ccb6237e203\"\n    ],\n    \"constraint_ids\": [\n      \"C:a97602617b537b02\"\n    ],\n    \"span\": \"In cargo ring, Tamsin supplied Eli and called the partnership permanent.\",\n    \"rationale\": \"Tamsin and Eli establish an operational supply partnership despite Dawn Caravan and Salt Raiders being prohibited from coordinating operations.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 549,
+      "output_tokens": 168,
+      "total_tokens": 717
+    },
+    "tool_calls": []
+  }
+}

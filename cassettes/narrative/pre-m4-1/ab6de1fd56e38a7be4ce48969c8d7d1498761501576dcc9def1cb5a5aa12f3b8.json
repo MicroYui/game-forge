@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ab6de1fd56e38a7be4ce48969c8d7d1498761501576dcc9def1cb5a5aa12f3b8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3724,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 631,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 225,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 990500000
+      },
+      "created_at": 1783843300,
+      "id": "7cHUNURcJF0+HWv6xaZC6F0DpIO/hul0ykvd0N0jk/MCpkET0lOnBJxVSLXkquybfG1FgVIOIls7JHIo3ZFti8DCAP1+hUFrxNRNfl1ic+IMLfAL5/4NTxrFrnu6wULbmtf3RoFR9FpNDkhjYqrMNZTCNtN6j5JntKd+SBpGr5PC4i6R6WeLKuLVNeVV8RowgriJn5QtCDBS9ZNUvBdp6MyFnj6Hy+EOg2c3YtXsKnaIa01wJpyDvFp6WbpTQxYvVgN49yJ2Qu4T6XniFxWrlBNkU7oBTMgckB1Ap8b9HAnVyaXNr91p2TLogQ1aPWdI74K7I4lg4Gh+bISMekNQ0ey2JE8gDwrSOV3PuCmXmD2PV4Gb9nQLEoXDEy/mcImnaE2U2v+dmxKw7PjBqbqLZ97o4zEZBA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "/1KIQ02xlUX8Um/kaM7qOPa/KJtO1fPfHZgI+ui0aI6Zthj7nRW4ufQHQ0byNFg8fZn1eGooBosNFJhepVY0le2Wen2shpbkug5eB7s+BSLdecd5FG0J+b0GwAOi3AuwaPLLtoywY72oSU2FE+7QnWzxf2ai69ZcUoD52nxOuEk28SbNvUUDzVXsTdGUlGIHLY1j80uFk3bxnycfa/3Dw490r9xDnYIO87p25EqRnxMj6AGqN2D1GSK3xEBqwTdaTnpVRZyWm+SiwSkPUZdjGLMUDqpMnjmeehc5SvGkq9WypneQMxZ/MI2ZTihSo7GFlbvNkVGYLcvLaU3ac6lOtFbPXPnh9r0hqql8M3A6c3/7C9KJwAUS60PyJ7bdSJSwefhxFQg1XQik2rt89ItWX9Vi9Do=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:60d66a2faa539cb6\",\"npc:63d140a50f5f0397\"],\"constraint_ids\":[\"C:83517dd8f67f266c\"],\"span\":\"In desert waystation, the council recognized Mara as the First Navigator.\",\"rationale\":\"Mara is recognized as First Navigator after Qi is established in the same title, with no relinquishment shown, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9ePPtY2DathlTKGCEvTfKPQ1gyBxiTE9LbkWzcy/Y9T1hpPXV0hj1APDxZ2XG0tesxgR+cgkMpW8cq6RK7R/zYA4QEWfucFsGsHzsUeC+QMwVb9sDFheXO6k3Ik+4az7JBisKdncT5nxOuLIr1EHriv85E2g+URnEDdFP3gqWJgPrGromXieksSErykee4UQf5NorsjvJoFn5ewODj53kMKeW5RUuYTZ9m0616xCR0rFuj2ftfARycw9O7t0g0xRB1wSNrZtPUXCqXj1EEVmnwqgOPug1RPwRzi+0WcKIlSTSuIhsyd7HL/L7nyJo9/ZLoKuUEV7JvNm3gXTPlh1qRjPXk+RT05f5C1QYkOXv4O2gOlvTWQYJ2357xya3vGlSa/tNzvKVIIO1/cWV8f1ngRDtBnt",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 631,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 225,
+        "output_tokens_details": {
+          "reasoning_tokens": 114
+        },
+        "total_tokens": 856
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:60d66a2faa539cb6\",\"npc:63d140a50f5f0397\"],\"constraint_ids\":[\"C:83517dd8f67f266c\"],\"span\":\"In desert waystation, the council recognized Mara as the First Navigator.\",\"rationale\":\"Mara is recognized as First Navigator after Qi is established in the same title, with no relinquishment shown, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 631,
+      "output_tokens": 225,
+      "total_tokens": 856
+    },
+    "tool_calls": []
+  }
+}

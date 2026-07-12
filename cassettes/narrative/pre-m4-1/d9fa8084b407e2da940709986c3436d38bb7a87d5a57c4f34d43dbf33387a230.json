@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d9fa8084b407e2da940709986c3436d38bb7a87d5a57c4f34d43dbf33387a230",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4090,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 719,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 211,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 992500000
+      },
+      "created_at": 1783853400,
+      "id": "K+Z8wUAzLd+BL2sla/WUgGWNBWyi3V9MlxxgTaqZweBxvCtnSpO1xcD1+sRN642hqDCxkQpBFA7e1UlFCocS3LXRT+YVjiMqbKsP8SKs9p9U5GUraIVORxV2Hguq8xg/+BTzJwTqEOPPR1Wcs0V3oZbCMMvbT4UlVNVcYE0oj0jJTsxp1oWhJaXT618U9fUckos9iPrGer0J6VI0MhC16k9OyU4WU1kHLpc0+dS3bhVUNDQTychOYM43xsk6KFBZEgNg4O4Q+E/SLslwHduhm237aRL3JWOKeD6acJfmnoxd5BsBrRxDsnoIwtJdV+ukT99O6wZkgTzN6C48dvEOcYPGssoc7yCJvwzzRGSNHwY7AK8NnuTKRrrkI24/YIsURUlVDFpFJJX+6lFyS6QG+I0g8u6pjw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "M/8QUD8/gUBPdV7HnyYO8g93gUPD/ctE8ow//zm1pF7vZKSZKQnPPikJRwOJzYCH4xFLmq7yGWRqTGxFrj4VWChGb8S6kqDCWvNm9W+NfeyWWvqBrsNeC/ZGosi+yvaXRiazk2qnFYQY6cIsepxCic0+DPk8LXIYuGukCnwcQty2mKissn7nTztZjrNg1Mv6qVV2nHlMARIL61fJtla6tqXRubKC5qGCEoOMBxySs3LnAWPOz1pD+i5WGW2ewh+FsRw5GbcCraM0tKTARaEWCHeQgZjuesTr1eO0Grp2Bp2UTY81ZGxFSKjnlKyc70L0V4fv1OhIZYVNV0P3tKm9cqb/M0npKOazJ/ohrKsXFPQ2kjnaeS3B6X7hGi4ZzvFq7g0Jss3zLZ5KeE/hOSxIqpe+JwI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:6cbf15d9a1311e8e\",\n      \"secret:e452f8fb40670cf3\"\n    ],\n    \"constraint_ids\": [\n      \"C:9545209b2a632624\"\n    ],\n    \"span\": \"During docking at orbital concourse, Ada openly named the origin of the black compass.\",\n    \"rationale\": \"Ada discloses the compass's origin during docking, which occurs before the permitted reveal stage of departure.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "F0CBeXo8U+rfa4QHfQW2rn1B/ca9h6QQDXMViGgTE3OixSs1zmCSuLsf6YWiL8PNJM1XJm0Km2HsmgYcnQPcCfke+q/Peh7iRCg5zTIjF5M+B2YfbSHD4cDUJBVaUH06tEYHDjjMQEPWL7AnS6JXLVE9qSqu/zkTDh1Os+nCTxUUe7Bat/mBkrLF2bKFb+oPEtqBE8b8Bs1m2s3FGErlrPVtCwENHLlZ4UqjjvYPeR5PnoyXG+yJgfu52crNDobbY399GqEXcVAzBwWkJyGw0dRsoUAL9d0cL/OAOTlpscDcuUhZSY3UexGahRHcu+3B1Q5sQ8RSSEo8Ybocz5MYLZxbPSQvtFbV9+1xg5PFkV5ie/delhnf25RJ7eTA0Js38pecpE7tArooO616sKMN+xrwU+6J",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 719,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 211,
+        "output_tokens_details": {
+          "reasoning_tokens": 81
+        },
+        "total_tokens": 930
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:6cbf15d9a1311e8e\",\n      \"secret:e452f8fb40670cf3\"\n    ],\n    \"constraint_ids\": [\n      \"C:9545209b2a632624\"\n    ],\n    \"span\": \"During docking at orbital concourse, Ada openly named the origin of the black compass.\",\n    \"rationale\": \"Ada discloses the compass's origin during docking, which occurs before the permitted reveal stage of departure.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 719,
+      "output_tokens": 211,
+      "total_tokens": 930
+    },
+    "tool_calls": []
+  }
+}

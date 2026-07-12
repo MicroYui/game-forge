@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:621ff4745f715782ca122218e2e06dc4450451daf018746e0409151679c3d353",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3803,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 538,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 222,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 935000000
+      },
+      "created_at": 1783861000,
+      "id": "+eW8VRmiqmXQMvVb936P9TXEpQ/ivL5vKVHK3BxOeSv/JRCKfue7CAI0hGsivywLLzSVb1U4XqBmlR3jMKRFloRbfgGCtcsooeB16ZOpzKBfkNJ3+hwsQpLUhFIc9oJSwgr62eEiNmyw5/DWprbmlSZj0qjLfJ3TKsRDcnsosKmwcqXV220GtQjJ3bbNvcNJwjxSIbU2dx5mZ3ezwA5iz7OzOXp3t9okKPwzi8OeqSLGhQzijsYntwflm1Gh46AN4DHdYkYyCtNuFzjPna3q/g9rs2qLjPsRm8hN7lVCdVU4zx313JnGmR0YW5bm+YN+VTWoufiC0J+GjaayC5BG9maFX4JBG6a17oWcmTqz3q4a/QIa+jD0sW8GG3PA1m/Rif7IIEl3OwYX5HwHhhvOfLPDnSbIdQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "cL0r6XO+vsOIm9vmPxaQxNrJCg42t9GifmWyoM9gNveZ1PtCkbnX7seAO3AglU+0LVU9uVLwizm+j6E0a5dz6kLwxltAKYAKm0z0r5IlBEDRoKU8TbGHxgvOR0WJKggrgZRKm2ibDcu/Zg/00x0hfIs9BDZuBDiAE+lgFgC2/O9MK/OSvtUp8S242Zcqxl8lDAc87aMqEsE/L0VT5Nw+h45g1FVdIMCPdh2Gl/r81s1cm+MzLhucY2L7crlm6FIR+jev1zqeOSxleDaeMn8+OCH0FNmsNEnQO7Mlj5FQxKYcWlD4i1nsvHm/SpDk9UTaF7fsYipmrzTjNaU3ZiZF3Wx4VMMSun2h1DzFfnOLeyk6ws++aKTm3Mw9Vg4Q03UiVOalzRYM9Kj3gnRjSIpxdkcKjBk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:593d7f21043fea22\",\"npc:97f277e682ee6085\"],\"constraint_ids\":[\"C:142f188ed3c0f61a\"],\"span\":\"Daro signed the register as the Beacon Keeper at archive hall.\",\"rationale\":\"Mei was already recognized as Beacon Keeper, and Daro then claims the same single-holder office without any relinquishment, implying two simultaneous holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "HmBlE8k/EWqj3W0uHA5T7zhfs0W+MZzYdr+YkY943svGU2IQXk5Lwt7bjKSNUk3fpdhrIH93cgOR0c8mk++d6CO8dL4nB/P0RwHCFB73eNcs8cxVP45hTIhzggysr40wG61cVkDbLDnMogJGBAbQHbEJlgQG83lR8rbogZqdnTxvv7zFoAmhQD3cYfU6o5FZbBWCZ/CGboO98g59J0dP8jKnHehxIlgCIb2+lGlgi3f2XgX5Vm4M9cH5gCuPzHa04+1LWZcDoCIOm/IXaEhkVNVUUATG6I6bwPQS/xSaR5nQTVK4DWhxU40SJTmhLTLbSO5eUV0aBa1vNOIu0o92ndbxY3zM8icNCKsUbULxFIQLT2ABN9pTabSDk5PoPbRMoX1G1urLLjVpcEPTxKyn4HtclCfa",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 538,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 222,
+        "output_tokens_details": {
+          "reasoning_tokens": 113
+        },
+        "total_tokens": 760
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:593d7f21043fea22\",\"npc:97f277e682ee6085\"],\"constraint_ids\":[\"C:142f188ed3c0f61a\"],\"span\":\"Daro signed the register as the Beacon Keeper at archive hall.\",\"rationale\":\"Mei was already recognized as Beacon Keeper, and Daro then claims the same single-holder office without any relinquishment, implying two simultaneous holders.\"}]",
+    "token_usage": {
+      "input_tokens": 538,
+      "output_tokens": 222,
+      "total_tokens": 760
+    },
+    "tool_calls": []
+  }
+}

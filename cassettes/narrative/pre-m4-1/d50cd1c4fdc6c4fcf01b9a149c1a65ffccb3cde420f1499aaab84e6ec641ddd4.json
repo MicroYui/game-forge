@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d50cd1c4fdc6c4fcf01b9a149c1a65ffccb3cde420f1499aaab84e6ec641ddd4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 1956,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 527,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 82,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 509500000
+      },
+      "created_at": 1783858200,
+      "id": "eLPj7MnxMziLfnpetrZ4Qeswq3R9RYWJJasjRxvsXsGreFcW0AgTnf0OVYXKXdd4lj6pYanzaU5yPILfeWEadWuOZLMkKMMHHpGuR5TD7ojVwh2Hz6wF2KCf8Mc93ksk0Hh8lqS636FZJhAvyBxl3ldwUQjtRPmFfn7SaIYRKrOfTOFym3n2A7Bkxovu11HPArrx8wl/w47xixzGqnUf8ETXj5E9UnH6hpiyWr6JYY8YI1rp2gMRo3Jx16t1PEmTlL9rK533NHxio8gk2HyEnMjFWxtboVb/JCxbfULu792fs02b3dKnhezP/vQYYAyK8pNaqOTVT+5bie8E42vGTTVnq67huzXdTezPA+tzya/mVSgnRfr+OQHMQDuZDuzzOadP6qfqFS4yMyh6b1CF7f2ukN+Ehg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:3662fd86c45f4456\"],\"constraint_ids\":[\"C:debec44483aebd31\"],\"span\":\"Qi left an injured ally behind to lighten the cart.\",\"rationale\":\"Leaving an injured ally behind directly conflicts with Qi's rule to stay with wounded companions even during retreat.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "TPwrLfe5jqAJgJ1XfOQFxcQVrZWl2Exr87/wu8uKgeklgjAa8E6JAJsN4lSUrgpTOtHGfmloVbHJamdeqpk8pF5sQGZzPja/gMG+/7waSFqPqDCaaPWGYnyEwDTSP/YU5s5xk7FkWu2fFRqjMnoTC3JHtuYcTIU1mRbBRtOVUCzB4akHg9HfVL5KCoRqTpyaHmLSAUxXxV3iaVIkeY7Zfp8ml3qOeAADLx1XzEkUUbC10SrKAyC/DkFfAPHIQrwAdSS+dMAJrG2jtf+TEUZ2yzfNyrVl8BJNLgiQEieeUw00bnFLA1GHmUkK1GUczyrkfJNnUBWLRcsYOE/Njg3cWeGOF3i0KSomoeJjLJucz5EyVTsnfJVOQ+9fETeKVfVDFZAu97diLCiicVMMuBa3iPqAeMkA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 527,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 82,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 609
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:3662fd86c45f4456\"],\"constraint_ids\":[\"C:debec44483aebd31\"],\"span\":\"Qi left an injured ally behind to lighten the cart.\",\"rationale\":\"Leaving an injured ally behind directly conflicts with Qi's rule to stay with wounded companions even during retreat.\"}]",
+    "token_usage": {
+      "input_tokens": 527,
+      "output_tokens": 82,
+      "total_tokens": 609
+    },
+    "tool_calls": []
+  }
+}

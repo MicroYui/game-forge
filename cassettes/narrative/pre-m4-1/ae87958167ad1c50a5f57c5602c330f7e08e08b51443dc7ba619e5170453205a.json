@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ae87958167ad1c50a5f57c5602c330f7e08e08b51443dc7ba619e5170453205a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4424,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 620,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 180,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 850000000
+      },
+      "created_at": 1783846100,
+      "id": "UaJAvoluJT3rAcG/MsjxL6uIqrqQn+YufJf3EOaj98fdXh4KtzCr8HzfBTGWvczLidPaYhonkA6h/waGCnulsYqN4mvn3T2iW5+SDHH6HA9lUJc+w5N2aSy+vMXbP2ifCzRM+0vX78MoBRznDAhE9QSX8/dUZBE8gqRR/Fk6Z1Z5WYWBUEES6xNfC5rh10fsPgNnBqdKBp3d7sqBWkSIDIBMXCz9CLsDFD7C+AXrAKrafCMtZhcZhZCymeob6vyOb0sU6MwBxePOhb9RR/fym0UcSatEjyB3e32w+xTTY+jpFHO+sTsN8HReKsqZelgxyWcfOZL6BNQ7hHSJhOQW0ypujS03zPv/C8PLaDkBS/L6M/AWPx+YF4/6eq9vD6Aeh8UnJYG7hx/5vNRqbYeolar3alLJ2A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "rMXOkHKJI9r0k/+g2DIxEvecF7ZOpl4tmNGzx367Dcg8/XNX58kitm38ZGl52b6bZimSM/GXxWepSUjtyXZPUeHJhOhcwdBmwP6NHCroAJUhZerYBkSqhVW/j3gmDdO/xKqrSb/NevgkWvz18DNw0cI8hAwLvb28vdvYqhecWeSacKc4HbjoKoThhruWvc/6cE9weGbKCViuoCJ7R9SQToZvWcQ37V/cx8Koyk5u2rh+asxJGWZU7TJjkcM2ZI+bIvkYBtB2dSAvQ9BIvWy1GJre8b1gyWFEAKmyDby4SBGzKO1OxyortRhN8yex1HIwampFoaADfqZ9FPP+VaW89akn/NRDBbn8DoE2seLu5rw45VvvPaoO4qj3rBoWV1QbEC6mRzgVYCZfVbM+wzvGwHTCrEk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4df824be93131590\",\"npc:d170d883fe413726\"],\"constraint_ids\":[\"C:2df2694432bfc567\"],\"span\":\"Qi accepted the title of the Crown Witness before the assembly at old mint.\",\"rationale\":\"Qi accepts the unique Crown Witness title after Mara was recognized as its holder, with no relinquishment shown between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Exl7YFifmrByME0FoNk1ZOmewX5JwMdRRrBJdTqXu2S07CU6bp32Wjlw3wmGJwmkRVtpl0DD3vdDkDhOMwbcXetDE+Vv2gAmSzKjyT7lSue4OFR5nRi5wL0XCDzQAcHsU44rLr43mF6tjZVERGIpiIQwj3+2T7+3nSLdPLzUzdQV7ZFAYp6qmDAB6Vvr8OxSKfE5UxEZ06sjx0E+DCFHb4auoN4P4RprKfl3w1N7ZR80hfcI58tXpmMyL/CUXjN8qrmTjDRBXRcTFXx1plOUbFG/fk47OXI+6NfIREY42td+QyraKiYfWg3vMgSZMb419JtnDwHtzEMaYpqi6lBQ/JI9NVjtKTr09M5KeXB4l+nKZSUyG5or3FqiZFE/rKQAg0cKvYe8hEbwEvGi/uyJUCBVYp0B",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 620,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 180,
+        "output_tokens_details": {
+          "reasoning_tokens": 80
+        },
+        "total_tokens": 800
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4df824be93131590\",\"npc:d170d883fe413726\"],\"constraint_ids\":[\"C:2df2694432bfc567\"],\"span\":\"Qi accepted the title of the Crown Witness before the assembly at old mint.\",\"rationale\":\"Qi accepts the unique Crown Witness title after Mara was recognized as its holder, with no relinquishment shown between them.\"}]",
+    "token_usage": {
+      "input_tokens": 620,
+      "output_tokens": 180,
+      "total_tokens": 800
+    },
+    "tool_calls": []
+  }
+}

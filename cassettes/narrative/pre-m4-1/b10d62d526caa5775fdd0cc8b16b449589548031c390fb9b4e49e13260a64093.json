@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b10d62d526caa5775fdd0cc8b16b449589548031c390fb9b4e49e13260a64093",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3089,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 701,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 169,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 857500000
+      },
+      "created_at": 1783852200,
+      "id": "YpaKusG2ld6FvcdA9Qzxh67kRqwTYuBZ0JD+8AmfbF5xkfNMqg07BMeSdo8pVkY5m+H3j4jJea4ysbDQ0YpBAktlVMQdxDgrowVX8+XJtNTVaMFfaKwRWueuDhHgWmrGtJvWtFpnrtfmPPz6uF4VNeDc6o2QwWeYgN5nxvv0EfUu7LI8MpoXOdB/TWswfvGRxuBXuIrSdxCJH+FfANVucF/BRI0mdP/sDENv40kAKesL0+du0xVE9woqQxVgNl8JqqMSbNDgzbfx2jVv43uG9jLABtfqFUKhEaF1CoApeYFS+zY2fN8REUnmPdgNdRhOQJTT1Yh9OkjVQX7UZr2usq/T/Ipa1k6wzy6Anrknzk5028k2pPVKmYUqfb+dpMpRph2/2llPEExc1hzR3qaH8ypjBe7+9Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "w9z6ewkVlgp+APHGGNxeBeNWnYwNVqxw/HFR7EhMKHM/+SlQl8n7cSKXMRuuQn8YKTjdFvpMz2tC7ze9PAkNa8kswsF+YBA2fMImXPOFocHuyINrzea+w9eBh4QosaqBZmmWPcD6OgsHmMgf3GUnPn6/ndYS0IBw8uHNR8p5sDn+xajMn6RmEqHIiFs/MwbpviO7qBO1u+UNJ/214uOIRmYPLbMOmYmojysY/D5tVmVRm/7Isr6CK4eFMtClwxgdVovBMXz/zrXGB/JL1KQAOQ4a+ukkpqMKvOADNUQYeMA6xL1fpQXCG0Snlz6ouDPMGXCBQe9r2S0qXL7hnhrzxs9Axl2TGW/Km/2plTHBaG3qKv+feWpGNLF0spvbhebnKGTic7W51z5AhPYM7ApHlQzHlBM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:671429345ce5353b\",\"secret:d176f947efcd58e4\"],\"constraint_ids\":[\"C:23aed7154e3e9933\"],\"span\":\"At observatory during relay alignment, Mei told the room the truth about the saboteur's name.\",\"rationale\":\"Mei discloses the saboteur's name during relay alignment, before the permitted reveal stage of departure.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "SLEvveZz30PLA3CWNc6zWTsz6nUPDesQogwr2lA3jqysYtDw+n5qj9zEtsto8uATE8ZYaKOdVFbQmQPJl7/dNhS4NNjRU9qRnuKqiJz/Enmsko2meDA6S+6XrQ87DgIMgXjkSFFOVmPd5LrhlS8hYxlBgab4cKWUO5KIXxb0xvGKL8S/3bXt7sInSxWSzyXWzak7AKW5pGkC7VpX7CNXSX6xAC6VeCZfoLMDWlzdMfZvYHL1XsMi1T/+h7+EqNhQ7NeVccp8CHzFg0lgV0MtUGs4EiBKY/4SNT0sT2M6Y10VmT/3IILVz4F22AJYUsSGNzgv/a9k8RDUeADgVDJLzhfhpDYqEIDCLXkyc+xR4bhchzWIj1Gph87kAIwxfYgxYxM8/vVa/IDsI24MuXaYm4NFx7bS",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 701,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 169,
+        "output_tokens_details": {
+          "reasoning_tokens": 63
+        },
+        "total_tokens": 870
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:671429345ce5353b\",\"secret:d176f947efcd58e4\"],\"constraint_ids\":[\"C:23aed7154e3e9933\"],\"span\":\"At observatory during relay alignment, Mei told the room the truth about the saboteur's name.\",\"rationale\":\"Mei discloses the saboteur's name during relay alignment, before the permitted reveal stage of departure.\"}]",
+    "token_usage": {
+      "input_tokens": 701,
+      "output_tokens": 169,
+      "total_tokens": 870
+    },
+    "tool_calls": []
+  }
+}

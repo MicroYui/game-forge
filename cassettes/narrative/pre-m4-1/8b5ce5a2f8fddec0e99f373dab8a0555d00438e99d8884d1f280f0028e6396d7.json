@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8b5ce5a2f8fddec0e99f373dab8a0555d00438e99d8884d1f280f0028e6396d7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4779,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 596,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 306,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1216000000
+      },
+      "created_at": 1783861400,
+      "id": "E/KoqIej8Ni5qtNSdTOT9a+THdxxGOmhpHVRrLeUplJX8JA1VQAIuHQW//95BeuZQKeeVEpytgzYm/3yv6bgcJEVJrU1uyp7rzfZvTZ1XjfjUju0IqBPVouXTr+wtX9v0WAPAy2LEBuAliLvhcqQ2lryNuyPfu6Fk6cpZr7RmnABzra/D8coNepxJE3LZ2M4TOfPc96NMb3WlUS2aIBcUPf3IPzg8I5eP1wfRI0H+HQqruvPAo31AU5fErPoFEaq3PR6qT+RuLlTq2Tym9HMCCD+6VgDzaYaHSKcjy2RZMUotL7J57ycAd2Pr4+6NdU4kN3RWdCLclHAXjqtehrP5UT/OfZn2fBB1BKGS+FnCOibZQEwppnBHdvCdny1RJQltbkYaLxBxQnxlbs06eogt4cvG2xpGQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "G2ScLuhhKZcsPO11hdaLadg3yQCVXx99Kyrtms5q7ifexyZZ1fbmosvUzkBZxHoxSllopyBDZbXtxzHO6qBglGCUofpldq7au19qMIDN/bSnM8gJJzd7mDxYz7vpCfBTm9g89EcFH20sM9yDmShzNgLlpoKVe0jGDd2HHBH309yFMerILeez3KABoHwMxJxV8jht6jZlbchqUv6fhb2vRIPpBeWujsFdbXVL+MtfKytF2WSmdOInSB66QJKjIhDbODcgg7oON13hZY3MH37xF7M0RVd4RTc3eM4GTD+IyP+42wAgqyhfB+n0A+Opgd5fd1OsLhQ93mSQR8idUrEWFBQtm4g3l06thMcSxsaO8O3wz9HbFj+BGJ95ExJLL6a+RGPhf//+Saf3/b8mumcqFcJ5Vdo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ba40e804727bcc48\"\n    ],\n    \"constraint_ids\": [\n      \"C:3579203f2fd5784c\"\n    ],\n    \"span\": \"At lower court, Rook transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Rook diverts the recovered coin to a rebuilding fund instead of returning it to the public treasury as required.\"\n  },\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:479d11814409be63\",\n      \"npc:9f665b3f4293b06a\"\n    ],\n    \"constraint_ids\": [\n      \"C:d934302f4f833e97\"\n    ],\n    \"span\": \"Qi fought beside Mara under one banner at old mint.\",\n    \"rationale\": \"Qi and Mara are shown conducting a joint combat operation despite their factions' explicit prohibition on coordinating operations.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rPtPH+fvzYdwheu7WmLZO6xEOeNpECLXDGnGAzODwngAuKrAEeUf+LqWbcKxogwsGdjNMPzkUpfBaLLFqUqEHy6ElB4CMfIzMR/myBTxkXfKTCujqm+GxFYMjaFVNtggN6ciJejxRlhSL/7aph+4gv0OASaB7VAXI2VjjziTzDj2TQ6H7ysTFvsTGzUGs9voTZ1DHbc6OW7aaUb+3H2uWFJ9QUyqWhZy7K9HtZf6ezqMPyXmTIMyvj3ziGpk8kTGJB+zksH7ssopaSPeog6b5eeeFkZ6mOUjzae1t5PH1m80BJOt8fnDq6+sdKQhmfXWVBGIMujMGsH/V8g4gHIA08rW+qsC94C36MkIV2rTlfW+umMH0zO7GCQNhFvzHkxfZvX/+ZC6isolxzXcX38f+YN8KCHO",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 596,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 306,
+        "output_tokens_details": {
+          "reasoning_tokens": 78
+        },
+        "total_tokens": 902
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ba40e804727bcc48\"\n    ],\n    \"constraint_ids\": [\n      \"C:3579203f2fd5784c\"\n    ],\n    \"span\": \"At lower court, Rook transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Rook diverts the recovered coin to a rebuilding fund instead of returning it to the public treasury as required.\"\n  },\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:479d11814409be63\",\n      \"npc:9f665b3f4293b06a\"\n    ],\n    \"constraint_ids\": [\n      \"C:d934302f4f833e97\"\n    ],\n    \"span\": \"Qi fought beside Mara under one banner at old mint.\",\n    \"rationale\": \"Qi and Mara are shown conducting a joint combat operation despite their factions' explicit prohibition on coordinating operations.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 596,
+      "output_tokens": 306,
+      "total_tokens": 902
+    },
+    "tool_calls": []
+  }
+}

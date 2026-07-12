@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4b13b6c1a6720d0158bc8299614c7e35d1bc168a8d71570b30e1507716e90a8c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3785,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 623,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 203,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 920500000
+      },
+      "created_at": 1783859500,
+      "id": "NKWZyOAAJepRiHWf1kBnbvUh6dZ235w12M2i2m6wp5uWWfn+HiHhW9mHUr/l2RtjfcF4fxiqWoDvN3LMNxVJiZ8IHhvdyBSHVzYgHz2etNUdJXNkP1GY6RaJhH5J3Hfso7IYI0nqAKqoLZpqM7lEtyjwKrqvQHR3+Yxw/jO+aPwpRH8dQbdxb0vBaxU3c7uQPPafJntum99hPVFjx6Yiw+nD7wa8ILEBkPNE5BN9gIcwqCaLsrqALV4CWPUPvO5UvhpreGOOHD/Fpaqd3a66Qyp7NM1bnzPFP4F2DnK7xC2NzmGDntywE6d0THP5QM6nPNi+wA7E/jIp3zfzS/v2IXPTVaK7HJfAk24rePYseBznjl/LrV5heBwo0lWBWeqHmEXFJC5HJHXRRb8Hw6NirFOMWbM4Yg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9h9wxteoVikz8oYYMLJsnbne5KssYVlTXN1eOqvsulZo1qdE1mRZxk0aM6FJRZlgrYt3d/e9BzIZISN64BY5jtxUdt4Z7U+6nNjc/v7Tpr8yydw5/podfiirSClUHHAlYg0Gw5rfMVeFaF9uM5lkk+OQnUeP1z/zZ5WujaRl1JTajfQlcey1ky/8zLUXckSbWFkFK/Er6sFSbS6c62NxyS2xVg7YaAizSlPU+Zp5SVxWlCuSnmolSd5ju2RfuuM3BmxnAiqBjhxA1gFsb7xcA/J6PZoSWOiIMiec1x3lAMPm1TmaC2A4c5LJCpWOHj6zEICWiijS+jWqzVw7PD2ia1ZbYDeOG+zvQFbMYAC7VjF7mYTxb+5wiqG8T1wpLHfZfcs6QxvysJEOBPfaRgQGNiYO2AE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:9070c6dcdb4ea2c8\",\n      \"npc:96408ffa7f11c8be\"\n    ],\n    \"constraint_ids\": [\n      \"C:30408e08549b79c3\"\n    ],\n    \"span\": \"Daro signed the register as the First Navigator at eastern ridge.\",\n    \"rationale\": \"Daro is presented as First Navigator after Mei was recognized in the same office, with no relinquishment stated, exceeding the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1bZljtryUT4SVVpfFzfxDdsAdfrKXk5fv24Dbgy+EbYVwFnHQQn/BL6DNRqIYQz0gGp/v2iCQ579Wa82fjegTY7NW6i746BE011xfCnkthnufOIEM9sBkQitZ2FO6IjdRO17ZLHBgi3a/oaisiNoCpmEO1sP/F0D8iGpZhHFcEKJXONjhM7dmJzmQyuUGnOZnUpxP6htjlCa4Bnho5GWRO3uouiyM1kzAS4zEr4ti70iQ0JdldPPj8oswtyLxcI8uMDlQnha6xgkkblDRADHXM7xg967PNoCSJ9X73aY/sXaxamEFEXD4H6aY8pAeEXQ1IIkAKViom9fKP3kLj7Er5iE/TlR3Ldk+9K2Gl2dm7KAbdzy5qBuZ52GrSxsOzePGlZE697mOIQcsSCsjDlbVpY+75q8",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 623,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 203,
+        "output_tokens_details": {
+          "reasoning_tokens": 66
+        },
+        "total_tokens": 826
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:9070c6dcdb4ea2c8\",\n      \"npc:96408ffa7f11c8be\"\n    ],\n    \"constraint_ids\": [\n      \"C:30408e08549b79c3\"\n    ],\n    \"span\": \"Daro signed the register as the First Navigator at eastern ridge.\",\n    \"rationale\": \"Daro is presented as First Navigator after Mei was recognized in the same office, with no relinquishment stated, exceeding the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 623,
+      "output_tokens": 203,
+      "total_tokens": 826
+    },
+    "tool_calls": []
+  }
+}

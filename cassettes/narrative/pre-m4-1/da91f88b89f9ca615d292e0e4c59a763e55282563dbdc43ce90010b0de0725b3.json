@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:da91f88b89f9ca615d292e0e4c59a763e55282563dbdc43ce90010b0de0725b3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5419,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 706,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 220,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1013000000
+      },
+      "created_at": 1783860400,
+      "id": "J402Dar7qvaGUGNoYEZ5K2yfUPkPn6Ub8fIqsZczFadCOjXBSn/ZMUScdkKHqAZHlWbPqwsIXflkp57zMUcVrEAg+Q/ftlTh69JnsHhJd6fxNfvjpsiPNsVNZ7u6oa2uFrfsN+9QJTMLapENkuMX0286hwXIMmig4x830zv1Eu/OcUgYQ5DR4iOFujfL6asmlV5/8l58MvVraS9xYIMcbwNjKEL8Idkc4Jo1QOGyBdkR7KP4zCygDJZRTGEZta7bqFyJmyOcdBV4yWzMb0hUJqUnprO0e2fwjUUAKdyMjcCRrqWhG/8UA6tMNCLZRK6oBizoKvSpi7A1SmmiFP6GQDCVlxHS5ObD5GN/f4cSvhYoNeioNAb6I639urWAC14Dhf69b5l8UulLJ6TTNgDeM1dw6c/j0g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "AR+V7gnWNarf4UHJSz1WG86oCUfHXIcH1uVlAlDBmEgQA+tNfhfztrctIAotuYcN2fXjjJbPd2Lr6fnqan+F/NQ+tU1DSp5T8VSn/H5tp4zDb7hP1HaDXNOCu8xBHDYln2BGfKJQlH4qg4usUXaZYyRz2XK55Vd7eY64WSwPBHAVTzXjJdDkUcAq9I2ql7xWzFOt/yF9I/RY12Q7juj8TNWVN8ujT0cp08oQ8F1lLdSafpq+M779cOpVmzyPmnj8pTPyUCQ3NKu/D3bVyAJE8iL/K3K3uay0vRHKK4KVFIFExQ0R78vkJoeZzbz2CMoY4tRlvVTqAc4QazrM2LEPro/21PXs0Fet4fd7Td1iKmJgKeS2Mj5DizdoIjSbB/utD+sbLqrjWZvjou1nInAeKGTqFfk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:05534dca994dfe0a\",\"npc:13ec9feff3c7465f\"],\"constraint_ids\":[\"C:8a800d61963e9f3a\"],\"span\":\"At relay deck, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli jointly approving a battle plan is operational coordination between North Watch and Red Banner, which explicitly do not coordinate operations.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "DPi8/+0Zp3TfwjetnOBC0ZXAmkxGeGqrTimMIXvAE5EDh2cybkjjnQ37x4sEroebgCCjtNwHrkJBVC61Zt0tzUGhH6h79s1vN+8nNVgKLz1U6DGT1JOL9qWvitKhUZCnKsGnhJ9YeY1LPh1SIeQFuF+NGKcev2mJrjKJY45ZO6LoZ5rIUnEdsZkwzdJa1FEbH3BEUAnD2yWrbpOoIgKFTRrFW35F1oYWN0zIiI8dUY9rPpg0oQhJ6UlS1IE2OVJyhzYTLajU093J64Zohx2DNZU4uBKXNglv3aqJWbJO6Cl0Q/EU3rpx+IaK5EsRLs+UUaQp6s51jGbO5Gb+RKLBEvEVCqb5r2GdpRJlxc92rKDrhISxVKA9jE07QpcmTqzCi1zuCT3YJJ4XiG3vkZBnNSeYjYsV",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 706,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 220,
+        "output_tokens_details": {
+          "reasoning_tokens": 108
+        },
+        "total_tokens": 926
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:05534dca994dfe0a\",\"npc:13ec9feff3c7465f\"],\"constraint_ids\":[\"C:8a800d61963e9f3a\"],\"span\":\"At relay deck, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli jointly approving a battle plan is operational coordination between North Watch and Red Banner, which explicitly do not coordinate operations.\"}]",
+    "token_usage": {
+      "input_tokens": 706,
+      "output_tokens": 220,
+      "total_tokens": 926
+    },
+    "tool_calls": []
+  }
+}

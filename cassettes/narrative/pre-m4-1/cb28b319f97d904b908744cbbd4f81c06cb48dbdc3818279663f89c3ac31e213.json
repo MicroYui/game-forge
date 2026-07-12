@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cb28b319f97d904b908744cbbd4f81c06cb48dbdc3818279663f89c3ac31e213",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5638,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 567,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 249,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1030500000
+      },
+      "created_at": 1783851100,
+      "id": "OVMEiGa9riUYK85jRfvaJ/bbssoZFMbz6lBiwT0pOgy87lQ5a+wLK5c976bkIil9g6iBQKZf1SDmZex1JGuVC8QhwNPO1vYUBE00YFf0WMEYFFYoRIASfWJ+NzSEhEOeIAyzMGv7URuVul63BxX1RjtVO9wzfLCEGOm6Y4tQU24AzMHilWiR+/0x7hzZzuzXlchORwOK0sGU4PfwQqQoZhct3E68j/quzksrpjuIR95EeTRhJhELkJLFCPrEuXy/wp4ADEbJVa/Q1BnLMdQe0v4KnIhbTreRwnzdXx/wk2qqqpfSLk9x8R8zdRkKK5BvxW3+oYNBSPmaS30eyayA0+jA/cqRi6U8sYXH7fz0ySC/bzt+AXCYYExUvZhTqiHLAwdtnmhRCzJ0UGUHl9tLwexR8OLzhA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "uNg6FtXD/kKjgoIfqnN1AA0vYmZ5TXPEdJqX0sRUy7+JOSTr9dIEdJNc95eHlIok4hHcpkYjfBh723zHryan0rZucBDDf9ctCzjOlYzAEF83QVuHDKKAbRHB7/kdc0hqTmkLo7pSDydlS7IDeKtGwrGBOBRPMG8SBr0ltvudBn04ISY9iHT75sYVifiuJd+YYC+MtH4imJDVUc5LQsac08JsBeiyYeSdzqmbiQfJh2PQ6y89zHuJ9BxjnFUV8mLzXDQ/25+czKOlMs5d9lismsNckzB77IF5P8DnD9mwvHFU7vADmtbSNM8Y1I6rAB3QlV6a5lsOgnpJiM0vuSkVvtvdx5SzOZ1Vu6JFrDvqfzY1Jx+1Vk2myXnfzz0w4oJvBSYc0ttzNqucwimgEptAXpupOlo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:b38082a399d98025\",\"npc:c49d4295b7481b82\"],\"constraint_ids\":[\"C:384dd3318792051c\"],\"span\":\"At archive hall, Ansel was formally introduced as the First Navigator.\",\"rationale\":\"Ansel is recognized as First Navigator after Iria accepted the same unique title, with no relinquishment stated between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ZzOQvCOUMjOAfu7bgJG1eZMI7/BzXTDF0jlBSjFHI+qZNH0U6+8MGw5l2k0oWzyYoMCiBsqGAB7eiVGXM7q641mTTrJiht0HvcW/zlDcB8ahDOHNpYSTYd1Z2JiwScaPdVE8GqB5i+wzMhBwUOf/uFoGchrkOgVoiG4lkXFKn2aGQwvVZLxmdW2VTVOdLNY47Ts7iMwPQ3I1H3+o0CLwWcEFtElSyJkafpWu04zk3Y1FJYxHHVd8Ptd3NrzHqGqf3PhgUwgygcVWKgXyCd/g21kUYQsdHTRuNOnVpjm9tgDgNIxOLajQopNUvKoOmT7Bs7EEBV5+rGqh+33JDPwE/ohHi7wo9ADM+omc5vyqD87jIIFCpHkZCnFz1QG0lnd7S8gzOTZxTZ1/vZG+oU+RM5dIHnI9",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 567,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 249,
+        "output_tokens_details": {
+          "reasoning_tokens": 147
+        },
+        "total_tokens": 816
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:b38082a399d98025\",\"npc:c49d4295b7481b82\"],\"constraint_ids\":[\"C:384dd3318792051c\"],\"span\":\"At archive hall, Ansel was formally introduced as the First Navigator.\",\"rationale\":\"Ansel is recognized as First Navigator after Iria accepted the same unique title, with no relinquishment stated between them.\"}]",
+    "token_usage": {
+      "input_tokens": 567,
+      "output_tokens": 249,
+      "total_tokens": 816
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:39c6bac39119f5fd916f43644eae4a7b319d65cba893c76892326cf54484cc06",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3620,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 631,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 154,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 777500000
+      },
+      "created_at": 1783861800,
+      "id": "iUFuGl+z/azBZAm1IQZLEhQYBsxIEMJkch+cgC0JlLYge2SxmwpK1vF3a2X/+07gXYxYbejmRP1t7NLyHSv7WGSTRlUnSEV+ShA8+TcXKWnH+s2MCWv6npOF9Cs6LoV3odYlMQY4hgCjzuBXvWIGSJi9mQoK9sPe9x41oRAHYFZPlaDemOQpF8FLx3i+foG/WO5EY8MxTlG2astd/oWmx9ahScbTOHQyVRNv9jA6KBv2OH+TZn2jY7E2V6mQaCjFWf/H9meDeed93iHN0HIl5z1bEylkZEprWUyd8yPOdr3TR4dTue2itxUIKYZJb0nlldBCIf+EU+Pi+C8PiBlkTEhi/jKOu0G4Yh435xF1sNRK7FdRSauQOouYn3UAxuiSzu2jU1uIcImO8DnEp9a3j6E3iQVSHA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "SlD6YqGgxSNSXvplBNvWsw+7BDgWwbGjk0nHysroOEazS8/1mZEN0cfP/mNZsugpPHRA8wSCHU6C0FwJ8+B6RiC2OYotc996OiKBHtJIZGDY48dIeg49a2L8SUgKPJjJ9KF2aAW4OLFdRI8+Q5fKrkpEZOygVjo6Ek2eBUFj45pMrFcE7PRPSKIcriAL+xhV1+FMikXCk7C1VrbBGMtWr5NpLHpP0LaNrd9IpnBqzAiE9vfuIJqHXJ3AXz4u+2uQTeWz7W/HSVlqrA+WRUQU1HcQ1m+EtcrZvTxF9tT0D6gvjd4GcpjE5rSWZ/EU3S5kfHNsKCvNUXDc/z20L/PMd284IkCaQoLmC2p5bbwOgO4hn39Wn+b9diprNNxCu/cpNmeJBSINANiri52hLIMvwd2S9i8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:3c531fe47f65f3b2\",\"npc:eb29b990bbdad56a\"],\"constraint_ids\":[\"C:b78a67e36858bda0\"],\"span\":\"At archive hall, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor of the Harbor Guard coordinates a battle plan with Cass of the enemy Ash Fleet, violating the explicit hostility between their factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "HGvU70ERy+EFW5KXLDy5f+bb63/F/mHKc6DdWuy93Kt2uuagBesRxIyIbkuqHOdDRxQZQ6XGAk8zYIBQ0DHSNV4pUOJZ3S2y5RYwUCtY6IEBRQ8sJuDPpiMS2mYGX4wCorOLEaH4cwhwUFWSSuTs3HLHPA9kBoRZX7yEw4M9HhPMiQvDH8dZIZ4JnlJmraIgqacB20quP6CCaim3+7Yy9dyKubws8OrLzbGPoR9V+/Kxwxhcakfh9GxW0gRH5Mt2/d3l9p6BnostdnmPeOYT9hQLlG+saoOEx5gUWGgH+GPbZjGfpQQVIGUd9Qi1KVpMDY1VqR9dccIpx2tMvFf4MLOTwyYM+l40hhECPBeAB5gx57bM3+6CFBdot9z/XK5IkQw+Su/ofh/OTwmJL0HTNKEToog2",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 631,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 154,
+        "output_tokens_details": {
+          "reasoning_tokens": 47
+        },
+        "total_tokens": 785
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:3c531fe47f65f3b2\",\"npc:eb29b990bbdad56a\"],\"constraint_ids\":[\"C:b78a67e36858bda0\"],\"span\":\"At archive hall, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor of the Harbor Guard coordinates a battle plan with Cass of the enemy Ash Fleet, violating the explicit hostility between their factions.\"}]",
+    "token_usage": {
+      "input_tokens": 631,
+      "output_tokens": 154,
+      "total_tokens": 785
+    },
+    "tool_calls": []
+  }
+}

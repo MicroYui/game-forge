@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:93cbc20c60f3baf5341e5d73aa05e90860e687a0d97f53cde9b35ae360196527",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4627,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 569,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 272,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1100500000
+      },
+      "created_at": 1783854600,
+      "id": "zeZqaEvreM8v+6cRTxXBfuWu6XyB4x1ARJ1OrISyR5+WOQO/xG5e4pry5J485E3sHNj7GyUSxEOy3Hw75TPCgBmzmnxdrRlZJB8TV71H1CvSfrf2SWCJzl75ZPdz5YbI7MPrr09zleHGTABjkP0e7XBn6dzjUHWvWuGvkZ/HaI7/LrricTguVy5KG+AtfZMSlIlef6mYftydFdZ+98jcAgXYQiciENTejOV5rqFR/tgMlANElkL2NCfysSRNFehPnl1uQJ6X4fJxZpXll1w4rBaztWKeYZmSVYo+ZCLiI1G8yY2oaODNc+y8gKGht4gNJ6zeK5tpmohROsvbzL9W+39nFhgV+iDz+p8X3xsTmUR6Yu45gS3A4keAgGjPyo6YUge1glrfKSsfiy8Flvf7BVcoeB6Saw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "4ts6gD593qR4boaGNZkERf6419q42VwKKQLv+bcYkNjejoNrAUFwbqiW5ZQaAyIKTMY4GJaERuolBE5yt9AwpraDeETdqwnNO9zrmD0N84QAQt7phmQ0aHEzZaIW1x7BAbI8u2tuOyFZ0sYk5NsiWYYhKodpCMBmrETMNE+GVehlPULB36Yc7mJuDpigWj3LKKg3nQH9kJRpEIkqoAPqxjpMC1HeFRq/LGc3L0U97j2OPVBwW0L65p39FBXcVBwwzHIEz+8Iy+zyn8BPUunIBdLnGytqTWU2LJRQ/lOZJuvW/jA/AuOpZxmO0TRokZkQoocs5road6JVx1LWjM5r3KvrKr9Oc03Wf2yt5YsqQ2aq0HuK9r1KZZLYDk15bL+wZWoTVx5KYvQ66Pc8nrP6yk861tw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:33356fc1a26eb184\",\n      \"npc:f6980ef644d425f6\"\n    ],\n    \"constraint_ids\": [\n      \"C:36e529ff05ae3a1f\"\n    ],\n    \"span\": \"At old mint, Iria was formally introduced as the Archive Speaker.\",\n    \"rationale\": \"Iria is presented as holding the single-holder office after Ansel is also identified as its serving holder, with no relinquishment stated.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Pxd80EobTufgysKX05et97FCN73wrEDBeKi0Fr+fRBppUCDYSwympLWhxVryjB0+bDU1BzhIcuAu5XH8Nf+6p4A/FxhipR8GOjrgRS6s7U24/bnB+TmdlhchL3HtEFqg2vQb5m4GHlVu+N1FvZF8Bn26jOBwem7FypqrgoePqq8Y6w50+zJAiaC2gpVvAmskA7TAAg78Ib3N3/9JQGNKQMD74pqUQioCQ18cyjILYOCn2KN5m0i5ZKTlfmQDngq1vTG0/wCAmCu3D1t9chAfBpeTloIjVHC2GV58yf9aBcQSsO2e8G/o8jobuU+eYTbueqDe0ADB66g8U6vAs94DrFAmuK1OGCOQc4l6CW9RCnZ9gkRwFaxv2XHoC56LUoXjcQWxotyEyI0AVguZRt+vWP1J48DA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 569,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 272,
+        "output_tokens_details": {
+          "reasoning_tokens": 138
+        },
+        "total_tokens": 841
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:33356fc1a26eb184\",\n      \"npc:f6980ef644d425f6\"\n    ],\n    \"constraint_ids\": [\n      \"C:36e529ff05ae3a1f\"\n    ],\n    \"span\": \"At old mint, Iria was formally introduced as the Archive Speaker.\",\n    \"rationale\": \"Iria is presented as holding the single-holder office after Ansel is also identified as its serving holder, with no relinquishment stated.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 569,
+      "output_tokens": 272,
+      "total_tokens": 841
+    },
+    "tool_calls": []
+  }
+}

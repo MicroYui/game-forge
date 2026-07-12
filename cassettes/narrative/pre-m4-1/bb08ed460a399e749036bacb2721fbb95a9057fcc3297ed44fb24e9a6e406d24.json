@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bb08ed460a399e749036bacb2721fbb95a9057fcc3297ed44fb24e9a6e406d24",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2807,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 514,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 148,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 701000000
+      },
+      "created_at": 1783849700,
+      "id": "1ZIVCJlzMfsTDP2KqzZwowY/Wp56hZv3H6dlG6COveaWA088xdVIziO0LWgSP4BAGlIP3UJkgnNDF4k3RNhP58txCzFGamqy+CA8vZPzCcUYoTc5CmOEhs4SpAu5sXsykal9oyhsMtkPw3mXOLwERxC4EapEVoXEODomBruqFyyv+IxaAnEmplx7VaJ2ZQzj/JwInh9r9Cazfw3iTA3KT58g/HpN+ss8FHWXYUUNLYFiAKY2cOyPgb7DdBB9pYZvR+tfqeYrGvEGiaqPKDYhuvHddwnwFZliZHy4urhsRD3gk0nA6sCvja0BOwYnZkPfofr76XbzacUFdm7OeE/2+6ndYvw26dibA4EAzAQsnAgs1XeATgisJZHy1qe8oUKC5ILiHosinrFX6V7+S3DwCq7LDc9A/w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gkgJ+2qzcFCOuuQhS844Bav81/Vo/+FtXK2zKFmtmg59n0j+Pe4ATOLxQlVyPmBNSrntehyuuu93CXGqPY8+G0O657moppm0wsnkP/15smKdOaXCnMkBZ0gxgvN2Cc2gEGxJ0Kfd1jiRRYyBVD/IXaJku/HZusPFzJ1zTAGaQHSutZgGVV0GajpGOMVEYEuypknhDyz9kEgQQn8j2nDbOgoiK9o66hpZGyuLDkc0WZD1JN3V8pke4h9uLdcI8RZQ3u/5bAkMuDmgqbx8y4f07Lm3YUxacq7Eyb6GhO26TLMl7ms36hTpYMSeiBMOc79sJJHirs1KGCIuahR09/qQoPPHOu/2o70zYEz4LgltEpLYdeIXs5VpuYCCQN+mvxI17g5URAeEoIGS9L13CGa3XhS9qIg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ed15fe5885ec0140\"],\"constraint_ids\":[\"C:865d22cac76e997a\"],\"span\":\"Ivo publicly renounced the oath before its terms were fulfilled at cargo ring.\",\"rationale\":\"Ivo renounces an unfulfilled oath, conflicting with the rule that his promise remains in force throughout the mission.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "+pheJ2kp8cep2cojF55cUidOZxU9oRfz+5eEM224Vb6X7GiFi7IY/ETtVnIZF6k1LA31WFUBXxzuRwkzBdCQz8LRNZMIve5cD7JlPHzIRe/MnKQ6DX9qZeud0QS2gLjClngPLsIhM9ZB3WNf0GZ3QDDEEXq+3VEnY+yvwCs2sMWpvZyvsPvH6pXiiREfTACNhSgd9yiD6fJLKcHySRwC0oTypzvhPzU+SaOfwAL1K+eBO0/9JwBSLg4F5yreNmnw8U4KpiRqP3AdF1yx3w+rv7UuAN92YjeOxfCrCCoVGxmPNYttnXhK+d6Rod4ZH8uUiWa+ukZqNR9TNcxwsDfKATGBRYoYasEjI1z+QQAU5OkgGP4xxzBoT1+51pkKuyQ0oIZuPgVTIImxTfEfrabbptuMEAAE",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 514,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 148,
+        "output_tokens_details": {
+          "reasoning_tokens": 57
+        },
+        "total_tokens": 662
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:ed15fe5885ec0140\"],\"constraint_ids\":[\"C:865d22cac76e997a\"],\"span\":\"Ivo publicly renounced the oath before its terms were fulfilled at cargo ring.\",\"rationale\":\"Ivo renounces an unfulfilled oath, conflicting with the rule that his promise remains in force throughout the mission.\"}]",
+    "token_usage": {
+      "input_tokens": 514,
+      "output_tokens": 148,
+      "total_tokens": 662
+    },
+    "tool_calls": []
+  }
+}

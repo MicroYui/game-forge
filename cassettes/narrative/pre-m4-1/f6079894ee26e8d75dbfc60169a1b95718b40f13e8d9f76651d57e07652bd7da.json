@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f6079894ee26e8d75dbfc60169a1b95718b40f13e8d9f76651d57e07652bd7da",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2655,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 607,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 142,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 729500000
+      },
+      "created_at": 1783860500,
+      "id": "uGRA35Gv9VCu6wcAaYRcm+6BepcnUMCHldg8pObVYFZ8XCaEeTiumtoVKHHc2+/MvsL/fqVpMcyFwGoqQeoKLzAL+H6mDZpCLDhG1KpxGjuwtUYf5JL+dvq7HvRkZHdDTr9O6XV8k0S85Vl7mDWOJj6fcDL4GupxLc5AhEgrgwLaZ275DImNks5LqQNOjqPgZ5WFZ6EW9R0IIv+p5JjURsLnnCtLF6PCSAaA8oiKgRqtsfUNzx0ZLaIqWbbwD2C3jkcFVa1PMnfkukaF/X/8hSrfAR+oY4d13L/ZCBF/pmeRJ6R9z/T4cV95qcYZtS0Ab8mMGYfwFQjyX81G0+t7UFkaQEAkyMflkEKSs7/qfLn8LpEkEXB9C+iU6qjkjWtDdvIW4buukKTq4th80aRfakRmkuBCgQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "+OvC4HQ1jmTkK0NPpQB9ah5EZyz9RwgVQweg2uY+X8QNh+2uKjGAAiesnybQYKzwqzYpJuVFdO/EVnmZwkBczTqIOGZX4QmoCnAs7POk1TflOeP6IHKBrWS7OnLN2LMLmJaKrKwAYjkBpvE+fpDYePKiYR1mql1yVX5KIPXrg+ulzsVfbbdt/GsYzIp4+X0ZohSghxK5siGPKPTVDW9R1CLf0r43s0GFE0KHXfNuUbqd+ZtDxuKf4fqKtbREEO/bqk7uWF99dwoo9XBLvyyx5I+3FG8waWl8z1xBL1KRPwTiVXbL14eX8RTNDfCPLjEM44B47mam7xPlWWt3Tv8WYfoSW/AiK7blWPcXEngCQR8j/lORjjWLV9deRe9EPRmCrO+eTcWAw8FsKsevL9HizCKQPc4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:81ddb888ce0a8bb6\",\"npc:96a203855aebaccd\"],\"constraint_ids\":[\"C:4f0285c54aa71065\"],\"span\":\"At river market, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro belong to explicitly hostile factions, yet they directly cooperate by signing a joint battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "4Zm4Blo90UlSyllMyqnoDcKVSerLNcvPR8zODELUbvO3jnZpLi/DmKZuolrZG/FA/e+isfsDP09rJt5bkOSHjBB2IK7KVHjXg94XykBJL/XwNM731z6zcSOlI3LvUghA9cqbeB98PGR/I5/PcibwuDZuy6951IpKEAzNFapMgHpUcByG4JnCXdy5JNmfpDHvJcMqzFPB8sVMX/ZGt/fDqXYewwVhJwbM7ouIwg0vqO0SQ4Qfk3yfeaReJ9XBOG+AJJt7BmhTh1rTYiVbecuB9ZgpOdGE1/GYJHZGN1j9kudYF+fcd9vgm0BFAIqZhbH9o64lRTJ8mhY1fCdKNAA+0FG9NkczE5hr3ahmvxvZ16upLuJ/U1ll7/TRdd6DcCqH/3cJqJujEv403mJ/UbuzMV1fxopM",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 607,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 142,
+        "output_tokens_details": {
+          "reasoning_tokens": 40
+        },
+        "total_tokens": 749
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:81ddb888ce0a8bb6\",\"npc:96a203855aebaccd\"],\"constraint_ids\":[\"C:4f0285c54aa71065\"],\"span\":\"At river market, Mei and Daro signed a joint battle plan.\",\"rationale\":\"Mei and Daro belong to explicitly hostile factions, yet they directly cooperate by signing a joint battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 607,
+      "output_tokens": 142,
+      "total_tokens": 749
+    },
+    "tool_calls": []
+  }
+}

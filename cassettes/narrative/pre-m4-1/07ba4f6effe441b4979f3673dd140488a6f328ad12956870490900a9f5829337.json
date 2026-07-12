@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:07ba4f6effe441b4979f3673dd140488a6f328ad12956870490900a9f5829337",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2792,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 587,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 118,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 647500000
+      },
+      "created_at": 1783849500,
+      "id": "iLlgZucLNwERQWjnuvOZ/HF/r7V5KxXba/bvoV6RpEEDv8DSAhZ781F06Lwb3Lup3UvId/5v6aPOxeTGmIq2QEU/PYyC5SKPAjIwAx3CxpsqlA43T5KFtlWBmiY8bJaQVg796x3rXXUpXOR+AQryGhWWN8uwmNFqIu99qv0HAOpFqzJHTYceDtJBiirLAWxE8CF1IOopinRgUrmEna2fO8EhYQAGT51EOh+IxJRdIFyro8ss9lf+ljN1rgIovnBN5paDRfT4jcUy+bBefKfFqVkv8qJgPu9QCMzaKZBrquu6mcZdWmys8VNHIqtuaclmWJH2fOd4I+j6Ec+Dz2Yfa8oVmuRG9Tqj4H9+/b8uNWXMaGH3ywljeBK9GW1ClYKTb1UnL8Fwov0GEmvJTRT/ZnNikqRVoQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "LiGhbHdCxqqWpz176FCIHmPbA1u9j79l3bmJxvRYXmlUWyYnuxBzAr9bafhgOstMJMHiYkz1eFkXf0taQND8b92yBTkKhmGg5EreuUpqsspneSZ+ZzOfoLgcJGwO1aFNfB14E8/x6TKjjtWxA3nt1OHNWm0iTac+uGpPYZFSYUkxJfB0WPtDhjxsHKoBE0vYjxyyFegcwlueJaHTzshBqpW2sZtq8aE1/1r9QrfCCXdajUyVT5DpVbt9JDD+TFhF8ros7+zocajFKy3n5JejvHexhJFp8ac/3OyXBPcaoYHGnSNNFe6cCrVsB/ul7LwKVVTKfDR4Z3q+yzz4dKCx/mdPs6pe/me6iilu7HBd/3SyJnkIkdGhYP9iKFxnF1HqCNWdIxUiTVgEI1dru5YOP1wITG0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:bcc2948b8a2158ec\"],\"constraint_ids\":[\"C:fad59faa7cd12aac\"],\"span\":\"At caravan court, Mei struck an unarmed visitor without warning.\",\"rationale\":\"Mei uses force without first attempting to resolve the dispute, conflicting with her required behavior.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "5zTJhWw6yXT9ioyiZvneRqMQbVSFlU8U54SSPnNZjCg1tPWvU0Lw1a1pfBdqYObsVs9z9QVer5zgDOnWEKYOH5cozktfQNohWuNm1U6ewCUDQaIp52+5ByWP+hQ54IiMXSKd8f1XsgiDbQtwSay+GKpnRu2N0XUXqj4DmJu/DOkpTyFc2eTu6qV++pKTEudRL3GCE9v82J6DwkU6iin7nUOWiPH7LzF5YtK17+5AAkYf8WKZFZ8EPfIMSNTjdFx4Jd7f0ucMUQ7r3mbBbcPbpRs/umraN+MJGP64SphK9e//2OuvKLJURnKEtgjIW/0li4TWNor74k4cEX8bNOny4hbyCPJOtTn83Tkei95un7v3sWsTWJ5M7axA0kO5qKMzpt7jyI87ns4FvqVDShC3w2WlG2If",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 587,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 118,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 705
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:bcc2948b8a2158ec\"],\"constraint_ids\":[\"C:fad59faa7cd12aac\"],\"span\":\"At caravan court, Mei struck an unarmed visitor without warning.\",\"rationale\":\"Mei uses force without first attempting to resolve the dispute, conflicting with her required behavior.\"}]",
+    "token_usage": {
+      "input_tokens": 587,
+      "output_tokens": 118,
+      "total_tokens": 705
+    },
+    "tool_calls": []
+  }
+}

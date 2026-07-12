@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f7fb244a985e1f8889b3535f877305c260f9fc0141b8517a552fcb83e5ec6af1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3181,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 622,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 135,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 716000000
+      },
+      "created_at": 1783844600,
+      "id": "hR3TaJBSfkCpbMhvIdbtAtd4VWhZJ/+Tv0Gqz3gs+d0tkotLPIYpU5QzwcKbdif6akFCAId9DuDJlHTnkVwBPDrgb+RjYupioaXLfA1mAAUUYUcbkxriQCtO1V70JNSwlOIEZ/hx04FAoPqMmCC2DhviJGhnZhfFG9Dx/oDgBKgcN+8blp6cPUwXyr6rwvy3mqi7H8u6EaJloabm0ti1R2YV660e62R0hpGXLtSHJ2L98VmWye6Gmxul2wRSW+iJCtgyzRuVhbxT+fYyFgxiCv2ukx1VebafGvV1zW55sEf5jyigDVTTXI6m8KBofqgDJEn7kt+3vfGPGbTG1b1AbYOkRLTFetBaKebkjG2O6d8tMHlpeEv8/nWeT92rkcjgUFJML+/3tiBHNJ05K7GNdF56wIYUyA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gT19vaDTAedX5aXF3T5gLh/9gopQKFUuv08bNxnKIxR3gFHkM22C+EVFqn/1g8Jor+2ebWeAsLFI+8Jnj4WEeUWR9ncJ194ujE5VfTCJN6noZySTXkCjvI2O+jASIP8FwHtZ1RmKbi11CUHktUGMkDdggjNhBNsUJOimKh9gnoX/NLxCW9+0qMwShyo8afVqxvOuTP7ZWI2ROadSLf0HsBhxfBJs8L/iCWklBqZe/snuHoPx7uukEscz3EZJGnUl26UxRwTvlhbTAWA0gTypEhHrWfgwftEUnztnW8/nvHuHEcLnTH37oo1catoKuxevWwHTTvvBTHDB0gXUUNoyq6iQWHNKQVzvB0khC1NhU6DkyoFA5Q7b8ESk45rt7vgrzEZBwL0naR5RGQFw3WO3VVbjOWg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0edaa429d49c7ef3\",\"npc:e5db1591258ae89b\"],\"constraint_ids\":[\"C:2d2b154df3f4a7ae\"],\"span\":\"At river market, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass jointly coordinate military action despite belonging to North Watch and Red Banner, which are explicitly at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "5NpfFcL2MKIn+UG1ThXdOna+8Es6CoDFF0gTLvRabZMGmJewmyVOZJYi980caEv1DvrR9JSuD8jQnRCjc5QAFFj7vvHEoxgqAodR77HRdNCsJ6l0ss4bENxF9WG5chIDdWD2ycLE6KPTYab6PrMTHI5oInizXn9NroUNRIcz9dEDS8VzGCEDSRmJfkRNCybCL74kvjauZye5RG1ray60JdOYyBxDGHsLE3AwcOFq15yf+TYeh2YByxNcNB02LIcNl9Vsh58jHMhAjhYlK14RdiznOQ5tY2Q4DELUISU3viAw7ngaVcu6d1vv6SfTcRQY6gxGfew31dQgKwI5vxps9TIVZ9tfKczzNa/uXahXIMucEhBzmhaV8jCaUlRGUIcWjoEFaW2x5MgOS+hcP0OT3srQegdK",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 622,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 135,
+        "output_tokens_details": {
+          "reasoning_tokens": 29
+        },
+        "total_tokens": 757
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:0edaa429d49c7ef3\",\"npc:e5db1591258ae89b\"],\"constraint_ids\":[\"C:2d2b154df3f4a7ae\"],\"span\":\"At river market, Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass jointly coordinate military action despite belonging to North Watch and Red Banner, which are explicitly at war.\"}]",
+    "token_usage": {
+      "input_tokens": 622,
+      "output_tokens": 135,
+      "total_tokens": 757
+    },
+    "tool_calls": []
+  }
+}

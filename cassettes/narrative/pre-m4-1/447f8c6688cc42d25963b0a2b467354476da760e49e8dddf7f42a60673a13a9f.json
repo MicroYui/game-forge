@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:447f8c6688cc42d25963b0a2b467354476da760e49e8dddf7f42a60673a13a9f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2303,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 549,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 117,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 625500000
+      },
+      "created_at": 1783859600,
+      "id": "AV0CYfttdpASzdcBfXhWrk7O10OlOW2UnyyGR4UR+QzAHKO2b8yTLymPEDBGSP+ndZMWsgFKBJUycWL8QWnfuE8A1qotLUBws69ox9pr554TsjhQkZQTh4NRSuixYh0lZkgCKc4pnoOvC+Ij8rGGauTzhrpLuPRq4SHH0fMeh/+zA85uf96C+jgqLUm/x5DwqzatXLhxyrsMcGETaftvkjq2PqOjAaz4ulvQh1CwlFs12oCe9+ErwPrzbLBrxs5XWFCJXbR0m66GUCJwS1DsW26vCOV3Iv59PHUEMstCyXOTH2WhZi3PgZO89O/XG9JQc2reOGTrpa+2TUL59UTfwUSM72UkoXcm9JZJ1/4zISzS2i7XWXyKC2A7LFzHOfmB+RSkLRt/dnaSDln7SInusFxJ6nB9sQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "sB0Gjp2O4R4P6/qnYGGQCSX4eiCYQhlRce0P15NwHAxgRwJf9MmhQkwHAYWKQpUsH3ZABkY4eCoWYwWwoh0iGA8MGMyx9dcW95LUMggMkdSWeSc5d6gJD0WCtIyCjUJfuABE4ZbjhtlHrC731mPb/cPE1q2gIE0xVRje7SY3jNKgqnIknnCpgR9gabc1kEHnD3k5OvJYiQQ/3XI2dh6mWdEtYyF3BGGrtMuUmv1Wf5wJqnoHFbJBVwbd0k791xpqXnu5wN15NtfL7xCz/DsIZ3D59QK/LA4S16uAzx5olDLaRMmiKy63GSQduV0OAAgMV348KfFSf5VtfOTofbLygWBniPweLZxH/2PGyA+IlbDGZWxmepNXhurA3nrWZbXU/s85zqb53EBcf/UUu4cMUpKX7bY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:9f5ff0b4b116cf28\"],\"constraint_ids\":[\"C:a101168210f9589f\"],\"span\":\"Qi started a fight after the delegates lowered their weapons at archive hall.\",\"rationale\":\"Qi initiates violence after the delegates lower their weapons, violating the duty to preserve the truce.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ap+ArwzkKXJY9j3usl38X6fhSpy2v1MSCvzyTjR98+rAhe43wgs0d/gVf4HyPd+T/SfZsKd5yc4N7GnKiYxLZ20JRP+ME059ir3OBFKBAz0fnk3agaRarBBhzcKNGm+N86Vzpfro0C9TZt3k9Dm43ITWSyRNmuP+WyNXrGFNA9R/5R9GmYe6s3LISCmr7AyHJ2OBhtwKeCjX8bU+IRno6s/wB2sChkiUXZBOPrVnDje6ldSuyy+9Z+k6gzlo8e7cQm/AWTylzLzouZSL75B31wAhmVF8Ph4E72nUIDGjXwcB/cx/qi0m3ziZVdWm+aA5Rq/Re3vEcHJ+33cCdypUaNdDqalFqsxVerHhIZ6Jgh6fuIlSQg5DeInNPx+86YR1xsatJBi1bbRDIiCUS/vyRIUgw2Md",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 549,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 117,
+        "output_tokens_details": {
+          "reasoning_tokens": 29
+        },
+        "total_tokens": 666
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:9f5ff0b4b116cf28\"],\"constraint_ids\":[\"C:a101168210f9589f\"],\"span\":\"Qi started a fight after the delegates lowered their weapons at archive hall.\",\"rationale\":\"Qi initiates violence after the delegates lower their weapons, violating the duty to preserve the truce.\"}]",
+    "token_usage": {
+      "input_tokens": 549,
+      "output_tokens": 117,
+      "total_tokens": 666
+    },
+    "tool_calls": []
+  }
+}

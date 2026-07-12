@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:231a4f3a839624f8bc6cffa8e917974f28a1beed4b97347c2e5cd1d0b32432b3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3780,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 703,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 163,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 840500000
+      },
+      "created_at": 1783855000,
+      "id": "ydxgckMvx4oAx+m881jSvuzHBYSta3qmyeTgo2TyrWRqGt632s+jNHSDIm9c74vQBgSfo/LqEFERQe9eX2uyA9uXN57hIGDlatlof2jtx9POmlU3KpOcEd9pRsqu7kStw5dvAiCNvSouqt/k6Y+dhKH2W3rTKM48jaBiDXzNs/jzdJxoLphG3ecrP6DI+8sADDwsFo8VtHi+PcMP8i5MYh7vb6Lz9vtopQn2pQeOMtrubthejwT4Iu/oGV+NcjvEKVMVTnDCk3URQc2QGxS7ml8UWSV4Yf24YyFSfwce533X7vk87eGhzK2godGNyhkGYkd9Y8opsyj5HALGMBjrJJZAODqxpl34ZE6ua9ZCRZ+CtsvE4fpb7GxUQXqiAp00WZLXOFBOEVEs/NlA4OqrQUM27aX8Hg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "E4HeudpG8NECQJdgtSbQ0Cj3XPF5Yrn7uWqJRbuhle3Br1eqxg20sFH0ztY+nTl0YdO5oN/bQH+pafP0CGuVNsrr8vv3eKOP6wg/PPZjuwZliShxEnvjk9OVB5rf2pmUJA29jrXLEoH1DctQ4jtW+5jwqLXUX5166bLJCzCdskgRWeV5lBzFJco7lW57dtl9saXv2NrJxN38GvtKu2oDIfelCgexfnkj9IYDzrnXOMrZ1mjwqK2dJWgt8/EySBjmyQvooKmENsxH75yf7i/sXQtu5fs0S+gxjXSmvGA5ewP+9Q+VWAByKPBMtN7By5Kbj2Z9GzC9CemExJUmQqbcLH7Y6ecMw9dQ2IYfbudLNPZdzKTt2PkAxXXOgsYK8+QMT3xQURpTH6mWNmI34leV9sHKLNI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8c7bef8fab82fe3d\",\"npc:e289c1a20dc6abd1\"],\"constraint_ids\":[\"C:51ef263bc093ea87\"],\"span\":\"Tamsin welcomed Eli into a shared command post at signal tower.\",\"rationale\":\"Tamsin and Eli are members of factions explicitly at war, yet they cooperate by sharing a command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "apjctzHkCB2ej1cGqy4GbYXsndKlkPvT9vyq2lnS6KeV6GEvDzjepgds3ZmapCMwpX3QIktNr12SWFCXqvI3Czo1pq+Gb17I51YMXdwrU9bgrL1YwADLm86Zg6Uc6K3+44qX5lwYnm2i/JqiL9LbQIqn8grBezJQUBBqnZZk9dxPmd0BpioY8mLii2nwUj8wckkJ9n+EppoYmLDZF2h2ZTWDXdjR04SdMK2YRUzn6JcnzdgrkKf42f80fs1KvgmYc4q62c3qOs5GrNbsp9lQCkB3wdbFynGkQ8QMUMJiiv5qc4T42NvF/7/4wk4bVJLX1BSu5morfGpNpEnqjkphElf0nAT2DcPl87fNh1vR2C8sfldAat3h2Vj9h65CHpVbYnr7hUKKfJKtCrM5vNbeQbjOoJPh",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 703,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 163,
+        "output_tokens_details": {
+          "reasoning_tokens": 61
+        },
+        "total_tokens": 866
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8c7bef8fab82fe3d\",\"npc:e289c1a20dc6abd1\"],\"constraint_ids\":[\"C:51ef263bc093ea87\"],\"span\":\"Tamsin welcomed Eli into a shared command post at signal tower.\",\"rationale\":\"Tamsin and Eli are members of factions explicitly at war, yet they cooperate by sharing a command post.\"}]",
+    "token_usage": {
+      "input_tokens": 703,
+      "output_tokens": 163,
+      "total_tokens": 866
+    },
+    "tool_calls": []
+  }
+}

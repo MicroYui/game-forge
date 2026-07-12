@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ad1c2e6b2376ecd34f2b499978e9c85e9064f80fc6eba41099c78447b670c7dd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5775,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 674,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 261,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1120000000
+      },
+      "created_at": 1783851300,
+      "id": "dksR7cCAcxgTBf618xxqE4q7n8mdfnskFnhjKsbcDu+KDgXX3lLUl55NpaeD3OHNQWHXrsX9FYt/jGrKSvFVUGKukLeE09BT+0bM5aDWAdKTv4s8UlqEtLHXqFkywTWfSCzLfiJhpPSFzV+58bm4lvP7NCOVvikwRwjtOls4lG/cpyHB7mu8Lk8deR6cSPhgjOiAIc9OdLC6s9ASq/eLjK49XcuFaiiSopPcvthIIwUvwyAlFsV4BrkDQ+WCSgBzPE65+UaJ5T0Gx1JuoB7092fEuU1XUJpdHXeA6wjxmtbwMkmS+ZhpIlVtNypuobisBHDSYYaxX2E9C73oRs6MC0DgO6XVeFBqyDia5F5eYkmIIVAGyo14iqxk63ap+E87RBEuYq45/HC/ujntmDUWYXNaenJKIw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "6y9Mbt+2jfX70DkuMF0ZA4OQAui5elhCve6rUyHN6VR2gYC7QhpkPsRowdYifC8vjo8Y9vzsmY8e8Pb+1nH06GEnsL9S+T49bmSGto+Func/mhEws3o9MwGwrvE8mRkXfvirbHAP0WZEN0mDHcBE+9LZTNC7LnZvM2XtbUcXkJCbgRHbcwZ7KLmYk6P36nMLLiSd6mVQjDQzxiEZYLxzRuPOP1D1yX9eGQZ6ZVpyN3oNOfr7hSoFiwxWAtUsUfijye50oSwu4AofvrTYR+SGH10F9HPZ2XyyPUJbxuUg41xAkOxD8e4wTjevT+81LFGvpxZiTLDzx1X2H2TUYiU496XRUlAS0p9lkf+8e5imsYbpg7EVHvy1z/m6McvSn1LR5RNNlmHQ7HqrqrjaCTr7j4uf3nY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:dc2c99a9f522dcc9\"\n    ],\n    \"constraint_ids\": [\n      \"C:872e4dec7f589a82\"\n    ],\n    \"span\": \"Ada sealed the crew outside when the alarm sounded at lower court.\",\n    \"rationale\": \"Ada leaves her crewmates exposed during an alarm by sealing them outside, sacrificing their safety to secure her own position.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "372JFuNT4/31f+JfJqcf96A4e+YmEiBJn0RB1via3AF9r/E32K0DkGvrTWoScgasK7nR7XC8Fh4l0PIZZNQZHsK5ff6s+k3KdhSo8c0tRZ0xgC3hEFUzWrcIZjvAe4FVOY23/J7RFGYQXTO9D0ZVVkqAiyaz+U9Y8AIy4qfxGZKcAEzt/QfVavfrm6p4ACK0gGMDThk/E/sBQ4HRYInnNNJpeKnU36BSoaKmXLipoZiqcBXQvYIiYeSFWARY2cwFzPjf5qPIPI28PACeF6ueFWbWiT4pPKrKKtR3UWmoQDwmuuP8jQpneFokqowys32fmCh97tUMT0lrlGCjHTrtJiQUvBqBOzno8hFrX6+hjlOKJExL48tn7MzD3QQFqh46+U/lq5TmY9MvchbXKIQ69v9QA+qA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 674,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 261,
+        "output_tokens_details": {
+          "reasoning_tokens": 145
+        },
+        "total_tokens": 935
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:dc2c99a9f522dcc9\"\n    ],\n    \"constraint_ids\": [\n      \"C:872e4dec7f589a82\"\n    ],\n    \"span\": \"Ada sealed the crew outside when the alarm sounded at lower court.\",\n    \"rationale\": \"Ada leaves her crewmates exposed during an alarm by sealing them outside, sacrificing their safety to secure her own position.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 674,
+      "output_tokens": 261,
+      "total_tokens": 935
+    },
+    "tool_calls": []
+  }
+}

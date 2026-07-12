@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9a163a5571c085aec091bc40610c8f51b9991dcb21451b96de5de0e8689b1079",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5847,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 652,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 239,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1043000000
+      },
+      "created_at": 1783841900,
+      "id": "Wy1r5xodLFv0s/W66aimxfnpytk0nWopZKqW/g435XmiwnSwxVuqNWWvjSRCNs0PdZJQJw9HTmplfTm0rMdzNtRJSl/vmNuFrGl3J7eeYezh614CShNGyZ8UgOyyputmCZTwU2aix/YU+i+QtZ1lHLMV8bK+y6FVYaJxU94mCXhKpDwSGyCtw13G2+TDHxDR4DbVeodboARbznT1rVeVht+4KJo5xFyHJSxf/eWvsalZ4m+QSkbZV7OIwZRLB7l+Or3ONBW1WbjLSU+oamoV/8CtSsE3HKv8Vvb28Vtl8ezOq7/PP7N8IDxqNi03puWYXTHfN74xtDR3J+YzVv8MosBmljMYvHYAGoNj18B+yqfEHK7VNmj/Dnw5TDLp409FyeZaz4lnvlBZghZe+bASiFHjQ4n3dA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9+R67lTdukaxk7Pt4slf20CQpWpXUmO0GbJFQBI/zrAqdpKAv2LuBv0B6MPTckGBxBcK2Zfe53M17YEmxiIj4myadmZoY1LSceVG9uFu1bCjTlxMP1Iz5Jx1Q28BCzyxnlK8HCAYtPKET96n6hrwTtue5Ox3fhj2Y93sHcbU5PDyMLYOnqlnIxvUUb3VimRpdedrBgSB5/hqijW1WLaMVrSJM5y2wKwVFhh7MKyNnQK6ivvcAfBEBtemqfZau3LRQ8mpfjGYJURdsj/6kRA3j1+42Gi6UAAHDAxJ9Sp6NgKXE5pl3V8Hoh62gLCln+NZXmD9CcG2yXLu3FjUZUnwZH3ufvOhQii6G+Q2T4QHLS+riXkiNwCBlgEp8Mm9qaZQ/GNcN6xe5ud5LjGZlT4XsucEvm0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:497da8b56b8197b8\",\"npc:be28d74e3eeaece9\"],\"constraint_ids\":[\"C:3036293d4d7ed9df\"],\"span\":\"Malik accepted the title of the Harbor Marshal before the assembly at canal bridge.\",\"rationale\":\"Malik becomes a second recognized Harbor Marshal after Ada was formally introduced in that role, with no relinquishment stated between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "EkKm+zziSfH+l9wyliOTHW636ltw/ilM+zEwTvrw0CqPbZyySx0Ltbr9+vZsdEbR6Nx/jYeNy+vWBJQAjALbmeBBJ/Cx3Dej5jE6qXn1HYJV6oWOLzGY/18o38E2/MRG9RIX0C7H/Av/yFWcxNclGc386i5CaPqKkdccRXRAyzlFb8KccRhAD++FlX69F5UY3TWrFnV2wJUL+fildNcvewOqnneD28y2c/PQqzM9NljAWpnCYfkFmueMfvAjyRdOF8p5SkB5AvYMo+888c6PsS++SWYXtZ6uP4ySRUoTrgAEeEU9kO4TLJGZUkHwS4BAvlhD+J6ql51rzAVTjSNLCVd3xhQ0YP1ws7EJRm4gtCxOBHQrwdIVmm9PYkRw43GIZ+nFMg50edADR5Gob3dSxNfEEZF1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 652,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 239,
+        "output_tokens_details": {
+          "reasoning_tokens": 127
+        },
+        "total_tokens": 891
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:497da8b56b8197b8\",\"npc:be28d74e3eeaece9\"],\"constraint_ids\":[\"C:3036293d4d7ed9df\"],\"span\":\"Malik accepted the title of the Harbor Marshal before the assembly at canal bridge.\",\"rationale\":\"Malik becomes a second recognized Harbor Marshal after Ada was formally introduced in that role, with no relinquishment stated between them.\"}]",
+    "token_usage": {
+      "input_tokens": 652,
+      "output_tokens": 239,
+      "total_tokens": 891
+    },
+    "tool_calls": []
+  }
+}

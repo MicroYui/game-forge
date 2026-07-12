@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8e90bd87d3d2d85a8ec55dd2b296ec33f727d7627d00bbde839568f89929f5dc",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3285,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 585,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 165,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 787500000
+      },
+      "created_at": 1783862300,
+      "id": "UaJExHGxe1rxS/RaeN8xPIoAg1m5+3KBNPAAhzgDRB83unDBYxGbzVMegdktFa6klK1BGLQiekEfKHd+rqSVMdP8h4Ut9PQ9Me5Kk9nACe26Me+gKlsFjPRxJDiv9rPwmAPmsYKvB/iGhfS/+eRjCdEWjbQ2soXvcak1P7Hqhm3iq0nYSonBUSN9kt79jHj5fayfxS3V2po9rIKTA5yxR2oxi5n0gmh6uUWZtb8eRs/9zD8Bv1jxdj1YfUK4biATsSHSTmfOd00AffzmHesl86xN3w6HKhG1AIiHDVgNfaasdOPxH3TkOOMpglt0WNsdg+5Fe1WeA2AAFcpezHJTFwrWrkN04AUX3TCEGbXE4pQiZpEt+NjhApNoKcOdR1JBAEv7B5mgoTVkRP62IUYif6Aei5otGA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "MzK/fSE75g+3CvP1yaPjJM0EqSFFD8oXUKejozUqnu9QRhtH8bEQQEbGE0HVTSI9rAUX4JJOzLREHveJLzYDnPivER6J9wF65xRyXAwQC5QNpPCqqdH3iD+gfZJitsLyxGKhOoq1icnALYh9X7Bbwm4Ys4GJ8Nn8Dsz0Hh3BHOuARHQqZoDnHQPgmhYrck5WXv266XN8SGRRl4yipfhNkMjnH3jvk4Nk03NidC/7254UvK3ztY8C0h8O1bJgSQogzy+2u/yUHV0tBhtY3Y0PtXYivqxb6xXuZMicfEzs1LhJy30h1iCi93f+g6neIGDko+RnqbXtzd0QM5p+/xQXZLa3yKqQb4S1X168RN594uK69qGYIWEqGG1o43U9xYgk1bC0cFXwgWpJ7aJMiXM86dDj24U=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:a082771898b54b41\"\n    ],\n    \"constraint_ids\": [\n      \"C:38bdc6d1fe15be7b\"\n    ],\n    \"span\": \"At orbital concourse, Noor sold an entrusted route to the raiders.\",\n    \"rationale\": \"Noor trades away an entrusted ally route, directly conflicting with the rule that Noor never does so, even under pressure.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JCwaMyjVsfoFv+T3WM+F89Pqp6wzoKkfrWAVLy7nmvuyf5a2IFpmzOhzxkjrjZ6FJwbDHW60EwJQ9D0j5HWAMUMb5URUP6a9utj0jgNOoSofbbyNs1Nko2T0OFtfyUufKnrmAqv6laZZjalaJQCEax6JOlBmD3PgzNGF23xIhgtVsJpn/Ydoo4lGBG56eY8UA4fNs4fKORLblF1/BkGdJjj1PGLjW2ns5ldqXoqAnUXpvqdZ5Sz6FRqdeL/PIJaIwaPMNr+Gu5WiK/9+mi6xOWG7+dkqrOacAhBel+Yz/JsHsyUABFi7mD21u9t+C++ImmOY/Ic9pl89lstgqUYhHBSEOqNnMofH/sCmkUbI/xAr7v2ezl1pmOEMX6YtjbdeIvGTtys8JxJ9TLIqKXDV+2PYfYqx",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 585,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 165,
+        "output_tokens_details": {
+          "reasoning_tokens": 48
+        },
+        "total_tokens": 750
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:a082771898b54b41\"\n    ],\n    \"constraint_ids\": [\n      \"C:38bdc6d1fe15be7b\"\n    ],\n    \"span\": \"At orbital concourse, Noor sold an entrusted route to the raiders.\",\n    \"rationale\": \"Noor trades away an entrusted ally route, directly conflicting with the rule that Noor never does so, even under pressure.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 585,
+      "output_tokens": 165,
+      "total_tokens": 750
+    },
+    "tool_calls": []
+  }
+}

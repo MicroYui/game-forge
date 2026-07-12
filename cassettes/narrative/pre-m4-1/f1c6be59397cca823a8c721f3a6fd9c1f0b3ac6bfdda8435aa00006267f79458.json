@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f1c6be59397cca823a8c721f3a6fd9c1f0b3ac6bfdda8435aa00006267f79458",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4829,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 693,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 366,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1444500000
+      },
+      "created_at": 1783853600,
+      "id": "EofJacNR0U4BgWY5mjc1jQOEko9pz+t7hAZmvR/jBmZvzfA4DxL+Rv7eoAZ/yWSAA/1tN3qf3TfHy3O12M5ZxBh/884yosBjB3LhTvEpxe+vz10o7Ci0g5mzX19fUYMHNVRRZIVCxFdOcl3OIdwpYFD4iccs1eWuYn8/9DJTpKU3bhKd6jPjz84sizwnIL4inyXaRW3raY8ZO+CpYeuJ8OXJUZFCTIhf8OJhV+h/R0BABcRkzzV1Cg0VGYch9ZfmmJMccx7Z0086k0Hauuv0e1zcehPjQEtsadVVbnaFCndNSLuMrPr62E2xFw3u5Bof3dAGvRK2R1PwpmayvyAfffkSXq38kTBMGIe8Qylsg6cK8mUqq/17q8vPzA+qgmRb8yZogpQLmPda1j/cGHz/DMejQ5YiOg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vUGZUpqUwW5eLgFbwghgX+yqrIB31Ub+sAxz4vfh47eb87oToKapMkri4ygn9xm3QUWj0gMwh6qMQQlh7F3J9GkS2J6FCGa60/IgkTggqNjU5GvaDy6OUhOOz4hMGWLL9ZVWeCCqYM15NqjQyNP09iK9sckN52UFbwG1GEw3aQzNYthHyKdDlZtFy92s1XjeCwgRF25ZxgSFBj/DFH5ME9rpm5O6H8gOKSZm5+yTdL/w6HoYHy8Urlz20Ao32B10M38GhMVkALIRzUh69yukVQtjq9LG8tgA+H2PUiIBPXwcYfn90rwEejzzj/dOBRriPHozrzTR5IO076GGyWQE7+F5ldFJx1V83rGVwR6haB9kk54EqaoR0kQR/h4WtvhZevF+61dXOXCN5sTbaCnDvpR3o70=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:060c78ccb21eb0a5\",\n      \"npc:6d6046f0e2531cb2\"\n    ],\n    \"constraint_ids\": [\n      \"C:a3e8347344e013f6\"\n    ],\n    \"span\": \"At salt depot, Ansel and Iria signed a joint battle plan.\",\n    \"rationale\": \"Ansel and Iria belong to explicitly hostile factions, so jointly signing a battle plan constitutes prohibited cooperation.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:3fa65a73e020161d\"\n    ],\n    \"constraint_ids\": [\n      \"C:7fb872acb1be56af\"\n    ],\n    \"span\": \"At salt depot, Corin transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Corin is required to return recovered coin to the public treasury, but instead transfers it to a rebuilding fund.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "q4DuzaLdW13hB5JJFcH8vL1PsxMNVu79hwyFndT0LOkCkqlzgD93u6Kjupn4PTfmR93FltqiGsC2Vb8U8d2tO6Q1s1ClpDpQFewVwGwtAL6QwgZj2Hm4bl9SQMObFQO7u1Jd+KEiw+5AO8J4akbkG/UHk4hrW6JGpAT8Lvji7RC2F05+v7iP9xQM+cCN5ia2ehiatJ4E2LOEUtQHK+lQjVohNAtf/ssjPKuYkykKdo0h9/2TA3/U67iNgnEIERFGcZdLsT4fEPYZiqtD0PozEUTNWU50rG++ZFWe7sWh1xLcG2BDcPgDdAFlaMh5fWC6k1L65o7YZbfaOP5F/sMLUcljI+OGBC7DVe2IWOYbXk72w6/YlasfSm59IvRrK7g1X+Iid9u0R2W+5zK3mVmyX8iS1rQs",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 693,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 366,
+        "output_tokens_details": {
+          "reasoning_tokens": 128
+        },
+        "total_tokens": 1059
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:060c78ccb21eb0a5\",\n      \"npc:6d6046f0e2531cb2\"\n    ],\n    \"constraint_ids\": [\n      \"C:a3e8347344e013f6\"\n    ],\n    \"span\": \"At salt depot, Ansel and Iria signed a joint battle plan.\",\n    \"rationale\": \"Ansel and Iria belong to explicitly hostile factions, so jointly signing a battle plan constitutes prohibited cooperation.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:3fa65a73e020161d\"\n    ],\n    \"constraint_ids\": [\n      \"C:7fb872acb1be56af\"\n    ],\n    \"span\": \"At salt depot, Corin transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Corin is required to return recovered coin to the public treasury, but instead transfers it to a rebuilding fund.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 693,
+      "output_tokens": 366,
+      "total_tokens": 1059
+    },
+    "tool_calls": []
+  }
+}

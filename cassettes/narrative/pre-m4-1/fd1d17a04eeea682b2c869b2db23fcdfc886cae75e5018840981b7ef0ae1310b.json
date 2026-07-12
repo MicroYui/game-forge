@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fd1d17a04eeea682b2c869b2db23fcdfc886cae75e5018840981b7ef0ae1310b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2963,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 615,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 152,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 763500000
+      },
+      "created_at": 1783844700,
+      "id": "ZDalGxwRvJPcr/+q9NerT3KyZxx8WfeEeCiutDoafpVg0goQUl0gXwmGC50KTDGNKoIV82vX6tqA6OQQVOmk5sOvHoG3v5S5HGQpkmNhTDYwa9GQlcg7enlVB6/021ywuzbbsK20cbIvHLKE0Z3iAkqX50RKA/uVHW+ZYGL9TEtvT5zNUSBeqhNeAoY07humDE5o8lAcV2SwyvAvqX1qRsKubzLNUIUacSzjeJlYQOg+43lI5ziZxE1985Z30WLloCdeQcchkCEMoepCJx53D4DHzXnACj2Nx1O2a/gVg5Hwhx3wzft+cr+pxI2xKOdptzRbDj8wSJXOADOJAVe4rj4DNt28dMMSKZlDQcgNspDa0GZo8xFjYgGs3oqzVUVqb3MVD6xb7/NgNNndDqJYqezoSFypiw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "KSxEYYKDs/HaSrXx9+guyThgaYVja79A7H9uEhPnx8ehKQjG1ngT5Vvr459IwzPRTmr+76DI/zyUWMFQiUnDIDqk4jLMzv5FPKti+en7Y3HNTfP8gyB1omY8hoqK7Ouk4lc/jnCdg/b7jiZxaI+XmaEz1xmnj83c1QqH0AEQ3ES8JNtt0+bRm6jUvGnKj1cvXzNWei1ffqsZLpYs1vw6oQzJNLalDW/ba4+/w+8v4RlzVrPKjXw/6SF18yKiVQrnjlXCUoSHb+kKYXAlPj6T0EdaUIrCcemexdGmxnHUSX4it0TQGE8vgwa46D79BbSBbprqYlg40TsQuvPQhDTlqCfbfi4D4RCBKsfiIk1+LmZlpV4SGQz6F7WDPJJQ15hjNBblKDPMt5tS7M1LH0e3JVLMbUk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:9dc66ec030b9190e\"\n    ],\n    \"constraint_ids\": [\n      \"C:bd0a2bf8fa8b7f79\"\n    ],\n    \"span\": \"At eastern ridge, Veda abandoned the ally named in a sworn promise.\",\n    \"rationale\": \"Veda abandons an ally covered by a sworn promise, conflicting with her requirement to remain bound until every term is met.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Nbl9wuvRWx9qanK7C/LmUC0AxD6f967OMkmpFC4MaQC11TOkCtGLGC59Aqy0PW/eexIimAGxRjAGGX2bOAohjJAORhbsa6OIZDuFFeMYLYhQRkYS5HpX5PvDpeFXWU9DrCKg6GKr406HP0gVAZqxbH2t/WRMsKOYAq5diqMCDoFI4pPfzz0qbCgeXXak/aGPmRuEuogve8MENGJADZICx+aGujCDKd4rm69QX6uxRWSCyXZYw8a70nXmGIi/u5HIsPdAcFWw/Rsq4W7wgvWa7CFCeh5ZrHsrYvPchztu9zqzrbsX5Is00UbY7QmT7AWGrbqPaKMChGvMVWg2Y6Suhafk0u6MgXMhUik81ei5kJZ5EH2XiMHUbFjmj0OUkblmIGtNH8i9y+gw+giDP8raGvkyPQ1r",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 615,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 152,
+        "output_tokens_details": {
+          "reasoning_tokens": 31
+        },
+        "total_tokens": 767
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:9dc66ec030b9190e\"\n    ],\n    \"constraint_ids\": [\n      \"C:bd0a2bf8fa8b7f79\"\n    ],\n    \"span\": \"At eastern ridge, Veda abandoned the ally named in a sworn promise.\",\n    \"rationale\": \"Veda abandons an ally covered by a sworn promise, conflicting with her requirement to remain bound until every term is met.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 615,
+      "output_tokens": 152,
+      "total_tokens": 767
+    },
+    "tool_calls": []
+  }
+}

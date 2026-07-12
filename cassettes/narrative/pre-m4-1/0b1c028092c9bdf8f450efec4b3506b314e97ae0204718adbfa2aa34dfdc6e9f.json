@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0b1c028092c9bdf8f450efec4b3506b314e97ae0204718adbfa2aa34dfdc6e9f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3582,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 625,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 187,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 873500000
+      },
+      "created_at": 1783862500,
+      "id": "Dv3OuYh3soBH3SrkEg4R9z+FoWHDhjg4PhETWag52+PFw3AveL/UXBvB2mR2jODcslP1eU/xrpEWe3JbuFpV0V1H86wkuAYutlLSydSaDAHfRuDl69iWDjIU4Jaia/rTIwjioIdZhrNdwAnVozKm/J2ACpGYcAJUtE6+eS3jJ8TROZg0Gt1xLQp6Mp0xBOIdbWrxMMX2vdNnduiuVwAcupaAMKxl2+hEVbGbvLavRmVNZVNQk/ndwjRRWlY8fynLXDIcJL4V9/n2ZRMVj4SS6gksOdnzM1HhekhZLln3GR3dEKUcls4pEnh15/TDJXoYuDC1dRQDYKDfAwAj2PObRGluVb2FcshcOZoNe9jLi+aaK1hTKw2gaVVRC5owBfv7tRuzMfJ61LyxkM2AepfjuUjpW1EeNw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "X+7alpyRLx2E046br2ioi+JBxmKeH+w6TgCS3lz/uwDD85y4Wx8oAZdyuo4bxsn89n51XEUyhZBuyPfphF6vJ4FCY40A3q+kO+heinakKLZoVDV/YP3krban9J2je/uybHWd/ImGV09XwQOd5aUaviAjIkDC1nxiTDSiBAaqyn1n6yuJy5ozhL+34MFmqfHxHSkJvIiyqF/i9EIjyzg1YoEkxD6aBKJO9S08iUu6S9NXsiZrMSN7l4c+FzKadUAi4AoteE++Qnm9kdhjIjdOsWaetjPJGZXGxALucu5Wlh08WU2U1CDGH6uFfehTe18b6J8NKMzGz8iGPu5ugNL3S48K5M392A0FMqcqvTYq233DyaU91EddLq7YYMflyiF1xVqzXYP2odxagcCUe10jlWnznu0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:ab873b36cd2f1797\",\n      \"npc:b9a64e89ca5625bc\"\n    ],\n    \"constraint_ids\": [\n      \"C:ac9b0c87c5cc48b7\"\n    ],\n    \"span\": \"At orbital concourse, Mei and Daro signed a joint battle plan.\",\n    \"rationale\": \"Mei and Daro belong to factions whose standing feud explicitly bars joint commands, but they jointly approve a battle plan.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "oR3F3NShZyzqAU7kDwia5hG9hRHsYjSdpicSf/OjI0EnIcoPMg9ofAAz4NQazz4ZULrWl5P/N+Yxxma+ALM5oqpmXoGExfn+vJxWKwQTjlxsUXXOjHVqsxBbWn6yWOJ1IM8w/3yPWdZkTvOw2ZzUANekrMcrknn5UAgA9pMHpp+zcDIRzuYe6xhDO+ZVsPjDV7b04JTyRONRQXnSV2WL4R/0lRdk4rlqEKvKAH9FT41otoXjpS+qQU6gMa+PxY7dlgvSkH2eX2KjsnjMQpx8f5eQegsJkTM+Gz3SsOEFg8FAkm1AV+rY2KXY9yUebmhWkVSR6ouhMCfxvbgNJC776mjebz62T5vP/fn/KbHmmIMxyBqh/cowZVOXXPJELW0cUXzGl2+5fkPTSdhA7eD4zIoKEA/M",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 625,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 187,
+        "output_tokens_details": {
+          "reasoning_tokens": 52
+        },
+        "total_tokens": 812
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:ab873b36cd2f1797\",\n      \"npc:b9a64e89ca5625bc\"\n    ],\n    \"constraint_ids\": [\n      \"C:ac9b0c87c5cc48b7\"\n    ],\n    \"span\": \"At orbital concourse, Mei and Daro signed a joint battle plan.\",\n    \"rationale\": \"Mei and Daro belong to factions whose standing feud explicitly bars joint commands, but they jointly approve a battle plan.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 625,
+      "output_tokens": 187,
+      "total_tokens": 812
+    },
+    "tool_calls": []
+  }
+}

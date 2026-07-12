@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9b666b08703c0466d6ba072bf6adf3222aa565af6b6fc2b52d3b2a1c22701908",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3958,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 630,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 212,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 951000000
+      },
+      "created_at": 1783859000,
+      "id": "zcyBM8rFqo2A3hB2CRpnX59dLxKQWt9LEil8Cko4r6FSQffE4yNRVyaw3ghIOwbz2h+0bsF8IDND4JGaE9WVVjHS+UDJg2ZjNm2eb6JkHm5SUtquoStJN4Uzn6ljA7gNC7Rpr2qDIhlasfr4XPesI0e4K5H2yxGBumMIJJSFZmc0GTbHF55+FMxZxT3JLtsbUcpqkZ3XhOJnRnykNaRfXqj1BxKSOG3A9tgkt2UKrTMkAgisih+qqrIc0VRM7w6PWSFsXMPVOrK/BK9YoLLtsGnuflYfNvGdvUMOFue42Gna/IaQulWQ0zT3URe4068CWNKkalURjp6OwbIw3hmB/slW7LEMy9Wr13zTSFSEAgcj0JKIn7Xiya1/DIOqk4H5tnl2BSI9Ztv1nogYDd1rmzjdYMOAUg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "xpUxBdRYXI+CJMDtWBDNA4XswuLu4d4n46drW1e+vVvFoOiUg6naRodisdHRv5zP4lr6I+y5bLeruTJJx3pKqfXa+XnAnFR7HUcxWDenZZzcg0J0ma0dCd+NoSc1h3GZPN0QjJmHh2eGaFNQ5UnxTnYLBgV4P5AZ40vsqcYRSGci/OV4/1reV+WqNklPV7ME2QcyAjHOAC34LrjqcYIqeR6S23Whji6hy5Md7slNz5jLcrhZKzRQPnZdu7JoGUJX6tOkrUHbRvCRcssRFlo2P6qk9YmXD900Tsy2K9vRWHY3Sun8jvpaIjYlfKRI+KTIZBiGmrpzWHXApY0ftc0dhIBNL+57a46LWnY2Qs83RtvqXYuEjg1+SkfxV1KGXCGzotihz0cN9X/YkpsDHUZOks7oAlY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:3eac1c72ec138674\",\n      \"npc:a0c27ddcbf41a5e0\"\n    ],\n    \"constraint_ids\": [\n      \"C:bd8f833f20d86022\"\n    ],\n    \"span\": \"Ada accepted the title of the Vault Steward before the assembly at salt depot.\",\n    \"rationale\": \"Ada accepts the unique Vault Steward title after Malik was recognized as its holder, with no relinquishment stated, resulting in two active holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "UsBabrsrQUA1s05HokZsxrnCu2kkXtQDu0SF3Y0m47Wio2wone/XwuqkACC02UVwq5P1C65/VM+fp2Ca5BgrXz8Klv3RdpxyRxhWdLu/R4SwuBnYt16M2DAWoI8oiJMlP+tddYNC4eJ3TFyBz3hTZHoXtWkhUWixPM/0J7WhFlfXRHgFuNeAXVj911aAED/7RWqgxjV499aaMmmA6ANRQP3lS0txyJPiH8ZbTjammRnvMCHD+xMhxqPNaqt45KTJG2uAI5XeQ5t1TGw7aEqC3Q7sqV5+EVVufHqN0Oh8x0oRcO9PukP5uN88R9PB+g/sM+Lo5fShQCr1j1jOgZaYoApYJKK+/uumo+T/gLWHPoedRt83gBJjYIa8Jhe3bxTnJ74tf/8ctbiVnrAb9otZOADT0Alz",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 630,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 212,
+        "output_tokens_details": {
+          "reasoning_tokens": 74
+        },
+        "total_tokens": 842
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:3eac1c72ec138674\",\n      \"npc:a0c27ddcbf41a5e0\"\n    ],\n    \"constraint_ids\": [\n      \"C:bd8f833f20d86022\"\n    ],\n    \"span\": \"Ada accepted the title of the Vault Steward before the assembly at salt depot.\",\n    \"rationale\": \"Ada accepts the unique Vault Steward title after Malik was recognized as its holder, with no relinquishment stated, resulting in two active holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 630,
+      "output_tokens": 212,
+      "total_tokens": 842
+    },
+    "tool_calls": []
+  }
+}

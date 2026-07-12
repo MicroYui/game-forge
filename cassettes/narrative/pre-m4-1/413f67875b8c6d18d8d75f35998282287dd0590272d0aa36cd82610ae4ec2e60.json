@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:413f67875b8c6d18d8d75f35998282287dd0590272d0aa36cd82610ae4ec2e60",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4015,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 553,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 101,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 579500000
+      },
+      "created_at": 1783841700,
+      "id": "6zXijztWMZZyhw/Ye7cSmBlLZrK51QIg/rV5/XjL/nJz7Z/s6A8DuNBs5N7kBtLS7qoDVx76dtCI/uPmDmpe+fIzgNJNNx9/k3ZEGvZCw08m89tf5vIsRC4ZlYpOak+/G33YXJ6hzx9zKwE+BHuiFwq0AjSaHif3IstNEd6ZfeZ5Scza4KSn2nuNfy8anrmFXFZNPb/yV9cgrOfHIGu91hK7Ox/CXkzxEMroOzpO8OSXnhEi91QA+pdEXowG7amZf2UtpXWt5QRJwyDL33SYVHMEEWToq/Oap9FXAfXTxxIF99iY5AXh0DRb/ILplS/q6u5QxwQPfpN2tuz2kiuo5dB9j3dJBc6vP2y2qDJmMV0/pCZK9bX0QHa4fM53w7edecwyh1Xq7BOtJgvEMgrfcGFfQRqGgQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8d61089d388f52c4\",\"npc:918b9c3358893009\"],\"constraint_ids\":[\"C:408d42a9f912e6b0\"],\"span\":\"Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass belong to factions explicitly at war, so signing a joint battle plan is prohibited cooperation across hostile sides.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "DGf6GI5TU2ka19PwH5xp/Cjzk+vw9FdL6p1dEtNwe8yE8gb9WihZpYpUel5/qWMuKtKIXmdzXC7cURhry/gYofsXlmpGyvk+Geun3ya0Ra5x0G2HQyOttZz+qnGgrdAyLLbsfT+QFbk137o0E2IyM6E5oTcVxopbhN8jayRJIUA9a2558UFbD2l7R/zrWaZuqWDgI9jPWSCV93ZnJn75Jgikrb0qBMIcZyn8OlzxF18+Uuz262WSaaFYbmRXhcoxgDBbB/Ozte0ETkB0YuulsiN5bXEYJpqx8IqOXEFOj6usKSNg28T153f/xA53tUzQl3BRw+k0pNdz5vf/et5jEJdRrznoijbLEHrL3xB8kKmIgzzHn5obHFZ2d89v9Dy9+tDxOFK4LpwOGtL/g8lVoD5zBljY",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 553,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 101,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 654
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:8d61089d388f52c4\",\"npc:918b9c3358893009\"],\"constraint_ids\":[\"C:408d42a9f912e6b0\"],\"span\":\"Noor and Cass signed a joint battle plan.\",\"rationale\":\"Noor and Cass belong to factions explicitly at war, so signing a joint battle plan is prohibited cooperation across hostile sides.\"}]",
+    "token_usage": {
+      "input_tokens": 553,
+      "output_tokens": 101,
+      "total_tokens": 654
+    },
+    "tool_calls": []
+  }
+}

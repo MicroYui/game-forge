@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5fc1621e4c8fdc5898c7f519e2aad1661932e1d1ff82ffdf26f1ad30f0144924",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3985,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 663,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 220,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 991500000
+      },
+      "created_at": 1783859300,
+      "id": "GLM8WRkyjRmNJ5HTFucTQQgoOezeyP1TXm8Rrun4wvMyAd1huRq9jKLIZFaaQaOD0ekY7nPd59JPuiCny9sVnbu9ntI9vbSY1vJgA8qkC7U5YjOs7c1ppQUUFKUqLOhX06pGpHKeiGSZ6kkU4jdlIl7kFfuO9NWd6a63PwNHz/7iTSxu9AfTKcVwUzkGh4gsbEqY0BVzTcNxWmQmHKDueyF5MqTK5H3isVYJOqkIIrQdCWY4PSWygF54bcL+Ufqq0J9aTZloCVD9KZ7BQL2V4VLvacCMwgHagq1/hcANWZnVD75APXi11WK2bz+VIDZrzDP3n5GQ9tZGmafQeq2Q8buPoC4GClcMO+ak+gSgd/CpyxaczhjjmSbOt3f/ku+ZtzwS1kJOkXIRMC5JRdmgJwuSGi6MWA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "k8Nqauiybtt7PdZnHom6RHmLVvxql5ijNwlgzNZY7WjjAaRNz3KOjRqlD6xB/uGPIqqop51kxCT+Cgwv3m3Ym+IjL9Wa2rn3Ig1NNg17OWTymcLINdMvBn7CI+pRUZmW0tgBPP/gH+INHdpuYYGSXO30ubaDkXuaO/Gsn0tdo8g465A9e5OOPpOupJe3z7SaxROuEOuiKtPnXgkAsR1GBo4qwSMmu2jmZ76XjFkY/4ScNMQEp2ZYnMyJJYdtWwiHWdSwDmqngzZg+hp/3GZx+DQKnQXaYIrepuv3YWoufw/BatD7nKZbiDJ/H+CXslL12CP+Mn9z89JxG+BWp9BiYKJ9rzV/OCr8MLWfj9dSd9f38k4jp47bZrFtEF0rnzXhvu1uS7slXQq6F2djH3KiaeTC/5M=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:198060195d5af581\",\"npc:af0eb2dc5f08e067\"],\"constraint_ids\":[\"C:fdbdab083f9769cc\"],\"span\":\"Ada fought beside Malik under one banner at desert waystation.\",\"rationale\":\"Ada and Malik are members of factions explicitly forbidden from coordinating operations, but they fight together under one banner.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "3spMGtBhTZCkBhEWU/p2i1qAuIq1QKmJporLVY/cLQAu28XDcoYaikUgLYYdqkLaWBHTghUKWAEQEzrtOQq+18LTIQTMmDtjQv3j3do+zNc202pBL+W10ZAVm69VKUsj0Br/U9SI07FOy6VKzBXtDGrwywzjR03dnAPRf8mJRm5CqoSXKTPhpekmgdDA4NsdwdkjbryXqgVdc7ckkcoMG0LM3eLPY0kl/HMygLcFvDKv3AtxPHiXq+Y0/wwUQqF9ccxtCa74yEDv3xk4e7Z5iczzTGQo1aRP/G2HShiGfvY0Z/Oh2ooI7Xvf6JvD3EAwHh4n0/Wqpv85WcD8rpKAjzlGQudhZL18zsCBmZVGVUiYAu5cTG0DW3TVhXGj77Vlx5kOU/Y+Wk+ytIDByOKtgkwXUf3Q",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 663,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 220,
+        "output_tokens_details": {
+          "reasoning_tokens": 123
+        },
+        "total_tokens": 883
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:198060195d5af581\",\"npc:af0eb2dc5f08e067\"],\"constraint_ids\":[\"C:fdbdab083f9769cc\"],\"span\":\"Ada fought beside Malik under one banner at desert waystation.\",\"rationale\":\"Ada and Malik are members of factions explicitly forbidden from coordinating operations, but they fight together under one banner.\"}]",
+    "token_usage": {
+      "input_tokens": 663,
+      "output_tokens": 220,
+      "total_tokens": 883
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4f888df6fb59b3b09c1f89456fa1abcc96bbf9852d27fcd86a3f35a87d57c284",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4331,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 545,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 209,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 899500000
+      },
+      "created_at": 1783856600,
+      "id": "wAfcmUzq/ij8L2vdq2sRQVso4yV4C8P6gcGATAShY2d79X9iaqgV+kUpqZCfp4waicYjaVSJAHRc/CkoiifLyQUH5mMVdl+CnOwxi5sUk/IhybWw1wlaFF63DPNhz+86HvCFOHxjLrDUhwvYdgAhK3J24I+LFF4Jl/Az9QYcpzQm7EfwJz2wDvSEzRI2fVQ6z5OXMm2ItbkCLVsvzPAqN7WXdSipo+spC/aDWiSfQdbYV2oXjHyqyGOTeY/tb/hpaZrY7GfeIVK8tgi2vfUu/dl1UmDYiGAcvkVaXUgkrBxO5KqMci3ZWP+rofryq6hWo1mLD+aMpGj7WQEKjSWBJ9llF6XbugcB5mwe0kIDo8JY98OiQBVL8bJ+K7Uxzut1PG/aXgctX9yK6+joBCQmM1Oh7v55lw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kn2Mlw+l9TXukhUsfxV+H8Y48KPs+My7+SJkerVTgIhxqtcUO40hiURLyg4B9amN7syTcYRqE0flM0SVWHaRPlc6G44rwpDjZrAhHBLTEdoEpBe5RptkB6qg1ABoVqEz1DL+urRWT4dezrt3c7pkV4WDJbcb2NHE/qq0p9gTKFZ7Nr0KLphj0UNB8EMb3vdS347qFlZb1F1L7nszndcCtwHMKVTBKcDcpaS5hJT+02WU4qGEZ68Df8JSnlvzRgMOTu265ERJ2BkI3pUE7T0JdAJ2uTTuM9CACoEnKPPSjSm9GCpdcWM9zj8xeeqy1zTPsTGQPPXvdvAmNdqa5q5pD7EzwPS7d1O2MGbx+V/KRYH8tgekDVIQbdgRDcmNKAB96DxWU84Z0Y4askhJEi6sjjIM7LY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:50d4626776937a03\",\n      \"npc:9894db173f7bfbda\"\n    ],\n    \"constraint_ids\": [\n      \"C:48e81fd2ca62bf9d\"\n    ],\n    \"span\": \"Qi accepted the title of the Beacon Keeper before the assembly at desert waystation.\",\n    \"rationale\": \"Mara had already been established as Beacon Keeper, and no relinquishment occurred before Qi accepted the same title, creating two simultaneous holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "tsM3yz4exSSwnZOe8zRbsAfd52IgNLaSeY9O1US5AUY3OzRWV9bgp5SYq+CJjtKg2aJM8timDOevfaMEQVikxVdHHyE00hLcUaSJ6fFiFTFRBxK/X/3S9rBwJ6N46kyXvECmFPMLJrHQfyRsxdgvHuG+5/3DUhADu4LwXQCs3DazybED7m2j5OoeHG2rE5nN8xxd5Mx94N9a5CWWXTvVJCDSTdCdPqHZQga7iYKXmBWYavjIAJQwQ0iVSvkhhdCHndTgFjdYmMb9IsMtXqFmWALF9QPjWrJsirxv+scgLIBbNCI03iuB0aZtz0rZvcEf9P53D6wcP/Onai/zik1cjefSn6ZeCY/7Ydr3EntSmc2wu8p3FXKtdKIdOtyBI0loHbP5CpAvJibR3VM4+70VUJJsScDU",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 545,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 209,
+        "output_tokens_details": {
+          "reasoning_tokens": 72
+        },
+        "total_tokens": 754
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:50d4626776937a03\",\n      \"npc:9894db173f7bfbda\"\n    ],\n    \"constraint_ids\": [\n      \"C:48e81fd2ca62bf9d\"\n    ],\n    \"span\": \"Qi accepted the title of the Beacon Keeper before the assembly at desert waystation.\",\n    \"rationale\": \"Mara had already been established as Beacon Keeper, and no relinquishment occurred before Qi accepted the same title, creating two simultaneous holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 545,
+      "output_tokens": 209,
+      "total_tokens": 754
+    },
+    "tool_calls": []
+  }
+}

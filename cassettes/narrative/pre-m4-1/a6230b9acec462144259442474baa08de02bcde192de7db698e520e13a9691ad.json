@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a6230b9acec462144259442474baa08de02bcde192de7db698e520e13a9691ad",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4095,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 531,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 165,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 760500000
+      },
+      "created_at": 1783853300,
+      "id": "iG6FgpuYN5oZbkcO81eTFFb6LYtgw1KNY8YG46J/CSgQW8nWpmZvO+NwDoeMfslPp8fY9W3IRDlvEal6nmufGxfc4oHQcLEuWG3gXtacT/g2BOo191LpkzuA61U/FSMNNqKOe1e033wwGnaJur3DWS7MPYenQp0qB/1DLFOFQhlfPzZP7pgtaRrY1DvBIhUlQw6ghTG3ms6h8gCSQulvK62gORghrysSfsaBjKmWyRn833BMC/TewX1zu9jCVHCUAPks/Swb6gkE+WZH0h1l0Ie6u70YoUDqGqWtMGXSmWuUiZ5fKJCdaB9jOdIcZbnrYoszLqtv2GCyx7FETXMzHSMpEiMPmgQTfe4UIgckRmEYcxA2pr3J0N6+u9HNeQoUegVK3MBBX439VsSetIhse9n3n7axqg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "yTBmfgE+uqxMS2qc+Vg6+ttXM68eqAa9NiK62zYesrHlebTnRMuLoR0PYchs2b+FIyDSp1MgkCyQna78Cdl/t2+SFHVwyz4GIE228QZphQ3vEIUsXTIr6r5waqw+2C5d48s7Y4NlIUdYuWQySC7ldnKBrrVMQE15ZNJ/4nvX4+JBFgMRLeDK8rEjpNeIaT/17+AlCx9tl3+0pOdlPYaeghEkz8d3etSEFst4ZhBFhP9MifgcBcM40K0//+ySvPZpCPAzO71k9ZiARRtwcf0ebUUAfGQUpYc5bRjAnigB+XBrW7Md2w7796qX4f6h6PP/f45zZ/I9T7ae2Oyw89yRtr9Y+nXa4RIlHPuqyKRSo0hFMpFACLM/Su5nZcRyAV6FnNWC5YMIwNZ/SpJkoBecb8R0YoI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:9cb5ae1723a159c6\"],\"constraint_ids\":[\"C:8b995352e4a8d48f\"],\"span\":\"In desert waystation, Ansel took the last medicine and walked past the injured scout.\",\"rationale\":\"Ansel abandons an injured companion instead of staying with wounded companions as required.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "BKEVg7jCS7Nz1Gv6/kRg3lNVoMdKTxQy1odPXw6fFGFHHXO3lGovCRZ5IQSGr4kQEI7DjPjtCUq7w9Asn5HpQ1O9GdyzVWNgVeiu5LNm6ezdPfTuZGigYLhmE0M0XYW+bZOrzQvGumEKzyYtQqh+wbHGJeQDE/yKSplBU+ttBPly0EL2vbJoHrba1gN696dETFYzWIfcg4Eu+ILVuXEaBt/uKq0Qkc0YmojWWR6bO/yl+KgxncIhkGhxTTdGpps3gbPFmJe/g/ryY5eoxtJtqyFgcYP+XberX47VAQzMbgj0fM92lulY5R/UfeCbSPbR+cTEjJU3xIhELJVMuD2W1bC3ZOKDeMXlviqwY6cNvGlMGBzLwQCDgPiaSHOMtovCg48k+UokT510uKTaqj62wZw8kFul",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 531,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 165,
+        "output_tokens_details": {
+          "reasoning_tokens": 74
+        },
+        "total_tokens": 696
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:9cb5ae1723a159c6\"],\"constraint_ids\":[\"C:8b995352e4a8d48f\"],\"span\":\"In desert waystation, Ansel took the last medicine and walked past the injured scout.\",\"rationale\":\"Ansel abandons an injured companion instead of staying with wounded companions as required.\"}]",
+    "token_usage": {
+      "input_tokens": 531,
+      "output_tokens": 165,
+      "total_tokens": 696
+    },
+    "tool_calls": []
+  }
+}

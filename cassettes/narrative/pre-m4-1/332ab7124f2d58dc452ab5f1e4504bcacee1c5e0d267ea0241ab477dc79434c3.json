@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:332ab7124f2d58dc452ab5f1e4504bcacee1c5e0d267ea0241ab477dc79434c3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4937,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 697,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 321,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1311500000
+      },
+      "created_at": 1783856900,
+      "id": "Crr9atL9/k2p7ANVYqB1PZZnd35p391coixtyw9zZe2DxXf4Mu7NzuZcLd+9BfWfsokvqCo5u7Ey5WZKWSZkqminiigH+W7t5jxWcLZBfXNdV4XPu9EYd+am6H1ZvvxaBrG86onZ945Og+tI7P1kwsSHtvlaj2338yDZKKriiod0WxhwiPS7VIGrVW8Stv/WINHYwDIl2f0tkHbOSAfrrgD5SG+XVpiLj0xYhXZiBlrqr0vi3OVVOySwmkKWaxcL0/ovsSwNpemLdVCMGCIbA0zSONfi//lPW1Z9pWj1Czf042Z4IocO172Jk/Ys7GzMn5HOKAUUGQcBbmY+91u+UrFchPHqfQMsUcgLy6C5AH4J1Vw78R40lKp1d9/0yQwwmznwiZPbrZcmbDdRKZzND4bTpzSDhw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gNWzCHoLT127cDvW5X6x0LdWLMEW65B+h5SHlZAYcalF5VXMlhWP0eWsNU4QuN730JYa+Fl0OlegTOJJ5QwgZmAyMQV5BQoMdt958uWfumf2NW2nQz7R08TnNPfcm/AwEls7qNX9Zzs1S3JkjgEG0NUvQ63cbTt1rQnJrQgYGvADO9/uF55BI92csb7DTbidrmpxrmUqee8XfnDCk356vKunRsuExxPIHa1tOO6VsKdJzOH4SoyB+lc0UAJ6b8Xt8M1wjZ5TSFam7ixITRLfnSG1100jbQDGzriZOB0o9GWVf84NDNBqOWmV2rpuuy2KPTOwKY1VuqSZfjl1MLm2F5L/3r+Gl/ySP62gbsWh/ocns+9SzhBCq57sfgCxngsIfrVwtaKAgCBNLaykgVSB/GbIZ8E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:4bd2b82065bfb85c\",\n      \"secret:c92899016affacfa\"\n    ],\n    \"constraint_ids\": [\n      \"C:0483564b5921e7e8\"\n    ],\n    \"span\": \"In canal bridge, Ivo disclosed the saboteur's name during hearing.\",\n    \"rationale\": \"Ivo reveals the saboteur's name during the hearing, before the permitted sealed testimony stage.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:c4af110427e75cd5\"\n    ],\n    \"constraint_ids\": [\n      \"C:1b720b8c78171084\"\n    ],\n    \"span\": \"In old mint, Soren returned the reserved rations to public stores.\",\n    \"rationale\": \"Soren returns reserved public aid to storage instead of delivering it to its intended recipients.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "4mMjQKprRSqDO7rewqL3sMibnKv2Cv116DsmUPYfJgKumB+beywyn1ToBqFmasMvxDvANlYPAgyS99FRMWT8iGx13j2c3L9j0BAZxKM3DPz+Q+DqKrXNTTdpFlhtN1ezzMf/9ulwaUD2lPDYOrf6udTKBEN8kYTMzM1SkJrKUXqX5YBoM0+iNOif7G9BxAvecG6M5f9AIZmxpDDOq2LVxx1BM+tNRneTYhWTVzCsuKeDPzFhvBfzvKrIiZGE8m/tr82++ELYaDplLTzcWW5p026SVr+fwFsBzaNNcegBWb5Ll3mfHEv0LTD+3ByGwKsZohr/LUNDn1HZ8tdmIKKFWA8LLYBm0WI3+wiQLaEQqrmT5x3hqC+aVpSUmA6xFzj6BrxGWXSDN1xOkG+H2tVB8YIiXJW8",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 697,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 321,
+        "output_tokens_details": {
+          "reasoning_tokens": 94
+        },
+        "total_tokens": 1018
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:4bd2b82065bfb85c\",\n      \"secret:c92899016affacfa\"\n    ],\n    \"constraint_ids\": [\n      \"C:0483564b5921e7e8\"\n    ],\n    \"span\": \"In canal bridge, Ivo disclosed the saboteur's name during hearing.\",\n    \"rationale\": \"Ivo reveals the saboteur's name during the hearing, before the permitted sealed testimony stage.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:c4af110427e75cd5\"\n    ],\n    \"constraint_ids\": [\n      \"C:1b720b8c78171084\"\n    ],\n    \"span\": \"In old mint, Soren returned the reserved rations to public stores.\",\n    \"rationale\": \"Soren returns reserved public aid to storage instead of delivering it to its intended recipients.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 697,
+      "output_tokens": 321,
+      "total_tokens": 1018
+    },
+    "tool_calls": []
+  }
+}

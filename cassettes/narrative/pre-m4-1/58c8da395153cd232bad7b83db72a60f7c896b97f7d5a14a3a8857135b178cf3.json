@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:58c8da395153cd232bad7b83db72a60f7c896b97f7d5a14a3a8857135b178cf3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3443,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 678,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 203,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 948000000
+      },
+      "created_at": 1783853700,
+      "id": "8gQLEvJj/K4/3BkwTGlAf2JbN5kDZyn+X0sBVT0XHhnfmbkZTGzR3eVCAJcv9x/UtEFkdA3tlX21zrcLqR45ePq+InLOwr7h7p1UJEexZo/1E5UUJK8aygSzxkXy5rxxSJFkwnrTUTOWX5z+EJ5sDr4fOGZd6uwUE6rhmFZyuzcXhMRhqIMVj6+voquMZGf5zbL0y5WItzy/SYw6KDJWzvm0HyV2bdxK7gh6n2i/TjkehEvFxG/sFvLurq3SviT2EdT8JL+3f/bCbekkp8re0LIVnCOS6tV+Ji9yyY7pGMPdJRiOHJbrcxGDN0cbYT2eiUSzoP3v72XERyxjjpB2DUBU/DGhwLUFqynG9XOwmOux14sLgaN7DtJ37cFToxBf5LOWNLwwlaNwhwFZu7iwp3J+EOpTcw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "VD1Rk6o4e3/CSF1K5LbAeNafCC4V6QE4ptUibXUuA1hgkXQK2bXhqtTWoNAYO+8z9/B1NpYjEWy2MZvaiH13j0rr1WCaztHNnHHOsYySNMTE78TGatWrFdrDj8pan78xgRFDAtKJyslR67wpmO2eQ7sOKHMPq979C9HPmEI0EQCDUODV6u//1iN6/RZHyzibT3wdf19zODAMhqhRt0+ikeaS109XvJjc3zGr2s88rzKBFvFrBsKAOBoIwhRbdVvc+6j8FCAHHgzAW8EnBIPRfedsRCli+q3bF/QjvRKlaRD6ERbZizYsqjGk1sxsd7TzMp4UT4iOkKIlorUHe9iWRfd2FVxoM6fSj6o8UfLXm0mmIHAj9kGAFWRumiJmU4NwKkeUjxanK6U+Fuo2PvCtkrhC7e8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:adc978cdda68a6f1\",\n      \"npc:bf2227f564d33ba9\"\n    ],\n    \"constraint_ids\": [\n      \"C:36cd8074b0d1162f\"\n    ],\n    \"span\": \"In desert waystation, the council recognized Qi as the Warden.\",\n    \"rationale\": \"Mara was already recognized as Warden, and Qi is subsequently recognized without Mara relinquishing the office, producing two simultaneous holders despite the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "L90JJpm/X4Mg/kQ2mDoqSAkV77RL4lFeFSdateMMjeUdNV4HXSmdPZxw3MAWZEke+O+esjBE1arx0WHto5Bpf2YN5XsNLrWqhyrIYl9Kpn9TftgFczt/xokb9xvix8xUdgh8gflXckk5Ng4RB3Y5hg7OnkvdWQp/o+IdqBV/CyWMqPLa1ckRYHWioi/EFzJmz6T4JwZkFCZsn+IeUmAql2xLJxj57sZmJjLY8WLUmAj2hKBfl0N01VR+dlkqUHjd/qcgZiEAiFxT3+1Dz/ErODXccTt3z6nqzKVBjclYh/exYTTX7z5txW4wRK9fep41q7XZ2LTWoeUafgZIERKeD+VN1EdPnJJrWl/NzlnMIDHW8lgdi3AvyKvXE3G7egigqpqVd7UPLR0ZzTloBsipXLugKnKI",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 678,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 203,
+        "output_tokens_details": {
+          "reasoning_tokens": 63
+        },
+        "total_tokens": 881
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:adc978cdda68a6f1\",\n      \"npc:bf2227f564d33ba9\"\n    ],\n    \"constraint_ids\": [\n      \"C:36cd8074b0d1162f\"\n    ],\n    \"span\": \"In desert waystation, the council recognized Qi as the Warden.\",\n    \"rationale\": \"Mara was already recognized as Warden, and Qi is subsequently recognized without Mara relinquishing the office, producing two simultaneous holders despite the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 678,
+      "output_tokens": 203,
+      "total_tokens": 881
+    },
+    "tool_calls": []
+  }
+}

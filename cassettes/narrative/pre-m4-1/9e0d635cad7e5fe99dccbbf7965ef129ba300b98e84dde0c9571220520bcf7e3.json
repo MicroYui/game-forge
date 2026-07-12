@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9e0d635cad7e5fe99dccbbf7965ef129ba300b98e84dde0c9571220520bcf7e3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3887,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 612,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 192,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 882000000
+      },
+      "created_at": 1783849600,
+      "id": "CIavaqphpFHMIoovf4Ce0NC7twQ/QbV0NnL8iRqMPLR6MggqpAKN+YsuMlKKqtraD/8OnFUDDvZscL2BkzPvYO4Rgh5Xs53IcOnG0Vn7PL076KGpilUP6PX246j+exmA/QDrUrSEvssnPpegfgoKe3m2E16ycwBe9iobgEHThYm1Jbt6oAvTNvdoCPNQMi+WTViiT2HdtkqlIuJ64gyIkGtqVXnC9hKKV3d9yrKO1LaavKn4auGvKY1HcP+/0DT0dPF9dic6aCpDeJ8n4GKi16cIDA5oHEz9GQlcy2z15mBz1ENWotBSYwFrwc0vy8kHOMO2JtzmdHL2QgwBuG04HoltiT0wSx0OCFL5hIdn0M0mI8uxPmsm5iHwtFP41LmBZzD8TsfsFUNd6EM9hNgjayJkdU+8iA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "BjgTb6e4fEF5NZSNeIZLMN4L+bZCeFiPYY+ueo6gB5UG78t8FD5w0Iy479iot2zwdLATpNJ3TWUUxGgdSiIJpmKddzRdxtUlJ66aspWhBGhW1oKlHJUtlusooNmyKfm0cIGZQVLabE4oG5sCSdib0qkyrPk/wwWgsxVD865lzCP7aoWEWa0wARkllRqlD3wizp8OSo22K2B6JGb8th6lO2fA0H3hG4KWQoEa6y3GjBoA3duOXRlELLx7hycGRnbjcB083l4dGYxjZXhRiMzSp2Q09jHMLtp5vPB6Nuy9q5C7U6snLvrQvjKL6bDD+4ckGYND9xuIllA7cPvJ3K6yAPUv0yQ5MiE7o1BaqrVLFZrcn7Vn0YJW0YgKLqaZH03mHBOMr2DvMPK+rSPwMErrxzathpo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c1babcc4a48e21f5\",\"npc:dfe009183e09caeb\"],\"constraint_ids\":[\"C:c529d6c572df5fec\"],\"span\":\"In canal bridge, the council recognized Daro as the Archive Speaker.\",\"rationale\":\"Daro is recognized after Mei with no relinquishment or replacement stated, implying two simultaneous holders of the uniquely limited Archive Speaker role.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "B/a5xF43tjvHJzBRf3LITIO5q9u/bA5Km1xzSpGMgEA6WmTUSM/w8Z/1T/jIvDDIHtZhv5hVC+C4MWYp30Hgcn4kOI7rnytfFgtOPuMqQ+6h9iTKg0k7/Ldq5imzZWmpd2knr8TyT3wYs1Pk/EiiTNKx7Z/oB4cjlE5l5cSHXdKAbWpPAaDttedm1FJA3+0F415AyIi4pjYPbCqPUdHwzlX3vFI2lzK5jklC5GqhqSTgKd34Hr76G15/Ifskh1kd41J55Py+iEcvAO8fg6IUXusYjXtcX5ZKwS0C33rD0rekHn7CyDrluXG1WaH2RUkUQqGWo4G1aUD/9a+9b8K+/w/04ZXRV3gXjHCMcZucitEMcxjEoNcFoSCH7Pt59/JU+crYB0y+1Kw3l/X6ZEySL43uGX8f",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 612,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 192,
+        "output_tokens_details": {
+          "reasoning_tokens": 86
+        },
+        "total_tokens": 804
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c1babcc4a48e21f5\",\"npc:dfe009183e09caeb\"],\"constraint_ids\":[\"C:c529d6c572df5fec\"],\"span\":\"In canal bridge, the council recognized Daro as the Archive Speaker.\",\"rationale\":\"Daro is recognized after Mei with no relinquishment or replacement stated, implying two simultaneous holders of the uniquely limited Archive Speaker role.\"}]",
+    "token_usage": {
+      "input_tokens": 612,
+      "output_tokens": 192,
+      "total_tokens": 804
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d7cbdbbf1a836b9c590b175b00b50405baec64699171a429085b57e37f78ba2d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3849,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 609,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 175,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 829500000
+      },
+      "created_at": 1783851500,
+      "id": "7+wEozioliboAsWmYcPRklGpK4lJd5trVVrgaHctlkiwv9SaYikEIHpafCQ2ESFftsZqR+zFTrhLkbg5NTTHiPi8XWOPUyAzc6vchuUZQG8zmslrH7OZye7AyKtIsv4fNnIx+qgjUjyYOlAcf+Qm+pTwFh5965DVF2X1MJpD0A+GcT730fCKpaksvAFqeR/1WZR+TNZEIXg8xzCmPNfwG80MOTs+xjTCvmcKwQ9ZP2Kcvisd/4JnIw978QMOODqDcyMlYvnitdP2VOqHgApks2CLDy67/Jq7za9VSIRXSTI2oq1BUMKfz61R4TMNdPFdWvERYsyUaG+4pIY05fkD7nnTJ0Vu4k0Nh378HsNGidL0tfJl3Pccwaa9hRUAqmoXRIraWmp16oWyaBPp4XOIJtwmO2IMPw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "C0l3giz5WLbtKS+HVuU1xxX/ScfAtuj2I0b7Y0T0XUpqPNUt2HY1WxY9rU67KyxHY5X0FRpx0wmkXHLA/ddi0TrLv1j/m+ATVRb8+kNd0yQl4UrIFKr3Mh5TKDROaaIT+cxcJzf3WlPDRwKsQNSF3DzR2gwzHmVRMFILdEHjmGWfETBWgEbyEz0sYPMw0mVjs5v9KQmT5gui4H37ZEmix2UiDLYODweuIakg4Xki9447g0ZwqJzcsYZOib1QW0QvFqCZOeMcH1Kw7fcIUTaeo1sqGNMnHLQEAkjXvXEEOi7TI15W0qO7eyg86YudAFrWb3oHMglFPBevWRQPrdd9VUiXnaKOsIMqMH/ixnBzWotNH4sV6ExlHea5/4Pl45kewJrmnsKSG2bE5gatKArVNkYH+dY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0be64e21a35abf43\",\"npc:978f45241dcb4a7c\"],\"constraint_ids\":[\"C:fe7dd244b3a32ed5\"],\"span\":\"At archive hall, Eli was formally introduced as the Warden.\",\"rationale\":\"Tamsin had already accepted the Warden title, and no relinquishment occurred before Eli was introduced as Warden, creating two simultaneous holders of a single-holder office.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "LbX95/ahtcCdT8R52y3iRYxti4NkFOh9tEVpRxpN7yyy3ZDZAVPvPm7DlOgX+IIi8zgRQz7JvL9pF5hwKiTBRyPM64J/jo9V1PPzvgVXUPIqzGKK9ntoKuvFo7NIgPBZpWeU8BnUx9aOUoPwtfwPjHdSuKeHhmY9nGHhiQd4kFTTOiJA0NQKKhwu1lckYDcUEBrBhcQse+DpKgDxYoo+YNrEXBFvyTHe94FzCSo6xpmCp00jwE0Z3C25kAxmugXf6KghhiujBXXqM63wha+vXuWU+iF6ueCnr87kbCEXEMt4F44CCx5ZvttA6sDmDCw2Y+TVyP/673LkkhKFEvt0Sp/IwHoLLxExEPzU80x5dfMj5ntglHxOAnscw7A/fb+KNq2IywOQVEI1SfjmPNeRzLjLKc17",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 609,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 175,
+        "output_tokens_details": {
+          "reasoning_tokens": 57
+        },
+        "total_tokens": 784
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0be64e21a35abf43\",\"npc:978f45241dcb4a7c\"],\"constraint_ids\":[\"C:fe7dd244b3a32ed5\"],\"span\":\"At archive hall, Eli was formally introduced as the Warden.\",\"rationale\":\"Tamsin had already accepted the Warden title, and no relinquishment occurred before Eli was introduced as Warden, creating two simultaneous holders of a single-holder office.\"}]",
+    "token_usage": {
+      "input_tokens": 609,
+      "output_tokens": 175,
+      "total_tokens": 784
+    },
+    "tool_calls": []
+  }
+}

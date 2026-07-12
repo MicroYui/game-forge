@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:55a2be925e795226dd112dc3151bd753dfd80ca284f1205fea421611a7e67d1c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3103,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 666,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 143,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 762000000
+      },
+      "created_at": 1783856100,
+      "id": "5gEk4Fx/my8uJmQJTja8UQB0uY+x+cyRdB4MVdnz8XSKTJ0/g3f4oE2ZFdw3tLI4AeX+lPR/3SGwdoazDKKx3ZAJuf1qySyHG5RPf/qG/VgPGN/7GwIVRcCIWVxQBf79JcTTy7QujagPvM/BPaur1E69YmI6MPVjn9fcWTAAli+6dDZolxBKzBAEkInI7eb0JU0l/BmAcB43v3x/uToLeFaLcS1rPk49smn66zRb1eMoPyWRWUcl08e88qxthkUal3jNE8nZTYmJyW79Q5hUeqky5Ov1rd6S9RVzO9PouDiF70VEaM4QMKezTHNUPfUKOrBrvFZuapxO6O6bLwqh3DUM8EpDDeg1KG/A2FRbTojfZgr08PbqstKA7DzST+wjWTZgZWCkeOxA86kFaRDR5o/NG32wJA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "nHmXzau3S5ASFrTlztNoQZR3ryH0/oqO1L2X9IxGMPdw7CCOUT6yK3rv7MdZ7toGJ5dFUNZ9CYduybF53h2WnFu+94DbNPeX0u02JHDEZzAoT9iw6xNW+CetdwAbq6VOcnyuDvStf0ghWvgFC9JUU5zT1zmXFcuZIFhaREYe07XJZAmSWSQMaoPwFMKx3vYLps1LJmYRhXeNcrU03b+YxaLGL8dHezNckLm30Ga/K8yC7MHnwdVwYsHnbwKqeaZDKdRgRRsSnwRll6AFg3ZlNOeP8/SxzVJBIJPYQVYQFyl2JQGVaPPiLf+Edrg0xRfYlUmWZr82K8x7pH+ZErj5oLthRFHK/3A0J083LQIHrABfVWcbsNI3OQy50ADfqMfbr96oAenQQTQf7z/D/TyggMwmFoI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:16bfcd79cfb1fc4b\"],\"constraint_ids\":[\"C:552a10c6fc97dc25\"],\"span\":\"Qi disclosed the protected route to its pursuers outside caravan court.\",\"rationale\":\"Qi reveals a protected route to its pursuers, conflicting with the duty to protect routes shared in confidence.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "V+V8fYiRWl8MLPpY7ZnIgjnVeD2gPQUaxWSseHRi8iwLImvsBWStxqu27khfXhtXT8wEi8Xj5yfZChRJWcFr7b4lucLWt1SYWD7zeyMuCfKuc7IZGZGOS1KvcM7PlS/Zgqnkvi/0m1xfehhK4deNLfBn3m7hiUX53/14Y3tPHOjCmFbgcECZKkSjZ9Wpk9ioGt1aC18gu3Pb0Say6858ls5aJUPEBSvip8/F4KCaAu8wkvSeQLCp9tcIh9Vp8ctm7hKAallmhQtJta1DKfftz5/A8ahINJOiymiMDm1bnlhTOL2+0dQF6NnUXX8Gxrr3qY/F3MrQ++JyMgku9Zt7LhIoe6oNeuia4c+7LtV9IwmmvQfQLcE/7SzwpFpmICuUUExiL/VKh0hHrkPdd5TwTSi1M8dg",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 666,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 143,
+        "output_tokens_details": {
+          "reasoning_tokens": 54
+        },
+        "total_tokens": 809
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:16bfcd79cfb1fc4b\"],\"constraint_ids\":[\"C:552a10c6fc97dc25\"],\"span\":\"Qi disclosed the protected route to its pursuers outside caravan court.\",\"rationale\":\"Qi reveals a protected route to its pursuers, conflicting with the duty to protect routes shared in confidence.\"}]",
+    "token_usage": {
+      "input_tokens": 666,
+      "output_tokens": 143,
+      "total_tokens": 809
+    },
+    "tool_calls": []
+  }
+}

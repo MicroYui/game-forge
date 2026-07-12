@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:12b50fb471ae8e896ad29d5931a67a423d4a7394b06daff603c806c3a7c57371",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4089,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 614,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 191,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 880000000
+      },
+      "created_at": 1783843300,
+      "id": "lVrX6CfDAEJXG+9su9Eyqgqrnp0eGH4m9rGnziSR1jYGeOihLz+395UFOhC+cHxa7sRodxsIC3PvpG7E9af6rhiW3A2lYSAJg03IN553RUarC6Tv+fC5b3iryoyxVlg6XfR4TXWkJ1LnSN4SdejBsXgEf7Y4GME/4FssTFu5DaRdAC3w6cx8g3d3vl5BaYgjX0NEpNmwmzo97doAww29brx0WCT09DwJzVpAlQsdRXWUWwMVvVtnSHNwUrSJv24EqcXj/3Snprvjuc+97nPMhQb4G0wTbfZHuW/t8d6d6t9zhFwjPWDHnHDq2aJvAjK1bLYlx9YMHFBzMusEFCYQnBO2Y+a/kide7KHEjAAe71XE/vvTA/v/geXJW+UNvAtu+HZlvtReMqC8jORY7bCJqeIFxVSoaw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "sb7D09JfFJfaAZSaMr4Q0/mIW+PfjJAyWP8nbE+snKrgKFFPD24VfTkjYn9cq8q+KnsKppnmKlaFTwxGOBGEIL707sgHehcK3RT6a3NUmukjcF88ZiY5aN9EaKOrH8AuHvXNjk6f8X3NlokJM/TGrn3J3wjJkzX/BDBb9eOkbktS0qbpwJSCpsXY7jsTDOR6ChGlETXMYW36NHWBlivSLCjS9FI1hQhsNbhEipFIiIt8KA8rnLze5uWQpxiTddwNv4d+8RcqjvaGzgZVL2/uNFyqYHn12ESBfZ2yVe9VM6+AMau+DuqTVaZOq+zHI0UvG3VYfg+rNCmGQzNKflMKMInY3u91SjnSrSSgvr9N8cr6e62qUljfOnpeh/L+sSIox+azwa/MqVb2vpFEjn5uePhcJX8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:60e5d85461086c48\",\"npc:96f2c3f69a984519\"],\"constraint_ids\":[\"C:beeeecb45d87fb90\"],\"span\":\"At old mint, Mara was formally introduced as the Harbor Marshal.\",\"rationale\":\"Qi was already recognized as Harbor Marshal, and no relinquishment occurs before Mara is introduced with the same single-holder office.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "eKxh6hC/AJ2c4bY96X2M7UoX8jOx2Yr6eTJ2yagYx6Kx0mEEwWqvWsFseV2QsIFhSQtodlXcJPPZh/ghIFndTslnyt/dFTlEhBGGe/4aqL4wolN/+IQGej2/zbI4GzV2RpmKpsaHLLngKqVmLdShRKRCJxcwRkKUb/rQSLJVdGWX90FaSWJX1uHGwwby/U98Mr5408ePLCRhTffro3JPKDQcJtiGnth+m94ccsy9i3nsevoH7sWQ4Vz87Ug3rJ8Q/IuNVhIOwbnFougCZ+jK26Z053NLt6jmoJYUFjUx2J0+tlTjHxjRr7aFiCO/B2a9Ncw/5EBRRZUlKG9e7Yhpx4UfcttAvyLmC2YUd9PDtD/0rEji3YwLF4jXHM3K4jynN0NuV0zQ1bgleGi0upJoO67nWgkO",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 614,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 191,
+        "output_tokens_details": {
+          "reasoning_tokens": 85
+        },
+        "total_tokens": 805
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:60e5d85461086c48\",\"npc:96f2c3f69a984519\"],\"constraint_ids\":[\"C:beeeecb45d87fb90\"],\"span\":\"At old mint, Mara was formally introduced as the Harbor Marshal.\",\"rationale\":\"Qi was already recognized as Harbor Marshal, and no relinquishment occurs before Mara is introduced with the same single-holder office.\"}]",
+    "token_usage": {
+      "input_tokens": 614,
+      "output_tokens": 191,
+      "total_tokens": 805
+    },
+    "tool_calls": []
+  }
+}

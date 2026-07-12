@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6f7c359b7d135d3211de926b594725ac3775d1071e84a1ee0970b9ee9e5c2994",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3672,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 720,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 183,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 909000000
+      },
+      "created_at": 1783859600,
+      "id": "EsQwmOkXrmrlydIrz5mUUCRUbVta549B7a7Gqvhp0mwKr/zKTgxhHJ+QY7wAO3Q9x3JIohCMe2g7VpfSjVg/yK+RBU/VpjzL2oYzmNyHFTZQC+jJ0wZwAgOsHme9z+yyxKlAi2xhsgG92PSDVd16TQN7jF8v7hHkPImPXUanYJR2cCexU1lfkM3iGaRyM9tY3JTYMIPAPhHWUd5qBB2nION3e19L5mfG+3+IEituE3cKHcM91tKx3ZCKGvLf9I46D3+bS6byRpvzhTGY4dDysD4FXZiouVVe3jRt0cR4QedfQGuEX6c2jc0FnB3fXg9pOkVHcAnllk/4idlaRzhNIo5/MtWBm3eK76sMIj3SrFcLkztjaTBNWjOk99TATOpF/ykV4Oj+5jJYJv6u7Kfl/cfFkUE18A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kPSncLwhgyfQj9sOygXr9HzzQ7bmh0/d0qXb6FG8cm4WOrZ89XxVwSe+TXxfrQuJHfNS1oMV7zYBwdchtsNIlnrR7HLGrezrAgYrEK349fuJNeIJ6bvAut/8KYuGet1rQIU7wzioOjzLE0xN0GK6aXkd3t4/EewHcUvbPGZGtv2m2RRPx5SI+8Z6+KnbObkfdLOqdsi79gBH1XgllEA4C3/pjljOoreoB4p9VGy3cNxK6iSqDKIrDHOuQVR5vzL1PMD+OVAASNk3KPvNdI4nA0a4Lr10CYOto+mOHgAyN0vyYCI7vHNOWtqCvd1IF7OoIimtuhQ4UmtD0584jdPNc11qmz8yazckNFLaau4TLOA5XlFIZf6FHBHDtuxm6VWBoxlWecywld+a6Rht5U0Tz574dAQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:85263ddb9e81d0af\",\n      \"secret:1f69f74530ef3915\"\n    ],\n    \"constraint_ids\": [\n      \"C:0b1b8dc63ab67091\"\n    ],\n    \"span\": \"While the story was still in dawn patrol, Ada identified the vault keeper's allegiance at eastern ridge.\",\n    \"rationale\": \"Ada discloses the vault keeper's allegiance during dawn patrol, before the permitted map unveiling stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "L42uSw03wdFXLKScA9kEP5HOYTfKSIuiAwvyDZbZCQf8NS8n+mCcgGjKooJ94oknEQmOtGG7tAm+UGOcQDvV3oKiLHZq7p/f/a8chMNS0HPxDpPrUJU9EF1yByBCpXEB+ODiIIZ+porelZnrK1BupxQ7xoQ87LsGfAowJWpJCGB0n4L1fdDQ02RAaMrUHw4THeQ3HbFF4CXg3y5WMS/U5bEfLW6MAofpQUxgAyuE7iLU+UWXFy7ISn29Clain7MnHaC4Sm1WNMTPU0wSvKU+zAj0rFilEDk2KGcNcoN/o0qMD/PsNm+ip7lU3EeHwIVySHMKmH/CNMBvHnUK8BD93yDt5m6427Ij6JotB8FNv7PlUgkw5TUH/xywmVqiDDs3dgcJeAfQFt9XyRLwpOBeH0Y7a51E",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 720,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 183,
+        "output_tokens_details": {
+          "reasoning_tokens": 51
+        },
+        "total_tokens": 903
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:85263ddb9e81d0af\",\n      \"secret:1f69f74530ef3915\"\n    ],\n    \"constraint_ids\": [\n      \"C:0b1b8dc63ab67091\"\n    ],\n    \"span\": \"While the story was still in dawn patrol, Ada identified the vault keeper's allegiance at eastern ridge.\",\n    \"rationale\": \"Ada discloses the vault keeper's allegiance during dawn patrol, before the permitted map unveiling stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 720,
+      "output_tokens": 183,
+      "total_tokens": 903
+    },
+    "tool_calls": []
+  }
+}

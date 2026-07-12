@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e00e97b265b5a864d0a0047c7ecda4ac5c612749279d01d0bb598c1f1a05e6ea",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3839,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 581,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 806500000
+      },
+      "created_at": 1783857700,
+      "id": "FvaMkpTyjOHJB4lpPr5kSkVTehNJPvQX+vjf73CY7K71GFwrN0FIcFjVrxFswhhU3mP6i30eH7gt+fX7WCzlqoGzPQDBdlEkkF71i31kqZ8tGXUv7WWvv6525AYQUbP1m25aP3kcXItRipbytG57Nk68NktCiDN0WEUFbXVWf8OyKtNaqpZ9lhXP7bUYEFh5rh9G1L2Lswyd7aket3u3NzCjh4pffxy2DuXcX6d1dO9dwyyhy/fAxfByzXJ9k83y98jIQQw3ceHhc5+rC+ek7gHvKqIwNoSZsUSTcM5wJozjzYP6sgD6jx/o67M398HQ7p+7Lm/qe40wTGdkXmW1x05aYP4O6nDla2cOtNHN6vTS/lTcmE+ewNI45dYLbufMVrR8ogcB3F/lg/E9C2brbETC97QF6w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "mVlBoD5ROWLKkz2sIXCcVHcxoPut8Z/F8Pji3GfEVP3HvJxGVR+e1iyc2Bz9P3bCEDHSpO+vIaGBRVUcz/fYZgp0h3XmaNlwZyymLTRZkIkWB7OdNpmyd+TqudGJF7liELRu4lS5t/75BsQ3AdVypJvU5mRPDJgcBpwoBxNSWeJn4QALHUyAWjlFNtwlZ5JGZ/vQ5AjGrtvhQtuIb/2I4jyDgtsHa0Fh8HNq5bS3cYYZv85/xXc4Z2BhqjWV04oQgw0FsGzmG2LJ36WUvznfuRO/Qw7SP68CUkDY8AjpnuU6mbHiVtYTVh1iK45Dz+C3yXcKaK0+Yf89ytbZrZgqp+Mfer8+/VqQ05nTqc3rDg8dSzWOwGk10UN6AwksFJ4BxtEolsZNMXPjmXjS3uDGaFihFaU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:e7d0f8e2b06978ce\"],\"constraint_ids\":[\"C:ebdde2c8d8b5b963\"],\"span\":\"Ivo started a fight after the delegates lowered their weapons at river market.\",\"rationale\":\"Ivo initiates violence against delegates who had lowered their weapons and were therefore peaceful.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1CjGQXKlEpSbHSl3hTA8SkUDrbfRTfHYJ5hN8r1Aoc67MK6V0ocg1cJcn0XnBlIxGzq4zUYq8gCs46RqtQDdtIKwIJcRgDUEo8CFOjT9Y6DMKBcAKI4g5cgH8V52mIWfxeAyKPrrf1F0D5ZdFSTR52wDQ3TTvNJBYDBt2S1oUgUctgRirBedmZguWrzKOQ2LJIcg8HxxovqNYGvL59LGmhpjjxtgetDojjsHqhEvclSUcEdXTuSjuf0F81WFWAzAaRIU8j2Wrnk+tFQeSeeA1kPac3DZAyUanxf3yEKWVjnZ6FpQXMNrWThu0MzsbuBoHV8jqYR0IrVMzag63gdAvzwKSjRpB1Azn/i2phoxY12bsWBv8XYgRgK1GIB2tL+44/TAlriRGwaXt3i3bs+DakaCG7Ac",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 581,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "reasoning_tokens": 82
+        },
+        "total_tokens": 753
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:e7d0f8e2b06978ce\"],\"constraint_ids\":[\"C:ebdde2c8d8b5b963\"],\"span\":\"Ivo started a fight after the delegates lowered their weapons at river market.\",\"rationale\":\"Ivo initiates violence against delegates who had lowered their weapons and were therefore peaceful.\"}]",
+    "token_usage": {
+      "input_tokens": 581,
+      "output_tokens": 172,
+      "total_tokens": 753
+    },
+    "tool_calls": []
+  }
+}

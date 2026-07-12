@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bdc1c9c80e60669af52d772cda5faae8c840b04a3690627a7da62dfec9d430bb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3780,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 628,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 211,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 947000000
+      },
+      "created_at": 1783857400,
+      "id": "zXJ+IyKXJjNbNoW+8f+2lZ2JsNbBBwdRQhaN4UaMaTZ4b14lQqP6Gt/XQK9zTvaPEk7gYKWESIYJ4QN2njKUT9dXU6Qub8uNxQvsXd61wKi8/RZSOeR1xbcAOOo3nvKrqAultaak5qyiozJW4zjsPf96SbPyaXrc8UWxhBLBRskvejOO7pZeNuseCjDezvhqB2J8ZnYVioMirxdp7Pn4cbUVmaLQZzAI/WnZZR0UQ3SkIqI/Nbp/stwiv24DbxMwK0uiyKTtDh/kX+OT8aHS1c5BfrbRm/mVfG7QmErzWVCPoUhpE8ffwaeKAfXNSqbuRcxSB8BNkhqBn3okfNY1elH4M2jpderndpGBjSbbvAnBxwQFXdKWh3luWo8mP2FPxM+t6/dbEE4Dzji7d6NMsowpclgpTA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "tz1L+3p9QzfdBdqc7BHWrNSfw0PklYpfPS2grnjb40zTpY/Gj78Qiv1C0a3aZLkXmqjyz9GMm1OO0/nJPQ1Uk6h+1bJ2c1a5oyPlCqCFDDwdQB8AlJ3zeno30Yif8zESPL9ojLw8/S0ez7dWJu+dYBgyUJRNzLmGKQxmBF6/hLw0MWvbBCKC+dFQNvatuPv4vG++J+aXyKAhy4r4H4VOxV7W3u8UNtnTIcp3/HqQV2DsrXmEorSj2+rarSOfb/9IFOpbmCpHF7mgBghr67k1Iicdn680Z++IEM4R+EsC5Y+a6/hZZpKTtgVDbcVAtSjhDJ/Lhls1mpBuh8K26AuuW8VDQX90wjuY12ZmAq4coudcZadZGBjEWBaIEt6DRF5S3ArGJZ0FYP8NjY3YeV7ZO0GJlyA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:766a36a184ff2986\",\"npc:ef96bbd7588c3b1d\"],\"constraint_ids\":[\"C:bf8a490896c0eb0e\"],\"span\":\"At lower court, Lea was formally introduced as the Caravan Voice.\",\"rationale\":\"Lea is established as a second Caravan Voice after Ivo was already recognized, with no relinquishment stated, exceeding the one-active-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "DXAI5BYWGPFIANlA6sdEkggElmyC6Y8FSAkKkGrpIVOyqCr1TW2a4293t3Vz6nSJEMINYH4l6780NLO9xEZ7VUSeK9u8G9PNMuG8DhQyyaY8pksWczvQNIm1nWprKXeZoiyWTieflHizvbRL6PzzujIAkQjPNJzTQrgcooRlVaQanBb8ZUV6uuiJXzpj3tk51ejA4XeZZYFeJTrySqA6c+C18Yi6qoykDzRlO9x6vvAC22zoxzjDwhzr5KfMUKEaWbb18ba/AaAnNYdR6+AQ4mEJ1J1L29A7lqeFGM0KA1OTnKZGaE1KnO/WC686ii7MCogfU1aM1mUq1m84vxn7qmKmrd1GaLMWkFpeI3zPliCwpIh2vJwq21VevMVDYwsMbFYfpNZT+1w4NKpcIRjRB3lsiYRB",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 628,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 211,
+        "output_tokens_details": {
+          "reasoning_tokens": 99
+        },
+        "total_tokens": 839
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:766a36a184ff2986\",\"npc:ef96bbd7588c3b1d\"],\"constraint_ids\":[\"C:bf8a490896c0eb0e\"],\"span\":\"At lower court, Lea was formally introduced as the Caravan Voice.\",\"rationale\":\"Lea is established as a second Caravan Voice after Ivo was already recognized, with no relinquishment stated, exceeding the one-active-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 628,
+      "output_tokens": 211,
+      "total_tokens": 839
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5a4c6a413d7e6254575a1a9a8fe2abdb5363f15a658288c423b5161559464945",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4263,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 546,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 222,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 939000000
+      },
+      "created_at": 1783853300,
+      "id": "ShhBx76c92k5cyhC+1reOLUaVu/33sWSHtw3NXmSmkesMnUZMa65Jq1/WvR998/0zH0eEd/VHvH9F9qbXi7gI7SU1HEfpQ/qAmQI+L0LftPJFI++FkHnj0EC49fArf46fvZnF8acI8RkEdrz49T+JuFNzDlA0OOjuq2BtCUSu68JYy6bODxbfrK48odN+wsUodgJZjBaDMevURhSV5sZzUff0Pow1NV2IaE86uHWwzd+N5AyNGiVRah53AhNa4x1sPxS2YrPi7VInS6tGvuFcOO/vw72ASXMEl9/43aHHrT++85mFqJVpCnkRTH+xg04M7TIEhhlXXBZ8NMJAx82ZMCSW7R66meAr1SpgSoisuQ8TDBzXALVWDHrg0u90Iw/Lx5cAsWi+R+KUJCYK+xtgYuAnb2OFw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "QTE8OadRrb+vzJS0l8w6WJbY6Kkfq9IJLS6cceRm9AlgdpN+oVlqsmqvgVeVRa+og3SGurYC6Svw4PVRiSbNFXm0HXDGz14rgY9TAXYNAJY8QGWT6a5UYgMVxHp91dYXEmb+IixqD/C/o/AgNy/0eOBwpPkEElULD71YZpY8Rl62mZ7aC0QKvS7M5rHNWmJ9qeTe4t59bstkT7+qHmvBH8G7lc846/CW1wlwivkAxqF++6/R8v+K0j9WuZI78/NXNSdb6mXS5fDxyxbgDNwfF2S4/JCsTRi4z0mZO8H8V6HJGkyLPaPgTLIcesqeC5UHkiH9agL0v5ox8AVMT3N+aqzETIcxnFXIfMrqNHrjUBMG7TxkSKgjYCMxTm8VFd7NFLdOCN9gJ3YIUQOUh5ktkv9OKVM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0911644cec6bcf8e\",\n      \"npc:3207ff82244b4d36\"\n    ],\n    \"constraint_ids\": [\n      \"C:2aa7dae23642047a\"\n    ],\n    \"span\": \"Veda signed the register as the Vault Steward at eastern ridge.\",\n    \"rationale\": \"Veda is recognized as Vault Steward after Oren was formally introduced in that unique role, with no intervening relinquishment, creating two simultaneous holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rULX1HxGhWsVBm2fF3og8Ymd9GYHo+NZCKNHOAa+d+b1NZYrGXpAi9BJKkvoxFU6S6yKLPC4x2/DYJx8ZS0rJnd6yYsAwFdzxfKFdqBuRnYCTXnxnfPcSTls8AykQVoDRQerosI2Tyv3HB71It/tQ3tqOXA+up5rNBQ7gbLw+ThRR6gY42lUa3xjOE/9REcFnX/qsrRoxdhMPVv3V111U3bClmcJ0beaAxMlVWEDH5j7gOIdvdPuioIbFOR/pCP4fi2AMg3mAXlnrYQsuR/mffzB12HF+aeBjn3LYE/+Y4nbnqxukzJnft9JuuaxJjU4tQmsOyUuiWNlevTPUKYlpdZpIgwuHx58cakBHLfb+Nsa3sdYI/tCW4FeEc1s8gUPduD7ZcbXsoR4lJMXOoixWFXY6QLr",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 546,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 222,
+        "output_tokens_details": {
+          "reasoning_tokens": 86
+        },
+        "total_tokens": 768
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0911644cec6bcf8e\",\n      \"npc:3207ff82244b4d36\"\n    ],\n    \"constraint_ids\": [\n      \"C:2aa7dae23642047a\"\n    ],\n    \"span\": \"Veda signed the register as the Vault Steward at eastern ridge.\",\n    \"rationale\": \"Veda is recognized as Vault Steward after Oren was formally introduced in that unique role, with no intervening relinquishment, creating two simultaneous holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 546,
+      "output_tokens": 222,
+      "total_tokens": 768
+    },
+    "tool_calls": []
+  }
+}

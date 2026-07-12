@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c460f017e8d7bdce99675f4d107f7c967e52d092a57cf4007c7e709f15b71ec1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2741,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 643,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 143,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 750500000
+      },
+      "created_at": 1783860100,
+      "id": "3/r6T+YAJGmC0Kg1q4m64mIqviLYXKgn9w5x6oxHEcalYtL0qZxF6bnyhJ8q/cBH0pgBbBAXXGPLyTZCbxaYFwpXESB7ez5p6FEYyUm5Z9hxvm2OGPE07+nd/Fw88vNpcGZcy58iAGG80AjYiocbElTZSkmuyrWCJ3NXDW74BLIgmr2eYk33pMVjrgVt7dTmdpmaJm0Jn5rSphoJIB22mfyfPwz9T/iFjoBWYtu8S/VPICVie+sklc0lh6/piVy7961K11WLnEZVyBaUQxLhVBN2nTb3L+cGRvzCjHPy6LiUkuEOceqcDnFv922kDX7pfgIcUPJ/Gk5/Tv1xt0L8e5YpI0qNajTSc/ABkdgA1iZAs4y1KHwA6sskavDZqbujA1ohnVM265V0UVXBlPBMPkzQcRG2pw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "7Dqjj+gRX8b6BN17hslNWmOVfFA5D8JlyIgWkLMnK7KxnnMXRZhm4YDrJUTULESB2hzE/8VOfMD5w923VCB6WXT0ux/NSgbaI5hbwsRHp8VtUEwdleHQlOhFhteUqSuqZu3igdgjaC5SdEEoq1/Mr9iQDYZgpcMcjsY8kpo7Av860nMu5Pm+X9NWgIcmKZl0ihQl7ZT1GmnZOqzNALR4eMuifp/VWcB26/XxwcABpxH/e/d4jiJVQ4tvAy0Bgwd2ZQnWLP2gb5k4dRqR+PViAM7+u3o9GPPx4wr6oyo80HW/ieuu689o+60+G2YrwpM7AjcELlFHQHCtqtDNDNIp/KkuW1MLi4pAN/WnAgEcg7yJb9k8W5ryCNFK+VwjGra+DwmEGo1CT/w62HZA50AdspIbqlg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:77137bddd50059fb\"],\"constraint_ids\":[\"C:93322f36ba6fb9d6\"],\"span\":\"Tamsin started a fight after the delegates lowered their weapons at north gate.\",\"rationale\":\"Tamsin initiates violence after the visiting delegates lowered their weapons, indicating they were peaceful.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "hRMf/XyleQ8MDGTVBVmz0jv1LUXPO1IZPV8CH5I5jBNbgPLrCZieCDzidrIqZ+qW2AtiJu9Bhxnu6HkdDAbnriYg4HXbsoFi64wZ80X8CAwah2fZXh8jLIP3lzNjRGlQbCQKuExYtMxgSFk6PzXEukFW+2g91P2jEIU+v/QbD8Lp5oQeUQqudPwTPYuPBA/wT7FZGgqgyj4SGUmzloazrVfxn+7D033xse67rRLzu7l6n67m4vAf8fMXf4XfanveQOKvkHA/eJrckrdh+g3Wn3iMQ0CrbMt0BHnIbByjMqoTtgce71n9dKcC+PE0VUWcQlABupnJ0JNNCRX589uVIpkthn0AZE9+Bt58H4unZ8ty3fmF3d5QSCswrVpNw4Hce+1nDcG8zfFdDEKLdVDnY/fMCG8C",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 643,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 143,
+        "output_tokens_details": {
+          "reasoning_tokens": 55
+        },
+        "total_tokens": 786
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:77137bddd50059fb\"],\"constraint_ids\":[\"C:93322f36ba6fb9d6\"],\"span\":\"Tamsin started a fight after the delegates lowered their weapons at north gate.\",\"rationale\":\"Tamsin initiates violence after the visiting delegates lowered their weapons, indicating they were peaceful.\"}]",
+    "token_usage": {
+      "input_tokens": 643,
+      "output_tokens": 143,
+      "total_tokens": 786
+    },
+    "tool_calls": []
+  }
+}

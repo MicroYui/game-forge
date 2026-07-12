@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:aa8689be0214852e2bbb0451794d2a7a9508f3d2888bd3ba9466293b8a8bbe4e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6644,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 566,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 403,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1492000000
+      },
+      "created_at": 1783843600,
+      "id": "zZffiEDIWWajOJAsu1tax3RP+BersdIu5orAr5TDZNu7OYF2O9lq0QyEb1GLm0FqZVx9QDfi3KDIsZP4DiIqp9v9Vgh+v8a8GyA0LOfWcp2keYXX19TfCmBcR0gQygQt1C/GdVPFP3tT8j7aCIZxq0Qs5AHbSVN4dSABE0vHWbPbbhNyDG20/O+MP1UPfcrb9hiERLLb4cO73HyVt1vsQKeb5gZE5qJFB+pOGVhxFydiI8uO4S8X3tT0pa7O1Urau5Zcy/37d5/JN3YjZIVjE5sav0GLBud/Y63iTlWwLRNEc9aYuQHP05SS2Dwcj5vNE+e3hTace1zGeJ7WHlr7pJ/QY6QUfywqJdszBMiJjV58NsGCj0Uv0VBr+9qF5+5z/bvqJfRmLFJZ0JoCEUMu3wGT4BMCOA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kcH1aFGqlkivkq64nKecYU3FxlPAvhiSbBcPlkTbnX1RwDLIgHB+CVNhr8c7jqpes4SYe8ZT3ts+cC8sjeGBDKFbQk/GxIntHEIZmlMEdNyBwVd6QF9X4qBFpP6+boYJvQApVoregqEv2SnCmKvLzx9N8AjLRjTzAQSImvYdV69fGsQNOL2OwwF8J8LX1NfnlAHQm7OXrOOf20Vc8RKhvA2FXUwF5n+QjW1iZDuphdwZSO7DJfnYg4335it7OYizNkE5Vms+ldC+a2S7Cg6UzKw2pYJiDwvDJM2mqPy6HVTi+FYMCRtbJdRiz68rrjqClPgmMaYkJ/6QjNwOLz41XF98Q+xTpwdhDMP+CP9PzT6nrzeXwlD753QHHXLrTh2DTDEYBIaHMeTkHx+IPPLWyyrnuEk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:1a348fdf119b50df\",\n      \"npc:1fdbf734dbb3153a\"\n    ],\n    \"constraint_ids\": [\n      \"C:d04ac6d746ed53d3\"\n    ],\n    \"span\": \"Veda welcomed Oren into a shared command post at eastern ridge.\",\n    \"rationale\": \"Veda and Oren belong to factions explicitly at war, yet they cooperate through a shared command post.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:8b743f89e5612a0c\"\n    ],\n    \"constraint_ids\": [\n      \"C:d1b92dce0de1ef2d\"\n    ],\n    \"span\": \"In desert waystation, Lio returned the reserved rations to public stores.\",\n    \"rationale\": \"Lio returns reserved public provisions instead of delivering that aid to its intended recipients, conflicting with the stated delivery duty.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "EylJH4d1ytsd2CFBe5FH2JIX6TxYr1DFLKU/hhpBljvGxy2KJ7bPJWKQT4v3iybCh93rn4WnKbFFt7/mZzz31vtU6HrYAEazvWqk8z/Jak9PHyK57APioD4nQx3PLhnMRVOLonRYaw7dolA7DGz8CCYOJNK9UEg18z8phvIBVz1p4P/+nwgrppX+602pUUnuhw5ZyjFGANHJmrQskbZ/WNpyDfvXoLao2Rv9cHYQW2XUdOeJAHmxgAysonWr5ZDPqY2BrUdphNHwJJbPtzfYCPtPkq0HbxvTet3bYbGXqsgcwm01ZwA8PzvG6q78SUxfPsHUdbPriUAj+HzE+1ceoH2vNSxsZc8FJgm0biVLqNzakCD/2czui5OE3Xch87n9uxhOPNYQ9jDFZ+T9Bce0ZhxP8R5P",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 566,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 403,
+        "output_tokens_details": {
+          "reasoning_tokens": 161
+        },
+        "total_tokens": 969
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:1a348fdf119b50df\",\n      \"npc:1fdbf734dbb3153a\"\n    ],\n    \"constraint_ids\": [\n      \"C:d04ac6d746ed53d3\"\n    ],\n    \"span\": \"Veda welcomed Oren into a shared command post at eastern ridge.\",\n    \"rationale\": \"Veda and Oren belong to factions explicitly at war, yet they cooperate through a shared command post.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:8b743f89e5612a0c\"\n    ],\n    \"constraint_ids\": [\n      \"C:d1b92dce0de1ef2d\"\n    ],\n    \"span\": \"In desert waystation, Lio returned the reserved rations to public stores.\",\n    \"rationale\": \"Lio returns reserved public provisions instead of delivering that aid to its intended recipients, conflicting with the stated delivery duty.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 566,
+      "output_tokens": 403,
+      "total_tokens": 969
+    },
+    "tool_calls": []
+  }
+}

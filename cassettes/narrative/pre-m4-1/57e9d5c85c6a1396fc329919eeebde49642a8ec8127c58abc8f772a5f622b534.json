@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:57e9d5c85c6a1396fc329919eeebde49642a8ec8127c58abc8f772a5f622b534",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4604,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 711,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 286,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1213500000
+      },
+      "created_at": 1783859100,
+      "id": "0PjDiOnQI48i2dsyXSUlUralQ9LY2IPcQNGtk+GILBkDyPEjIrVLvbJcyO2Ob35+HSmlGubFhxi8ifoWhxoSsUVMdTgxbXn/SYw9rvYXfRaDtXnrp2c5nRiqquP3WRdHpXLqyn8CppuJsWvN41qeCkQL0KdWFVUQOW6BDMlDo44iDOZshq3+DZ2glKegk/I8TFQArfQx65Edpq2RNwwHQYhDB94roW/VlE0s1dDApHYG8qIrdV/mkScF8Ycuffm+v1gBCUosnQtiMNzsfFy9a+MUCHaCvJTd0YQG2TQYIUj0rBAMESS5WFwLKcG9HjVUJtVvkpGdW47tho4o8v0BLpBt3sXq4ZrWp0Cs3A8ueuLcauHB/o4NN7zMi6jY2soPc7c541eXMTVmxuaEoK9l7FwW5GcLDQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "/Bai3H4yHLfNo8oN63TulhYgNKJSCn2wgqholJT8AtLLsWCvQdHru75g76n+E9lKk63eUYpcWgXdzRLOvCL91WSQDnby0LYBh1vRfX/BBFHGuDvtAM36TfYDX3GO8ceCziYrHQ8MBrBiqO5L5ZkEfThvCZR1bVLWO8cOar+jxYCCdI/+xDaXjzxRkNHrV+7EJfPr6s9cwmOuhkoPQNuI9eDs8+nnBLOxppH58culzhMmkP3J/ZAuzvQIQ8hbEBLERX3CAG7qr5PwxKK3D1DxrLkyt9/KB0GGk8I94Kf0BRmG51LK26eJ4poD0j7ZJQKumbT0lRBFzMIT9QG0m5V3WgZn0LSMA307l/YCHburf9GF1SXJt+hEGuAbqvocuvDEuYwTxKhbPSaXvFkOPgzHnwb5PI8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:460b8d7a2a3293f2\",\n      \"npc:9e1d1fb7cf90a6e8\"\n    ],\n    \"constraint_ids\": [\n      \"C:fb201aee62cce2ed\"\n    ],\n    \"span\": \"Mara accepted the title of the Vault Steward before the assembly at canal bridge.\",\n    \"rationale\": \"Mara accepts the unique title after Qi is already recognized as Vault Steward, with no relinquishment stated, showing more than one holder.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "M2sqoH7FUSDrQUCTD7kWIhPqg2Qw4TtbK8hNw+rMt4OOnjeAc/Z1DDoBDiRHqScE3eRVdgycbKwksar4TrRG9YRNMJyhuYMgfsAHhR2e4DcA1/5EZAELGXFpuRuk7ogDIGRuV018so0xbP0lTmTbSaFkp++thGQR+ivZns147wSs9zWrodwHTj8Loi6UY09sfOYZ4ifo7fbeTMees7SvqCP+q+C5TBr6MnPs94X4Re5RqdSQ4FUIazHsJDCpKafPV8sqaTZtgErIti89KeMq0fA4q5A9lII3lPRq9zPM8mTMH/Achq5RsxzfMCrormQHlMF6bE4gfdJgeuDH7EaZqdjlfB9/zuV9hR6Atu6jS+jaoMtQqagCtPaS68Tii5MBhyImYFn9WzvCa5OMOaJrzaaENg/d",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 711,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 286,
+        "output_tokens_details": {
+          "reasoning_tokens": 142
+        },
+        "total_tokens": 997
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:460b8d7a2a3293f2\",\n      \"npc:9e1d1fb7cf90a6e8\"\n    ],\n    \"constraint_ids\": [\n      \"C:fb201aee62cce2ed\"\n    ],\n    \"span\": \"Mara accepted the title of the Vault Steward before the assembly at canal bridge.\",\n    \"rationale\": \"Mara accepts the unique title after Qi is already recognized as Vault Steward, with no relinquishment stated, showing more than one holder.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 711,
+      "output_tokens": 286,
+      "total_tokens": 997
+    },
+    "tool_calls": []
+  }
+}

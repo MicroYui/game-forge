@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cbc9fd68cf760824b01a1d5b3e585c62c854002b2bbfbc236fe4cdd7c4bbdb7a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5473,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 631,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 244,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1047500000
+      },
+      "created_at": 1783854700,
+      "id": "UEPlSV/H4AlKEbuYJHR++T7dLpvI5i1toamMcdgQlY8eoJXrO5ETzzTtcZObzh90cbIKDX02WVcLzDBqk1VJzLs+9p56ecfvYnnmygepPFygmjdVl11TuthjisRGVCmLZLxeImCjsxc2lDoxFhnUO95VEDtW3SdfZyxoYc86HBR9lGwS0+k+mXnKhZHav3LFvuiJ0Vd19yljPAfvWx0W5BQ7C2OLxBDSvuY3pA1OoyQIHBTY24rBzjE6xyH3lj8pBtYV07+T8uHeV/BOAEpn6lIecwHJ50Ho7eAqMNkL0kn4K/xB6NmZUPMinZIQ875Zs5YNgQYx9VwtTt8+GIbEWOxy2ASi7r26/nFeBjPSa35IUj1Qq0Tr8tunY8qpjJImqfUqbx7Ni222HeZ2BrWmOkSDdgudIg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "cmM/sA69MdAnmw8+fHelUYQO1EJAzLmj+6v3Cq8ybX3spRnv/tW1oeHOWLUU8Wm8hlNWQAcSZDmA0XeB3tDHX2k5aT767tk8rla9AXjbFHIjSfLTb1TjPYe9ipPf/7l7w6f8o41nKavFg+mLTwkEzgT4snB9xScUAhWK5BrnYTC+ng8utB8ciVi+oqvKRdESnaXN+ePXWbbDe69ncLfI3EjPU95QHNYds+dDCRLcyawcogSBVYA8bqV6fHX2TQn1Hf+fU69e9DXhyI71xwx+q4Uv+jzpJTibYg0CbhEQ190ps6MmyJIgSSUFC9l7XxOuDQqS5OAAQNnEHbOJ9VPPzFKtkI0oFjSzI+BVLALwQHWesc2pPG8pN72SeTzyfkYy7xVhEw6FLz3KvExdsv/8pzzpEkw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:946c91a029edd62f\",\"npc:a634980e2072e401\"],\"constraint_ids\":[\"C:820b5ff6a2c13ede\"],\"span\":\"In old mint, the council recognized Eli as the Caravan Voice.\",\"rationale\":\"Eli is recognized as Caravan Voice after Tamsin was formally introduced in that role, with no relinquishment stated, exceeding the one-person limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "cpDGmndZxRZaTt4HQoDpoOM0WwhvcaYv/6P4ry0vx5lIA5+bldEUhNRfev4AwyyjzznBs6VzvULxKo9lkyKEd7V7oD0tHaat9zbu8M5EXD2mPH1q50G+LSKLbBegVYXhgdhH30wVrVSIBowkrERcjTx6UCBj0bS6UsZxGCXTFzMVtKnhjgEWN0hORY7Da+SUOh3E33kiMY1nbZrEkbl0DRHZ6QRolsh09hFj8nGT/lD+pZsf8cgVRe9woajeBwIc97dIZSRLLFD9LrnRR5aldYmmZsCpG2VWIfCu3H5t2zPGz/0pvifGhbvMhoohWsoJIGQVS/krrqKa9pHlHYVBRq8cS1Yr0Lm8Zsw0xVwvNbG4jp12o6YBBpsUdWWShsECn6nYeIKeIGgJd6iFGTGbl9qwW/oW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 631,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 244,
+        "output_tokens_details": {
+          "reasoning_tokens": 135
+        },
+        "total_tokens": 875
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:946c91a029edd62f\",\"npc:a634980e2072e401\"],\"constraint_ids\":[\"C:820b5ff6a2c13ede\"],\"span\":\"In old mint, the council recognized Eli as the Caravan Voice.\",\"rationale\":\"Eli is recognized as Caravan Voice after Tamsin was formally introduced in that role, with no relinquishment stated, exceeding the one-person limit.\"}]",
+    "token_usage": {
+      "input_tokens": 631,
+      "output_tokens": 244,
+      "total_tokens": 875
+    },
+    "tool_calls": []
+  }
+}

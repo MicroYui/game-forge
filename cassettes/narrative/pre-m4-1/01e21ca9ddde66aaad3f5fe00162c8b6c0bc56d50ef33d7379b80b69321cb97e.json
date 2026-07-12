@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:01e21ca9ddde66aaad3f5fe00162c8b6c0bc56d50ef33d7379b80b69321cb97e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4630,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 630,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 230,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1005000000
+      },
+      "created_at": 1783862400,
+      "id": "l6mD5gL/2K+BtGSQ4s4iix+0zW6apRYFWiU8L6PQC3062jDem6wN5gWBGK+a7mWwwlXAbHTF2P/PdDMUV3SB/gAbjB6ReOmbAHw8RG86GQUftVF1miUTyH6CT7xs/DjWChxlNm4qvFYWgmQG1UyErbImAvoi+rOQyrIof/FKB3ZF3snCRinOpuSr27IxH+9UIa8ieFQDegEEL5RbLMhJyu+Lv5ja0xGkiwnQuV3WNvU3PtdumtSpkFLfarkhoOu5+7l/Tx5G0stPFhgi1xbBPENk3Fh7O6SJpBQwEez2UlPQCabFNyec5QNn2ucZoJDEEzMY4a23DQ0iYfkOjMyE+gkUZwRhwUiSsbzcdcU+AP1r2cguI0Jp6K3RdnCrxtMkbFmhXPuoRymfgNtumH52kJK81i8Ltw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Upc1mIprLKhavlNSVbXtnA8xRIRYUuLP4KoJRMS/+vmUyNIA4gyMUbAcVoajwhexTWKKQ6YSwUIcRie/CRoNlyuOz85boQFDHh+Qgtwo3Z4s2OVLA9ql4ceXNcNzw9ELSvG0prw5pH2BImZa6vXRoA8d82aN205PasZI9sdsFQPtROsI4lJNd+8Tb3JnqeiDq7lxPwBi+EX5cAV/DRAPcF6/wrG0g1HvuiQEDBOB/UFzEmNNl4sIkF3Hwj3cIwOQv23cV03Z3VXscFTxu0FS5icRLt/6NT2i1DstxTyhEkQOGh+JAUW8tY9hi59pB9vWqVi3ujOj+9rl2LUqo6M7HBvaKO1EyK5MJ7O8GOnN/3cT0zfzEb3U4c6CLn0YCXpIr6OcnOAngW2JJbjL63J5StbIcqk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2386d31b106317fb\",\n      \"npc:a543ddb15d0d3198\"\n    ],\n    \"constraint_ids\": [\n      \"C:fbd04f68860830ad\"\n    ],\n    \"span\": \"Ivo accepted the title of the Caravan Voice before the assembly at glass conservatory.\",\n    \"rationale\": \"Ivo accepts the unique title after Lea is already registered as its holder, with no relinquishment stated, resulting in two recognized Caravan Voices.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "PsdINjCtlE2g9ljfsnESRaqmZpKsrfGvfmxrQVOZhpWRY/eHLqXYsUcGjpHEgAoHjqkY9nsuWfLgolgZ95mjMkUGU0KIXy2FuNqrC93DTp+l74/Tm6yswmPElioKD6QBO5ZfNbiuYfTJet2eR6zEAX12XDGIdqPEwE4Lr/tdaTiByXPEgYXjZvmODApBgDl2Fhs8htGZrXUpkGjwXe0ECW6wZxXVy6FVZYvWkOMcHkJgclb8JNXwB5G5WU05GxQWYA3nIgA691m5zKGWSQJGp/K9to2+cu/H5hq0nGZao6ruFsZAPKxjMEq7+xVZkLH35RiWF8iBq20pbPXlYYTEal32q2oihKGPI52V4P4aVNmJHOAlZJn+1cWkdx6IluqLd5gzKn+s4DcAyLr+jZ69BYy0PMSt",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 630,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 230,
+        "output_tokens_details": {
+          "reasoning_tokens": 95
+        },
+        "total_tokens": 860
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2386d31b106317fb\",\n      \"npc:a543ddb15d0d3198\"\n    ],\n    \"constraint_ids\": [\n      \"C:fbd04f68860830ad\"\n    ],\n    \"span\": \"Ivo accepted the title of the Caravan Voice before the assembly at glass conservatory.\",\n    \"rationale\": \"Ivo accepts the unique title after Lea is already registered as its holder, with no relinquishment stated, resulting in two recognized Caravan Voices.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 630,
+      "output_tokens": 230,
+      "total_tokens": 860
+    },
+    "tool_calls": []
+  }
+}

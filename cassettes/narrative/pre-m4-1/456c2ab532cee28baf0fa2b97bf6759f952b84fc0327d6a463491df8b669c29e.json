@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:456c2ab532cee28baf0fa2b97bf6759f952b84fc0327d6a463491df8b669c29e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2948,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 632,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 177,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 847000000
+      },
+      "created_at": 1783841900,
+      "id": "1UWbBVczAx4PG7nJYMDgd8+UzrHRUhqiH+/r3WbHTu1F+GDbzLXtWd2bWTTdE9PJazCJYiWdUdz4NLFlPnmWRqk1J/a0uelUeUSduWmZ+xHVwK9c/bYC/2UweeKoE1/1wW55dqbAz62gmd+zQkdkrfqOQUOmck1zKY8+j/yIPQdI0svezBIsTjidEETmgrw7UTSNXci0/Hw9hVGYCiiHg7hZqhsGPqQ4KAOF5IqgNTj3EAfO7bHWWDs9KG+j4U11qBV45LxggosfMagMkd2T2+RJnNGDosMieHku2TdneWhGYfXu5O+kMlsFLZI60waw6DyC43unKSGH8M4Y61QftmHusNJ7JIfRD0LZNU9pYsf8BRABMmLx97rKxBWq7CVkl+MT6b87N2zYPyA9nkqEfcHFTTjnvg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "3MzoSuCbHf9QoRUuw+UrHkJB0jIuP+jluunUVoUKWDWrljsEVNJcwbB+jvPQGBJF6ZqgYr/c/hwgacNi6crxVYs0+XGPEPY7Guz5brKvUtkEUO3vqni75NtmqRvP/ouaAIKwc+/c06ZhXX+zJzrDmVQWo+KFXsSK02uaMex0zKddSWZM92QDqPD2g9rulMbRe+YnI3qY4oMqCVadiFeP6EYMmugxq55l5uPV4aYKU7oHJ+bXNcCAFMX4S7gJ6z1FxzrNoCUkcvF5yZk4n8LCSu12hbB4mKgsE+EoceKGqQq94YiFg8R/IgzJVtcEWITPkrxiokNffhuPs1o+uShyFYUr3c1CFzgQaDwBGKMxuZ/0kR88oRavmQiAUZLDf4g2nsj1g4NjNiAuGpqEu8o51AFDOJo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:4d5b62a7c8fad421\",\n      \"npc:ac616d01a7aa5eb9\"\n    ],\n    \"constraint_ids\": [\n      \"C:efd1dc6c2a3bbcc5\"\n    ],\n    \"span\": \"At river market, Ansel and Iria signed a joint battle plan.\",\n    \"rationale\": \"Ansel and Iria, members of explicitly feuding factions, jointly approved a battle plan despite the rule barring joint commands.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "FR2xBXMV4yobzaGB/lCd+i226HVPE+7F9/gRr5u0QFWzL0jW579xvj8HNArotSxVnCHCoLWxqT0ohhxejjbmyR9jCR/Wqrscmrh7qGP620qx5NYmupNZf9+oJRACDUndvyaEk5iVl+By53tHjSNka6bnt2L98lwSxkwxZFdmv8+p9AedgMCdNke9zVK1LT/PEySQzZ2dlEJ5MTSXcXTpQhYly/zUJjtmHmZMOLJXs95Ax4QjbchPjx5oo3Nu04Ov+/OGpLRHmQ9qJSPmlgmAEA7cGldOdqGZi2zfG/Vx28ahEqlk6x/9uDYaeLcsjBqNmA5PmB06BY7VO7BfosfG/bPrOCwFZ4/h9BMuPmxgw8i9rwoPHpmWUmLtdlUmG4KeDAhj5Ypn1ai+wuR9UIBi1ux2Eq7I",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 632,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 177,
+        "output_tokens_details": {
+          "reasoning_tokens": 38
+        },
+        "total_tokens": 809
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:4d5b62a7c8fad421\",\n      \"npc:ac616d01a7aa5eb9\"\n    ],\n    \"constraint_ids\": [\n      \"C:efd1dc6c2a3bbcc5\"\n    ],\n    \"span\": \"At river market, Ansel and Iria signed a joint battle plan.\",\n    \"rationale\": \"Ansel and Iria, members of explicitly feuding factions, jointly approved a battle plan despite the rule barring joint commands.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 632,
+      "output_tokens": 177,
+      "total_tokens": 809
+    },
+    "tool_calls": []
+  }
+}

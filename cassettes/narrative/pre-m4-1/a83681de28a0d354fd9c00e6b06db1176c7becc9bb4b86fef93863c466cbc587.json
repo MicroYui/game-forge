@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a83681de28a0d354fd9c00e6b06db1176c7becc9bb4b86fef93863c466cbc587",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5439,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 669,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 331,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1327500000
+      },
+      "created_at": 1783853800,
+      "id": "4AIhPiZkyCUAsUdd22sw5mSAdjeWpNDhlOA2rQVnWV97y7Q6yPPuxKTdgLsgzkGaE/6WNUJKlqDi8bZEqafawlZSBJIWxQUAUSNWu46oCXMbRl1sP+aIDoCOfygNYVABICIRp7Qtmhamr52qb2b1AoZANHSuqNTW5Wi3csFkROxzzefXikcLVhdDqPZ1jA3yp/vuPi6XvI4EEhpv9r5ZoEEz/oOSs4lZn5cFz5mo329EI4q1+faqw6YISF+HvdwDAaSOLs6ur1sWKlF94n5iaoC+Owt4C9x4o7p80vOJNDzIbtjf/u6/fZDi7YSfdZacrZo6ZWva5Gc/c0zHYwXLiPUJZHxrOwEHzzWmarDJuaiQs2Jge5Fd1gPABZO1R2u+EmBMfdiJsd2GUKxmLYFTrYouKDwyPQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "M9CLxLwjUTFZ/Gw/W0YyYkR64TuDw44cmvd0QyzYXK78GKxaaSRfNE9EkKj5iIpMyFNK+yfSzweMDLZuPijNue9RGqwuaff2VTBwZhr0VlDsUWU5mSLQOivK0nRFQKHtPhIqpW3ZN6xmem6UkdcOCd6eHunY7SJdJ6VH3c6q8vmOOjQKClvn3gAQO+Nj6bEJJP5PhmjFjNHgAHnFbC+MQO43khlPusapZSVsGfrjpyg3i4HiavNdkbh/l5TMFzR1zesOD111I5bsIUn8n0AkqpXk+NdzkBqbZqUO3EgIWPG25A4y0vSr9EZFHBBXjhjLEyVIkmLu+xWgJZNFfCzRgFK/ifpa90XFP3QlcAeyipkaRhMN9frKq0sGyxMmH9j6QysSTUr+pgT04t3QVHEIfjGVwWc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:99a29c1c6f91f52a\"],\"constraint_ids\":[\"C:b866a7fe71be20b8\"],\"span\":\"In north gate, Qi handed a confidential route to the attacking force.\",\"rationale\":\"Qi discloses a confidential route to an attacking force, conflicting with the duty to keep an ally-entrusted route confidential.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KmGf5b8q+Ho7mVnTzpuTu1XQNgyb9SI2vsREeHtx0YiSUIrfjd1fSI+SAk165AWayf83hKk/NPqf5m/x6w9fUY2EBCqVeyw+JVRjc8foSACPvCm2YQOMHgJ61AEfewE3BnRxvYooH0/c4P+ImjBxoES7G0SLDEs2lAc/NB4ggS/F27sVwo+brrleD8a+f3oDxyvO+MUEodymnfNOPDAXiTNMxOfdb0PTN5iyVDb9mu8PrxQqEvILfW5wf+fJwKWJaSdK8FHzwiJaamogr2v1KdLrUDVHBOMgoxsOIwvJ/9TiYCSuhlMqTuxLH3+K/AcNrb1I8fv32q8V8mb/dmBCyq9LTFwjRjlS5WgxhIWFtUE6tzWSCX0ghreEJA3Rntb4NXOHdmfZNbI4kLoJwP3wjTTAuNSd",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 669,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 331,
+        "output_tokens_details": {
+          "reasoning_tokens": 234
+        },
+        "total_tokens": 1000
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:99a29c1c6f91f52a\"],\"constraint_ids\":[\"C:b866a7fe71be20b8\"],\"span\":\"In north gate, Qi handed a confidential route to the attacking force.\",\"rationale\":\"Qi discloses a confidential route to an attacking force, conflicting with the duty to keep an ally-entrusted route confidential.\"}]",
+    "token_usage": {
+      "input_tokens": 669,
+      "output_tokens": 331,
+      "total_tokens": 1000
+    },
+    "tool_calls": []
+  }
+}

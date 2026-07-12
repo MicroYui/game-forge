@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e2f1611c9971f064b0ebed1eec812dac1d07b08fc436dab328fc8382a73502b3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3984,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 546,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 151,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 726000000
+      },
+      "created_at": 1783844100,
+      "id": "IYJSjhxynET4RY347gGG+Nbk92I0CBRend/42ZC9KleTPiR5NCwfGlDBXlUGF6Htk72WImfUyr0AUqaLaeJWpz0t+RjQqgIZLlpQVekI3qCGY5WPiN/o51pKiLbe4Q92dcJ6f3wjrl+uTJQCGwpDKsZVOo7PIKYv8AxqYda8wP4LqOwF2a4XOHWel28fU/4cCS0F1RHGbPVFMVZgPG8WasLFCZGwBKFXhxN/SPWKWGdXVXZwFkezlMLGh0UrzEy27Y5bAbnCTiV9SSFNaNZ6kb73ISoqjtHRBYMTyzmmyjK2VhkxTEOPR94HjHBsr59UJwJ2+OzH+JDRL9IZQEqrbvhkcxETlSueiH73Qagm9POl16OpizIm6B58eu47Qunf8F5pgjWuPDWDJyqH8uL2oFgt6rvcvg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "dHCKNxPIYXZFu5HMiI9+Atk52e+hh+nKS2j8ECbFyMHNQvME1sQyksHGt63wxxtRwXVL1LRHg9JIyCkwTO4lpyL6S3Yi0qk+J1okHVmcl6/Fn9/V34m6XdmVNT2IR3pJ84eRXNhQYTw4Tyo3hortfQq75YO3wglRfDgfXLx3Of/XwtrM6qQEslnX40r6EMpJPNj7tSAt0XDTjRXzDQfzD+3lXAL3dMEfqq2LmqAHp9lW9kcojqDnw9rcdeyNZZ2NCnNeCvKRZT150Rl0PfYT8QgeMYkeAkiX6iAVi03uMz4i7A82BcFCRbJJlVa8KZMP8gBQtDTTqPlXoCqWFAmeyAYBcBIgEhVCwuAvb6UhcS/tn+HDs/y53TlbTurDrtHwIWH90Poars62pBak5gLgH/aZdno=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:1d2a0951cd4451ce\",\"npc:89a6e031e932ebe4\"],\"constraint_ids\":[\"C:8c88ed08ae91ada2\"],\"span\":\"Tamsin fought beside Eli under one banner at lower court.\",\"rationale\":\"Tamsin and Eli are assigned to explicitly hostile factions, yet the sentence depicts them cooperating in battle under one banner.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "3HZWIHwlnMO9Qkn3aDEzKbfnzhS1wVJZ+m/uIaV41/6kFdetkFEUGQB4IjcLT0Q+JL+0BHyHMbI85zUee4PXs/VcWLjrN1Rv8wCW52IOMFi2smnp2r8SBY/SW0t0TpLtUj2fuhM+39NGHilb1+No3u2JE8FjW8rUX76WTA1Hr1vZIoYyl+fsKoxGS8qyjyZIXsCKR2/y28kTOyIb+ztASI3sMz64MXyA69lnfJ0uuszJfoB5y4bAmBhK5tl1zdf5RhzrgGuaY9vi+YhVXeasAtKj6lOyx4Q5GBXe3Vx5i9XQxOHoxnCTiZmGxpPNwaB+5JUM0NmvHT62zzCl3AJTEUYlmPDkX0UvfOvHfRgCijAI9JMMufRrbb9DPJ58Dh51qXf2IthJp7cW+HKv7KgUwn9b8KcN",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 546,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 151,
+        "output_tokens_details": {
+          "reasoning_tokens": 46
+        },
+        "total_tokens": 697
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:1d2a0951cd4451ce\",\"npc:89a6e031e932ebe4\"],\"constraint_ids\":[\"C:8c88ed08ae91ada2\"],\"span\":\"Tamsin fought beside Eli under one banner at lower court.\",\"rationale\":\"Tamsin and Eli are assigned to explicitly hostile factions, yet the sentence depicts them cooperating in battle under one banner.\"}]",
+    "token_usage": {
+      "input_tokens": 546,
+      "output_tokens": 151,
+      "total_tokens": 697
+    },
+    "tool_calls": []
+  }
+}

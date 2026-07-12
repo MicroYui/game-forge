@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d77ecf98ce01d05a1646bdb2ee421a2b8a743c6a8228a7e2f50405115b88b6e6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3621,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 686,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 138,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 757000000
+      },
+      "created_at": 1783847700,
+      "id": "NCtqyDdfQNCkBRk/seiNHtJ8gduGmahWaU6Cr2Q13OWmILgdxZxFdSXpzecgnG4/oH69GcLZmJRFinbL9ab0Ws/og6hYPVM5k+8UMvDqlBkbGP7fQsgthYxJ5aFfnJImR9n9UjvC1uS5b+EaR/NMNIZ803srXvvK4AXmRUleS0RANNs2ghu7P6CESCFOcGbIEfSaCajFTJDSG+jecxHalld3ite8kcr1Nc53bq4zHlGI9xF0CMgo3ja9FmtfbAkb9kl3dZ+GkTGoJXF8fft5O7mGqD/6aK6PqJ8ZIP/wCQg03/AMFpnrJrZJb4qHZb2By4fthr4Juuv503TwyK8VE0GwcZNBN0MBcuMiwMLigXZm2gDAqzXHJjai3pA9WQ4oxWTWCXOM6OML5g06cGRaydRi3liP6Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "lWJMgyjgI9uj5PCMoIiwgZzpiOtI7evPnLC8bAGWwTHC5WSOwmtiZoVfBDNqJBOn3bJOQPgMqBZKeTobMRhfatw/hQiep/nmnBV8B6ZQ1GK/myuCF7Ma74WPkgQJyPs4S7N+s3OWsQB2RCMHpjQJQrpg0srf95FE1T+Qqaaz+1+QIBhPEeJIBdVxdI63A2qwXme9KpbYwP/QdDPRQlEdrVKtjLtrZxN8r/t8AlkftD05C+uzAYxQjVa7tk6KnR5yiXj6xsHFNheoX3ODidcKMUDSt71I1jtqDkg+xz2wPsc8nX7GT48qO/BC7LuVS3xdCGAblZjtYKG00Y6G7NABSKYZFrlRw83PePcpwkYDqYm255YWjt4RI6Ca1PU6+vI4bVMtQsGLDxh8KmsEAGNyFuRpKc8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:054a1793c5244958\",\"npc:e79303acf503c59a\"],\"constraint_ids\":[\"C:fb45d8a4311c6f4b\"],\"span\":\"Mei fought beside Daro under one banner at relay deck.\",\"rationale\":\"Mei and Daro serve explicitly non-coordinating factions, but the quote depicts them fighting together under one banner.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KET2rVjGeWW49l0U9U9Sr1K4et9x4firh3v9oBZSLt3X4s7+INlAiiY1f+Lzxb1zAPvkPkTr64a+QJXBakTeAcYFVO9mQ8WfKNe8Vx3ctQD7zwD+qv1+8TYwxF+M16OtK4O53livWJkyEUO9M34sCEN/qx9Dw75sI9vK7kqlDRn/qjUn1ekIWN3wa23qY3ENdtpWul9LxAr0i1p+6BPLfLVh23hO3VscwRnIpvnm2S/Op67LFhp5Iv2R4xFWAox1wUxL+83J7qQNyNTUK6jPEKEVda5dQBoGlal6tKiDZLI1Hp3fxarFY+3DCgm4bvG4MN5Puc2KTpR6rDZ3I6yG8/mPvB9jX5sIH/7u6HlEJyNjxtG04INp4AdQVMNsbdwvMbigdRS8WoT5Hh2HENY8sJUjRagC",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 686,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 138,
+        "output_tokens_details": {
+          "reasoning_tokens": 34
+        },
+        "total_tokens": 824
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:054a1793c5244958\",\"npc:e79303acf503c59a\"],\"constraint_ids\":[\"C:fb45d8a4311c6f4b\"],\"span\":\"Mei fought beside Daro under one banner at relay deck.\",\"rationale\":\"Mei and Daro serve explicitly non-coordinating factions, but the quote depicts them fighting together under one banner.\"}]",
+    "token_usage": {
+      "input_tokens": 686,
+      "output_tokens": 138,
+      "total_tokens": 824
+    },
+    "tool_calls": []
+  }
+}

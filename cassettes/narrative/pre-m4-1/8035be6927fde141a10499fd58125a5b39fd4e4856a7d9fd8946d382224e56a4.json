@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8035be6927fde141a10499fd58125a5b39fd4e4856a7d9fd8946d382224e56a4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7112,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 551,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 364,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1367500000
+      },
+      "created_at": 1783841200,
+      "id": "VJzHXf62Y/Wed6B1jVukLxUZOUZyaueTog5FZyEYAhDcqr+QEj3t4ERSQqNWM5VjfFHJFbJ726f58Lq1cFlllxK9QR2OZTPIopKViF7JliXPMilzYpJF1hdx888Y1EC9H+XRo/5xinbseUcs6KBIiCtYYoN6ACfBBPNmJcAYUY0YZhbORWqlIzHhloBDvRm8o+VnkB+HQiI6nChmtH/aBO3ofk6x5w55jLqW5Te0zFqXnas1ZswHehmVZzF1SjNouM0iQSEbcFVDycmKOr05I8eqolDbaAdIpOxzFFz/kTftx70KUalBY5ZmJR0zeTkVaHXbDHLd7ItXgMBSJCqMi/ch1PK78rzlwtjDNPRWw7zvapLwcP2Vy7eC3lS3eVT26h6YBFUi5Ke9HGL3jlWM3qpqXHqaUA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "uR9+ushtCtHoVf9Qo5Fc5BWjn644qZYUNSa+ZWeBRdPPX0Cz6kkQ16nHxWee1yZeiZA4EuLHyFlmfO4X67/RCAcnSHu3iPUmCRXgQ4tLR00I3e2dtbFA0hJDAu15ZnAHw2ddKBU9XmvZJ2cTYNH65k/90JTDMIO8/gPh+xTx1E5cH46vu3HlNSkLp/xeqR8ds3UYlDZfhaA/l1bmk72I2ZWLSGWYSVCLti0+iGrdlmN6d5oLGGjXcc7Xq0aF+OWERyomtonLCSMWJcGIakxthVZD9lAkBYuGOGL6Aa26AxuQ9zkdcb/xZrqRPZHjkDJcnF/UquZLi1qggOxj3W1GcCl6mvgUypSohfjAkPh9EbQ14LF1OsKYETPOmGAU/4uf70xT01EFHdXKFIZ76i6aB7YPXcQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:5e0addac68d7fac1\",\n      \"npc:671a12be874457e5\"\n    ],\n    \"constraint_ids\": [\n      \"C:394a1b00cb247fab\"\n    ],\n    \"span\": \"Ada fought beside Malik under one banner at eastern ridge.\",\n    \"rationale\": \"Ada and Malik, members of explicitly feuding factions, are depicted fighting together under a unified banner despite the bar on joint commands.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:b0bfd162dbb623de\"\n    ],\n    \"constraint_ids\": [\n      \"C:f2c4ce1fb2f404da\"\n    ],\n    \"span\": \"At caravan court, Yara transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Yara directs the recovered coin to a rebuilding fund rather than returning it to the public treasury as required.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "HnqM34SOG4KO3tdwCKubh/Vjop5QiXtQm/KQhaAPSeOH7825i31Vpaamd7g9UVySjyBJRcoRLhsP8BCi26UmpMiBfw4YHaYv5YbkB4qe/P3ePcAx6b/0+hoM+9LlDYHZzBbex3oXQ65FGFgmySaTgK5wMy/BYXjZa2KqLFterKHjKK7vof0H5+ZGVpG6jPjbZ1zLrUq1RvO3lFzUQcjkxK0PxPZ2b2gw+I1rFr9TSrpfVxCHzzNEMMiohnqvgAFDOAGbOViORugjrhd9xUxX55KKYoEB+tn6/aTQFh7rKKZdughZIyKoxiFq1rc8O3YrgqsrANBEQSnDC7po5bJcPCl+/+AQdSWlsTLMFnagwSfiIHxHutbRQmwPnkBWTu7pKlHzTcuym4P3KaQxcdNB7V2+CDb6",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 551,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 364,
+        "output_tokens_details": {
+          "reasoning_tokens": 130
+        },
+        "total_tokens": 915
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:5e0addac68d7fac1\",\n      \"npc:671a12be874457e5\"\n    ],\n    \"constraint_ids\": [\n      \"C:394a1b00cb247fab\"\n    ],\n    \"span\": \"Ada fought beside Malik under one banner at eastern ridge.\",\n    \"rationale\": \"Ada and Malik, members of explicitly feuding factions, are depicted fighting together under a unified banner despite the bar on joint commands.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:b0bfd162dbb623de\"\n    ],\n    \"constraint_ids\": [\n      \"C:f2c4ce1fb2f404da\"\n    ],\n    \"span\": \"At caravan court, Yara transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Yara directs the recovered coin to a rebuilding fund rather than returning it to the public treasury as required.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 551,
+      "output_tokens": 364,
+      "total_tokens": 915
+    },
+    "tool_calls": []
+  }
+}

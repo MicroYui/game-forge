@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:fb89cc3899d789c2301fdf67ece177131bf9d4079c5e0da1ab55bc882a9de551",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4451,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 566,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 182,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 829000000
+      },
+      "created_at": 1783849900,
+      "id": "FqLc0Nm/Rk9xanUuge9yEi0s7MO6LIIhWEVCwrTAXUyHeA1kaDZwzGdtKWCkugpjDyLb9GQ0scJiDCRcuxzm1VbfNyz8ybBMPAeIuzSgrHpwx+tCNYXfqdTqoZyCZe0LqWf4mw8kqKL/0uW0bf0WbKm52puzUo557uEIMBZeyht/7E7jBlUjU6at98oJAtIsWrGzbPMpSCiyzyxnJhBF0VOAGsZ4P6303KG0KhllP60xrBTNSSPNfTeOSSbujmxOkkENUgQE3ZzP7FFD8J6B60KtfBd8LcyCjxPSIfkqIdHk+xDzEisoSsoruhYC8O0wPjiqSO2piWxsZyTudp32u/yVjSn3E5KFBt8XqgRtlb5WUUuDB5Ei77E4k/EOSDJUr+fs9docXw23Wg7b3oHgG2svFuKG/w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "OZrlrzXcyY1pLWrBM7u45VC3Ep8d5Qr7OD5Zqrk3fmUOZ5LXHc6zYHp+na2RgOHxEUjtkU07A4BacBI7TomsG0dfijtI1o7JaINQNPlkC9B6zCYBt7VJfSwgrqt7LebJ69CBrEQvhX1e8GMyqvU76hc6tqk0lTb5jPiz5lpyBAECjQCVNQyI1SFixe/LqL3pSf8sMToBLb3Nf40oiNo8W9O+7IIvE0vjKJbH2KXKofbuoa/K7Fy43GMGy+E4hnZuRMysb8kmvJtbsVmrkszzEigAHBXWvRHD6zZvtjUfb7degJx+zxoyQ5cNBGP+ETll9/rA0W0yEK/LoMWkTCVXjkDQJEp7m4pW9fhDmNtHdsTlvYRC12Yb99g3QC0O/s+L+0FDNmYaKDDQDNzggNSN+0GF/FE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:8ec0e4f5d2cec9e0\",\"npc:b03787080f1ea798\"],\"constraint_ids\":[\"C:84fbe52404c6169d\"],\"span\":\"At archive hall, Ada was formally introduced as the Crown Witness.\",\"rationale\":\"Ada is established as a second Crown Witness after Malik was recognized in the role, with no relinquishment stated, exceeding the one-active-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "tNz80PX6YlI2L+ROCgh58fskJesHHkCsnhQ5/ZnY8s7K/uU0Qcm6mH5cxsKgMZC+1yVvOEg/lN0hnxFTgnm0ozwWvqCmdgvjBVv29EYT6krTBN8CWXhNorJxAKSathmZHfeCxffV2gAsmHuZmqY/ewCxfLtxtrpC0GZTcdt4dqSeVhIPpDxX/uZsCqAYLAK2fy1wDtbeVhEUSQeqasShN+57e2ciYzwAKK0Uy0ku9ZVdW5OrCFab2nammWqac6ERaiNd6SGBL0crvON8osDllnAyZ+I96uFaoRzHz4hOfFGbiarXX0OGn2ZmX+f50vnaaW1T4Jw51Gf9WFkhXiIkVcziMIXNTg/QZI8giuSVfiomP2eIXTNfdzEMJ38YIpSiiN+iykpS0SmNlhwMN0WoFuw/eDan",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 566,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 182,
+        "output_tokens_details": {
+          "reasoning_tokens": 70
+        },
+        "total_tokens": 748
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:8ec0e4f5d2cec9e0\",\"npc:b03787080f1ea798\"],\"constraint_ids\":[\"C:84fbe52404c6169d\"],\"span\":\"At archive hall, Ada was formally introduced as the Crown Witness.\",\"rationale\":\"Ada is established as a second Crown Witness after Malik was recognized in the role, with no relinquishment stated, exceeding the one-active-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 566,
+      "output_tokens": 182,
+      "total_tokens": 748
+    },
+    "tool_calls": []
+  }
+}

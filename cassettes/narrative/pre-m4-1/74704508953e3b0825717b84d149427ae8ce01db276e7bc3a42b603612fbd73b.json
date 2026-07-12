@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:74704508953e3b0825717b84d149427ae8ce01db276e7bc3a42b603612fbd73b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 1950,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 597,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 91,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 571500000
+      },
+      "created_at": 1783842600,
+      "id": "gEbpt6ZRpkUiIk6TgyZBVGFOM9Ca2FSmitFWEPwvp4e2pPE10TCZLngtsf+TvailCOFz4qIH0+iewEYwn+osuS76XmqU2ltdjKhG6lI/n84akC0Il6h5JgJl8h/kjAZrBysWr/qxxFL6ELVqia3bzOx5m4rKjOV+626EcbqY6XXssz/WXnmR/K+thyIvpg3lg+051Yy9R+uzZigniJxktmC6ISfepmdOzJzqUTaPm4k0usSXocf7GLFoB9Bm/SCh1s9fqYhq0Uom6M9LaxWCyziPfgw95q9vc1h2ofAn1ReD4k6qG8SypG3Q+WdeXkEuz6u5TaIVOIxEUbDIogUlRpDFM81eQvKAGGHtcDE8UcmEOV+mDt5Ib0kJJ+GOLX7Bvm0fHD39Kyxq5Ri/k9oaPJ5vPR6vfQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:8611565af20229ff\"],\"constraint_ids\":[\"C:91af9f0ff985c637\"],\"span\":\"At eastern ridge, Tamsin locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Locking the evacuation gate while civilians remain outside conflicts with Tamsin's rule to always preserve a safe route for civilians.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "yL/aypD34RfDjb8KF1w+dP2rAtwyWZi4k4Qx7+qfvnxNQr3IgzxZlTFekxe7lfm8I9TNBO1mYnGvAlumyH+cdTvUtkvgNekpsEQ1kAASq0y48L3DtZ0dXLC6TCzIb470FlUDonR+rkhTUf66SdzwDcpEPp28oU6IbC+cp1zTjve6G271eBrMxy/vJeoe5UGikvyzXwwOdOF4sFrRMJj9UQwYiKtgKKtf5UexHb7I1uTl2ullr0/TW9jtfWN1+Lapxx5EDhh5AB5W5zrdjdhj5UkiIQCSMi+uzEv/AS3GcKJQG7twmjEiSVETM/8RxL7GffZfjOU9hlH90zvIQtAfDbipcfDALi97sSBXI55T8N9UllmhlFdneXy26nxhsF+7TNZYIy+2soHNpAnjXclxT/npV7P7",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 597,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 91,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 688
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:8611565af20229ff\"],\"constraint_ids\":[\"C:91af9f0ff985c637\"],\"span\":\"At eastern ridge, Tamsin locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Locking the evacuation gate while civilians remain outside conflicts with Tamsin's rule to always preserve a safe route for civilians.\"}]",
+    "token_usage": {
+      "input_tokens": 597,
+      "output_tokens": 91,
+      "total_tokens": 688
+    },
+    "tool_calls": []
+  }
+}

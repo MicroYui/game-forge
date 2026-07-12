@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:94c4e185fda2d6bf25caf20bd02f47cfd07e881b92a7754f9c9446ff752366ce",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6277,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 540,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 290,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1140000000
+      },
+      "created_at": 1783846400,
+      "id": "U6lSo6WHt1KUDwtJjhHfdQd+ufIn+1mulfoK9Bv58QbUnUmJCyK2qtTjeeh662WUkvQ+GO9yO+31U4U9oCHolZ8Fe5LdXdw7LecCrM/lBNbq7Y6S5dOHHvoHoY5fPKlK5DpTRzk51IQvRkHbKoHIbydufMirUaofFC1nBvtKQcPHAQtyKeRg8dOCtyFIZ/KfUu0yY6EBlKJ1EX81Tx43YsVXzymk40SExzmYB62XY9dMJnETDCMggBnWpHuNMeCxnEkvb00tkmgvZrEUYuLwnU75aRGJmTlU5OnDYlrCCdv6wbWmeHoV9NVK4e+LYpgDyXEkiu7v6UW++hq3J7aLEzjFkRTpPGDdVkTOjzVnWXpgXlUqKD1pJG8KBF9tdnz1TyZCMFo8vR+beu5K4SHyrzmwbMYSYA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pGEfES/wHegQe85vPHAmAokmdE+HjEwjbAJc6ekk9DuiTJL+SWBJ35naz/8t0Q37UFMzUt7ufc0/Zsxs8MIttJqwe456yRl3Q2gMU6m04avcmdejMjd5ZHHwwtTMAfLm7gwPTnj6fljjWvlOnXl5771Kr4qUW1kUuelhLKc41hgXlXGWaa5NQaDZNgpW6rvHR4GBlFUaeE8DD9jjKN/cUyp9N5PVYEtHHUojASKZSPDNSJJDqQET0rTTFizkp3U3ANgyOtO6pPE98cOoX9J56je9gyX79jOSizyFvUpwH+NMakQAFPgKtsk4ptLThlvi3+h+uo8OIo1mvktuozSIeH3s0LHa39WsyH6dETQow9wVkCrRxGiPrW0hki0RXWRdV0ZbtkgKMlESIGR1CiVTkEDSH9c=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:16458925670fd79e\",\"npc:72b1b818ca82b0fa\"],\"constraint_ids\":[\"C:1deb2e81b20e623b\"],\"span\":\"Ivo fought beside Lea under one banner at caravan court.\",\"rationale\":\"Ivo and Lea belong to factions in a standing feud, yet the quote depicts them fighting cooperatively under one banner.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "I6LNDYYsDX5gBI6HK9gfuxG1SrgcYVYedtxO0Eqmye4Rw4fx2UEfo7VlmINKD0wKegmSNFmAboNdchs+hUAHNS7mgrTJRxvumd2FyTfKI4aYXPtcjwU3L7Iuth9v91eT8R+vuoil6EGA9dLo5RVdbrT+2wu+QuVFzan/3sHNRBNy0w4HRpKfIzYdb7DxnTEEIvIXdiespPNTqmrmwHDZt7bG3pU8QcxOVpya4Kp5h6itKWmOB0q8UZGj/d47ZRr1OZT2kZ60YynmyEjnqpdtCYhLlXpGz4FFCDixc/hP30UvJ2OdlAbRW5rWJTgtDX7aeiKAJa0ls6N3HdngD14+R0rA2pxMU3rG3p/Ma5LJ4EacVuCFl1MT4oMiufgacpeQjOkDhdpNdZY2zSfgAdOEz/Dd0xQB",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 540,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 290,
+        "output_tokens_details": {
+          "reasoning_tokens": 187
+        },
+        "total_tokens": 830
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:16458925670fd79e\",\"npc:72b1b818ca82b0fa\"],\"constraint_ids\":[\"C:1deb2e81b20e623b\"],\"span\":\"Ivo fought beside Lea under one banner at caravan court.\",\"rationale\":\"Ivo and Lea belong to factions in a standing feud, yet the quote depicts them fighting cooperatively under one banner.\"}]",
+    "token_usage": {
+      "input_tokens": 540,
+      "output_tokens": 290,
+      "total_tokens": 830
+    },
+    "tool_calls": []
+  }
+}

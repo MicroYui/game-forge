@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:daf5536f9f3dab82ddd1f5a5523c05d01d6f6dbe1b7a3c70bf7af7571a3dd01b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4064,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 637,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 203,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 927500000
+      },
+      "created_at": 1783852800,
+      "id": "Bfr/Z+bk8DIx70s1Fy+DNCX2qt/ji12J9yHnWFcGldBu3B67jIWtCBdroxs/jJrkn9FI+Egkn8UpSTNCR8T5Hnmzc8aPLW8ZhlgpESTzW7yp+f6njDHfYO2Gs7DEXejne4PGZ04UECiEJ+rJK4N3bnR9ItO6INsQ2sOjAkL/nr+/KdBWqnIPHGe8pAvDIpjyg78G6Q/hpTt07YYczITFHtrKJSos57uYjMamVb8ociMp60GidOC+nRMA7IK+zT9bYPtrnoYfYIuP0T4KJhxCl/3396neOMY5+6CrQj5mlHRXvuB67KKax9XHHIjLJbKqWysZxZttnqQ4/A1CRaIgnsRDYGq3H+LeTt0KkJuzgmTbBxplqQ651cxzYT1MN/iXFIaeK/WE1mMzQFzvxNtdB4NbmswXrQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "8jitwXEHYNi3ZV9jVHFxUNpdYWm5HMnljiX1QQpDVuGenyDKV2/szhlzp1SVEmkY6djYfHTPZ68/ayehDRKONmyr+kMabj8SKURM/N2hVsK/Prt1pmQSfQs+JSRUtaShTyPFhifIBcGMWoo4fyFtP/AUOPDzAQueDLDRyory4AT9B+qIKwkRYdPNnUhFLVMRukfIDmKaLvwr5HUC2lRSpo4BecKWsgw5625Zc2sDXRLt4E2fX2K+awzhL8oQlLXjP4Nd8JDt7zUl3kiPZJwbGjVYtKGV2bwawjRQoM+lj50rA2v5wXsq4AaRyt3yWAO1MPPqYj4OJ4J0zo1YOZhMGtLIaGNYpfJfH8U/F5Vn2Y3biTS4iDzQ+ox6yPv11hHGpdxKRou5G4HBvmMZaaLRc4mL8wg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:26dbb43eb8790bee\",\"npc:cb552b62be8d8db9\"],\"constraint_ids\":[\"C:fdf44b6d5065a206\"],\"span\":\"At relay deck, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli, members of explicitly feuding factions, jointly approved a battle plan despite the rule barring joint commands between their factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "W7y/rzGy0ZACOuvDDNRThcA7kCzhZNzfh0ohQ6CgPBrEHsPz4qPc5BEHHhh+N3C0OTr6jpoBgpkdR/L+v4o+U83LiPH6VS7351co2PBgJBbKiSoRQ9fBN1F83WQu7PauxGY4omKgxMk6fHEvZJyDEOX++uRhxnf64c+aCLkZ9D+TilkrPPtKq0Edoa/w3cXNJYO+ZMuYeqdJMVM9SI4zGFyx+NS0js+SUmczMHrN4TVz0lk1fX8q+eRUoLpxpmZLLEwMOvma3BYxNtlNEp6+yHh1a3Qo2A4w+e4ooAKn5+/VsRawUleQCirvLCqrfdEClyd5GhuFLtkevbCmEBRtPmQJcdp6BrW+1KEM5DsAEmRM0fBef/EJBcs+o0U0msWlzgFzHZruK4QDJW2AMwUxPz+P467R",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 637,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 203,
+        "output_tokens_details": {
+          "reasoning_tokens": 92
+        },
+        "total_tokens": 840
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:26dbb43eb8790bee\",\"npc:cb552b62be8d8db9\"],\"constraint_ids\":[\"C:fdf44b6d5065a206\"],\"span\":\"At relay deck, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli, members of explicitly feuding factions, jointly approved a battle plan despite the rule barring joint commands between their factions.\"}]",
+    "token_usage": {
+      "input_tokens": 637,
+      "output_tokens": 203,
+      "total_tokens": 840
+    },
+    "tool_calls": []
+  }
+}

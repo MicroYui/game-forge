@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:08e3a7c8356e600aa02ceb06c58af167f70d9e9da429788daaec127c000f62bf",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3306,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 543,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 151,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 724500000
+      },
+      "created_at": 1783842800,
+      "id": "PJbRHcRD8F2KzAC8SUeqt5AHAPX93NAgF0zvDCKFscm9KubudNqfV+2VlJMpm4XISa8zyO0UWF/ripuhS3fjhifdJwPU/oyQ3an5OYkZB7SLnZFVugipK41TDDG0zu9UexkomLchSgygZ2Jj8e94k/5LmeRJhYSVKQNOgA91SI4U0j5nJXjH8FYqd6Gn/pzAHYnbVyXXh2JPQIXMo0QVEKbHBB9zdcO/cTN/vS7MD5+/8PIKCq71lYfCgDZk6OUbCuYu4us7bu+cSecRfcHPCncdm/0TkeeNkDhzJIcsCmFJ6cmCIJyt4g2BAgiLyqnDLXgen8sBmjlKBqiFEnlNdbFTKc6B8Vlu4AW6VpRfNdH7Ab/tWwx2U6d1svyC4GTaXYrTCkwVOexWmTY+pAJR74bQQ7JySQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "99ew6h6YIGfRk54Swifof0lkeDmViAGa4rlFCfEYiMJyvhoJJlQ1+r0ncqFT184V01/sViEBBv/1ZubBbQEf3W5sVjVj+qPKhEfNvu4Ip+d8Yhur2u3GXk5n2sG/SeaxeHiuE8tMKoxQ5sa5whU9j7aS8VqQXTeBl5MgLPHSH8YChHxc2q97B9Jfnapy87IQJtZumf5NxrRw4hExEzTnoI7TRWW2r05FccJwgmjE+F+FTbtRAMTBS9Zq19oqeQ/axEYBtbFM8PzNIunhI5wXxp3JO+7qKawMAnb7lc6Ib6NK8JopmZwPOnfqyquESdH9gTCH/Ksg1PAciSh47XxnjWtBAmNivQM2DM64ZmFKBG77bKJuTUkn2ajpvv3x51v6Fbg0jNrhnlaPm4DuOWLRMG7Rft0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:7be5ddbed9bae4f4\",\"npc:de669e98c73ac540\"],\"constraint_ids\":[\"C:8eb96cd451aede8e\"],\"span\":\"Tamsin welcomed Eli into a shared command post at archive hall.\",\"rationale\":\"Tamsin and Eli are members of explicitly hostile factions, yet they cooperate by sharing a command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "sDpFqJMgbYOudPWJ0oenrtqpMh0Jfz5qbfFRwUYXBq0U1KwqeykYkLlgsRfKDzpfwhxvVs/NLwy66NKLpnzxsUxOUho/dFaVv5o/7vGDEEOh5uOkMSX6C3ISzp+zrog9fHFtK/aj5sjdsbETGh0YZnT254iHiCwJxVYMql+Xg1q1qKu54M/XJprRXjJ780WOKUgDSz7qjkSRuQUnHiNgLeCbC46zTluGUPW2RHny7L6hp7ESSQZzYGAMFuTPCktnLtjQwxNbxIn6mfs5JLU/8kFw2bkh3l1Q0Xtgk0uBA8XX/2fCzVokP08IbltIlRhExlpJgV0MNCHvrmLtInlpdFnHIWhZOaO8n7Z70FwSXbD6CvSMHKFy1QZw3m/RqQl5bVkDAsg+m+FcLVYKvbwP7DMh0KV5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 543,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 151,
+        "output_tokens_details": {
+          "reasoning_tokens": 49
+        },
+        "total_tokens": 694
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:7be5ddbed9bae4f4\",\"npc:de669e98c73ac540\"],\"constraint_ids\":[\"C:8eb96cd451aede8e\"],\"span\":\"Tamsin welcomed Eli into a shared command post at archive hall.\",\"rationale\":\"Tamsin and Eli are members of explicitly hostile factions, yet they cooperate by sharing a command post.\"}]",
+    "token_usage": {
+      "input_tokens": 543,
+      "output_tokens": 151,
+      "total_tokens": 694
+    },
+    "tool_calls": []
+  }
+}

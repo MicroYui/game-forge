@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1333fc95329ccc8081cdd4194c4546ecf9763d97b5822e777982825745a03b63",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5931,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 608,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 296,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1192000000
+      },
+      "created_at": 1783851600,
+      "id": "/kyZE1tE1db0FaO2TaNPYTPPmNnKkbgFoR+xwrpF2SWxtwmI4nmtcTI6eyJ62PfXGuEi+gpoQd4p+M8MmyQfDItv1kHpA1kpaqmLMXwTKaupzkZCnr/bSZGKsMnF0WldamTRD3vQFuIumLOdP3yKgYAWshJJKnb9f7/vSeicIOx/kTbCKwhG52kxwCWT8edV3UYIb9PcPqlpc22IMs04rm7R23/Ahz6FT89zAXiYGqH8SV/qDrj3vNQ0BdtQIZW2jFq/W4Msr5qOyECvmSIyLjSMemszL1tNMQSHiEOkEbU68DLKKPUF6ggoYu2BqncilM9I/RODUSge1p8H63WghPgO5l0WnrW0XkyS4n1NwhLx7hHlYgGhT1JlSVHtpqR+yTlSUHaiYCfAcDx5eeWpwebXXiiB0Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "LwISbLLQWpJS2khkXBucXRqk6M7DBwkh3NGo5+xxPYJ8EamLJd6WTq66Sqsi+IS5yXACYGMQ+9LV/UOOmJNPy/xWi3DRFB8R9h8XGJCqgHI3937jRTGuA/1VR4Ecgwrje2oNZXi2OaBJu1U5LKSAMTfV362y+KuB5X1dBAsngOAmL1OxqMy401q3bGgyVCamC46tac3fa16RQ6Lfp0vLJemjY3Hpw21ln2Y693ZedRaH7kCg1QeXbm7puPcxiChpcwHeZO6veFwxl4otq3/NuuV9RrX4+61Pckf5CQG+OvcjoTImoPH5WSarntwTQzWEsqjmOIqESy5dxl2ky6cAU5INiRTxctb/AHAIDjl2x8nVEaCZuutQaJgcc405rdKDDhksgMXkTUPTY2EVWcA5mT8ZkY4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\"npc:f3132e0f842209bf\"],\n    \"constraint_ids\": [\"C:7fc61354f5cbf9d5\"],\n    \"span\": \"In desert waystation, Eli returned the reserved rations to public stores.\",\n    \"rationale\": \"Eli returns reserved public aid to storage instead of delivering it to its intended recipients.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\"npc:37359fb2c0c1fa69\"],\n    \"constraint_ids\": [\"C:774255d0d9c204ae\"],\n    \"span\": \"Tamsin denied the pledge as soon as danger reached eastern ridge.\",\n    \"rationale\": \"Tamsin abandons a pledge in response to danger, conflicting with her established fulfillment of pledges despite personal risk.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "01A7GHziz1PhGEazltbVXogLrljO46kLO3ercQyr0HM+FtU1VfJei5bhxMmGS16S9FKb2Bt+cNbBORHPzRvO9QGRig2dHoFaUngHIR+vBa3APARN5PKxj6f4ZdTfkSb22zlKkNlxxIC5LszDsnuD2X6yheoIj9ulKsBf41sFJRajf4ugFlZoJ8DKk4xg0LMCqRYeP86fP2WXkg224uooscM60sU7otGMe/OJR5/H+d9TsY7U2mn5CvZ5+zSUGa1YRvrTcpGsRxvjcEsqGMTpcpprUTxFAgsGU4gZVe3XC7QNcOC1DCPAsOwdu+yJw44ocF5TASZpdJPxe/9pxBbFZXXFqEqdt6qqz+EY6Ka8+mDyA8jIhPvOO85u92mKmWCbmqIoMlu8Hf4hrlxLVWZSY5N7S+U4",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 608,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 296,
+        "output_tokens_details": {
+          "reasoning_tokens": 92
+        },
+        "total_tokens": 904
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\"npc:f3132e0f842209bf\"],\n    \"constraint_ids\": [\"C:7fc61354f5cbf9d5\"],\n    \"span\": \"In desert waystation, Eli returned the reserved rations to public stores.\",\n    \"rationale\": \"Eli returns reserved public aid to storage instead of delivering it to its intended recipients.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\"npc:37359fb2c0c1fa69\"],\n    \"constraint_ids\": [\"C:774255d0d9c204ae\"],\n    \"span\": \"Tamsin denied the pledge as soon as danger reached eastern ridge.\",\n    \"rationale\": \"Tamsin abandons a pledge in response to danger, conflicting with her established fulfillment of pledges despite personal risk.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 608,
+      "output_tokens": 296,
+      "total_tokens": 904
+    },
+    "tool_calls": []
+  }
+}

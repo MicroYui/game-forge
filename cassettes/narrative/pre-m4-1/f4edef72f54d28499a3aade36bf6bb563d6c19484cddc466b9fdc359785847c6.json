@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f4edef72f54d28499a3aade36bf6bb563d6c19484cddc466b9fdc359785847c6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4508,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 609,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 143,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 733500000
+      },
+      "created_at": 1783855600,
+      "id": "5wvWs2OJKprq0yETe1SxM65kYzSVntPLFMgnKuOiGgVnqBIHk8OYxHbjfMvwf0TJrEiS3D6ILVVsmezgDeW+WHdR0JMbwscwtjbiqvmWxl5W2oS6amQ87dE2DmYbpaH9hjQJsYhV+v3PiSJ8NoGe9t9Oal4itymhn1Y+Q3fd/Fi+gTWeEnwFa6UB5Af5g3iul+WjYE6h/17UXH+OPAyq4xGzR1APQXfrxkTWQdgJ0BsggkU/BEXQ631xWAWYnXblT0Dpb6bFzZUSyDQ5426ropjZhM5ggHhm1aTY4wI26yli7a2phRldyE716LI4qRkCEgkAja3fjBUobY16H4FEAQD/m6e7yBD07NNPi8kpAEsf80kixES4F6JArl/UjKY1RqR0gqBGYSE8UnvO9wTtPZFYMa5eeA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "H6ZcuGNJH0QkNpcZleAzhLLyhEDBOphjk/4kCdf/hHnaLA8vAej6SoABOqBGor2LvQZAMPgF//ggip4MaBKuY87a8Kw0fX9dBvR3IwRCd0XF4dwKygvwdfH8FCOFt86PHVS3lwumsMcAkYDesPwIi97lXbxT0QgxZtMObpuqA4f9J8boVtDwQqBh0F7QDdhyHLsx51QQUMHKCIHV1OkmJ7kcaouvV1Xp/UBTV5zwPhqXYPgMm7a1dYtNRcaGHVne5PspKrq5mmsoD00g0B3D4ArZOnLZozH/nQBtWLPHGtY4J5JWlvIy6x/AAOdBEVw86Y2o6o2X3x/ETlJWunazOl/CTtAYP7YQTeWFQbQkyxuKVVr2ofesXbLnwzhdSEFN0OUDob6JhuXsbTFtnqLUbh8nZ1k=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:131a83891f9f3b31\"],\"constraint_ids\":[\"C:cb71caadd148cd46\"],\"span\":\"In old mint, Tamsin took the last medicine and walked past the injured scout.\",\"rationale\":\"Tamsin abandons an injured companion instead of staying with them, contradicting her duty even during retreat.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "lybB+9YbBI7PAKMYB4Pq77KojALE3D7cLVNyyjYBFsaDgNd9XcVZfbZ1drjKMufyYqbTn/zc5vKJ42wqns/eYuUvFaTmUR9fcluoIh0rbsINdU/TaSe8SnUlk7MQfjXvwJAuHOMGfthcQ4p5KqNaThdP7daYNWwugIGybV8chL0klC00rZ0QvVV1g3s4SidJu6ygtM/kb9sVsO8zx7xnkUNJn7UwqPj4jnf0QRIEBEmSJtOoQRPMta2M3rUFCyu8ubNYtUJfg8uS8X24e8/4GTS9yKVt7A4c0BixFJONXpbIzkuiAchaeJ24GFMZLBF818dEsAdoJ6SQb98AFWHXKo/plItvzEkZXyEnY692SGpdWEJcTG+fhHPC15a9TPopJj9qvA1XqFpk2LmIkzsxVPPwWl8Y",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 609,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 143,
+        "output_tokens_details": {
+          "reasoning_tokens": 50
+        },
+        "total_tokens": 752
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:131a83891f9f3b31\"],\"constraint_ids\":[\"C:cb71caadd148cd46\"],\"span\":\"In old mint, Tamsin took the last medicine and walked past the injured scout.\",\"rationale\":\"Tamsin abandons an injured companion instead of staying with them, contradicting her duty even during retreat.\"}]",
+    "token_usage": {
+      "input_tokens": 609,
+      "output_tokens": 143,
+      "total_tokens": 752
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ceb2a489c9ce6e785580ec88ee110b4ff4be6d34597326dfd0ac79ee0578cf55",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4536,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 607,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 819500000
+      },
+      "created_at": 1783845400,
+      "id": "DpDZxx+CgL2IL0fI6xQC49geiaRJC9d7ysl4WHZVxjJ+cKjxbepGJ0MKIDVjS5N9igvTC8xbaH/CEP1s56R39WWP2SWjlgAh6IlAlB8tQmh1f1NgB4hGZj/1dtGLilzqHSOViHwMcu8BW6Kl363IVRhoK9Zd7kqMFlflpLvhJfWjzfRXicuBylpK4lm80nRrXlMOqiWtqTTcq7SATjHsM5R/9IZ5Y/b0RwaHgxPcRSQ4TwfXl5PkoXGVzZh/PLdoKcl2yDbOamgslirsIqX16Dr9HkOXqyP7h7aXfPxsMkztJLAXH61CUe5JLhKv9aBsRTLicbYYTh4XSnw65PRGn4AXelCf6ZAhiIHo3o2SJ+u6wk807LVHoLbtxUa8dYP6IujtO2ZhrYIYHGlGaKpEx4OPVWWy0w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "6P4rkfqklz85a25tF87qkG+thjC6Rhul7ikaizHt8at8Juczhmgjg/sfi0DwPspkGEC8aAMt1hgAnS09fdNWs123rOeXSJ9//jrcB9hegiTbXPfqCap9y4NxKo9WJQbd0Hf3rB6dI7QmFSHqSxAQWG5Dd54Yc3xaSqXvjDe42RJhqrpHakABEh32rEmP+F5FZZ6kbOq0YQEp0jBRJ+hAQosXNJblXsscCeMrQ4K2psBhFvayxTCdFItSl5GOJ2EqhPpxZTWLNAE/sR0IF3rrhC6wLH8DcToRzb08a3nei8AIhuqqnIdFOhIPss13UUh/yB/T5qqZeX/+dplDWGU8Tedm30XPWFWE16m7lXlyXUqkvmhCUVvByfq7RIdhq5CWIu/52x7QzJ0u5KER2c+YNLSrSzc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:9ba1878c5f532111\",\"npc:a322871778e1262f\"],\"constraint_ids\":[\"C:b2147f8cbf358abd\"],\"span\":\"Ivo fought beside Lea under one banner at desert waystation.\",\"rationale\":\"Ivo of North Watch and Lea of Red Banner are depicted fighting together under one banner, implying prohibited joint command despite the standing feud.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1lLwjibSC2HTSuQwmHyPIwFARDxCxP7Us2PILmUOxsKxF5OJIytJLMnks2ITSzRpnN8XlXZ+tEp50Lm2+IRVK5Aw/K2c1RKARexDVFLbAEZFmedeHpr/6c2PShzeqvR/KAjI9f4aaB20lLvlmi0qWxQbyrHeXHC2P2fpLpYCOG01TTJL73D6L4rfhp3THZgz97BL1ip4A1QrnTOpxSZ8hiNhlX1LdmxpFoLaTCHgacecJGhfcoQ+AamRTk40Ma1+aW3FoeaaNL5rL9vK7W9ALhgxQc56zSCaFRR5+A+05zKUwxbM3CceEr05NkakpR3e/TXauDxBYJzrP/VIm0DDkQvqbvoQiN0LoWYZchaUNGk4+Ku+SbHKu9zEeTVfqz+Lmjtkyffj7LY2t7LJNJbrTss7584L",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 607,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 779
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:9ba1878c5f532111\",\"npc:a322871778e1262f\"],\"constraint_ids\":[\"C:b2147f8cbf358abd\"],\"span\":\"Ivo fought beside Lea under one banner at desert waystation.\",\"rationale\":\"Ivo of North Watch and Lea of Red Banner are depicted fighting together under one banner, implying prohibited joint command despite the standing feud.\"}]",
+    "token_usage": {
+      "input_tokens": 607,
+      "output_tokens": 172,
+      "total_tokens": 779
+    },
+    "tool_calls": []
+  }
+}

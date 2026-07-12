@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:01aac6a39fd3834e01c51cd5f47a14c858422370a74e1a31f0b14c8329e54191",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3707,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 634,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 178,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 851000000
+      },
+      "created_at": 1783859500,
+      "id": "/DU+8DhObrVtn9Ei6QXpdcdHCdCbBktUDiSrWfdiKY25dpfG7UrFnS42XEir/lmUC+xLs5thnQc/JC4ztBzTc+KnUZD/unK76RZtn3vm1sCcPmxJXXKmRBChYjMdBnTV4TQEEawEl36ZoiGD0Fmn6oHeyU4SdVX55jVtfevYwX9B74nHj00j7zDZT7XcBIaE5Htv1K/DVJkjWI41xNo9M95OFS99BvspIgcFaWYXFyKQWby/zmrqHpGggPIViR0Klr8GY314tsZjGENbXdhHe0MRL1CDyCeTgmXBzZq8lxfrDm0b24snGpddsf2LI2EF4/Lhr5ebF/HvQ5MoOJQMl5SJKplMF7TH61lVw3WtjZh6ZMOm9Ao+miGn5k+lI5JCL6NAFwq/QXo3cuMmE18MdDTO8Dk/+Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "1eiUJk0kcUj8tpi34//ci1iuKx//mfqil5kFRCWROzHi6uM0CWBxmhvBIlCv09h3TcxttyzH7gmv755HKNRUy22S6KlpOJPsacU4HBpIAHz3oFNj7u+P6lc3Bp+Yxgc1fG9kcaW5WRbGpALGB4aJwh0vNP/B1svlwl0cTJOHm3vOhjVnDXTQ27dGfFyoi9rE4qz+JHzqNgveKdqsW3/KpIkbH9RDToS0XZcc57I4Jq/J22cgaSkxKAwfOQ15bdtDiE2nG2KrSSBArrjL0Wg6bu7RnTm31J6HT6t9D+y/fyfvWoIhtqKLLx2a8vGyw86U17W13WyvRHW4Nk+MPehKIoKxAp3+2H2zeoucullltuax0KI+8HKOQ/pwPSqsyUQXOPZGL6bpz5HMGLej0DLnBaAc5IY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:27029b35814c5584\",\n      \"npc:955334385d7dd7d2\"\n    ],\n    \"constraint_ids\": [\n      \"C:f415b495bcfc0fbf\"\n    ],\n    \"span\": \"At relay deck, Ivo and Lea signed a joint battle plan.\",\n    \"rationale\": \"Ivo and Lea explicitly coordinate on a battle plan despite belonging to Free Pilots and the enemy Obsidian Wing, respectively.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "AgCnQnwRPdjOvaa5T2inXftpFI5iI+P3a6bkH+bphpwO7kOxfzhDVUvdB0q9kv08qGXeDK/Ofu4DZyRbmkdKTA9DA6Pi0JASx1js4dk/eGORz5hMUG93si5nebQDPyO6TrKAKBtovwVR//DEwK/0rtflToI1QGQE0xsyLx5bMCm8zgUpjH8PidbrQF8QKb3PV/6GJlQAT9aaLbYRVt44wzGDfXS2NMiiG5omPtu0pJts2Q/Ghr4KcGePD9WRBMlJmlNPMpTKpLqPAM5eq7DrpcmCe8RGcnUFRLSCVKXZ36jySO8g5gOwIOAhVXfQESHhsRADhd7w3uU+ePR3g/Mmfr/Pq+K7Zz71KO1M43WPv+b21uFZung1xhTF6Hl+sctV5xbHnsNBxabNJ6zsS7fWYvNvDaw2",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 634,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 178,
+        "output_tokens_details": {
+          "reasoning_tokens": 47
+        },
+        "total_tokens": 812
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:27029b35814c5584\",\n      \"npc:955334385d7dd7d2\"\n    ],\n    \"constraint_ids\": [\n      \"C:f415b495bcfc0fbf\"\n    ],\n    \"span\": \"At relay deck, Ivo and Lea signed a joint battle plan.\",\n    \"rationale\": \"Ivo and Lea explicitly coordinate on a battle plan despite belonging to Free Pilots and the enemy Obsidian Wing, respectively.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 634,
+      "output_tokens": 178,
+      "total_tokens": 812
+    },
+    "tool_calls": []
+  }
+}

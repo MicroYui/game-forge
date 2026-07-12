@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0834dffbf03041bc04235078b511b812ccdfac740242cad1dfc5a21beedb327d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5813,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 635,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 243,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1046500000
+      },
+      "created_at": 1783849200,
+      "id": "x13wgMpt78BcqbQw18b/bGa6uIZMkAjCKrzJSn/2tKS3nK/jXk/OtGN7+NOOs9Z9mnP2t51uVyzWx2+KJ4WgtXG7TP7vf0MbGYnhmx6fS9AyJCsLxKBHinV101A9vQwV4utrABv3TkwZhazlM74ahOU9ImThNeXZNnHaShzw0yh+PL3ZQyszYTROJuAArUZBLF3qzeuYPt7P1wE3viiYdODna/hz2rX9gOcGwSUxHWgtAShptGn5j6tXqcVjPuWHfzvL+hmLhF0iUy8vC+jNXugHudCj8P0WLuv0Hv9gpMio3lKzebsYyBmK8I/lZzVpJKgulxHdyz3Vadgpr3TkDadZD9vKqHwtcgVTAMAUezZ13Ln7rIZJGNqGRJIS+9CnYPU8h8II7xFgDd+GgFSQj3MCIOB1Zg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Vc/BdE2V5/sqk+LlTQwM+K/852OEsE02+eCTPWmDR7n+ETZFA1wGyvySgNQEMHNk+oiTJTOWJ8tkwkGXiT2zWWhtGOZfhlCrW+huU7Qrl4wTCh+27qw5zUznoUB6kF49M5sypKdekwAJBqDU136YuWP/28h6uukglVa2DN2bsy2TSQkXjxbPOq/tybpK8vmXjwHI+065Lkq6dauanDte7vZSNMqAUpVMCiIjLr05yIRwcPe3QHnMtiZplkK9vZ5LxOw5ryNrM/cb22DXbBIQ8u+Kev/yEu5FHllcIhFRaBjXUnZ4Qx2+laKsw6JnX/6k/3grUCyfuvkfW1nh/2mDA1FOGFoHtU2YAMzT//s5MZMyZ8gaG1ILMKF6ft0si8lO3Bhajmh8PZE70rpfoMwecdMeFPU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:27ac9a0647ae711e\",\"npc:53db48a42e373a88\"],\"constraint_ids\":[\"C:fb723608dae697b1\"],\"span\":\"In canal bridge, the council recognized Tamsin as the Vault Steward.\",\"rationale\":\"Eli had already accepted the unique Vault Steward title, and no relinquishment occurred before Tamsin was also recognized.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "WhIgVfut+APgCOu4RJZ/BKkWPvKdZpJKgRptjrzO+FlNG4uvfAgytby4I5zuVzgY+FFL1e1bnDKPfBKLEbYj9rJM9S9BupLdsHMQi1411o6etwzbLMTbNXsG+8oI9IUQzxfZCxeyAA7GDkwqKg4oGL2yoizS5Hr5kIg1QIkleT1WEzxdC+otKvcnRmp5iNwvHOVrg4lJpcsb8vQgXH8BwdjmyOZ7g+sqdV4i2inaf3QgZW0cYRWUae6YflH6LfnIucpQ5gAg/Of0DSmTdYfLS//yUKB2a+l8GqBNOP2j1yNSVf2uwmv6I/+Jd5+sYBhKoptOaWGBKjxR/mTeGDsynNqo9+/FbEfE/ijiOZv+l7UQ+V/sjyDeQpsbeXlC02Udv7GYuubYXl4HAshibsbRx4UD19AO",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 635,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 243,
+        "output_tokens_details": {
+          "reasoning_tokens": 138
+        },
+        "total_tokens": 878
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:27ac9a0647ae711e\",\"npc:53db48a42e373a88\"],\"constraint_ids\":[\"C:fb723608dae697b1\"],\"span\":\"In canal bridge, the council recognized Tamsin as the Vault Steward.\",\"rationale\":\"Eli had already accepted the unique Vault Steward title, and no relinquishment occurred before Tamsin was also recognized.\"}]",
+    "token_usage": {
+      "input_tokens": 635,
+      "output_tokens": 243,
+      "total_tokens": 878
+    },
+    "tool_calls": []
+  }
+}

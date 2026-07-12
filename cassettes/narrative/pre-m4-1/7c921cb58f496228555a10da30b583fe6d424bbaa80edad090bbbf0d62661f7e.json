@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7c921cb58f496228555a10da30b583fe6d424bbaa80edad090bbbf0d62661f7e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4086,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 615,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 213,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 946500000
+      },
+      "created_at": 1783845800,
+      "id": "KIFpikW5BT9E25mtY4DyCTy318EGNt93ZI0VQU+A7WZv8VGs6TqgzMxriks6PZmGw2Wr8gZeUUwoqEh/0Rtpjnu7ylZfnxJPF4rM9DyxsJIcU/Iu+IZeGT2s9zUertDPHP3509palVpllVjsdp8rktKg6iFsHaTAoPvDjQkO+e6xccIAGDBrWmhqRs8ITeScy0Hj9xy+Y/C70tv1kabnF8CP7LuYDR+gfZNST0Uw7Hi+dDivszq3fGuH+Kg+sFX7OVAGm/yT6x8vxkiVpRct1q4Egaaq9O9JyIs9s1BpNGMu/97zTpuDKGoCzKkcyigtT/Hh2x3XjTYhpoIY+9pdc/ZzGkViQcGNpC7Rdubda8yet4aYrZCV/iOB4jfIvksNDAEgH4+VtWalDWTbmj1CmpoCdAel1A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "qlZj89mn9mo+jzpCCCYwx9KMBh856dspw5gOn0HUO9P/28956Vs6ACquIdvGxcuErVQxEj6d6o+S+9J3O9v7yWYKa6W7hFgOzqEy+5aUgi5U4CACT8PPzar9q3gtxfDgsewuaJIwGl5WI+ggVFuxAtlGyp5eXJQ66NkgbDfAeCK9Rs601mOgPqnPO4VxOwTd18K/3zdUidtrxUbphZ4Ei7dJ+HtLYCNKrg6WewoX6/RalqyRjVhTs13z0el+0Ew+QRv9Pqwz1B/wdqYtKcb8gicQ5Ml4NwSrlYsBthUnuZgmE9ZIm5M6Jyi8CoPgP1AWyc4lUIpCymoKt+iixVAG0PjBpqImFlakB808bGzg/uT7N113OUDzhf1MFSvIYNjBc3HTDxWViVAxgaX/xfl1XR01ug8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2c332b00b14e402c\",\n      \"npc:b13ef6b9ee812e5e\"\n    ],\n    \"constraint_ids\": [\n      \"C:aeb3bcdfeff305f8\"\n    ],\n    \"span\": \"In caravan court, the council recognized Oren as the Crown Witness.\",\n    \"rationale\": \"Oren is recognized as Crown Witness after Veda signed as Crown Witness, with no relinquishment stated, resulting in two simultaneous holders of a role limited to exactly one.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "TRBRup67aIn1uGe98eAbJ//OqiSP2JmjHiKMBiw2BM+wTxzZYONfr3/LHfpADVxr0H8yYfg3s4p2RQk+pThGx4ysClSsDLgwcwdMWqQS7QIMtpNdMVVsIoqcrY6L8hYVcGp8Vh9ekGMSm+78I0rWDhhFFG+oSqhCpsfNPOHFaYWLXSfJdvR/lOyIvtAGRb1JlI3g6WsRi85sKWiGMZlrmAXAwXGscDPnrNtPlTP4z23S83m5UUUYvuwg3pGi1b+dHEBRTf63dWBcTvy/aHnIzN8HbU5kaATdCN6OSCi8PV+/v0X2+jlRInv8xM660X1FBxCDobuTqwC3P6XZMWqVCiRgKjzbfId75MsV7U5cnJUv3tWbfG92WouRr2duyCkDcbG1yuWR+sGxaVxt73oFCmWj/5xE",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 615,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 213,
+        "output_tokens_details": {
+          "reasoning_tokens": 69
+        },
+        "total_tokens": 828
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2c332b00b14e402c\",\n      \"npc:b13ef6b9ee812e5e\"\n    ],\n    \"constraint_ids\": [\n      \"C:aeb3bcdfeff305f8\"\n    ],\n    \"span\": \"In caravan court, the council recognized Oren as the Crown Witness.\",\n    \"rationale\": \"Oren is recognized as Crown Witness after Veda signed as Crown Witness, with no relinquishment stated, resulting in two simultaneous holders of a role limited to exactly one.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 615,
+      "output_tokens": 213,
+      "total_tokens": 828
+    },
+    "tool_calls": []
+  }
+}

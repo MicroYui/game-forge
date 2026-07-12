@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:abcc55bee83350366a8af374e4c5438e9658a8b32b68bd823403b47ba7889849",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2705,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 721,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 169,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 867500000
+      },
+      "created_at": 1783845200,
+      "id": "o7PDq15CvyzCeV4QcIji6ixF+MAah/HiqD5inRPK2akcXtN6mek6E6X1H+OlmanS5S0ZcsWkQdqg94R7b32dwqRtCmorMj7aBrSoxJs9Co2KKSS6rt+UySGHYfcrcPiJBNcBVHtmBrwV7ugmfNuD5wLMqwM/cydtytvHgD/g6/N3K8e0KPWrMCsYgurNBPx9eRbOrfWt2hwl+4Gy3fNmVFrckZws87djl3kt/0GZQUw/BG2KB5/7v7gBw5dOP5hA4Ruzw/jGTmj2qZT2pMu3k1gTR+k6DRZJqyUGaURIGatUpbcfzz7ZnEoOKUtp16oogJ3tj4jsUL7cMbyMpmBIX+0LbqFfl633QPauARuIO5glIuY1gJAkrTapPf3hJdgkIcempLSuGk8reH7H1yk4jsbhnTomIw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WS6umlnmyFH9KJCXaNLQcDR0Xq8FLqFifE1RwuIwoe17K5TsZ6PdHxGaVMSS216U1gHOnZjv1K2g1zbKu7oqxpJryFOVDXXd444+ml47kwNFkwPmM0Lb5E0Yv07NwVrvLv+WprBNBxvI5W2w5qNrMRfbezPm55lEHvfEGJbWQ2wvdlGrlHOZJRi2r535Q07R37+AvSHUPAJp34uhDBP9oe0cIm5Vj7lzUlKmesl5JRkoL1tVNHQjQrv08qiRbzJiuTTB15m1X4j1hMpkgqOBj7T79BoLWwnM6V21RHEqfA+4yQOkYFqBEQbwix8zHyu337o0Rw4f8llYrTgnVAI0AqVT37i9Pgp/6xv3JE7uhhpK+PlnhbQ3CMkOkY+aeOUUhWvPGv9DXiTxWrQWUD7MYFdjGEs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:b2b1e98a69fbc6ec\",\n      \"secret:1f598ec3d64d69e8\"\n    ],\n    \"constraint_ids\": [\n      \"C:ad623d9cf8f55ea1\"\n    ],\n    \"span\": \"During survey at relay deck, Mei openly named the source of the winter signal.\",\n    \"rationale\": \"Mei discloses the protected source during survey, which occurs before the permitted reveal gate at relay alignment.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "jJSdX5RMqA/OK2aTQCInGOJYZjmnPP4Ps0MC6xxPYQ0068wBLw6kjd90yGJjyJExQu32rhJhILhHaX4jH9YpXXNBI6r6fYT4gg7aEQVyXHH9+MBXhwRD6kCsordWFFyVgerL4w0nUcLgB0cRQmwD9gi/nt536UWmbKVAjNSbcnVfRSVC+Nb08+/k3pE0tZTqqbPGzpK0gPsRHH8/vY1fJfjrMzD8A+Wcdp4pi3Mg2ODNJW1+LbaPoDpT/nY1z07kVIw09waVyBpCR16uE1faaV5xyg6TGdaT9gCi90TJUzK5WDhKqITBsrO51uiIZyQQAZIizklOnkYD7uPcVjHLkZ0PJyEYDeH4htesSUW+0ewPDfAwnNjFYvr771o18v4KTzcd3i4Vzqkq/1XXGsduTi2xWFZF",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 721,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 169,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 890
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:b2b1e98a69fbc6ec\",\n      \"secret:1f598ec3d64d69e8\"\n    ],\n    \"constraint_ids\": [\n      \"C:ad623d9cf8f55ea1\"\n    ],\n    \"span\": \"During survey at relay deck, Mei openly named the source of the winter signal.\",\n    \"rationale\": \"Mei discloses the protected source during survey, which occurs before the permitted reveal gate at relay alignment.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 721,
+      "output_tokens": 169,
+      "total_tokens": 890
+    },
+    "tool_calls": []
+  }
+}

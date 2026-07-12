@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bb681f4fb02d3c36acd3967a84f157db3129b396e4ef1945c3e5e25d9ed90167",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5496,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 591,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 446,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1633500000
+      },
+      "created_at": 1783859200,
+      "id": "b1RjMKsSyelocYM/466uOzOHNAVt6ObUlllJgDnMIRAIzgTsGzJOPb+kkOcyWwA/0UasINqeR5At7csha5nEtjYL75L0lE8fyu7AkkHe/BKKuTyZSjawgOl9JkeYhSD/aG9+ALnxkp44o2YukPSBroFWVPWr+NqgU/Rlu7Rn65RgPNvzDFAPZKuiEjl6wQk1U8uPxVHN1maLNNaAvUqQy45THF0nlbS5NFVs4YhXsIsMXexD0r4EDDQ6wzSTfFE41a2Y2GH72xbVmxgwP5eX1nSnDFpuwFrBhuiDQGINN6EeiY0y8LxV+0simU3ULO96OZ6m0Z8YVAgenycJSKYTb+k2ilD0G3w5mCxVyAYyx8aZF5ajQZn6oY0INNBUUzVkTjMDoJ3+9YaqH6q2dSRnvZKWHYLxag==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "murV1SkN1hQ762g9HucAfKd2caRA93gKBg4fgAGEuGVD+amVKhHYLFnSun3urXQe+2H6kAOcRdvV+/hmyKTVnYmM7PbewYMzpe6bN7/LihLm/cqPgfUafuH2QZq0hUuuXQiU/4j0HDmZp09haT3ZpLNYYeo/NpdAGopj3HtSGSDM1QDnNAu6SfEIHuVhP/2Ajq9zJhvQBnP3tWNFEpcpvtHtpc6woH7N3PNAmzK5Ea/R96Wyjj6dE0ohTp4OfiTq7gYj1+/ShFSM9ol+GsU8vd2sNwUYtbYvsNNMxMqV+koyEQy0NSM+uino1p+32khc0THFj/Xk2G1bbStovZH8zPIW6EzYqvDcVAUakU3zxdVLayCoHjlPz4LPa5k/M+P65+PG6TLppMvyXQZhQzWQ7Sf3Nhw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:ff8b3a006a00cbab\",\n      \"secret:95720656b5e58e19\"\n    ],\n    \"constraint_ids\": [\n      \"C:5998bf03601cd165\"\n    ],\n    \"span\": \"While the story was still in council session, Ansel identified the saboteur's name at archive hall.\",\n    \"rationale\": \"The saboteur's name is disclosed during council session, before its permitted reveal at archive opening.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ff8b3a006a00cbab\",\n      \"secret:95720656b5e58e19\"\n    ],\n    \"constraint_ids\": [\n      \"C:5998bf03601cd165\"\n    ],\n    \"span\": \"While the story was still in council session, Ansel identified the saboteur's name at archive hall.\",\n    \"rationale\": \"Ansel knowingly violates the restriction requiring the saboteur's identity to remain withheld until archive opening.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "eMxr2QWtf6k24PyaTRitACrrqjRqlvAJInfk1zp6KkEH7nTOXJeGoZd2rf+nGxRPAIQnp7Y9M8Hh8Lbl/1pqsw5xf2LhhI8VRa/702ltgFfSIXkcOYBtqWLhj6kSqYE54oBY+FxDzow637pztMr5rMFNd21cirtbKBB5ro182+ziBiNWxt4nmZdzshx7/+pFNwtnjhw9x5AcbEyGB5CUVAvTKwiJDoQDk2SHzH7DoHyLOgn+7Q1r3GnZOZ0SrdfPfjz4oEbLcqFr1plMwxIhAc91SLt66yWjkGLMrDFaSImDpq67NNJdt+OjyNohlU0shrSdcuOaTbApSbCrB5xRhunueLtQ3B4rFtxvH8GiL5P11D13sDDeZ0PGKIyuoMX6X5VY6fdb6np2RG0Gg1sJSpxaC92g",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 591,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 446,
+        "output_tokens_details": {
+          "reasoning_tokens": 189
+        },
+        "total_tokens": 1037
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:ff8b3a006a00cbab\",\n      \"secret:95720656b5e58e19\"\n    ],\n    \"constraint_ids\": [\n      \"C:5998bf03601cd165\"\n    ],\n    \"span\": \"While the story was still in council session, Ansel identified the saboteur's name at archive hall.\",\n    \"rationale\": \"The saboteur's name is disclosed during council session, before its permitted reveal at archive opening.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ff8b3a006a00cbab\",\n      \"secret:95720656b5e58e19\"\n    ],\n    \"constraint_ids\": [\n      \"C:5998bf03601cd165\"\n    ],\n    \"span\": \"While the story was still in council session, Ansel identified the saboteur's name at archive hall.\",\n    \"rationale\": \"Ansel knowingly violates the restriction requiring the saboteur's identity to remain withheld until archive opening.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 591,
+      "output_tokens": 446,
+      "total_tokens": 1037
+    },
+    "tool_calls": []
+  }
+}

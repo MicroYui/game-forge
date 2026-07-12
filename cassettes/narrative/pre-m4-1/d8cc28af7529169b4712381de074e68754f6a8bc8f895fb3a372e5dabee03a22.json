@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d8cc28af7529169b4712381de074e68754f6a8bc8f895fb3a372e5dabee03a22",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3094,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 593,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 812500000
+      },
+      "created_at": 1783860100,
+      "id": "hCD9cOMgqvg8RRkGxxAuPe+RZTNyZiwIasnSH7wR8/kDuR6QhlwkBA+R25M8YsLQgR9ip2yhiTPC6UmVLyL8BfmX/YaBzlkcqL3zdrcksz8nSJTkaIejmRiFsgrwClLw0btCDXP8XcGIxHANGB8QzMO4fRxUriRb5Y30gHrpANV24n3DXP/g+zUR4BL2Bmq37BbtIxAsv9Y66Xnz3j5aaF/H8snhm9NO3Kt3t3ICdXqLBQGSIuW1KEkDL7neLdkAkFMa8h+5C6OM2h/5uHiC+LByZb+I+NjARBiQytyidik7pe9tEgeL8wgebVd+AA5VPNy+cWKYkTtr2fc+2q7oyQZo7I4zO64xksbG7mfCDtKmKyfxmUNEbQVrcmhvZshQZPWLiSsYFD7SRXne8RwngpNOulwGrQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "zRwHOIp6P/a7jBAAnaViYZH7o9ouNs7KfMqcftLeiOUb/PXmAMC+a11JRVmrIOXm/Ah53wqGtV+MBr42rp4uAWWMz5wZ6YJmMYEBpi0iJPSHGToWF3r7lOZ/t+Lb90aM4FFt9iA2zruqKPSLzXjBlKdXd3PK291eNjGzpYVkk93lPGZZxc9IhUe5jr2SrhlTcsHYO/1ehm8V6AA3XwpetWyZNu+1ad3Q+vgQ7eOGj8X4k6eXMXAnY5UNQiXQVpKkYK76a3ZI+srGgzDheZUBc6lQmgnDPS3dBRXbLqgCzBxyTEav63VKSBuyf8Q0TUR3PJCVyxtWgmiiOHcXWff+ZO9c82ObaK9ldkdzUEc93eIAEcPCv+xpN/mT9WM0fiuberR/PXErga23ICmXcH3MzkxKYk0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:f2e8d32cc41c6433\",\n      \"secret:29bcb29a3c455a96\"\n    ],\n    \"constraint_ids\": [\n      \"C:35bf56a73f30cec5\"\n    ],\n    \"span\": \"During encampment at caravan court, Qi openly named the masked envoy's identity.\",\n    \"rationale\": \"Qi discloses the masked envoy's identity during encampment, before the permitted reveal gate at map unveiling.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "iOmFZnt21fFB9tk0aSKDsXCF0YVvsXrK71uyw3cZiRTJwKMUZhNEmBxsI8LYXtEfC5TgMkS2SYU/M/6mj5FM5Kqzd/ruQCquufh5nVXvYFuaH6ZvBJwsdhWXp62i5vteKjC4rP2JmCp7mxXLtCmIjsPGQOleKm6cA70UsEaY1VpP6KflAzs8zcaoDoTOJkLJHMbdfrJvjy/ElCL3G8Nyk8lnByaI934B4Ox8WanYBuZPUmpADZPYwjBwazBtavx5BxrZoWjkeUQfN3IjmETQOyYWvWDWtmYIARuRvPHGSs74VtMvzIOuyMewtJgQT1FltPXJEKD38Iui5Kb9f9829c9FNQLK3K58o3zacP+IKmGAaBIwjfXDu8TG1heZfzV3FyzIrmgukRZFvQVvfeA07xOgzQ/i",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 593,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "reasoning_tokens": 39
+        },
+        "total_tokens": 765
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:f2e8d32cc41c6433\",\n      \"secret:29bcb29a3c455a96\"\n    ],\n    \"constraint_ids\": [\n      \"C:35bf56a73f30cec5\"\n    ],\n    \"span\": \"During encampment at caravan court, Qi openly named the masked envoy's identity.\",\n    \"rationale\": \"Qi discloses the masked envoy's identity during encampment, before the permitted reveal gate at map unveiling.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 593,
+      "output_tokens": 172,
+      "total_tokens": 765
+    },
+    "tool_calls": []
+  }
+}

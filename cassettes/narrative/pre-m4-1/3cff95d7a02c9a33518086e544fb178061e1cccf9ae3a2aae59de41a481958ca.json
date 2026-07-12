@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3cff95d7a02c9a33518086e544fb178061e1cccf9ae3a2aae59de41a481958ca",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5296,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 681,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 189,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 907500000
+      },
+      "created_at": 1783857500,
+      "id": "SOjvjCI3le1bOlYmfsfRxL76Ra54MkZqIBLEqetEaeTXRRzLXe4alITbs452zC+yHAeM+VloD8JsF4rMp8Y/B6UXWY3oQ6ogJGmc6MhhuYqMiEnv6Wojgh4VC64H1Z8zJjrKS0sCM81V8022awLtH0ZgOEFeD9zRDB2Jq9O5WAiBVbr3JK0kSOqlfFwkORLa4acdYK+OeE1Lcmjf68HlOgnKbZabrMbGeuWkYi780K44zYF+Cw0U/k9ydueVq/De+IKshI7GqiO6lAluZO/vfpG510K7vpnBW9P3O9fWGNHUqex4IWi7v4DF+AXLIB9810FUwTBa+5Lo1EWpAHLx+nMIy3YG3Yh9m1YeJX4B0prIVxbndSkh0CDFQ8aRT+gODt9UVGZLTYMWNN+99IBMSkJO+T/3yw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WgDPGUmEDr2nWlqtG+5h1YtuErOOaT5TdU6V1++ZhgOGFh6fokBNWFExotd9y/WXtr7Y3YbpBmhTb6qnJ1i20LbsquPVvhpg/FtHBCl3QPbAmJdFjwxpkYBJ7h8KIVNK3X/znUn4zf68QHbxM+EgKvmzJCQ/kX8zARgYoQY6Cfg579WVp+cuGeZZlIWHAi1Z2q0sea6kuF/slLCof3g9A36QQaBAdQu5xgOnGpdjeDrreJ+c9F+nBxFNCk7ye7/dUdjBFFuFdzSEjzh9GY7FvUeUKKsRt/BgdjD5xxDkNKQUw6Mvp5TtsUPO+aMLkaeUZqJEU5n8SORrlYGMxg7uz0d0dSilZeJzJUpWo/wpVZmH6jaDS9U7tyfxNmIioEmyKUkkt57JwxHWqGFvAmyFtvi/8YA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:3fe56e50385f7992\",\"npc:cc1bd5ba33ca838b\"],\"constraint_ids\":[\"C:c1a21b484f1440d8\"],\"span\":\"In caravan court, Qi supplied Mara and called the partnership permanent.\",\"rationale\":\"Qi and Mara are members of factions that do not coordinate operations, but the quote establishes direct supply cooperation and a permanent partnership.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Qy+pC91Hmx/ksgXS/M4yj3JiG36HTOnteVwJuhvplK54YY9B+6SpeWzz3hyhobsl4UxrzvVo1+feqdC8PfBNj+JFOqYqOv9hohH8wI8Kv08W5OJBwtEqGHAuigBh7I7S4Qg/bzCtNtnQFUVBkWtnxVVONwsG0hYZ+V7qBbNTBHkRJK8jnjntGuSo2D+nDJ/S9gUgj6UMJ6tf3NbeYULIydZ2zGy5ACm1kZeY0zMU9gAcOrDHyTW0VNDRPFlN8BUK/DEtQJHJKqOpJaFigM0LYWoY8CN9Q2TwxCoRfeCj2jNmZ60Mt/V62nCExcsFDTLo1ZWhmA8XjCGqZrslnKBMqKMNN0ngzn45bjjA602jSDcO2rNVN/k6k9x4qFegNOZQ3MzgF+MotoYU76g4YwD3sXAF8UwA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 681,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 189,
+        "output_tokens_details": {
+          "reasoning_tokens": 83
+        },
+        "total_tokens": 870
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:3fe56e50385f7992\",\"npc:cc1bd5ba33ca838b\"],\"constraint_ids\":[\"C:c1a21b484f1440d8\"],\"span\":\"In caravan court, Qi supplied Mara and called the partnership permanent.\",\"rationale\":\"Qi and Mara are members of factions that do not coordinate operations, but the quote establishes direct supply cooperation and a permanent partnership.\"}]",
+    "token_usage": {
+      "input_tokens": 681,
+      "output_tokens": 189,
+      "total_tokens": 870
+    },
+    "tool_calls": []
+  }
+}

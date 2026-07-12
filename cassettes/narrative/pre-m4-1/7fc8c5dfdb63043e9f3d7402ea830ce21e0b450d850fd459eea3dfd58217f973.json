@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7fc8c5dfdb63043e9f3d7402ea830ce21e0b450d850fd459eea3dfd58217f973",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4417,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 614,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 203,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 916000000
+      },
+      "created_at": 1783849300,
+      "id": "IphkDskihT2i1sMzfDRDcsnzVYbBNqV9xoVM4l8b1hRbM3miO1Io+5K/50J9I+TIJpBJy2omblp9S8rJGG7utR6nyz8g587rxIYHNFKnoyG9KcFwmPiLNa3Dwo1s3BnnjKS6uwvuKiUIM6Z/LJnn1jrOYVnv23XsEm3QjQN/fgSRJHSDTRPI+DL6bfDLleWYulBR2XOLukYAyJB4E1rzYbQKqCji2iKaFdVtdQCnMjxtF6RsHRYkCiMmPpeBvNUOrK3XiS4ZjAfn2Sv2Jx5LBVcYd7EhRqB6QaH9QwggsXQohdAJ1gL/IKtDtpnKz0vLkhJzINybD75BDTJCz5ZIoMfwt3RrbDKC77RCcOX52xqOF0S8hAZ1q0PeWrIQzQMai6HNpEogjSp2fMlvVWwO0os7+YhSKg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "PVviRqMdF987BnqGht93FHOpBu6GTZ55LugV5p9V/63XuHT/U7lMIgRJsHXhrIt2NbvzT5MK5V+6VC6KB4HMx+eVzuwATs61pjfHfo00D9ac5TZk98kL9DsIwqD170E+F2T5QDBWlOXLKuHvxygNi5htSKINJIuHw+XB7WWPAkZIOE8M0hoFO7EXQ3wcYYSghsyPAD8igsbBdV6B8xfi6ieuuYmTj7gzKpwFAnomzh/11kBdNIM4Xn8cGgKpJEWNo6oq6jp6OC8LRjgQqZFELUpbHVA3jMMZquLcSx/3eW043L8bdGJmhlREjUbynx7KFD8gw+rhbjRZag4BzlIAy4YZghWxvugyY8H1Ks64xnMzHkirp5hQTYoSTbykHK125a4BWVsjeL8rBA5rUh6lCJcrgds=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:a33f18eb1b90a2d8\",\n      \"npc:a5f344f91f12d19b\"\n    ],\n    \"constraint_ids\": [\n      \"C:5c4e7c0ce36f3ec5\"\n    ],\n    \"span\": \"At signal tower, Daro was formally introduced as the Beacon Keeper.\",\n    \"rationale\": \"Mei was already registered as the serving Beacon Keeper, and Daro is subsequently given the same office without any stated relinquishment, exceeding the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "g+qVuMf3sOZ5rzDkhMwv0qzKPO1MgFP6gBJriAzCflR7SmkhqbIHsX82fj/tu/xOEHcf2aRR/TF21ffDJShTyC3gHwpYvGQhF6n8BCK7KD7JUsL4CqUFSW+X20zpMaITJFn8Ba3+pgTuK8p6L8M+xmAj2eygDKsZVGJ7sUxEfeUW/u8aJZ2DligftS/VyWwcCJ34YIRh1D7deMPRLf0W5OXzPYkOHDtDYUD6AfgquT/H4PpMTZoT4DVH0TIFf8USyV4K36awDXC0nMAUL6O6lXNP/1xrpIqSqev6SZTrW72i9mUw9QMY7yHjynfytGMEZBqEdIt0tp2XfgjOl0A6MFfS+Ev1YaSPHN60jM75nxtUWGqGTzjwehTJTuP7WzORtTnjRde6vV7UEwhvkM6Iu4MPluju",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 614,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 203,
+        "output_tokens_details": {
+          "reasoning_tokens": 56
+        },
+        "total_tokens": 817
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:a33f18eb1b90a2d8\",\n      \"npc:a5f344f91f12d19b\"\n    ],\n    \"constraint_ids\": [\n      \"C:5c4e7c0ce36f3ec5\"\n    ],\n    \"span\": \"At signal tower, Daro was formally introduced as the Beacon Keeper.\",\n    \"rationale\": \"Mei was already registered as the serving Beacon Keeper, and Daro is subsequently given the same office without any stated relinquishment, exceeding the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 614,
+      "output_tokens": 203,
+      "total_tokens": 817
+    },
+    "tool_calls": []
+  }
+}

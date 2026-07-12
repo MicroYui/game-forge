@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d759f12b5d11fe177da2ad3ead7eaae808765fe0218c2983e6f891ebb95d97f5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2969,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 616,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 152,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 764000000
+      },
+      "created_at": 1783850900,
+      "id": "grhDMBF1QQuMo/mxqkw/fQA3a1jtwjUsBWkPm5xQhEGk3ToJ/b+LPXMd3doHX+z1IMeKNuXNh6ZMWG99DmftGpB6W9J6FJY8dPY6YO2jMpNzB7L4OuI7uwIPnV321c8HSvirOGBR1wHMBYARNsm8sqFy1YeeYnRtkk4mgKpOxs/t76UfrV8STETtkSv2TixMP5XxchanDXJpIOmumc+vWL5bSNUrZqk+uB83A/GOZnDDm2WKm50CUT/OP6/CAorTqP7cd75fPwFM9gjg5FVeRd978an9UupE915L1+KRANi1wfLlFrv+X/0eInpgj/5Xe/JuuWM346OJZiwC6erCZErFxXQ9KZQq0FD0DQQBh+438Y6tqp43va/vI7m6Q8Kh57DYS+U9/QFS9LwhI2NH60Cyp83R3g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0iBQrfbwxKJL7cj6sV1Xn16ycjFGagYNMekwJx1uxfk1+GXtsmCrYkQZZU+8Wcii9XKoaXLeoCEDVBbYYkZ7nrQpzJsgikj3AdThLvLYv2IXsu9q8PxnbwKolAOOuFb7rQrUK/dGdVasw2b5//ASHTgozfrql/ZO3FOl+jCQEe9dDxAV5onxkFGEHTIKxAvYas8FQL3g9A4nCnJm8+cF/thEtjEnD7kJwIAsijJ+kdnBLOFnlnupLO5OK+fXaFpN/SBuBS6eLRv0IU1ugDIDE4jEX5VIllQla0SJRrBI+ktzn3FJ0kCJMKF5oBY8rf5UqNGXcvfUv5O9pGCgvV6DydejKpKWxy7TP6Ee5NRbdVEeaXQC0YUlhkxCLaCdJbrM+uWFcUaKALzcfjlAiJ28I0NdfFs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:45a8593a6d7e1703\"\n    ],\n    \"constraint_ids\": [\n      \"C:66d635d6f60a3892\"\n    ],\n    \"span\": \"At observatory, Veda hid the relief crates in a private storehouse.\",\n    \"rationale\": \"Hiding relief crates under Veda's care in a private storehouse makes them unavailable to the public.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Dj1voi4a9/hpzZuNC1/FbNLqfCbmBJDlYshV5rsL+VOBz3jQx5apA5x7lS1inA6DD/O9uZiQPQoxBX2fGbyQNIlV+ZOD4oUYPmM088Wkwp7r6COqaNreDxqkXfHR2lk3LUaU208r7bAOSpQ+snREcvbS+WZFarrg1aT+xeibWZnRukmjbEOJyL+oXr5irWiv55hdKIaEQbKz04ob1lkVM4Qo8dIjDYD01N4czCZsf82v7Q09Yzu7zbpPMXN8PCxKGLRQUt5FjOeCMGh5BHwq+XYNlTCwhP9IBFd0XRmur0J26qdCQLE9ABRb2VtXBskkRoSeWW4n0C/qs/B1VyAeNrmNxr5IwiM056KXWzIWapYQ/xdujenRIGGU1lsTTpbzG+fBEXaZWrkUFZG7rnMQMqJbGHgj",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 616,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 152,
+        "output_tokens_details": {
+          "reasoning_tokens": 34
+        },
+        "total_tokens": 768
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:45a8593a6d7e1703\"\n    ],\n    \"constraint_ids\": [\n      \"C:66d635d6f60a3892\"\n    ],\n    \"span\": \"At observatory, Veda hid the relief crates in a private storehouse.\",\n    \"rationale\": \"Hiding relief crates under Veda's care in a private storehouse makes them unavailable to the public.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 616,
+      "output_tokens": 152,
+      "total_tokens": 768
+    },
+    "tool_calls": []
+  }
+}

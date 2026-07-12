@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:65939375b9f48c663d39d443e1995c3b9eb33ff5eabdb34a943e89b99bb523a3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3217,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 602,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 168,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 805000000
+      },
+      "created_at": 1783845900,
+      "id": "qz4+i93baBcMGd9n4Qg1JDfb8jb5XyPVnwe3P3XDnhxsCyfoAclZew1FUXyZGES0qQKVzyMDutnx3x8gT4Xwj3WtG80W0JC3DuhM4nxOita/8IO8+KIkztjGWiCvYbzWoqvXZRQQt1Rw6vKqdA4EbKrWQaOfFXTbMCyophXUv9AZsC2LmBgJmKH9+2CQMCMsaTdfZ5/jjXfrMFazgL0oZtxC1yB8IfznVstf0qsY1R5lspRj1Z0Bo4JepB/CXoIjvfHYM3ytGMXKm1W/b+8mOljn/zpPshk1a3GHUlsVkuhQOIswucffMQdlisUKp4bjUW8pyX2743IapAUp6iTiR1DEfHPWivsR1WeGH5eL4EoPcGUgJsJKWSrKi95ub+KjMXI6HE7zDp+FYxgXpNLgHfXFt7y0rA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "f/BNJaDG1qZh50BLFeEnNeIjKrGfjl0IAr0bQTFEw5LcNlgZpnGF63E7ku8j+zwMCWQ1DUf8MKqaqCdVYWL2T/MG5hSyXgynvq9ktVfnPXB+NZW84vTKKTyOi9wYoHVtb3CCHpA7NAl6dxq007ZhzoJFnz7L/XFl6neRs8z8KsOP/XJbUua2wTiMieE0+iak4UhutKjDoe7WmvDs49+PvrSpzUq13hAqOYnijBrdMnMO7O8Sc+EdR5ErZVN/6xoF+7BYfXWtE3GBlyzF3S0CTwKQ1Io//uQ+aix6yHKcn/C6xP9s5Au/w/PVjuN0w8RHPAV6Kehz9RXaGtWdENr3gRr5eP9oEiiiiiEyVDNmKZwmdc43lZ0oXp5CUbzSNQmLgCVAC/dyANIgK3jepAYjyKhq6A4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:90093ec39c4ccc11\",\n      \"npc:eec378d021e0ce77\"\n    ],\n    \"constraint_ids\": [\n      \"C:f1060d9ba30bd947\"\n    ],\n    \"span\": \"In caravan court, Ada supplied Malik and called the partnership permanent.\",\n    \"rationale\": \"Ada of the Harbor Guard supplies and establishes a permanent partnership with Malik of the enemy Ash Fleet, directly showing prohibited cooperation between hostile factions.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "eg+6Q6gO8vIlX7CCCOZBRTDXhfxtA6Ac1XP6qXgYPX3fTI5mzbdYvZAU+67cIpbEHfjqlYIjmNDiWrkRxCxqfO9lEMxxgnhbHpO4IcxmreivS7RL4OApSY2RZO/9ui862gDpA391qfpZyZWENjo4gqgRYtsiy+FmxK/H/wFTT9/QO1TnhBiWn06Q8PZiD9ZnTQxrM/odhEq9VoeviTfa/tw4iS8s8mQL1Sg7TuImzvNvfM4L4A08yr9/xIW6FVlywAciqK8fN3hOngW4+GsA4Cr4xgFud6qvcEechkGmp0VCd+OkmLRzAldTpsgVv2AHc8YqrGs3r49kTobY6u52BY42WgAWKcdD0qx3HPnIBQJqCogNI20zTgfEAcQ5Fh81RbDud/x4zZQxBsaIQ89wLQFr+2iP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 602,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 168,
+        "output_tokens_details": {
+          "reasoning_tokens": 38
+        },
+        "total_tokens": 770
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:90093ec39c4ccc11\",\n      \"npc:eec378d021e0ce77\"\n    ],\n    \"constraint_ids\": [\n      \"C:f1060d9ba30bd947\"\n    ],\n    \"span\": \"In caravan court, Ada supplied Malik and called the partnership permanent.\",\n    \"rationale\": \"Ada of the Harbor Guard supplies and establishes a permanent partnership with Malik of the enemy Ash Fleet, directly showing prohibited cooperation between hostile factions.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 602,
+      "output_tokens": 168,
+      "total_tokens": 770
+    },
+    "tool_calls": []
+  }
+}

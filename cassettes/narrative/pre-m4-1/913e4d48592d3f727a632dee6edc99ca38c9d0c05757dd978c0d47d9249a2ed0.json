@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:913e4d48592d3f727a632dee6edc99ca38c9d0c05757dd978c0d47d9249a2ed0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4193,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 613,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 163,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 795500000
+      },
+      "created_at": 1783858400,
+      "id": "3G/cEuzl5n70asnuIhzgvmvF4mFQc+D7P/L2P1MCWxU0HaHfLKgHaCsCqjD8+VF0KctLGPDTM5gB73/zWxF3gBD3NXc6Vjc7JNnRHUsnBOo0rtvpQUJlQa3xbAX8M+Lm7wPh6/GHj7/H5su+2jPpg7F4Qks1jKODDL7F9BMEqPT7pVmDMME11pIfQFWgA2Irq85gaZnOSH2az6SR+PTtg+W4WHblZ3DYAIDahxAsblMD8odGfWf+qBWdPzAId4TWitdcMW+l0i6jNFOlqvHlq+QcrukfdzQjslTduAPP4i2Mbq52fVUqhTauesYPrzvY5B8p30y+d/pEaG+Uq2FDjqTXaSZ7s98tEdeSwVjGlCN3aNikLyCl078DDBlaTTSsmvXhRySdP1/96jA0k8HCXrbemWS54g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "fSyES6NdAl5Z73cgYYBUqAUOZup+osgTS06gt9IpV6svSRRudz8XC5tAIcBiab99Tz8lQT94r/y6uWN4lOYTynsBObLz27hjtyR0A7JezyGVx8pGHzSpe+doDC4pUwtN8bjcRaExOUl1oDs0sFwBVMuHQzENgemikPLoND061bqsEU0Coy7YHUlIIUEV1+H8RfUaWk5/HFZMhVuV/2icTeWkaDIeBEgb35O/0uoCRKfEgkRqFoOCFrdS8d/QNglarEaYSEclFeJyQEb6rbALKzyzEq6aU4GAsq1EhdQ0u2iMA2KiPNp/fC3N5rlepeCMUfKs/+F1Wz/yV4OYD8egpjhRQ2nkJNqYDndrf4P8558/dLLymtFvWcV3N8ZI239h1yVrUXps5A3fVs7HwxGWLAdruXI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:cd88612fd9a5b3ca\"\n    ],\n    \"constraint_ids\": [\n      \"C:b7a7a4f37dfb188c\"\n    ],\n    \"span\": \"Veda disabled the crew's escape route before joining their hunters at canal bridge.\",\n    \"rationale\": \"Disabling the crew's escape and joining their hunters conflicts with Veda's required loyalty to every crew member.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9CY3vOmEELuK5jg/feC3sppm7/tBWJDyyy+sBN2wboDmv/ntks2ZubIlHqZfue/KpWaPtKlPH1th5jfn6ErEelkzQhKrXWlKUMk3Ui//vEDhz8PIaJJQXuJ0fzPwndN06b5yecrhbC2aaiGChciHZpv3F6bn3KrxLvyC3HhLJ6lUVbnU54QGwsO7qKe5pIWWoptYhPq5ajDNS4T94ohtbQXRjrWOAgeRD+5zbOc797Dt2XGAK4qc6+PRMStrj7vxYAgfJR9BKVWa/2pG6QJfOKHdafal0e76DXKcucI1x2IcFJ7KWSFrUZfl4mTwnukCVmbIymwvfI0M2aYzlNIbsThLiCxAS+qOfSDX/BXZgcXs8Fc7sYLh/Vl0XWKWLA2E9wuLQp39awDxpILnHXAjOWliOR50",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 613,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 163,
+        "output_tokens_details": {
+          "reasoning_tokens": 44
+        },
+        "total_tokens": 776
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:cd88612fd9a5b3ca\"\n    ],\n    \"constraint_ids\": [\n      \"C:b7a7a4f37dfb188c\"\n    ],\n    \"span\": \"Veda disabled the crew's escape route before joining their hunters at canal bridge.\",\n    \"rationale\": \"Disabling the crew's escape and joining their hunters conflicts with Veda's required loyalty to every crew member.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 613,
+      "output_tokens": 163,
+      "total_tokens": 776
+    },
+    "tool_calls": []
+  }
+}

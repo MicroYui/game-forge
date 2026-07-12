@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2ee2ad96981ba9b62d7b6929266e16e1925efd080b562304ce45b2c31c0cc0af",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3469,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 588,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 153,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 753000000
+      },
+      "created_at": 1783855500,
+      "id": "9Eu7I9KBiH/uKMUaEnfqdRqkFtryG46ScRAlj6vYck70EGWfiaY1LyRb2bGJXu/tb1bV5gpZSzBJN4npbdRmG2/Lx98QzY+32giskpNJ9VIpFyYCSErkj2mtkxQGa5+Gob13zgavKcYm4p93RK4ReyuQC8aFTQy/0YyKhYfdPF2wz+C8vzrnu4Q+PZkBl54ZJfvGg1ftTLNT37NyfT525yONsgwfwZWBRZ8DsUiaxZVcjh0sT9qRrZrpFwHpLz/5z2OLDU7WD+qJWqzGJWVOHJDxf8Q0xYuzmg4hgl5oxhZ+9ZVbCUXz4z4wbr/YIFDRPhblobw/3hda9SzJ4+Ljomo60Mgtc2KzdIhw90m6gUJio1WvyR8XUJ8FdHdBEE68DmD8VUNJXB3ier6ePTz7layUO60DQA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "5fUuBuSXPGLGSNlGFxPmg2SOJ9ml9TJkYSdiSt2bpEzYXKf0VfWXHVqZ9j0LZrRNjNkj+hQPbKF/3YLl6xIelib6OepIEjkny/NXcP9N2xKgNNvGhdl1U5kWuSecmDBdik4T7/iRUoM3Wuty/2d7LfjEjxao3rTVZVdcy/ZK39AJOz4r4WKsMgRz39hK+Q4tLAdKEpcGdiQttg3JdbyUkpLFfIT3veZSiQclzrJ77iAkkX9N4qGmNWtYuZ9BJ50X5aHij2NFhbRtpky/tFOYQlBgtzY78CuEsr0XC0MP3qrTFBZ3gL27HFqglop1SNDKmCEHcDJR7cvxH+QvGPmFbTrLSzkwAnMJFXkC8RpYGODAxNDUOA+qPETt4v1/JEC0ZKGmbtyuT64FsKgjrp+Mu4oYQDs=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:395437e0b5bd9a45\"\n    ],\n    \"constraint_ids\": [\n      \"C:605c1f5d43f2ec83\"\n    ],\n    \"span\": \"At archive hall, Tamsin left an injured ally behind to lighten the cart.\",\n    \"rationale\": \"Tamsin abandons an injured ally for logistical convenience instead of giving that ally evacuation priority.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "3Kug2qdeVO6muropkC3zPyUwgU1ZzcQRJCpbi4isLPKMU/xBMAA1Vm4z0Z/B9Pwafa6Cqubn/fnWX+s8gRxyeqYahB30inRTwqpCSbhilA+NTB7ODMOvRPg2Cja18oeaXYp1q1UpTWM/9+o1tFS07C/u7C5ZWZSrsmrFdxq19GGe4Wm6xI8gMr3ZCC6907HmEx1KuWI9AEJY6oRNqV2rrBq+luihTzwO2hAteAH5WfLI3nfz3Kv8BjtgW6tlpOvK1BtCWSrf3cuSTAAwi12d2oneeSVCOiAyd6gR2AKxlHIX5f+2eag3m5iChMyxCVsa1XQRdZllRoVRHnNo56GXoJ0jfc/fMCNZ27YqqjKKy7zUvOV0ibOtt/3A4Ofs1SpsbOYmsQFMU5yK6/AO6fUg1wNeiKQW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 588,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 153,
+        "output_tokens_details": {
+          "reasoning_tokens": 36
+        },
+        "total_tokens": 741
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:395437e0b5bd9a45\"\n    ],\n    \"constraint_ids\": [\n      \"C:605c1f5d43f2ec83\"\n    ],\n    \"span\": \"At archive hall, Tamsin left an injured ally behind to lighten the cart.\",\n    \"rationale\": \"Tamsin abandons an injured ally for logistical convenience instead of giving that ally evacuation priority.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 588,
+      "output_tokens": 153,
+      "total_tokens": 741
+    },
+    "tool_calls": []
+  }
+}

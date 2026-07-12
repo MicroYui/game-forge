@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4fa91ad603fee378495cb4794a6c0189a7311f5bb7404756761a537b8c6b2e93",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7306,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 585,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 446,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1630500000
+      },
+      "created_at": 1783849700,
+      "id": "EVVNqZoMBMrPdfIsV+XCdyLox585LAtBrCcrymTGpf/aJMApd1ySbye/RFcEYclq4+uHTPr0G+VqkbwNrHRezPd5wj0x0MN+rEkwAyI9dz4cXDFNKs3I0G8L5SgQZ09e7UuDC69s4VaDWDCUH5T8TpZaffyk7MlLXddmAibVLo8NIVY6MB/6PNZT/2Bm6/2XdkbDcIcJJW/Tz3cCF89gjgam1jKofSeGHuu0CkHk6MsA8wj7tdmMDowLVGzmxAE0AXeMweBA19rFQSMVaZdE+ZIgmVs1kfSK/tXvcaI42WeC8H1TJG8XZQ6PivN4lM8hEuoQTLxhjk34gqO3iGZzzJ830+nqFp0ha4vqMoPIn2CY0hGj07iLkU7iUewJiypYEBbE24j0YRg9vCUpEDo3jWVWczp9Qw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "RcSChhryas/F1uOa8fxF2LxdFfW+sRAqUssMKwJr/k5IfAvI1vRzpayAUtv06mIhF76rdbqNDX0Y3IGdZrMUbnrmWE3+4EqYsfjIJ2LKACi7jJYi6RkDJHwVhxfnFq9dNM27AmQ3OXfUogGK3+Mv0AcKrXXOg4nNmTzmRSxN8kkJlIhQBhCeF4DT+OCEs1LiEnlIGE+amTSJe47VM0Fomwh7jd0SeuAuytfhYxRltTD5/qoeyWwgqqAaxV6WZP2B9Pf4o3bfQ0YfGFo6QT1PhNEbRkGg9A6SjeBsJcR9MQswdUHDnQrW6QedCtMRHiB5AYX8J96QK0w51NkMP1fWAw1yOAUg3PuY5ezLMnq6FbDV5H2Eo3cBotZlyP301g7q81BMRlyhw/PaugpEwLypD0XI/b4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:c7b90acc98614f6e\",\n      \"secret:0f4e1be01a84751f\"\n    ],\n    \"constraint_ids\": [\n      \"C:a83694a6fc137087\"\n    ],\n    \"span\": \"In river market, Ivo disclosed the hidden heir's identity during first watch.\",\n    \"rationale\": \"Ivo reveals the withheld identity during first watch, before the permitted archive opening stage.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:c7b90acc98614f6e\",\n      \"secret:0f4e1be01a84751f\"\n    ],\n    \"constraint_ids\": [\n      \"C:a83694a6fc137087\"\n    ],\n    \"span\": \"In river market, Ivo disclosed the hidden heir's identity during first watch.\",\n    \"rationale\": \"Ivo knowingly violates the stated secrecy restriction by disclosing the identity before archive opening.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "MhI2UIWYrd4fOV4uZnoF6PqjQs4zsnepa80NngZogQdLDZ0dQDFSSjnSy0/IfHqY9f6SVu0zb8m6KhQaNeA/puv82rIqZdY2lmjsA5AoGWb6pemy3uuFOx2hM1Q9LVUobFXqs+uX6zrYr7DLqX47luq1wYM4pXoaLvLw8VefG9M7G91M7+AtEWtwWB1UjM0JXgBTyjDQi8/UTHJMzc2Ujj+mk6ZqWKUkAC8faqRal5JdPERibZaEhxbhrhf5GGxt0iX5tMG7WGaO9AITrHqpTf8jhZITGCg9KRIbNwA8RxPLvy3YsGRS08LtkGWQDU2RARS/YB3Gd2WUAJjHS+GGVvI40ZOUz6DRSdD9fZ+DJYluw46YkTZYV4r9yOJGdBIsn11nlQw8+/+GvA3qHG5mC3TdvND0",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 585,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 446,
+        "output_tokens_details": {
+          "reasoning_tokens": 205
+        },
+        "total_tokens": 1031
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:c7b90acc98614f6e\",\n      \"secret:0f4e1be01a84751f\"\n    ],\n    \"constraint_ids\": [\n      \"C:a83694a6fc137087\"\n    ],\n    \"span\": \"In river market, Ivo disclosed the hidden heir's identity during first watch.\",\n    \"rationale\": \"Ivo reveals the withheld identity during first watch, before the permitted archive opening stage.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:c7b90acc98614f6e\",\n      \"secret:0f4e1be01a84751f\"\n    ],\n    \"constraint_ids\": [\n      \"C:a83694a6fc137087\"\n    ],\n    \"span\": \"In river market, Ivo disclosed the hidden heir's identity during first watch.\",\n    \"rationale\": \"Ivo knowingly violates the stated secrecy restriction by disclosing the identity before archive opening.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 585,
+      "output_tokens": 446,
+      "total_tokens": 1031
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:33c8a1f60fc56ed806b5d25c77b9bb7cfd9d67efd3c73eec0ca343dab555e142",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3912,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 608,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 149,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 751000000
+      },
+      "created_at": 1783845100,
+      "id": "IqYMs33yz4N5Od7/Uc4zoPwLTUudAN2kcCr37i6Z7LRSxl07dptIzxSH5e+XuW2NK22X6zt5xuzyF8Cfv7K1X32ENnx6JbYA4mS1pxHNJi1Xd8WnHljPKSN1mvK5B9E/uZFel1DTvKjmQJunj8jOZS0KJ1ch1IS3kqdhlKUFfgnujKoa9qAPNol/hWDc3xYyVyZRO52h/mVF2lbGrYfrYAEjUzbDEBZ1LIxVynXFez27uA43LBmcy4AwJFhM263MsF7W37bj1KyAmxSwPZnMQDR5ePOZjqvhHV9Emplt7898GwjEbS7vZiacHZwDa9gLOxyDcr/SVn5DayZB52h6Oeh8ZkwcQUHo3W6LIdpRLjx/iV7oAPqgcAr67CV3rlEpuVp8pDS1bvwUCjWQxVOn54Khk4dijA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Cgg+erLJoYoNDsnzAUhW2BVRpuksE60nuLH49gnfJ1w2/z+Wvb2J6WwLza35QreNRAAoB1SDEql/5DFCUhVFiJovuuOJMMCIk+xvrXUlTjeacxUAosVCXYFEaFSkKCNZKrSR3KttSSaTBO1ns70yUEHPFWfkWB/u38L7sKHkgXPLFGjn5nyrj1CenSdPHCkz5IawHFWGJvmeG4FqL14xRwhWHz9WcQGFXLLU2lAH0DT3LQDBdgRXrgehMNLczJsQhsLoMmv3LH7noA3iirjRojdhqWTdoNqwy+S0XA7//K4FntA9uS1Sg5AcAgoSk8ePFFSHSUzEYegWW9+q/W9tf/q7Kshbtzug2W3hH5bpeeB1dY629jmQ4LigBPjhG0pS/ujHGuB5WKy9mlXcDRyvpLICeAc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:3bd4c583d4d2647f\"],\"constraint_ids\":[\"C:9e82b0f2fdf238a8\"],\"span\":\"At salt depot, Ivo struck an unarmed visitor without warning.\",\"rationale\":\"Ivo immediately uses force without first attempting to resolve the dispute, contrary to his required behavior.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "a+INwYRH4rmXxWYd+zGs92FAlom+vYAWGgPBUYousU3k2sbCAwmwW7QhSgHFZGUNjXpgprmzGAnlMSmQ8H0gigD/aUJTn4MHsN4twF9GnxtTKcOWB9XxgyJG9K8FFGEI3/wqI258MpbqlQwtlAapH2+U9sx6nL6aBC1lnZl5kWgvxriYmVro8rJNiIxkkaUqUPXysOwE3v5Zh49DKvGtSJbTjuaHpkEB9ouqEIYxep7RyaxV28pbMDyIx2cM9uUWBNiMdp9J881MeLCwn8I4NTs0hSaE7KxQc8887hThnelu9VYhEAGAAxotAHTmzqhRrv0zS6qKTTPZVRg9xoUgZW8d5bxBxRmzerTB17kUx8ub9eed40annR+eYzG4OPwG1+0pud14t/O5jDGiZ12ZjmpscxTr",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 608,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 149,
+        "output_tokens_details": {
+          "reasoning_tokens": 57
+        },
+        "total_tokens": 757
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:3bd4c583d4d2647f\"],\"constraint_ids\":[\"C:9e82b0f2fdf238a8\"],\"span\":\"At salt depot, Ivo struck an unarmed visitor without warning.\",\"rationale\":\"Ivo immediately uses force without first attempting to resolve the dispute, contrary to his required behavior.\"}]",
+    "token_usage": {
+      "input_tokens": 608,
+      "output_tokens": 149,
+      "total_tokens": 757
+    },
+    "tool_calls": []
+  }
+}

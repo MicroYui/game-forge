@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:985e8480fb1a784bea19c033640b6bd3cacfa9abc511d86306b179f2f1e21bfd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4684,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 670,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 206,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 953000000
+      },
+      "created_at": 1783854800,
+      "id": "RJQiirOvT9wP5p43I8erdHDiUSMGhtTz4BfLN+nmZwQTXiiKFoWsgFc6jVTfahuW6N1rC2MnKaoGPZa8gFbuXddTaAx23Qu9kpHfQ15WJp+hUxTEHpC6cvnSOEZv9m72vq5b+Jw4i9mNLd8n8uunUavuVh9QKJ6ENHkafbOZY4ruJA+n397skcO1LJWpAOGqsh7nWex24IdXitcCMijeuoGFo9yDWcTEPBOOfdV9U3QN08NZvB60R7ychPDsXjjDuOQzOgd4Sb6StfT+nR1jSR7wTGBTUXQUxihhDpwkgWEhAR2isGB7hsV2RIXGP5bNXa9GkG+Rf44/0NvArl5Eo4GFPe8x5c/JTMSgjoZgEW+xuCEY9OUDCC7zhFi1psBSKiRM6qPPf5Bdn9JdowAsDLshyAx/cg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "H/D6WA6zIngE9OweSlXddmySV4ia0CyyiD1UyCLA0gcKr1fEj/pprs30/yGIfWJZCBQtCIolxvWUKGLb808OjaMvXYpRzmLE31wf7/QuyznpOnCqJ7YOcgQc7KIjdktcZ7cZVt8WOcYxeE8K9uoXzNISzvWWu5WLf2dR+SW5PBRnar2eO1h5W1C/ZrIurb14RmZwLszzllhCnv+vVuTFsVKxMbuHMa39wvmNL9PHOdrAzCLUDjAyKi3GdOKR5e/bj+WVkeK3OqtXz9G6UCAz5Bry2308Pw7/QWC3cZ88FoImoxQe7jCMG1npJ7RlgShj7B6gePCwjost2OaRuTOrrZDYFNIKyC03dyUwyTgKrFFomeAH26WZ12AFptNmQSwkEE3am5c5CvMOfBCSe5p/bTJ+VsQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:4f23bd0e3af6d00f\"\n    ],\n    \"constraint_ids\": [\n      \"C:c2966933f7902404\"\n    ],\n    \"span\": \"At cargo ring, Qi transferred the rebuilding fund into a private account.\",\n    \"rationale\": \"Moving the rebuilding fund into a private account conflicts with Qi's duty to preserve it for the council.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "RmxJnpm9+obAQ/45fbwGjLwOtm66BDWtM2Gkk24Fw8/K+Sg2hd+t8kMJK7YyAXK72GR0M0GZDqdK4i5ud05YlzTuYQr8P2Pq0Pg4sIJI+xSG753KLAjqbbgsXioQtkGJHd1q4+l+U6pBQE3vfBFlWjEgrTHoJKFUcO9EAlYMHWIzc8xiFyBk3evPcsbmrZuY9mt0xfbwUkPAZphjeK0HPyI8VhbVqvhwwkO2/9C8j4oYVvJftNRr6wcJqzowBygEvvGdHKgFDwSz0aoC3liNRou4KmgoLdFI1cCx0XEWbJpZai/xVcCWU7TjJO4rTxBytksX1oCz5BXKYU5kuQvDbLbKbn66Vn3gDO3IOzy+hKCUSdH3hL4TOs6/wWLg3ZDAND0wF5igO4RuhmkQ/Pz3PpHEYPTe",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 670,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 206,
+        "output_tokens_details": {
+          "reasoning_tokens": 93
+        },
+        "total_tokens": 876
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:4f23bd0e3af6d00f\"\n    ],\n    \"constraint_ids\": [\n      \"C:c2966933f7902404\"\n    ],\n    \"span\": \"At cargo ring, Qi transferred the rebuilding fund into a private account.\",\n    \"rationale\": \"Moving the rebuilding fund into a private account conflicts with Qi's duty to preserve it for the council.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 670,
+      "output_tokens": 206,
+      "total_tokens": 876
+    },
+    "tool_calls": []
+  }
+}

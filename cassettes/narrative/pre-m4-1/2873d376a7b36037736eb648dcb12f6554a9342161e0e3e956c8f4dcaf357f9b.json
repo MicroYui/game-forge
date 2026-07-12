@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2873d376a7b36037736eb648dcb12f6554a9342161e0e3e956c8f4dcaf357f9b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2848,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 528,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 128,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 648000000
+      },
+      "created_at": 1783852500,
+      "id": "ZS9uwaoi3el4YqN0P2tWBcl7Uv6xV3Cn/f6JFMzKS+ywm4AH0gY7Y9nspAFOUDxEE4buIkMijROi+0W2Co7SNM7ocJVbO9IDCIlSqWGv2eY3+jJhG3qsft+vqR1dOoGnh0Zj+ln9oWPm3cP7poVBr0VCdZJ1dD73k9EmoPat4KQb7bNiGima+kZ43n5uRh/xrvoRkuMFi/CjQeK7XGKehj4nSSJe68y/51cTstv3zUvRxzDcHlgxKXk/OwkpaKWONAHBJ2HG+QsJ8tWfolYN0uu3LyS8QHV8/6Oz2GasCDyEqwIEAZuE+I4JQO6OVxCLyPJDEy4zYIImL/fy7npR/JHTH8cNIyQFVwKF0peJDO+CtqhiIBt0baZQLdqxmGPTKdwwz/rkOfgZ+tZQywpcXmqvpd6MnA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "nESGV1slmb36iQoDfnS+Fu8nf0aaDx+k3GsEfi5bzvtmI06UFlSky9iR+GFvZQz7WmsSSF7dlMMfDUzsU91oZDV6BPIW8gRqbrfAow1tz2xpjtXnGA8B3lmnokiuMTLAxMEJlwQyJwT+TFZ59lTNLAuekUVvefyGgp5PusnjElgH+93oQyPBjGQIYE3a2xAUOf+lmNXs77qKfMo4ydb+LdAMuMp26u39PqWdffFuF6X0zc2uUYT5M1b91wbjcjgA7XBJQcx96IZ5dL3kzEgZnYrbCMOhETmFW5+gbGtz48JHn8vf5lUSxhORSg4ThEAjlgm1E3ba4xjl2mGCZaHSL7cdvm5jKMfKEhTh9FrhBdDtst8/bXNyIzXazqEdwop+W21QLSv1LhRA2Tu7XfdzvezlUXQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:e49e755333a74048\"],\"constraint_ids\":[\"C:424b7df71cb6b872\"],\"span\":\"In archive hall, Qi used the civilian refuge as bait for an ambush.\",\"rationale\":\"Using a civilian refuge as ambush bait exposes noncombatants to avoidable danger, directly conflicting with Qi's safety rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "EgvHXDKgMX+MnnIZ/FQ5h9nHB87hQfVDdP8wrR0m0wnIJBwBvl5y5s0FIWAkCycjpEanx33wOhI2z+Mc1BaC8Ax45vzP/LKNKnozffvUk3s5B8yeqaUWDBin5XkARhNyuCmr8FlAEGd9j+dqtnSoeG2kcFkn7qFMFiD8Nl7TuteIs7JuQj4aPtNBnbmgXI4bDywMZb5foz4Rfs+GpygtCKL6PJgsd/ONPySrhn4sKswbK9ItYmlmTMsAZehZgDiqZ01V6ztL2JXq2qeC2dy1dWODJSFSAqLsUzkl3lgSyOVTn3L/MFfur0TloNR/izwmBH7FAwD8dx5nR/JLeWQ+Ox/SNdWdLgoZ0vDU0MGM0l2eLqvbfkZSM/Hv6lKyVQgdqCbuaAe9gTJkrTU/uZ15EjT6vifs",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 528,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 128,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 656
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:e49e755333a74048\"],\"constraint_ids\":[\"C:424b7df71cb6b872\"],\"span\":\"In archive hall, Qi used the civilian refuge as bait for an ambush.\",\"rationale\":\"Using a civilian refuge as ambush bait exposes noncombatants to avoidable danger, directly conflicting with Qi's safety rule.\"}]",
+    "token_usage": {
+      "input_tokens": 528,
+      "output_tokens": 128,
+      "total_tokens": 656
+    },
+    "tool_calls": []
+  }
+}

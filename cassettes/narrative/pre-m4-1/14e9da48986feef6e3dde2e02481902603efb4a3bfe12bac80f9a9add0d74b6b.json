@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:14e9da48986feef6e3dde2e02481902603efb4a3bfe12bac80f9a9add0d74b6b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4036,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 636,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 169,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 825000000
+      },
+      "created_at": 1783847700,
+      "id": "fRHahNFG3PrHm/O7NsgBtsEYhvcjYbg/WQTsfW26/Au3Q2YyfU7c89jCHokII74Q+iCEh0Ybn8FL7yRRcGvGPFGtU50X6ncpZvWlU0a+PRAEQDJsRsRHrIWJ1CGMuL0ym3kW7TCXUd6FAnvc84TiqaDavJMzG4kiZ4dLtFe12VsIRKVDgQkalbyVKEh1aanqjFIivhgTFB1qavqvLp7znGkj/chO6ygKmKehXTd/QXFysUOmvJNQOXfkkpRz7KfZ1Xu6EMmHKU3YK9N5rxDRL6QUV4zLpt569S2plbjLmXnKWlqOPDsJC8ci1hmQ2q8+XoBk5ol8DCy5t0LFAL3xrWMbg6EPwcv6v+qixWeQgNseZhxXOsJEi6bQVIJL+N2oiX8Bj30uNOAcVxMw9wcCXEU1/n8CBg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pnB2ib8uGUYta+ouwsawIrIpkfvrOD+XqNsLC6LuRyu4K3zFstJPP9NN7EqVmXXsLa7A83ZgmtD09xKJVl4lZThnoaPwUEauGs6RN9QBDNCaR4zYlCmzlA9S61l5DLvxlnn+Q0QLA6bTtMNqMVR7XLrvEfexlHBQsd7HvknLRaN2ilNrv95AAylcTD3AwjJXXZqRaMMv0wD/HNRP5zm0t8Wp0p/R4Ntz/NqEVjAUpivKDQDrXDA9Q+OIZlI0Tce4UALuhM7iM3rXSAGHoG/mNVtAP3594KIx5uk/D2UkKW1fJPpEUTakRFb/M+63nMrjJmZficqAtlXApweQsr1gXdCvBVBkZ79z8OOSMcPHoZ1h3kaliqjI3Cm1ans+P9Tj0OjmP9/ylwqeBwSRCMODO1L93kY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:2d42dc502d00f9e0\",\"npc:8052350a3a5f8962\"],\"constraint_ids\":[\"C:82bbbd97190d8c36\"],\"span\":\"Tamsin fought beside Eli under one banner at desert waystation.\",\"rationale\":\"Tamsin and Eli serve factions that do not coordinate operations, but the quote depicts them fighting together under one banner.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "GiHlDm9+IvRCxqVhKZcjXoJhTlTExood0EiQzntWbY1mgZYCDm3Qdl+YytcTO7SG9WrZHjSpLFfxnLS+ovMChHQ1w1nVqdhLzVaSCqyNOBeqZEeFnKNV63ljR8YQ8qOrEKKq7cMYvBoREYr3xgFbMFzgPeFgb4ExZKVX8JzC1dX+kynz8vZ1ts7EbNE38Io6b/H0Eswyp4dAYFUNr6gZhxGPIy8lC22oF1Yt2oBNP04knYHXl2u5+WfhGz+Vjo1EvS+mGghEdsKGmncqR77O0MVROJK82bZJC4RQE4FXdFAVJihAyzAD9ovDPfzSpxqI9kd3niTlbN7cy7SnJzzmots1V9ZSShcjXCoHShBGeSAaEyPZ6IZyQgErTLE0zwJK9DkCcpDSHTRwq2rg3SY1NtWTfE7C",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 636,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 169,
+        "output_tokens_details": {
+          "reasoning_tokens": 61
+        },
+        "total_tokens": 805
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:2d42dc502d00f9e0\",\"npc:8052350a3a5f8962\"],\"constraint_ids\":[\"C:82bbbd97190d8c36\"],\"span\":\"Tamsin fought beside Eli under one banner at desert waystation.\",\"rationale\":\"Tamsin and Eli serve factions that do not coordinate operations, but the quote depicts them fighting together under one banner.\"}]",
+    "token_usage": {
+      "input_tokens": 636,
+      "output_tokens": 169,
+      "total_tokens": 805
+    },
+    "tool_calls": []
+  }
+}

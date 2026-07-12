@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b32b22787d3843ae3c58eab18068acf926c119f244cd41f2455effe577e27cc1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4817,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 538,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 199,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 866000000
+      },
+      "created_at": 1783850500,
+      "id": "5hD0H5+z9Yk3PsmhMrbyrxB46n0Qyy1gpCEQ/g/p3H+e2bJ7F8kN1cdccaGg93dgxV1nDc2XEwHW8j5s7seh9P0od4iIe9nEhutUMyd6xQL2pE1L9xZtSSKq2O907pHR6gxGzayVSrXE0dtrjGp5NxQtVhXtuIvFyl1PdfVzyNYGYuc6Z2iJabIWRh2YbABVDC494xzZMEyYYWTiV3S1mfw2hMHpsOGfCS1Mvo/V+8DV/0OlbzgkufnPIzRJPf8Xnd747zq4kSBV8k119RobeWke4gzD78qcYzSPJl7dvtlf60RQJrk6hPj9LYTamFyeT1pPvhBoYVY7cJLl3wwfFlsFqeGSah6J4cBh1I6tRLHC8boojGuwnr47jjJfDnhnjB5YNxsyPViCwiAuu51HkQTr49LgtQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "w+IVEfDCOXPZX8jZV1OlBGMRYvCgjkArelcKJAmuh93hjZkuKtOl2wO6a2bLKhnCMXnCfG2kWIwh9lcrY2qLkj2Z7FaqskTgMhycjthai3FMdmh+NCxKoCU02d/DRsTZ+YJsPwjSRFHi503hA2NLmxSbsQ6tBJaXlKMoEjMJbdCIY5SvAslCKOy6+PRF3KMoYqcp0zfKWNlMYcotUcAGPxRp1TnXUMONYQiZjuBbBpeqKjC1Z2LvM79x8yTGW1EvW3gcfv/Sl2nfsatuSZytV8PBFfwoFECrFpwec18zlVyl8k3/8svoFgaRe5JQOe9k/Ww8Xa41EpJm1EK2ikfLBCqBcmRssBivuOHUzfCNJuTcg8g4YejwGAOWQ6MW5fUAjC0FGQt7X0DqPKmJ0PyQK4iAEo4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7da7664a138579fb\",\"npc:e31fe448f58c01ae\"],\"constraint_ids\":[\"C:aa8dc91b648201c6\"],\"span\":\"Tamsin signed the register as the Archive Speaker at observatory.\",\"rationale\":\"Tamsin is shown holding the unique Archive Speaker role after Eli was formally installed, with no relinquishment stated, resulting in two active holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kPUf00AUCqBb1J4a+oUWo7uJBj9Zj1vwSUSPLBOPKDSIxx7Ts8Esr88JVTTTFzDMv9TBuBiVHLGKjjXl4xpcagwPahF6URazy1wGs6gelNB1P/cxVw+U73S8jSNbyrAOzdq5kuiteXWWnWZyR97N8c0nNb/Lmri9iLSwP5Lbr1qztmcehqLv0pFzV37XNNMnHEOBCvY+mfptu/0RfBYSg5D/KCo45SjQ1XrXISzqeUfvX/swI4lwOWzbF43OFlhPZSEhIBQAzOuFGCGsZjL2KEKJH9Db8oNtDHr11B/2NnLeiUmCAIAbQ7HZXi3cwrXKSrNXAPrXjzZiRrZazz3LYi9Ia7uNepfztgFxMyZRAnekoZS3ys++gImx1uLrKEeZiQq3mJ5+yGWMbI16IRsZJStPh7aX",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 538,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 199,
+        "output_tokens_details": {
+          "reasoning_tokens": 90
+        },
+        "total_tokens": 737
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7da7664a138579fb\",\"npc:e31fe448f58c01ae\"],\"constraint_ids\":[\"C:aa8dc91b648201c6\"],\"span\":\"Tamsin signed the register as the Archive Speaker at observatory.\",\"rationale\":\"Tamsin is shown holding the unique Archive Speaker role after Eli was formally installed, with no relinquishment stated, resulting in two active holders.\"}]",
+    "token_usage": {
+      "input_tokens": 538,
+      "output_tokens": 199,
+      "total_tokens": 737
+    },
+    "tool_calls": []
+  }
+}

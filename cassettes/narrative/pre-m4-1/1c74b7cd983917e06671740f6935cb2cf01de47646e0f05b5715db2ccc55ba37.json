@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1c74b7cd983917e06671740f6935cb2cf01de47646e0f05b5715db2ccc55ba37",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5629,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 585,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 344,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1324500000
+      },
+      "created_at": 1783859000,
+      "id": "SVu8dqaCcC/TssWLFuTBtFfIc4Xut4SJBoqPxZAO4qoRMNCr+LtZFKZhbM5BHJ814rClXNZKLQGn8yXKiaS5f0IPoSlOLZO9cGeMinwwyOSC7BhB7d4yjp47mUbtMwOkFhXJyPdnxlX/XmQNah6E/WExeg0vRm1T4H2NpWqeCL94FUQZ6KQuxvtqVAlqKNWoHZn8VzjUrakzKv9mQEUHPSGVfmbxckbctDuSr+nTORgVIceevsp2FZ9oEzd7DwTbhj3Oad4LEKLWGGuT1q4qwbI1weIgpZVnLgRQLlBSaSIfKVJoZ7uAijmHcUHrd4xuB1iWLB/0q8za73IFNamt9yEIIP4aqMiro5Im+hUdUbJGYS0Hr/2B840PPKbqQufGfOGQMLifYi3Xgm3n7Z/iNvFZqeX0oQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "3peHwu9O5gnFNtc9IQL8E423wJwKwOPP3UoHgDaDwki4uN2TkYe/Dk6TqV31tEiIW1Kj9aYE2dkwdVmeIz+Buz0C+YZ89Q+cq2CRxaOFodZtYYJrcW4iSKxKbBga4Tm96BqcwE4kMtd9M9ehjhNhGFaUGWRZ2Iuu0/FuXb1aubILYblFrcqa2F7+5NhcPtHs8k6JDvI9eAMOSQmkDrpED63sGTGBy4d3UJCfFvVOCMGlQ/tf2ay9VK/lx2Htbqn/aAwpiNkycmH/hE3GIv/NNnjjyi+bf0qgzqrHJj9HPL5VFoIUN/V1MOIL0K1JE6/IZFU3j4qOH0p/R1WO3yi9LGN71grdPLNsZ4LLdFOzvyLdQKQgqRG/kGcgEJ5n6H4r9ZXXhBmNGYX20rlpd/HZl2PT/P0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:3f5e3be1a682186a\",\n      \"secret:b3c735077f2b9860\"\n    ],\n    \"constraint_ids\": [\n      \"C:53e3909ef5132a56\"\n    ],\n    \"span\": \"During hearing at canal bridge, Veda openly named the saboteur's name.\",\n    \"rationale\": \"Veda knowingly violates the restriction requiring the saboteur's name to remain withheld until verdict.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:3f5e3be1a682186a\",\n      \"secret:b3c735077f2b9860\"\n    ],\n    \"constraint_ids\": [\n      \"C:53e3909ef5132a56\"\n    ],\n    \"span\": \"During hearing at canal bridge, Veda openly named the saboteur's name.\",\n    \"rationale\": \"The saboteur's name is disclosed during hearing, which occurs before its permitted reveal stage at verdict.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "tojNFJGW0xtcIe+wO7Qi+v1tG/Lk87PDh+ldP/qIyse3KAemTnz+tRpRRpDOvhrjJ3W118Ps5E3DXCfeXGKR5IGk65pvCXywC/KUogGa6Vs9/TVTa5GMXHJxtTfQDkApfypduGhmZg16BzGggp1aEbTQFxLaud1+utVfGxoa1NxcB0fS69Tksj7Z72pZX0RmPBJW9ONzmEIF/aUUPjD9iOUj7lZ6k0NvSnf6IB+HMcl735p9Pg3AzlKngHAT1xlc5um1JVqlBlBCjf7GPruFHQHqfvUuNWinZSqIHYKa1cuhSXBPQWqFjCn86yxgDbsxVOau4RFSYsyID9nYQipIoNjZmMeO7GA2Nxs0FuIP2qhjyt7iDn7kpLOZcvakYmNq/5dNOmfOWJB7GVnZ9/va5T3vJ2u7",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 585,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 344,
+        "output_tokens_details": {
+          "reasoning_tokens": 91
+        },
+        "total_tokens": 929
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:3f5e3be1a682186a\",\n      \"secret:b3c735077f2b9860\"\n    ],\n    \"constraint_ids\": [\n      \"C:53e3909ef5132a56\"\n    ],\n    \"span\": \"During hearing at canal bridge, Veda openly named the saboteur's name.\",\n    \"rationale\": \"Veda knowingly violates the restriction requiring the saboteur's name to remain withheld until verdict.\"\n  },\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:3f5e3be1a682186a\",\n      \"secret:b3c735077f2b9860\"\n    ],\n    \"constraint_ids\": [\n      \"C:53e3909ef5132a56\"\n    ],\n    \"span\": \"During hearing at canal bridge, Veda openly named the saboteur's name.\",\n    \"rationale\": \"The saboteur's name is disclosed during hearing, which occurs before its permitted reveal stage at verdict.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 585,
+      "output_tokens": 344,
+      "total_tokens": 929
+    },
+    "tool_calls": []
+  }
+}

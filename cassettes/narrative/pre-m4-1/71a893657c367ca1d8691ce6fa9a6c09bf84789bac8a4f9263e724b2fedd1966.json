@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:71a893657c367ca1d8691ce6fa9a6c09bf84789bac8a4f9263e724b2fedd1966",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3526,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 610,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 219,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 962000000
+      },
+      "created_at": 1783857700,
+      "id": "I9Nigj2W++ppEB7pW5QfV6SkrYKHgUsS6Ix1mzRxTa4ir0e/JmDkMWzxX4EkjaSSeAiYvZOm5EHqD1L1xGrf95jRfe7NykDBCTzKpZzhdDNCqPv3UtnVwgxqOd9SXmrhYEkf3ygjdP3qKNBLYzCrGJX31G4JngjwbyV2FrlUVYUypiOA/+D9xnMqftgVtCSTDPayjGwAWv6+TJqcuGxMSFTaypTR7kbynpRzXpSM7x1N2LXTj+VkQsRWjCzSHUwh+Z2XMWWk2B+CkCkyJue4aPQXy5Px3pK/6HNQ8y72IXV/iVfRa240698KjD5m9sHRD0NoPbKzE+DRp2OPPvfjNGQOOW10LHtyBnds2EwzJgYOwyj8/zdzUisj7HiXsdB4pFCYInbBMYS6PSldCAGWULIro7KyCw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "MmVLiHA3QbmKac1ScpISpaGPHn/+QPxqk+CXKAtY3rj4r5dWyQssxFgHhY/LGskHpH+mOPXdcrMZy81WcgDDbO+iYgmqy4W533Nw9PPwIFrZq3id2bAmEwA9TSxEtCMvlID2REAF3ZQ1UkOFr0rMegKFW7O4zivE5qgSPW4bQGGXQ2bxAE8P0wFGT8n+W7f+gEovZKmFPmcBs/kiGwLca3l43cMBPiwYraaygjEaiql6OGFP6yDKGA8KEQtHzgVqFrZywnlZatXLOKNuoU0ZlDoi/+/V019qmmhyFm0yz9+gMgjC0RbkYmTguci+tPMBMw3cvEnnPCYmgsyK++nuDkD5jA7l63bY3WOLH7djcXB5E0Khfm5E9Wy9TS6vFz4m1fRfGyiPTsSvaIBn4NNU5PXMNCQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2ae092914ebd34c2\",\"npc:e7a0767366f35bfe\"],\"constraint_ids\":[\"C:83ac206ccf57dc0a\"],\"span\":\"In relay deck, the council recognized Iria as the First Navigator.\",\"rationale\":\"Iria is recognized as First Navigator after Ansel was formally given the same unique title, with no relinquishment or transfer stated.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "MVcNU9/TejriP3peQV+9mclAYmWo9mnIjqE/sc7bzAzdW8pYQjnCUIItmY2eUcDNLhxhHPLnUFGhwWOBcm8Gh+GoQdoPRYMg0iNcKHUWpg5maCYXJSPS4aqKcOsCf65fdoeFECbO/0H0vflX/gId7dMZgcSCGBTSvO2JNqhLDdV1CKPWHjjQOPOE1AjUSw7b7Bekgpb/zYcmZke/mSXJPrX4C2+iuVOE1HWDMRkf760jQQvzeLBg3SunLONdYW1m2qlh5GoMhoPZnmpG513v70PfIjXBiWBJf3Mm7vqmqJb9Y//kLYZKDrz856Hkx2Gt13sVLdI7kuH+nMPlhEQwVJaDCOQrXXQAJ+L4PCwxbaaVesagv+0FuMUFTDeccyJr1T4AWebnZXf501U2hqXJ2gXIeSB5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 610,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 219,
+        "output_tokens_details": {
+          "reasoning_tokens": 111
+        },
+        "total_tokens": 829
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:2ae092914ebd34c2\",\"npc:e7a0767366f35bfe\"],\"constraint_ids\":[\"C:83ac206ccf57dc0a\"],\"span\":\"In relay deck, the council recognized Iria as the First Navigator.\",\"rationale\":\"Iria is recognized as First Navigator after Ansel was formally given the same unique title, with no relinquishment or transfer stated.\"}]",
+    "token_usage": {
+      "input_tokens": 610,
+      "output_tokens": 219,
+      "total_tokens": 829
+    },
+    "tool_calls": []
+  }
+}

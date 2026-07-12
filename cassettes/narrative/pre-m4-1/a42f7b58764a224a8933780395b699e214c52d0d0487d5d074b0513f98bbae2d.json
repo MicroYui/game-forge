@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a42f7b58764a224a8933780395b699e214c52d0d0487d5d074b0513f98bbae2d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4019,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 547,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 214,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 915500000
+      },
+      "created_at": 1783853600,
+      "id": "Izo3+vAi/WjWfF156WGkMKwYYPRA9dx93Llfi52fpdLkf/y1+DIqI30yBYvXoQA1KcAcn9RKwbDUNAATs3DFiJ2mMfenQMPEuxYto/11wN/vc9MU2IoxjODLxdRTvVRfeibPRja9IBmrGsM6jVMxjx4D1CyJCn1FFL5juq06Woc0cSvXmxdmQUlkeuTeQ98RqD4yv3Ko0E4nCyv2tPPezZcJs1VBU8hsT3vylBYmN0/flx9D5IQUmjJ5NJ6kcTFIdAoGyAnzPMxIwK+TP3mQiCDFoExsSNXEu6cjEZ3oITAR1FC4S1psXYrP5rlSMSpMuL5OWWTKyMZS9hxTzFo/ttL9j7eDwPKhKEnRl+1Bl2bbZqqANi67csqBp4fXLZtQTl0ulFpOzHSa1hPnQ4rKm8nJLUIgZg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Zotqf46uqlDy4OmFod46du9qSV+HMEjLpvIRRDwv1I1pVVfkCH9JwdAE+/T1aOCRhCIBedvebSA7JWg3fvH7RhxC+Kv+34u15Nj5ZxdgwcYpFwIRWXMMQM/Aj3PLxJf6wbbkE155UeQsXEGvNfWdPDuUf6ddQ1JpgJ6pUEvLGM31uwRPMTk4/3nzkZPieh/f6ryjRXL5XcyrBFk5zcmk833vAqcrh4kHHFwNwlWJLeItm+9NkIlLv+nuuvuEuqxaShWonJ+uIAI4UB2wOYARznPD0lk4i6ed4uQtRqaYYRAw9wX8fecOA27b6p8nZO5cYwbUL5zW68jk5kpI359aG+jJxZo7IiiOCG+LzHbVJDg6LVnMGLnrJdnAjRNH/hcsCEJOC5d5+7CgjUt4kQoiAkpf9Ko=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:205f447eaced88d7\",\"npc:85594b0a62246f53\"],\"constraint_ids\":[\"C:db6af548bc24b96c\"],\"span\":\"Ivo accepted the title of the Warden before the assembly at signal tower.\",\"rationale\":\"Lea already holds the single-holder office, and no relinquishment occurs before Ivo also accepts the title.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "bJh+5ZVz+RGBEq3UcfBxLnU+zWZMN5lubYyWz2/DVY5IC6bK4ZkwM4AKTptm9cUxgJpDab29yjuTzpTGsTeMbfWuTkak/KVIPb1ZPXRRRlXH00zMfXe25b2ok4SvrT1A/gOvpYBAF3e+N0Am5SoNETGqGoJqWpEybrNQqvF1QjHmIbop0+QqkI75vryZ7TGF6gyV2NG/dV1BKa3iAUv6gi3yq8I3bYtxt2Oh3LYL2o/6IilOEkDuyTv430442j9Xq1Bjf5Eo9BUNHpTqvDEPQQezc3llDyCXFsAwdPf9gk3qPDJg+YyHCJ6o5Nd7dn+XpM7Db9wdocZiE34GmtS+mbxLJF0V9WsKcJUJRV8edcj4C0TYrcEPdmj0C8XLCcj8I0mcGSpSCeOM4VXPJfaVM4ou7jN8",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 547,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 214,
+        "output_tokens_details": {
+          "reasoning_tokens": 109
+        },
+        "total_tokens": 761
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:205f447eaced88d7\",\"npc:85594b0a62246f53\"],\"constraint_ids\":[\"C:db6af548bc24b96c\"],\"span\":\"Ivo accepted the title of the Warden before the assembly at signal tower.\",\"rationale\":\"Lea already holds the single-holder office, and no relinquishment occurs before Ivo also accepts the title.\"}]",
+    "token_usage": {
+      "input_tokens": 547,
+      "output_tokens": 214,
+      "total_tokens": 761
+    },
+    "tool_calls": []
+  }
+}

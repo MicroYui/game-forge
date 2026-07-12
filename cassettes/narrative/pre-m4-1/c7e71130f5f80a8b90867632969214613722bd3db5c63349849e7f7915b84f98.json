@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c7e71130f5f80a8b90867632969214613722bd3db5c63349849e7f7915b84f98",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5006,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 594,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 197,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 888000000
+      },
+      "created_at": 1783860200,
+      "id": "IDYy07gIaSOkiahmMpvqQuTaQDkGZ4QPkqw9SiEZhmjFkaBwu/FxyXTL3wRrXCC1yqBo4EZNijcSC2z5C0rv/bKjVEemYNaQDI5382MCewfF+no0SVh5A+aFUjnWdPSOwp0ZYQDRH0Vo3GVshqxI1fzZAVLU749Q9A96mVJddICbKakdjT1dnE4Gyle+NoUTJTvHK/xGxF4gL7tk+KZmuJj0DGACCkHCxRDlOs4IbyiDARCQvX7sEFvCvJK+L54ZJXKr8p5dVWmxA/VKJEsgnud165c4RRQWRiLGzzGdivB7eeaHZAxwVJRmuboasNGuP+16EOoV/3cTQB3JhvQ3o3iaS56LL6uWc1YHu1ywTLCd5u6Gs2/4sdr7GotRTMZGr/KwokYqqpJbuj+uCrDTKwGEMhBang==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pvdTzPOXmdtCn6vEAEBcSaFnijqr2DQ0lRnNcYMscFe8PWK7gaNaUkkKgfoLHIsUqj4OiBgs88qhQ9aokpzhmcSeMtGbZCwcCxMWurVHbQ9BAJeP12PRQubgSYOeLQYSu0rl9TgC/tK9QsDvvqN4eQeHKaPz6LuGeVhMkwCxQN41/7C+VnF+Hs4iTcWerY6iDMsiMNXUxYgFD/OxovRBFxZj5zhainwB9ItQKUNSS5TxN/BDl1jimOeg0ylY2a6Z6Tenp25scV3j76QnkRhlTuVus63s1Xr9HMxclSloa6P8vkkJCkbQJJJITQhSYIgbh/UtnSpQGBiD35gJ2yGQSk+TVqiOetTOPyy0CsiATholVs+9tHPDfvBKhyxKiMOLvGlIXkZNDgC/iiOz2N6ajdgxIp4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:e33c0d9056632cbe\",\n      \"secret:7f220aa548e316f4\"\n    ],\n    \"constraint_ids\": [\n      \"C:c2764a84c3082709\"\n    ],\n    \"span\": \"At desert waystation during encampment, Qi told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"Qi discloses the masked envoy's identity during encampment, before the permitted reveal gate at map unveiling.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "v53Z/s4ynIKuE6UxbGQ9w2HUmeugGqIfqTcyg7E1gEhQ23uwQaMhWFjI9N2XM312EG0RJf848GekCMbsUilRtwl49vfxECwTmYn+UiIfp9zUXnuwHfegDfdEPprEJqEq6HDMqdwzzhPEw62OC28ipUdQKXut0gFXmjPihsVXTc+vWh13Jvwp5N1Gj2s8rbntE5iEk5xnTfEZN0aLlaRX8oTfar/nUh6KBhlVPeEUQr+Cepn78ZMRwaDKsHG/lbyenNsXQSY99hn+Giy1T2MgJjAOFh+heTC/HZBdjXSSNdXa8jrRTBsVcJ8EjRmd3nkLxmL5i27fgtSrcu76CMLE9nBV9N6r5D1TyAz0GD4YJRHGj1jaNTYdDtI9bSTfufpESiHyx+UM/d30HonSVhnI1AlnTJwb",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 594,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 197,
+        "output_tokens_details": {
+          "reasoning_tokens": 62
+        },
+        "total_tokens": 791
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:e33c0d9056632cbe\",\n      \"secret:7f220aa548e316f4\"\n    ],\n    \"constraint_ids\": [\n      \"C:c2764a84c3082709\"\n    ],\n    \"span\": \"At desert waystation during encampment, Qi told the room the truth about the masked envoy's identity.\",\n    \"rationale\": \"Qi discloses the masked envoy's identity during encampment, before the permitted reveal gate at map unveiling.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 594,
+      "output_tokens": 197,
+      "total_tokens": 791
+    },
+    "tool_calls": []
+  }
+}

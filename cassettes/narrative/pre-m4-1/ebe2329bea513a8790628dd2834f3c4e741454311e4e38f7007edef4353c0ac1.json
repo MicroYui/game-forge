@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ebe2329bea513a8790628dd2834f3c4e741454311e4e38f7007edef4353c0ac1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4418,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 689,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 233,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1043500000
+      },
+      "created_at": 1783843100,
+      "id": "RoF6FoW/hdBBtwcp2ck9gtDtmcKMsGwbNia1MSgNMtduyrH0hsMsCXpDapnQDmGzndyqlqY+G9OEp8nQYscxEPS0EcFPrSyMLyLiE9C9JqYOzBeA7yL//jBeKzF7vwG39jOXdNbAIL6nECKKjYAXtc4z/t+N47Z4E+BGj+9owdE8LETOcfHyQOhpPnFLsw2mRJLBVVape8kSx9rGY0HI6pDw1fXx4euFiGynm710BWsatij4hAdNUFVZOZdp9sKLR/p3WdHDNZvmZ73rEK0N+28A3mpy9XhEamNdG1g/5FUIGqsGShvnP649CBQwtUByaEoW1kEFqz30MgNGTejfPCOioguW64H2ov+PhL+I6lCBDjtmXtwJ3yQqa3f9vJG1xZgb57PLI8A5s90uzHt8JZgTuNwa3w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "700F8aCv53ZhrGl7OPeNDjKj84ULkUSYsyOrStzX2gjKR2lnxG5ZL7TelNvREBtP9e5ShAOtmYX95jbfibOeP7vKAbmTZXj5kdxDqlOFJfbzL1d2DeL5nr12asgAa/3hbVJV9PK0eyQpNaazGFyAC/DWr6zcg4ic+tGAyGUB0uDM90BMee/WdTAwIKtFxLnNSfRXI08lm6SrcmbuTYXz/5b+NQ0QBf9fN/kW9KRoDkOONFghg6OTInBi1nwiB+zD2Md0oKosiM16eg65xIDVrrQSD2Tg85Msup+i7XAFdJ3JzIWkewf2oFbwYbOICf4u3osq4lB/3GMpiJQYyP4l981OLKGNAhQ2jwxUZnBvHv5ILKIdEtkg3++Re5ORpLK8cKy5NsrPRDdfK1w1+faZ3edu6pU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:7e1f98cca77a803d\",\n      \"npc:b87f8dc906fbafed\"\n    ],\n    \"constraint_ids\": [\n      \"C:eb1d3c3ff7d628e8\"\n    ],\n    \"span\": \"At salt depot, Lea was formally introduced as the Harbor Marshal.\",\n    \"rationale\": \"Ivo had already become the active Harbor Marshal, and Lea is then given the same role with no intervening relinquishment, exceeding the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Cj3scFdfV0bzkL5SoZbXPTmNHzL/xx9RrWcX33/jAFwBnL1i15ucA/40wlNad4XokL+k6syCFCh+FTBnzM5GQabjwIFOCWgHsBGSm1PNyAIB0cJXt+nqBvXDOEas5fywow3+5QVcd1Sy0dN0T8TU2ess4SRV13XMjqR5wAyPb+ibXJv82q4MwumPlaZBpR5Nqf9wDMyqOu7RW8yHIbh/m8o3w6y0zRgEYIKlw1OULK4KeCwkzuAG5a6VTBv1sT2N4UBfakYRb/wH5kKXmW30fpoTk19P+xZXksBeexROQEwNbXkOjCYgTZrGfeiN91aQyWqR6nOzDThD9NXp2WbLzzJcWpFI5DMibbRrV9Gk1JA+/ZO6hQorG8aKRi8txlBpHtrZN6Bitem+vLFN76xll2idN1K6",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 689,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 233,
+        "output_tokens_details": {
+          "reasoning_tokens": 92
+        },
+        "total_tokens": 922
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:7e1f98cca77a803d\",\n      \"npc:b87f8dc906fbafed\"\n    ],\n    \"constraint_ids\": [\n      \"C:eb1d3c3ff7d628e8\"\n    ],\n    \"span\": \"At salt depot, Lea was formally introduced as the Harbor Marshal.\",\n    \"rationale\": \"Ivo had already become the active Harbor Marshal, and Lea is then given the same role with no intervening relinquishment, exceeding the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 689,
+      "output_tokens": 233,
+      "total_tokens": 922
+    },
+    "tool_calls": []
+  }
+}

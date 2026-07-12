@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:50c16493a84d0e867b6d37e97ad780c95927ff5ececce3fb226c9c14db6cc69b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3795,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 639,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 157,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 790500000
+      },
+      "created_at": 1783843600,
+      "id": "oiS4RD75zD4e2Ij/0KVjud+bNlPIxtEJVzNtkj7vNZXpvDGDB7/dzh3QY7+dMLGFFm07S1kJM6BYyTSiPtdQCH0l6n1TaKOGw50HHTGHksLKs7JXKx9749biDw9cJXZbuiCVRwrWbBrAZ9YUnpFP1Uj+BeD+I7iwoU4W8GYQ/3xt+szhWn6I7Tv6up7ZGONjSMCHioswmxkz39i6Pu30QqTVim9Mc3TJdghYXJqzw4Qca4omck2VlrRKwaTQrbnDSi3ImUpYV1w+8PuSf0/4NZlb4CJKCelxihO1gFIzA/7oZSn3DLNIVgIbamtQ9aXNTkxuTzfrPBOs7mJucVNVOn0Rlef+Zymf2tGUydTnBoZi8/Y2CH+DHbGyoRLmFiZSkBvm6/kvJR20vWVl7O0r/yLog55SHg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "P104+/3Q5AQ0TqLUj+EkjnrjXsnfFW6H4ANKd4iK3/VZo1t4h+qbXLxvEi+cdUtiH23pIsUlCpq7IDLOzoXRHESdzqVC1P474+x48AKul8WQVDsnT1g0H6wQoVS7KFVSBXKWdXFsi3DIh04fHvpXBxYoeVrao703goZNL87uEeow8bhimZJm6grtyiWR2H+bQYNzQWATKatkzoKbaeSRu70tHlp20r5j3JsecI1gxvk6k3EtKP0F34cdDTKS8PVCBtENJ2nBDT/ubQsTv2lKBnC9XABByCLv6i6sPPStzZLVghmyKJas4+pGxfMzZey0sJNlKjdxSbCf7eiwdlFdZUsQOfZcjYaeVffR343ixHMAP7d9rdnsp2oFtsS1TfRmBpzrUUI4OjIQgOPiws7kW7Qihg8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:1789ca9ee84c2a02\",\"npc:1bee037d6e21ed7b\"],\"constraint_ids\":[\"C:19d578989b12408e\"],\"span\":\"At orbital concourse, Ansel and Iria signed a joint battle plan.\",\"rationale\":\"Ansel and Iria, members of explicitly feuding factions, jointly authorize a battle plan despite the rule barring joint commands between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "nHseiZ1CCICKvCXCyTLHER4asdl/p1zYzAXafFIQFiAQ+tszXL4g6Z53ZPWly595mT5KY2fN/setLhFKEYd+aA2WPXrzz2S7yQ43MikIyBwHizrZrOgiKEdWCk7Fw7j4P8KYw5bGb6mylzCBiR3pQuJKRt3fGJxG/rFvZB+xqUgL9dJ7o9FnniB33IDbrucR1CCdORWwTCCRbG8GgBGgavuSurJ+VX96WkMV8qaNlx0sCuo1odKMBdanVM0fXTWCytRuby0YcEUfPjJwq+r1kRPcENP45en1sG2C/VaCi2shXoucfEtRrjFHOA5oaDgJ5nDO0ae9IkFKCy51Bm16OGcK3SDOrNtUFqkixCuejCjXKX5HJ3QRk0G+V3RApgnGeXCgKVf2qo10TikgILVCPxnhBtKL",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 639,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 157,
+        "output_tokens_details": {
+          "reasoning_tokens": 45
+        },
+        "total_tokens": 796
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:1789ca9ee84c2a02\",\"npc:1bee037d6e21ed7b\"],\"constraint_ids\":[\"C:19d578989b12408e\"],\"span\":\"At orbital concourse, Ansel and Iria signed a joint battle plan.\",\"rationale\":\"Ansel and Iria, members of explicitly feuding factions, jointly authorize a battle plan despite the rule barring joint commands between them.\"}]",
+    "token_usage": {
+      "input_tokens": 639,
+      "output_tokens": 157,
+      "total_tokens": 796
+    },
+    "tool_calls": []
+  }
+}

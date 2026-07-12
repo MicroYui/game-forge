@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1268bf4d769dc52d13813d457649df162897680556042d57f113f4311345bcfd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4190,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 689,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 200,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 944500000
+      },
+      "created_at": 1783845100,
+      "id": "xwTQQedjjdIs0e08gHDdFHbrYNtE9xW8xSZAHYGUtRb4biAkd/L3i1C7gTVR53AAUHAL8FgEh4sAKjEh7u6X8YzaeOzW3LZzsp2pHy3xK3PUQYhVOPqPIdghgPXhgB6Gsi7ZvJiIGg07FVbTQbVzLpmi/uUqj6Wdyn3Uksxo++n1V9YlORi7a5VO9+w8297lAMe4Kjsr8IoFYTYMzXOobnVa/c6g81+/6zH0tMZhEG9am1q7bKGBtgYAkPMuKooDAMSr59ZbbiRSEpxMIIewNbCPo8bH8svlafaAfZnMjeVua+rFxukjx8JJFIv2SaUgnTTsx6Kl9bSOcPWraq+bh/ZmLP0MA0JO2u+cMXLvtxSUxZqZ5cGEZMRSqwlcDlp7QWV8wERDVGwbwYaAk18w9xF+K9pw0A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "x8sV9h4HMMADPmeys1YLmwKYnVw7AcJNN7zQB8sLSf+BSuvjvGgbZtud4tgZPlvlf/UgYBerAcPec564UZb41bkossHDYuXg7IliuSWMHof5m7HcCnctymZ92XXzb0a7gOqaRTkzhPbB3quM8MjzoQa8vCf0GlxgXmQ1n7GFSX77vZYSc9fxhqFGL5xfU+KvZQ8v4N36JeDqlm4/O/tUl+1nrObrXCsC00J93hnJ8ckpBT57rSdKR4Bj1sIepQm4ElE8W4XSwz1CsIkEEiUeBSFJ958GjAHkNfECF29JwGMIkGtf45ZAyNtjvHTZ4lmZgy7YH2kaJs37xojyn5tRj151SW3Huw1vnWUahQGt3h977gTt11Vjo6J3pVzXUQZxKJfBDpf/jCwykgH6ldAzzoyA64k=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:8ee50a66d80385ef\",\"secret:55d32049b9929821\"],\"constraint_ids\":[\"C:6da1d256c4659a6c\"],\"span\":\"While the story was still in hearing, Noor identified the masked envoy's identity at old mint.\",\"rationale\":\"Noor discloses the masked envoy's identity during the hearing, which occurs before the permitted reveal gate of sealed testimony.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ohAizBLxj1JOWliiaU/bU4tCNsiqPNwdQ28xGiReRJl/ucLL9kKbyfOQ/NhmGa1ydiniKfQ/tdBOhUxJTMV9DlsWk2JHFUD+zYHuMb1XQLKfr3cKhqOVw4yUXEqRPRcOJ0KDmNYgxRTgfvsueqOCMhqYLaCM5ApF/8fy4RrYdliywAxbsyig0Ab+xaQHQjzkya4tVImkQ4kFQba6jmxVnZWo7G+lZqbyyTpXOAHSKXFv0Bs3smxhkBZ/2QBvy08UE5LMqmRFEbRdb7HllEr8KoJw7M4vvkEUW5EF0Ovvep8+4QMRO020q9mQNZb9Bgcp6iUVncrPhh6ZeUmDRMxAL+4OSsFuPQEcN8rqIga31eLA84qNPpLbSkCJdTlKapZoL304HrscBkFQmvOTE4BufOuLp6Va",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 689,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 200,
+        "output_tokens_details": {
+          "reasoning_tokens": 90
+        },
+        "total_tokens": 889
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:8ee50a66d80385ef\",\"secret:55d32049b9929821\"],\"constraint_ids\":[\"C:6da1d256c4659a6c\"],\"span\":\"While the story was still in hearing, Noor identified the masked envoy's identity at old mint.\",\"rationale\":\"Noor discloses the masked envoy's identity during the hearing, which occurs before the permitted reveal gate of sealed testimony.\"}]",
+    "token_usage": {
+      "input_tokens": 689,
+      "output_tokens": 200,
+      "total_tokens": 889
+    },
+    "tool_calls": []
+  }
+}

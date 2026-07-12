@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:30d6fb18cd6a81827c386042fa696dbee2b37728e039a53efec96c80167d985c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 10087,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 660,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 424,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1602000000
+      },
+      "created_at": 1783854300,
+      "id": "kUTVtL7bByPrM0IvAf9u/8JNSAjzGhULsOqvdB/l0bj14tzYpHn+oHPoO1o8VUrp4ZfaBG2hoV2phFuKMFLFCZogFa8HkdKLRVYs7ey1R1oOiGSqDMNDTnYNIRDYvWj+mcd9LOKGQJeulHelc1MGvWLgB8eC2VwzIVvioF3/f+CocsNM7PdliKmr7Lcaj0PNTjz9pEvjUz4oOe9pVXeZXVPEbLMXSyggWoh98g4OCpKbFRcSNYAI4Smmv1/R8yFAJU4hDf5xuGgpv9vnY3CoVrYKMe2TLgAeu7xX7fU5N1Tw8NvuBTpEWDucmqJYiGiDqCcAdsXtKh+akk07AH8fUr1PUQJrOmmavtsuDD28wSEHMjYWWrVMPcPIi/KZvfyChokKHGnsRJU2ljHuWAcZjj55pEDRpg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "09mm7m4trJcnG9/dzsH5AftVAg/UKqfb4GrdtWdAefOCpy2Gw/JjSBvaIx+VmIpa8AwfK6mEwkHme2K2NT7+4YuwcifPWeU7XO/4E+dmw0XciF3pUnQTb/5Govfx47hgsAcqRfrNyE1fPTXNtyOi9hzq155rDBBEMFh2xbrvczkdTsJoMnn4tSaHQXtFOUXgazmz2ffiTUSHPUvuef5Qx8avc6ByrSffl0eqSF4NJNSC2+vj3Zqp0i7i50FUKp13JnqOX83+M1DsngZxQtmrREnx0+0YcJJlo6dnfU3rMez5KwWirA2N680YDU/8jt5BNWirXD1H5f13p6mc6kQhPKAw9n6kyoPxSzmqRiSV4R8NK2t2jzZt18oeJDTe1dseIrBBGuYoanwJ9lbQCBdBcaiWMQU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:62954c76201c42b0\"],\"constraint_ids\":[\"C:1631b4d13293e81f\"],\"span\":\"Veda removed the ally's name from the rescue list at signal tower.\",\"rationale\":\"Veda removes a companion from the rescue list, conflicting with the requirement that a wounded companion remain listed.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "BBpYfddtdRtB+Dxn94xCI+R3A1NkpajN6eBtZyUQhmO8aC3epoBOgl2Vzs0IWu/YnPfRPfAIomR+ludWrf5UaX9h5t2TQ4iDB879E/yVgU+/STRltHMFVHGab99+YryzVgieCZhsrwOgTN5sv+w7QfKtCjNPIq2ZzTM2UZcndAfMclW4CJ8a4UzTu1fOIIOTdS1IAjAKAHvMEKd/70bbLVD05QS9qhbRV6D3UNOYY5h1KADQ/P9NygC6ylmHp8H6yOVrZEPVekk8lG5Gw/5RQDUs11kDMzWENMcwkznT9RJ/10VaGkqFi8BvthYm1KneMARU999qMV/Piy4hDCznQqdTrgK4Hg3Tnf49b7vdJ83B/sjIMuhs1283G/Skdppal7gMLKQcjMKWzVgLxHqj9Dv1/24t",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 660,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 424,
+        "output_tokens_details": {
+          "reasoning_tokens": 333
+        },
+        "total_tokens": 1084
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:62954c76201c42b0\"],\"constraint_ids\":[\"C:1631b4d13293e81f\"],\"span\":\"Veda removed the ally's name from the rescue list at signal tower.\",\"rationale\":\"Veda removes a companion from the rescue list, conflicting with the requirement that a wounded companion remain listed.\"}]",
+    "token_usage": {
+      "input_tokens": 660,
+      "output_tokens": 424,
+      "total_tokens": 1084
+    },
+    "tool_calls": []
+  }
+}

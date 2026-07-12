@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7fe1a9af8e9c557a88d8f69a0b301d1e270a3e4af5d77fdf0a2bc8fbba3c1147",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4623,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 683,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 148,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 785500000
+      },
+      "created_at": 1783844100,
+      "id": "NYSDZzeKsFTiixPtgCXiB/jN4QmoyTuR07QbVBe4L64f8A4ueV7eO4yuAlnz+7XOWF/NZ74XD0suwEEAajv40iXvMQYpbfIxXhi/Crnw6ZlDsc5SbPRldXKcRHLwFRHtcNXFakEZYqj/uo2itIfpPaVT9zN7Oybtc0LhuI9p5EzfnTPPWmGV9hYz4SN8apM97ufPgBRvS7l8GsTcjs+I5pRTd736/N/KB0OXYYRi/FtF1cEtCiCrR9kgjg8h8ambfJN1f9RvmBH+E/fBWUaGmf1rSSU3Lahe+YwV2klswFaS42mc2N22VT2zRoeh8YjpkVQ84umAz4FmUxCECmabXOMfR+BDI57wNwwB65xBY+9E7RF7dRc8HceOmgMIODU+sFMu1OTRq+BrF/oTQlFbwvmS13O6PQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "e26k2YBPGehc2seO4nv1SLjMMfccQKQPSb5UH+5AbU5C9BOpRG2YNYinK06J30IUv1Xc888t4a6blDgstzg15Y7UhKOXbTcqvmjxqxh0QMLg0ByjgEg/B7mquH7o1IlqY2a41BprZguAu0YWpYZ9L2ZchHJQu7fEWiyEeNJvWyxKhqt4U9sIzbmcSevXaAEjE+liGvWGG2qWbZs6A6IBkokLA0xVcsEyW+ioNy/IOydRBsVeAM+DwUKg3FymM5vdM4p4z3GU1ArRdH2rubC8VFTM1JYx/22fGUkXbeQVnJmUqJkiR3bqT/m/7Ns8P+anyNkKPBQDsmHIRUrqMQaKPYDHGG0t5FQSOVySnDXssOqzu4mKlesgs/jVeIvgdB12dfYNd7gSL40tkg3Lmh6Jq02Of/w=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:a17f53cd37f1d9bc\"],\"constraint_ids\":[\"C:d14c9728b7e37b8b\"],\"span\":\"Ansel attacked the messenger before a word was exchanged.\",\"rationale\":\"Ansel attacks an apparently unarmed messenger in his presence, violating the requirement that the messenger remain safe.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "BermXrYHc0TXsr0vIFXdwGDKnol7xDgQyEbda6z/gPHr8aAfBd8Lu7H7C19w4ekifaWpfRUPQ/vqMEGAVd8N2OyMGhuxpWDRdUjk26IB6NtjeqRfdTJIE2MAyWAeL41quaRL98THkT0/Gyqro4ZWnKQK0Bg8Q1WRSTYU2CQnbDuicSimpBv1ng0bPe/Jqvxeiyt6g3TJIX6x8Ch8uDjKhLQCBe1Djur9wB9Hx37OjVLtet6snbmOL651/oRv5yHSR9jXO31+seQUG5JNT+aVPBeXniUJeMBLSHcXsZYs7r4IH21RSPrWxpK3HJzHcPipHxqT3F7Y6hFzl5E4brbbdmaM5YPyJUIdy8nR35TrCD6gCCJoNK/FPT6eGDBe4ua/suxrhwF5Vla7jgqmPSKqmv6VeP3O",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 683,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 148,
+        "output_tokens_details": {
+          "reasoning_tokens": 59
+        },
+        "total_tokens": 831
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:a17f53cd37f1d9bc\"],\"constraint_ids\":[\"C:d14c9728b7e37b8b\"],\"span\":\"Ansel attacked the messenger before a word was exchanged.\",\"rationale\":\"Ansel attacks an apparently unarmed messenger in his presence, violating the requirement that the messenger remain safe.\"}]",
+    "token_usage": {
+      "input_tokens": 683,
+      "output_tokens": 148,
+      "total_tokens": 831
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e66a404d17caf976b784ae40dc1eeaff8c9de62479e04ff74efc49199f393703",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 10030,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 716,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 461,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1741000000
+      },
+      "created_at": 1783842300,
+      "id": "oKOm+Lq8hfoSDsQIvrY44mp4LGrh+HkaNpsC521p0mXII/cqviONJ7wn5TyCY4jBlRS2MXoiyznfKO+84rj1pqmxW0lxv6eQwZqYkDXaR/G9RzzLtFXfN9Ol+mjsPJhlDdrXv7EbwPtbNqVCN1ox62zPhAvILbmhfyUWU8EL4CyFFvKCFuGlZm8zX6h4TQwlOowxmJIShEtGdinJ9nc6OeFht3YxjE/lawEoJMKYo5mK0VTUoYvRldf6Ly9XxG9bOFuUZpwJ4vbfWgbymktByh1WA/feoHn+J33lr7/VPCd9cbTyeYM/a4JGCXl10jNlporb2tZ5QzCAmY0I7aRTg5eT1wBJjusfdhD8m3DeNddLMeaqDnZp0qAhyDJezAaYk52NvKtRlcKnZp4+P5I/4+sx794VPg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "F6O0/cIH9WDoTe4o8qJBJ2RB3z/ug299g+A0DVjaB5dzGWvx5GsaOVyuXvLf/uVE2J4ekvdK+1ylGftKg9Ju0aTra5ZrtpyrCFRtHR+6GAEeu9uXYqcpFgt6pcRc8uqmMpk37NwVZ7Ld8GPTlpRPLzrfv59j0xFtXJPCy4xl7q4/pokjst+3EorOLO4o1t/6OecBxyJnBYsMml/KcZ4BRL5gHiwHnwDFs0FpcMYGpdSkHZc+K1YFY625HuAJiVxcXrxQhzVLy/RurmLGM7J/+JtfF/NZxRizYdfUHoaQz/VFkTkVwavWvSY31H++K+qtnzQVVfM2zr3DvpJJj1AfWDFtZeXNl80jtDf/sYyjVDGaBtBR3f00dKhf+RWY5kum9DMjYMRsn0DU8WhzhoSnvkLuaZ8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5101eee188d8e46d\",\"npc:c84c6c3c9c03350b\"],\"constraint_ids\":[\"C:da5bdc79c8da7c4d\"],\"span\":\"Iria accepted the title of the Vault Steward before the assembly at lower court.\",\"rationale\":\"Ansel was already recognized as Vault Steward, and no relinquishment occurs before Iria accepts the same unique title, resulting in two holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "XgrU4r8eeFfFwJUbiQQw++JNkiZRBb4IPc8tHHcI+fqfveNrg6rPEVWXifcqppO8f+Pbz/jbyd5cth6QnIhPjJTT8j9lP1x2IlOzbKWGeerG3F5S+fgDQ5dJQ5NWRagzeaeyByefbapgmA18TViGAweKSLDQkgZzooOH/PmXv0hI0DXIFvYH6V8R22mSMco+V4OjZyMWpbS11+lTobZ4Qc6qnLjbevnncsYFSoAUiYHJwYJ5LOLvdzj8sSPwCJnksxpQ3cpsdEZ/sh/PinRuWyh7szrooQOk/S4iB3Aol8sEVszcnc8g2d+tiOv9h/9xBp+F+5iCty+ZwnUHS8A7ybIiFitqHdmItWtUCCGfH5psjbiyO3VaXEq2HJMhjnaDfk2VdVLjBfquUo4+nxpk/rH6D/2O",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 716,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 461,
+        "output_tokens_details": {
+          "reasoning_tokens": 344
+        },
+        "total_tokens": 1177
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5101eee188d8e46d\",\"npc:c84c6c3c9c03350b\"],\"constraint_ids\":[\"C:da5bdc79c8da7c4d\"],\"span\":\"Iria accepted the title of the Vault Steward before the assembly at lower court.\",\"rationale\":\"Ansel was already recognized as Vault Steward, and no relinquishment occurs before Iria accepts the same unique title, resulting in two holders.\"}]",
+    "token_usage": {
+      "input_tokens": 716,
+      "output_tokens": 461,
+      "total_tokens": 1177
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:77239d0ef081f82eb6c75b9dfdc986887face7806768d46d27c24102d28b81e5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4652,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 564,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 252,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1038000000
+      },
+      "created_at": 1783851100,
+      "id": "NT1rHDSSfUdVhrgOUoDZIOEHeRY9XHugZyiEQVg5Rxmun9hGyooXkdRTisG25eJdeYS9S/zSxC/o7WIX+4+j7tzDETPVbd4r8bZ844aa3E2BiYHi7mMtcbKKHvmFYrN2srtMNUorISc11OHeGwZcrEk0fihtuugIxd9NIaxfXA+vrfmZ0Ev+pbRJBhtyNkcIdcbKDAMVcb0MDGTIWL1Db+Ywhbmq7ZxYIs+gRFYmCanTqWWRDRMyarB4TAZf4igaWnAubM9mX8Jwd1OQbvaXGG9IcV56iTntHbdb9u8qEOT+nuFlt9EMHOzansT3QSuc47HEEgulAZ//lEyXwLhm1HWRoUtSe2tkDvkG4HqwyAGfTY4EsL02zin2eq5sLFGx0uTdQ5jm+HUsQittheEF34G+88vWVQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Ie67O9IyDnNQMgrkcfcUZlYL8DKaswYNpvTfluG0zL41voTyA+9qFvRfUZQ59mOiWOv8hqxRpOPMAWldlh6meWNU8qfXC9+Zqy01zs+5d2Jt84tCF6lvhNhqfZK/hZc8QkNVZAh5UPwz8D2bFG85vmgpRmf1TSYaoZud04bbADVbylE3dCXqFr9mxEbf4ptumnp6pTnJ2JTsTrsQbwN9rYhq08Lbw0PldZMTwRqOaJkyS4+14msHc14DuwCwKqvjhAC1jDkmAvlaQAMpIErmx3TyV42xttQMJCykpR1k5nhgcwwTA8w0ozD5XPoZKM44lv5XHIokMXyABSSIp8RTNnSEqd/i4O4GW0xxVm2GNsIFQejV0+4mo1z5UceqhTPoJap0nsEaC26MA81d305lsAuAckw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:106c3aff6ce8ff39\",\n      \"npc:38f84c7ac23206fa\"\n    ],\n    \"constraint_ids\": [\n      \"C:ea38391a0e5f23d0\"\n    ],\n    \"span\": \"Mara accepted the title of the First Navigator before the assembly at caravan court.\",\n    \"rationale\": \"Mara accepts the unique title after Qi is recognized as its holder, with no relinquishment stated, implying two recognized First Navigators.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "PV3m51ePTLnFpj4PR82eOVzX02bnA18qkeZ/qESfqDMJ4LRtm08U9wxj1JGesH+avMZTOeRNAFYJLd9H47IPZb0idg6XkHMZKn8ZNSPI5pLIF8Cwf1fjy8OxXCgjXZBZtllvQgtWRXWSSWQh5V0iGPqTo/J3/MOrGWNoNp4aB44ZDW5DZx3bxltaPzS/9W7cRKzVj+jbMJbMaYvy6thalqi7P6sD4P+hN1e1fVx7iCWvRAOje5zraVl343qIzR57eZeTwEBGS/z12EKcpWVMPtRkkgDMjYQ3SnG7/NJoOpmEKKYagFGLJWn5bzzoHZCEAV/hdVD2mlJ2dG1qguQse4Z+drNKcgyieUUTgW48PAby+LQ3o+xvHSPMaE75J6z5ycNI1v0jVkWREX/uellZoqRYb5Pr",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 564,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 252,
+        "output_tokens_details": {
+          "reasoning_tokens": 113
+        },
+        "total_tokens": 816
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:106c3aff6ce8ff39\",\n      \"npc:38f84c7ac23206fa\"\n    ],\n    \"constraint_ids\": [\n      \"C:ea38391a0e5f23d0\"\n    ],\n    \"span\": \"Mara accepted the title of the First Navigator before the assembly at caravan court.\",\n    \"rationale\": \"Mara accepts the unique title after Qi is recognized as its holder, with no relinquishment stated, implying two recognized First Navigators.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 564,
+      "output_tokens": 252,
+      "total_tokens": 816
+    },
+    "tool_calls": []
+  }
+}

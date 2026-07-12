@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6ea30a200dd40336b9696f34cf0736fdea1b7727a166c337ee97e8f5990eaba0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3514,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 572,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 159,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 763000000
+      },
+      "created_at": 1783860500,
+      "id": "dc3ea5BszDr1N27Og/YIlLAPSwNu1zawUd2dWMNinV1nlcS795ZrujlEOHhF+l6yKp9xRGoA044rGNits1AmLsRIHNpEJ4wKBL9yexE0pC1PjoO93JNLBu8OkfQrPbT6Ouy1L5wDCL1npMuLeY1Lsc5YPlwDxRnWlw0hIAU5utlNghg8rZzvfDqpA4Rn0yJrptUiVFzH1evMKFIcHGBXWNJ2GFlNf8uUOkkrQfiUZ5WVZGb/VVm445pMBWg0KKAE+dirfgIn3XFEPpe3Dm9mHUokEZrT4SUsb0od9hkDAc36e9rrZgMumkHqOEu+1qAON/rSpMgsQP6yO3UUUnxfTwhgFXQ6ZItGBNl/50hZy8aacOkNtzBsGXHJEajuOyMwR/HN4v5sjnJHfh8BbEoVEv9YJ0XiWw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vJwhYW8q60rP+Zhggkm91nf1cLgLdP8UDj4sikIWExeEBAqyonBwrPuy304y/Ychxw00P4alrhEhJlWMLaRQTH3cmV4owROP4oLobk+tlgyChqZuCX3THZ3R0oS8R5A1qUaWS7iG1O7EZAY6Dx+4QEmkl1Bj2xnGI8ilwbKmYvC4GmqMHp7Wt8QkBHs+GcikYFGEn9JsUD365UYWx1rFfcz0SrEjEsVFnqC3yz09v75b7Lf/BiKRP4k8Kb/jl80VAqTNXjz3KyZtZJcLcmNheovJTiidf4TPkc80+X3Lz4jKT7MBk9BaY7IASpaTjqbgb1J68JylYYvc3DhF9f2htPQn6UhEH6G08eG7V0u5O9KnjpHniqH5S/7jnnFfQ2aUI7JqoZ8OxZJx6Kin0F73Bnc2ee8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:4a1791f9e94d22c9\",\n      \"secret:b958d4567dc8904b\"\n    ],\n    \"constraint_ids\": [\n      \"C:8c6b1eafe7fa73e7\"\n    ],\n    \"span\": \"During dawn patrol at salt depot, Noor openly named the origin of the black compass.\",\n    \"rationale\": \"Noor reveals the black compass's origin during dawn patrol, before the permitted reveal stage of crossing.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vJj8nKejQhh5R2drkcuzFfwu8vZBSPJYrqKq0/7YIR3dwjoVl2xPngySC5phCyaQCZs0hOeIdACKPujnrV1FerRzq2IoCc1FDuYr+iP3FXn//t2r6A96GNHZIbOSbxXBFRV2V9iOVdFXRSeDAOAQUMfQcMEcmYfsnc0wc3l0l6PM/bPDhIo2NUh0t+dXYrAkm3NwWn5DOMn2eyM5ic5WWhDid/t2edAvR/c9sBQ+jsigqvj/eD7BtwljTvIOIy8HCO7tkG4am1dpMplaskf0yDBTZH2/vjhGt+7TuLT4v+gxkUahVBSl42CJgVUitSA/CrqDKlTONUQbJqjijc7ZZ62FP45sHu0bn+jpYloSoBQcSM0RliBTPhLhucqZeW6h38s8gZ9RfuTwqTsKjxjYcc6yt26P",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 572,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 159,
+        "output_tokens_details": {
+          "reasoning_tokens": 26
+        },
+        "total_tokens": 731
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:4a1791f9e94d22c9\",\n      \"secret:b958d4567dc8904b\"\n    ],\n    \"constraint_ids\": [\n      \"C:8c6b1eafe7fa73e7\"\n    ],\n    \"span\": \"During dawn patrol at salt depot, Noor openly named the origin of the black compass.\",\n    \"rationale\": \"Noor reveals the black compass's origin during dawn patrol, before the permitted reveal stage of crossing.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 572,
+      "output_tokens": 159,
+      "total_tokens": 731
+    },
+    "tool_calls": []
+  }
+}

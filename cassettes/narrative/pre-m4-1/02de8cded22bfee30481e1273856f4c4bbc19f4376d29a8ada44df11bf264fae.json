@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:02de8cded22bfee30481e1273856f4c4bbc19f4376d29a8ada44df11bf264fae",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5088,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 551,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 179,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 812500000
+      },
+      "created_at": 1783851500,
+      "id": "2DOxeZYyRM7jj5Ac1+QwrCa6Uj3ByJ2EBFbImCNZu2p7DXGvyIHDWVuFATiLyk87z0oabR9lWOV5HcSp9stuU9gkJGokS5UU6ym4Gh+p5b4CQ14bFkRb9XcJFuw9Piwo9oszFdLFQwOZvMkP5/lxhuaxLoYUiMnpTsKUEc4IQt+FnhGpSAXS8zUTIgv4Gkn9TVfnYNn1FbEbJTpb9tmNWElw9mj9XToxwIg45g4Nmpy7Af8KdSQ6i4BDjGh8z7KFYb0VIuZSra2ry/QycfAjLmXSjZuhy68PbmbqjMPYtO9tq1xNauGt0cRauDX3dgQ7T7MjEJk/c/1BEnBI3FxOEOoZyTQ0xdF9j4tiNmnlhS8mXN+D2W6GhM+8j4EyP6NaNZASovS3taHAAg76LsBHPMfouneyvQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "2NRcRur2epwbpIQG4oMiO/Hhje4/vHw8KhiwBSokHV31UmYBlN9LW1OQe2IpAyxgBQdxuE5pKIBFbzKDMmuT04a7v+OISdCEU/yKZB00yLDGyrwighZfnpobSM555lvd1rO6IkAFpj+6ZefNbAyUzlHgUpRqlrOvC99JdgMC5Iv8Kjs0jzMsACCrFKXsSVyIjL2zUVAwJCpKYZwgJzYiqLJqehs/uELRpb/ITLtyMkX1EEdjoGmM6ZSzZeOW2Yi2v0wcTAmLw07DWF0aBdoAhLOv3uhpQDABgGQSPOR2BrN+P8E795lQqd2gLrpnrzhKCMXBm1WN8oDgU1PZ6optTBng4Z8YKscCFd6dkpVvs6BdQwahK115QE4fM1B2KD0vhuRlyedbQ/qRYQNH2Ep8njKWlF8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:66326aa0e9da4551\",\n      \"npc:923390449fd8db02\"\n    ],\n    \"constraint_ids\": [\n      \"C:fc4dcf3b5f0989dd\"\n    ],\n    \"span\": \"In caravan court, Qi supplied Mara and called the partnership permanent.\",\n    \"rationale\": \"Qi and Mara establish direct, permanent operational cooperation despite North Watch and Red Banner being prohibited from coordinating operations.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "OA8zCTJIQHk/opgJSYKRd+ims4FQJ8jRaQGCg/03J7rNp8ArcOGRJ29Vri6pbpUx6zZ/gXqRzdZvxbNzPawI9ucHoaCKTpi1EECbof5Zbh9uHIKULP4G813PAlCDi+ltlM8ICsgOtXqMQYgXf3ZoTcVFVA2+2t1HMFTcuo88/67l2OvJHQzXFi3lLJQGh7aY5r0JaEIlDTb8FWgVy6U+y1zqGf/BNQAbkyFJSHbRN7kfYFf9PXA+Kd79HibYNME/VhDchacNq83NU/cLd7G7oi5FS0asGJEsNKVeVqEHMWPtcHcnsF9fCN4ie50UqF5sWIBdo1WqJ6THz0KiktSgTG14uVjCJJ2/JxBaBgNKeyzrNhc3gjsSmOmv9AoTb+m0efxxyqxLy/goCbi60HznVk/lnGL6",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 551,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 179,
+        "output_tokens_details": {
+          "reasoning_tokens": 52
+        },
+        "total_tokens": 730
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:66326aa0e9da4551\",\n      \"npc:923390449fd8db02\"\n    ],\n    \"constraint_ids\": [\n      \"C:fc4dcf3b5f0989dd\"\n    ],\n    \"span\": \"In caravan court, Qi supplied Mara and called the partnership permanent.\",\n    \"rationale\": \"Qi and Mara establish direct, permanent operational cooperation despite North Watch and Red Banner being prohibited from coordinating operations.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 551,
+      "output_tokens": 179,
+      "total_tokens": 730
+    },
+    "tool_calls": []
+  }
+}

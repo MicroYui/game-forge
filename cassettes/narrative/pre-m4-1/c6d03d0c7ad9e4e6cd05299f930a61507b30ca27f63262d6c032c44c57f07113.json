@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c6d03d0c7ad9e4e6cd05299f930a61507b30ca27f63262d6c032c44c57f07113",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5934,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 631,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 259,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1092500000
+      },
+      "created_at": 1783859600,
+      "id": "qzgxQP/Erk4eU72CvtwFbdaHeY8qpcMdMrovbEqqp0tYQs6yVuc4wvFEMZJBy/KfODmowSsGnxn9r+HLDYojlWMppo8r82YH5B259faAo9Filel+rMSKe7VmQDrA3HkyjDYwdZADHbBVQO0j/v/vNgm+LJ40UxqZ2numGgcZqSPyGP93plaaJYs9hBt6BOKKyZUYM0FGQXMX4XoDj7yUqCF1uwFIo8WitsxbAdz30SwUC/XFzFBSSEMk/LyZwXhOEobgHRQTl4DJ2dZj9x4k8/+QCVxWnrk4ZKvNwRpHa5G14s44+kG4aOlGzOf5WomXoBwCPSo/kca4drdmj7/D58LBfEUQXPceAOX1vlZjsmjoo3s6VY4Sc0sIASpxDbsmoS+4D2bdGH2dERvZiVF/GX1Au4Kv2g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "2OI/JvPGgrQqp6J41UivlPOp/faAfYS8se5cdHNyc8HXrGr+pyWzcxaUXUrLzjgFU6l/P7mPo+vD1Y+T/nWOPR5oM7xxXb6++4+ASKec4BGQ/MUHpFzU4UC1mkdjRDeVaqLDpUYNGUyrS21LRJgYYXAHWbXUQvVwYa+YUGwQnYGp8nYowPf7KK3usS8GYCx8LpIEbBc1xodwOSCwgIMuv+7PKiAp7RIE3uIcGjS4f3b23ZLpUGaBy03P9qVu1rh25O7Ksn+5Z/TVGD/ju19HNFqyl6eiTH8PlKXc5v/ViirFrqnC8CxLwn4iKTqg4D8m7wLdgHds5E01w85rI5/Ov6LwcmZgzh6LW0k+kNM0QL4gK8s5QgC8rvsT1XcGkiWNeq3YJaNnRkPZMzcXVKQVtsAFRRg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:bb6261f3f0882a12\",\n      \"npc:c395022b4725b7a7\"\n    ],\n    \"constraint_ids\": [\n      \"C:3a39d3108cec9190\"\n    ],\n    \"span\": \"Oren signed the register as the Crown Witness at archive hall.\",\n    \"rationale\": \"Veda had already accepted the title, and no relinquishment is shown before Oren registers as Crown Witness, implying two serving holders despite the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "fzOVVkOnI9g8ciZb60eoEtkxD++w5bdb7vAIZwe5vzt3OzB6eOeoPB3QZ58vNH+l0lg2MkkWM3NdRzlbkus7yCzCseRaxYJJQSLIY35HUEQkfqjJ9TY6ngQ8agodiC6atmssHkjdZzC4BoXgDrqHii1mWocvlay/LbtVneicifYioR9QS4zd0nKjsJBc97esWecRLC/0irkKzJUCrGsbf1XSw3xIEy3y7XF4fOjt/OWhRO1c/wMevR9L08VJh/QZ0Q2PtvnY1oOWHxwjmhQys8IGzjwNQgS53Sg93Gs52d99/e2oMvRwMGBTrpnqWAeNBWcbwIKX7SLkPaFeSPvPXgfq6xvuAcsUO1CwCPb02OhqZ/ztni3Gp1+rnjrwiV7xjrR/q/J77+LTN5YN7eMsbjm7mboD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 631,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 259,
+        "output_tokens_details": {
+          "reasoning_tokens": 119
+        },
+        "total_tokens": 890
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:bb6261f3f0882a12\",\n      \"npc:c395022b4725b7a7\"\n    ],\n    \"constraint_ids\": [\n      \"C:3a39d3108cec9190\"\n    ],\n    \"span\": \"Oren signed the register as the Crown Witness at archive hall.\",\n    \"rationale\": \"Veda had already accepted the title, and no relinquishment is shown before Oren registers as Crown Witness, implying two serving holders despite the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 631,
+      "output_tokens": 259,
+      "total_tokens": 890
+    },
+    "tool_calls": []
+  }
+}

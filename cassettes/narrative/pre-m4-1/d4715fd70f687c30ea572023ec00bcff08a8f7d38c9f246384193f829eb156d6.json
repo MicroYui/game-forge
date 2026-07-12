@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d4715fd70f687c30ea572023ec00bcff08a8f7d38c9f246384193f829eb156d6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6493,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 572,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 252,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1042000000
+      },
+      "created_at": 1783847000,
+      "id": "zhBxejoRZEDHq4IwYIBhWOlV8Mmj//RWHOXjRTYQrPYbjFuVwX9RbPA394NTilMfgsWb19++hCzdMB9B1bJYTj2gtA9q60dlScHtindaCjZC3g8ATfO5/abWXLmIMMSd30b1tSw4OGPgyg+HRMdvo2ULBK5hZqG1UMyC5QCgAwAd415gaPU8TliG3QI+PQMgVGC2iqplifbjovLjQ2SHSY3Hq1w/84Bs+OgP0CvlbTQSLUQGHj7ucQZpHTN4V3/EY4afaIG7MTHf7CvrFuI9fyvIGzcHMpr3dRSRzyZrzlmV09VoxiVEynTZu25MetUcEsgy9+aCi4xnOgaaFwb9ZXnV+PIDE0wAMzJIFADR/dgac73iR03cGzTrwMUQXUrNz4EPm1hTdpAqkyM/NYHKswgPfQPo5g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Czx47EkFNSMiVrJxH8NVxzovPgs0c3j20MBRPh/yMVgLrNMkHut/M9L12oM3vsGTmdtz62sNw/aYkBxbj0ofxHyBL5bTwgN/tKB6GGe34WwRpfiM3zO9JsuFBo48/lqtZziUtR3Zhe8KQ2TAQuk1CTEcfukR0g6LBTmuba8mlZU57PClAJ/Carjq1qB7RgL3zbZr1lg1WY/szLAIZj54iYMIlsbidnB6IdogQiNNlyGQS0fKvJn3hEzelCYbG2w53TVKuhWVEmOSP1/PreUXIgV9wtrjA6I3x0HwsbeqWUkxJvXlbJIb/WKFu9xUobXMHTZJKvId+4XTsE/ktVzA1mpMcWuQGoHADbdRC2prUB9kjRjsO176mewqhIU7iSc0Ujb8DWFvii4NGXS/ghSmIcUbJ6U=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:7bfc8b4adc66446b\",\n      \"npc:fe05ee8463cfb038\"\n    ],\n    \"constraint_ids\": [\n      \"C:d76638a95b8d6507\"\n    ],\n    \"span\": \"Ansel accepted the title of the Archive Speaker before the assembly at orbital concourse.\",\n    \"rationale\": \"Iria had already been formally installed as Archive Speaker, and Ansel then accepted the same unique title with no relinquishment stated, resulting in two active holders.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "7zp+vNQXZKu45safDpmXq25CCnmc8rdxcUvie+jCUiYmBBogxO9ZAAiCAcmRwqhFQCLlb/AXC5lKFjuibluwQtWHw1vBaUdhlFub3Du45zxMbRP0Ejp3xMTt9jG0IqnD7/8AA/Nw0Cx1KzkHRzQSdeKizHcGz+jC8ejdsm/6jlsfeD4Y5gIq4O5UpxhlN9KlG52/fWV4Q0Y10yyvHbqrL5osam8ggfuut7jgq9oesute/2QUdUc9LYpj5K09ZHNPjfJQetoxuZsFouo4W8r5re312FTRa+4Ym5KPNIcMSKevspe2+4CpbC51bGjnvNNuox+fhYLe/1367N9pXLVxiKgRoValPNXzclK0Dy2qcErAei+iwsgBE+WHK7wWF6YQp6vEfka5sO4dbDHW3t+vcKyS+9U9",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 572,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 252,
+        "output_tokens_details": {
+          "reasoning_tokens": 109
+        },
+        "total_tokens": 824
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:7bfc8b4adc66446b\",\n      \"npc:fe05ee8463cfb038\"\n    ],\n    \"constraint_ids\": [\n      \"C:d76638a95b8d6507\"\n    ],\n    \"span\": \"Ansel accepted the title of the Archive Speaker before the assembly at orbital concourse.\",\n    \"rationale\": \"Iria had already been formally installed as Archive Speaker, and Ansel then accepted the same unique title with no relinquishment stated, resulting in two active holders.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 572,
+      "output_tokens": 252,
+      "total_tokens": 824
+    },
+    "tool_calls": []
+  }
+}

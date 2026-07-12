@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:aa6865d15e4ffc18218a88a13ea391fb167ca54af921b1cff45deb1f5b9980a7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5187,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 642,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 208,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 945000000
+      },
+      "created_at": 1783861600,
+      "id": "x9kWyNd24H0xRQcmv1XbUexbLIaO9v85FkpvDTVOKorYydhLq3mLribtXR9qO9vyO76b9McaIq3mR1yzky/gaNwdfddFirbqJtVLtrDN56Puppqzzq2vaIEx/EZ3+J13sHvc71qE/wDU6TsBJTLlhpUztR+tk67vz0C0HtFbSpFczbH+9g30J5nVWYpBDi+iuCZr3V4wzIrhbuNFzPAkotpN0nEtyYNwRwtwn7y12f8298ZR52Yn+AjMKU/GbezlWZ6JmWlLfA/O14Zkf/OHITjjbfyKgL0GHtKwqq8OggZ/eaDKB2koZYyZAymNgV9VjPRJtBNp+VrBcb14rYjZRhqduF2vkvatxWfQU9V5WFBvFqn4byRZrDqdyXh7K2D297aPiHz9MftLrsBrcoOixN1XnVua6g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "j6DiYXS2Rzo6QqmTgXbHRwqVsd6drzceQnSY6EoU+GOO0bmUXUhwy1cH0mgk94E4MaVKtT3UobfiJJOUFN+RdU12i2UeMArpdKNr2YYrMrumEMcMbBSMO+SQzNiDhnruxHmWepRlzBYCLFs/IG+5om4VrPAvKZG50sBIJ9we0CaRCYamdxXufnaFnMcM2IadkzX7SeVZqJmAQBxaOzyb+uDgGF5dH/jN6iT5c6U4+tmVLg8PCQv+IURSbf4/Yo0Vm6S1p0PaWsaLP4iSdZQ7E0qRK5PRAKozCH8Z2AMsB9vV8BD3ngSmkSgTblZNxWb6oSF3lo/wN5yw8QQ4Z70IlSlH9JfXR+qQnB/skyWtv6Ry8suFWdYz5l41V86x6dT1eoM07aNIu5Ny8OPQARy22ks83S8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:07e7ff4780085c21\",\"npc:1c5b694a4b70ef15\"],\"constraint_ids\":[\"C:39734164f7018671\"],\"span\":\"In eastern ridge, the council recognized Ivo as the Warden.\",\"rationale\":\"Ivo is recognized as Warden after Lea was recognized, with no relinquishment or replacement stated, resulting in more than one recognized holder of the unique role.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "R7RPMolPdUUn04S0c+DlgL2z6K29OqLxa+6fCImkt08Fqi5J1C7RwSFKX/usV/853KJFFcsVIZIeDKS/xoyJN+Ey7yJYwNqcEcXSLGnXx7kPCjvBHIxa/Wl3HpgoFkBrXCsnxtnZBUYVEBS0WxFEBbGJ/qFi0IFF4nuAR/AmnjFriT7Yxx9ZYgkjDWfe2XE2jFYESRNFy/iqPHMqdFU/D86We2Dd7JqfU2s59QZFbjqx8Z4WzTcCOG2HlpV/4Bfqvvw/R/4KdlRAqRoWOs5FdHQ/hxbcqKVAG8ssKe1RGfIl9eQkII/AemJXvnTAyAbcAbhGDu6Z0Wzmig6ADwnCCY/6/yvLuBTk9t8cH7CYj4gQprsNrOzWxKm6/nItEpYet7n+V6p6NFEdVeQPTz8KYywbnzMB",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 642,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 208,
+        "output_tokens_details": {
+          "reasoning_tokens": 94
+        },
+        "total_tokens": 850
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:07e7ff4780085c21\",\"npc:1c5b694a4b70ef15\"],\"constraint_ids\":[\"C:39734164f7018671\"],\"span\":\"In eastern ridge, the council recognized Ivo as the Warden.\",\"rationale\":\"Ivo is recognized as Warden after Lea was recognized, with no relinquishment or replacement stated, resulting in more than one recognized holder of the unique role.\"}]",
+    "token_usage": {
+      "input_tokens": 642,
+      "output_tokens": 208,
+      "total_tokens": 850
+    },
+    "tool_calls": []
+  }
+}

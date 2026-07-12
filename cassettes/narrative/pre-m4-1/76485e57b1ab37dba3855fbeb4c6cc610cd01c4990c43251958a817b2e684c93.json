@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:76485e57b1ab37dba3855fbeb4c6cc610cd01c4990c43251958a817b2e684c93",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3323,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 654,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 840000000
+      },
+      "created_at": 1783856800,
+      "id": "4l5uYZTQcv1eWOJyyhyjT8Ktv/FXjMJYLmfwCeSu1PCT/2E0z8ldpkgWBLj7u0CNfICbn0Z+OMFKEugTU4aEyjzqcWRDS6dGABjSj70GRKcDhjYWSNLymi7vz7+DMLAjAjvZ+0wIkdwDh/mTUcYeR/j97V8JgDasIp2X93LOjxQXdZ9WXO/TU/gO4B8Xlx7Mvkn8RvQPITTvcrmlaH4DsQfZc0W6TueC8EM+1wO5fvVSRw/uIPIL+TFrlfmmVI+vTm9ijzDU8CBCE5lZJRAXyjPLNjxZmsw5410RnmaXG3ubuMk9Z/JXFzwAb3+He+8TmXPCHq2TmmxACr3CHfTJymW2A6PP+XzSLc/luEMe/c0EugLmfI8x0MYCGULYMJp7jCt6pvoVtantIKkxkietovumBkqLeQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "UU0ZfVs26l96SPfn3vF2Nas78TodRSEZgEPBuN01OXzbzp6+aKNMrdkYRf8zzND0yktvp6YQRtQo50PmmlmfrRlW/j/bYCmxd91CbkNFFxpRT2k+WiJ8KBlm+vn+qIE4SdBbocjcofXia9fPh/Y9+JjexgCsfiHq/8GK/diySgz41mv2/WF3qfEsfdY5Nyq57ErL58RgN9U/GaPgE7W0UrplQdSY0UsL9LcySs/3JIjmPYVmX6ad0xjdbpAsOWMvZsBhpjfmbmhd2z+nNlBVAy/4Uqt/JwnPD9sDZRWdgIEZHntfNKTRV8iwtuFIYDwR919V7NE3pyu8Cs1WRMF7wYx6Ebw6qSwCXtKUSLC4WLiYS5OAtNECfo7mIOAkEwDemxRIfGDhEm4hzWs+3UvvHrELIc4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:9aad8c7b1a0d5368\",\"secret:3a69ef059f48c3ef\"],\"constraint_ids\":[\"C:782f41c16118f722\"],\"span\":\"At eastern ridge during trade council, Ada told the room the truth about the reason the eastern beacon failed.\",\"rationale\":\"Ada discloses the beacon-failure reason during trade council, before the permitted reveal stage of crossing.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ZYeZtHWOVccHj1CxRthIqsfDgOajJinRJNiec+UUbBXs8mNx2dYMuZZiRsPn3DEJjmALQ6Zqls4jxwW1KWd+6ikIXWWUEnnG8dPNbcsdSvVuSrWhaAPNI7iubLjtQ2nzhlJh69NBsG1gR0ALjQo3WJpTc3UWfEfpDqhk0qA2+NK6hJ1LGFaxnIV7Dl+Kg8lcxmKkf44N3QP2uA5m9x7kR7wMVIw1OWvUTO0UCCFZkBRXXgJbwb/GxRyrNaO2mJVLp2np2dW+yyv1SiWhkfjXJzKVGi2usb1EdppCGOdEbLZKLeEGHt+t1f4+5jgATNGft8CkcZ3W7bVVARj3MXcUFPsrbiXpRxYEq7CAJZodurMgXMrRe2ZNPEnqSii4rx3uHpp0mL2uMtJYMFgVcxuk+ppAdMgC",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 654,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 61
+        },
+        "total_tokens": 825
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"spoiler\",\"entity_ids\":[\"npc:9aad8c7b1a0d5368\",\"secret:3a69ef059f48c3ef\"],\"constraint_ids\":[\"C:782f41c16118f722\"],\"span\":\"At eastern ridge during trade council, Ada told the room the truth about the reason the eastern beacon failed.\",\"rationale\":\"Ada discloses the beacon-failure reason during trade council, before the permitted reveal stage of crossing.\"}]",
+    "token_usage": {
+      "input_tokens": 654,
+      "output_tokens": 171,
+      "total_tokens": 825
+    },
+    "tool_calls": []
+  }
+}

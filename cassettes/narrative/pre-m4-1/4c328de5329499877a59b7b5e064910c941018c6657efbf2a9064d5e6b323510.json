@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4c328de5329499877a59b7b5e064910c941018c6657efbf2a9064d5e6b323510",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3936,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 567,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 161,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 766500000
+      },
+      "created_at": 1783842000,
+      "id": "VGZpEF+JZgFuWB7N6YjrwdKbAXouHzb70Igea8NLkFM1c3r6KHYaX4yxBFo11gSRg/SowyjBd70ufZ3+naE1s4+/HCNB7SAjjmb9JgIMP265o7Fz4beGQ8hIRVU4Mj2RJZumPRwQlRlktciayNuneJKHVCarAIeaVHx/5dEyfKYc29DBgETGr9Et2gJZESXsFiUE+t/7pEgAZS5uwZMCPPWcUDZ3muXlz4VAYcMAdmcVo1CNZm7vWbuMDa1rMgtt31QTloJUh27x5fj3pjiH8QU++HAIRysbW6EcfE4i6ESovnMc2cMe6/bvFQJ+JcziQEZNUBm4wKDqIM/x2n4Bf/O2L9pDR6TKLwn1cPoTGtjON3DFCxLkNi34KsWe3QW3y+9jA+E4/aHsB6qRn4kC53/f6F3nvg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "DE30lh6GaMbV4YpvwiJ8/gKabaJuus5U9N3Nk1Kg59LlFYOEXcNUxlojRiq/5cIh97L25qS7JSATe9T/otfXEwxRnEhysn8A21iz+HdgTmiMaCSEjhRt59fJ/mj4GtdqilP9tKmkY1Zarfw/4cE6Ah+Zsd7J16RpUXJVt7uOb7vmMIhgd0s69pVmMcrlii3VAu0LdiEJ10OJVmg3nHMZa04eTu/rTiXOYnnEumB72uZ5K7ej1TPMkNM8Kpe15TD7C2BTOPpp6Gk9NTIjqBQweRGqb3g2zc9dSvY8jbbybeIXRXBvcvMrmq/nfT0dQ2R88gvAQZ5s/zCNoW0K4r49BJU4bbHx8vmOHHtCYLB2pM3vsc/my6LNXW4zWchUoJkAk9cQHXThJOKtDWSZWNWgMk7Oq+E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:15d1879fcdceb54a\",\"npc:976c9885b47a404a\"],\"constraint_ids\":[\"C:57fd92bfa5f20e17\"],\"span\":\"At eastern ridge, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada of the Harbor Guard coordinates a battle plan with Malik of the enemy Ash Fleet, violating the explicit hostility between their factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "fn8oYbeocdue1rHx8z+StFsOWJVcZTHj4IVo3yE90qWd5ADD2V2ON17WOdycTm+/IPAHJWh72nspAWcYCyUR7M5jWsXzM6yxHCRkRfssVB9YSptJxoBb7aqqxM8Zsfua/ybJ7xfA3vPnBcarO55XMIw2jzu+dzabBP7fa5EF5NXbP4kcZQznle4BqqVqDI9LP/IUbKGM3zdkJI2bsh4Vib2qxqkVkhOyIjjvSyvAZCTd+kcGkmVbQNuudUANDIRhptkqeVRZtzOY5o+Cq7d1/Hg1IaOmrfNQzrYkY7kkXB+FIkaGDngrcwkF9lwVUQ5l5WV59v+HucQNiPUhXd8j/oPBQOEi0emOLRbXe5X2gxfxi2RYAuWP2H0zUM0kq+6ocKN47+wGKo+x79zVMdFfSuUAS3ew",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 567,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 161,
+        "output_tokens_details": {
+          "reasoning_tokens": 55
+        },
+        "total_tokens": 728
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:15d1879fcdceb54a\",\"npc:976c9885b47a404a\"],\"constraint_ids\":[\"C:57fd92bfa5f20e17\"],\"span\":\"At eastern ridge, Ada and Malik signed a joint battle plan.\",\"rationale\":\"Ada of the Harbor Guard coordinates a battle plan with Malik of the enemy Ash Fleet, violating the explicit hostility between their factions.\"}]",
+    "token_usage": {
+      "input_tokens": 567,
+      "output_tokens": 161,
+      "total_tokens": 728
+    },
+    "tool_calls": []
+  }
+}

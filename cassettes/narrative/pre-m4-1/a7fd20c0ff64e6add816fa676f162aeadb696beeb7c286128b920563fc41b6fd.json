@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a7fd20c0ff64e6add816fa676f162aeadb696beeb7c286128b920563fc41b6fd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3268,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 648,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 185,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 879000000
+      },
+      "created_at": 1783850500,
+      "id": "xgtdvFBF/S4yUwPSXrTE5Tcfs5J0SgRn5j/Gaeq+8LO1L3GfcGLyKfDqEbQAUlKZk2ZcJrSsgggn7F9nG8MPBMUlzCBty0g+rKt53z9KmpVeyLIUAwKQ0PvJ5sSsTWlkfkVCy4cHaemvpzSmjjLmhfw0YvO/LScuZqbJpY7p/Kq8LU0vBfokijgY9H9F28tWyB967HdJBK7+4VIJdarqYi9zhgMFNI7me5PNhOepks5CWmg5+GPYnUujkW7M4+i5bC5fxBtH8c9PeuLNOs+4BzqVIOHpuFo2KrR/e5ACPaTTgxeX0ahUzxQ1yVjzbxRwHRGbmCwBcBG7sGmsJJhKnqHkkp7xJh4kLHwGOnY5gtbOaHTqonybsQYCBMiuWAXsoUGEvNNmVxp0FNx3kHGvnconzuwn2Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ERJU4lkfpOKuuRqz0DYNdNNcnC2X+xhc8Wjfe/I/FiGYZIf3a66NVpbJtrQXlbSbEDemkFBiBW4a68ClX3d4soxWBQHoeYsiOM3R3XrKDp1XLndArJ2uVngiQKsyhyEsuh4Q4wD/mBPnmtINj2JJ7YKH+f3hxnZsOqju6TbZbyu3eYl5ey/qsTjkpKWqIKzt5qNo0CozjKpY1SOuuCUJw9mJg+J4YhivuWw+3ztgoqO2euOGxRN/vT8e8DOmrhhTLJWaJq0ibf8CCDLYWF+2uUb3lptbsqNhD7d492lCclb348jQ/F7VE0TPIElgjGt5XG59FwzJoXbtXT6bl85dfn56/1LBA83M8becmXH913lFQR66LIavW1Rkuo62ofLJMMzvjrmFYIgP4psVPzHsXANYmtY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:5cc2cb2df5357cf5\"\n    ],\n    \"constraint_ids\": [\n      \"C:4590a333211e8fb3\"\n    ],\n    \"span\": \"In glass conservatory, Veda used the civilian refuge as bait for an ambush.\",\n    \"rationale\": \"Using a civilian refuge as ambush bait exposes noncombatants to avoidable danger, violating Veda's safety rule.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Qne/5392+br0x4MS3YIh07BuYiklAJZhpyHPVx1DdDHPgFlm7825R9O0y5t74rh4hSysQsVpv4y2SKGuFfGtfaljePVUaaz6ZWyBIuXMQ9ZGKGUx93vgcu/dIXfMdLELYP3P81ImSru88UdroNOcTehLnXTVHdoWp9gmxX5W7TB7sJ5jMnh2+8iRNg5UuOoxXKAPQ0+vTCsj++62Yr/pETvSosWvcWt+Rf0CJVZJFADNM28GHANcJV+lkIR7ljMuxTgOzCEwBLUkLpIPvZzIKCC3fSR4PYs9ddpvv+Q4h8GuQw9lAITFZF1V62k0uquP8RChlOgEY82F7knEf0fIWNH44c2W5YPvRVbyfEibpui4bvbjd1veerTQBYpsnh422dHHGcw1h7cv4KyVLQe4Tbo9tPGu",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 648,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 185,
+        "output_tokens_details": {
+          "reasoning_tokens": 64
+        },
+        "total_tokens": 833
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:5cc2cb2df5357cf5\"\n    ],\n    \"constraint_ids\": [\n      \"C:4590a333211e8fb3\"\n    ],\n    \"span\": \"In glass conservatory, Veda used the civilian refuge as bait for an ambush.\",\n    \"rationale\": \"Using a civilian refuge as ambush bait exposes noncombatants to avoidable danger, violating Veda's safety rule.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 648,
+      "output_tokens": 185,
+      "total_tokens": 833
+    },
+    "tool_calls": []
+  }
+}

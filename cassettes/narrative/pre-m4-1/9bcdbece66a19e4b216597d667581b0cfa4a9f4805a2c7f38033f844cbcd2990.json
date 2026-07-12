@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9bcdbece66a19e4b216597d667581b0cfa4a9f4805a2c7f38033f844cbcd2990",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4634,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 545,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 199,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 869500000
+      },
+      "created_at": 1783842600,
+      "id": "cfZi3TTd9gLEgO+/vV4L58HCIFOLU5YZoO2aH43jmMOw4diEAvR8TK38BbNML6pzJ89plXVrLuzuC34JGyQ+OC1Szn3fDl2l+OlpnVdSL2RObhycTM+iaBXTL63miYhGVUOzVdT42SXcsXmNVdmM01HClK1/sRoWKzbj9AZ+Qw4W9qdoCld0YtwZwznmb28n7VsXVqUAtbQufCkzgx0o71ULZx+4XmAkd7EJIrE9DpH06KWzi6qhJB6MOe0t95bXUkUYJRnnB1OKarQ/Yg5E1mX1fCcrxm1EGD6LHRpXka5MAXfwl++AB4lagQ369yhxNLMHUpA11G0tyVQ1n90bRy2OyL9AUq9zPx3GCYTgY5p0zsn+UOU6IYFh4bCE1/2XXfhPUFgUdzHHDftZi4XP8qHd9aj5QA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "fNyi/iUgiGO2/FWcK910wEDEX0w/6CXFo16aQ1REKz354nN51HPWoMJCKCbIrhBjUZ86s0XMvKCMUfU8fT8hvW2wEG5D56frcESfmZoW6EiEyyfw8itGcaWpURQxOttMmlCthMV9+RsNJ+doM791ukUcrZ8h1nWJSxWqO8GlnfVhICGyY5+YKK7a2kldFQ6da027KpFl0o6mTzcwKo5qYXoWL8cHFQH8nMdzLiY/d47pk0shxsZan4qo7VVB8XASdS1NXesn7x6ME57iMOLmUSDiddEFMBwMvSPKalyWSFkJGuMpOzow8HqVyQoUknpDgqlXoKH+L2UzCPv8veIN4S6GFlanlnHi1J0dpYV217DjB27OmQ4RjmNxCG7vKjKVjIVHJJ+DT6HKn/32Wm/iHqVbE98=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:ddaf06cc56565519\",\"npc:f2a10f5e85563ce3\"],\"constraint_ids\":[\"C:ee128456024708d3\"],\"span\":\"In old mint, the council recognized Ada as the Archive Speaker.\",\"rationale\":\"Ada is recognized as Archive Speaker after Malik accepted the same title, with no relinquishment stated, resulting in two simultaneous holders of a role limited to exactly one person.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "qRX13aq3Fr6IWmO6dLEkXSQAG4TA+rF4j4LHd4X+UcKFSj80TO2IIAznh5MBaxfhn6Pe8McHIl9f4Jodkb+UHLxd9InWoU8yMVdHUq4Ien3LfgU+CGJtQDFWdcXBPJZVkHdm57FZ4voZ51dVRgcuKbMTcwwj11UFC3b+Lu6Q2dG8sa954gM36pH3aWRHVRRTygnNaRtJzmUjm+djp8h32G+cedzUXE7qmZ3V+4XXapN4aGG3guVVNrF2hQzwIvjWiYMbYhDUImbGVjoL6rNUJpjEdAQeGZWVPZHCsUGxUXWoOe+c9wJywCm6a+VaVSNqghBi0vCdVOSvN0SPgosR7Ur3glCVmm1NlNKlkFPQtGoVBBsRYAhvOKwGFCIQyOiLZrukLLKvQu1XQzg3QYv+nN1subLJ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 545,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 199,
+        "output_tokens_details": {
+          "reasoning_tokens": 88
+        },
+        "total_tokens": 744
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:ddaf06cc56565519\",\"npc:f2a10f5e85563ce3\"],\"constraint_ids\":[\"C:ee128456024708d3\"],\"span\":\"In old mint, the council recognized Ada as the Archive Speaker.\",\"rationale\":\"Ada is recognized as Archive Speaker after Malik accepted the same title, with no relinquishment stated, resulting in two simultaneous holders of a role limited to exactly one person.\"}]",
+    "token_usage": {
+      "input_tokens": 545,
+      "output_tokens": 199,
+      "total_tokens": 744
+    },
+    "tool_calls": []
+  }
+}

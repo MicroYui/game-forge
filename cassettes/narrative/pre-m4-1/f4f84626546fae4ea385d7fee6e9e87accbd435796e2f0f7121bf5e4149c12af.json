@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f4f84626546fae4ea385d7fee6e9e87accbd435796e2f0f7121bf5e4149c12af",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3235,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 540,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 144,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 702000000
+      },
+      "created_at": 1783852800,
+      "id": "5LAR9YllYuGrjt7P/RBU3taOwnwW1Y1ZvQjNI59A/f45E62LI4yBkketgo69YwyCDGFRIEh5yHoAG4v7VbaL/uq5P/HFHk6pQptVMbyXtAAuVheWDuToXKw/Jg0JEYGyguRTcYn87D2Yg9A3HjnIJBN5KNVpUMfabJNCQsIkjEWH41bXtsa5wB/ml6rxta+VWQtk7HYVlxzit0OSaMgoZJ6Ti1fOyPnmSKi9mvuG+RIAaxbJMHzYR2Ot7DmsZH8NAh1qmkrhkLxle2M4+IU/HpkHSLsFuAd47Tc/9G+fqAqBSmFUtvCU1fU9uH2Qus5sumZK61SDJQi51B7a6fLO4lPnX/yyu+Zf+E1YY0s/lckkOxT/P2xvigeIi4JcXG/BcXnn1lw7ldJeKJONQm3gQzgrDegflQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "C8x0NNQh6ousl6Ilk/KEKSQZpR3lBnvlin/C8vJ4y/2yZ7KUpFcdx74OfzPr4K65tYenLKB0BqQhKCv5T/RDKIv8/RS7UIAXfOwf4DJPIDFOOjte16QqI0pYsZp+3sSi4iBHdQUMZxdk3PgO5bFvHmYX+kMLGdLc0R+KHhG3VvrGv5TI2gsYMpWP8WvgHqZF24QAU/Yg2lV/i/YvlbtGpZ/mcM7KTaOVx9oWTbKoQ7O3ZkETqp8PU1MyTnbeBm1BoQIJk0017F2Qf4TY2qPbzWkgKrac4whXCgNl9+AXhDfRaXYxnJXXdc6kjIOxcp1Lg5lCg1gyKpelBrhOmkOJxgK86vykIjauLE3zi5GYUbxG/shuaONRdevBlWkRQJVLM1D/tu8/Uw1rNkhy4tGqiqd1P+s=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:716a22bbc97aa982\",\"npc:dd910c552a79620b\"],\"constraint_ids\":[\"C:3096e5e3c1dabcdd\"],\"span\":\"Noor fought beside Cass under one banner at cargo ring.\",\"rationale\":\"Noor and Cass are members of factions that do not coordinate operations, but the quote depicts them fighting together under one banner.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "qPtUT4lfHp6mh27BIsnPhCsRIK9H87pwOnFWdydAB1oE18FYBy0FJ+Efvdq/6FeHZ9SXXWeH+nle5epLawTyRXtWjlf1LDEFsbrBpzi4wELN2yKLZnW7TK+z3v6X+4axGGYTBY0NsAsHMb1A56G5QZ+aM+CEfs+Y7twYDPs3U1Dlu3MzUlFf+kY3XC0T6HyDR4MN2vRlDODwmFQvKh6uNp+adl3CtbZFhCZSY0de0T02nBz82BGDEf0FKEXUSL4WbMvZUtOjPor8UThLuj3F2d9yghszTQ5s1yquKHcK2JezyabwZpMQK2UzIQ1k/nddsmbXswk0w4ZZVnBGGJ8dN9PwE81dGOGOWdBILQCrmM32SzMbd3oUa3SLM0KNthdx/Xw0kGOHmtprufzyutrnr7Om12o8",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 540,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 144,
+        "output_tokens_details": {
+          "reasoning_tokens": 41
+        },
+        "total_tokens": 684
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:716a22bbc97aa982\",\"npc:dd910c552a79620b\"],\"constraint_ids\":[\"C:3096e5e3c1dabcdd\"],\"span\":\"Noor fought beside Cass under one banner at cargo ring.\",\"rationale\":\"Noor and Cass are members of factions that do not coordinate operations, but the quote depicts them fighting together under one banner.\"}]",
+    "token_usage": {
+      "input_tokens": 540,
+      "output_tokens": 144,
+      "total_tokens": 684
+    },
+    "tool_calls": []
+  }
+}

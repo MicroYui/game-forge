@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5f45b1b4379f15a5dd02246dadacab1f2942653aa137ac1501b74157100e3a8d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2818,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 565,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 142,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 708500000
+      },
+      "created_at": 1783843800,
+      "id": "BbqFfba6+eynvl57x0SOi9Tm4AQ+1h57ciEnAQqrTfUiYM+QzkOxSr8leXdTnj8lqTaOUBh41umMQbhBu3pox+udAV/D2baRFgKclunOEHQFp9D7MAflo7suF1B+MiBebGlykUfL2ARhiafv4aOK/NC8FQE/0ocyAsyI2eQPRMeZuVxlE9rqQ1q/Q5Ybvucsj3ZYSmEL4auo9b1aiwyrFNRx8sdCs5jvkYQmxU2UcmsyCigmguUn1EB0Xg7qO/10lWClmn9SXy2v+ZNzk65aAEE+oKBdW67+5xcynaK4VfSk7JXIBo/KFJZVR2VwBgqYLstLykukhWY1ty/vfx6le8HHJDAfjES/3gigEXEqm2zDVt0tLlaIAnSAmbr+knv/ONNKdzm9GGG/erAEGZOkMNIavjif/g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "EnXX0p/G8VeyeYm8HJriN5s8+ZgQshDp9ZBclgjV3FeJIFPYmvkut2oI8fiHWZn8dRsEYw4cTCaiZKfwUEYEwN/KXgyRIltbjdWK8SNN/4hGn3u0wjbE3CIneVIlcGA1lppwcCVivyHhFKaI0LFlHfma7KSLSzrq0Y8xRrhC+ZuEJ1YzGW873SziYQM/GCv3hfFf3FDHohK2Y65Y4Y8Y6u7W5BqXY+ZFjcH0e0OTguvaYfTQd1uvHXL4FAHUYqnlGlKFls8bboAIqwh1ZosMyKM7ZbkJOB+ZsY4NGHMhJGY0xMSRMb3lVqZYOAqP5ip8ePX6t483B7ZYs5uKjiiSI6+OWChwL0IZ1njmaW65Kibutzg2bjKWppb+s2HDI2zOhrsqj+gKWW8rM11YpnA7mx145tg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:414c0338c83e8f86\",\"npc:7b1d3684491f0aa0\"],\"constraint_ids\":[\"C:48db51689849b641\"],\"span\":\"Mei welcomed Daro into a shared command post at orbital concourse.\",\"rationale\":\"Mei and Daro belong to factions explicitly at war, yet they cooperate by sharing a command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kavtcGyMPHLZurcHX/n0HLR4iQfCG804O2pR1H6WvXF1JLbHBagvlkisc6eBeU/Y0muaZQxyDq6UmGH8o98+IGG/yAvpFh+V+RU9GOGhqKpc0f1Hf10hTq7Cnwyj9b02rgSk4/g3zEQ27EcLcK13FKdtPndxtngbsZD6IugCYXBJ7betzyjzPc0l0iT4Q96jTtaeyV3uGzrtLalFASO7QV/ZkZVjmKSTt3PiYJ0AzoDmwiGvrCce2Fys0hKSOzA8P2U36kMwwAOMpaGBYuiK0mbT9BmM+3uEzR2oQV1LNtbR6bgy0u7h7E4i6juFqDTsWW5BYCz6XBDol6vBFOFWHc6inbJtuyXZSdvAp52MT0AWgsDDACOpCH1XN6yCY72LxbMQDMQERUuImH9BmJ4cYXYAfrtv",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 565,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 142,
+        "output_tokens_details": {
+          "reasoning_tokens": 38
+        },
+        "total_tokens": 707
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:414c0338c83e8f86\",\"npc:7b1d3684491f0aa0\"],\"constraint_ids\":[\"C:48db51689849b641\"],\"span\":\"Mei welcomed Daro into a shared command post at orbital concourse.\",\"rationale\":\"Mei and Daro belong to factions explicitly at war, yet they cooperate by sharing a command post.\"}]",
+    "token_usage": {
+      "input_tokens": 565,
+      "output_tokens": 142,
+      "total_tokens": 707
+    },
+    "tool_calls": []
+  }
+}

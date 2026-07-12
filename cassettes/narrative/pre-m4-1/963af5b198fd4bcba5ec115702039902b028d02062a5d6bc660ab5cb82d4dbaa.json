@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:963af5b198fd4bcba5ec115702039902b028d02062a5d6bc660ab5cb82d4dbaa",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2919,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 553,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 162,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 762500000
+      },
+      "created_at": 1783842700,
+      "id": "G6qebB3nHDJcEutjkWXsXkqojc4s3EkT+4AKpX3Q+YQBt42MLwYDijAyDsj6JaOYgqFLHQ52ynnv9TDqyTtm98QeFs+Uo67rRL+JFPFnwk+iiLafLhnL7uZireHMI6FIHLw8kK/js+Cvw5+Ybojwqw7ZBN0Of5gHqRdbM/vja5/EYBtqOvaGDurzK5e6fXgPOdHwn/8NMobVv/dZBAHM+A5WddbpIU8rUppkwqw/MuGH0LeoS7ZNwS0O9QzpiF9bi2v4VVvzjRkCAw3OPT2Jk0e0BfVRCWtNt86To/EqIqDL+y/jO672g09wyoCoBKh3qXSTmUOMtbzIo/yXpjbE73kGrJ24baBUtD2z10sAiuizRM/sQ171Ix4jBZbxIqOLCC4BH73jj1SovQXiQDhxx97yrwzvfg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "PELNxQ3S4r5JnyIsAXx+6Y4gq6fQTJriETKtoIdqQhyg6lcEbmzpUUuYVL5FpARLf5NVKd04IygV40qVvfpw5m7ddGFznpYDu34UzS3C9PFAxfV6uNZOmwJ/+0xb3kSAYMZzfmNH6okUrl5BahtHB1fUyJRJs1K1AimHMeJoDco2XFuo05sGoInCiyeplWerI+1mdhKX7jPzJB8iH8v34mlbsl4vP/NGKhrywGBVAnJee+RYlpVho6C5r9pipd8JhXzsNNUtcgX2DbyX0nsi38j/NRTW6N/KnGKfduRViYDGfWqT1p1UwuY1dJC8vVuDObfOJXyF7Y6xnetxyZKdERplffI8anMwhDVJRirRYexNYmJ5ld7arCF8PJgObSe0SJbuoP71NTmIyFt7iHd3kjO8+Fk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:cb4190a2f54c248b\",\n      \"secret:b084532f33d0ba0f\"\n    ],\n    \"constraint_ids\": [\n      \"C:97072893f5a869c8\"\n    ],\n    \"span\": \"During hearing at canal bridge, Mei openly named the vault keeper's allegiance.\",\n    \"rationale\": \"Mei discloses the protected allegiance during the hearing, before the permitted verdict stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "6hn1l4UleGeJfuFyU0xxsUKlxgBL639siQTY3aWTNCl3Qp+AcVoKwq/keegzRmElmNye1OgyFBqDdPaTUJK45z7Ct7s/cx2cOAZB0YW8q8rjWSTB58BYPNoqrA1e1W92LpmqkmQnQRmC4YBnOli2Dr2Gb421Ibk5chsDMRN1ivbFSew9t5R2pSklrA/xhVP1uHgjUB2l95gpADcKP//lgQ9sHSzwpB/34gaw6Lw1zPZaG3GXXgeMKd9ImGbwaIx5XPPlMMXe/Rpx3XFZv14LX2B6lrfF6plxERIgQRRnMc/fEu1H2PrkSUQnAOXR003sl21F34EcQUfx0GUaM3sKB57ZqHst/62MN3bffgHJTG1d9VnGE7JoImG8O57t5ljmd7Ec8J2EcrJqOVkT4Mu2Kq2TyzPU",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 553,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 162,
+        "output_tokens_details": {
+          "reasoning_tokens": 37
+        },
+        "total_tokens": 715
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:cb4190a2f54c248b\",\n      \"secret:b084532f33d0ba0f\"\n    ],\n    \"constraint_ids\": [\n      \"C:97072893f5a869c8\"\n    ],\n    \"span\": \"During hearing at canal bridge, Mei openly named the vault keeper's allegiance.\",\n    \"rationale\": \"Mei discloses the protected allegiance during the hearing, before the permitted verdict stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 553,
+      "output_tokens": 162,
+      "total_tokens": 715
+    },
+    "tool_calls": []
+  }
+}

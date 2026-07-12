@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6cd9b42e0a2c9db5e1af73302185b77a9f67747aeec8cc54773a7c0181180101",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3915,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 671,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 157,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 806500000
+      },
+      "created_at": 1783847700,
+      "id": "1QONHATnxnSIaJ8hG1dp9vFiZIl/sHQW0Q3e4zK+XbRRQku7j1lztTQtivTMf1k8CnaJjP1RuTqKI9+88hi9OAUEI2U4Wx1Pz5noX72Sce9VW/ODLk3omzTGyk9vb24k7rSjJJ6/43SfxNempHphhEmckxVn5or4IC8wYtj0luiZbb94cOHXZvFq6MLYV3+D3ZSaENykyH5BDjr+Htr/2U5zh/8Zw7PTn2B+uF6fDH0cWpNx2czRiJQtdc/J2q4nJgDOk149Dac7ah6NWfivVQQGRDI3YtSkBeb1AYT5oDd5ZH/1O9hbWpmvBA5THxD2b/UVRjiCgc9qeZPDHgtk+6FJ8G4A4a4L4OBJsCBE3oQP7LTrKcF4rhcKbuk+QvXsCKZQ86Pa8yb4TGUw/T3H5NPnuVeXIA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "CU+RxL9/NaujoCfFFxiEldH0D9AbFkM/egM3PBQE+4pXKS62l2N5t1Pktd7ufcBjYc9IJukLyswbewEaCoUr9W8OVyVCDy4ikLQL0J4/NUJAhfDyuGSKzBynd+h8X5tZeB1cJ/1AsFZaVdbpHkUXo7vTkKVR2YDhV0QX1HxZ9giUyQVm08xkB0pJxjNfo2UY3GS4xDDXz6OwmIG4CLEyk12E1wBJM+OrlGGm/vnAzJCwNo4rfFUVFN0/ghDnNY/Lsgr/l0fp2CgN2gULSJC/LFb1ZyRMW8gOZyRjLvzt0pt4IEndqKCp3hCU/s/FYnbNKP/7GvlGtliYmH+brzOJxKbOpXv0Udb518AH69T5Oi9BVKmFZyLUHUOda7D/Hvfypie/XHlDsl7acQ4cd0djUTzhZGw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4eeb0d90d6c774c0\"],\"constraint_ids\":[\"C:a80db41f14f6ae59\"],\"span\":\"At river market, Ivo locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Locking an evacuation gate while civilians are stranded outside exposes noncombatants to avoidable danger, contrary to Ivo's safety rule.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KIKbsrqwRin3bTw/z5YQ9raSGBHZhs8E7hMTsi1HVyCOYptKStwUYaYpWUegOWjOocHD9+n9bEF69wIoXXQbQPdoE4DSx87Vig8VMkdOXwVISqpmm1uxWEbydIhccO7MgDTnmos6doe8w1UeRM1JygVirz6Z+YuPRtTK2gnOl7F/gqGjOZv8jRvALW+fWyQvl/R0k7qz0KpMAJWzqwH/xBPXJBZbNzCq75WN7TT8gLq9AWsj9GkS9riK0KmBDbSWzxj9k6RF7sZx5UoxAVt9jCPtEI3uWA+75ul7kkC4Hy6rZK9zGqcIVZr34jfX+3fcPG1nvIUV55YSLKIgaG5D8HpfXypQ11Rl6rAz840irzzTTjtaxTtWlhqRuH1XWSbUhmG3k2aJMdX3whHqoCACNvyvTDzH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 671,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 157,
+        "output_tokens_details": {
+          "reasoning_tokens": 58
+        },
+        "total_tokens": 828
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4eeb0d90d6c774c0\"],\"constraint_ids\":[\"C:a80db41f14f6ae59\"],\"span\":\"At river market, Ivo locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Locking an evacuation gate while civilians are stranded outside exposes noncombatants to avoidable danger, contrary to Ivo's safety rule.\"}]",
+    "token_usage": {
+      "input_tokens": 671,
+      "output_tokens": 157,
+      "total_tokens": 828
+    },
+    "tool_calls": []
+  }
+}

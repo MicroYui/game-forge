@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7e3de855afdbc16074866a663042ab82e6458b7afa1cd0dcddf5485051c4fe80",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2544,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 577,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 160,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 768500000
+      },
+      "created_at": 1783858800,
+      "id": "4E5jF3IElOi/EvdYqFthvYmtcrJbtPsO6SP1obRSSC6oVsl1SLAcp34gz/1vJHdnSU7M9hvcb4dyfoSjMatos2Vt4s+d1WgL8TlvtIIC4KpjjYQsUOurR8xTpxZ4ktclQ/9bXDv0hdlNnR/foaxv/qzNNuSaQvpXcoWH2U/X/kG5Zbs1s+Kp41OPYMuqswCdvQgFMQjWIjF60GwYJGjuv0Bc3ca/VD5B8vSRViZGF+4zLyyldRnV49p7QDe3lc0YuLOOLp08Oy/5vVaAcWRM4/5Ksi0K5XiXqU1zYu4VmbIhfqFbRM3F6UJVnqHmKdvbtarQjGyO7RiLMNW95EC/vujDyRofiA+rgyoD+ma9MQHVZ36+XvExqFVnmFlxWFKHKoXzzdd8dghaxhjbHUl4IH7nHpUraA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "l5bQxhBb0jZY+WvZyMgD4ujUjQY5EplTeFKwlFiDrJ4k2sGDHo7zm1soVXCIn76w7En40viv5l8DySzpWxOHG6jdaXIetIRyOaa2y9xwzAYvoWwdxELtQ0Cy7dpaz8eUSlDbOAYJGL74oO4AqFBlfYxsDJ1FPYweLIUfY5WcsDl3sEk0g83HjzQ/cMinG+UrcZNDkd3cASf4cEtJ5Fz4NLHQgKrGjUhaA+nUKVTVGhTuSScSX6c2OQr3+7dPw3jAaK/cgIZbLrY6rTux50OpvYvToYZ0WBGqs2/J+FIHnxy2OMF/9VxB8XcR5wuL5UySihwOe+cQcpOcKJ9lKR44mXx30IAgCPi8yWjfdTa3ZbniGwu5XP0fZh1uwfYnL9/lX3AQ0ctRbSo+polsjsf/DFLla1E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:28db1fee78f6d538\"\n    ],\n    \"constraint_ids\": [\n      \"C:a534e7d323ecde31\"\n    ],\n    \"span\": \"At north gate, Ansel hid the relief crates in a private storehouse.\",\n    \"rationale\": \"Ansel conceals public aid in private storage instead of delivering it to its intended recipients.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "pb2soiyfqBxfo6ZSKsaUBEmxhIGSD1bjH5pmNWy4AAmG/o3Sh5GatYXbUAUjis9UD0UKOIIxlKD5jO3d4QOFU6KdnpLiXY2Bbf9H7GMzd/vnbBD1uOiGQUdXD11ZbiEyuVGkY17UJOwc0wvY9OM4g8m8nuD4F5j4pNytC2/frZqDeMJceKEm6wkadKEF+OL7Ff9c6agxp5ODpdUpStPCfMBsoC90hEE5mRDrKnEEf4woWRuBJmx8lz9L50ZfysPDY+ggdY7ASwTjJAxFqCOTbBPC3iPoVDrWN6tAXi/r5YDx5StJ7erut1g2boHOx/h1TkopK6TVHn/NkssBOYGZVv+cSo2wvnvleoWuSUmKVLalpqdULFH3ILs1rOuoClno3Vo3jZpJH1V94J8bxAgT6YWg/ZpW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 577,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 160,
+        "output_tokens_details": {
+          "reasoning_tokens": 49
+        },
+        "total_tokens": 737
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:28db1fee78f6d538\"\n    ],\n    \"constraint_ids\": [\n      \"C:a534e7d323ecde31\"\n    ],\n    \"span\": \"At north gate, Ansel hid the relief crates in a private storehouse.\",\n    \"rationale\": \"Ansel conceals public aid in private storage instead of delivering it to its intended recipients.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 577,
+      "output_tokens": 160,
+      "total_tokens": 737
+    },
+    "tool_calls": []
+  }
+}

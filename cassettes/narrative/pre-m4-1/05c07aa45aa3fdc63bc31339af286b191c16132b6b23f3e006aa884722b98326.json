@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:05c07aa45aa3fdc63bc31339af286b191c16132b6b23f3e006aa884722b98326",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4938,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 567,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 245,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1018500000
+      },
+      "created_at": 1783854100,
+      "id": "sVtRfG5Z4z4VpC1CUqpsK2eNkR2doz84Tocutto1uCZl0NgSNRicxML8qb0dSErIm9JISjyJCFFr6RN9L1BkcYVMsMpsOlq8MT/CXB/yxioD4LdXf8gOOfi3tvMayNklPJUlH895o/KaldzKjIQgPKKOHbOIUMIJBt9Zed1q8oY5K90jh4/G+Dwhy0NUoJJLp6SE5OyCOYxN0SB2FGmH+wBwqY6jRWIfd+XHvUWpBtC24nPCJ4rBu+3GEGr2F8o/UvCcXDoS6Y6s+U9ltztvMs8o6lcrfoEDC3Q+FRbkk5XsVlpSyAr2F2aFPdxtDFoGeY1a5QlcxUHNXjV/hU04QN6RWGqvT7KjFSt/dCV9jh5YOQNjNaD+9hRbg7yMuRhX04l3L7iZOj5/Tx+rrI9o60Zd5yVi+g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "cT6wAbXLtUPpz4HxQkMCTowAUGhkyRPlaSIH41IEymnjTsEHNwAu89QKFQ/Xl++zu1OGK09xhd8544jo8ACZWaEMXCCZa87zzrY1+IF0HeDdz7D4hWrM7l/cRwf891O5HE9S50ld6rlYEKaqjBOoePitnheGDioldgqKSFrgIEqhNzoFaU2HFUfYqfO4wdb6BpV4jIY7noaP3h3THmRvIX6Xo7AGDKkejKUchsYNHWHqwhAeXcUDtrTToYaT51pEPVuaeMYB7fZLlCXXv262mFxQXAhrivyx+/id7gJf2rqCweXc/7GYaFAXgag3Unx9Jjm1snPQKJ86WDLNXiLRRs7XRzAwul0UD2VUM3LQTfp+xZIQ4kY7xuSXb1FUbYEyC4BDGYGW/EA2I2Od7H62BmbjiH0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:8364205e7b43dc4f\",\"npc:9cd7b5b9b804b82c\"],\"constraint_ids\":[\"C:55c54c2549c341a2\"],\"span\":\"In eastern ridge, the council recognized Tamsin as the Harbor Marshal.\",\"rationale\":\"Tamsin is recognized as Harbor Marshal after Eli was formally introduced in the same role, with no relinquishment stated, exceeding the one-active-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "c3vo/vfKkBc5xkTl3AMfI8LXQr9vx/YknYvWtQbJQg11TFIoMHk091Ui8xfncIcIw/sDcGe68vaUUv0v/eyeTprUMbPuGyfCc4mMOGvwOnIH4yX+UWy8p7jLyPZukB4tNTOTnFWil5cZpmWFSUkSSVR3KzucpQTpmVHNRj35VNCRpHIIqG7SYNfry/jbbArsUCYXNCOEXCWoGO6/XV0ZACqwrhS6VQAm0V01jSNO7pIDiRYqnoaZY9y2siE8vnSiIA81OXc9/wY1Z21sS78i/NZnJqMChosFB1ZKoRRQ7wfkN+sK9zO8azK5c6TDP18GSwzM9WKUr6xdW4X6GdikrMGZh3uG5kf0grKgaDnkUmk8KaSyK97eWTVvRwv6MvYPtfCXRCUp9AlKo0BKaYW2LaAr0Ctq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 567,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 245,
+        "output_tokens_details": {
+          "reasoning_tokens": 126
+        },
+        "total_tokens": 812
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:8364205e7b43dc4f\",\"npc:9cd7b5b9b804b82c\"],\"constraint_ids\":[\"C:55c54c2549c341a2\"],\"span\":\"In eastern ridge, the council recognized Tamsin as the Harbor Marshal.\",\"rationale\":\"Tamsin is recognized as Harbor Marshal after Eli was formally introduced in the same role, with no relinquishment stated, exceeding the one-active-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 567,
+      "output_tokens": 245,
+      "total_tokens": 812
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0870bd445d8f2cb2db045274d23b9c618973fc1b38750b2c65c64842ce76622c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5121,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 639,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 265,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1114500000
+      },
+      "created_at": 1783843500,
+      "id": "RLASrVcsu8gU8gl1GB1/HxTj6JyjdzIUz3JulEGv2sqOXHcrncDREHH0hgrcBpLLwtBFu497+5j0/crJVsvFT5xJI2yAdhMmLp0hZzZ6bRzKouebxo/rVhXZUqArqwsOjrmjnkQiC4hnvouK8zHePeP2g1UyAUZ46KkXlphSjZRkoih3RkCvwVY6Y+EsELPsGZ50zdmYgjpdY/+5xaGKCJAGOhLtTxSljF0bUmq5clxVyU+PkvJPK5c0/qMaC+ytYn/mZN2HJofbFgvCrPMvpBTPKjZAd/B8Fn8Zfz+CJ2pLvbiJBAQL3s7S8fBw+80yXW2KzlwibGvjpd0NSOi6XadsdZGQJjW2flEkSdDtTIdvjwDxnYFXP6IIfWY/4feX5Ao2sv6SvuW0d5dwjsml1PvmEBgueg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JzlhLIhF9LWfAKqpN99xGEx+sVGaS8NusVEZPR5Tbd47R1RU8TURxhxm22jiWiz7aLQLzspOlthqu8931ht5NrM20unmtrmRkwH2zdiE0h9Z7LUGChna7LfwdBmh+6iyGcAX6VOv5/H4gLwg+03cupb9vhTZbEH4X88OmPvd5dzrkBDfsnpPzA2bqtePdYUf1NdlzaueV+Dqp5PLwHcjAMFEo2R7m+v/ytztKn9kzJ66w1rOooozFIkJPfdsx+WnuIh6uHb0raz7nQu8yuFVuVXXNjLKhDTe6gI0JezTDq1MISyw5tsBra3mDuEwa2RXAgJMASLezOLzqJl5Tc1CoSGTwW8YcR0yGS/zYBpW4V8B8TXOlHjncf7QCIUPA1JTWvHQOmH7LGvJSzk1R7x2Kq4+r9g=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:bd93349c2f9c0f67\",\"npc:efc9eb0b3b14c2ce\"],\"constraint_ids\":[\"C:423a1e65b66dc017\"],\"span\":\"In orbital concourse, the council recognized Tamsin as the Caravan Voice.\",\"rationale\":\"Eli is already presented as the serving Caravan Voice, and Tamsin is then recognized in the same role without any relinquishment, exceeding the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "obZwdqv7tup/HPKK29oV1c+J4IWV17N9OpwGXpNtvVKiifc6uo22BmFv3jFIBtqLyQ2tmQVi+9AQH3WA5Jyf/7KbZErwM40VHHnhciv35PsCvGoQsPY5dzh8uTzGe5H2fkrylgrJGRxgW8hBNcctOwz7d2OXzFYFmUt4JTUBQmJuXH+HMGJiovJnJmtBmbMWhC4s+l1LFXOxBuyV2MNRvK3x/HpDlI86r+FdbBSYMp2VRSRVKxnBFJfydg+f7nC0daDhlLctS/2rgJ9MtvNH4KU0wjnqseYXFUgq2mhIUar6+nlulF7dENTOc8shSbJG8YNnKgzjupnlaxtwg5mQmVT/wNcycDSbHpAngqxme3ZeSZFQx4HeWbSUT2HL1a8TJfLmRBylfibqYN3FVe+HVyTZcoL3",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 639,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 265,
+        "output_tokens_details": {
+          "reasoning_tokens": 143
+        },
+        "total_tokens": 904
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:bd93349c2f9c0f67\",\"npc:efc9eb0b3b14c2ce\"],\"constraint_ids\":[\"C:423a1e65b66dc017\"],\"span\":\"In orbital concourse, the council recognized Tamsin as the Caravan Voice.\",\"rationale\":\"Eli is already presented as the serving Caravan Voice, and Tamsin is then recognized in the same role without any relinquishment, exceeding the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 639,
+      "output_tokens": 265,
+      "total_tokens": 904
+    },
+    "tool_calls": []
+  }
+}

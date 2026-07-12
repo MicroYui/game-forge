@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:953cfa895b5e3bfc899381a38994e23d5e72815dc6fc0ab22183cb0bad899df9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5583,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 569,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 238,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 998500000
+      },
+      "created_at": 1783852000,
+      "id": "yh3l8HzDRapIyYM3d9en6ZxzK577Pe+ErjZWqtrh6CHFjjr40P2vEoluEIwnoFaugoa3cs8qXs/w24uSNscBCN+saAG9wIEivoDrMbQelmeLbfEY9RUFgNfTw79uhTRTmAFW7Mk7UeoNZ/zczSwavpTv3Ffqxx9nePTNTEWGmHva98ePSFx5fHM8C3ptPHyyFORnGPf7PVd+s6uln3/vrfCmnWGJxZ5uPhkvCH/zsAdSWh+RnQS3jPyJFAJ5WIBiFBDWRqCVw9hK1GXuzceWAZHQrSKQ0OEno1V0bBq67461q3VlesdFc+S9n+fwuaCbxUSeK3/3zb6pUidh3dcHRM2feY/a58bh4ldvMU7FA9PxEHmJuZkeNNN4jlW4xxdf0AisuiF8kAe4yBEQxTWDnocWjIeg6w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "0QJp+if169GXNoBli07mR/0OzrDDZBGf78mAC9vFd6cTSWOTA+P8bmSbpCgczDGgKIIwX7n0xqrEbL1JL40Jmy8KTqyaSDMEVJbC7MI/6Qx4rtYAKrCz6x+Zz88CYsU5oHSibnvqDvvVq7RCSTTQCiPh7ERDgoIxGWdqh9zQYjS0+bx1iCxxgC28KMGD/Q5i6KCiQqtrO8PsqAxgK5+kk27d6iz0NLKUU6MpEqGeLL8mvH2rtGTA4AA+TA2wHRGqumYKwTdMDa6RwBfs7FKqQAQuNDjH0USYlNtg79uVuB+EalY1+hRGQG8uiS7BoYLAg++EsGHsnrJldHF2/B4sfYWiV6zPODBy2KoklpqyxDy+QgNrtUimWwdtKyyx8SLGMRZGZ67oHt/k1EwZ+9tBLG7KLV4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:458acb90c0a9d304\",\"npc:52251d33118aa120\"],\"constraint_ids\":[\"C:ac612f451c6e606d\"],\"span\":\"Malik signed the register as the Crown Witness at eastern ridge.\",\"rationale\":\"Ada had already accepted the unique Crown Witness title, and Malik is then identified as holding the same title with no intervening relinquishment.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kyQPgQvqUBoQaEQquuqYIqdOXfpUZA4oSGBhUL61n1WwSirfFwtZDbc0vh1rHjduGVDbbwVWBRRjnaWYr/Bvldpxh8hwIaxymEklQMiWxZd9YHJqefGBwy6xJ9YhnRfLZ3HfWv/vfi9rKPKuJvnfROR0lAiHX77spWx6OE+aW7R1mVRBw5LcANUzYfJTa84acdzEJLo+XeQUwk2T1gNEj+P8j4wMRiFiLeLRXL1sM+8oYgT6UAAH4OCGvEcP9TfTU8RbU4mXf3bzhZS7R80Z3xySo/Ta0ap9CjbQKdJDNtRdOAacreD8BGffmvnwOufIC6NvNnQXFGenAEhxpkRr2uZANS+Cone5rg+yG7gfdn5qiqS1PVedTUUq3qpjT0BoGlF8yIP/8m/uTiUGrhfQKbQR/nNe",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 569,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 238,
+        "output_tokens_details": {
+          "reasoning_tokens": 131
+        },
+        "total_tokens": 807
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:458acb90c0a9d304\",\"npc:52251d33118aa120\"],\"constraint_ids\":[\"C:ac612f451c6e606d\"],\"span\":\"Malik signed the register as the Crown Witness at eastern ridge.\",\"rationale\":\"Ada had already accepted the unique Crown Witness title, and Malik is then identified as holding the same title with no intervening relinquishment.\"}]",
+    "token_usage": {
+      "input_tokens": 569,
+      "output_tokens": 238,
+      "total_tokens": 807
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:76a1649952cd3be916df87deaaa624bfd707622d88c961b9b3dc77156be6e269",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4467,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 564,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 224,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 954000000
+      },
+      "created_at": 1783844900,
+      "id": "z0ofJjZciM3m6JvPI4DdsMM95hIqhW6mSO2FEMfM7P06ScApuC7isB+TTcCQlinlif8UXXDbpTnQ9ksKbGtQy1fIDVAMXqKyDl0NZXwebpQE13OzWMtupTC0Odyc1JjKO3Rt6zRg/kzHR+Qy1HgRJcQ8J0QuKXLL3hLBgpyT5DOtoLudvhE+zDqf+DUvfni145DRpnRMPM2i+2ovCXNKswfGH2RN3WVLrdSdBCUUpONxCwI0nBnNx0RtrkqRcONFZwWpRRTwRNJbSq7v5lHBwKLUnlmVnOgvlTWq06wYm2DbyzHHnkakfP0+Ud7foYT6GTgzQVeXukP4VZsbpVBDM+qJV6FdyQ9qXLu0bgHftd4NGoppXyHV54MpI25QVp18SaY5oamY+fu5OHq5B9MHWzoIzilUng==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "O6EX7VPCONJHqFAtQQw320aTbl2+crYjYelEGIKNMk94GNexK38kC3+8wcwDxqj2Om8zu6Zt6XRrtmZwnwVQ73RjSA5jLH026VWL5OXu7AhSr1K+hcgFYk6zEtlywJhy1dSD3eUeJn3HRpgglVS1M6CsYoHQwuXWhBsIewE3v94bI1CiwuMlTaAwh0uOcWGxNtvJVgU9QYGcR73JIs5Y+yKPWdpXsUgESNWPkCvSjYw3KMbOeoZJ35kQ/QSkMHxaSPhN+Pwalp0X160r0f+PNHWzChneXCNs9y4onAHNCNh6BdMhxFYuyNknMBxd0OVaKa7P/gZA5zQJi5976HspfVKsbpypezsLUAHYY9rhL7GyspZqzjUw1Zss85uVUCrRbVQ0Y01lkret51iE5b1nT1NKIsE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0dd077313397bfa0\",\"npc:d90e60a2207422dd\"],\"constraint_ids\":[\"C:0184a419268605d3\"],\"span\":\"Iria accepted the title of the Crown Witness before the assembly at desert waystation.\",\"rationale\":\"Ansel is already presented as the serving Crown Witness, and Iria then accepts the same single-holder title without any stated relinquishment by Ansel.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "CHqgVm65sXlO2kJiVAKp88+CEcglaJW7n8GDf1rsGy7duGiN/PLZW8JzTw0M7P7vfDy8sVvYek5Tbh54wOTO9S/Dw46WnpVlFAAEfQsGb9XcaIBA7IMACf5/VYGwsINi32u8dFyrXGNXvSLIGbmP5qyAsjkgeLRk8k3rYq0qsUQ+QCqxM2JmTKdLywuQrxQ0mLPBLlmVT1D3QmMCA+HBzqPPCGFXk9TSpfykspu2woPtgtjkXHJx1w2x1VqQ1YTCC9xgONe6ZbUHvPhx4LT820MnYVWmQR3PanJwjNUvlSjfIfnZc2a0vSsrbbAWhOlD8AUZcx0DJ/rpxpK2ldILKvFWWmqDnnkXu9s78FOwgSlb/g5A0fiofYz2bc4wq/b/oCBUD/zy3e6BaruVfR3W8VcSXa6E",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 564,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 224,
+        "output_tokens_details": {
+          "reasoning_tokens": 112
+        },
+        "total_tokens": 788
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0dd077313397bfa0\",\"npc:d90e60a2207422dd\"],\"constraint_ids\":[\"C:0184a419268605d3\"],\"span\":\"Iria accepted the title of the Crown Witness before the assembly at desert waystation.\",\"rationale\":\"Ansel is already presented as the serving Crown Witness, and Iria then accepts the same single-holder title without any stated relinquishment by Ansel.\"}]",
+    "token_usage": {
+      "input_tokens": 564,
+      "output_tokens": 224,
+      "total_tokens": 788
+    },
+    "tool_calls": []
+  }
+}

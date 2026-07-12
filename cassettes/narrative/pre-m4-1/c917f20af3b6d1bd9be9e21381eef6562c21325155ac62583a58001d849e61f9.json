@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c917f20af3b6d1bd9be9e21381eef6562c21325155ac62583a58001d849e61f9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3904,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 544,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 160,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 752000000
+      },
+      "created_at": 1783858200,
+      "id": "GKV57LcXI/R+uZVsZqpNU+HjXLok/XZgWWBowrYtjO4roXArERmLk4X0A4thkJEHXtD34gl1snxp0SzKJe/sWz0onLgDrpIV+4vdBujABVABZ0t1odxxe0rNKYOy84zYkQJtmiv6TF/B/cdf4PTNonT1O8DSIvnJRw4YHvXjKiZNVJmjvZ+OKjxBWEDrV0+lzpepU/sdYz9XQ5Lh/CQdCij/KJfFREAMWeJl+pkyOm6SCIdF+uYhlLQqoS229JvfotOqEGtcjvmCjgMmth6cvBOggJUolhE5ydlb1UeN+GT6cbLZulGXeTtG+M2dXdIiyOOjw1sQBtX6FT2avZ4RD0z4sOyQP4761MsSY7pRemwEXh6OhjRg1hxcSzYFcFKLgl0K90VEM05IBLyGZbW7aiYI1z7v7g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Itw2r9I6sdWsMecVcEvSfH1G96Xcg4O6FEGHOqwwuKPhYGS+pXkRrZdhoOKxeWpIhfV7opYibHA8vlV1ZIBGl4gm4HUo9011Qw69WcGPjxeMbUGdh1YgDMiFw2mL6WYvUZg+Prq3WFGew5Hr+EEeCMt4Qn3IhV/q1njlGGaXvkdEMaYc+s12QX/yps8YGXydjy7CHavpUUyyLZLI79pehYj5Y60jYshpLarHQcLVedNG05yD9PanOxrVIzbII5Q4yh+7rrZ7fih+Pw8mdO0hE1ygGhSStvCh6fHseORO9rMDZGCiAPsmd8id2ZqmjqwjtyC8JFZIqnUq6CUZ3ILtSf8iV4GkeL/oxiAGWLGwwjqoSpD+1oms4F7xo5rEfRuILJ8CDDm3pLxfJR0kdP7zDX6TmpU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:2fc3bc05f920ac37\"],\"constraint_ids\":[\"C:47c67577eba81b5b\"],\"span\":\"Qi disabled the crew's escape route before joining their hunters at archive hall.\",\"rationale\":\"Qi sabotages the crew's escape route, directly conflicting with the rule that the crew can rely on Qi to protect it.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "6+anyimLEXCDXEbjmvB6/fMHGq2YBR9VaPJbx3RopCpudQ3Q/ev8ahqavz0Q+xGQeQBkWl1LK3aNvYWauRekp0MWm2MD30z6TYQ1rZVSmJXF5nijxQVppj9OHAy1Ca0a/rAEUwVJJm5SOtxFdmufivK5+noRnUpXlVKJguy+EbSvac+/YB8CVcQAMkzwTcmRoVCxg/3Hhq1eQ/+EW6FwgYC6wqC4wzTDvT/l9UT9TYWgWh7YGNzBjSRiFVh3OaaMhmTTbyU65okv+O9RZ/fm9jGnOm861PrS+k8W3ysls2OMQz/zHgMnryQZRgejGcsZcKFauS92HSdzbnHMHVXSmyKRFBBKmK/b65YKJ8s8yC5YuI24ddXirJJeQL9AjWmkAjneIKeuhzckSQ8UeULRfeC35I4v",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 544,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 160,
+        "output_tokens_details": {
+          "reasoning_tokens": 66
+        },
+        "total_tokens": 704
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:2fc3bc05f920ac37\"],\"constraint_ids\":[\"C:47c67577eba81b5b\"],\"span\":\"Qi disabled the crew's escape route before joining their hunters at archive hall.\",\"rationale\":\"Qi sabotages the crew's escape route, directly conflicting with the rule that the crew can rely on Qi to protect it.\"}]",
+    "token_usage": {
+      "input_tokens": 544,
+      "output_tokens": 160,
+      "total_tokens": 704
+    },
+    "tool_calls": []
+  }
+}

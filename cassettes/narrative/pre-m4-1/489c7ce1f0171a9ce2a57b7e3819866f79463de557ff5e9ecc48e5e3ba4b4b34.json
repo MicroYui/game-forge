@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:489c7ce1f0171a9ce2a57b7e3819866f79463de557ff5e9ecc48e5e3ba4b4b34",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3251,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 609,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 155,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 769500000
+      },
+      "created_at": 1783848000,
+      "id": "BGzvJgXHA6Mmj62I0krH3UWAve4JMAEEJRXQ1Y+WkazJsQoZPa3sazcftsT5Ij6g+S0C4oWsLQECyT/AoP2W9cjbDrSRksi8jG0oxG7hWFu6J00f78Hc2NaXgb7iC/Jv6cEW0hpejPEsrTtKtwvrQzorh8LqpxJY7mjjf+QQfs8oqGcH8sLefkT4JXVSP2xhr5TFe/GCCGwO6ViuzF0PAqvtccquSLlv/ufBE0qBD+nsP/AC6cKL3B33OFGeDSKDdm45aurHBfDjfecYj09pe6zaHWdzTZRkE2FVxahvhuy8rbnTY1P4dgJDiu/GDG+V7zdFz7NLAJ+DJ69pXXd/Jy1jZmuIWOo6jtJGBXgKGfjLV9hWT0gxE6L+tlhK7yMUyz1Aj2vM3roE1zCPZ8mF1ISGLdHW5w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FagVmNFEEUc5bUf/cLvSCD+YuC9wWRj0ZZYyZOidpjOJ1GSkO2OxSA4g9rnADem5sLbb6q7jPIEmSjbF9ziQKhaluVG7GJouBTcJ6SYKHkcnwhAQhaqMkYNSRuBEyG58ywl9Y/REhlUYp0IQVoQMpXfUy84dNhtRXa6PJrLSr01v6cigMXykfaVrbc3KmoLDYl5aqys7Fm+CDrJXiH5IElzSwkilwchhIaXxGcRxdw6UbTenIl7e3j6p0xSYCvZevXtYqCEzYY3YjG+fdgWYm8zk/uySCyCz2WOven8yOW3HD7edkGPsxxBeR3pBTSv1pXSaNa38N3XlFKM2Jig2k79Foc2FVZHXg3Eba3dEi8TiR7ZlBguUtknHk5JRqN72FYaVWUH6Av31NOBvbBYNMjerZY4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ea2778d60c8dad8c\"\n    ],\n    \"constraint_ids\": [\n      \"C:660d62a76d985cbe\"\n    ],\n    \"span\": \"Veda disclosed the protected route to its pursuers outside salt depot.\",\n    \"rationale\": \"Veda reveals a protected route to pursuers instead of keeping an ally-entrusted route confidential.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "55ub//iTkLZANHFSTZKSd3gfSVN0QLV5Djznp0ZOJbhS2PlHHuhM0gVRPr38OlVvix+Eh0Snsy+rBS1r2vwjMsPdxwJjLX0yUW6xBRkRyJdIM0w1gXzvFePjo4zyFbSeNM+/ayQdjrP0tJCr1LsRboBWKXZMNswpLhNhKZmso9kLQOej3dTSDjSTQIIygSN2e9atyM5epPZPmcW8wd2K5jM/ucKYprQFONqSKJ42PotQWtuoxpNQx3o0lQZYf/vDfxGdI6bBFvN8XxdHJlMkgzjhbKGZ8fyDZEAqVWNCUQtrI27AnJfuk4Hj4IOOP4tAkyBdIw3nXyODggqo557pk7utxQpWOMUMHe7AcyExA4omVT5Zug+c0IA/FDidssmSdPN0ZXkW336Suq+jv/6XERIuDVnp",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 609,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 155,
+        "output_tokens_details": {
+          "reasoning_tokens": 42
+        },
+        "total_tokens": 764
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ea2778d60c8dad8c\"\n    ],\n    \"constraint_ids\": [\n      \"C:660d62a76d985cbe\"\n    ],\n    \"span\": \"Veda disclosed the protected route to its pursuers outside salt depot.\",\n    \"rationale\": \"Veda reveals a protected route to pursuers instead of keeping an ally-entrusted route confidential.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 609,
+      "output_tokens": 155,
+      "total_tokens": 764
+    },
+    "tool_calls": []
+  }
+}

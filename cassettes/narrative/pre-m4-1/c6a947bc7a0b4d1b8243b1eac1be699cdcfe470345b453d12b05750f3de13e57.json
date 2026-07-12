@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c6a947bc7a0b4d1b8243b1eac1be699cdcfe470345b453d12b05750f3de13e57",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4693,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 680,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 218,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 994000000
+      },
+      "created_at": 1783843300,
+      "id": "k0ecvAjKwG6LBpcq1lat5axX5ZbQiwT5N+4G3h6nzZNlwxWbMD+O+cjddqgH2Tkp25llIz6dkwGkZa492JzfvXFyNesE+lTwWc7tkfH0jpIxpUP2JM4yW7gnBLfA/REDtRelHIZP4gYRVmpawWckua/SzGTpLxs2EesrjGFbAO9+IWykXHSAKSCn/6hKTJNCj4rc7ulPrI/5fecbhSv1NQrSoxwyNEfaBaR1MgacvxZVzI+JuPj7v2WqTQQ4GdxGIry3e/ZH0Xbf1iVtLtFk1imiPjfRwgHSN4RKRoBbZM84ApAvVnmG7Dj/+GWer+we3ety0Y6Lx9//zn+26DLBm0eGDnX0OF9savfbidtkg0BsdK/bRsbMAGDSg8R8BqEpCrhMCPjqiPrb5NtY4SR+Ax7teBpt/A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "fTsfWkWZl7V45lYXmNPr22j4DAYufggIREkwsK8ZpyBzj7G4p7jRmrdCoz93WFcMbLbN7JKy4zC4qR/++3nRlKJWYblxF2pdgoEdJ2prf4rL7z3mCQpJV03bLIFtwUT0k+9PglNLIOQL/unKkq9HkAvDJJiyWROCsJdybeaF0aTsxIKR1HYJ8aDcy0YF2ZNakJKQGB0DMFfjl2JYnrDeA17Dndn0WxIdVrem00+adco0VeWo9p/1YARh2un30hv8JiBqTv+tVM5ybAbJA+Zsxtlz6sMi/jgausKtnv45fT3Jg0V8A0660U19o2Iz0t3vuDq0EgSWCkwyfhiUrc+yEezhmDChOpJ72Rnk0+sukbOYChw7UEQDb1Z1tKSOeaMcN+RhuTpa5tgf6Umhpuz0xZo85pE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0eab425598dd9ccb\",\n      \"npc:24058405733b232c\"\n    ],\n    \"constraint_ids\": [\n      \"C:ee9cfaef97d96094\"\n    ],\n    \"span\": \"Iria accepted the title of the Archive Speaker before the assembly at glass conservatory.\",\n    \"rationale\": \"Ansel had already been formally recognized as the Archive Speaker, and no relinquishment occurred before Iria accepted the same unique title.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "P9mqN1hL1LtGITp/pkoChmu0xEuEbLneBOWQQfv2G6Pwkqnac4MPrAnYAWDmyWou1MXEYpi5WBJOWsvZ3B6Myg8S6gV2LRQ15GT2nmAyKO+zwezFED3MHVgx2d1nZHnl+GDzMEoJR5X6e9zvokPAGO9kKzYE2iJN/K4gQ+nfKxUR5ZVcwdn1eTr+PC/KMCDZEk0II5lYF9kQyFF8/xCPj6ixD8H4Q7qUhaBnGdUuM2ASsMiRw5BCTCRZebGWPi+CkEr+9DpGvpZktB/ltaQZSWF22JFPINdOBm2vScH9sIl65K4rbo+q39H4xUHqE14O2L9Cp4Uxx5IFHNpIpUSCqG+2K3HEV3JnqZuJ4zYpVrmcnyEMYZWbmE7oOL4CzEp69EMz8AbPlfMR4Y+gayqU5OPDz1cw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 680,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 218,
+        "output_tokens_details": {
+          "reasoning_tokens": 84
+        },
+        "total_tokens": 898
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:0eab425598dd9ccb\",\n      \"npc:24058405733b232c\"\n    ],\n    \"constraint_ids\": [\n      \"C:ee9cfaef97d96094\"\n    ],\n    \"span\": \"Iria accepted the title of the Archive Speaker before the assembly at glass conservatory.\",\n    \"rationale\": \"Ansel had already been formally recognized as the Archive Speaker, and no relinquishment occurred before Iria accepted the same unique title.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 680,
+      "output_tokens": 218,
+      "total_tokens": 898
+    },
+    "tool_calls": []
+  }
+}

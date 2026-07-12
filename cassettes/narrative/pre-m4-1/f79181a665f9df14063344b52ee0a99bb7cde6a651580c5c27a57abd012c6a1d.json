@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f79181a665f9df14063344b52ee0a99bb7cde6a651580c5c27a57abd012c6a1d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5481,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 631,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 340,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1335500000
+      },
+      "created_at": 1783842700,
+      "id": "jxU2Mu/+exrSQEp3Z4ONh8xe0THhkHFiMqS4DOOkjIXLITvOtQQGbOWlJnWsR/bDMH8xwIxppEonfxS34AyfhSjD/93ZsHu1LaPbLXFluGARh0DKEatwnOsordJyprfyGaVI/KkXE3DmChYr49JVbTTNvIHY2VD8dVADXJygiYcxwHfEbIPwYMjbqrEyVc4FkTPwfwGBf8xh0Po6LKNh2IW0DeI3KIPOI35MRWdizpqetQn6tcxs1/fg0KY0teFjqxvPNx57BN31SQC0a+SJctw3M9k6q5phkpGEdcx8vC+Usr63TwDMpXRxNkp9SGmbXbX7ZpOhy1pBopkzwZpCqZo/1rCPslWKfM4AbEbarVwEHwdxXN7y6nvNJTwhsHCysXA6Vxyf6hru+xG0l4r6hUgPgwEGqQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "umuJU5tAbdqKlV9ypGuo/wjKHNk3HFKVg2Kl7QlYXyGFm4WTs7nXxd+Y+6QtX4gyv5pGgrUcFRNmjqYgJpphWxtQ2bj7wDV1ZnPPJ+/KMG9ox4bg1jIlcU8ev2AmgLJstbjZFpK2hmIdz/sJ86RsV0AQ1pMrHmFmoYp8Wn7iBx57MSrkH38x+TF7cDChtF/1goiRA9QHZqe0y5ceU94x8FGPqj6N0Vi4MD6RvhszkSxQ43lHTMuN4Xm5zncnPY0cV4Y4mCUr9O/z72fUHHSF6bijflka6UmuWmAeXNu5Pwh04GxIf9acPIyhcqV7JDHiWn+elHNkwmq3rpJiHdRquiZtuK2L+Mhdondebz63sF2TxywmKsavZMgEFqIazqAsGxx1QOGzaupI12tXyeneGXskXck=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4e02e3a5c41a9126\",\n      \"npc:a77d10bc043baedb\"\n    ],\n    \"constraint_ids\": [\n      \"C:f13a75cd4a141067\"\n    ],\n    \"span\": \"At cargo ring, Cass was formally introduced as the Warden.\",\n    \"rationale\": \"Cass is recognized as the Warden after Noor signed as the Warden, with no relinquishment stated between them, exceeding the one-person role limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "BqcaBdMoepX8vTvaktIYGiDKJMS9HwKqTGqyUmwLPhsBdFw2yg+BwdmqBb1wJsGryn94sN8y/mjF133L88G+ThoZkH4XS7CF3qxr09kn945rPyc3F3owGLEkQKqfler5+dcEANNbdYtw8zIuToS+ElFwok51mILwFErVjHT5OwYHZTzLvvuy6KyCpiHQKdk3elJ1BTIKoOAAqlLLA3G6eT6JEmKIQy+FYaxKNBoLrCBaGJOCG64tipHKCjVoRPxQ1C9aPvDhpYjv4MOwtNpwaLfSPBPS06TqKpLV9ctJmuqHI3PKMshv5MxVwoRQVQjxsRi3KNOKuUgodyzE6FT0f+TDOuqMxCvnSWv3o7AZGisPZV8tZOjH58ToghHn8gdUtDe6vLzHbewVWxEwkh58L/pdwLXI",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 631,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 340,
+        "output_tokens_details": {
+          "reasoning_tokens": 202
+        },
+        "total_tokens": 971
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:4e02e3a5c41a9126\",\n      \"npc:a77d10bc043baedb\"\n    ],\n    \"constraint_ids\": [\n      \"C:f13a75cd4a141067\"\n    ],\n    \"span\": \"At cargo ring, Cass was formally introduced as the Warden.\",\n    \"rationale\": \"Cass is recognized as the Warden after Noor signed as the Warden, with no relinquishment stated between them, exceeding the one-person role limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 631,
+      "output_tokens": 340,
+      "total_tokens": 971
+    },
+    "tool_calls": []
+  }
+}

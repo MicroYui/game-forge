@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:88f169469362ed532e34c110734b9fd187440aa42a2d826d16ccefa55a2fae1e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5400,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 720,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 354,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1422000000
+      },
+      "created_at": 1783861200,
+      "id": "R1ntIT3HWSMlcsBA2cL9en0fwmi+53eQsv+tEL2Vy/Bldv4SbbB3XRKVfia5GB8SlqRarFreNepMrkSXKwdAq2SakpXI74LyPgQVODSl58FBQ74v+77SHu2OROx0hiJvBlC5DPwf0OQgn3O7n5tNYfnDfq9UHxIPw/hgy4Qz6ctS/n8chaknOQBjBpxRaylntLewwT9p/+J31Tet8pWhWa2FpWsEe6bEB8tTfiGAUQeX53eGeYp8DHaJia9HRCszSSzPwoPTBfCscYbdfeKtw6v9eFWuUrgboaB9MqSKWN2T0IR9CZngoO30fEqHXZJsiM3bAp20CQjXcLKmC9wG4b9eCsx4gw5WiniRVyc4dwcqR5KyPNIhQ/oZjzZ1vSIHs/NrmsfWZT7jh+uTN/MU/R5hEN844w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "M7mppupam7EMncCgdsk+KH5p9zq9otXN5bu6mIAYAOCYdxiO6jaAQRHQjMCiqethukG6Yy08na9+qiusYlsTm2v39XJW8yWw0bL+OQiWHV+bWmox7mRHPDjzyJEVL2VVrSUZ4dUN48dyjITxpG9zxOAxNTEt9bmp8I+c4los835J1S8ZDgKywR549TmwjwZGTE1DZZkUjolNgXW9LQCO+/ANOfNJ11gpwWMPpeuoF9CtkbdBZ9yOmRw2ix2JBPE0RSI+i7tv5zznlqJUP4+ABd30NRBA0oWtKTo6a0Oy8c8XnWUsTh5SWZlT6qoM4fGkvqpJCyZ/1DUIlo0e9hDoD8E2c1qkM+A+9CbsSisbl1dec3Uk7W+6VUoxa1OcND673J34hBhzyffc+p9jpJIey8V4jKg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:ec2ebbd89a42ab04\",\n      \"secret:119a1c3daa1dadea\"\n    ],\n    \"constraint_ids\": [\n      \"C:524dfea1ab3b419b\"\n    ],\n    \"span\": \"In archive hall, Mei disclosed the witness behind the sealed testimony during first watch.\",\n    \"rationale\": \"Mei reveals the protected witness during first watch, which is earlier than the permitted finale reveal gate.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ec2ebbd89a42ab04\",\n      \"secret:119a1c3daa1dadea\"\n    ],\n    \"constraint_ids\": [\n      \"C:524dfea1ab3b419b\"\n    ],\n    \"span\": \"In archive hall, Mei disclosed the witness behind the sealed testimony during first watch.\",\n    \"rationale\": \"Mei knowingly violates the restriction requiring the witness's identity to remain withheld until the finale.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "YWdwUvCNk8jCMoOJR+5Ex6rxKekTPjz/NznDanMUWeznr2ps2jx/nk9mT7KsK5xlKE9pErH2j8frmdN2sZLQIPt959FHOZGDCVMUVZCk7obTcXaJlh3Xeak7I0OPeG6XRzuDIEYYsrKkQkdVKoph5yJP5DJY9RvZzYq2+g72NHB2DZZst2Xq5pxstMJnZ+KxjnVZo3Ya1hae0S5o/8f5BkjrAKbYsxA4ZDJTi0v1PbRBHw39mkb0qk7nAkf+vJ3kFgDvj5Db5sU+8SpS4NfkKcZC4OouVqytRHvm4qRTcw7wF2G0+UJSegNfeOGze7xOkiqaIjY/DMHDAToDkvKtHq5lL1b+Ztoj4zueA6DcnPTMKd0FrYhn9heoityU5RGkDshWLfmZoFPfNvMoxBrm+0jHe56G",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 720,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 354,
+        "output_tokens_details": {
+          "reasoning_tokens": 109
+        },
+        "total_tokens": 1074
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:ec2ebbd89a42ab04\",\n      \"secret:119a1c3daa1dadea\"\n    ],\n    \"constraint_ids\": [\n      \"C:524dfea1ab3b419b\"\n    ],\n    \"span\": \"In archive hall, Mei disclosed the witness behind the sealed testimony during first watch.\",\n    \"rationale\": \"Mei reveals the protected witness during first watch, which is earlier than the permitted finale reveal gate.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ec2ebbd89a42ab04\",\n      \"secret:119a1c3daa1dadea\"\n    ],\n    \"constraint_ids\": [\n      \"C:524dfea1ab3b419b\"\n    ],\n    \"span\": \"In archive hall, Mei disclosed the witness behind the sealed testimony during first watch.\",\n    \"rationale\": \"Mei knowingly violates the restriction requiring the witness's identity to remain withheld until the finale.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 720,
+      "output_tokens": 354,
+      "total_tokens": 1074
+    },
+    "tool_calls": []
+  }
+}

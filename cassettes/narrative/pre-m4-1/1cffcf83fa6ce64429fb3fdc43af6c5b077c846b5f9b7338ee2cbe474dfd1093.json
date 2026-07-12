@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1cffcf83fa6ce64429fb3fdc43af6c5b077c846b5f9b7338ee2cbe474dfd1093",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4138,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 593,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 168,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 800500000
+      },
+      "created_at": 1783860900,
+      "id": "VInb5nDEh83R2GwybUbwe6PnbxsGot9ytKUkmGrgJfmqdGK25m4SALq52cJS0T/9Jt2WY5OmlAO9e5cSw7eHIQ+2fdKiX+61Jm6qlw72s/OuKOZuw2j6IIPsvQ4FJNZDADJ3i+ayKDFB4Meor+7GLeL5ESFyB+Z4JCTDKZUeq766XVMuUbJlkh4WIoQM1PTM5C5m73zD0Kskwyogk+e2FXwXXkaxNg/kYW7h6LlB0MVAboSwZmOHFk0e+uJQQiPKML5ks58ES7tehfVXFC/nlUERsvFXr/aZ5HwqJk1xZv7wGrcvTr6AtDfF90p08loYvQCc8t1cx7rXj1eVzaXu+qvZRx84xemjVSlZWvkNvSBmM+PjjuYJl1k+U86hF1Gzb6REh8A8oJxaT9jWbMuqAvWg7Y1qIA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "afsbAxadbq4qbbex+vPZJsHwWsahj6iQ0dFXPbHLHC2JfcHq8d7KPq8dEnHNu9424ScmnGvl+7n3O6G3Fr3Y4Se5vHA5IPnBB0gxD9GXY/1IP/P9O8nJebBWpYAY3sWAMV6xdnyOaOygwg20FUq5z1VxnrhhLB5p3Y74YPk67xhKutf+fGmtseJIXq1Jgp6qG+wXOprf5XStPvbwtOTEdH84vMXaGfCwO5MZL6R4tfLFQTlA3NsuHBPOG9XCqI7pUgqUOKoaeykCDEWSyJosVUaPTqcy/a+JxyQSHXn3h54K2VGCwUQ56BEhRTCP9zjKbrBF9w0RkERTZupbIIkHDCHyKSnIvssD3FzUL2QhRaxkTVil69PkN58bC6V/qEn0rcGHfUnhQm2SH/h5EQI9gatKt74=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:85a4ad76f65c976b\",\n      \"secret:3f6f1a3ad226c941\"\n    ],\n    \"constraint_ids\": [\n      \"C:0e24f50daca29d6d\"\n    ],\n    \"span\": \"At observatory during docking, Ada told the room the truth about the origin of the black compass.\",\n    \"rationale\": \"Ada discloses the protected origin during docking, before the permitted vault access stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "S55TnRGTukxo3tnsC+vjjtphFALYNvLJWbkJt0QEaQaBLDFuiz/tYqm9CKykVzIE1A4iVvcsn7wMGI079GFYX0vw57EzZvy4a/C/bJAafhJrh0hdmQCKGA+Ya7UifpmC/iVg53EDghPK0H0Jxs6UDvu/Q0Z0AWz0xq0ubic+EMRimcI/DLAdVHnjccj4QsyE45xSEvYM6OybgmR90aa1hy83NThZiz86kOnZ6f+/wGDo6g88d7LmFjYsAsIybgQfqCVOWC1EE4v2I9EC3G7DDDcXgALsBCgBsgrfSLCPOIqlwTDUJ4sflu7XD46H85u2sdzlAdkb2R/zdSAwSmqDdZqE+xUf/P1EkWORVgofaYEOHGqIalCCj1uHxllAHoXRZbFwRgwSdwQOwonwD2AsC9OuiYam",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 593,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 168,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 761
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:85a4ad76f65c976b\",\n      \"secret:3f6f1a3ad226c941\"\n    ],\n    \"constraint_ids\": [\n      \"C:0e24f50daca29d6d\"\n    ],\n    \"span\": \"At observatory during docking, Ada told the room the truth about the origin of the black compass.\",\n    \"rationale\": \"Ada discloses the protected origin during docking, before the permitted vault access stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 593,
+      "output_tokens": 168,
+      "total_tokens": 761
+    },
+    "tool_calls": []
+  }
+}

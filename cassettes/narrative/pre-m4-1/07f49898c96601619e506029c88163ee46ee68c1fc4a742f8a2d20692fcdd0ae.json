@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:07f49898c96601619e506029c88163ee46ee68c1fc4a742f8a2d20692fcdd0ae",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3442,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 510,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 132,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 651000000
+      },
+      "created_at": 1783844600,
+      "id": "k3iFzKU5PJEjcQ2xMRYt2i8mxFHBUzYg2wcA3c1OiGCYcn54arbVOrg+gFZt507iSbe+tI2yi567SZoQJWWOguEaulJvum9gDI+ufBtYCyBjsOxM2WU/ExXgCRpUy99btgUXu9bueZ8RK00ypj26zrPt/M9/tNW3G4253gGiSma5TV84CF2UIr7rTe59m5tbMEGT/sqX+1hJOHqEyN0fn5h5oGPCv43+PrM9Lw6JhrbHsmefGFyld9570N/b6Ou2IoAw3I+TrIYYDOWcTh7XlTUmX8GEr914YZOfnY8hGjH7ZAMvPUjCuoaVIqAj+CctH0h+yq9cTEfXFJX1I0lvyl/m8xhT2qkmT5ll7lfNMdqUIMW1KUgP2zoIssF7TduUyGpYqwJuU+EvVobh4kBW2xRlwAESEw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "XWc2+wRhl6qPYtoaDasNubJJ/jJJ9cwErRizko2t1vvzCikZE3+K9tEZf+XWy7JU57dhzxF/U6sFt6rC8uS8PFlDPLZAw8HFBRThCTsiOX4Ngxgdw4DauX+gK3Ej+INFXLlCDJpHtcXmSdgS8dFPZavXapDKpy6mzjfHvfPepiEyptI9+h+AeHUAEIRqZ/WcPoVsVbOQS8rhS1U/+zQ/Mts8IaoVLx3mOzBP0HaJ6Ym1h8K0kKK7ap/NR7to8C0rP1FM9S2a+Zv63jsubwhFSQ+WpcD7wv1Wc7Cc/bTx/WIYyJ91+metTTXmaLJIJ5/dHSAkuhxbVWwVRWPqgKQacKuW7rXzP8dvukpiQ0lp4E6/h9XTOGbQATO24R9ehg3uIQtX0kPyyK7ZHIfWEJAx9uEGMeM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:8a087042de31b1e5\"],\"constraint_ids\":[\"C:b073856bb98fd5b4\"],\"span\":\"At lower court, Noor locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Noor denies waiting civilians access through the evacuation gate, placing their safety below another objective and violating her civilian-safety priority.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "fryyIb9NOvVrRxH7+Gqmz8s/lQRXwW3pHhlSfegU3wRNTl4ZPzro7nDegCGbo3CkOAfXvrTYsRQi3BVuELIj85vEwy2+UDp7Ds1BNAyys4xAt8N/01RbHCMXif0/z6CN7+fovbdZ+cyvoLHdXvG7MlybW0iT8jmuMk5Voc2LRM4tytgOcoFTVLwglDYeXkRm6by5T2mOj1WNPlhVhPnRNLEKqtSBfPzPNG11f0L1BHxWeDGTs6UOzsYMAcN4Hx2Ry5f/2RKbuOLjLcYisfAoeUOlT3LxmMDrynayeTgkVpSXbjCqfYGLmmMQwE4YQ58+T28+kkx6TdKpr9j49K9JWFaHcvjl8HEd40JlC/6wAbg/l5HgwDHt8nKE0pImopuaXADsuM0gVA/YO+HdYyaMlSrLKa2y",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 510,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 132,
+        "output_tokens_details": {
+          "reasoning_tokens": 39
+        },
+        "total_tokens": 642
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:8a087042de31b1e5\"],\"constraint_ids\":[\"C:b073856bb98fd5b4\"],\"span\":\"At lower court, Noor locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Noor denies waiting civilians access through the evacuation gate, placing their safety below another objective and violating her civilian-safety priority.\"}]",
+    "token_usage": {
+      "input_tokens": 510,
+      "output_tokens": 132,
+      "total_tokens": 642
+    },
+    "tool_calls": []
+  }
+}

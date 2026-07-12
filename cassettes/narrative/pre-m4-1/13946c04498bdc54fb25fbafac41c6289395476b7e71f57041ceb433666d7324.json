@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:13946c04498bdc54fb25fbafac41c6289395476b7e71f57041ceb433666d7324",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3830,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 572,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 205,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 901000000
+      },
+      "created_at": 1783861000,
+      "id": "vFbB/dCdftLcUXFEz608Fi3Pmg2nXFodf9TumuckUfKttvl1vBrZKk956u33hizzADZy16QUrCnVDHfZtKxpVGySwQslAZfpAimDEg7AbtvNZEYtjqiBbJnZdFwpd84lKSclETUVAeoMYZ67G7xZGHMkcffQoR4sM0ZirNu/p1LLjdbfCQMhlgaIUnZP5dLWeOeus3nFN/iYPW1xyTDlefg9HbvQ012nqxkPyYchcY5S+ESpn3+SigDakgl03ypJ/jHjAVl9i2dfe6++KDiP435XopbaNF1OarevaSrQwcN08tWQ0cvZrRgapdYVan/AVCJr4Jwc66viDoJ79ROfWyg432E1p2oI0UKDKvLIcp9hVLblpR6Cvi4lElHlRB3Og7uiP6ifHZqqwjBJmZgmeKLMmNWP9Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "6UiX8+XImSNyhomWl7wBPGNOGRgolUS34I+5IN0Bw18PGXSOEgOwuoKu6MIerQCJx71KO1QHgbsL75huWDsRHoXazbQr0Q+4XQAZTmSn1aUvGRqk2//SNZ7XKAc2CqpGlX7/cVwwBFAGHa9mTxbhd1Tt8prbAST22lMp6/wMSarVaDfk0qp6pjKnZzZ4XdtC2+3Fs9PkF3iIEBCPmIUEQKew8q1NBmJfzWd4UnBPwXkRlMt4gTHJtASPb8vmsVJX1ZL2xt0MsSSWkMJUa4/v6cRuJU22lqKnLx76C8PtzP57eq3xsKIfuxcTQ95HT5V7pALHRrQgCx26oTXG+xVkXRJ6curkAxVN/YnVezLncYiUWMENZKoR6qyGqc+asHW28YbU89gXbl27ow/r8TFqKq5eZNM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:55f7ab270c1c061e\",\"npc:9760ac0b7ebf6735\"],\"constraint_ids\":[\"C:85c00e884f2ae347\"],\"span\":\"At lower court, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea jointly coordinate battle planning despite their supplied memberships placing them in explicitly hostile factions.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rhkDX95BNt+1FpPEjN27nDKZoCAZqf+CcpJk/DYJ8I7HkAz0JAl/GbbmMvL379SG2N6p9wIwx9QjWlXPz2i102q+j+ZnjbxHrX69tsXipmGRn+3rLb99ZY56B8UO7cbNE7z7pQw9BubESytW+FGJS+39iSTfbFiL1lXUagxBCYkIKbWK16WrRsSgS8r/Mu3rkD3yC+Vz6v5tIUSsjyapj9w//nSRJal9yhJhhdfQS3lIbXcpJy287W3dRJv074+/r/OjX3lZOb+CkwwtWgqkFjNAiptWg8Mle/66olSZxYTX/GLKt7sAppHMmOo24Mc8i/jqFcwFLTxdHq9hYW3jdE/tR3sBS0pP/VeHk25OgVT68LdcSeuaJf4VxpbV4qG/R+wCwKUuJdfPnCNtmJ/Eoa36C5X1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 572,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 205,
+        "output_tokens_details": {
+          "reasoning_tokens": 103
+        },
+        "total_tokens": 777
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:55f7ab270c1c061e\",\"npc:9760ac0b7ebf6735\"],\"constraint_ids\":[\"C:85c00e884f2ae347\"],\"span\":\"At lower court, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea jointly coordinate battle planning despite their supplied memberships placing them in explicitly hostile factions.\"}]",
+    "token_usage": {
+      "input_tokens": 572,
+      "output_tokens": 205,
+      "total_tokens": 777
+    },
+    "tool_calls": []
+  }
+}

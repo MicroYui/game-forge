@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:469b5532bd193bcd9d0c39642ea2e06364258c7f18fafbb77811db19156580d6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4545,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 581,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 200,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 890500000
+      },
+      "created_at": 1783852200,
+      "id": "0Yosmxhv9mgoDRHDETQx/AAXWfqJC9iha01U9RI10uc7D11cegHNJCJJNvn8/i3CNu9Q0v5eQ4hU6pwggfhLsd71Hjnw5DPwcqJqk+Tr/fprD6xyLhZeU1fl57mDIBa0Wo3SbsLcMmgq6+/U61qSdyx6gHvmyWRTSBeWzscAmIulnM6mumX5vwnKB0Dh78uGS8swWYvr4ZgGg7o8apyKV7CRfpkzZrsv6OKMpON9BckSNzs2odA0OkfwHkk7bAHwkrE2e8Wnwl3EAxZ/8Nc+PCMN2essP8kbXb9xo8HOdFpqwTxTIXK9MiSnKH5pJfjwXd5xY58Tp9krLrzKfquTB+uIaUoXeij6Tme+6PzWLRpEXsmO7j45qSDdoEVqa0pTXx+2q5SfND+MIGaXayZ0rRNPjujMCQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "sgL4QhJcbj0f/z8uEhgQA8IwEXwiPZHg2k8YIqIz+XylQ72b9Xt8RwVuDRy98pROMqAjctgH6IhpamxZ6vl/SXJEwdsiLpAuIt0nrpmZaO5xi+S/PZwpdEZyVlFoj9S1Bb6scdXnX6YCq/9g2RY/TxNBN9FLCBoUq68H0i4ZiauX/ZDtHtIXXuJrde6C/bSTDEpX2BrPcpn7xY10Z9cPVXslcErnDFlklizS4vqDyx8s+1e0WUPdd/fqYhs42P/ttTe/+P5WAGHBR+ioR1b9/vBzQyNLZddbqzh2TkJUEn3ZPdN6EvszBSeqDdNUD1hbmqp7NS0tBEIjZ3zKXE+FFPOiORF5shVOfuaxfwtbbzBwd4T6xNdQwo1qe3S7J7nL4QmKYarJFlDRRh/n0lLby5nFZz4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:54565868abb858c3\",\n      \"secret:86e6faf6c7db97c5\"\n    ],\n    \"constraint_ids\": [\n      \"C:e5b412ac6a0116c6\"\n    ],\n    \"span\": \"In river market, Ivo disclosed the reason the eastern beacon failed during arrival.\",\n    \"rationale\": \"Ivo reveals the protected reason during arrival, before its permitted reveal gate at the finale.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "quvzRF3j93qZPAVlH8bK56quAUxB+RVMX18N643Xgk8oorrrgputILIcvOfVpu/siZy2kkPD8rfZQlDeE+XgKsJb9z5lIYcdgNyJSTLCL2+/AxBndyOvVNp/rzhOIARnUTwEawfpBR2Ey/IltdF9iD6a49luQXKi2iRrXQnm19pE+S/lM9bYi6LCAf8ysMvyVGVKO1ZmIoDhdnCpk4+gEsUUE5Z7vv0D+h7+C5BGxsmB0K1Ijl8lNdOzYFu14lSmueDf5vSid6dZ0Dm+T6kiTX3ZJAzQH1oNEpEUB23QW3UQ0VayQ7m5E87qL2RRWqpLNa+Ntprbv109BRokZkMoTQEgPaKnKbkw0y5FrOg6FyI/cExXdOso1GbPFTEY/7WbEEJxUyFM9krBL/gB04C/QOo0a56r",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 581,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 200,
+        "output_tokens_details": {
+          "reasoning_tokens": 74
+        },
+        "total_tokens": 781
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:54565868abb858c3\",\n      \"secret:86e6faf6c7db97c5\"\n    ],\n    \"constraint_ids\": [\n      \"C:e5b412ac6a0116c6\"\n    ],\n    \"span\": \"In river market, Ivo disclosed the reason the eastern beacon failed during arrival.\",\n    \"rationale\": \"Ivo reveals the protected reason during arrival, before its permitted reveal gate at the finale.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 581,
+      "output_tokens": 200,
+      "total_tokens": 781
+    },
+    "tool_calls": []
+  }
+}

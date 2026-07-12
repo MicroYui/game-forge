@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1ee23008882498570d9f29cd7a006dd969f6643065cc7ab39470f39d378dca8c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4165,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 604,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 177,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 833000000
+      },
+      "created_at": 1783849900,
+      "id": "Cpbj2qtPNpwv1wwjrlW1M9e2lBibc74litO9laD5il5JJ/4Rq80EGyqTakyngU6mKR13LbNp3rs2rOwhiDmlKioKg6KqM+YGOezTtYip6xCP8dbK1X7J+rGomh/V5sD/OkTYNUsLby9uRTTdjM+PHEts74pwDUai3I+urwb/oordkG29AGtfgjiE+QgvPsgbfxIvb0i+Eo5Wj0kpMLCeGv/Lt4fCpLv7mT1QG9MYSOg7h7KYODBhgy0CRsg8FmNQnZ4+RjHGeMordNZApFkMHnGxBxk2N1a+8AeoU2jZR19LZiC8KCTHimaOtvPj1uO/WcnwTUa7Mi0Fu7iSoynXg9zUiODa3CKHa/jHWyhBWvIxnuDtBPsPGpCEIHYRm+okZIguPOzteDjfUja2geOti4/vrm/rxQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "5F50ZzYrbZElrTgpJvCgBfLL9XDe0j+Rxjdl59Mhe7j+1yOgh/jIZ8UB4vmybxEEk1PijbbVT4LqXpOQ3DyjHGJNH0TtnZiEqPAUtGyaik2zh2LOP/STl5NQ2NuzH6JvIPVqQJD4XrLjUX7dERO4XDPO1MNT6cvcaTUFQvCwN+C0dBoyAte7opRAlze5sfBokoBZiZDBKPjJBBlmtgfxRvNGuFB/LWtQdevo7GwBO1H0TR89FaooS+HRfsKSGGMnseetHs4un/koR/pUNCGHuIYQdFiGN6RjIfEAZzIqq/KXB4pU5Sd6yzwrmRFmNbj/V++6NJotDSAsBKHrkECUSdNgMrvSjFBu/+eB8X8XBB3Yyc3CmljpQcSlzxZIAxKIWa/XPiq0kQaQMThlFpcUzkuf9o4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:e83acb5cae6be697\",\"npc:f5f40806be4d8306\"],\"constraint_ids\":[\"C:5f5e5733ada9658a\"],\"span\":\"In observatory, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin and Eli belong to factions explicitly at war, yet Tamsin supplies Eli and establishes a permanent partnership with him.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9hiPFoBd38bytpaDnKf+HwPrPQvFObRlTgooaeQpwlpHBTgpYsvGVpFrHgWfbAoFOTCx4m5QQn7fYvv0ZnLieuOxSiF73g5vMsqIDmdRQ1X19lalSWtq9OZYMg6lGNgwyoeRNgu9krdLoaaQCyw3zGv9OPDrniQc6fJieOwnUbRBJuvvVEHWROOsPRqXeHlZbbCM1cLMupANGZ8UV6ZV3uGNYKIGRsGQZCmjrZRZw5ES3Wakts5PbCDFBLUMjXRajw+wiVM+Mz60On+zrqLICC7BBz42yRuYRCbPptV+jU4A0dxjNRv/ZfzSJ7S4QC4C1gWfGL9jxqdhncDxp7HNhYAFLY9/+NXoUJbhQqPxGtWNdp58s5X64OW4H/voTcGWB5Rsuz0mbcGDyO07n2q6F3kuVWzy",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 604,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 177,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 781
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:e83acb5cae6be697\",\"npc:f5f40806be4d8306\"],\"constraint_ids\":[\"C:5f5e5733ada9658a\"],\"span\":\"In observatory, Tamsin supplied Eli and called the partnership permanent.\",\"rationale\":\"Tamsin and Eli belong to factions explicitly at war, yet Tamsin supplies Eli and establishes a permanent partnership with him.\"}]",
+    "token_usage": {
+      "input_tokens": 604,
+      "output_tokens": 177,
+      "total_tokens": 781
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e5428feb2ded89c1dc7f069f7df564c218312aaa836c34e3278d8121f5e5a39e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4196,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 603,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 161,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 784500000
+      },
+      "created_at": 1783859000,
+      "id": "hUsnr/e+TYFkfz7oesMzzuTxW0cabuI7+2TEUQTS+hWxRHWnXe/vGGNg6oTiK78ZKHHtgTjPKGe5woqtO5KiHzi7loWYY5R+PvytbvNz4SsBbHssG9FXYfWW0704JtyWESM0xXKpNjGQPHLaBSFgZEgkEUiegvGVCEabAmmx9c7sBZjN5jtPAtpqt46+munQlPbPp4/MaE0t5NLd1wy7bILtm6/3Nk9vHTzIeAvDsSUDJuBZ/fL5Le3+BqhPFUmELKnQ08ES84d4yKx4vO1k3860J/VcD0Hgr1BhUEAjv9RcsOAQVkSA5pI8lJnjQFM6gZPkfNfxv5Onwv3XgkEJnskYL44HCwZzcwpitwbq56WgcmP/frZBd61rV/5/wgmFpsJw3hiVPrnbd0dbBDmlt7JHUR3Y6Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "jO4TI/QgneXsALVuPJNfq4goqhvkwyG8IxpoDulNkf3ctYMrqycoSIWcHbNDJqLqj6cAjEIHP+EQY+YDb0l1sap6FihbV9yjcEWftrzJUhfIZEihpbMRQnOjaIxkLiEHeP2RWatwWBv28bT+S4eaYsm0Oq34T99QY8bRb8Xg/DgPs59O9lD0bwJ/4V5E402AKkqo5udCOfCtQ+AQ95qXE4rBo/ZiovbBY9sjfBQeNHFjOE+penb1Sq15mIOYpA/4mghpebg8aJcFUc3zvh+MuSZMIhbtg7OQ0K7rAvT2YRcn1WvetKg2aWD/AGD/e/jc58o4svjtMT/HwO1+cQmbt6LwTR0hSWHeIzKyOOV6gdWBEKtJ6LbSa9/vR83cmpSFEN69S951kCe8NUNpHQJkAZiGiB4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ac517eb661f26690\"\n    ],\n    \"constraint_ids\": [\n      \"C:e829f8db2bd5ee19\"\n    ],\n    \"span\": \"At north gate, Mei transferred the rebuilding fund into a private account.\",\n    \"rationale\": \"Mei moves entrusted settlement rebuilding money into a private account, conflicting with the prohibition on private use.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JuxoIgV2CXeSumxto8KswX8NdaJxotOXtps0VdXeloRBkMAQRiwIWlzt32BLYpBWjM6ek9uDiQzWO1N+gAgX4NaRFnSQ3lYA3NZqDkNfV9MM/VEKD/Pg4IJOBsBB+v9KF6PoKDHY0fWYBYtNQlNewHO+Sz0VFDKSlNXOonXG9gBLaAPbraJ5ZLHNLHJh9tE7MXmnl1bHE4pPMmbytr1xncWZHGMy8VjnK0ZXqoUiUvTVt/uXBBA6+k0zEQRrgFNXBZb1kXx9qcEyyUq6XaQlv4vEKBpHiRe69V92FDADEz1H4qxnIPkMXbI3qAACSkBvGFuwmY7TlSHt+gCfPCVjUYyKwLFWp8Rhru0Fonm8jHoDyDk03dTiQKDOd4/haNgSS4Gxlm0PTNEAzr9syEYw4kh8f8mC",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 603,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 161,
+        "output_tokens_details": {
+          "reasoning_tokens": 51
+        },
+        "total_tokens": 764
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:ac517eb661f26690\"\n    ],\n    \"constraint_ids\": [\n      \"C:e829f8db2bd5ee19\"\n    ],\n    \"span\": \"At north gate, Mei transferred the rebuilding fund into a private account.\",\n    \"rationale\": \"Mei moves entrusted settlement rebuilding money into a private account, conflicting with the prohibition on private use.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 603,
+      "output_tokens": 161,
+      "total_tokens": 764
+    },
+    "tool_calls": []
+  }
+}

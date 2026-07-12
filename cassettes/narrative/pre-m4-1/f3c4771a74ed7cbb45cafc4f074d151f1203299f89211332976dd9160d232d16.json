@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f3c4771a74ed7cbb45cafc4f074d151f1203299f89211332976dd9160d232d16",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4093,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 559,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 193,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 858500000
+      },
+      "created_at": 1783847300,
+      "id": "1avZ8mdH0SjcXTrnMgs9N40mxbkZ/b8bDx7iBcyL380EkxX89DIk2vbe3UhsfXh0j4p5tRD+eGoCxro0ZEVLyGTHWAQWivBMLxuT/jpSPQ8wCIv0LWA41P+w2bt0zw3m4fuc/XIXgUKwqwcydaaZIwvs5NPHUVxMlBPdJglVc1B6/qJup8fIzxTRVxZe0p3+zNtxig0mXkY5DkbtPDmAIJH/cHFCXiqoLp7SgXAyBrtLqnWH69g3j9hkP1WJq5d5rBC340KDLQtp4i0ItYT8lsNfm+xM5fIK4PNlgN1/i7ESXijPa3CTdyt1OWczsyqvn7kK2AZgods4Rp364KkHeO/C/XISwR2AqdCfhqRSnDm1hVjzroL4zTeMKwirZ8Lf1PhPSnn9eHveQJk/ZFVhSM8tTr2t3w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ee8taVImFqAOPRq4ediGDzyKQW2peT69f8Kz4IACYNMO8pFOFnbm4qoCQ0gKCh7/5nMj6TENniPz60IU6/RVJqvltcnTcsWwZrrxE0eifT22wZQBrzIRph/aKGeRyX6O0gARaWAoCTNBg+zb5kK+NzzMnlHMzHSI1B6tZOT+fvoA5E2ZbAS1mfIGYfd6lHdt9j6K2jZfkStWzGRMPYZfkPgUo5rAU04tZ2YK1GIfEyxF37Xv9t1FPPqFfGqVG/TpEaLwpVUxMEp9Om9XrKQMM2d4OtelStEFC/06MWjYotXofEAIsmPzdmrrHlxnrGfIX68jYWI3FGKNz2HG2q3EArKvVIFtihY5sy54docsJdXwySFWr8vURw/EmRF3bYxYew4B1aOFqv6iquV2uSsmEMlnG1k=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3351cb60588af99e\",\"npc:57c7ba4713f3e169\"],\"constraint_ids\":[\"C:aa45df322c3757bd\"],\"span\":\"At cargo ring, Ada was formally introduced as the Beacon Keeper.\",\"rationale\":\"Ada is presented as holding the single-holder office after Malik accepted the same title, with no relinquishment between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "xIMfS6i5f2pSPv2jjMHwl4xzbcwQ08kekivy6phaYBIZj2rdpI3Nt7Shnea7Z7yQ7a3a+iB0RADERYhenVtndMDqAOj9w5Wbi8BoJdk1OuYGo95zj3uH1lBsig47o3MCF8Mp5WCOfhJrez2raXuRU2z0e8jvsEowXdItT8/7gL6FtVRduTpL2c7bsBdkw0xUX6grI/MPhYMn9SotzKOBLkD6nU0fab5PCF61uJXdPR03t6/VMJk72kPWj+CUeXnGfoxFF1zH3n9xwsWJ1TzK6gUUFM7S5J47ipRUz2MXdsVDOftVxpEQhn9v1S5ccXi8dj+zenLkHYH91oagX611oisj0JWEt4Di4TVJ2IXflxJZ4SDymvbRQQ28tRmhtVSpDj4Mx9MC8HYvCTVvF9BzgT+bxl7/",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 559,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 193,
+        "output_tokens_details": {
+          "reasoning_tokens": 90
+        },
+        "total_tokens": 752
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3351cb60588af99e\",\"npc:57c7ba4713f3e169\"],\"constraint_ids\":[\"C:aa45df322c3757bd\"],\"span\":\"At cargo ring, Ada was formally introduced as the Beacon Keeper.\",\"rationale\":\"Ada is presented as holding the single-holder office after Malik accepted the same title, with no relinquishment between them.\"}]",
+    "token_usage": {
+      "input_tokens": 559,
+      "output_tokens": 193,
+      "total_tokens": 752
+    },
+    "tool_calls": []
+  }
+}

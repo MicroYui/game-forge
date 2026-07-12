@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:44c985be34316ac21b62194c2a4243db5c564faa8a8114c18348c88d075904ad",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5414,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 704,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 206,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 970000000
+      },
+      "created_at": 1783860700,
+      "id": "ogmmn70z0PhBYA+htdkRYjTWcU4c6AgrGgvxFpDrMZI+olzRHeCW63YPm5Kk99DbrRpANUHy5E598RK+6ybebDtk3xzJ83AhYHf++/xCJlgXP4xL4uLmFwK04QabTEF7L2Ju7gciILivaB7chncZqu2JbZzdwueloskwhZeJ6gzUPzrc+crbm1HZlY5ke6Ng2wDNB3nEwZM746+rSS9Abllq5opaY3AKeJldR/l1lABPpi5cvQdia0Vh8FFtOcpV861FcmdN1SqY+vO5ISqsMB2e8NcCk8d3KE90CVxiMRMEv7Qz0ymW++4E0zJG0YcOUOhTmOSbrO8jkkQHd5QXh+BCQZ0Bt+zLLS6PqBNgIQRYQOrglM5X2ygxKDmSCzACWF57/n5MKHoq4trqOOf7cgNPwZF7QQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "/FHs40nXrNYnbsOQQqQCQiwUX5yiPHkhyxFHhq4xdAnOUcRd2XhLwnzqb1oStA1d2LJ+kjdqE+CO4tFtDGb6VelSQHHsSHNL6hHaq0wKPCtcVngEDCKQzD81DCqccBsuwW+jEWAWatCuiLCgTH1dlDmqC0lwE3qTBfofECJMYbO3LOgfWrSAbXWJniF2egQLfdQLDcDgCDLHKDid6nLfNqvy314+MnIIcw8P1tWF+bUPbt9N4vulPszdotUfP6+XOZBNXqneyW6P82X/rSVt7AjSyVheq3J304Lov2Ns1YoubaDpvhXFCC67xi+W5CZqtVl8fSQeUQAvJioZ5ugGsA7WWvGsC1jNLdmiEDgBclL2cq81ws7s4bGX5okKO6e8wnusr5GgsXEclwic6rHz1ZdC6U8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:9dd93d344d776945\",\"npc:bc0184dfcc2ee000\"],\"constraint_ids\":[\"C:67032c9dae1e15a0\"],\"span\":\"In orbital concourse, the council recognized Qi as the First Navigator.\",\"rationale\":\"Qi is recognized while Mara's prior recognition remains in effect, with no relinquishment stated, creating two simultaneous holders of a role limited to exactly one person.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rko4YwV/xVrxQNIKWctHbCzqzb7Ci5zGeASq7cr+dfr7hAnYCTFVFLjeI2mekLsq7gLpIbeUUEwjmmNbCAOnqH7w4Wdx6Owa3VBrmGBGP2nohhktxN5o6vz7uyL4kwJ8qxEw4D5e4znIklWi0CGKeWSSNju/65nDMgBppDkJ8RpTjTXvURQ0Qo6QeuGXw6yfuKIXjqjnSPAGRKrRNS6Pt8MXQCv3nSz05P2IS3WP6DdkFi3SGSTU5npS6Rjjz8wg0sjg9dJfDjMz5nPvFWSmtKlJDrfoWGoKQm1tYqJA4Olm5KZLguNQLdtWkEje9OEmpZhi8oE6AepRc6cIWzTidXU09QhV6iAjKjOAToQr6zNO91CvWGtPiBh70+8jBK2e1dD6fgKf2NPChQ99hmOHS9uX6qPb",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 704,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 206,
+        "output_tokens_details": {
+          "reasoning_tokens": 94
+        },
+        "total_tokens": 910
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:9dd93d344d776945\",\"npc:bc0184dfcc2ee000\"],\"constraint_ids\":[\"C:67032c9dae1e15a0\"],\"span\":\"In orbital concourse, the council recognized Qi as the First Navigator.\",\"rationale\":\"Qi is recognized while Mara's prior recognition remains in effect, with no relinquishment stated, creating two simultaneous holders of a role limited to exactly one person.\"}]",
+    "token_usage": {
+      "input_tokens": 704,
+      "output_tokens": 206,
+      "total_tokens": 910
+    },
+    "tool_calls": []
+  }
+}

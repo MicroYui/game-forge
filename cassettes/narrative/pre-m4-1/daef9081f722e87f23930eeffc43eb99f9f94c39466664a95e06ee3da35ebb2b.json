@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:daef9081f722e87f23930eeffc43eb99f9f94c39466664a95e06ee3da35ebb2b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3784,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 603,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 212,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 937500000
+      },
+      "created_at": 1783861200,
+      "id": "XhkotLpGy5VY0FRQIOWPX8A0fes9lHcfqKYZckBbzpLwSOkvaP6WBuPzhHmRaWcU0boQb+9yx6VUPNZ4ky3gf4Tiv1Lei58/xGUl+0RpXqTW1tuAD9Yz24AzTUp4QuskV/m0+Lc6Th39Wf76B59/KLtiMx8Q6N5OdpHvob/7IbwJXhhyEQrj/vbpTDRlYl+sibY8H+/cYjDgj/kZtyGsckYcx+h3AiSVQtweWPOc3qoXwaaXIPADnB11kqwRhDwijDBLgLuHx3jLlSyAlSYUmWK83cvak2BLgS5QkHdU62uTDxuMi/pcgoJ+cgIYtDyV+thihr5wlRcAL7fcdSKzXUtX9jPPpBeMXUdA6AEmEtiAb4Jgjc9dUyyY2EpEth9w/qTmcJuGzqkMVtr5XoERiYK53eGt9g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "7LC7SEBuJY0NbdodaeaRC+nqL0kVUDJbh/iQicrv4z4HV7sPAJVobiMwPUBYWhEsmBWeA4tSy2Bqlr5mZQ6TqBml1kmzGM22o+QvZHcWEEzgeFNDRVDPuIPpLPc4V84n4m0VQHyF+rIXSMF348lN1kfxBl6+aKokIsl4QkfGN6psoucKOTJq8yQeGkQ90hiIdlXFXEmcineY5OfgXKln0DeDKSRRlnJNMcv2qUNGdJiMTkiblRLxteCAYhbhX3DUwfHafo3Fn1XF7n7rPAw5w+KYCbQHo2At02iTG2vC+YA2pYVGSHefrDH1ZMGtUmRrBeMgICMpUuJOjLA8/1ZwQapmgq0HApeO+FC0hcrj3ha+ycezuzKQRVwtT0QGFFqCS144i3zbvPHRInDbOVHnd71EalE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:a262467a8d41fbb0\",\n      \"npc:c9e69baff8894275\"\n    ],\n    \"constraint_ids\": [\n      \"C:ad34ee873159d4ff\"\n    ],\n    \"span\": \"Mei signed the register as the Crown Witness at relay deck.\",\n    \"rationale\": \"Daro was already established as the Crown Witness, and Mei then assumes the same active title without any stated relinquishment, exceeding the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "d/Of9YA463zJR+0FTdhz8wkvYmAm6Addb3pZcDLG+Eq1e6iBX6EpVS09ejx/akBNkfDEjoWltofXzdSg0Aony3BYYaUrkCkhVLrnY3PQdxulSNE40koKnFATjWCA4YKL/CeF5MS4fwgHDtkKlGh0mjJA2zHrx3cX3IA0aWyzPAMu3FKJglu2VwvrZjaqEpczi8KhhjRHE0grJ2oTs68OwJyjH3NjdpP8YffaogO1Lw5O7i2JMPclEkAEyD+kP4DfrFwHkcIy7jMSj8cHi8laXpBTwvk1GM1Rva0CYBBSlYed+rX4w+tQxZCdEV8Q+7g9y66LDMXN6m9kdgj6qrx4EThJ+d/E6zkoN02QMpQq1I8RMfmrrtYjTIDy/o8fgsZiU4bXHwZIVVn/davFdwVjSbh5QF0b",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 603,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 212,
+        "output_tokens_details": {
+          "reasoning_tokens": 77
+        },
+        "total_tokens": 815
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:a262467a8d41fbb0\",\n      \"npc:c9e69baff8894275\"\n    ],\n    \"constraint_ids\": [\n      \"C:ad34ee873159d4ff\"\n    ],\n    \"span\": \"Mei signed the register as the Crown Witness at relay deck.\",\n    \"rationale\": \"Daro was already established as the Crown Witness, and Mei then assumes the same active title without any stated relinquishment, exceeding the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 603,
+      "output_tokens": 212,
+      "total_tokens": 815
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:37ab91fc8ade6796bd584e7caea1fb13ba58c77176e2ef800be98c100fedb1ed",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3050,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 661,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 154,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 792500000
+      },
+      "created_at": 1783849300,
+      "id": "4NnZkyiACV7Bx6rKgz1qWg/02gTK9oLqGjvCUZ2+FpKDi3HXVYly66mS7aeDmfK1KBV1os+ASyoFhkZ4Qbw0szt8h8iKL6jBKNKrOmBDHpjB6QvkuBprRjrSmT/5qh+jdsEANr2iyPN7VEeq5T6mfi1C2pReXVZQxW/PAG8dG3E6do9z+MA1mtkWl6SyXWPkgoXa+qij7I3dbbC8xXs+icfXxgn+6m8wxuwNv5eqIb9LGxW4QneDKbxYPTRVRHFIzVL9o//nNmuUgypjmHv2FrxcBa1bHz5pr19gmk9ZIHjrL+gjiKV/fwYGD1tkR+CPNZHYq/mhe1wbYhkSlwbacTUpnjGpqJoDDLom6+GRTzbrJ5niWSyr84quwG1Ps6WcxiNADXEv/3V19sSXx/J67EER14SKvQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "l3G3flSCgplMtne42bMzjoM/sW3TwqZSaeI+r8/vhIvIVCZRMV3jTof/YR6STiBKz+b4LGbQZzqlfDkZI3qa7A+/2JH7nheI0a/4utULF6PJo0zeVf1EY4yE5f8+KGt5WAQyg1mM1Rt1XFQ5tdYRC5e5g0MAr9Aj9X/4cxKQqg0BR4VW89e8dh2ADuQWNMqItDNk36VmiubZ8RQK6k3kAcY57ytpyK+oRA+QZxGBqgnzSM9NQJQcLSGuItNFlrs7d4a3sZyqpZmJO1i52+toMehtftTE8gBKZw/KQoF2dGhu8GmxD3iwzcwISeE/M3g4EDFlrE7kDPlgHpzGdfAI7DAFhDdYaN/lzcqbaVsYQJArQKPtixuNtp1bQK2aV0W4XGGV5jiqwx04h6KkbBtMEcoNDlc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1015170f4bc56bfc\",\"npc:a4ffc5bfceacb8fa\"],\"constraint_ids\":[\"C:fb98d46cebced103\"],\"span\":\"At old mint, Ansel was formally introduced as the Caravan Voice.\",\"rationale\":\"Iria had already been introduced as the Caravan Voice, and no relinquishment occurred before Ansel received the same title, creating two simultaneous holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "cUJhMBLsVZ98Tk2w7SKmpU9fGEXYXxF+fhewOJnlYL+dVDfP2yfallJnajcyWRDj6B/Gpu7a5DRvnKiW0iZdgogSNN+bH+8rMPEM06ngh7rPdAMLCEVNMYaFWntaGCZBxztf2Ae3MMflHR9pJ5Y0WEWPBVEahYctgGTp7YfgcsMtnDHrui+a+InrfNIwj3l/6ScvaM1ufvtcum6ApEzWhv09vBt6USK2SPk2jjgKZnBbU59Ocv6V98AVS0NmcRhN13BFplKma+n3Pxwwb9rCpTSx382za/ZnOJpHi/ZS3H0KgMDWUn3O7VS50HT3icF1KiP2MOtAB+iYAKvg5bZMDQ8zMMNfCgFbVr0FP2+c4437uVB6pfcpqLMChxS/VzyZi+R9qq8VccBg1qhPoOb72NjNU1Eq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 661,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 154,
+        "output_tokens_details": {
+          "reasoning_tokens": 45
+        },
+        "total_tokens": 815
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1015170f4bc56bfc\",\"npc:a4ffc5bfceacb8fa\"],\"constraint_ids\":[\"C:fb98d46cebced103\"],\"span\":\"At old mint, Ansel was formally introduced as the Caravan Voice.\",\"rationale\":\"Iria had already been introduced as the Caravan Voice, and no relinquishment occurred before Ansel received the same title, creating two simultaneous holders.\"}]",
+    "token_usage": {
+      "input_tokens": 661,
+      "output_tokens": 154,
+      "total_tokens": 815
+    },
+    "tool_calls": []
+  }
+}

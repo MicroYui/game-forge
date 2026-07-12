@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:82c14bfe13c387df84af7fd1a37c8fc7cb67465ec9a678e157fe964a928251ed",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2991,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 602,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 163,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 790000000
+      },
+      "created_at": 1783860600,
+      "id": "P6oiDlM+DqDeBY9FHT8MUB7vhcftnkPYO35w70sXMTbzB5Zlp02s8jG83W9ynbEcQ/6zkSvuVAQBm+llVFlMn9fCJOvIMdiswkMDd2CcL1fysJhVV6U1zfh6T7NQFN/ivr1gWSVlYpcS7al0zblloD6FfPedMWJjqdqY5jShclbe73EqTJAQLqJ48gEleswNgAvPm4lzdFLw1FoeTrPld1GIatJ1ttPmI1OoEyT2DE1a36SND6/ci6PVbybct2VsJ0tTL9Rs91cbveyj+ZyjkzZ05RAPXQx1BV9U47mY6rP1kETLKMaW9xrjonBu2dmSIyyo4Ay+mMFyYfiNUBs6HykTl2+YSsQYgsdYE2ax0VxkC24+jRga+euiWLbCN+ZyOcEisFVlE3Kp0uLXLK45sJZ5auIGzg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "dRL44pJcG+kxFmB1BEDskuKkl/WH9JrSR7Le5EGJmYo29XnTEN+vmtDaDFG0DXPhIqX0HzziIsZVCf0c4PSN8/4DnUpYv/OZVuEefkx1BP0U9PN2CV/h54R4EUb/8eSD4gzrDtrMII83SudoCVirnSgnJj0UjYe71AL1+k6v0WXrE+9DpYgm4Kz5hq65BF421AdMTUOvoemZohDCDRKdaa3+BKPNo0s6Le5L8GhpCGyQa8AtMKr3PKkpPkErGcfnH9vjrozq0IEMQv98WomrCP1861g6e1YdWLkCi96a4I1gn7fAyxo/Vu/BF8Je3GKDlCR2kXyNMOKjA6wuqUjUXi/Hi1nZI2gmfz415xwdot0ZPVuJ07gFkgvMXNP1MRhJQStdyYRTzmUGGl7j5X0rwyvZudU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:4b778dbcea297fe8\",\n      \"npc:717804737c652254\"\n    ],\n    \"constraint_ids\": [\n      \"C:fe4a346db743c137\"\n    ],\n    \"span\": \"Ada fought beside Malik under one banner at lower court.\",\n    \"rationale\": \"Ada and Malik fight cooperatively under one banner despite belonging to explicitly hostile Harbor Guard and Ash Fleet factions.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vrR5Y1jMUuYGay5T1qQTSUqOWIyb66Q6il0iEVC7h7riZFAUYE88Fc/BktugQKz67zFbYxcvqy2eVQ7OTRyp1vDNr1p7aBHDgxcNt2P2wZFcqUcZwW1H0/jw7GH4LbWWjBzl8T1vrRwb8/TH2d9pm2dbEq0O3Wb1u3Bgzn9sDbBAdN1LnFuMX0fY1YyUwtmrOOHa09hkaEozCCUts/BdLN4CWKoAcyvSu2gDb/iPSOXvKn24xcFNfdmSZLD8TLlhQZ8VUjec1MjH12PGyWNcDGFkvzQIXZH550JA0TefOFpPIR56B/vhQDyglEuhLkP4tzIz51zrkfiT5jxFTFe4Td8yqOcXrXLzusADjxlJUnkA2xM+JXnO1hifvKx2xTtJrXngJh1UCZ1s/tz1SJ58HriDwEqT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 602,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 163,
+        "output_tokens_details": {
+          "reasoning_tokens": 43
+        },
+        "total_tokens": 765
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:4b778dbcea297fe8\",\n      \"npc:717804737c652254\"\n    ],\n    \"constraint_ids\": [\n      \"C:fe4a346db743c137\"\n    ],\n    \"span\": \"Ada fought beside Malik under one banner at lower court.\",\n    \"rationale\": \"Ada and Malik fight cooperatively under one banner despite belonging to explicitly hostile Harbor Guard and Ash Fleet factions.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 602,
+      "output_tokens": 163,
+      "total_tokens": 765
+    },
+    "tool_calls": []
+  }
+}

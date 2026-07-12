@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ad6613002ff6d887c3eaca8e226728faea419c5b8fdd595b20289acf1d439f62",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3960,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 684,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 210,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 972000000
+      },
+      "created_at": 1783859300,
+      "id": "5UUE+LgM/yIxdOjUHYEUQNZ/lCn7+rwg4isyR1o5vgcl/5u4p0mxan1Y8rWwWDOOY5EdqLw5D2DfKczpBm59Gyndu+p8bh73mq8vtPSmkMieqplRIJVUZmODen6sIyIsh7S89G6bMBSCPPoiA04MScgJlCHLRTh/+ekXgSPj0E3DFpQunZieWh1kmFdvK8kbxVFlkpzgLFwA7pivTeV6MXhR7SZ7+D1shp5PgHiO/XrgyoTwtYFZDiDLy9kk8mro7Xn+1JRECSFIFCGDL6t/2nCrkHr37vkZJi2N8H1Qlmb2H3wohAOij5LuP9rVsklQz9sleQVv48j+BPgvh7AC1IRJfT1V3skhAEDBv1wJkzy2A73OJsvE2hphIAoOkBrf4GOvLqrhqfy1FUsqHxiBF9cNGzlSUA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "nNatvKqRl07OSolYnrU/2k41gJGqZGrdN7wFN3AmNsnWKN5hiM56HBIk2Mf48vRUhN/Y0F8gT+nx6gXgoVtsuph+vmJUpiVOqFQ3FRmRSk/9VeC5HMBbwqPbec3IX6bXpGBDJUPpD1sy2jTqExziOmPYlwS1pfbesRNFytOAAtFzGRz6vccgDjtwq2PLFF+Sk5apEn6Ex6vvnq/NIgR8ReyLpCgzj/mO1XvpV/U/r/of5PsF+ZeJCcPRtTU8uEST4yQ+nt2r9ld9dm3TeJ40jx+E8MpboJTXZJSDQT8bTXPM+JM3udKBBotk09KphyoZkg9kpA6FE9HfqKt7ENsgBuLdTKpzl1r6VKACNXzcYG6D3lkaxaTTjynbV4m2J6v68XKr8a1Um5VN/zJ3BYEW62FtMJk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:9451faf86aac3e93\",\n      \"secret:78b3716a22144266\"\n    ],\n    \"constraint_ids\": [\n      \"C:027a460c10714ac9\"\n    ],\n    \"span\": \"In eastern ridge, Tamsin disclosed the source of the winter signal during encampment.\",\n    \"rationale\": \"Tamsin reveals the protected source during encampment, earlier than the permitted crossing stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "owZ6bcMKzTAVQMjbAzTFQTNZEx9jJ2cbszJJ/4+73NmVF0oY327ZgeYqA2b/ZKb9Fhl0d4XS6XGweaNJbflwknSuo04bbVwnI5E1P9CUgjArQIU4W1gEhsZ5MZk3Qye3XsFAkQiC/tmuhQuzXFhz6+zW9bk5e2i6WhXtxT2K9h73kg50vpar/qYyTuBUCeWZcTM/N//yda675kq7DMVWEkXKVCEoXoHXOUA58OOHflNp7mco+RUGvzB487RnI3weavw+5UNccoGqtBAxyXia7lcGJcjKC6XR2n319mV+wGRdJ9FVbKN1l7YamLlDvi9d15IfXqzV3zmrmxfrgP2m04UfqQGcYrxMi8wnp6tizakRV4icIc8IqO+cEC3J9M5SVHcxEJadYS/yTeuZob4erA6mZid2",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 684,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 210,
+        "output_tokens_details": {
+          "reasoning_tokens": 84
+        },
+        "total_tokens": 894
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:9451faf86aac3e93\",\n      \"secret:78b3716a22144266\"\n    ],\n    \"constraint_ids\": [\n      \"C:027a460c10714ac9\"\n    ],\n    \"span\": \"In eastern ridge, Tamsin disclosed the source of the winter signal during encampment.\",\n    \"rationale\": \"Tamsin reveals the protected source during encampment, earlier than the permitted crossing stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 684,
+      "output_tokens": 210,
+      "total_tokens": 894
+    },
+    "tool_calls": []
+  }
+}

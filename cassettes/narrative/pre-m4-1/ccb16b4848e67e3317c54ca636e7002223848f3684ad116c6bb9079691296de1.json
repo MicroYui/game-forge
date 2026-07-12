@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ccb16b4848e67e3317c54ca636e7002223848f3684ad116c6bb9079691296de1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3908,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 689,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 217,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 995500000
+      },
+      "created_at": 1783850900,
+      "id": "5jONLivnH22Pvq88W85KcJHYTGuKhl1/nMmMt0fHoTtKPXnoPeUAVyoXd6D2b4ImJ0gu1M9XRykYzLGO2sokRjjpsZFVU0yxJuryvKQi8R6Ws/hE57/ntitlZvSpGy4OjKkraAQfmXP2LKNIpcux4uGsJ2NKxsMT5pLgxq2kZ/5o8iUvzqDw6MDzDlk8x3IIALMlZk1lzrPpAVHGLwGFn53kCZwh3isQ646U16aZyePizu9Sgz45YFcnniXhrUZIZObnG5xu3g2qXXeFA3VzyLjDlQGZWLN3UmolHal0UOMq/Ho200c94AqDxPws8phKEV5QSjAjzOQ8toxPeJwJt+I8Kfeq8cqMv1jeVDwYk0ccedQNWH6Tex8xAiIIFjWY3E5uKfPFyY9qFmgS4n1hryZVWJMInQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9o/VxnObyzt5Ma54UOetQ7pNJU+EYST3KYG+0+/YKCHbxGe6T8gGkavmCwqD24ji48IHpzXGjCAy+nfZmqDA54t2PffE6ZVwThtJ+P39i+k7VmobBATRPSyZrrCrOatd6LSmLumbH92B+qtVqknWkoExd2FttdyPDJ1Lsms4jLtM1gzE8bnVqHY3SrvMUSBr714ymHndlEzr/jUJQIMgQelAwMZKIqr44Fpuq1nYR7Z6OU9oU8odaeRXJ40QV60aFEF7i5HVxlfgcplaxWsIt+IBaqCuaTUf3tU+0p9ZZKKLQJe/wZn0UC10igA0ZtzUNADzIAb+WWv8MhG1Ahzy6aOqpYO5duxO9hiWJ/7diJj96OG4Gr8oKpwrgdS4MZBP5h7I7Vj74kxywEJTz7nK8Q91akw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7e17728929ae6c09\",\"npc:96c64e04e0741c29\"],\"constraint_ids\":[\"C:cf63883a77dfe499\"],\"span\":\"Iria signed the register as the Harbor Marshal at lower court.\",\"rationale\":\"Ansel had already accepted the unique active Harbor Marshal title, and no relinquishment occurred before Iria also assumed it.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "x1ZHnSgLWi2paqvyWahYFd3MRR1dJQBB+LZ8tQD42INy7I7kjQVX0/bgx11Vx+IIj+DRS28gfnEfeq3/MtS8vXA2aVp8UaW163zOtcv1zHzE149Gq7Ds7/J1Wro6S0cenPX39wL2tqUAw8O6YDoVz+W9i2RUN5Yc5ISDbVWe57pf0rLLPAeXOada1+jkMU1vfFSk1Ey12ppPoEYV6ryp6PUnBU/PcxdGAarhYO3RV6gaHcDLOd5nY0CorviCm8wTIVVkklLLeSMPPN/6DYcfnQDoPj3XWQWbqW4ZZxr2qjrGIvMZpJIKCh3fkohotGr4sEg0CJAGCriftXOhh58krDUpQgZrKUJtwj6DMO6ciplhXblnxMz8Jqv27K+b+B2GU/YdIXXdY6BG1EIvl2o5OQrVKE1R",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 689,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 217,
+        "output_tokens_details": {
+          "reasoning_tokens": 112
+        },
+        "total_tokens": 906
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:7e17728929ae6c09\",\"npc:96c64e04e0741c29\"],\"constraint_ids\":[\"C:cf63883a77dfe499\"],\"span\":\"Iria signed the register as the Harbor Marshal at lower court.\",\"rationale\":\"Ansel had already accepted the unique active Harbor Marshal title, and no relinquishment occurred before Iria also assumed it.\"}]",
+    "token_usage": {
+      "input_tokens": 689,
+      "output_tokens": 217,
+      "total_tokens": 906
+    },
+    "tool_calls": []
+  }
+}

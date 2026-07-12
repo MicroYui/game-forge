@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b174700b3a3352fa113f77d930a3b10036de463f7627a53b6ca9e75d597a3a0d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4659,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 631,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 257,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1086500000
+      },
+      "created_at": 1783847300,
+      "id": "IMeGOSl4I7p0Il6FuzDB3g8hb7h0CGbCtysDaxB6FnWnllAXGZJDb/TBhvA35c4ufECcv8/QwU0PpoAYifeUbWzQtVlIu1SJKrNdVujyPu9JWO+7Cy43WFuV9XCN4LA5zcnddxYzEKSUGewHNGmnSHvzDRnb/VT/gqVXT3YpUGqrKtPVVYNFUqlUOzj7/wN7otdcBtXfcJDdOms0TgZ3i7Vazb3B9+gnkSgOfahpuo5xB8bY6AiZlX3U2mnNAtTcWCm5V4mwf/AkL46tJD01bO9bc5y+pGyoI9/C6AEu9WtZ7tKVS/fA/Zk10DC1SmI5n5vB9FRDdCTo1M8n7s26CEFiwtCQgdzzT5GXoAhAJG0KbLWEid2f/Ff5vT22pP8gSuA9lQMCXUuJZJUysZGoZWVvmQDRrw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WDSzXwJrcPVCwAdrwTWknWjru3g11Y2IihgMVK9BeHSdPEWUWsBhtFWJdOxU5D3KfvxnULIdNYZQLSV8XUVDtJq1y4/tfHyOYyDGvhzUAwEqQXo51MVjf6jpXSTj5mkdVIOU97QWqc0CIKdBC9fJS0m5ON39j5735fEYM3VqtjmZpQW5gX+pEMGpTKDbskqf2/9F23pgcNvlm4iVG2uaQ2d4KNx5MxTJbVx+53k8AKqou3tW2T9tk72S3GdyGowAhkmYZd+zEk0XAygRbPa6zE+7yYiA4g8DyESmoF+S555vYFCPAyqnzr80vHLN+CNENV7n4LO+c/Pmd3Off/8jXYVJma3iLR4PfMwbhNz5E6spIHxu8FAZ7m9k03Vy9aJT2A3/43dFsoKqZsWZZnrJZjzTNxg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:45cc5534ec33db11\",\"npc:89a381e5e226423a\"],\"constraint_ids\":[\"C:c27e90a67227aff2\"],\"span\":\"At archive hall, Ivo was formally introduced as the Vault Steward.\",\"rationale\":\"Ivo is established as Vault Steward after Lea signed as Vault Steward, with no relinquishment stated between them, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vKXv7MD8bukZMTaR5I0FMJi2nxGs4AJ0VfUTqnKudYPFazA5RjGXc1fLRPfk/jywNKke9jeOS7oOBdTtletQ8KBRW5cwC9BUe/MdxBp7JTAq5otZ2jClKWRbg2FCAphZivNltWWUhkm2kq42Govzz0ug9i8CvLTG39BVO8TcaxthuRPQWxo25Es27JjzeCBIRdj7yhA8EbJhJlGzHeGVAcZNpWJSOx0+fz8dvF5DYeZ0xcU6dpgJ4w5KSs/BpnslUJ38GfnU1nMxGVU75xRlt3XYkge3mAacF+OnCETXjs6tCCGcUnqeXPj+hhKU4o/OlGJVL6KSW487VWXKiR5zAmo8r0R+uabOoITOMOq2deCRm9nt7tChQIRrh8nQ3MLIfy05gJk9r+x2QI7h6ZfB4VoRaNfu",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 631,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 257,
+        "output_tokens_details": {
+          "reasoning_tokens": 149
+        },
+        "total_tokens": 888
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:45cc5534ec33db11\",\"npc:89a381e5e226423a\"],\"constraint_ids\":[\"C:c27e90a67227aff2\"],\"span\":\"At archive hall, Ivo was formally introduced as the Vault Steward.\",\"rationale\":\"Ivo is established as Vault Steward after Lea signed as Vault Steward, with no relinquishment stated between them, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 631,
+      "output_tokens": 257,
+      "total_tokens": 888
+    },
+    "tool_calls": []
+  }
+}

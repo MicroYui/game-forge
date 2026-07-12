@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0146d55d2d5fb478fb39e06f7ec842de76d2c6e246bafb812157cf142b153679",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3467,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 567,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 203,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 892500000
+      },
+      "created_at": 1783861200,
+      "id": "kJ7d69h8z89f215y21o8xazncBSJDslU7sF30QlhV4vmY1xuFxrcronNjFWPnrWLLJnFfONf4vMg14tMxBJdw/WQ6jeBnTrNzQf6uhcwxIRSKA6KDzyz4euKctMNh+mChEgtoaZJZpcZJjYuieaPU8Q3Z++I+/8H0Nq000n4UEV7R0oOMQ5DsIpz6bGAZb4cRLrv7cWLDMBbVrxZ3zfyXM1iRhBVt0C92hCl+6Dlqnk+/XkoB2+/XjC90pGRGG5cJm4Zs32RjN18ndyLs4aAKtS8cJ3rk/XxJR0nVmxEW5f0/n4oix5laADF+AW0YIBVKgK9WmZFBk934+kPVPxqbRv4chIVOfotMkCsGI8D0rAIW6fSwEiHfTb90Lmv6ynZTf48L1lfJ6oA6pWPQtY1f1axhFqxyw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "u62NlFbHrQIKIGipA3/Fdkb6s3QI85xOOR3nyw7bDuvFmDRvnO1VBPDDFM35XwUFfV8XL+59j2YBtrC5dGoGJKtjTLFBgIyCBiEBF5ZjfN9ytF7hqThsCM9v3TUFVDxND98aX4ZEZrQppJJv8ySM63BrZIjA1z4RMh4CYo+Yw3f79U6+01F4APXmqYI7BUgdQtKAWfEVomBeL6jNsF8OjB+VmPJ7RMX6QexReUZ11oVMnNFMVRH9Z1j9HEuMg3PMgKDVov6L56wDZ+5KCmn2or+/QFi4RrwGQkU9H+YoaNdQnYaw1iRFoqNBQWRU0RkqPU/J/NznGuS0p909PWE80Nk1VzIPUDuInvvrjYLwt/eTDnGxsgCyA2vaOByUKZIW6uWRzvPPDcLdOe2IP17tl68cmPI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:1a8abfde40bc9c42\",\n      \"npc:cd5707f6267323e5\"\n    ],\n    \"constraint_ids\": [\n      \"C:e69d2453c341d279\"\n    ],\n    \"span\": \"Ada welcomed Malik into a shared command post at lower court.\",\n    \"rationale\": \"Ada and Malik belong to explicitly feuding factions, and their shared command post constitutes barred joint command cooperation.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "dYip6HC3NoLVQ7VqYhk0dyGviBR3Q8b3Re5/wtF7dtpU+DU80q+I3JKcdWRzwGa8/FAZ8U0b3Dol/FuBfiRLXQ0eJv/AysiozBWK/BrDsWYr0iQLL3Fji2TBOUv6D+BhgqU/dvxrGmjmd6KbnPZXnCLc7euzkjbeNqwX0BBqsOhcg/lVZOHbpY+nxxM6HlO4b/mYKRd6lbCsRklcNACq9NhH3TLZoFpcy5rddL3VWEPdmHuc6XD5zhjUWD4or3X49zlv14IOO6J1+Bw9LkaGnVngyMb3Vl/GEFjqWZ0+x2jvbfOnLKcyFxfb7zrgvgqyLtoO2LiIUNae9zjzJpdZQwzR71VPvrtE8J45PK0QY2d7b2ztfiCATOmSpFKtG80tVOYlxjMrF75CauGGhNlcSXZLkO+h",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 567,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 203,
+        "output_tokens_details": {
+          "reasoning_tokens": 77
+        },
+        "total_tokens": 770
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:1a8abfde40bc9c42\",\n      \"npc:cd5707f6267323e5\"\n    ],\n    \"constraint_ids\": [\n      \"C:e69d2453c341d279\"\n    ],\n    \"span\": \"Ada welcomed Malik into a shared command post at lower court.\",\n    \"rationale\": \"Ada and Malik belong to explicitly feuding factions, and their shared command post constitutes barred joint command cooperation.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 567,
+      "output_tokens": 203,
+      "total_tokens": 770
+    },
+    "tool_calls": []
+  }
+}

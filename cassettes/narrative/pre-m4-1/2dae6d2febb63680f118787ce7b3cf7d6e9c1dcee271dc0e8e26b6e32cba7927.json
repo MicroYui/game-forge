@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2dae6d2febb63680f118787ce7b3cf7d6e9c1dcee271dc0e8e26b6e32cba7927",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2874,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 707,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 156,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 821500000
+      },
+      "created_at": 1783848400,
+      "id": "v7ZA+q6Ea1O/OSK0BE94JTckOa/IXGtuFR/DUsfiGIuNgWbphyaPA2Q/20WyE6aYN/510IYygThBkzJtANoc2vhv5eoYxgxDLncuyeD9J4c1hUtwFpkKwi4a6xsbi3pVqrbkyqadzK+VgkbCBG0oWUofe+HQLQT9kfYRrOtvcpiJjVGra1jQg0s1zlayCRL0zOLod3tJhSn1IG/X0izSPKeCIxDHmxvw0oaKZxh5Bsp4ypEVSdAVdw76Q5vCZIMiGQ/5cjO4vhuOQ9aqGLzijyZmwPdjyvpMJ8vi1j6CNgBPY1nkdvW98c3Ri7MS4JFLWc5fLlY2Zg3USyPQtqvigpOiq4KXTcS/VKlX++f4qqVwJxWCFcmrqufy7ZJiTq1tQPH0rU+33+JBoOJM1L1M5lYvrzLTNw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9ReJsJxIu9epMaXjaICVuKnD1Fbjh2U5T76rLfQ4IHdXgTAs8dkerIRTwTPv1m5Pf6jiKU4ylNJ9Od3pNkEOyowIZQDT1ON9YTsfkBnauvcGHo+00qe9jXW++FK9Gb8Dd1nZe58TFKL9II2jB6gcp1HHvSjNpNEcbByjhhTJGNz7k3FUQWKsYRc8iZZpJR1sNHcESqobpYJm/igalctGfXmPEnWGGOuBVbcsFLce5sAtqE3vcj2WMU/OvhmrQL8knOmjQ7wwJWrqCXamH5YiweXg+W1aIaZrHjtYeiPl4a0Ql5qvpPmA/T8Qbzl8WWVM9bkk0VICZkV8UEOkgZ4iBTrJKrc4DrAqJO5ma3nnnWPJZZpkBRHAnUfc+3w1XCZc8uPYWWVHjW2/OMw7Dv2TziMxsGA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:816fd95d524c376b\",\n      \"secret:c627f3b6bbbfea3d\"\n    ],\n    \"constraint_ids\": [\n      \"C:ae6ce4e166cd71c1\"\n    ],\n    \"span\": \"During docking at observatory, Ada openly named the masked envoy's identity.\",\n    \"rationale\": \"Ada discloses the masked envoy's identity during docking, which occurs before the permitted reveal gate at vault access.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "+ksPH6VbEOuSVY6VnJHO+m0Im5676tHgGpZKZeaDtxqUWunsgT81VwJqF+yj0Ldb7+458NQUye4EUgqlHvS9Fd3djuGu8kXhod3nU/NY+XU5v6c9KASHg6zEMbcmigFt5As3/vCfTBITiVL7iJy0cxGBXmCFIXeVZEslSohCclztCenKQD+sZQ4LDzKZtBraUUJNTXpAlSF06m3iHa0kRIUWGKfM0aLgyeIX+/DcQppoykSxO06CnrsucNR5Z2fAf3sIx7UNX/hMqjC3dB6JeQFH+/DB6UxV2mB0klrmS0Xj1HGtiamoLqiNQIYg83FZW29NuTjJs4b0Z9P48wc3Gr8g+p9W8PBaS2xix3/FntoN7vjAt1ZNOx6JNeYFQN3+zMpytxLV1f2kcJItJPCUgzPQtbxB",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 707,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 156,
+        "output_tokens_details": {
+          "reasoning_tokens": 27
+        },
+        "total_tokens": 863
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:816fd95d524c376b\",\n      \"secret:c627f3b6bbbfea3d\"\n    ],\n    \"constraint_ids\": [\n      \"C:ae6ce4e166cd71c1\"\n    ],\n    \"span\": \"During docking at observatory, Ada openly named the masked envoy's identity.\",\n    \"rationale\": \"Ada discloses the masked envoy's identity during docking, which occurs before the permitted reveal gate at vault access.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 707,
+      "output_tokens": 156,
+      "total_tokens": 863
+    },
+    "tool_calls": []
+  }
+}

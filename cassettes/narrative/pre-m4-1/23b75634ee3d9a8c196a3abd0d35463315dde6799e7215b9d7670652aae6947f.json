@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:23b75634ee3d9a8c196a3abd0d35463315dde6799e7215b9d7670652aae6947f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2631,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 610,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 141,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 728000000
+      },
+      "created_at": 1783854600,
+      "id": "bwk8J0PF1jHyBJKFHxabk2EolJoslfNQtZ3nPgPYhyM98josmUx9G2NsZHS+9VrziFqLQ6HMmlUt/hZwN2Astq6LOthbYtoQVuX9QVpKnRq2EI97iTu08eCh9miFdBerE6d3b2+jYXKyyRKFsqIrs6RmL+hqsnV2YXeQ9L6+/QKDHkGuPzlk192kLfBtU5n/ARwKaXanQg+HMl0nMaUaDfyNTuKuECa4r1e7KAKKWS2318zndmExhww8KwU6Rk5H79nRC2zryn+tTgk0J0m+olQvXdUeg73VQfKHOyMw7ItS0rCeuO5vtqUzVkIK2nHBTH7JEB/BPjC69Nxiu3QgxRLDC8HKHCkCsz2gRboEEk8cxJlt3opn5Z7iHfUU6iEpZ4y3VSyMlSn4GFgEIs00VkjxofQq8g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "rEH6G3KgYK5KMi+2tlnNDOfOrl3qTDPN2iZs47U6mCYwkjYIbSSyl8Q4EJHIn6V9oH/YU5EpWsaJZalfKlVOKWH9XtB6P1poosBNzh0hXfg1RQPMBFPaUwvs6hJqzXKfG39nYnhZUdNeIsu751OZG83zefhRagYfl1mVpedfjww4hZSJ3Dkgk8UN+25UfiWMgA8mkmNOvOdIh5Zmtl3pqMPICi9sn+SQ03eIYRqOEyFBIp8ns1bXkpl/JbGS2XzcOzxJ7tMmYNLu/1C7tR4UMMgiLOAX1/3ze6jQgWHvfr2ivdEQp+ihexVScAI6LXqlELEHDRrIkmon77/ZX4UT9mpB0BxWYJTDxZNuFlOXcYmnwaGCFTa+E7QwM7hDhwdCA6kalRxykMx2fJCSeyp/I2afY18=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:00720524a1cc7cac\",\"npc:0a310d02d7263a3b\"],\"constraint_ids\":[\"C:dd4d3c0cbae60eb6\"],\"span\":\"In orbital concourse, Noor supplied Cass and called the partnership permanent.\",\"rationale\":\"Noor and Cass belong to explicitly hostile factions, but Noor supplies Cass and establishes an ongoing partnership.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "EdCxl2mz196TKYcS5m4W59f131akhkxNKTNim6z6zr3nCkq38+KUPH+JZ0WoFosSHnFkKQF6Ope8WXdNfr+ZIGlBz9MrLmNKO0bmWXIIwSGUXuX8p7HjwL2TEdSbM+4AmokGceDECl6B2JpginzztYHFMYtLzKSADBNZSNH0deYbZmygSkxNzc+niSbUw6RjTOUgSsHcaL1c7HPDD8HRRgswHXFTpwCh6g328kwIIvkwQEmhG9NZAxfDQgfkgEkaJeEg5vDAPfkPaHKy6fU5Hg/L/Kdkydej30rexsM8USnSgQx6X3Rc0ogFF2HrjUvq7DKKBu2RH9qiY1GJQQYbSBblmBCahDYG9lO8j/xMoC5DiDkPbkct8wkuaWFLN3/i+9yx10wyNEru1yxKTj4ntcXpxlI1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 610,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 141,
+        "output_tokens_details": {
+          "reasoning_tokens": 37
+        },
+        "total_tokens": 751
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:00720524a1cc7cac\",\"npc:0a310d02d7263a3b\"],\"constraint_ids\":[\"C:dd4d3c0cbae60eb6\"],\"span\":\"In orbital concourse, Noor supplied Cass and called the partnership permanent.\",\"rationale\":\"Noor and Cass belong to explicitly hostile factions, but Noor supplies Cass and establishes an ongoing partnership.\"}]",
+    "token_usage": {
+      "input_tokens": 610,
+      "output_tokens": 141,
+      "total_tokens": 751
+    },
+    "tool_calls": []
+  }
+}

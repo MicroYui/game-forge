@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:739a3342756b9e7f08d159b20d9c34badf30765597e30d62e25d8c22d0b43906",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 9106,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 607,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 199,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 900500000
+      },
+      "created_at": 1783859200,
+      "id": "svAdJd410xE1zVK3i3c5F6qRaarE69ro2A+yAWZE1hAdve9TmyE/IWKBgrsUeEs1u2fVu7p1LoAKINgMqXEYcODTuWn40ixWUM/WoIbw7dL2FTSaZA24MhS56AfcO5GNUnb6nX1Iu6rmeIXW/sD4UwHwr4OHRzMclbiiOTG8a56a1Xqsw/KZsWvGibZsCd5lEpQre3H0ovQFgabHx1+GkBZkKmaslkv0vXzJ8n4EUpfQChBfEYOaH/iODyQScXz1lgYjbAH6/P7ZalDjyEl20diO6q5tQe3q7EPAekEAkppWsVSFsSMMVAXAfkNY1y3kdcT3f/oMbcsPTG5iuMhWtkntekWBiR8BRSPLp80tH3Xm8pwswbC++5oTZzGJJAZqeCl7rR6XckSrjO77WEUC23pazAhY9g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "7sV3qDeKX2D3GZ37aZIhyRLociKUVyTP8G00nnfJcQpu9FvYLW6LcaOefnYBZzg9SYUfSoaGapfe5gCoGnLLrT+npKHfraHcxQBGfnRM10c5VrbQ16Q+G/aeZXKQggJH463My/cVcvI6//5T2YwpKQm7KtMTw2Y37HYqCOtwbi+q+ZDA9gwkDqbTE1TWrl/mE6lOrRCQ2wamTvB0oS9jQ2jUdtQn4jZARFW7T8t6LNa/pjQJrXoiwWfcXF8qHcUDYF5YHmer6ypj/xu8r3mqtP/gH1nYrgW/MnYKA1FrestbAr1po2AJF0BQe2EBSgJexInSw3XT9EHIDNfxngjMtWoZuTFVHfQdbcHvT14Uv0J6Pj5frhj0BBlFikq8xxCKuOI/gy+X8ptUHdqQVDppD1vAkTo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:e44f313d2644af4d\",\"npc:f951457d35a54429\"],\"constraint_ids\":[\"C:ba1aadc9dc31fa1e\"],\"span\":\"At lower court, Mei was formally introduced as the First Navigator.\",\"rationale\":\"Mei is assigned the unique title after Daro is shown holding it, with no relinquishment by Daro between the two events.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "/yLbD1e80BvYctLDVRJpHK2JXze/YdTpcTX9b4xolXVzCr65FAVyj5Wq07QsghGgNvyEdMDvNwFkykO5MWiRO+QOkzgJR01Kjx+5m8tqHpEYpdM3VajZkogJbcDca63kt6GoP0L501MVxGdfgzCuIXGXRDAFbHsIiB+ylaY2FIKNelJYnfUud3vX2HiGZqODJsJnZJFks+e/cFWPrynb5bynpUvIWxDFdmLRqqggAyZgqVtgBZfQbUsIsrtzzN/OE01hjIniLAKNOXTP0iFsm32akdxXSXsQlkY2opcUzTgd15Y2+Xuj6Q3yfvfZGkJNEoXXAghmUcKfc6seiRtI5ddiAUeyK5R2utHSX+BdI2djBXi4tmyrS8IuEEMNYFJnZLcuKZHnWO5eNRKKz3QFpznwKNyP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 607,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 199,
+        "output_tokens_details": {
+          "reasoning_tokens": 92
+        },
+        "total_tokens": 806
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:e44f313d2644af4d\",\"npc:f951457d35a54429\"],\"constraint_ids\":[\"C:ba1aadc9dc31fa1e\"],\"span\":\"At lower court, Mei was formally introduced as the First Navigator.\",\"rationale\":\"Mei is assigned the unique title after Daro is shown holding it, with no relinquishment by Daro between the two events.\"}]",
+    "token_usage": {
+      "input_tokens": 607,
+      "output_tokens": 199,
+      "total_tokens": 806
+    },
+    "tool_calls": []
+  }
+}

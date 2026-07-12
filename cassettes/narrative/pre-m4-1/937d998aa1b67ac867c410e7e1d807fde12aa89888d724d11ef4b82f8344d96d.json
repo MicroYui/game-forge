@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:937d998aa1b67ac867c410e7e1d807fde12aa89888d724d11ef4b82f8344d96d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3578,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 607,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 141,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 726500000
+      },
+      "created_at": 1783856400,
+      "id": "x2QUe/z/wgJfuROQxx+ongIyfBsD9aw2HAOq9khtRsdfKu7q3Y3DWdYuIMEMqNEWTTy6khXgbWPFiXgFn7Bmrx+zJfJZzRFfGJp2r5C+fZJggIfAqLcmKExMwKbU9vp41DiWa+8hSAWyveBrIwBzS6gFhQ59HBzEKKAD7ceUKErWbiy7kR3CT8cRss/8753ssupMNx/jhaNrUfsYfl2/NNfuTxxGaZh/gFZA2aSKoYvFCjfmpxXRYGoLM4rGjDYoMBSZRTxtQtwKYScXXNMYrSsNvAG4S51I6i13Eb1GI31eRdw2/IkoYT86P9R6GWnJbi09u2IvHecBqpKNpO56hmEY7iahyN8/TnRHfcYCI/F5+V0Mc3SqcQ8euqQResKZdPjHShl8/seX2Pd94yy5qp9Dlw/kkw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "v9lqEYQOhiMEYE1rqYJGIeTDYDZh16nVEYATIc0AeImvZNwmp3MhBDa55eb1+JokmEaA7WFdBqMDLO1lkx4L8AzSj5DBFsgmfcAoB0JN2MGCWMOZ57twFt3NhQCsnrsiD38dEGosce4LYHn/cSsTXgwgXgEx0Sg9uuFylg27Tnz4HpmrEaTyySUXWX1FmgIFcTrIjT174QHmLHChY8iGcQcXs6EbOVIl4sl6WBrRUM3FZ3K007OiF1Nx38/a8oOhZe5qqJEW61kx3t9s7BwdUh1E2TS21jQdhcXL7yKpmhCZxCBTPGV3BVRjzvs1No0tTJcqE/pzbQdOVzTEHAZcTzljlsh6h3QjHTZQLvEXc179npP1sQaenrJjxXuqjD64lsiDKzpZ05THnJRV7kOoGvKWJRA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:7bb1bfb95cf76c16\",\"npc:afb3979d0939b915\"],\"constraint_ids\":[\"C:0e5ac3c76f152577\"],\"span\":\"Mei fought beside Daro under one banner at signal tower.\",\"rationale\":\"Mei and Daro are members of factions explicitly at war, yet the sentence depicts them cooperating under one banner.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "S3koBrf7aKMEFOjaJPPLjGHIrmraNbUbYvsydmGJxnTylLoV6jHdkw/70DDFbNe3/LY2KmffaB5GgLfUtSM8P4SP/eu3wh+jrGlnryIN1U2iD/qeGwOzDGe1c4IzRtrpNTAZw1nBwVRpnUl/fgJLuHKEHl006XM/W60DldLC1AwSgHw6P0JCMWORKQGVmI4tJXWizaxCI1gOg6ntan8Do6LqdrqreH0Dt5AKXOG9HvjphYSkf2hMuynsLdJE9N8dUH+XaBmyoLFOTd8OErsMzb9XSdoXNgydcnNa7CUWqr+IOQqh3uUmmSZ4KTGWPyKy6fg3jhJIB7BLU9ICUoUjotnNfvAA+QZR02MnFlXM4sO5O3qbMCrv9kdURQMCHduzdhd8PIRU7/HY0yk1CK+01zgFFdNH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 607,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 141,
+        "output_tokens_details": {
+          "reasoning_tokens": 37
+        },
+        "total_tokens": 748
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:7bb1bfb95cf76c16\",\"npc:afb3979d0939b915\"],\"constraint_ids\":[\"C:0e5ac3c76f152577\"],\"span\":\"Mei fought beside Daro under one banner at signal tower.\",\"rationale\":\"Mei and Daro are members of factions explicitly at war, yet the sentence depicts them cooperating under one banner.\"}]",
+    "token_usage": {
+      "input_tokens": 607,
+      "output_tokens": 141,
+      "total_tokens": 748
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:954ee57f56120474f76adb823706f7a9d7e5135a035b04beae42ce1f305bad27",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4401,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 644,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 232,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1018000000
+      },
+      "created_at": 1783862100,
+      "id": "3oLDG5nA7qxwyrPe/gbQaehuSWVf+GROCxRGegGdKWLCLfj5jEwLAq2PTPgJLNuwmkZViJx5ltUScHMFmVHUaeINfzPiH1yCTuUgFue1GyuM514tZp186PXBW+7yOjtRoPyI+/I0tyhvGzVHCKpvDD79w/9tIcYio3zppZamgjzxdtYCre8dXmnut2WNw526L65xwfvuoy0svtMZgGdEChxxy6iIaGmQP39JmSFo11NsxSSAQUwu0L4vjOiFvGMuwYPkgoWaGYRLg+3fvBmxIk0dAUUVAlYwsbxT6pWbM/ezt+sNh6kJdnKUCevfDjnDUGZo4INDfccmXSCYWwkF1pzfMT92YznWct3N2BBXHojfdrxNF424W139eJCvzgXFxK8oCwuv/vA9xf5rQLAVYNt6jAgBJA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "U9ujIchNKFscwHBtW6Mm1WTHtCtBimWXcTKwnuQez61w4xVQB/ZjxiQGfRlw4CW1/xLXEhMuMKsKMaq4IzReTUzkvebnfBClBqMB72sM7sq9Ed9iUTtgrc8vCXn69RcpvTtrg0XMdEmyHvVbPc2oCtxQbTXuhgUgv/Q6sarN0ETwfLDn65i/oRoPAE9h6BkKPBcndzCkuAmMp/zVhqsI0jVKDZFAqWjZDuJkgZcJ4bC+rFqMtKUSqB3WVLf1XkUc+RwbzqoN+xVDIVnDwI5HW8WUEu20V4LM8LzpkcAk7McrSGlmpe6zLnAbzxvzlES5uCb0VPbQIvMOGx0RzRi4ReSKof4679Ml2wgB8ttrNvVHeXYPD/2fPS9NRbu3GFSXgstrz92PQad9Z1YwILVsG9kBHhk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:13efa11ad2bc9898\",\"npc:5df8fd47c540347c\"],\"constraint_ids\":[\"C:6d36cb9f1fcd588a\"],\"span\":\"At eastern ridge, Qi was formally introduced as the Crown Witness.\",\"rationale\":\"Qi is recognized as Crown Witness after Mara signed as Crown Witness, with no relinquishment stated, exceeding the one-person role limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "zULelTQMvjhFHB/fnI134PY2f1Lvdtk/H9swvev2yTqMUkJ1IzNLnoXbUNOz+6rcSwZOhqtglJa/l38Q76st6S5TrU79XDQwUsW8ulb0hhrihJingFLI46m9aCiDGiKIdvv49VvVEAF4y0pbxOGAezga5ZtPdQMsJkgYs+TfA8uEW9Kzm5oDXzPHTQwOkNfbV/FNOlDZM831UEY9/Rv12TZXHAR9e+Xmutjz3l64LoWMu9CwF/x+kkmjy36bAfMgBhX+zcljk9w/pVSD9ToImZWd6b7V3Q0DcBOMqpVvmdhJ0Eh8ndhTN6J7v51XVKJPC4+EVJkJ4cBmNp3F4lj6rwR6p8E5f+PSLaWq/mcfbPLwHByZ5/wod/E+VHkvLklEvaWzg8+R4L+E6+QhuV7g06bb+Ybd",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 644,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 232,
+        "output_tokens_details": {
+          "reasoning_tokens": 124
+        },
+        "total_tokens": 876
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:13efa11ad2bc9898\",\"npc:5df8fd47c540347c\"],\"constraint_ids\":[\"C:6d36cb9f1fcd588a\"],\"span\":\"At eastern ridge, Qi was formally introduced as the Crown Witness.\",\"rationale\":\"Qi is recognized as Crown Witness after Mara signed as Crown Witness, with no relinquishment stated, exceeding the one-person role limit.\"}]",
+    "token_usage": {
+      "input_tokens": 644,
+      "output_tokens": 232,
+      "total_tokens": 876
+    },
+    "tool_calls": []
+  }
+}

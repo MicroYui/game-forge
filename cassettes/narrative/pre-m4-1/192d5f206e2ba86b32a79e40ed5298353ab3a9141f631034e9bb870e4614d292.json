@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:192d5f206e2ba86b32a79e40ed5298353ab3a9141f631034e9bb870e4614d292",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 1851,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 651,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 88,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 589500000
+      },
+      "created_at": 1783846500,
+      "id": "ZI2KqXuAVHqI0XH3QJxEzPcIJnXLYZIijkWKCeVf/eyssKFMu5GDtEjGUFe4XFJm/JG/5WdEbiflE76rdYXXifvhVp3H4LkpoCYeXWkWWTN+dXyAYiDWafsc5QrqdzuxkV5f8Gp0vak6rPdl2rc8ZL1ABw8JQx2jOlGwiuaklh2OlDVYsyO2Kuz2cZgmvdOsaws0MhQl9oqZV1Zf27oQzaHYx44m8jbPCvu5gvbnD8SEhFEnmPwf6Dq3nQTLsBC9knB+AT+Pb7xqE5SHqNpGwG8IjThieAZutMhXcQOsfB2KYLkxtJMQz9jbMOH06gzW5U+FNxpEthF/lNlm6oV/WQf0ySrb9HeL75UqhshLqXMStGEMLFz0YBjoNZLmQSE8VKNB4qdyM310kzyZRi2FFGiOWLHhqg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:5f10e276ded7a6a6\"],\"constraint_ids\":[\"C:b84f47cfe1700ef4\"],\"span\":\"In north gate, Veda spent the settlement fund on a personal estate.\",\"rationale\":\"Veda uses entrusted settlement money for a private purchase, directly violating the prohibition on private use.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "SFYYyRBmtuFRhJfT7XdaUsJwjkUGFxD4iAzBsTU4CqctOc8o7cSakxY2wmjCUFC9oR3Nry0CinWYSgMZedehaKMyGc1wrs+tYbOaWTgRujzqbY5uw9N7GQfPkD9XFLHmbrB3cWcjhPBT1zgbm+gTuvBzQZPLhh8lIIvI9yHX5eHamsEc5EqQ8Gf48gA0BHOYWcnX8lP07naoZC1NNCxr5DynPos/G7ZuIVlj9Lvy81ikgHfAO4VHF0N1DS4687J1riMgsLsS210Fny9EqfyoGZlNym4oIMlWy+VqJFtJFjZeDs5cmofv0yXnenFyBGWyAZpOhiCCec0DygVlmN9Y4K+m0UGdgMNFVebdUxhJnSZi6hNy0UeaqCwRfo37wcc8a7lT2w7ASE1wmuhdzWzJs1NlK0H1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 651,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 88,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 739
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:5f10e276ded7a6a6\"],\"constraint_ids\":[\"C:b84f47cfe1700ef4\"],\"span\":\"In north gate, Veda spent the settlement fund on a personal estate.\",\"rationale\":\"Veda uses entrusted settlement money for a private purchase, directly violating the prohibition on private use.\"}]",
+    "token_usage": {
+      "input_tokens": 651,
+      "output_tokens": 88,
+      "total_tokens": 739
+    },
+    "tool_calls": []
+  }
+}

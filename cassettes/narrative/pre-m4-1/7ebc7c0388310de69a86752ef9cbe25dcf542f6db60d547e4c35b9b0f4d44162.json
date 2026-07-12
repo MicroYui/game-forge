@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7ebc7c0388310de69a86752ef9cbe25dcf542f6db60d547e4c35b9b0f4d44162",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4080,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 693,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 166,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 844500000
+      },
+      "created_at": 1783854300,
+      "id": "3h3Yhl2W/Wq+fnh7bc12/QD8Gd0u+tiIZWlwC1znvH1nmIjAfiwfB3gKTB3tqkRQfd5gMRAqkfXCC5eb7nOT9bM4OVhpP6FqYPDJ63nixyfgkm313LMuA9DkvbOmdjwBq2cN0MgXIAYS0yZgjwiDp3CVmy13Gl0gwVkL9xNe3p4qOVKQUh58ovd/heDDBHTcP5OBfwjhKFOMjRnqTRnoeNDkVBbQYAihtQvn9di8dJt4R9spBZoMkbC5qyyrHnCzRShSPiOf8lGszAgalqjOGtmhbyCu4cjLguqQLkZM8GObUJkbOkh1V6yBHQ9WfpLCY5eZZjLJaWseYPxpZQlRWLS5pPCrhjr8XPsfM40zfbCJJsQKxH3PeIYY728LgzIsDQ+YRpmNVJI/LppD5aAF8JFu+DRRjw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "3ILPhiYRFP8ORBsfCKon4HE2Jel4gxx9d00ptiEXqeYVxIpTK+5LkHrgmRRuR6epwHgahPd+4F9jOKOiqBQ8dkml31BJceplVX8AVPze8M6FyBjstLEqNpX0wVVJ82zrbtGYLpDGYecJeOLWVtgZadAXo08wx2wlV8tRmaHVxkRg7A5PDDqw5Wx1t0MYx8JKfhf+EyhGBucvK9D137mF9/YyudlMKrQYmbgQtOzvm3S3FOq3LHGfIkTWbioVYAaLmku3tGgvR7oBngltjX0iiBkB+/L/Q/+2XdA+I93CKCDO7+zVivtolbkHoCBqljDJ8diVmZmVVHq42jT373aWrUx4SbuP9NfccE27kfReRL7FdFur3fAb5paXdNR9/oUTOy8fjLAmhWhOe7PqfavP8J1+3vM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:718972469efcb130\",\"npc:f1c6a031fa5e7b05\"],\"constraint_ids\":[\"C:2c6304320a8f7d02\"],\"span\":\"At lower court, Mara was formally introduced as the Vault Steward.\",\"rationale\":\"Qi had already accepted the single-holder office, and no relinquishment occurred before Mara was introduced with the same title.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QT1H6AVGicaP6FbP4PbzY77mSgIur8g/d/FbjVbi5q7poHIIHOxq77aaeccrlJBdeZaN4pYtumygInyRLwDvrXnMyzlz08GxRIfz6GoAYqcurCHpfVBH7UaB88capZjbJS4wtyoZ9oi2xfQwNi9YcuiVrnR5rRYSkV7uusfSrtvOf5sl/ZUiVQeVuc35LeVZdGEL7yGZe/xxUB6pYdzpeRXz/Uq8SQwtoRqyfS6S8/RXEn2yVvRQBdZELCGf6h3Yuw8mNZEvYRV1kPBTHMgtPv0gOoiZQuersbHduEfRXeb2ggadPqeUgLCWWKiuU1nTdemzKKxw5rqJjvif1gytpD6ua8cQfI63d9M7FrQ4AvrLCcTCxsPhjUv7/5u2IV7nvmxOJEACWIGAcnc5oG0yl2FQn5yS",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 693,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 166,
+        "output_tokens_details": {
+          "reasoning_tokens": 61
+        },
+        "total_tokens": 859
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:718972469efcb130\",\"npc:f1c6a031fa5e7b05\"],\"constraint_ids\":[\"C:2c6304320a8f7d02\"],\"span\":\"At lower court, Mara was formally introduced as the Vault Steward.\",\"rationale\":\"Qi had already accepted the single-holder office, and no relinquishment occurred before Mara was introduced with the same title.\"}]",
+    "token_usage": {
+      "input_tokens": 693,
+      "output_tokens": 166,
+      "total_tokens": 859
+    },
+    "tool_calls": []
+  }
+}

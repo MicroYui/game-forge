@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:cd77b83ac367d992913626b131b645f82aae816182bf26c92a320f56e2245ab4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4799,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 545,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 192,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 848500000
+      },
+      "created_at": 1783842400,
+      "id": "p+VIGX0UkFXmurQ7Odg4LAKKpU7Dr10bIe3XYWUaccdnWHQdeTF0JGyDbyu+/X3eNNL046IwcnE4+ydTg8V3LgxVY1mbWH5xCA1VKbsETWp1RvaETVOf0kkX0w27e6WE2jR+jnekWswrxjqdcd+gODlGYiY1lBnuIxz44v5Tf4yaY6G/mUiyX7QOZBqWury177s3cvgV/iGiIXyTVn7ER2Gj8PyFjjynRFz/LA6fuTHMJMr/Roz/UfidHu2O6yDkkmN6Z/qqdOW0PiCPxr7BRdt7rPXImKnh58y8Aw3iwGvsPNoD5dkWY4hrWG8DoF1/MSDCmxk4iyVz8TROETEq5uTJURKCJcGUJmxa452JbOqp6QfHey37j2QuLNfN6EtF/H4JYBb0GsG3F9I4J+9r7UN4OvID/Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "M/NAwS8VmBojtriKIN2qsZAs7T0kc4IdN6nA6qeTOYBzvIS6+TGIrGjlBDz8TvgPBXF4mO8Ht4719/Tx8OTTGgXh29+S7/5ZOU0+QIGAZlmHZKv09eiV6tXEL4AEqCvePrHuMNCLt58HUUi+tKq8qtnSKtoDeAXdwLxWsARVX5jRsBVO9ReT2d9RVKEWOrUvwUyJF+LyYPn2n7E8nLVUW2dFAMtWo0wErwgyWzVPAbTe+VMNVYw7okdUFp3OVgYn4w+QknEG0aAf3oZvxGxQb/xTkbatN/WyjfYR5pvhwZPFxDdGLPgpwDtpEKbAflRzk+Ni42PwQ9X+345sBV1yHaRfp5zcxeAZGbHuKefbfWZi6YZiUGZGZAQ0MSBShsu+oTlQACUNj39cnOrdkSX5C3Lr8v4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4757854307568c0d\",\"npc:804e14811b94e662\"],\"constraint_ids\":[\"C:b26f81f1a234130b\"],\"span\":\"In canal bridge, the council recognized Tamsin as the Caravan Voice.\",\"rationale\":\"Tamsin is recognized as Caravan Voice after Eli signed as the active holder, with no relinquishment stated, exceeding the charter's one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "yBY7vl/DxHceJb3CObyf0i5ITI5f0lcmMyoD/WgdlEy6qSZ7jN+BKg3Wr9hMRBA1i5HX0sDujr5aTRRKVGXBp3C2O1XFfmcIlhg1fmB4FRVF1uLYuQux+Pgbwe/mZ8ujoFPqsIADfCpO0FkoYm5o8ypM+LlyIXOtW449s8k1aPAy/2kgqV82TGZhpH17wj2k/qzwnEdwzBqviAZtpbyiB0C5CWELPMMkqo6/oDGOqM0nc1J9qwp+uHHda5LDU8xydRUMCWc3Ti5dfGJW6Ph3cJHcVkxW95YmYxNVhLWRulBF5YC8jR53KEZ9pcxr1qREzyzWBjpZf/PWGOzSne2oWcQTS+h+PXijXtZfWjK9Vr4U6WovrMyfJuhr7CvrQY655DB1mqkoFQV+BlXaikEQcfiWpALT",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 545,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 192,
+        "output_tokens_details": {
+          "reasoning_tokens": 81
+        },
+        "total_tokens": 737
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4757854307568c0d\",\"npc:804e14811b94e662\"],\"constraint_ids\":[\"C:b26f81f1a234130b\"],\"span\":\"In canal bridge, the council recognized Tamsin as the Caravan Voice.\",\"rationale\":\"Tamsin is recognized as Caravan Voice after Eli signed as the active holder, with no relinquishment stated, exceeding the charter's one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 545,
+      "output_tokens": 192,
+      "total_tokens": 737
+    },
+    "tool_calls": []
+  }
+}

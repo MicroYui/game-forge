@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5ff2251c2fedd61c68ab2b9f04122ee2ceffe6a72caf3eb4d990a2d93035ce19",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4410,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 686,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 179,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 880000000
+      },
+      "created_at": 1783851000,
+      "id": "lRoDjqukZxk3HhWlJXdtV9PDsv7xzwF0Ak6YNTVgCHqgScSs0INAf6EBvnjB0ZxG+Q0HQrfIJPT/RPs34+32g0tygBdPLcDN8ctCAPq2ip6bgCD29B8Z76dEY7Gu7S4iyI8NaR2JI/WnjZNlno5ZDQAZom+6690oc/FGT81ZbuFVknfalqyHHMkoHhcY091P7jJbmQQ3ws2m1B/54TYhaiQUky8S595Z7iZ4y0HYtk+D1rGJeZL5UmTBGk96FsfD2I1fmaEpSjynd2ym6N2DArMRs3Qms+w2uBb7OP1B9fbvuBKLDsDTXY6uuXA6+iThi2kR9MVmd/9DRQyKpsaTK/du+mB/wA3u9x+QnZcTDWnN9bimTkDqm/W4kTsfSLWSOgoVl5vWh37cqx9zvEEk3G0oInJ3bQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "GysDYo1/enYyr7Nsi7QojtWpc3fMid/rBjI/1eeiQNfBYbhR0atZjyPJF5GYACQFnSo7JxY1HxPApMd+l6OzYOgcd06cfBvtJ4nDVZ3kduX/HJC7Ry9sXau/Jl3b8Gc5Bzt7PbAYfdRJwbBAbH41qs1UsMjgJqkpgSx06oN1Dta4aKeqS4NS/yPCue1ia31E+2r9Y/GfBULzSqB+SrCPfIHDh+KiAudZf1MsNNjRzxMgjZVBAxOPzhQc7q3d31azHQuc/Hu1jDQBuxZ/T78NufuAmYClK6qUQjfOvmGwj3dKcrP3VDmORmdpyKiB4cUf3OSVsKcPchMgVQrlGlfTlAUgJpN2dKXez4KjMQU5LJcvlvCCun9ttkM1uPtMyNcJBn5UxfgNfRmPPpGyH+jN1pVYA1g=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:794880f81b39746a\",\n      \"npc:b55e40408352d459\"\n    ],\n    \"constraint_ids\": [\n      \"C:d79a72f19821f3b8\"\n    ],\n    \"span\": \"Qi fought beside Mara under one banner at lower court.\",\n    \"rationale\": \"Qi and Mara serve factions that do not coordinate operations, but the quote depicts them fighting together under one banner.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QqH6Z+8jDBrLXwO7FKKXxb7qtX7TFmHNe8/Nci+oVgx0NakX1bbX+J6+qMNdN22t9PHeuo2Mn9P+3Sa7PFK8QaiXBqfuCRw03JO6yF9y1mAkQbm09pLBgYcWmHgGy8bVMqbbgOe8hQigu1Zdph0vXBd2Wu1nL3p061m+LADgfcCF55++CSLdRVvlzoOJY0RN1AWiuRiV9ggVFBF+yzPSzx9V2zsCGTbPble8UC1tPRt/rL3dW+K/OVGIyK2fYbpT2k0P1z8b/16jxQOxin8iEXRDrztjYnIHLZh/3YynQH1iNqq0VxpMOivnnP9VDNHWXJq5QYWRLI55SdNx7+uMScDVqz3J80KEfy1P3KTU711yN5U4QgcrGO65LEG4jjSmGLWwbTdZmebiZauvrqaBgnDqtqMz",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 686,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 179,
+        "output_tokens_details": {
+          "reasoning_tokens": 55
+        },
+        "total_tokens": 865
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:794880f81b39746a\",\n      \"npc:b55e40408352d459\"\n    ],\n    \"constraint_ids\": [\n      \"C:d79a72f19821f3b8\"\n    ],\n    \"span\": \"Qi fought beside Mara under one banner at lower court.\",\n    \"rationale\": \"Qi and Mara serve factions that do not coordinate operations, but the quote depicts them fighting together under one banner.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 686,
+      "output_tokens": 179,
+      "total_tokens": 865
+    },
+    "tool_calls": []
+  }
+}

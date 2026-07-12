@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ababa822d74a610391fa199f01ff4dc7ff652794af99112aacff849d12f7c719",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2576,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 667,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 138,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 747500000
+      },
+      "created_at": 1783848600,
+      "id": "gZZw2hDK+BWmGjxDmh/Z1kKYqubjNw3WkqJIDvnaGZQ/R+br1Ty/QAoGtDXnGBj4mA961CONsckPw/m2L9mUVTihswKbsYeo/wbY126egvrQxYzExUIy5bkM/CR6sHn6xT5NgRLxhzmpBPp+3zruH3iFHpQqmtuTTpGE7s3qEcgzqxc0fR4eejNx0KiQlshebFBo7iUOr4LQVRBrrI24sC8Ho59xZ1GZolESnMFfd54nmOMW/eb2uxOYQ7VOhi3fl1pUKzwALjARhhEdv5CioqoIMuK5wr7p1A455teSMFBONjvgfiWzzvD+lKerDtAhGpNnNooAGISHQFCxM71BTlwMibnTUBYzIZij0P7PP2PpDrfwJScNZ9LSo56b3crl+mhRUvkhrYn+YguVKxt8mRTpyh52Qg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "DvKfkTecFqFtQ3ygMMEyXMRu6hOXB/NKFIIriQHgA+w68gPkdxoTbsapEtRzY4kw7hziLlpq7QqXyFR+KV0hCJ48+4BPxftGJu7MW83uRiNi6tJwK8G0r5KzVOOKab1LaDx7N+Degu6r5K8d+Tf+PrlxKYdoTWbAmqz9eowO9/9ZW6KyEJ6Gt5MAIz0eMFVgI6Z82rTSE4mJv8AKZnkaqz+a4EW/5ETAgsYLZMP63R1j+JOvAs8pdvOBwHOglJNxPLeUcP4aXeUZ9mY7YtsU7zGeZB/wiDAKhAC0tJzIq4oXWICMJ/WuLtoVJnN/VQEbufykm5bneJkqsCGMpg2PfIeRFdMJGeOJBzsHMgY140HKqPKOkIuqteWL1ncGAo14piFEf62Yr6QxDSNSc3ISigaCBQQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:9b4ab0a5ce43a687\"],\"constraint_ids\":[\"C:188dcbee9a43b04e\"],\"span\":\"In caravan court, Ivo exchanged a crewmate for safe passage.\",\"rationale\":\"Trading away a crewmate for safe passage conflicts with Ivo's required loyalty to every crew member.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "8ksam0MvB3Li17hkzVMofnJB/xPukBSaMQ2ysh6FCQ704/e40maeXXWyN4i/eY0JEbrS8M4oWTh8BdgAxf+u8KH6Kf3ZF8H0euey6ZA2e4Y16hzfB4E1uMiJQQ9EHeFZ15MEWXZMpo8115LnCxNNgX2tQEFO0C0c4+7oiBchWL0+qfL/Yph85bUiQaKx4qiky2mnlgbbq/NBxNkJqvkZe4Kjj0+/UZgGZmW2bB9MfbDf7qX+V6Vpr2plZD+P/EIDv+j4e37si7EnLvZBgw1cWKOzUyT4wj6aAPrfIg4khkgaHsbIn8bMOO+pSjDGC+B84dnJCIQyHoLF6b7a3rtkGBfF5cL2f0Z8/x+Jgh7L2903aAr0Fk0gH6PgI16lygiC4fiCKAXiDhciHoIDokxV6eGdI9nw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 667,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 138,
+        "output_tokens_details": {
+          "reasoning_tokens": 46
+        },
+        "total_tokens": 805
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:9b4ab0a5ce43a687\"],\"constraint_ids\":[\"C:188dcbee9a43b04e\"],\"span\":\"In caravan court, Ivo exchanged a crewmate for safe passage.\",\"rationale\":\"Trading away a crewmate for safe passage conflicts with Ivo's required loyalty to every crew member.\"}]",
+    "token_usage": {
+      "input_tokens": 667,
+      "output_tokens": 138,
+      "total_tokens": 805
+    },
+    "tool_calls": []
+  }
+}

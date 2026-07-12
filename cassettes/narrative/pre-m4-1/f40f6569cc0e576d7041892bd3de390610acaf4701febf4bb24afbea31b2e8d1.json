@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f40f6569cc0e576d7041892bd3de390610acaf4701febf4bb24afbea31b2e8d1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5015,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 581,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 270,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1100500000
+      },
+      "created_at": 1783860600,
+      "id": "r1EcMsnJ9ymzlXQJXaMYfoCYkMaqlgpsenJ+A9/ebq7CepEwbspjMZNPMMlyDtMONizoE9wPfn7X68EthZGjjvRbJRt/YBvY+7PNNLNLjatcBorelQj/t+qx93PA400XJGnbJbPfvWHVnL0+BJ+WUAWfyjtMkNwZF596TQBdJWDH3nZ181GGlAcoUHFImCzYh3PpdklatUIf97COFkNpebLJObFAsOcb/rIg7fleFl18RAL9jxKvTPwtBTW4LUy7gbJadmBlz4ZrrF/gykI9c5uvePFu2AoTvgYF9gmC0/T1G6Ksas0ofCf9uW8XunxvFK37sb4/36j5pr+v4b3AH5NqdmnkXz6EHBfIS/2GPnCuhDkbXFXzy78gP22fBwN1LhwqlPAjxfvh8+Z/zfi7bVh9EkiEew==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WeY7JGCAF7OauEPDHdUL5PUZ3WwWWzaVURlQVKftlgaZmCmwkPAs3hXt1iTvPCPmDyp1vwobKRgVNPOZyMgv9VtqBwZvAHpvM4g6S3AiJW8wLtoEjuZbqpIL5GP7+BbqVV8ISPzsIu+vDqoauHCgnsbWLAtI114L0FCcZbhlYKt9an4HKdGytJnzGRSbXhXl/gSfc5AFxFJY/iLyQvVGnbM+e2zhbeOFbm+Z+cnXxquacso2PLN7O7WV7nS/1BmcCM6agExBiAzFsQ4UinuUzLypZtGUHiQKB0ZtOVEc6+nNuHrESE+9UoqRaQkcduXWw0CQi5oECxWN3GyvZmvY8HuVj+wjytskMRLrhqIn6t8SmOMO+cDdRiJrxTh6PPLxiyOHw+EGN4KisReuQQHPn7LNMME=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2a3a56aa0a8b7a9e\",\n      \"npc:c4961207d236076f\"\n    ],\n    \"constraint_ids\": [\n      \"C:7634ba5a9b48cd9d\"\n    ],\n    \"span\": \"Eli accepted the title of the Archive Speaker before the assembly at desert waystation.\",\n    \"rationale\": \"Tamsin was already recognized as Archive Speaker, and Eli then accepted the same single-holder office with no relinquishment stated.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kko2WicsH7xnqYCfqHfn9IDRi9cNREHKfnkbruPzP1jHtfpRPC+KkZoVf73BZHRtaHn7apVvJPxZYHQhO3o6NuTqLBs6nBvuY7YrV0UKPqDJbjRADAkvI2g0fQbArdQPyXXcp9b6brzwmvpuSgmLtWheFwAQg0BAvGGS2ijZyM7q+DlusvQVSHO0dNu72KDQfxe+2YcSYVl+QD8Tsa+OvYLRGrv2t7TPEfRI19bphI9kvKfA+kGvKj8pwjH+oDM0yJmWPEGcN+QaC2WXcyG4kzP4F7IDbOzOLptInx+2xO8J6WIaVDSJV1Wd6GkddpDMl4dKkwb5YALsZSwZejAru6uEmzWu0mbdOqaFB/WW1O4tq9GQNFxrHhVjNgc5J0892w84xj+X8iLOvxVQ02fmCqst0Hw9",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 581,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 270,
+        "output_tokens_details": {
+          "reasoning_tokens": 129
+        },
+        "total_tokens": 851
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2a3a56aa0a8b7a9e\",\n      \"npc:c4961207d236076f\"\n    ],\n    \"constraint_ids\": [\n      \"C:7634ba5a9b48cd9d\"\n    ],\n    \"span\": \"Eli accepted the title of the Archive Speaker before the assembly at desert waystation.\",\n    \"rationale\": \"Tamsin was already recognized as Archive Speaker, and Eli then accepted the same single-holder office with no relinquishment stated.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 581,
+      "output_tokens": 270,
+      "total_tokens": 851
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:624518f0dead20f46ba3c3637434c17bf63fc14d47ad37f533d60546b3b3257f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3818,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 564,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 234,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 984000000
+      },
+      "created_at": 1783846500,
+      "id": "NxfgDPIc9D0DxDUIMSesfE4efxOhA5DiUjqycbpYzdphj+QdDA5KWmrnUMk9qwcIorEn9t8uoMn0quNRMLpQjZ06FFDNZAKe/a3h5+swTUEzA2xwqF1LvSH47TIo1wlppw6jYUd4Keejp1YcLRRcXs1llz9qH9URDoVcp6396spNzxOiZxdtY99mEpmVTnY21XdrP9jJhGKW1xIBN8WT5UDeG26OPSvl7M3lrUgMBueSuv6ARpFWqQNqtJQiweYZCx2e7LWTifBpinh4W5vcS258DTPRoEh0JnYVpIV1GFvSc+M8mFjVr7PCD9gICGPGyNngaVyKDU6hpOcDaOCdlh5zedvTFwOYhwsquguoZCZ3Z9Q4mjly1rHK5bv2eVwqHYydZw+n9PKZIai3kLAJumobPYCnGw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FV8PtUwFPB63HkqOQo34l25S7cAwfYl9omzJxNj1EnJSpLjYfZLn9qzRif6VltfBAl2I5mWbCA7VQivXppWeVfJipBI/7GEgwKB+DaYo5e1pKRYnyFW5iqUJt65DFaSskrJVloAaEHzLOEUGEdOOThhUzTf819mzB7mUGT+4YpglmwkBLKxiAxjW4mujjxXYX+fp0QS6g2oJHKjTYe1s+8P/yg4CQ1SV8RVtrOpaKAJhnPJ3j1qORNjmfnPjtPlnmmKg03h/ShiPnIfjuSXp7qGlW/f0xaxm5tHCvTstm9ku3oqxEnUaYofnlicuaEz1z4ksTuLQZeoZOafXcqrkyX8GDSCPgmWxo3QwYAp3/Xw4LFRnnCtPRIV5NOQfQ21+XBwnY9p1tQNz0IKl5KNZUvwIO/o=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:05e33a316bf3baa0\",\n      \"npc:7985a25d61a110fc\"\n    ],\n    \"constraint_ids\": [\n      \"C:cdec61c468eb36c6\"\n    ],\n    \"span\": \"Qi welcomed Mara into a shared command post at archive hall.\",\n    \"rationale\": \"Qi and Mara are members of explicitly hostile factions, yet Qi welcomes Mara into a shared command post, showing direct coordination.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "jhHellcBLViDnmPmlUQsY/vbKbIhyVl2lKhRIBIIR2Kj+E+SuYvD+O3XNfGIdvP5WI4n2wxoxenGvZx2upTeozRW+ZyCA8csx7i4aAXHxlromrP7oKGfwNmwBrRO3f4gFg4qtOGqm2Hsui5+4LfjlSd/wtfufE+UWPHlTNy551/XkxtvI+/7ZONvvtPaCI8CNwOpHSP2iWY8BaoNd6IFZUAOdmSQCdKi0iZ3+nteg92H/yDjMNxBg/F2uxj1vOUSmGl6RAPQK3tTP8+gZ6HK9ZltbZE/HB/rabVToc3Ii7LzVMM/lPvLPTS6RLgpc1whAQURbzcPojsJVYk1YSTOCaCaUSi+qNyj58BeflHIQE6v2YTn4RjoaGIlBKhiBpdBhWJA/Uf5+YUraVdY7PgYW8Qgma59",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 564,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 234,
+        "output_tokens_details": {
+          "reasoning_tokens": 106
+        },
+        "total_tokens": 798
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:05e33a316bf3baa0\",\n      \"npc:7985a25d61a110fc\"\n    ],\n    \"constraint_ids\": [\n      \"C:cdec61c468eb36c6\"\n    ],\n    \"span\": \"Qi welcomed Mara into a shared command post at archive hall.\",\n    \"rationale\": \"Qi and Mara are members of explicitly hostile factions, yet Qi welcomes Mara into a shared command post, showing direct coordination.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 564,
+      "output_tokens": 234,
+      "total_tokens": 798
+    },
+    "tool_calls": []
+  }
+}

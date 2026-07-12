@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7a6bf142e685c5dcd19def43a5ff301c3c009ce83b9bf71359cca41cee6b0f53",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5608,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 681,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 283,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1189500000
+      },
+      "created_at": 1783847400,
+      "id": "TqHoO7xQDhoo6EFTk6AV6Q4C46XgHMogCGeVGUo+9crHZMzKF4IojXgHRt5r1NeMVvtWUtXM7L3FMiUvj0Qa1n9PyVdGap2NYfBWWyoRqby65ZY1IUR9aoiVHd6UR5Oadpb0ot0DRrAoplog9QxME22i2UP0cSr73Pyeo0siG0cwXbNzKP28JsGjEc1C5KW8VuuOtxC2d8zDmoU7rt1xaDCJhFeWpH0SjtUdtI0QN6WEoI9ZN9QfzuywaLEoFhrZ7wb8X1cPChdGpXA2lRNNEfRWIrL/XlctMFbfNa5xapf138bZtBZ9Qpn9kjqua2l9FyR8awVNFUFwO7uU7iV3cxBNI6qI2IftZFtOZIZdiIQc1mUy7oki96AvTszFHAipf2vwkP74GRsnvbM/yhpn5YRBY9cJ9A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "zHNoqFEuRxD4MPwMqI2fXo1mfl+axZtBX3cZ1ddufNyTKuFPemxKBsRjltLkPyVCb3WY1/tPX6ZdLyrHbqlPy4+7QS2TTJwhJriDTRYVYzDzT2wrMea8lAwLliEwkshMWm3OVG5tpH/V5nNXk3Dm6xeWQdy4ODSH0CiPEDvqraWmFFL4d4+QUuyY6o9TWwQypMG2AzgDSQdbhDEM3E8q1tpxT1fxzCN+mvzpHkYdO9YSTzcjt4OZQoGMX+SRjeifD/O5on4K52a3RCJkcXcXz5an9Vd2S9LwTnCl/B4zidGe+FjSpVStbjxgwtxafC7PkbXk8+QalbW4iDRfLcDT5c5yMj/vyhK8NW91zEGeGt+KlbKylV+yMLaWQzWxffv74e3dhiOis2UAil+r7SHnufIJovQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4db0164c90d7037e\",\"npc:70b63c205ce4666e\"],\"constraint_ids\":[\"C:cd0792b1ce4a8858\"],\"span\":\"Daro signed the register as the First Navigator at salt depot.\",\"rationale\":\"Daro is presented as First Navigator after Mei also signed as First Navigator, with no relinquishment between them, exceeding the single-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "OkBwbFtNebRSqi2Om/SGvASJ0uAPyhGuf0t57nBJBubMgyG4GDTnJsmWOg7yXkPXvcxy/q4xUCG9pYLFvt7dt+1tzWc9AgcOzK6w/5T7tMoPSU5JYOpSLzFGXy89XCP2lbbzvnXsBFbgel4VLXv8FaLbyVuEDVD51fVONW8yayKPN15imzpsDBbN8FyKCf5rOT3BkcCEVla6As6jaI6idlFS5WB/Fw7WytY/Hp1sPTQ1M4K2xS8SIzQ8JKKzqzdaV7VfssfyC0RSq+76DxSbGyzkD4l960ExVzTSe8KPvHuWxtE4bVSTCzUyAgcn7AR87V5e5llxBrkVr6aFLprv+42cCipIeY5k9eD+QLTGWjitDtsC9e+3hfO/qh2Vs2iQwChrTutHu3FdTAqn19yGsmTIQvGJ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 681,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 283,
+        "output_tokens_details": {
+          "reasoning_tokens": 172
+        },
+        "total_tokens": 964
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4db0164c90d7037e\",\"npc:70b63c205ce4666e\"],\"constraint_ids\":[\"C:cd0792b1ce4a8858\"],\"span\":\"Daro signed the register as the First Navigator at salt depot.\",\"rationale\":\"Daro is presented as First Navigator after Mei also signed as First Navigator, with no relinquishment between them, exceeding the single-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 681,
+      "output_tokens": 283,
+      "total_tokens": 964
+    },
+    "tool_calls": []
+  }
+}

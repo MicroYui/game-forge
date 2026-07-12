@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d0adba91cde4e446b339016a79baaef30d645d9a305a1c0515cf22dd34298570",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3950,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 674,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 202,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 943000000
+      },
+      "created_at": 1783853400,
+      "id": "XeGdnE4T7ulHM5VsFqCf8sDJAVb7Pqqm11JlXJ+WzHmeTadx1BXhNQdCBBZbuH1RGghPBesVxoMlNOR1/w/f3VlayZ7YofKmLoLTFMNz27KS4m1C1ar5rImtiCqj4FoHMALTPUpUnmNNJxir79KIrMuOm2HSp6mWjIlZLkk3b2BOCQkA13dTHbiutZ3zF39GptWj6MEht3aBD0xATImJd5hwAKW23uStvP5fRc+PMJBV6CWo4dOv2zT8gWtJZle0efeub8QEJn8NFw/WroymG8STyQze0K0tFf8sPlJbbtb3F5IO8fVZjPMLzqA4YQ5Y8zjBEOf/4cF/7EiaMdcvfBG6/9HUFHbAKCoMfO9r+tdqsw3JRY7dW4jo+rMUT88+e4L0OSvHsOqHWdxhL3jbOUHITHyy4w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WcVhZgWIG4nA53Cla/NeUsCARxMleF4vJqWIGTnkqlRclpHC2ZgoGzxvgyPWMLx8j6U09bzuJ60p7C3AcHcLmn2XWFzAoN+dhj+2Wcrz5g/wmyC41SX33XLPsSoxuBSJoZBPeFztEN/6ZSQ2StF1ft6RRM8TGqlvYxqYdzhAM8bnTNjtIJdg5iwYYr4qxXovVUQgXhuBTEAFAOePowjHFZIKWRvceiy6EDDuhOhhPt8cq12JVZt83WD7e6OFq8AjGcvMIPx4fArLTxooX2hZG01a1A9wCtTAqcGk2Bn/i1OOghYq/ZUpflX6fWgiePWxX+SjzuyoGa9v9kvl6atlFww/MC8qgO1p5qJLJQAXMHYOcsoidx0vi21Durl2TPfF/NCcxcxVMR1gv39g4Rhi2fvqxF0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:2565b0deaa832531\",\"npc:591781684b8ce11f\"],\"constraint_ids\":[\"C:e2c31fc9910ec8a7\"],\"span\":\"In lower court, Ansel supplied Iria and called the partnership permanent.\",\"rationale\":\"Ansel and Iria belong to factions explicitly at war, yet the sentence depicts direct supply and a permanent partnership between them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "xr/bVbM7ldDMdbYgneQnbado2mFUYz5cDLPJkSoC2rZDKlYUNWKhxH8OsD2M9gRxAjunc8K+NS1PNucjhA82hNbwlK0+lpGJLWF6HPPJ/jjYhskOliTyfdKz5nXiLsFAHJahFGIEMnZ3NSD7e2L/JzvnxYIQlg+gu7nUCpaonrkug/jr3aWyTpNd1LF3MgadFMS0akFbVtSxleJB59XFGGzut0KFYsc6zI+zi1IFx/KZHpJdN2KiM+i0UwLQI+ymOrzo8IWHCvO+068339v8k11bv23jnMYy8XiP0QCzfo8fjY3t7LUsoxo8xDUxhMulpn34obKYLBsRLA95i6+AMczT57rEPgvhWZxPhH91dY44qhaBzvxFhODb0aTEAWpUyd3aVl6GxLa5ycOKbOg/pqbQhUje",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 674,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 202,
+        "output_tokens_details": {
+          "reasoning_tokens": 96
+        },
+        "total_tokens": 876
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:2565b0deaa832531\",\"npc:591781684b8ce11f\"],\"constraint_ids\":[\"C:e2c31fc9910ec8a7\"],\"span\":\"In lower court, Ansel supplied Iria and called the partnership permanent.\",\"rationale\":\"Ansel and Iria belong to factions explicitly at war, yet the sentence depicts direct supply and a permanent partnership between them.\"}]",
+    "token_usage": {
+      "input_tokens": 674,
+      "output_tokens": 202,
+      "total_tokens": 876
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bcf39fc3dba70b55e023b8abf8036f51f501c64ea0d2ec06681f9706e7df0559",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5113,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 706,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 177,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 884000000
+      },
+      "created_at": 1783853200,
+      "id": "JhHKX7FCJnqKicvE4kbBIwJPHTp6kvmHVr+0+RiGQRiZhgqbtmVekc7MXtr6N1WAFccYCnEsVn9YyPn6qDxvUCinXhk3W1IM1jzeynY+8pQJvQjvVnj2BUk7YZmdahIiwmSzaDk45+rJ+lMBpRvQXwse6x76w4sYPLRKFvBoSQUBX8B4pW/3KBXJc82T53lD7D7C7qRHRFKPmHFSPM8A/G/rIBrP4gcxjfziP3tqznDRbNGcHr0KYhCU+T+adKk5kZ1dofg//KJGBbDFHkmUc8KU536+eUUrfI7Zut9zQ7+OWs/4ANL0XXRUNSbjShXm1pYpaoSo/Vtro11UlotXPNnw/6tfpKGH1GLnurzPd7VEICpi9fbk2EWEvnf189+9kFh8qYlAvkrWFOcxuUHiB7V12dRn4A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WiLMasX2mmad+RYFmHGBmCl/uM9+jDAd4qKTD+F0bx0bN8iNNmn2onCwDiz8UnLNsWet/YHOgBN6ausE7ph6/UtxzR6nmt56JBuNa21UstAHc3ahjL/Hb3Eda12hPdMKdDN61z+UpiLKU5nLwAR2u958tMTPN7FPb1qR9WUCqhxgYpqG0Jgry+8nf+vupq4ms3bHYXoZ8m0oXdwA3oxoxlx/ZSLj7nY+8CTCYrpmwBM8IBsybz7K9KFxNr3euWgCpmmgtdVCABZc+kZ94eGbIJBwA0wJJA/edhREOKQ6E+8PUPOE4wgb/5vpbN6YGpmT4+gnAMO6Li/ipvjy1RaDtKUKgPMujKe7oUa5/tb7eH+5uNKpptwViQiJFAEnPdYwL13QRH+cXdXVjbwx5ZZPjXyllBc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:bbb8309c3c828914\",\n      \"secret:c9a2691ea3b510e7\"\n    ],\n    \"constraint_ids\": [\n      \"C:b86b6ecec6339b76\"\n    ],\n    \"span\": \"During dawn patrol at caravan court, Qi openly named the reason the eastern beacon failed.\",\n    \"rationale\": \"Qi discloses the beacon failure's reason during dawn patrol, before its permitted reveal at crossing.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "DbbyU6K6bASCOHUfs7FYh8KmRTssSWmiMYAfk0jB5mRAir14gP9L4JdD+a1G/L+VbGXtds8E2ZOydzZcDtKk5ZfYR2aFmI5PpWcdhDsMWRfk9c0XGlG0Pc9/Gut61w2KC88iTBW/Z+V5UOxbx6MseLEa2yS70VSnzDDDQD781O44Q4OzWmNdlMeMQIfiCWCXDkyHvCZsQJUEHsWdlQt1sMO6KyVuHulwI568LV10Hml9H/2+nrSI0Zg07xnIdKiu2rjPVuiJ5lIdT2NjmgeZNNX7SNBofaZkZCx6SHA5zsRk6HN1wKAzz1XEibPbRVHcDYeN3Xq4NKkkWvt+2KafUzrkT84jN++GrPNJPhLFHc7MLuWlvIZ57px/ohuz03z/RXL4ZE23ChJLrNJR+cENhmNPgpqm",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 706,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 177,
+        "output_tokens_details": {
+          "reasoning_tokens": 49
+        },
+        "total_tokens": 883
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:bbb8309c3c828914\",\n      \"secret:c9a2691ea3b510e7\"\n    ],\n    \"constraint_ids\": [\n      \"C:b86b6ecec6339b76\"\n    ],\n    \"span\": \"During dawn patrol at caravan court, Qi openly named the reason the eastern beacon failed.\",\n    \"rationale\": \"Qi discloses the beacon failure's reason during dawn patrol, before its permitted reveal at crossing.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 706,
+      "output_tokens": 177,
+      "total_tokens": 883
+    },
+    "tool_calls": []
+  }
+}

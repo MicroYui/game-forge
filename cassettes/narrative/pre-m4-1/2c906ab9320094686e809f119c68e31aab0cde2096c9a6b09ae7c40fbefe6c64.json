@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2c906ab9320094686e809f119c68e31aab0cde2096c9a6b09ae7c40fbefe6c64",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3809,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 667,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 207,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 954500000
+      },
+      "created_at": 1783857500,
+      "id": "xPqgqDGIEKrLb+cehDyTo2YCLW9pba3CtjVNGS94S6SXOQXl2P2kijx5Nv+4P8y7L+NqJtEzA1jcFca9NoWiYyHezKKm5DiKDcsNFqOxsi0MgNA4iqpySj58hRKJfeBmodagtJfa29gTO6+UZseEFoZGKxD1zgRvmZRJIvwkR5L/sBTuZMyUpnJvz/u7yJE5N45ff85Al0VF/V1TotQgZikisWmXCknOSZjDcyHZR/R1PyeFxZ7D2o1lOIg8x4s0HhTA9/rgBnsMa770MrKyM5Ti2Dns/dstX5uA3xjknUBLQsMMAb7mCxB1GgAGgAm4NgfJs3sPFNg2ClceofyweeRMpsjBefaa1jSXH4hAoWSHHOHeR/yNEKa1onIX3cVUlo3eTASnjWPIrD6QCIm2jq271OA2IQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kg5D9hqtxSW/lPh30CzEU4mWM+CbjLUfbOP7Pjf51srr3jgKHTKApwEu/D7LsHL8fFGllcYUi6QpxF+ioZSsBwqxyiTO28wdqao3DjYmJsSMmR+h3IJPqKZugV9dC1ewATkkP7iW6EmoRuVMldoSdXOgA2SqT/DlDKqKewq+vybR0I9wxy2M4Qd7LjGuT3n85L98rkjOyEU/9xTKw8CLS8bGRpT69F0MUFHh8WSHPS1KLaxNE7sWn8auvGwdHaQVi4sUT8KoVq+B1MrvEya4O8yip8iT9HZ7tASS4Gz0AV4Gc2zCf20xE3Xn1iATZ3Yw1eYCuLG5hAu6YC3wDNYVSNXOz2d9+qUpKD2axMVBnMahjDHDdV3asQh0P5I2YLBYdOZEheU+gJUqyvdDXYBIZ0vH7aI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1e37aedf4b8823aa\",\n      \"npc:fd2daa25b46e9bc2\"\n    ],\n    \"constraint_ids\": [\n      \"C:65d90b7a06eac4ec\"\n    ],\n    \"span\": \"Veda signed the register as the First Navigator at canal bridge.\",\n    \"rationale\": \"Veda assumes the First Navigator role after Oren was recognized in it, with no relinquishment stated, creating two active holders despite the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "n1Ioua5iXMAOfk3IGVm+N5xeGViPPFzcnGPb2sTEBov3iTegMNGypol1+Obo7mvTRTFcMe6DIBbVFGdXBMPLBGhkaTz1+WBBQvNBjylFL/kqZb16NcS+GPAL5gOVYIipAK+fa7eVaVfElwTd/kYLAe2vW8vOKCygWEGerIXe7KW9l7T/4848yP1BLjMwG0h0G4/1vEXKROx/uZidBiy+WfyJfUELHM56Smelyo+zBgc+r211RKGU0fyQ5TLeBEWOzZTIERI9N9IYpD7TFTwxNPr2tGaRuu5Dr768YkW9ILq6P/+18mFWuWa28Upmk6p4LQV3XvY6h+mUf/o28b1+alEcVOAaSnJ4LDW46s1TXZMDv89V8xSPt2orRfo5jFtDzlmubhhqdA126YbEnS0XUcaQS66o",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 667,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 207,
+        "output_tokens_details": {
+          "reasoning_tokens": 65
+        },
+        "total_tokens": 874
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1e37aedf4b8823aa\",\n      \"npc:fd2daa25b46e9bc2\"\n    ],\n    \"constraint_ids\": [\n      \"C:65d90b7a06eac4ec\"\n    ],\n    \"span\": \"Veda signed the register as the First Navigator at canal bridge.\",\n    \"rationale\": \"Veda assumes the First Navigator role after Oren was recognized in it, with no relinquishment stated, creating two active holders despite the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 667,
+      "output_tokens": 207,
+      "total_tokens": 874
+    },
+    "tool_calls": []
+  }
+}

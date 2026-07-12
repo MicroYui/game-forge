@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:da7c3b5f1f672aa32ea0c4ebe6c9114e9bd70b86c3582ceaba510c6a5404407a",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4612,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 671,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 208,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 959500000
+      },
+      "created_at": 1783844600,
+      "id": "Mwwy58/ks7WVF0aMG823P7R+e37e3wJHVcTcJSovl7Fit4uVwJUyqRMobMUIg9JMeCzEHuFRx1StkavEj2KLU+z873f23K+5M89I/awz2w4MxRUgGLIC2Uf1i5k6ii6yMHUB76LIJ+oSY1aLv9/A4nE1DhkpizNH8eOsjEvgHvK4jBiyRYCLvyouN1rB2dr00eYt5CLRLTXZM+8zP4MyPk2smO/EoSfnSzD7oDwOP0YfsqihCafwDJSBrCl0RNL2NKo4ludrZNrGoUBPyb5FZG3w4hXN0ayX1JQXilIxhBnxTgIRjJXtxSsjSKA3UwoFUf4OUPl1AAZLWOQcBTmlqhSKCb2usqFH+1elcRpfSlZ7E39aCz8G9ASIH0xM1n6GgLC9wMrFLFJ53lgkQF2rdlsunPGviw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ZbaAanQYX8k6cgzamJb3HV6XPejXBwec/zVLoQSZWLKlxsC0WeTO3whRrc1A09JkD84uhkYIuk6X41ZArPdbDPODIeGZRyHsiQK5wG4XMiBPHSEFw8z5uGQQeD5AThZpYnqRZDzyV0fKkHYjbbpSLTXq1xytRv7+YJnsHFbao+4dvuslfbsqcwrzgY5hwKXsmGHRnOE4c9GInRSHXqnZsn0cY+ntjGUEkFVjSuV8dssI6Wm8Ibw0r6FO+AGhUW22ZiwCDaua3K30KQecEZwkresrxUoy2sOfbD+pJ0/xeUmQR8Jo6NR0kkT9S8pv3FXMFB9+xTw8wDL6mjlv0sqNDZQDPJD73me7v7MhQkvnpAAJTBntG82cg2Tl9+qyntNJQ0OpGj4pCytZjtWkPWzD6b3HYcA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:1dc5e254e11a932e\",\"npc:f7d6c8a081631d11\"],\"constraint_ids\":[\"C:6a14cc25bbbc0fdd\"],\"span\":\"Ansel fought beside Iria under one banner at north gate.\",\"rationale\":\"Ansel and Iria are shown cooperating under one banner despite belonging to Valley Rangers and Storm Company, which are explicitly enemies.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "OfMGQHxT6q3+EDAm33cc1Lp9PnDxIpbCWj0UQCCOUGFe6bO4BbpIgmrUUYFiTaK5a5rQLUSLg9psJ8EdLEc17r34taeTWMEFXOIGSotw8GX2cqcji1VcLKpn3OZD7Nf13p239yNT3KKFvWqySo7ccpFwMqfskOudTfenxdBIknEMfj51zHzifGK6AJlEyeru7EaGZGe/Zu5j/116QZSyuIz/WS0sYrT5qB5urxF9xPcstIVDf7ASc934fUy3Mu4Qt9C6fb1MAG+jWXXshx4tJ5LGzpOR9rngCTUIEujG7AJ1CZ9hCOZ/1N9coyAAkvHngSGxYZhUnAKrHNtf8OwkOLlbdEuUuQymETU+hfpU/ao/n86jvmgtA9gyczNFaUCKEcYRQ+hkvpwzQkslb2QkA7MHS9y1",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 671,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 208,
+        "output_tokens_details": {
+          "reasoning_tokens": 100
+        },
+        "total_tokens": 879
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:1dc5e254e11a932e\",\"npc:f7d6c8a081631d11\"],\"constraint_ids\":[\"C:6a14cc25bbbc0fdd\"],\"span\":\"Ansel fought beside Iria under one banner at north gate.\",\"rationale\":\"Ansel and Iria are shown cooperating under one banner despite belonging to Valley Rangers and Storm Company, which are explicitly enemies.\"}]",
+    "token_usage": {
+      "input_tokens": 671,
+      "output_tokens": 208,
+      "total_tokens": 879
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c349ba8c3d90ef31e4a992e8d634de9eb610d0a196e8184ece9723d2329191ba",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3672,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 615,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 213,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 946500000
+      },
+      "created_at": 1783848700,
+      "id": "YvRgldyyZmxNodpc91e0D7gvG7938ll/OZBbq+D7de/ycJsBK0v+TfpW/QpWFgoEvAkFpKKtsdsI6wdGNH/aWdvua+8B6dzMn97r26WYGyTTpowZWnbRLVK8n/sIaxeGhppcgrg17NVm68q/1UeLCPoweF4v1s2DTgBVnBqSpK0R5s2wu/Hf2MoHp4UKHfFpl8sjXHMbTywOMlQd1wY6qahmChR7W/cF4mtO2ct85Z01siImVs3R7skGFqAkoSW0r7R9us7IwnWuiF5Bh610G5juj0JE1mirGf244zWwKH7+zl/4sRfXPE0zj4DZKVSezhtwVkkPqtOAviMTkpjmZSIdB52UEUIv07snh3IY+0dF3yZILfUUirGPeZDxnxPyOFcTzZDsIEwjBbHx08D+f896AbMxMA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "qrB/SBBwZjIq5EGHOt4MqUvAyCfZD1anBv9NmXW25Xv3r2PpJFzCOY44Z3dHKKHrpe46QwdwuqOSu+bZ1PJVIvaRMSWuv8ClGOYH1deCfYVC2zzMIKGDRd1fnb7c2IVqETkQw4VLLw0VlK8ZJSXyfoe/BV+5KJ9gfCFsYosXwmHf4KlBknR6MAmAShjrIDqs99oyWyp/Ivj4/9ln4vZvyFumIHD8m+Tb0FbIMgaV12Z56bC5toKWVFlO4QnO7KCCEE/J9q1JXqFJdfKDPkbK6deaHnwjSRGjR9abV+sFQiqfD+zcu3BYe8OcmDvFfL2V+smNSAS1Rcwv1+qkl3+Vd56TOqkNXH7XD5RIF3VfwpeA4aZc8Pvrm+rs7kLKFNiRccHPshpcEEPweMlkirshtdWPfBk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:eac6569554f94d59\",\"npc:eb3fa8dee0b912da\"],\"constraint_ids\":[\"C:c81410d627463ae2\"],\"span\":\"In relay deck, the council recognized Veda as the First Navigator.\",\"rationale\":\"Veda is recognized as First Navigator after Oren was introduced in the same active role, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "z0M9rMnBVsfq8MjMjzh0LUy0ouHksFA/JDTX9j+xpvElUCYiso+AbkRskiF1SckVVIx2VJULlrDWMfmNLH+O9r7MG5H41ITlpkXTRSPzKVKHwYAtfoqkBf7iZSeIeJ2A/o/ReIV6BQd8BwTKAvCD608B639Td/aptPzkTbr5qqdAJsp0JlwcGyIZvEOPnInjvbCZD2Oa9vN1x/B6pg6eJjf1zDg2P4v6oMd35IWi+4GaQoNPB5lvZwMP6wkCxLmI8pzsuh4DlIu6dSXu+XC2BOMaXiRaHIoHc3sBq7mp6YIrlWX4DO57BNvOKwWeri7kbGLzyYnxGXUn2jmBlJDBzTDw5a85cKfDtfC8MDwqONMCJlpkzSEmwpdpZSjCjyRpNcI1Aly2WO+285n4Zlr64E5TjBDW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 615,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 213,
+        "output_tokens_details": {
+          "reasoning_tokens": 104
+        },
+        "total_tokens": 828
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:eac6569554f94d59\",\"npc:eb3fa8dee0b912da\"],\"constraint_ids\":[\"C:c81410d627463ae2\"],\"span\":\"In relay deck, the council recognized Veda as the First Navigator.\",\"rationale\":\"Veda is recognized as First Navigator after Oren was introduced in the same active role, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 615,
+      "output_tokens": 213,
+      "total_tokens": 828
+    },
+    "tool_calls": []
+  }
+}

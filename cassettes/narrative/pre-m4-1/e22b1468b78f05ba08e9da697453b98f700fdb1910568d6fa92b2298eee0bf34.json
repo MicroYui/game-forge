@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e22b1468b78f05ba08e9da697453b98f700fdb1910568d6fa92b2298eee0bf34",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2553,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 663,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 140,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 751500000
+      },
+      "created_at": 1783841500,
+      "id": "GERzCBNQh9JOvLiGIXW9PbZBs2kGDKw/XU6IqtGDLzddoVkY9hWgjOnqNlTlYv3kcTKt7mbGsWU67Bhoh8jq61XedTlUG4nPAJopMKMAwIG6d8FgQqAOF3rX1+rQ+T7GAw1eQQ7qUw4x+D0dEvpXbkqOEQd46Wzgl/zKRLLiTG2MYy60s2oVftX2Ceg6sJb31BeCPFRv2CJPIkWFOUUJDxhxDmQPq2c0nfeEt7Alb6/wpBOvtMydoPhCfjNWmno+d39qoesAH/TMcsRIC/MfVRK1DlBYzTwqSx/WlDpK+Wy/h9d/ZsP3NjuVfA9fuW3X0GHZuQjNIZRqw86MLagN3DxmCmBZNBtcbd2A8FStBPIgGW0FwpHuCspJthLU9gYuhBLbvqmm/foNMJ5PoE8WTMv6uVx1OQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "h1zO4paWalepy6H9AYBBlxV4ypZ9rvCWNb2ijGlg/DiYEU2zpnrANfQWAkr0CLz51JvTvf4Yx880eq2kni/ipISQcx9MVIcQHCAtVU557YdJ5tFhD99MysKqj+3Rcu7ym1yvc4DmDpwQOhaYQB7TZkufNtFRrTpGc71OgVwlzoRF7WWqoBM6MbLWfDM0/0XTh1P5bHOU0rGKGQMNd0wIbGjFyBRn0uCPpsfvmVD7S5rCmQ+Fei/u4HSBIH4gK1ON0w1mC7zF0cFRX7XRmfyvDKjmQsrRfxhn8oI32mhuPeU4nZtg5poAEJn/Y2+A0uEJXfF5gN0hYahQz0pUK+aIuSCN1fowzAIpyEjpa5/H6ODX8rZUo55LxUqgNjVJGfPOuaC5uPWiiLsPhrLGF4bLfUqWXY4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:5cc1767e03be5373\",\"npc:867d53632d270ec9\"],\"constraint_ids\":[\"C:f045fb22d08e0cb0\"],\"span\":\"Qi welcomed Mara into a shared command post at caravan court.\",\"rationale\":\"Qi and Mara serve factions that do not coordinate operations, but they are shown sharing a command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QuyBneg8ecjBTDnFFVt8nBbxgqM1PVGZCofmjkBLViYCQ04b/ybJuoUJAhduH9xSjupXWYqDeKgnAGW6DCR0kDz+kUIyvxXDE1z/IkYpf7aMvfZuUjpG6VCI/BlSBaJCnUgnYADbKUNvQkyFDxTUhLOflDhztS7Ivsp/eqMxIEPMbyFdlkseh9cBAUMPizJB0BV44/2AAs8g5HcY69vEmoPRyMh1ZabexFj7YT61bc4pOB2esbu18O7wsP7sAj7M94y1TzNOS+jRllPhncEuXqUiGjeXpc7bA5exB5OPUIgj1VjmIOekUXa4P/9dkoNhT7ZHZj91MMZKxbU6a+TDgFAfPLeFLLYEU+nVZBFd/0eaPnVB18l017/FHKB0zSDUmYKmYBtyo/jtsvw4BC6X22Lu6hIV",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 663,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 140,
+        "output_tokens_details": {
+          "reasoning_tokens": 42
+        },
+        "total_tokens": 803
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:5cc1767e03be5373\",\"npc:867d53632d270ec9\"],\"constraint_ids\":[\"C:f045fb22d08e0cb0\"],\"span\":\"Qi welcomed Mara into a shared command post at caravan court.\",\"rationale\":\"Qi and Mara serve factions that do not coordinate operations, but they are shown sharing a command post.\"}]",
+    "token_usage": {
+      "input_tokens": 663,
+      "output_tokens": 140,
+      "total_tokens": 803
+    },
+    "tool_calls": []
+  }
+}

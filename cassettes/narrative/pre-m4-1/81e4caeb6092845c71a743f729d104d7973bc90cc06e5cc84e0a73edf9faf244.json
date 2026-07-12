@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:81e4caeb6092845c71a743f729d104d7973bc90cc06e5cc84e0a73edf9faf244",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5231,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 702,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 231,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1044000000
+      },
+      "created_at": 1783859000,
+      "id": "18OHfqnFYVqMVrQJYfpSNZAIQNNzChpznbZatb+ssL6j5T5rSP5TvIF9OyEhVr84s/AOwqv1qbXJDUG733MAIJe0UVAlIce6CPtJ3a7RluqEyfHE/pnU2htSOAFoTyUTYjakL6YoKonG50n5L9bMpUMOPkDaGUyzcu+h0YQKnMiKR4QltudCIfv0yflabGTlMIJRoZpDldogN6w8hzvjwXs6I44mMDjCrfQaw4HN3H4f7u/gc2AY61hRaJyErYXuj1d+BDyafjWV6Nsg/ekugW8rXB8LFtm4nz9H1c6EzX5dS9URqSs8XWR5dWc09QHw/W2/PEXEfjZZfAMjv7gT3eL+Z3aJ8hbn+TwxERFQKrNfiQ3mXOeGH6iRu+/0JcEVLEaAFwqpyHTeeB6tSpVpfOt4rS0YKg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vNyIr/xfLJDH/f9Dw6cPZdu7QdZVnUYx980xb47k//+7Fun9OskfyLq6HgFKh/jF42myo3IiiPgyyRbPSzRvsFliipbUxxINvuVnYBww7zByNDtGySUIdZ4BjkfK82XFJPzaYLh03NS0jb/hgQMTkzPyUdsZYa1tPP5Bup+K4B0cB2PrN2l96Fhv1TFGvDAbGi+fQ8BVjctzrushBIStb9WSTkjw12ieDfPkRpJ7aEqYfvIITWQa8kYQVCSOG+hticV/AA29tuOswzO8hDzvYqyjsmEdA6OAmjq13A9sMV1+/wujU4l5BdXFGHRwtqvHRzMLV+nE4xxDjuJek67h4rIyV7Pi3d87v91MJvLE56A9eI72vMZ0zkLqp6XBZwRf5txBYT6hQPSx1V01RQyYiM6e9bk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:693cb38157a05211\",\"npc:874d2e347271a3c3\"],\"constraint_ids\":[\"C:5d4f9049185a98aa\"],\"span\":\"At orbital concourse, Veda was formally introduced as the Beacon Keeper.\",\"rationale\":\"Veda is established as the Beacon Keeper after Oren registered as the active holder, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "55sjbz1nvgprOmjmSoNXwI2fgXgjew6PqjCavzHeoa65hGKRES7qi+IM7cJBLqNhC2+5gUKAyK0lcTjSajwEVGVdBwUK/DfKzX5x9C0A77Ke9Y/bPOcHzKBOwkqw58Sb5kfC48bPS6/2JY3qcsihyovi/gvZoyeC3CHAQyn+Nb1z0e9/qmGguKMxoshl6ydqawr6xmw5Plg4XlKKm2olYqCvGBL3fZC41wgimbBP4U4WVrwAMXBDHT6gypyfabqHnJGOLvvJbsKUMgEm9AIf8pFTCz7CtEaJz5NEcndwaCjVdinGs7IsugX9DJUC0aun2YjksFy1UdNrAvwQ6HfggqnGjRBt5a8HfYdX2K6P5MNoVM8k3BkXDx8MuRi8RitwK8ZOFe+dgWWGUWktyuYwfjoHleAn",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 702,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 231,
+        "output_tokens_details": {
+          "reasoning_tokens": 119
+        },
+        "total_tokens": 933
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:693cb38157a05211\",\"npc:874d2e347271a3c3\"],\"constraint_ids\":[\"C:5d4f9049185a98aa\"],\"span\":\"At orbital concourse, Veda was formally introduced as the Beacon Keeper.\",\"rationale\":\"Veda is established as the Beacon Keeper after Oren registered as the active holder, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 702,
+      "output_tokens": 231,
+      "total_tokens": 933
+    },
+    "tool_calls": []
+  }
+}

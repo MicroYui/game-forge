@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:56fe3b2e1478d947b6da8625af6a8d6c9cf789dc268b1c38dfb2e7c3f8106d08",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3620,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 636,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 183,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 867000000
+      },
+      "created_at": 1783846400,
+      "id": "N7BKzubUPes1SyLbEw7Y/GzH8FgfXjYR7y9vWw8r389E/YBhVlk9V0Tvw2FcN23g4ysiyhYSvotVqNmRq4ujzRMVx48NO/36i9LXRgF+9/aiLbimCoQFWLOy+/866phQi1YCTCCG+6TvyaoYZ0BO+bSGWNSsZYNj8B/pDX+mEM+lJMi0H12jXzNXAONX/PQ4CYbVfi2z3iB4n351uvogfql3plydSwQB46TTmtBGw/jBeBRwhpxyhx6DWvutENdzTpa/1OuhTqmjkanum7Yvh+NeFafqTl68oyFKD2+b0aEt9h8XEiBoo74yrq31dwYycJ9Iqx15khcSQ7zJYmQ48Nr6EDHojYeDhg1kJHbe1XQl4KS5c/O9cSB567l+KLBkDWWYrsspXV2quH0n6FbQglZWxLNTmQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "rczRocgvCZrsrdl1MvORMEVs4EMqC2jKxX6cIBwWfpHZUSk7j/y7/MhnnQtYZE7+4rcwu6kXsRsHUtrCo8cFiYF75k0AvRsbh/H+SAyfPGkdGnTs8PgktJ+EZsuSh9i5WAOOgdCRMtbWFb2DDQQ9pe9Ho4T2UreT817WdsbNYLFANr07vohkX60KKsToDEeuPOn++t5YFj4MHpSjkKHPv9NqHIUi5z3Iy9R4BbFZh8giDbouwtUQ0UItDNIQiIYg87Oy0H4go+ZkjZq6MQokkh1P0Hfu0zYPyowwPflOz7lUuNhyuv/60PP1QxfQj5ne7fDQr2MeXVk1XAr+0dV2ki/5/24JXpzEvzDiXZj3e71rseTJXhVlRR7SDz5xNbtmN0/R+yob7/bwPeNmp6Q/HeeN7h8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:22d08e722345b058\",\n      \"npc:d1051190a56a81c6\"\n    ],\n    \"constraint_ids\": [\n      \"C:837dcdf26006604b\"\n    ],\n    \"span\": \"Veda fought beside Oren under one banner at glass conservatory.\",\n    \"rationale\": \"Veda and Oren are shown directly cooperating in combat despite belonging to Dawn Caravan and Salt Raiders, which are explicitly at war.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "11v2mAYva2dpG4eVvWpune7qjoKzB0cdvZuYTvWOJjlDEp6YcjSRAlJbLFcsKOUrGfTZ12mrGDV3CihpKijcWVzh63KD+YeTPS7Wr2cGY2Ou8ZWTMG9IHsvDHCEQeVZSGLtpyUBXkYXyfVVOSXDIvOO2m7f6dtF4P8JkngFovPgh+a4JaZowO16gvAEzxC5VBCVN3ubJKu+pK12aPLFGAlbwgejg9pPtjONCc/ZNmH7XA69Cr7DNMjADB6EPXPYs6En96e9kpFOl9sK4zZ8cQZc3xN4aTX41StAi74MlnVvSMgO6XxAkwKOJj53R9KRbRn3qpTwgoF0snQ4yP+vpWZnSXFITTOixGRUHR0jPC8a7fPuZ+HkEHzBLoGjYSZO6JbTdNCgtMY+Yha1ofX4lnnvtKmn7",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 636,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 183,
+        "output_tokens_details": {
+          "reasoning_tokens": 53
+        },
+        "total_tokens": 819
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:22d08e722345b058\",\n      \"npc:d1051190a56a81c6\"\n    ],\n    \"constraint_ids\": [\n      \"C:837dcdf26006604b\"\n    ],\n    \"span\": \"Veda fought beside Oren under one banner at glass conservatory.\",\n    \"rationale\": \"Veda and Oren are shown directly cooperating in combat despite belonging to Dawn Caravan and Salt Raiders, which are explicitly at war.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 636,
+      "output_tokens": 183,
+      "total_tokens": 819
+    },
+    "tool_calls": []
+  }
+}

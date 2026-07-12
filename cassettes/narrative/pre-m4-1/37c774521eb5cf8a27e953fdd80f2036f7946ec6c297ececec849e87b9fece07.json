@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:37c774521eb5cf8a27e953fdd80f2036f7946ec6c297ececec849e87b9fece07",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7082,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 567,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 192,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 859500000
+      },
+      "created_at": 1783849000,
+      "id": "e5aSy/RmF2aGRPzCNfXdjTSFKx8hTG/qH0JOQQlnaDGKYls4fB/rY6IjtoV+LWv/BCbow8Uu6CcSsGMJHLGLFksnpxgPpNVK9WFwBl7XYi3+gNEAwnGoZ72Jy8m4F+XFgoIizEVnJCW6qXny3aPZQJZd4Y4db0xYKUmFRnLWHBfB7FFpmDWDAnue4kwDmgYJy7pHbiv0hVOBwNn82a02Ar45fJ1TytSOMSG9Bsuq8F8e3KFPP32YkBoshu/nz6Wu3i/6MDQv0V4KQWrGC2+dWud85aqykgnZygFKc8f7TLhA9I4TnWMFgDqcjiakjcoh4fjLAi618jxfTMAzSSdJaC9QDXQ3x8YOH9U+/OM40htK2L4eBG2hZJn7SgBJey6BTxX8dQLM9nCgjzUwinz75AP2hC+CoA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "NFjiY1Gy/5fUs2WxbQlNrLmdBVkmZwVGKoEZJLWGPbsb87L0NzFvLQsyiAnTjpxwvJuDGEL9VmgBEXCOqYVpS1gA/b9Dw9RoR7/BLhJDsTDimQxpmPiW6gb1oU+Pyja4OImU/ZdhoA5R0W81gYPaNfSHb8+YDYALVZX2SbFuM/Mb9dwgeWGQ60vhwlauTGXOoYEhkgee7jjjcoMQyv8s1GMzUihEFoGV4T38HdcCKAccabSgzfzgqbKVeaQBVpuHnv66dVG3dbf1B2SjYljqmZvzsOPuTNEy5DcCBwfQkenpoMdsI4d3D2+QlLsOhQqr7yzEWO0tuog80MygQWqKqOzJbBENd2o/8cPvDgySWS7arLpuWevmPK5SBhGHOVuPiFShyliu8ExEvvbe6NcbM/eQwII=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4e505440a92d254b\",\"npc:efa83432cfc49686\"],\"constraint_ids\":[\"C:42eff8a86333fd7f\"],\"span\":\"In lower court, the council recognized Noor as the Harbor Marshal.\",\"rationale\":\"Cass had already accepted the unique Harbor Marshal title, and no relinquishment occurred before Noor was also recognized as holding it.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "fEraeCdfsw1xpjno4NF21DNRw4KkacLaDFUYgak2GbNcxyxuRXz4k/IS4A6wUeWLq8i9e8+yp2vL9LCvx625HCLywGK911AVuebiyRL7fgGKwsOBoFgLUXsUWvE1OyDWiJa9Fyx2MasvmhOHbq5kgA4KJf26O606yu8F2d+YAPZwqBiqi2ZA+51sdfSZQ9L7ygph2D8Ph9OHhQW/osda4WLgkerRJi3WiSn560DMQQKaNTi/tHInqzx7nRyyTC4yUSfFGx/jWkY9XKXHi0pWm7B+dD1Qau4gUZEejhDk6cQEKyhz5HP65L8umIqAZHkP5XZoy20a66g4TxByjaX+xD0Jt2UzzTRL47rjv0rZYFOy4+g1JmmRBomDsBhi62rKeL/+f7NDfbIzgOkaA0lpmv9zjy/2",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 567,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 192,
+        "output_tokens_details": {
+          "reasoning_tokens": 89
+        },
+        "total_tokens": 759
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4e505440a92d254b\",\"npc:efa83432cfc49686\"],\"constraint_ids\":[\"C:42eff8a86333fd7f\"],\"span\":\"In lower court, the council recognized Noor as the Harbor Marshal.\",\"rationale\":\"Cass had already accepted the unique Harbor Marshal title, and no relinquishment occurred before Noor was also recognized as holding it.\"}]",
+    "token_usage": {
+      "input_tokens": 567,
+      "output_tokens": 192,
+      "total_tokens": 759
+    },
+    "tool_calls": []
+  }
+}

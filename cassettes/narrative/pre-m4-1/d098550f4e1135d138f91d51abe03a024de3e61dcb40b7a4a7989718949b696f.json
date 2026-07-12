@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d098550f4e1135d138f91d51abe03a024de3e61dcb40b7a4a7989718949b696f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3364,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 614,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 185,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 862000000
+      },
+      "created_at": 1783844700,
+      "id": "8CLj1jhIlyRHB/WBIJqTaIMVOgb5pYT/urirXGg01b9tDQ80YtkZzBBj9GIAwLS8V5T7WpbdQAj/ZxxnlNRE/CbqpPoMOn9pfWmVONjsvs7GI+UJQKlzrrmNHFmpuabi2yF3SlnzCTor/8R3GDYp5jW3zLDVcZ2t81iwBv7pWcd3o7IB40Ea+LPlpv/p8+fBPzlHpb1DPX+jSSJ6HjbbLlptG8oo5eTMlQ6dCErE60qHYPECtzMEfF+Af3A2oyGxn4IEBb2IHi9/SrSiXmooAownSO2/+iDRqil4OGwgEC1o5+SvZsbLUtjZESnN5WgfUhqiLr3h6kxgGxK9rHzV0hS6Ojpe6QCg+oQF0Z71/o5ue51c+qcHA6DJ4aQQ/0TLYdENbjmsGu1I71BGIp1ozGRjuW1U/A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "RzFzqsCQnpPVIww1OeQv097TfwFVgJbsS5jhD/byPqyeMVuVyhCB2C3l7jMkM8xfRP9OaC0vBAeZAC2JClpaZAYr84bmEMqToUN5PJDTbQdUnXHscGrouaSfDre0UPVTWtVJ9KRLz1bbCXlsyYtL1s3s/V1iGo1J7M9y+j3a/v+QrvMSrOhbfR3fEDEzAJ2RWL1tnX/baNSRO58w3NNM6iBRAj8Rn9NokRGGgW2wWv/jL4CM9YCvzt0fs5Ddw+DAqBOET+mskEfV/Z5fGT4i/ASDbusm1ZNyZFleeNrODqa3ZuniaBazbUeIFrxEleP1uaLyOzl2s5D6u9cPquzlvrjv46QrDG9SGvzxsA2bM3guNgletqk1LmHTQWMlpoC+y0uPypM/ZXnjK7KUIsUygO8dbBk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:c27f113aad3a1c90\",\n      \"npc:c4641c606d0ecbe9\"\n    ],\n    \"constraint_ids\": [\n      \"C:156f560a008c865f\"\n    ],\n    \"span\": \"At cargo ring, Qi and Mara signed a joint battle plan.\",\n    \"rationale\": \"Qi and Mara jointly planning a battle is operational coordination between Harbor Guard and Ash Fleet, which the rule explicitly prohibits.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "UOXE48ickAmnctPdyMZeQOVVe3A4vyEjJeDMvE9a/pZ1fzwoaMoUi0+71Jyp+Hu/ID/xZatqRBo4TuQGl0Gi1lYA1knvVvSOj13mbIqRRxQSPbpIi3dRRM0CPcDidZH65YVXwtjl9iwRVP3H3PFAEuwfK2ASEnZBVQgS1ZpKng1GDXet21sVuLYvMiUfhasPoZhjTYZF+p4aHydOKevHqvLW6ONtw8g+QFvYfeoTXja/Z622nqApUZGHdjI2CHu1/S5eqi4pZkln+0ffkuBhFIHPEGlfWakokVXzZL9ANFXeBO5sryP/ZLj/pkEnqi1h9z91aDt6qvLy4fk3nRuAVBnUPacuoEFY/Hx+rnSq6Bw2YS2W/EQ9X1NLcgki8iK8G/xqFTGqs8AtNta1D4DnIRrcTXYi",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 614,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 185,
+        "output_tokens_details": {
+          "reasoning_tokens": 57
+        },
+        "total_tokens": 799
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:c27f113aad3a1c90\",\n      \"npc:c4641c606d0ecbe9\"\n    ],\n    \"constraint_ids\": [\n      \"C:156f560a008c865f\"\n    ],\n    \"span\": \"At cargo ring, Qi and Mara signed a joint battle plan.\",\n    \"rationale\": \"Qi and Mara jointly planning a battle is operational coordination between Harbor Guard and Ash Fleet, which the rule explicitly prohibits.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 614,
+      "output_tokens": 185,
+      "total_tokens": 799
+    },
+    "tool_calls": []
+  }
+}

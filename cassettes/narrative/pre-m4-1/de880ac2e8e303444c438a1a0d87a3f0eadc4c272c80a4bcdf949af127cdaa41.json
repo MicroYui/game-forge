@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:de880ac2e8e303444c438a1a0d87a3f0eadc4c272c80a4bcdf949af127cdaa41",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7077,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 585,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 497,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1783500000
+      },
+      "created_at": 1783843200,
+      "id": "vIsW/h2SICvjWQccgplnhq0jdtBHUMiO9+itCAczguKn5be3zKnpWzPr+bUKtwrnOhRGb93V9e+pEygniE3wins+dE3EAekTA8bFOwpwNm9uj1EDqyONvGN7ExmvJ22LWHe4qrsfNF3ZvvZbhLNGtIbmRZosFHqOyMVXlQB9dI0cVDhB907RVCdn38406nR5GjYRgrX7+tEjn30jSnuzF/MA0LGZ7ghcHGfCPfGO+DMRvInJIAWWaQoDEzP7LHTzjx+dE5G2e+M0pfUo6ATy0Dw9I9MHuYLgyePNzI78xRikTyzJ48E91WzCZ6073ZGePgTqoAduvT1OSumwSby/009xdTwgzVJo1Zd5hjfzrC/0H4MiSLl/cXlhnZURZdepHzh7pxWVU7l5zlXgbq/xM34fsDKpBw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "d2k0Sv7U7I/HCbKL54xkJ4QBCZe9EVlv1hrl7n7fzSg36qAi+TazmC29qTsVlxDEkOaMLivgEEjNczHIsMGTExUvVd/i9Q+QBFzh+ouYyfZzZuDyKh0fplgklZJjr6mYhIjBnae4dVkxH009M3BcLh0e9KWw5yn3yJ/WnFYXGGb0krEGfa+sHiveNUm6oe9n64VcmTaVwNwhW+BlNdEXaxUkdiA7x1l7zCCTRNs+bwUF66hrZa9yHBkyY9fwTcS7xPPL6/rlrHtDsa+j+aK9iNHzrsmDLHInfH30RiDw8CHJd55vMXGNx/+lYIT8wY/qg9HUlDEnYR0Zd22U/MIS4LInUhHLzGLouRFY+7guBOEScCbPC/c6ZufZlDwbDq46zTys84IxZ66N6LmTdPMuPpkMOcc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:a8a7518611c9de3e\",\n      \"secret:d7607904e5c796c0\"\n    ],\n    \"constraint_ids\": [\n      \"C:3aa6b47f5ef2b2f9\"\n    ],\n    \"span\": \"In archive hall, Mei disclosed the vault keeper's allegiance during first watch.\",\n    \"rationale\": \"The allegiance is disclosed during first watch, earlier than its council session reveal gate.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:a8a7518611c9de3e\",\n      \"secret:d7607904e5c796c0\"\n    ],\n    \"constraint_ids\": [\n      \"C:3aa6b47f5ef2b2f9\"\n    ],\n    \"span\": \"In archive hall, Mei disclosed the vault keeper's allegiance during first watch.\",\n    \"rationale\": \"Mei knowingly violates the supplied secrecy restriction by disclosing the allegiance before council session.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1ZQmP2Fhza6y+nxkaw6muJDznFywBAaglFC3Z/NRrmU/+WVSJFQadW9+lfAp1F0+y1fJH6BhST20LWcFr7zklYxSjVj0sg4Icozj5/PzYpGM/Mbas66K9kz2B+rRfDiuPucFpaJVo0VBhXo6GhMhdy4dlsATbJJByTJI0id0xgpQbpfBFKsp3Dp5DcwYh1oOhZwWvhXM+NurR1I0Sj2m1qffSth95Rjjc0yMCcOc3XjDjBGY5NBMclYeCQLHWdrVjlXiEy554BAt95avJSc8sTlk4Sl1mteufb5/W4q/eRoJL442XTmG5KBIvhEiFRndzoAN9w2qVHVKH+AAc8sQVcuaLTNAjyJ0TngUXbcFv3sPiHi7kDl9P2gq/cgSULnX4LswUj2lP7u1jwg+9y6GFruiWTdq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 585,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 497,
+        "output_tokens_details": {
+          "reasoning_tokens": 249
+        },
+        "total_tokens": 1082
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:a8a7518611c9de3e\",\n      \"secret:d7607904e5c796c0\"\n    ],\n    \"constraint_ids\": [\n      \"C:3aa6b47f5ef2b2f9\"\n    ],\n    \"span\": \"In archive hall, Mei disclosed the vault keeper's allegiance during first watch.\",\n    \"rationale\": \"The allegiance is disclosed during first watch, earlier than its council session reveal gate.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:a8a7518611c9de3e\",\n      \"secret:d7607904e5c796c0\"\n    ],\n    \"constraint_ids\": [\n      \"C:3aa6b47f5ef2b2f9\"\n    ],\n    \"span\": \"In archive hall, Mei disclosed the vault keeper's allegiance during first watch.\",\n    \"rationale\": \"Mei knowingly violates the supplied secrecy restriction by disclosing the allegiance before council session.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 585,
+      "output_tokens": 497,
+      "total_tokens": 1082
+    },
+    "tool_calls": []
+  }
+}

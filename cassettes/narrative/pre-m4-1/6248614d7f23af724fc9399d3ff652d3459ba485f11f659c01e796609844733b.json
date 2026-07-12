@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6248614d7f23af724fc9399d3ff652d3459ba485f11f659c01e796609844733b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3938,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 696,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 145,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 783000000
+      },
+      "created_at": 1783857300,
+      "id": "yiSdvOWDDR4ORCS4r7ewTdGC5lqBv3YNDKlAlcGy+fd5zliAHu+bkiw3qQmIYsvx/AabHPHdSy3fZiInRVgTK6rS6aq46xYZZkeu3Fc+fb2pxMigCZIXH0iQRxdUWc8LiObPgV/ghwAVT7Hj5mIunt0fAzUDRmPyb+c6/ju08LPgB078k9xZc95OnNw1bGLDNLUKHBnP3nh9n011hqdOABJkEiTZ6CndIno11Ayw6r6QU+yQAb/Sh3JLrZN0IHu+aInPgidxmUMmvrXif4i33k8d25fHxmWzupCrsMttGOuIUjjFIZcI98SEyzWmluO5ZExi2xRdO8dz18eo9+XWLfTaTtMgt6LLROrTFy2oPW6NPGgW32PkrrIYmf5EjJqz2a1Q0rh+gMLybD3XsERAHmoZjl7C9Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "x7RgGq0z+fKxam8FdFS9GqC3XC1lZ+GgS1Ayok9PFihpu9bp/kUUuhKMTenS3LOMb97sMggtvaWHTdLQ1gKu5x6liDcJRrcvCUn9xtP86TbmMSaCBXf5AJSQbuFPiOPTxVu2NWZyO6PgzzI7crgPOIuAP2qa+Jtu7BOtno+s7wSGo2G6jh1Q5jehOIatHIzAvmpsdFUq0E8pWPCdFsLxVug6941wUJkkQHFd7JNkce+cRjShqlYGkKBlH1Yi9NLpfC65tzgq32Htzh1XRyu3jL6vSd7nL30WaILpjLsDLmab2wLdurnCdkD/wfybGJphcurLsAIFhAVFmO3KCGiVIIDoG1HW462C7VhA5a9aXwG/NhVQo6ArqvjiF/N4PyI5YlQJLH4i6xPo/CZdD/5afc0cZyk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4e71aeb2b6b7d902\",\"npc:77cfb4967f59919e\"],\"constraint_ids\":[\"C:f400e3358adac900\"],\"span\":\"Ada welcomed Malik into a shared command post at orbital concourse.\",\"rationale\":\"Ada and Malik belong to explicitly hostile factions, yet Ada welcomes Malik into a shared command post, showing direct cooperation.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "CTuP3/Duh811x3sV2W0hUfT79gWR50LM4bNAf53PdB9+ozea0gDvt9lrMYsWRS16giOBVhpCvxoTYavEy8GN94YbjFmEhlH9F59ZkVqOtLu2oX+wYmxl58UvhCLnlnmV/fxzyEPZV17tMi2aRU2VVWYVjOirerXADkX9encnalsTKGmhhWJvYExaIFyByPy6Z24Duul3chgYP58+Efr9+67cAbC4SCoOAgefZD+ZPn/AcR/hxFo7Ud3UL91SU8K6TC2a+nSGY3ZQvm8LXPi+rrndG08mXC8Vrf1e28U80zBVfoKLz0dwgUZB3ozL25DFgpOuTkNNzgHe1wX77HQHNkU4wXcWolj1ZowrqtPeshEHNau/Q+xUDZCpp5e2QZozdx9rgS5dZJ/N+zMpDm+zTMjNdE5/",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 696,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 145,
+        "output_tokens_details": {
+          "reasoning_tokens": 41
+        },
+        "total_tokens": 841
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4e71aeb2b6b7d902\",\"npc:77cfb4967f59919e\"],\"constraint_ids\":[\"C:f400e3358adac900\"],\"span\":\"Ada welcomed Malik into a shared command post at orbital concourse.\",\"rationale\":\"Ada and Malik belong to explicitly hostile factions, yet Ada welcomes Malik into a shared command post, showing direct cooperation.\"}]",
+    "token_usage": {
+      "input_tokens": 696,
+      "output_tokens": 145,
+      "total_tokens": 841
+    },
+    "tool_calls": []
+  }
+}

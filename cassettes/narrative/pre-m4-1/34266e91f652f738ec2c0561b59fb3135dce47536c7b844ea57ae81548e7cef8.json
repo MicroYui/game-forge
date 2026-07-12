@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:34266e91f652f738ec2c0561b59fb3135dce47536c7b844ea57ae81548e7cef8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3163,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 590,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 157,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 766000000
+      },
+      "created_at": 1783843700,
+      "id": "K1yropLEJJX9ixCLi063B409JIOaOUnXVj08b5rUbOtAWvDt+mZW5zElhiq9rhK3m40PKXJIi6anb/9mju3JezrIhYq+hSxt+X5oAI8Xoi5DIxG7G3Pl7XmD6xbH2K3jQqcP7MkS9kMlDKFzQnTg9EtfCBwkPmsA05W15RKLjHp59J/En9bnTeFNrNOg+uL+GuCUgqLUKRL7N98NdQNyZvONWkkWRYo7K5RPefyfknf2GtZM3fIvHKjdt4cWWorr1xhuVjn4PI7HMK+Ody7RyIfH1X3bb9YLejpRhWk7Cu+n99ew6eIPtqdZtqrtQ/pobJIQjhF9+cFwSFaZP0djrdkTt/DcmJlBsiDC8j5Aw3PZbkJZfdNiP0V0TjixvBvgf+KvMQCJHl8GAOGUWnjuiPWWcOPqvA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "P5czPaAP5YeU58A9M4C5uiqYqEbSkbx0yTpf7R09sljuCqHZsO2LfibVo8fNR94/INH1+qVhZOdfoHos/gRbSYJz1xqbyU1l3OWkwCmwrIjqo9Fw1A77PODIfIghtcuaMZDZpYWRxRbq3B7Z3sgR1t7xQIyOHU97pTEZZXk4REHzwj26M9Ai4Wy0YbnBYuvw6BIqA9S7ZI06NwYC4ZUsk0sU131NsD2gm5nN31SxL7+9PiMNr0Ovi1KvRU9Rc5S38c1Y9DKgTpEgUfCFaKV+LxuYHSsquAh7Di1K3BYjcyy7NHiJrBzsjeHPaeDqp3K3bw3VszxqAqFDIClg8YHVgejKM7SvrMx3oT8+KMR76JCMdHW9DPppluzkiiIlHKoXNnovfeD7QlXqjjaWWPub57Xy/LU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:2f9deda9e9ffca99\"],\"constraint_ids\":[\"C:80b9f4511d8903a8\"],\"span\":\"At signal tower, Qi locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Locking an evacuation gate while civilians remain outside conflicts with Qi's duty to prioritize civilian safety.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Szf1Neo+GRwvx9mpdFVHGQEm7DQYrEZ5V7YSAXQQxk7Eo1reZJCoWQduSfvLQ1/EH6ueVGDXNiGrPU2Ma9UnvXSprwNa6Avae0zDrxIYx97r7f/W5rbKBgqsG8+8tbY+VWt1FbMunh73e16Gc4Iz7m5RcDrCBYqmfMrmVNq7TGydY7fngztM3sSctzEtp+PP61SDIb7UYAo1fpxwuGO1td/5SqiBumWNTCmpb0y0did3o0bIWrMwX9V21Z1AdrxxveDXe9UaKTGy05gEu6a9n8XI6lI7PjGdUaiTFB7TzTdex8AGW1NNh1IjhhWR46QUjw+PhAtTHd+gGge7eiNElgzr04KGZMsG2ZOcdTkdZKgCwm0IWd+O4Z0o3F4m0N5JY4TQOVa3EKzAPggyvjGEYuy5qJIO",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 590,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 157,
+        "output_tokens_details": {
+          "reasoning_tokens": 66
+        },
+        "total_tokens": 747
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:2f9deda9e9ffca99\"],\"constraint_ids\":[\"C:80b9f4511d8903a8\"],\"span\":\"At signal tower, Qi locked the evacuation gate while civilians waited outside.\",\"rationale\":\"Locking an evacuation gate while civilians remain outside conflicts with Qi's duty to prioritize civilian safety.\"}]",
+    "token_usage": {
+      "input_tokens": 590,
+      "output_tokens": 157,
+      "total_tokens": 747
+    },
+    "tool_calls": []
+  }
+}

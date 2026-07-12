@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b1b8a1d7d7e791cb646e76397325bb4ce53e534baec0dfc5d76e83153b5c465f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4143,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 707,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 245,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1088500000
+      },
+      "created_at": 1783859000,
+      "id": "f6pXEKfFsk6iuAboHgVVBb6zoT76gILzV0VVq6uuWK9EUIhhnVXpt7RZABy7QZyzLe9EMrhPTeGrF41iciFNZaRKJSmL29pl3is7R0Avh5I9SykTI5RQR8OEg0RXO1rlGGzrhzouNi6mjSgSLq1vjWwTo5759gM+7vWXoP7g0q24eD9DuR2IiTOszswaO492SPE1R9ZsVeU6bjWM3FYdwJ1qSXXYYKNv5cL7kIuGOOJkbsAzR0DlSUt1S+ST2BQYOMNnfCMS3TJ7K+7xC3px71Y7K/nM0SezE0KjB3WdAoUuLO7dfokbd6qzShkR6XiJfnG5H3Bt/7AcjaYN3JP2DSCs3qsoCFWvaAc8nZRkT1CSTQZtfracSsNwPJk2iggel8lmJyf0uId2e37EwYKQelwboKykUA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "I6fCqMYBHI4FfCSUwjqWdBMJ1aUU+A+55D9SUXkUAASRW8keZtgK2Z7GWKeFQb1WB9vW4/4mcAbws5fn74DtEXAiAPlhZj/Vza1wSBWdnvQZF+9HNbsSrM3c33o3/QRvsK7h+YYJo5DZbUSuDoC+O7mAGhv1+BzahL4JMSXZs2sFtLY7JA5NRPv9lbFLlil/tX2FpkOiAV31M+NkEeXWZauqpE2tXNXtjHu6KfxUF6h8w5jRrOvPlWr0gS6O7In/17gpKnufsRg4spZM+jNM60sbWE4JEd+a1e4fDq4/nLwwGna5CjYoRm49Ge+abPFqR6WnHaL6eK6kID9ogvzxJ+W8bjSZAKRcvJxgGiaDIICVTiTFIz6lWvaAnarNuUqcMgOeu/fJcejkNgG74cFXOnyFUV4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:3942d721e8b893cb\",\n      \"secret:db861c6b7c685afb\"\n    ],\n    \"constraint_ids\": [\n      \"C:0c2cc4b824fe4b63\"\n    ],\n    \"span\": \"At relay deck during survey, Ansel told the room the truth about the reason the eastern beacon failed.\",\n    \"rationale\": \"Ansel discloses the protected reason during survey, which occurs before the permitted reveal gate at vault access.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "wHtLGUc9upgVTBP7LS8YMaHpe5WKAApdWJhHM0SZnpB1UvNpJSqv99NrZpT3WTJ6TQV+zqMG+ARf98SvQU0ZYISwTxSYMSTGPCdS7pnBA6sbinIDbwu0AQ2zdpDlfTopCYJmzWm30ilal0ICVGyD2bJIYQ5c3UCr5RFRQfLqAfZ5qFGDCReAC/2nDMORuLiQ4mGdCAc0Meq993pvQv/VYdf0ppPJR5zo0CIXX2j+KDVlPw1LEWITERV4+Pnw3e5oTN/d9i7mlkMpTjEuXZliVUmjPrNhjOKuRV6QXcmuRmzK3ermQOmMJ9CKLop0yeJ3ClixdWX30d7vg+oEKGWr7yKBxLrIHl0HKrbhpnMOTxH75S3Avwj0/4lhXyapheHrZ1VbPAeXvKSfhjiKeGBgE57VUnSi",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 707,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 245,
+        "output_tokens_details": {
+          "reasoning_tokens": 109
+        },
+        "total_tokens": 952
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:3942d721e8b893cb\",\n      \"secret:db861c6b7c685afb\"\n    ],\n    \"constraint_ids\": [\n      \"C:0c2cc4b824fe4b63\"\n    ],\n    \"span\": \"At relay deck during survey, Ansel told the room the truth about the reason the eastern beacon failed.\",\n    \"rationale\": \"Ansel discloses the protected reason during survey, which occurs before the permitted reveal gate at vault access.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 707,
+      "output_tokens": 245,
+      "total_tokens": 952
+    },
+    "tool_calls": []
+  }
+}

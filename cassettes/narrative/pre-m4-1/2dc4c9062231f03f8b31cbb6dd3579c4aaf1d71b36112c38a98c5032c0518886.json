@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2dc4c9062231f03f8b31cbb6dd3579c4aaf1d71b36112c38a98c5032c0518886",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3890,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 557,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 173,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 797500000
+      },
+      "created_at": 1783852400,
+      "id": "2j8n6TnKAjkWVGuw61SthZQ90YJjSRL2TnVvNU4VkmM6yt9D9+GQXnm30JWYupZHzrd6r6iw70sBMLMR+F1az8VyR3iG/jdSc2J52aE/WpY8HJ46DgmSBZP7R7IJ4Zlpr/q7RtOHjb8hyT3Nqa6RufZOcKrXBA3ljW5VzrtU/QDwz/XuIO+OGrdj98hY4MniZ5Gpdda/hpF538WkEBS4Hwym9Xt83OdTH4bSF2mNV6Qd2o2ApFlxOtaXG7K8CuZYJJ+Cbxpu2IadEYbrlgkCWDJ/JZ8n76TnNnPn+z+HuHpvWvHzb97kzIz+DGIq0u3bHUWLpijBV6sWn9Y95OoSJn5mpOjEPM3lsDJlJcv4CrDopup88JerCDbFU2OTLYeUpdFa2JxQFxy4mrVujVOIaudlMlVBDw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "5S91bKrcVLiSGqbjBvxZ+A6OhvnpkbrRouX4FCJLHvkhQ7GO3t+qnqSIrvPJ/QxYizu4VqprFx0ZoX/Pc+nLES/qko9vEL1xhnzHWWH+f668r2EgEj5X97flQ5I1fDDbHbTtG7UidLEwOWbQ1WciSAzdWC0/f/GGW591liTLV+RpZBK/Dj/kps/2UnjymSdnbzEp5NkMIF4YjfVUvHMDowVX6qpgDNhCs0VaBDbMRlQfbS90tV5IM2l2qV4TzVvv8nyANh1rtDi+Dp7Q9nH/QPN2XFO6X3qBaWyE6bp9d4cKxgNkO/0aClcx2rv7tNTmIr3e0qMEvDvmzXyTQY6zCCfnMCev99+FVRZEFzFZKgmFs1s1MFq5NjypG781jh175jFZ5DUkNY6YO5yUF4wPDl0Z8Vo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:081995d63d53613b\",\"npc:1e6f2734a65d1957\"],\"constraint_ids\":[\"C:2c8b523fad68556f\"],\"span\":\"In eastern ridge, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei and Daro are members of factions explicitly at war, yet Mei supplies Daro and establishes a permanent partnership with him.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "HkLpIMWVlZ7AvLNDLjjDwABjaUqlPL1fQSVqMIEf9oWdFXSx2UvqoWcRWlA2DwLq3nDPLr7lyvZnoEpSFC5gDKKrSPjyyntuTvbhPq9SbWWrZY89ChbkOR9dnJNrYl9W5wV3L6wSYaBeysL4KjHdP4elt+YU+a8hlN8nzT8QNT/P+eUUCpSxxwWvmHurlVrp/H58IjwMyYAfGPzZQ6TTgv7Nwr1rywBhisMr29JYyGSlGiZxiMCFktW4dijbYA6gvEKtlgH3RaJjgFrvXUg5PwCJxzcoO+cvFViLmsD+1En2KHApg8AKqxXDaHkHmxhptISygIjZoMh4MDHA+V+Nlh+SGBByKBwnHfFNIGWnfZwfpjoYx3grgn8MXwQkysLJnazKL/XQd+NSFlBK7omZ99p7weQs",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 557,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 173,
+        "output_tokens_details": {
+          "reasoning_tokens": 65
+        },
+        "total_tokens": 730
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:081995d63d53613b\",\"npc:1e6f2734a65d1957\"],\"constraint_ids\":[\"C:2c8b523fad68556f\"],\"span\":\"In eastern ridge, Mei supplied Daro and called the partnership permanent.\",\"rationale\":\"Mei and Daro are members of factions explicitly at war, yet Mei supplies Daro and establishes a permanent partnership with him.\"}]",
+    "token_usage": {
+      "input_tokens": 557,
+      "output_tokens": 173,
+      "total_tokens": 730
+    },
+    "tool_calls": []
+  }
+}

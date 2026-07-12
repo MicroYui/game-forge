@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:470f0957ea0b0c8f14cdb3c53a1f66d9bd8e891550469ee47d6852e814562bdb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3099,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 600,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 138,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 714000000
+      },
+      "created_at": 1783855200,
+      "id": "iNf0hspF7zb7mol8fkIOSHdi62ptzQirCnaK2Stfvt2SWbLxTt4ZRBqWhWON7fpSwr3fpEwEo237NUXOQ9BYhs3oKsPto4lMXM4cPtzaaLwRk9e1KWpXKr19pK6UNmWJKLGDu0PnNyKazGoMv8re+R/nfbJV1YyGDZHiwlesS/2bRC32oi8a9/JiGxPu34o3BNtzk5V6CPbitzlTUTnhB1kWAvM4sBd6hQvE7QRB2RwWO/zLOjPo+c2NIiVQv4dqH5+hZlLuiaT3gLQH21XtBGMf8nUaIXBnvBgaDscGfz/5eWQc0hlPHlfyLNRsekDe+2K/DoJiqiXzyODItHteuTG1Rok74k+kCtPRvnOLsuVwBhDwtGDkbhLOFwTOZFltz2IlSkeKbSdv+eOr/LXZ1AcEzFpohw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "u6u2gwyxE+FNH9j6EQP5Cknk+XmEqAEcU+pvaIunvngaLVjrLQy5xF6rFwvUWO3jIqVG1fP+Iulxa65hMjrvm7E6m2lWL+QqU6NN+sZk/c2z1pxDhCYiQ3BIj5vP4/LztxGeFCr1bzgnlkmMG6U5b5+AGo9oo81z1b2kiZSVrRkYTD1n9SxqoY9yl5CA/4rXUcsiufaKO7T8HwCWee6aXtaQL5gJHQsnga8k8d4PRigFjHNz5EAN0JNKzeF4MpYwXtG80QHAzN/f77/UrAYb9oFOgZClfe51zUnhH8L4eIw6zvBfC9hS8PDPHV4ZWQwmInTymthatllz08aGSZsKo276HD6cHAENSvWNjsHgXCQmnp+wjlYwvBcYZ0jc0ptBlSg0QlcELF9FAaowRVIi/cbqoUI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:568a95f13999340b\",\"npc:befa7fc27d72f584\"],\"constraint_ids\":[\"C:71db5230321a2753\"],\"span\":\"Qi welcomed Mara into a shared command post at cargo ring.\",\"rationale\":\"Qi and Mara belong to factions explicitly at war, so their shared command post constitutes prohibited cooperation.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Pj11tDe8Vpzi3b4PFB8aWwxq+QZQHIZt/LdOXcL3ae1xTM7qn4fePE4q0vms9zAu7JUS3dD5sbxOMRTBOjykLW/yiWpPi8MYAIohX6Ro7bHL+EGoyuwUPrFDfX9+3iRXf7MR9rcTSvnIxL9xCa8RSM47RXkkLsM+8xuWEO29KCJIwFnmpn+ls/sO9HO/e0FIZYuFX4y9THkMCha7t4xsXxo8Axt6x6ZFmlqZ4av1ooCqao56jeDaFjAcSKXbsjwqJemq3/1E1W1Tk07YC9A51RwZxVCpg5go7uiaNKfu0+vVzei/zVSuY1bo/39p2q5uaOrqKRBfQ0PBox00VUszpgHOjIr1eszrZyaqUOIOgTdOaHK39EZq3ZgyW8WoQtXd2BZx+yQjHOar6/tby99x56EGmC2y",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 600,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 138,
+        "output_tokens_details": {
+          "reasoning_tokens": 42
+        },
+        "total_tokens": 738
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:568a95f13999340b\",\"npc:befa7fc27d72f584\"],\"constraint_ids\":[\"C:71db5230321a2753\"],\"span\":\"Qi welcomed Mara into a shared command post at cargo ring.\",\"rationale\":\"Qi and Mara belong to factions explicitly at war, so their shared command post constitutes prohibited cooperation.\"}]",
+    "token_usage": {
+      "input_tokens": 600,
+      "output_tokens": 138,
+      "total_tokens": 738
+    },
+    "tool_calls": []
+  }
+}

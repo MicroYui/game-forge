@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2a91240d2a6ee0d974bf434b6f18af6d3bad6aa71e769ecde332b4df3ee048fc",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4948,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 618,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 210,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 939000000
+      },
+      "created_at": 1783846800,
+      "id": "5XbnYSYFcQMzzvxG0zTgADEhaKqmgtmWqr788piP1bVw/COCmmK36G6gmB5qSxVAOQiaKE/6FY6ui9yxXfHGn2GSz8P87ax+TgTJdHJ09y3vM8ITDNON9uOhili9iGd3s5mE6NWunBYnw4CYujGu75qw4vlsMBTDmH2X5lqBFe2nZgSKzi3C7YH58K11H8HSjiprvksbGj44jjLejPYY7Ke4leVOpcjBS8Gaq1rfjMd/Js8hENBbtejpDD5zIVhG5DctmCLDZ6vmbquzIrlkXqDfFdX7EfyOKsR5ZjGqh4aDpz1q+R88yQBun3DSDGaFdgi8G4iPMdt3fPhefS8bT9FNBxu5qLqvfdCmurb7dMzbsmqMlIEq7RE+R4IM4InVulSVI7rNKCFceR4xOH7is9xovSazSw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Ol7RJHuySh3jTliWcC/RNr8xeCA/8q19g7B3OBIjsBML69rGYxky1fQWqd2oCit3IWJWiG8kp/V5GRrs5ZEigKytjN31POCJWgk96oeYESsNBDVy1rg0PwioL4qcJrAbHJFl1rHfIrJLC2dezlNUze/UvJTaLgdZatXFB04uQjV5ptlYST+0wN2dJjx3MQLgIWFUxae3HaehvzX/+w7YbFzixb3k4IfeY8S4MYSkku/utPS/mSQScI8srDfJUUTVlbUVtlU4mD8Jhrxv0m2B/MtPJfyZiGCxoApjH+3SgaJyVQUzJ8DprDNy2lQ+MFPUCIqlEd3LCLAvX/j8N4HrgN+SLXG54aozaUd2TQqBf3adt357DGrrMYZY4/VOwyVQk6XQZFATjkfMUCKmMdpkjZt59Yo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:637b46a26c7cbe39\",\"npc:b95dc75e318ace06\"],\"constraint_ids\":[\"C:e5aaaad91e70ae67\"],\"span\":\"Malik accepted the title of the Vault Steward before the assembly at archive hall.\",\"rationale\":\"Ada was already recognized as Vault Steward, and Malik then accepted the same title with no relinquishment shown, exceeding the one-active-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "te4fBjgUhZUeTUBGmXCGfnUWgRpjRsdB3A5rAQlDuM10k17DIzSHtYTm5zaxlRD9kaiL96HejpcRObOt1Ha1Bfc/f38zqpzsDJtRd45wyVkqOdfUIzUnqDyobZVL9kfC+91fW4swI4DNVp42PuFmdJ3cOuJy+dHtoVDA1tuwtpdOu9xpN94nRRxjuVXQjPAs401Z0G5B3TiiMcYW9xPHPstKJtFsBDTPmXOhseQ+k6RJa2Kw0lfPKpvzQYEkt8CRtK6ib5kEOhXP/ZDmP8IMMGp22MEcAESK13EdpkWbyMCz0kAgYoEHVzhSMrJ0hT+3SqGdjxMi0DLTOgfdfW/5DYO6RBzZuQJV1udebnIPsJ3o4MIQ6gEz/YfdkF7M6OKyKfJw6sBx3ZwDUqaB4LtYolP7n1re",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 618,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 210,
+        "output_tokens_details": {
+          "reasoning_tokens": 100
+        },
+        "total_tokens": 828
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:637b46a26c7cbe39\",\"npc:b95dc75e318ace06\"],\"constraint_ids\":[\"C:e5aaaad91e70ae67\"],\"span\":\"Malik accepted the title of the Vault Steward before the assembly at archive hall.\",\"rationale\":\"Ada was already recognized as Vault Steward, and Malik then accepted the same title with no relinquishment shown, exceeding the one-active-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 618,
+      "output_tokens": 210,
+      "total_tokens": 828
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:388efc63fb01be6eb846c9a5e74d6d83ee042ed688f7e640b7ea38b539a56bff",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4305,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 669,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 169,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 841500000
+      },
+      "created_at": 1783855000,
+      "id": "/PNYwH+RwZeXaEkwSeqwWt6DP9+ND4AF+LAgHeb91a3KU+caaGZG3d6AP3nADnvDT19ClT2vVLss05RUfOVZY1qKy+zw7G/i78kNT2Yz5Do54YeaDVWWx+07O983unIBpjBmD2NhVDkDiGIURkw8+nxLPN4JRmlyTB+0WvofKIdJnM4DquQn+4XmSDK8sJ96cejTg35Wkf7EQ2OTYq+gudwjH3EIIZdn4euvyG0P3kb4fNaEWLLYv0jtJHmqck5+sOOH5/ie81tB8J6Kckv2kMKNKMqDzAwgdNKoxrHAbTVgFm7eZiJ9OAvI9FlJ0bPslrJzxhunnTY/fXUlSDMfRhbt3qODZltwzSNTYdW12tw2kPwKB3QbTkkOsvDmDwkigky2/XndYBc3QYqUzacRLT8ZI9ANuQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "BaVL7ZWo6LIZOt1JWRv3gas0Wraq5UTYiyCvvieZsaCm9rGOJx/aUe6BZtI5BUD0Eh6M5pb9twCb/eMG/OnOyPhA4vMM1dw1MQjXufyQd2w3BigrjEKLu66gu1Y8KHqcb8u/gbeHsZkXSFb3wH52IukYDYYSycnsHf+ZSy2QUPhnFISL26vLF5BK5z4y+UbaiwaVdGWr1NpmGpgqQJxJO8wle8bGYbmJu3SFsA6oWUSAvvMXCxPhmUyosd3/zDi3BdXnymNNtIcoAEJLNCbO67T6WXRf1FE01daRfNqg3I2e9Z8LE/p4vWKeb4Yk/AcV5jDafhMLdTIMkJSh0vKHHgqwY964lUMLaAG5qAIdY6sSjBsxNMsPMr3eh97YpsmcBm0pF3q4kpTBGup0YaAt71Pk+Iw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:072c8336e4f968c4\",\n      \"npc:50c3f79f7355175f\"\n    ],\n    \"constraint_ids\": [\n      \"C:4443bd17b93168dd\"\n    ],\n    \"span\": \"At orbital concourse, Ada and Malik signed a joint battle plan.\",\n    \"rationale\": \"Ada and Malik belong to factions explicitly at war, so jointly signing a battle plan violates the hostility rule.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "gQhnClaZFkgKgqWwxyzdgKnV7pli4ALVcm/iabeVsF8w2grue1/fjGNI4WoB2G5XDhDBosbRoI6Fn11/4WgnlQvI1Tn6t+Z5LBngFAKb4BPlPhN/CKVpjBjOrAbUeTc71QYmhm6rGh89AD+XyWi5DHa0My1TrCPqb022TCNxxqhdY4ahn0db0exByTC9F65SyjRUFRHsel5Kqq3ygkH7xvkZUtZQF8wt701QWw1k1abS2p6awuJK/imNXjm/N4Gaivwdx48bXUdGQcKF6046UFObuJGz49CCqQDobwuQDGyEz62FRbli5Tdl1B7RXovcQ+zu02qO+1ZPNp4AV5m3juu0sKbPtk0rqNkBlXBW7HrE0Y7N6mMmyrycoaaXMi44hSN2QfulKehj4+eBG61bavlt2zpo",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 669,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 169,
+        "output_tokens_details": {
+          "reasoning_tokens": 40
+        },
+        "total_tokens": 838
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:072c8336e4f968c4\",\n      \"npc:50c3f79f7355175f\"\n    ],\n    \"constraint_ids\": [\n      \"C:4443bd17b93168dd\"\n    ],\n    \"span\": \"At orbital concourse, Ada and Malik signed a joint battle plan.\",\n    \"rationale\": \"Ada and Malik belong to factions explicitly at war, so jointly signing a battle plan violates the hostility rule.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 669,
+      "output_tokens": 169,
+      "total_tokens": 838
+    },
+    "tool_calls": []
+  }
+}

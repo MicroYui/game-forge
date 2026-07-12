@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7522c86b7cb19a21c8bac5cb54125ffc9cd23c973370903c8aeebc9abc5f0409",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 8531,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 547,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 450,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1623500000
+      },
+      "created_at": 1783855700,
+      "id": "PH8m96CUq0bqKFrIDE6i3ekzYyIWA1yHTPlUexHgMtPUFGhbKAnDp24fN+vR8eXoK5JoGNpivorepnUnVRIjeY7vzvn5NBi25TSBNJ1nbEOSP7WUwb39lXu0qtuN8B+zJf74nsdapDm0g4QV9nwMLp0f9Zn0mQ9tYh5mYM0VU9yS/R6U2PW7J2pUFlXL+8cD54e0tOkfwFkvpIQyq/3LGLVwF4fXASBozIqHNIIOxJ+aMge8rVbH5szAHFhdTJubHT77l08UjRwDq+5MIpbolxAMboEQCpvk9eRx4EmZk1vmXWPQwnTV+2t1tqyWFnLk7pxpg2O7G3+xwwhz62omxIvat/38ZGwVDwA5sVxNtKID82wKr8onWpPej3IAMGlkvJRTlKyR7saS+Mw7V9vw9fIJ9v5nqA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "WIxPlpMq1ssjMeD+nadXlqEsnQY4nKx4pANSpa6jBKxAB4bp0OYpYq4ZGg57MBMDSM7KWNeMK/l3h9eb49v1m2B0z+z3HRBOg513EbQOrRh1JzTSBw7OEu4W61AEALe9Lc779+cX2us64L77Q6BEx6eDXeDhicxEQwiC6kfobRbcSd6gCpb/wjtTvcYqUszMes9mSYLiUDdfQToGSgFL0hGCJIF3eZPC+8XfMnpgtbAFqvhd4XYLi1ZJT4/FF3l52mCVsO2rAY/lMFO9GFf2ZMI+vqv4OKUoAUF2IoEbcFQwTtKHdJkIXZqIkO7nMxHBx+SbWQ3jw8fFBoM3l8TlsH//2+Ufnin3oqYYEBo+lFOA50OyvrHmUJ5m2p+FAUIbPiiiLLyYVa0gbYFcY1BnGfXXG+E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:64c7b6e9d8dad02a\",\n      \"npc:ffdff1328e97f847\"\n    ],\n    \"constraint_ids\": [\n      \"C:0ab92a25f61e64f0\"\n    ],\n    \"span\": \"In old mint, Veda supplied Oren and called the partnership permanent.\",\n    \"rationale\": \"Veda and Oren explicitly form a supply partnership despite their factions' no-coordination rule.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:50a4889a73931a09\"\n    ],\n    \"constraint_ids\": [\n      \"C:cd16944c245ccdb6\"\n    ],\n    \"span\": \"At lower court, Lio transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Lio places the recovered coin in a rebuilding fund rather than returning it to the required public treasury.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kryFtaoImRGqBGZQ/vnMipHazJ1GahWJa5oQVa4GcggJrskASa+fSGaobAkeBxPgZLeylrza4slsd/DQneJi9HTuMRGMxL3/Dxb67Tuo3EEagk/Hnb75JdRP+0pUIlAaE+ujirjQbj/+40y6n5yPlN5oBrUG2OdvawqnmcKS+bKtgLI4gXR+dAGhLxYxS8q8018DI/0EuP1CkcaMhHmVrhYf4XgH+vxBFgKjxpF0Pg3bevaKV3JpRb5jiQ2WdqaplOyCnSoWjH2dPLCzOrByGLZXDLABeiynMAGhatETGm5VPZvYqwS0Y3xK/K7KrCneffi18yaFAnpFbdH0ckQ3sUer+twHDq61FY1p5mnMovex6LQl7NMAkK2i0GxLFNbFhoYdydahsqXBkPn7rOy+YmL//QnI",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 547,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 450,
+        "output_tokens_details": {
+          "reasoning_tokens": 215
+        },
+        "total_tokens": 997
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:64c7b6e9d8dad02a\",\n      \"npc:ffdff1328e97f847\"\n    ],\n    \"constraint_ids\": [\n      \"C:0ab92a25f61e64f0\"\n    ],\n    \"span\": \"In old mint, Veda supplied Oren and called the partnership permanent.\",\n    \"rationale\": \"Veda and Oren explicitly form a supply partnership despite their factions' no-coordination rule.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:50a4889a73931a09\"\n    ],\n    \"constraint_ids\": [\n      \"C:cd16944c245ccdb6\"\n    ],\n    \"span\": \"At lower court, Lio transferred the recovered coin into the rebuilding fund.\",\n    \"rationale\": \"Lio places the recovered coin in a rebuilding fund rather than returning it to the required public treasury.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 547,
+      "output_tokens": 450,
+      "total_tokens": 997
+    },
+    "tool_calls": []
+  }
+}

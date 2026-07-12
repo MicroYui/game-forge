@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4fe78752feba3bdf223f092bae0fb475b685429b5eea12130fa7ec567b7c481d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5550,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 640,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 292,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1196000000
+      },
+      "created_at": 1783861600,
+      "id": "cSgs/I7Jq3Y3m65zXQnLU3G4NBv2vtItVYOFlIgfKyIBD97axo6FQ5kT/3d/seICx8ul656mtqVz4Aj1QJEda6ae8RfFfYMqFYQsyBr1+JY2N88QSRDJVXowEgUxPqLFxjR5aOFLbAs4LuRRpskDn31PzgiBGSNzmxLUXRK6y/FJ7XRJn17Qf1XxLUn3Bjbi7z36FZKwoGq8vN4HUxAFl3HOD4tcoj0jH3HyihxGhD11fqQvSs1HwloBEC8HIxUA9KBm86MhhNHBL7zrRgQtgfOjHBTkxK0CtXcLEtJCxFChMoOGdtMQqYKM04LPHIkA6AQPAx0nlDcS4qxR59IQVvQXVnktlndWnOeyM74rhhz1YLR2XFAtAbrOrmRqfgApooJpPAvtuBv3JI+AViXvoGhUKgem0A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "s0RbT97XGrrIjC6QnMsZp4+kYoeVIiSAdEYTli7Dd+tMiuGe2Eo7dqVMcVfGf6VV+JwMBIeEo/izgWKq0RL239mV+1oXO1l4JTydiOjMaPhFfF833pkcdpkf0Tz/C+o7UERq6bNWFGqxNLe+k55FT7PY5v4ksl7HUtEZS1FwOsktcmAWTP0Dyx8FQ/30qKYvPYMIl5XVVlE2Ed94Crwc61xOtSTgA6cJfclWXUOh+2CRLrdna0/7Efp4XB/ZFCClppaX6uE6fc0kwXWVcn7m2DqHf/EyaaF4bX4tVrGN63fXKtY6SJh6/crFDno5GbrGrT+mrlujya0HcSg0/FrFyr9udmenogQVEcG0ee3gGSUxajEJyV0QVfUFWxybqQJ0R1KtEvgK/2Vbrg2hIPksYQqJ8dM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:323572a55bd3a26a\",\n      \"npc:c1dd0d31eb24c086\"\n    ],\n    \"constraint_ids\": [\n      \"C:4cda32f4ddffdeab\"\n    ],\n    \"span\": \"Iria accepted the title of the Vault Steward before the assembly at desert waystation.\",\n    \"rationale\": \"Ansel had already accepted the single-holder office, and no relinquishment is shown before Iria also accepts it.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "F1bj3mBZZo6ehPb+MBDFvNMEJvGN2Z+UDK6A5+iD4pA8+Z/3e2yZnWS1Pi+ZeAtBZRKk0Lj4su0zw61IAhbDhF/R3UehHoAWPDIDtX2TirF94eb16w2GyQk0qZc2xkJ5wBCPF03aaUJe8NdGoYRyy3cJxkhbJMIdQcpMKs9Ienul0TkHSNGF7MB6/HwQfNSfvsMQfteYJXGHSQoK74CTjBQ8cnAmYAc9mYXiU5s2AaNkv4i8+IGrgDZtPnQt3rIuBwH8Uq3tuiYo/3tabAAMzod4m12+VdTjFSBQwss4CWBiFhJjvs8i0z40WTKPbTOaYJJxUT/UvZx7Gv3GzBuifCX4YuJJqQi/j0oawcAoxeYoqgJwXRlLiyNS+8/+VCBEQZd4BkAX7uoTlyf0ieoZw8rYi9bp",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 640,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 292,
+        "output_tokens_details": {
+          "reasoning_tokens": 157
+        },
+        "total_tokens": 932
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:323572a55bd3a26a\",\n      \"npc:c1dd0d31eb24c086\"\n    ],\n    \"constraint_ids\": [\n      \"C:4cda32f4ddffdeab\"\n    ],\n    \"span\": \"Iria accepted the title of the Vault Steward before the assembly at desert waystation.\",\n    \"rationale\": \"Ansel had already accepted the single-holder office, and no relinquishment is shown before Iria also accepts it.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 640,
+      "output_tokens": 292,
+      "total_tokens": 932
+    },
+    "tool_calls": []
+  }
+}

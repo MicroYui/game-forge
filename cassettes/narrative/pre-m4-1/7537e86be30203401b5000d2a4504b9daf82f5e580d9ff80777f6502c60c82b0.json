@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7537e86be30203401b5000d2a4504b9daf82f5e580d9ff80777f6502c60c82b0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4649,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 634,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 170,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 827000000
+      },
+      "created_at": 1783858400,
+      "id": "vyU1P0ivedemjKDecO0CxxrmDVNVXx4A3QDEhG5Nl5DMXKlMBGFVMtxOdajlnla8BCBO7c/wcwBX2wtXO+r9xOrQ1j1Egvc4z9eGMegM4jmWvGwCPjjRvr5c8/rVq9a0nsWn21p8jD1SmokTlCY6ieuJ1l5X4Jihh4ujs8CxdXtWdXwTkAv8DB3NFW7RFYfRSjhWH5IHN4HUR6WtMsvm38EIsNNApHfYvipORubRQt9h06o4bBvA/WUBDDh7BarhC1F+61hBFdKE62iDKqOVaIFZMR0LrPvAhPNejY0XCgXg/M0aN2jCwG7Rx5Llfc1mpjzraoIiy7b28K5iXgRku/gOdbkx3cY0SdkV00rU1b8kgoEdrRPfjmIxHfHle/d35IjnUQEGwFFE9C/GeefVH6i/K3hbwA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "UiBbnJl4YJFR+bKhRoXfTK0UxJj4Q+NxBX+2iGXuW+xcukfvZUXOQitA94zpe/H+xo5DQHg2+8WL0IJqPFq/6Ciy8FpUBkcb6Yioqz+7u9ApWJAndbsdQRM7bBmlLpQjAVjLR6rnHtn0FB550Pk4spZQoryCPg6Z4Juaro0Nok3WSZfi/mfCH2Xi0Q+OnYArlxSHA7L3mPM6VSH4emPaJylHYmBd4SWNAFx6+FrD+zB8JEPxwGr/BuMDBn9ZbBF6upv43ayPH/aU6dvpZGVe5khjp2QP/B7IaRF4EVqK6FXD7B1dqET6wEip5lR/uci4QqyuNJbTEz3SIccKYsQcGJ3gl022j1ttHG3fWjeN6DSsLONN8x+mmRyMDwUaVlb0ThXEsKEY+7PxLOZmjjFOrGhbIvU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:341925b9b2e4ca63\",\n      \"npc:48f85f895a425a38\"\n    ],\n    \"constraint_ids\": [\n      \"C:dead3793d6eb3887\"\n    ],\n    \"span\": \"In salt depot, Qi supplied Mara and called the partnership permanent.\",\n    \"rationale\": \"Qi and Mara explicitly cooperate despite belonging to the mutually hostile Glass Court and Iron Compact.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ugAPP4NevtvEWGccOTp2QU3/7BJUMgEQLV37GTTdBnmBss5VOL1hHD61fPY33pZh0Q1RC1mBLnlZqbzJBSd/pQN+QRMep6SBVv22diu7TF3ZB1Md2VpD8nhlNLHDrbGtoDTYG6tF+enxogfY9Drcs3jRjYVPIi40FGjyk246TRPlfcyEtHp7jVRf2akjclN6cOKKlwUlJojyIaFCgZcjtQDco9tjR2Dx+ArQpiCp6iV4JJrug+t63RhM/myKjOpLm4OZWjxfWNZJRRfy0hmlMLknI9tsU1BwYgrbwT0Gj0momoHWuCnEY3qDDIb8MT3OLH6o6ed1jjUTWY3HDh2IHwULnBI2E6Bh+0HKqzScAuuyTAAzwTjQDXy6m9pLhbMqI2sw7yktC2Anf/SRoMok/YgTXfEb",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 634,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 170,
+        "output_tokens_details": {
+          "reasoning_tokens": 47
+        },
+        "total_tokens": 804
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:341925b9b2e4ca63\",\n      \"npc:48f85f895a425a38\"\n    ],\n    \"constraint_ids\": [\n      \"C:dead3793d6eb3887\"\n    ],\n    \"span\": \"In salt depot, Qi supplied Mara and called the partnership permanent.\",\n    \"rationale\": \"Qi and Mara explicitly cooperate despite belonging to the mutually hostile Glass Court and Iron Compact.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 634,
+      "output_tokens": 170,
+      "total_tokens": 804
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e1ca26f3522dadc36cca264e655565f81496fd7bda32a77e157b85b4b7013ce0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5173,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 702,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 270,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1161000000
+      },
+      "created_at": 1783857200,
+      "id": "8vlup9dJiK2BnxYH2eU4UJlZxR3YQYMKEWBKALR2BDBf7iOcairWHy0RtZjkR9r/s9ciLhYD8uOeF3R5MuC1OyQEoghUn5+2AVDiMUGLItZjSxbY5rwUiTm3akyhWPNrCfneIVkvA1zGDoKd5qYxL/19x31+R5GWU5993QHFjhcXD7PV4Td6v0n0Br0YFneCcVWKkjN1nmmY4Yiw0yctoH2Zi+x+l0esbytSkQ7fjiENWnGP0NezoPwpl6bURuoUh9lzYyURFrLABvEEmd18GNnaogabjWMZGPExH+B0rGC+OxsykSisponkVwcgb1wIF5LuQH07LbHaNZwTMuwo4sDBcw2qA8zsF+J3lLhrxRyYe5bF0UZ8C6Uw0hI8uGLqaWzv0QhzMn442tMx00/7puXtnPSxKw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "SWvi12hy4dFlSrYkk/4SGkJrrnyHT7kWfbNj5KnKdBakr53Xwpn/QlAEtSkUryM4sBWxNELghq4i5EosPgb30MSLx30LaIxyNuUGglzPEE85KelYGbEOs3m3VVlOcRuZkfXCqoEjNftjhR4OHNY+Zv7d5U2RGRSIMo9+WyG2ygeqOIMp24+XRd3CWAT/dFyk+AaJCoDtj9eentS7ob4w9elWhH0YIO8Kb6nm/YsRr0AaziVvfyNdGGXMpjyDuiLwpo9CW8j6VgnhlU6fEBka+n5S6r66A+FxELujGH/Q2IbjTWCmY5BJ8Yb+ZQoNH40PY7eZJQ7VkA1t5PLkNgoWtf/UY4hYkWHlo34OiM0uZgigjwKjNlI5S3ovp89bSS6fLs+oDZMK//odQOAfclGNCfptFro=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:0f5b1adf25ea37e9\",\n      \"npc:67ccec6de92c4a99\"\n    ],\n    \"constraint_ids\": [\n      \"C:7849dca6672f339e\"\n    ],\n    \"span\": \"In relay deck, Ada supplied Malik and called the partnership permanent.\",\n    \"rationale\": \"Ada and Malik explicitly form a supply partnership despite Free Pilots and Obsidian Wing being prohibited from coordinating operations.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "+/weLnGa29oCCy/AVozKHaiKDizgdkYciJaKqGysHonQwFs6ehudhMads0L+fFsmV69iDEotDJ9M8B10JKuz1AvfgZIBv78DaONj8FncJAiau0+aGY03M31n5OIDAIW/MiR5Fdc/lQLx7nfiGxpHnJMmb4YzV0md9TOZe4NO4hMfpYBw9RUk5GcOfra77H0wMafeb1rqiP0eBm3mrxPu64ks+Sw9o4xcdgXan+ac/5LzzF5imym/uqqOmy/D1dNvD1QqnsfULcup3JpNHZ3usN6HeLhPQGw0jwVNkPSxOhBU2nTDpRYi54NYkkXrydyDbgo2sToRr+4KqFDN485EfinWoM12z7w0v22OyOP+JbwOk6DUfO/KPP6U4yjSbnAYInRAZ97Jn0R+cENesaEcjav9oKze",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 702,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 270,
+        "output_tokens_details": {
+          "reasoning_tokens": 137
+        },
+        "total_tokens": 972
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:0f5b1adf25ea37e9\",\n      \"npc:67ccec6de92c4a99\"\n    ],\n    \"constraint_ids\": [\n      \"C:7849dca6672f339e\"\n    ],\n    \"span\": \"In relay deck, Ada supplied Malik and called the partnership permanent.\",\n    \"rationale\": \"Ada and Malik explicitly form a supply partnership despite Free Pilots and Obsidian Wing being prohibited from coordinating operations.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 702,
+      "output_tokens": 270,
+      "total_tokens": 972
+    },
+    "tool_calls": []
+  }
+}

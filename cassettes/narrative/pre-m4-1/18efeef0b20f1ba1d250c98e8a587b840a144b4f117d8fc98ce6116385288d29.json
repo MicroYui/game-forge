@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:18efeef0b20f1ba1d250c98e8a587b840a144b4f117d8fc98ce6116385288d29",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2831,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 713,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 170,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 866500000
+      },
+      "created_at": 1783861500,
+      "id": "67XB4YpfzLwujlx3garwokqyvM1M553rnvLYm8KORcuA2KDffc3uDOHisMIuE6/F0XR2HEbudK/NTj+zzxkzCHkoksCDgrnMvD04sce35ai2Uf5W+XnHSzdunVuMyGPvGuoG1jTDrQ4m6LJl8JIHjkHGpDwl/Za9PYqo+l04VDxFEiMiQo3guTzOTElTv9rdpCR3V9LSXaoNWxOHW1oft2D3YQo1XOQNHeLJGRFVhOjGOW1usvrSW4Xq4D9uuOuRdS26wq1Mj3sJ5Ynp0cQKt8omm3cgIwbEcI1jrjfDiZE+6M1wobAANJdN9R9ihN63909qcYcG4o1Ep3GpFBN2PbJFPyc/g51hMhniwxD7AJUl/y0E2mRuNH3oV53Ch3YQ9RQ1YZpXdIh0kM0Q9KP1qpnIj/dYbg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "98tTUQyyfV7EC6juTo6l8VwnnljwME3hZ8q5OPTXDktk5gcPynf7rqVJaZQJAJTJ5OGHcwFzpuoXqj4bH6DQ++uPqxehKeOfMcfwVZ7hF9fAXVlAgbtZN6/N64tnNNueyJkZ3d3OANXlqFzGbQBzzSSFOEzb8Q1//MrN+LrfF5XggWK/C5wTsbKvVI0VY+qTZ4cCOnFLmBe91Rt0i3Gq2Ljm9h8IHMx7rdLJVzd8OZajth7audWJah3FJtSuwhNQXg6UbkdNGUphWDE7BajiQpCvrlj/2RxrgEs7NzQyh8MJsbPllGqHbVznTDUQQzLniBgUp6atrY+XT7jYjWGPD6pdLT2juz9e4xzwR6G8Na4pGIlBcUA2XX3xdS+yEJHVWcMsrjb23FCpy3Eh2+xPCvtKxl8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:f778f5e700bf0ce4\",\n      \"secret:36572fc753ac5341\"\n    ],\n    \"constraint_ids\": [\n      \"C:bed1d850a82f2681\"\n    ],\n    \"span\": \"While the story was still in survey, Qi identified the saboteur's name at orbital concourse.\",\n    \"rationale\": \"Qi discloses the saboteur's name during survey, which is earlier than the permitted reveal gate at vault access.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "odD5xy5z3rkKyAQ2F/hzUmSBBYsDPHZUKnAxvMboLUJxWXwCaD9G1TKaiCP6qp6yiKDYClzajhqCtZp6W1upDGxLzuzbFguWMhK0kcxy8Qxwxw/1tIjViwfoXRf4XZ2ywq7Z74fL0pmRb8MlVJbCgb0NLYsBZh/7NJPWdcKgBFt+ateMd54tp1YxZ4omrnappHBLmD3H/iBEf4Pobsl2InV7kpDs7kXCX8u1+nFRsVktR3N3yIWRponkz+yV53w+3GwZ+YiZzdh+8IOsbOzLpceZ03U3P7yCV7jHpxrbKCWpSUXeO+BwF60e+oEMRlsGEQe/ZJ5kPAGhhIr8QQdtC7GE6tLdoovTCsZ24CeZrjX4qFXguAcpXo6UlhX1221RLCP3EOKSWTv5n6amAtLOZMhBi3+6",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 713,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 170,
+        "output_tokens_details": {
+          "reasoning_tokens": 35
+        },
+        "total_tokens": 883
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:f778f5e700bf0ce4\",\n      \"secret:36572fc753ac5341\"\n    ],\n    \"constraint_ids\": [\n      \"C:bed1d850a82f2681\"\n    ],\n    \"span\": \"While the story was still in survey, Qi identified the saboteur's name at orbital concourse.\",\n    \"rationale\": \"Qi discloses the saboteur's name during survey, which is earlier than the permitted reveal gate at vault access.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 713,
+      "output_tokens": 170,
+      "total_tokens": 883
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:57896941208b481bea30c7dde2f63f38241a8a234fab84858cf6baa2197c2817",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4244,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 550,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 220,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 935000000
+      },
+      "created_at": 1783855700,
+      "id": "QJLm7tsr3yEKff6Z4yU59k46xyPwGwpAQUbqZ+NZ4biGvx5y5TqTHlrdm989HK1eA1/NCBBG3r7t+1TZ31eeqKglSeIwtjbJCirsdvdUrDO0Me9G2pZ6N87USv+s6yKjh3LkAsgRGdzljK7KXaBXvPrSCMBt2smrMgqxGY6lOwExZijBjFmN6cSIPY8jUJ5f6SAkT/KnJeUMODVAEGIwBsTkdRXWpHSkXU7gyNVv8VNva2G45Si/S9tyA7czGzXKlHFk9qqyd+M9sU8qnhY8FvzDyhhIVZnNwC+TAL7QOKaQ89ICPDc1NcjKllGqOC82+pDfMqeMU2sGB/PTGHQ7K+LmGm7/TsYitd3ld7U1ERyhmgPo+q5p0iI40RVPIgLJfUAfsdXl4yi3cUvhfrTJXhfx9x+Rng==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "z3XYiZvn6LqGYBU39gB0779yYQ3/kWIfIKjddrs+DxM+22JsvS6+46x7fVfCmugAG7p70WnefUdbkgvuMkKLQqlRG6+tf7WC9IKP2ic8pi4qEmYAaTppfZIdFEMLydBCWaCqfdTmHAbZNdn3Qj6n945PSrK36PnvU5hrgE/FwbKO+YrWTszGMOrsFoFzCUMpFV7BIDw6WqfLN7DBaKB8+yXxjxhGeFntp3X1wpt1PfM2XLeILrZIj8vP64RQVPdv2xxWeFkB2d3DEZA9bB1Y9SDBcxnTsApGX4zpZjIKKm3UReKxpIMXzB6kxPla9WBEBKtjbVV7oehaEt9QDMI720jP6T6PIttE8uqqic6vr0gTzrsSIiohv0x09vDbM/K+P0HSjoGk3iMMXenaZMvE1M30mDo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:68cb86d5e2fa03ff\",\"npc:82cb6783f3b420f2\"],\"constraint_ids\":[\"C:a16ebcbb73194701\"],\"span\":\"Ansel signed the register as the Warden at observatory.\",\"rationale\":\"Ansel becomes an additional active Warden after Iria was recognized as the Warden, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "KaxDo2lFJYYYzvF40P/rZ8OHDSON8YymJznjz6vL2ekNiU1HmfYrnOYzBa8Evn7qql8hW3dawprjBS4GDb5ekCw7AL4kAMsNjoLGn3rVpoJ5sawceQ49+oqSkXYAchM3fGvA0m5jgI40TMmwvXl8FV4qx5nypQ0t2TDPuXz0yu00JAchEC3wJkQX729HZs/0IVGZQHQnNbgwg0zJ02ZIvXDW6IvnJ9G02lbK6RQHwzGZE8Rq9FPb816pEFmTiZE0/5KbIC1nCKEvVo78ZcPSP6NrcuPu/cvSWD/3YlwctwUoOnckF/pY3h0nVL72aOowU9TKNA0SRhVYA1Jdk5d0ViyTO86weszhvkG8h5JXDiTIoR15eX/nmak1/+3eppozL4HQiYUgz5ou+1aksb+91jlpy7x5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 550,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 220,
+        "output_tokens_details": {
+          "reasoning_tokens": 109
+        },
+        "total_tokens": 770
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:68cb86d5e2fa03ff\",\"npc:82cb6783f3b420f2\"],\"constraint_ids\":[\"C:a16ebcbb73194701\"],\"span\":\"Ansel signed the register as the Warden at observatory.\",\"rationale\":\"Ansel becomes an additional active Warden after Iria was recognized as the Warden, with no relinquishment stated, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 550,
+      "output_tokens": 220,
+      "total_tokens": 770
+    },
+    "tool_calls": []
+  }
+}

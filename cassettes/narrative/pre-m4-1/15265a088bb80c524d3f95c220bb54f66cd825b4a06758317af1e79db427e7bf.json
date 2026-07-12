@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:15265a088bb80c524d3f95c220bb54f66cd825b4a06758317af1e79db427e7bf",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3087,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 727,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 185,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 918500000
+      },
+      "created_at": 1783841300,
+      "id": "BCqpM6ymKVqtXWjMV8MZM36r33A4R4JC/vRDDwSkJJpGNLqxatVs1ohLxnt1AQJq1r1o7zSc04f2rh1goaD7zD6OnVgYWEdMwfLf8J5rrMHeGMOPANuQy09aZQsKrll6zQtWAZrI0zCOSGu1w0JKYpaF5Tx00kuo1mvu0KEXJox7Ug0M8MBe501pupqflsWX5XaIaofIvTMraG354XPqA8g67UIfJG8SwXgWlc2UWNIe1vWS+o6f5UYXQO8R/6HVxFIEPwvaaJUcMW8U0IdfzjyplSw09t05Kn2R29fnNSvugOV/ADlbIE/LyOHR0UkNYcRlDuWj29ju2pD5zlKLrfkky8Cuh1lZMvtTSZPgL5aqkb9VqLyghjHMMnysJjzMSdjUWGmtK8EaaptMWEQg1e2D2DL7FA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "6vG0XpGWkSVytTcTZVH7txuJVu9lawyChoBm9cf+vpKLRwO+nmVvM4DWzRTcVAopYcWJDmW/KpYSdfIrhvyiSNf+jWLcGm/STVzpLh+J5ZSknXAor3QLmF9i1UcxNE6NZZuWX/eNaT4axWc1b8attYKqZXkL+H/yTwIIqWt6gI7kHRqN3UXK0CHhuPPr44AFsmgX3+vS9e4gKqGqzvX+iqETG9wI8AoSNuSfcHoZXmeQ9UV/h9obIGD80EfEFtO6Y8h1G81HbquMpcJ4obgCsGf1I//xm371PDk37p77c6L5LOO7Q4NPE+yiPnb4OZFMMayWEAIPb1XhTos9jVTuKzZ9wC8aWKV/Uh9WO3JBHTn4uoSHT0t1QK+LiN7hPwOf8Yr6u+3lx/IynVOI+LtqIkW5s2I=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:47cd1a01d9d1b0a8\",\n      \"secret:49a2b79f0ecf5b23\"\n    ],\n    \"constraint_ids\": [\n      \"C:73d0341e85600479\"\n    ],\n    \"span\": \"At signal tower during first watch, Veda told the room the truth about the reason the eastern beacon failed.\",\n    \"rationale\": \"Veda discloses the beacon failure's reason during first watch, before the permitted reveal gate of council session.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "nbTdlnha53AbbB+28HPjSVtFIV01mX7p0g92o3kzW05xHEy/5LN+yADNbLxqrpWEtSgd7w7Dqjhbkw583o/pJXtiRJruEz+equKymph5u9yxBQHBbNznfmaOpcHpatfsyfY3wrl3/qqzv3jF/52cL1awX9gO4+t8C42xRDhdsW0j+/D9MLXKI3xNESY0a7KPYn4GI/KTjZ3Qo5722Kbn4BjC3kPAk/Yyc2BD38dahzxRHmjWH4KFC+MdfO5oJxrl2wgfTiYqNNgfmU9UILGfE5TOu4k8xx80rrqjBe7vZ3tB6tBtdM5PWqXqGovg3CNEHzCbMD/0YiQPhsj8ZRpeS4GgahVzC/NOR/sUGgBoptGcnT2lF/HbGARFdvjYb3HRlf6Zxn/OIVb0bSAZj/zJKJyTlHeh",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 727,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 185,
+        "output_tokens_details": {
+          "reasoning_tokens": 43
+        },
+        "total_tokens": 912
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:47cd1a01d9d1b0a8\",\n      \"secret:49a2b79f0ecf5b23\"\n    ],\n    \"constraint_ids\": [\n      \"C:73d0341e85600479\"\n    ],\n    \"span\": \"At signal tower during first watch, Veda told the room the truth about the reason the eastern beacon failed.\",\n    \"rationale\": \"Veda discloses the beacon failure's reason during first watch, before the permitted reveal gate of council session.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 727,
+      "output_tokens": 185,
+      "total_tokens": 912
+    },
+    "tool_calls": []
+  }
+}

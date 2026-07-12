@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ddef987bb9ffdfe8b70e4ba2ea75460e8503a34e190310398e4da77b4ccb68f7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3347,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 695,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 176,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 875500000
+      },
+      "created_at": 1783855900,
+      "id": "iKLBJjVk1+NAn9rmgVjYlQA3V46l62ixNjnYT8NZVtJSyrCKwAXiUPZjDysGmSMDVwVCDqplKKEOMGkTp106ofZOOjYKP646diQWt0Whs5TTAGMFQ2Mto3GL0rXuIL/q0EsKsOIrXmbyE+gT071WMGR9M2e0Gq64PN6rXNHtYgy/O52JIi05hNh9ycJaPsS1vxFUStSnBHjU4SYVINSuDentS7t4HzCJGpyzxUZUW7BtGarvmD0nGrQk/hIbhXRYlBHTkDu7sKsAm0COwnJOWywJPonbpCSmu5ABlQAQ8orp19jJQHZQPmAxRws/7q4XCJKhMkaYxvmDfMdfkFlBZmMHQradyOPrDLvSpvFQIPogpSOHWwlfZvB38kam+SI7xgcSIv8cu88i2bf7qsZXlLsVSGk2Pw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "nemZ6JXp/iMXqSjYdm9VQ9U0qgSj3afegKSdL53vKIJPD+TZ3pvpKebliKZVjkZsCKfCpIi9w7LrTuZU9YCq9V4zYO+YE/PNA5CUs1yxAkcwiG3Kr18bhCycBThJ9SWND/cBwEm+oYCQ7rhVIRsul7L0RsnZS+yDT2vTxgjNF5aW4DOSaJF8zgvZ9waT/UksRrzTTnEEx/SbhYlNqfaZOwJavWqnagSPs7r6s5Gdq5A+1eaDby1j/n9U7F0eqoEPX4L0YBl1DESHUtfBSSHVx1VNb2K6Ci3m/I41HKKrXmp/t8PcnHS5S1NPKvKYiDCGRSxLj6N/TWQe1LddwQ6R/WoNKcP6Nfe0/TxcNLLeKKzcfDDczJrTa6qKSojDAlxVg05wf6vOgPbwF91qTVg5KLjsGFI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:02a6dced1cbf926c\",\"npc:a44d25a4c0c2b699\"],\"constraint_ids\":[\"C:41ff928e483cfe05\"],\"span\":\"In caravan court, the council recognized Veda as the Vault Steward.\",\"rationale\":\"Veda is recognized as Vault Steward after Oren was already recognized, with no relinquishment stated, resulting in more than one recognized holder.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JFavB/R0j56NL2RkuN+Mo6gTVo3/+Teyv5MIqgQghJNmXuaU8y+g7+8BahKWygjpgz4rXaN9H10wNzmCpWTkR98eJ0oPEB2rgOq5mDuvKR5Q31aAzaQVqDM6osoeSs5vo+9spCJfL0pa3vF9vNEuiDjpw20xUAKrgzQuuulU41Da8rmvt1e5c64jp5MZANyhbFAcYB5DckP7pGNFTYnFMWO6zvGt/LTl7uMi9jnFfe+MyMPsv2LWh95xLgDBSXPtQk75ZqLopJgy2WeN/V19uOyKTq+JB4Z0GfXrSPDuODFDUKmV1RF77WNwvsECDXqHtzCjBOQeX3omTzfGrY/smxGRr1PwMHZDdLXqV935rpmieuLYls8yP+RelZKvxhyhqGFiT58UhliHsBU9MS9H50k7MP6f",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 695,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 176,
+        "output_tokens_details": {
+          "reasoning_tokens": 64
+        },
+        "total_tokens": 871
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:02a6dced1cbf926c\",\"npc:a44d25a4c0c2b699\"],\"constraint_ids\":[\"C:41ff928e483cfe05\"],\"span\":\"In caravan court, the council recognized Veda as the Vault Steward.\",\"rationale\":\"Veda is recognized as Vault Steward after Oren was already recognized, with no relinquishment stated, resulting in more than one recognized holder.\"}]",
+    "token_usage": {
+      "input_tokens": 695,
+      "output_tokens": 176,
+      "total_tokens": 871
+    },
+    "tool_calls": []
+  }
+}

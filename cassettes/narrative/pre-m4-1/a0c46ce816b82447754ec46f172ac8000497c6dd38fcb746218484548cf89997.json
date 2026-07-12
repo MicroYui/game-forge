@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a0c46ce816b82447754ec46f172ac8000497c6dd38fcb746218484548cf89997",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6278,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 629,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 331,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1307500000
+      },
+      "created_at": 1783855200,
+      "id": "vegp79fGEIUZI88MUvA8/d3T1io5q4NouyCKgaADR9nCni64Pcqbz1lRXibKudE4L3aPMWZl5piI5xdi066UdP+zSgKtgfotg6f2239NDvxHDUZsLFtS7Fi0vd06oQ7Nioh40919Ty2LTso2rfuERP4it/Vy+4ayhw5gIxobTLnQaGq+PnPnN6W/tqJMy1skPn4c0G8hpUIPJNZ7PgIo5ICcWJ5IFEP1VNtNLTmxyG5bAdeReiysUy5JIr9bhtcBslZldQBwFEGwpgd/nskq3er6mJhVERASTWN7kaC6SziOufQSdKVIeJS4FtWezyp7jdgpJEH05naL7+bl6uFf2+8W8hW1ULqwiDWtziJUIkfdEx2XF4ykM1ppm6JIgYzr8NGfAN9DA9kyhQz5PjHVh8xOt8niQw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "5q/SZ1Wv5Ok25jeRVDV/IoIJDTetxWnXZ1SLI9V9z48DBGZdGc0l52aV6TUYpXq05Wwgaun+8/owZL2g/7sPWOPGZdZEWrzcM4kvwMTzUNOC9vfBXwAZ4b8GRujYiX3i52YuZP3hKN03vV5mYFFrJ2iBZ3EglKTy0adQSesEfYc6Ge6EqHw0HSUcfZ2+m9uVPIiZEY629HWW/ChiBDcY8m7kFfBTfy/ly6ZBHol+3ZDmCCPdLKWz8YboRwS8+GvLX6lJ0DFARrAyExtZ/GjtFKHG/TE3NDvhPDUSOiPx9tXxpbG9W7hlQEtQrUTrcVXOGf8IkC1g57Rf/9hePk7O5bPk5Pfe/ztkceCY8UaxBmr0P5kUzPLykI27LkKw0sRxAu4qu3TROzK00xLJe2bbNNxwtQA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4a36d69973023f5e\",\"npc:8e5ec24529408ad1\"],\"constraint_ids\":[\"C:2eebd7d37da61b69\"],\"span\":\"Tamsin fought beside Eli under one banner at river market.\",\"rationale\":\"Tamsin and Eli belong to the feuding North Watch and Red Banner, while fighting together under one banner depicts the joint coordination barred by the constraint.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Pn+q6NGdbrCXdJmyIcbzKRSIFhL4sMPD8KfGXce6tX/6Z+dJHNkaKQW/0+9/QOxvdMbDwvINAEnTRNH01hvBEuRMiUvZA/xX2Qkq85KyeLp/cTJl9/u9JuW/NmBl0B37qkPbb2LhHC7X95UJVfmpilOvMyHyZWDVKDBTpq4oVQ1j3uocsbh90vJlUbflCTd4bjY1OPSz9vh8PC2vepqgDvbnfZH0rEB7ffSELgczJM8x45IvDIY4PNZI5iZnorKQIkoQ4Igo7mVk/uv9KeOlSYK/YP4tDPGqd9aoLz/ajELR3geGBDoM0ZK0K367mfPJ3Gf+ESRVCH/tTqJdZLm4xLQVisDyuAxBEbYfiCzUwceNYoe/VDkBkyrvznYac7MayDY/07X+8ahCf2UNij7EFD2pgAyt",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 629,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 331,
+        "output_tokens_details": {
+          "reasoning_tokens": 217
+        },
+        "total_tokens": 960
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:4a36d69973023f5e\",\"npc:8e5ec24529408ad1\"],\"constraint_ids\":[\"C:2eebd7d37da61b69\"],\"span\":\"Tamsin fought beside Eli under one banner at river market.\",\"rationale\":\"Tamsin and Eli belong to the feuding North Watch and Red Banner, while fighting together under one banner depicts the joint coordination barred by the constraint.\"}]",
+    "token_usage": {
+      "input_tokens": 629,
+      "output_tokens": 331,
+      "total_tokens": 960
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e7940f1019a5eeb5e6b0675f12e0da6f7d9a7c234cd8d999c64035354a160860",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 10396,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 563,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 208,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 905500000
+      },
+      "created_at": 1783846800,
+      "id": "qgQKROvSM6uvK8P+yYp+0ZBLTXVATnnyzvb/FzVNp7kNmZlKbX6U5MB254dMQhe8OpE/Csm1AvBlWHopSVvvZhM2f+Fz92oJZe9F9axNObLUaSxSroTOD1W+WGVchuDXGkWbtbvbkAUd0sAygZ0nO4WVWxZujGY7tFFXOCoQewAnAPxn6SHD5U6pafB4RHx4QLsVxwMmf5/IUfTNZrwY6ju7mslaK8f4rpXHk+IxUx+PnLCYbuMb31x2AgyfwNlYKAJmERnfIV1qjW7O7DGNAL7tnkXPrJnFhu5zefdIv1JM6bYb6NfQZWlWeQmGe7qQUIilzxY2hVgl0sPQ1sXeP+U/jy0cgSKDC9NATZslZ7y1AvU++2Q8AvwUAEbo0nfoyiISAZrNyRCy+BcMrbMAPYeUITwftw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "qI9i+ERTiKpSULOuCLwk5U7F8MAaPfmvna8ECOc3cajX/eB3R/H5cwzRjV7HE8DL0EvC1nWGJICxa+d1udafRrUZbN/RJ3O+SV6Ix2g6v74n9ljaJpHX9pqrgnI/bGuBMyCWZxC/IHtJ00jqLEERNZmnrKF0LEecexCaUlaZz36FnNg8Oxo1sYbZUVxGSblwT1QDUM1fqEHSZX7LHLyMITJ+SZL/MJUAqLTPz1919Yr8X2yLQeN1WZk9+5wCWoLQpflnvNpGgOxLyhkbLM1+1qnqrwpx3YelD26LaddMUksNhkQSFqZy1RhQ2yzItpYy0g/uMxo+dTmAAoo2AqE/ttt9RjKx4IaReDDi/tlFlw2e2VX2CPr7AOyh5tnpAwwk9RMKbmsNop9LQWF/0HRalrAMy2k=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:9dd0e63047298685\",\n      \"npc:f749e11d9af4a12a\"\n    ],\n    \"constraint_ids\": [\n      \"C:2fb68411d359fc04\"\n    ],\n    \"span\": \"Cass accepted the title of the Vault Steward before the assembly at glass conservatory.\",\n    \"rationale\": \"Cass accepts the unique Vault Steward title after Noor has already accepted it, with no relinquishment stated, resulting in two active holders despite the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "93gwwx8hWwwuYvdRpwHA65arrJJLwYTaia2pOhC2nfpcu3utPd0sDGbD3GHgmskQESdFon+qPVaI/xzPGgjYJ2pVjx86xPcXjfosNgCtc0w8b5V2jSVS6wgYPON465TpxtNZyny81uCqbQZJE5czmiWWxrDV03J3CmcZIPRELAeqWNrp9r7rScMSnFzilkR9F8bO8vBtJ0xrMpgXPAzU2W1S3hDUVYMe9CGQxgcYZ7RM3STnNE9x+Mv7HqhVjtrIiaCD7JPR7+859Nx59v0NqB4MJ3X+K7kPpmvpSlVlMHGJnCNyEdj+1JkCbGAOYh8W6uoGTq3SXeyY0C+rJsIIT1Ta9YBczZNdOWDZJRbv2D6M0bBGN0v/THlkKb5zB4A/Knn1osnXz17JdpqrHj5xs8BWGqz0",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 563,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 208,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 771
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:9dd0e63047298685\",\n      \"npc:f749e11d9af4a12a\"\n    ],\n    \"constraint_ids\": [\n      \"C:2fb68411d359fc04\"\n    ],\n    \"span\": \"Cass accepted the title of the Vault Steward before the assembly at glass conservatory.\",\n    \"rationale\": \"Cass accepts the unique Vault Steward title after Noor has already accepted it, with no relinquishment stated, resulting in two active holders despite the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 563,
+      "output_tokens": 208,
+      "total_tokens": 771
+    },
+    "tool_calls": []
+  }
+}

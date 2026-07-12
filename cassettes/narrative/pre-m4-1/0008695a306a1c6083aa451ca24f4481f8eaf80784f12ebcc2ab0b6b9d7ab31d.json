@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0008695a306a1c6083aa451ca24f4481f8eaf80784f12ebcc2ab0b6b9d7ab31d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2493,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 537,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 141,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 691500000
+      },
+      "created_at": 1783851900,
+      "id": "GmyQxNlYs8u5rO9TMM7iT7F5radq0PazoRUSDHIH3SCQVr/0fAcMmhiifebHcIYDLQzHcQerwXiFYEbUepqzyOHXtrQSSVAeZqCtaWMfUZhKJ3ik9rw5wINwc//5AghHQrl7Z6ZgOougRDLcFCOulJ0i98XgqZQtfZHU4bgG5IJr8MEwuxTFyPp+fsrt45LVbDnfqaW/uR9q1QyXHYEg1kNrvdW0HUE84XTq7HP9WcWV5EPzsGBwYd3iqe96692NQDApOyzMxD6WyB0M7QQspJ1yDcLCZnRGLIMX0SPUIr6yJP3jqr/BIxapvcWpvGY1tj7cWztWnoCmdcsZeZbI7li20Q0TGwsDEzmP74aKHMd82ES4Jen2WB+LvRf+PUw3qdMvHgyCltNczdJl1BNG8AybImsKiw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "8+LCEanpJoAoQmkNtPKxkddjapMoyTPqnArfCl7LacYnDcrAvAhr3PhfXgvzbM5/b8T1JoeZWjr8iDiSKsHwpOn2dU+PHXkF3Y2+cZCWo1jU6kN5Cqd1Re8o16IHlk6fgWP3Chif8xvvLBRa9uz+gwrJhdodwYPdx3Ef+DCa+saf1qTGGT/fauqsmg6u2wWf7/paPkzMNtHFWDnSBBzYGURnxsum6dgTYfSJsffcOCoTb1p4b7zac2jff4kl5leTMQAgT44W7PLC3I6c6SE3i05jDIEyttYEM2YvrVOUWrL35Y3mS2ilyuaZYxnIcnZbNXtZnYnYM4WkOOuJZWb3DssJO+7uZMZBc40wsE5gQ7wUSrugwolcjEcMUatEbNwt+Q4PZuDY+pmTVCGGnWX8U5tYI+U=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:cf51095e40673104\"\n    ],\n    \"constraint_ids\": [\n      \"C:9aeea014a0d415dc\"\n    ],\n    \"span\": \"Mei ordered the last rescue boat away from the stranded families at caravan court.\",\n    \"rationale\": \"Ordering the last rescue boat away leaves noncombatant families stranded and exposes them to avoidable danger.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "8LfyAT2Ud6N37DDiOgKokftYVaEoVoPpjfvREW10r73CTfiCfiuFnqjixkAVl9KmaPKdzhkOutwePJkErLAKdiKtlu1K9Motkm29r0uFukkxy8dFlZOJXTXfSV79RDqvacqOwgH7uPa8HoXS+62vqBJE9ZB2L/jtNxLZPvqbUlUn+Hf3T85+FUZNW7ROKQ2gO5SlBpIm+RQrzbyqmgFB0k7D4PU+6hLp6dW25baOua9dKd+0garaKQX7n4xMowKJJXnviTWPpzS8Fcy2H2qdvxoLYBfiFM69hvb7u9zzeBUKA2KuvYMpMSqG5f2PvZCjQ8YGgDnDcldmHy9hDo20JJG9b+AfMA6Cu5xP1Zacgvg4zWW/DaFeQvSSCM3p35L/ztEJqKOV7LFt2nLBS3hgRIPWOL5U",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 537,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 141,
+        "output_tokens_details": {
+          "reasoning_tokens": 28
+        },
+        "total_tokens": 678
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:cf51095e40673104\"\n    ],\n    \"constraint_ids\": [\n      \"C:9aeea014a0d415dc\"\n    ],\n    \"span\": \"Mei ordered the last rescue boat away from the stranded families at caravan court.\",\n    \"rationale\": \"Ordering the last rescue boat away leaves noncombatant families stranded and exposes them to avoidable danger.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 537,
+      "output_tokens": 141,
+      "total_tokens": 678
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c5d7e1f527881044c029033ff2f55634eb6973dd05a952680a14d9a727af4e12",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2793,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 681,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 165,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 835500000
+      },
+      "created_at": 1783849900,
+      "id": "46a6fCxVsG7MOf2MUGBXBYZYqraYoB8t4dOxADE5jkQOw53isk9HKlS5E0nZwuhXUcaxKLSNDJqrnMLDRsBoupvdts2yhFhYkNe1lh9Plp618e3+QtjZd7s2BSCLKxNTgEO6AFqemhMIGN0Ddfmwwlr9CmZ9ftlnsPLKD8HFtBwev3sP/4eT29QzQPc3NSvOzGDXWvw0NocMdZLZANH7uKZftBV8u/pcYp79lt0ga7jIHKWFwZlujh+us5v4z1zRmxXjYLVbmBmFEdH8BioTLEbixyIRtWi1ZiZFBdkfv8Kydo/P+yv5RTWgmLJO6qrRO61Ac0mNXpfSeuie58aW/APyztW4BQRMTWUA4Dvr5H2KKH9wBGySjaFTPqqr8RFfHT1vfZlQxUKuqwTnz5C2k726T5EUMQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "IKrBV19LrR9Ab6id2cUWkC5tfRnJS+sTu9R575FMi9Oik6XzeAnKGDPIkWOKnmvfQidH0x2MQj9s5VZ8+bbvDknw8rKsCr//319OlRV5J5m5VRc+s6cbz9Z5KmWrcyQsMbCiSrQBmbXeRBxYtBZHUfR2qZGSwsF/niOxmotMeQOLdashjlIR4L/yuZn3JMOK3gI1RrdHuNoqZHoCgWn81tYDUTUbDYswNW5/iooz1ezKzS53Rf+8IIRnO0Y5WPqzzlLp1L1OCyuo3vCKZv1xsUo2KANSmjuPff6A1cqLEW4TL8rNB0rbvzKPcy8FYUjBPt1eNzmnXXIUmvkfaG0Msq88X0+vHbPaHsJQclMyfvILfeDiqSXXVww2yL8iaDhH/JTKyzATI2GgIXIrvTev8Cd6Phc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:7603a720e9290ed3\",\"npc:a75cdfc400258af9\"],\"constraint_ids\":[\"C:656e699ca1086c20\"],\"span\":\"At canal bridge, Qi and Mara signed a joint battle plan.\",\"rationale\":\"Qi and Mara belong to explicitly hostile factions, yet they directly coordinate by signing a joint battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "1eYZYfYU89mMAyOHA92dn/WI9KpvEkCSNmDWHkAAffM4/ndJUIWxqvV1trUoUHszihAzKfpoKPn2WvMIlShDYhWihYueezKtAKm1qs9d7sKf51pfGw51MEbT/iYmzr6ZI6kc8WnKiewvo6huFCbzNOd79wySPLtppdghX7lg+FwDzQhG+7iA3O2wWIxMjSdq6a9Oz14b2JN21DGJGFsuwWgXU0JUgOVOsHctWrgX0con5bdE5KRKWtw9YTq8PtCTqHB0l9kfkxQtXPTlXKK+jI8CEHRf+0BfVsrw0P2G2y5LZ1HKJAPF4DaEOGEvcfsiagVTXz9zhMiaRL7bYbDvZQFUCOwwhc1O8B7HeJzIYQyh5iaEh5Z58l9dV3/vkMOiZzazU8Zwxza3sT+AZKlQEYqY/Y/X",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 681,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 165,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 846
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:7603a720e9290ed3\",\"npc:a75cdfc400258af9\"],\"constraint_ids\":[\"C:656e699ca1086c20\"],\"span\":\"At canal bridge, Qi and Mara signed a joint battle plan.\",\"rationale\":\"Qi and Mara belong to explicitly hostile factions, yet they directly coordinate by signing a joint battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 681,
+      "output_tokens": 165,
+      "total_tokens": 846
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3292398a2331dd0fa766bd4f9743cbbc6c5f5643b5cb0e9d5f90e38c213be2a8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5143,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 701,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 242,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1076500000
+      },
+      "created_at": 1783842000,
+      "id": "3KJ9xbRRJPH2VsBiGqJAysA6xOMkIUcyj72B1AxafWNWYKn+CnfJjbpRSyuliNVg+iwq8pa2mCQk1pi2ZExK4fy5isx76w/DjioF3jg7aDAwIKy3fw3dqLa4dxxt7NnTcysORA44PYp0fKlesUlYcfKir1WNSsAe4j8/iAAy1r2Ae0mBj4vR8WVToecS8qdqzZYOKr+NuBZYZsaUhuulbl+haP4cPleqIcTBZBkthOdZ8IfyjjNGI0Ze8U3885OhSIGkRXqyduy2Qx3bjYt9ndk6eTpc9VXuI5u/UgAUNjG4OEi4vqEDG2bmunwTMog0wlXFw4HCB2Bu36ozJRzOxKGTmKaWNxfGWBFKxap/r4gA0ySSBuIo2RusVNkTsXnLD9Rv1pi+mpSVh6hCvZsJT8IYRndRHA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "myn67+Ei2clodg5ZxEOuztWHskcGHZqhA9p48TdD4DM49N6l8ye19YIGRL8pTB0Sy8vnQcWWw+BBZNGlhrIgF976CFQyYrIk1sj6klrti/RhbJoFu0sXcrMuiS0kXO9U/tFGeOhHfJoMFuWkdQ0koy4b7+C0gFGyX8IpSyoeFPZ4+98UT17MGDjWx/qrZY+j14nk5VYspM9bbjzRAQr9OI4jlZ0D/N8vsGRIQBoBDiCsQzXEy97MRSbrGRZrzfcIfE3ORIxafAJEpellV0eJJwPRWv+4SOEgrGPDCE0RrJMBQrYoiD4/qYG7yS7ru6bMeC2dijC8FLMYo9WGj12SHk2zq7GFVMJ15WlT965KQW3q//WTStHSlwoJA/MWXfh3oErDvQtbjSKitGznnm3h1hqb8Oo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:112d3a6472795932\",\n      \"npc:db53cf4d822f5904\"\n    ],\n    \"constraint_ids\": [\n      \"C:009b6d910c427b03\"\n    ],\n    \"span\": \"Ivo signed the register as the Harbor Marshal at old mint.\",\n    \"rationale\": \"Lea and Ivo both act as the Harbor Marshal at the old mint, with no relinquishment between them, exceeding the one-active-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ABQKIBg/Op32DE1vrjsxm78u5vJ25JjW03JxufCfp5OaS07/kPaVH6I5o5cSm8ar3YZyJ85WuR3Mx7Wzlo6BkEPxhXMHAWqkRvh17N03F140CHyMNyebSXhqCmL0WwaSS72komgfVYFzIxskDLy4M753OSrFRQAk5PJ11wMbh5uLoRV6YMtp6ML0ay+gdyBYh+ibNj4/K7RdPLmYZ4KwCzO98AqRwlqRYx45IAzXP88XACEFggJNoXW/tPxrVHUjQ2K5sQK0vaBYr6PkKkM/pLwv+USY57XkU7P+tGNn8EjeObswkmjLELu3U6Iz9w73zunE7NaAd/15fVPI7vSK2mcW/+RtFYx8NvkxjepmoX9bSVY9jzJWSzC+qTZNrbKEFwVBVu+QqJCdyO+GZdQvbh9iIKs9",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 701,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 242,
+        "output_tokens_details": {
+          "reasoning_tokens": 106
+        },
+        "total_tokens": 943
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:112d3a6472795932\",\n      \"npc:db53cf4d822f5904\"\n    ],\n    \"constraint_ids\": [\n      \"C:009b6d910c427b03\"\n    ],\n    \"span\": \"Ivo signed the register as the Harbor Marshal at old mint.\",\n    \"rationale\": \"Lea and Ivo both act as the Harbor Marshal at the old mint, with no relinquishment between them, exceeding the one-active-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 701,
+      "output_tokens": 242,
+      "total_tokens": 943
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5ffd022080e02f472d35d5f430192aeac049c59e132f71a2a23fe0edd99aef77",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5622,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 573,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 256,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1054500000
+      },
+      "created_at": 1783852500,
+      "id": "TbjJLq7xsE1O4SaxRSq1EU6Aa8TT1WRo3yl1/Psq9BgASrlUv5E5rrr9NUlVYYyYKRigx2i3jNSCgE7dv4LyG8NKaAor1fcdKf0qh529cbQvzYipvCBvIAVyoBpazdj3YF5oYqP/9l9QH4VcUCQqsJ3TFUoETZwf3DEXnYP9KO07/dhbQreWHtITvQfZhY48OBcjMiTHKL6cNTTGHoundnbrSWwjh+U4B50CuFPAiCpgOkM47tUYGWfYXuFdJ9w2iS3DQATfjpBPVSSbrOMbrfLUOt50SvlYSn4LEgCtDhqDNnFDXNT3QD5eo77E3aKXdnnFJhjQExEly8Xb44Q9I3TotWo5DJgldnpkjRseniKwGsVAwo5dV+G/Pe64BY7+XElNohURFUasOVs8CxA3B9bnUp5P4w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "L1W3NyE/A08c2uGyxV45wprM8iXvIGWQDxqjnBWFMzRrRKJXCI5OojGUhYOXsJynNr2u07tL4oAx0uiyRPhGpVNZBnD48oUzlrTC974RYFdY9zJTknn34vFhJIi6pZsLylgeolHpnCCnck/bHgM6bNqHHwczI2fuVAiKEBQ8lT5YXPV74Hs1KLuob1VvPjZKQXUqDCy3i+aXvTNMtMrz9tI2YwojoTipDg8TOmWdXYZTpEiUhXk/kzQblXBsy8/xobRN6XeBOjgkmAIwX770tXDgBgn/U2K5a7GBzxKnhdt9CRvMQabEpBIJ4QRcEWuAOoMR82AO9gKYcBhVm8M+Wb2XVjJ00i5ek5NSCFYUMpNytLIxtEmz2uLWvE9YSJFtsHpRQ8bv1ApPmPm6iBIZuhd6WuQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1f1134d213d78837\",\n      \"npc:66d3f61e281d8fc9\"\n    ],\n    \"constraint_ids\": [\n      \"C:be3a5a0f66a8edcb\"\n    ],\n    \"span\": \"At lower court, Ada was formally introduced as the Harbor Marshal.\",\n    \"rationale\": \"Malik previously acted under the same title, and Ada is then presented as holding it without any stated relinquishment, implying two Harbor Marshals despite the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "JRJeWkao0B9wTYen0zvXvvN0JaXS/EFowummvAAHqDG24yz4Zztddju9Nm8AXMh98+9wpeLBjkFhPFh+3PrrhP7xM7AbPA+YAh7K4aQUsnywXFnwSxaXUh1nZuoCZnO+z/betbXS1mTsMCh/5CPPS9BnPa6Pfl74JNWUhLq4H+b+aaxw45ZMq976q0cNAJc6+fkDj2LDxb0gA9FYL+z/JC2sJ0DRQPBxXsLZ7qogYkkDr4C93nZUEMndCPHDL7R1D999nVxbhPWiGHGkHYxTrMHGLiiKLBrhs45BaXmaCjH41YLtQVjmJSkgAWdiGyFBF+d5TUQNPEbDQBbojSmQH+2wgNFLkM7SEp6SVPv2KqOFAYFOLXO+iKCmLhg7fA7LshhOci1It+brG3B2GR/43y6AbvHw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 573,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 256,
+        "output_tokens_details": {
+          "reasoning_tokens": 110
+        },
+        "total_tokens": 829
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1f1134d213d78837\",\n      \"npc:66d3f61e281d8fc9\"\n    ],\n    \"constraint_ids\": [\n      \"C:be3a5a0f66a8edcb\"\n    ],\n    \"span\": \"At lower court, Ada was formally introduced as the Harbor Marshal.\",\n    \"rationale\": \"Malik previously acted under the same title, and Ada is then presented as holding it without any stated relinquishment, implying two Harbor Marshals despite the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 573,
+      "output_tokens": 256,
+      "total_tokens": 829
+    },
+    "tool_calls": []
+  }
+}

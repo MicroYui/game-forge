@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6a80543dc45e3afd5ec91c1b354878e51bfb48efbdd4d8620fff17e253aef81e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4942,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 667,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 163,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 822500000
+      },
+      "created_at": 1783846500,
+      "id": "tK6MQJAmOUR8+WmtJjo8GJUrQLKaZmMu4Q9gZG4ghEtYphx7djZ8Ap9HvFYwewQptsW+h0HhEhXoRKlj40EJHDQbDdIXYFeF45eoNp03nhc8u1qqw2008Gjlu3jmta11X+2+vzLZsSZtd/rRZGiOB7SxutfO5M7X31hynInTyDDOXrXatLEiazJTTKJrEAnTz6w7HKFk+luHdFeYFCWPS3r3wUtZb3TUFd//SiDaymUpna89KraaS+DwacpSompG32ntXlEdfMHZXqfOwTLgntAsdEzRmodKMHBe2+tB14uMRbqTwTRAT+K3+0+QhlLNGlCZnGvW3rEthI7snszg8g1zdlL2usZyoU+0A4Z2zAm3fYguEEy8+26Sb1sycgd4hfdTcWv9VXSfgTrKO7wEku51bpFAmQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "AAIO8D3IYnnq0GOQTfEefESyhwblDvaY7w80OCu5Fa89j4O4VH0jlWi7LLgGbfCDHWy5VV7AFflXt49n6XWne7N22O+6MMSdDLlZTxtjClc/6Y4M1TbhO8RPmXqEfi0v/AzciwDbHpw9MOlIiRBQPWmdeCAABd+USm9h5HXyfsLs5Efyf388t4sOP5CaxTFd8ylaDmYOeFyjQmV1m96lp3MM0xLH5mFlKkzmhC75SkmQOVZcfrYjZ2gm+TLaTHqDu0ThpOuwVWK70PMml6pJvd8TUpNV0nRHg0sEqdKFn5d+i1ZEq9iLDNx24loF4ZzQdJ16E6/2a+Mna3iEegyGJsWoJ6OB4DhQXFZyUHrRtCvvy0JS7pc7mZHDeD37GCGGqygjCQd1Gx8sNmbGJRUBfVTzDc0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:035e299504de8d76\"],\"constraint_ids\":[\"C:eeb44d4ed43bf1ec\"],\"span\":\"At orbital concourse, Tamsin left an injured ally behind to lighten the cart.\",\"rationale\":\"Leaving an injured ally behind removes a wounded companion from Tamsin's rescue effort, conflicting with the requirement to keep them on her rescue list.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Hr5kDEshQqzNKeXpWFKAFtf4GXS8TERaueBUchcGToxshL8rFrmInKykv9rqP6jM6iw1v4QDNjkYN5FI6vxg2RQfhSKZdVBMpCvAwmg0txgARrmncOkCROTNRdw+Hvu1Q3ob7lxb2WBFkSyMo8oBlooPM9xC9RaKl6dEOAtJP1NWc+YqEcSoINNMVkHzgBloN9Zut0wQiESVuh6sW4Ow5puuQAWxOHnC/l/7tmw8JVNLNI9CirJAtp9puwH7I+vLNeObt287BXp2RZNv4wjOk5RBeZ3N/Q/7NsmJbSoZ6jO/naWZLro4tF1r0h8Q4XXxNqpXWs/ZfT0lvmF+LvaVmvwD7DBTyJMoohyCYdzIEf0gv978GOPzrSvJmn48vN+zVIg/+kXMDmgfXFCD4nmt8z84oCxX",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 667,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 163,
+        "output_tokens_details": {
+          "reasoning_tokens": 63
+        },
+        "total_tokens": 830
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:035e299504de8d76\"],\"constraint_ids\":[\"C:eeb44d4ed43bf1ec\"],\"span\":\"At orbital concourse, Tamsin left an injured ally behind to lighten the cart.\",\"rationale\":\"Leaving an injured ally behind removes a wounded companion from Tamsin's rescue effort, conflicting with the requirement to keep them on her rescue list.\"}]",
+    "token_usage": {
+      "input_tokens": 667,
+      "output_tokens": 163,
+      "total_tokens": 830
+    },
+    "tool_calls": []
+  }
+}

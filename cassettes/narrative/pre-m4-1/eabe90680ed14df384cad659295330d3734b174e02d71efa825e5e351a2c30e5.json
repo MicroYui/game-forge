@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:eabe90680ed14df384cad659295330d3734b174e02d71efa825e5e351a2c30e5",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4176,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 685,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 242,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1068500000
+      },
+      "created_at": 1783852400,
+      "id": "nQ5P4AB1g4tZzLJQoNiStw3j8S5aVur8dZOY947g2TujuoF3FX/7PKERfFR8OG56GEJRy592A3pZ2o5VouXZBnAGJfcJg/fPrSoupdKUOhU7QVMurRXWiaoUduZrJ9/8UCCy2mG7Qte47mUtzozUNXUpc/U2lXrhrc40rWg9o3tF1b1i0YHkqtnSKdlCZDo3jRGX9l4S5k8L9yzlY2wcWnfSQDMxEGakYz92me9VCrJ0/Y+x4Uec8730hH3clV2rSwR0HihqR/1GvuZKjenanB1FtCL9AQXd26sWjw/TOwFAX+u8Hni6Ti/yHDLjJavuf3KXkG0G9dW2cAsygRx7HqQM2tPbGoN2PXHSPwe6x1NMOVWsdh2Q2d8Tb72jveqYl6XzWJ5VawCVlaRs0jQAeJDld6rImw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "ZPo+lIc0e9/+vBeXrGs9ICyCmejSlLpMBxQOUa9kihIJvSKQXIIO7lfU7ht2QBMTTH2dw5fk1fWj0oyrzLrBs7p+VXxsEcjMLYXQEAPXbBPEh6g5yMM6lUWcsy6t4vFIJ4d3hLHuIGiOQqVXWUIyGjTGItzwYnvaUyLofsu6qjwtNI1hNi38NtKmLYokS7d+RF0baEAXJnx3BFDgw//LmgM5mEolkh1he9tB6vS43sReAASEj3ZzY8Diosy5ej9A+NMyp9ZVgkT9978W18IXohAqx4WeH8wTBv015xNjexz0A6bbHg7MnZk7Kpu4ZxCZWGC+tl/UtUqDWycNB1SVbVvjJFxnAchUqRrTxkTZJujWykFhe9/+hUT64PUjUErZiT6EoZaBnhUtvdvd803fvqbydhQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:3dae7b62d4ecf80a\",\n      \"npc:522a8ea7c1032c60\"\n    ],\n    \"constraint_ids\": [\n      \"C:fc3909c1e22ef0c9\"\n    ],\n    \"span\": \"Mei fought beside Daro under one banner at observatory.\",\n    \"rationale\": \"Mei and Daro explicitly cooperate in combat despite belonging to factions identified as enemies.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "FON+2XJ9L/wzJFl672Hwp5nEA+vqEKeo7MtG58cc/YhW2glJFs0Pqbi30VRTsXvQFiG9eUiFsqGFj+4N7yr07HWcrtvQJ9/m0CEIW0JuKICPY7C6fyAjAUUj5kKxqNKYLM1KMF5jV7rCkvpRJfYnKwKHHuXXKTyXeyaIvyo2LO8eWi8jLSjcK64k/gmu6KuuZKCsYjprZpZ9L6bi0uH44jP7Z1619JhZ2WIkd9FVsBKxdIMzvoRq/sQ8t9cobRjCAbkISCmUdyZHo06D3RKAhHpLGXBVo8S62HwjdYCzvB/DOG0RxhKqNpKctwhRPx97j1oqDu2AMfGSkKAXJnJWg4LmSJPOlzpURDEueCoGpbvt17XuistHWxfAKpA7KMiA8fLT3wDFExi5OnBabMzKadraus0V",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 685,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 242,
+        "output_tokens_details": {
+          "reasoning_tokens": 114
+        },
+        "total_tokens": 927
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:3dae7b62d4ecf80a\",\n      \"npc:522a8ea7c1032c60\"\n    ],\n    \"constraint_ids\": [\n      \"C:fc3909c1e22ef0c9\"\n    ],\n    \"span\": \"Mei fought beside Daro under one banner at observatory.\",\n    \"rationale\": \"Mei and Daro explicitly cooperate in combat despite belonging to factions identified as enemies.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 685,
+      "output_tokens": 242,
+      "total_tokens": 927
+    },
+    "tool_calls": []
+  }
+}

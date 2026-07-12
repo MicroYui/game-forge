@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bf5f0a5e81c0928f18d8e2ca5709e71926bd6f4ee8dff3f5fd632e951b22f3ad",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3950,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 558,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 218,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 933000000
+      },
+      "created_at": 1783857700,
+      "id": "HBZGrfzWKA9HFjB2ka/a7/P1HsIaJfQDk1hu2aTpi9c+lYGnkVg1J+YsaFVdhNbfZN3Mo54QoQEhHp1qzXerHtqzb/5Ad+Uf7VLxxxvHo3FRgNa6mPTEEbQbVMGkLW0Wfg9BSx61lh9lPB3rlFQHKW42m5uXP86WSSFDI6/6opm0acwvwg6W0ZWaB2jljEARdv8+fdOGpER5UmImACeQ34hUoFNwTTh5pZ4Lf7V9et8rRLVMM19kDPCZFGxLxH1s5xQfWvq+cKz4ZTe3mM20/VqL2ww9n7QGh/f4oxc8miDs5bnHOG5xaf1Vehd/ohl9ZAcD6Y4EMVtz2YcbZg51hCyyrWCnZtfh3uR7Q6uE61vNWKv3YKxVTbjAFDPpYnmhTb+T4r7U87xOmVE6e7T5y7avXEG8PQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "dxV84hlqCkIck3868n6fk202JdGb5cIrZMQ15uvlpKK/OcqsHKTWuPRXoJxEAR1wA3cyx19j/NxZw3XGBCcHl4ZsK+LhMVs6vMedQ8TlujtfnV7LPqzEN1V71wgILIBvaIfgKDLF23wM6CO4Vl9lgjYgkdhntMKrg0sMLDxt2o7YMHJedsgESlIEPh+3kT4zDxOrkoKcTD6smYW4cpaKG7zPJNj2sKresMAiNBT4y3aCjKMT5rOfJHnCa8idmwSfWxIYuWdf+VnqrzbAstaXWTixnEc0Mk+D+f8sUNNraSfEMNBHM6gWD7XyR5qZQ7Pw16Xn54ehjScVpxpRyWAFl7QQfWsTfp/iBHZwEystFjWx2eaV2dSVUXW3ywsJPWTXgm6UeTjCMsAnL/6Aq3l5KpseeRI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:a4ed0cd06ec56e5e\",\"npc:d248d5e3283a9c10\"],\"constraint_ids\":[\"C:83b940255917c35c\"],\"span\":\"At canal bridge, Tamsin was formally introduced as the Warden.\",\"rationale\":\"Tamsin is introduced as the Warden after Eli received the same title, with no relinquishment shown, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "/UWlNpahrdwxNZKFXEzP7SX7yKwasxAToMKCYKlzALM1FzDXRfPQfB6k9Ia4tWYb//lLKuVqk5AOUBn7LIva3KnUc8Ttlbx/2gGzQllZ14ZEP/+umtUrAyIFLCg7Y42N/poMooHYr5Z12ha3J5uoL2WC7nez0zlQxX3hyQ52babN9I2gHq0gaPtlYvIDKLh8Kg+vRLKj7xB832BydP8JOkF1ggpRT/LYNX0dGXj6Xo6ypgOqIzRolOiAeqajP7EQr4OUfbg2aUW1NdOwmgk2BXU+MZDvtPUdjzdPTIQzrBynpfE815quq2tfOZ/HNQ2Zi0bg+Ku2yV5SyDbLR/ING/1rmeUmKBT00eIBQgxJXTfQK/Yk/N8jZBb+79Lg4QSsSd7eA6YqLEP/DKN+c9/nkkU/BRKD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 558,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 218,
+        "output_tokens_details": {
+          "reasoning_tokens": 106
+        },
+        "total_tokens": 776
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:a4ed0cd06ec56e5e\",\"npc:d248d5e3283a9c10\"],\"constraint_ids\":[\"C:83b940255917c35c\"],\"span\":\"At canal bridge, Tamsin was formally introduced as the Warden.\",\"rationale\":\"Tamsin is introduced as the Warden after Eli received the same title, with no relinquishment shown, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 558,
+      "output_tokens": 218,
+      "total_tokens": 776
+    },
+    "tool_calls": []
+  }
+}

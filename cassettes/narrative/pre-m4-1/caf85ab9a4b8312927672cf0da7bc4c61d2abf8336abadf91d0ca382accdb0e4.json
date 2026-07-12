@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:caf85ab9a4b8312927672cf0da7bc4c61d2abf8336abadf91d0ca382accdb0e4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4361,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 619,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 218,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 963500000
+      },
+      "created_at": 1783860000,
+      "id": "a7nVTyIe1biHHEM4nXuZI8UMoLTHK5n6tWT3nUmaAKwXNjgJUDRzsiBr46Dx6HRyW67QUukMgTgHq7+No/XIosRpjEe5Jn5W57Jkc0taAtP3ynNcb+/GOKfvYR1KJIn2nLu6Up7y0lKuEL48mPiMZ3GX18KAZSeWOGCNZHdGCmBO4BltGAVb/80kC9GYoeI/L0Lx+UaXsnchDLJZfoWwzLe9H9ONl6RdRJVjVtIFQsCaItz9XkDs5SdRFoLIxzxcZFlj2fSSJOjRwuAwcIUIqUW01Bca1GpwVNAlH+MJNBNnowqaNLs+G3OdlKnh+fCNgO/t5ZI7+536FLLIRsULhHa4wl3XdotlKpq/k99vd2TV5G2QwDE5xT/0tUIMLk8pQbm0L6PIurrZpmpiKAY+UUSZxUn3bw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "q/MbjaArZtbDSMKUTF31AvSYNefDNP7/ZZkNc9bVZ4+AJOn3zMvPR+z2qeGu3J/6UYU+tvXgKtD8fcrnh9gErC89c53IuYDNeKJ2GA1vRH0ubR7w6dW1S+8cUSnkPLDfEgnCTOzROD/xbetNsWTUWAJWTX4LDB0xGJa/LvBvLV+Q7Mnmjq3AR9Jpu+qFX5Aey9fosmcWll2bRk+fvBpCxyxWiBhw43Pkn99Iz2dCupaB3vwtGLXjGo/mGOcjnMSSMJ/0SnpmFsRy6Ww/ZBIb+B5yjEwndCWyNqTYr0OsjfLhGWtbs9v7WzGgBFfMmlxh8TMQZ/2qozRTMiEYStpE5fXY3XSjZfP+Em66BHrPj1TDMG4MSzYNKLmZzXsrIMymu+u8JH2p1M7v+90K/jz2NLUXt5g=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0a7c7bd6b80ebf91\",\"npc:d81d66b4c22b4119\"],\"constraint_ids\":[\"C:bc357cdf72921cdb\"],\"span\":\"In salt depot, the council recognized Daro as the Caravan Voice.\",\"rationale\":\"Daro is recognized while Mei remains recognized, with no relinquishment shown, creating two simultaneous holders of the uniquely limited Caravan Voice role.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vOwMAk/plHYce1YKV67Q9zYrIE+CZD3aPiTUOEBRxMpvsRQbLbPio2WnapnTptJGM5DapheLQypjiKFJAtAl8cM52wCveNAijC6fzbU3TzslBh6InGinrZAibkOMN3GauDjjZqzXIJTiE1YT8hxootJuZpZ4hqmAvStw/VFK7KjlKsccvfusSkGQ5GGaSRyy2Txxw7oORCcgjmtw9a4fqIWcOGdvtfdibTGopTQzUp3vKVtuBw4Das+zjYTZyAIARjZZ1V9u30afyBgVW9JF9XxgpHNmxkuY5T2orjtX4viqLi0PmZYI5kW64Cl85yt2/eowp43FC9tDD6CnNgT7LCWeIPXY7wZJ/ckJkvnOwlaKCeat0EPEAoDJ3gH9EaR3mzvHsgJ3cOAshTewqM+1mI2BWpuM",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 619,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 218,
+        "output_tokens_details": {
+          "reasoning_tokens": 107
+        },
+        "total_tokens": 837
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0a7c7bd6b80ebf91\",\"npc:d81d66b4c22b4119\"],\"constraint_ids\":[\"C:bc357cdf72921cdb\"],\"span\":\"In salt depot, the council recognized Daro as the Caravan Voice.\",\"rationale\":\"Daro is recognized while Mei remains recognized, with no relinquishment shown, creating two simultaneous holders of the uniquely limited Caravan Voice role.\"}]",
+    "token_usage": {
+      "input_tokens": 619,
+      "output_tokens": 218,
+      "total_tokens": 837
+    },
+    "tool_calls": []
+  }
+}

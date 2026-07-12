@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2e0cd1070d7fe685c271b4d87be4c395fb6099348b4bf22ff612ed2216775e35",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5221,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 688,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 198,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 938000000
+      },
+      "created_at": 1783859700,
+      "id": "0zY/mg+SWUaVy7RZzJRG5Ks7bK1Q6BSj7j8fGDtjelu4Qbq3Dj9JIu75YmvDUFLItcQ+lZvYl5WPVSfHKUo6T/8Ypjjt06qyqA1Rj+FcQhjwQo2liiiH5s1N5WjEJbtPWr/htJHSkhQQjeAreeGlIqiQyD+T7rHy1ByZceI/qR706oXC2h1FxlMqgCS9eBOhxNSgStmLpe8FntZAmQSrzzqwLjSFpwQ0ZrJMckZ6BlQDH9nXdfY9+s3MvHARn0E9yzNJSTcLYI+JKRmcLne4mywrsuzaarVQ2N4jCxv0r26QUVWJ3pjsxgmalyAGX3rzDgAndORU7YEK/pN1JuSdxQKa5RHiZbqWDHqg0DVUFjhJsKTVEJmJ43LdNIYdyIlKXh1TV4rcId+bT8HIETUAPW2Ijpr61A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "8/Zx64qKI/qjQRH5U2Cj5tqPUvGc1XoFOxCj87TEABYsQOiRJKwrpdMhR5YxzBjdC0xkytcbNmr0HpkigA9LnL9n1UIs5miL7Oy+xKFIQ3jOuD/+1Iku2p9rTltotYepLRVCAvhHbM6IDlvgOdyTY7FJwppYUnc5dYWxAdullljMn21tOQ7ZB1nfotlEok6A/EOJ/kbYkEXM2VKa3c0S6pIkUuJeWPzwQk3dgXhnW/j/V+7INtjGdh12yjDx/mnf1z93PY+rViA9fK5jiWHkleMe9WCIqoRJnwlyo+JdCFfmZ+62Qxt/O80t91jXfgWLI9UlB+3dZqRS1Sn+ZT1UipeP9UAVzOZs6MhJ85Fl1BQZmIvlkyX7tO14snghY1IB6s0snaGs3W9xovRJgVz2NjVN95o=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1bed8a3a4caa4085\",\n      \"npc:a342838c86d11237\"\n    ],\n    \"constraint_ids\": [\n      \"C:275e9d2d13ef4a30\"\n    ],\n    \"span\": \"Noor signed the register as the Vault Steward at eastern ridge.\",\n    \"rationale\": \"Cass was already established as the Vault Steward, and Noor then assumes the same one-holder role with no relinquishment shown.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "fgZpGOpSPTVs67lIOWS9kQn4hLkWNcxaYO0mw5sZA6OamQBC2wqGWc8yWoYniT66OeHQ3ncVmJwi12YUmaIIq2dNKBeXp37qic1z8MawJNVI1zCetSZdZbzW6OakpaDCwFTgAn9jyA1mLx6+Boy/h8SHLvaxeAOEh/eG/NSh1h0pnYn9ebyq6nhLc9RvoHqxw76/hb1gsQ3ObHiUJbPCKIYLagruiwLE2uuihdyg7IICqaGqdHfGZFQRbl9PqhF+sdjjV4NPa1zJlsvFCoP/XZ8bEdewHaNhOwpFksLgAlbj4YMtDKgOzJJ32W1d0JAKeTglAmen+nB/Qr9ohOl4F44e86UvvwqJI+QEk/sP679vhHFFC5xdg8CSQsWdEHkVwnju8rZzI4w5b50HKysWfV3RsabS",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 688,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 198,
+        "output_tokens_details": {
+          "reasoning_tokens": 65
+        },
+        "total_tokens": 886
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1bed8a3a4caa4085\",\n      \"npc:a342838c86d11237\"\n    ],\n    \"constraint_ids\": [\n      \"C:275e9d2d13ef4a30\"\n    ],\n    \"span\": \"Noor signed the register as the Vault Steward at eastern ridge.\",\n    \"rationale\": \"Cass was already established as the Vault Steward, and Noor then assumes the same one-holder role with no relinquishment shown.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 688,
+      "output_tokens": 198,
+      "total_tokens": 886
+    },
+    "tool_calls": []
+  }
+}

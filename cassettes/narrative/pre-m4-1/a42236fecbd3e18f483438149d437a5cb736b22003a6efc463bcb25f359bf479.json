@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a42236fecbd3e18f483438149d437a5cb736b22003a6efc463bcb25f359bf479",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3651,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 675,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 205,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 952500000
+      },
+      "created_at": 1783859200,
+      "id": "VhDukJsBuKHwLlZ7kr8x3fnH0av893f2x6bOiawL/YB52z1IPnZqGVanjaLo6AvavgmKpKiwSEsCcNuUaHW8uyhSjXthN3NXf7BnIQtfijHKDPUMaXusEUM1AsEspBwJJ6rB84LnIukQ85kcnBlYCNadQuV44ZgtanOekG5uTv0sm2KEpqnhai5XQO+mo4aXz8LKjm+T3jTsou5JEYsCXFyAkZM2pnkbUiupZbQmNJL7CbgnNtzrwxiI6vxIDRa3FLanv2SWKSij55Hd0VBMWmAtmC3HqdxxauIyAZdrjDkd8i8U5pN7lES9iPfhG9bwqGE2wwz9G2NQGYizdCu3cfw90b75tL1EsQzSLW2dOIBypNe3tv7liR40FBbMDf89nartA3GrlTMXtFtIJYlu0jAKzBiExg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "gW3ErHssK/eY7HB/1EV4djUjTb7Kz0vFYJkQnGInswYe3DntHarL8MjPqNrlfQdKjVaQ/daC2anp2y5xrC8C7RAPqyIt7ViahRu3cjxUsAoUCRyYohLwyn29ocvIog6EU89WFBXNhZ8EyYzWslyXLPKTw3aSeaaH/hT4ZOlmXIS/2hF3cH+NsqX0sE/TbBKekom2oKR/egArYG7JhtnEwD2EHvEhRhTCcl4gOznsq9kH/INBqqzlNfbu26eA2kBK4ygl2B91tc/JeeNuG3AK8g6ocw3qg55zb7SebSfNGKjd2VkhGdSkUwJRJz0zyRDQBJZ+hmt57kV6MWmPRTMr4AWkThmvZDfzporyNuTXgvFbJbIJ3BvTrQU6a01S9aX0wuQBEPL2Y5v0UBGcc0BI2kO+q4Q=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:71f8591d0941bf8d\"\n    ],\n    \"constraint_ids\": [\n      \"C:758e80dcb479ebb6\"\n    ],\n    \"span\": \"Tamsin denied the pledge as soon as danger reached cargo ring.\",\n    \"rationale\": \"Tamsin denies the pledge when danger arises, conflicting with the rule that a sworn promise remains binding until every term is met.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "fQLQ/qg8aRHzs5jtujquOuuDscpc9BvzfFuzx71AvmXFUzSoLapManhxkZgNTiqgO47VmSqrru8wtoySX37tGeVu3Of7sE97yUaIn6mMG2jPYV+QaVHUIaQdX0t2eHYYUQiwoCN5WMzBQ3AU+a7srdZ8QOoLF3QWPyWmbqujFcDJKACRC8nyo/gB0IJ68rjlMXyLQSee7Rn/t9Raz85bFL56sIn8h6FF/rkjag/Zg255+DZew6T12DlMn1YfLwpyVyANSO08Ccgb/3ONsRcaBFctHRJ6OqPqO98vxEq6iuIBn1408/ZBwVSqMbex51uob+HicJdeDZvbsK1HTTP7fXyBkhHuk+fD79KaJGdMS6a2+fnHrJA4dAC2N20HAebJ7KzO8eeaWIl1h3dz3jSVd/Kh5ALN",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 675,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 205,
+        "output_tokens_details": {
+          "reasoning_tokens": 87
+        },
+        "total_tokens": 880
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:71f8591d0941bf8d\"\n    ],\n    \"constraint_ids\": [\n      \"C:758e80dcb479ebb6\"\n    ],\n    \"span\": \"Tamsin denied the pledge as soon as danger reached cargo ring.\",\n    \"rationale\": \"Tamsin denies the pledge when danger arises, conflicting with the rule that a sworn promise remains binding until every term is met.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 675,
+      "output_tokens": 205,
+      "total_tokens": 880
+    },
+    "tool_calls": []
+  }
+}

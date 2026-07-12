@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:be572cc9fda2c987be965954fffffae947de6ed5eab18e290430281b1fb1413f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3238,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 687,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 145,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 778500000
+      },
+      "created_at": 1783849900,
+      "id": "PF6kD43HObOW0crys4+nt9RrIuESZu3pm4GV1k7aKEcAG0SH+8Rch0qzabz8qJ3bnzlARd/HnPx0btsXFHEr2UAWbMfXnIs3o3vK7j691cQ8YYA2DYOeWvlhixJ4j7d1o62g7rb6L/ebdFyDF0hOTJ1L1lcj13v3X/tQwVjwoxehMCI0p/n35zwHKD4tFLSEp+QuYwnAqTK8UIlFUBkW8BiKOELNf2FyiSZfoJq6mu8BDIoc0JE8Csz3X+bdAAfWgE/y/EJlU3AaEUxXO5Thq1QwlPeLpqQYhvZlHxSd90yndzwSMMyxa54K5PiopxHorDpJKtUd0txe6FDTQkYQAhRfN/OcubQ3t9icmER/4W0BG5mdphlIKlbodwMdcuJLySsh0odW/jDwbfymzxujlegisgByQg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "LbbWk+qqsUZowoBg9jTtIJQ6sw31VEHuJra1iQFr7Fa19PKETm0/z1davyjF2pzto+rwrxLMSyGwONLjVa8F1wwY8KsoNaYHEAD2w5XGbolYLHrjOZJI7UZHA6IJs3+GDMy61Gku6Gx3YCeb16feEz2guznc/W36H/6lG8UeoG11d3JO0QDQa5AZvdETmDpaIeR2ck6twPffO1Pl1mFOy0wnEV9uHVDEffjdbPW47UOpC5Tk5S8zgV7BHBp3pwg/YjzDxJynf1kz4cKzqaP9J1JwcR3jY+XNkIx4ej49WIrQEefsQ0Oh+KCjQ5AFtXiEIFFkupYvVbjxmc7Xc87DBd1O0QXtJkrRm7Jg89KKeP+0bVYjSf5UuUGjJWQhp8pDezGuEZ1jjWi1I4LhEExPBCNChhM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:41994c3ff875d542\",\"npc:ed2cb95b2fbae2f9\"],\"constraint_ids\":[\"C:d08990979921b886\"],\"span\":\"Noor fought beside Cass under one banner at archive hall.\",\"rationale\":\"Noor and Cass explicitly fight together despite belonging to Archive Ward and Cinder Circle, factions that remain at war.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "bT9JU3zKk64eFWNA07JqtBVrecL2wWTIzJVFMD3hXJx/tyZ94UMlRNJgHQo5riAOo33XgOq6Z8/I7x8NxQAVi2HNl89p3w3LClZobt7ARW+YVlV+tGH9phoU5XNZMHU73sATbXoF0ZXzuNxKeHc9tNLOdr8Q/CYBaXTsQkCELA7tAhV3xpEGeGuzZJNS8mxY50J4ICuToPFLHffc9bcHZsSF8M2Z+F8z3pYiQ4GmijS6Rk4+StmlzBMdtw6DQkApy0ojF5glLsiOJTSBeVqLTWJism8PdGRochr25zQVtCIoUm9mI7dOv1lw53b2OACd9Odb4DlEH8wKq4fYuyB6Wxk39Y5eNKaJ82l12gNrlofIJyA5xL1fLXkMvmMjEmJrEGhUjRfhQTixHZ9xw8nOu+L/+/dj",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 687,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 145,
+        "output_tokens_details": {
+          "reasoning_tokens": 45
+        },
+        "total_tokens": 832
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:41994c3ff875d542\",\"npc:ed2cb95b2fbae2f9\"],\"constraint_ids\":[\"C:d08990979921b886\"],\"span\":\"Noor fought beside Cass under one banner at archive hall.\",\"rationale\":\"Noor and Cass explicitly fight together despite belonging to Archive Ward and Cinder Circle, factions that remain at war.\"}]",
+    "token_usage": {
+      "input_tokens": 687,
+      "output_tokens": 145,
+      "total_tokens": 832
+    },
+    "tool_calls": []
+  }
+}

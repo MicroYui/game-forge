@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a15f4da5263ed0ad3d92ce021cdca45843be2b172a279f47a104e0950b2b383f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5046,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 678,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 254,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1101000000
+      },
+      "created_at": 1783848300,
+      "id": "spj3pEf2tsMjIufIJ6c7dXwBzuWFHOop5SbOTka5AQTLruNkjJpAn1gr6ZcSV/DLdXdeRpxFVtGxUzcqse15tZkAL/pELowVaDHwIxZmbOJLsbhfdRvpz/cscsw23+/ik+dbLiNLmZ7yq3eMNIEnFOGv0oZJccj1EyQNYx+qQwDqXsxs0ssFsdCX8g/q8FT7r51gjj4wzqSi0i1+OvPWxVBAMqn+WxNHe7yFu3M95LDVH7aRl15/7RXzG265lJuKw1L4A+Qsiz6peIvcwNYRloBNe0IPa8n4Ksidk/JlpyqQszJxmnEU1IRWrLtiP7obafv/0X9LzUmD49jO/lZMZK40rsv8mnC8nHr0zJzLdtz3AYuOQ+tIqnXJX9GJXKvqGSF6FFqULztr4pRV1OIzK7Unz/SzTw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "8GaJuOqBQra00a/C9UB7Tn8BbuaD52ZafXeGs3lzqvquXIxQxSi+0+glmDPrqmv7S41yKJYqtqYeKw7GxGWUEOHpGfJNhSRRYyKuuUMnH608berje8k7V3VIKHciKc/iwwBFLQ+g/WsgSsEbNPjrFc9qHzSV2xus4mnXdSo08a86FCWojdV6sKx3DbYa2cVDL69WtAodZLxzlbfutYF6HHOzyDPa/2+Evde257PV6CZmFXrxECEpNpW47V2/g7Qxik3UkwO4/ThQZaSaRgAVDGt4XuSP8UEkEiLZ1ZjdHXklhOiXlpGrwKOw1t48EbCr0EG4BOP0B7PNb94ebUGpCQiX8DDgrBtTJLyu/aj6IWb26gFe9j/aH93anfIIyhL2Qm/Qx/YAFk1t9f244P0IYP9Yna0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:94d3ae1bcc2cb07f\",\n      \"npc:ed7791973962277b\"\n    ],\n    \"constraint_ids\": [\n      \"C:6413584088f1c7a5\"\n    ],\n    \"span\": \"Cass signed the register as the Warden at orbital concourse.\",\n    \"rationale\": \"Noor was already recognized as the Warden, and no relinquishment occurred before Cass registered as the Warden, resulting in two simultaneous holders of the unique role.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "q4vMVqWPeyb4zEUBW6Jhj2lCMKcvtljflHj2W6vvUMRVJQAqZM0QsQ+Egy7oMvh6SswEPwfUigw5qmZl5g40ITwqJBM8sPdv0Ey2/nY7QXIQWzhl3u+kpYVlHsiKt+YiUWNL+X2d28bnobZtQQqq1BDwMIaJYU2hnSbz+rHBhpb9OUR22Iym5XQI5PsqUh8uLhySVsQX/5ZyiS1qgxOeX3VroGAJqWAaHcNjMyNM5KX8WwXjr/kBERs13L+002PrxqjZLzDmSY4sWYs3IXASYdfNWUdp9DFVaYTKLkI5rlryYDH34giohsMEPtzcpnLFMCszL56+BgwtT8RlJJeAp6uQaStOfYx8+1NOEBCSz2oUv6TVKOFCNTFMQhnEG41M20OfS7hCKmqh9sl4fk9dlCsKpque",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 678,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 254,
+        "output_tokens_details": {
+          "reasoning_tokens": 114
+        },
+        "total_tokens": 932
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:94d3ae1bcc2cb07f\",\n      \"npc:ed7791973962277b\"\n    ],\n    \"constraint_ids\": [\n      \"C:6413584088f1c7a5\"\n    ],\n    \"span\": \"Cass signed the register as the Warden at orbital concourse.\",\n    \"rationale\": \"Noor was already recognized as the Warden, and no relinquishment occurred before Cass registered as the Warden, resulting in two simultaneous holders of the unique role.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 678,
+      "output_tokens": 254,
+      "total_tokens": 932
+    },
+    "tool_calls": []
+  }
+}

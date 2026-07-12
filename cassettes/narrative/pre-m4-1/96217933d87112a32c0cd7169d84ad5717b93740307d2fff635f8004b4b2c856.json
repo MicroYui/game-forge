@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:96217933d87112a32c0cd7169d84ad5717b93740307d2fff635f8004b4b2c856",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4638,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 545,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 166,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 770500000
+      },
+      "created_at": 1783859500,
+      "id": "12UtK80qx+ip9NYkw6jEUN+3ndO6mIg+bveXBYsY9flKMHR1NXOL0ikNrMrtPtmu5GMT3T7ovt5NiP5gvrfrOQmz5f3PDxSlBuarB1IdhDzPMqcFsQHpuxIQoSMuCiIeI7nF0itMXoTtN0lpySlA2HKk8/Y3Il+1KtDlNItKB8ZWwIhmEjR0zU+Nt6e9VMn4gFtrHxzI9UXKvtBAk+EmKC44xu3/vCCSgHMOQodmBIfd1MVvKqTLNsaWLxsZZMTG7LgnD2ZJAwRJOsRoJmJ72Gyr+73SqObPdzaiPYH8zLJXnmDfR1TQI/jcnyiH/Qed1O3QIO6ygcYxvHmZ0hQQ9/id5JNYImfykiXdv3Uz+nkrraOh4pxE3vhilfUN2iGUs+wPIBoZ5qKHO2s21P1Twe3tX1wHoA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "zTWwiE7O9aTh+MeqOnL/4OF8GAoqgLTahO6UJW7sL1IHJapqyJ7kwAypp+dMkpXTLBiUgd0wjt71E+9c44/V8wh0dzgemsuf8RePvbPkptSbAS3rPLP9NcGtkwifVEgVkZelLTu8knuBBV7QUqaUtAeTIks3sXvt+uq+4lwd7dCvQj6LPEU27Zt6+VbvZMKeHuYXYvM91Gky6kB8NZWN5lsQj862fJ62P+0X+tozi57qd55fe7PfT2riSFzq6OShX5EB/t/Ah6ZPlf5hRCnIBTJXW/mfF57CEd6RBHM4BNIxREeE0cyX8CNWikmFUekSTdwkDLSRaaCfWpIzxIPP0LwVVv4Ohn2XESP1v0n9hM0TgEuiF1zJsoZzm0lomsJobAbi4pHek/XmNy0bJk5R8d62pGA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5f5d79e4efbb6a04\",\"npc:67dec185906b6be0\"],\"constraint_ids\":[\"C:fb986f9a6db562fa\"],\"span\":\"Eli signed the register as the Beacon Keeper at archive hall.\",\"rationale\":\"Eli takes the Beacon Keeper title after Tamsin is shown holding it, with no relinquishment between them, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "OJdWXnAkl32rPVpqx292hSvCly4XEt/C4/JAHChsqNb+XaprjsfXIBYr5USY6RSAvW9ADfw5Y31W+SVke8xQpijK20rSlrSGyiLc7vObbFWbJLUjqoBhp3/g39Bq2ETbYAaYpZgjlg/+rWHObgQ1Gxw73vpxTiQ7nCxJp6oXBiPU5hVrxF4G3xMaYJ08tRa+EI32xmuV838OHJej+UGNki3G3VJzyFevmAaWNFcF3hKo58GFdupppMQ4qpV0k9c/N8S4wMVt5Sxh8qr5Leuon9SNSPaoX6WlK7N9Qa117BYar8HB88+w9iySEM3gNxgy5TGXx9hMBHaEoRJDS3fWlBEt5qvGPj56JhlIjUkSAMvRvGvrHkfikerHBsHmQUjt/XeCJjcDN1MxB92OhG8LX+6FCzH+",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 545,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 166,
+        "output_tokens_details": {
+          "reasoning_tokens": 54
+        },
+        "total_tokens": 711
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:5f5d79e4efbb6a04\",\"npc:67dec185906b6be0\"],\"constraint_ids\":[\"C:fb986f9a6db562fa\"],\"span\":\"Eli signed the register as the Beacon Keeper at archive hall.\",\"rationale\":\"Eli takes the Beacon Keeper title after Tamsin is shown holding it, with no relinquishment between them, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 545,
+      "output_tokens": 166,
+      "total_tokens": 711
+    },
+    "tool_calls": []
+  }
+}

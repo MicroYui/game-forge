@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ec778e6bd83dd3684c9b94cae09aa38031a7597d92e5575336dbe58b27dc7972",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5654,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 594,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 219,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 954000000
+      },
+      "created_at": 1783841200,
+      "id": "5FH1iXv9k5iDrAckVIbsTqDagvY5ms//quoPCYJE/6qiNn/OU0qvrQmCPh2PUO77DKUzgoKwY5+ccoNtthXw0uEBW099SKjPwKdLZjRcKCAecSpY9hWaR1qdALQRyALJfxnY0Blp4LH0KMU42GvksOHQvbv5SUnwQcJTDkfAGZWbT62/FyZy9pWu1hUIy/aLfDl40GVUkHdf+urV2XMGd49iGskiwObNZkcZpA1ADlfqo8EjE+cBhd8RDMy5VfI2PVR8zrZO2ASXoQFifsQYfLP2uNcbpcktNyHikqRHwyr8POEvtXJjHRu1J1fXwHgj1VmrJ3VTrg8DRC3khh+NVZtA9rv1am7EeMyA2ge5ykUYHoUWRIg4Njn8fSspIiPzRr2i0QM11nYSI5oYMwlsMOeP7XIudg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "DpMrLBeUvciTSCnzOjr+6nCSEByjU4gFV9yEIgkvwkptNV9l1nwd/091v9vadn84cVv3S3+gIlvN/7IvnktA7d7PyPpKpwxoXyauY0GQTHGNJ3f6GX31BDWl/mpip9doB1TL+yiiKHrlBgZzE+n9kHFi/U6A97Hp+cDAklQe/bhsdnnENKAv4pzpW7krRUafbOIU7GfLQSwt6DBbHYgK1FF/64a8nOcvVoa2IO///Raq8i9pL2m9rkBobc0AHTginub1vCZLMmgVe/J56mk3xsNl6yCjN4riHL41fU0jpQaZ9tYzuqhvJRHqDWr7oiYDZzeixZ+pqqM9NWTmNpPQSSJlosU1cZa2gTqgINDzNe1rcEdQOzAG781qAzbMbLGKBEIpw01MbCqGELT/cFR0bk1RobA=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:95913a9ce0dc9aaa\"\n    ],\n    \"constraint_ids\": [\n      \"C:48d623fa9d5a5639\"\n    ],\n    \"span\": \"At eastern ridge, Tamsin struck an unarmed visitor without warning.\",\n    \"rationale\": \"Tamsin attacks a visitor who has no weapon, violating her duty to preserve the truce when guests lower their weapons.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "RNuaIu+gdVMXMNICKWcdrJNxzclWOTwqu9m+zfxl0kZE69ER4z4tZd5pjkHe3U3C+NJ8AEKy5KJUXqIfPhBuGGvZ/CBZwMve5oDqAL5mp44nTFOubpFInFJJJ6aIk2Vo5kmlxJR4v/Ded/Ak3t+UKeD6EJVXKMGswzL04rauiYqzBJ4rxq3r35v9YTmuAEA5/GL9PTrmGXTRI39L3eG0DvSRGjErc1NLfoOnF7DcpWxwzcCR5/TVb90CM+vqJyOuHpFEXNWYy6tBFrCBqali/no8bP536Hban7heDhYDW8tcf/kEvMvM/MiF7RliGkCPr/m5+nvGo937jHg4d3k3m68dAs2Sim9QS87DaT9KVm/7pEb7l+pnSfCjF4ookrnoR6HIMytgLH+pxYJBX3t4VVXhfIxW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 594,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 219,
+        "output_tokens_details": {
+          "reasoning_tokens": 100
+        },
+        "total_tokens": 813
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:95913a9ce0dc9aaa\"\n    ],\n    \"constraint_ids\": [\n      \"C:48d623fa9d5a5639\"\n    ],\n    \"span\": \"At eastern ridge, Tamsin struck an unarmed visitor without warning.\",\n    \"rationale\": \"Tamsin attacks a visitor who has no weapon, violating her duty to preserve the truce when guests lower their weapons.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 594,
+      "output_tokens": 219,
+      "total_tokens": 813
+    },
+    "tool_calls": []
+  }
+}

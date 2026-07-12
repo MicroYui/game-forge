@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:17294c4dfbf79e8ffc05e46ef42b4a8d75299d2fc565a4b23504fb800e3c5c57",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3657,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 654,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 172,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 843000000
+      },
+      "created_at": 1783849100,
+      "id": "zy6XIr8UGBME+a/z5beBVgSAuU6dVRrFRXrROt9BrWGgVQugGi4tkRs8DkmxemikyKL6FhbCS7zln9+EBKC2DzyOtFlNKHDjqB1HHOGvkEPQjC+ZoomKoG/zhPc7Gj0IP7OtkEuv4M9l8t4xurcTwkBEQTVdD6FcnG6JAKydSte6iqu9iOuZV+kjM4kWpPUkKnYYdiVg0l3OTMwn+ac6274nAGVTRIWkmxwhIRdXIig5zAdlEwTWyxD+IHVTf7ewDfA9V9YfX6MRMXRaXzDxg8VXkGvK52zGL5C+OLXvhdzZg/iyUz1rojUtjQuH2CtprTmX/cva3ZWEMsfvnOBWgnSYqLV4f8o+uHVhWMEiQSqDCLgPLQQlKTAK+/YKIbn6gZbHPqU29f84tb3TeXPVPXKKp3G8rg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "kU7GlTwIl31sLQAtXAfWlqO/2TWARBaPqjF9PzS4wWwiGGSPwkluFDdczB0he3E37uWeVMYv9CeLUx/7NJSwMMC0wVUSRDCjLWoGaXMJUJhPbX9vOFb8MFz//n4nKe8adhc2rZEig5U0v7JO9aJNXp/mtv2KDcUeuMRCUnP3oTQYVJS1aDyViyD454FLv5qvHIk4YpyeUJJKKspIWbkHXRarvncoHiMWflMErmemqIx7aI3lZjOgOWiG0bsnpn8LK28hr/MU0wMC6JLd2KDV4Hk1M8yookjdF4pnAARM8oiawjoCMszJXWmCP4mvjuO/8opi7a47Zqec/h1f65ypTfz19rgsbcoD5qetWXYNBrL17e9DiSp+2yRN1fMAe+MZV2ca1xcf9Kg+u8n0YKIt8vbMLa0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:54a51b9f8a5af36d\"],\"constraint_ids\":[\"C:52d050ceb8a3ee0a\"],\"span\":\"At caravan court, Ansel abandoned the ally named in a sworn promise.\",\"rationale\":\"Ansel abandons an ally covered by his sworn pledge, conflicting with his established commitment to fulfill pledges despite personal risk.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "BlvM1Qz9NpUb8lB9F05bmsywcIoF8tDVFQlI4beUD4EpUNevEPPUxOZR/Re+i9LdZ2nS6yp8LVKcz768Zq2uC/Fh3YqHsKMRTWCsqcjDU8MrE3NjZXSV0Zd5XyglfVApYWu1/h9u8zaML5i4ao1sbTNJGId7QXVoHKn2wc1N1A+0V645FuRR0LoHzf3VPkbdV4zb11I2T7loT3njUD8WliliwSINdoU40auZlSewH+HsM8sUKyWL2Bm/ViF1XfdUDrbo+ra7jW5RGG+LW4T7jCni4ddAxOqUf5T/9WPjFWCk7vByLD4r/YipDX1AD5e2gj/II6lTKcwsdJopSbcUlgv5TiTnJwrlU1MxhCcwFcleAUOEyMrGrLh4G02yu3sRgJIQv6CAjaGzZ4RCseG/XiGNwFFJ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 654,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 172,
+        "output_tokens_details": {
+          "reasoning_tokens": 74
+        },
+        "total_tokens": 826
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:54a51b9f8a5af36d\"],\"constraint_ids\":[\"C:52d050ceb8a3ee0a\"],\"span\":\"At caravan court, Ansel abandoned the ally named in a sworn promise.\",\"rationale\":\"Ansel abandons an ally covered by his sworn pledge, conflicting with his established commitment to fulfill pledges despite personal risk.\"}]",
+    "token_usage": {
+      "input_tokens": 654,
+      "output_tokens": 172,
+      "total_tokens": 826
+    },
+    "tool_calls": []
+  }
+}

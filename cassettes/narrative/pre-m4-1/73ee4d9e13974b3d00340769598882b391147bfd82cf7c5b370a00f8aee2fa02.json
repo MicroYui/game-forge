@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:73ee4d9e13974b3d00340769598882b391147bfd82cf7c5b370a00f8aee2fa02",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3274,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 723,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 173,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 880500000
+      },
+      "created_at": 1783855100,
+      "id": "bFnzhflyNHqP1qgN3HwBvm+zRDEg3KYzLaxUeJt567I6ghyO/H1vSS4RjtF1MZtdXFBzfclqDGEqVsT4HUBrhejQF1EAJ13dXmtVAGesMZrxkITOgW6OQ9Szn7RPdEWI1igvEVXpsOUWgedD/4lVTnWc1qfNFKC88qfM5Ux5UJi4lKdaHhfGhlrXKpu6fvkqGMGg4cLyM4WOo0xS/oqFrGJF8IRXYCHzPbY2gtZlR7UpvEeqXioLqqV7lqc9L5O/ICzdOcNxg4/mUI3U4BeADOOMS21T0+w1hldbIgy3nZ4OWfQsclaGlAhEd/W6HEFNqVNJDZTJ8iEeisD2N/kKtKQJb/prSuxDpbLWUJ745IPzOL0JX81nOEPvOhBT4h78PF7eG9UKk7BZiLXJIqeNIKxmOQmu5g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "5YDVkrVPyQLHAwnG82WfISt/YKcjEN2aGJgThhPj6slKKNKfMflqmtwgM/6QdjQuC8mGTBbMoBunR44TO+DB3oZaq/8zR3/+Sq0+5JEfplLqAJqkENr47E5yOSqjBUqhMFNINAeQK3WVT8LPlSryLvSyKZqQ9r7GAmwZ9W8oHdEjKetkoMXt/I+X26dK10QoHUHJOvoT7ztvdOfAKy986WdyR40o06LJR/1MU5lmEB2tELBKP4LXPCPryBiwOybpn4PDJfYrhHju2rpE7lDQU5E/BHiujic/NWXkS2QWDyw+26fy1dcEDXlrJQbQ+8nx9hdmTwCZxKDNKfPkmiusMTQHubz8IFvAqlg8EfVFvOW9qhB9pSzGpyxfd2Jgn56eDyRHCRMaB79RJUZxwSCwQXCnEno=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:31ae27803fc2c7f3\",\n      \"secret:0dbddc9ba0f34cde\"\n    ],\n    \"constraint_ids\": [\n      \"C:5e62087ffceb3a77\"\n    ],\n    \"span\": \"In eastern ridge, Ivo disclosed the masked envoy's identity during trade council.\",\n    \"rationale\": \"Ivo reveals the masked envoy's identity during trade council, which occurs before the permitted map unveiling stage.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "EWngOkz20bM3hwrV+gSgBEuUgEQ8uJo3i/CwCoOtAmSiWUswb30Zf2sjVDPx8GTrfi2a0SrgbuXABi2SqJu69TgKPtguPJ8llzac9GXgiCTSE05Ss9kbF8IGI4enNjlkOWIyfAPpFoCVCcJPPzkzr/QJirn4P2tFxqXZRj7xlsCQx1bG4W19Nfsmgu/6P8qR0BkQMsu+YRO0RGpNaR8x8XOQtVmeCMQQdwquKbqP5Beb5rWiddBxXfiAVtOQTqoiDozqr3fRiLND9VuHIDu3PyQ0MffzCouGKoOIJ6JHJgfUtvEZu9o3VxPp8B2xgqg/GF1oi1sSgMqdo9IfwmgXaC/PuVlt2nVX6bqjMmS7RxPYmTl90N5iG/7T1EjUQ/IGIRjxW86NtbJSfLY7PqywScmqkVvy",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 723,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 173,
+        "output_tokens_details": {
+          "reasoning_tokens": 42
+        },
+        "total_tokens": 896
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:31ae27803fc2c7f3\",\n      \"secret:0dbddc9ba0f34cde\"\n    ],\n    \"constraint_ids\": [\n      \"C:5e62087ffceb3a77\"\n    ],\n    \"span\": \"In eastern ridge, Ivo disclosed the masked envoy's identity during trade council.\",\n    \"rationale\": \"Ivo reveals the masked envoy's identity during trade council, which occurs before the permitted map unveiling stage.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 723,
+      "output_tokens": 173,
+      "total_tokens": 896
+    },
+    "tool_calls": []
+  }
+}

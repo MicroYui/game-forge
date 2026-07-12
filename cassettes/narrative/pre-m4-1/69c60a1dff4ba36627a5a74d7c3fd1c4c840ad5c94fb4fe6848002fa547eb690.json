@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:69c60a1dff4ba36627a5a74d7c3fd1c4c840ad5c94fb4fe6848002fa547eb690",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6665,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 679,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 192,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 915500000
+      },
+      "created_at": 1783843800,
+      "id": "GJr/vp2zF+iSRCTtpzbJP2yyXSUNALc1e2bqrCuG4bNqgahnZEO5BkVJJJony0qRjG+CPhEZYp4t8FMSyseVqeEMXJofP0BN6RvllguzMDgJ1szE0pNw59muC9Y6AK8RBabmGipdDTNS9Kj2x4HSrkf23my5acOV0FOQQ39rt+Uldm7Qx5eiZvOv5C17F3AJYea8Krq+eNqfbGF9micwSsbWAti5sM4BqTLR7B84sPMhTWXO0enil1T7GY+0UzjpcbAUj/xdPezDxU7BqdktQC+gpN4SeCut69qRjSGhKJQ9mgFmDnePb8My2iLJ+IVXuUrTUJ6Wi/UiE3g2nJvmllRP1OejR3Bd/U6BewZjbLihZDb9KHoRgS3RmxzuY3bUsk7kB5z/FTDjLdhtOVhQePbiocCRUQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "GwtiUdsQj/tnOyvQlRW2HY1QRXY4rH2/57A4RQoXhH83dAAtcjKpecoXzyZNPpBqYUlki+CBN3PzSIT9SJTYOPOMmg7ZPwq7l8lunrQMVH8Ayf7uHDYWknSygobC+vA/LL1N1OePf0jro07oU2uu72NE1Z31x0Bv1xc0BMOLVYCSZv7pw3FQ/yy4fvk3mNUOIEYEqbeeOKTLO6UbyGc7k31p4rQ/BEMkyncQCNUltxdvP0GEXiNAg+JasIUSV0S0Vu8LcFzKVKQAsaMW1B53gWQX/3u5ki4JYZTiWc9Zp7zghPiG8IBFIEGxln+o9NvoanV9HfLBGSDWgQCoUIQ8TQlTr6JxnzEIHg1S/jVnZGZQhR/hl1UtD+oqmTxIrcaLJizU0OyhMka3SPsJ1LRr5vRImzg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:bb0f530cc20f80de\"],\"constraint_ids\":[\"C:a82214d5c585f5eb\"],\"span\":\"Mei kept the winter medicine while the outlying camp waited at signal tower.\",\"rationale\":\"Mei withholds relief medicine while the camp waits, conflicting with her duty to keep relief stores available to the public.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "ssUxfj0+W+KcPXIZ37gSfoccBuTX3oR9ETUGT0jkORcVeGHycdrdaVeB12Bt7OCRvbo7d6tCqCBeRbpFBcXLvQFrUPXZO5oGnMxc8FkIWKjWwKpuIsS5ZkWDk6Brl1RRhTkr4zVOlTs2CKaWbK8BTP+vbY+EscEPLrNuNAOw2f/PdPCma9PUlg9j280CCf+43QGVuFTj3tEo1qH9ZnmpZCxueiV1NS2YrRCdXNpz0SPVF/rKJjJnxUwlIPzllBw1GDohX/3f0+OI95LE2wAdvPc7Q+DmKZwzmlzjPW6q7RIEXNF2OooJZLf4nJ7b2KxbjnXqtqZRIQ0SfpAaoh19d2eMQ/ymQGTAtiWs0ypzXGnlzCeGTc+OT00CojdzH4rQlPcIZbf1yajgNmK+knT9cr7Edsby",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 679,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 192,
+        "output_tokens_details": {
+          "reasoning_tokens": 98
+        },
+        "total_tokens": 871
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:bb0f530cc20f80de\"],\"constraint_ids\":[\"C:a82214d5c585f5eb\"],\"span\":\"Mei kept the winter medicine while the outlying camp waited at signal tower.\",\"rationale\":\"Mei withholds relief medicine while the camp waits, conflicting with her duty to keep relief stores available to the public.\"}]",
+    "token_usage": {
+      "input_tokens": 679,
+      "output_tokens": 192,
+      "total_tokens": 871
+    },
+    "tool_calls": []
+  }
+}

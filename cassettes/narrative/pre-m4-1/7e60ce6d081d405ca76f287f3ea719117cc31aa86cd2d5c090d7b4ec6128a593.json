@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:7e60ce6d081d405ca76f287f3ea719117cc31aa86cd2d5c090d7b4ec6128a593",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4016,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 542,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 161,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 754000000
+      },
+      "created_at": 1783862100,
+      "id": "9454anXnNcOR4pPBI0+MuibCxLFMhRkgz6lMRCIpR6pAy75b+nDpNsB+3FyWRvwMAtnzA/nj0+j4YEeggI4r24yMrl3bRfRuXa5cpv7X1s4hj+RSfFrZFrxrfEUH7mvy7STj9Pwb/FEJxP9hgwxyLKq+LdvvJFtQQgP9Qaa42wOFxvHPiZhjVM3L38PjpjMGixcnxbIAvlj4WgSaNbbGS5/OQ0NS9E290wLCVEfUj5vcIC0ENfzcrXJsl72/Z4cwbdtWrJbRjDOoQLJaWExDirdY/ZojUV4SM8hnVmmSUjUrJ2r5VvOVjdhMg7DOya9xIB4tptcgqRiUldm8EzurJ6fhaxECG4PQ2OFdXSSYczlH82WYIZi6l9Xth2gNZEleIrO4UVKeZPZMkTIm19YNfFj+bJ1c3Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "UsqOnbg00JKE9M/Kc8f10rf6mAXQQIdCrKCWGlS+cefsolRBc9rpg7BQ365MS2sWpcC6B0FnMWFoOVHNnQHy2P+WmWGQ1vDl8hOB2YOWCtmSW7EYUWs8bz/HRE77M7a7l7o5lVSijldp7c3ql9bb2efYKESZlJ9hIDrD2dNeOfhkL6nMHiAu4Vjb8pi48omFu6ntZqAzf6QngGrGlicSeYUOfaKO7mUTIjWcg/BQPbmewZ06WQbDVOCnRFDj1HUCALWfwzlhcRaCSkdBeKyMJqVODgmIciZLgMOECtEhIS+XzD7CRJ3K9u38FHsbVOn7DvMQiLAQUxG/JvbP7C4/Sr2TdtL0/DSQvmig6RYNvCE99BDzd2NKtte5N0muhTqrcPt63+J8qnUlNxzPW5Oxf29m5Hk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:be26253ddbc03027\",\"npc:c64913c9edfd5da8\"],\"constraint_ids\":[\"C:ba49671bd2721e29\"],\"span\":\"Malik accepted the title of the Harbor Marshal before the assembly at signal tower.\",\"rationale\":\"Malik accepts the unique Harbor Marshal title after Ada has already accepted it, with no relinquishment shown, resulting in two simultaneous recognized holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "k8jxfhJ5yVF2LllTXUQjPYjqpBQ9pkis+d1MLdsRPkR9WAG11WOS7Sa6B+FWMFglQ0kk2jpHhbPoiiyLtUSLfqa5YxghZpOUgdNAiq2ri7Tx4XbZYq/gdTGNSxa0dApX9EzqZeJv/QC6of63IGM78COD38vpjtdLNVtKJK2AezFDU0vPTZYplbPGnK3KIlkZ4CcdPuIX8dtdrpDTjoHHF7JGMn6472oI99w0QplhPG1/U+ctLCd+l4u1ETkyekNS/vfV1EqQST4z3Tdo6JMWjPnwtI8ukVZEdRC24NLyFq7zITZceZRC8wqbWnVCdmRLGewlS24irP7/aPzglzaztEoquEiHhAUhot9GyJA3hPOB80njjpw+ruxDDXLIWu3U0l4iKWOUcrgKZnlTa8RcaZMbJo+V",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 542,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 161,
+        "output_tokens_details": {
+          "reasoning_tokens": 52
+        },
+        "total_tokens": 703
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:be26253ddbc03027\",\"npc:c64913c9edfd5da8\"],\"constraint_ids\":[\"C:ba49671bd2721e29\"],\"span\":\"Malik accepted the title of the Harbor Marshal before the assembly at signal tower.\",\"rationale\":\"Malik accepts the unique Harbor Marshal title after Ada has already accepted it, with no relinquishment shown, resulting in two simultaneous recognized holders.\"}]",
+    "token_usage": {
+      "input_tokens": 542,
+      "output_tokens": 161,
+      "total_tokens": 703
+    },
+    "tool_calls": []
+  }
+}

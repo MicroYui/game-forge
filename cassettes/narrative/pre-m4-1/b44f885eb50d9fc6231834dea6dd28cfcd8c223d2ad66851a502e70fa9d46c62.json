@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b44f885eb50d9fc6231834dea6dd28cfcd8c223d2ad66851a502e70fa9d46c62",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4932,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 534,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 251,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1020000000
+      },
+      "created_at": 1783857000,
+      "id": "xggkEdvj1fKrnuByTFPD0PUFcZqt4AaoS1ZBC5NgY2Xcfj8H54wjNPq4hetfm/3Qn9+5vO0ZDpPCPwJtkCKWzaiezHa2Ax+4uanrWCwc31F+7VmMaomYetL81NlU7JWNf7NzyIKBKf+SECAih8bqWMW6hD3qCLFLydIiCNOvrsrd8uIGRRzqmCYf8iEBKwLIzAns8sY0a5Bo4a1jS9dfn/DxeIKeG8ZQf0h7KlVsdFZO47c4VdVcThPrhyJXmoJtdjCg4lFsIkQV+LSOF1rHMdv5tzrxh8GU7jOROxOOcBq8Ei4P9QudDbcmvCBoOQES79FTsiaQGeuyT2LBXT9LMIl2F6eWojJlKngQlVEGEqfn4SPtXFtL/jZL1KXSpMlqnbwwWDQVomOau6A4+mBCvDt9tSEYJg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "yyKH7mrModcXrT77uXeB1Mq3701PhblPzcZRWpEfb6PEOeUd4THgyeLx/vLNkhZaQEHbhIiSajxtFP5c7o2dv1Nestn4GcX04D5C7apNqnyZCISCpVcVqju0pAtj5/eWeGCL6hiyCph9jeRC8nLbrI7JAaR1wKJmAS0+ZoYUKK0iUiQ1+BwaCnt7eU61p5m6IpZltRG5mCY+UoOcHegWfJ9Gy4/rSM8iwFo6QaRLS8nwpLkAH3UYaDJ67HeAOdSw4IXC3V0st4dXBTejnBiNsREv1DYihwejgMs1ioibOkRuAjeIUeayFWi916IuNDTdTPGY9cWNmTfBChySCSPnoChfjnNNe7pqtsduisbDZXfpNNALcDmer8b37m5a/i+wwiAP8dggnNERVH/Vj1TabplS78w=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:e341eabbee063f24\"],\"constraint_ids\":[\"C:0a65a9c5ed16bc1c\"],\"span\":\"In glass conservatory, Ada attacked the messenger before a word was exchanged.\",\"rationale\":\"Ada initiates violence against a messenger who had not acted aggressively, conflicting with her rule never to initiate violence against a peaceful visitor.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "QglW/+t3y1x0I49IQm1JvVwyU2Gc4PVr2mLfSD8GR37fmpHOTvYL4XshboPrlKSwqmJSpCmNCGmNo9Zb7RaE7W2fVkb58GrscKOrAVDgeR0yQ6NGybfGPgdvsTbdACSnXbBfbPL5OlWGLnaALcf5aq/O9Tpm9kkxgH/zYDxj4PSRqwH19X2ZqL0aK3OPTsar/IKpcu1OBmjxEBoK5PGNmyV9X7FX3+FeOr2kqyuFpCyWV5W/IbVnRv8yAZDV1B625kIh9hgEUV1wsbzmy4zps9mldRen5NVbLjzsOENP0hltHLZveQqs0ywuABWluWwqxENNTjW88dbD6e9MkWUYUGWewO2CYGcnGCLxU1xpePspCn58elRgNQHYequKB2qiJ25uLItw12oyYR27B4MusGQKezJy",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 534,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 251,
+        "output_tokens_details": {
+          "reasoning_tokens": 155
+        },
+        "total_tokens": 785
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:e341eabbee063f24\"],\"constraint_ids\":[\"C:0a65a9c5ed16bc1c\"],\"span\":\"In glass conservatory, Ada attacked the messenger before a word was exchanged.\",\"rationale\":\"Ada initiates violence against a messenger who had not acted aggressively, conflicting with her rule never to initiate violence against a peaceful visitor.\"}]",
+    "token_usage": {
+      "input_tokens": 534,
+      "output_tokens": 251,
+      "total_tokens": 785
+    },
+    "tool_calls": []
+  }
+}

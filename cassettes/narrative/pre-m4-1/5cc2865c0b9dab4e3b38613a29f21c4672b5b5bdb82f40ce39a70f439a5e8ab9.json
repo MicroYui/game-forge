@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5cc2865c0b9dab4e3b38613a29f21c4672b5b5bdb82f40ce39a70f439a5e8ab9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4656,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 544,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 200,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 872000000
+      },
+      "created_at": 1783854600,
+      "id": "PgVcsae/tZaEO1IxCn+Xe7x33HkwOlnYptG1SJaqwIFkgOXVWZ2WKcGW6VEtelrtN18BuUaGZv6Bx9haKK7TClqMUApfTTG6pnvdfJOi5SAeAUQqYCUY81ofX2fzz79BVUFhh//PacpnTjy/Z/xOAgaVcvlfnTdxFHNz/GhyuX/x5Aa2Avd3nNENH3ChQjjkDqA3PL4+jyWRrtM105fz3of5FxdHG8cAt/OEvzQjOw8oHRjCEOhJgnT1xohEfpiIs8YfEg1p6pcIxc6psR/J5j5jVSzekyl50KPY7On7fZp0KrLKWybKVtE0EDwKhFbNtYP3mzkudByrH7F/cHjCLZspdr2a7LvCh7MRRJ5h8oV+QQTIXSsTk0dTLOSQ1wpamMpUKLNOLt8l2yvcNjmSv37d8ONuDg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "PzLuVcVGBgcjPkl4m0AI4UWxwy3GmJJlLAvqU6dmb2/Wecr8qMG5gSIwlys/gOmQsPDRxQGKgWdveq4mrFNvw0cWZxWROXgakT7MD2b75DfxY7ub2yRSTPEIJG1NTqjT1ABnR30h9kgb9BeqQcaMdIz1qf6cpygV/+cXruhTsU8kzefDUr2VbNOh/fHnPEqDA2JFwpho51GBxN3/KnASi+ooNRwDCokK0WpvM0Jtqxmr90iPMzGjKmlVifE/ch3JFTmmwoz0GLoOkfQ2b8CnD/pWbM1Uau2/Sl6DQCAOv7iBSKP7iRrPR+6D6Ucgk5+ohQuJa6Yf45ziEp1hlJAPm+PSfxW34CPq/DA2It/YIp0rMJwrH7Y+p8hJnarPHolOrz0bBp0ShPb9/t57/WAw1Ko3YD4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c108149781959301\",\"npc:fdf9fed0a3d29c3a\"],\"constraint_ids\":[\"C:11a300906401a356\"],\"span\":\"In observatory, the council recognized Mei as the Harbor Marshal.\",\"rationale\":\"Daro was already recognized as Harbor Marshal, and Mei is subsequently recognized without Daro relinquishing the role, creating two simultaneous holders of a role limited to exactly one person.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "UUAohvngyBI+88AG4tOfIw969hzsSRfpiTO6lbfozv7p+ULE5UqpZPtWUicONhM40v/P3DFaGGsGAUh1iKgPKcI3Ywri3WDUT4bgomC1kSYewZZtHcmOc6vFzNXwTbuy0YHynskdQ89Ixm54mDdDaQhjK9YAOjRxxSlZdfvtw4iQ19I8KGO3CTOJkdjF8jFUwoRl/NXvvaf0m+yaQ3YLSJyh5nliN6X9feUj6PHqcgc+6HRRyYypXjHJeRWvrh6oxjuxlnlc8/zR3ioZtSngUd9xv1eRvlz8e0hqcJDQghShSWpLFQAEMjUQ8pH75OOa+t5sWBaZszJwl90V6ttEgphrwcN++qBQ6kKljcoLtSZvOEaObU/awGpWcoNmq4eDMpdG9Hs6YuXjO6M7WtS9m6mRaF0Z",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 544,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 200,
+        "output_tokens_details": {
+          "reasoning_tokens": 88
+        },
+        "total_tokens": 744
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c108149781959301\",\"npc:fdf9fed0a3d29c3a\"],\"constraint_ids\":[\"C:11a300906401a356\"],\"span\":\"In observatory, the council recognized Mei as the Harbor Marshal.\",\"rationale\":\"Daro was already recognized as Harbor Marshal, and Mei is subsequently recognized without Daro relinquishing the role, creating two simultaneous holders of a role limited to exactly one person.\"}]",
+    "token_usage": {
+      "input_tokens": 544,
+      "output_tokens": 200,
+      "total_tokens": 744
+    },
+    "tool_calls": []
+  }
+}

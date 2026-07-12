@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:12d083b3ba8fa6558f729fed765774e028ded29ab2f435c4354c17971bee6f8d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2794,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 571,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 175,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 810500000
+      },
+      "created_at": 1783855900,
+      "id": "9fY1M4pzA7onSjPuJdLE9tRGnCWFPxr+BkqDScRz3r5XnxnAfqbW1MQI6+8jhBw3CNx8RBSSfKbnuZg91uvBm4v3/SKX7mRCh+PrxlQ4nbjyX0DPOseMZ7XDTOOmi0rS85/qO98UtEv3lNNQb5jGpEiPBRVJ7OKpFJDEAHR9y0d7gjBPp89PFcxSw7w8kVrcC2cmMDeZTzaLzIddov5Pi4cX69wZLbv7G1P6nWAmCKoEVlUnNRL7isWcM1pUDklfNb7JnMk59/2izIu3k1/fOoT0PijTEinLrby97wLxdXeDmbSHwHUCx+cS1Txk+Eg3blCZ96apjOjB4wkND1uf8hfXwDCjmrtAHSbeuE5QLUN5oldZt8NLvy7pP9rwtIQgnkSskTm47A8JU8HRc8xW9a85fC/L1g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "oO+JVKjDCzNb1MaNdY9bKKS2IcoIr9QX9fDYzwFACxOeCHn9LFtYBMWRGsVGer4cBPQWI5zpVbqotArvETrsLGNbsCF4Z8QUoZf3NQM1vevm9PqArH8/pUkGE+59YVY1nHq3nPLlBibqpw/I3ihQ5cRBKuh6AdmV9JgBi8rZxeQhKu5VH55xcVT41P/GNeONvXn/q6qGnbU73xez7s4qbPOgbcf9huLmXuWO6fCT0CDloF34bZx3GEyrJa7wDNPIKLhCDmYy0hhZ42VPo4ogWjL5vcLATJU4kJhe2wZnLu9y2IxEl7ZaePgZ8JSHcVjVLiPgvfNWO+rA6Y1rMJjkfu6sVZFJYBOTKVJ6dRXWztREb1c05CeS4StFjxroglYPm58hh++LgvevYntmTs9Rm0OT7AU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:259907427de20ea7\",\"npc:88a5ccd6a45e0708\"],\"constraint_ids\":[\"C:e5e9f3c108ac2b6a\"],\"span\":\"Mei welcomed Daro into a shared command post at canal bridge.\",\"rationale\":\"Mei and Daro belong to factions whose standing feud bars joint commands, but the sentence places them together in a shared command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "sK1Pnck9TwrMYXTfZ68VcJdSjZIS1VnZ8racIHxcdxS7AbDOw+Mf4CEEu4uyuctEBjmun6RAjJnGbVfRadHsskr1xMPl1mKGlJwMsQzRgFHg8OhB6MlLIxkNlWADLxiXis2y4ioCuGsMTVKFgu8Wj12Pkyiq8oqWe4kaZ3sdRB+vqseWOZJZ/VS9BAbMdNsJTIZgkney2q8le8lUAtenB5cxdY1Us9SjvPEM3oGmuXeYcmM1YjtFR2y0q/zH2EMvIy0CNKzOkcorrSVRr7XUy2zp9Fo9Z7zabLOywn9vJmCO6Re1lQJmBvO9zGhFQQWIhtUB/uTGSxblmV0G7+cxDT1klMPjVVpGth3ij7sll6Hk0oJyFGAs92VOj97pqi1c4oPm2kbhMRL9/dZ0ntRi8bLMdGv5",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 571,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 175,
+        "output_tokens_details": {
+          "reasoning_tokens": 65
+        },
+        "total_tokens": 746
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:259907427de20ea7\",\"npc:88a5ccd6a45e0708\"],\"constraint_ids\":[\"C:e5e9f3c108ac2b6a\"],\"span\":\"Mei welcomed Daro into a shared command post at canal bridge.\",\"rationale\":\"Mei and Daro belong to factions whose standing feud bars joint commands, but the sentence places them together in a shared command post.\"}]",
+    "token_usage": {
+      "input_tokens": 571,
+      "output_tokens": 175,
+      "total_tokens": 746
+    },
+    "tool_calls": []
+  }
+}

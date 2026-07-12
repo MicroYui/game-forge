@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0db4d2152fb4f0e48b4888804bc40acf24a78f1c2c557c37d5dfc700069848a9",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5889,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 558,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 224,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 951000000
+      },
+      "created_at": 1783844500,
+      "id": "ZjRjBEdebV2oOM/pvnnJB/X84AOwnsYSlner3P/ApzvbAgBpY1o9HAkplwvaDVkOwmqYenFZsGC0I5F7vmCdOm1fQ0DRW0FtJLPdbr2RaGMhyHc8RTEgQYjJLRoh0Ijg2MI7blK7JHpVMwH5rm5YACk2CbvSDbMpbWgTv41hGdTqtVMEFAnTiV4J5+YRBhaPKtugJrNyGHEWB812rbJnraE/c8ERcTDagJs0eFk/FBA295jURPTYGZ843RsdNnPaWH23QcujJNXz0N4ilwYw3YhNCyiTx8pYcAyFN6zpwPZxY28pQF1oCNNFNLGQYJaLQ/HJeKRYfXqmwizKzPVttzdbboTsrIAZBsgeBHWNsCs0TGcThhfGa8NdodY0YGuXFagOqlkHgCEju1IAv27JnLs8Fch9ug==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "tj355NaxvoGOKcF2t+K8S0Z5CUGoyI4txO9Ymr50cEe/Og1IYqJUTWme6q2/QpXgBeLmSZUyldLq0ZRTA6Zr8mE1yD8vKYnxLS8bKFVZynkWUH11cT4N4R9fQqFX2F69xV8wRcwpFPvNsPx1LWElooz47rAbttiS9Py+7hGvUPnpWnXBEvzEnExBUEtqgqT0GATWWCS0rzDdRJzHQ1CBd4bz7nyKAdiVactB6Mjh9Fd2qWZX0suGhv7Im3rgC9TYVjZc1kx+MRSyfLUAeMWBJsWXgBJcPH6z0YpBIWvrcizopDyjftpdapMtgjkgzRMg57ArWxmHKD8gdkm13xT/Y34kIWR9nICc3RNlqjsOkVujoZW3khAkqjKrO3trdK0q4HiEUeeqDjiQu4UxaSpFesIbpyw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1c63b44539fce845\",\n      \"npc:979daeec3d797bd8\"\n    ],\n    \"constraint_ids\": [\n      \"C:0d0b53d3377fc195\"\n    ],\n    \"span\": \"In canal bridge, the council recognized Qi as the Beacon Keeper.\",\n    \"rationale\": \"Qi is recognized as Beacon Keeper after Mara registered as the active holder, with no relinquishment stated, resulting in two active holders despite the one-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "fdtSBfBY7JSj5L2tlVcSqsMjGColFO+c/XGfeRSQR//tCNv+4Y3ki6CcBkMAhD84eJ3ySd3zhL6gfzL0n0wS1UMcaERlmFuBKvp9pQl/xKXGqeDlA1pWVDisiyuoYAtARHGJFCyEinRYgtnSlFTdHoYQ/Sx7Zb9lY5CSbtrH3hC2NEuXARSIw3ZTFOTtQTlLWCw6rGQa47vHcdgjC8/rEFPeRX/ow0sl5BUbVuBXi2RWbEOAfxSkNYWYW3PK5FOmyfeG4T9Cf/2FZuF5TpiQFDOVBlSz6FHPklUy2ZmDWxo4Yzo7LCrFpt+6eFzTG99iwuqmVLD2ltAHL9Av93Va7w7jUwGbvtJB/uEzKx64z+uDK2fWot2QZVERGI3Gnn6+ctxDOxrPJeTCwEWRWwIVfGuMIGXK",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 558,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 224,
+        "output_tokens_details": {
+          "reasoning_tokens": 86
+        },
+        "total_tokens": 782
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:1c63b44539fce845\",\n      \"npc:979daeec3d797bd8\"\n    ],\n    \"constraint_ids\": [\n      \"C:0d0b53d3377fc195\"\n    ],\n    \"span\": \"In canal bridge, the council recognized Qi as the Beacon Keeper.\",\n    \"rationale\": \"Qi is recognized as Beacon Keeper after Mara registered as the active holder, with no relinquishment stated, resulting in two active holders despite the one-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 558,
+      "output_tokens": 224,
+      "total_tokens": 782
+    },
+    "tool_calls": []
+  }
+}

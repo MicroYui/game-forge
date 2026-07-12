@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:86a59e2f0cc38d1f24823d70e9f59952afb695f804f6670f33f5de807844aa2d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3168,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 575,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 179,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 824500000
+      },
+      "created_at": 1783859100,
+      "id": "OfElDlZ4b7rpsNc17EwIvDx1BrZec2Ry8h/zcOHQ3xWOGJ4sWITNOVEwNgTanIt8gvHo0GjXESvE+qjqS09hkZ5n3qG0spA9iIRKc4HNLX74bYWzdsFcOD0LbZltGFzOTi34IcDZF4zxj6Xx4eqL+avMgjVnQwmXzcrYyBfsUUGi60AjZi3Thepb/S3O76cKqafr/MaSd9vGbSj91YXMah7+b8ijolMX+HugGJUM4kWH64PuX7Ul60g+xZQ7q0MjzL4bOK5mpDmQEq2EtwrU1udpilnMSunDcwWD4NXQJTwwdHEuFVih+ZRgjnalfw1PV4PeWP9w2+/n1g0zgK9bvmm4Q/Smxlc75vV/fBjAS/jXmglLZoERrrMz+Pc6veHMWfvhr8V+AwQpNP4rnty/5ScqNLi0Gg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "W7bRsmgyVpP1VOZKBjhGeliOQnpW/tzGXqUqg8qYBnY2IM9cwyz1mnQegheLvybeG4pySp8rxrWq9raYDZU9/FwArntw91s7S7YAjaH/bKBakTIUcbOv6xPh+Hoy8VhViDJ8fGJPHKm+wbD/jRG7VeT7Kcq+JKjDubC9fEJKkumVMHJNZCBDBV8Xbjb7yTp/g0YMaZfLXuHVx5aQBtU6nYD5PJeIyYmER49PdYkoLCNdmO9dcqUU6Q1DEvxosV+PmEEgQbUHQ/cz+xgyrYX72Y6uONwVW5mad2XJOKFgSBOjvcOL3t7Hu+8ZMtHaQqJpvS6ejuOmlJ7mTtrt5lvueB0vokBP5pe8mUB6sklNis0bb4dyIpAkOma7TN+sE6XRGEH0ZqYRGnm1UkMFgbqClWxy/lE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:1d392e9d6595a442\"],\"constraint_ids\":[\"C:a3f803a5b0dab2b2\"],\"span\":\"At lower court, Noor left an injured ally behind to lighten the cart.\",\"rationale\":\"Noor abandons an injured companion for tactical convenience, conflicting with the requirement to keep wounded companions on the rescue list.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Bxde5osNIUlBJNNbtVTX7YWUUXThiAfNl4UkdAZ5MkHP67HG5Igzp0mtBae/wm40VCgEphWAbIRUE8+fNoXE6syf7uIo/aaDpmosovw7QMhBKeXFX7zZNur/j5h1VtKz2I5e20TPW4Ti/uqmCqBlZ/zeZ0KqItc24FXLvcQ1+oPHJfihPo95aJljD/BRGvDiCEvVtQLDD9MyIZK6EgL9BKofpBiTcnesZB1eoQgUzh1QgsKw6SBVq8n6LpGmFq1MoQSt0pyAlbGYdSMUOzhXH6ytZR5ywijAzAPW6IadPILFOcA9m4JoHmHXMFHRAMNAqRJaWjPgtk3udXZI4QEoFUKpwdMNNWUVlqd1/8RvRrDb2SkhqyWX2ljc0Zhr3wJ4CKcqdcmkRfa6UvqDCkJgGozgK+QZ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 575,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 179,
+        "output_tokens_details": {
+          "reasoning_tokens": 83
+        },
+        "total_tokens": 754
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:1d392e9d6595a442\"],\"constraint_ids\":[\"C:a3f803a5b0dab2b2\"],\"span\":\"At lower court, Noor left an injured ally behind to lighten the cart.\",\"rationale\":\"Noor abandons an injured companion for tactical convenience, conflicting with the requirement to keep wounded companions on the rescue list.\"}]",
+    "token_usage": {
+      "input_tokens": 575,
+      "output_tokens": 179,
+      "total_tokens": 754
+    },
+    "tool_calls": []
+  }
+}

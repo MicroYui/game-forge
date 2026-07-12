@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5b721db94c13700ad75a1b8dbca00b6e1257f986ce96126cedc12892463fb7f1",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2861,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 720,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 171,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 873000000
+      },
+      "created_at": 1783843300,
+      "id": "TlnELKpuA+oVkfccUHj9jeh6TAgf5axOUZuEiH0mJKvOJTyeVBE4CG/czrN+ilBuwiYXjqkIW+L1UvMgb91+tVtfDPfQOdGUL7Jh07FR9C7MIjsRuCiOEn7zesCsBRrDPELzdRvZxskmDwZYnJPhXMb3fZ7dotOh64mmQyT5BM9FsvsCFgTHM78yKBxjQFBjK8gguD8JCDcp/b6K4A4Lq6dm2oaZqptYgJpuPC+5unGmu5TIGct4enKMbFrkA9w0KebpcBbRvSyKnuSFBTRrUDJinfYEzklcAdAs5tH6wjpHV6YNu1tDtsop9v4Sr3tlrcfX7mUN3GOLpb3nyvP5soBCmUUyHI6GrxkgKPItlIwqvWV3pql+9FmUyxUyga3KpZmJzoDxwd7GSy3fCHL+Jhz+0QKovg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JT0qMaQpzAGRkOgo2z0pD7WPnh1pfxG85K8KLeKiyw4VlqjPgxsYkemWbfvHjKICAouhQG0ra/RZmckGrsrQYvvG42VSFLKPtA8Wj6hD6wqlqT2DlB4ytYaOt3KtCrkrIus0f5EpS/GyqneM4/m0nLY7kVn6bw6m8qgE6LW5+bC70PKqmdiFJCPVmDA7W+C/jgUmwWyEq+VjOwV/HlQPQhFdC7aG2XUxycP/EzMGCLjlHFdzGHOLvsjh91UDBmFnR/FHRGtCfr0u1G3X9lbpjtV/1CIT93IXN90H2Eh324UgawCbjqdKm0HUBc1EZBzffWWOENJm1cFnTXJ1twRu6NCfNNXRXUWf/+oF3nbd5W8COVLnaeOQImzHCRVEygKRKTsvb/34vEUpdG4aG6nbcEknnhU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:14540f78094d3111\",\n      \"secret:5dd60d000b9c4bd5\"\n    ],\n    \"constraint_ids\": [\n      \"C:6c5dafb3ba9519b9\"\n    ],\n    \"span\": \"In cargo ring, Tamsin disclosed the source of the winter signal during docking.\",\n    \"rationale\": \"Tamsin discloses the protected source during docking, before the permitted reveal gate at relay alignment.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "p6eBzrKvSiMAXKNevIkJOYax3O8noDuFqhqXVlYJMQ1os0dRt5pqTbo5kcmX8+cWASmJk8AFlyCst+ZKCxNsILBqpawvtMtF0h1Sy5gEzdq3U5h9FcOwznGVx1I5Xv6mgybq1JvzGWzigd2K5qh4wR3rDANYabBlz9uZgTtY274yt+87J1QrrMtUYuzCQ022ySpuW35OGmGcKZsMR+nWmO6GTXniwb10plOd9IkG4nJnCpvjtAJA3pU0QRnJiVavFeud0Lv7OEM/ox4fBiHi2/N3yfC9ndAb2sxm4ekNvxclP0Z4uvoy+v335oFLmtJ45xEPY7WYAYZOGe/zSCoEuWVI9LviqI9n7QigHBM1LiwVlOje0rZiFDfT0o5rFERXs0VgCTZyDRIss23XdnFhb8huqCrA",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 720,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 171,
+        "output_tokens_details": {
+          "reasoning_tokens": 39
+        },
+        "total_tokens": 891
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:14540f78094d3111\",\n      \"secret:5dd60d000b9c4bd5\"\n    ],\n    \"constraint_ids\": [\n      \"C:6c5dafb3ba9519b9\"\n    ],\n    \"span\": \"In cargo ring, Tamsin disclosed the source of the winter signal during docking.\",\n    \"rationale\": \"Tamsin discloses the protected source during docking, before the permitted reveal gate at relay alignment.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 720,
+      "output_tokens": 171,
+      "total_tokens": 891
+    },
+    "tool_calls": []
+  }
+}

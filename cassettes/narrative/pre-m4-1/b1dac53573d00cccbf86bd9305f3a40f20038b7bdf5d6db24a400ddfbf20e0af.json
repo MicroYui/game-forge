@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b1dac53573d00cccbf86bd9305f3a40f20038b7bdf5d6db24a400ddfbf20e0af",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3214,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 634,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 176,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 845000000
+      },
+      "created_at": 1783855700,
+      "id": "Lb4IHQpBuBFKp8n6WHlFs0FzmxENRVCTGLQWBXR1KSBai8aLJOdkSB19kbWA3deAfCtKOcjMMlF/KjbggyXjWon0mRwh0z/aArcG9Yh8diNWFlq7Lo5rnzqAgOkXRIhX3WgetXoj5x6fh3Ba/lYZ6NHmlP4QIMTukHO56ZHkHPTOZbqJqeSvj8SMQzSht/U7CnEM+Qd7dVpGuTWOpUjnZQVVtZ/+YVfxKuS2/WKJxmzAQBVhxUbHhRD2Cq5MrSXTbE4lJw6CDy7rvZRQ0lZn5uJXy/E9E5fttr/tmslNh4K8iMwyEyKPfvIwdbNj0sX4KyxvcCSeI0VvOpybir4puo/phB4Zb/nechpd6G+ltilKkKTbM4FKgET9QcKcgvOPeObwi7M9U3SFYecAkwc6VludIOMVxQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "obqIEZABRtO5/BFf1JTRWmII9LvWHNETl3ztUfNN8UXOsMYsS5QNPmgr6H+jEuZPjF7FWM55bxkK/5/BiazZq2qePOB96uppXjFRf2P+bu2vkFcSj1eHVo6s1aNkTJIpksHqHNAzab74iL4eL2AEG7KD8t+nY9dWy/IHyIYzxCB3V4cOhjq9LFA76q0lAqGaxvjNchMzVgELoC/1p67ZnBsTwME+UwnQfHN+VLpJTnfwsWzDM9l64xQ/dAYH/4HjDZu/DYtDGgWJVJW3d3QNjjmSJbFJoLIPd/30493z8Aeci6QZZeEDhYZqwZ8gmbDP7x79qeEpgBPgOusK3fH0G26TcM2Ck0lTAQAdp6feurIRX0VvuDkBNzzZ0Hp9qYoKnFwt8Tr2vpEjYqv+BGyo32ujhnI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:3ca5ba1f2875414f\",\n      \"npc:4b80a3975f2af4b5\"\n    ],\n    \"constraint_ids\": [\n      \"C:3e74790c096b7430\"\n    ],\n    \"span\": \"In glass conservatory, Qi supplied Mara and called the partnership permanent.\",\n    \"rationale\": \"Qi and Mara explicitly cooperate despite belonging to the mutually hostile Relay Council and Void Corsairs.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rsmQX6ipTFrPmriYzGZhfk54F4AID+NKC0C1ZJ6GusJ8Bm2vXZEiMIqLE/tb8ELQ5S9UGdvsRoH9DLUudc8VsZ1MWbKbFM1JUF/D1K2IqgLJNxJpipAHL398yhHER5TetrvDRWGGpKETkXwVPN9IkShUQrqVPo64xnEdkDuvjRkLBQyruX2wiY5eVbUiZLST7J69uVw85c/ad5cb0BOrDW7+r76DEdS12cjmwILMhcCbjW/8CgzgyhX29jKsE2bEDnVb0ZHZz3AFoBEeV4BKtHrdj0r7Xy0H2PA5DBOXYUIBKwAGUw3PvkF1VCHo9rgl3lFOF3lvnw9IIoD6il+ZVRaTk9dTRWU3OmeGeslq5xkrJ0AE5dtF4z8fA65k+M3leznPBkpKitzfo5dhqZu7DkwNg2+V",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 634,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 176,
+        "output_tokens_details": {
+          "reasoning_tokens": 47
+        },
+        "total_tokens": 810
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:3ca5ba1f2875414f\",\n      \"npc:4b80a3975f2af4b5\"\n    ],\n    \"constraint_ids\": [\n      \"C:3e74790c096b7430\"\n    ],\n    \"span\": \"In glass conservatory, Qi supplied Mara and called the partnership permanent.\",\n    \"rationale\": \"Qi and Mara explicitly cooperate despite belonging to the mutually hostile Relay Council and Void Corsairs.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 634,
+      "output_tokens": 176,
+      "total_tokens": 810
+    },
+    "tool_calls": []
+  }
+}

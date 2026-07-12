@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5fe70e9b79079dc456023d7a91f2dbe74fd4b089866f90513024ebfc7cb8d8cf",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4089,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 560,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 229,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 967000000
+      },
+      "created_at": 1783857300,
+      "id": "kuR+sXKItiEy3Mv/7FA+y06r8xB4ocaNPvR6CDwvX+yCr1vS/eA6/x5skl0x0JBxbaKqBElddqvNSbKANqSCWwLMkEO/X11cnbeVlEUX53AG1jprw7KINiZnznmn61NqQCYEG7kyclXknwIZLWCl7LFJJhbAZoQ0vllkYNGwTgBTcJh4ibFA/QIlaPmfe0pJKe73AurzZpSrwDqIZLe4H02KMntP0f52ZlWLG9ZI6mMfKdV2fqXak7zY1lo1FZbRa6d8UCwlFGDVqWXVIy0l92oNS1ormCaIFoeVPEXRs85CoM1Q1GR4Vbn3ycUveBdg0B6+BYD3ixekdQvyhDZEYlVhqA1+bjv6QQARhifREU8VzftQ2aXlPi1Li4GDhtoh/CdDVFgRZZjnY8EmuKB9HwM0tlM0xg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "IWNYcWBfgnNMPMoyx8qzKqgNJYycw5wDZi3Zsb43WlAMz9LYSNBNMnWlI/6O7Jp1J5ZLY7n1+h90gpovDF60KVjpoLFf2v1nWItE4EL2wCGN3UWNT8CSfHZ+JFAYsg02c8DFLbpQSmjcsKFZgM9k1dphiYEGkrDOqapt/TIqEtMF4THW+x3FfPVffUVtWqkisR1T0DDTGvuhUkwlF8foT2U2IPTT7RyZn0ekjpfSnx20zA9UXycrwzMpWtWAePfoNapdQueopGn/Iq4g58n8/lqtoSmv+XTkV6SNqZW2IaNsFkmH1uOLgnRKXW/7EZuWLPW5ToNVwrD+O4MGzb5fvjCSOMrnD418Zlj8CXyG1cNQ0gtVta7hZUeGbrp0fbjSvbUPD2rwhze8VM4eWlTfrF8Gd8Y=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:9eff1fd52be17cf6\",\n      \"npc:d1dc059b27e02dd9\"\n    ],\n    \"constraint_ids\": [\n      \"C:1ce6363a1bcf6e59\"\n    ],\n    \"span\": \"In lower court, the council recognized Mei as the First Navigator.\",\n    \"rationale\": \"Daro was already introduced as First Navigator, and Mei is then recognized in the same office without any relinquishment, creating two simultaneous holders despite the single-holder limit.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "pZ/XqfXL5WkbGGkbpK/NYUaLu9kzV+frNSTj2cyNPXiUlh2e16gJr87G0XwidrMIBTmvUN1jTsUC25WUHhc8nwNqKVVF2h+dUsWL2mfAOhUUxNg4d068Kx90MMyafZUXJ4ZK2ZfFz1jR8c+N6+W6UNMs8JH3R5mz0RtWPyvHd6T1h4aIJnj2087iEfime/tx9KPlVvkB8DYX7fMpOec3cPK4KrSrP0mgF2VzL2NTK3glB9St3b+xTTZTTtavhx6191hPxPoBBt4ny5b4PsEx0r5zAjYCky+kVeLTSs2Y9x7p/ZdRDEw5D9ANffzjudPNHFZCIXC3bXnlTobArB+Zh1eFbIGQaY00H58jQKYfkNTZnllXAS4UNiez4rpHCV1/Ugrf0AHJRNgrmetGVgH0WAh5ZcqS",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 560,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 229,
+        "output_tokens_details": {
+          "reasoning_tokens": 87
+        },
+        "total_tokens": 789
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:9eff1fd52be17cf6\",\n      \"npc:d1dc059b27e02dd9\"\n    ],\n    \"constraint_ids\": [\n      \"C:1ce6363a1bcf6e59\"\n    ],\n    \"span\": \"In lower court, the council recognized Mei as the First Navigator.\",\n    \"rationale\": \"Daro was already introduced as First Navigator, and Mei is then recognized in the same office without any relinquishment, creating two simultaneous holders despite the single-holder limit.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 560,
+      "output_tokens": 229,
+      "total_tokens": 789
+    },
+    "tool_calls": []
+  }
+}

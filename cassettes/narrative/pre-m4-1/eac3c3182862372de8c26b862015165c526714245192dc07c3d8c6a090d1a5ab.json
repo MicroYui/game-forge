@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:eac3c3182862372de8c26b862015165c526714245192dc07c3d8c6a090d1a5ab",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4396,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 635,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 246,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1055500000
+      },
+      "created_at": 1783847700,
+      "id": "SK7PVmMkxGY4D1BJucMLzNmN1FvlLgKFWhX9jqz9NwiKbygahDKytTv67kAcvpnjoGUmi7RB1x32LNwcHvLLxbqbaVxVwQmFrigr9f3+Fwj9H0RD9F9d8asxaGb0s4TQbNS6fwp8KY9RJsrSyc4YnY87JMkfjv1207SIPtcOv+61u3REAZzYdWxF38B7yW0vie4aTcBtWXrphFwn71jpy5vDJLz6u5HiULysx1ER8p4N/RTo7GHvlIUUecefDca60wof1UdNK8NCFhyae7qapCIPbpJvfxRkom6ymKpRLTyg9a/CTYzcmxjLUOvkLMsgjgOVmGxgikdWyCHYSTMKWVTfhaMu+S0C81gKwr69TZ4DYPWRKCyIGDcv4usZjWz+OqKNFPYDB0nFISB/rxPMMU3jKwvFuA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "zn1lwW/nYWV4JhmHD9Mtw8iIapX3tfSVoGzNlz2DgJnZdFnoVCMaldNrke0F2kUN9lc1SDCWQmOJrLkYlxOx9q6YBLmx7PcHA1NsD/5/bBiLuhjwhRJfWihMjhDm+yheL09umqrf0W6n8Pm2qrUJ0+noBJ5kQgZexAg9e7G9TLB6FdtMjSYVbwEpSbZY80zeO9+4Lf0PnSQM9ov9yfj7vva/8matEcm5/G2NK6HIIjM4s03xXTjIPzScjRK6Tljej2ll4NovC0/FWWLc80noNvwS+g7Gaz62YV6WhfVZqg45pG1f9WcYjX4MJAdqk5tvqZom8adiVMFD+g1AniDoDvOQ9LaaGVgViBX1rR+5lfc5qxnbekhlHbLbm9xOYdsrpfw31dNHgHHqtEV3NFPZ+XaQ6RE=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:9070ef42a817202a\",\n      \"npc:e32b6c20ed2441f0\"\n    ],\n    \"constraint_ids\": [\n      \"C:d58c407a106710ba\"\n    ],\n    \"span\": \"At cargo ring, Tamsin was formally introduced as the Harbor Marshal.\",\n    \"rationale\": \"Tamsin is established as Harbor Marshal after Eli signed as the title holder, with no intervening relinquishment, resulting in two simultaneous holders of a title limited to one person.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "6uCnf2oy0v1lmmpZ1Ce06RGB7ytMJGRCHe0Am2gAQ/saUt5WD1eWQcE+njSGdc0VsGy8brjRuC2yTjweT+iLqwlNaU4yWmq2N/o70etMVSdW3bBrlu6jbvKRUbFUBFYnJakgYdKLJWYw4MG6tiQdNyGDsRMrN/CM8ssqL/Y4DEZNx7l4oSZ1cMZ5uE/Of1mYwasLaIndOWDtlL799LmrggJzDnB/A9C2uQPEvxAj71fzsI7KiHKKi0TPsl+2mm/+Oq81ZC5D52RwPEPl5nV9xEc8payUCplO6yKxHdmTB5NWcYc8fdY+GKFWuUDVfUq62ybbOEShvy1p3WdbCXmB8oE7vN6fEWmqx8FHPI4M/OY3dS18c49dxEAMtXJCDpoheD3r7zsS5QODS6MEfeA0/LcEz157",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 635,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 246,
+        "output_tokens_details": {
+          "reasoning_tokens": 103
+        },
+        "total_tokens": 881
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:9070ef42a817202a\",\n      \"npc:e32b6c20ed2441f0\"\n    ],\n    \"constraint_ids\": [\n      \"C:d58c407a106710ba\"\n    ],\n    \"span\": \"At cargo ring, Tamsin was formally introduced as the Harbor Marshal.\",\n    \"rationale\": \"Tamsin is established as Harbor Marshal after Eli signed as the title holder, with no intervening relinquishment, resulting in two simultaneous holders of a title limited to one person.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 635,
+      "output_tokens": 246,
+      "total_tokens": 881
+    },
+    "tool_calls": []
+  }
+}

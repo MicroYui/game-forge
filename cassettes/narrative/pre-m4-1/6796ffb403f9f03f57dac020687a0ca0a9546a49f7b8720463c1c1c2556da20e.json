@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6796ffb403f9f03f57dac020687a0ca0a9546a49f7b8720463c1c1c2556da20e",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5662,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 579,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 302,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1195500000
+      },
+      "created_at": 1783842800,
+      "id": "k27KyO6pua97buFXTwL8o0KjpQTbVuZzNAm2k+075WZEyUjNcoDtTi3RG+5EibC+zGgkvQLqghCrsYDAVjWUe7GGJtn9VktFbqNtfag63UE1vBBlRoTz9N8K2PhttPEAglKADkmAgqfiFf0Ko6JFHGoDBaOa5dYW6VlEURq98rITzj1fMXjCQljGWt+mjCE0u1Nu0yBmM8u8YH0cBkLQELDG9UO/cqmutTo0Gwq9JTCKqZee56BN5rYELcPobbprGz2f2HUPFiOWX1MpFU6bw/YMTlNl2pCPwk8CmXoJI4SqU0ymgsxwiSx7T+PMZiiXqMi3NcwXoWS5vc50Hlar71ytDb/fr676O59ac7SKXkJj+vU8TSMXCmzcjXypymDssCMsFqrPiLAX0nk+b/jNcqw3rjgm3Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "UVMzsNElVUqDoc2kgZzbvQLkAgpXO/Sc3TSuohvgyteMDuwVG57oSvUCxhdoOcZThvttBx1ZWOFlUQOEJFhNBKMIUODOB8k/5DP0/+k2X0zcpJPt+3vK5DJKCH9Ud3O/FtDAplFYTjdJO29VkyGZK/ThCww5BrLG8HGSOAlCBoc8ypy/32XANgAsqg59Hb+OVzSWfNzwA5SWWm+t02F0uMQyfBdL1f4Eh6eHQMFlOluXxEhyJcQWGiU+sGTrxxL69VWIgk+mDDAmm4xCqOurodxE8gsbXsRwqE6tdSbMhMj6xZGyLJrkfMy1SilLKejE9qHG+Zm8LWf/HlMU74EnyF4pdy3VPfGtq3vsE2dFBht+BIsOsM4HS2aK+G3vgCL25DBJP4QO0DsOqLmEJF7MXKPH1Gw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c6accffd0c715b51\",\"npc:f91b44bb240efce2\"],\"constraint_ids\":[\"C:aa07dc94b83b9a3e\"],\"span\":\"Lea accepted the title of the Warden before the assembly at relay deck.\",\"rationale\":\"Ivo was already identified as the Warden, and Lea accepts the same limited title with no intervening relinquishment, showing more than one holder.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "N4C8OUPZu10VIXz/TrEXUw3ckx4dNWsRgq4d0kuDaoo/UBHxUc65ha25XGe1s4uqrnYFRWoJzzmOVZy2SR+rPZYXvygQmMTCUFg84e7Y8bi36jGI3/YkD2gUaNAq6mgLfjqt/cF0FLvXiAXLZMZpUF9rrpw1D+kma8daVIHlaD111QB17bhBhrXFpRuGyNFa0y/5o1B+OaZVBwv44qwfqRvnOMJylRPLISe9bcki+ex6dHKzwvMgHXqbWfhjNSKoNF4+7NLExKbxkMmNEbeDYM0fh2KM9gEH1yHUU11VtcA8y13SD9UP8ngJYaGYQ1X52Rlx6JKjxxmezJ2bBUBG6tU3N01AwCwsMvLVjWyJjXgS6TqPKyRZnXLoMZdsy1lwsRlhLXuPt1UohxS72wT8R4wI/K+z",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 579,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 302,
+        "output_tokens_details": {
+          "reasoning_tokens": 188
+        },
+        "total_tokens": 881
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c6accffd0c715b51\",\"npc:f91b44bb240efce2\"],\"constraint_ids\":[\"C:aa07dc94b83b9a3e\"],\"span\":\"Lea accepted the title of the Warden before the assembly at relay deck.\",\"rationale\":\"Ivo was already identified as the Warden, and Lea accepts the same limited title with no intervening relinquishment, showing more than one holder.\"}]",
+    "token_usage": {
+      "input_tokens": 579,
+      "output_tokens": 302,
+      "total_tokens": 881
+    },
+    "tool_calls": []
+  }
+}

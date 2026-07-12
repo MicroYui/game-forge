@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bd116f8184a63060b7c9de9ab6de2404484a66d6f8d8e4c0972be5e35d735637",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5961,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 575,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 274,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1109500000
+      },
+      "created_at": 1783846500,
+      "id": "WBA6RaPPG2WlpB3jY1X+KFL7BDjZDrSGxY2HJmsJp/WXM+Zem/P+YiHZhvleRaNSrJ20ffteVQl4duJrg+EsnRMLaB/jTRfHRVXptpII0cf3DJ6zHZllEzm9YxdJD1+RydmTZNWb0F5u3VGqAhrOW9mnWI5XjkLJtjiaRO5rWu26tegzH5F0LypzSzWUDdGIto3I47ATYlzJ7W5Ony9U4HKxgCxiwmhgap4XrVfTwJxvSFhvS/CxtebUEEbUeOWR3uAirxa+JnPEBcrP0ZZmU8xvKp8LdwnZ7jMWnf8uDsCOlCsZsJW+SwcVkoBMlRcobIVcTRvYnQ9FDoLkxLPV2W4pMZhQMaZIvTbz7LjSfD8LACmfIyJIK5eiHIL9aYTGlK8CWrNT2xJfslojWE6pzGvlFuARMw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Lg63LHTY9EvRUWOahvtKJ+QHz3sLtu4aphRWl2nVUYKmWP7GcM+nsy86fscFFt2vGRfwYbKu29JLWJKula2Ba76H/Hj7ryi6aEJ2OntX7VvOOxlirGT2bMTP1Og+FLszTVUTRQhKcrpqP1+XgpyYOdLgfs1uLVeCfER2PHHcwLpC7tI5y7OmYJcawlXfwhpo0YUKkWo7rnursUAek1bhQne7RiTsCGaUgd4INtDhrByJ1JzUlbQyASnH86xJNJCEQK0hiBqbaOrk9aTNnlvdcuZuQgFFzAXoH6PYbvM8uRLam2/MdW6ZJSt+TuWjKdrjrwXd9KPQqaYTtENFTTKbaf78FLZdF6Xrx+o/nsJqgAlQxFb/sKfHro20pEhGVMO0aMPVXbmq8Mq5TcZqrlR3DUZ6K+E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:77872f5eb3877413\",\"npc:b6dd23f4fbef2388\"],\"constraint_ids\":[\"C:bf9a0d03c8e5ccac\"],\"span\":\"Daro accepted the title of the Archive Speaker before the assembly at old mint.\",\"rationale\":\"Daro accepts the unique title after Mei is shown holding it, with no relinquishment stated between them, creating two holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "EUQZfgSbZiQM7Vakp2b7LT2zm4YY00bwSpjlInHVPqMj+iR1BWZ6v2SmGF080jb15PTivuJE4o7/bfl7o4oJwM7eNvSVgXjb5Rjo7BT7r7ygprGH4acRNoAhPoPDPbHx48CvTNv5uJzsfPAOlHpnxitq+Q9Fbd5XVtFnHiUPfKMBOQm1RheLSgdFkvyqj83h1QfyC8HY8d4bvpmRQknAVHyXu7YwCEEgpbh0W3ESZGIzmQXqiKYhaP3qmGjSgZHBm2TNYF8U3ra/07BEW15vqcSnI68ZqLna+amEf6BmP2EILrJwB5Y5T6bBW+e5b2Ko+/ArlP62htSamfiwSao6ChBr4JT54kL+yGnl9n4D7updPQhb4QsrMYrGVKuE7apsGajteoJBm9kQpobu8jLp99RIFq+T",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 575,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 274,
+        "output_tokens_details": {
+          "reasoning_tokens": 163
+        },
+        "total_tokens": 849
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:77872f5eb3877413\",\"npc:b6dd23f4fbef2388\"],\"constraint_ids\":[\"C:bf9a0d03c8e5ccac\"],\"span\":\"Daro accepted the title of the Archive Speaker before the assembly at old mint.\",\"rationale\":\"Daro accepts the unique title after Mei is shown holding it, with no relinquishment stated between them, creating two holders.\"}]",
+    "token_usage": {
+      "input_tokens": 575,
+      "output_tokens": 274,
+      "total_tokens": 849
+    },
+    "tool_calls": []
+  }
+}

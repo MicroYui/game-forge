@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9e61b9a9238bd1eb5dfa2a9fc0f27bce0110480f4fabd681c0cab414536db6a2",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3589,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 673,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 174,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 858500000
+      },
+      "created_at": 1783861500,
+      "id": "MEgoGWIw2PDgM5g0jdekrJ0DgJ38AhWqtLf1XY55g/XZzvUKT4eV6h/NPv+Zg2Csr2o5CY3laVwZAmsGlOT94/Isx4ReBcPb+i7X72Go8TdiX0H/S/hKzIa+THmnC2KJYTVePcOANz4sxAJ5Du3IEHC4HkL9FAZxIFnajjvSe2MoU8RYjTvj9fZ54FlopcJqBK3qXFvPUczm+9MO2PO9OJDlL8a1CFzL5k/U9Zl/Nbw7hMu4hblP+tVDdyDRQl1PJCdMMWC9T3RobnuVBIvrOIyQ3F5VO5Cl27ZTNVdjopINLrvZi5ppXFZqnZpe+YL+eJjbxRLdTiywGg82y80Vwx1b45Kw+5eX8Rl1aCyAzKKFohXhiXzxYCe5fUpMhHFqdFYwBFrhzp81gOPMwQ0rrW7t+kNqTw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "6kYk0Onyrn7QHr+3LATCOAlTPpmYnx3UR4p24FTxzS6lWPJbFJ4d/el6Yb3kja/+OiPczheiylZfEyxc6pzYX8KTFIiNZ0wACCyCYib8zbXFAFhvSiEIxwYXAfUOfNHV3Cf+a5Vs9emlL0sd5uFjX9tQ7ZLJpShX3VEd6b7OlVnTvTywlJGnzq7EtM2ziIdZBzxgMCCgl/6XjpfQnzJnz8h54hL9JuOky8aErygYGU9+vwM5fw3pZYwKeaQm68cVnZEe0hz178FqxBVFUJPz9z8P+UPXn29nZyGEyffOBlgqBwTpwZqYMNAWmn78+RLEMgimLhSslikGE1NyaW+3ra2Ukf9/7+36hsRTI0zfZYcuQ7iLLRr7t1lzI0kukv935mn4D+awTa06grcstPrRsBeiKYM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:705acf6f61f98fea\"],\"constraint_ids\":[\"C:e1aa1992dca25886\"],\"span\":\"In relay deck, Veda marked public rations as a personal reserve.\",\"rationale\":\"Veda converts relief supplies designated for the public into a personal reserve, conflicting with her duty to keep stores under her care publicly available.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "iqestP/XUcvKC/Xc1Vces7iiwzVXq5w631P6XSGJEwmmKyMGw1QYcVE9Rbe2wqH9z93aemCXYBGidYMAhgzVjVJYdLgIU3yQf1+avvgxiM21IvJhW1F3BaBPTv2LG29KYTxHcUb3vnhNCo18h+MW75bg4whopEuFiqXwNURCt/W4RNsidd+C/R5hgrejmWcQ2kYD6+5DjnjBdxvT3qeQeYjRX/h8Egoip0dcZfR6Moe0Hj8MlzFamJ2Yxs/oig5LmNiyTZVz0pmuRcEwi/7TxiEDBLf1ReEX7G29MO9wZB8QHJYLZmJqs7yqsaxLwKY30cRjuNW0U5hA/8lWSVIv/H3hd+VJ2PTux38glmnAnv54mby7c/5b85DVnyz1gn2OXtHJ0c2rwWyqAxblHNtWM7naJ2Ng",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 673,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 174,
+        "output_tokens_details": {
+          "reasoning_tokens": 80
+        },
+        "total_tokens": 847
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:705acf6f61f98fea\"],\"constraint_ids\":[\"C:e1aa1992dca25886\"],\"span\":\"In relay deck, Veda marked public rations as a personal reserve.\",\"rationale\":\"Veda converts relief supplies designated for the public into a personal reserve, conflicting with her duty to keep stores under her care publicly available.\"}]",
+    "token_usage": {
+      "input_tokens": 673,
+      "output_tokens": 174,
+      "total_tokens": 847
+    },
+    "tool_calls": []
+  }
+}

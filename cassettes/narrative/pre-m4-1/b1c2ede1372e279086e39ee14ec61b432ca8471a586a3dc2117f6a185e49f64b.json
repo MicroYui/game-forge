@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b1c2ede1372e279086e39ee14ec61b432ca8471a586a3dc2117f6a185e49f64b",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5413,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 612,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 132,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 702000000
+      },
+      "created_at": 1783855100,
+      "id": "kB83TXxEpQYjnAULt+kG1BkYSh2cslhsBBqn584yL5NqBgEKdQiCxBn/qbD8Hxc9iB9+rQ8/8wXraAfZKa0cwCpcWoRsYcsKBu1TJt8Qw7qqBjMYjqMuMOxP+mAJbU700oF4rti/YtEjkyEHrUX6+YT7mKU/4DRMqy3fX1w17/RlyND3vXVD9nafjsNol0NyETBE+tjTe5fSckNoeBgbB7FFUKcNXVr7WlNlMkGLUA6Y+6UohCCA+vlbhFbhsX88xdLn1peJ20qYpzs88Rov1GsHfOKVZtqv6GrOndsMU6kAwTdxfjTEkv830Dv+wQDVEx6ItnmBYbH/2J5cLv5rxChIt4e0ySHiKygegF0/bxGe74nvkI1OrfKiLJFo82ZDKjTZ3IQoJMtTssc90IoBiDUtJDq2Uw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "/CDvHZiz2d+KSuaMVjzXw5Sxo5uT5N4CCk4ya+uLx2/Hmlpdv4AugFzMCE/x8VMLUilRKmSpL1lx8AwYX+Y8Ohap+vQNzEIAXn6oqUGVINEa5qE2V8/bBzCbeVFoRjLzbmGdgtETSKVKjYS6ntdK9SZ0TGZTlE597cL6QjrvC+s0SwJJU5hMz23YQ+/XpFV6mWQrCbrRPGyooFqZlZOCZZG5YN39UETY12/Ns7pDEZCPMvwMcXfutJQDW5Pl7wV3/YEt+P+LcUYUxkja+Q3lwMT+HQC/4WJIOYRIWOYsrDgzQyW6J0e4hudjjsk1+HEnkXJEHEPnHkJlnVHP5Goi3FeASP/NE5ER/1kNrSJGuniJ5OaLw8BHXXka4lv4bhaQtFRwEVywrtBG9Gp0z7bq8z8VwMU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:bf3747bac6b1f3aa\"],\"constraint_ids\":[\"C:171aef2546491c01\"],\"span\":\"Ivo diverted the donated food away from the hungry district at observatory.\",\"rationale\":\"Ivo diverts public aid away from its intended recipients instead of delivering it to them.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "Ei3ztHrUpLP6arjdN+mgFWRpRow/LnqpxEKR36kzvqTV0Ha07rOXwyjwwmrP1+EuEcg+5SRcqCC3KjBzO/nGPLGphMP/4FxmX9RIByQxpWUGLUfxbCRjGvIpP/feEqtR1w7hU6+E+w8QKOJlw4WNQRbUCB84UJGjOIZ1EYOPOWh5SLpciPhEf1XJdvHyF0O/GfWdTgEddKvMYXKMoCkwYerKtUyPvu7/yz6/gThdof4VPMDWqKjKABdEeKAKyBkxWP56lIY+tq2PBjJ+hjUMtRzGRN6djlqRi83YD1H0/b4fChSJd3D2TNMD7oErMKgKYZiyBndVeskGXlWVIRVVsRSdXEwthCWZcTw03EvIir8dMSV+7xhZ1C3JgWUeQcxNdvSYLrEfr3fzc8MEZR9vb0Cay5eC",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 612,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 132,
+        "output_tokens_details": {
+          "reasoning_tokens": 45
+        },
+        "total_tokens": 744
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:bf3747bac6b1f3aa\"],\"constraint_ids\":[\"C:171aef2546491c01\"],\"span\":\"Ivo diverted the donated food away from the hungry district at observatory.\",\"rationale\":\"Ivo diverts public aid away from its intended recipients instead of delivering it to them.\"}]",
+    "token_usage": {
+      "input_tokens": 612,
+      "output_tokens": 132,
+      "total_tokens": 744
+    },
+    "tool_calls": []
+  }
+}

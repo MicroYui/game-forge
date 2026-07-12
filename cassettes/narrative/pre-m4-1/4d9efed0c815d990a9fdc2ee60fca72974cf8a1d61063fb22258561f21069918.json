@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4d9efed0c815d990a9fdc2ee60fca72974cf8a1d61063fb22258561f21069918",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2839,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 662,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 124,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 703000000
+      },
+      "created_at": 1783858400,
+      "id": "LJfrgLL07/Z88dL3mNu5l+peqS9Z1y7pOmGUl+BGEHEjUZEN0+wTzicVMjpt5AuTlKankTYGZyrdmVVM3DW8A7lRGXA9386JyEyO8kOceWZfLjtoXa0l/Kcq6RxwKOxX35RjzJB7kaT6oNlf/s7rQawxBqLARkq8FPhJRxyLH10/6W5oGeeV/ZuCPnBdhA+WRCll7TRL8yfOluCQstPIfGTwMjROU82OuTZAw3v8QnjDo5VHZ3qXKZ4/oG2n7n/SLa/05/5CzelOC5AB7p+w1AalkrBdK1mJSSA4CL/J37T85u0fbElwqZZk+/IKBYcc1qDvC7M9MI3wBsyyUjRUVMzKiDa6A1cHY1K/bxgR0XqNnuFy5WBOGHBUkgsKSzaKlOQ/GywmFoowHsICn8lD4YDDgbhCxg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "pznQ6AfbEuImwFFXkF5iYb1Osjj2xPZ+TkquLZYomGN7pN1YnOsLgJ+HHq/4rTWfwCo/qPWZan+fBvgo1KxhcXxpWXWqLiRnSD1No+hpszUzyXwod8UPRo02weHe5dgI4JBDzMVEcds32u9yxaiGIJTvR2xH4VmHk/pTTXvZREOrv4PrCXGgt2bqTKjsVGULag7zs5qJ0Bl0FbBJak1w7cbDCTcQTHAaSQyPQ9QeqjnjX9p09315qYEef446YADcLwsjrB9IocjuUUpNzVxbADHyhi988x7FN3WqjsPxcIFY0qjeQS9/E5Zd2UC58I0vOZFQiUHAxURNQ9rkKv4UyvZb0xrlTiQIuPPkSJI92F1BM5ipG8CDiqZp+azaPZHjFS7u7tnNggddSgNOdGwMAB3PIpU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:2b813975870e2c50\"],\"constraint_ids\":[\"C:941eb9f56a4cbf9d\"],\"span\":\"Qi publicly renounced the oath before its terms were fulfilled at river market.\",\"rationale\":\"Qi renounces an unfulfilled oath, conflicting with the rule that Qi fulfills pledges despite personal risk.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "TY2bVqWS6xjdOazgvdT1nLbhaYoO+QSA58xXa6ahSB+t3EfRHbSE2ZiHPntrN+39RIkRRf4q0PC/sn/5hYmOvkGLvgxoL/zZMMAiMZpY+30n38Bp1TNV2hju7Htx95BtRF3A/Dc6uyw19b2OBWYrVOm5Vsw6he9vzbSnLgoKbhHkjijSs74Ql2WDZMZz5IMkJ1TfsDL/vqiOHaUzQ0yt/pxRul6iQ3SDHEYzk5wa9BcIKjgla4cWk7KwC7VRt3O28KOwXcSHJZKemHHKGXEUJ0ZuEGUPb2WTUXRsza2sW7/O1+3oJT84V4tQPPM2hJZhOliu98j/VelYrJd/BmHvT6j187xAdlmRE2wJGvYusZKPIlGu30hKylzZSDQuHCSgOrvMp9/bFlUYx/tyoMIGKoHH7amf",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 662,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 124,
+        "output_tokens_details": {
+          "reasoning_tokens": 32
+        },
+        "total_tokens": 786
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:2b813975870e2c50\"],\"constraint_ids\":[\"C:941eb9f56a4cbf9d\"],\"span\":\"Qi publicly renounced the oath before its terms were fulfilled at river market.\",\"rationale\":\"Qi renounces an unfulfilled oath, conflicting with the rule that Qi fulfills pledges despite personal risk.\"}]",
+    "token_usage": {
+      "input_tokens": 662,
+      "output_tokens": 124,
+      "total_tokens": 786
+    },
+    "tool_calls": []
+  }
+}

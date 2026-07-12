@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:537c92ffbfa0e84a0681251beac6150ccce48bbf33df25acefbd59820bf84922",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2976,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 551,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 137,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 686500000
+      },
+      "created_at": 1783841800,
+      "id": "V+qBIfl6598P8AFlkcOZ/yCq3GpPLWh6adhLdXa3XpxIseJTnmg3lNKwqDkFrMfXQJ0g42Dh+hBGNKZ0Wi+ouBA7Bfc0u3a6UaV2mH+7FY53UPLTusXIM9U3gzLrs6xoOz/ROxmIeinFLYmffeC9fD/SGUYQha3qQ2s205w/s8Li+rxxDJ1q7+k62Wunjjhrqw1Y0Amx4aJsIVJWwg5xic/y7UJGc+hqUsCDLc0kDNphzNL4GviR+6n+/v7XHCLZx98y5I/2NbEXM42Fp6Mh20pFhPa4La2mnkqLfvdQ2A1tnnG49yXX+g9J7tyeGy39gONYpvitQiqGaQLoBTspHTy/rO23h+YuUy22P3j/hOBhrMOavm8t+nKXrPni4LYEolkT+7oANqZSJJJhDq7vBUrTdsKhaw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "5/XxatwwSy4QfKX8OvVEnVQf19p614J1hW5IK4wO6W5nccXCaoeK2fYF+wh79ur49Auq9ssjR/6/xL41JrqvYcCVGsyecIRI1blUyNOaCq6iO3ZD5rYKMvstsllSoY9XgcqEGDWuuJDdk92lTWlJlGSCu/cypFP3Cho7gge0mvI6v6ycD45gVR59pkNsmZv31bCJTRh/mqwM1iiTVjemiDI0Tl8cQKwEVz8sSm9if92SKc7ozOB44pTgNEEloic75BGEwkz41lxYaPx04LHulyk8BGNXfR7BOfmhaTJuJD9IdUBeDy/jsI0uGLbNIKIfZhoET4vjUMKUkuIn8feFMmqFFHbmvSXUjr9oxE4Dkzf25DNaqa2kGT3fpWTULxoPDCxTdqIT06zUzsaD0WfJOup8wQc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:495d866b8cb931d6\",\"npc:aea4b1b4f20627e8\"],\"constraint_ids\":[\"C:151149781aaffa61\"],\"span\":\"Qi welcomed Mara into a shared command post at river market.\",\"rationale\":\"Qi and Mara belong to factions explicitly at war, yet they cooperate in a shared command post.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "NH2jFnQNwqUd3B9XJntxc83pSZi7iOGuHuvqTBFVOflHomNOenf+m3xkQGKU0Ej1gy43qOxDP2uX5qC5AjdurhCaBshWjnmypBVUBtUhvcLs0EtCVG2usGM7vMCo1LytrGxBgF0ocv38zRoafIrAna1h8SAhAyaEW8TuzKG7V4nFaHP5BS5CcJdfNyyG+Givmdsb/pGCLVIMmDnMpu6ZaIZlADPzmNPvkMIfmImsHUSv+43ovry1pIuEhQT/znXQz6JcMkN0zsPYDe1f8/Z4WcYlTdBFtqMicY7+205N88rIN+eClm+7SRVFfhetPhot4dV3rYGmRgZZ8zUi9BsAHBIDM9JTpiIFeDzG59JNA/Ult6hU11AhmYoNpGDLtygd97zD2HsboFRrz8DNJXIrkDdOHLQB",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 551,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 137,
+        "output_tokens_details": {
+          "reasoning_tokens": 40
+        },
+        "total_tokens": 688
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:495d866b8cb931d6\",\"npc:aea4b1b4f20627e8\"],\"constraint_ids\":[\"C:151149781aaffa61\"],\"span\":\"Qi welcomed Mara into a shared command post at river market.\",\"rationale\":\"Qi and Mara belong to factions explicitly at war, yet they cooperate in a shared command post.\"}]",
+    "token_usage": {
+      "input_tokens": 551,
+      "output_tokens": 137,
+      "total_tokens": 688
+    },
+    "tool_calls": []
+  }
+}

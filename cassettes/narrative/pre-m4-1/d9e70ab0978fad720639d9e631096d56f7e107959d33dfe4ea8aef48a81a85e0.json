@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:d9e70ab0978fad720639d9e631096d56f7e107959d33dfe4ea8aef48a81a85e0",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3274,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 578,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 183,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 838000000
+      },
+      "created_at": 1783858400,
+      "id": "bkmfHPtakdh51z3JtOxWs+/MJo3LzXg/knimrDDoD5fwrZW4RBXJO2/uBhIU2nx4uPQsI54H+ILjjosne9rd6NyQbc++mWd0m1TQN1nzjveka0UDFo8NFMn9C6iBnN7DTyQVg5y7lgao8wjJ1Gw9B6OKpVrt9ygVvySTonsOFnQG57ra4F30xp0lrQtBXb8vUScnHT6LB48D1t5ejOpnmDa7D3EtLUMr6+eDyn7ay1QwY0jOe0/WQedb6734n451EuQpmDTwA6epfZuguL98+u05F26RnS3VEuXQJAAKS/lWmb1EgraHIqQCui0gM7ejRB1BKZ+NvS8OnHH2+DGP/SvdYBCmcIwA3Hkdz7vNYAsze0VGQAMS6daZ2pDU7rXcTbhj2dF5xivW95L2JaprPqx/KoHPVg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "VRZrUN6QZHadLR5IOHevAwWDVundHjV9UJiRCVHA6S1vIJSmgDY8Q3FpCu0/iCv8GB3J9nMgQvp7+1semxSWYmHhJ0u5oLVjSAhOkCp5qtv1SQXYOCzxPxjJwYlpEQERtCNwVkT5vWak735UH8Qx9GvzBfks5mZcVqqIeDQENqKqEUV7AVjgaepYcmqK3Oa2y1/FdRXOhB0bpheHV8aSGwimBVOmJTP80FGSwiOgAnImyBXvApJ6BjUwTFJYS+bsXncuzfrrq2aG+6tb5k1TEWHB/mwJ0RPvlPJ320MlSQUurXYvzlFrw5DE3jZVidUbd4awmljJoYovs8cOr+MkSRUkd+dRBq2/DlcXyyjGvuPZrUbl4sd0BLA3pPjYpf0Qnh90vSrvZQ2xTS8qW3IOKJ+Jsqk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:bbb41961e8b44b02\"\n    ],\n    \"constraint_ids\": [\n      \"C:16e24525fa6d3cc4\"\n    ],\n    \"span\": \"Ivo kept the winter medicine while the outlying camp waited at canal bridge.\",\n    \"rationale\": \"Ivo withholds needed supplies from a waiting settlement, conflicting with his duty to distribute donated supplies to settlements in need.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vzSq4Nci/iC0sJCiDda+ahnoMTHBvbIlcasKfbtc2Fd3PvTlmFEMvEN8vUxuWQ+4jC8XnVlSolRRCKMPFxwxp8FLrN7aQCyJg4I58XAM5gAGdQkM+m6qKzeP/u7ZtTPbE17jbd7+cBZDagi6Rb3Z69wGe2JqPx00Gw5tSQKQ2vbxO2RUEMskP4dvFPVHNOsASpp4JmxQ2EKOiDl3RKT/aXR9UyBmMv4NC+mzi3JpgC8FjYWkImR2y3T0rxCemljDL9SPjAfRAkry8Io3Z7S0Ns3xDYYsOXvAwcUsbml1TIiSXRrfviRXo8bL0wA2qKOB2bZDSHOs1KKaX2+FvIKUx+H9tRdnLoREOkE1FbjfwhVgokN07yL03hzCDRMLf64xmUycCzGfH2kV641tMDkuXGBwIbhy",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 578,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 183,
+        "output_tokens_details": {
+          "reasoning_tokens": 64
+        },
+        "total_tokens": 761
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:bbb41961e8b44b02\"\n    ],\n    \"constraint_ids\": [\n      \"C:16e24525fa6d3cc4\"\n    ],\n    \"span\": \"Ivo kept the winter medicine while the outlying camp waited at canal bridge.\",\n    \"rationale\": \"Ivo withholds needed supplies from a waiting settlement, conflicting with his duty to distribute donated supplies to settlements in need.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 578,
+      "output_tokens": 183,
+      "total_tokens": 761
+    },
+    "tool_calls": []
+  }
+}

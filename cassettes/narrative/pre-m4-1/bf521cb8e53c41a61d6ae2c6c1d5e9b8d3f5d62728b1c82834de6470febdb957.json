@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:bf521cb8e53c41a61d6ae2c6c1d5e9b8d3f5d62728b1c82834de6470febdb957",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2779,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 695,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 167,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 848500000
+      },
+      "created_at": 1783842700,
+      "id": "ukic0wFvVLA+9n7gqXDv7xZWpTikma3bvy2hLOMOpnKvgr2wSRpI2q1E0Xb4TMO3INAOncuZejFHQ8/NtWttwUdiDX3Y4n7GYVbaGONWSZa17dQSYkiOsNpjYwXJrM+3DBOmW46XCH0ycBG1slMMpwq7SuK0DTMdqTLy7SO3gOXNWPpL96kZjUEMmSUbD357HIAdSIjEFtpK4NcPBxgW3QnWf57zCwuFTwEHD8P3eApMPP4qO9V8gN7poWU06ou1bfPcaajqSsUL1JUXkLcvhxMBHpzZiAJczrbxgxxv9KHQMM+/Ry6C8BltaR2t8DC4rc12RFKNbUKKPjwiEdyFgJcSx3a6X+YkS7tx3L0NpfGOVuYFZcEGV9Yupm7TIENmBN97TXt4q5TfOi0Dl5SqjiZrZUp9bw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "UJZLyG5FRwAynK3dncoTC3yM6ZvJh5kPw8KVBH52+mKpRpS1ebXaqFfEaKI+yNyBhOnxUvsE3mrurNC9/xyiGLTTn32Ep8uopf3DCAJR5ctRN+Ddi3iLqIhase8e7wtuGuma6muTkcNTGABMadYp/u+FYdEBeBrAmNqLHInLj5ANhzDhhHlo4uCYHaw6b3lYJ6W2ZQSIpMN2RP4Pod9NhBZvdt0d97iGoYujpQEdh+XeaEAmAh6ddkeKr3MAHh6SPBg/k7P8Puy0m6V7ukxRdhPDo54jFf2iJbGT1TqUqHvqixa5IY8VlgpvtHZvaVbTzgNf1cw6bjOhqYCmpBb79TsVlSykI6W++Ey0oPQFd9gcVXhzveeb2RH450q8K8/aTXQlG7Unl0l4uP1TaYfZFaYqsks=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:0aaaf470cb7f0bbf\",\n      \"npc:a7aaa2fdfc1fbe6b\"\n    ],\n    \"constraint_ids\": [\n      \"C:849fd9b76540de39\"\n    ],\n    \"span\": \"Qi fought beside Mara under one banner at archive hall.\",\n    \"rationale\": \"Qi and Mara are identified as members of explicitly hostile factions, so fighting together under one banner violates the enemy-force rule.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "bgiYzZxbvc5lHcbypgk1XD6YC7LSoV+zvpArBwOrGnWoP1IOowJZENmdnHup9k7iRbrCa7f/QnUITCthbyqSoKJY503xrn/8ub5VSKMl7rzzGil9SZfAc/V01HBQmnV0XB7ZKf56BybEHwfJFDoiNR6bQ6u60rOlOFjYSl8jGdPHSWBNKeB2IJWuF5U+5Kn9Xn4X0y9n/hGVieiH1OXw6WiXZRvpK6lduPnkY4x0nfuvaZ0XHPkzioXRX3pE5yCNzz83PZaW9fvG+Q4c9uZoycNDmTAx/PIGamEGt3bvvCKGrFYLGWj8Sb0piPSrTNlcbBxzhnQYrjp9V3zCzZ1hbbdaNrADeTE8rvchAKx1v11oLAfwpeTXnqQ3Mpw05XYlTG8DXdC7kmotggoQuW9DE0273Rkc",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 695,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 167,
+        "output_tokens_details": {
+          "reasoning_tokens": 37
+        },
+        "total_tokens": 862
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"faction_violation\",\n    \"entity_ids\": [\n      \"npc:0aaaf470cb7f0bbf\",\n      \"npc:a7aaa2fdfc1fbe6b\"\n    ],\n    \"constraint_ids\": [\n      \"C:849fd9b76540de39\"\n    ],\n    \"span\": \"Qi fought beside Mara under one banner at archive hall.\",\n    \"rationale\": \"Qi and Mara are identified as members of explicitly hostile factions, so fighting together under one banner violates the enemy-force rule.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 695,
+      "output_tokens": 167,
+      "total_tokens": 862
+    },
+    "tool_calls": []
+  }
+}

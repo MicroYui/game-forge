@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:4111533ee8c38c034e81d7f1740f974ec088898b1334263626741590e04037f3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4012,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 677,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 196,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 926500000
+      },
+      "created_at": 1783851300,
+      "id": "MR6AlX95wR9Yfg0MLK+e1KKA6FJ2fEQ+gFiHrVoYSLyYbVqaYeMiD7JZROeYwJe/MjUvuOzRO1eqGmChdYx8jeorIwn2YdkM9W3P8GCnl4SlByAw7cy6Ype99AieXrpgjoIfEJIFVymId4cOYnX7yj8wGH4ip3FEvBU0E1IEStdCAvKVACwMo+dMf02CFAjCPMHpNoPPDxusp4NLnxZV0FffKrM1XQswvMTmnx+rRA9iOi0j+pabi/fpPESA6PFOubF0FPeyeg8aL+cLxlekuywQo46n/nny88tUEXyYYMNgGh8zF4N6oShztW2E9Pop8c5jkkw6+5KYNqfD/klQewvYi/azEoCUeMIid6AbV9Dh+uDRWdosWFn4KbocYp8RWOxnk8UhyogKTCeFjYT83daPWWN6Dg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "mMagfwaJkpb/yAmd/uo1rLoIA9LBDxYiYqjKwYj5S2hQv7BFjtk61MKLQowVEaW1RHCUupdvp2DE/4giafSkZhquLTVBze8dv9niZW0F+z0DK62BM5TNYnPSe30iFXBVkdaU7KOPxFBq3wH+4votbaj4PXlKrKcU+/Uiao5m54m16aFYk253vZ1j9J71tc6mbTZI8Ib6jjGiznE2wVnpUMRJRU6vwhtwZ9l7EgwSHajA+HzC+Lltp8KfJqOJiP4szenKJcb+ha2WDflINwN6sfNEcOllsQWOwudmyRSfQ+RVP84t0bEZSE4AZjllXH9UCGadaMp7BT9Va0gXexRVf+1PKnmT9wsvEKBG4baR+hGNmn3GAhbg/hWKN0gW4zqe/uPn60fm00F+Oki+DJRD3gl3l5E=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:754a55f1e98be629\",\"npc:ab87a35fc974b80a\"],\"constraint_ids\":[\"C:5b3e68d41d3c49ff\"],\"span\":\"Mara accepted the title of the Beacon Keeper before the assembly at caravan court.\",\"rationale\":\"Qi was already established as Beacon Keeper, and Mara then accepted the same title without any relinquishment, creating two simultaneous holders despite the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "6J83Aqjwwit99pxEvQ1h059s2yPi6J7q8Cv8D/8Zjty/taKNK3wSpQ5lAKsPW0s6I2oJlZoorK63VgB5hI3c6HQieD3GHAGAXMA+eRY5D4OH5/6ZI+0TwAJ73R4dKXd0XNYZhvJawaeVI0fXvmasisaGZTzRvg1YFiDPBC3K+WaTfD/G/hbLQE/ePnWPR+ucE038Vqb24qZtlmasvc7NINX7UQrT2J7diCXRAw9H2hLVF7mqFrvAGXGCxrSdEUCkQmywl9cUpeFirgO8VJmLTx20TPtNQP3w/RTJIEcKcfqgnsr+6x7iPDkXx26cBoUIR2ge6GKJK86Bop5SVdJCh4SdEYplDzbNFO6fum6fnOgn9znZq5/u+IVPDNGcIoTgYc9O/hv2iQ5q3YqZZvcQhXO1ksir",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 677,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 196,
+        "output_tokens_details": {
+          "reasoning_tokens": 79
+        },
+        "total_tokens": 873
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:754a55f1e98be629\",\"npc:ab87a35fc974b80a\"],\"constraint_ids\":[\"C:5b3e68d41d3c49ff\"],\"span\":\"Mara accepted the title of the Beacon Keeper before the assembly at caravan court.\",\"rationale\":\"Qi was already established as Beacon Keeper, and Mara then accepted the same title without any relinquishment, creating two simultaneous holders despite the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 677,
+      "output_tokens": 196,
+      "total_tokens": 873
+    },
+    "tool_calls": []
+  }
+}

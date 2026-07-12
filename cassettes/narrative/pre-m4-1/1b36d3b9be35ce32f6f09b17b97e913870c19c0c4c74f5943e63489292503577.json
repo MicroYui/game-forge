@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1b36d3b9be35ce32f6f09b17b97e913870c19c0c4c74f5943e63489292503577",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4088,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 626,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 187,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 874000000
+      },
+      "created_at": 1783847300,
+      "id": "SdpABxrqJxk2p1N5e3XbOoAng0wdYeElENQEfQqkvjH/Nkp1Amtm1OryxldXiGQHMX3fhQqYsjUooPRzNOVlFyMnWbHakjc4mKmaf/4+H4e93bV5kEr8wuoVPs7OjQXQ1OQQh6ADhkI3EQA5JG8hLtE9UbeoY9kiLEmDjKiy90yp8VJM1MSvN1mIRNX2267Fc5tWFynWRGu14rI0FH1DoiIVhIIixuJUM8ouEvIaMh00VIFL9HQ0OGO37DRyJWIfUWqvLnQYZ0N+anSMdh+ZY5jexuMjanLX1pTPRtvMcBv+3c0KDRcUYHgXHJ5VeRkZdGUNEswA/LXGpydEdSAYO/IboD16OAsp+AFZcJHzhX30YNd3BIbRNBsY0wAFFCulAPbWfxSpo9h/gDlRch7pZwCZzZpdjA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "43BKSEBxKa7IYesKPFcUJlKeW3AIKQ63kYcXIV3591CpkNYEkoHDXgjHtKA6xif4DbWIFOP4VhjaDdr5Fyh3goaSq880XgZh6ejKGOTD2dZ4dU2zno7FoY5/mciyeAJbQf5HDxX71TPqQdt0eimCATpq6YCcqUzH1xIJ8lEzicD2llr5UXGBtXe2r798SC9HnXvLyBw8Lt6GcTi7mTSrm0OQgUbo3u+ZwF39W6LU8nSPO4T2ltCMEYuC4YLIl7MTLQLt/XBzNPdYUH1rJmh55ExtqTE9nRxMfdEQNB/xNFrMlCwozfdROp1ej8pjAIXfyuoBo+oi6pe2FJ71vf2tcop67NlvtZpKC885u8rE/5ilrQhPGFIf+0e65wwFcaNuASrtqkefLjDXwlwo7f3Uq68HCkQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2933d614b095616a\",\n      \"npc:a7d43ff5f3890f00\"\n    ],\n    \"constraint_ids\": [\n      \"C:4bee836650525465\"\n    ],\n    \"span\": \"Mei signed the register as the Crown Witness at desert waystation.\",\n    \"rationale\": \"Daro had already accepted the unique Crown Witness title, and no relinquishment occurred before Mei registered under the same title.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "GBmvtEeLysPVsJAKWmYd2n7rTrQsTCuGNiSqEvA7F50LcRxCLP4CJh/7ZKNlVVftysXyJzMOVPTmewCQ+gHVzqY12xi7qMBdVAXLGonuvWvgZqn1EciVh9XW7kaTqjxXJLcmNBvaZgt6qtS6Rl+Xbmm9268bLsN1I+LIyWZOCtZ+m3lqelXXZQ2bEVN7p0dT6RjMuDk3Hj5sW/+wgJMuwIFbpDW9qvr/gxEKUVl0rZOyN6zBG7OvWjiOxvMNUasKfOS+iERvk7BKngoUoa0iBqQPzIhl8cTv5pnUUrHOKBqQYZDPwY9S5Cn9/DsILN30TPEwhigZVngPE7PmghNeK1SFYow3SoluE57xzWYZAqA96azqy9KFsXbKkw3WrqEABdflYdVRlYzk6BjH961GrExe1W59",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 626,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 187,
+        "output_tokens_details": {
+          "reasoning_tokens": 58
+        },
+        "total_tokens": 813
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:2933d614b095616a\",\n      \"npc:a7d43ff5f3890f00\"\n    ],\n    \"constraint_ids\": [\n      \"C:4bee836650525465\"\n    ],\n    \"span\": \"Mei signed the register as the Crown Witness at desert waystation.\",\n    \"rationale\": \"Daro had already accepted the unique Crown Witness title, and no relinquishment occurred before Mei registered under the same title.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 626,
+      "output_tokens": 187,
+      "total_tokens": 813
+    },
+    "tool_calls": []
+  }
+}

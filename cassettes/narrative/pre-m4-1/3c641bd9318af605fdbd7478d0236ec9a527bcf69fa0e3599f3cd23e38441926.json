@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3c641bd9318af605fdbd7478d0236ec9a527bcf69fa0e3599f3cd23e38441926",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5196,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 700,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 223,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1019000000
+      },
+      "created_at": 1783846100,
+      "id": "r4A9cgw4war+7UlIROPQwTlsmwdetYRPXTUeGPK7z7gx+n40RJQPmDnxzjBpr5CNphkAp3HHbethYbqwArCtR1ogJW/0JZHevzfIWX+o6YQ037Cp2wN8BBUcWMzGQj3OloBHYTXSnXcjZZlMbxB93Q2FQJ1qD/ZSHHaJcO1SRlUbkggxN8iPpyeLSWPu22Qx4+ITRZRFciqFVMfNyQvukpBJMDSttoJs0xlJNTdDZKSRMVx+c6RdhPTOhyAsvfAANpJpWscXpUTQPrQgvJNjdEA3wMXdlFSIEQ9vrolCqiyRl+LdEBVJqlFXi4HIaiJJv90PqJJ4f0xOkfQHcRl/Wb6E0rnWym2gMQIXcD1Nr1EJQEa/V0kdG2bnuus9svcwFVNByN4z+2KSkDiXtzkw9t6/Ya2Kyw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "V0IKXQHXcwAz7q41Sj/GerUd3b7TCvgVUoV7XjbtTavaxj16waAFc6ZHcUWbKxqCSWVn4Jg3DoFiSrw374zlvLT1dw7lh2zF30ppTUb2qM41AHNZGDBzg0KclkO8CtU6ppro0vigeTSKVivaWxm3qHm+msQDAdesO/QWu7V973RB1aloBwiidck/v2KEiJBDtw2rkVrTG8BAzPeKN/CkJ75ZlR+7Kqq2lpH7wpZCqjuAsQPozbdXYS+ahVCK/J5KSGYecfJpGs6U67Nvl3D2fRdYexrnWZFAHaGVZvRATBoSPERiDcFHIbNfS/0MquEjtQVG2axYRqavqFhJ8+CV9gT1EjA55h2WFEistz8+KjDiT1urkavh4PUJ0BafAJi+xdfRcUPZj2xBqzkdwjelAUTbiGI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1bc4f144fb6fbb7b\",\"npc:3170d64111e187c3\"],\"constraint_ids\":[\"C:ee8d503016fd4718\"],\"span\":\"Oren accepted the title of the Crown Witness before the assembly at desert waystation.\",\"rationale\":\"Oren accepts the single-holder office after Veda has accepted it, with no relinquishment stated, showing more than one serving Crown Witness.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rmKcjbNZoGVGTTMnGgnL/cu1Y4JI3kmiMHkbip0W2+btYZ5iAzlxEYndbdX3aMtS8klow8FGWbrzihqP4s4SvNBak9vXtdVxxAY6JwVwJm7q6SCi7lGnRRbQ/2hbSKhhv5OaMj4ue5twh5NuEctc46MvMzbeAkd5KspF+viOwuhb+MawsArlUCA8SvNlHVwCm1agL28hl9SwO2Z0HrcFn0+OAEIdDmf9S2l2RoDzdZ4f7jCUZNzPp+umJLnN04BKz9heDNj3p9xpeA2mOT4UbJUGh7ptC6zlIGIUiYAccFrQN5JTmmgl0J35z9rVoai1IDUOYY5ZVwVl41xJzbVs4JvyqCwVMhFXInzUGePj3+/ZeoEWnYbAmddgwP/TZdiho5opdukx4Y+nAXW+PqP04Sz+dM8J",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 700,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 223,
+        "output_tokens_details": {
+          "reasoning_tokens": 109
+        },
+        "total_tokens": 923
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:1bc4f144fb6fbb7b\",\"npc:3170d64111e187c3\"],\"constraint_ids\":[\"C:ee8d503016fd4718\"],\"span\":\"Oren accepted the title of the Crown Witness before the assembly at desert waystation.\",\"rationale\":\"Oren accepts the single-holder office after Veda has accepted it, with no relinquishment stated, showing more than one serving Crown Witness.\"}]",
+    "token_usage": {
+      "input_tokens": 700,
+      "output_tokens": 223,
+      "total_tokens": 923
+    },
+    "tool_calls": []
+  }
+}

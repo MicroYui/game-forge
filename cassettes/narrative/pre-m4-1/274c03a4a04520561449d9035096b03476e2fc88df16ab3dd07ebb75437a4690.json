@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:274c03a4a04520561449d9035096b03476e2fc88df16ab3dd07ebb75437a4690",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4088,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 633,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 151,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 769500000
+      },
+      "created_at": 1783844700,
+      "id": "zxIw7ievmfR+5RACXvd4IBZU+9/09K1VuakfawMw0/nks7lSIZHrZwkIlB76SDAJHgVuBKmQV/LBp6ur7LWg/gxhAAowVAEPdzosmfg33L98N6cuSXKZR+ciXy1WUpA16RJGmvDL2ocWrZDYSrDkei01U+/ABFzexDGQoUvgHMTFk/0pB8p0pH2v0ZlNVAmiGU66TMUpt1ynpVawwzEo9OS9cgAzZ4/icNxF/3J5UVa7l25vf2o++EALrWcNYvi+z0W74mjC2pLRY+WDvDHPSjj2/i9HFJac+FSlxaG5n/D5G0LqUiINiFjBYElWAyTMMvJoXYzlQB46It6eRta/uNxwpMdO967+5+lVBL2qEzxV4ugIarQEHvaEHYitWnmqR+IVtn0zzQ5kZ3Ef8GqxvHBQKznQIQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "q9ewS9fCKmMznUetuN+G56aAHfbLL/9yRGR8pYVMTZ/0oNi0hsJw8jISpTYIiCqDLKAcDBIWCLZezixCSSkQNeR5gEuwRgVmkzjoqjI6KUxC4n4FKH7Pnr0JHvuBSG13Y9jZgo7xgw2AbhLMu9gAg0TaUkogmdtdqYrqWvGzMiIhWzk9SNS7QGHjlIHn1LvpI2ZFcVUkFUZ0q3eSG/thhJuU7sCDazdW1NAQ3zCY26YukmFNzhUeOss6mPA3iR/L30NzPF4c8tViD6v+avijXDkeiMqJgevue72gVPlojOFVOEgeT9bUP4FPPa1mRibNbotCLzepF1J/pEmUpyGSu6j29YR7GslWGHFDjCVQ9KXlYwym3WNsjDlPUTwDaiJf3n6J6S/EePsMaNmMh4h+BAQN6EM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a09659f4a484e410\",\"npc:b309d3f24ed590eb\"],\"constraint_ids\":[\"C:bf80232139bc1a46\"],\"span\":\"In old mint, Veda supplied Oren and called the partnership permanent.\",\"rationale\":\"Veda and Oren serve factions that do not coordinate operations, but the quoted supply arrangement and permanent partnership explicitly show cooperation.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "d29H99dyBFv0EGiKyukjJvtDI9iYMBui+a26B95z9YGBg7PqBmheeqhwFi8txpvPVOqZj8ahiolfO+5bzzk27VPmoVuvZG7C3eugMaq4ATNk7cygT2BFCLlkky4Gzwmk6ApqHoMtvHUGw4cg+OEg2VfyUasfFjD+Xtn2SkgCzcX1NQNWBJO4Tia6NEJ98bo7WlxpSu9wFT/jggmCfwNu1gbGclkIwdpLm6Kkj2nBjY+crlYj3ux1lwmxA4H/yMV6bl0krP4PnxgNDMdWYL8BogBp5QxtIgDCna3Uee5O2Tz7gvQjgCVikbj3PGFhByZHJ/lxmM6t1SddBXyXWemxJICYaexJVD9edGI7RseZQex3G1sK+MpncrjwwSyr9TaoDR2xnEtxkC+czmAT0xDYO5SMhyOu",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 633,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 151,
+        "output_tokens_details": {
+          "reasoning_tokens": 47
+        },
+        "total_tokens": 784
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a09659f4a484e410\",\"npc:b309d3f24ed590eb\"],\"constraint_ids\":[\"C:bf80232139bc1a46\"],\"span\":\"In old mint, Veda supplied Oren and called the partnership permanent.\",\"rationale\":\"Veda and Oren serve factions that do not coordinate operations, but the quoted supply arrangement and permanent partnership explicitly show cooperation.\"}]",
+    "token_usage": {
+      "input_tokens": 633,
+      "output_tokens": 151,
+      "total_tokens": 784
+    },
+    "tool_calls": []
+  }
+}

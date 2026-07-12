@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:6fd32d0bee692791c0831bf3ae8659fe91ea18e6685e3b661463a2b77b0f97fd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3950,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 572,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 228,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 970000000
+      },
+      "created_at": 1783854600,
+      "id": "1YeJtP12cdV1K20sDhCjuR31PlRzBzmmJQ+XQmNZYBCXqtG/8OzpicF0crOTQaiFMVgGO3I4PEGtijcF0/4z4RhZVUBGngQL+ncAL//NCkm23xkXxrEHI1FDepsTsSjK6QS4A5GnmYq3Hn3CMGvMP6BHnvSHQ8Oq5vTD3Ya0kwrg+kTSKV4jJYKg/YXuVb0lkktf1gmz+uHnbZ/bjgnfjN/piTP4sSAXudFBQGnBIf01zZAcCzWw6+kUybDzMfGkJ7Fnp0RToi6J6jTsoVrtITwbGOHpw3JeoTp3ewdg7PchxsS+nUxQjP5j3JMNfL2rFO7iQi46nOXHSeTWjZ1JmfKJcs49/3/EtdhdhQOq75hFp0G/CnpJizee86spEpQbNutYEzq5C/xW5YUERwzwhT2e7k6SnQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "eQ4dh2a452e29xuUF/CEEqG+cLcRLcNvy56YkKF6GcACiLRkOxtDVmF4pMfsi4wMEYQ+Xm/QFt1d/3TMiS/ybnFA8KT0AOMqqqGVEJ5znNr8C0RfQBMaTAHvfQhu6PKRs9j20c16Vc/WJ4zXIph1Nf068XPxy4MSj48tyXtmdV1hBWv+1raDnjrVe2xJ+WPMaXFfxUGr3SlYNGUYmWcHOsVwwfEs5UhnAtcT5sLV+c9YSFegpsE4XXjEknGToQZ1lzAR/Kqx2Z5Z/dXKB/rz0aaj6cTsPJMP92UdkUpFBim9wbbLPqjiu/SL0/Uobn+l+9XDKekMxVFRqe5Q6Ai0qx4lz+XfNRuBrCKMaIqb2SjO99nDSjxIbIolmJxRGms/A+LL+aYCL23y3n5w7hswNr19xJI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c108149781959301\",\"npc:fdf9fed0a3d29c3a\"],\"constraint_ids\":[\"C:11a300906401a356\"],\"span\":\"In observatory, the council recognized Mei as the Harbor Marshal.\",\"rationale\":\"Mei is recognized as Harbor Marshal after Daro was already recognized, with no relinquishment stated, resulting in two recognized holders despite the exactly-one limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "pTLmvNBjye+tdz8XY57gy78FAPShx5+8v0WSj/fOf4F0d8CGy+y6Dd9FzMoo57sFki/irnxffHo+fMyZ2+S650NFUH1F/9fzSQ0wQtaapW4r2rATmbI48PprBZ+hhvHFzZ9ao/rpbUAj+Lyg/XoDSburDz0/53TVyjYdumwCKaNibbb6A4hCk4aMCLCif0lBl/BNmJZQ0NYUy7Qqy1YVHQ9j+yVRE+4lNE7+7W5ZwijcRI83CsPCr4ITEic6cL6cVFrtIOZ4NuGC7cljP7XEqTTS8puKO41B3yyBXD3cVjZY5/K0duWblBiebO7vuAVqLX/FrfQ9CtR4C9e5vrf53aRSTDg4m1ZLpIM9lPP8WxIz5IEv6SBiDLUknYekQRVnX9Q1o21FTVHi2yXprhEjFV/npaQP",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 572,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 228,
+        "output_tokens_details": {
+          "reasoning_tokens": 120
+        },
+        "total_tokens": 800
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:c108149781959301\",\"npc:fdf9fed0a3d29c3a\"],\"constraint_ids\":[\"C:11a300906401a356\"],\"span\":\"In observatory, the council recognized Mei as the Harbor Marshal.\",\"rationale\":\"Mei is recognized as Harbor Marshal after Daro was already recognized, with no relinquishment stated, resulting in two recognized holders despite the exactly-one limit.\"}]",
+    "token_usage": {
+      "input_tokens": 572,
+      "output_tokens": 228,
+      "total_tokens": 800
+    },
+    "tool_calls": []
+  }
+}

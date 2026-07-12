@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:eeed2dce97092470fa64119c327b09567bccd0c9da8073819b5453988816aef7",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2269,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 515,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 145,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 692500000
+      },
+      "created_at": 1783861800,
+      "id": "T68HP5VpTXmp+mpzBHjzEevxG0oIX0OKdEUol3MtEnPhfApCsd3vcR8qEyuC81XboH1CCTbyOcn0yw0RuTbXEdBHpHAECO7DvTRsaInp6senAgYEe0shn1hsT4xmtn3geRhNlvWxzl0vtAtVbG721LvSSRM9sFBra1kHu0glZYLzo46wyWf7CuGplQ1ltm/SW2MItkyhXl8zyjQu28F5wPhT10vkDhCcEcfG9MVvKrToS73mZxI7chjoJAJMjWdbPNHfZ3EtuP0m+QPbya99YYoKe9hfFe6eeQ4XgUatsrJADU2UcsV+YJ+Rdvt7Q1G2SxYpZt6xT3znQrcVnF/20czIJPhHw0Tx8XDlRpYbXpLfsAzfBLtsyR849DvupLLEAJHRtCi9ROL31y2QDtn5xcVNfStV5g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "HzeITT75j4oDt41r6KnHNRF/kZQhgbd8T7blZo3sMpGxMTeyU0pLPWe6+mJAl70I1QZgdnxzlfFMfKNgsszT0GZm+4fceleqDPFAGqOjIIwOu+BAmv8kmHm6oF+J3IIwjC0eUeeOyklfn0m5fRlAyvzJG7e+uCNPKRE7bs6Py/SIwoaRocq2/12kh12CeOL5zGLknKqeq/z5KVH/qkBupzGlxDD6TRWC1eThNMH4pmKO5iCVR5wW2Z7nWBI0/ny5+40+6unBqj0S47q6GApLSXXW4tCt6DRRPJgIJ6nWIvPPLrH9WHrt7Nno7sQie5SdGM032/CuEct10E1qksKWUe8GZqu4Y7JDRS6PXK6ij+6wNN1UhFf7FteO284uJium3R3mFeLPzefXPWdY+62QicJYTtc=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:5d214b3802c0cac2\"],\"constraint_ids\":[\"C:25c5155f668c2c2a\"],\"span\":\"Mei ordered the last rescue boat away from the stranded families at archive hall.\",\"rationale\":\"Ordering the last rescue boat away from stranded civilians removes their safe route, conflicting with Mei’s rule to always preserve one.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "oy8FIOnOAcBkwBFN9M4LVaH21SO37ALlwVLkv2jyrb2fo1b8HeFeZkqhSSuqlZqK2mdB9Zwfofg1BQSRwcpcEqG6kYqWeSRBTD/y5kETmKIfG23seKsL2BSNP9Kzbl5jDgxMepIzW3iXbcLgWDD5Nd/U23serCbgkYiZ6mhSnx7m4n3lbFvzm/m4g5P2FtcD5V3iPtAycsqihZoaQ2xF9J8c7Ht/M9upOAPOiAJT1nqkVwXCtBJnPz3z9XSoRHYKCopa0CymA5BYwWR+7eTeQgLYTopxBhbQ5YU5ErBh8sM6aBMtVHJRL2tnpNAYOG/xUd58CpNN8XuBjhAJ5IaT2TmcX2twuaFDHCo4F0f8Eo1eBe3yWxz5EX0f+EMDFD5eOYBPXvzIqTgXrCuHUZ9nvuvzycTf",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 515,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 145,
+        "output_tokens_details": {
+          "reasoning_tokens": 48
+        },
+        "total_tokens": 660
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:5d214b3802c0cac2\"],\"constraint_ids\":[\"C:25c5155f668c2c2a\"],\"span\":\"Mei ordered the last rescue boat away from the stranded families at archive hall.\",\"rationale\":\"Ordering the last rescue boat away from stranded civilians removes their safe route, conflicting with Mei’s rule to always preserve one.\"}]",
+    "token_usage": {
+      "input_tokens": 515,
+      "output_tokens": 145,
+      "total_tokens": 660
+    },
+    "tool_calls": []
+  }
+}

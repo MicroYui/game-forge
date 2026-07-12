@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ebbe50ee8b1a69d2d4782b2c0e04014dc5a32f1a26a2c63e917a5ee4c06862aa",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5506,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 568,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 207,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 905000000
+      },
+      "created_at": 1783846000,
+      "id": "fThIVM2Fr63aM0lxpOkwcuKOSyYEcdJonOcn+Z9nLg5KEI9hLLE8AbFS3FCeTMuabK9tJKM/nmROthNfe0lseVK4z6Sz/H6zHBtUrApmz3qHGETb2A7Ev/U+BgIzDlJlNFqYolGMbKwbcDfhq1hGqkeNCr9TKRrYBvi5DeMlbFpAg8Vxgg/CTr8X5xIwYsguzg5INjvoi6T6zJulPApOC4YRgo9xDzi700i3PSC0RenTfO6EbNyYLKKZ9SPGWAK45F2gymKZkmRxeSiMF9lsznoXfKfmaSDHfeGgOjO/6maw+sbz3csQMcTckeOHrlqP8DVf/LpLxfnK1tsSvSYA9k0xgg0Ofv23xCrOYJIlGh6ZleBNWbkDuVygN8OIqOdDYhE5+g8mSFKyZ9Tz9ppAi2fREnyxHg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "9uQXmjC9KtAfTNyGstysJxjp7yibownl6F4EjUQ2OfoxbfPRYyxPh+fKm/NsXfyR/pgZrrFPtBBiTQsvySUG8ywZwe0PQ8GdaMpg1qLRe+jWLRPR1wGtFqpSV8V4WiekIzRmEfpJasS2QaDvJ9NfOALoQaR5cIC+m3LDlpDaNvykkzDnTOPSX4wq+ZX7y8ZzVBJmZ6k3uaaJKw7smS+G/ueCCilUD0hPzQpbkk0ymr1gHAXEz3um4Oq0OSkTKpp5U7IkvLOv5Sbi/Pkgx6yE20ESod3l61qAlmGwRu1yoFYx66/Z2O2jZWIUR5juWSbVyU8R5fZKgzjrujQo8/kOSJaqYAK9h4mL9V/RzfsjMMywonNoq99pRloV8D7Wo8KRStzjcUcUabpDKtY5wv35H43xvxI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:12359404988fbd65\",\n      \"npc:84b35d07cac6e700\"\n    ],\n    \"constraint_ids\": [\n      \"C:f2afc3789c90ae77\"\n    ],\n    \"span\": \"Eli signed the register as the Crown Witness at orbital concourse.\",\n    \"rationale\": \"Eli becomes a second active Crown Witness after Tamsin, with no relinquishment stated, exceeding the limit of one.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "n3f9aZ4HJHNYBht1MtH+IKiRH+y1xm9dk3jDqs8tLGN6oOm2hUp1rFZ1HXt8xkj8dueisnCnf22UmGxR/WYYfYQirY06DLjWc/HmMoWs50JzdhXmFhBC8TnGws08gOmXuZlMTOmsK5gjd5MU1A2IWIKMCEhTD0CutSwtMWb7Hx+sAkwfFw2u3fwxlSYsQi2dPG7uVou/bA+A5McjCeuVWLdOyFxofrjql4LQsJH5+HTn1pZyw0FMcOCv2uQ1jGRK9r8Cen3qBwWLl1ExWgt1xNyOF48nEkSb6/T3ZCfXvBooYe0IcO1aTbQobIRxVn9uY6jnU21qr1Luwapc8VVDgN3FpjTMMaPBWioUePHWE0ldxeFxrWK79YwLdwR3A8L1YXCOMNEjo/tieAhTOs6GtWHg4qjr",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 568,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 207,
+        "output_tokens_details": {
+          "reasoning_tokens": 76
+        },
+        "total_tokens": 775
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:12359404988fbd65\",\n      \"npc:84b35d07cac6e700\"\n    ],\n    \"constraint_ids\": [\n      \"C:f2afc3789c90ae77\"\n    ],\n    \"span\": \"Eli signed the register as the Crown Witness at orbital concourse.\",\n    \"rationale\": \"Eli becomes a second active Crown Witness after Tamsin, with no relinquishment stated, exceeding the limit of one.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 568,
+      "output_tokens": 207,
+      "total_tokens": 775
+    },
+    "tool_calls": []
+  }
+}

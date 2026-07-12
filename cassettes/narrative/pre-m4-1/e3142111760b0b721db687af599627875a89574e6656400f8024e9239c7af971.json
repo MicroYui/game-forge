@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e3142111760b0b721db687af599627875a89574e6656400f8024e9239c7af971",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4872,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 622,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 252,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1067000000
+      },
+      "created_at": 1783856000,
+      "id": "lpPsRXKAQS3P5nE4o6HjpU1MPD1Soy6Sd8q0RtfIIZMMY8WX5sJOAN+gkdOPXsOi5yWEmq9oRdW+x0pEj2evYFNtKbFvapXRzmVPv5Ukk8QrGdTtFNvvwIVs794nOp85uPYW8p+qci6PWV9JDajBdJAHaDRuLQg4NzcXt1CM4/4KDCW/w7N6ESq5UJA+U5An8BG8Tjqr94BxakUWzrUnmQFuTKe033yUIKVP5ilOjO4P9yGxBXPUZ4mw+Uhw1c/1OS7S3xKg9u0dpJI/Tzfe5bDDtaUT7mzRSSA3TO+r4qpLd6lo6sR8oBtR8I2krk9mTooDO0eE3bGwihoSgbsCqkvKHsU2hf+ZbQluLRUgvK0ZIIpOR2unbiV1tZCCdk0M/LaVuZtOnPI9By8bURoAg11E+noeDA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "MpYK4vT+UfAKqlchbxOs6Hk9e9KuwiOLhIw35fM0tRHZRd4kOcPItLpGryApzzEveScnp1qsigaq4Bvi33J6wdXd+1zm+7bGgT0uUxc6oV38QTrMoNg2wPvkV+WEblrE83nhIBV3VYMMFLzdcS3XqDtwAmgzJditB+5j5cI5kxlOSrbAmpbGjmKQrM/zi63/rveB0zWG6iYW8NdIV2y5oRrT8+7TdSswEfhbYujj+AjumSyChcoD+Biw6s7JpudcrHPTaaloBidtFy0mrkVupqnyIIdVycR5EkFJ0He3t+3CnT0pF/lfhvpYmexDwMSteF2CoMOW9WxZOzSEs9+YGtvILC86BhiPIDak5fw1UphlddcyuSzthLvCEPPz5mnhJBC73Hl+wt3QIVYXLM44QfTuUEY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:9383421233ccd00a\",\"npc:d632c48442cf8a86\"],\"constraint_ids\":[\"C:ce7b8338cdd5d95d\"],\"span\":\"Malik signed the register as the Vault Steward at desert waystation.\",\"rationale\":\"Malik is presented as an additional Vault Steward after Ada was formally introduced in that unique role, with no relinquishment stated.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "GHXAUYe/YObZanLrKrdwlw4B9r7/yHYQR9cP9+LmLqfWkrpHxYTwAoxmhH3tZ+KzuoZP4U29VqOYwdyIBum0FgVlZXvDTT9CJ0HySVVsQ7dGE1pKVPgMKg3RMGiD47qJTvvGFkuWaiVI8jQ1sJC/Hczyp0thTnvx/SaAkNiaBFrTAjt/K0fl75OR1qvzUrblu0Chdi5uNQ6m4sW1EEcEkoPoxAuGvCIF807QVQyJfpLMxKLDZW5AaSn+93hH73C1xyiXWBHfBxLMRQko1twWz3RRxU82u+IJmawvYHdGuXaO8Evb181DU58jq9VoAyyrf2/vEsVk4UsiKySTJyaYFHKEYtJdlmfQeG6jh5r2UaJgp8tfG3tvBw+T97yXnzsNOIzAynggmkk37KFiLvuvhj5kdiYl",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 622,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 252,
+        "output_tokens_details": {
+          "reasoning_tokens": 146
+        },
+        "total_tokens": 874
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:9383421233ccd00a\",\"npc:d632c48442cf8a86\"],\"constraint_ids\":[\"C:ce7b8338cdd5d95d\"],\"span\":\"Malik signed the register as the Vault Steward at desert waystation.\",\"rationale\":\"Malik is presented as an additional Vault Steward after Ada was formally introduced in that unique role, with no relinquishment stated.\"}]",
+    "token_usage": {
+      "input_tokens": 622,
+      "output_tokens": 252,
+      "total_tokens": 874
+    },
+    "tool_calls": []
+  }
+}

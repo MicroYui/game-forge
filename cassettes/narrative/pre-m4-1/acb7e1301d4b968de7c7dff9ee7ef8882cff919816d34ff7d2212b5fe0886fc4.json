@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:acb7e1301d4b968de7c7dff9ee7ef8882cff919816d34ff7d2212b5fe0886fc4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4427,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 609,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 253,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1063500000
+      },
+      "created_at": 1783841500,
+      "id": "vvoIrjb6DGoVdzkoU9C2QnQnZ5VeWt+bvH4RgBCO0vmkLM6C01u0m4EYm5VxMxwR19TZNto2RLkljKx3HRBbUqkAOPO0EwK46DtbRKEfjrKjHGtL4TW6aIBe8GS/dwuzifk7A22UxP06Yn/86zrm+BvRyYHjmmHPAVe1XxSG4xW4gGvYPYIdtZ3UQrgE+b9R/6AUDOg3bJj2mJEouxU9YJMde9MGQKnZBq0X217jU09b2XyxPmebBSpK2I6HDSB7FUqcyNDNi1JHwsGmQI1UmTvq/M2HJfmomXQp9SVVSMa5iLnLDiM5KL4dB7zVZ4KWsipJy2940q/um/Ea/bkW2ZCDWpDLpBtXDRVOeWUyrYUiLEPRjs0F31jvcWKIm/iMPkdRkMeUJ/6A93ud/RfoAkMMA9SM/w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "+L2dr5QE/udIywgjUYZ5L6YdNIlr1JY4U+gAjv++Vix96LbSynLuILUrpXCyYWhJO/CYDUbTb+EISIhBqg6HSFSpXs0gW9elIaQ9BxU+aiPuH4scM5InrAcX0IuQtRUimxFG3L4dRLg9SJH7u0/RWce75hcskUkbvAl2AGHnb8X43yMECBjcuK0DNM7hCLILCEoPutIGf+yJVH9s0sxWYWH7wW7WFlpi/yvcDaAClsjGIGpOVgWPScHW7IwTodPvVTE5k5gcxCEVJ8mZG3K3LenlSpPUiMe2UooJRme3iq6VPQ/jG4dt41c1f0Urdh3DHZNmMBCrNPMfk64BwRFb5z7wL7UkVhTDK8WzwNolHcPCZyiRM7zaSlOEy09unogkZX6KAkQ1gIb3l74BkPtiZXnnR5g=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:68b253709fd3b532\",\n      \"npc:ba038d3d50680770\"\n    ],\n    \"constraint_ids\": [\n      \"C:1563875df1038cb1\"\n    ],\n    \"span\": \"Ada signed the register as the Caravan Voice at canal bridge.\",\n    \"rationale\": \"Ada is presented as the Caravan Voice after Malik was already recognized in that role, with no relinquishment or succession stated between them.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "u14wCNIxBlAAriVtPHEYeKNx8cqC2AfaLv4cm/bn3nTzcVo2cXu392AAq9jY3lV5Q43jBr+nV9VGxPtN6tX0tdL0CAsarVtK8vcmROB6zWwc7hyzY3Xg/OGSmB8oGuVD/fHKlioQ1fYkrJH1bPqZ+jG65AvsWfri0mJaYr6dd+J0ZyJhxFpDyC1ElqoXkGQVemvFg9eKDme74FPysbcdLJPyTOK3C+wsZG4/K3e61zwvHmKhbftRikDY1zxn/+trh1ksCJvbEWmDY6tlJfvbMw8Dm3pFN/lvgKiX/bQSuHHv7tfVbagKqRNIKCVWylU5yW+OtbFfDyHLqvg5NGwkk/9rjSkzPZcQcz/oO3riFcPVxOYH5IdUvRhjJlwuPtmRyl8a2/wGEmNkjsh06Hpcb6qmeGRI",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 609,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 253,
+        "output_tokens_details": {
+          "reasoning_tokens": 124
+        },
+        "total_tokens": 862
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:68b253709fd3b532\",\n      \"npc:ba038d3d50680770\"\n    ],\n    \"constraint_ids\": [\n      \"C:1563875df1038cb1\"\n    ],\n    \"span\": \"Ada signed the register as the Caravan Voice at canal bridge.\",\n    \"rationale\": \"Ada is presented as the Caravan Voice after Malik was already recognized in that role, with no relinquishment or succession stated between them.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 609,
+      "output_tokens": 253,
+      "total_tokens": 862
+    },
+    "tool_calls": []
+  }
+}

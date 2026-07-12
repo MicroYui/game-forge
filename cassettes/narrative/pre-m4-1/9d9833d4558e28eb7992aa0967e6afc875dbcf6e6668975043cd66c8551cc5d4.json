@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:9d9833d4558e28eb7992aa0967e6afc875dbcf6e6668975043cd66c8551cc5d4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6443,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 633,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 287,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1177500000
+      },
+      "created_at": 1783844200,
+      "id": "hbSgTYlH+Xy/S5kI6WH4By97qxQpavQ6VyX4PIhPhIuPaK/wsHajCJIeORM8r6keKbnKGJWuKgqrpyWMqreiIG4iFnEf6WBoKiZb1m/REdmDOXEuZOYouT0NWEvTonGMsSQBADihOb3HXpAScJdhCNlBl/srSYSEdQGP3HbLB5r+Qa81vq7QrkK58SwF6P+Waznxn1ePJwqQPjG8TlA+jdtMfZxUhyPnaASqKuzbghygGTymYlg0zOFlGUE6rPmUy4LtenfnWAWZM+lM7GpLYWF9135iNurLmruxg7XJzsoPpf1VyRn9v8jzFEx75+4WRIrgam+Vvcfr/6Y3I3OfrxAADxCxvc112mbezoaXmaSqdPcHnONJm5Ll0xUcGqrS9lGsWXT0XLyqOJYrhU/ABdwukuvX4w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "daRbx9TFXK6xtucuiDnQ7wiXiBvOgI0YOhtv8fmkA+EioztisU39OCfExvYIjTfFzzwxmjrmJ6gVtPmfhXK15DfgBJltytbPO535J7GnDxH2/K1gTpAe1mz7ZekJGz654HaR3Dm8N/oiKuoFAOn2fybXimtCvY7V1ISbVtDP6k25LTEKxkVirOZUmEThLxWj80Y8jGgLbgnb9s9/wJ4Gqo1Z3SOInjiV+xOT++qKmL5q6a/AEA48+4oNjZ/GzsQoSWNktKSW/mWtMjyjmqNIshyfIfLwNkBjmTvvvsaVyRxz4vqLziIXt0MCfvtFQ3f9g+6fToKlSvmBU4UfXxfeiq3sTKFtvn7/aTOPvkBTeAIc4u6tOqTIFi0lgiqHjxnjzCd92/sLe1BA680/geA3ooirqA8=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3e9893dea54608af\",\"npc:c3dc9e8fb4578946\"],\"constraint_ids\":[\"C:1c0e3e820d906578\"],\"span\":\"Mei signed the register as the Vault Steward at archive hall.\",\"rationale\":\"Daro was already established as Vault Steward, and Mei then claims the same title with no relinquishment shown, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "rHkRxGfQO2NttonLF4xl/i7REWkQDWUMNsRfJGk807WSlys8JDaWHK7M7KpKq24+nI8oijZyb06iIXCwwyT4Vqd8IHAZO1cv9BABn5H3Ll6wl9Kbz287pTS+YX2JYQzpjxvfmWNFmWWDeQ7O4ZTmpikO2pGfS/Qxm6ABmIj91e4v4ReNorav/cqpBzQ4Wqi4yUp1NbMveRtX3kulFhWQ9qy9SkZ2TLD9EZH8nazMA+a1n+OdawkbAgLNw3URxe8D0wlk1xVEvk8uhXz5rE2rUgf4oEMoBOY3AHuNavYj1PsOIm1RGCz66PO/pUmd9sOHDVeTiwZAJ+SkhC4Re1d7r3KTyc+45Tl8KPWGRief+yIhHHJC9t8TTWadu6sG0KFAPRbdFJ1bpkijmdN/TjRaPN1lNrjE",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 633,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 287,
+        "output_tokens_details": {
+          "reasoning_tokens": 178
+        },
+        "total_tokens": 920
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:3e9893dea54608af\",\"npc:c3dc9e8fb4578946\"],\"constraint_ids\":[\"C:1c0e3e820d906578\"],\"span\":\"Mei signed the register as the Vault Steward at archive hall.\",\"rationale\":\"Daro was already established as Vault Steward, and Mei then claims the same title with no relinquishment shown, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 633,
+      "output_tokens": 287,
+      "total_tokens": 920
+    },
+    "tool_calls": []
+  }
+}

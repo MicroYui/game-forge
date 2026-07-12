@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3618148ee97f61b48ff9163d76eebfc556dcee3ce66302df9b87f0a67fabdc06",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4575,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 693,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 242,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1072500000
+      },
+      "created_at": 1783859200,
+      "id": "kTDHDZPTrOmEsZAo9iUWdmG2l3+8A+1NwnCp92ZoyZOuuiEyYtY7S3wuZUR8pQkoLYwog4I31FCeQatzStWzDH+CD747CfF5XqAngdGzqlziFaa9t6fthg23FgSJ3YFHXpHdmrIEVl6hVpa3FJTkJsW9vzwZzRu3zF6pn28eZUBUEWt2lo3DHFJZJJ805Z81X1i1lOO7MAtN8Xbc4Zi76DGHDIAKzVhRPn6W27RNca+ZZ+dQsAU3fw+UKPX0zgggHDXMaHd6AWeSgrDhaeSy2fqm+qkH/j6tS5yYyjVG50YuXulZwtjGU8lyPwEyl1TZKli3al36wgiLSvfkOF9FcSiAYxSJZbIjhGmxAAeepskxPB0MuyWQ5SJQ/VK0ij5I4gnezhGgTH0lMGEj9ycX92T1o9SVXA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "XQVbyGmDXLKij6gUWc0zIuMhoZFBC6jHl9kTKxnfSp/oV/h/nldbRbPoUHxSaF5l69X2Py2NBcGt4H3t1fJ7GpKpcNECzoflaFDE7x3zYpXSQfr0FJkj0BhzLN25eRHzGdbZLwtcycYW57VFQ/iNj7GoOeXg34w4R+FYcVJsaX/4/68dfZVFvrf8pxQkWsgFyc7rnIEj9ol5QAL/Zv5L+Xj8YLXE3mh9KeFycIck4v64QCGHiyOCQsA9139dyQsT+Giiubcb9QgmOBXFsHP07ufJL6Mp8b08/Ar9JWz/WNHW/mo9bT9SZ/RNLL4zUd6erlGGcLxyk6T1IrfXSvh8a3iCtewYypzP0WJbw1JxcE0Q9rzpkeXA90B5zwacWWbQx5bMss0tDK9bsrR8NozEVWbLSSo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:c7e08daa810c6167\",\n      \"npc:d380cb5c71436b73\"\n    ],\n    \"constraint_ids\": [\n      \"C:6fbaf4e1bdd9217a\"\n    ],\n    \"span\": \"In eastern ridge, the council recognized Veda as the Crown Witness.\",\n    \"rationale\": \"Veda is recognized as Crown Witness after Oren was recognized, with no relinquishment stated, creating two serving holders of a single-holder office.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "d/V5zUx9L7JrAN3LFOFv6ZGj4KI3SFxA/horHTil2Iejyi9oN26fRB4OneJ6kJjZ9OoXSHq1kHLf7oluM+6dYkCAmICR8wpG2G8oLMOMboBLfB/gOBGgiQKlZBJrADXryUZjBKufgzPNM1KrS+ckvNSfyZpzYe18tXCDGJcyBKFsTTRPNughXnzZnrtXvu5pseD52NeyEqpePqsaSMSPVe5H9DFWpd4DAKTWAZV9AI5oVd09lHt3/SjFvc3wjxUQ9klZ/AK8KjCLUTxbnw3xigjAOR58lmMxWJGV9F8rk1tTvTK4UCrceLN+NqYC9V2+9RAKJe9GB9Z4c1qY4e7wVFsHmjHaMeHsIv4VQ8YZUKWXWGSWusQI7fXPoNNbsm1dqqdmU4626eiDZJqvG1LDGjGO5XTF",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 693,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 242,
+        "output_tokens_details": {
+          "reasoning_tokens": 106
+        },
+        "total_tokens": 935
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"uniqueness_violation\",\n    \"entity_ids\": [\n      \"npc:c7e08daa810c6167\",\n      \"npc:d380cb5c71436b73\"\n    ],\n    \"constraint_ids\": [\n      \"C:6fbaf4e1bdd9217a\"\n    ],\n    \"span\": \"In eastern ridge, the council recognized Veda as the Crown Witness.\",\n    \"rationale\": \"Veda is recognized as Crown Witness after Oren was recognized, with no relinquishment stated, creating two serving holders of a single-holder office.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 693,
+      "output_tokens": 242,
+      "total_tokens": 935
+    },
+    "tool_calls": []
+  }
+}

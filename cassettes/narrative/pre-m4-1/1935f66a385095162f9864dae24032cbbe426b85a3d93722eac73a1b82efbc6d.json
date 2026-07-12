@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:1935f66a385095162f9864dae24032cbbe426b85a3d93722eac73a1b82efbc6d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 8297,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 663,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 159,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 808500000
+      },
+      "created_at": 1783852500,
+      "id": "n8D8a3JxPz7LFKcOJHalEiNn4U1ROGwI34qeFl3ROwtHKeWChBXY7LjiIxffWJnEAFhljmwCtI0qDiNhvebGkge6mv3BZEHzO2Z/48L7ry8/eRft3p9/biW9YzftDof8jcLwnLWl6bhgAA1Wv/HT1IynDpmDAFze4VjP5BF0RVJSyezmhwwQ5bEgvBtCzSJI52U4A4ARRGYzzZlIhWymFWQM09rjmQ4YjgbtWBdzcDfkkAHa0AIjei4kNC9V4bNTAxvjU274N7Rz7RMJajJX+AIUiLt8ewx7ZCxubZGevXNcCm/zlv6s668Fzjz9WJdpLl1TwaBsCWtWGiChg6d/8qGHtLasEH46UAfAeNAFHI0e6/+GT8YetUJBZIvwzQaddTF7ULyvWi21LDT9ZDi9SBWMTlJaYg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FDFuhjUanMuZ+Gyxxf6MlxghC8i6t2pj3n2fLncYhbWLuYisbdmfjj8AuWiQa4egH32IAsREoWVAVLjehwrim+9OWIK+oE6+DOZrvP3k2ldWUKhCW786nwmugf5+1kwdXBN/gOxiN5LNeMSQEIBTlgPI7V2KucvwZVALfSKF6RxugJwiSrwDs0lFGo2jSzo5wHdFSnMBJFtBsmwNGLuY8v5HdhW9uwodUMJ7mpGON9v76rep+W5KudqJq/CeWt/8rEiWwGZG09Twn/fY5hg8cVUd6Chz94KnAbLYVEN9X4YjdOFfcRW94sBUVrxw2FQlJ0GcboeEwNeAAmMm984/nkY1eGGRB5m1XRMiBBMvsN2kpEqp4SMzjYD5IfjCbhZBli/BzRMDk9UAgYoVdsduVxzwuvg=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4268111499656978\"],\"constraint_ids\":[\"C:a68e8ffeb8635bb7\"],\"span\":\"At old mint, Ivo abandoned the ally named in a sworn promise.\",\"rationale\":\"Ivo abandons an ally covered by his sworn promise, contradicting his established commitment to fulfill pledges despite personal risk.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "LJmjmOWYoQAoFheoMjqV1rgzf41A3gYcYhFVfDIo07IGeX/Qjx5HyZ1ghIbcAzI2lxdqbi5C6+MLKE/bT5ADAGYv2Jhdwi4iTYW4WNJjDD6eVEyXvHQBm4P14DwD9GP1nqT27+OVH1+6cee1g6/PbMTC/QRJvbck3c3JQgBcPGcKh7oLDIHJCgVtajLz5GwsIsiASSV9sr4TSGm0Z7iXH0OsurqfSCFMaLG7xw3WdUpuTLSgFUW01b+rzRZ6HuWT+LxFrR6MFgIvKJiAIYIVUP3YPwhIxAbpraZQWbuPeNZC7RixQ3V8PGimRggagggsDai3fVr9yuLBbj3xR8i7YxPx/OIGNTI9khjGamZ8OSOc2EzA09X1ETnbc9J6gzuLOCbLvbR9tSIDpVrTK7YYBWHY9baD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 663,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 159,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 822
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:4268111499656978\"],\"constraint_ids\":[\"C:a68e8ffeb8635bb7\"],\"span\":\"At old mint, Ivo abandoned the ally named in a sworn promise.\",\"rationale\":\"Ivo abandons an ally covered by his sworn promise, contradicting his established commitment to fulfill pledges despite personal risk.\"}]",
+    "token_usage": {
+      "input_tokens": 663,
+      "output_tokens": 159,
+      "total_tokens": 822
+    },
+    "tool_calls": []
+  }
+}

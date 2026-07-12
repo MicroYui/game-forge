@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:0b935597fca6429e8a25d09f200011a83937ba65472755f7ce3de87cd1a0b84c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7602,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 538,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 178,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 803000000
+      },
+      "created_at": 1783854600,
+      "id": "tpi1OReQwYaFjYJu9fY8u8TKFfhD3TUZTfo1qA7YtC3X/JHP13A8Z3pl0lvQMkNQCXHhIUERdxAJVwr4QdC9o4haISglYDWr4e9N4cUNlJBIx8hGxgZKe9W3RmXY98QkCROT1pgR0SpWaklP8gEJLaPwcBY0Zt2nIMrPIL8y/4tJoDln15yf+ovWsFfKCX21IlO/O8TbgeDbJEOW0w0Z5SqxuMKVnQMvQsJV4E+CfBtUvFdfjXREY9cKAE5T9PMFn3iZDuC9XbQACNnp5fspw+uyXj95L9dGdbt3BC5Xi9tPA/RPG8mGJ3Zuv0Cr/qZTc2XaKpXPGObD2oupze9rm7k6tjwXqBW5BXBg4bF2wbbpACLM25ePspVV6iYdiNrRnGLgIgCWMn/DwXJwRgm6/uKLFuUZGg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "XHfXlUSA6fzjzTJObvNie+w4n8w4XCZVRSqdV78g3Ow4sP8oR96/tWyLqB9Yl79VG2KHwrx0RP3MDtal5nY+Nl201fcFgox0X2lurI9DqQTnnkqGlhSycGsP0yDMr61yp+6PgpABQr2cQqQNXXBBxOsnrbCsqTstDcGjzICK69Ywv0Q8ynYOL1tMsj/T3t2h9Fwqg8O0COw0RnPcC0EHP1ahGdbhsny9jgWujSJPNPyfr808v39eAp+a23yIL7K2aTkhnhpUw0ISNfTEPxKJCSG+nPZgc7zRMfEPY0g1Wq35Tv6pESNaqBnRyIQyzE/uNWmp4scR44pTJs4ng6VT/pdBTaVfzLjPRxiuiSRcQNMCykuBDpAR+CaVpAYasRR/e7zetr06l+UnLCIar7QnjxnzO5k=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:38f658c79d5dc20a\",\"npc:9d549ef73e4657fc\"],\"constraint_ids\":[\"C:45654ee8bd63a1ed\"],\"span\":\"Cass signed the register as the Archive Speaker at north gate.\",\"rationale\":\"Noor had already been formally installed as Archive Speaker, and no relinquishment occurred before Cass claimed the same title, exceeding the one-holder limit.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "LDENroh6VHyE/VeLYaoppRXFmZziVvlPjPP4KVwzkDP/Ca+D0jY0Epa5sUvS/58Dzu8Nw4N9dVYkF7jXmUzUDK4H4HFk576JC0HRh3u8PsTqBL/sf8Qf3v4Py6ET63gi1vXOF3BQGXLMLM1cctcZ4VfJ3AC5xScHSbAryeIHkbbgjIbA5kSZ2iUgJVgpuv7Q0LAHQ6Wwujp06ISkUhSaTLvkkB9+0kQj9ol+oc+ZLEGQq0LXlyyEzIaR4kyzhDzq35vzbAREctcObNVPTFw0NQgXEgH2pHwRrAWnWgEpadlwbB+0BccYC+mF7atW3N2QGJVZFYhGH2homYk5ONFdJctG2v29EfTn79Jbm8vCuDnOd1bi79u3L6BtowrqkYyj4m6Li4XjDNeaNpyb3pGvhsOIw9Al",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 538,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 178,
+        "output_tokens_details": {
+          "reasoning_tokens": 68
+        },
+        "total_tokens": 716
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:38f658c79d5dc20a\",\"npc:9d549ef73e4657fc\"],\"constraint_ids\":[\"C:45654ee8bd63a1ed\"],\"span\":\"Cass signed the register as the Archive Speaker at north gate.\",\"rationale\":\"Noor had already been formally installed as Archive Speaker, and no relinquishment occurred before Cass claimed the same title, exceeding the one-holder limit.\"}]",
+    "token_usage": {
+      "input_tokens": 538,
+      "output_tokens": 178,
+      "total_tokens": 716
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:40f07744db42652c27e6b3923038586fe7d339913e2e2412d93673e7dd2f8323",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3680,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 546,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 176,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 801000000
+      },
+      "created_at": 1783849600,
+      "id": "kAVrM6hsohEkPRVLki912Ex/taT4jqO/uLrYe5af6jbOSX+DbABaMJceOuyiJwgg5kLV3DtbuItjDdtJUasx2kUyvTV26pfVfwM1isT56YBOYzsDw0C4lVKjhbGPny6y8FPUpyWU82s0WzZ+AZVlmeVrYWL95aixpGtTANUZribyfOHDUHiKgges+cnwlorgvmgWFa+L0uhP+Hk2NX2jzfKoS1M3dl9ZZmOgda8yyKybDb+B/bD0V87mjWJunQz5xj0Dsaiog90xMXURoFBI0ntFtXpQUbENaMauqpZcvvCb9LGwj9DbaE5DJ2Qjq9++1rBwZLfI5dZITQa1OGHICHB8LDXtF17ZHnvH8M+vHROeOzhp8h81hA35jE2laRCWf8x4zvlgLImXPwqrkN5R6qmmcHZfHg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "fHCsqvnYcbHLT1ekeV8yiNMaGHSe4rVxNLnLG/hWHJ1N9dl1R4DppG7EKaqbPfcKSFmtTQ4cUFsEEU8gA76yKhBOBcwtVgQSJ3DmryuxiHqaZSas2s8O/Y1PGNI9Sw+Ha6g1OYJEoqbGldQ/xFhVZRk0lLAo4d9g2X3IjAeL5Mw478g8YFNgDw599ruawxwaomYzvJ7lw6ZBF3aByZPbbsADBTLml27bGd9gD5tZTX8Tf4L3+42mnYddhZ2tBCmljxGtNBcpGPW/ZSKmCo2UEcsAMCbIsMzfXs42WH+cfeETQjbv2IK8kBh7LqM4tfoeQ/A6V5fydjXMB0gwk/eQRxNLdHY7VsSL+sedhqijJkx4UQvTrHHx2lB2nmKPy0zLkButYlId5IrtFbltuToxMu0NHhQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:562c381a89ce82a9\"],\"constraint_ids\":[\"C:c3e7bbb33cb3e245\"],\"span\":\"Ivo overturned the truce table and charged the guests at archive hall.\",\"rationale\":\"Ivo initiates violence by overturning the truce table and charging guests, who are presented as peaceful visitors under a truce.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "kJoTrjYEyRnicIaS8IgdspC0xuLS94ZDoijkH56dkKcf8QgT6J07JnK7O/vro8Sx219TsGDQWg/DSlLVG5fT2Mk1/wCaH4c3PRvLTsKK/ih8JC+dxxWgEXxcTmZz6jZ29qe0obnKeK2rkKcfHpZEwQ/ojZn7zpFXaH6hPFJV+GQ/6tzdGg76UU9u4umV5w85HO1LCdPTbKTFQLr8zuFc7IaRDhAkq0xykB7Mbknlw1IHGQsJAlpMFq5TIESaS6Lqnggm+UHl1gUhVsCNgl6YbGdIzsxM9P9iEwIUxbaeeTom65AS61NuiKh+/R86ZueVOewhFTlknu2zmREQsPI1Bguy42EFttPI/IxE450cGejl9+TISCqQw0+ie2IVrHi/14oFiSOXNcdcYo4nwvtvwmR9b2Ia",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 546,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 176,
+        "output_tokens_details": {
+          "reasoning_tokens": 80
+        },
+        "total_tokens": 722
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:562c381a89ce82a9\"],\"constraint_ids\":[\"C:c3e7bbb33cb3e245\"],\"span\":\"Ivo overturned the truce table and charged the guests at archive hall.\",\"rationale\":\"Ivo initiates violence by overturning the truce table and charging guests, who are presented as peaceful visitors under a truce.\"}]",
+    "token_usage": {
+      "input_tokens": 546,
+      "output_tokens": 176,
+      "total_tokens": 722
+    },
+    "tool_calls": []
+  }
+}

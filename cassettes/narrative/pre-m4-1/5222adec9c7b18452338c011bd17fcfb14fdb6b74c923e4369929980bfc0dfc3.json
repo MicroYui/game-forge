@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5222adec9c7b18452338c011bd17fcfb14fdb6b74c923e4369929980bfc0dfc3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4521,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 604,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 125,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 677000000
+      },
+      "created_at": 1783842300,
+      "id": "zp/NjdVAIYuYv1XoyoQOAGq+9nPedKXUQGVmoL0PGpzYz6NYiErAIagHRzGYPrgXndpOHEfKQJHtmfGUD5wcbigFwuJwWz3A+14dJST1NXrV2Nvr82FFSQ3qEnpjJaifEktksFSHEdI1pm8vxXdjoBQ2LPNlvrvrCnL8bunqU+8ozNuVdwkvao+y3ZfnF8Tl9fI0yEN2wzwj09N0n1HoTiuf635DvTGlL+xlyOjutIIvjx33CcpTLh//dTdCryA14lsSqlvV+g/kk7pWbm2jHt0DvGudqioUb19L3p4Xf+B4OZn101cweUYbS47ijmdIu6oJ9LlyC6pDrylNDm2wtyPSHIeR2LcvV1tV1Nqo/MMkz7N3pU6XmIsQFy8EigdbD/Aidvf/OI8svPHymFXTI0spd9xsjA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "FwPLpPo4DiiJv6663uKI3rTm/m0XgqY4Y3/86ulKE9oZ4VbsOGA6copjal9GRTuSl64pVwi6Nx0KsK5qTGtJ0Em31hgItCNQlGiFKfViWOu6Mo2NiHvfCmvOp90ClWY7N2SBNj5lfThd6otFiAsRBuQrGrmq5c57GBa2CtsOy4P4LL14ZpmeiEYOJgg6GJaoqVTxgf4NxuptYQUKywmZ7N8IGxuOzCZ1bJh6FvoQ2d4pqy7VJfK6w8CjU1tfDJ7Raylc39jk+s5iSB0tCYeq3F+AsUWV/yCf561zAiKdrM/6EVc0abaurRjWGBcSdXqci0w6eoYujoORvgRlvBAzM0vGz6Trjawi5aQYQqFeQw4gmHjbSt11HFM48ulSfgWcT4PKLLw3BzFEGDUlAstfkn5rTgw=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:e71a75acdc31fa30\"],\"constraint_ids\":[\"C:65412516061c76e4\"],\"span\":\"At desert waystation, Veda sold an entrusted route to the raiders.\",\"rationale\":\"Veda discloses an ally-entrusted route to raiders, violating her duty to keep it confidential.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "A8tUrVc183OJjnrp0948gfNznDsS7PoOOhMYGoubReHj2xnsQ2gGHv0levxqPN0tLYJC5M2YuUX7ymTeNtKWqSUPnuQ1orFgq6IgtqvTHivdwmTmiZVd8dWwSEbcIl0VoDc4kGGw/VXcaIPMwspjDXDslyBo6eKiJ0rJTxuWJvkjgARjMkE7icE7Ov0YpVN0BL5idAzY+bIvADIGMxsAFPXEOR4dD6CeujqpL8WKmQKBCk1o7b2ZAIw5VpnnubGYcVMiCLsUTz5y4VgubxfjXKaPkCY7OG83KqvRMk8XPOQrE7Mj/qQJIJ0txMi2YFojAxr/Lb4VxrqbBbcrP+nW6s2836HS1uDrDe0H9Gfuj6r+k7Jrey1twVG5n9yVkEPt2BGsfgx5hsDXn9IkPDO4DdwXEIts",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 604,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 125,
+        "output_tokens_details": {
+          "reasoning_tokens": 34
+        },
+        "total_tokens": 729
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:e71a75acdc31fa30\"],\"constraint_ids\":[\"C:65412516061c76e4\"],\"span\":\"At desert waystation, Veda sold an entrusted route to the raiders.\",\"rationale\":\"Veda discloses an ally-entrusted route to raiders, violating her duty to keep it confidential.\"}]",
+    "token_usage": {
+      "input_tokens": 604,
+      "output_tokens": 125,
+      "total_tokens": 729
+    },
+    "tool_calls": []
+  }
+}

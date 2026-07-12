@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:296c325769798dd2bcf915e96464f34fa90efa4736fa501485963540f2b2bcbd",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4181,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 588,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 232,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 990000000
+      },
+      "created_at": 1783845100,
+      "id": "QVcpaoWd0S92KbIuBOcx9GahV0zo2+IZptD3SsJWojP2mJ2phLb0pozNcWaYY8lSUUF+shAdFf+YiId1Cbkq7fNfw883ckIVtBq+i1f6fpmmMMdpELq2K12eVyfeYo0fZ/pXWRnvJYAFMat3qvLcMPrdZOBrynptgZW4JOwPNMOQud2Vd1d5KHAUA4PAGFteBWgoOYpzpm8A1WbvF34nz2O9UgDJPyYLAUTT/ZLqLegmxIzcJVwd9TcIpg8O14Q2CoD31OAhdYzTvm/f3zdYRxLMlOXbOzex7K7JuJkimn90SZp7rNlyyt1K3SeI6+UkHy4vTxWwCN5BK1UFkP/h1oN33LJUJPbOJgka8m0y+zlj/P7Msh8O8frvMVKctVkIqnG2fYRw5I23hQz7jdxuB8n5+9x8rw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "35iqTCWMnULBvEIP6mHQGipRpPxAC79olAu6ja54O/9uuJNgKoPDPdTcbwQQ8FpyAXI89dmbBEKq30uUJJadh2LxUOSrl6zvORwMrh17m/sHLg9roppXaZ5yKADnZjDByA5SvvsCoDxJoAUXoLq0Xr5Eai1JVWMXABIIPpuTktYAqpLk249ItO1v0DFx3bhj0/AgReJV45/1xUKMU0Kocld+Oa2UhVOoQE8OG21wX03YeD2LdpVTM1d/TBOQXFXP6J5tTX55njPl+mv0hr+8NFup39o1VrYzIkZbtOEH3VH2YH7zzlsIadJck6gt5NBc7sDc0GI5ZGpVEL8LUFoS+mcWwEjAKzj0gySZONKUTvRaCwaHuyFNU8tKdv4PJyH4AubcBPurbvCg8AlCaIoRyw1FUwI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c12a6bef1f536329\"],\"constraint_ids\":[\"C:ea7cd34f53e6fc26\"],\"span\":\"Tamsin sealed the crew outside when the alarm sounded at lower court.\",\"rationale\":\"Locking the crew outside during an alarm conflicts with their ability to rely on Tamsin to protect their escape route.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "J032y9A0E/RXQszTjp8T3DI+IBmPdta8ANM6f5PHkcYbr2zCIbE6SR0ZyIBvI3bnTo3Tz+0UBZUnt1p850PTk+MdjYhBNPwzGuBZLADD4yyOzeZPyrOmbVHiiava0PIHssRSB9WcWKYAvnLw/Yg70kc2GTD/hwHmwMQMyMiTl/LVH9o8wGTv4lw5kVhaD3L+ssQAQcHskc1s7usiZSNE+7S4Eyjp6SrudTyV5t93eN9mL+dQ2Yy0us7HPLsFL5yuPf6VOOg9STuC80rr1pxnlV7BUwNg3SPeBtMaElNBC/M2oOb3lvKI56snjUoY/tI5ZKuRbxAHuVtbVRCmryaZ2caFjRhfRjdJgOwjzyYZUnQoRMbsTXxOTGJqAuTR2spt6Fl1S18EenteS3gj//ZAHAYFpCEn",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 588,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 232,
+        "output_tokens_details": {
+          "reasoning_tokens": 139
+        },
+        "total_tokens": 820
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"character_violation\",\"entity_ids\":[\"npc:c12a6bef1f536329\"],\"constraint_ids\":[\"C:ea7cd34f53e6fc26\"],\"span\":\"Tamsin sealed the crew outside when the alarm sounded at lower court.\",\"rationale\":\"Locking the crew outside during an alarm conflicts with their ability to rely on Tamsin to protect their escape route.\"}]",
+    "token_usage": {
+      "input_tokens": 588,
+      "output_tokens": 232,
+      "total_tokens": 820
+    },
+    "tool_calls": []
+  }
+}

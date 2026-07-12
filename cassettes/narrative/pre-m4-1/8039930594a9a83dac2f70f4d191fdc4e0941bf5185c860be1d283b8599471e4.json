@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:8039930594a9a83dac2f70f4d191fdc4e0941bf5185c860be1d283b8599471e4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6771,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 710,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 292,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1231000000
+      },
+      "created_at": 1783845200,
+      "id": "jg92pFdMdTOOUk4LD8eYf7AcaHWTppcXkZthcGvlAQcaH7eXSMORU0n+i3wKAced4tuT4o569jBhEiw4YWT2anULQ+KlJWtDDczMw+cZkXWSkqn4R15VpAuVB62K9QbCRondJNWw4efkP731OEFqsl73G0j8ez+ul3OD8my55N1VoDZla5BSlN2plhjv0Y0bbT8Y0ryWRWz2M3OG+RLAKIolKIrarUnSL9n5+1rWOsTHapZni4x8KdMD6mClyQzH7I+C5DTneSBDIh/opkIRhbnx8K642bnZQVGNLtY7rZuevogeJKqxa0szCHKc5eZF5Cq00XTuTJdbgy07odhNmc7+M+lrXIGaGyRcPT451ENDiSG7Mn2a8PoLaopycd+jQjXZkzFxirHcl57irhzK3mGexW6Kpg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "JaMmQgaz0hpcgG9LzfX5ldlMV7OPbOceBWZtsGygh40VKA3kE9gnTXgchzWR/4WaI/8rlTdRoRUTIxWN6EL1s264eQOnrskwonDQp/YoytYgPTkXXI4togbwUP8R6PwjPu6371OwVeVcYi1Ey9MzN6CgJ0N4c4qGjutICqS208lGMBOBozZ5TIbf1qzoj0la51SzwD0WLfPVvNKDgJ+d+6jK1g5v2GogCixFrvw/+yXBV3ocDzZUt+Vp7h41QQBJ+h31SZbUwrLxPwQWGD/XZq9gS/dsdlNSjJgTxf4sShUu9VrpGcMhv4RE5ITY2T4K2m0WrW2cpgJq+Cuc0tSXnuw8U9yOWTbYKJCVcglW+iI4RpN8RW5wRjTPWhJXLlm8ZdI4F83R19JYk7bSGkVKNMyKRjU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:11b1f2a9bfb42cf3\",\"npc:3ba75f1e3a64b66f\"],\"constraint_ids\":[\"C:033f788dfec722dc\"],\"span\":\"At relay deck, Iria was formally introduced as the Archive Speaker.\",\"rationale\":\"Ansel had already accepted the unique Archive Speaker title, and no relinquishment occurs before Iria is formally introduced with the same title, showing two simultaneous holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "vqk6UmIVIklE/TwU5GWnOYMcdpAMlAeW2NN2gXVpt5n7f/IZ1FPztck+9YkHIU5Q10oBw2amSZQPd7PEJdrRMkoWg/I6nPqOK5NhZe5MwCvTxuyGpmR5htLUn/emgnpz5mQoDm9mdy8PhL6pia7W1TTFyFJVHSh4czDJTBNLJkuMbjJXUQ/goVCqfPKkxyrnZXy4nSVrePwgrBtmWQU/GgEQ9o/d2ceVPaeD0mE0Qd+NDwCIgLBaTaO+C5VquMin9ZkLIl1A4fi73ojOg579LPRaypXVt+wKuIEgG3aDRTGMkyi9gMU78bm0vXk7PgW9gvB1CFRyvc2VXo3+mCwp8bEZWialA8KvggicqvBPY+/GHVOCZxzO7HXPW/ZyGmVV2ZBTTqAHb0xrA5sgnMfyByEu57gF",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 710,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 292,
+        "output_tokens_details": {
+          "reasoning_tokens": 174
+        },
+        "total_tokens": 1002
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:11b1f2a9bfb42cf3\",\"npc:3ba75f1e3a64b66f\"],\"constraint_ids\":[\"C:033f788dfec722dc\"],\"span\":\"At relay deck, Iria was formally introduced as the Archive Speaker.\",\"rationale\":\"Ansel had already accepted the unique Archive Speaker title, and no relinquishment occurs before Iria is formally introduced with the same title, showing two simultaneous holders.\"}]",
+    "token_usage": {
+      "input_tokens": 710,
+      "output_tokens": 292,
+      "total_tokens": 1002
+    },
+    "tool_calls": []
+  }
+}

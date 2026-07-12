@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3c36268a9c2be45f4aa5c7af8d9c6ad8700589ce4c538a5a755ee964f0bb3083",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3154,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 609,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 173,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 823500000
+      },
+      "created_at": 1783856600,
+      "id": "lgLgqxxhnE/qEGD2Hum4dxQsKMkxLyu74suaxf3bP583RXfajY0ybc4Z/eBTjS/Nwy0CX+uoV6XqgTnmYDeCUXTbycrqwbJSA9j5TCqxhFP36kLiktniiF/wG7rUmJND0mwiyKlDkfIH0Xp9LdvxReSZ0o8zv8c2PovxgRe1yK8BrrmZHtXB1XT2vgncXFd3iaIVvseUaBSk1/ePQZBwHinoAzTw0mM1FDxK53pK0uieFWaJcTaQVMIxiD4+r2aChOn7Ltf0tFXQC2o9hnGsiJw86KuqR7wwSzTT5ABrMEE/FTGRzCw+epMM0MIhPSgWHwhyMXngbrU+LJioEfKgppgAV7saG5/699i7M19chBWaGpAoV9Lca77trySvu9Dp3zfoUK6bIFR/rYU7eU5+KV/VGo9kOw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "EZcIQMwmqX1bqTyoP93Hyfd5o85IEolev7hqN3kYsJa76HMxf3XgZPZGjnDRF5Xt+uUNLlnXs+zSnNVPwLi7/spL34CLiD++Cx01n+Y3A2LKvN67+t4kELmF5b6S3Ud6PekGogGEtruEYHvqnsPqPUxvBKhrEvuigaoEAA0OfumI3/dK13+qFHm283toFy7NNHF0bxgyQ1GpiQjvPjfLqNaS8sKgrm05+xQjcf0+85lUWFhha7RKV6iaXhTDFUp2cBOV3UYq3sTn92MIJkjRojK2F1G1TfYobfvECRBjx2xD6OBEJBgey1il8GbW7lzyaMnhKpnxUnLeU7VB194i6FQRh/SKEFHMe1DpTQxeE3gA8uJQuKb3zqK/Z1Eut495WSfIyfc/JtJB9DlgIojW0yWogaQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:13e2140a05de6df2\"\n    ],\n    \"constraint_ids\": [\n      \"C:7ba009c5d30b6fd1\"\n    ],\n    \"span\": \"At north gate, Ivo hid the relief crates in a private storehouse.\",\n    \"rationale\": \"Hiding relief supplies in a private storehouse conflicts with Ivo's duty to distribute donated supplies to settlements in need.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "SGS20edgiaeHFw1oaQw8r7qa+lvK2AyyyLTjVZJs2x2lDn6EyAUbsh/2IuK2/uPQEGMjOUsL89sbSoMi8VUxU1HIRgG/g8Chnv8zKxyo3e9iMLMXKHuiwlkavEq6A76Yz0M34ysclbbxWkAi3RJFsba4gqg+IjeqGJ1uuSlkIJiVzuRVoY/eP4yQ8xM1XI0eTqRwRWqcOpl+FepRvhCb+Tr7YLfna9J1TNfQ1MfnhFbGiG6G537DkUgbDY4tDJK5oOu+BzlF1ZdXC4CAVL4A4TRSmywF9n/oypjOMxgR5kVi4rbvaYeSNP9nKd9hYm5sGFpKFthm+F9BahcZzsjHUmRUuoZJVmTQp3BvKlHLEzlyLC8WB0kFqOdsOnxOBJqdrWlHu2dqm3YtDOZ3v4eUJH06VEyq",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 609,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 173,
+        "output_tokens_details": {
+          "reasoning_tokens": 52
+        },
+        "total_tokens": 782
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:13e2140a05de6df2\"\n    ],\n    \"constraint_ids\": [\n      \"C:7ba009c5d30b6fd1\"\n    ],\n    \"span\": \"At north gate, Ivo hid the relief crates in a private storehouse.\",\n    \"rationale\": \"Hiding relief supplies in a private storehouse conflicts with Ivo's duty to distribute donated supplies to settlements in need.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 609,
+      "output_tokens": 173,
+      "total_tokens": 782
+    },
+    "tool_calls": []
+  }
+}

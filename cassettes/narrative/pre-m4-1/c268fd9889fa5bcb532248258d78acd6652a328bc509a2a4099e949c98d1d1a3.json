@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c268fd9889fa5bcb532248258d78acd6652a328bc509a2a4099e949c98d1d1a3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3691,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 602,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 165,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 796000000
+      },
+      "created_at": 1783843200,
+      "id": "zSbfpqGiqQF7NLGdYVEPUifqPJpjLecrTc7xFgfipkrchSdgVqnZE7iClhmR2ecsN97s6hHH5UuOhTGF91V2lft/PoLUd48JGmprcde8dhbKaKJKOAqBq3speSOksZt2qy9w7VGWlqiid83dDkSjE/afwd48n0ClIl9menz4yp+/gyv2QGrd3I2TUaPlr39rFIl8IeU5RO8oZGW7QpupdRdtR2v/vkdw1loYQFr8KOKEEJkhsEAsFkQ00lfZDwjgytfC6e8DdUsnMqqc8lqvo9nHlY4szc8F8lw0Og/zAqAVCum/5KhcZuWfN2iOcubCvbTuPLwIvU42a5wKEcO+ZsoPpRrqlQf0lptQcP4PEceOOwpEl+ftPbUO3CFCLSXfGC7CLUt78iLCCVy4yIxW/iKehgrEPQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "wliXUHNbszTLvN7K847E3AHQ0wiDda+LH4PsVEf11E5tFAVsr3TrdZNLVzNb6Hgu0Dia1BHn34f80A7eO4q42wAhi4169YTU53ndZFCWoLgQkcemign2PE3w3BeW9lA9r1Sog8+Ig0rw3tSpbnqJfJzko5PkOnwiivMQuMeHtEcJBWCKxDHaEdy8hrmn0MlejBLruVIEMGYwHWty8qBtxLqSIIwSP3vfX2BelrubhbkSjsHGRq3HRm5hUb2vYof1rG/JWq1KREX1zYBAuL9FYMZIjLIt+TrrcenRtIovhhpQ9iEOhL8MIEtqhQauyKc2Z3hpH/gwfjCL1rQ061KDIQq9sBK+mNhZGsXt3zQr+lVYM2yZOFuK0J0DlqZ9zEcpJqaMdzNOcRb8iKqj2nAakE+uNe0=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0d773bb3dc8baaba\",\"npc:3271327bb26429ff\"],\"constraint_ids\":[\"C:8e930cb6394edbe5\"],\"span\":\"Tamsin signed the register as the Vault Steward at canal bridge.\",\"rationale\":\"Eli had already signed as Vault Steward, and no relinquishment occurred before Tamsin claimed the same single-holder office.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "n/VCfqFz0ckV4KeSf7/VFMFRFJ1iRAxP8Z5J+f8DOl+XVipsjjed3mRxuhd7uwQkZH5E9qwhPjYsuaVBgZDcM9QwZrovTMf1GDGzfMbMU8AfeNlvtWhGmi3getSsvchrp0Oz72G2c+cluP44vQViZfANCTX/HiXrXKj8x3kyIrnxbL8cloIVi/Pqw8SEBGVSHFf5mMN+QDm71hnpN15V2Tqsi3FRMJ6K7dP7AggHC+/1VsBmD5xMIY6NX30zy3uJT6p5ngLnesGu1BkmrbwIsRy/12mWPE1yYBtDls/HzjjsW8yYKKhnwvH/6SzULlbc1bKqj5WUrElKP8087F9HZtZwHhg3gQRTR5v4TaLrFunuwkWR4ykhdO4zkQPPD8g9GZvO+mSLbwDtCLgZrZ7JbO1OR+uM",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 602,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 165,
+        "output_tokens_details": {
+          "reasoning_tokens": 60
+        },
+        "total_tokens": 767
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:0d773bb3dc8baaba\",\"npc:3271327bb26429ff\"],\"constraint_ids\":[\"C:8e930cb6394edbe5\"],\"span\":\"Tamsin signed the register as the Vault Steward at canal bridge.\",\"rationale\":\"Eli had already signed as Vault Steward, and no relinquishment occurred before Tamsin claimed the same single-holder office.\"}]",
+    "token_usage": {
+      "input_tokens": 602,
+      "output_tokens": 165,
+      "total_tokens": 767
+    },
+    "tool_calls": []
+  }
+}

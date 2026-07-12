@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:90d74c92b9371ffeb43100c632108c86ee316881e0855c3d504f118f25afe78c",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2915,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 628,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 146,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 752000000
+      },
+      "created_at": 1783859200,
+      "id": "dNiW0EM7Y46tesJ51wyJONGgoZpDFalkoLtMZH/OXj7S8TZjplA7wlmyFUauoOpPgric9eYsMb83yUY2uKXPp1tp8EyyBo1LlR4i+wL2jNFdw3WQ4l6V2106Lp4qURTqQDKt3bFvXO6YwGPeh2qAma/bdKAALo1SdPoe+0PokNwp8I8FktAGGd0dL+XgC1pQWd2DM2zrxMlZptMEpcLVHUXAO7RnUVUBN+/3i0waQ3I7JbTVG9L7K5aueUC+GcKCfX5EGHhmm7hsEO2rV4fWMXenI/zBMuqNA/vON/WcEr8ly7W4rhn3lbPqiiXu1KVpshVWZ2aUXvj+A8zKNl3p0D0L2WvC9VNCi+YCkJ8O84HVHkVUA9NkiCWUZ7mUeKTM9bfH0CYlWiQcWHaCm8V/SiUCWHab9Q==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "Znxic42Tw2+y6HRtq9dXZzByM1sC+myjBzzIBw6Mty/IG6NbhXCQ44iKR6V5FBaP1Zsjvb9KlgNeSuyRjlXPplTdK72o0lEbCuIow4Hc978NBaqJqVNyllKaqWvVW7ZkBzjT6+iLHsrwBS1ioM/YwnF48Bw0aSJRVz4+T3OGxNUhLpWlpkzuy18nStWgLrE5vgLAFFbM5Vj0fWrpG0f77TRL1YMvbAffMarJLRJx6vVRL6XZOw4YhVZhwSlcDaKVioM71dfHNz0l1NQorL01VCfm4k3IViDCzzuh3EeE6sLP2WjL5ALS4zz2F6ixJrtrtbkkXbKHtKFsVABAE4WSoo7XY62KM10p4yNYFRiho4RDNxR+g9WBrJ4nzby61w2trCwtPjI2SFEf61Z01J8vb1WBsLI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:935eba7e581dfec4\",\"npc:b2e7be18583f1664\"],\"constraint_ids\":[\"C:fabec449f804cdd0\"],\"span\":\"At eastern ridge, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea serve factions that do not coordinate operations, but they jointly signed a battle plan.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "AFDzR8L2LC8dt7gWHyFWSMa7KxqmMTrft2o7ywFv0URuuq658xSmmFH/ySGQl/8scEsnxv7J1CsdXbdHIaImfqlhnhr4+fUkiuQQLfc3Ni0szhYOeFbTeYCRh5p46Cxeic73RBpzypPcAuOqE9H+8J5bcVWv20BvLLj0587Ku5i4bCczNhDEGk5+SYzT74dkoMB0c8UgJ8ke2CTdNvZoSvYPcoyCdkaBRY7DfIydaRKM1AqAiJrClaaRu96qIoCWK7ZVdiv3hL+GH12s7y/6sjlTvhlYhZ67otqby0t/V6zOqtCWS34GHm4TF5JQmplkWz/46PG3d4747/5cNBLL1J/w3t7bjAMARcysX1wmNzlB4dGIhvg9WIluZeF9cWJGEBZtG3hu67Dvt9BOdL0iyT4BGVZW",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 628,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 146,
+        "output_tokens_details": {
+          "reasoning_tokens": 47
+        },
+        "total_tokens": 774
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:935eba7e581dfec4\",\"npc:b2e7be18583f1664\"],\"constraint_ids\":[\"C:fabec449f804cdd0\"],\"span\":\"At eastern ridge, Ivo and Lea signed a joint battle plan.\",\"rationale\":\"Ivo and Lea serve factions that do not coordinate operations, but they jointly signed a battle plan.\"}]",
+    "token_usage": {
+      "input_tokens": 628,
+      "output_tokens": 146,
+      "total_tokens": 774
+    },
+    "tool_calls": []
+  }
+}

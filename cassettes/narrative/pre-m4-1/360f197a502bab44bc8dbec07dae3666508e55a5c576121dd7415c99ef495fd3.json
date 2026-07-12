@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:360f197a502bab44bc8dbec07dae3666508e55a5c576121dd7415c99ef495fd3",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2797,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 606,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 164,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 795000000
+      },
+      "created_at": 1783860500,
+      "id": "FEcSNeM/b1aXGKypZEqjusQHd4rNhkzZOxn0RD6E9pUwXNjd8VntAUDqIu1C7G+vt2ieozApPS7hkiiOWsT0/8aBhJlumf6PKi35VOlqqW/WvUt0BB45vUmO6Lod5gDK6a6w3uBF/gimWLBvhUiDsokkyZAyEdAOeb5yi5BFM59Z/lU5WuU6UOSLH6TqxhtQVL4igwvKpzvCHYZH/a7X4k6mA7cOvdrwNggyI3nGfFoNvbv0Zx574JkWexkJSJU94ujTt+UjyJOa9vem1/bxlXh02YPmXjvywVxbdxhhshIKQ+Y9qbdBMZmxhSUCiYMnGtiP5c4XV6pXurOhKX9HyOF+DVoWausXTaGb1kFs117toRezuDbCRB32G3kDn5+qM/G5qTZmoroMigwlwA/diJqR8ZAgVA==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "s5MN0a+vVu3i7Mdg5vIwGriYm2Jqg26zMK7gh4+IlA0qnJ9J9TVjH48MzO0Cg4K9rym4q+4xXVf+mZz2/4iC7/dFN9YzTHEdfbdATOBK1dEyD0gFWEp3lD8vcydUHwPK8hk0/IHi46M88h1zWOZiqU4KTguOsaEQ+Ka05s77J4inqCgOIyx9F8166X22pslMxq7tXYLyYEVwN5tqNkSUonorZEiXn3BGjriLrwIXyQtPxg8OptY/cPTAROZPC9hmASfZiHQ8Il1nD+fIhU0x3AzCu9C4eFaMg9Ac9CJySH+1p3/XLjE6+8HiUo8mGDqvvzsrZcBPUq9CnJxqY8vBjA0kfqC39NTFlS22mk/4bHu3r2In1jjVx53iOADmE5f+WWXWK5z+5KBUPZ83BHhXxH7jX5Q=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a3715f7d1717a437\",\"npc:b3b274512a7c30f5\"],\"constraint_ids\":[\"C:0d2022ef4159f4fe\"],\"span\":\"At orbital concourse, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli serve factions that do not coordinate operations, but signing a joint battle plan constitutes operational coordination.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "7O914iMaDCNaA4TWKq5fKHI23lBsVO10dRB307Ss1POVKbFOooOutaco7bfy7oeNPtd9Msw1Xp7agaHUJIk0qZGVAn9joJcQqWEnUglQQW7XQ4JGH2l+Ob5KfelrFAI9L6pcNdRu0f4xTA0yonF+citGW8n+u3qFvY215sJqeo71AQGOuMVmo8QVVm/I4ewCFL4lBiylZbpCLoFUx+SBcI5B2R3X3JLB8AIHDSqG408qKXq8g+CXR+3MrHqQGoRk1UkOBE/Zn4hhDGavT/+2FeFWIF90xnh5Sz77lg+9x+OADEsH7klmwpefEp5gZIIMGOjp18kvoFmcjc5oiZ16eZbC7TsGKIcfbw2uJ0+Iwv+Z0hGYaOBlZHg1QCBsEKu14wHoElTxksroWjcfkjaiKCueXauO",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 606,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 164,
+        "output_tokens_details": {
+          "reasoning_tokens": 56
+        },
+        "total_tokens": 770
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a3715f7d1717a437\",\"npc:b3b274512a7c30f5\"],\"constraint_ids\":[\"C:0d2022ef4159f4fe\"],\"span\":\"At orbital concourse, Tamsin and Eli signed a joint battle plan.\",\"rationale\":\"Tamsin and Eli serve factions that do not coordinate operations, but signing a joint battle plan constitutes operational coordination.\"}]",
+    "token_usage": {
+      "input_tokens": 606,
+      "output_tokens": 164,
+      "total_tokens": 770
+    },
+    "tool_calls": []
+  }
+}

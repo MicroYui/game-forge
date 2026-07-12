@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b4e3eb4b1bf1c20bc478b63ee61675018347968c0fcd683f658a0a2811e5b1de",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3363,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 693,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 198,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 940500000
+      },
+      "created_at": 1783851300,
+      "id": "1fs/hAZNtix62j7hs6tAAyk2pfU702ZZ/He6bpK0K9u6oCpUu3MkT/hIl3eTJhkPGkWTcpC+kjGPWXiWyMpwuAbKIMaJk4f35qXkGhIlSW2aJkv52rnGuQByZvMa/wsszUfcPP5OlfMJyinj8hIzq4PZqLeuH5jgbPPpbUyhFlNlmVnbdTvXSeBGvl66C8acGgm1pAmc5OxJ89BXD1DLJU1/LFWo9rq9H44kHDUYyzrQV0JljBXga3BBBD33+3yIEa4BY6+bgzP5MOT8H7l4LfXy6pB3J04z2biqX3whGTEcGNWwWwbJRAvB6h6vh8E3SwnKWZ5bEvfhs6kYBBu5kVOHhr/sliVq02fZG6JdJ0OgzwTrIrtGJ0tbPek5P/XW815t++zDgoVYgA9ahj55QSyYUsPNKQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "1kN3KPmnVufYKHqe6fAS2xpDqap2053V0NYZ83bLoPI269MsQxEUcNFcNm3dTAQ3b/2p7g2b9PJt/Z1Ob9GYD7mzeFWwDHUkQBaWy6QnLrrmERcwL9EkLrOszawgigJBQLPRMXGb/nZtPhsVnW8EI3Dqrg/SaAB3/IcqSZR0Nqf5dMQUBIvOorJ52bfnxbc8Pf7O91kKg5wbUxSl93UBlFQZAnIqp0Ewp7lHJJ1stRvPMuLpMA6aaIK6C7m13ucGQ9i0WNorO1gMaHdonaJK/6W46sruiv/ct0iKoFJTi01w9JgkkLmAm2MI39aA+49IQ+UGH6+OEj1hiuyum7vfOTmgv1BmxGpZzurFfZNfutJ4wG5L9Zb8ZjItnZnuCtQMFLEoLjgo9GykMWOSjutnZR+J7zM=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4f513e95ffa4cb3a\",\"npc:7ddad29e8584472e\"],\"constraint_ids\":[\"C:dfde210465a1f817\"],\"span\":\"In lower court, the council recognized Daro as the Warden.\",\"rationale\":\"Daro is recognized as Warden after Mei accepted the same title, with no relinquishment stated, resulting in two simultaneous holders.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "mZsicTN2ttP578gVywAO3xfzu008d8TSYiyD7Jxc1H35MPr6DSFMBv+OUgVdUgNbCIkxZn0ErUSqIKP25R7rGQtdu3eZRGKEcTWulOlszzPduHAOvAhb6jEgTKiMQ7vNWZ+i7WFxGeRuKtOLL3VfdseJVM4yk9NKz+XpVcoo50FmE+NiunRbEZajQB++ZrrNH2GO1zUDiaxr99MytBaYKT2GpNIR/Vde7EaYALYkl+3yHxtQt/OLk2V9VT02gMqQYk3a9ygVOSpSRIFYFTuoifhsVqiVXubzXRHm2j7u9a0WoyuTFCC6iFMEAumoe+B62YE1mYKlolk1WmXoWU+jOc2TVURcIcQgRyRXmtZCtAJ6ivBGkANGlgowRenqSvQJVnWRzylwtWBFLUA/+RlGfenYxTYf",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 693,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 198,
+        "output_tokens_details": {
+          "reasoning_tokens": 90
+        },
+        "total_tokens": 891
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"uniqueness_violation\",\"entity_ids\":[\"npc:4f513e95ffa4cb3a\",\"npc:7ddad29e8584472e\"],\"constraint_ids\":[\"C:dfde210465a1f817\"],\"span\":\"In lower court, the council recognized Daro as the Warden.\",\"rationale\":\"Daro is recognized as Warden after Mei accepted the same title, with no relinquishment stated, resulting in two simultaneous holders.\"}]",
+    "token_usage": {
+      "input_tokens": 693,
+      "output_tokens": 198,
+      "total_tokens": 891
+    },
+    "tool_calls": []
+  }
+}

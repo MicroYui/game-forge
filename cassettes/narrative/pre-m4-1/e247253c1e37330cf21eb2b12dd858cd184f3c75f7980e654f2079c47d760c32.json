@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:e247253c1e37330cf21eb2b12dd858cd184f3c75f7980e654f2079c47d760c32",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 7987,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 557,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 470,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1688500000
+      },
+      "created_at": 1783850100,
+      "id": "U7wa0/6n22kQz5A5NfKH2AKOAaULBnJCw/LxX5UIAxQE1eIwC0qYHZhzzRyrQC+QKiWKq7PTQo8SJG9kfoRBAhNVr5yG9Ekug805Furja1gZ5wozSBFn/+CpM3g0Hd6Yn04WdmrvquK/ZphKi05kOxJQ9E4gqvyF99jFUaVVvu/JRcDEaG84N8sZMf0Tm5qB/mKAvHtuwr1QUgSldRBjODGupcsBl0idWaqrITS5N5aGBzVl11UNiFL6mxAaZXnswZBmHKyk/NR+FL1MQ4M8tG8+s+fk+f1IiCNhEye2cUPsXUjPGz1u+xm88UH3e+2KzxhWkC9JbbyxHlEQzscVib+4Sp8SE3QH0dGIR6z0KExnPcdkeLYjK1glaulIjOQZiuz1pWYV/ScJh2ynQKTYb2KyCHXB2g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "79jcgmk3m/G8YP/gafWAB4kGeb4A4FI540jglXNGjf7CNextebixUOTNHuJ2eETCSqg4fYLAbwsu6pTxYelbOm3TQol2coy+eA1+3yy/SYMJ74p13J2bxNCV1vbn2OW7tENhz26TBjvyYMvNqcJlPPC1gOmkjcGFyv97UAEtmWcyiRnxWuF/VlxOUjKF2W+PgdlMAxTzOpwQG8zxJXpCEaUADcuj3j0X7Siiig9YUWfhxhIIKoDWfsyGCoz0++gqqNSodwdjlhJjm3oyRD4Z+JVz2THYnY5vtjVKhs5Gup7t4nEcRpINJzdl0biYC8RA3ijFSHPwTpy4pTs3c3HnCrVtWHUgwj6bpM6MuMmtuZTNYD0aWfJUl2q7Mhcmz1H+dQMsbEKszzC5+afPcH0H2Et+OcU=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:f2fdcd96c82c1d2a\",\n      \"secret:e50636f459ee70d5\"\n    ],\n    \"constraint_ids\": [\n      \"C:868c983441599946\"\n    ],\n    \"span\": \"At desert waystation during dawn patrol, Noor told the room the truth about the hidden heir's identity.\",\n    \"rationale\": \"Noor discloses the hidden heir's identity during dawn patrol, before the permitted trade council reveal stage.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:f2fdcd96c82c1d2a\",\n      \"secret:e50636f459ee70d5\"\n    ],\n    \"constraint_ids\": [\n      \"C:868c983441599946\"\n    ],\n    \"span\": \"At desert waystation during dawn patrol, Noor told the room the truth about the hidden heir's identity.\",\n    \"rationale\": \"Noor knowingly violates the restriction requiring the hidden heir's identity to remain secret until trade council.\"\n  }\n]",
+              "type": "output_text"
+            }
+          ],
+          "id": "m1ugqHGESF80fKXEOXORRh36CDavil424RlxECdafvO+MNO7IyAHHnGztSO4awbu7DasxmOBmi/Bu37+I+WELp72v7nqfUz2wDupQ0TS+e15bLT3uGpcZJ5VIRGx8KQ805Mnh3QQUsfp134FiTdVu1PaxEifrg+nTfiNwc2NwSvXdl/hgDI8m7qj5bGHUDVMTSWtYi9cdQQ1t2dJyqZlx5phj9wzcFwyOt441H/GwwgaVHfP0408LMIEqj6Hos5TJriIb27wiKZEJ25IVwceU7ubda5jM9CYOScx2PFRWaSv/kRnN8ktHSl/j0lETplAUA9hGQ3i72v2fSaCBUxVlyXz9jA1sFHdncc+QAvfra3rNMdXGjYz7j6QKXDVZq8rMicEJkjJ4g2PqH+dYQbdUHYnWCLX",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 557,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 470,
+        "output_tokens_details": {
+          "reasoning_tokens": 216
+        },
+        "total_tokens": 1027
+      }
+    },
+    "response_normalized": "[\n  {\n    \"defect_class\": \"spoiler\",\n    \"entity_ids\": [\n      \"npc:f2fdcd96c82c1d2a\",\n      \"secret:e50636f459ee70d5\"\n    ],\n    \"constraint_ids\": [\n      \"C:868c983441599946\"\n    ],\n    \"span\": \"At desert waystation during dawn patrol, Noor told the room the truth about the hidden heir's identity.\",\n    \"rationale\": \"Noor discloses the hidden heir's identity during dawn patrol, before the permitted trade council reveal stage.\"\n  },\n  {\n    \"defect_class\": \"character_violation\",\n    \"entity_ids\": [\n      \"npc:f2fdcd96c82c1d2a\",\n      \"secret:e50636f459ee70d5\"\n    ],\n    \"constraint_ids\": [\n      \"C:868c983441599946\"\n    ],\n    \"span\": \"At desert waystation during dawn patrol, Noor told the room the truth about the hidden heir's identity.\",\n    \"rationale\": \"Noor knowingly violates the restriction requiring the hidden heir's identity to remain secret until trade council.\"\n  }\n]",
+    "token_usage": {
+      "input_tokens": 557,
+      "output_tokens": 470,
+      "total_tokens": 1027
+    },
+    "tool_calls": []
+  }
+}

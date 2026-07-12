@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "consistency",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:18ddac707eb7f4232f9576eaf91ca96c4885276cfe388e60dd803699466516f4",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5663,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 601,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 0,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 193,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 879500000
+      },
+      "created_at": 1783861400,
+      "id": "fW5aAH5MjiAMoyl+0MHBnldT3lZzbL9cK48iLvtp+MoXLOE7ZnfXjWdT6upb3InoB2iwI9lt+7kGHHrUZQJ4ddsqsTQ457SK6lulaOv/HlDRc+LxyZFHBlRKsS4r9oTpMqz9aabUnJHvrohPG7V0n8ryy20a+T7jpMxMdHXKuI0CpZIkFpjhFmzBNs0N0prFPDfHSVn5ebAaIlkxUtCAuYl8KPlOH6N8mppGwVNjBVYvz4FhmlkobMH/UwCVLhJrf2h7uTSynAQqyzFlvZA31fLbsgLHXioaYOnQV1HaGuN8bWqPBuqikofkZLTY32YVEWyfjlpvtCRZWNJtzQXNvlI3lg/EXXzJOEFyZbM3aSyXdGhR7TlT2CAYEK+Zen5pqeiGj7IsJGF8dWA6NEsKr2tvsJAbJw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "73j9PG1riNv7EMPUUYeo3sO2vVVwmvpAhUUB9V6WmdiR04tcYcPbIP/wULUBaC13Q7Lwne/3Ty6OxJ26egWyVNdvFOUoPNrILGjf5WIw51cUPZWba5bt2lPAgavm1hcsgpg3/pZsVq9jDk2pzYf9kmy/aalvZUk9MS3vkeRfRz0joWtc0mCiUx3npOBY3jEOW9ZYuYrjR215ueOcuaVZoQhmTQRsPggFvjcI0dw0fYcgwzg9EmePrAqiMPcWXV1y328K1oDaAqCvs2l3wf/pI9WA1Y8i3DWudkwCuMn75PpUqhIJR1prIy3D4fM47phhPkg7IqVRgC79tsvaMhXUXtbVYLsjzdAm6Xx7CBe2wpLA2IG10cqGN9KvWdM+E1zaI5734U4INHT8z6yCzJKFIURu5mY=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a29db47aba769dbe\",\"npc:c02a5bb6d0498bed\"],\"constraint_ids\":[\"C:746e35230cbed4ff\"],\"span\":\"In salt depot, Ansel supplied Iria and called the partnership permanent.\",\"rationale\":\"Ansel and Iria belong to explicitly hostile factions, yet Ansel supplies Iria and establishes an ongoing partnership.\"}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "4FFQw79u6y2g7nFKnuoa5LAg0iV2/2wNsSaAAZiprpTnp4lQArmsdtMp+RdnbdQ6XFe4NakIEhZ5aPWOsDG4ZBKbbWXOhV/5UlbS/rqW/wkulqRZ+9siOqBDynrvOwMIiwoh9P4GpBmXgMO14ERjxX9RMWZ9HoVFjoAWvl8wVdQKSj+qd/SOwVA98EVXiNGvmibGq1Y8+e2Js/wHtcUz0Ilo9vFQkHbnyI+UKZCW34qCGK2PIklcBgPo83O5a0mAlVHPDgBp/3CQgqwedCMXIq0KfSbIwxFxHWgoUjmyrXbu+TzhWvvs8k7bv15zYUHwviWsrcRNXxAyp9XEAubJyK1cN9b0dWXu6HUtBnjeXyhf2IYdOp94bBkcskepEsp81ReiKEO7d+h5vtTBm+VABbq4ndIy",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 601,
+        "input_tokens_details": {
+          "cache_write_tokens": 0,
+          "cached_tokens": 0
+        },
+        "output_tokens": 193,
+        "output_tokens_details": {
+          "reasoning_tokens": 91
+        },
+        "total_tokens": 794
+      }
+    },
+    "response_normalized": "[{\"defect_class\":\"faction_violation\",\"entity_ids\":[\"npc:a29db47aba769dbe\",\"npc:c02a5bb6d0498bed\"],\"constraint_ids\":[\"C:746e35230cbed4ff\"],\"span\":\"In salt depot, Ansel supplied Iria and called the partnership permanent.\",\"rationale\":\"Ansel and Iria belong to explicitly hostile factions, yet Ansel supplies Iria and establishes an ongoing partnership.\"}]",
+    "token_usage": {
+      "input_tokens": 601,
+      "output_tokens": 193,
+      "total_tokens": 794
+    },
+    "tool_calls": []
+  }
+}
