@@ -163,7 +163,7 @@ git commit -m "feat(agents): type narrative consistency hints"
 - Consumes: `ConsistencyHint`, the exact dialogue string, and the allowed entity/constraint ID sets from `DialogueNarrativeInput`.
 - Produces: `SourceSpan`, `HintKey`, `NormalizedHint`, `normalize_hint()`, and `tally_normalized_hints()`.
 
-- [ ] **Step 1: Write failing tests for semantic identity without rationale identity**
+- [x] **Step 1: Write failing tests for semantic identity without rationale identity**
 
 ```python
 def test_same_grounded_hint_with_different_rationale_and_id_order_shares_one_key():
@@ -201,13 +201,13 @@ def test_class_entity_constraint_or_sentence_difference_prevents_false_quorum():
 
 Also test Unicode NFKC normalization, whitespace/case-insensitive quote lookup, sentence expansion at `.?!。！？\n`, rejection of an absent or ambiguous quote, rejection of invented IDs, and at-most-one vote per perspective for a key.
 
-- [ ] **Step 2: Run the normalization tests and verify RED**
+- [x] **Step 2: Run the normalization tests and verify RED**
 
 Run: `uv run pytest tests/agents/test_consistency_normalization.py -q`
 
 Expected: import failure for `gameforge.agents.consistency.normalization`.
 
-- [ ] **Step 3: Implement deterministic quote location and canonical keys**
+- [x] **Step 3: Implement deterministic quote location and canonical keys**
 
 Implement the exact immutable types:
 
@@ -243,13 +243,13 @@ class NormalizedHint:
 
 `tally_normalized_hints()` deduplicates within each perspective before counting and retains first-seen perspective/key order for deterministic output.
 
-- [ ] **Step 4: Run normalization tests and verify GREEN**
+- [x] **Step 4: Run normalization tests and verify GREEN**
 
 Run: `uv run pytest tests/agents/test_consistency_normalization.py -q`
 
 Expected: all tests pass.
 
-- [ ] **Step 5: Commit the matcher primitive**
+- [x] **Step 5: Commit the matcher primitive**
 
 ```bash
 git add gameforge/agents/consistency/normalization.py tests/agents/test_consistency_normalization.py
