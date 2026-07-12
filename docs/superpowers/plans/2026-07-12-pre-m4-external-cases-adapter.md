@@ -429,7 +429,7 @@ git commit -m "test(bench): add independent Endless Sky parser witness"
 - Consumes: existing IR relations only.
 - Produces: cycle analysis over repeatable `HAS_STEP | PRECEDES | REQUIRES` edges and generic access proof over `Quest --HAS_STEP--> QuestStep --LOCATED_IN--> Region --GATED_BY--> UnlockCondition`, discharged by `Quest --REQUIRES|UNLOCKS--> UnlockCondition`.
 
-- [ ] **Step 1: Add failing graph tests for self-requirement, bounded transitions, and access gates**
+- [x] **Step 1: Add failing graph tests for self-requirement, bounded transitions, and access gates**
 
 ```python
 def test_self_requirement_is_a_dependency_cycle():
@@ -457,19 +457,19 @@ def test_gated_destination_requires_prior_access_or_quest_unlock():
         assert _findings(entities, relations + [proof], "unreachable_target") == []
 ```
 
-- [ ] **Step 2: Run graph tests and verify RED**
+- [x] **Step 2: Run graph tests and verify RED**
 
 Run: `uv run pytest tests/spine/checkers/test_graph.py -q`
 
 Expected: self-requirement and access-gate assertions fail; bounded edge still forms a cycle.
 
-- [ ] **Step 3: Implement the generic graph behavior**
+- [x] **Step 3: Implement the generic graph behavior**
 
 Set `_DEPENDENCY_EDGES = (HAS_STEP, PRECEDES, REQUIRES)`. `_dependency_adj()` excludes only relations with `attrs.get("repeatability") == "once"`; no other source convention is recognized.
 
 Add `_gated_destination()` to `GraphChecker.check()` after nav reachability. For each quest step `LOCATED_IN` a region, collect the region's outgoing `GATED_BY` conditions. Emit `unreachable_target` for any gate not matched by the quest's outgoing `REQUIRES` or `UNLOCKS`. Evidence contains quest, step, region, gate, and `access_proofs=[]`. This rule is source-neutral and runs without a `NavProvider` because the gate graph itself is the deterministic reachability proof.
 
-- [ ] **Step 4: Add failing ASP differential examples and property generation**
+- [x] **Step 4: Add failing ASP differential examples and property generation**
 
 Extend random dependency edges to include `REQUIRES` and relation attrs `repeatability=None|once`. Add fixed examples for a self-loop and a two-node cycle with one once-only edge. The shared finding sets must still agree.
 
@@ -477,7 +477,7 @@ Run: `uv run pytest tests/spine/checkers/test_asp.py tests/spine/checkers/test_a
 
 Expected: ASP disagrees because it lacks `REQUIRES` and edge attrs.
 
-- [ ] **Step 5: Extend the independent ASP encoding**
+- [x] **Step 5: Extend the independent ASP encoding**
 
 Emit scalar relation attrs as `edge_attr(RelationId, Key, Value)`. Replace dependency rules with:
 
@@ -491,13 +491,13 @@ dep_edge(X,Y) :- edge(R,T,X,Y), dependency_type(T), not bounded(R).
 
 Do not call GraphChecker. Update the module contract comments and atom budget estimate for relation attrs.
 
-- [ ] **Step 6: Run graph/ASP tests and verify GREEN**
+- [x] **Step 6: Run graph/ASP tests and verify GREEN**
 
 Run: `uv run pytest tests/spine/checkers/test_graph.py tests/spine/checkers/test_asp.py tests/spine/checkers/test_asp_vs_graph_differential.py -q`
 
 Expected: all examples and 200 property cases pass.
 
-- [ ] **Step 7: Commit the generic checker improvement**
+- [x] **Step 7: Commit the generic checker improvement**
 
 ```bash
 git add gameforge/spine/checkers/graph.py gameforge/spine/checkers/asp.py tests/spine/checkers/test_graph.py tests/spine/checkers/test_asp.py tests/spine/checkers/test_asp_vs_graph_differential.py

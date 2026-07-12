@@ -12,10 +12,10 @@ source="checker", producer_id="graph"):
   2. missing_drop_source      — a `collect` step's item has no GRANTS/DROPS_FROM
                                  source (reachable-from-start when nav given).
   3. unreachable_target       — a quest step's talk/turn_in target is unreachable
-                                 from the quest giver (only provable when a
-                                 NavProvider is supplied — no nav => no verdict,
-                                 never a false positive).
-  4. cyclic_dependency        — the HAS_STEP+PRECEDES subgraph contains a cycle.
+                                 from the quest giver, or its destination has an
+                                 access gate the quest neither requires nor unlocks.
+  4. cyclic_dependency        — the repeatable HAS_STEP/PRECEDES/REQUIRES
+                                 subgraph contains a cycle.
   5. dead_quest                — a quest has no giver (STARTS_AT) or no steps
                                  (HAS_STEP) at all: it can never be started.
   6. unsatisfiable_completion — a quest's turn_in step is not reachable (via
@@ -36,7 +36,8 @@ from gameforge.spine.ir.snapshot import Snapshot
 from gameforge.spine.ir.store import IRGraph, NavProvider
 
 _SOURCE_EDGES = (EdgeType.GRANTS, EdgeType.DROPS_FROM)
-_DEPENDENCY_EDGES = (EdgeType.HAS_STEP, EdgeType.PRECEDES)
+_DEPENDENCY_EDGES = (EdgeType.HAS_STEP, EdgeType.PRECEDES, EdgeType.REQUIRES)
+_ACCESS_PROOF_EDGES = (EdgeType.REQUIRES, EdgeType.UNLOCKS)
 _KEY_NODE_TYPES = (NodeType.QUEST, NodeType.NPC, NodeType.ITEM, NodeType.MONSTER)
 
 EmitFn = Callable[..., None]
@@ -144,7 +145,7 @@ def topo_order(adj: dict) -> list[Any] | None:
 def _dependency_adj(g: IRGraph) -> dict[str, list[str]]:
     adj: dict[str, list[str]] = {}
     for r in g.all_relations():
-        if r.type in _DEPENDENCY_EDGES:
+        if r.type in _DEPENDENCY_EDGES and (r.attrs or {}).get("repeatability") != "once":
             adj.setdefault(r.src_id, []).append(r.dst_id)
     return adj
 
@@ -174,6 +175,7 @@ class GraphChecker:
         self._dangling_reference(g, emit)
         self._missing_drop_source(g, nav, emit)
         self._unreachable_target(g, nav, emit)
+        self._gated_destination(g, emit)
         self._cyclic_dependency(g, emit)
         self._dead_quest(g, emit)
         self._unsatisfiable_completion(g, emit)
@@ -254,6 +256,60 @@ class GraphChecker:
                         f"Quest {quest.id} step {step.id} target {target!r} "
                         f"unreachable from giver {giver!r}",
                     )
+
+    def _gated_destination(self, g: IRGraph, emit: EmitFn) -> None:
+        for quest in g.nodes_of_type(NodeType.QUEST):
+            proof_relations = [
+                relation
+                for relation in g.neighbors(quest.id, direction="out")
+                if relation.type in _ACCESS_PROOF_EDGES
+            ]
+            proofs_by_gate: dict[str, list[str]] = {}
+            for relation in proof_relations:
+                proofs_by_gate.setdefault(relation.dst_id, []).append(relation.id)
+
+            seen: set[tuple[str, str, str]] = set()
+            for step_relation in g.neighbors(quest.id, EdgeType.HAS_STEP, direction="out"):
+                step = g.get_node(step_relation.dst_id)
+                if step is None:
+                    continue
+                for location in g.neighbors(step.id, EdgeType.LOCATED_IN, direction="out"):
+                    region = g.get_node(location.dst_id)
+                    if region is None:
+                        continue
+                    for gate_relation in g.neighbors(
+                        region.id,
+                        EdgeType.GATED_BY,
+                        direction="out",
+                    ):
+                        gate = gate_relation.dst_id
+                        access_proofs = sorted(proofs_by_gate.get(gate, []))
+                        if access_proofs:
+                            continue
+                        key = (step.id, region.id, gate)
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        emit(
+                            "unreachable_target",
+                            "critical",
+                            [quest.id, step.id, region.id, gate],
+                            {
+                                "quest": quest.id,
+                                "step": step.id,
+                                "region": region.id,
+                                "gate": gate,
+                                "access_proofs": access_proofs,
+                            },
+                            {
+                                "entity": step.id,
+                                "source_ref": (
+                                    step.source_ref.model_dump() if step.source_ref else None
+                                ),
+                            },
+                            f"Quest {quest.id} step {step.id} enters gated region "
+                            f"{region.id} without requiring or unlocking {gate}",
+                        )
 
     # --- 4. cyclic_dependency ---
     def _cyclic_dependency(self, g: IRGraph, emit: EmitFn) -> None:

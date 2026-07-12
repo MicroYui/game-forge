@@ -119,6 +119,96 @@ def test_cycle_detected_with_path_evidence():
     assert clean == []
 
 
+def test_self_requirement_is_a_dependency_cycle():
+    quest = Entity(id="quest:q", type=NodeType.QUEST)
+    requirement = Relation(
+        id="requires-self",
+        type=EdgeType.REQUIRES,
+        src_id=quest.id,
+        dst_id=quest.id,
+    )
+
+    findings = _findings([quest], [requirement], "cyclic_dependency")
+
+    assert len(findings) == 1
+    assert findings[0].entities == [quest.id]
+
+
+def test_once_only_transition_does_not_form_repeatable_cycle():
+    nodes = [
+        Entity(id="dialogue:a", type=NodeType.DIALOGUE_NODE),
+        Entity(id="dialogue:b", type=NodeType.DIALOGUE_NODE),
+    ]
+    relations = [
+        Relation(
+            id="forward",
+            type=EdgeType.PRECEDES,
+            src_id="dialogue:a",
+            dst_id="dialogue:b",
+        ),
+        Relation(
+            id="bounded-return",
+            type=EdgeType.PRECEDES,
+            src_id="dialogue:b",
+            dst_id="dialogue:a",
+            attrs={"repeatability": "once"},
+        ),
+    ]
+
+    assert _findings(nodes, relations, "cyclic_dependency") == []
+
+
+def test_gated_destination_requires_prior_access_or_quest_unlock():
+    quest = Entity(id="quest:q", type=NodeType.QUEST)
+    step = Entity(id="step:destination", type=NodeType.QUEST_STEP)
+    region = Entity(id="region:restricted", type=NodeType.REGION)
+    gate = Entity(id="gate:clearance", type=NodeType.UNLOCK_CONDITION)
+    entities = [quest, step, region, gate]
+    relations = [
+        Relation(
+            id="has-step",
+            type=EdgeType.HAS_STEP,
+            src_id=quest.id,
+            dst_id=step.id,
+        ),
+        Relation(
+            id="destination",
+            type=EdgeType.LOCATED_IN,
+            src_id=step.id,
+            dst_id=region.id,
+        ),
+        Relation(
+            id="access-gate",
+            type=EdgeType.GATED_BY,
+            src_id=region.id,
+            dst_id=gate.id,
+        ),
+    ]
+
+    findings = _findings(entities, relations, "unreachable_target")
+    assert len(findings) == 1
+    assert findings[0].evidence == {
+        "quest": quest.id,
+        "step": step.id,
+        "region": region.id,
+        "gate": gate.id,
+        "access_proofs": [],
+    }
+
+    for edge_type in (EdgeType.REQUIRES, EdgeType.UNLOCKS):
+        proof = Relation(
+            id=f"proof:{edge_type.value}",
+            type=edge_type,
+            src_id=quest.id,
+            dst_id=gate.id,
+        )
+        assert _findings(
+            entities,
+            [*relations, proof],
+            "unreachable_target",
+        ) == []
+
+
 # --- 5. dead_quest ---
 
 def test_dead_quest_detected_and_clean_is_silent():

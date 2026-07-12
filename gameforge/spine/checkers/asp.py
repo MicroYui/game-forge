@@ -5,11 +5,10 @@ unit-testable pure function) and evaluates a built-in `.lp` rule set that
 derives `violation(Class, EntityA, EntityB)` atoms for the structural defect
 classes shared with `GraphChecker` (contract §3 / §12A.1 differential anchor):
 
-  - cyclic_dependency   — mutual reachability over the HAS_STEP+PRECEDES
-                           subgraph (an SCC of size > 1, or a self-loop) —
-                           computed in Clingo via `dep_reach/2` transitive
-                           closure, exactly the same equivalence relation
-                           Tarjan SCC decides in `graph.py`.
+  - cyclic_dependency   — mutual reachability over repeatable
+                           HAS_STEP/PRECEDES/REQUIRES edges (an SCC of size >
+                           1, or a self-loop), computed in Clingo via
+                           `dep_reach/2` transitive closure.
   - missing_drop_source — a `collect` QUEST_STEP whose `item` attr has no
                            GRANTS/DROPS_FROM edge landing on it.
 
@@ -36,9 +35,15 @@ from gameforge.spine.ir.store import IRGraph, NavProvider
 _SHARED_DEFECT_CLASSES = ("cyclic_dependency", "missing_drop_source")
 
 _BUILTIN_RULES = """
-% --- cyclic_dependency: HAS_STEP + PRECEDES subgraph, mutual reachability ---
-dep_edge(X,Y) :- edge(_, "HAS_STEP", X, Y).
-dep_edge(X,Y) :- edge(_, "PRECEDES", X, Y).
+#defined attr/3.
+#defined edge_attr/3.
+
+% --- cyclic_dependency: repeatable dependency edges, mutual reachability ---
+dependency_type("HAS_STEP").
+dependency_type("PRECEDES").
+dependency_type("REQUIRES").
+bounded(R) :- edge_attr(R, "repeatability", "once").
+dep_edge(X,Y) :- edge(R,T,X,Y), dependency_type(T), not bounded(R).
 dep_reach(X,Y) :- dep_edge(X,Y).
 dep_reach(X,Z) :- dep_reach(X,Y), dep_edge(Y,Z).
 violation("cyclic_dependency", X, Y) :- dep_reach(X,Y), dep_reach(Y,X).
@@ -86,7 +91,7 @@ def _attr_term(value: object) -> str | None:
 
 
 def ir_to_asp_facts(graph: IRGraph) -> str:
-    """Encode an IRGraph as ASP facts: `node/2`, `edge/4`, `attr/3`.
+    """Encode an IRGraph as node, edge, entity-attr, and edge-attr facts.
 
     Pure and deterministic: entities/relations/attrs are emitted in sorted
     order so the same graph always yields byte-identical fact text.
@@ -103,6 +108,12 @@ def ir_to_asp_facts(graph: IRGraph) -> str:
             f"edge({_asp_string(r.id)}, {_asp_string(r.type.value)}, "
             f"{_asp_string(r.src_id)}, {_asp_string(r.dst_id)})."
         )
+        for key, value in sorted((r.attrs or {}).items()):
+            term = _attr_term(value)
+            if term is not None:
+                lines.append(
+                    f"edge_attr({_asp_string(r.id)}, {_asp_string(key)}, {term})."
+                )
     return "\n".join(lines) + ("\n" if lines else "")
 
 
@@ -176,10 +187,19 @@ class ASPChecker:
 
         n_nodes = sum(1 for _ in g.all_entities())
         n_edges = sum(1 for _ in g.all_relations())
+        n_scalar_attrs = sum(
+            _attr_term(value) is not None
+            for entity in g.all_entities()
+            for value in entity.attrs.values()
+        ) + sum(
+            _attr_term(value) is not None
+            for relation in g.all_relations()
+            for value in (relation.attrs or {}).values()
+        )
         # Coarse worst-case estimate of the transitive-closure grounding size
         # (dep_reach/2 can ground up to n^2 pairs); cheap and conservative,
         # checked BEFORE ever invoking Clingo.
-        estimated_atoms = n_nodes + n_edges + n_nodes * n_nodes
+        estimated_atoms = n_nodes + n_edges + n_scalar_attrs + n_nodes * n_nodes
         if estimated_atoms > self.grounding_budget_atoms:
             emit_unproven_all(
                 "grounding_budget_exceeded",

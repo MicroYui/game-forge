@@ -63,15 +63,31 @@ def _quest_step_graph(draw):
 
     entities += [Entity(id=i, type=NodeType.ITEM) for i in items]
 
-    # random PRECEDES edges among steps (may create cycles)
-    precedes_pairs = draw(
+    # Random generic dependency edges may cross quest/step types and may be
+    # bounded to a single traversal.
+    dependency_nodes = [*quests, *steps]
+    dependency_edges = draw(
         st.lists(
-            st.tuples(st.sampled_from(steps), st.sampled_from(steps)),
+            st.tuples(
+                st.sampled_from(dependency_nodes),
+                st.sampled_from(dependency_nodes),
+                st.sampled_from([EdgeType.PRECEDES, EdgeType.REQUIRES]),
+                st.sampled_from([None, "once"]),
+            ),
             max_size=8,
         )
     )
-    for a, b in precedes_pairs:
-        relations.append(Relation(id=f"r{rid}", type=EdgeType.PRECEDES, src_id=a, dst_id=b))
+    for a, b, edge_type, repeatability in dependency_edges:
+        attrs = {"repeatability": repeatability} if repeatability is not None else None
+        relations.append(
+            Relation(
+                id=f"r{rid}",
+                type=edge_type,
+                src_id=a,
+                dst_id=b,
+                attrs=attrs,
+            )
+        )
         rid += 1
 
     # random GRANTS/DROPS_FROM edges from sources -> items (some items get no source)
@@ -100,3 +116,45 @@ def test_asp_and_graph_agree_on_shared_defect_classes(graph):
     graph_findings = GraphChecker().check(snap)
 
     assert _defect_set(asp_findings) == _defect_set(graph_findings)
+
+
+def test_asp_and_graph_agree_on_requires_self_loop():
+    quest = Entity(id="quest:q", type=NodeType.QUEST)
+    requirement = Relation(
+        id="requires-self",
+        type=EdgeType.REQUIRES,
+        src_id=quest.id,
+        dst_id=quest.id,
+    )
+    snapshot = Snapshot.from_entities_relations([quest], [requirement])
+
+    assert _defect_set(ASPChecker().check(snapshot)) == _defect_set(
+        GraphChecker().check(snapshot)
+    )
+
+
+def test_asp_and_graph_agree_when_cycle_contains_once_only_edge():
+    entities = [
+        Entity(id="dialogue:a", type=NodeType.DIALOGUE_NODE),
+        Entity(id="dialogue:b", type=NodeType.DIALOGUE_NODE),
+    ]
+    relations = [
+        Relation(
+            id="forward",
+            type=EdgeType.PRECEDES,
+            src_id="dialogue:a",
+            dst_id="dialogue:b",
+        ),
+        Relation(
+            id="bounded-return",
+            type=EdgeType.PRECEDES,
+            src_id="dialogue:b",
+            dst_id="dialogue:a",
+            attrs={"repeatability": "once"},
+        ),
+    ]
+    snapshot = Snapshot.from_entities_relations(entities, relations)
+
+    assert _defect_set(ASPChecker().check(snapshot)) == _defect_set(
+        GraphChecker().check(snapshot)
+    )

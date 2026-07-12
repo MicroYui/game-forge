@@ -29,13 +29,22 @@ def test_ir_to_asp_facts_generates_node_and_edge_atoms():
     g = IRGraph()
     g.add_entity(Entity(id="q:1", type=NodeType.QUEST, attrs={"region": "newbie"}))
     g.add_entity(Entity(id="s:1", type=NodeType.QUEST_STEP, attrs={"kind": "collect", "item": "i:1"}))
-    g.add_relation(Relation(id="r:1", type=EdgeType.HAS_STEP, src_id="q:1", dst_id="s:1"))
+    g.add_relation(
+        Relation(
+            id="r:1",
+            type=EdgeType.HAS_STEP,
+            src_id="q:1",
+            dst_id="s:1",
+            attrs={"repeatability": "once"},
+        )
+    )
 
     facts = ir_to_asp_facts(g)
 
     assert 'node("q:1", "QUEST").' in facts
     assert 'node("s:1", "QUEST_STEP").' in facts
     assert 'edge("r:1", "HAS_STEP", "q:1", "s:1").' in facts
+    assert 'edge_attr("r:1", "repeatability", "once").' in facts
     assert 'attr("s:1", "kind", "collect").' in facts
     assert 'attr("s:1", "item", "i:1").' in facts
 
@@ -79,6 +88,45 @@ def test_clean_graph_has_no_violations():
     ]
     fs = ASPChecker().check(_snap(ents, rels))
     assert fs == []
+
+
+def test_self_requirement_is_detected_by_asp():
+    quest = Entity(id="quest:q", type=NodeType.QUEST)
+    requirement = Relation(
+        id="requires-self",
+        type=EdgeType.REQUIRES,
+        src_id=quest.id,
+        dst_id=quest.id,
+    )
+
+    findings = _findings([quest], [requirement], "cyclic_dependency")
+
+    assert len(findings) == 1
+    assert findings[0].entities == [quest.id]
+
+
+def test_once_only_edge_is_excluded_from_asp_dependency_cycles():
+    entities = [
+        Entity(id="dialogue:a", type=NodeType.DIALOGUE_NODE),
+        Entity(id="dialogue:b", type=NodeType.DIALOGUE_NODE),
+    ]
+    relations = [
+        Relation(
+            id="forward",
+            type=EdgeType.PRECEDES,
+            src_id="dialogue:a",
+            dst_id="dialogue:b",
+        ),
+        Relation(
+            id="bounded-return",
+            type=EdgeType.PRECEDES,
+            src_id="dialogue:b",
+            dst_id="dialogue:a",
+            attrs={"repeatability": "once"},
+        ),
+    ]
+
+    assert _findings(entities, relations, "cyclic_dependency") == []
 
 
 # --- ASPChecker.check: missing_drop_source ---
