@@ -213,7 +213,10 @@ class AureusCsvAdapter:
                     source_ref=sref("quest_steps", i),
                 ))
 
-        # DROPS_FROM (item -> monster) via monsters.drop_table_id + drop_tables.entries.
+        # DROPS_FROM (monster -> item) via monsters.drop_table_id +
+        # drop_tables.entries. The source is the direct producer that a collect
+        # checker can locate; drop_table_id remains on the Monster attrs for
+        # lossless source-format round trips.
         drop_tables_by_id = {
             row["drop_table_id"]: row for row in workbook.get("drop_tables", [])
         }
@@ -223,21 +226,19 @@ class AureusCsvAdapter:
                 continue
             for entry in dt.get("entries", []):
                 g.add_relation(Relation(
-                    id=rid.next(EdgeType.DROPS_FROM, entry["item"], monster["monster_id"]),
-                    type=EdgeType.DROPS_FROM, src_id=entry["item"], dst_id=monster["monster_id"],
+                    id=rid.next(
+                        EdgeType.DROPS_FROM, monster["monster_id"], entry["item"]
+                    ),
+                    type=EdgeType.DROPS_FROM,
+                    src_id=monster["monster_id"],
+                    dst_id=entry["item"],
                     source_ref=sref("monsters", i),
                 ))
 
         # DROPS_FROM (monster -> currency) via monsters.gold_min/gold_max/
-        # currency — all optional columns beyond the base monsters schema,
-        # present only on scenarios that exercise the economy simulator
-        # (Task 8 `EconomyModel.from_snapshot`). This is the OPPOSITE
-        # direction from the item-drop DROPS_FROM edges above (src=item,
-        # dst=monster there): DROPS_FROM is contract-wide overloaded for two
-        # distinct "produces" relationships — item sourcing (checker-facing,
-        # dst=item) and currency sourcing (economy-sim-facing, dst=currency)
-        # — that never collide in practice since item ids and currency ids
-        # are disjoint namespaces.
+        # currency — the same producer-to-product convention as item drops.
+        # These columns are optional beyond the base monsters schema and are
+        # present only on scenarios that exercise EconomyModel.from_snapshot.
         for i, monster in enumerate(workbook.get("monsters", [])):
             currency = monster.get("currency")
             if not currency or monster.get("gold_min") is None:

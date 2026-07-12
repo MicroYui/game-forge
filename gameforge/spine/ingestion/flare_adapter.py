@@ -204,7 +204,8 @@ class FlareTxtAdapter:
                     attrs={"lines": rec["lines"]}, source_ref=sref,
                 ))
 
-        # --- pass 2: derived DROPS_FROM edges (item <- enemy) via `loot=<item_id>,<chance>` ---
+        # --- pass 2: derived DROPS_FROM edges (enemy -> item) via
+        # `loot=<item_id>,<chance>` ---
         # A `loot=` value is an item reference only when its first comma-separated
         # token is a KNOWN item pk (e.g. `loot=32,5`); `loot=loot/leveled_low.txt`
         # (a loot-TABLE pointer, not a direct item drop) never matches and is
@@ -221,8 +222,12 @@ class FlareTxtAdapter:
                     continue
                 item_entity_id = f"items:{item_pk}"
                 g.add_relation(Relation(
-                    id=rid.next(EdgeType.DROPS_FROM, item_entity_id, monster_entity_id),
-                    type=EdgeType.DROPS_FROM, src_id=item_entity_id, dst_id=monster_entity_id,
+                    id=rid.next(
+                        EdgeType.DROPS_FROM, monster_entity_id, item_entity_id
+                    ),
+                    type=EdgeType.DROPS_FROM,
+                    src_id=monster_entity_id,
+                    dst_id=item_entity_id,
                     source_ref=SourceRef(
                         adapter=_ADAPTER_ID, file=rec.get("file", file_ref), sheet="enemies", row=rec["row"]
                     ),

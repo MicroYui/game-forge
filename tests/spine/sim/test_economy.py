@@ -146,6 +146,29 @@ def test_collapse_finding_carries_faucet_entities_when_model_given():
     assert without_model.entities == []
 
 
+def test_illegal_item_to_currency_drop_is_not_an_economy_source():
+    snapshot = _snap(
+        [
+            Entity(id="gold", type=NodeType.CURRENCY),
+            Entity(
+                id="item:fake-faucet",
+                type=NodeType.ITEM,
+                attrs={"gold_min": 500, "gold_max": 1000},
+            ),
+        ],
+        [
+            Relation(
+                id="reverse",
+                type=EdgeType.DROPS_FROM,
+                src_id="item:fake-faucet",
+                dst_id="gold",
+            )
+        ],
+    )
+
+    assert EconomyModel.from_snapshot(snapshot).sources == []
+
+
 def _econ_workbook(gold_min, gold_max, sink_price, buy_prob):
     # Minimal valid economy workbook: a gold currency, a wolf faucet
     # (gold_min/max + currency => DROPS_FROM(monster->currency)), and a shop

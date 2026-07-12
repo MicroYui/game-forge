@@ -65,12 +65,12 @@ def test_to_ir_derives_drops_from_edges_for_resolvable_loot_refs_only():
     g = FlareTxtAdapter().to_ir(wb, file_ref=_DIR).to_graph()
 
     # goblin: loot=32,5 -> item 32 exists -> one DROPS_FROM edge
-    goblin_drops = g.neighbors("enemies:goblin", EdgeType.DROPS_FROM, direction="in")
-    assert {r.src_id for r in goblin_drops} == {"items:32"}
+    goblin_drops = g.neighbors("enemies:goblin", EdgeType.DROPS_FROM, direction="out")
+    assert {r.dst_id for r in goblin_drops} == {"items:32"}
 
     # skeleton: loot=32,5 AND loot=56,5 -> both items exist -> two DROPS_FROM edges
-    skeleton_drops = g.neighbors("enemies:skeleton", EdgeType.DROPS_FROM, direction="in")
-    assert {r.src_id for r in skeleton_drops} == {"items:32", "items:56"}
+    skeleton_drops = g.neighbors("enemies:skeleton", EdgeType.DROPS_FROM, direction="out")
+    assert {r.dst_id for r in skeleton_drops} == {"items:32", "items:56"}
 
     # the loot-table pointer (`loot=loot/leveled_low.txt`) must NOT become an edge
     assert len(list(g.all_relations())) == 3  # exactly goblin's 1 + skeleton's 2, nothing spurious

@@ -38,6 +38,13 @@ _BASELINE_WINDOW = 5
 _SLOPE_WINDOW = 5
 _COLLAPSE_MULTIPLIER = 8.0
 _WARNING_FRACTION = 0.3
+_DROP_PRODUCER_TYPES = frozenset({
+    NodeType.MONSTER,
+    NodeType.DROP_TABLE,
+    NodeType.INTERACTABLE,
+    NodeType.EVENT,
+    NodeType.BATTLE_ENCOUNTER,
+})
 
 
 @dataclass
@@ -66,7 +73,7 @@ class EconomyModel:
             if dst is None or dst.type is not NodeType.CURRENCY:
                 continue
             producer = g.get_node(r.src_id)
-            if producer is None:
+            if producer is None or producer.type not in _DROP_PRODUCER_TYPES:
                 continue
             gold_min = producer.attrs.get("gold_min", 0)
             gold_max = producer.attrs.get("gold_max", gold_min)

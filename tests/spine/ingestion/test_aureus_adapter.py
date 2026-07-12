@@ -61,15 +61,34 @@ def test_to_ir_skips_starts_at_when_giver_blank():
     assert g.neighbors("q", EdgeType.STARTS_AT, direction="out") == []
 
 
+def test_to_ir_derives_monster_to_item_drop_source():
+    wb = _wb()
+    wb["drop_tables"] = [
+        {"drop_table_id": "drops:wolf", "entries": [{"item": "item:x", "chance": 1.0}]}
+    ]
+    wb["monsters"] = [
+        {
+            "monster_id": "m:wolf",
+            "name": "Wolf",
+            "stats": {"atk": 1, "def": 1, "hp": 1},
+            "skills": None,
+            "drop_table_id": "drops:wolf",
+            "ai": "aggressive",
+        }
+    ]
+
+    graph = AureusCsvAdapter().to_ir(wb, file_ref="outpost").to_graph()
+
+    drops = graph.neighbors("m:wolf", EdgeType.DROPS_FROM, direction="out")
+    assert {relation.dst_id for relation in drops} == {"item:x"}
+    assert graph.neighbors("item:x", EdgeType.DROPS_FROM, direction="out") == []
+
+
 def test_to_ir_derives_monster_currency_drops_from_gold_attrs():
     # Monster rows carrying economy-sim gold-drop attrs (`gold_min`/`gold_max`/
     # `currency`, all optional beyond the base monsters schema) derive a
-    # DROPS_FROM(monster -> currency) edge — the direction EconomySimulator's
-    # `EconomyModel.from_snapshot` expects (src=producer, dst=currency). This
-    # is the OPPOSITE direction from the item-drop DROPS_FROM edges above
-    # (src=item, dst=monster) -- DROPS_FROM is contract-wide overloaded for two
-    # distinct "produces" relationships that never collide (item ids and
-    # currency ids are disjoint namespaces).
+    # DROPS_FROM(monster -> currency) follows the same producer-to-product
+    # direction as item drops and is what EconomyModel.from_snapshot consumes.
     wb = _wb()
     wb["monsters"] = [{
         "monster_id": "m:wolf", "name": "Wolf",
