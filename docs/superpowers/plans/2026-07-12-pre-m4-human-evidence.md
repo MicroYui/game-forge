@@ -879,7 +879,7 @@ Run: `uv run pytest tests/bench/qa/test_score.py tests/bench/qa/test_measured_ev
 
 Expected: score import failure and missing measured evidence.
 
-- [ ] **Step 3: Implement paired scoring**
+- [x] **Step 3: Implement paired scoring**
 
 ```python
 class QaPairOutcome(_StrictModel):
@@ -955,6 +955,14 @@ git commit -m "test(bench): measure QA hours case study"
 ```
 
 Record exact arm times/successes, paired estimates/CIs, conclusion, evidence SHA, and protocol-validity count in this plan before committing. Do not repeat a session based on outcome.
+
+Task 8 automation checkpoint: paired scoring, conservative conclusion rules,
+workspace import, final-patch replay, and deterministic verdict revalidation are
+implemented and covered by synthetic temporary-workspace tests. No participant
+times, attestations, patches, or measured QA evidence have been created. Steps
+1-2 remain open until the measured-evidence acceptance test is added against
+real sessions; Steps 4-6 remain open until the participant completes all eight
+protocol-ordered sessions.
 
 ---
 

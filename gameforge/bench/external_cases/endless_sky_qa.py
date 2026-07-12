@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import subprocess
 import tempfile
 from pathlib import Path
 
@@ -18,7 +19,13 @@ from gameforge.bench.external_cases.native import (
 )
 from gameforge.bench.external_cases.qualify import load_manifest
 from gameforge.bench.hed.contracts import HedCaseOutcome, HedEvidenceManifest, load_evidence
-from gameforge.bench.qa.contracts import QaSessionSpec, seal_qa_verdict
+from gameforge.bench.qa.contracts import (
+    QaSessionSpec,
+    canonical_session_bytes,
+    content_sha256,
+    load_session,
+    seal_qa_verdict,
+)
 from gameforge.bench.qa.harness import (
     QaBundleMaterial,
     finalize_session,
@@ -30,6 +37,13 @@ from gameforge.bench.qa.protocol import (
     QaProtocol,
     assert_qa_protocol_ready,
     load_protocol,
+)
+from gameforge.bench.qa.score import (
+    QaEvidenceManifest,
+    load_evidence as load_qa_evidence,
+    seal_qa_evidence,
+    validate_qa_evidence,
+    write_evidence as write_qa_evidence,
 )
 from gameforge.bench.qa.session import load_state, transition_session
 from gameforge.contracts.canonical import canonical_json
@@ -201,6 +215,148 @@ def _status(workspace: str | Path) -> dict[str, object]:
     return {"schema_version": "qa-workspace-status@1", "sessions": rows}
 
 
+def _validate_workspace_session(
+    bundle: Path,
+    spec: QaSessionSpec,
+    protocol: QaProtocol,
+    external: ExternalCorpusManifest,
+):
+    evidence_path = bundle / "session-evidence.json"
+    patch_path = bundle / "final.patch"
+    if not evidence_path.is_file() or not patch_path.is_file():
+        raise ValueError(f"missing QA session evidence for {spec.session_id}")
+    session = load_session(evidence_path)
+    if (
+        session.protocol_sha256 != protocol.protocol_sha256
+        or session.session_id != spec.session_id
+        or session.participant_id != protocol.participant_id
+        or session.case_id != spec.case_id
+        or session.pair_id != spec.pair_id
+        or session.arm != spec.arm
+        or session.order != spec.order
+    ):
+        raise ValueError(f"QA session differs from protocol for {spec.session_id}")
+    expected_patch_path = f"qa-patches/{spec.session_id}.patch"
+    if session.final_patch_path != expected_patch_path:
+        raise ValueError(f"QA final patch path mismatch for {spec.session_id}")
+    patch = patch_path.read_bytes()
+    if hashlib.sha256(patch).hexdigest() != session.final_patch_sha256:
+        raise ValueError(f"QA final patch hash mismatch for {spec.session_id}")
+    rebuilt_patch, verdict = evaluate_submission(
+        spec.case_id,
+        bundle / "work",
+        external=external,
+    )
+    if rebuilt_patch != patch:
+        raise ValueError(f"QA final patch does not match work tree for {spec.session_id}")
+    if content_sha256(verdict) != content_sha256(session.verdict):
+        raise ValueError(f"QA correctness verdict mismatch for {spec.session_id}")
+    return session, patch
+
+
+def import_workspace_evidence(
+    workspace: str | Path,
+    output: str | Path,
+) -> QaEvidenceManifest:
+    root = _workspace_root(workspace)
+    external, _, protocol = _frozen_inputs()
+    sessions_root = root / "sessions"
+    validated = []
+    for spec in protocol.sessions:
+        bundle = sessions_root / spec.session_id
+        if not bundle.is_dir():
+            raise ValueError(f"missing QA session evidence for {spec.session_id}")
+        validated.append(
+            (
+                spec,
+                *_validate_workspace_session(bundle, spec, protocol, external),
+            )
+        )
+
+    artifact_root = Path(output)
+    session_output = artifact_root / "qa-sessions"
+    patch_output = artifact_root / "qa-patches"
+    evidence_output = artifact_root / "qa-evidence.json"
+    if session_output.exists() or patch_output.exists() or evidence_output.exists():
+        raise ValueError("QA evidence output already exists")
+    session_output.mkdir(parents=True)
+    patch_output.mkdir()
+    for spec, session, patch in validated:
+        (session_output / f"{spec.session_id}.json").write_bytes(
+            canonical_session_bytes(session)
+        )
+        (patch_output / f"{spec.session_id}.patch").write_bytes(patch)
+    evidence = seal_qa_evidence(
+        protocol,
+        tuple(item[1] for item in validated),
+    )
+    write_qa_evidence(evidence_output, evidence)
+    validate_qa_evidence(evidence, protocol, artifact_root)
+    return evidence
+
+
+def _reconstruct_submission(
+    runtime,
+    patch: bytes,
+) -> dict[str, bytes]:  # noqa: ANN001 - source-specific runtime boundary
+    with tempfile.TemporaryDirectory(prefix="gameforge-qa-replay-") as temporary:
+        root = Path(temporary)
+        for relative, raw in runtime.before_raw.items():
+            destination = root / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(raw)
+        if patch:
+            patch_path = root / "submission.patch"
+            patch_path.write_bytes(patch)
+            completed = subprocess.run(
+                ["git", "apply", "--unsafe-paths", str(patch_path)],
+                cwd=root,
+                check=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            if completed.returncode != 0:
+                detail = completed.stderr.decode("utf-8", errors="replace")
+                raise ValueError(f"QA final patch cannot be replayed: {detail}")
+        return {
+            relative: (root / relative).read_bytes()
+            for relative in runtime.spec.changed_paths
+        }
+
+
+def validate_imported_evidence(path: str | Path) -> QaEvidenceManifest:
+    evidence_path = Path(path)
+    artifact_root = evidence_path.parent
+    external, _, protocol = _frozen_inputs()
+    evidence = load_qa_evidence(evidence_path)
+    validate_qa_evidence(evidence, protocol, artifact_root)
+    sessions_by_id = {item.session_id: item for item in evidence.sessions}
+    with tempfile.TemporaryDirectory(prefix="gameforge-qa-validator-") as temporary:
+        native = compile_native_parser(_NATIVE_SOURCE, Path(temporary) / "native")
+        for spec in protocol.sessions:
+            session_file = artifact_root / "qa-sessions" / f"{spec.session_id}.json"
+            stored_session = load_session(session_file)
+            if stored_session != sessions_by_id.get(spec.session_id):
+                raise ValueError(f"QA stored session mismatch for {spec.session_id}")
+            patch_path = artifact_root / stored_session.final_patch_path
+            patch = patch_path.read_bytes()
+            case = _case_evidence(external, spec.case_id)
+            runtime = load_case_runtime(_ROOT, case.spec)
+            submitted = _reconstruct_submission(runtime, patch)
+            if unified_submission_patch(runtime.before_raw, submitted) != patch:
+                raise ValueError(f"QA patch is not canonical for {spec.session_id}")
+            verdict = seal_qa_verdict(
+                validate_submitted_tree(
+                    runtime,
+                    submitted,
+                    native_binary=native,
+                )
+            )
+            if content_sha256(verdict) != content_sha256(stored_session.verdict):
+                raise ValueError(f"QA verdict does not rederive for {spec.session_id}")
+    return evidence
+
+
 def _main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -215,6 +371,11 @@ def _main() -> None:
     finish.add_argument("--workspace", type=Path, required=True)
     finish.add_argument("--session", required=True)
     finish.add_argument("--attest-no-contamination", action="store_true")
+    importer = subparsers.add_parser("import-evidence")
+    importer.add_argument("--workspace", type=Path, required=True)
+    importer.add_argument("--output", type=Path, required=True)
+    validator = subparsers.add_parser("validate-evidence")
+    validator.add_argument("evidence", type=Path)
     args = parser.parse_args()
 
     if args.command == "next":
@@ -233,6 +394,14 @@ def _main() -> None:
         return
     if args.command == "status":
         print(canonical_json(_status(args.workspace)))
+        return
+    if args.command == "import-evidence":
+        evidence = import_workspace_evidence(args.workspace, args.output)
+        print(evidence.evidence_sha256)
+        return
+    if args.command == "validate-evidence":
+        evidence = validate_imported_evidence(args.evidence)
+        print(evidence.evidence_sha256)
         return
 
     external, protocol, session, bundle = _session_bundle(
@@ -263,6 +432,8 @@ if __name__ == "__main__":
 
 __all__ = [
     "evaluate_submission",
+    "import_workspace_evidence",
     "materialize_case",
     "next_session",
+    "validate_imported_evidence",
 ]

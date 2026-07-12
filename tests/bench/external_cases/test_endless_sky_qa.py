@@ -7,13 +7,17 @@ import pytest
 
 from gameforge.bench.external_cases.endless_sky_qa import (
     evaluate_submission,
+    import_workspace_evidence,
     materialize_case,
     next_session,
+    validate_imported_evidence,
 )
 from gameforge.bench.external_cases.endless_sky_runner import load_case_runtime
 from gameforge.bench.external_cases.qualify import load_manifest
 from gameforge.bench.hed.contracts import load_evidence
 from gameforge.bench.qa.protocol import load_protocol
+from gameforge.bench.qa.harness import finalize_session
+from gameforge.bench.qa.session import transition_session
 
 _ROOT = Path("scenarios/external_cases/endless_sky")
 _EXTERNAL = _ROOT / "external-corpus-manifest.json"
@@ -157,3 +161,64 @@ def test_next_exposes_only_one_session_until_current_finishes(tmp_path):
     }
     with pytest.raises(ValueError, match="not finished"):
         next_session(workspace)
+
+
+class _Clock:
+    def __init__(self, value: int) -> None:
+        self._value = value
+
+    def __call__(self) -> int:
+        return self._value
+
+
+def test_import_revalidates_and_packages_complete_synthetic_workspace(tmp_path):
+    external, hed, protocol = _inputs()
+    workspace = tmp_path / "synthetic-workspace"
+    sessions_root = workspace / "sessions"
+    sessions_root.mkdir(parents=True)
+    outcomes = {item.case_id: item for item in hed.outcomes}
+    evidence_by_id = {item.spec.case_id: item for item in external.cases}
+
+    for spec in protocol.sessions:
+        bundle = materialize_case(
+            spec.case_id,
+            sessions_root / spec.session_id,
+            session=spec,
+            assisted=outcomes[spec.case_id] if spec.arm == "assisted" else None,
+            external=external,
+            protocol=protocol,
+        )
+        runtime = load_case_runtime(_ROOT, evidence_by_id[spec.case_id].spec)
+        for path, raw in runtime.human_target_raw.items():
+            (bundle / "work" / path).write_bytes(raw)
+        started = spec.order * 10_000
+        transition_session(bundle, "start", clock=_Clock(started))
+        finalize_session(
+            protocol,
+            spec,
+            bundle,
+            evaluator=lambda work, case_id=spec.case_id: evaluate_submission(
+                case_id,
+                work,
+                external=external,
+            ),
+            participant_attested_no_contamination=True,
+            clock=_Clock(started + 1_000),
+        )
+
+    artifact_root = tmp_path / "artifacts"
+    evidence = import_workspace_evidence(workspace, artifact_root)
+
+    assert evidence.score.evaluated_pairs == 4
+    assert evidence.score.protocol_failure_pairs == 0
+    assert len(list((artifact_root / "qa-sessions").glob("*.json"))) == 8
+    assert len(list((artifact_root / "qa-patches").glob("*.patch"))) == 8
+    assert validate_imported_evidence(artifact_root / "qa-evidence.json") == evidence
+
+
+def test_import_refuses_missing_session_evidence(tmp_path):
+    workspace = tmp_path / "incomplete"
+    workspace.mkdir()
+
+    with pytest.raises(ValueError, match="missing QA session"):
+        import_workspace_evidence(workspace, tmp_path / "artifacts")

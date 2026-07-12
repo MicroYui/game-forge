@@ -153,15 +153,19 @@ def unified_submission_patch(
         new_lines = submitted[path].decode(
             "utf-8", errors="surrogateescape"
         ).splitlines(keepends=True)
-        output.extend(
-            difflib.unified_diff(
-                old_lines,
-                new_lines,
-                fromfile=f"a/{path}",
-                tofile=f"b/{path}",
-                lineterm="\n",
-            )
+        diff = difflib.unified_diff(
+            old_lines,
+            new_lines,
+            fromfile=f"a/{path}",
+            tofile=f"b/{path}",
+            lineterm="\n",
         )
+        for line in diff:
+            if line.endswith("\n"):
+                output.append(line)
+                continue
+            output.append(f"{line}\n")
+            output.append("\\ No newline at end of file\n")
     return "".join(output).encode("utf-8", errors="surrogateescape")
 
 

@@ -129,6 +129,16 @@ def test_unified_patch_is_stable_posix_and_path_ordered():
     assert unified_submission_patch(before, after) == patch
 
 
+def test_unified_patch_preserves_missing_final_newlines():
+    patch = unified_submission_patch(
+        {"data/a.txt": b"old"},
+        {"data/a.txt": b"new"},
+    )
+
+    assert b"-old\n\\ No newline at end of file\n" in patch
+    assert b"+new\n\\ No newline at end of file\n" in patch
+
+
 def test_finish_persists_patch_verdict_and_canonical_session_evidence(tmp_path):
     protocol, spec, material = _material(tmp_path, assisted=False)
     bundle = write_arm_bundle(protocol, material, tmp_path / "bundle")
