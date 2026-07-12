@@ -800,7 +800,7 @@ git commit -m "feat(bench): score narrative evidence without dropped failures"
 - Consumes: frozen corpora, `ConsistencyAssistant`, Task 6 scoring, Model Router, CassetteStore, `DEFAULT_SNAPSHOT`, and the OpenAI Responses transport.
 - Produces: `NarrativeProtocol`, `prompt_bundle_sha256()`, `record_router()`, `replay_router()`, `run_cases()`, `build_evidence()`, and a gated CLI.
 
-- [ ] **Step 1: Write failing model-policy and freeze tests**
+- [x] **Step 1: Write failing model-policy and freeze tests**
 
 ```python
 def test_narrative_record_router_uses_only_gpt56_responses(monkeypatch, tmp_path):
@@ -828,13 +828,13 @@ def test_replay_miss_becomes_an_outcome_instead_of_aborting_denominator(tmp_path
 
 Also test RECORD refuses without `GAMEFORGE_LLM_LIVE=1`, REPLAY transport cannot call the network, each current case is invoked with three methods/threshold 2/rebuttal false, the protocol rejects the Opus snapshot, prompt bundle drift changes the protocol hash, and outcome order follows case ID rather than completion timing.
 
-- [ ] **Step 2: Run protocol/harness tests and verify RED**
+- [x] **Step 2: Run protocol/harness tests and verify RED**
 
 Run: `uv run pytest tests/bench/narrative/test_protocol.py tests/bench/narrative/test_harness.py -q`
 
 Expected: import failures for the missing protocol and harness.
 
-- [ ] **Step 3: Implement a small hash-bound protocol model**
+- [x] **Step 3: Implement a small hash-bound protocol model**
 
 `NarrativeProtocol` has exactly:
 
@@ -855,13 +855,13 @@ protocol_sha256
 
 `prompt_bundle_sha256()` hashes the names, versions, and full text of the current base, three method, and three rebuttal prompts in sorted name order. The protocol's `prompt_version` must equal the single version returned for all seven current prompts; it starts at `consistency@2` and is bumped atomically if development tuning changes prompt text. `seal_protocol()` computes the self-hash only after corpus hashes and prompt bundle are known. `assert_verification_ready()` recomputes every version/content hash from the checked-out code and frozen files and fails closed on drift; it has no human approval or signature state.
 
-- [ ] **Step 4: Implement dedicated routers and fail-closed live gating**
+- [x] **Step 4: Implement dedicated routers and fail-closed live gating**
 
 `record_router()` mirrors the proven repair harness policy but writes only to `cassettes/narrative/pre-m4-1/`, sets `resume=True`, `max_retries=8`, `retry_backoff_s=3.0`, and `default_model_snapshot=DEFAULT_SNAPSHOT`. `replay_router()` uses a transport whose `complete()` raises immediately, `RouterMode.REPLAY`, the same cassette root, and the same GPT snapshot.
 
 No narrative harness function imports `AnthropicMessagesTransport` or chooses a model from a case. The CLI checks `GAMEFORGE_LLM_LIVE=1` and the key before constructing the live transport.
 
-- [ ] **Step 5: Implement deterministic case execution and evidence writing**
+- [x] **Step 5: Implement deterministic case execution and evidence writing**
 
 For every case, call:
 
@@ -892,13 +892,13 @@ Expose these exact CLI actions:
 
 Development reads the draft settings from code. `--seal-protocol` writes `scenarios/narrative_bench/protocol.json`. Verification actions refuse unless that sealed file revalidates against the current code and corpus bytes.
 
-- [ ] **Step 6: Run harness tests and verify GREEN**
+- [x] **Step 6: Run harness tests and verify GREEN**
 
 Run: `uv run pytest tests/bench/narrative/test_protocol.py tests/bench/narrative/test_harness.py -q`
 
 Expected: all tests pass without network.
 
-- [ ] **Step 7: Commit the harness before any live run**
+- [x] **Step 7: Commit the harness before any live run**
 
 ```bash
 git add gameforge/bench/narrative/protocol.py gameforge/bench/narrative/harness.py tests/bench/narrative/test_protocol.py tests/bench/narrative/test_harness.py
