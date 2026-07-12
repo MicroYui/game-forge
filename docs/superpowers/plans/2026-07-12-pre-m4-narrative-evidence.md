@@ -707,7 +707,7 @@ git commit -m "data(bench): freeze power-complete narrative corpora"
 - Consumes: frozen `NarrativeCase` values, current structured hints, Agent diagnostics, and `wilson_ci()`.
 - Produces: `NarrativeCaseOutcome`, `NarrativeClassMetric`, `NarrativeFpMetric`, `NarrativeEvidenceManifest`, `span_overlaps()`, `score_case()`, and `score_outcomes()`.
 
-- [ ] **Step 1: Write failing tests for the exact denominator semantics**
+- [x] **Step 1: Write failing tests for the exact denominator semantics**
 
 ```python
 def test_positive_tp_requires_class_exact_entity_set_and_span_overlap():
@@ -734,13 +734,13 @@ def test_any_surviving_hint_on_clean_is_one_false_positive_case():
 
 Also test partial parse failure remains an evaluated case, several hints on one clean case count once, extra wrong hints do not erase a correct positive TP, quote intervals are derived from exact dialogue offsets, and a manifest rejects missing/duplicate cases or tampered derived metrics.
 
-- [ ] **Step 2: Run scoring/evidence tests and verify RED**
+- [x] **Step 2: Run scoring/evidence tests and verify RED**
 
 Run: `uv run pytest tests/bench/narrative/test_evidence.py tests/bench/narrative/test_score.py -q`
 
 Expected: import failures for the missing modules.
 
-- [ ] **Step 3: Implement immutable outcome and metric models**
+- [x] **Step 3: Implement immutable outcome and metric models**
 
 Use these status values and required fields:
 
@@ -760,7 +760,7 @@ NarrativeFpMetric:
 
 `NarrativeEvidenceManifest` stores `schema_version="narrative-evidence@1"`, `split`, `protocol_sha256`, `corpus_manifest_sha256`, the exact `model_snapshot`, ordered outcomes, development or verification metrics, clean FP, and a self-hash. Its validator requires the stored model snapshot to equal the protocol snapshot, reloads outcome fields, groups cases by ground truth, recomputes every `n/k/count/rate/Wilson95`, and rejects a denominator that does not equal the frozen corpus.
 
-- [ ] **Step 4: Implement score rules without consulting model rationale**
+- [x] **Step 4: Implement score rules without consulting model rationale**
 
 `span_overlaps()` locates the hint's exact canonical sentence in `case.dialogue` and applies half-open interval overlap against `case.target_span`: `max(a.start, b.start) < min(a.end, b.end)`. A positive hint matches only when:
 
@@ -772,13 +772,13 @@ span_overlaps(case.dialogue, hint.span, case.target_span)
 
 Constraint IDs are retained as a diagnostic `constraint_match` but are not an additional TP condition, matching the approved class/entity/span definition. Rationale is never scored. A positive case is `detected=any(matches)`; a clean case is `false_positive=bool(hints)` regardless of hint class.
 
-- [ ] **Step 5: Run scoring/evidence tests and verify GREEN**
+- [x] **Step 5: Run scoring/evidence tests and verify GREEN**
 
 Run: `uv run pytest tests/bench/narrative/test_evidence.py tests/bench/narrative/test_score.py -q`
 
 Expected: all tests pass.
 
-- [ ] **Step 6: Commit scoring and evidence contracts**
+- [x] **Step 6: Commit scoring and evidence contracts**
 
 ```bash
 git add gameforge/bench/narrative/evidence.py gameforge/bench/narrative/score.py tests/bench/narrative/test_evidence.py tests/bench/narrative/test_score.py
