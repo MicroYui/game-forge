@@ -21,7 +21,7 @@ See `docs/superpowers/specs/` for the PRD and foundational contracts (single sou
 | **M2b-1** | Playtest agent core (state abstraction + planner/executor + verifier-grounding + reflection + main loop) + regression harness (completion rate + Wilson CI + random baseline) + planner/executor ablation | ✅ acceptance passing (REPLAY/scripted smoke) |
 | **M2b-2** | MemTrace episodic/transition/skill memory + deterministic recall, compactor comparison, and consistency quorum | ✅ acceptance passing |
 | Pre-M4: economy sink adapter | Plumb SELLS price/currency/buy_prob so the economy sim models real gold sinks from CSV; `economy_collapse` becomes economically fixable → **repair Fix Pass Rate 9/10 → 10/10** | ✅ acceptance passing |
-| Pre-M4: core contract corrections | Exact-base Patch rejection, producer-to-product `DROPS_FROM`, stable repair request identity, and active `gpt-5.6-sol` repair/generation evidence | ✅ `5fdfb32..586b579`; repair double-REPLAY **10/10**, full gate **961 passed, 1 skipped**, 7 import contracts kept |
+| Pre-M4: core contract corrections | Exact-base Patch rejection, producer-to-product `DROPS_FROM`, stable repair request identity, active `gpt-5.6-sol` repair/generation evidence, and checkout-stable benchmark provenance | ✅ `5fdfb32..cc0fbc4`; repair double-REPLAY **10/10**, full gate **962 passed, 1 skipped**, 7 import contracts kept |
 | **M3** | GameForge-Bench seeded corpus, complete metrics, real non-injected open-source defect corpus, and Eval view | 🔄 incomplete: Flare B0A returned terminal `insufficient_evidence`; Endless Sky remains `awaiting_human_evidence`; PRD §13.3/§16 remain unmet |
 | **M4** | Production hardening: observability/cost, lineage/rollback/audit, RBAC/approval, and full React console | ⬜ not started; blocked by the pre-M4 gates |
 
@@ -55,12 +55,13 @@ no dispositions, reviewer identity, or attestation, and no final candidate ledge
 decision exists. B0B and Adapter work are not authorized.
 
 The separate pre-M4 core-corrections slice is complete on commits `5fdfb32`,
-`f403a5c`, `35330e8`, `5adaab0`, and `586b579`: Patch application now fails closed
+`f403a5c`, `35330e8`, `5adaab0`, `586b579`, and `cc0fbc4`: Patch application now fails closed
 on stale bases and malformed preconditions; Aureus and Flare emit producer-to-product
 `DROPS_FROM`; repair request identity is stable without weakening base-bound Patch
-identity; and active repair/generation recordings use `openai/gpt-5.6-sol/pre-m4@1`.
+identity; active repair/generation recordings use `openai/gpt-5.6-sol/pre-m4@1`; and
+the seeded benchmark clean base uses checkout-independent logical source provenance.
 Two zero-live repair replays were byte-identical at 10/10. Historical M2 cassettes and
-frozen external evidence remain unchanged. The full repository gate is 961 passed,
+frozen external evidence remain unchanged. The full repository gate is 962 passed,
 1 skipped, with all 7 import contracts kept. Narrative BDR, Human-Edit-Distance,
 QA-hours, and BenchReport v2 remain separate pre-M4 debts.
 
