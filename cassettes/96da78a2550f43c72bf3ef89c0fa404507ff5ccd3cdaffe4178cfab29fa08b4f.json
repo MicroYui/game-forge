@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:96da78a2550f43c72bf3ef89c0fa404507ff5ccd3cdaffe4178cfab29fa08b4f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4449,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 1735,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 127,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1466875000
+      },
+      "created_at": 1783819100,
+      "id": "jPHlxpuJ3OkxtFkN60PDEgV2lEbwa/5slOHT8ImV4z3YNqEteOij4V+usT5k7oA2gP30vhMsmifQmHLVDa34tw9zXKPIgWoB5Bn/oip2KObj6YwNqgseiEpxuwKDOb9JZjPUCcDywR8+6Ry9XFrWLuSv/t3gr4WUS+auHOvGMqW+bF8Q3+0VXIfvEOEGuaJLA9yiwjrjXD9PDfa3JG8C1uLcvxulKp/s0k5cxTZMtX0WVW+F+2GI/zTp1hBdTF/Xbyk/Ai867uisbvOSDm65hjjH4bngwX2r061X/79VDprE+zn5t/8YsPbAzW6ZvW/t7QbNA28BRRyC//sarsi2MvKHIVd2dLAjw0LNCqDOnMORTJrZkVHxew4M6mh1mPjUd+tckFYH/SMXjcUl6X5vjkhaKbszzg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "BB+BQCe48dOVXpWobxsGOX8lTqd5bs4vs2Qx2KYMJ6SUEwxBvqvrslOd1yVaQAwfJs9G4QG/lvlI0d/amY9alFFrJ1Aw9crwU1+HTq6hB0ji9cGAEgE3XruFV+7GmOMpPIDofk1tcJMRUk5lYI5YKEFyB5NkgBV0zcXL3ARTjP4jcnWV2zwG7BlBe4iL0acWOj7NvZschEv2WEm+0NwNevsO8Ug/yg8h5ZQOfLwiW5UyriTF66g2Jt+7gDKd9fULMCdkg1kQjqSHztYCrG1x8r8HVZnpOrmZXN51MpNe9EPf+0nFwiO3xcxpfY0TlhTWOphxteuWsfpFUoAKDLHX6i8Ib6DDPDBxCOGdZ/q4Eaf8BAd++yPedEdVeKcoedFzsuKxykkOXY5L2IZRRhF6BinN22Q=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"op\":\"add_relation\",\"target\":\"rel_fix_potion_source\",\"old_value\":null,\"new_value\":{\"type\":\"DROPS_FROM\",\"src_id\":\"dt:wolf\",\"dst_id\":\"item:potion\"}}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "AN7ufI0r0BxqIj68kqAElR+1jYuNhTPwQRIxus9LCjANmkqpCIJcGJr6e6YUd7cXNNrK0LCCg1FYggNZ+vw/gMy+PWqAH2g6y6A+1Eq5xIai2KvFM3zLR3CvFQdxUn4SWPi1uZ2bRXrO0FVAQECsd8SV7NBuoZUrVqP8j5KnX8uWlt79km8ZdroPj18KnvYT1UC/l4JeGl+JUYc/qGgp155rZfoFqPKu9mHpE2afQ3fyxQdXK7XhMWGvSp9oneLBYcIh8Xj2Rc5P0eUTnHE0CILCE+9pB8xjh5lOfGT8n21k93tefMMn5G2WDgfcPtK+yTFqLpUSdPv26n7qcL4xXnQ+MhjZzy2g9oIpVi1OLSDq7IkiRr1zDglAaOmZRmXwHsU5w6ufc/U6Q7kOqkK3DbSVErNQ",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 1738,
+        "input_tokens_details": {
+          "cache_write_tokens": 1735,
+          "cached_tokens": 0
+        },
+        "output_tokens": 127,
+        "output_tokens_details": {
+          "reasoning_tokens": 76
+        },
+        "total_tokens": 1865
+      }
+    },
+    "response_normalized": "[{\"op\":\"add_relation\",\"target\":\"rel_fix_potion_source\",\"old_value\":null,\"new_value\":{\"type\":\"DROPS_FROM\",\"src_id\":\"dt:wolf\",\"dst_id\":\"item:potion\"}}]",
+    "token_usage": {
+      "input_tokens": 1738,
+      "output_tokens": 127,
+      "total_tokens": 1865
+    },
+    "tool_calls": []
+  }
+}

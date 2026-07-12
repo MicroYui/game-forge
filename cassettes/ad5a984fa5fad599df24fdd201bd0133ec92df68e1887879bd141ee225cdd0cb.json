@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "generation",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:ad5a984fa5fad599df24fdd201bd0133ec92df68e1887879bd141ee225cdd0cb",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 11627,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 1451,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 547,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2549375000
+      },
+      "created_at": 1783819300,
+      "id": "56aQvAAln8XQSwsnzhveVOSFGZ/knrZjBJbVyVj79kjbSjw+6UPaA14j+nz3edglephnZWjJdhV4ppqfCC/s7OBaLktk1EJobClsRURxzmIbPpmNwpC1Ul/MAAzbfjjVkiudueOsnKp3A87dNgrUufhApfF84/9FB7JqeNhzbS369XOHr2fAqUjGg4Fk+nqz3BBdQNq/bF31tB8sXCEGe044qW94JA8w85P+tfXidVzYQvzT42/xPsz40lmc5sG7assWwUeXOgjxUErIRtT3d3f6JlR4E9Ro0AJ8IegaE5fKJLuqGxilONZr5ghR2E6ZUM9RLm70RchZa/M8Iq2V2OXY01aKLd7ovxQhqhZpcrqNg6s9Jm7OHmdQg7WLfd1WPaxAtRS/Ttg67bdyWT0u5l1XLMR3Lg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "hLB5S2oiAurOf0i2ELeIHajF0d6AJH8OCXAWqsVk+h/t27z3qpPv/38MufcT+X0RunUTh6z8VLHqG9csAVKBgvxSzOsWFssq1CcJlSUmxGjprny83rKKBecn090FyUXRghS6mRN4b4W5LHri1RmN8l8aSk32943an4E9MT/P4PwcekHNdyJouASSp27gltbczm98/emzCjakRpfknuHm6pSY8Aj5uCP31CR6HWaZj7COC/ERp/qaq0GlkNlMoSQdIhr6gqaGBaGHk+QUKwsE31zsoDBE+V8v33Y2L5qj/2szone+zQ+22LiV9KW1w+cyYytAA45D4s63dPDezp0lufnOdBSPzED1TjIFEplwo9SLuS9KxJqC7CZUk1Q6tHW/DXCfow4lPL7bH+Qedvt3KFwYYOo=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"op\":\"add\",\"target\":\"quest:herbal_help\",\"old_value\":null,\"new_value\":{\"id\":\"quest:herbal_help\",\"type\":\"QUEST\",\"attrs\":{\"giver\":\"npc:qi\",\"region\":\"region:outpost\",\"reward\":{\"gold\":40},\"title\":\"Herbal Help\"}}},{\"op\":\"add\",\"target\":\"step:herbal_help:1\",\"old_value\":null,\"new_value\":{\"id\":\"step:herbal_help:1\",\"type\":\"QUEST_STEP\",\"attrs\":{\"count\":1,\"encounter\":null,\"item\":null,\"kind\":\"talk\",\"order\":0,\"quest_id\":\"quest:herbal_help\",\"target\":\"npc:qi\"}}},{\"op\":\"add\",\"target\":\"step:herbal_help:2\",\"old_value\":null,\"new_value\":{\"id\":\"step:herbal_help:2\",\"type\":\"QUEST_STEP\",\"attrs\":{\"count\":1,\"encounter\":null,\"item\":\"item:herb\",\"kind\":\"collect\",\"order\":1,\"quest_id\":\"quest:herbal_help\",\"target\":null}}},{\"op\":\"add\",\"target\":\"step:herbal_help:3\",\"old_value\":null,\"new_value\":{\"id\":\"step:herbal_help:3\",\"type\":\"QUEST_STEP\",\"attrs\":{\"count\":1,\"encounter\":null,\"item\":null,\"kind\":\"turn_in\",\"order\":2,\"quest_id\":\"quest:herbal_help\",\"target\":\"npc:qi\"}}}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "dmEGvxdBqzwxURgr351FEzZH01gX8P2f6YXBaaJqKbsX970Yb1R+YOOZcgecT2RAVOWLpH+fhS0qCjHs0ciAd6vux4jSJlotmOGf1fPl7ykDC9coLIvnX20vt6G28F+veCwPeELl1TFFwg3fgD9Yk6NJ3pZmQ9CenPEcM14JG8GCbf/tFtZYIg7hO/Ok4h6QcEKLJcfGkxrBaQUOO2rVm5FmOIUeb9g4B49DJ8AhADtSF/b6pN6WHzvCXeVXYCi7rXtkZDtT2iMg0kVcvy2HgiWsLx4NcDDDQRRnrSxpE6PU6ScUbbPH8jFdS9XAHdH9PzaVRf3xJykgOlL9dfuNedohCH8xiNecyoCqW1ZAUw5567wCraEn2ZcmALAzRIxvvEF0SD2Fl3URxa8OdQiP6QUiF643",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 1454,
+        "input_tokens_details": {
+          "cache_write_tokens": 1451,
+          "cached_tokens": 0
+        },
+        "output_tokens": 547,
+        "output_tokens_details": {
+          "reasoning_tokens": 249
+        },
+        "total_tokens": 2001
+      }
+    },
+    "response_normalized": "[{\"op\":\"add\",\"target\":\"quest:herbal_help\",\"old_value\":null,\"new_value\":{\"id\":\"quest:herbal_help\",\"type\":\"QUEST\",\"attrs\":{\"giver\":\"npc:qi\",\"region\":\"region:outpost\",\"reward\":{\"gold\":40},\"title\":\"Herbal Help\"}}},{\"op\":\"add\",\"target\":\"step:herbal_help:1\",\"old_value\":null,\"new_value\":{\"id\":\"step:herbal_help:1\",\"type\":\"QUEST_STEP\",\"attrs\":{\"count\":1,\"encounter\":null,\"item\":null,\"kind\":\"talk\",\"order\":0,\"quest_id\":\"quest:herbal_help\",\"target\":\"npc:qi\"}}},{\"op\":\"add\",\"target\":\"step:herbal_help:2\",\"old_value\":null,\"new_value\":{\"id\":\"step:herbal_help:2\",\"type\":\"QUEST_STEP\",\"attrs\":{\"count\":1,\"encounter\":null,\"item\":\"item:herb\",\"kind\":\"collect\",\"order\":1,\"quest_id\":\"quest:herbal_help\",\"target\":null}}},{\"op\":\"add\",\"target\":\"step:herbal_help:3\",\"old_value\":null,\"new_value\":{\"id\":\"step:herbal_help:3\",\"type\":\"QUEST_STEP\",\"attrs\":{\"count\":1,\"encounter\":null,\"item\":null,\"kind\":\"turn_in\",\"order\":2,\"quest_id\":\"quest:herbal_help\",\"target\":\"npc:qi\"}}}]",
+    "token_usage": {
+      "input_tokens": 1454,
+      "output_tokens": 547,
+      "total_tokens": 2001
+    },
+    "tool_calls": []
+  }
+}

@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:3ef7f9369bf1fb456738cbb843460dbfe277ddf49978ae7950dc75ff82ac151f",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2203,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 1730,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 53,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1241750000
+      },
+      "created_at": 1783819100,
+      "id": "Ez4f9ny9adH4iqtIm2SrAJgzDDMzm/vrdYDM1jRxxEEM6ruBo6757/sJtgr8Sxak7k+8KRHDRFzvPRG9Sm/1rJvpQv4nMtsMlmZMHmwbO3mrLh0sAxX2VqDMKlk5Qpi43Z2ttqh26E/StY3M5uHPkYD7xsDh+Nce1EjqPtkWWQ5AM19qdpgIpglxSMRRC/0c+2oaD7X906AGHq8pkj5bFAN2J+duPgXBU+eNIvdsgpx/gzLV9tkuFdTk9NNS8sG0lz9y7Na9VZnEsKCSklQgAvrpagYzCqlwXu7/CMgtH/2F+U6Q6bX1qQwRhYNQeyu2eMbHV3Rl41L2utWNHRDKaFxyrsNUwPpGWFmQvTkTUdzDw0u62Yhv0IzwnbOfP+RSGzfABAytB+otBwKp8Pzuh/QahwvNXQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"op\":\"add_relation\",\"target\":\"rel_fix_outpost_starts_at_qi\",\"old_value\":null,\"new_value\":{\"type\":\"STARTS_AT\",\"src_id\":\"quest:outpost\",\"dst_id\":\"npc:qi\"}}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "P44get1B2sEZWMpvjEoGn9zo+kMT7/cIoWxRikQqfO9h3aJ374AsKUq2vsEYKi1N9Xh0QHWGlYwMWPz/F+UlOPyiIFahlA7Ad4lptUt9wiQ4wvmrSLsVw0Nq9ZLPXH0YsyYkIn1eJUe386ChFVUKYyeBNyRyr2mHrHaHwd6fe5lAGR8abiANaISNQdaDb86xr7sDseSy/Gj7cQo95Mm0lBTCsR3LCJOaewPSGYyqi/G96fIrhuA+NGFSecXcK5xScuBWKyHMwsmbP7tBHAGbPHUc7X1p1TGfOj9TLaMRzkQKjoT64a8gheU4cEvHfBY9XXQltT7315K5T6j4oC2a111J6QOI7EKxyPww7+UR3R7HHsEuk7AxqfBWCscd9b0oeWupbq5KzzLm9FwQw6MO3TYtXIps",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 1733,
+        "input_tokens_details": {
+          "cache_write_tokens": 1730,
+          "cached_tokens": 0
+        },
+        "output_tokens": 53,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 1786
+      }
+    },
+    "response_normalized": "[{\"op\":\"add_relation\",\"target\":\"rel_fix_outpost_starts_at_qi\",\"old_value\":null,\"new_value\":{\"type\":\"STARTS_AT\",\"src_id\":\"quest:outpost\",\"dst_id\":\"npc:qi\"}}]",
+    "token_usage": {
+      "input_tokens": 1733,
+      "output_tokens": 53,
+      "total_tokens": 1786
+    },
+    "tool_calls": []
+  }
+}

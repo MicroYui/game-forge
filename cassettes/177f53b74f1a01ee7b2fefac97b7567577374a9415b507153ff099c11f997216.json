@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:177f53b74f1a01ee7b2fefac97b7567577374a9415b507153ff099c11f997216",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6569,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 1474,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 234,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1624750000
+      },
+      "created_at": 1783819100,
+      "id": "p/Wlmg4UXJAzPor7Sl1faGNgaQoPLZqNtCOcekT6G+j6tiPXvNmFSxI/Nknt6tpKL2mJdMpO8TFSaZfXCWe/lFYiZUs1hP75AS6wa0yh3J/vKFBXQ2gQIZr9u2IJUsqRu2DxT0rm1M1rhqjl4SgCh2+EIkW1znmYuNMnJtipe4c7VEvsc/E5LjZQdbQIQ8HXcQBaRfGw8US0Vr1RT7wN9HFeqSffNzQv36ONW9XEaFKIpb0ZSAivhL2HGygObBCXR454cFwRBX31Wt2s9GXGz6i5k/nJbNhH93DLjH+2Lgs5EbPkO2KFANwqtdYbskNThDuNSFXifA8ABw8E2+/YxuYPGTFkIW2XTvuIK0p6s8eeJi7dT+VfPJvkSsWh3tqWufpCSfVRjT442LU4IpkxTEvXf8p92A==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "2Ye0L/cJt5JpIZyMHtZRxAkhkG8+IyPDcRSIsY5a1QZ0PGZ+kRLlbhu/PGOLLQTAEvTY3Oyy3H8X/TzzTQkWFr1eurfzzUZzTU3C4DMccmcEvUdZcO1rJ3i7HTrG9L6VmeW7FXW45KZoK/Cm7AurWiPt9Vqiywc8cAk2azSXVXLqc+FW+KKmk+pjbTHiPuLdqr57RF/hYp3XRY5jSM1rq57LNy0ZSvcWGN2YJrORCb8R1qOjAT5ou6/qIAEQOquIPPNQzFkgvlx2H2dldL4MKndJV+rKVzfxy3bjYnxx1PXJDMMKlGKwFa4wcnjQ6oBrC1Zhs/4umAFTEWlaIxmwqkT06tyxT+DnhbZmsmML3FUfnrdQbJgWSu4hGQ+SyYKItNWEPuY8AQZAgnuJ0Iqs9k+2jTQ=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"op\":\"set_entity_attr\",\"target\":\"gp:relic.pity_threshold\",\"old_value\":10,\"new_value\":5}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "slumW3ZYRm+4AGXGxEsRky9FXcCJHhpva8WAGA9DuTfVHqRXQkJv7zGwhq/sFjOcyN8vIVh7O9yQ8EE1v3nNUy0bQbgoiUaUvVgZlZVeCcQEZpGg8CAAe2StsD9ECCcDODSCqwCJHI6vlGmQKQVKDeunus1Eu0VUqZX1Xe6dyJhtAGQ+1ULjB1bCPShD6Xmn1ze4HBLEhz9zPqZYXE1q1KWAZ06QTB4SiOimGIdQ5s0NSDbo6DEBprYUMcnM2UshU50YQx+sfMyoNtdimLQ7wTmEI2/AFetJ6hVqdMrnkW0byI1a1LBmclYGDOFZRVrowoPsjlhxoAiYaoDAyPnv2LOIy5syvYdJ23tLMc6mVBz4pq0mT+5HC3Nnr+sPOtSnRwE/hZ1XRS0gSjmaCR+W+mn4A4ZV",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 1477,
+        "input_tokens_details": {
+          "cache_write_tokens": 1474,
+          "cached_tokens": 0
+        },
+        "output_tokens": 234,
+        "output_tokens_details": {
+          "reasoning_tokens": 200
+        },
+        "total_tokens": 1711
+      }
+    },
+    "response_normalized": "[{\"op\":\"set_entity_attr\",\"target\":\"gp:relic.pity_threshold\",\"old_value\":10,\"new_value\":5}]",
+    "token_usage": {
+      "input_tokens": 1477,
+      "output_tokens": 234,
+      "total_tokens": 1711
+    },
+    "tool_calls": []
+  }
+}

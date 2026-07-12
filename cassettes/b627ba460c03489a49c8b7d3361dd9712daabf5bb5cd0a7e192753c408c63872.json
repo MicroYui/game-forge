@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:b627ba460c03489a49c8b7d3361dd9712daabf5bb5cd0a7e192753c408c63872",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 1601,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 1807,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 31,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1223875000
+      },
+      "created_at": 1783819300,
+      "id": "RdbXXSuJ1p/7j50GkKWK6msostcGUvJlYMD/5vxAR7bvKfA+WO+weRhdBLVCaUu3r4cay5XFHKSlX5h6ehEhDVn9mUlkf2dozLpsIW+x+Qa/RwtXhQZfMT3xwvZQo9bveGdrwkNSNi1GPjAJAJkyjfSrdo1UeAMXxeFv//ps3nPuLneVy1HrHhJnSF6yn1r6Avp9efIy0QqthvyfyB+Uf+G7VhzGFl8nJf7vvn8bYvVbxk0JV7WWuVo+T4Kvh5nGyyP5e6sbfGEh4t7JdgSlD7JmtnhnJKtVUBOk0W+03VoPFCTclNd7rUmMnOnI9NBkIz+B9R5Mt5N6l2ckLFs2D6GT3U59TxSe1oRgiIaC0itsAOs57OM7eBXpNDteuJvu5YQOi7pw2NNfU0NWVnr3wn4vcx8c8w==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"op\":\"set_entity_attr\",\"target\":\"quest:outpost.reward.gold\",\"old_value\":500,\"new_value\":150}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "q7oLykwdK+EPaOHehK5BGQXLrOYnOjwdtGSALIABcumbny73sKQzUyDhpbc1geEDkXpy05eMj2ec2cm0QXpxaD5zar+WBBqkBqQKN8/5Hj/lF0Dw7FU9XOMfiAgzPeVVNkGWEuIkaCdz6Ff3c7CHODS00VPVpbr8mvAXFLY6Op2froFmiwg7MiDkxthoQJWz4B/IeQWIxx3T8R6N+Zwujt6GrXMFMZrii1sdgCbS5Lt19CRJSPNGKozVFHLO1UMRhQjdFuMA7s7hvhVBRFUFibMC/XOsF5qbzexLz9AIFmftAqEhIp1gqbAoM8KbwN3m2MbvvrINLmUsbBsmRU5u4cZskxqor5fvyqnFsAC8IOGESLqx1XeeOOJMep0qclwHuJwO7nMBoay0+y5iFF1MMgTH2ki0",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 1810,
+        "input_tokens_details": {
+          "cache_write_tokens": 1807,
+          "cached_tokens": 0
+        },
+        "output_tokens": 31,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 1841
+      }
+    },
+    "response_normalized": "[{\"op\":\"set_entity_attr\",\"target\":\"quest:outpost.reward.gold\",\"old_value\":500,\"new_value\":150}]",
+    "token_usage": {
+      "input_tokens": 1810,
+      "output_tokens": 31,
+      "total_tokens": 1841
+    },
+    "tool_calls": []
+  }
+}

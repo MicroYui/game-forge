@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:f5dc349a1dfa25cd3da603bbdcdc1dddeaea53c934bf25e733b946c8b6eb1b14",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2520,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 1662,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 58,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 1214250000
+      },
+      "created_at": 1783819100,
+      "id": "P5jfJdNHHK7+pGUGeSRJVeGysBAUGkADz2/1ehLydxKJC/kmRQWxcirrlu3HlHEDpGdWe2pQZmLi4vv7kaoi2YvC/Ft1odmymkB7/AbXvpqpuTUpEZNbgYGaJUsJfH4xMj/bqMBFbml64dSudBAo0CRkXpTdrT/zhpiVFTp5wNMALPVmWC2tZwUgDJx7neJlkJHVKatpwxWFisLReS/lnyusixFSNUHxcY7uhl4twC2jDEdA3LDrJl9UcgD+CnPl/ixd9sFbyNs6dVeMHnZwEVFNhbXGKYOjrSs5Q10DOCUKCJnvR0Pc3hhm+l5LpGt9OwTD93vP4clBVcUAPVX166EFx9ui4sDoE2xeZxNOfYAx1hJd4Dq55xYrX+a2a/O4JqsL2qNomltoaA/bu8jrb8Ht4f3ZIw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"op\":\"delete_relation\",\"target\":\"rel:PRECEDES:step:c1->step:c1:14\",\"old_value\":{\"type\":\"PRECEDES\",\"src_id\":\"step:c1\",\"dst_id\":\"step:c1\"},\"new_value\":null}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "a5D4eWK+I/xl0Fm+UDDqHXmHzvSZYBY4J9pswjX8udDjzhBTHod4D/AsT/6srAIaAVyTncXsoq0bHWdN6eTBvxoevVG+SjpbZ+frcvbu3L6myGfMARFyY5gP1zLRRMPsG02NEUQRktmzrYUTPK4hL3Q9c64LnlVDkbgTsKbYVjWabRl9Gqryn/5Ws9XktHQFXg/gkge9RsA2Jz2b28AW37y/ZSzEZJ0cTS/k2Gzu9o79tt9nsQSJVi8JGpEMdOCv7x5sWFvkIGfZOy3QNpVyn1xeJqM09frCM2LAqKtWNfKUt3lT9yvhiS/dq9TMnJQyNI1CrG/qbtaWuWomKKDqdN6ZlxM92NgXHxmKbesD+Jl4M5IHoWX2A7gJToD5kRay79e1SJLkpCbLYNJU47nUyLI0VBKG",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 1665,
+        "input_tokens_details": {
+          "cache_write_tokens": 1662,
+          "cached_tokens": 0
+        },
+        "output_tokens": 58,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 1723
+      }
+    },
+    "response_normalized": "[{\"op\":\"delete_relation\",\"target\":\"rel:PRECEDES:step:c1->step:c1:14\",\"old_value\":{\"type\":\"PRECEDES\",\"src_id\":\"step:c1\",\"dst_id\":\"step:c1\"},\"new_value\":null}]",
+    "token_usage": {
+      "input_tokens": 1665,
+      "output_tokens": 58,
+      "total_tokens": 1723
+    },
+    "tool_calls": []
+  }
+}
