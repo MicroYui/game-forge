@@ -187,7 +187,7 @@ class DistributionMetric(StrictModel):
 
 Add strict models for `PowerMetric`, `EvidenceArtifactRef`, `VersionRef`, `ExternalSection`, `NarrativeSection`, `HedSection`, `QaSection`, `TokenTotals`, `AgentCostSection`, `DeterministicRuntimeSection`, `CostLatencySection`, `BenchMeta`, and `BenchReport` with `schema_version="bench-report@2"`.
 
-- [ ] **Step 1: Write failing strict-contract tests**
+- [x] **Step 1: Write failing strict-contract tests**
 
 ```python
 def test_pending_metric_has_null_estimates_not_fake_zero():
@@ -219,17 +219,17 @@ def test_load_report_rejects_v1_with_clear_schema_error(tmp_path):
 
 Also test `k <= evaluated_n <= planned_n`, complete/null estimate sets, finite floats, CI ordering, `underpowered` vs `measured`, canonical JSON float parsing, unique metric identities, unique evidence/version refs, section-specific bucket constraints, and `BenchReport` requiring exactly 15 distinct defect classes across seeded+narrative.
 
-- [ ] **Step 2: Run the contract tests and verify RED**
+- [x] **Step 2: Run the contract tests and verify RED**
 
 Run: `uv run pytest tests/bench/test_bench_report.py -q`
 
 Expected: import failure because `report_contracts.py` and v2 types do not exist.
 
-- [ ] **Step 3: Implement factories, validation, and canonical I/O**
+- [x] **Step 3: Implement factories, validation, and canonical I/O**
 
 `BinaryMetric.wilson()` calls the existing `wilson_ci`; `DistributionMetric.measured()` computes no statistics itself and validates a complete caller-supplied set. `canonical_report_bytes()` uses `canonical_json(report.model_dump(mode="json")) + "\n"`. `load_bench_report()` checks the raw `schema_version` before Pydantic validation and rejects anything except `bench-report@2`.
 
-- [ ] **Step 4: Run focused tests and commit**
+- [x] **Step 4: Run focused tests and commit**
 
 Run:
 
@@ -246,6 +246,11 @@ git add gameforge/bench/report_contracts.py tests/bench/test_bench_report.py
 git diff --cached --check
 git commit -m "feat(bench): define BenchReport v2 contracts"
 ```
+
+Task 2 result: RED failed on the absent v2 module. The strict metric/section/report
+contracts, canonical reader/writer, v1 rejection, evidence-reference validation,
+and 15-class completeness checks are GREEN with `15 passed`; Ruff and
+`git diff --check` pass.
 
 ---
 
