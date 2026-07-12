@@ -79,6 +79,25 @@ def test_retry_recovers_from_transient_failure(tmp_path):
     resp = router.call(req)
     assert resp.response_normalized == "ok-after-retry"
     assert flaky.calls == 3  # 1 initial + 2 retries
+    record = CassetteStore(tmp_path).replay(request_hash(req))
+    assert record.transport_attempts == 3
+    assert record.transport_retries == 2
+
+
+def test_first_attempt_success_is_recorded_without_retries(tmp_path):
+    req = _req()
+    store = CassetteStore(tmp_path)
+    router = ModelRouter(
+        StubTransport({request_hash(req): ModelResponse(response_normalized="ok")}),
+        store,
+        mode=RouterMode.RECORD,
+    )
+
+    router.call(req)
+
+    record = store.replay(request_hash(req))
+    assert record.transport_attempts == 1
+    assert record.transport_retries == 0
 
 
 def test_retry_exhausted_raises(tmp_path):
@@ -88,6 +107,7 @@ def test_retry_exhausted_raises(tmp_path):
     with pytest.raises(RuntimeError):
         router.call(req)
     assert flaky.calls == 3  # 1 initial + 2 retries, then gives up
+    assert CassetteStore(tmp_path).replay(request_hash(req)) is CASSETTE_MISS
 
 
 def test_record_resume_reuses_on_disk_cassettes(tmp_path):

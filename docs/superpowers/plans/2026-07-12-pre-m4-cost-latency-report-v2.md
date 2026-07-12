@@ -62,7 +62,7 @@
 - Historical records with neither field remain valid and byte-untouched.
 - New successful RECORDs persist `attempts >= 1` and `retries == attempts - 1`.
 
-- [ ] **Step 1: Write failing cassette compatibility and retry tests**
+- [x] **Step 1: Write failing cassette compatibility and retry tests**
 
 ```python
 def test_historical_cassette_without_attempt_fields_remains_valid():
@@ -82,13 +82,13 @@ def test_record_persists_exact_transport_attempts_after_retries(tmp_path):
 
 Also test first-attempt success stores `1/0`, exhausted retries write no cassette, PASSTHROUGH behavior remains unchanged, and `transport_retries` cannot differ from `transport_attempts - 1`.
 
-- [ ] **Step 2: Run the focused tests and verify RED**
+- [x] **Step 2: Run the focused tests and verify RED**
 
 Run: `uv run pytest tests/runtime/cassette/test_cassette_store.py tests/runtime/model_router/test_router.py -q`
 
 Expected: new field assertions fail because the contract and router do not preserve attempt counts.
 
-- [ ] **Step 3: Implement the additive cassette fields and retry return value**
+- [x] **Step 3: Implement the additive cassette fields and retry return value**
 
 Use strict nonnegative validation and a model validator:
 
@@ -114,7 +114,7 @@ class CassetteRecord(BaseModel):
 
 Change `_complete_with_retry()` to return `(ModelResponse, attempts_used)` and populate the fields only when a new RECORD is written. Do not rewrite a record returned by `resume=True`.
 
-- [ ] **Step 4: Run focused tests, historical parsing, and commit**
+- [x] **Step 4: Run focused tests, historical parsing, and commit**
 
 Run:
 
@@ -132,6 +132,12 @@ git add gameforge/contracts/cassette.py gameforge/runtime/model_router/router.py
 git diff --cached --check
 git commit -m "feat(runtime): preserve cassette transport attempts"
 ```
+
+Task 1 result: focused RED failed only on absent attempt fields/persistence.
+GREEN and runtime-model-router regression completed with `39 passed, 1 skipped`;
+Ruff and `git diff --check` passed. Historical records continue to parse with
+unknown attempt counts, while new successful RECORDs persist exact attempts and
+retries.
 
 ---
 

@@ -89,7 +89,7 @@ class ModelRouter:
             if rec is not CASSETTE_MISS:
                 self._session_cache[h] = rec.response
                 return rec.response
-        resp = self._complete_with_retry(req)
+        resp, transport_attempts = self._complete_with_retry(req)
 
         if self._mode is RouterMode.RECORD:
             self._store.record(
@@ -98,12 +98,14 @@ class ModelRouter:
                     agent_node_id=req.agent_node_id,
                     model_snapshot=req.model_snapshot,
                     response=resp,
+                    transport_attempts=transport_attempts,
+                    transport_retries=transport_attempts - 1,
                 )
             )
         self._session_cache[h] = resp
         return resp
 
-    def _complete_with_retry(self, req: ModelRequest) -> ModelResponse:
+    def _complete_with_retry(self, req: ModelRequest) -> tuple[ModelResponse, int]:
         last: Exception | None = None
         attempts = self._max_retries + 1
         for attempt in range(attempts):
@@ -111,7 +113,7 @@ class ModelRouter:
                 raise QuotaExceeded(f"live-call quota {self._max_calls} exhausted")
             self._live_calls += 1  # count EVERY real transport attempt (retries included)
             try:
-                return self._transport.complete(req)
+                return self._transport.complete(req), attempt + 1
             except Exception as exc:  # transient gateway errors → retry then degrade
                 last = exc
                 if self._retry_backoff_s > 0 and attempt < attempts - 1:
