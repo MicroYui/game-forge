@@ -84,8 +84,12 @@ def test_dialogue_input_carries_statements_without_hidden_ground_truth():
 
 
 def test_legacy_dialogue_input_remains_constructible():
-    value = DialogueNarrativeInput(dialogue="Legacy input", narrative_constraint_ids=["C-legacy"])
+    value = DialogueNarrativeInput(
+        dialogue="Legacy input\n",
+        narrative_constraint_ids=["C-legacy"],
+    )
     assert value.narrative_constraints == []
+    assert value.dialogue == "Legacy input\n"
 
 
 def test_structured_constraint_requires_grounded_entities():

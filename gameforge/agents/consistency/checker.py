@@ -45,12 +45,18 @@ class ConsistencyChecker:
                     producer_id=self.id,
                     producer_run_id=result.model_run_id,
                     oracle_type="llm-assisted",
-                    defect_class="narrative_inconsistency",
+                    defect_class=hint["defect_class"],
                     severity="major",
                     snapshot_id=snapshot.snapshot_id,
-                    evidence={"span": hint["span"]},
+                    entities=hint["entity_ids"],
+                    constraint_id=hint["constraint_ids"][0],
+                    evidence={
+                        "span": hint["span"],
+                        "rationale": hint["rationale"],
+                        "constraint_ids": hint["constraint_ids"],
+                    },
                     status="unproven",
-                    message=hint["issue"],
+                    message=hint["rationale"],
                 )
             )
         return findings

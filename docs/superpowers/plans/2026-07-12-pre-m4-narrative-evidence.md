@@ -276,7 +276,7 @@ git commit -m "feat(agents): normalize grounded narrative hint identity"
 - Consumes: Task 1 contracts, Task 2 normalization, Model Router `call_model()`, current prompt registry, and historical M2 cassettes.
 - Produces: `ConsistencyAssistant.run()` for `consistency@2`, `ConsistencyAssistant.run_legacy_m2()` for byte-identical `consistency@1` replay, and class-specific `Finding` conversion.
 
-- [ ] **Step 1: Rewrite the focused tests against structured outputs and three method perspectives**
+- [x] **Step 1: Rewrite the focused tests against structured outputs and three method perspectives**
 
 Use this shared valid response shape in the current tests:
 
@@ -312,7 +312,7 @@ Tests must prove:
 - the three system prompts each name all four classes and differ by reasoning method, not assigned class;
 - `ConsistencyChecker` emits the hint's real defect class, exact entity list, primary constraint ID, full constraint IDs and quoted span in evidence, rationale as message, and strict llm-assisted/unproven partitioning.
 
-- [ ] **Step 2: Add the historical replay test and verify the current code is GREEN before refactoring**
+- [x] **Step 2: Add the historical replay test and verify the current code is GREEN before refactoring**
 
 ```python
 def test_m2_opus_consistency_cassettes_replay_without_rewrite():
@@ -342,19 +342,19 @@ def test_m2_opus_consistency_cassettes_replay_without_rewrite():
 
 Before editing, run `git hash-object cassettes/*.json | sort > /tmp/gameforge-m2-cassettes.before`.
 
-- [ ] **Step 3: Run current-agent tests and verify RED**
+- [x] **Step 3: Run current-agent tests and verify RED**
 
 Run: `uv run pytest tests/agents/test_consistency.py tests/agents/test_consistency_perspective.py tests/agents/test_part2_acceptance.py tests/agents/test_consistency_legacy_replay.py -q`
 
 Expected: current-path failures because the prompts and parser still use `(span, issue)`, plus a missing `run_legacy_m2()` method.
 
-- [ ] **Step 4: Preserve the old implementation as an explicit compatibility path**
+- [x] **Step 4: Preserve the old implementation as an explicit compatibility path**
 
 Move the existing @1 `(span, issue)` parser, temporal/identity/spoiler perspectives, tally, and rebuttal behavior into `legacy.py` without changing its system strings, user prompt bytes, prompt versions, parameter defaults, ordering, or request construction. Register the old strings under `consistency.legacy.*` names but continue passing the exact `consistency@1#p_*` and `consistency@1#r_*` version strings to `call_model()`.
 
 `ConsistencyAssistant.run_legacy_m2()` delegates to that frozen implementation and explicitly sets `agent_io_schema_version=M2_AGENT_IO_SCHEMA_VERSION`. Change `agents.harness._record_agent_samples()` to call only `run_legacy_m2()` with `historical_replay_router()`; it must never attempt to record new @2 data into the root M2 cassette set.
 
-- [ ] **Step 5: Register the current prompt bundle**
+- [x] **Step 5: Register the current prompt bundle**
 
 The `consistency@2` base prompt must require only a JSON array with these keys:
 
@@ -374,7 +374,7 @@ Every method prompt reviews all four classes:
 
 The rebuttal variants receive full structured disputed hints and may return only an exact subset of those identities. They do not introduce a new hint.
 
-- [ ] **Step 6: Implement the current assistant over normalized keys**
+- [x] **Step 6: Implement the current assistant over normalized keys**
 
 `ConsistencyAssistant.run()` gains keyword arguments:
 
@@ -413,7 +413,7 @@ Build the user prompt from numbered structured constraints and the dialogue. Do 
 
 A top-level parse failure yields an empty vote for that perspective. Invalid individual items are dropped and counted in `raw_items - accepted_items`. `fallback_taken` is true only when every first-round perspective has `parse_ok=False`; empty but valid arrays are not fallback.
 
-- [ ] **Step 7: Map structured hints to complete llm-assisted Findings**
+- [x] **Step 7: Map structured hints to complete llm-assisted Findings**
 
 For every kept hint, construct:
 
@@ -441,7 +441,7 @@ Finding(
 
 Never read benchmark facts or ground truth in `ConsistencyChecker`.
 
-- [ ] **Step 8: Run all current and legacy consistency tests**
+- [x] **Step 8: Run all current and legacy consistency tests**
 
 Run: `uv run pytest tests/agents/test_consistency.py tests/agents/test_consistency_perspective.py tests/agents/test_part2_acceptance.py tests/agents/test_consistency_legacy_replay.py tests/agents/test_model_recording_policy.py -q`
 
@@ -457,7 +457,7 @@ git diff --exit-code -- cassettes
 
 Expected: `cmp` and `git diff` both exit 0.
 
-- [ ] **Step 9: Commit the Agent upgrade and compatibility path**
+- [x] **Step 9: Commit the Agent upgrade and compatibility path**
 
 ```bash
 git add gameforge/agents/consistency gameforge/agents/prompts/library.py gameforge/agents/harness.py tests/agents

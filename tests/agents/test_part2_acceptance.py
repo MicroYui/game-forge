@@ -35,6 +35,7 @@ from gameforge.contracts.agent_io import (
     DesignGoalInput,
     DialogueNarrativeInput,
     FindingsInput,
+    NarrativeConstraintInput,
 )
 from gameforge.contracts.dsl import Constraint
 from gameforge.contracts.findings import Finding
@@ -126,7 +127,13 @@ def test_repair_search_reproducible():
 # 3. Deterministic vs llm-assisted findings are STRICTLY partitioned
 #    (no repair cassettes needed — fixed transport for the consistency samples)
 # --------------------------------------------------------------------------
-_MAJORITY_HINT = {"span": "the Warden fell three nights ago", "issue": "contradicts elder"}
+_MAJORITY_HINT = {
+    "defect_class": "spoiler",
+    "entity_ids": ["npc:guard", "secret:warden"],
+    "constraint_ids": ["C-warden-reveal"],
+    "span": "The guard names the Warden as Mara.",
+    "rationale": "The identity is named before its reveal gate.",
+}
 
 _DET_CONSTRAINT_YAML = """
 - id: C-test-reward-cap
@@ -149,15 +156,24 @@ def test_deterministic_and_llm_strictly_partitioned(tmp_path):
     det_checkers = compile_all(Constraint.from_yaml(_DET_CONSTRAINT_YAML))
 
     by_variant = {
-        "consistency@1#p_temporal": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#p_identity": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#p_spoiler": "[]",  # 2/3 perspectives agree — passes without rebuttal
+        "consistency@2#p_constraint_matching": json.dumps([_MAJORITY_HINT]),
+        "consistency@2#p_causal_world_state": json.dumps([_MAJORITY_HINT]),
+        "consistency@2#p_adversarial_falsification": "[]",
     }
     router = _passthrough(_PerVariantTransport(by_variant), tmp_path)
     consistency_checker = ConsistencyChecker(
         ConsistencyAssistant(),
         router,
-        DialogueNarrativeInput(dialogue="The Warden is dead. / The Warden lives."),
+        DialogueNarrativeInput(
+            dialogue="The archive is sealed. The guard names the Warden as Mara.",
+            narrative_constraints=[
+                NarrativeConstraintInput(
+                    constraint_id="C-warden-reveal",
+                    entity_ids=["npc:guard", "secret:warden"],
+                    statement="The Warden's identity may be named only after the archive opens.",
+                )
+            ],
+        ),
     )
 
     report = build_review_report(snap, [*det_checkers, consistency_checker])

@@ -1,8 +1,18 @@
+from __future__ import annotations
+
 import json
 
+import pytest
+
+from gameforge.agents.base import DEFAULT_SNAPSHOT
 from gameforge.agents.consistency.assistant import ConsistencyAssistant
 from gameforge.agents.consistency.checker import ConsistencyChecker
-from gameforge.contracts.agent_io import DialogueNarrativeInput
+from gameforge.agents.prompts.library import register_all_prompts
+from gameforge.agents.prompts.registry import get_prompt
+from gameforge.contracts.agent_io import (
+    DialogueNarrativeInput,
+    NarrativeConstraintInput,
+)
 from gameforge.contracts.ir import Entity, NodeType
 from gameforge.contracts.model_router import ModelResponse
 from gameforge.runtime.cassette.store import CassetteStore
@@ -12,11 +22,6 @@ from gameforge.spine.ir.snapshot import Snapshot
 
 
 class _PerVariantTransport:
-    """Returns a different canned response per prompt_version (agent-logic test
-    double, no network) — lets a test give each perspective sample (and each
-    rebuttal round query) its own scripted answer. Any variant not explicitly
-    scripted defaults to "[]" (an empty, well-formed sample)."""
-
     def __init__(self, by_prompt_version: dict[str, str]):
         self._by = by_prompt_version
         self.calls = []
@@ -28,203 +33,318 @@ class _PerVariantTransport:
 
 def _router(by_prompt_version, tmp_path):
     return ModelRouter(
-        _PerVariantTransport(by_prompt_version), CassetteStore(tmp_path), mode=RouterMode.PASSTHROUGH
+        _PerVariantTransport(by_prompt_version),
+        CassetteStore(tmp_path),
+        mode=RouterMode.PASSTHROUGH,
     )
 
 
-def _dialogue_input():
-    return DialogueNarrativeInput(dialogue="The hero reveals the ending twist early.")
+def _dialogue_input() -> DialogueNarrativeInput:
+    return DialogueNarrativeInput(
+        dialogue=(
+            "The archive remains sealed. "
+            "Qi says the Warden is Mara. "
+            "The bells continue through dusk."
+        ),
+        narrative_constraints=[
+            NarrativeConstraintInput(
+                constraint_id="C-warden-reveal",
+                entity_ids=["npc:qi", "secret:warden"],
+                statement="Qi may name the Warden's identity only after the archive opens.",
+            ),
+            NarrativeConstraintInput(
+                constraint_id="C-qi-loyalty",
+                entity_ids=["npc:qi"],
+                statement="Qi does not betray entrusted allies.",
+            ),
+        ],
+    )
 
 
-_MAJORITY_HINT = {"span": "reveals the ending twist", "issue": "spoiler"}
-_MINORITY_HINT = {"span": "the hero", "issue": "off-topic"}
-
-
-def test_quorum_keeps_majority_hint_drops_minority(tmp_path):
-    # 2/3 perspectives report the hint directly (no dispute — the third is
-    # simply silent), so it must pass WITHOUT any rebuttal round at all.
-    by_variant = {
-        "consistency@1#p_temporal": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#p_identity": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#p_spoiler": "[]",
+def _hint(**changes: object) -> dict[str, object]:
+    value: dict[str, object] = {
+        "defect_class": "spoiler",
+        "entity_ids": ["npc:qi", "secret:warden"],
+        "constraint_ids": ["C-warden-reveal"],
+        "span": "Qi says the Warden is Mara.",
+        "rationale": "The line names a gated identity before the archive opens.",
     }
+    value.update(changes)
+    return value
+
+
+def _variants(**values: str) -> dict[str, str]:
+    return {f"consistency@2#{name}": value for name, value in values.items()}
+
+
+def test_quorum_uses_grounded_identity_not_free_text_rationale(tmp_path):
+    first = _hint(rationale="directly names the still-gated identity")
+    second = _hint(
+        entity_ids=["secret:warden", "npc:qi"],
+        span="the Warden is Mara",
+        rationale="world state still marks the archive as sealed",
+    )
+    by_variant = _variants(
+        p_constraint_matching=json.dumps([first]),
+        p_causal_world_state=json.dumps([second]),
+        p_adversarial_falsification="[]",
+    )
     transport = _PerVariantTransport(by_variant)
-    router = ModelRouter(transport, CassetteStore(tmp_path), mode=RouterMode.PASSTHROUGH)
-    res = ConsistencyAssistant().run(_dialogue_input(), router)
+    router = ModelRouter(
+        transport,
+        CassetteStore(tmp_path),
+        mode=RouterMode.PASSTHROUGH,
+    )
 
-    hints = res.produced["hints"]
-    assert res.produced["samples"] == 3
-    assert len(hints) == 1
-    assert hints[0]["span"] == _MAJORITY_HINT["span"]
-    assert hints[0]["issue"] == _MAJORITY_HINT["issue"]
-    assert hints[0]["is_suggestion"] is True
+    result = ConsistencyAssistant().run(_dialogue_input(), router)
 
-    assert res.fallback_taken is False
-    assert res.role == "consistency"
-    assert len(res.request_hashes) == 3
-    assert len(set(res.request_hashes)) == 3  # 3 distinct perspective variants
-
-    # Nothing was disputed (no hint in [1, threshold)) so no rebuttal round
-    # (`#r_*` variants) was ever queried — exactly 3 calls total.
-    assert len(transport.calls) == 3
-    assert all("#p_" in c.prompt_version for c in transport.calls)
-
-
-def test_quorum_drops_hint_reported_by_only_one_sample(tmp_path):
-    by_variant = {
-        "consistency@1#p_temporal": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#p_identity": "[]",
-        "consistency@1#p_spoiler": "[]",
-    }
-    res = ConsistencyAssistant().run(_dialogue_input(), _router(by_variant, tmp_path))
-    assert res.produced["hints"] == []
-    assert res.fallback_taken is False  # 3/3 samples parsed fine (2 just reported nothing)
-
-
-def test_all_samples_unparseable_falls_back_to_empty_hints(tmp_path):
-    by_variant = {
-        "consistency@1#p_temporal": "not json at all",
-        "consistency@1#p_identity": "still not json",
-        "consistency@1#p_spoiler": "nope",
-    }
-    res = ConsistencyAssistant().run(_dialogue_input(), _router(by_variant, tmp_path))
-    assert res.fallback_taken is True
-    assert res.produced["hints"] == []
-    assert len(res.request_hashes) == 3
-
-
-# --------------------------------------------------------------------------
-# Rebuttal round (Part C / Task 9): a hint reported by only 1/3 perspectives
-# is DISPUTED and must go through exactly one rebuttal round; it survives
-# only if the rebuttal round lifts confirmations to >= threshold. These two
-# tests are the discriminators: if the rebuttal round (or its threshold
-# check) were removed, one of the two would flip.
-# --------------------------------------------------------------------------
-def test_disputed_hint_survives_rebuttal_when_confirmed(tmp_path):
-    # Only 'temporal' reports the hint in round 1 -> count=1 < threshold(2) ->
-    # disputed -> rebuttal round triggered. In the rebuttal round, 'identity'
-    # and 'spoiler' both confirm -> confirmations=2 >= threshold(2) -> keep.
-    by_variant = {
-        "consistency@1#p_temporal": json.dumps([_MINORITY_HINT]),
-        "consistency@1#p_identity": "[]",
-        "consistency@1#p_spoiler": "[]",
-        "consistency@1#r_temporal": "[]",
-        "consistency@1#r_identity": json.dumps([_MINORITY_HINT]),
-        "consistency@1#r_spoiler": json.dumps([_MINORITY_HINT]),
-    }
-    transport = _PerVariantTransport(by_variant)
-    router = ModelRouter(transport, CassetteStore(tmp_path), mode=RouterMode.PASSTHROUGH)
-    res = ConsistencyAssistant().run(_dialogue_input(), router)
-
-    assert res.produced["hints"] == [
-        {**_MINORITY_HINT, "is_suggestion": True}
+    assert result.produced["hints"] == [
+        {
+            **first,
+            "entity_ids": ["npc:qi", "secret:warden"],
+            "span": "Qi says the Warden is Mara.",
+            "is_suggestion": True,
+        }
     ]
-    assert res.fallback_taken is False
-    # 3 first-round + 3 rebuttal-round calls, all distinct request_hashes.
-    assert len(res.request_hashes) == 6
-    assert len(set(res.request_hashes)) == 6
-    rebuttal_calls = [c for c in transport.calls if "#r_" in c.prompt_version]
-    assert len(rebuttal_calls) == 3
+    assert result.produced["threshold"] == 2
+    assert result.produced["matcher_version"] == "narrative-span@1"
+    assert result.produced["rebuttal_enabled"] is True
+    assert [item["name"] for item in result.produced["perspectives"]] == [
+        "constraint_matching",
+        "causal_world_state",
+        "adversarial_falsification",
+    ]
+    assert result.fallback_taken is False
+    assert len(result.request_hashes) == 3
+    assert all("#p_" in call.prompt_version for call in transport.calls)
+    assert all(call.model_snapshot == DEFAULT_SNAPSHOT for call in transport.calls)
 
 
-def test_disputed_hint_dropped_when_rebuttal_refutes(tmp_path):
-    # Same first round (1/3 reports it), but the rebuttal round only lifts
-    # confirmations to 1 (< threshold 2) -> stays dropped. If the rebuttal
-    # round's threshold check were removed (e.g. "any confirmation keeps the
-    # hint"), this test would incorrectly see the hint survive.
-    by_variant = {
-        "consistency@1#p_temporal": json.dumps([_MINORITY_HINT]),
-        "consistency@1#p_identity": "[]",
-        "consistency@1#p_spoiler": "[]",
-        "consistency@1#r_temporal": "[]",
-        "consistency@1#r_identity": json.dumps([_MINORITY_HINT]),
-        "consistency@1#r_spoiler": "[]",
-    }
-    transport = _PerVariantTransport(by_variant)
-    router = ModelRouter(transport, CassetteStore(tmp_path), mode=RouterMode.PASSTHROUGH)
-    res = ConsistencyAssistant().run(_dialogue_input(), router)
-
-    assert res.produced["hints"] == []
-    assert res.fallback_taken is False
-    assert len(res.request_hashes) == 6
-    rebuttal_calls = [c for c in transport.calls if "#r_" in c.prompt_version]
-    assert len(rebuttal_calls) == 3
-
-
-def test_threshold_is_honored_unanimity_required(tmp_path):
-    # threshold=3 over 3 perspectives requires unanimity. The hint is reported
-    # by 2/3 in round 1 (disputed under threshold=3, since 2 < 3); with
-    # rebut=False no rebuttal round runs at all, so it cannot be rescued and
-    # must be dropped. If `threshold` were ignored (hardcoded to 2), this
-    # hint would incorrectly survive from round 1 alone.
-    by_variant = {
-        "consistency@1#p_temporal": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#p_identity": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#p_spoiler": "[]",
-    }
-    transport = _PerVariantTransport(by_variant)
-    router = ModelRouter(transport, CassetteStore(tmp_path), mode=RouterMode.PASSTHROUGH)
-    res = ConsistencyAssistant().run(_dialogue_input(), router, threshold=3, rebut=False)
-
-    assert res.produced["hints"] == []
-    assert len(res.request_hashes) == 3  # rebut=False -> no rebuttal calls at all
-    assert all("#r_" not in c.prompt_version for c in transport.calls)
-
-
-def test_threshold_unanimity_hint_passes_when_all_three_agree(tmp_path):
-    by_variant = {
-        "consistency@1#p_temporal": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#p_identity": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#p_spoiler": json.dumps([_MAJORITY_HINT]),
-    }
-    res = ConsistencyAssistant().run(
-        _dialogue_input(), _router(by_variant, tmp_path), threshold=3, rebut=False
+def test_wrong_class_entity_and_constraint_do_not_form_quorum(tmp_path):
+    by_variant = _variants(
+        p_constraint_matching=json.dumps(
+            [_hint(defect_class="character_violation")]
+        ),
+        p_causal_world_state=json.dumps(
+            [_hint(entity_ids=["npc:qi"], constraint_ids=["C-qi-loyalty"])]
+        ),
+        p_adversarial_falsification=json.dumps(
+            [_hint(constraint_ids=["C-qi-loyalty"])]
+        ),
     )
-    assert len(res.produced["hints"]) == 1
-    assert res.produced["hints"][0]["span"] == _MAJORITY_HINT["span"]
+
+    result = ConsistencyAssistant().run(
+        _dialogue_input(),
+        _router(by_variant, tmp_path),
+        rebut=False,
+    )
+
+    assert result.produced["hints"] == []
+    assert result.fallback_taken is False
 
 
-def test_consistency_checker_findings_are_strictly_llm_assisted_partitioned(tmp_path):
-    """THE key acceptance anchor: llm-assisted Findings from ConsistencyChecker
-    must land in report.llm_assisted_findings and NEVER in
-    report.deterministic_findings, regardless of what other checkers produce.
-    This is the real evaluation of M1's LlmRoutedChecker placeholder."""
+def test_one_malformed_perspective_does_not_erase_two_valid_votes(tmp_path):
+    by_variant = _variants(
+        p_constraint_matching=json.dumps([_hint()]),
+        p_causal_world_state=json.dumps([_hint(rationale="same grounded issue")]),
+        p_adversarial_falsification="not json",
+    )
+
+    result = ConsistencyAssistant().run(_dialogue_input(), _router(by_variant, tmp_path))
+
+    assert len(result.produced["hints"]) == 1
+    assert [item["parse_ok"] for item in result.produced["perspectives"]] == [
+        True,
+        True,
+        False,
+    ]
+    assert result.fallback_taken is False
+
+
+def test_all_malformed_perspectives_take_empty_fallback(tmp_path):
+    by_variant = _variants(
+        p_constraint_matching="not json",
+        p_causal_world_state="still not json",
+        p_adversarial_falsification='{"wrong": "top level"}',
+    )
+
+    result = ConsistencyAssistant().run(_dialogue_input(), _router(by_variant, tmp_path))
+
+    assert result.produced["hints"] == []
+    assert result.fallback_taken is True
+    assert len(result.request_hashes) == 3
+
+
+def test_invalid_items_are_dropped_without_losing_valid_items(tmp_path):
+    payload = [
+        _hint(),
+        {"span": "Qi says the Warden is Mara.", "issue": "legacy shape"},
+        _hint(entity_ids=["npc:invented"]),
+    ]
+    by_variant = _variants(
+        p_constraint_matching=json.dumps(payload),
+        p_causal_world_state=json.dumps([_hint(rationale="second vote")]),
+        p_adversarial_falsification="[]",
+    )
+
+    result = ConsistencyAssistant().run(_dialogue_input(), _router(by_variant, tmp_path))
+
+    diagnostic = result.produced["perspectives"][0]
+    assert diagnostic["raw_items"] == 3
+    assert diagnostic["accepted_items"] == 1
+    assert len(result.produced["hints"]) == 1
+
+
+def test_disputed_hint_can_only_be_confirmed_by_structured_rebuttal(tmp_path):
     by_variant = {
-        "consistency@1#p_temporal": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#p_identity": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#p_spoiler": "[]",
+        **_variants(
+            p_constraint_matching=json.dumps([_hint()]),
+            p_causal_world_state="[]",
+            p_adversarial_falsification="[]",
+        ),
+        **_variants(
+            r_constraint_matching="[]",
+            r_causal_world_state=json.dumps(
+                [_hint(span="the Warden is Mara", rationale="confirmed causally")]
+            ),
+            r_adversarial_falsification=json.dumps(
+                [_hint(rationale="no consistent alternative reading remains")]
+            ),
+        ),
     }
-    router = _router(by_variant, tmp_path)
-    assistant = ConsistencyAssistant()
-    checker = ConsistencyChecker(assistant, router, _dialogue_input())
 
-    snap = Snapshot.from_entities_relations([Entity(id="q", type=NodeType.QUEST)], [])
-    report = build_review_report(snap, [checker])
+    result = ConsistencyAssistant().run(_dialogue_input(), _router(by_variant, tmp_path))
 
-    assert report.llm_assisted_findings != []
-    assert report.deterministic_findings == []
-    for f in report.llm_assisted_findings:
-        assert f.oracle_type == "llm-assisted"
-        assert f.source == "llm"
-        assert f.status == "unproven"
-        assert f.defect_class == "narrative_inconsistency"
-        assert f.snapshot_id == snap.snapshot_id
+    assert len(result.produced["hints"]) == 1
+    assert len(result.request_hashes) == 6
 
 
-def test_consistency_checker_check_directly(tmp_path):
+def test_rebuttal_cannot_introduce_a_new_identity(tmp_path):
+    introduced = _hint(defect_class="character_violation")
     by_variant = {
-        "consistency@1#p_temporal": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#p_identity": json.dumps([_MAJORITY_HINT]),
-        "consistency@1#p_spoiler": json.dumps([_MAJORITY_HINT]),
+        **_variants(
+            p_constraint_matching=json.dumps([_hint()]),
+            p_causal_world_state="[]",
+            p_adversarial_falsification="[]",
+        ),
+        **_variants(
+            r_constraint_matching=json.dumps([introduced]),
+            r_causal_world_state=json.dumps([introduced]),
+            r_adversarial_falsification=json.dumps([introduced]),
+        ),
     }
-    router = _router(by_variant, tmp_path)
-    checker = ConsistencyChecker(ConsistencyAssistant(), router, _dialogue_input())
-    snap = Snapshot.from_entities_relations([Entity(id="q", type=NodeType.QUEST)], [])
 
-    findings = checker.check(snap)
+    result = ConsistencyAssistant().run(_dialogue_input(), _router(by_variant, tmp_path))
+
+    assert result.produced["hints"] == []
+
+
+def test_benchmark_mode_disables_rebuttal_and_honors_threshold(tmp_path):
+    by_variant = _variants(
+        p_constraint_matching=json.dumps([_hint()]),
+        p_causal_world_state=json.dumps([_hint(rationale="second vote")]),
+        p_adversarial_falsification="[]",
+    )
+    transport = _PerVariantTransport(by_variant)
+    router = ModelRouter(
+        transport,
+        CassetteStore(tmp_path),
+        mode=RouterMode.PASSTHROUGH,
+    )
+
+    result = ConsistencyAssistant().run(
+        _dialogue_input(),
+        router,
+        threshold=3,
+        rebut=False,
+    )
+
+    assert result.produced["hints"] == []
+    assert result.produced["rebuttal_enabled"] is False
+    assert len(transport.calls) == 3
+
+
+@pytest.mark.parametrize(
+    ("perspectives", "threshold"),
+    [
+        ((), 1),
+        (("constraint_matching", "constraint_matching"), 1),
+        (("constraint_matching",), 0),
+        (("constraint_matching",), 2),
+    ],
+)
+def test_invalid_quorum_configuration_fails_before_model_calls(
+    tmp_path, perspectives, threshold
+):
+    transport = _PerVariantTransport({})
+    router = ModelRouter(
+        transport,
+        CassetteStore(tmp_path),
+        mode=RouterMode.PASSTHROUGH,
+    )
+
+    with pytest.raises(ValueError):
+        ConsistencyAssistant().run(
+            _dialogue_input(),
+            router,
+            perspectives=perspectives,
+            threshold=threshold,
+        )
+    assert transport.calls == []
+
+
+def test_current_method_prompts_all_cover_all_four_classes():
+    register_all_prompts()
+    for method in (
+        "constraint_matching",
+        "causal_world_state",
+        "adversarial_falsification",
+    ):
+        version, prompt = get_prompt(f"consistency.perspective.{method}")
+        assert version == "consistency@2"
+        assert method.replace("_", " ") in prompt.lower()
+        for defect_class in (
+            "character_violation",
+            "spoiler",
+            "faction_violation",
+            "uniqueness_violation",
+        ):
+            assert defect_class in prompt
+
+
+def test_consistency_checker_writes_grounded_llm_assisted_finding(tmp_path):
+    by_variant = _variants(
+        p_constraint_matching=json.dumps([_hint()]),
+        p_causal_world_state=json.dumps([_hint(rationale="second vote")]),
+        p_adversarial_falsification="[]",
+    )
+    checker = ConsistencyChecker(
+        ConsistencyAssistant(),
+        _router(by_variant, tmp_path),
+        _dialogue_input(),
+    )
+    snapshot = Snapshot.from_entities_relations(
+        [Entity(id="q", type=NodeType.QUEST)],
+        [],
+    )
+
+    findings = checker.check(snapshot)
+
     assert len(findings) == 1
-    f = findings[0]
-    assert f.oracle_type == "llm-assisted"
-    assert f.producer_id == "consistency"
-    assert f.evidence == {"span": _MAJORITY_HINT["span"]}
-    assert f.message == _MAJORITY_HINT["issue"]
+    finding = findings[0]
+    assert finding.defect_class == "spoiler"
+    assert finding.entities == ["npc:qi", "secret:warden"]
+    assert finding.constraint_id == "C-warden-reveal"
+    assert finding.evidence == {
+        "span": "Qi says the Warden is Mara.",
+        "rationale": _hint()["rationale"],
+        "constraint_ids": ["C-warden-reveal"],
+    }
+    assert finding.message == _hint()["rationale"]
+    assert finding.source == "llm"
+    assert finding.oracle_type == "llm-assisted"
+    assert finding.status == "unproven"
+
+    report = build_review_report(snapshot, [checker])
+    assert report.llm_assisted_findings
+    assert report.deterministic_findings == []

@@ -9,7 +9,8 @@ def test_all_agent_prompts_registered():
         ("triage.system", "triage@1"),
         ("repair.system", "repair@4"),
         ("repair.refine", "repair@4"),
-        ("consistency.system", "consistency@1"),
+        ("consistency.system", "consistency@2"),
+        ("consistency.legacy.system", "consistency@1"),
         ("generation.system", "generation@1"),
     ]:
         v, tmpl = get_prompt(name)

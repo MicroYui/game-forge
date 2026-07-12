@@ -76,7 +76,7 @@ _REPAIR_REFINE = (
     "patch using the same JSON ops array schema, addressing the failure. Output ONLY the JSON array."
 )
 
-_CONSISTENCY = (
+_LEGACY_CONSISTENCY = (
     "You are the Consistency Assistant. Given dialogue/narrative text and a set of narrative "
     "constraints, you flag SUSPECTED inconsistencies or premature spoilers. Your output is a set "
     "of suggestions a human confirms; you are an llm-assisted hint source and are never "
@@ -86,7 +86,7 @@ _CONSISTENCY = (
 )
 
 _CONSISTENCY_PERSPECTIVE_TEMPORAL = (
-    _CONSISTENCY + " "
+    _LEGACY_CONSISTENCY + " "
     "PERSPECTIVE: temporal/ordering. Focus ONLY on contradictions in the order or "
     "timing of events — a character or event treated as already past when other "
     "text implies it is still to come, or as still ongoing/alive when other text "
@@ -95,7 +95,7 @@ _CONSISTENCY_PERSPECTIVE_TEMPORAL = (
 )
 
 _CONSISTENCY_PERSPECTIVE_IDENTITY = (
-    _CONSISTENCY + " "
+    _LEGACY_CONSISTENCY + " "
     "PERSPECTIVE: identity/knowledge. Focus ONLY on who-knows and who-is "
     "contradictions — a character reacting as though they already know something "
     "they should not yet know, two characters being confused for one another, or "
@@ -105,7 +105,7 @@ _CONSISTENCY_PERSPECTIVE_IDENTITY = (
 )
 
 _CONSISTENCY_PERSPECTIVE_SPOILER = (
-    _CONSISTENCY + " "
+    _LEGACY_CONSISTENCY + " "
     "PERSPECTIVE: premature reveal. Focus ONLY on text that gives away a later "
     "plot twist, ending, or secret before the narrative constraints say it should "
     "be revealed. Ignore inconsistencies that are not premature reveals; other "
@@ -151,6 +151,56 @@ _CONSISTENCY_REBUTTAL_SPOILER = (
     "an empty JSON array."
 )
 
+_CONSISTENCY = (
+    "You are the Consistency Assistant for game narrative content. Inspect every supplied "
+    "constraint and every dialogue sentence for all four supported defect classes: "
+    "character_violation, spoiler, faction_violation, and uniqueness_violation. Your output "
+    "contains suggestions for a human reviewer; it is llm-assisted and never authoritative. "
+    "Output ONLY a JSON array (no prose and no code fences). Every element must contain exactly: "
+    "defect_class (one of the four class labels above); entity_ids (every entity ID named by the "
+    "violated constraint, copied exactly); constraint_ids (every violated constraint ID, copied "
+    "exactly); span (an exact quote from one problematic dialogue sentence); and rationale "
+    "(concise reasoning grounded in the supplied rule and quote). Report no issue when a "
+    "reasonable interpretation satisfies the constraints."
+)
+
+_CONSISTENCY_PERSPECTIVE_CONSTRAINT_MATCHING = (
+    _CONSISTENCY + " "
+    "METHOD: constraint matching. Compare each dialogue sentence directly against every supplied "
+    "rule, across all four defect classes, and report only an explicit conflict."
+)
+
+_CONSISTENCY_PERSPECTIVE_CAUSAL_WORLD_STATE = (
+    _CONSISTENCY + " "
+    "METHOD: causal world state. Reconstruct character state, reveal stage, faction relations, "
+    "and role cardinality, then test every supplied rule across all four defect classes."
+)
+
+_CONSISTENCY_PERSPECTIVE_ADVERSARIAL_FALSIFICATION = (
+    _CONSISTENCY + " "
+    "METHOD: adversarial falsification. First seek the strongest constraint-consistent reading "
+    "of each suspicious line across all four defect classes; report only when that reading fails."
+)
+
+_CONSISTENCY_REBUTTAL = (
+    _CONSISTENCY + " "
+    "This is a rebuttal round. The user supplies a JSON list of disputed structured hints after "
+    "the constraints and dialogue. Re-evaluate all four defect classes using your assigned method "
+    "and return ONLY the subset you confirm. Copy each confirmed hint's defect_class, entity_ids, "
+    "constraint_ids, and span identity from the disputed list; rationale may explain your method. "
+    "Do not introduce a hint absent from the disputed list."
+)
+
+_CONSISTENCY_REBUTTAL_CONSTRAINT_MATCHING = (
+    _CONSISTENCY_REBUTTAL + " METHOD: constraint matching."
+)
+_CONSISTENCY_REBUTTAL_CAUSAL_WORLD_STATE = (
+    _CONSISTENCY_REBUTTAL + " METHOD: causal world state."
+)
+_CONSISTENCY_REBUTTAL_ADVERSARIAL_FALSIFICATION = (
+    _CONSISTENCY_REBUTTAL + " METHOD: adversarial falsification."
+)
+
 _GENERATION = (
     "You are the Content Generator. Given a design goal and a summary of the available IR snapshot "
     "(entities, regions, items, numeric ranges), you PROPOSE new content as a typed patch grounded "
@@ -165,13 +215,20 @@ _PROMPTS: list[tuple[str, str, str]] = [
     ("triage.system", "triage@1", _TRIAGE),
     ("repair.system", "repair@4", _REPAIR),
     ("repair.refine", "repair@4", _REPAIR_REFINE),
-    ("consistency.system", "consistency@1", _CONSISTENCY),
-    ("consistency.perspective.temporal", "consistency@1", _CONSISTENCY_PERSPECTIVE_TEMPORAL),
-    ("consistency.perspective.identity", "consistency@1", _CONSISTENCY_PERSPECTIVE_IDENTITY),
-    ("consistency.perspective.spoiler", "consistency@1", _CONSISTENCY_PERSPECTIVE_SPOILER),
-    ("consistency.rebuttal.temporal", "consistency@1", _CONSISTENCY_REBUTTAL_TEMPORAL),
-    ("consistency.rebuttal.identity", "consistency@1", _CONSISTENCY_REBUTTAL_IDENTITY),
-    ("consistency.rebuttal.spoiler", "consistency@1", _CONSISTENCY_REBUTTAL_SPOILER),
+    ("consistency.system", "consistency@2", _CONSISTENCY),
+    ("consistency.perspective.constraint_matching", "consistency@2", _CONSISTENCY_PERSPECTIVE_CONSTRAINT_MATCHING),
+    ("consistency.perspective.causal_world_state", "consistency@2", _CONSISTENCY_PERSPECTIVE_CAUSAL_WORLD_STATE),
+    ("consistency.perspective.adversarial_falsification", "consistency@2", _CONSISTENCY_PERSPECTIVE_ADVERSARIAL_FALSIFICATION),
+    ("consistency.rebuttal.constraint_matching", "consistency@2", _CONSISTENCY_REBUTTAL_CONSTRAINT_MATCHING),
+    ("consistency.rebuttal.causal_world_state", "consistency@2", _CONSISTENCY_REBUTTAL_CAUSAL_WORLD_STATE),
+    ("consistency.rebuttal.adversarial_falsification", "consistency@2", _CONSISTENCY_REBUTTAL_ADVERSARIAL_FALSIFICATION),
+    ("consistency.legacy.system", "consistency@1", _LEGACY_CONSISTENCY),
+    ("consistency.legacy.perspective.temporal", "consistency@1", _CONSISTENCY_PERSPECTIVE_TEMPORAL),
+    ("consistency.legacy.perspective.identity", "consistency@1", _CONSISTENCY_PERSPECTIVE_IDENTITY),
+    ("consistency.legacy.perspective.spoiler", "consistency@1", _CONSISTENCY_PERSPECTIVE_SPOILER),
+    ("consistency.legacy.rebuttal.temporal", "consistency@1", _CONSISTENCY_REBUTTAL_TEMPORAL),
+    ("consistency.legacy.rebuttal.identity", "consistency@1", _CONSISTENCY_REBUTTAL_IDENTITY),
+    ("consistency.legacy.rebuttal.spoiler", "consistency@1", _CONSISTENCY_REBUTTAL_SPOILER),
     ("generation.system", "generation@1", _GENERATION),
 ]
 

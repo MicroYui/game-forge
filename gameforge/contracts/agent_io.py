@@ -110,9 +110,16 @@ class NarrativeConstraintInput(BaseModel):
 class DialogueNarrativeInput(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    dialogue: NonEmptyText
+    dialogue: str
     narrative_constraints: list[NarrativeConstraintInput] = Field(default_factory=list)
     narrative_constraint_ids: list[NonEmptyText] = Field(default_factory=list)
+
+    @field_validator("dialogue")
+    @classmethod
+    def validate_dialogue(cls, value: str) -> str:
+        if not value.strip():
+            raise ValueError("dialogue must not be blank")
+        return value
 
     @model_validator(mode="after")
     def validate_constraint_channels(self) -> DialogueNarrativeInput:

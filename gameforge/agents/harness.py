@@ -358,7 +358,7 @@ def _record_agent_samples(
             dialogue = fh.read()
         with open(narrative_path, encoding="utf-8") as fh:
             narrative_ids = [c.id for c in Constraint.from_yaml(fh.read())]
-        res = ConsistencyAssistant().run(
+        res = ConsistencyAssistant().run_legacy_m2(
             DialogueNarrativeInput(dialogue=dialogue, narrative_constraint_ids=narrative_ids),
             historical_router,
         )
