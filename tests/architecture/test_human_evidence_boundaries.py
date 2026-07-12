@@ -63,3 +63,19 @@ def test_only_source_composition_imports_harness_and_endless_sky_runtime_togethe
     assert offenders == [
         Path("gameforge/bench/external_cases/endless_sky_hed.py")
     ]
+
+
+def test_only_qa_source_composition_imports_qa_harness_and_runtime_together():
+    offenders: list[Path] = []
+    for path in _python_files("gameforge"):
+        imports = _imports(path)
+        has_harness = "gameforge.bench.qa.harness" in imports
+        has_runtime = (
+            "gameforge.bench.external_cases.endless_sky_runner" in imports
+        )
+        if has_harness and has_runtime:
+            offenders.append(path.relative_to(_ROOT))
+
+    assert offenders == [
+        Path("gameforge/bench/external_cases/endless_sky_qa.py")
+    ]

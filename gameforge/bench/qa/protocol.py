@@ -21,11 +21,6 @@ from gameforge.contracts.canonical import canonical_json
 
 Sha256 = Annotated[str, StringConstraints(pattern=r"^[0-9a-f]{64}$")]
 
-_ROOT = Path("scenarios/external_cases/endless_sky")
-_EXTERNAL_PATH = _ROOT / "external-corpus-manifest.json"
-_HED_PATH = _ROOT / "hed-evidence.json"
-_PROTOCOL_PATH = _ROOT / "qa-protocol.json"
-
 _PATTERN = (
     (("development", "manual"), ("verification", "assisted")),
     (("development", "assisted"), ("verification", "manual")),
@@ -197,9 +192,9 @@ def write_protocol(path: str | Path, protocol: QaProtocol) -> None:
 def _main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--seal", action="store_true", required=True)
-    parser.add_argument("--external", type=Path, default=_EXTERNAL_PATH)
-    parser.add_argument("--hed", type=Path, default=_HED_PATH)
-    parser.add_argument("--output", type=Path, default=_PROTOCOL_PATH)
+    parser.add_argument("--external", type=Path, required=True)
+    parser.add_argument("--hed", type=Path, required=True)
+    parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
     external = load_external(args.external)

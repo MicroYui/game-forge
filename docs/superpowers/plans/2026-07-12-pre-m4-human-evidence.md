@@ -715,7 +715,10 @@ class QaSessionEvidence(_StrictModel):
 
 ```bash
 uv run pytest tests/bench/qa/test_contracts.py tests/bench/qa/test_protocol.py -q
-uv run python -m gameforge.bench.qa.protocol --seal
+uv run python -m gameforge.bench.qa.protocol --seal \
+  --external scenarios/external_cases/endless_sky/external-corpus-manifest.json \
+  --hed scenarios/external_cases/endless_sky/hed-evidence.json \
+  --output scenarios/external_cases/endless_sky/qa-protocol.json
 git add gameforge/bench/qa tests/bench/qa \
   scenarios/external_cases/endless_sky/qa-protocol.json
 git diff --cached --check
@@ -738,7 +741,7 @@ git commit -m "feat(bench): freeze QA hours protocol"
 - Consumes: `QaProtocol`, HED evidence, source-specific runtime/verdict boundary, filesystem bundle root, monotonic clock callable.
 - Produces: one-session-at-a-time task bundles, append-safe canonical session state, unified final patch, deterministic correctness verdict, and CLI actions.
 
-- [ ] **Step 1: Write failing bundle-isolation tests**
+- [x] **Step 1: Write failing bundle-isolation tests**
 
 ```python
 def test_manual_bundle_contains_no_gameforge_or_answer_material(tmp_path):
@@ -761,11 +764,11 @@ def test_assisted_bundle_adds_only_finding_and_agent_proposal(tmp_path):
 
 Both bundles must include only the exact before `changed_paths`, a source-neutral `TASK.json` containing session/case/order/arm/upstream subject, a `work/` directory, and the same compiled syntax-only native parser under `tools/`. Neither includes after bytes, upstream patch, target locator, predicate context, or another session.
 
-- [ ] **Step 2: Write failing timer/finish tests with injected clock**
+- [x] **Step 2: Write failing timer/finish tests with injected clock**
 
 Cover start/pause/resume/finish, invalid transitions, duplicate finish, timeout cap, paused time exclusion, submission tree path traversal rejection, changed-path enforcement, unified diff generation, verdict persistence, attestation false -> protocol failure, and atomic write via temporary file plus `os.replace`.
 
-- [ ] **Step 3: Run tests and verify RED**
+- [x] **Step 3: Run tests and verify RED**
 
 Run:
 
@@ -776,7 +779,7 @@ uv run pytest tests/bench/external_cases/test_endless_sky_qa.py \
 
 Expected: imports fail for the new CLI/session modules.
 
-- [ ] **Step 4: Implement source-specific materialization and verdict composition**
+- [x] **Step 4: Implement source-specific materialization and verdict composition**
 
 `endless_sky_qa.py` is the only QA module allowed to import the Endless Sky reader/Adapter/predicate/native code. It implements the following concrete composition functions; `write_arm_bundle()` and `seal_qa_verdict()` are generic helpers defined in `gameforge.bench.qa.harness`:
 
@@ -805,7 +808,7 @@ def evaluate_submission(
 
 The patch is a deterministic unified diff from frozen before bytes to submission bytes with POSIX paths, LF diff metadata, and stable path order. The submission verdict delegates to Task 1 and seals every field/hash.
 
-- [ ] **Step 5: Implement generic session lifecycle and CLI**
+- [x] **Step 5: Implement generic session lifecycle and CLI**
 
 ```text
 python -m gameforge.bench.external_cases.endless_sky_qa next --workspace <outside-repo-path>
@@ -818,7 +821,7 @@ python -m gameforge.bench.external_cases.endless_sky_qa status --workspace <outs
 
 `next` refuses to expose order `N+1` before order `N` has finished. It creates only the current bundle and prints its absolute path, session ID, arm, active cap, and timer state. `finish` reads the bundle's `work/`, calls the source-specific evaluator through an injected callback, writes `final.patch` and canonical `session-evidence.json`, and never mutates frozen source fixtures.
 
-- [ ] **Step 6: Run tests and commit**
+- [x] **Step 6: Run tests and commit**
 
 ```bash
 uv run pytest tests/bench/external_cases/test_endless_sky_qa.py \
