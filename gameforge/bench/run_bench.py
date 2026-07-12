@@ -37,6 +37,7 @@ from gameforge.bench.qa.score import load_evidence as load_qa
 from gameforge.bench.report import (
     ReportEvidenceBundle,
     build_bench_report as compose_bench_report,
+    validate_report_bundle,
     write_report_bundle,
 )
 from gameforge.bench.report_contracts import (
@@ -262,13 +263,19 @@ def build_bench_report(
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output-dir", type=Path, required=True)
+    action = parser.add_mutually_exclusive_group(required=True)
+    action.add_argument("--output-dir", type=Path)
+    action.add_argument("--validate-bundle", type=Path)
     parser.add_argument("--repo-root", type=Path, default=Path("."))
     parser.add_argument("--agent-cost", type=Path, default=_DEFAULT_AGENT_COST)
     parser.add_argument("--runtime", type=Path, default=_DEFAULT_RUNTIME)
     parser.add_argument("--qa", type=Path, default=_DEFAULT_QA)
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args(argv)
+    if args.validate_bundle is not None:
+        validate_report_bundle(args.validate_bundle)
+        return 0
+    assert args.output_dir is not None
     report = build_bench_report(
         seed=args.seed,
         repo_root=args.repo_root,

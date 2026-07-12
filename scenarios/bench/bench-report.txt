@@ -1,0 +1,243 @@
+GameForge-Bench Report v2
+
+[Report]
+meta.schema | Schema | recorded | bench-report@2
+meta.seed | Seed | recorded | 0
+meta.corpus_size | Seeded corpus size | recorded | 982
+meta.builder | Report builder | recorded | bench-report-builder@2
+
+[Seeded BDR]
+seeded.bdr.dangling_reference | dangling_reference | measured | 82/82 (100.0%) | evaluated=82 planned=82 | 95% CI [0.955, 1.000] | evidence=seeded
+seeded.bdr.missing_drop_source | missing_drop_source | measured | 82/82 (100.0%) | evaluated=82 planned=82 | 95% CI [0.955, 1.000] | evidence=seeded
+seeded.bdr.unreachable_target | unreachable_target | measured | 82/82 (100.0%) | evaluated=82 planned=82 | 95% CI [0.955, 1.000] | evidence=seeded
+seeded.bdr.cyclic_dependency | cyclic_dependency | measured | 82/82 (100.0%) | evaluated=82 planned=82 | 95% CI [0.955, 1.000] | evidence=seeded
+seeded.bdr.dead_quest | dead_quest | measured | 82/82 (100.0%) | evaluated=82 planned=82 | 95% CI [0.955, 1.000] | evidence=seeded
+seeded.bdr.unsatisfiable_completion | unsatisfiable_completion | measured | 82/82 (100.0%) | evaluated=82 planned=82 | 95% CI [0.955, 1.000] | evidence=seeded
+seeded.bdr.reward_out_of_range | reward_out_of_range | measured | 82/82 (100.0%) | evaluated=82 planned=82 | 95% CI [0.955, 1.000] | evidence=seeded
+seeded.bdr.prob_sum_ne_1 | prob_sum_ne_1 | measured | 82/82 (100.0%) | evaluated=82 planned=82 | 95% CI [0.955, 1.000] | evidence=seeded
+seeded.bdr.non_monotonic_curve | non_monotonic_curve | measured | 82/82 (100.0%) | evaluated=82 planned=82 | 95% CI [0.955, 1.000] | evidence=seeded
+seeded.bdr.gacha_expectation_violation | gacha_expectation_violation | measured | 82/82 (100.0%) | evaluated=82 planned=82 | 95% CI [0.955, 1.000] | evidence=seeded
+seeded.bdr.economy_collapse | economy_collapse | measured | 82/82 (100.0%) | evaluated=82 planned=82 | 95% CI [0.955, 1.000] | evidence=seeded
+
+[False Positives]
+false_positive.oracle_fp | oracle_fp | measured | 0/1 (0.0%) | evaluated=1 planned=1 | 95% CI [0.000, 0.793] | evidence=seeded
+false_positive.constraint_fp | constraint_fp | measured | 0/902 (0.0%) | evaluated=902 planned=902 | 95% CI [0.000, 0.004] | evidence=seeded
+false_positive.narrative_clean_fp | narrative_clean_fp | measured | 6/381 (1.6%) | evaluated=381 planned=381 | 95% CI [0.007, 0.034] | evidence=narrative
+false_positive.external_after_oracle_fp | external_after_oracle_fp | measured | 0/8 (0.0%) | evaluated=8 planned=8 | 95% CI [0.000, 0.324] | evidence=external
+
+[Agent Outcomes]
+agent.fix_pass_rate | fix_pass_rate | measured | 10/10 (100.0%) | evaluated=10 planned=10 | 95% CI [0.722, 1.000] | evidence=agent-cost
+agent.playtest_completion_flat | playtest_completion_flat | measured | 5/20 (25.0%) | evaluated=20 planned=20 | 95% CI [0.112, 0.469] | evidence=agent-cost
+agent.playtest_completion_layered | playtest_completion_layered | measured | 14/20 (70.0%) | evaluated=20 planned=20 | 95% CI [0.481, 0.855] | evidence=agent-cost
+agent.playtest_completion_mem_on | playtest_completion_mem_on | measured | 15/20 (75.0%) | evaluated=20 planned=20 | 95% CI [0.531, 0.888] | evidence=agent-cost
+
+[Power]
+power.dangling_reference | dangling_reference | measured | half_width=0.022; target=0.050 | evaluated=82 | evidence=seeded
+power.missing_drop_source | missing_drop_source | measured | half_width=0.022; target=0.050 | evaluated=82 | evidence=seeded
+power.unreachable_target | unreachable_target | measured | half_width=0.022; target=0.050 | evaluated=82 | evidence=seeded
+power.cyclic_dependency | cyclic_dependency | measured | half_width=0.022; target=0.050 | evaluated=82 | evidence=seeded
+power.dead_quest | dead_quest | measured | half_width=0.022; target=0.050 | evaluated=82 | evidence=seeded
+power.unsatisfiable_completion | unsatisfiable_completion | measured | half_width=0.022; target=0.050 | evaluated=82 | evidence=seeded
+power.reward_out_of_range | reward_out_of_range | measured | half_width=0.022; target=0.050 | evaluated=82 | evidence=seeded
+power.prob_sum_ne_1 | prob_sum_ne_1 | measured | half_width=0.022; target=0.050 | evaluated=82 | evidence=seeded
+power.non_monotonic_curve | non_monotonic_curve | measured | half_width=0.022; target=0.050 | evaluated=82 | evidence=seeded
+power.gacha_expectation_violation | gacha_expectation_violation | measured | half_width=0.022; target=0.050 | evaluated=82 | evidence=seeded
+power.economy_collapse | economy_collapse | measured | half_width=0.022; target=0.050 | evaluated=82 | evidence=seeded
+power.character_violation | character_violation | measured | half_width=0.040; target=0.050 | evaluated=381 | evidence=narrative
+power.spoiler | spoiler | measured | half_width=0.005; target=0.050 | evaluated=381 | evidence=narrative
+power.faction_violation | faction_violation | measured | half_width=0.022; target=0.050 | evaluated=381 | evidence=narrative
+power.uniqueness_violation | uniqueness_violation | measured | half_width=0.005; target=0.050 | evaluated=381 | evidence=narrative
+
+[External Source]
+external.source.id | Source | recorded | endless_sky | evidence=external
+external.source.repository | Repository | recorded | https://github.com/endless-sky/endless-sky.git | evidence=external
+external.source.cases | Qualified cases | recorded | 8/8 | evidence=external
+external.source.adapter | Reader / adapter | recorded | endless-sky-reader@1 / endless-sky-adapter@1 | evidence=external
+
+[External Development]
+external.development.cyclic_dependency | cyclic_dependency | underpowered | 1/1 (100.0%) | evaluated=1 planned=1 | 95% CI [0.207, 1.000] | evidence=external
+external.development.dangling_reference | dangling_reference | underpowered | 1/1 (100.0%) | evaluated=1 planned=1 | 95% CI [0.207, 1.000] | evidence=external
+external.development.dead_quest | dead_quest | underpowered | 1/1 (100.0%) | evaluated=1 planned=1 | 95% CI [0.207, 1.000] | evidence=external
+external.development.unreachable_target | unreachable_target | underpowered | 1/1 (100.0%) | evaluated=1 planned=1 | 95% CI [0.207, 1.000] | evidence=external
+
+[External Verification]
+external.verification.cyclic_dependency | cyclic_dependency | underpowered | 1/1 (100.0%) | evaluated=1 planned=1 | 95% CI [0.207, 1.000] | evidence=external
+external.verification.dangling_reference | dangling_reference | underpowered | 1/1 (100.0%) | evaluated=1 planned=1 | 95% CI [0.207, 1.000] | evidence=external
+external.verification.dead_quest | dead_quest | underpowered | 1/1 (100.0%) | evaluated=1 planned=1 | 95% CI [0.207, 1.000] | evidence=external
+external.verification.unreachable_target | unreachable_target | underpowered | 1/1 (100.0%) | evaluated=1 planned=1 | 95% CI [0.207, 1.000] | evidence=external
+
+[Narrative]
+narrative.model_snapshot | Model snapshot | recorded | openai/gpt-5.6-sol/pre-m4@1 | evidence=narrative
+narrative.protocol_sha256 | Protocol SHA-256 | recorded | 144eb42d538a41c79405d32515fcd8aee0effb660872e44a465e0b177587b492 | evidence=narrative
+narrative.bdr.character_violation | character_violation | measured | 303/381 (79.5%) | evaluated=381 planned=381 | 95% CI [0.752, 0.833] | evidence=narrative
+narrative.bdr.spoiler | spoiler | measured | 381/381 (100.0%) | evaluated=381 planned=381 | 95% CI [0.990, 1.000] | evidence=narrative
+narrative.bdr.faction_violation | faction_violation | measured | 362/381 (95.0%) | evaluated=381 planned=381 | 95% CI [0.923, 0.968] | evidence=narrative
+narrative.bdr.uniqueness_violation | uniqueness_violation | measured | 381/381 (100.0%) | evaluated=381 planned=381 | 95% CI [0.990, 1.000] | evidence=narrative
+
+[Human Edit Distance]
+hed.model_snapshot | Model snapshot | recorded | openai/gpt-5.6-sol/pre-m4@1 | evidence=hed
+hed.normalized_distance | hed_normalized_distance | measured | mean=0.907 normalized_distance; median=0.969; p95=1 | evaluated=8 planned=8 | 95% CI [0.818, 0.98] | evidence=hed
+hed.raw_distance | hed_raw_distance | measured | mean=9.375 atomic_changes; median=4; p95=28 | evaluated=8 planned=8 | 95% CI [3.625, 17.25] | evidence=hed
+hed.disposition.hed_unchanged | hed_unchanged | measured | 0/8 (0.0%) | evaluated=8 planned=8 | 95% CI [0.000, 0.324] | evidence=hed
+hed.disposition.hed_edited | hed_edited | measured | 6/8 (75.0%) | evaluated=8 planned=8 | 95% CI [0.409, 0.929] | evidence=hed
+hed.disposition.hed_unusable | hed_unusable | measured | 2/8 (25.0%) | evaluated=8 planned=8 | 95% CI [0.071, 0.591] | evidence=hed
+hed.disposition.hed_protocol_failure | hed_protocol_failure | measured | 0/8 (0.0%) | evaluated=8 planned=8 | 95% CI [0.000, 0.324] | evidence=hed
+
+[QA Study]
+qa.scope | Scope | recorded | single-participant-eight-session-case-study
+qa.conclusion | Conclusion | pending | pending
+qa.paired_saved_minutes | paired_saved_minutes | pending | unavailable | evaluated=0 planned=4
+qa.paired_saved_fraction | paired_saved_fraction | pending | unavailable | evaluated=0 planned=4
+qa.manual_success | manual_success | pending | unavailable | evaluated=0 planned=4
+qa.assisted_success | assisted_success | pending | unavailable | evaluated=0 planned=4
+
+[Agent Cost and Latency]
+cost.external-hed.model_snapshot | external-hed model | recorded | openai/gpt-5.6-sol/pre-m4@1 | evidence=agent-cost
+cost.external-hed.samples | external-hed samples | recorded | 8/8 | evidence=agent-cost
+cost.external-hed.tokens.input | external-hed input tokens | recorded | 96026 | evidence=agent-cost
+cost.external-hed.tokens.output | external-hed output tokens | recorded | 2315 | evidence=agent-cost
+cost.external-hed.tokens.cache_read | external-hed cache-read tokens | recorded | 0 | evidence=agent-cost
+cost.external-hed.tokens.cache_write | external-hed cache-write tokens | recorded | 95996 | evidence=agent-cost
+cost.external-hed.tokens.reported_total | external-hed reported total tokens | recorded | 98341 | evidence=agent-cost
+cost.external-hed.tokens_per_sample | tokens_per_sample | measured | mean=12,292.6 tokens; median=7,201.5; p95=34,560.0 | evaluated=8 planned=8 | 95% CI [5,875.6, 22,089.5] | evidence=agent-cost
+cost.external-hed.request_latency_ms | request_latency_ms | measured | mean=4,657.3 milliseconds; median=3,840.5; p95=8,572.9 | evaluated=10 planned=10 | 95% CI [3,500.2, 6,163.5] | evidence=agent-cost
+cost.external-hed.requests.logical | external-hed logical requests | recorded | 14 | evidence=agent-cost
+cost.external-hed.requests.recorded | external-hed recorded requests | recorded | 10 | evidence=agent-cost
+cost.external-hed.requests.cache_reuses | external-hed session cache reuses | recorded | 4 | evidence=agent-cost
+cost.external-hed.transport.known_attempts | external-hed known transport attempts | recorded | 0 | evidence=agent-cost
+cost.external-hed.transport.known_retries | external-hed known transport retries | recorded | 0 | evidence=agent-cost
+cost.external-hed.transport.unknown_records | external-hed records with unknown attempts | recorded | 10 | evidence=agent-cost
+cost.external-hed.monetary_status | external-hed monetary cost | unavailable | unavailable | evidence=agent-cost
+cost.narrative-verification.model_snapshot | narrative-verification model | recorded | openai/gpt-5.6-sol/pre-m4@1 | evidence=agent-cost
+cost.narrative-verification.samples | narrative-verification samples | recorded | 1905/1905 | evidence=agent-cost
+cost.narrative-verification.tokens.input | narrative-verification input tokens | recorded | 3537644 | evidence=agent-cost
+cost.narrative-verification.tokens.output | narrative-verification output tokens | recorded | 906939 | evidence=agent-cost
+cost.narrative-verification.tokens.cache_read | narrative-verification cache-read tokens | recorded | 0 | evidence=agent-cost
+cost.narrative-verification.tokens.cache_write | narrative-verification cache-write tokens | recorded | 0 | evidence=agent-cost
+cost.narrative-verification.tokens.reported_total | narrative-verification reported total tokens | recorded | 4444583 | evidence=agent-cost
+cost.narrative-verification.tokens_per_sample | tokens_per_sample | measured | mean=2,333.1 tokens; median=2,323.0; p95=2,789.0 | evaluated=1905 planned=1905 | 95% CI [2,319.6, 2,346.7] | evidence=agent-cost
+cost.narrative-verification.request_latency_ms | request_latency_ms | measured | mean=3,718.9 milliseconds; median=3,443.0; p95=6,446.3 | evaluated=5715 planned=5715 | 95% CI [3,676.1, 3,765.7] | evidence=agent-cost
+cost.narrative-verification.requests.logical | narrative-verification logical requests | recorded | 5715 | evidence=agent-cost
+cost.narrative-verification.requests.recorded | narrative-verification recorded requests | recorded | 5715 | evidence=agent-cost
+cost.narrative-verification.requests.cache_reuses | narrative-verification session cache reuses | recorded | 0 | evidence=agent-cost
+cost.narrative-verification.transport.known_attempts | narrative-verification known transport attempts | recorded | 0 | evidence=agent-cost
+cost.narrative-verification.transport.known_retries | narrative-verification known transport retries | recorded | 0 | evidence=agent-cost
+cost.narrative-verification.transport.unknown_records | narrative-verification records with unknown attempts | recorded | 5715 | evidence=agent-cost
+cost.narrative-verification.monetary_status | narrative-verification monetary cost | unavailable | unavailable | evidence=agent-cost
+cost.playtest-flat.model_snapshot | playtest-flat model | recorded | anthropic/claude-opus-4-8/m2a@1 | evidence=agent-cost
+cost.playtest-flat.samples | playtest-flat samples | recorded | 20/20 | evidence=agent-cost
+cost.playtest-flat.tokens.input | playtest-flat input tokens | recorded | 3944094 | evidence=agent-cost
+cost.playtest-flat.tokens.output | playtest-flat output tokens | recorded | 199317 | evidence=agent-cost
+cost.playtest-flat.tokens.cache_read | playtest-flat cache-read tokens | recorded | 0 | evidence=agent-cost
+cost.playtest-flat.tokens.cache_write | playtest-flat cache-write tokens | recorded | 0 | evidence=agent-cost
+cost.playtest-flat.tokens.reported_total | playtest-flat reported total tokens | recorded | 4143411 | evidence=agent-cost
+cost.playtest-flat.tokens_per_sample | tokens_per_sample | measured | mean=207,170.5 tokens; median=203,874.0; p95=394,051.9 | evaluated=20 planned=20 | 95% CI [148,653.0, 267,218.2] | evidence=agent-cost
+cost.playtest-flat.request_latency_ms | request_latency_ms | measured | mean=4,275.7 milliseconds; median=3,944.0; p95=6,851.9 | evaluated=1955 planned=1955 | 95% CI [4,208.0, 4,343.3] | evidence=agent-cost
+cost.playtest-flat.requests.logical | playtest-flat logical requests | recorded | 2508 | evidence=agent-cost
+cost.playtest-flat.requests.recorded | playtest-flat recorded requests | recorded | 1955 | evidence=agent-cost
+cost.playtest-flat.requests.cache_reuses | playtest-flat session cache reuses | recorded | 553 | evidence=agent-cost
+cost.playtest-flat.transport.known_attempts | playtest-flat known transport attempts | recorded | 0 | evidence=agent-cost
+cost.playtest-flat.transport.known_retries | playtest-flat known transport retries | recorded | 0 | evidence=agent-cost
+cost.playtest-flat.transport.unknown_records | playtest-flat records with unknown attempts | recorded | 1955 | evidence=agent-cost
+cost.playtest-flat.monetary_status | playtest-flat monetary cost | unavailable | unavailable | evidence=agent-cost
+cost.playtest-layered.model_snapshot | playtest-layered model | recorded | anthropic/claude-opus-4-8/m2a@1 | evidence=agent-cost
+cost.playtest-layered.samples | playtest-layered samples | recorded | 20/20 | evidence=agent-cost
+cost.playtest-layered.tokens.input | playtest-layered input tokens | recorded | 7927102 | evidence=agent-cost
+cost.playtest-layered.tokens.output | playtest-layered output tokens | recorded | 277794 | evidence=agent-cost
+cost.playtest-layered.tokens.cache_read | playtest-layered cache-read tokens | recorded | 0 | evidence=agent-cost
+cost.playtest-layered.tokens.cache_write | playtest-layered cache-write tokens | recorded | 0 | evidence=agent-cost
+cost.playtest-layered.tokens.reported_total | playtest-layered reported total tokens | recorded | 8204896 | evidence=agent-cost
+cost.playtest-layered.tokens_per_sample | tokens_per_sample | measured | mean=410,244.8 tokens; median=418,371.0; p95=795,707.9 | evaluated=20 planned=20 | 95% CI [290,099.5, 528,217.1] | evidence=agent-cost
+cost.playtest-layered.request_latency_ms | request_latency_ms | measured | mean=3,064.6 milliseconds; median=2,863.0; p95=6,262.2 | evaluated=3837 planned=3837 | 95% CI [3,015.9, 3,115.0] | evidence=agent-cost
+cost.playtest-layered.requests.logical | playtest-layered logical requests | recorded | 3909 | evidence=agent-cost
+cost.playtest-layered.requests.recorded | playtest-layered recorded requests | recorded | 3837 | evidence=agent-cost
+cost.playtest-layered.requests.cache_reuses | playtest-layered session cache reuses | recorded | 72 | evidence=agent-cost
+cost.playtest-layered.transport.known_attempts | playtest-layered known transport attempts | recorded | 0 | evidence=agent-cost
+cost.playtest-layered.transport.known_retries | playtest-layered known transport retries | recorded | 0 | evidence=agent-cost
+cost.playtest-layered.transport.unknown_records | playtest-layered records with unknown attempts | recorded | 3837 | evidence=agent-cost
+cost.playtest-layered.monetary_status | playtest-layered monetary cost | unavailable | unavailable | evidence=agent-cost
+cost.playtest-memory-on.model_snapshot | playtest-memory-on model | recorded | anthropic/claude-opus-4-8/m2a@1 | evidence=agent-cost
+cost.playtest-memory-on.samples | playtest-memory-on samples | recorded | 20/20 | evidence=agent-cost
+cost.playtest-memory-on.tokens.input | playtest-memory-on input tokens | recorded | 10192572 | evidence=agent-cost
+cost.playtest-memory-on.tokens.output | playtest-memory-on output tokens | recorded | 271686 | evidence=agent-cost
+cost.playtest-memory-on.tokens.cache_read | playtest-memory-on cache-read tokens | recorded | 0 | evidence=agent-cost
+cost.playtest-memory-on.tokens.cache_write | playtest-memory-on cache-write tokens | recorded | 0 | evidence=agent-cost
+cost.playtest-memory-on.tokens.reported_total | playtest-memory-on reported total tokens | recorded | 10464258 | evidence=agent-cost
+cost.playtest-memory-on.tokens_per_sample | tokens_per_sample | measured | mean=523,212.9 tokens; median=501,591.0; p95=972,748.5 | evaluated=20 planned=20 | 95% CI [373,840.9, 671,398.3] | evidence=agent-cost
+cost.playtest-memory-on.request_latency_ms | request_latency_ms | measured | mean=3,215.2 milliseconds; median=3,073.0; p95=6,097.9 | evaluated=3795 planned=3795 | 95% CI [3,169.1, 3,261.5] | evidence=agent-cost
+cost.playtest-memory-on.requests.logical | playtest-memory-on logical requests | recorded | 3795 | evidence=agent-cost
+cost.playtest-memory-on.requests.recorded | playtest-memory-on recorded requests | recorded | 3795 | evidence=agent-cost
+cost.playtest-memory-on.requests.cache_reuses | playtest-memory-on session cache reuses | recorded | 0 | evidence=agent-cost
+cost.playtest-memory-on.transport.known_attempts | playtest-memory-on known transport attempts | recorded | 0 | evidence=agent-cost
+cost.playtest-memory-on.transport.known_retries | playtest-memory-on known transport retries | recorded | 0 | evidence=agent-cost
+cost.playtest-memory-on.transport.unknown_records | playtest-memory-on records with unknown attempts | recorded | 3795 | evidence=agent-cost
+cost.playtest-memory-on.monetary_status | playtest-memory-on monetary cost | unavailable | unavailable | evidence=agent-cost
+cost.repair-search.model_snapshot | repair-search model | recorded | openai/gpt-5.6-sol/pre-m4@1 | evidence=agent-cost
+cost.repair-search.samples | repair-search samples | recorded | 10/10 | evidence=agent-cost
+cost.repair-search.tokens.input | repair-search input tokens | recorded | 16795 | evidence=agent-cost
+cost.repair-search.tokens.output | repair-search output tokens | recorded | 1366 | evidence=agent-cost
+cost.repair-search.tokens.cache_read | repair-search cache-read tokens | recorded | 0 | evidence=agent-cost
+cost.repair-search.tokens.cache_write | repair-search cache-write tokens | recorded | 16765 | evidence=agent-cost
+cost.repair-search.tokens.reported_total | repair-search reported total tokens | recorded | 18161 | evidence=agent-cost
+cost.repair-search.tokens_per_sample | tokens_per_sample | measured | mean=1,816.1 tokens; median=1,792.5; p95=2,207.7 | evaluated=10 planned=10 | 95% CI [1,683.5, 1,962.6] | evidence=agent-cost
+cost.repair-search.request_latency_ms | request_latency_ms | measured | mean=3,938.5 milliseconds; median=3,531.5; p95=7,587.6 | evaluated=10 planned=10 | 95% CI [2,765.0, 5,295.7] | evidence=agent-cost
+cost.repair-search.requests.logical | repair-search logical requests | recorded | 10 | evidence=agent-cost
+cost.repair-search.requests.recorded | repair-search recorded requests | recorded | 10 | evidence=agent-cost
+cost.repair-search.requests.cache_reuses | repair-search session cache reuses | recorded | 0 | evidence=agent-cost
+cost.repair-search.transport.known_attempts | repair-search known transport attempts | recorded | 0 | evidence=agent-cost
+cost.repair-search.transport.known_retries | repair-search known transport retries | recorded | 0 | evidence=agent-cost
+cost.repair-search.transport.unknown_records | repair-search records with unknown attempts | recorded | 10 | evidence=agent-cost
+cost.repair-search.monetary_status | repair-search monetary cost | unavailable | unavailable | evidence=agent-cost
+
+[Deterministic Runtime]
+runtime.workload | Workload | recorded | seeded-checker-sim-pipeline | evidence=runtime
+runtime.setup_ms | Compile setup | recorded | 0.021 milliseconds | evidence=runtime
+runtime.per_sample_ms | deterministic_pipeline_runtime_ms | measured | mean=6.457 milliseconds; median=5.252; p95=17.403 | evaluated=903 planned=903 | 95% CI [6.229, 6.69] | evidence=runtime
+runtime.environment_sha256 | Environment SHA-256 | recorded | 274e745336fcca2218c4b54fd561c1c8f52658b19f50141a44dbcd384b9635a7 | evidence=runtime
+
+[Versions]
+version.constraints | constraints | recorded | constraint-bundle@1
+version.external.adapter | external.adapter | recorded | endless-sky-adapter@1
+version.external.reader | external.reader | recorded | endless-sky-reader@1
+version.external.source-revision | external.source-revision | recorded | b10b7d6c24496e2f67a230a2553b344e200ba289
+version.model.current | model.current | recorded | openai/gpt-5.6-sol/pre-m4@1
+version.model.historical | model.historical | recorded | anthropic/claude-opus-4-8/m2a@1
+version.narrative.generator | narrative.generator | recorded | narrative-generator@2
+version.narrative.matcher | narrative.matcher | recorded | narrative-span@1
+version.narrative.oracle | narrative.oracle | recorded | narrative-oracle@1
+version.narrative.renderer | narrative.renderer | recorded | narrative-renderer@1
+version.prompt.hed | prompt.hed | recorded | repair@4
+version.prompt.narrative | prompt.narrative | recorded | consistency@3
+version.protocol.hed | protocol.hed | recorded | hed-protocol@1
+version.protocol.narrative | protocol.narrative | recorded | narrative-protocol@1
+version.protocol.qa | protocol.qa | recorded | qa-protocol@1
+version.runtime.clingo | runtime.clingo | recorded | 5.8.0
+version.runtime.pydantic | runtime.pydantic | recorded | 2.13.4
+version.runtime.z3-solver | runtime.z3-solver | recorded | 4.16.0.0
+version.schema.agent-cost | schema.agent-cost | recorded | agent-cost-latency-evidence@1
+version.schema.agent-io | schema.agent-io | recorded | agent-io@2
+version.schema.cassette | schema.cassette | recorded | cassette@1
+version.schema.dsl | schema.dsl | recorded | dsl@1
+version.schema.env | schema.env | recorded | env@1
+version.schema.finding | schema.finding | recorded | finding@1
+version.schema.ir | schema.ir | recorded | ir-core@1
+version.schema.model-router | schema.model-router | recorded | model-router@1
+version.schema.patch | schema.patch | recorded | patch@1
+version.schema.report | schema.report | recorded | bench-report@2
+version.schema.review | schema.review | recorded | review@1
+version.schema.runtime | schema.runtime | recorded | deterministic-runtime-evidence@1
+version.tool.gameforge | tool.gameforge | recorded | gameforge@0.0.0
+
+[Evidence Artifacts]
+evidence.agent-cost | agent-cost | available | scenarios/bench/agent-cost-latency-evidence.json sha256=fb5ce8cb359543a1dcf368ae5bdde25181b95803544a38d47e28e7587f9bbeb5 | evidence=agent-cost
+evidence.external | external | available | scenarios/external_cases/endless_sky/external-corpus-manifest.json sha256=7191229df489d46f98899af78b5c6aeb8c306b2c92c0b4345ef0cd112176a41c | evidence=external
+evidence.hed | hed | available | scenarios/external_cases/endless_sky/hed-evidence.json sha256=fc876e7f46175ae6ab71e34aed6f868412cd9e35ba88582ca92c7d2877fb88c7 | evidence=hed
+evidence.hed-protocol | hed-protocol | available | scenarios/external_cases/endless_sky/hed-protocol.json sha256=5a40f369dc5be737a2cbec90987dd9d7f583155bddd987812c1b51ba4ff2e16e | evidence=hed-protocol
+evidence.narrative | narrative | available | scenarios/narrative_bench/verification-evidence.json sha256=62ccc34855613a42e23743d5e251d2494f8f9bdecbf09c04f3376c79f9ca10d8 | evidence=narrative
+evidence.narrative-cases | narrative-cases | available | scenarios/narrative_bench/verification.jsonl sha256=503afa2f70ff660cb64a1110f7b1e63b5a633679334877bd709a00acef935872 | evidence=narrative-cases
+evidence.narrative-corpus | narrative-corpus | available | scenarios/narrative_bench/corpus-manifest.json sha256=d55e97419cc7390aa6373ba2dc0048722b7b0cf7f07a060fb2b377917314f301 | evidence=narrative-corpus
+evidence.narrative-protocol | narrative-protocol | available | scenarios/narrative_bench/protocol.json sha256=e861bf2eb93221e1f5e461050e91f36dc4c089e4e8937f20417b31a6a376f74b | evidence=narrative-protocol
+evidence.qa | qa | pending | scenarios/external_cases/endless_sky/qa-evidence.json unavailable | evidence=qa
+evidence.qa-protocol | qa-protocol | available | scenarios/external_cases/endless_sky/qa-protocol.json sha256=e7514514fb502a553d80660d030d0c2d9f56f7f82f30d738dee562be6d3b8d0c | evidence=qa-protocol
+evidence.runtime | runtime | available | scenarios/bench/deterministic-runtime-evidence.json sha256=8e7237a6abcb25fd6426c036d83a3dff1ce1b355465cdd4c761a00ade1789cbe | evidence=runtime
+evidence.seeded | seeded | available | gameforge/bench/corpus.py sha256=b79af05fd4b0c774f856bdc2d460fc42cef85bbd1ecddbe67c4e7d877068c8ca | evidence=seeded

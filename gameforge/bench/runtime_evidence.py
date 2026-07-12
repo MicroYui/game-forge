@@ -360,10 +360,20 @@ def validate_runtime_evidence(
 
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--output", required=True)
+    action = parser.add_mutually_exclusive_group(required=True)
+    action.add_argument("--output")
+    action.add_argument("--validate")
     parser.add_argument("--seed", type=int, default=0)
     parser.add_argument("--constraints", default="scenarios/constraints")
     args = parser.parse_args(argv)
+    constraints = default_constraints(args.constraints)
+    if args.validate is not None:
+        validate_runtime_evidence(
+            load_runtime_evidence(args.validate),
+            constraints=constraints,
+        )
+        return 0
+    assert args.output is not None
     evidence = measure_seeded_runtime(
         seed=args.seed,
         constraints_path=args.constraints,

@@ -35,6 +35,7 @@ from gameforge.bench.report_contracts import (
     PowerMetric,
     QaSection,
     VersionRef,
+    load_bench_report,
     write_bench_report,
 )
 from gameforge.bench.runtime_evidence import DeterministicRuntimeEvidence
@@ -1271,6 +1272,22 @@ def write_report_bundle(
     return json_path, text_path, html_path
 
 
+def validate_report_bundle(output_dir: str | Path) -> BenchReport:
+    """Validate canonical JSON and exact text/HTML projections without rebuilding."""
+
+    from gameforge.bench.panel import render_html
+
+    source = Path(output_dir)
+    report = load_bench_report(source / "bench-report.json")
+    text_path = source / "bench-report.txt"
+    html_path = source / "bench-report.html"
+    if text_path.read_text(encoding="utf-8") != format_text(report) + "\n":
+        raise ValueError("bench-report.txt differs from the authoritative JSON")
+    if html_path.read_text(encoding="utf-8") != render_html(report):
+        raise ValueError("bench-report.html differs from the authoritative JSON")
+    return report
+
+
 __all__ = [
     "ReportEvidenceBundle",
     "SECTION_TITLES",
@@ -1279,5 +1296,6 @@ __all__ = [
     "build_qa_section",
     "format_text",
     "report_projection",
+    "validate_report_bundle",
     "write_report_bundle",
 ]

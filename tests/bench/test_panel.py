@@ -5,8 +5,15 @@ from __future__ import annotations
 import ast
 from pathlib import Path
 
+import pytest
+
 from gameforge.bench.panel import render_html
-from gameforge.bench.report import format_text, report_projection, write_report_bundle
+from gameforge.bench.report import (
+    format_text,
+    report_projection,
+    validate_report_bundle,
+    write_report_bundle,
+)
 from gameforge.bench.report_contracts import VersionRef, load_bench_report
 from tests.bench.test_bench_report import _sample_report
 
@@ -90,6 +97,16 @@ def test_write_report_bundle_uses_one_report_for_all_three_views(tmp_path: Path)
     assert load_bench_report(json_path) == report
     assert text_path.read_text(encoding="utf-8") == format_text(report) + "\n"
     assert html_path.read_text(encoding="utf-8") == render_html(report)
+
+
+def test_validate_report_bundle_rejects_a_tampered_projection(tmp_path: Path):
+    report = _sample_report()
+    _, text_path, _ = write_report_bundle(report, tmp_path)
+
+    assert validate_report_bundle(tmp_path) == report
+    text_path.write_text("tampered\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="authoritative JSON"):
+        validate_report_bundle(tmp_path)
 
 
 def test_panel_module_has_no_evidence_checker_or_agent_dependencies():

@@ -822,19 +822,23 @@ GREEN with `44 passed`; CLI help, Ruff, and `git diff --check` pass.
 - Create: `scenarios/bench/bench-report.html`
 - Create: `tests/bench/test_measured_cost_latency.py`
 - Create: `tests/bench/test_measured_report_v2.py`
+- Modify: `gameforge/bench/runtime_evidence.py`
+- Modify: `gameforge/bench/report.py`
+- Modify: `gameforge/bench/run_bench.py`
+- Modify: `tests/bench/test_panel.py`
 - Modify: `docs/superpowers/plans/2026-07-12-pre-m4-cost-latency-report-v2.md`
 
-- [ ] **Step 1: Add measured-artifact acceptance tests before generation**
+- [x] **Step 1: Add measured-artifact acceptance tests before generation**
 
 The tests load exact committed paths, validate every nested hash, reaggregate every cassette referenced by Agent cost evidence, verify all six workload denominators/model snapshots, validate the runtime environment/sample denominator, parse all three report views, and assert combined acceptance has no failure except the explicit real-QA evidence failure.
 
-- [ ] **Step 2: Run measured tests and verify RED**
+- [x] **Step 2: Run measured tests and verify RED**
 
 Run: `uv run pytest tests/bench/test_measured_cost_latency.py tests/bench/test_measured_report_v2.py -q`
 
 Expected: files are absent.
 
-- [ ] **Step 3: Generate deterministic Agent cost evidence under zero-network REPLAY**
+- [x] **Step 3: Generate deterministic Agent cost evidence under zero-network REPLAY**
 
 Run:
 
@@ -850,7 +854,7 @@ git diff --exit-code -- cassettes
 
 Expected: two independent zero-network aggregations are byte-identical; no cassette changes.
 
-- [ ] **Step 4: Measure the full controlled deterministic workload once**
+- [x] **Step 4: Measure the full controlled deterministic workload once**
 
 Run:
 
@@ -863,7 +867,7 @@ uv run python -m gameforge.bench.runtime_evidence \
 
 Record in this plan: environment ID, setup milliseconds, evaluated sample count, mean/median/p95 per-sample latency, bootstrap CI, and evidence SHA. Do not compare a second machine's absolute wall time as a correctness assertion.
 
-- [ ] **Step 5: Build all three report views from one v2 model**
+- [x] **Step 5: Build all three report views from one v2 model**
 
 Run:
 
@@ -875,7 +879,7 @@ uv run python -m gameforge.bench.acceptance --report scenarios/bench/bench-repor
 
 Expected before real QA import: JSON/text/HTML validate; the acceptance CLI exits nonzero and prints only explicit QA evidence/session/pair failures. Any non-QA failure blocks this task.
 
-- [ ] **Step 6: Run measured tests and commit immutable artifacts**
+- [x] **Step 6: Run measured tests and commit immutable artifacts**
 
 Run:
 
@@ -894,6 +898,21 @@ git add scenarios/bench tests/bench/test_measured_cost_latency.py \
 git diff --cached --check
 git commit -m "test(bench): freeze pre-M4 cost and report evidence"
 ```
+
+Task 9 result: two independent zero-network Agent-cost aggregations are
+byte-identical (`evidence_sha256=a213bd722cf08e1b7e7a61fda0d97a87e44b5dc5c44c1233a471cc76b64f3354`),
+with no cassette changes. Current narrative/HED/repair evidence uses
+`openai/gpt-5.6-sol/pre-m4@1`; historical playtest remains
+`anthropic/claude-opus-4-8/m2a@1`. The controlled runtime measurement is bound
+to environment `274e745336fcca2218c4b54fd561c1c8f52658b19f50141a44dbcd384b9635a7`
+on Darwin 25.5.0 arm64 / Python 3.12.13: setup `0.020542 ms`, `903` samples,
+mean `6.457244 ms`, median `5.252292 ms`, p95 `17.402984 ms`, bootstrap 95%
+CI `[6.228858, 6.690267]`, runtime evidence SHA
+`c11482c785e35fde6bf9138982933a28985d2341bc342278c273d2fd88fc1e7e`.
+JSON/text/HTML validate as exact same-model projections; combined acceptance
+returns only `qa.evidence_missing`. The measured suite is GREEN with `7 passed
+in 119.36s`; explicit runtime/report validation CLIs, projection tamper test,
+Ruff, `git diff --check`, and zero-cassette-diff checks pass.
 
 ---
 
