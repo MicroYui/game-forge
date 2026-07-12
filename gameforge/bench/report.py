@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, Mapping, Sequence
 
+from pydantic import BaseModel, Field
+
 from gameforge.bench.cost_latency import AgentCostLatencyEvidence
 from gameforge.bench.external_cases.contracts import ExternalCorpusManifest
 from gameforge.bench.hed.contracts import HedEvidenceManifest
@@ -73,6 +75,26 @@ _REQUIRED_EVIDENCE = {
     "runtime",
     "seeded",
 }
+
+
+class ExternalReport(BaseModel):
+    """Legacy M3b external-result shape retained for frozen replay.
+
+    BenchReport v2 uses :class:`ExternalSection` from ``report_contracts`` as
+    its authority.  This model only preserves the previously published import
+    and serialization contract consumed by ``gameforge.bench.external``.
+    """
+
+    source: str
+    n_real_entities: int = 0
+    n_defect_samples: int = 0
+    detected: int = 0
+    detection_rate: float = 0.0
+    ci_low: float = 0.0
+    ci_high: float = 1.0
+    clean_deterministic_findings: int = 0
+    clean_findings_by_class: dict[str, int] = Field(default_factory=dict)
+    note: str = ""
 
 
 @dataclass(frozen=True)

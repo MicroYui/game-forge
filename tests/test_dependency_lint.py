@@ -28,6 +28,7 @@ _SPINE_PATH = pathlib.Path(_SPINE_DIR)
 # names no denylist ever mentioned.
 _SPINE_ALLOWED_EXTERNAL = frozenset({"clingo", "z3", "pydantic", "yaml"})
 _STDLIB = frozenset(sys.stdlib_module_names)
+_BENCH_AGENT_BRIDGES = frozenset({"agent_costs.py", "agent_metrics.py"})
 
 
 def _spine_import_violations() -> list[str]:
@@ -64,16 +65,17 @@ def _spine_import_violations() -> list[str]:
 
 
 def _bench_seeded_core_agents_imports() -> list[str]:
-    """Every DIRECT `gameforge.agents` import in the bench SEEDED CORE. Only
-    `agent_metrics.py` is the sanctioned bridge (REPLAY aggregation of M2); the
-    seeded pipeline (inject/corpus/metrics/report/taxonomy/power/bases/run_bench)
-    must stay agent-free so the deterministic bench and its anti-circularity
-    story never entangle with the agent layer."""
+    """Every direct Agent import outside the two sanctioned Bench bridges.
+
+    ``agent_metrics.py`` aggregates bounded M2 outcomes and ``agent_costs.py``
+    composes REPLAY request traces. The seeded pipeline itself must stay
+    agent-free so deterministic evidence never entangles with the Agent layer.
+    """
     bench_dir = pathlib.Path(_SPINE_DIR).parent / "bench"
     violations: list[str] = []
     for path in sorted(bench_dir.glob("*.py")):
-        if path.name in ("__init__.py", "agent_metrics.py"):
-            continue  # agent_metrics is the ONE allowed bridge
+        if path.name == "__init__.py" or path.name in _BENCH_AGENT_BRIDGES:
+            continue
         tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
         modules: list[str] = []
         for node in ast.walk(tree):
@@ -119,7 +121,7 @@ def _checker_sim_ingestion_imports() -> list[str]:
 
 def test_bench_seeded_core_does_not_import_agents():
     assert _bench_seeded_core_agents_imports() == [], (
-        "bench seeded core must stay agent-free (only agent_metrics.py bridges to M2)"
+        "bench seeded core must stay agent-free outside its two REPLAY bridges"
     )
 
 
