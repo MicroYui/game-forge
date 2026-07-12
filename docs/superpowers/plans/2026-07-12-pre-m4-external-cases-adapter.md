@@ -274,7 +274,7 @@ git commit -m "feat(ingestion): add lossless Endless Sky data reader"
 - Consumes: local bare repo `/Users/liyifan/.cache/gameforge/endless-sky.git`, pinned head `b10b7d6c24496e2f67a230a2553b344e200ba289`, and the eight frozen commits in the approved design.
 - Produces: canonical case specs, exact parent/commit versions of every changed config file, the exact upstream patch, source context, and deterministic fixture tree descriptors.
 
-- [ ] **Step 1: Write failing registration tests that lock all eight cases**
+- [x] **Step 1: Write failing registration tests that lock all eight cases**
 
 ```python
 EXPECTED = {
@@ -296,13 +296,13 @@ def test_registration_is_exact_and_balanced():
     assert all(s.changed_paths and s.target_locators for s in specs)
 ```
 
-- [ ] **Step 2: Run registration tests and verify RED**
+- [x] **Step 2: Run registration tests and verify RED**
 
 Run: `uv run pytest tests/bench/external_cases/test_endless_sky_registration.py -q`
 
 Expected: missing case specs and loader.
 
-- [ ] **Step 3: Implement the bounded local-Git extractor**
+- [x] **Step 3: Implement the bounded local-Git extractor**
 
 `extract_case(repo, spec, output_root)` must use `subprocess.run([...], shell=False)` with a fixed `LANG=C`, `LC_ALL=C`, `TZ=UTC`, no inherited `GIT_*`, and these operations only:
 
@@ -324,7 +324,7 @@ It rejects merge commits, path mismatches, any non-`data/**/*.txt` path, and a s
 
 The mapping spec contains only source grammar/IR rules and versions. It must not contain a commit OID, path, PR, or object name.
 
-- [ ] **Step 4: Register exact specs and extract fixtures**
+- [x] **Step 4: Register exact specs and extract fixtures**
 
 Run:
 
@@ -337,7 +337,7 @@ uv run python -m gameforge.bench.external_cases.endless_sky_fixture \
 
 Expected: eight case directories, exact before/after files, eight patches, and no network access.
 
-- [ ] **Step 5: Verify fixture provenance and byte hashes**
+- [x] **Step 5: Verify fixture provenance and byte hashes**
 
 Tests independently run read-only `git show` against the local bare repo when present and require every committed fixture byte to match. Offline mode still verifies committed SHA-256 tree descriptors, patch digests, GPL notice, case count, paths, parents, and pinned-head ancestry recorded by the extractor.
 
@@ -345,7 +345,7 @@ Run: `uv run pytest tests/bench/external_cases/test_endless_sky_registration.py 
 
 Expected: all tests pass.
 
-- [ ] **Step 6: Commit the frozen source corpus**
+- [x] **Step 6: Commit the frozen source corpus**
 
 ```bash
 git add gameforge/bench/external_cases/endless_sky_fixture.py scenarios/external_cases/endless_sky tests/bench/external_cases/test_endless_sky_registration.py tests/bench/external_cases/test_endless_sky_fixture.py

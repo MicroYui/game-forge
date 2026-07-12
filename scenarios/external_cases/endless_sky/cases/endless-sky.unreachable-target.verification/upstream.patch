@@ -1,0 +1,344 @@
+diff --git a/data/human/deep jobs.txt b/data/human/deep jobs.txt
+index bcbd61b12d378a29bba2448fe088e3afb901c755..a48594d237aecadcb6fdeba2416d5b5a9b2d62b9 100644
+--- a/data/human/deep jobs.txt	
++++ b/data/human/deep jobs.txt	
+@@ -1102,6 +1102,7 @@ mission "Lionheart Shipment [0]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Valhalla"
+ 	source
+ 		near "Epsilon Leonis" 2 10
+ 		attributes factory
+@@ -1120,6 +1121,7 @@ mission "Lionheart Shipment [1]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Valhalla"
+ 	source
+ 		near "Epsilon Leonis" 2 10
+ 		attributes factory research
+@@ -1138,6 +1140,7 @@ mission "Lionheart Shipment [2]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Valhalla"
+ 	source
+ 		near "Epsilon Leonis" 2 10
+ 		attributes factory mining
+@@ -1156,6 +1159,7 @@ mission "Deep Sky Shipment [0]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Asgard"
+ 	source
+ 		near Naos 2 15
+ 		attributes factory
+@@ -1174,6 +1178,7 @@ mission "Deep Sky Shipment [1]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Asgard"
+ 	source
+ 		near Naos 2 15
+ 		attributes factory research
+diff --git a/data/human/far north jobs.txt b/data/human/far north jobs.txt
+index 76732a52ef287cb053c48511099fabf0027645bd..e3458cd42a38a8c4a7e46f197bfe9ecca1790f41 100644
+--- a/data/human/far north jobs.txt	
++++ b/data/human/far north jobs.txt	
+@@ -19,6 +19,7 @@ mission "Betelgeuse Shipment [0]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Prime"
+ 	source
+ 		not government Pirate
+ 		near Betelgeuse 2 10
+@@ -42,6 +43,7 @@ mission "Betelgeuse Shipment [1]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Prime"
+ 	source
+ 		not government Pirate
+ 		near Betelgeuse 2 10
+@@ -65,6 +67,7 @@ mission "Betelgeuse Shipment [2]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Prime"
+ 	source
+ 		not government Pirate
+ 		near Betelgeuse 2 10
+diff --git a/data/human/near earth jobs.txt b/data/human/near earth jobs.txt
+index 4b50ab837e1359febf0bf81ca7558177b3b15cd3..626b2e52b0d8b078abe794d3f3de1f2b83103ece 100644
+--- a/data/human/near earth jobs.txt	
++++ b/data/human/near earth jobs.txt	
+@@ -238,6 +238,7 @@ mission "Transport farmers to Mars"
+ 	passengers 2 2 .8
+ 	to offer
+ 		random < 50
++		has "landing access: Mars"
+ 	source "Earth"
+ 	destination "Mars"
+ 	on visit
+@@ -255,6 +256,7 @@ mission "Transport tourists to Luna"
+ 	passengers 2 2 .8
+ 	to offer
+ 		random < 50
++		has "landing access: Luna"
+ 	source "Earth"
+ 	destination "Luna"
+ 	on visit
+@@ -271,6 +273,7 @@ mission "Transport seasonal workers to Earth"
+ 	passengers 2 2 .8
+ 	to offer
+ 		random < 50
++		has "landing access: Earth"
+ 	source "Mars"
+ 	destination "Earth"
+ 	on visit
+diff --git a/data/human/paradise world jobs.txt b/data/human/paradise world jobs.txt
+index 5dd77b572ce7acb2c96b5f5a0b75c8a25a60e32e..75c2c9930b976a3169112d8266b3502e44ef9eba 100644
+--- a/data/human/paradise world jobs.txt	
++++ b/data/human/paradise world jobs.txt	
+@@ -607,6 +607,7 @@ mission "Gemini Shipyards Shipment [0]"
+ 	repeat
+ 	to offer
+ 		random < 15
++		has "landing access: Geminus"
+ 		or
+ 			not "event: war begins"
+ 			has "event: geminus rebuilt"
+@@ -627,6 +628,7 @@ mission "Gemini Shipyards Shipment [1]"
+ 	job
+ 	repeat
+ 	to offer
++		has "landing access: Geminus"
+ 		random < 15
+ 		or
+ 			not "event: war begins"
+@@ -649,6 +651,7 @@ mission "Lovelace Labs Shipment [0]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Ada"
+ 	source
+ 		near Aldebaran 2 10
+ 		attributes core factory
+@@ -667,6 +670,7 @@ mission "Polymath Nanoinstruments Shipment [0]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Vinci"
+ 	source
+ 		near Miaplacidus 2 10
+ 		attributes core factory
+diff --git a/data/human/rim jobs.txt b/data/human/rim jobs.txt
+index 7ae24229cfb43bd676a0365cdec2508f920de213..6010ac4d4501fad72b56c35be0e7180d58e08a66 100644
+--- a/data/human/rim jobs.txt	
++++ b/data/human/rim jobs.txt	
+@@ -19,6 +19,7 @@ mission "Southbound Shipment [0]"
+ 	cargo "weapons" 5 2 .1
+ 	to offer
+ 		random < 10
++		has "landing access: Zug"
+ 	source
+ 		not government "Pirate"
+ 		near "Zubeneschamali" 2 10
+@@ -42,6 +43,7 @@ mission "Southbound Shipment [1]"
+ 	cargo "Ship Alloys" 5 2 .1
+ 	to offer
+ 		random < 10
++		has "landing access: Zug"
+ 	source
+ 		not government "Pirate"
+ 		near "Zubeneschamali" 2 10
+@@ -66,6 +68,7 @@ mission "Kraz Shipment [0]"
+ 	cargo "weapons parts" 5 2 .1
+ 	to offer
+ 		random < 10
++		has "landing access: Rust"
+ 	source
+ 		not government "Pirate"
+ 		near "Kraz" 2 10
+@@ -89,6 +92,7 @@ mission "Kraz Shipment [1]"
+ 	cargo Electronics 5 2 .1
+ 	to offer
+ 		random < 10
++		has "landing access: Rust"
+ 	source
+ 		not government "Pirate"
+ 		near "Kraz" 2 10
+diff --git a/data/human/south jobs.txt b/data/human/south jobs.txt
+index 6901d64fdbf88d20d5e58fb90733fae134009905..d56b8f1841a2ca5105f33ac12a51d77259d64fa6 100644
+--- a/data/human/south jobs.txt	
++++ b/data/human/south jobs.txt	
+@@ -234,6 +234,7 @@ mission "Delta V Shipment [0]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Solace"
+ 	source
+ 		near Pherkad 2 15
+ 		attributes factory
+@@ -252,6 +253,7 @@ mission "Delta V Shipment [1]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Solace"
+ 	source
+ 		near Pherkad 2 15
+ 		attributes factory
+@@ -270,6 +272,7 @@ mission "Tarazed Shipyards Shipment [0]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Wayfarer"
+ 	source
+ 		near Tarazed 2 10
+ 		attributes factory
+@@ -288,6 +291,7 @@ mission "Tarazed Shipyards Shipment [1]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Wayfarer"
+ 	source
+ 		near Tarazed 2 10
+ 		attributes factory mining
+@@ -306,6 +310,7 @@ mission "Tarazed Shipyards Shipment [2]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Wayfarer"
+ 	source
+ 		near Tarazed 2 10
+ 		attributes factory mining
+@@ -324,6 +329,7 @@ mission "Tarazed Systems Shipment [0]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Wayfarer"
+ 	source
+ 		near Tarazed 2 10
+ 		attributes factory mining
+@@ -342,6 +348,7 @@ mission "Tarazed Systems Shipment [1]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Wayfarer"
+ 	source
+ 		near Tarazed 2 10
+ 		attributes factory
+diff --git a/data/human/syndicate jobs.txt b/data/human/syndicate jobs.txt
+index 326e873babc0603a34b3460c9ba19534dcc72a90..95c4f6891bd18d6b4871abe0d2c4545738c3c462 100644
+--- a/data/human/syndicate jobs.txt	
++++ b/data/human/syndicate jobs.txt	
+@@ -565,9 +565,11 @@ mission "Syndicated Shipyards Shipment [0]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Foundry"
+ 	source
+ 		near Achernar 2 10
+ 		attributes core factory
++		not government "Pirate"
+ 	destination Foundry
+ 	npc
+ 		government Pirate
+@@ -587,9 +589,11 @@ mission "Syndicated Shipyards Shipment [1]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Foundry"
+ 	source
+ 		near Achernar 2 10
+ 		attributes core mining
++		not government "Pirate"
+ 	destination Foundry
+ 	npc
+ 		government Pirate
+@@ -609,9 +613,11 @@ mission "Syndicated Shipyards Shipment [2]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Foundry"
+ 	source
+ 		near Achernar 2 10
+ 		attributes core factory
++		not government "Pirate"
+ 	destination Foundry
+ 	npc
+ 		government Pirate
+@@ -631,9 +637,11 @@ mission "Syndicated Shipyards Shipment [3]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Foundry"
+ 	source
+ 		near Achernar 2 10
+ 		attributes core factory
++		not government "Pirate"
+ 	destination Foundry
+ 	npc
+ 		government Pirate
+@@ -653,9 +661,11 @@ mission "Syndicated Systems Shipment [0]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Hephaestus"
+ 	source
+ 		near Markab 2 10
+ 		attributes core factory
++		not government "Pirate"
+ 	destination Hephaestus
+ 	npc
+ 		government Pirate
+@@ -675,9 +685,11 @@ mission "Syndicated Systems Shipment [1]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Hephaestus"
+ 	source
+ 		near Markab 2 10
+ 		attributes core mining factory
++		not government "Pirate"
+ 	destination Hephaestus
+ 	npc
+ 		government Pirate
+@@ -697,9 +709,11 @@ mission "Megaparsec Shipment [0]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Sunracer"
+ 	source
+ 		near Mirfak 2 10
+ 		attributes core factory
++		not government "Pirate"
+ 	destination Sunracer
+ 	npc
+ 		government Pirate
+@@ -719,9 +733,11 @@ mission "Megaparsec Shipment [1]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Sunracer"
+ 	source
+ 		near Mirfak 2 10
+ 		attributes core mining factory
++		not government "Pirate"
+ 	destination Sunracer
+ 	npc
+ 		government Pirate
+@@ -741,9 +757,11 @@ mission "Megaparsec Shipment [2]"
+ 	repeat
+ 	to offer
+ 		random < 10
++		has "landing access: Sunracer"
+ 	source
+ 		near Mirfak 2 10
+ 		attributes core mining factory
++		not government "Pirate"
+ 	destination Sunracer
+ 	npc
+ 		government Pirate

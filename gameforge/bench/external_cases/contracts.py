@@ -136,6 +136,36 @@ class ExternalCaseSpec(_StrictModel):
         return self
 
 
+class ExternalCaseRegistration(_StrictModel):
+    schema_version: Literal["external-case-registration@1"]
+    source_id: StableId
+    pinned_head: Oid
+    repository_url: NonEmptyStr
+    cases: tuple[ExternalCaseSpec, ...]
+    registration_sha256: Sha256
+
+    @classmethod
+    def seal(cls, **values: Any) -> ExternalCaseRegistration:
+        payload = dict(values)
+        payload.pop("registration_sha256", None)
+        payload["registration_sha256"] = content_sha256(payload)
+        return cls.model_validate(payload)
+
+    @model_validator(mode="after")
+    def validate_registration(self) -> ExternalCaseRegistration:
+        if not self.cases:
+            raise ValueError("external case registration must contain cases")
+        ids = [case.case_id for case in self.cases]
+        if len(ids) != len(set(ids)):
+            raise ValueError("external case registration ids must be unique")
+        if any(case.source_id != self.source_id for case in self.cases):
+            raise ValueError("registered case source_id differs from registration")
+        expected = content_sha256(self, exclude={"registration_sha256"})
+        if self.registration_sha256 != expected:
+            raise ValueError("registration_sha256 does not bind case registration")
+        return self
+
+
 class TreeFile(_StrictModel):
     path: str
     sha256: Sha256
@@ -301,6 +331,7 @@ class ExternalCorpusManifest(_StrictModel):
 
 __all__ = [
     "ExternalCaseEvidence",
+    "ExternalCaseRegistration",
     "ExternalCaseSpec",
     "ExternalCorpusManifest",
     "FindingEvidence",

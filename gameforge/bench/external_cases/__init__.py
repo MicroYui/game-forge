@@ -2,6 +2,7 @@
 
 from gameforge.bench.external_cases.contracts import (
     ExternalCaseEvidence,
+    ExternalCaseRegistration,
     ExternalCaseSpec,
     ExternalCorpusManifest,
     FindingEvidence,
@@ -17,6 +18,7 @@ from gameforge.bench.external_cases.contracts import (
 
 __all__ = [
     "ExternalCaseEvidence",
+    "ExternalCaseRegistration",
     "ExternalCaseSpec",
     "ExternalCorpusManifest",
     "FindingEvidence",
