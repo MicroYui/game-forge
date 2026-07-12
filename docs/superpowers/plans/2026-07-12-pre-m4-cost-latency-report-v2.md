@@ -654,15 +654,15 @@ source evidence and never records live calls. The focused suite is GREEN with
 **Files:**
 - Rewrite: `gameforge/bench/panel.py`
 - Modify: `gameforge/bench/report.py`
+- Modify: `gameforge/bench/run_bench.py`
 - Rewrite: `tests/bench/test_panel.py`
-- Modify: `tests/bench/test_bench_report.py`
 
 **Interfaces:**
 - `report_projection(report) -> tuple[ViewRow, ...]`
 - `format_text(report) -> str`
 - `render_html(report) -> str`
 
-- [ ] **Step 1: Write failing projection/renderer contract tests**
+- [x] **Step 1: Write failing projection/renderer contract tests**
 
 ```python
 def test_text_and_html_render_every_authoritative_projection_row():
@@ -684,17 +684,17 @@ def test_pending_values_render_as_unavailable_not_zero():
 
 Also test no JavaScript, escaped text/attributes, every section present, model snapshots visible, external development/verification separated, HED unusable count visible, QA single-participant scope visible, token components/unknown attempts visible, deterministic environment visible, power/underpowered visible, and no renderer imports evidence loaders/checkers/Agents.
 
-- [ ] **Step 2: Run renderer tests and verify RED**
+- [x] **Step 2: Run renderer tests and verify RED**
 
 Run: `uv run pytest tests/bench/test_panel.py tests/bench/test_bench_report.py -q`
 
 Expected: v1 HTML/text renderers omit v2 sections and projection IDs.
 
-- [ ] **Step 3: Implement one projection and two pure renderers**
+- [x] **Step 3: Implement one projection and two pure renderers**
 
 `report_projection()` is the only flattening layer. It emits stable row IDs, section, label, status, formatted value, denominator, interval, and evidence ref. Text and HTML iterate those rows; neither reads raw section internals independently. HTML remains self-contained with inline CSS and no `<script>`.
 
-- [ ] **Step 4: Run focused tests and commit**
+- [x] **Step 4: Run focused tests and commit**
 
 Run:
 
@@ -713,6 +713,14 @@ git add gameforge/bench/panel.py gameforge/bench/report.py \
 git diff --cached --check
 git commit -m "feat(bench): render BenchReport v2 views"
 ```
+
+Task 7 result: RED established that the v1 panel could not represent the v2
+evidence surface. A single stable projection now drives the text and static
+HTML views, and the bench CLI writes JSON, text, and HTML from the same typed
+report. Pending values stay unavailable rather than rendering as zero; all
+content and attributes are escaped; the HTML is self-contained and has no
+JavaScript. The focused suite is GREEN with `21 passed`; Ruff and
+`git diff --check` pass.
 
 ---
 

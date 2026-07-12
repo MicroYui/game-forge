@@ -37,11 +37,11 @@ from gameforge.bench.qa.score import load_evidence as load_qa
 from gameforge.bench.report import (
     ReportEvidenceBundle,
     build_bench_report as compose_bench_report,
+    write_report_bundle,
 )
 from gameforge.bench.report_contracts import (
     BenchReport,
     EvidenceArtifactRef,
-    write_bench_report,
 )
 from gameforge.bench.runtime_evidence import (
     load_runtime_evidence,
@@ -276,7 +276,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         runtime_path=args.runtime,
         qa_path=args.qa,
     )
-    write_bench_report(args.output_dir / "bench-report.json", report)
+    write_report_bundle(report, args.output_dir)
     return 0
 
 

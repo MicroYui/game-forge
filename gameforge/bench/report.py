@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import statistics
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Literal, Mapping, Sequence
 
 from gameforge.bench.cost_latency import AgentCostLatencyEvidence
@@ -34,6 +35,7 @@ from gameforge.bench.report_contracts import (
     PowerMetric,
     QaSection,
     VersionRef,
+    write_bench_report,
 )
 from gameforge.bench.runtime_evidence import DeterministicRuntimeEvidence
 from gameforge.bench.stats import percentile, percentile_bootstrap_ci
@@ -771,8 +773,511 @@ def build_bench_report(
     )
 
 
+@dataclass(frozen=True)
+class ViewRow:
+    row_id: str
+    section: str
+    label: str
+    status: str
+    value: str
+    denominator: str = ""
+    interval: str = ""
+    evidence_ref: str | None = None
+
+
+SECTION_TITLES = {
+    "meta": "Report",
+    "seeded": "Seeded BDR",
+    "false_positives": "False Positives",
+    "agent": "Agent Outcomes",
+    "power": "Power",
+    "external.source": "External Source",
+    "external.development": "External Development",
+    "external.verification": "External Verification",
+    "narrative": "Narrative",
+    "hed": "Human Edit Distance",
+    "qa": "QA Study",
+    "cost": "Agent Cost and Latency",
+    "runtime": "Deterministic Runtime",
+    "versions": "Versions",
+    "evidence": "Evidence Artifacts",
+}
+
+
+def _number(value: float) -> str:
+    if abs(value) >= 1000:
+        return f"{value:,.1f}"
+    return f"{value:.3f}".rstrip("0").rstrip(".")
+
+
+def _simple_row(
+    row_id: str,
+    section: str,
+    label: str,
+    value: object,
+    *,
+    status: str = "recorded",
+    evidence_ref: str | None = None,
+) -> ViewRow:
+    return ViewRow(
+        row_id=row_id,
+        section=section,
+        label=label,
+        status=status,
+        value=str(value),
+        evidence_ref=evidence_ref,
+    )
+
+
+def _binary_row(row_id: str, section: str, metric: BinaryMetric) -> ViewRow:
+    if metric.rate is None:
+        value = "unavailable"
+        interval = ""
+    else:
+        value = f"{metric.k}/{metric.evaluated_n} ({metric.rate:.1%})"
+        interval = f"95% CI [{metric.ci_low:.3f}, {metric.ci_high:.3f}]"
+    return ViewRow(
+        row_id=row_id,
+        section=section,
+        label=(metric.defect_class.value if metric.defect_class else metric.name),
+        status=metric.status,
+        value=value,
+        denominator=f"evaluated={metric.evaluated_n} planned={metric.planned_n}",
+        interval=interval,
+        evidence_ref=metric.evidence_ref,
+    )
+
+
+def _distribution_row(
+    row_id: str,
+    section: str,
+    metric: DistributionMetric,
+) -> ViewRow:
+    if metric.mean is None:
+        value = "unavailable"
+        interval = ""
+    else:
+        value = (
+            f"mean={_number(metric.mean)} {metric.unit}; "
+            f"median={_number(metric.median)}; p95={_number(metric.p95)}"
+        )
+        interval = (
+            f"95% CI [{_number(metric.ci_low)}, {_number(metric.ci_high)}]"
+        )
+    return ViewRow(
+        row_id=row_id,
+        section=section,
+        label=metric.name,
+        status=metric.status,
+        value=value,
+        denominator=f"evaluated={metric.evaluated_n} planned={metric.planned_n}",
+        interval=interval,
+        evidence_ref=metric.evidence_ref,
+    )
+
+
+def report_projection(report: BenchReport) -> tuple[ViewRow, ...]:
+    """Flatten every report section into one stable renderer-neutral projection."""
+
+    rows: list[ViewRow] = [
+        _simple_row("meta.schema", "meta", "Schema", report.schema_version),
+        _simple_row("meta.seed", "meta", "Seed", report.meta.seed),
+        _simple_row(
+            "meta.corpus_size",
+            "meta",
+            "Seeded corpus size",
+            report.meta.corpus_size,
+        ),
+        _simple_row(
+            "meta.builder",
+            "meta",
+            "Report builder",
+            report.meta.report_builder_version,
+        ),
+    ]
+    rows.extend(
+        _binary_row(f"seeded.bdr.{metric.defect_class.value}", "seeded", metric)
+        for metric in report.seeded
+        if metric.defect_class is not None
+    )
+    rows.extend(
+        _binary_row(
+            f"false_positive.{metric.name}",
+            "false_positives",
+            metric,
+        )
+        for metric in report.false_positives
+    )
+    rows.extend(
+        _binary_row(f"agent.{metric.name}", "agent", metric)
+        for metric in report.agent
+    )
+    rows.extend(
+        ViewRow(
+            row_id=f"power.{metric.defect_class.value}",
+            section="power",
+            label=metric.defect_class.value,
+            status=metric.status,
+            value=(
+                f"half_width={metric.achieved_half_width:.3f}; "
+                f"target={metric.target_half_width:.3f}"
+            ),
+            denominator=f"evaluated={metric.evaluated_n}",
+            evidence_ref=metric.evidence_ref,
+        )
+        for metric in report.power
+    )
+
+    external = report.external
+    rows.extend(
+        (
+            _simple_row(
+                "external.source.id",
+                "external.source",
+                "Source",
+                external.source_id,
+                evidence_ref=external.evidence_ref,
+            ),
+            _simple_row(
+                "external.source.repository",
+                "external.source",
+                "Repository",
+                external.repository,
+                evidence_ref=external.evidence_ref,
+            ),
+            _simple_row(
+                "external.source.cases",
+                "external.source",
+                "Qualified cases",
+                f"{external.qualified_cases}/{external.total_cases}",
+                evidence_ref=external.evidence_ref,
+            ),
+            _simple_row(
+                "external.source.adapter",
+                "external.source",
+                "Reader / adapter",
+                f"{external.reader_version} / {external.adapter_version}",
+                evidence_ref=external.evidence_ref,
+            ),
+        )
+    )
+    rows.extend(
+        _binary_row(
+            f"external.development.{metric.defect_class.value}",
+            "external.development",
+            metric,
+        )
+        for metric in external.development
+        if metric.defect_class is not None
+    )
+    rows.extend(
+        _binary_row(
+            f"external.verification.{metric.defect_class.value}",
+            "external.verification",
+            metric,
+        )
+        for metric in external.verification
+        if metric.defect_class is not None
+    )
+
+    narrative = report.narrative
+    rows.extend(
+        (
+            _simple_row(
+                "narrative.model_snapshot",
+                "narrative",
+                "Model snapshot",
+                _snapshot_version(narrative.model_snapshot),
+                evidence_ref=narrative.evidence_ref,
+            ),
+            _simple_row(
+                "narrative.protocol_sha256",
+                "narrative",
+                "Protocol SHA-256",
+                narrative.protocol_sha256,
+                evidence_ref=narrative.evidence_ref,
+            ),
+        )
+    )
+    rows.extend(
+        _binary_row(
+            f"narrative.bdr.{metric.defect_class.value}",
+            "narrative",
+            metric,
+        )
+        for metric in narrative.bdr
+        if metric.defect_class is not None
+    )
+
+    hed = report.hed
+    rows.append(
+        _simple_row(
+            "hed.model_snapshot",
+            "hed",
+            "Model snapshot",
+            _snapshot_version(hed.model_snapshot),
+            evidence_ref=hed.evidence_ref,
+        )
+    )
+    rows.append(_distribution_row("hed.normalized_distance", "hed", hed.normalized_distance))
+    rows.append(_distribution_row("hed.raw_distance", "hed", hed.raw_distance))
+    rows.extend(
+        _binary_row(f"hed.disposition.{metric.name}", "hed", metric)
+        for metric in hed.dispositions
+    )
+
+    qa = report.qa
+    rows.extend(
+        (
+            _simple_row("qa.scope", "qa", "Scope", qa.scope),
+            _simple_row(
+                "qa.conclusion",
+                "qa",
+                "Conclusion",
+                qa.conclusion,
+                status=qa.conclusion,
+                evidence_ref=qa.evidence_ref,
+            ),
+            _distribution_row(
+                "qa.paired_saved_minutes",
+                "qa",
+                qa.paired_saved_minutes,
+            ),
+            _distribution_row(
+                "qa.paired_saved_fraction",
+                "qa",
+                qa.paired_saved_fraction,
+            ),
+            _binary_row("qa.manual_success", "qa", qa.manual_success),
+            _binary_row("qa.assisted_success", "qa", qa.assisted_success),
+        )
+    )
+
+    for workload in report.cost_latency.agent.workloads:
+        prefix = f"cost.{workload.workload_id}"
+        ref = workload.evidence_ref
+        rows.extend(
+            (
+                _simple_row(
+                    f"{prefix}.model_snapshot",
+                    "cost",
+                    f"{workload.workload_id} model",
+                    _snapshot_version(workload.model_snapshot),
+                    evidence_ref=ref,
+                ),
+                _simple_row(
+                    f"{prefix}.samples",
+                    "cost",
+                    f"{workload.workload_id} samples",
+                    f"{workload.evaluated_n}/{workload.planned_n}",
+                    evidence_ref=ref,
+                ),
+                _simple_row(
+                    f"{prefix}.tokens.input",
+                    "cost",
+                    f"{workload.workload_id} input tokens",
+                    workload.tokens.input_tokens,
+                    evidence_ref=ref,
+                ),
+                _simple_row(
+                    f"{prefix}.tokens.output",
+                    "cost",
+                    f"{workload.workload_id} output tokens",
+                    workload.tokens.output_tokens,
+                    evidence_ref=ref,
+                ),
+                _simple_row(
+                    f"{prefix}.tokens.cache_read",
+                    "cost",
+                    f"{workload.workload_id} cache-read tokens",
+                    workload.tokens.cache_read_tokens,
+                    evidence_ref=ref,
+                ),
+                _simple_row(
+                    f"{prefix}.tokens.cache_write",
+                    "cost",
+                    f"{workload.workload_id} cache-write tokens",
+                    workload.tokens.cache_write_tokens,
+                    evidence_ref=ref,
+                ),
+                _simple_row(
+                    f"{prefix}.tokens.reported_total",
+                    "cost",
+                    f"{workload.workload_id} reported total tokens",
+                    workload.tokens.reported_total_tokens,
+                    evidence_ref=ref,
+                ),
+                _distribution_row(
+                    f"{prefix}.tokens_per_sample",
+                    "cost",
+                    workload.tokens_per_sample,
+                ),
+                _distribution_row(
+                    f"{prefix}.request_latency_ms",
+                    "cost",
+                    workload.request_latency_ms,
+                ),
+                _simple_row(
+                    f"{prefix}.requests.logical",
+                    "cost",
+                    f"{workload.workload_id} logical requests",
+                    workload.logical_requests,
+                    evidence_ref=ref,
+                ),
+                _simple_row(
+                    f"{prefix}.requests.recorded",
+                    "cost",
+                    f"{workload.workload_id} recorded requests",
+                    workload.recorded_requests,
+                    evidence_ref=ref,
+                ),
+                _simple_row(
+                    f"{prefix}.requests.cache_reuses",
+                    "cost",
+                    f"{workload.workload_id} session cache reuses",
+                    workload.session_cache_reuses,
+                    evidence_ref=ref,
+                ),
+                _simple_row(
+                    f"{prefix}.transport.known_attempts",
+                    "cost",
+                    f"{workload.workload_id} known transport attempts",
+                    workload.known_transport_attempts,
+                    evidence_ref=ref,
+                ),
+                _simple_row(
+                    f"{prefix}.transport.known_retries",
+                    "cost",
+                    f"{workload.workload_id} known transport retries",
+                    workload.known_transport_retries,
+                    evidence_ref=ref,
+                ),
+                _simple_row(
+                    f"{prefix}.transport.unknown_records",
+                    "cost",
+                    f"{workload.workload_id} records with unknown attempts",
+                    workload.unknown_transport_attempt_records,
+                    evidence_ref=ref,
+                ),
+                _simple_row(
+                    f"{prefix}.monetary_status",
+                    "cost",
+                    f"{workload.workload_id} monetary cost",
+                    "unavailable",
+                    status=workload.monetary_status,
+                    evidence_ref=ref,
+                ),
+            )
+        )
+
+    runtime = report.cost_latency.deterministic
+    rows.extend(
+        (
+            _simple_row(
+                "runtime.workload",
+                "runtime",
+                "Workload",
+                runtime.workload_id,
+                evidence_ref=runtime.evidence_ref,
+            ),
+            _simple_row(
+                "runtime.setup_ms",
+                "runtime",
+                "Compile setup",
+                f"{_number(runtime.setup_ms)} milliseconds",
+                evidence_ref=runtime.evidence_ref,
+            ),
+            _distribution_row(
+                "runtime.per_sample_ms",
+                "runtime",
+                runtime.per_sample_ms,
+            ),
+            _simple_row(
+                "runtime.environment_sha256",
+                "runtime",
+                "Environment SHA-256",
+                runtime.environment_sha256,
+                evidence_ref=runtime.evidence_ref,
+            ),
+        )
+    )
+    rows.extend(
+        _simple_row(
+            f"version.{item.component}",
+            "versions",
+            item.component,
+            item.version,
+            evidence_ref=None,
+        )
+        for item in report.versions
+    )
+    rows.extend(
+        _simple_row(
+            f"evidence.{item.evidence_id}",
+            "evidence",
+            item.evidence_id,
+            (
+                f"{item.path} sha256={item.sha256}"
+                if item.available
+                else f"{item.path} unavailable"
+            ),
+            status="available" if item.available else "pending",
+            evidence_ref=item.evidence_id,
+        )
+        for item in report.evidence
+    )
+    result = tuple(rows)
+    ids = tuple(item.row_id for item in result)
+    if len(ids) != len(set(ids)):
+        raise ValueError("report projection contains duplicate row IDs")
+    return result
+
+
+def format_text(report: BenchReport) -> str:
+    rows = report_projection(report)
+    lines = ["GameForge-Bench Report v2"]
+    active_section: str | None = None
+    for row in rows:
+        if row.section != active_section:
+            active_section = row.section
+            lines.extend(("", f"[{SECTION_TITLES[row.section]}]"))
+        details = [row.value]
+        if row.denominator:
+            details.append(row.denominator)
+        if row.interval:
+            details.append(row.interval)
+        if row.evidence_ref:
+            details.append(f"evidence={row.evidence_ref}")
+        lines.append(
+            f"{row.row_id} | {row.label} | {row.status} | " + " | ".join(details)
+        )
+    return "\n".join(lines)
+
+
+def write_report_bundle(
+    report: BenchReport,
+    output_dir: str | Path,
+) -> tuple[Path, Path, Path]:
+    from gameforge.bench.panel import render_html
+
+    destination = Path(output_dir)
+    destination.mkdir(parents=True, exist_ok=True)
+    json_path = destination / "bench-report.json"
+    text_path = destination / "bench-report.txt"
+    html_path = destination / "bench-report.html"
+    write_bench_report(json_path, report)
+    text_path.write_text(format_text(report) + "\n", encoding="utf-8")
+    html_path.write_text(render_html(report), encoding="utf-8")
+    return json_path, text_path, html_path
+
+
 __all__ = [
     "ReportEvidenceBundle",
+    "SECTION_TITLES",
+    "ViewRow",
     "build_bench_report",
     "build_qa_section",
+    "format_text",
+    "report_projection",
+    "write_report_bundle",
 ]

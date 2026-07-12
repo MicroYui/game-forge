@@ -1,106 +1,81 @@
-"""Minimal static HTML view of a BenchReport (M3c / design §7).
+"""Self-contained static HTML renderer for the BenchReport v2 projection."""
 
-The Eval "panel" for M3c is deliberately minimal: a single self-contained HTML
-file (inline CSS, NO JavaScript, NO chart libraries) rendering the BenchReport's
-tables — per-class BDR with CIs (grouped by bucket, deterministic/simulation/
-llm-assisted kept visually separate), the two false-positive rates, the bounded
-agent metrics, the power table (under-powered classes flagged), and the external
-Flare cross-validation. The rich interactive React dashboard is deferred to M4
-(`前端全页面`); this proves the JSON contract renders and gives a shareable
-artifact now.
-"""
 from __future__ import annotations
 
 import html
 
-from gameforge.bench.report import BenchReport
+from gameforge.bench.report import SECTION_TITLES, report_projection
+from gameforge.bench.report_contracts import BenchReport
 
 _CSS = """
-body{font:14px/1.5 -apple-system,Segoe UI,Roboto,sans-serif;margin:2rem;color:#1a1a1a;background:#fafafa}
-h1{font-size:1.4rem} h2{font-size:1.05rem;margin-top:1.6rem;border-bottom:1px solid #ddd;padding-bottom:.3rem}
-table{border-collapse:collapse;margin:.4rem 0;width:100%;max-width:820px}
-th,td{text-align:left;padding:.3rem .6rem;border-bottom:1px solid #eee}
-th{background:#f0f0f0;font-weight:600}
-.num{text-align:right;font-variant-numeric:tabular-nums}
-.warn{color:#b00020;font-weight:600}
-.ok{color:#0a7d2c;font-weight:600}
-.muted{color:#777}
-.bucket-deterministic{border-left:3px solid #2b6cb0}
-.bucket-simulation{border-left:3px solid #6b46c1}
-.bucket-llm_assisted{border-left:3px solid #b7791f}
+:root{color-scheme:light;--ink:#17201d;--muted:#5d6863;--line:#d8dfdb;--paper:#fff;--wash:#f4f7f5;--accent:#147d6f;--warn:#a64b16}
+*{box-sizing:border-box;letter-spacing:0}
+body{margin:0;background:var(--wash);color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+main{max-width:1440px;margin:0 auto;padding:24px}
+h1{font-size:24px;line-height:1.2;margin:0 0 20px}
+h2{font-size:16px;line-height:1.3;margin:28px 0 8px}
+.table-wrap{overflow-x:auto;background:var(--paper);border:1px solid var(--line)}
+table{width:100%;min-width:980px;border-collapse:collapse;table-layout:fixed}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top;overflow-wrap:anywhere}
+th{background:#e9efec;color:#39433f;font-size:12px;font-weight:650}
+tr:last-child td{border-bottom:0}
+th:nth-child(1),td:nth-child(1){width:24%}th:nth-child(2),td:nth-child(2){width:18%}
+th:nth-child(3),td:nth-child(3){width:11%}th:nth-child(4),td:nth-child(4){width:20%}
+th:nth-child(5),td:nth-child(5){width:14%}th:nth-child(6),td:nth-child(6){width:13%}
+.row-id{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted)}
+.status{font-weight:650;color:var(--accent)}
+.status-pending,.status-failed,.status-underpowered,.status-unavailable{color:var(--warn)}
+.evidence{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted)}
+@media(max-width:720px){main{padding:16px}h1{font-size:21px}}
 """
 
 
-def _esc(x: object) -> str:
-    return html.escape(str(x))
-
-
-def _metric_rows(metrics) -> str:
-    out = []
-    for m in metrics:
-        label = m.defect_class or m.name
-        pending = " <span class='muted'>(pending)</span>" if m.n == 0 else ""
-        out.append(
-            f"<tr class='bucket-{_esc(m.bucket)}'><td>{_esc(label)}{pending}</td>"
-            f"<td class='num'>{m.rate:.1%}</td><td class='num'>{m.k}/{m.n}</td>"
-            f"<td class='num'>[{m.ci_low:.2f}, {m.ci_high:.2f}]</td>"
-            f"<td>{_esc(m.bucket)}</td></tr>"
-        )
-    return "".join(out)
+def _escape(value: object) -> str:
+    return html.escape(str(value), quote=True)
 
 
 def render_html(report: BenchReport) -> str:
-    r = report
-    parts: list[str] = [
-        "<!doctype html><html><head><meta charset='utf-8'>",
-        "<title>GameForge-Bench</title><style>", _CSS, "</style></head><body>",
-        "<h1>GameForge-Bench Report</h1>",
-        f"<p class='muted'>corpus_size={r.meta.corpus_size} &middot; seed={r.meta.seed} "
-        f"&middot; model={_esc(r.meta.model_snapshot)}</p>",
+    rows = report_projection(report)
+    parts = [
+        "<!doctype html>",
+        '<html lang="en"><head><meta charset="utf-8">',
+        '<meta name="viewport" content="width=device-width, initial-scale=1">',
+        "<title>GameForge-Bench Report v2</title>",
+        f"<style>{_CSS}</style></head><body><main>",
+        "<h1>GameForge-Bench Report v2</h1>",
     ]
-
-    for bucket, title in (("deterministic", "Deterministic BDR (Graph/ASP/SMT)"),
-                          ("simulation", "Simulation BDR (economy)"),
-                          ("llm_assisted", "LLM-assisted BDR (narrative — human-confirmed)")):
-        rows = [m for m in r.seeded if m.bucket == bucket]
-        if rows:
-            parts.append(f"<h2>{_esc(title)}</h2><table><tr><th>class</th><th>BDR</th>"
-                         f"<th>k/n</th><th>95% CI</th><th>bucket</th></tr>"
-                         f"{_metric_rows(rows)}</table>")
-
-    of, cf = r.oracle_fp, r.constraint_fp
-    fp_cls = "ok" if of.count == 0 else "warn"
-    parts.append(
-        "<h2>False positives</h2><table>"
-        f"<tr><td>oracle-FP (deterministic on clean, target 0)</td>"
-        f"<td class='num {fp_cls}'>{of.count}/{of.n} = {of.rate:.1%}</td>"
-        f"<td class='num'>[{of.ci_low:.2f}, {of.ci_high:.2f}]</td></tr>"
-        f"<tr><td>constraint-FP (cross-class on injected)</td>"
-        f"<td class='num'>{cf.count}/{cf.n} = {cf.rate:.1%}</td><td></td></tr></table>"
-    )
-
-    if r.agent:
-        parts.append("<h2>Agent metrics (bounded REPLAY subset)</h2><table>"
-                     "<tr><th>metric</th><th>rate</th><th>k/n</th><th>95% CI</th><th></th></tr>"
-                     f"{_metric_rows(r.agent)}</table>")
-
-    parts.append("<h2>Statistical power (target CI half-width &le; 0.05)</h2>"
-                 "<table><tr><th>class</th><th>n</th><th>achieved half-width</th><th>met?</th></tr>")
-    for pr in r.power:
-        cls = "ok" if pr.target_met else "warn"
-        flag = "yes" if pr.target_met else "UNDER-POWERED"
-        parts.append(f"<tr><td>{_esc(pr.defect_class.value)}</td><td class='num'>{pr.n}</td>"
-                     f"<td class='num'>{pr.achieved_half_width:.3f}</td>"
-                     f"<td class='{cls}'>{flag}</td></tr>")
-    parts.append("</table>")
-
-    if r.external is not None:
-        e = r.external
-        parts.append(f"<h2>External validity ({_esc(e.source)})</h2>"
-                     f"<p>real entities imported: {e.n_real_entities}<br>"
-                     f"deterministic findings on real clean content: "
-                     f"{e.clean_deterministic_findings} {_esc(dict(e.clean_findings_by_class))}</p>"
-                     f"<p class='muted'>{_esc(e.note)}</p>")
-
-    parts.append("</body></html>")
+    active_section: str | None = None
+    for row in rows:
+        if row.section != active_section:
+            if active_section is not None:
+                parts.append("</tbody></table></div>")
+            active_section = row.section
+            parts.extend(
+                (
+                    f"<h2>{_escape(SECTION_TITLES[row.section])}</h2>",
+                    '<div class="table-wrap"><table><thead><tr>',
+                    "<th>Row</th><th>Metric</th><th>Status</th><th>Value</th>",
+                    "<th>Denominator / interval</th><th>Evidence</th>",
+                    "</tr></thead><tbody>",
+                )
+            )
+        status_class = f"status status-{_escape(row.status)}"
+        context = "<br>".join(
+            item for item in (_escape(row.denominator), _escape(row.interval)) if item
+        )
+        parts.append(
+            f'<tr data-row-id="{_escape(row.row_id)}">'
+            f'<td class="row-id">{_escape(row.row_id)}</td>'
+            f"<td>{_escape(row.label)}</td>"
+            f'<td class="{status_class}">{_escape(row.status)}</td>'
+            f"<td>{_escape(row.value)}</td>"
+            f"<td>{context}</td>"
+            f'<td class="evidence">{_escape(row.evidence_ref or "")}</td></tr>'
+        )
+    if active_section is not None:
+        parts.append("</tbody></table></div>")
+    parts.append("</main></body></html>\n")
     return "".join(parts)
+
+
+__all__ = ["render_html"]
