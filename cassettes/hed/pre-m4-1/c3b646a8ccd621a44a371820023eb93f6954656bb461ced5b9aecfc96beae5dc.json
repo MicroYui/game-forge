@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c3b646a8ccd621a44a371820023eb93f6954656bb461ced5b9aecfc96beae5dc",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3861,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 8130,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 191,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 5655750000
+      },
+      "created_at": 1783869600,
+      "id": "YESz5WKqvYNkdpFsaXRBc3hL3/O+VAxakYe0IJdOS6JbsLE7+lL1iylE/6vaeZEiGynm/lw1ODjITyY4IKDI6ZY+DMYihXF0/s70lK0SYTe9cD7c4P/l87Mrkh5kx78yXGaJJxyN3UqX/ndB3npO5gigIX5xF4SNR7fFQTJrn+wpWmKgceRO3H9fPoYZFbWZAMWiMu+II9IZwsb2kft79im4R5BdYy3DRSRmZvp96fq2/f2YprmCUufM/0BGIIp5mx+poAdc2H1x+f+89CgTQzDOH+fd/e07c/fBbrbm3Y9ZIaqUTUYeB6AEoHC21jmLvu6SEr7btFGGgyvU9sb4pVv0cHLNF1SyINleB73/Y4bzv5ONo2kV+2imGM7tVv5ug6L8C9RZbWfc9nPWUcTLgUejhX8UmQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "eNuE7hCgMWMFdc1N2INxK51ehh25bn5xUphzbfJR8tiDYqJXNoj01y0EzlBnk2RzFhHWAs1D+RQQGMd5xZT6GfKuauJ4n5lGRjCUZL7mnFtvCOL9rpT6/k2mqXvfyrh05uGIyoEi1KsrMqdzwciCUfVYBladAseSzAtBb+HvwPDiPZeZ39RwkPVF6ISJY/R15p7IhBZENU+SlqOXGp6BlinIJi7V1J1NWn7c3Kskc3+binNx8w4t1o5sxHiFjagneJvWF1n4GlJt5/akCoM+7IshsKQ/g67PTO3Xq9lOMKQM+qlWzqAJfSqgpswqZFM3ym0dIZ5e4aiE0e9xqxInqu97zq/s/EOS+GpdZMSj5/5kR55yoqE7GqENU5pwqq4wj/7FWhmRjHvTj61CrL2m3RD94es=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"op\":\"add_relation\",\"target\":\"rel_fix_valhalla_access_1\",\"old_value\":null,\"new_value\":{\"type\":\"REQUIRES\",\"src_id\":\"quest-step:endless-sky:5c07d943dd0281af4c2d987034ea9d120007e935b9db995a70a07c3835245c79\",\"dst_id\":\"unlock-condition:endless-sky:landing-access:Valhalla\"}}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "SEpl9rmjO3Up2DpsVsnjvlAHg7oFdaaOLtjD5z4qbDnmj76xIulgdCeij4a5K4yIX3ACx55GzSEcnlDazkvD38RRVXLbqHDSBILucfDSDDMGseQnkq1PZ2chxGHJHl/Pkqn/Rw2byB6ndDIdAFRnPrDNgTDHcXRmOn0HVYY2fCtmOiyEep3owaSVOZnVtwY41ugonaJSP8dO17WeE18Z0PHWEgD7UdUErpEPfrBsUztkYKW24df06GJf1N3aQph/WJ+aZ9W3oAVveMZKX8knhzCYczMGNZ+H0Xhzmr9c7hivozZ6LhmJGJJ/x6ASxMDx5P564x1rsph2JEIdQBS8JkPuYI0aWYgdGLYEs5YsHaoImI92frFrwF/quZAzcLCKlvSOW8azXu8KlnYqLs7dvBwRXxIw",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 8133,
+        "input_tokens_details": {
+          "cache_write_tokens": 8130,
+          "cached_tokens": 0
+        },
+        "output_tokens": 191,
+        "output_tokens_details": {
+          "reasoning_tokens": 88
+        },
+        "total_tokens": 8324
+      }
+    },
+    "response_normalized": "[{\"op\":\"add_relation\",\"target\":\"rel_fix_valhalla_access_1\",\"old_value\":null,\"new_value\":{\"type\":\"REQUIRES\",\"src_id\":\"quest-step:endless-sky:5c07d943dd0281af4c2d987034ea9d120007e935b9db995a70a07c3835245c79\",\"dst_id\":\"unlock-condition:endless-sky:landing-access:Valhalla\"}}]",
+    "token_usage": {
+      "input_tokens": 8133,
+      "output_tokens": 191,
+      "total_tokens": 8324
+    },
+    "tool_calls": []
+  }
+}

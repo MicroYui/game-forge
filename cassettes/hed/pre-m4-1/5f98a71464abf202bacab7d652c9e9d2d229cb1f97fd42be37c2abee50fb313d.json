@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:5f98a71464abf202bacab7d652c9e9d2d229cb1f97fd42be37c2abee50fb313d",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 6671,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 6278,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 365,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 5020250000
+      },
+      "created_at": 1783869600,
+      "id": "l6EEllCbV87I/eBepAbl0+2VDsdowYRXkWx0nw6D5wkkxksN0dYOx9AisZgeZX4+IqxWlNGFzAzgAK4OTMVuegwXWYlaJi7Vxbsv14aqjXNg2FVO7Al/rTIFNAjuyT2+T6WrS+lno+toCB/Phl9JS2aq45vyX3TKj1wZrmq+QXFo1St9sVHNL2gVR2Uyp8Xd0bj59ixQESgh6OaT1u+YCsovhxAU/wsxm9eFx7cwx1BkJQBd8XPPHaf3OhxPvEKdQIIANwE2GSHaqfHPanCju5O5F29oECxvRn1Xt9sB006WzaT67JX1/I1BQw88j4o2ZtXvV9zCSX02uXzw+vR6jdHYAZvEKZFQWwzm4u4kLorjL8hgcN0h19zme+SciAf0pYzENISEdJa3drnlNf5+VnqKVGup8g==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "llptl6VWO/KDx3rinRJlBbIvFK5LwnKiJa2Rehg6UBXR8vQBAsioIckFyRPjonaGHDwgUt6blC1I9mfhZ8r+4aw/SZvKL9XlHPHkVZNlXqIGzFEkEiKuXHqH9sMQTtnVMbmh8zIshxE9ztnLgG2ZPF5XwFGrZZAlIpk+KfNXOwmJpGeUJ4vWwF/PqEA8Hc03RlDoKfeMsKAfNHpS8QpNL3WcrCthsytot4j6ILKd4Eo/mkZ7oFFpKsTf/BNEoJ0qbmhWGk3MrMP2DjXhAQI89AwLMlC6482L2O7dP/gjAU1vjemCzznuPojHVqirhs2Cyx6Q1fX+cuelFXQwvXdUhnabZsi+klwyJ5TRrLRQ+WgfGEJt42UzKCfdrbg69oVQsW7s6XWinD/PHzmJrIRWnwahtE4=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"op\":\"add_entity\",\"target\":\"npc:endless-sky:Amy\",\"old_value\":null,\"new_value\":{\"type\":\"NPC\",\"attrs\":{\"name\":\"Amy\"}}},{\"op\":\"add_relation\",\"target\":\"rel_fix_terraforming_7_giver\",\"old_value\":null,\"new_value\":{\"type\":\"STARTS_AT\",\"src_id\":\"quest:endless-sky:Terraforming 7\",\"dst_id\":\"npc:endless-sky:Amy\"}}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "T8xnjV4RgCjVqxroL29BBo77uaF9Enk7YJwllJinkxe499QW9NlNJhB/ujCEMP7THk5/khbFqLZSrm9crckrxpVL4yogQs/dih1vJEVdE5k7zlnsmBXxmbht9BPGBdFX0oQ5QEy/6djHRaY0TLXTG7GMm3VTIBIf6GZwWxkLxl2f/ypsogoBj1EzFKIbkb1wl4MLcx1pdY+2dZ8OleAJftGHBrEkeeMP5jW1FSBIidSNiVSZV75RyotlUdQtZ7UCOLNix1K+4M76an5Zjxy2O1FTY5AWFKOGFwR6N5v7GY0pPPDaRG2vsZIpo3Liuda13FMttygTtMAbqpO1ikuJlVO1SIfa9Wkeztm4NioylHHChC9KfJNsJn8K2FL0qK7UgaXZlq1Pmd6Ym8CWwu+kFJ6JbEx4",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 6281,
+        "input_tokens_details": {
+          "cache_write_tokens": 6278,
+          "cached_tokens": 0
+        },
+        "output_tokens": 365,
+        "output_tokens_details": {
+          "reasoning_tokens": 266
+        },
+        "total_tokens": 6646
+      }
+    },
+    "response_normalized": "[{\"op\":\"add_entity\",\"target\":\"npc:endless-sky:Amy\",\"old_value\":null,\"new_value\":{\"type\":\"NPC\",\"attrs\":{\"name\":\"Amy\"}}},{\"op\":\"add_relation\",\"target\":\"rel_fix_terraforming_7_giver\",\"old_value\":null,\"new_value\":{\"type\":\"STARTS_AT\",\"src_id\":\"quest:endless-sky:Terraforming 7\",\"dst_id\":\"npc:endless-sky:Amy\"}}]",
+    "token_usage": {
+      "input_tokens": 6281,
+      "output_tokens": 365,
+      "total_tokens": 6646
+    },
+    "tool_calls": []
+  }
+}

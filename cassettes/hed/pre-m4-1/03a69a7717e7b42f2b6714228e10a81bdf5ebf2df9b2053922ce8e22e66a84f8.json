@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:03a69a7717e7b42f2b6714228e10a81bdf5ebf2df9b2053922ce8e22e66a84f8",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 10129,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 8255,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 459,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 6537875000
+      },
+      "created_at": 1783869600,
+      "id": "phAce5l8MMrEEd4Negpt6GvLZmFaMu5RBphoY4tHxMRvOAen672txternKCMhaPyDNFbOKuts6FSzpHKHnxCnGsI3gvw/hbMWvCAtx57tYBJEBpjlLCBULY3MuZ+2Sv11IpID7YDNnQr5Ox4vl3mRdagj/6a2lB3D9iel89tYWwHU23cSbOBwBkpuiqZYYRkFAesuavAsR7BrajhgJ6UmGkK2ueyBqYRIHS2RW6roaa2rCd+zblCNk61BEZlGupVSq4FsE57FxXHpnMfPQRuAoy9nJ/cnp2BI16VJ6/zrhrSW84RsCjvGNTwD4dmuBmkhjgeeceIbgWiSBLPyQCVZiWqyO0VhfM5gNdOWexA6lqbpD7hs2L0FriVb2dLKir2Rb+08IC1k6zDV0b58w+QhjpUZ9rtJg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "6V+JU/14liKASUPeQD6KUcu+VKlYZ6Jnl/NcdravxCSSglsPM7KvwsfTmiblnIlebTpzedvW0hMMuvYpcY87NBzhzeNf6vgM04S3PRQD3liwpPymH3pq5ohQszud4aokulrPhiuN/UaqmzhveK5ixXI545WgRZJhRlNiKkgnEHe0L8pxwckWzsMo5LJutuKFdBYGtvEakv6L70DuAhoNZMbOEGeq4mhC4wGDcTzOO4KcxwCuNDkiAuAM6Nm/RmsIneoUe822qlm2OkiAzsow66JbGYgXr0v85DM2xzq54JKKh3yKmHc8twdKoKOQ/mOSPF1aNWJC2zolZnGje1Ev3ES/5gAbMqt9xmuQ6cEi1xN0XBlyYovGgatuyN2R1x1giHphcLZ+kZMJkFvO/dFUsCZpGvI=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"op\":\"add_entity\",\"target\":\"npc:endless-sky:FWC-Pug-1-giver\",\"old_value\":null,\"new_value\":{\"type\":\"NPC\",\"attrs\":{\"name\":\"Free Worlds mission officer\"}}},{\"op\":\"add_relation\",\"target\":\"rel_fix_fwc_pug_1_starts_at\",\"old_value\":null,\"new_value\":{\"type\":\"STARTS_AT\",\"src_id\":\"quest:endless-sky:FWC Pug 1\",\"dst_id\":\"npc:endless-sky:FWC-Pug-1-giver\"}}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "BC0KmrtGFjG+U+wbM7ZVLdl0DOR4qSxgwpdiYa1dyhMLdJ4LBKG9FTzLNVAKusZ5RyXq1GjOoKA9AOUn/jSRF0UzpFkZ166S3Xd1i21MUx6bo5O2OBLVl3TcOIuw1EicgSnOwvmLFFjrvL5SCjbeAJaETYZCakIStbtp5wvrHEKHNvF0fQi6rE9WYCaymqhD/Q3BaQTMUgwuLT5sKODwOxIzXvgCaG065w34VxsFY/FKa7+Zmy/zgo4NIkEn9y4GWj8ozadz295XWvz1BKfpXrmXliP6X4oHiIGL53EBSigvawzrOHZlGgMjMzAFEsZsZBS3tryCYZCm4+ms7DAKpVgoub/zVBaFEmdvYm9rCM0com1WAGjjtDdddNwmWoi4zvtn3lJoL0/PxI7nELkC2IHJLmVz",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 8258,
+        "input_tokens_details": {
+          "cache_write_tokens": 8255,
+          "cached_tokens": 0
+        },
+        "output_tokens": 459,
+        "output_tokens_details": {
+          "reasoning_tokens": 339
+        },
+        "total_tokens": 8717
+      }
+    },
+    "response_normalized": "[{\"op\":\"add_entity\",\"target\":\"npc:endless-sky:FWC-Pug-1-giver\",\"old_value\":null,\"new_value\":{\"type\":\"NPC\",\"attrs\":{\"name\":\"Free Worlds mission officer\"}}},{\"op\":\"add_relation\",\"target\":\"rel_fix_fwc_pug_1_starts_at\",\"old_value\":null,\"new_value\":{\"type\":\"STARTS_AT\",\"src_id\":\"quest:endless-sky:FWC Pug 1\",\"dst_id\":\"npc:endless-sky:FWC-Pug-1-giver\"}}]",
+    "token_usage": {
+      "input_tokens": 8258,
+      "output_tokens": 459,
+      "total_tokens": 8717
+    },
+    "tool_calls": []
+  }
+}

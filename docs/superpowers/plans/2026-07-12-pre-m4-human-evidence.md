@@ -267,7 +267,7 @@ is excluded from the metric.
 - Consumes: external manifest hash, current Repair prompt bundle, `DEFAULT_SNAPSHOT`, and Task 2 delta/stat types.
 - Produces: `HedProtocol`, `HedCaseOutcome`, `HedMetric`, `HedEvidenceManifest`, canonical load/write/seal/validate helpers.
 
-- [ ] **Step 1: Write failing strict-contract tests**
+- [x] **Step 1: Write failing strict-contract tests**
 
 ```python
 def test_protocol_binds_gpt56_prompts_external_denominator_and_metric_rules():
@@ -311,13 +311,13 @@ def test_protocol_failure_cannot_carry_a_fake_distance_or_agent_target():
 
 Also reject extra fields, duplicate/unsorted case IDs and deltas, invalid hashes, missing upstream target, usable Patch without passed verification, unusable without a retained Patch when one was proposed, mismatched `planned_n/evaluated_n`, and any metric not rederived from outcomes.
 
-- [ ] **Step 2: Run tests and verify RED**
+- [x] **Step 2: Run tests and verify RED**
 
 Run: `uv run pytest tests/bench/hed/test_contracts.py tests/bench/hed/test_protocol.py -q`
 
 Expected: imports fail for the HED contracts and protocol.
 
-- [ ] **Step 3: Implement the frozen protocol**
+- [x] **Step 3: Implement the frozen protocol**
 
 ```python
 class HedProtocol(_StrictModel):
@@ -340,7 +340,7 @@ class HedProtocol(_StrictModel):
 
 The prompt bundle contains `repair.system` and `repair.refine`, sorted by name, exact version, and exact text. `assert_protocol_ready()` rechecks prompt bytes, model snapshot, external manifest canonical bytes/hash, eight exact case IDs, and every frozen constant before any RECORD call.
 
-- [ ] **Step 4: Implement denominator-safe evidence contracts**
+- [x] **Step 4: Implement denominator-safe evidence contracts**
 
 Use these outcome states and invariants:
 
@@ -373,7 +373,7 @@ class HedCaseOutcome(_StrictModel):
 
 `HedMetric` contains `planned_n=8`, `evaluated_n`, mean, median, primary estimate (mean normalized distance), bootstrap mean CI, raw mean/median, and counts for unchanged/edited/unusable/protocol failure. `HedEvidenceManifest` binds protocol, external manifest, GPT-5.6 snapshot, all eight outcomes, metric, and `evidence_sha256`.
 
-- [ ] **Step 5: Run tests and commit**
+- [x] **Step 5: Run tests and commit**
 
 ```bash
 uv run pytest tests/bench/hed/test_contracts.py tests/bench/hed/test_protocol.py -q
@@ -398,7 +398,7 @@ git commit -m "feat(bench): freeze human edit distance protocol"
 - Consumes: source-neutral `HedCaseInput`, HED protocol/contracts, `repair_search()`, `GraphChecker`, `ASPChecker`, `ModelRouter`, and `CassetteStore`. The separate `endless_sky_hed.py` composition module converts `EndlessSkyCaseRuntime` values to `HedCaseInput` and owns CLI wiring.
 - Produces: generic `run_hed_cases()`, `build_hed_evidence()`, `record_router()`, `replay_router()`, source-specific CLI seal/record/replay/validate actions, and a complete request-hash trace.
 
-- [ ] **Step 1: Write failing harness tests with fake routers**
+- [x] **Step 1: Write failing harness tests with fake routers**
 
 ```python
 def test_verified_patch_becomes_a_measured_agent_target(fake_case, passing_router):
@@ -427,13 +427,13 @@ def test_cassette_miss_remains_in_the_eight_case_denominator(fake_case, miss_rou
 
 Also test multiple refinement request hashes are preserved in call order, a malformed Patch never becomes a target, stable case ordering, all eight outcomes required, replay makes no transport call, RECORD requires both environment gate and key, and canonical evidence bytes are identical across two processes.
 
-- [ ] **Step 2: Run tests and verify RED**
+- [x] **Step 2: Run tests and verify RED**
 
 Run: `uv run pytest tests/bench/hed/test_harness.py tests/bench/external_cases/test_endless_sky_hed.py tests/architecture/test_human_evidence_boundaries.py -q`
 
 Expected: imports fail for the harness and boundary test.
 
-- [ ] **Step 3: Implement a request-tracking router facade**
+- [x] **Step 3: Implement a request-tracking router facade**
 
 ```python
 class TrackingRouter:
@@ -453,7 +453,7 @@ class TrackingRouter:
 
 Do not change `PatchDraft` or the historical Repair Agent API merely to expose benchmark tracing.
 
-- [ ] **Step 4: Implement deterministic case execution**
+- [x] **Step 4: Implement deterministic case execution**
 
 The generic harness consumes this immutable input, with no source profile import:
 
@@ -477,7 +477,7 @@ For each input in sorted case-ID order:
 6. Map failed search to `agent_unusable`, retaining the final Patch and hashes but scoring an empty Agent delta.
 7. Map cassette/infrastructure/hash errors to `protocol_failure` with null distance; never collapse those into Agent quality.
 
-- [ ] **Step 5: Implement generic RECORD/REPLAY plus the source composition CLI**
+- [x] **Step 5: Implement generic RECORD/REPLAY plus the source composition CLI**
 
 ```text
 python -m gameforge.bench.external_cases.endless_sky_hed --seal-protocol
@@ -488,7 +488,7 @@ python -m gameforge.bench.external_cases.endless_sky_hed --validate-evidence <pa
 
 Use `cassettes/hed/pre-m4-1`, `OpenAIResponsesTransport`, `resume=True`, eight retries, three-second exponential backoff, and `DEFAULT_SNAPSHOT`. The no-live transport must raise if REPLAY ever attempts network access.
 
-- [ ] **Step 6: Add architecture guards**
+- [x] **Step 6: Add architecture guards**
 
 AST/text tests enforce:
 
@@ -500,7 +500,7 @@ gameforge/spine/** imports no gameforge.agents or gameforge.bench
 only gameforge/bench/external_cases/endless_sky_hed.py imports both the generic HED harness and Endless Sky runtime
 ```
 
-- [ ] **Step 7: Run tests and commit**
+- [x] **Step 7: Run tests and commit**
 
 ```bash
 uv run pytest tests/bench/hed/test_harness.py tests/bench/external_cases/test_endless_sky_hed.py tests/architecture/test_human_evidence_boundaries.py -q
@@ -525,7 +525,7 @@ git commit -m "feat(bench): add replayable edit distance harness"
 - Consumes: Tasks 1-4, all eight frozen cases, the current frozen Repair prompts, and the local GPT-5.6 gateway.
 - Produces: immutable GPT-5.6 HED cassettes and canonical eight-case evidence.
 
-- [ ] **Step 1: Add acceptance tests before live recording**
+- [x] **Step 1: Add acceptance tests before live recording**
 
 ```python
 def test_measured_hed_evidence_is_complete_and_rederivable():
@@ -547,25 +547,25 @@ def test_measured_hed_evidence_is_complete_and_rederivable():
 
 Also rehash every referenced external case, Patch, outcome, cassette record, and manifest; assert every request hash resolves under `cassettes/hed/pre-m4-1`; assert no HED cassette uses Opus; and assert `git diff --exit-code -- cassettes ':!cassettes/hed'`.
 
-- [ ] **Step 2: Run acceptance and verify RED**
+- [x] **Step 2: Run acceptance and verify RED**
 
 Run: `uv run pytest tests/bench/hed/test_measured_evidence.py -q`
 
 Expected: fail because the frozen protocol, cassettes, and evidence do not exist.
 
-- [ ] **Step 3: Seal the HED protocol before the first call**
+- [x] **Step 3: Seal the HED protocol before the first call**
 
 Run: `uv run python -m gameforge.bench.external_cases.endless_sky_hed --seal-protocol`
 
 Expected: writes canonical `hed-protocol.json`, validates the exact eight-case denominator and GPT-5.6 policy, and prints `protocol_sha256`.
 
-- [ ] **Step 4: Record all eight cases with resume**
+- [x] **Step 4: Record all eight cases with resume**
 
 Run: `GAMEFORGE_LLM_LIVE=1 uv run python -m gameforge.bench.external_cases.endless_sky_hed --record`
 
 Expected: records at most 32 Repair calls, never edits the frozen protocol, never drops an Agent-unusable result, and writes canonical evidence. Gateway interruption is handled by rerunning the identical command with cassette resume.
 
-- [ ] **Step 5: Perform two independent zero-network replays**
+- [x] **Step 5: Perform two independent zero-network replays**
 
 ```bash
 uv run python -m gameforge.bench.external_cases.endless_sky_hed --replay --output /tmp/hed-replay-a.json
@@ -576,7 +576,7 @@ cmp /tmp/hed-replay-a.json scenarios/external_cases/endless_sky/hed-evidence.jso
 
 Expected: both comparisons exit 0.
 
-- [ ] **Step 6: Run HED acceptance and commit immutable evidence**
+- [x] **Step 6: Run HED acceptance and commit immutable evidence**
 
 ```bash
 uv run pytest tests/bench/hed tests/architecture/test_human_evidence_boundaries.py -q
@@ -588,6 +588,19 @@ git commit -m "test(bench): measure human edit distance"
 ```
 
 Record the actual mean, median, CI, disposition counts, protocol SHA, evidence SHA, and cassette count in this plan after the commit. Do not tune or rerun based on the measured score.
+
+Task 5 result: all 8 cases were measured with 0 protocol failures. The Agent
+produced 6 independently verified edited targets and 2 retained unusable
+Patches (`unchanged=0`, `edited=6`, `unusable=2`). Normalized HED mean is
+`0.9067708333333333`, median `0.96875`, bootstrap95
+`[0.8177083333333334, 0.9796875]`; raw mean is `9.375`, median `4.0`.
+The frozen protocol SHA is
+`9d5e90669f19fd4899dd8e16758a9f32cc02d77a46b84dbe228dedcb2e2f035c`,
+evidence SHA is
+`15c6ae78b78fc098c5114e1916b24b9a524eaf5107dd5ad7e4e485c3e4287b62`,
+and 14 logical requests resolve to 10 unique GPT-5.6-sol cassette records.
+Two independent zero-network replays were byte-identical to the committed
+evidence. The result was not prompt-tuned or re-recorded based on score.
 
 ---
 

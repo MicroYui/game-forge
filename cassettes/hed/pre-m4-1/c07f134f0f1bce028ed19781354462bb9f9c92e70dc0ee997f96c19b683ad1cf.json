@@ -1,0 +1,130 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c07f134f0f1bce028ed19781354462bb9f9c92e70dc0ee997f96c19b683ad1cf",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 2708,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 6918,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 178,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 4859250000
+      },
+      "created_at": 1783869600,
+      "id": "I5kMma5TQ3cV8PYTPo1J/e6DKvtQ9SIPYZ1HPo4lveKtZ0mR6tHHw4TS9RlXUl8+JznoMOgo2loOJY2NzCVjIWhFD3fFNQqOtWWlQGi5mmdAqI7OR8i/lLMuzjx05XaQX1KUmt2ywIo+GQke+kzUUadLIZv8s6bVykzD6qpNX6bR5t6UYg35OHZ4ga4o/WCojo+Ry/HsbDUMJmYwHpxPeE4H3fQE+zRdZt3EJblyX7zytvyr55YQ3CSQRBlmW1BGAK1EOuFtHDUP7oDeUNLf8Vjok6mfgXvWWGOWwCH076Q/+6/edBybUX2PEXjQN2XiwC53HOl7uxOxsqJhwFJP/WSvSt0s/ddtpzNxhirbnWVoSxmywwiqBOPUMvrs5F0GBMGhwp6r1nTpgBIuo4ik+jCULJJ2rQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"op\":\"delete_relation\",\"target\":\"rel:endless-sky:c96c77e87edf0b4d8ca8750c5867db35e5e9b7278a268a1a80cf7433346699c8\",\"old_value\":{\"type\":\"REFERENCES\",\"src_id\":\"dialogue:endless-sky:option:2f42dfc2f74ee39d60a84972dd3f1dea065e41ff7d0bde0eaa578dddce10c414\",\"dst_id\":\"dialogue:endless-sky:unresolved-merge:ca5eb259a72097e948bd3eb523467d9c074b3b4e81bdd7bd1da4aa3c4a09cbaa\"},\"new_value\":null}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "LX8tv+ZGBXu/74LNu2DzzyjAt/QIAmoiQcL/6HLxS3qMukHXemQpOHPfxX6RrvtH/l4Z4M/7RKIFYamgeTBmPX/RqtR9DWRxUaiAfJEjIYTHEh/zC1j3+XQzX06uVwkxMe84akhccmLemBZSNybM7mTyEgushuSXPYyRAxuCHX5hIfImMN0ZsaBkCm2CLx3gAxIE7RSwJHzm5ZNerTumChhEk7AFu+O019VR4GRzarVTix1CaHDg+k99Df/RZwM5QZbGZBRdVgOUAZHgceTSPp/AFqWrPJtycvLq3cyA/LIlbLPRDr/XCl5D3lKTfef1yqsIsasNIHWPXdclmX+gl0bQK0iIrxYr2GdTKPY+O8vFs+OVsiRq1e6903jrOkMYOX9DIkiwwhiiFTiATnmixTHr25rg",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 6921,
+        "input_tokens_details": {
+          "cache_write_tokens": 6918,
+          "cached_tokens": 0
+        },
+        "output_tokens": 178,
+        "output_tokens_details": {
+          "reasoning_tokens": 0
+        },
+        "total_tokens": 7099
+      }
+    },
+    "response_normalized": "[{\"op\":\"delete_relation\",\"target\":\"rel:endless-sky:c96c77e87edf0b4d8ca8750c5867db35e5e9b7278a268a1a80cf7433346699c8\",\"old_value\":{\"type\":\"REFERENCES\",\"src_id\":\"dialogue:endless-sky:option:2f42dfc2f74ee39d60a84972dd3f1dea065e41ff7d0bde0eaa578dddce10c414\",\"dst_id\":\"dialogue:endless-sky:unresolved-merge:ca5eb259a72097e948bd3eb523467d9c074b3b4e81bdd7bd1da4aa3c4a09cbaa\"},\"new_value\":null}]",
+    "token_usage": {
+      "input_tokens": 6921,
+      "output_tokens": 178,
+      "total_tokens": 7099
+    },
+    "tool_calls": []
+  }
+}

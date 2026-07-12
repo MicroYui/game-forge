@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:2c38b695a092ee56b9c64069ba904453400d237770a449735b66a84e5ec82d59",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 3070,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 4749,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 183,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 3518625000
+      },
+      "created_at": 1783869600,
+      "id": "Z9ke0WToETBUiJtX8AqMgFDAhHUqbczuwKCxwPwK7z6LoDGfi0iV3lAUWjlAYFXS14yhVpEEYfAaHU3D0f+74NJsWEAGkba0wMl4FQM1te1BQObQVZ7qEbjNH+VYEROD/Q5AkKz8eno2FRVeVhjUkXv1tJWC4QkyV4gcW0mN4qjI2GGzGer9I0TY3txJ+CrUMZHAkxPd5MiZpt09eLMzGbdbz1qHRpA0eMAKj1Qxk2adSGdcHOwPeE940R/lW8UPR/sZ25zhBaTrbk/ZwgNXp7LBCoEYg/1ihJCXHiAQWW6NnzmcjMtBgGaydpHm6vJGViRSbRf5MYe77LzKOJ0rdyB+03mI7e5iOaFTd4pPYGK2VQJsz/ts5CV/SOEog1+TDu5RjdhU4jHmkOBDfMPWASmP7qenKw==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "xu5zCD5l/YrwZgdUylSyo69N/+uz6pgyf37NtiDaNjN0PLFyLvEocTb99aYPynEqCIQP+X+z+BFlYm22CORf2HWTSQkzXC9zNl8Az45uzaNaMjgAP3Z/GLOOzX9SG6Wg2JM5B8xGkwudx5nWIPEWAgdBtVomjCvGGbb8m6DXL5z2Zxw5B8SuYBj3gGTdrQGe1wxxBdClWyobvKTiMKlf2dUeU1zQ2JsjgZk8agXCcrUY7Wt38GQkb4qBi2orMPqmbLlJYUrW0KoVrwuaXGl/n0f+++Vn3F7ZfRK6kVzSsVo02Rs2jFyDwKRNZLqxAJ0UCNa6LWZAi/Zu8F4LJxW8oRTCDBkHhniJ0SYCe/LcORXxesGQ2QDykhq2L4zf+6lxcF3dcBZHtA29WvKtAVuDyvpAO1g=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"op\":\"delete_relation\",\"target\":\"rel:endless-sky:32795d7b9eeb38bf90c458619eaf58775e2a6d1260252eef17c193fab97bf047\",\"old_value\":{\"type\":\"REQUIRES\",\"src_id\":\"quest:endless-sky:Care Package to South 3a\",\"dst_id\":\"quest:endless-sky:Care Package to South 3a\"},\"new_value\":null}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "o2VBVpTO6fUAmK85kh+sCEnM7tfE1nQpfDBEyYTbKqNT3uNAVb7OpDAVK9ARVRE383mHsqFapu++yfJ+VmXrhY73tuivNjGkVI3XZkP0sDNuvveJM06n8TXLWMudPLAwwI77tLdw700POtXE0s1QQ+tU2Lp/FGza1cNUgvh3zPZyaGevzUhf4G+xdQf0SZDZYdirWNlAQAurXpIJs+S+6m5dIRnQ5uwwKT/JmflK5rXp3+QmsUhEA7DOYpRjLfCgqdRjghdOfFkm7fye2ZVdi9LfZIE6SYxEvm8lFNnOVvCactlC9MqeuaxqgSTQ8b7gSiifPlbno0gssc0UvInItcwx/3LPoPGqZIAaimWKuTwyf7QTYILDi8JDBSPTBZMN+R23qmEhdXrUBOvUY5bVSgTWR2XD",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 4752,
+        "input_tokens_details": {
+          "cache_write_tokens": 4749,
+          "cached_tokens": 0
+        },
+        "output_tokens": 183,
+        "output_tokens_details": {
+          "reasoning_tokens": 78
+        },
+        "total_tokens": 4935
+      }
+    },
+    "response_normalized": "[{\"op\":\"delete_relation\",\"target\":\"rel:endless-sky:32795d7b9eeb38bf90c458619eaf58775e2a6d1260252eef17c193fab97bf047\",\"old_value\":{\"type\":\"REQUIRES\",\"src_id\":\"quest:endless-sky:Care Package to South 3a\",\"dst_id\":\"quest:endless-sky:Care Package to South 3a\"},\"new_value\":null}]",
+    "token_usage": {
+      "input_tokens": 4752,
+      "output_tokens": 183,
+      "total_tokens": 4935
+    },
+    "tool_calls": []
+  }
+}

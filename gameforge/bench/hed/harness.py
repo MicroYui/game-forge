@@ -15,6 +15,7 @@ from gameforge.bench.hed.contracts import (
     AtomicDeltaModel,
     HedCaseOutcome,
     HedEvidenceManifest,
+    content_sha256,
     seal_evidence_manifest,
     seal_outcome,
     validate_evidence_manifest,
@@ -336,7 +337,9 @@ def validate_hed_evidence(
             raise ValueError(f"before snapshot mismatch for {case.case_id}")
         if outcome.human_target_snapshot_id != case.human_target_snapshot.snapshot_id:
             raise ValueError(f"human target snapshot mismatch for {case.case_id}")
-        if outcome.target_finding != case.target_finding:
+        if content_sha256(outcome.target_finding) != content_sha256(
+            case.target_finding
+        ):
             raise ValueError(f"target Finding mismatch for {case.case_id}")
         if outcome.human_delta != _delta_models(
             case.before_snapshot,

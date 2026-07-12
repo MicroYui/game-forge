@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:c8c3a4ebd7a677756f7b9bd6abcab15a345eaa4e5d4d8ba0c3f66cf6ed984840",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 5499,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 21914,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 189,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 14264750000
+      },
+      "created_at": 1783869600,
+      "id": "fvpjLNELsNEmvun9O2hkFDc3yhT4BT/P3gg/c25kpgKvyZfHZcba+E5s7+MSOG+pTAFtX1y2Ch2rbQ0tZbnWTv0zwsa2tsgavnwAVc73Syzi02V5jIms1R/t4qkOSe+iUpjLRR/2c7hTKat2s0/Xie56yrt7ha215Z8awe7OPIYN8Odd2rH15RwPsKd2AFSxyUybJqB+qDBgimWc/WKAEWDhz9Xae031NQ6SpW8HdiopOZZieW+vVP9AVg+ubDvdoFL15p5MF1W3JwlXsiVRav7BMXTWRdQF9KKJFtt0YtoElMzvImElcjeJuCdCdCsgNg6vzzU6JU24af/JZlOqmkwPn0k4ZDzbVmsfNYE/mmkcoRGjoQIQq8PY7BPQEhJmuvTTe/6G2lIYsEO74zczOQOw1cP0Tg==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "vvgiG6WQCxsA4Mq1KLy0LyjrcNnYlxD1eQxwdjbS8CTCrU0muumMSskxKJfR3a9iEvwBr5xGzYeCxotk/140Qk899AtSDEh2pZ13GlEWQHIKcc7eA0zkqgqoltxKiA4uaRp/lCpcIodzSP9uSOPVd89C8GwskV90HN4wLcqDluSL4T6riwnL10+ATibnXbcJbKcQQ+uFnV+WDdOM4fIy3uLMUpeJzXIV1J8xnCvSc2sRmZQiS1bOP32ShvpGXEeLVl2vkMgi463vYfqkl9IgmDLTxPx8L/8iRiT4u6UvyAHeXUu3Y/qNxir3mrXkdBczzkUwD0MvvjCOAwS//x7/7Pdrpp6FAbLuSNsXWQmgUwT2Dh+qKygDRuaEW9w+Cq8ZtUsPRsxDjBQHjuhzcYQfICT7aGk=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"op\":\"add_relation\",\"target\":\"rel_fix_hai_home_access\",\"old_value\":null,\"new_value\":{\"type\":\"REQUIRES\",\"src_id\":\"quest:endless-sky:Hai Reveal [A02] Symbol Identification\",\"dst_id\":\"unlock-condition:endless-sky:landing-access:Hai-home\"}}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9AY1DK2xYiPW49kM/XJdgkbvtmOQYRH4qq+l5LEXFyWSbU95iT2vgXMnzt6isqSy9/d1SlE56czOxMBbSeQ77fcSSHTaLcAeEKSOcWg5jTd6IzdLbw7Vpv5IuJZRB+H6wreHudvs+Xw4XDcViVWmBfAC27kvnZEr2Sfo3skZmgCr8KhHf3kvxyEbXX6xBLeqYVWFOGddbrNhf/rnhWvsVS6zWfXUJyrMZgoWfx/fC9nDGSTA1OZDHgY1kMxoI7VF7OLmv3ynv1A7T0UaB8Y04bFbQKSBpp+8OUmt+Md5zdhTHFCNaECZfrwLUc1xWVyiS26w0v9QrpFsfgtEd6MPR6oyI4pEUvhnjmXAyTxPNu2PT2z/a+G8Jc40P6llnaoTRRjEcGfBCd0EuQC/pfUB8bR6IcKH",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 21917,
+        "input_tokens_details": {
+          "cache_write_tokens": 21914,
+          "cached_tokens": 0
+        },
+        "output_tokens": 189,
+        "output_tokens_details": {
+          "reasoning_tokens": 118
+        },
+        "total_tokens": 22106
+      }
+    },
+    "response_normalized": "[{\"op\":\"add_relation\",\"target\":\"rel_fix_hai_home_access\",\"old_value\":null,\"new_value\":{\"type\":\"REQUIRES\",\"src_id\":\"quest:endless-sky:Hai Reveal [A02] Symbol Identification\",\"dst_id\":\"unlock-condition:endless-sky:landing-access:Hai-home\"}}]",
+    "token_usage": {
+      "input_tokens": 21917,
+      "output_tokens": 189,
+      "total_tokens": 22106
+    },
+    "tool_calls": []
+  }
+}

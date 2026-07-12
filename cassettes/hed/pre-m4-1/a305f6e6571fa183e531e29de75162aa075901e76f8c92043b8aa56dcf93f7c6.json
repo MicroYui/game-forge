@@ -1,0 +1,136 @@
+{
+  "agent_node_id": "repair",
+  "cassette_schema_version": "cassette@1",
+  "model_snapshot": {
+    "model": "gpt-5.6-sol",
+    "provider": "openai",
+    "snapshot_tag": "pre-m4@1"
+  },
+  "recorded_at": null,
+  "request_hash": "sha256:a305f6e6571fa183e531e29de75162aa075901e76f8c92043b8aa56dcf93f7c6",
+  "response": {
+    "finish_reason": "completed",
+    "latency_ms": 4577,
+    "raw_response": {
+      "copilot_usage": {
+        "token_details": [
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 500000000000,
+            "token_count": 3,
+            "token_type": "input"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 50000000000,
+            "token_count": 0,
+            "token_type": "cache_read"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 625000000000,
+            "token_count": 2573,
+            "token_type": "cache_write"
+          },
+          {
+            "batch_size": 1000000,
+            "cost_per_batch": 3000000000000,
+            "token_count": 253,
+            "token_type": "output"
+          }
+        ],
+        "total_nano_aiu": 2368625000
+      },
+      "created_at": 1783869600,
+      "id": "oiGmOzN4B5XMmxAq3YOf3bqBKMOaQ6fQpcxZcpbuIWtxvk6+OrSxLufdt4rQ9flTnGFlLYCqNIf6RK+RBkulsdHG0QkoCwOJ7bVEY/2LrRnUUsFxtp8qJl0XhC7ZADremwJYYSY6zXc3RXalxc9yVVd2M3sBPeRDpil9qeXWkxepC4GOlksJYco0IT/WKsjc6atW+3CGquTxPh2XK6D5D1OM9mYbQmlVfZzbu+bvcUDlZ0G2vfh3n5fZTDq8pQkIxirUkUQpvoxtaN9XWeOEANmpOHIolP+xtZRIreMPVQUcqBViwuwNBkyh+b4GlKeqJZbTd6Of7GZHAyij6spHckDmDk8BCmCS/Cbe2jc6+WXycxzXy+s6cY00W6Mm9c5ew1J41PvsfD+h848XljqZxDlQCsvKyQ==",
+      "incomplete_details": null,
+      "instructions": null,
+      "max_output_tokens": 2048,
+      "model": "gpt-5.6-sol",
+      "object": "response",
+      "output": [
+        {
+          "content": [],
+          "id": "mHRx/SqelcFRurEoJo36WzTlmalp6FVxgnMtVblezNSAj1+1lZ+mGX7S+UC/0/dTCvTxRXefOl1OTK/xTjKOpWTqawgqyEH7pD5J4p2LrzpQMz9xs/+ku/UR/Xfcpx26NZN/d7wPXABuN38CLyK20RvUbYySBfGVMD/o4DV+jds/Yw7B/hk+T23RALX9Twmb/S4tWnff566fFg32ssnIL6Cim7DyeUdQL1Kl1yyqjAquyUfe6HQBR7c3gEv1TaTzTiUEvuRbgy7kH6Gx2HX7K/vDUvqzehwBuvlmbFWc7d3AKf6c5CWveSZa7FiuOo82TkZYg+0C3p/YcB0E24NDa3J69Sz5uPJqejDsyxgt1gS/pU5hfNMl6k3jLribyzw1kCZmi6KLtx0JgFFHMnQ2cr/tr9M=",
+          "summary": [],
+          "type": "reasoning"
+        },
+        {
+          "content": [
+            {
+              "annotations": [],
+              "logprobs": [],
+              "text": "[{\"op\":\"delete_relation\",\"target\":\"rel:endless-sky:454149fd0e2e2caba86c56d0e21315e858b0e06f8ff18d5143c7f7b85b44db4c\",\"old_value\":{\"type\":\"REFERENCES\",\"src_id\":\"effect:endless-sky:star tail hit\",\"dst_id\":\"effect:endless-sky:resource:sound:star tail hit\"},\"new_value\":null}]",
+              "type": "output_text"
+            }
+          ],
+          "id": "9abAtu0SeUMUH5TS/hwULzO5xmjxWT78/Gu912SkB8pzRiaH0v/wxZXYaaYIWpgDuAeAMO/5s5xEb2VcbSHNSFnzqFVUixmUWDjGKp4xQcbsEdEUjtfcfBGJU2Fv/daJZ+q71mx9Zb3AZg0V1/v+zFaW0sYeyU36PvC3nnVR1VNoSdXFx1I5GAKv9y/301cR0FspbsS+OfctQGxTLff0aEXC2N/PHwTZBjbMuSHw1ccPozWNtbeCbbm81yUJlb1a4UbYJ8dmdJz42w5ONCKTQKF0th/okXxNoXypTXvfFnjtaDMPi5Z55NkD0eIvKQAsneNr0vyzgQRXfPs5CebCpHakt8ZI/dUsxVlESDK8J23iGqIEuoAbmFBqrj9z7v1UGu1fR2t/JgqDny09hU0nMnpo4C8w",
+          "phase": "final_answer",
+          "role": "assistant",
+          "status": "completed",
+          "type": "message"
+        }
+      ],
+      "output_text": null,
+      "parallel_tool_calls": true,
+      "previous_response_id": null,
+      "prompt_cache_retention": "24h",
+      "reasoning": {
+        "context": "all_turns",
+        "effort": "medium",
+        "summary": null
+      },
+      "safety_identifier": "058ed04eeaa071b29de6a2707a6adc131906a0561f6b57122659442754eac252",
+      "service_tier": "default",
+      "status": "completed",
+      "temperature": 1,
+      "text": {
+        "format": {
+          "type": "text"
+        },
+        "verbosity": "medium"
+      },
+      "tool_choice": "auto",
+      "tool_usage": {
+        "image_gen": {
+          "input_tokens": 0,
+          "input_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "output_tokens": 0,
+          "output_tokens_details": {
+            "image_tokens": 0,
+            "text_tokens": 0
+          },
+          "total_tokens": 0
+        },
+        "web_search": {
+          "num_requests": 0
+        }
+      },
+      "tools": [],
+      "top_p": 0.98,
+      "truncation": "disabled",
+      "usage": {
+        "input_tokens": 2576,
+        "input_tokens_details": {
+          "cache_write_tokens": 2573,
+          "cached_tokens": 0
+        },
+        "output_tokens": 253,
+        "output_tokens_details": {
+          "reasoning_tokens": 145
+        },
+        "total_tokens": 2829
+      }
+    },
+    "response_normalized": "[{\"op\":\"delete_relation\",\"target\":\"rel:endless-sky:454149fd0e2e2caba86c56d0e21315e858b0e06f8ff18d5143c7f7b85b44db4c\",\"old_value\":{\"type\":\"REFERENCES\",\"src_id\":\"effect:endless-sky:star tail hit\",\"dst_id\":\"effect:endless-sky:resource:sound:star tail hit\"},\"new_value\":null}]",
+    "token_usage": {
+      "input_tokens": 2576,
+      "output_tokens": 253,
+      "total_tokens": 2829
+    },
+    "tool_calls": []
+  }
+}
