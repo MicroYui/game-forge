@@ -18,7 +18,7 @@
 - `2026-07-10-m3a-bench-metrics.md` — M3a（taxonomy、seeded corpus、指标与 BenchReport 契约；已完成）
 - `2026-07-10-economy-sink-adapter.md` — pre-M4 economy sink 增量（已完成）
 - `2026-07-10-m3d-b0a-evidence-ledger.md` — M3d B0A（已完成执行，但投资 gate 为终态负结果：526 candidates、7/8 proposed groups、10 proposed cases、4/4 classes、0 qualified/accepted，`insufficient_evidence`）
-- `2026-07-11-pre-m4-external-evidence-b0a.md` — pre-M4 外部证据通用化 + Endless Sky B0A（🔄 进行中；generic harness 与 Flare 冻结兼容已完成；两轮代码审查共发现并修复 generic direct-match replay、递归外部 revert lineage，以及 selected revert 与等价 lineage 组件 disposition 冲突三个缺陷；上一版 Endless Sky 派生 ledger/review/CAS 已撤下，正从包含全部修复的新干净 registration anchor 重冻 first-80 discovery；尚未跨 gate 进入 Adapter/B0B）
+- `2026-07-11-pre-m4-external-evidence-b0a.md` — pre-M4 外部证据通用化 + Endless Sky B0A（🔄 进行中；generic harness 与 Flare 冻结兼容已完成；两轮代码审查共发现并修复 generic direct-match replay、递归外部 revert lineage，以及 selected revert 与等价 lineage 组件 disposition 冲突三个缺陷；已从 registration anchor `687f36fb6ab499d3667fe43429fec4a25132c97a` 重新冻结并在两个独立临时目录逐字节回放 first-80 discovery：610 matched / 562 config-only，universe `f22981b17b43e02caaa494193e6a4b8cd92bbc0c312f9d5f1db249da7365793f`；当前派生状态为 `awaiting_human_evidence`，没有最终 ledger/decision，未跨 gate 进入 Adapter/B0B）
 
 M3 umbrella 仍未完成。Flare B0B、Corpus Freeze 与 M3d-1..4 均未进入；不得继续写
 Flare reader/quest/loot-table 实现计划或进行第三轮搜索。Endless Sky 只有在重新冻结的完整
