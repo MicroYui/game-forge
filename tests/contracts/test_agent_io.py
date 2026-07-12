@@ -1,9 +1,15 @@
-from gameforge.contracts.agent_io import AgentNodeResult, PatchDraft, TriagedFindings
+from gameforge.contracts.agent_io import (
+    AgentNodeResult,
+    M2_AGENT_IO_SCHEMA_VERSION,
+    PatchDraft,
+    TriagedFindings,
+)
 
 
 def test_agent_node_result_tracks_llm_calls():
     r = AgentNodeResult(role="triage", model_run_id="run1", request_hashes=["sha256:a", "sha256:b"])
-    assert r.agent_io_schema_version == "agent-io@1"
+    assert r.agent_io_schema_version == "agent-io@2"
+    assert M2_AGENT_IO_SCHEMA_VERSION == "agent-io@1"
     assert r.request_hashes == ["sha256:a", "sha256:b"]
     assert r.fallback_taken is False
 

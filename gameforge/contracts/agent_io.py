@@ -5,16 +5,33 @@ defined here now, implemented in M2b.
 """
 from __future__ import annotations
 
-from typing import Any, Literal
+from typing import Annotated, Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    StringConstraints,
+    field_validator,
+    model_validator,
+)
 
 from gameforge.contracts.findings import Finding, Patch
-from gameforge.contracts.versions import AGENT_IO_SCHEMA_VERSION
+from gameforge.contracts.versions import (
+    AGENT_IO_SCHEMA_VERSION,
+    M2_AGENT_IO_SCHEMA_VERSION as M2_AGENT_IO_SCHEMA_VERSION,
+)
 
 AgentRole = Literal[
     "extraction", "triage", "repair", "consistency", "generation", "playtest"
 ]
+NarrativeDefectClass = Literal[
+    "character_violation",
+    "spoiler",
+    "faction_violation",
+    "uniqueness_violation",
+]
+NonEmptyText = Annotated[str, StringConstraints(strip_whitespace=True, min_length=1)]
 
 
 class AgentNodeResult(BaseModel):
@@ -73,15 +90,62 @@ class PatchDraft(BaseModel):
 
 
 # --- Consistency Assistant ---
+class NarrativeConstraintInput(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    constraint_id: NonEmptyText
+    entity_ids: list[NonEmptyText]
+    statement: NonEmptyText
+
+    @field_validator("entity_ids")
+    @classmethod
+    def validate_entity_ids(cls, value: list[str]) -> list[str]:
+        if not value:
+            raise ValueError("entity_ids must not be empty")
+        if len(value) != len(set(value)):
+            raise ValueError("entity_ids must not contain duplicates")
+        return value
+
+
 class DialogueNarrativeInput(BaseModel):
-    dialogue: str
-    narrative_constraint_ids: list[str] = Field(default_factory=list)
+    model_config = ConfigDict(extra="forbid")
+
+    dialogue: NonEmptyText
+    narrative_constraints: list[NarrativeConstraintInput] = Field(default_factory=list)
+    narrative_constraint_ids: list[NonEmptyText] = Field(default_factory=list)
+
+    @model_validator(mode="after")
+    def validate_constraint_channels(self) -> DialogueNarrativeInput:
+        structured_ids = [item.constraint_id for item in self.narrative_constraints]
+        if len(structured_ids) != len(set(structured_ids)):
+            raise ValueError("narrative_constraints contain duplicate constraint IDs")
+        if len(self.narrative_constraint_ids) != len(set(self.narrative_constraint_ids)):
+            raise ValueError("narrative_constraint_ids contain duplicate IDs")
+        if self.narrative_constraints and self.narrative_constraint_ids:
+            raise ValueError(
+                "narrative_constraints and narrative_constraint_ids cannot both be populated"
+            )
+        return self
 
 
 class ConsistencyHint(BaseModel):
-    span: str
-    issue: str
-    is_suggestion: bool = True  # llm-assisted; human-confirmed, never authoritative
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    defect_class: NarrativeDefectClass
+    entity_ids: list[NonEmptyText]
+    constraint_ids: list[NonEmptyText]
+    span: NonEmptyText
+    rationale: NonEmptyText
+    is_suggestion: Literal[True] = True
+
+    @field_validator("entity_ids", "constraint_ids")
+    @classmethod
+    def validate_grounding_ids(cls, value: list[str]) -> list[str]:
+        if not value:
+            raise ValueError("grounding ID lists must not be empty")
+        if len(value) != len(set(value)):
+            raise ValueError("grounding ID lists must not contain duplicates")
+        return value
 
 
 class ConsistencyHints(BaseModel):

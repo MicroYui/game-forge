@@ -43,7 +43,7 @@
 - Consumes: the existing `AgentNodeResult` and Pydantic v2 validation conventions.
 - Produces: `M2_AGENT_IO_SCHEMA_VERSION`, `NarrativeDefectClass`, `NarrativeConstraintInput`, the extended `DialogueNarrativeInput`, and the new `ConsistencyHint` shape.
 
-- [ ] **Step 1: Write failing contract tests for the complete hint and input shape**
+- [x] **Step 1: Write failing contract tests for the complete hint and input shape**
 
 ```python
 def test_current_consistency_hint_requires_grounded_structured_identity():
@@ -89,13 +89,13 @@ def test_dialogue_input_carries_statements_without_hidden_ground_truth():
 
 Also test that blank strings, duplicate IDs, an unsupported class, extra fields, and empty entity/constraint lists fail validation; ID order is preserved at the contract boundary and normalized only by the quorum layer.
 
-- [ ] **Step 2: Run the contract tests and verify RED**
+- [x] **Step 2: Run the contract tests and verify RED**
 
 Run: `uv run pytest tests/contracts/test_agent_io.py tests/contracts/test_consistency_hint_contract.py -q`
 
 Expected: failures because `NarrativeConstraintInput`, `M2_AGENT_IO_SCHEMA_VERSION`, and the new hint fields do not exist.
 
-- [ ] **Step 3: Implement the versioned models without deleting the legacy input field**
+- [x] **Step 3: Implement the versioned models without deleting the legacy input field**
 
 Use these exact public shapes:
 
@@ -137,13 +137,13 @@ class ConsistencyHint(BaseModel):
 
 Field validators require each ID list to be nonempty and duplicate-free. A model validator rejects a `DialogueNarrativeInput` whose structured constraint IDs collide or whose legacy `narrative_constraint_ids` contain duplicates. Do not infer or store any target/answer field on the Agent input.
 
-- [ ] **Step 4: Run the contract tests and verify GREEN**
+- [x] **Step 4: Run the contract tests and verify GREEN**
 
 Run: `uv run pytest tests/contracts/test_agent_io.py tests/contracts/test_consistency_hint_contract.py -q`
 
 Expected: all tests pass and `AgentNodeResult(...).agent_io_schema_version == "agent-io@2"`.
 
-- [ ] **Step 5: Commit the contract change**
+- [x] **Step 5: Commit the contract change**
 
 ```bash
 git add gameforge/contracts/versions.py gameforge/contracts/agent_io.py tests/contracts/test_agent_io.py tests/contracts/test_consistency_hint_contract.py
